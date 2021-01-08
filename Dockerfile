@@ -18,11 +18,12 @@ RUN apk add --no-cache --update bash wget && mkdir -p "$SBT_HOME" && \
 RUN apk add --no-cache git openssh
 
 # Install node.js
-RUN apk add nodejs
+RUN apk add nodejs=14.15.4-r0
 
-# Copy play project and compile it
+# Copy play project and compile it.
 # This will download all the ivy2 and sbt dependencies and install them
-# in the container /root directory
+# in the container /root directory, which saves time on future runs,
+# even if the dependencies change slightly.
 
 ENV PROJECT_HOME /usr/src
 ENV PROJECT_NAME universal-application-tool-0.0.1
