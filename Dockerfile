@@ -18,7 +18,7 @@ RUN apk add --no-cache --update bash wget && mkdir -p "$SBT_HOME" && \
 RUN apk add --no-cache git openssh
 
 # Install node.js
-RUN apk add nodejs=14.15.4-r0
+RUN apk add nodejs=8.14.0-r0
 
 # Copy play project and compile it.
 # This will download all the ivy2 and sbt dependencies and install them
