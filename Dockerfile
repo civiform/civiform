@@ -31,6 +31,9 @@ COPY ${PROJECT_NAME} ${PROJECT_HOME}/${PROJECT_NAME}
 RUN cd $PROJECT_HOME/$PROJECT_NAME && \
     sbt compile
 
+RUN cd $PROJECT_HOME/$PROJECT_NAME && \
+    sbt test
+
 CMD ["sbt"]
 
 EXPOSE 9000
