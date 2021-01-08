@@ -1,5 +1,4 @@
-# AlpineLinux with a glibc-2.23, Oracle Java 8, sbt and git
-FROM anapsix/alpine-java:8_jdk
+FROM adoptopenjdk/openjdk11:alpine-slim
 
 # sbt
 
@@ -8,6 +7,8 @@ ENV SBT_VERSION 0.13.15
 ENV INSTALL_DIR /usr/local
 ENV SBT_HOME /usr/local/sbt
 ENV PATH ${PATH}:${SBT_HOME}/bin
+
+RUN apk update
 
 # Install sbt
 RUN apk add --no-cache --update bash wget && mkdir -p "$SBT_HOME" && \
@@ -18,7 +19,7 @@ RUN apk add --no-cache --update bash wget && mkdir -p "$SBT_HOME" && \
 RUN apk add --no-cache git openssh
 
 # Install node.js
-RUN apk add nodejs=8.14.0-r0
+RUN apk add nodejs
 
 # Copy play project and compile it.
 # This will download all the ivy2 and sbt dependencies and install them
