@@ -1,0 +1,25 @@
+name: pr_test
+
+on:
+  pull_request:
+    branches: main
+
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+    steps:
+      # note - this step is to be removed ASAP - once we have a container registry
+      # we will no longer need to build from head every time there's a new PR.
+      - name: check out main branch
+        uses: actions/checkout@v2
+        with:
+          ref: main
+          path: main
+      - name: check out pr branch
+        uses: actions/checkout@v2
+        with:
+          path: pr
+      - name: Run tests in tester
+        uses: ./main/.github/actions/test
+        with:
+          path: pr/

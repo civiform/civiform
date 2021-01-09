@@ -1,0 +1,15 @@
+# action.yml
+name: 'Run sbt test'
+description: 'Using a container with old code, run the tests on new code.'
+inputs:
+  path:  # id of input
+    description: 'What path to use as the /code volume'
+    required: true
+    default: 'pr/'
+runs:
+  using: 'docker'
+  image: '../../../Dockerfile'
+  args:
+    - sh
+    - '-c'
+    - cd /github/workspace/${{inputs.path}}; sbt test
