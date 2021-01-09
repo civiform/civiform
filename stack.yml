@@ -18,6 +18,8 @@ services:
   uat:
     image: uat
     restart: always
+    links:
+      - "db:database"
     ports:
       - 9000:9000
     volumes:
