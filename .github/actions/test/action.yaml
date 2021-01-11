@@ -1,0 +1,17 @@
+# action.yml
+name: 'Run sbt test'
+description: 'Using a container with old code, run the tests on new code.'
+inputs:
+  path:
+    description: 'What path to use as the /code volume'
+    required: true
+    default: 'pr/'
+runs:
+  using: 'docker'
+  # update this to be the path to the docker container when it is stored somewhere.
+  # This will increase speed significantly - should cut ~2 minutes.
+  image: '../../../Dockerfile'
+  args:
+    - sh
+    - '-c'
+    - cd /github/workspace/${{inputs.path}}; sbt test

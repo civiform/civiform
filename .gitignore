@@ -2,3 +2,4 @@ logs/
 target/
 RUNNING_PID
 .Dockerfile.swp
+*.swp
