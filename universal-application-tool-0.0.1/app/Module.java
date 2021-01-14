@@ -1,5 +1,7 @@
 import com.google.inject.AbstractModule;
 import java.time.Clock;
+import models.DatabaseExecutionContext;
+import models.PostgresDatabase;
 import services.ApplicationTimer;
 import services.AtomicCounter;
 import services.Counter;
@@ -23,5 +25,7 @@ public class Module extends AbstractModule {
     bind(ApplicationTimer.class).asEagerSingleton();
     // Set AtomicCounter as the implementation for Counter.
     bind(Counter.class).to(AtomicCounter.class);
+    bind(DatabaseExecutionContext.class).asEagerSingleton();
+    bind(PostgresDatabase.class).asEagerSingleton();
   }
 }

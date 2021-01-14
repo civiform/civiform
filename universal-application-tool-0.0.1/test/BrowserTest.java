@@ -10,7 +10,7 @@ import play.test.WithBrowser;
 public class BrowserTest extends WithBrowser {
 
   protected Application provideApplication() {
-    return fakeApplication(inMemoryDatabase());
+    return fakeApplication();
   }
 
   protected TestBrowser provideBrowser(int port) {

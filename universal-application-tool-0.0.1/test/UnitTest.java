@@ -1,12 +1,19 @@
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static play.test.Helpers.contentAsString;
 
 import akka.actor.ActorSystem;
 import controllers.AsyncController;
 import controllers.CountController;
+import controllers.PostgresController;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ForkJoinPool;
+import models.PostgresDatabase;
 import org.junit.Test;
+import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Result;
 import scala.concurrent.ExecutionContextExecutor;
 
@@ -50,5 +57,25 @@ public class UnitTest {
     } finally {
       actorSystem.terminate();
     }
+  }
+
+  // Unit test Postgres controller
+  @Test
+  public void testPostgres() {
+    HttpExecutionContext ec = new HttpExecutionContext(ForkJoinPool.commonPool());
+    PostgresDatabase database = mock(PostgresDatabase.class);
+    when(database.updateSomething()).thenReturn(supplyAsync(() -> 10));
+    final PostgresController controller = new PostgresController(database, ec);
+    final CompletionStage<Result> future = controller.retrieve();
+
+    // Block until the result is completed
+    await()
+        .untilAsserted(
+            () ->
+                assertThat(future.toCompletableFuture())
+                    .isCompletedWithValueMatching(
+                        result ->
+                            contentAsString(result)
+                                .equals("This page has been retrieved 10 times.")));
   }
 }
