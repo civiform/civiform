@@ -1,0 +1,16 @@
+name: Format (Java)
+
+on:
+  # code review question: this commits directly to PR branches.
+  # that seems like what we're looking for, but we could also format only
+  # committed code.
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2 # v2 minimum required
+      - uses: axel-op/googlejavaformat-action@v3
