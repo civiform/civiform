@@ -13,4 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2 # v2 minimum required
+      - name: setup git config
+        run: |
+          # setup the username and email. I tend to use 'GitHub Actions Bot' with no email by default
+          git config user.name "GitHub Actions Bot (Java Formatter)"
+          git config user.email "<>"
+          git remote add head https://github.com/${{github.event.pull_request.head.repo.full_name}}
+          git fetch head
+          git checkout -b ${{github.event.pull_request.head.ref}} --track head/${{github.event.pull_request.head.ref}}
       - uses: axel-op/googlejavaformat-action@v3
