@@ -1,0 +1,15 @@
+#! /bin/bash
+if ! docker image inspect uat:latest > /dev/null; then
+	echo "did not find uat image locally - going to build it."
+	if [ $(basename "$PWD") == "universal-application-tool-0.0.1" ]; then
+		docker build -t uat ../
+	else
+		docker built -t uat ./
+	fi
+fi
+
+if [ $(basename "$PWD") == "universal-application-tool-0.0.1" ]; then
+	docker run --rm -it -v "${PWD}/:/code" uat sbt javafmtAll
+else
+	docker run --rm -it -v "${PWD}/universal-application-tool-0.0.1/:/code" uat sbt javafmtAll
+fi
