@@ -10,3 +10,5 @@ After this, you can access the server at localhost:9000.
 To launch postgres and adminer along with play app, run `./bin/run-dev`
 This will start 3 individual containers.
 You can access play app at localhost:9000 as before, and adminer at localhost:8080.
+
+To format java code locally, run './bin/fmt', from either this directory or the root of the project.

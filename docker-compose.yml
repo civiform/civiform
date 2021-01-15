@@ -7,17 +7,17 @@ services:
     image: postgres
     restart: always
     environment:
-      POSTGRES_PASSWORD: example
-
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
+      POSTGRES_USER: uat
+      POSTGRES_PASSWORD: localdbonly
+      POSTGRES_DB: uat
+    volumes:
+      - ~/.uat/postgres:/var/lib/postgresql/data
 
   uat:
     image: uat
     restart: always
+    depends_on:
+      - db
     links:
       - "db:database"
     ports:

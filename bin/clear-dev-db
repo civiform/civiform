@@ -1,0 +1,5 @@
+#! /bin/bash
+set -e
+docker-compose rm db
+sudo rm -rf ~/.uat/postgres
+mkdir -p ~/.uat/postgres

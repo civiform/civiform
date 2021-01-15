@@ -1,0 +1,8 @@
+#! /bin/bash
+if [ $# -eq 0 ]; then
+	ARG=up
+else
+	ARG=$@
+fi
+
+docker run -v $PWD/dbschema:/migrations --network universal-application-tool_default migrate/migrate -path=/migrations/ -verbose -database "postgres://uat:localdbonly@db/uat?sslmode=disable" $ARG
