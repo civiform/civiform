@@ -16,5 +16,6 @@ jobs:
       - uses: axel-op/googlejavaformat-action@v3
         with:
           skipCommit: true
+          args: "--skip-sorting-imports --replace"
       - name: show diff
-        run: git add .; git diff HEAD
+        run: git add .; git diff --exit-code HEAD
