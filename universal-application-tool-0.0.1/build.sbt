@@ -22,3 +22,10 @@ lazy val root = (project in file("."))
     // Make verbose tests
     testOptions in Test := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v"))
   )
+JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
+resolvers += Resolver.bintrayRepo("webjars","maven")
+libraryDependencies ++= Seq(
+    "org.webjars.npm" % "react" % "15.4.0",
+    "org.webjars.npm" % "types__react" % "15.0.34"
+)
+resolveFromWebjarsNodeModulesDir := true
