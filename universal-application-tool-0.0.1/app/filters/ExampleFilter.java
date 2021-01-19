@@ -1,11 +1,10 @@
 package filters;
 
-import play.mvc.EssentialAction;
-import play.mvc.EssentialFilter;
-
+import java.util.concurrent.Executor;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.concurrent.Executor;
+import play.mvc.EssentialAction;
+import play.mvc.EssentialFilter;
 
 /** This is a simple filter that adds a header to all requests. */
 @Singleton

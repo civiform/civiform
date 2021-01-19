@@ -1,11 +1,11 @@
+import static org.junit.Assert.assertTrue;
+import static play.test.Helpers.*;
+
 import org.junit.Test;
 import play.Application;
 import play.test.Helpers;
 import play.test.TestBrowser;
 import play.test.WithBrowser;
-
-import static org.junit.Assert.assertTrue;
-import static play.test.Helpers.*;
 
 public class BrowserTest extends WithBrowser {
 
