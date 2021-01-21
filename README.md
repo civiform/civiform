@@ -22,7 +22,7 @@ The client should be as simple as is practical to implement the desired user exp
 
 Java code should conform to the Google Java [styleguide](https://google.github.io/styleguide/javaguide.html). The project makes use of a linter and autoformatter for Java to help with this.
 
-We have an autoformatter if there isn't one in your IDE - just run `bin/fmt` and your code should be automatically formatted.
+We have an autoformatter for java code, if there isn't one in your IDE - just run `bin/fmt` and your code should be automatically formatted.
 
 Prefer using immutable collection types provided by [Guava](https://github.com/google/guava) ([API docs](https://guava.dev/releases/snapshot/api/docs/)) over the Java standard library's mutable collections unless impractical. Include a comment justifying the use of a mutable collection if you use one.
 
