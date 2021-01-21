@@ -1,10 +1,9 @@
 package repository;
 
 import akka.actor.ActorSystem;
-import play.libs.concurrent.CustomExecutionContext;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import play.libs.concurrent.CustomExecutionContext;
 
 /** Custom execution context wired to "database.dispatcher" thread pool */
 @Singleton

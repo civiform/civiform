@@ -1,8 +1,7 @@
 package models;
 
-import play.data.validation.Constraints;
-
 import javax.persistence.Entity;
+import play.data.validation.Constraints;
 
 /** Person entity managed by Ebean */
 @Entity

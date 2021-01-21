@@ -1,13 +1,12 @@
 package controllers;
 
+import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
 import models.Person;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Result;
 import repository.PersonRepository;
-
-import javax.inject.Inject;
-import java.util.concurrent.CompletionStage;
 
 public class PostgresController extends Controller {
 

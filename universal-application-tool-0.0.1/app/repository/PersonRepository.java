@@ -1,16 +1,15 @@
 package repository;
 
+import static java.util.concurrent.CompletableFuture.supplyAsync;
+
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
-import models.Person;
-import play.db.ebean.EbeanConfig;
-
-import javax.inject.Inject;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
-
-import static java.util.concurrent.CompletableFuture.supplyAsync;
+import javax.inject.Inject;
+import models.Person;
+import play.db.ebean.EbeanConfig;
 
 /** */
 public class PersonRepository {

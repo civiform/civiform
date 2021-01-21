@@ -2,11 +2,11 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static play.api.test.Helpers.testServerPort;
+import static play.test.Helpers.OK;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeApplication;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.inMemoryDatabase;
-import static play.test.Helpers.OK;
 import static play.test.Helpers.route;
 
 import com.google.common.collect.ImmutableMap;
