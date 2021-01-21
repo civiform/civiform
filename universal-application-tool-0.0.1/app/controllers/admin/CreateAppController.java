@@ -1,11 +1,10 @@
 package controllers.admin;
 
 import controllers.AssetsFinder;
+import javax.inject.Inject;
 import play.mvc.Controller;
 import play.mvc.Result;
 import views.html.admin.create_app;
-
-import javax.inject.Inject;
 
 /**
  * This controller contains an action to handle HTTP requests to the application's Admin "Create

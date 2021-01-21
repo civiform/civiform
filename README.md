@@ -12,6 +12,27 @@ To launch postgres and adminer along with play app, run `./bin/run-dev`
 This will start 3 individual containers.
 You can access play app at localhost:9000 as before, and adminer at localhost:8080.
 
+### Dev database
+
+Whenever a new database container is created, it is empty, i.e. it is not linked to any external storage.
+Note if you restart a paused container, you could see the change(s) applied from last session.
+You can obtain a fresh container by removing the existing one on docker dashboard.
+
+As the database is configured today, it does not persist data after it terminates, but this can be changed.
+
+If you wish to create new table(s) or change schema, please add the SQL(s) under `conf/evolutions/default`.
+You will need to create corresponding EBean model(s) under `app/models`, and potentially a repository under `app/repository` for how you'd like to interact with the table(s).
+
+In dev mode, whenever you first start the app, Play confirms with you if the database is up-to-date and whether you want to apply the evolution scrtips to set up schema or if the database is out-of-sync and needs manual resolution.
+If the database is in an inconsistent state, it is usually easier to trash the problem database and start a new one in dev mode.
+
+If we want to undo a schema change, we can create new evolution scripts that change the schema or simply remove existing scripts that create the schema we don't want. If we choose the latter, we likely need to manually reconcile existing database state or we have to start a new one.
+
+## Run tests
+
+To run the tests, run `docker run -it -v ${PWD}/universal-application-tool-0.0.1:/code uat sbt test`
+This include all tests under test/
+
 ## Development standards
 
 ### Client-server concerns

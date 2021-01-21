@@ -9,6 +9,12 @@ GET     /count                      controllers.CountController.count
 # An example controller showing how to write asynchronous code
 GET     /message                    controllers.AsyncController.message
 
+# List all persons
+GET     /postgres                   controllers.PostgresController.list()
+
+# Add a person
+GET     /postgres/add/:name         controllers.PostgresController.add(name: String)
+
 # A controller for a page for an admin to create a new application
 GET     /admin/create               controllers.admin.CreateAppController.index
 
