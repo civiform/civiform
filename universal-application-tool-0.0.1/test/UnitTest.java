@@ -1,15 +1,14 @@
-import akka.actor.ActorSystem;
-import controllers.AsyncController;
-import controllers.CountController;
-import org.junit.Test;
-import play.mvc.Result;
-import scala.concurrent.ExecutionContextExecutor;
-
-import java.util.concurrent.CompletionStage;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static play.test.Helpers.contentAsString;
+
+import akka.actor.ActorSystem;
+import controllers.AsyncController;
+import controllers.CountController;
+import java.util.concurrent.CompletionStage;
+import org.junit.Test;
+import play.mvc.Result;
+import scala.concurrent.ExecutionContextExecutor;
 
 /**
  * Unit testing does not require Play application start up.

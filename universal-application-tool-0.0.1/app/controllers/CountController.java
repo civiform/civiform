@@ -1,11 +1,10 @@
 package controllers;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import play.mvc.Controller;
 import play.mvc.Result;
 import services.Counter;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  * This controller demonstrates how to use dependency injection to bind a component into a

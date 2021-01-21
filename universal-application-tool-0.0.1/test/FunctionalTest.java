@@ -1,9 +1,9 @@
+import static org.assertj.core.api.Assertions.assertThat;
+
 import controllers.AssetsFinder;
 import org.junit.Test;
 import play.test.WithApplication;
 import play.twirl.api.Content;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * A functional test starts a Play application for every test.
