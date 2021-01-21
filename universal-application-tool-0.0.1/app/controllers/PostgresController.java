@@ -1,28 +1,50 @@
 package controllers;
 
-import models.PostgresDatabase;
+import models.Person;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Result;
+import repository.PersonRepository;
 
 import javax.inject.Inject;
 import java.util.concurrent.CompletionStage;
 
 public class PostgresController extends Controller {
-  public static String homePageString = "This page has been retrieved ";
 
-  private final PostgresDatabase db;
-  private final HttpExecutionContext ec;
+  private final PersonRepository personRepository;
+  private final HttpExecutionContext httpExecutionContext;
 
   @Inject
-  public PostgresController(PostgresDatabase db, HttpExecutionContext ec) {
-    this.db = db;
-    this.ec = ec;
+  public PostgresController(
+      PersonRepository personRepository, HttpExecutionContext httpExecutionContext) {
+    this.personRepository = personRepository;
+    this.httpExecutionContext = httpExecutionContext;
   }
 
-  public CompletionStage<Result> retrieve() {
-    return db.updateSomething()
+  public CompletionStage<Result> list() {
+    // Run a db operation in another thread (using DatabaseExecutionContext)
+    return personRepository
+        .list()
         .thenApplyAsync(
-            result -> ok(homePageString + String.valueOf(result) + " times."), ec.current());
+            list -> {
+              String out = new String();
+              for (Person p : list) {
+                out = out.concat(p.id + ": " + p.name + "\n");
+              }
+              return ok(out);
+            },
+            httpExecutionContext.current());
+  }
+
+  public CompletionStage<Result> add(String name) {
+    Person p = new Person();
+    p.name = name;
+    return personRepository
+        .insert(p)
+        .thenApplyAsync(
+            id -> {
+              return ok("person " + name + " with ID: " + id.toString() + " added.");
+            },
+            httpExecutionContext.current());
   }
 }

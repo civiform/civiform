@@ -1,6 +1,8 @@
 import static org.junit.Assert.assertTrue;
-import static play.test.Helpers.*;
+import static play.test.Helpers.fakeApplication;
+import static play.test.Helpers.inMemoryDatabase;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import play.Application;
 import play.test.Helpers;
@@ -10,7 +12,7 @@ import play.test.WithBrowser;
 public class BrowserTest extends WithBrowser {
 
   protected Application provideApplication() {
-    return fakeApplication();
+    return fakeApplication(inMemoryDatabase("default", ImmutableMap.of("MODE", "PostgreSQL")));
   }
 
   protected TestBrowser provideBrowser(int port) {
