@@ -71,6 +71,17 @@ public class FunctionalTest extends WithApplication {
   }
 
   @Test
+  public void syncAddPerson() {
+    Http.RequestBuilder request =
+        fakeRequest(routes.PostgresController.syncAdd("John"))
+            .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
+    Result result = route(app, request);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("person John with ID:", "synchronously added.");
+  }
+
+  @Test
   public void testPersonRepositoryLookup() {
     final PersonRepository personRepository = app.injector().instanceOf(PersonRepository.class);
     final CompletionStage<Optional<Person>> stage = personRepository.lookup(2L);

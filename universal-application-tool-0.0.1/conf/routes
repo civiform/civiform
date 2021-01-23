@@ -14,6 +14,7 @@ GET     /postgres                   controllers.PostgresController.list()
 
 # Add a person
 GET     /postgres/add/:name         controllers.PostgresController.add(name: String)
+GET     /postgres/sync_add/:name    controllers.PostgresController.syncAdd(name: String)
 
 # A controller for a page for an admin to create a new application
 GET     /admin/create               controllers.admin.CreateAppController.index

@@ -46,4 +46,17 @@ public class PostgresController extends Controller {
             },
             httpExecutionContext.current());
   }
+
+  public Result syncAdd(String name) {
+    Person p = newPerson(name);
+    p.save();
+    return ok("person " + name + " with ID: " + p.id.toString() + " synchronously added.");
+  }
+
+  public Person newPerson(String name) {
+    Person p = new Person();
+    p.id = System.currentTimeMillis(); // not ideal, but it works
+    p.name = name;
+    return p;
+  }
 }
