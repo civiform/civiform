@@ -12,6 +12,7 @@ import static play.test.Helpers.route;
 import com.google.common.collect.ImmutableMap;
 import controllers.AssetsFinder;
 import controllers.routes;
+import io.ebean.Ebean;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Person;
@@ -72,6 +73,8 @@ public class FunctionalTest extends WithApplication {
 
   @Test
   public void syncAddPerson() {
+    final int oldNumRecord = Ebean.find(Person.class).findCount();
+
     Http.RequestBuilder request =
         fakeRequest(routes.PostgresController.syncAdd("John"))
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
@@ -79,6 +82,9 @@ public class FunctionalTest extends WithApplication {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("person John with ID:", "synchronously added.");
+
+    final int newNumRecord = Ebean.find(Person.class).findCount();
+    assertThat(newNumRecord).isEqualTo(oldNumRecord + 1);
   }
 
   @Test
