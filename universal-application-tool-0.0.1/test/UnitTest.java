@@ -2,9 +2,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static play.test.Helpers.contentAsString;
 
@@ -102,20 +100,5 @@ public class UnitTest {
                     .isCompletedWithValueMatching(
                         result ->
                             contentAsString(result).equals("person John with ID: 1234 added.")));
-  }
-
-  // Unit test Postgres controller
-  @Test
-  public void testPostgresSyncAdd() {
-    HttpExecutionContext ec = new HttpExecutionContext(ForkJoinPool.commonPool());
-    PersonRepository repository = mock(PersonRepository.class);
-    Person person = mock(Person.class);
-    person.id = 1234L;
-    doNothing().when(person).save();
-    final PostgresController controller = spy(new PostgresController(repository, ec));
-    when(controller.newPerson("John")).thenReturn(person);
-    final Result result = controller.syncAdd("John");
-
-    contentAsString(result).equals("person John with ID: 1234 synchronously added.");
   }
 }
