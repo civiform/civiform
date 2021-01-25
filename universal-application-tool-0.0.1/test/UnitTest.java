@@ -64,7 +64,7 @@ public class UnitTest {
 
   // Unit test Postgres controller
   @Test
-  public void testPostgresList() {
+  public void testPostgresIndex() {
     HttpExecutionContext ec = new HttpExecutionContext(ForkJoinPool.commonPool());
     PersonRepository repository = mock(PersonRepository.class);
     Person p = new Person();
@@ -72,7 +72,7 @@ public class UnitTest {
     p.name = "Alice";
     when(repository.list()).thenReturn(supplyAsync(() -> Set.of(p)));
     final PostgresController controller = new PostgresController(repository, ec);
-    final CompletionStage<Result> future = controller.list();
+    final CompletionStage<Result> future = controller.index();
 
     // Block until the result is completed
     await()
@@ -85,12 +85,12 @@ public class UnitTest {
 
   // Unit test Postgres controller
   @Test
-  public void testPostgresAdd() {
+  public void testPostgresCreate() {
     HttpExecutionContext ec = new HttpExecutionContext(ForkJoinPool.commonPool());
     PersonRepository repository = mock(PersonRepository.class);
     when(repository.insert(any(Person.class))).thenReturn(supplyAsync(() -> 1234L));
     final PostgresController controller = new PostgresController(repository, ec);
-    final CompletionStage<Result> future = controller.add("John");
+    final CompletionStage<Result> future = controller.create("John");
 
     // Block until the result is completed
     await()
@@ -99,6 +99,6 @@ public class UnitTest {
                 assertThat(future.toCompletableFuture())
                     .isCompletedWithValueMatching(
                         result ->
-                            contentAsString(result).equals("person John with ID: 1234 added.")));
+                            contentAsString(result).equals("person John with ID: 1234 created.")));
   }
 }

@@ -10,11 +10,11 @@ GET     /count                      controllers.CountController.count
 GET     /message                    controllers.AsyncController.message
 
 # List all persons
-GET     /postgres                   controllers.PostgresController.list()
+GET     /postgres                   controllers.PostgresController.index()
 
 # Add a person
-GET     /postgres/add/:name         controllers.PostgresController.add(name: String)
-GET     /postgres/sync_add/:name    controllers.PostgresController.syncAdd(name: String)
+GET     /postgres/create/:name      controllers.PostgresController.create(name: String)
+GET     /postgres/createsync/:name  controllers.PostgresController.createSync(name: String)
 
 # A controller for a page for an admin to create a new application
 GET     /admin/create               controllers.admin.CreateAppController.index

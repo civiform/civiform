@@ -51,7 +51,7 @@ public class FunctionalTest extends WithApplication {
   @Test
   public void listPersons() {
     Http.RequestBuilder request =
-        fakeRequest(routes.PostgresController.list())
+        fakeRequest(routes.PostgresController.index())
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
     Result result = route(app, request);
 
@@ -61,27 +61,27 @@ public class FunctionalTest extends WithApplication {
   }
 
   @Test
-  public void addPerson() {
+  public void createPerson() {
     Http.RequestBuilder request =
-        fakeRequest(routes.PostgresController.add("John"))
+        fakeRequest(routes.PostgresController.create("John"))
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
     Result result = route(app, request);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("person John with ID:", "added.");
+    assertThat(contentAsString(result)).contains("person John with ID:", "created.");
   }
 
   @Test
-  public void syncAddPerson() {
+  public void createPersonSynchronously() {
     final int oldNumRecord = Ebean.find(Person.class).findCount();
 
     Http.RequestBuilder request =
-        fakeRequest(routes.PostgresController.syncAdd("John"))
+        fakeRequest(routes.PostgresController.createSync("John"))
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
     Result result = route(app, request);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("person John with ID:", "synchronously added.");
+    assertThat(contentAsString(result)).contains("person John with ID:", "synchronously created.");
 
     final int newNumRecord = Ebean.find(Person.class).findCount();
     assertThat(newNumRecord).isEqualTo(oldNumRecord + 1);

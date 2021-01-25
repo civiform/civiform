@@ -20,7 +20,7 @@ public class PostgresController extends Controller {
     this.httpExecutionContext = httpExecutionContext;
   }
 
-  public CompletionStage<Result> list() {
+  public CompletionStage<Result> index() {
     // Run a db operation in another thread (using DatabaseExecutionContext)
     return personRepository
         .list()
@@ -35,23 +35,23 @@ public class PostgresController extends Controller {
             httpExecutionContext.current());
   }
 
-  public CompletionStage<Result> add(String name) {
+  public CompletionStage<Result> create(String name) {
     Person p = new Person();
     p.name = name;
     return personRepository
         .insert(p)
         .thenApplyAsync(
             id -> {
-              return ok("person " + name + " with ID: " + id.toString() + " added.");
+              return ok("person " + name + " with ID: " + id.toString() + " created.");
             },
             httpExecutionContext.current());
   }
 
-  public Result syncAdd(String name) {
+  public Result createSync(String name) {
     Person p = new Person();
     p.id = System.currentTimeMillis(); // not ideal, but it works
     p.name = name;
     p.save();
-    return ok("person " + name + " with ID: " + p.id.toString() + " synchronously added.");
+    return ok("person " + name + " with ID: " + p.id.toString() + " synchronously created.");
   }
 }
