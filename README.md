@@ -41,6 +41,12 @@ This include all tests under test/
 
 The client should be as simple as is practical to implement the desired user experience.
 
+* Pages should only include the JavaScript needed to implement their own behavior.
+* Client-side JavaScript should have no need to manage browser history or derive state from the URL.
+* Client-side JavaScript should avoid API-driven interactions, and instead access JSON embedded in the initial page load and submit data using HTML forms.
+
+For example, enable/disable logic in forms can be specified server-side with HTML [data attributes](https://developer.mozilla.org/en-US/docs/Learn/HTML/Howto/Use_data_attributes) then implemented with generic client-side JS that responds to DOM events relevant to the attribute-specified elements. [Here's a simple example](https://jsfiddle.net/c8g6y0ru/1/).
+
 ### Java code
 
 Java code should conform to the Google Java [styleguide](https://google.github.io/styleguide/javaguide.html). The project makes use of a linter and autoformatter for Java to help with this.
