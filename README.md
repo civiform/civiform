@@ -59,6 +59,36 @@ Code in **Play controllers** should be limited to brokering interaction between 
 
 Code in **ebean models** should be limited to brokering interaction between the server's business logic and the database. Code in models should never directly implement business logic concerns.
 
+### Routing and controller methods
+
+APIs should follow [REST](https://en.wikipedia.org/wiki/Representational_state_transfer) when possible with the appropriate HTTP verb. Routing should be [resource-oriented](https://www.oreilly.com/library/view/restful-web-services/9780596529260/ch04.html) ([relevant AIP](https://google.aip.dev/121)). Path names should be [kebab-case](https://en.wikipedia.org/wiki/Letter_case#Special_case_styles).
+
+#### HTML routing convention
+
+For a resource called "programs" that implements the standard actions via HTML requests the routes would be:
+
+|HTTP verb|URL path          |Controller#method         |Use                                                                    |
+|---------|------------------|--------------------------|-----------------------------------------------------------------------|
+|GET      |/programs         |ProgramsController#index  |Get a list of all programs                                             |
+|GET      |/programs/new     |ProgramsController#new    |Get an HTML form for creating a new program                            |
+|POST     |/programs         |ProgramsController#create |Create a new program, probably redirect to the #show method to view it |
+|GET      |/programs/:id     |ProgramsController#show   |Get the details of a specific program                                  |
+|GET      |/programs/:id/edit|ProgramsController#edit   |Get an HTML form for editing an existing program                       |
+|PATCH/PUT|/programs/:id     |ProgramsController#update |Update an existing program                                             |
+|DELETE   |/programs/:id     |ProgramsController#destroy|Delete an existing program, probably redirect to the #index method     |
+
+#### API routing convention
+
+For the same resource accessed via JSON API the routes should be under the "/api" namespace and naturally do not require form-serving endpoints:
+
+|HTTP verb|URL path              |Controller#method            |Use                                                                    |
+|---------|----------------------|-----------------------------|-----------------------------------------------------------------------|
+|GET      |/api/programs         |ProgramsApiController#index  |Get a list of all programs                                             |
+|POST     |/api/programs         |ProgramsApiController#create |Create a new program                                                   |
+|GET      |/api/programs/:id     |ProgramsApiController#show   |Get the details of a specific program                                  |
+|PATCH/PUT|/api/programs/:id     |ProgramsApiController#update |Update an existing program                                             |
+|DELETE   |/api/programs/:id     |ProgramsApiController#destroy|Delete an existing program                                             |
+
 ### Testing
 
 We aim for complete unit test coverage of all execution paths in the system. If you submit code that is infeasible or impractical to get full test coverage for, consider refactoring. If you would like to make an exception, include a clear explanation for why in your PR description.
