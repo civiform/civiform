@@ -49,6 +49,14 @@ We have an autoformatter for java code, if there isn't one in your IDE - just ru
 
 Prefer using immutable collection types provided by [Guava](https://github.com/google/guava) ([API docs](https://guava.dev/releases/snapshot/api/docs/)) over the Java standard library's mutable collections unless impractical. Include a comment justifying the use of a mutable collection if you use one.
 
+#### Async request handling
+
+__Summary: Controllers handling requests from applicants or trusted intermediaries should be implemented asynchronously. All other controllers should be implemented synchronously.__
+
+[Async IO](https://en.wikipedia.org/wiki/Asynchronous_I/O) is helpful for reducing per-request resource consumption and sometimes per-request latency. Play allows controllers to implement request handling methods either synchronously, by returning `Result`, or asynchronously by returning `CompletionStage<Result>`. The tradeoff is that writing asynchronous code tends to result in more complex production and test code and a slower development velocity.
+
+We anticipate relatively low [QPS](https://en.wikipedia.org/wiki/Queries_per_second) for deployments of UAT. However, if a large jurisdiction uses UAT, QPS from applicants could get high enough to present scaling concerns. To balance the needs of development velocity and future scalability, we opt to optimize the applicant and intermediary code paths for scale while leaving the code paths that are unlikely to ever see significantly high QPS implemented synchronously.
+
 #### Separation of concerns
 
 See [wikipedia definition](https://en.wikipedia.org/wiki/Separation_of_concerns).
