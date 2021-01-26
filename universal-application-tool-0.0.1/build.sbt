@@ -7,9 +7,15 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       guice,
       javaJdbc,
-      // Database
+      // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.2.18",
-      "com.h2database" % "h2" % "1.4.200" % Test,
+      "org.testcontainers" % "postgresql" % "1.15.1" % Test,
+      "org.testcontainers" % "testcontainers" % "1.15.1" % Test,
+      "org.testcontainers" % "junit-jupiter" % "1.15.1" % Test,
+      "org.junit.jupiter" % "junit-jupiter-engine" % "5.4.2" % Test,
+      "org.junit.jupiter" % "junit-jupiter-api" % "5.4.2" % Test,
+      "org.junit.jupiter" % "junit-jupiter-params" % "5.4.2" % Test,
+
       // Testing libraries for dealing with CompletionStage...
       "org.assertj" % "assertj-core" % "3.14.0" % Test,
       "org.awaitility" % "awaitility" % "4.0.1" % Test,

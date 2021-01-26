@@ -1,27 +1,26 @@
 # --- JSON-based tables
 
 # --- !Ups
-create table applicants (
+create table if not exists applicants (
   id bigserial primary key,
-  applicant json not null
+  applicant jsonb not null
   -- No other constraint on applicant - empty object acceptable.
 );
 
-create table questions (
+create table if not exists questions (
   id bigserial primary key,
-  question json not null
+  question jsonb not null,
+  check (question ? 'target')
 );
 
-create unique index question_target on questions(
+create unique index if not exists question_target on questions(
   (question->>'target')
 );
 
-alter table questions add constraint has_target check ((question ->> 'target') is not null);
-
-create table programs (
+create table if not exists programs (
   name varchar,
   version bigint,
-  program json not null,
+  program jsonb not null,
   primary key (name, version)
 );
 
