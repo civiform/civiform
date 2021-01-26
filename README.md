@@ -1,6 +1,17 @@
-# universal-application-tool
+# Universal Application Tool
 
 The Universal Application Tool (UAT) aims to simplify the application process for benefits programs by re-using applicant data for multiple benefits applications. It is being developed by Google.org in partnership with the City of Seattle.
+
+* [Running a local server](#running-a-local-server)
+   * [Dev database](#dev-database)
+* [Run tests](#run-tests)
+* [Development standards](#development-standards)
+   * [Client-server concerns](#client-server-concerns)
+   * [Java code](#java-code)
+      * [Async request handling](#async-request-handling)
+      * [Separation of concerns](#separation-of-concerns)
+   * [Routing and controller methods](#routing-and-controller-methods)
+   * [Testing](#testing)
 
 ## Running a local server
 
