@@ -3,24 +3,24 @@
 # --- !Ups
 create table if not exists applicants (
   id bigserial primary key,
-  applicant jsonb not null
+  object jsonb not null
   -- No other constraint on applicant - empty object acceptable.
 );
 
 create table if not exists questions (
   id bigserial primary key,
-  question jsonb not null,
-  check (question ? 'target')
+  object jsonb not null,
+  check (object ? 'target')
 );
 
 create unique index if not exists question_target on questions(
-  (question->>'target')
+  (object ->>'target')
 );
 
 create table if not exists programs (
   name varchar,
   version bigint,
-  program jsonb not null,
+  object jsonb not null,
   primary key (name, version)
 );
 
