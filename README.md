@@ -39,8 +39,7 @@ If we want to undo a schema change, we can create new evolution scripts that cha
 
 ## Run tests
 
-To run the tests, run `docker run -it -v ${PWD}/universal-application-tool-0.0.1:/code uat sbt test`
-This include all tests under test/
+To run the tests, run `bin/run-test`. This include all tests under `test/`.
 
 ## Development standards
 
