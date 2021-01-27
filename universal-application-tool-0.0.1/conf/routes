@@ -13,8 +13,8 @@ GET     /message                    controllers.AsyncController.message
 GET     /postgres                   controllers.PostgresController.index()
 
 # Add a person
-GET     /postgres/create/:name      controllers.PostgresController.create(name: String)
-GET     /postgres/createsync/:name  controllers.PostgresController.createSync(name: String)
+POST    /postgres/create            controllers.PostgresController.create(request: Request)
+POST    /postgres/create-sync       controllers.PostgresController.createSync(request: Request)
 
 # A controller for a page for an admin to create a new application
 GET     /admin/create               controllers.admin.CreateAppController.index
