@@ -11,7 +11,7 @@ jobs:
       - name: check out pr branch
         uses: actions/checkout@v2
       - name: Run tests in tester
-        uses: ./.github/actions/test
+        run: docker build -t uat ./; docker run -v /var/run/docker.sock:/var/run/docker.sock uat sbt clean test
       - name: Build the stack
         run: docker-compose up -d
       - name: Test

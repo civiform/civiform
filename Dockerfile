@@ -31,13 +31,9 @@ ENV PROJECT_NAME universal-application-tool-0.0.1
 
 COPY ${PROJECT_NAME} ${PROJECT_HOME}/${PROJECT_NAME}
 RUN cd $PROJECT_HOME/$PROJECT_NAME && \
-    sbt compile
-
-RUN cd $PROJECT_HOME/$PROJECT_NAME && \
-    sbt test
+    sbt clean compile
 
 CMD ["sbt"]
 
 EXPOSE 9000
-VOLUME "/code"
-WORKDIR /code
+WORKDIR $PROJECT_HOME/$PROJECT_NAME
