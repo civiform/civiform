@@ -15,15 +15,11 @@ The Universal Application Tool (UAT) aims to simplify the application process fo
 
 ## Running a local server
 
-To build the container that runs the app, type `docker build -t uat .`
+To build the container that runs the app, type `docker build -t uat .`  Running this takes ~3 minutes, but it bakes in most of the dependencies you will need to download, so if you make a significant change to the dependencies you may want to re-build.
 
-To run the application, run `docker run -it -p 9000:9000 -v ${PWD}/universal-application-tool-0.0.1:/code uat sbt ~run`
-This enables hot-reloading - when you modify files, the server will recompile and restart.
+To run the application, run `bin/run-dev`, which uses `docker-compose` (see `docker-compose.yaml`).
+This enables java and javascript hot-reloading - when you modify most files, the server will recompile and restart.  This is pretty time-consuming on first page load, but after that, it's not so bad.
 After this, you can access the server at localhost:9000.
-
-To launch postgres and adminer along with play app, run `./bin/run-dev`
-This will start 3 individual containers.
-You can access play app at localhost:9000 as before, and adminer at localhost:8080.
 
 ### Dev database
 

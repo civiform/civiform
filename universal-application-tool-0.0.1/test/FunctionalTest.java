@@ -6,7 +6,6 @@ import static play.test.Helpers.OK;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeApplication;
 import static play.test.Helpers.fakeRequest;
-import static play.test.Helpers.inMemoryDatabase;
 import static play.test.Helpers.route;
 
 import com.google.common.collect.ImmutableMap;
@@ -31,7 +30,20 @@ import repository.PersonRepository;
 public class FunctionalTest extends WithApplication {
 
   protected Application provideApplication() {
-    return fakeApplication(inMemoryDatabase("default", ImmutableMap.of("MODE", "PostgreSQL")));
+    return fakeApplication(
+        ImmutableMap.of(
+            "db.default.driver",
+            "org.testcontainers.jdbc.ContainerDatabaseDriver",
+            "db.default.url",
+            /* This is a magic string.  The components of it are
+             * jdbc: the standard java database connection uri scheme
+             * tc: Testcontainers - the tool that starts a new container per test.
+             * postgresql: which container to start
+             * 9.6.8: which version of postgres to start
+             * ///: hostless URI scheme - anything here would be ignored
+             * databasename: the name of the db to connect to - any string is okay.
+             */
+            "jdbc:tc:postgresql:9.6.8:///databasename"));
   }
 
   @Test

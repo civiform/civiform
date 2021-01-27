@@ -23,7 +23,7 @@ services:
       - "db:database"
     ports:
       - 9000:9000
-    volumes:
-      - ./universal-application-tool-0.0.1:/code
     build: .
+    volumes:
+      - ./universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1
     command: sbt ~run
