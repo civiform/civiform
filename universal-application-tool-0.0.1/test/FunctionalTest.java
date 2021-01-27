@@ -3,6 +3,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static play.api.test.Helpers.testServerPort;
 import static play.test.Helpers.OK;
+import static play.test.Helpers.POST;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeApplication;
 import static play.test.Helpers.fakeRequest;
@@ -11,6 +12,7 @@ import static play.test.Helpers.route;
 import com.google.common.collect.ImmutableMap;
 import controllers.AssetsFinder;
 import controllers.routes;
+import io.ebean.Ebean;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Person;
@@ -62,7 +64,7 @@ public class FunctionalTest extends WithApplication {
   @Test
   public void listPersons() {
     Http.RequestBuilder request =
-        fakeRequest(routes.PostgresController.list())
+        fakeRequest(routes.PostgresController.index())
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
     Result result = route(app, request);
 
@@ -72,14 +74,34 @@ public class FunctionalTest extends WithApplication {
   }
 
   @Test
-  public void addPerson() {
+  public void createPerson() {
     Http.RequestBuilder request =
-        fakeRequest(routes.PostgresController.add("John"))
-            .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
+        fakeRequest(routes.PostgresController.create())
+            .method(POST)
+            .header(Http.HeaderNames.HOST, "localhost:" + testServerPort())
+            .bodyForm(ImmutableMap.of("name", "John"));
     Result result = route(app, request);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("person John with ID:", "added.");
+    assertThat(contentAsString(result)).contains("person John with ID:", "created.");
+  }
+
+  @Test
+  public void createPersonSynchronously() {
+    final int oldNumRecord = Ebean.find(Person.class).findCount();
+
+    Http.RequestBuilder request =
+        fakeRequest(routes.PostgresController.createSync())
+            .method(POST)
+            .header(Http.HeaderNames.HOST, "localhost:" + testServerPort())
+            .bodyForm(ImmutableMap.of("name", "John"));
+    Result result = route(app, request);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("person John with ID:", "synchronously created.");
+
+    final int newNumRecord = Ebean.find(Person.class).findCount();
+    assertThat(newNumRecord).isEqualTo(oldNumRecord + 1);
   }
 
   @Test

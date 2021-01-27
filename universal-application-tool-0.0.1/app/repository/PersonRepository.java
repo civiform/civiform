@@ -37,7 +37,6 @@ public class PersonRepository {
   public CompletionStage<Long> insert(Person person) {
     return supplyAsync(
         () -> {
-          person.id = System.currentTimeMillis(); // not ideal, but it works
           ebeanServer.insert(person);
           return person.id;
         },
