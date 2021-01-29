@@ -5,3 +5,5 @@ RUNNING_PID
 .idea/
 *.swp
 .bsp/
+.DS_Store
+node_modules

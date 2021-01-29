@@ -1,4 +1,6 @@
 // Test script to verify that we can successfully load and execute TypeScript
 // assets.
 
-console.log('Hello world!');
+window.onload = () => {
+  console.log('Hello world!');
+}
