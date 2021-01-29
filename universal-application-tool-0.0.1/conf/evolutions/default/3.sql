@@ -11,7 +11,13 @@ create table if not exists questions (
   id bigserial primary key,
   object jsonb not null,
   -- ensure that all entries include a 'target' key.
-  check (object ? 'target')
+  check (
+    (object->'target') is not null
+      and
+    jsonb_typeof(object->'target') = 'string'
+      and
+    LENGTH((object->>'target')::varchar) > 0
+  )
 );
 
 create unique index if not exists question_target on questions(

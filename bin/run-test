@@ -1,4 +1,4 @@
 #! /bin/bash
-set -e
-docker build -t uat --progress plain .
-docker run -i -v /var/run/docker.sock:/var/run/docker.sock uat sbt test
+
+# allocate a tty for better test output even though not strictly needed.
+docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v $PWD/universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1 uat sbt test

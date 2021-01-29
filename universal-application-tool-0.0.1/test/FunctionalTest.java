@@ -10,18 +10,26 @@ import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.route;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.Guice;
 import controllers.AssetsFinder;
 import controllers.routes;
+import io.ebean.DB;
 import io.ebean.Ebean;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
+import models.Applicant;
 import models.Person;
+import models.Program;
+import models.Question;
 import org.junit.Test;
 import play.Application;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.WithApplication;
 import play.twirl.api.Content;
+import repository.DbRepository;
 import repository.PersonRepository;
 
 /**
@@ -84,6 +92,68 @@ public class FunctionalTest extends WithApplication {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("person John with ID:", "created.");
+  }
+
+  @Test
+  public void createProgram() {
+    final DbRepository repo = app.injector().instanceOf(DbRepository.class);
+    Program program = new Program();
+    program.name = "program one";
+    program.version = 1L;
+    program.object = ImmutableMap.of("key", "value");
+    repo.insertProgram(program).toCompletableFuture().join();
+    Program p = repo.lookupProgram("program one", 1L).toCompletableFuture().join().get();
+    assertThat(p.version).isEqualTo(1L);
+    assertThat(p.object).containsEntry("key", "value");
+  }
+
+  @Test
+  public void createApplicant() {
+    final DbRepository repo = app.injector().instanceOf(DbRepository.class);
+    Applicant applicant = new Applicant();
+    applicant.id = 1L;
+    applicant.object =
+        ImmutableMap.of("nestedObject", ImmutableMap.of("foo", "bar"), "secondKey", "value");
+    repo.insertApplicant(applicant).toCompletableFuture().join();
+    Applicant a = repo.lookupApplicant(1L).toCompletableFuture().join().get();
+    assertThat(a.id).isEqualTo(1L);
+    assertThat(a.object).containsAllEntriesOf(applicant.object);
+  }
+
+  @Test
+  public void createQuestion() {
+    final DbRepository repo = app.injector().instanceOf(DbRepository.class);
+    Question question = new Question();
+    question.id = 1L;
+    question.object =
+        ImmutableMap.of(
+            "nestedObject",
+            ImmutableMap.of("foo", "bar"),
+            "secondKey",
+            "value",
+            "target",
+            "key.key");
+    repo.insertQuestion(question).toCompletableFuture().join();
+    Question q = repo.lookupQuestion(1L).toCompletableFuture().join().get();
+    assertThat(q.id).isEqualTo(1L);
+    assertThat(q.object).containsAllEntriesOf(question.object);
+
+    q = repo.lookupQuestion("key.key").toCompletableFuture().join().get();
+    assertThat(q.id).isEqualTo(1L);
+    assertThat(q.object).containsAllEntriesOf(question.object);
+  }
+
+  @Test(expected = Exception.class)
+  public void createQuestionWithoutTarget() throws Exception {
+    final DbRepository repo = app.injector().instanceOf(DbRepository.class);
+    Question question = new Question();
+    question.id = 1L;
+    question.object =
+        ImmutableMap.of("nestedObject", ImmutableMap.of("foo", "bar"), "secondKey", "value");
+    // this should fail since there is no 'target' in the object.
+    repo.insertQuestion(question).toCompletableFuture().get();
+    // force a flush to ensure the transaction is committed and fails.
+    repo.flush();
   }
 
   @Test
