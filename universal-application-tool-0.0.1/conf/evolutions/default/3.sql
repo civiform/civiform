@@ -9,7 +9,7 @@ create table if not exists applicants (
 
 create table if not exists questions (
   id bigserial primary key,
-  object jsonb not null,
+  object jsonb not null
 );
 
 create table if not exists programs (
