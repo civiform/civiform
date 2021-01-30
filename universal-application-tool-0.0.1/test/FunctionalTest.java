@@ -2,12 +2,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static play.api.test.Helpers.testServerPort;
-import static play.test.Helpers.OK;
-import static play.test.Helpers.POST;
-import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeApplication;
-import static play.test.Helpers.fakeRequest;
-import static play.test.Helpers.route;
+import static play.test.Helpers.*;
 
 import com.google.common.collect.ImmutableMap;
 import controllers.AssetsFinder;
@@ -17,10 +12,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Person;
 import org.junit.Test;
-import play.Application;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.test.WithApplication;
 import play.twirl.api.Content;
 import repository.PersonRepository;
 
@@ -29,24 +22,7 @@ import repository.PersonRepository;
  *
  * <p>https://www.playframework.com/documentation/latest/JavaFunctionalTest
  */
-public class FunctionalTest extends WithApplication {
-
-  protected Application provideApplication() {
-    return fakeApplication(
-        ImmutableMap.of(
-            "db.default.driver",
-            "org.testcontainers.jdbc.ContainerDatabaseDriver",
-            "db.default.url",
-            /* This is a magic string.  The components of it are
-             * jdbc: the standard java database connection uri scheme
-             * tc: Testcontainers - the tool that starts a new container per test.
-             * postgresql: which container to start
-             * 9.6.8: which version of postgres to start
-             * ///: hostless URI scheme - anything here would be ignored
-             * databasename: the name of the db to connect to - any string is okay.
-             */
-            "jdbc:tc:postgresql:9.6.8:///databasename"));
-  }
+public class FunctionalTest extends WithPostgresContainer {
 
   @Test
   public void renderTemplate() {
