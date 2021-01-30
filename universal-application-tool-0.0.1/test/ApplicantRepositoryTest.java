@@ -32,13 +32,13 @@ public class ApplicantRepositoryTest extends WithApplication {
     final ApplicantRepository repo = app.injector().instanceOf(ApplicantRepository.class);
     Applicant applicant = new Applicant();
     applicant.id = 1L;
-    applicant.object =
-        ImmutableMap.of("nestedObject", ImmutableMap.of("foo", "bar"), "secondKey", "value");
+    applicant.setObject(
+        ImmutableMap.of("nestedObject", ImmutableMap.of("foo", "bar"), "secondKey", "value"));
     // act
     repo.insertApplicant(applicant).toCompletableFuture().join();
     // assert
     Applicant a = repo.lookupApplicant(1L).toCompletableFuture().join().get();
     assertThat(a.id).isEqualTo(1L);
-    assertThat(a.object).containsAllEntriesOf(applicant.object);
+    assertThat(a.getObject()).containsAllEntriesOf(applicant.getObject());
   }
 }

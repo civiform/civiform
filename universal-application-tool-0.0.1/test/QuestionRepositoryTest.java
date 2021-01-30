@@ -32,19 +32,19 @@ public class QuestionRepositoryTest extends WithApplication {
     final QuestionRepository repo = app.injector().instanceOf(QuestionRepository.class);
     Question question = new Question();
     question.id = 1L;
-    question.object =
+    question.setObject(
         ImmutableMap.of(
             "nestedObject",
             ImmutableMap.of("foo", "bar"),
             "secondKey",
             "value",
             "target",
-            "key.key");
+            "key.key"));
     // act
     repo.insertQuestion(question).toCompletableFuture().join();
     // assert
     Question q = repo.lookupQuestion(1L).toCompletableFuture().join().get();
     assertThat(q.id).isEqualTo(1L);
-    assertThat(q.object).containsAllEntriesOf(question.object);
+    assertThat(q.getObject()).containsAllEntriesOf(question.getObject());
   }
 }

@@ -31,14 +31,14 @@ public class ProgramRepositoryTest extends WithApplication {
     // arrange
     final ProgramRepository repo = app.injector().instanceOf(ProgramRepository.class);
     Program program = new Program();
-    program.name = "program one";
-    program.version = 1L;
-    program.object = ImmutableMap.of("key", "value");
+    program.setName("program one");
+    program.setVersion(1L);
+    program.setObject(ImmutableMap.of("key", "value"));
     // act
     repo.insertProgram(program).toCompletableFuture().join();
     // assert
     Program p = repo.lookupProgram("program one", 1L).toCompletableFuture().join().get();
-    assertThat(p.version).isEqualTo(1L);
-    assertThat(p.object).containsEntry("key", "value");
+    assertThat(p.getVersion()).isEqualTo(1L);
+    assertThat(p.getObject()).containsEntry("key", "value");
   }
 }
