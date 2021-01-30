@@ -33,7 +33,7 @@ public class PostgresController extends Controller {
         .list()
         .thenApplyAsync(
             list -> {
-              String out = new String();
+              String out = "";
               for (Person p : list) {
                 out = out.concat(p.id + ": " + p.name + "\n");
               }
