@@ -1,10 +1,10 @@
 package controllers;
 
-import org.junit.Test;
-import play.mvc.Result;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
+
+import org.junit.Test;
+import play.mvc.Result;
 
 public class CountControllerTest {
 
