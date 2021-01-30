@@ -26,8 +26,6 @@ public class Question extends BaseModel {
   // and lists being List<Object>.
   Map<String, Object> object;
 
-  // Play will autogenerate getters and setters, unless it detects that any have been written.
-
   public String objectAsJsonString() throws IOException {
     return EJson.write(object);
   }

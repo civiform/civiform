@@ -49,7 +49,6 @@ public class Program {
 
   // This is where we write methods on the program - possibly resurfacing methods on the Jackson
   // object.
-  // Play will autogenerate getters and setters, unless it detects that any have been written.
 
   public String objectAsJsonString() throws IOException {
     return EJson.write(object);
