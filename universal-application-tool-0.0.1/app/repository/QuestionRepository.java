@@ -8,8 +8,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Applicant;
-import models.Program;
 import models.Question;
 import play.db.ebean.EbeanConfig;
 

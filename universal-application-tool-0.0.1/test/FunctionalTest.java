@@ -26,91 +26,90 @@ import repository.PersonRepository;
  */
 public class FunctionalTest extends WithApplication {
 
-    protected Application provideApplication() {
-        return fakeApplication(
-                ImmutableMap.of(
-                        "db.default.driver",
-                        "org.testcontainers.jdbc.ContainerDatabaseDriver",
-                        "db.default.url",
-                        /* This is a magic string.  The components of it are
-                         * jdbc: the standard java database connection uri scheme
-                         * tc: Testcontainers - the tool that starts a new container per test.
-                         * postgresql: which container to start
-                         * 9.6.8: which version of postgres to start
-                         * ///: hostless URI scheme - anything here would be ignored
-                         * databasename: the name of the db to connect to - any string is okay.
-                         */
-                        "jdbc:tc:postgresql:9.6.8:///databasename"));
-    }
+  protected Application provideApplication() {
+    return fakeApplication(
+        ImmutableMap.of(
+            "db.default.driver",
+            "org.testcontainers.jdbc.ContainerDatabaseDriver",
+            "db.default.url",
+            /* This is a magic string.  The components of it are
+             * jdbc: the standard java database connection uri scheme
+             * tc: Testcontainers - the tool that starts a new container per test.
+             * postgresql: which container to start
+             * 9.6.8: which version of postgres to start
+             * ///: hostless URI scheme - anything here would be ignored
+             * databasename: the name of the db to connect to - any string is okay.
+             */
+            "jdbc:tc:postgresql:9.6.8:///databasename"));
+  }
 
-    @Test
-    public void renderTemplate() {
-        // If you are calling out to Assets, then you must instantiate an application
-        // because it makes use of assets metadata that is configured from
-        // the application.
+  @Test
+  public void renderTemplate() {
+    // If you are calling out to Assets, then you must instantiate an application
+    // because it makes use of assets metadata that is configured from
+    // the application.
 
-        AssetsFinder assetsFinder = provideApplication().injector().instanceOf(AssetsFinder.class);
+    AssetsFinder assetsFinder = provideApplication().injector().instanceOf(AssetsFinder.class);
 
-        Content html = views.html.index.render("Your new application is ready.", assetsFinder);
-        assertThat("text/html").isEqualTo(html.contentType());
-        assertThat(html.body()).contains("Your new application is ready.");
-    }
+    Content html = views.html.index.render("Your new application is ready.", assetsFinder);
+    assertThat("text/html").isEqualTo(html.contentType());
+    assertThat(html.body()).contains("Your new application is ready.");
+  }
 
-    @Test
-    public void listPersons() {
-        Http.RequestBuilder request =
-                fakeRequest(routes.PostgresController.index())
-                        .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
-        Result result = route(app, request);
+  @Test
+  public void listPersons() {
+    Http.RequestBuilder request =
+        fakeRequest(routes.PostgresController.index())
+            .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
+    Result result = route(app, request);
 
-        assertThat(result.status()).isEqualTo(OK);
-        assertThat(contentAsString(result))
-                .isEqualTo("1: Alice\n2: Bob\n3: Charles\n4: Diana\n5: Eliza\n");
-    }
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .isEqualTo("1: Alice\n2: Bob\n3: Charles\n4: Diana\n5: Eliza\n");
+  }
 
-    @Test
-    public void createPerson() {
-        Http.RequestBuilder request =
-                fakeRequest(routes.PostgresController.create())
-                        .method(POST)
-                        .header(Http.HeaderNames.HOST, "localhost:" + testServerPort())
-                        .bodyForm(ImmutableMap.of("name", "John"));
-        Result result = route(app, request);
+  @Test
+  public void createPerson() {
+    Http.RequestBuilder request =
+        fakeRequest(routes.PostgresController.create())
+            .method(POST)
+            .header(Http.HeaderNames.HOST, "localhost:" + testServerPort())
+            .bodyForm(ImmutableMap.of("name", "John"));
+    Result result = route(app, request);
 
-        assertThat(result.status()).isEqualTo(OK);
-        assertThat(contentAsString(result)).contains("person John with ID:", "created.");
-    }
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("person John with ID:", "created.");
+  }
 
+  @Test
+  public void createPersonSynchronously() {
+    final int oldNumRecord = Ebean.find(Person.class).findCount();
 
-    @Test
-    public void createPersonSynchronously() {
-        final int oldNumRecord = Ebean.find(Person.class).findCount();
+    Http.RequestBuilder request =
+        fakeRequest(routes.PostgresController.createSync())
+            .method(POST)
+            .header(Http.HeaderNames.HOST, "localhost:" + testServerPort())
+            .bodyForm(ImmutableMap.of("name", "John"));
+    Result result = route(app, request);
 
-        Http.RequestBuilder request =
-                fakeRequest(routes.PostgresController.createSync())
-                        .method(POST)
-                        .header(Http.HeaderNames.HOST, "localhost:" + testServerPort())
-                        .bodyForm(ImmutableMap.of("name", "John"));
-        Result result = route(app, request);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("person John with ID:", "synchronously created.");
 
-        assertThat(result.status()).isEqualTo(OK);
-        assertThat(contentAsString(result)).contains("person John with ID:", "synchronously created.");
+    final int newNumRecord = Ebean.find(Person.class).findCount();
+    assertThat(newNumRecord).isEqualTo(oldNumRecord + 1);
+  }
 
-        final int newNumRecord = Ebean.find(Person.class).findCount();
-        assertThat(newNumRecord).isEqualTo(oldNumRecord + 1);
-    }
+  @Test
+  public void testPersonRepositoryLookup() {
+    final PersonRepository personRepository = app.injector().instanceOf(PersonRepository.class);
+    final CompletionStage<Optional<Person>> stage = personRepository.lookup(2L);
 
-    @Test
-    public void testPersonRepositoryLookup() {
-        final PersonRepository personRepository = app.injector().instanceOf(PersonRepository.class);
-        final CompletionStage<Optional<Person>> stage = personRepository.lookup(2L);
-
-        await()
-                .atMost(1, SECONDS)
-                .until(
-                        () -> {
-                            final Optional<Person> bob = stage.toCompletableFuture().get();
-                            return bob.map(mac -> mac.name.equals("Bob")).orElseGet(() -> false);
-                        });
-    }
+    await()
+        .atMost(1, SECONDS)
+        .until(
+            () -> {
+              final Optional<Person> bob = stage.toCompletableFuture().get();
+              return bob.map(mac -> mac.name.equals("Bob")).orElseGet(() -> false);
+            });
+  }
 }
