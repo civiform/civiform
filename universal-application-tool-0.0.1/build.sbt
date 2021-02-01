@@ -24,6 +24,9 @@ lazy val root = (project in file("."))
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
       "javax.activation" % "activation" % "1.1.1",
       "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.2",
+
+      // Security library pac4j (https://github.com/pac4j/play-pac4j)
+      "org.pac4j" %% "play-pac4j" % "11.0.0-PLAY2.8-RC1",
     ),
     javacOptions ++= Seq(
       "-encoding", "UTF-8",
