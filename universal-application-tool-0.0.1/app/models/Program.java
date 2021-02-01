@@ -5,9 +5,11 @@ import io.ebean.text.json.EJson;
 import java.io.IOException;
 import java.util.Map;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 import play.data.validation.Constraints;
 
 @Entity
+@Table(name = "programs")
 /** The ebeans mapped class for the program object. */
 public class Program {
   private static final long serialVersionUID = 1L;
