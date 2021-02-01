@@ -1,0 +1,197 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "",
+    "Parameters": {
+        "DBUsername": {
+            "NoEcho": "true",
+            "Description": "Username for database access",
+            "Type": "String",
+            "MinLength": "1",
+            "MaxLength": "16",
+            "AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
+            "ConstraintDescription": "must begin with a letter and contain only alphanumeric characters."
+        },
+
+        "DBPassword": {
+            "NoEcho": "true",
+            "Description": "Password database access",
+            "Type": "String",
+            "MinLength": "8",
+            "MaxLength": "41",
+            "AllowedPattern": "[a-zA-Z0-9]*",
+            "ConstraintDescription": "must contain only alphanumeric characters."
+        }
+    },
+    "Resources": {
+        "subnet1" : {
+           "Type" : "AWS::EC2::Subnet",
+           "Properties" : {
+              "CidrBlock" : "10.0.0.0/24",
+              "VpcId" : { "Ref" : "vpc" },
+              "AvailabilityZone": "us-west-2a"
+           }
+        },
+        "subnet2" : {
+           "Type" : "AWS::EC2::Subnet",
+           "Properties" : {
+              "CidrBlock" : "10.0.1.0/24",
+              "VpcId" : { "Ref" : "vpc" },
+              "AvailabilityZone": "us-west-2b"
+           }
+        },
+        "subnet3" : {
+           "Type" : "AWS::EC2::Subnet",
+           "Properties" : {
+              "CidrBlock" : "10.0.2.0/24",
+              "VpcId" : { "Ref" : "vpc" },
+              "AvailabilityZone": "us-west-2a",
+              "MapPublicIpOnLaunch": true
+           }
+        },
+        "subnetgroup" : {
+           "Type" : "AWS::RDS::DBSubnetGroup",
+           "Properties" : {
+              "DBSubnetGroupDescription": "two subnets for the database",
+              "SubnetIds" : [
+                  { "Ref" : "subnet1" },
+                  { "Ref" : "subnet2" }
+              ]
+           }
+        },
+        "postgresdb": {
+            "Type": "AWS::RDS::DBInstance",
+            "Properties": {
+                "DBInstanceIdentifier": "database",
+                "DBName": "postgres",
+                "DBInstanceClass": "db.m5.large",
+                "AllocatedStorage": 50,
+                "Engine": "postgres",
+                "EngineVersion": "12.5",
+                "MasterUsername": {
+                    "Ref": "DBUsername"
+                },
+                "MasterUserPassword": {
+                    "Ref": "DBPassword"
+                },
+                "DBSubnetGroupName": { "Ref": "subnetgroup" },
+                "VPCSecurityGroups": [{ "Ref": "dbsecgroup" }]
+            }
+        },
+        "ecsservice": {
+          "Type": "AWS::ECS::Service",
+          "Properties" : {
+            "Cluster": { "Ref": "ecscluster" },
+            "DesiredCount": 2,
+            "TaskDefinition" : { "Ref": "ecstaskdef" },
+            "LaunchType": "FARGATE",
+            "NetworkConfiguration": {
+                    "AwsvpcConfiguration": {
+                            "AssignPublicIp": "ENABLED",
+                            "SecurityGroups": [{
+                                    "Ref": "containersecgroup"
+                            }],
+                            "Subnets": [
+                                  { "Ref" : "subnet3" }
+                            ]
+                        }
+            }
+          }
+        },
+        "containersecgroup": {
+                "Type" : "AWS::EC2::SecurityGroup",
+                   "Properties" : {
+                      "GroupDescription" : "Allow http to client host",
+                      "VpcId" : {"Ref" : "vpc"},
+                      "SecurityGroupIngress" : [{
+                         "IpProtocol" : "tcp",
+                         "FromPort" : 80,
+                         "ToPort" : 80,
+                         "CidrIp" : "0.0.0.0/0"
+                      }],
+                      "SecurityGroupEgress" : [{
+                         "IpProtocol" : "tcp",
+                         "FromPort" : 80,
+                         "ToPort" : 80,
+                         "CidrIp" : "0.0.0.0/0"
+                      }]
+                   }
+        },
+        "vpc": {
+           "Type" : "AWS::EC2::VPC",
+           "Properties" : {
+              "CidrBlock" : "10.0.0.0/16",
+              "EnableDnsSupport" : "false",
+              "EnableDnsHostnames" : "false"
+           }
+        },
+        "dbsecgroup": {
+                "Type": "AWS::EC2::SecurityGroup",
+                "Properties": {
+                        "GroupDescription": "Ingress for DB",
+                        "VpcId" : {"Ref" : "vpc"},
+                        "SecurityGroupIngress" : [{
+                         "IpProtocol" : "tcp",
+                         "FromPort" : 0,
+                         "ToPort" : 65535,
+                         "SourceSecurityGroupId": { "Ref": "containersecgroup" }
+                      }]
+                }
+        },
+        "ecscluster": {
+            "Type": "AWS::ECS::Cluster",
+            "Properties": {
+                "ClusterName": "MyFargateCluster",
+                "CapacityProviders": [
+                    "FARGATE"
+                ],
+                "DefaultCapacityProviderStrategy": [
+                    {
+                        "CapacityProvider": "FARGATE",
+                        "Weight": 1
+                    }
+                ]
+            }
+        },
+        "ecstaskdef": {
+            "Type": "AWS::ECS::TaskDefinition",
+            "Properties": {
+                "RequiresCompatibilities": [
+                    "FARGATE"
+                ],
+                "ExecutionRoleArn": "arn:aws:iam::405662711265:role/ecs-task-role",
+                "NetworkMode": "awsvpc",
+                "Cpu": 1024,
+                "Memory": 8192,
+                "ContainerDefinitions": [
+                    {
+                        "Name": "my-app",
+                        "Image": "405662711265.dkr.ecr.us-east-2.amazonaws.com/universal-application-tool:latest",
+                        "Environment": [
+                                {
+                                        "Name": "DB_JDBC_STRING",
+                                        "Value": {"Fn::Join": ["", ["jdbc:postgresql://", {"Fn::GetAtt": ["postgresdb", "Endpoint.Address"]}, ":", {"Fn::GetAtt": ["postgresdb", "Endpoint.Port"]}, "/postgres"]]}
+                                },
+                                {
+                                        "Name": "DB_USERNAME",
+                                        "Value": { "Ref": "DBUsername" }
+                                },
+                                {
+                                        "Name": "DB_PASSWORD",
+                                        "Value": { "Ref": "DBPassword" }
+                                }
+                        ],
+                        "Cpu": 1024,
+                        "Memory": 8192,
+                        "PortMappings": [
+                                {
+                                        "ContainerPort": "9000",
+                                        "HostPort": "9000"
+                                }
+                        ],
+                        "Essential": true
+                    }
+                ]
+            }
+        }
+    }
+}
