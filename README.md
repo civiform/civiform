@@ -113,4 +113,6 @@ For the same resource accessed via JSON API the routes should be under the "/api
 
 We aim for complete unit test coverage of all execution paths in the system. If you submit code that is infeasible or impractical to get full test coverage for, consider refactoring. If you would like to make an exception, include a clear explanation for why in your PR description.
 
+For Java, each class should have its own unit tests. The unit test file should mirror the implementation file - for example, `/app/package/path/MyClass.java` should have a unit test `/test/package/path/MyClassTest.java`.
+
 All major user-facing features should be covered by a functional browser test.
