@@ -5,9 +5,11 @@ import io.ebean.text.json.EJson;
 import java.io.IOException;
 import java.util.Map;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 import play.data.validation.Constraints;
 
 @Entity
+@Table(name = "questions")
 public class Question extends BaseModel {
   private static final long serialVersionUID = 1L;
 
