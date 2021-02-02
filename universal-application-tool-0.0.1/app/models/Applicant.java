@@ -5,10 +5,12 @@ import io.ebean.text.json.EJson;
 import java.io.IOException;
 import java.util.Map;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 import play.data.validation.Constraints;
 
 @Entity
 /** The ebeans mapped class that represents an individual applicant */
+@Table(name = "applicants")
 public class Applicant extends BaseModel {
   private static final long serialVersionUID = 1L;
 
