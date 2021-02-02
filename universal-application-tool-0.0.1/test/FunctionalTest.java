@@ -16,6 +16,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.twirl.api.Content;
 import repository.PersonRepository;
+import repository.WithPostgresContainer;
 
 /**
  * A functional test starts a Play application for every test.

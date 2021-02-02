@@ -1,3 +1,5 @@
+package repository;
+
 import static play.test.Helpers.fakeApplication;
 
 import com.google.common.collect.ImmutableMap;
