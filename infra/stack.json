@@ -16,7 +16,7 @@
             "Description": "Password for database access",
             "Type": "String",
             "MinLength": "16",
-            "MaxLength": "41"
+            "MaxLength": "64"
         },
         "SecretKey": {
             "NoEcho": "true",
@@ -52,7 +52,8 @@
                             "TemplateURL": {"Fn::Sub": "https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/load_balancer.json"},
                             "Parameters": {
                                     "VPCId": {"Fn::GetAtt": ["VPC", "Outputs.VPCId"]},
-                                    "PublicSubnets": {"Fn::GetAtt": ["VPC", "Outputs.PublicSubnets"]},
+                                    "PublicSubnet1": {"Fn::GetAtt": ["VPC", "Outputs.PublicSubnet1"]}, 
+                                    "PublicSubnet2": {"Fn::GetAtt": ["VPC", "Outputs.PublicSubnet2"]},
                                     "LBSecurityGroup": {"Fn::GetAtt": ["SecurityGroups", "Outputs.LbGroup"]}
                             }
                     }
@@ -65,7 +66,8 @@
                                     "DBUsername": {"Ref": "DBUsername"},
                                     "DBPassword": {"Ref": "DBPassword"},
                                     "DBSecurityGroup": {"Fn::GetAtt": ["SecurityGroups", "Outputs.DatabaseGroup"]},
-                                    "PrivateSubnets": {"Fn::GetAtt": ["VPC", "Outputs.PrivateSubnets"]}
+                                    "PrivateSubnet1": {"Fn::GetAtt": ["VPC", "Outputs.PrivateSubnet1"]},
+                                    "PrivateSubnet2": {"Fn::GetAtt": ["VPC", "Outputs.PrivateSubnet2"]}
                             }
                     }
             },
@@ -79,7 +81,8 @@
                                     "DBAddress": {"Fn::GetAtt": ["DB", "Outputs.DBAddress"]},
                                     "DBPort": {"Fn::GetAtt": ["DB", "Outputs.DBPort"]},
                                     "SecretKey": {"Ref": "SecretKey"},
-                                    "PrivateSubnets": {"Fn::GetAtt": ["VPC", "Outputs.PrivateSubnets"]},
+                                    "PrivateSubnet1": {"Fn::GetAtt": ["VPC", "Outputs.PrivateSubnet1"]},
+                                    "PrivateSubnet2": {"Fn::GetAtt": ["VPC", "Outputs.PrivateSubnet2"]},
                                     "LBTargetName": {"Fn::GetAtt": ["LB", "Outputs.LBTarget"]},
                                     "ContainerSecurityGroup": {"Fn::GetAtt": ["SecurityGroups", "Outputs.ContainerGroup"]}
                             }

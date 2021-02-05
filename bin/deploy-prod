@@ -9,7 +9,7 @@ docker push public.ecr.aws/t1q6b4h2/universal-application-tool:latest
 TIMESTAMP=$(date +%s)
 DBUSERNAME=uat
 DBPASSWORD=$(openssl rand -base64 32)
-SECREY_KEY=$(openssl rand -base64 32)
+SECRETKEY=$(openssl rand -base64 32)
 
 aws s3 sync ./infra s3://seattle-uat-cftmpl/${TIMESTAMP}
-aws cloudformation create-stack --stack-name uat --template-url s3://seattle-uat-cftmpl/stack.json --parameters "[{\"ParameterKey\": \"DBUsername\", \"ParameterValue\": \"$DBUSERNAME\"}, {\"ParameterKey\": \"DBPassword\", \"ParameterValue\": \"$DBPASSWORD\"}, {\"ParameterKey\": \"SecretKey\", \"ParameterValue\": \"$SECRET_KEY\"}, {\"ParameterKey\": \"Timestamp\", \"ParameterValue\": $TIMESTAMP}]"
+aws cloudformation update-stack --stack-name uat --template-url  https://seattle-uat-cftmpl.s3-us-west-2.amazonaws.com/$TIMESTAMP/stack.json --parameters "[{\"ParameterKey\": \"DBUsername\", \"ParameterValue\": \"$DBUSERNAME\"}, {\"ParameterKey\": \"DBPassword\", \"ParameterValue\": \"$DBPASSWORD\"}, {\"ParameterKey\": \"SecretKey\", \"ParameterValue\": \"$SECRETKEY\"}, {\"ParameterKey\": \"Timestamp\", \"ParameterValue\": \"$TIMESTAMP\"}]"

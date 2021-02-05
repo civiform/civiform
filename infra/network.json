@@ -163,15 +163,25 @@
                     "Value": {"Ref": "vpc"},
                     "Export": {"Name": {"Fn::Sub": "${AWS::StackName}-VPCID"}}
             },
-            "PublicSubnets": {
-                    "Description": "The two public subnets of the vpc",
-                    "Value": [{"Ref": "pubsubnet1"}, {"Ref": "pubsubnet2"}],
-                    "Export": {"Name": {"Fn::Sub": "${AWS::StackName}-PublicSubnets"}}
+            "PublicSubnet1": {
+                    "Description": "The first public subnet of the vpc",
+                    "Value": {"Ref": "pubsubnet1"},
+                    "Export": {"Name": {"Fn::Sub": "${AWS::StackName}-PublicSubnet1"}}
             },
-            "PrivateSubnets": {
-                    "Description": "The two private subnets of the vpc",
-                    "Value": [{"Ref": "privsubnet1"}, {"Ref": "privsubnet2"}],
-                    "Export": {"Name": {"Fn::Sub": "${AWS::StackName}-PrivateSubnets"}}
+            "PublicSubnet2": {
+                    "Description": "The second public subnet of the vpc",
+                    "Value": {"Ref": "pubsubnet2"},
+                    "Export": {"Name": {"Fn::Sub": "${AWS::StackName}-PublicSubnet2"}}
+            },
+            "PrivateSubnet1": {
+                    "Description": "The first private subnet of the vpc",
+                    "Value": {"Ref": "privsubnet1"},
+                    "Export": {"Name": {"Fn::Sub": "${AWS::StackName}-PrivateSubnet1"}}
+            },
+            "PrivateSubnet2": {
+                    "Description": "The second private subnet of the vpc",
+                    "Value": {"Ref": "privsubnet2"},
+                    "Export": {"Name": {"Fn::Sub": "${AWS::StackName}-PrivateSubnet2"}}
             }
     }
 }

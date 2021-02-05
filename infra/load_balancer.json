@@ -6,9 +6,13 @@
             "Description": "The id of the VPC to add our LB to.",
             "Type": "AWS::EC2::VPC::Id"
         },
-        "PublicSubnets": {
-            "Description": "The public subnets in which the LB should operate.",
-            "Type": "List<AWS::EC2::Subnet::Id>"
+        "PublicSubnet1": {
+            "Description": "The public subnet to add the LB to.",
+            "Type": "AWS::EC2::Subnet::Id"
+        },
+        "PublicSubnet2": {
+            "Description": "The public subnet to add the LB to.",
+            "Type": "AWS::EC2::Subnet::Id"
         },
         "LBSecurityGroup": {
             "Description": "The security group to use for our load balancer.",
@@ -22,8 +26,8 @@
                         "Scheme": "internet-facing",
                         "IpAddressType": "ipv4",
                         "Name": "uat-lb",
-                        "SecurityGroups": [{ "Ref" :  "LBSecurityGroup" } }],
-                        "Subnets": { "Ref" :  "PublicSubnets" }
+                        "SecurityGroups": [{ "Ref" :  "LBSecurityGroup" } ],
+                        "Subnets": [ { "Ref" :  "PublicSubnet1" }, { "Ref": "PublicSubnet2"}]
                 }
         },
         "droptraffic": {

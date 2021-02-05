@@ -16,11 +16,15 @@
             "Description": "Password database access",
             "Type": "String",
             "MinLength": "8",
-            "MaxLength": "41"
+            "MaxLength": "64"
         },
-        "PrivateSubnets": {
+        "PrivateSubnet1": {
             "Description": "The private subnets to add the database to.",
-            "Type": "List<AWS::EC2::Subnet::Id>"
+            "Type": "AWS::EC2::Subnet::Id"
+        },
+        "PrivateSubnet2": {
+            "Description": "The private subnet to add the database to.",
+            "Type": "AWS::EC2::Subnet::Id"
         },
         "DBSecurityGroup": {
             "Description": "The security group to use for our database access control.",
@@ -32,7 +36,7 @@
            "Type" : "AWS::RDS::DBSubnetGroup",
            "Properties" : {
               "DBSubnetGroupDescription": "two subnets for the database",
-              "SubnetIds" : { "Ref" : "PrivateSubnets" }
+              "SubnetIds" : [{ "Ref" : "PrivateSubnet1" }, {"Ref": "PrivateSubnet2"}]
            }
         },
         "postgresdb": {
