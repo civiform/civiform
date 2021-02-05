@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11:alpine-slim
+FROM adoptopenjdk/openjdk11:alpine-slim AS stage1
 
 # sbt
 
@@ -30,9 +30,13 @@ ENV PROJECT_NAME universal-application-tool-0.0.1
 
 COPY ${PROJECT_NAME} ${PROJECT_HOME}/${PROJECT_NAME}
 RUN cd $PROJECT_HOME/$PROJECT_NAME && \
-    sbt clean compile
+    sbt dist
 
-CMD ["sbt"]
+# This is a common trick to shrink container sizes.  we just throw away all that build stuff and use only the jars
+# we built with sbt dist.
+FROM adoptopenjdk/openjdk11:alpine-slim AS stage2
+COPY --from=stage1 /usr/src/universal-application-tool-0.0.1/target/universal/universal-application-tool-0.0.1.zip ./uat.zip
+RUN apk add bash
+RUN unzip ./uat.zip; chmod +x ./universal-application-tool-0.0.1/bin/universal-application-tool
 
-EXPOSE 9000
-WORKDIR $PROJECT_HOME/$PROJECT_NAME
+CMD ["./universal-application-tool-0.0.1/bin/universal-application-tool"]

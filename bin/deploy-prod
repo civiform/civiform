@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -e
+aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/t1q6b4h2
+docker build -f prod.Dockerfile -t universal-application-tool .
+docker tag universal-application-tool:latest public.ecr.aws/t1q6b4h2/universal-application-tool:latest
+docker push public.ecr.aws/t1q6b4h2/universal-application-tool:latest
+
+# TODO: this does not include a HUP for the docker containers - they'll update as they fail, which will take a long time, and lead to a guaranteed mixed fleet.
