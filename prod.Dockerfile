@@ -2,7 +2,6 @@ FROM adoptopenjdk/openjdk11:alpine-slim AS stage1
 
 # sbt
 
-ENV SBT_URL=https://dl.bintray.com/sbt/native-packages/sbt
 ENV SBT_VERSION 1.3.13
 ENV INSTALL_DIR /usr/local
 ENV SBT_HOME /usr/local/sbt
@@ -12,7 +11,7 @@ RUN apk update
 
 # Install sbt
 RUN apk add --no-cache --update bash wget && mkdir -p "$SBT_HOME" && \
-    wget -qO - --no-check-certificate "https://dl.bintray.com/sbt/native-packages/sbt/$SBT_VERSION/sbt-$SBT_VERSION.tgz" |  tar xz -C $INSTALL_DIR && \
+    wget -qO - --no-check-certificate "https://github.com/sbt/sbt/releases/download/v$SBT_VERSION/sbt-$SBT_VERSION.tgz" |  tar xz -C $INSTALL_DIR && \
     echo -ne "- with sbt $SBT_VERSION\n" >> /root/.built
 
 # Install git
