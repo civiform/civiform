@@ -1,74 +1,105 @@
 {
-    "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "",
-    "Parameters": {
-        "DBUsername": {
-            "NoEcho": "true",
-            "Description": "Username for database access",
-            "Type": "String",
-            "MinLength": "1",
-            "MaxLength": "16",
-            "AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
-            "ConstraintDescription": "must begin with a letter and contain only alphanumeric characters."
-        },
-        "DBPassword": {
-            "NoEcho": "true",
-            "Description": "Password database access",
-            "Type": "String",
-            "MinLength": "8",
-            "MaxLength": "64"
-        },
-        "PrivateSubnet1": {
-            "Description": "The private subnets to add the database to.",
-            "Type": "AWS::EC2::Subnet::Id"
-        },
-        "PrivateSubnet2": {
-            "Description": "The private subnet to add the database to.",
-            "Type": "AWS::EC2::Subnet::Id"
-        },
-        "DBSecurityGroup": {
-            "Description": "The security group to use for our database access control.",
-            "Type": "String"
-        }
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "",
+  "Parameters": {
+    "DBUsername": {
+      "NoEcho": "true",
+      "Description": "Username for database access",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "16",
+      "AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
+      "ConstraintDescription": "must begin with a letter and contain only alphanumeric characters."
     },
-    "Resources": {
-        "subnetgroup" : {
-           "Type" : "AWS::RDS::DBSubnetGroup",
-           "Properties" : {
-              "DBSubnetGroupDescription": "two subnets for the database",
-              "SubnetIds" : [{ "Ref" : "PrivateSubnet1" }, {"Ref": "PrivateSubnet2"}]
-           }
-        },
-        "postgresdb": {
-            "Type": "AWS::RDS::DBInstance",
-            "Properties": {
-                "DBInstanceIdentifier": "database",
-                "DBName": "postgres",
-                "DBInstanceClass": "db.m5.large",
-                "AllocatedStorage": 50,
-                "Engine": "postgres",
-                "EngineVersion": "12.5",
-                "MasterUsername": {
-                    "Ref": "DBUsername"
-                },
-                "MasterUserPassword": {
-                    "Ref": "DBPassword"
-                },
-                "DBSubnetGroupName": { "Ref": "subnetgroup" },
-                "VPCSecurityGroups": [{ "Ref" :  "DBSecurityGroup" }]
-            }
-        }
+    "DBPassword": {
+      "NoEcho": "true",
+      "Description": "Password database access",
+      "Type": "String",
+      "MinLength": "8",
+      "MaxLength": "64"
     },
-    "Outputs": {
-            "DBPort": {
-                    "Description": "The port on which the DB can be reached.",
-                    "Value": {"Fn::GetAtt": ["postgresdb", "Endpoint.Port"]},
-                    "Export": {"Name": {"Fn::Sub": "${AWS::StackName}-DBPort"}}
-            },
-            "DBAddress": {
-                    "Description": "The address at which the DB can be reached.",
-                    "Value": {"Fn::GetAtt": ["postgresdb", "Endpoint.Address"]},
-                    "Export": {"Name": {"Fn::Sub": "${AWS::StackName}-DBAddress"}}
-            }
+    "PrivateSubnet1": {
+      "Description": "The private subnets to add the database to.",
+      "Type": "AWS::EC2::Subnet::Id"
+    },
+    "PrivateSubnet2": {
+      "Description": "The private subnet to add the database to.",
+      "Type": "AWS::EC2::Subnet::Id"
+    },
+    "DBSecurityGroup": {
+      "Description": "The security group to use for our database access control.",
+      "Type": "String"
     }
+  },
+  "Resources": {
+    "subnetgroup": {
+      "Type": "AWS::RDS::DBSubnetGroup",
+      "Properties": {
+        "DBSubnetGroupDescription": "two subnets for the database",
+        "SubnetIds": [
+          {
+            "Ref": "PrivateSubnet1"
+          },
+          {
+            "Ref": "PrivateSubnet2"
+          }
+        ]
+      }
+    },
+    "postgresdb": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "DBInstanceIdentifier": "database",
+        "DBName": "postgres",
+        "DBInstanceClass": "db.m5.large",
+        "AllocatedStorage": 50,
+        "Engine": "postgres",
+        "EngineVersion": "12.5",
+        "MasterUsername": {
+          "Ref": "DBUsername"
+        },
+        "MasterUserPassword": {
+          "Ref": "DBPassword"
+        },
+        "DBSubnetGroupName": {
+          "Ref": "subnetgroup"
+        },
+        "VPCSecurityGroups": [
+          {
+            "Ref": "DBSecurityGroup"
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "DBPort": {
+      "Description": "The port on which the DB can be reached.",
+      "Value": {
+        "Fn::GetAtt": [
+          "postgresdb",
+          "Endpoint.Port"
+        ]
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-DBPort"
+        }
+      }
+    },
+    "DBAddress": {
+      "Description": "The address at which the DB can be reached.",
+      "Value": {
+        "Fn::GetAtt": [
+          "postgresdb",
+          "Endpoint.Address"
+        ]
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-DBAddress"
+        }
+      }
+    }
+  }
 }

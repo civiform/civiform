@@ -7,6 +7,9 @@ docker tag universal-application-tool:latest public.ecr.aws/t1q6b4h2/universal-a
 docker push public.ecr.aws/t1q6b4h2/universal-application-tool:latest
 
 TIMESTAMP=$(date +%s)
+# Note that this updates the username and password for the database on each deploy
+# which has the side effect of recreating all the containers.
+# That's kind of messy.  We'd prefer to use a secret manager.  We'll set that up next.
 DBUSERNAME=uat
 DBPASSWORD=$(openssl rand -base64 32)
 SECRETKEY=$(openssl rand -base64 32)
