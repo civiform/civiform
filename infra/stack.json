@@ -15,7 +15,7 @@
             "NoEcho": "true",
             "Description": "Password database access",
             "Type": "String",
-            "MinLength": "8",
+            "MinLength": "16",
             "MaxLength": "41"
         },
         "SecretKey": {
@@ -108,7 +108,7 @@
                         "SubnetId": {"Ref": "pubsubnet2"}
                 }
         },
-        "routetable" : {
+        "publicroutetable" : {
            "Type" : "AWS::EC2::RouteTable",
            "Properties" : {
               "VpcId" : { "Ref" : "vpc" }
@@ -119,7 +119,7 @@
            "DependsOn": ["attachgateway"],
            "Properties": {
                    "GatewayId": { "Ref": "ig" },
-                   "RouteTableId": { "Ref": "routetable" },
+                   "RouteTableId": { "Ref": "publicroutetable" },
                    "DestinationCidrBlock": "0.0.0.0/0"
            }
         },
@@ -127,14 +127,14 @@
            "Type" : "AWS::EC2::SubnetRouteTableAssociation",
            "Properties" : {
               "SubnetId" : { "Ref" : "pubsubnet1" },
-              "RouteTableId" : { "Ref" : "routetable" }
+              "RouteTableId" : { "Ref" : "publicroutetable" }
            }
         },
         "pubsubnet2igassn": {
            "Type" : "AWS::EC2::SubnetRouteTableAssociation",
            "Properties" : {
               "SubnetId" : { "Ref" : "pubsubnet2" },
-              "RouteTableId" : { "Ref" : "routetable" }
+              "RouteTableId" : { "Ref" : "publicroutetable" }
            }
         },
         "privroutetable1" : {
@@ -181,7 +181,7 @@
               "RouteTableId" : { "Ref" : "privroutetable2" }
            }
         },
-        "subnetgroup" : {
+        "dbsubnetgroup" : {
            "Type" : "AWS::RDS::DBSubnetGroup",
            "Properties" : {
               "DBSubnetGroupDescription": "two subnets for the database",
@@ -206,7 +206,7 @@
                 "MasterUserPassword": {
                     "Ref": "DBPassword"
                 },
-                "DBSubnetGroupName": { "Ref": "subnetgroup" },
+                "DBSubnetGroupName": { "Ref": "dbsubnetgroup" },
                 "VPCSecurityGroups": [{ "Ref": "dbsecgroup" }]
             }
         },
