@@ -13,7 +13,7 @@
         },
         "DBPassword": {
             "NoEcho": "true",
-            "Description": "Password database access",
+            "Description": "Password for database access",
             "Type": "String",
             "MinLength": "16",
             "MaxLength": "41"
@@ -24,392 +24,66 @@
             "Type": "String",
             "MinLength": "12",
             "MaxLength": "64"
+        },
+        "Timestamp": {
+            "Description": "Current timestamp in seconds.",
+            "Type": "Number"
         }
     },
     "Resources": {
-        "vpc": {
-           "Type" : "AWS::EC2::VPC",
-           "Properties" : {
-              "CidrBlock" : "10.192.0.0/16"
-           }
-        },
-        "ig": {
-              "Type" : "AWS::EC2::InternetGateway",
-              "Properties" : {}
-        },
-        "pubsubnet1" : {
-           "Type" : "AWS::EC2::Subnet",
-           "Properties" : {
-              "CidrBlock" : "10.192.10.0/24",
-              "VpcId" : { "Ref" : "vpc" },
-              "AvailabilityZone": "us-west-2a",
-              "MapPublicIpOnLaunch": true
-           }
-        },
-        "pubsubnet2" : {
-           "Type" : "AWS::EC2::Subnet",
-           "Properties" : {
-              "CidrBlock" : "10.192.11.0/24",
-              "VpcId" : { "Ref" : "vpc" },
-              "AvailabilityZone": "us-west-2b",
-              "MapPublicIpOnLaunch": true
-           }
-        },
-        "privsubnet1" : {
-           "Type" : "AWS::EC2::Subnet",
-           "Properties" : {
-              "CidrBlock" : "10.192.20.0/24",
-              "VpcId" : { "Ref" : "vpc" },
-              "AvailabilityZone": "us-west-2a",
-              "MapPublicIpOnLaunch": false
-           }
-        },
-        "privsubnet2" : {
-           "Type" : "AWS::EC2::Subnet",
-           "Properties" : {
-              "CidrBlock" : "10.192.21.0/24",
-              "VpcId" : { "Ref" : "vpc" },
-              "AvailabilityZone": "us-west-2b",
-              "MapPublicIpOnLaunch": false
-           }
-        },
-        "attachgateway" : {
-           "Type" : "AWS::EC2::VPCGatewayAttachment",
-           "Properties" : {
-              "VpcId" : { "Ref" : "vpc" },
-              "InternetGatewayId" : { "Ref" : "ig" }
-            }
-        },
-        "natgateway1ip" : {
-           "Type" : "AWS::EC2::EIP",
-           "DependsOn": ["attachgateway"],
-           "Properties": {
-                   "Domain": {"Ref": "vpc"}
-           }
-        },
-        "natgateway2ip" : {
-           "Type" : "AWS::EC2::EIP",
-           "DependsOn": ["attachgateway"],
-           "Properties": {
-                   "Domain": {"Ref": "vpc"}
-           }
-        },
-        "natgateway1": {
-                "Type": "AWS::EC2::NatGateway",
-                "Properties": {
-                        "AllocationId": {"Fn::GetAtt": ["natgateway1ip", "AllocationId"]},
-                        "SubnetId": {"Ref": "pubsubnet1"}
-                }
-        },
-        "natgateway2": {
-                "Type": "AWS::EC2::NatGateway",
-                "Properties": {
-                        "AllocationId": {"Fn::GetAtt": ["natgateway2ip", "AllocationId"]},
-                        "SubnetId": {"Ref": "pubsubnet2"}
-                }
-        },
-        "publicroutetable" : {
-           "Type" : "AWS::EC2::RouteTable",
-           "Properties" : {
-              "VpcId" : { "Ref" : "vpc" }
-           }
-        },
-        "internetroute": {
-           "Type" : "AWS::EC2::Route",
-           "DependsOn": ["attachgateway"],
-           "Properties": {
-                   "GatewayId": { "Ref": "ig" },
-                   "RouteTableId": { "Ref": "publicroutetable" },
-                   "DestinationCidrBlock": "0.0.0.0/0"
-           }
-        },
-        "pubsubnet1igassn": {
-           "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-           "Properties" : {
-              "SubnetId" : { "Ref" : "pubsubnet1" },
-              "RouteTableId" : { "Ref" : "publicroutetable" }
-           }
-        },
-        "pubsubnet2igassn": {
-           "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-           "Properties" : {
-              "SubnetId" : { "Ref" : "pubsubnet2" },
-              "RouteTableId" : { "Ref" : "publicroutetable" }
-           }
-        },
-        "privroutetable1" : {
-           "Type" : "AWS::EC2::RouteTable",
-           "Properties" : {
-              "VpcId" : { "Ref" : "vpc" }
-           }
-        },
-        "privroutetable2" : {
-           "Type" : "AWS::EC2::RouteTable",
-           "Properties" : {
-              "VpcId" : { "Ref" : "vpc" }
-           }
-        },
-        "natroute1": {
-           "Type" : "AWS::EC2::Route",
-           "DependsOn": ["attachgateway"],
-           "Properties": {
-                   "RouteTableId": { "Ref": "privroutetable1" },
-                   "DestinationCidrBlock": "0.0.0.0/0",
-                   "NatGatewayId": { "Ref": "natgateway1" }
-           }
-        },
-        "natroute2": {
-           "Type" : "AWS::EC2::Route",
-           "DependsOn": ["attachgateway"],
-           "Properties": {
-                   "RouteTableId": { "Ref": "privroutetable2" },
-                   "DestinationCidrBlock": "0.0.0.0/0",
-                   "NatGatewayId": { "Ref": "natgateway2" }
-           }
-        },
-        "privsubnet1rtassn": {
-           "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-           "Properties" : {
-              "SubnetId" : { "Ref" : "privsubnet1" },
-              "RouteTableId" : { "Ref" : "privroutetable1" }
-           }
-        },
-        "privsubnet2rtassn": {
-           "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-           "Properties" : {
-              "SubnetId" : { "Ref" : "privsubnet2" },
-              "RouteTableId" : { "Ref" : "privroutetable2" }
-           }
-        },
-        "dbsubnetgroup" : {
-           "Type" : "AWS::RDS::DBSubnetGroup",
-           "Properties" : {
-              "DBSubnetGroupDescription": "two subnets for the database",
-              "SubnetIds" : [
-                  { "Ref" : "privsubnet1" },
-                  { "Ref" : "privsubnet2" }
-              ]
-           }
-        },
-        "postgresdb": {
-            "Type": "AWS::RDS::DBInstance",
-            "Properties": {
-                "DBInstanceIdentifier": "database",
-                "DBName": "postgres",
-                "DBInstanceClass": "db.m5.large",
-                "AllocatedStorage": 50,
-                "Engine": "postgres",
-                "EngineVersion": "12.5",
-                "MasterUsername": {
-                    "Ref": "DBUsername"
-                },
-                "MasterUserPassword": {
-                    "Ref": "DBPassword"
-                },
-                "DBSubnetGroupName": { "Ref": "dbsubnetgroup" },
-                "VPCSecurityGroups": [{ "Ref": "dbsecgroup" }]
-            }
-        },
-        "ecscluster": {
-            "Type": "AWS::ECS::Cluster",
-            "Properties": {
-                "ClusterName": "UATFargateCluster",
-                "CapacityProviders": [
-                    "FARGATE"
-                ],
-                "DefaultCapacityProviderStrategy": [
-                    {
-                        "CapacityProvider": "FARGATE",
-                        "Weight": 1
+            "VPC": {
+                    "Type": "AWS::CloudFormation::Stack",
+                    "Properties": {
+                            "TemplateURL": {"Fn::Sub": "https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/network.json"}
                     }
-                ]
-            }
-        },
-        "listener": {
-                "Type": "AWS::ElasticLoadBalancingV2::Listener",
-                "Properties": {
-                        "DefaultActions": [
-                                {
-                                        "TargetGroupArn": {"Ref": "droptraffic"},
-                                        "Type": "forward"
-                                }
-                        ],
-                        "LoadBalancerArn": {"Ref": "publiclb"},
-                        "Port": 80,
-                        "Protocol": "HTTP"
-                }
-        },
-        "droptraffic": {
-                "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
-                "Properties": {
-                        "Protocol": "HTTP",
-                        "Name": "drop-traffic",
-                        "Port": 80,
-                        "VpcId": {"Ref": "vpc"},
-                        "HealthCheckPath": "/",
-                        "HealthCheckProtocol": "HTTP",
-                        "HealthCheckIntervalSeconds": 10,
-                        "HealthCheckTimeoutSeconds": 5,
-                        "HealthyThresholdCount": 2,
-                        "UnhealthyThresholdCount": 2
-                }
-        },
-        "publiclb": {
-                "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
-                "Properties": {
-                        "Scheme": "internet-facing",
-                        "IpAddressType": "ipv4",
-                        "Name": "uat-lb",
-                        "SecurityGroups": [{"Ref": "publiclbsecgroup"}],
-                        "Subnets": [
-                                {"Ref": "pubsubnet1"},
-                                {"Ref": "pubsubnet2"}
-                        ]
-                }
-        },
-        "publiclbsecgroup": {
-                "Type" : "AWS::EC2::SecurityGroup",
-                   "Properties" : {
-                      "GroupDescription" : "Allow all traffic to load balancer",
-                      "VpcId" : {"Ref" : "vpc"},
-                      "SecurityGroupIngress" : [{
-                         "IpProtocol" : -1,
-                         "CidrIp" : "0.0.0.0/0"
-                      }]
-                   }
-        },
-        "lbtarget": {
-                "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
-                "Properties": {
-                        "Protocol": "HTTP",
-                        "Name": "uat",
-                        "Port": 9000,
-                        "VpcId": {"Ref": "vpc"},
-                        "TargetType": "ip",
-                        "HealthCheckPath": "/",
-                        "HealthCheckProtocol": "HTTP",
-                        "HealthCheckIntervalSeconds": 10,
-                        "HealthCheckTimeoutSeconds": 5,
-                        "HealthyThresholdCount": 2,
-                        "UnhealthyThresholdCount": 2
-                }
-        },
-        "lbrule": {
-                "Type": "AWS::ElasticLoadBalancingV2::ListenerRule",
-                "Properties": {
-                        "Actions": [
-                                {
-                                        "TargetGroupArn": {"Ref": "lbtarget"},
-                                        "Type": "forward"
-                                }
-                        ],
-                        "Conditions": [
-                                {
-                                        "Field": "path-pattern",
-                                        "PathPatternConfig": { "Values": ["*"]}
-                                }
-                        ],
-                        "ListenerArn": {"Ref": "listener"},
-                        "Priority": 1
-                }
-        },
-        "ecsservice": {
-          "Type": "AWS::ECS::Service",
-          "DependsOn": ["natroute1", "natroute2"],
-          "Properties" : {
-            "Cluster": { "Ref": "ecscluster" },
-            "DesiredCount": 2,
-            "TaskDefinition" : { "Ref": "ecstaskdef" },
-            "LoadBalancers": [
-                    {
-                            "ContainerName": "uat",
-                            "ContainerPort": 9000,
-                            "TargetGroupArn": { "Ref": "lbtarget"}
+            },
+            "SecurityGroups": {
+                    "Type": "AWS::CloudFormation::Stack",
+                    "Properties": {
+                            "TemplateURL": {"Fn::Sub": "https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/security_groups.json"},
+                            "Parameters": {
+                                    "VPCId": {"Fn::GetAtt": ["VPC", "Outputs.VPCId"]}
+                            }
                     }
-            ],
-            "LaunchType": "FARGATE",
-            "NetworkConfiguration": {
-                    "AwsvpcConfiguration": {
-                            "AssignPublicIp": "DISABLED",
-                            "SecurityGroups": [{
-                                    "Ref": "containersecgroup"
-                            }],
-                            "Subnets": [
-                                  { "Ref" : "privsubnet1" },
-                                  { "Ref" : "privsubnet2" }
-                            ]
-                        }
-            }
-          }
-        },
-        "containersecgroup": {
-                "Type" : "AWS::EC2::SecurityGroup",
-                   "Properties" : {
-                      "GroupDescription" : "Allow http to client host",
-                      "VpcId" : {"Ref" : "vpc"},
-                      "SecurityGroupIngress" : [{
-                         "IpProtocol" : -1,
-                         "CidrIp" : "0.0.0.0/0"
-                      }]
-                   }
-        },
-        "dbsecgroup": {
-                "Type": "AWS::EC2::SecurityGroup",
-                "Properties": {
-                        "GroupDescription": "Ingress for DB",
-                        "VpcId" : {"Ref" : "vpc"},
-                        "SecurityGroupIngress" : [{
-                         "IpProtocol" : "tcp",
-                         "FromPort" : 0,
-                         "ToPort" : 65535,
-                         "SourceSecurityGroupId": { "Ref": "containersecgroup" }
-                      }]
-                }
-        },
-        "ecstaskdef": {
-            "Type": "AWS::ECS::TaskDefinition",
-            "Properties": {
-                "RequiresCompatibilities": [
-                    "FARGATE"
-                ],
-                "ExecutionRoleArn": "arn:aws:iam::405662711265:role/ecs-task-role",
-                "NetworkMode": "awsvpc",
-                "Cpu": 1024,
-                "Memory": 8192,
-                "ContainerDefinitions": [
-                    {
-                        "Name": "uat",
-                        "Image": "public.ecr.aws/t1q6b4h2/universal-application-tool:latest",
-                        "Environment": [
-                                {
-                                        "Name": "DB_JDBC_STRING",
-                                        "Value": {"Fn::Join": ["", ["jdbc:postgresql://", {"Fn::GetAtt": ["postgresdb", "Endpoint.Address"]}, ":", {"Fn::GetAtt": ["postgresdb", "Endpoint.Port"]}, "/postgres"]]}
-                                },
-                                {
-                                        "Name": "DB_USERNAME",
-                                        "Value": { "Ref": "DBUsername" }
-                                },
-                                {
-                                        "Name": "DB_PASSWORD",
-                                        "Value": { "Ref": "DBPassword" }
-                                },
-                                {
-                                        "Name": "SECRET_KEY",
-                                        "Value": { "Ref": "SecretKey" }
-                                }
-                        ],
-                        "Cpu": 1024,
-                        "Memory": 8192,
-                        "PortMappings": [
-                                {
-                                        "ContainerPort": "9000",
-                                        "HostPort": "9000"
-                                }
-                        ],
-                        "Essential": true
+            },
+            "LB": {
+                    "Type": "AWS::CloudFormation::Stack",
+                    "Properties": {
+                            "TemplateURL": {"Fn::Sub": "https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/load_balancer.json"},
+                            "Parameters": {
+                                    "VPCId": {"Fn::GetAtt": ["VPC", "Outputs.VPCId"]},
+                                    "PublicSubnets": {"Fn::GetAtt": ["VPC", "Outputs.PublicSubnets"]},
+                                    "LBSecurityGroup": {"Fn::GetAtt": ["SecurityGroups", "Outputs.LbGroup"]}
+                            }
                     }
-                ]
+            },
+            "DB": {
+                    "Type": "AWS::CloudFormation::Stack",
+                    "Properties": {
+                            "TemplateURL": {"Fn::Sub": "https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/database.json"},
+                            "Parameters": {
+                                    "DBUsername": {"Ref": "DBUsername"},
+                                    "DBPassword": {"Ref": "DBPassword"},
+                                    "DBSecurityGroup": {"Fn::GetAtt": ["SecurityGroups", "Outputs.DatabaseGroup"]},
+                                    "PrivateSubnets": {"Fn::GetAtt": ["VPC", "Outputs.PrivateSubnets"]}
+                            }
+                    }
+            },
+            "Container": {
+                    "Type": "AWS::CloudFormation::Stack",
+                    "Properties": {
+                            "TemplateURL": {"Fn::Sub": "https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/containers.json"},
+                            "Parameters": {
+                                    "DBUsername": {"Ref": "DBUsername"},
+                                    "DBPassword": {"Ref": "DBPassword"},
+                                    "DBAddress": {"Fn::GetAtt": ["DB", "Outputs.DBAddress"]},
+                                    "DBPort": {"Fn::GetAtt": ["DB", "Outputs.DBPort"]},
+                                    "SecretKey": {"Ref": "SecretKey"},
+                                    "PrivateSubnets": {"Fn::GetAtt": ["VPC", "Outputs.PrivateSubnets"]},
+                                    "LBTargetName": {"Fn::GetAtt": ["LB", "Outputs.LBTarget"]},
+                                    "ContainerSecurityGroup": {"Fn::GetAtt": ["SecurityGroups", "Outputs.ContainerGroup"]}
+                            }
+                    }
             }
-        }
     }
 }

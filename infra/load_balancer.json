@@ -1,0 +1,101 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "",
+    "Parameters": {
+        "VPCId": {
+            "Description": "The id of the VPC to add our LB to.",
+            "Type": "AWS::EC2::VPC::Id"
+        },
+        "PublicSubnets": {
+            "Description": "The public subnets in which the LB should operate.",
+            "Type": "List<AWS::EC2::Subnet::Id>"
+        },
+        "LBSecurityGroup": {
+            "Description": "The security group to use for our load balancer.",
+            "Type": "String"
+        }
+    },
+    "Resources": {
+        "publiclb": {
+                "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+                "Properties": {
+                        "Scheme": "internet-facing",
+                        "IpAddressType": "ipv4",
+                        "Name": "uat-lb",
+                        "SecurityGroups": [{ "Ref" :  "LBSecurityGroup" } }],
+                        "Subnets": { "Ref" :  "PublicSubnets" }
+                }
+        },
+        "droptraffic": {
+                "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+                "Properties": {
+                        "Protocol": "HTTP",
+                        "Name": "drop-traffic",
+                        "Port": 80,
+                        "VpcId" : { "Ref": "VPCId" },
+                        "HealthCheckPath": "/",
+                        "HealthCheckProtocol": "HTTP",
+                        "HealthCheckIntervalSeconds": 10,
+                        "HealthCheckTimeoutSeconds": 5,
+                        "HealthyThresholdCount": 2,
+                        "UnhealthyThresholdCount": 2
+                }
+        },
+        "listener": {
+                "Type": "AWS::ElasticLoadBalancingV2::Listener",
+                "Properties": {
+                        "DefaultActions": [
+                                {
+                                        "TargetGroupArn": {"Ref": "droptraffic"},
+                                        "Type": "forward"
+                                }
+                        ],
+                        "LoadBalancerArn": {"Ref": "publiclb"},
+                        "Port": 80,
+                        "Protocol": "HTTP"
+                }
+        },
+        "lbtarget": {
+                "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+                "Properties": {
+                        "Protocol": "HTTP",
+                        "Name": "uat",
+                        "Port": 9000,
+                        "VpcId" : { "Ref": "VPCId" },
+                        "TargetType": "ip",
+                        "HealthCheckPath": "/",
+                        "HealthCheckProtocol": "HTTP",
+                        "HealthCheckIntervalSeconds": 10,
+                        "HealthCheckTimeoutSeconds": 5,
+                        "HealthyThresholdCount": 2,
+                        "UnhealthyThresholdCount": 2
+                }
+        },
+        "lbrule": {
+                "Type": "AWS::ElasticLoadBalancingV2::ListenerRule",
+                "Properties": {
+                        "Actions": [
+                                {
+                                        "TargetGroupArn": {"Ref": "lbtarget"},
+                                        "Type": "forward"
+                                }
+                        ],
+                        "Conditions": [
+                                {
+                                        "Field": "path-pattern",
+                                        "PathPatternConfig": { "Values": ["*"]}
+                                }
+                        ],
+                        "ListenerArn": {"Ref": "listener"},
+                        "Priority": 1
+                }
+        }
+    },
+    "Outputs": {
+            "LBTarget": {
+                    "Description": "The target group of the output load balancer",
+                    "Value": {"Ref": "lbtarget"},
+                    "Export": {"Name": {"Fn::Sub": "${AWS::StackName}-LBTarget"}}
+            }
+    }
+}
