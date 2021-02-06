@@ -1,0 +1,104 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: ''
+Parameters:
+  DBAddress:
+    Description: The address at which the database can be reached.
+    Type: String
+  DBPort:
+    Description: The port on which the database can be reached.
+    Type: String
+  LBTargetName:
+    Description: The load balancer target group to add new containers to.
+    Type: String
+  ContainerSecurityGroup:
+    Description: The security group to use for the containers.
+    Type: String
+  PrivateSubnet1:
+    Description: The private subnets to add the database to.
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet2:
+    Description: The private subnet to add the database to.
+    Type: AWS::EC2::Subnet::Id
+  DBUsername:
+    NoEcho: 'true'
+    Description: Username for database access
+    Type: String
+    MinLength: '1'
+    MaxLength: '16'
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: must begin with a letter and contain only alphanumeric
+      characters.
+  DBPassword:
+    NoEcho: 'true'
+    Description: Password database access
+    Type: String
+    MinLength: '8'
+    MaxLength: '64'
+  SecretKey:
+    NoEcho: 'true'
+    Description: Secret key for Play application
+    Type: String
+    MinLength: '12'
+    MaxLength: '64'
+Resources:
+  ecscluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: UATFargateCluster
+      CapacityProviders:
+        - FARGATE
+      DefaultCapacityProviderStrategy:
+        - CapacityProvider: FARGATE
+          Weight: 1
+  ecsservice:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref 'ecscluster'
+      DesiredCount: 2
+      TaskDefinition: !Ref 'ecstaskdef'
+      LoadBalancers:
+        - ContainerName: uat
+          ContainerPort: 9000
+          TargetGroupArn: !Ref 'LBTargetName'
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - !Ref 'ContainerSecurityGroup'
+          Subnets:
+            - !Ref 'PrivateSubnet1'
+            - !Ref 'PrivateSubnet2'
+  ecstaskdef:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: arn:aws:iam::405662711265:role/ecs-task-role
+      NetworkMode: awsvpc
+      Cpu: 1024
+      Memory: 8192
+      ContainerDefinitions:
+        - Name: uat
+          Image: public.ecr.aws/t1q6b4h2/universal-application-tool:latest
+          Environment:
+            - Name: DB_JDBC_STRING
+              Value: !Join
+                - ''
+                - - jdbc:postgresql://
+                  - !Ref 'DBAddress'
+                  - ':'
+                  - !Ref 'DBPort'
+                  - /postgres
+            - Name: DB_USERNAME
+              Value: !Ref 'DBUsername'
+            - Name: DB_PASSWORD
+              Value: !Ref 'DBPassword'
+            - Name: SECRET_KEY
+              Value: !Ref 'SecretKey'
+          Cpu: 1024
+          Memory: 8192
+          PortMappings:
+            - ContainerPort: '9000'
+              HostPort: '9000'
+          Essential: true
