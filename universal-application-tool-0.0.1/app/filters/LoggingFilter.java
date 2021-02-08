@@ -35,7 +35,7 @@ public class LoggingFilter extends EssentialFilter {
                     long time = clock.millis() - startTime;
                     log.info(
                         "{}\t{}\t{}ms\t{}", request.method(), request.uri(), time, result.status());
-                    return result.withHeader("X-RequestTime", String.valueOf(time));
+                    return result.withHeader("RequestTime", String.valueOf(time));
                   },
                   exec);
         });
