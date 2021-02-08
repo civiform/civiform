@@ -113,3 +113,25 @@ Resources:
               awslogs-region: us-west-2
               awslogs-stream-prefix: uatsrv
           Essential: true
+  autoscalingtarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MinCapacity: 2
+      MaxCapacity: 5
+      ResourceId: !Join ['/', [service, !Ref ecscluster, !GetAtt ecsservice.Name]]
+      ScalableDimension: ecs:service:DesiredCount
+      ServiceNamespace: ecs
+      RoleARN: # This is where the ARN of the SLR goes.
+  autoscalingpolict:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: UATAutoScalingPolicy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref autoscalingtarget
+      TargetTrackingScalingPolicyConfiguration:
+        PredefinedMetricSpecification:
+          PredefinedMetricType: ECSServiceAverageCPUUtilization
+        ScaleInCooldown: 10
+        ScaleOutCooldown: 10
+        # Keep things at or lower than 75% CPU utilization
+        TargetValue: 75
