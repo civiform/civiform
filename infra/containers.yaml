@@ -121,8 +121,8 @@ Resources:
       ResourceId: !Join ['/', [service, !Ref ecscluster, !GetAtt ecsservice.Name]]
       ScalableDimension: ecs:service:DesiredCount
       ServiceNamespace: ecs
-      RoleARN: # This is where the ARN of the SLR goes.
-  autoscalingpolict:
+      RoleARN: arn:aws:iam::405662711265:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService
+  autoscalingpolicy:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
     Properties:
       PolicyName: UATAutoScalingPolicy
