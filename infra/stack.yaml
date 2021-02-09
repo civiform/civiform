@@ -4,6 +4,10 @@ Parameters:
   Timestamp:
     Description: Current timestamp in seconds.
     Type: Number
+  DBUsername:
+    Description: The name of the database user.
+    Type: String
+    Default: uat
 Resources:
   VPC:
     Type: AWS::CloudFormation::Stack
