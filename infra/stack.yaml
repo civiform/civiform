@@ -56,3 +56,11 @@ Resources:
         PrivateSubnet2: !GetAtt 'VPC.Outputs.PrivateSubnet2'
         LBTargetName: !GetAtt 'LB.Outputs.LBTarget'
         ContainerSecurityGroup: !GetAtt 'SecurityGroups.Outputs.ContainerGroup'
+  Monitoring:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/monitoring.yaml'
+      Parameters:
+        DBName: !GetAtt 'DB.Outputs.DBName'
+        LBName: !GetAtt 'LB.Outputs.LBFullName'
+        LBTGName: !GetAtt 'LB.Outputs.TGFullName'
