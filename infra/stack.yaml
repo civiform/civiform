@@ -37,7 +37,7 @@ Resources:
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/database.yaml'
       Parameters:
-        DBUsername: uat
+        DBUsername: !Ref DBUsername
         DBPassword: !GetAtt 'Secrets.Outputs.Password'
         DBSecurityGroup: !GetAtt 'SecurityGroups.Outputs.DatabaseGroup'
         PrivateSubnet1: !GetAtt 'VPC.Outputs.PrivateSubnet1'
@@ -47,7 +47,7 @@ Resources:
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/containers.yaml'
       Parameters:
-        DBUsername: uat
+        DBUsername: !Ref DBUsername
         DBPassword: !GetAtt 'Secrets.Outputs.Password'
         DBAddress: !GetAtt 'DB.Outputs.DBAddress'
         DBPort: !GetAtt 'DB.Outputs.DBPort'
