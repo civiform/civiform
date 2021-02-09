@@ -1,35 +1,22 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: ''
 Parameters:
-  DBUsername:
-    NoEcho: 'true'
-    Description: Username for database access
-    Type: String
-    MinLength: '1'
-    MaxLength: '16'
-    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
-    ConstraintDescription: must begin with a letter and contain only alphanumeric
-      characters.
-  DBPassword:
-    NoEcho: 'true'
-    Description: Password for database access
-    Type: String
-    MinLength: '16'
-    MaxLength: '64'
-  SecretKey:
-    NoEcho: 'true'
-    Description: Secret key for Play application
-    Type: String
-    MinLength: '12'
-    MaxLength: '64'
   Timestamp:
     Description: Current timestamp in seconds.
     Type: Number
+  DBUsername:
+    Description: The name of the database user.
+    Type: String
+    Default: uat
 Resources:
   VPC:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/network.yaml'
+  Secrets:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/secrets.yaml'
   SecurityGroups:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -50,8 +37,8 @@ Resources:
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/database.yaml'
       Parameters:
-        DBUsername: !Ref 'DBUsername'
-        DBPassword: !Ref 'DBPassword'
+        DBUsername: uat
+        DBPassword: !GetAtt 'Secrets.Outputs.Password'
         DBSecurityGroup: !GetAtt 'SecurityGroups.Outputs.DatabaseGroup'
         PrivateSubnet1: !GetAtt 'VPC.Outputs.PrivateSubnet1'
         PrivateSubnet2: !GetAtt 'VPC.Outputs.PrivateSubnet2'
@@ -60,11 +47,11 @@ Resources:
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/containers.yaml'
       Parameters:
-        DBUsername: !Ref 'DBUsername'
-        DBPassword: !Ref 'DBPassword'
+        DBUsername: uat
+        DBPassword: !GetAtt 'Secrets.Outputs.Password'
         DBAddress: !GetAtt 'DB.Outputs.DBAddress'
         DBPort: !GetAtt 'DB.Outputs.DBPort'
-        SecretKey: !Ref 'SecretKey'
+        SecretKey: !GetAtt 'Secrets.Outputs.Key'
         PrivateSubnet1: !GetAtt 'VPC.Outputs.PrivateSubnet1'
         PrivateSubnet2: !GetAtt 'VPC.Outputs.PrivateSubnet2'
         LBTargetName: !GetAtt 'LB.Outputs.LBTarget'
