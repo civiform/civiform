@@ -80,11 +80,11 @@ public class QuestionDefinition {
     if (!this.questionHelpText.isPresent()) {
       return "";
     }
-    
+
     if (this.questionHelpText.get().containsKey(locale)) {
       return this.questionHelpText.get().get(locale);
     }
-    
+
     throw new RuntimeException("Locale not found: " + locale);
   }
 
@@ -98,7 +98,7 @@ public class QuestionDefinition {
     return ImmutableMap.of("text", ScalarType.STRING);
   }
 
-  public ScalarType getScalarType(String key) {
-    return this.getScalars().get(key);
+  public Optional<ScalarType> getScalarType(String key) {
+    return Optional.ofNullable(this.getScalars().get(key));
   }
 }

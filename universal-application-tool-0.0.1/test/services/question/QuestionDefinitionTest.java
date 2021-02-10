@@ -81,7 +81,14 @@ public class QuestionDefinitionTest {
     QuestionDefinition question =
         new QuestionDefinition("", "", "", "", "", ImmutableMap.of(), Optional.empty());
     assertThat(question.getScalars()).containsOnly(entry("text", ScalarType.STRING));
-    assertThat(question.getScalarType("text")).isEqualTo(ScalarType.STRING);
-    assertThat(question.getScalarType("text").getClassFor().get()).isEqualTo(String.class);
+    assertThat(question.getScalarType("text").get()).isEqualTo(ScalarType.STRING);
+    assertThat(question.getScalarType("text").get().getClassFor().get()).isEqualTo(String.class);
+  }
+
+  @Test
+  public void newQuestionMissingScalar_returnsOptionalEmpty() {
+    QuestionDefinition question =
+        new QuestionDefinition("", "", "", "", "", ImmutableMap.of(), Optional.empty());
+    assertThat(question.getScalarType("notPresent").get()).isEqualTo(Optional.empty());
   }
 }
