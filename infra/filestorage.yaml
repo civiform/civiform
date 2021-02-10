@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: ''
+Resources:
+  key:
+    Type: AWS::KMS::Key
+    Properties:
+      EnableKeyRotation: true
+      Description: The key used to encrypt/decrypt secure uploads to the UAT.
+      KeySpec: SYMMETRIC_DEFAULT
+      KeyPolicy:
+        Version: '2012-10-17'
+        Id: secureuploads-key
+        Statement:
+        - Sid: Enable IAM User Permissions
+          Effect: Allow
+          Principal:
+            AWS:
+              Fn::Join:
+              - ''
+              - - 'arn:aws:iam::'
+                - Ref: AWS::AccountId
+                - :root
+          Action: kms:*
+          Resource: '*'
+  bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Sub 'secureuploads-${AWS::Region}-${AWS::AccountId}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'aws:kms'
+              KMSMasterKeyID: !GetAtt key.Arn
+            BucketKeyEnabled: true
+      PublicAccessBlockConfiguration:
+        # This totally prevents anyone outside the AWS account using this bucket.
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+    DeletionPolicy: Delete
+Outputs:
+  bucket:
+    Description: The location of the bucket for secure uploads.
+    Value: !Ref bucket
+    Export:
+      Name: !Sub '${AWS::StackName}-SecureBucket'
