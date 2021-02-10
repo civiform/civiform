@@ -1,6 +1,7 @@
 package services.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -49,6 +50,6 @@ public class QuestionDefinitionTest {
         new QuestionDefinition(
             "", "", "", "", "", ImmutableMap.of(), ImmutableMap.of(), ImmutableSet.of());
 
-    assertThat(question.getScalars()).containsExactly("text");
+    assertThat(question.getScalars()).containsOnly(entry("text", String));
   }
 }

@@ -84,7 +84,7 @@ public class QuestionDefinition {
   }
 
   /** Get a set of scalars stored by this question definition. */
-  public ImmutableSet<String> getScalars() {
-    return ImmutableSet.of("text");
+  public ImmutableMap<String> getScalars() {
+    return ImmutableMap.of("text", String);
   }
 }
