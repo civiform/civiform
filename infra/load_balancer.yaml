@@ -80,3 +80,13 @@ Outputs:
     Value: !Ref 'lbtarget'
     Export:
       Name: !Sub '${AWS::StackName}-LBTarget'
+  TGFullName:
+    Description: Full name of the load balancer target group.
+    Value: !GetAtt 'lbtarget.TargetGroupFullName'
+    Export:
+      Name: !Sub '${AWS::StackName}-TGFullName'
+  LBFullName:
+    Description: Full name of the load balancer.
+    Value: !GetAtt 'publiclb.LoadBalancerFullName'
+    Export:
+      Name: !Sub '${AWS::StackName}-LBFullName'
