@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 
 import java.util.Locale;
 
+/** Defines a single question. */
 public class QuestionDefinition {
   private final String id;
   private final String version;
@@ -34,52 +35,56 @@ public class QuestionDefinition {
     this.tags = tags;
   }
 
-  /** Required - numerical ID for this question. */
-  public String id() {
+  /** Get the unique identifier for this question. */
+  public String getId() {
     return this.id;
   }
 
-  /** Required - the version this question is pinned to. */
-  public String version() {
+  /** Get the system version this question is pinned to. */
+  public String getVersion() {
     return this.version;
   }
 
-  /** Required - the name of this question. */
-  public String name() {
+  /** Get the name of this question. */
+  public String getName() {
     return this.name;
   }
 
-  /** Required - the path of this question's parent, in JSON notation. */
-  public String path() {
+  /** Get the path of this question's parent, in JSON notation. */
+  public String getPath() {
     return this.path;
   }
 
-  /** Required - a human-readable description for the data this question collects. */
-  public String description() {
+  /** Get a human-readable description for the data this question collects. */
+  public String getDescription() {
     return this.description;
   }
 
   /** Localized question text. Keys are ISO language codes, and values are the translated text. */
-  public ImmutableMap<Locale, String> questionText() {
+  public ImmutableMap<Locale, String> getQuestionText() {
     return this.questionText;
   }
 
-  /** Localized question help text. */
-  public ImmutableMap<Locale, String> questionHelpText() {
+  /**
+   * Localized question help text. Keys are ISO language codes, and values are the translated text.
+   */
+  public ImmutableMap<Locale, String> getQuestionHelpText() {
     return this.questionHelpText;
   }
 
-  /** Required - the type of widget for this question. */
-  public QuestionType questionType() {
-    return QuestionType.TEXT;
-  }
-
-  /** Set of admin-visible tags for sorting and searching (ex: "General", "Financial", etc.) */
-  public ImmutableSet<String> tags() {
+  /**
+   * Get a set of admin-visible tags for sorting and searching (ex: "General", "Financial", etc.)
+   */
+  public ImmutableSet<String> getTags() {
     return this.tags;
   }
 
-  /** The list of scalars stored by this question definition. */
+  /** Get the type of this question. */
+  public QuestionType getQuestionType() {
+    return QuestionType.TEXT;
+  }
+
+  /** Get a set of scalars stored by this question definition. */
   public ImmutableSet<String> getScalars() {
     return ImmutableSet.of("text");
   }
