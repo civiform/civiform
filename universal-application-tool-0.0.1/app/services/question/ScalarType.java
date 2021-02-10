@@ -1,5 +1,7 @@
 package services.question;
 
+import java.util.Optional;
+
 public enum ScalarType {
   BOOLEAN,
   BYTE,
@@ -23,7 +25,7 @@ public enum ScalarType {
     STRING.classOf = String.class;
   }
 
-  public Class getClassFor() {
-    return classOf;
+  public Optional<Class> getClassFor() {
+    return Optional.ofNullable(classOf);
   }
 }

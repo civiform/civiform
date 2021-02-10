@@ -16,16 +16,16 @@ public class QuestionDefinitionTest {
         new QuestionDefinition(
             "id",
             "version",
-            "name",
-            "my.path",
+            "my name",
+            "my.path.name",
             "description",
             ImmutableMap.of(Locale.ENGLISH, "question?"),
             ImmutableMap.of(Locale.ENGLISH, "help text"));
 
     assertThat(question.getId()).isEqualTo("id");
     assertThat(question.getVersion()).isEqualTo("version");
-    assertThat(question.getName()).isEqualTo("name");
-    assertThat(question.getPath()).isEqualTo("my.path");
+    assertThat(question.getName()).isEqualTo("my name");
+    assertThat(question.getPath()).isEqualTo("my.path.name");
     assertThat(question.getDescription()).isEqualTo("description");
     assertThat(question.getQuestionText(Locale.ENGLISH)).isEqualTo("question?");
     assertThat(question.getQuestionHelpText(Locale.ENGLISH)).isEqualTo("help text");
@@ -65,9 +65,8 @@ public class QuestionDefinitionTest {
   public void newQuestionHasStringScalar() {
     QuestionDefinition question =
         new QuestionDefinition("", "", "", "", "", ImmutableMap.of(), ImmutableMap.of());
-
     assertThat(question.getScalars()).containsOnly(entry("text", ScalarType.STRING));
     assertThat(question.getScalarType("text")).isEqualTo(ScalarType.STRING);
-    assertThat(question.getScalarType("text").getClassFor()).isEqualTo(String.class);
+    assertThat(question.getScalarType("text").getClassFor().get()).isEqualTo(String.class);
   }
 }

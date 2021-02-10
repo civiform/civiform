@@ -42,17 +42,25 @@ public class QuestionDefinition {
     return this.version;
   }
 
-  /** Get the name of this question. */
+  /**
+   * Get the name of this question.
+   *
+   * <p>NOTE: This field will not be localized as it is for admin use only.
+   */
   public String getName() {
     return this.name;
   }
 
-  /** Get the path of this question's parent, in JSON notation. */
+  /** Get the full path of this question, in JSON notation. */
   public String getPath() {
     return this.path;
   }
 
-  /** Get a human-readable description for the data this question collects. */
+  /**
+   * Get a human-readable description for the data this question collects.
+   *
+   * <p>NOTE: This field will not be localized as it is for admin use only.
+   */
   public String getDescription() {
     return this.description;
   }
@@ -80,7 +88,7 @@ public class QuestionDefinition {
     return QuestionType.TEXT;
   }
 
-  /** Get a set of scalars stored by this question definition. */
+  /** Get a map of scalars stored by this question definition. */
   public ImmutableMap<String, ScalarType> getScalars() {
     return ImmutableMap.of("text", ScalarType.STRING);
   }
