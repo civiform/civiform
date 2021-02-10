@@ -1,12 +1,10 @@
 package services.question;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
-
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.*;
 
 public class QuestionDefinitionTest {
 
@@ -20,26 +18,43 @@ public class QuestionDefinitionTest {
             "my.path",
             "description",
             ImmutableMap.of(Locale.ENGLISH, "question?"),
-            ImmutableMap.of(Locale.ENGLISH, "help text"),
-            ImmutableSet.of("general"));
+            ImmutableMap.of(Locale.ENGLISH, "help text"));
 
     assertThat(question.getId()).isEqualTo("id");
     assertThat(question.getVersion()).isEqualTo("version");
     assertThat(question.getName()).isEqualTo("name");
     assertThat(question.getPath()).isEqualTo("my.path");
     assertThat(question.getDescription()).isEqualTo("description");
-    assertThat(question.getQuestionText())
-        .containsAllEntriesOf(ImmutableMap.of(Locale.ENGLISH, "question?"));
-    assertThat(question.getQuestionHelpText())
-        .containsAllEntriesOf(ImmutableMap.of(Locale.ENGLISH, "help text"));
-    assertThat(question.getTags()).containsExactly("general");
+    assertThat(question.getQuestionText(Locale.ENGLISH)).isEqualTo("question?");
+    assertThat(question.getQuestionHelpText(Locale.ENGLISH)).isEqualTo("help text");
+  }
+
+  @Test
+  public void getQuestionTextForUnknownLocale_throwsException() {
+    QuestionDefinition question =
+        new QuestionDefinition("", "", "", "", "", ImmutableMap.of(), ImmutableMap.of());
+
+    Throwable thrown = catchThrowable(() -> question.getQuestionText(Locale.FRANCE));
+
+    assertThat(thrown).isInstanceOf(RuntimeException.class);
+    assertThat(thrown).hasMessage("Locale not found: fr_FR");
+  }
+
+  @Test
+  public void getQuestionHelpTextForUnknownLocale_throwsException() {
+    QuestionDefinition question =
+        new QuestionDefinition("", "", "", "", "", ImmutableMap.of(), ImmutableMap.of());
+
+    Throwable thrown = catchThrowable(() -> question.getQuestionHelpText(Locale.FRANCE));
+
+    assertThat(thrown).isInstanceOf(RuntimeException.class);
+    assertThat(thrown).hasMessage("Locale not found: fr_FR");
   }
 
   @Test
   public void newQuestionHasTypeText() {
     QuestionDefinition question =
-        new QuestionDefinition(
-            "", "", "", "", "", ImmutableMap.of(), ImmutableMap.of(), ImmutableSet.of());
+        new QuestionDefinition("", "", "", "", "", ImmutableMap.of(), ImmutableMap.of());
 
     assertThat(question.getQuestionType()).isEqualTo(QuestionType.TEXT);
   }
@@ -47,8 +62,7 @@ public class QuestionDefinitionTest {
   @Test
   public void newQuestionHasTextScalar() {
     QuestionDefinition question =
-        new QuestionDefinition(
-            "", "", "", "", "", ImmutableMap.of(), ImmutableMap.of(), ImmutableSet.of());
+        new QuestionDefinition("", "", "", "", "", ImmutableMap.of(), ImmutableMap.of());
 
     assertThat(question.getScalars()).containsOnly(entry("text", String.class));
   }

@@ -1,7 +1,8 @@
 package services.question;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 
 /** Defines a single question. */
@@ -13,7 +14,6 @@ public class QuestionDefinition {
   private final String description;
   private final ImmutableMap<Locale, String> questionText;
   private final ImmutableMap<Locale, String> questionHelpText;
-  private final ImmutableSet<String> tags;
 
   public QuestionDefinition(
       String id,
@@ -22,16 +22,14 @@ public class QuestionDefinition {
       String path,
       String description,
       ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText,
-      ImmutableSet<String> tags) {
-    this.id = id;
-    this.version = version;
-    this.name = name;
-    this.path = path;
-    this.description = description;
-    this.questionText = questionText;
-    this.questionHelpText = questionHelpText;
-    this.tags = tags;
+      ImmutableMap<Locale, String> questionHelpText) {
+    this.id = checkNotNull(id);
+    this.version = checkNotNull(version);
+    this.name = checkNotNull(name);
+    this.path = checkNotNull(path);
+    this.description = checkNotNull(description);
+    this.questionText = checkNotNull(questionText);
+    this.questionHelpText = checkNotNull(questionHelpText);
   }
 
   /** Get the unique identifier for this question. */
@@ -59,23 +57,20 @@ public class QuestionDefinition {
     return this.description;
   }
 
-  /** Localized question text. Keys are ISO language codes, and values are the translated text. */
-  public ImmutableMap<Locale, String> getQuestionText() {
-    return this.questionText;
+  /** Get the question text for the given locale. */
+  public String getQuestionText(Locale locale) {
+    if (this.questionText.containsKey(locale)) {
+      return this.questionText.get(locale);
+    }
+    throw new RuntimeException("Locale not found: " + locale);
   }
 
-  /**
-   * Localized question help text. Keys are ISO language codes, and values are the translated text.
-   */
-  public ImmutableMap<Locale, String> getQuestionHelpText() {
-    return this.questionHelpText;
-  }
-
-  /**
-   * Get a set of admin-visible tags for sorting and searching (ex: "General", "Financial", etc.)
-   */
-  public ImmutableSet<String> getTags() {
-    return this.tags;
+  /** Get the question help text for the given locale. */
+  public String getQuestionHelpText(Locale locale) {
+    if (this.questionHelpText.containsKey(locale)) {
+      return this.questionHelpText.get(locale);
+    }
+    throw new RuntimeException("Locale not found: " + locale);
   }
 
   /** Get the type of this question. */

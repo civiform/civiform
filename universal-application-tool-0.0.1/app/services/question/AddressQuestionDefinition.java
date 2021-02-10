@@ -15,7 +15,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ImmutableSet<String> tags) {
-    super(id, version, name, path, description, questionText, questionHelpText, tags);
+    super(id, version, name, path, description, questionText, questionHelpText);
   }
 
   @Override
