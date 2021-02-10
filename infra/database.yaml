@@ -23,6 +23,9 @@ Parameters:
   DBSecurityGroup:
     Description: The security group to use for our database access control.
     Type: String
+  DBClass:
+    Description: The class to use for the DB - smaller for prod and larger for dev.
+    Type: String
 Resources:
   subnetgroup:
     Type: AWS::RDS::DBSubnetGroup
@@ -37,7 +40,7 @@ Resources:
     DeletionPolicy: Snapshot
     Properties:
       DBName: postgres
-      DBInstanceClass: db.t3.small # update to db.m5.large for prod - t3.small is cheap and slow for dev/test.
+      DBInstanceClass: !Ref DBClass
       AllocatedStorage: 50
       Engine: postgres
       EngineVersion: '12.5'

@@ -42,6 +42,8 @@ Resources:
         DBSecurityGroup: !GetAtt 'SecurityGroups.Outputs.DatabaseGroup'
         PrivateSubnet1: !GetAtt 'VPC.Outputs.PrivateSubnet1'
         PrivateSubnet2: !GetAtt 'VPC.Outputs.PrivateSubnet2'
+        # update to db.m5.large for prod - t3.small is cheap and slow for dev/test.
+        DBClass: !If [ IsProd, db.t3.small, db.t2.micro ]
   Container:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -56,6 +58,8 @@ Resources:
         PrivateSubnet2: !GetAtt 'VPC.Outputs.PrivateSubnet2'
         LBTargetName: !GetAtt 'LB.Outputs.LBTarget'
         ContainerSecurityGroup: !GetAtt 'SecurityGroups.Outputs.ContainerGroup'
+        CPU: !If [ IsProd, 1024, 256 ]
+        Memory: !If [ IsProd, 8192, 2048 ]
   Monitoring:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -72,7 +76,7 @@ Resources:
       TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/ttl.yaml'
       Parameters:
         StackName: !Ref 'AWS::StackName'
-        TTL: '25'
+        TTL: '3'
     Condition: IsTest
 Conditions:
   IsProd: !Equals

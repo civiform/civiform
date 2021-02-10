@@ -14,11 +14,17 @@ Parameters:
     Description: The security group to use for the containers.
     Type: String
   PrivateSubnet1:
-    Description: The private subnets to add the database to.
+    Description: The private subnets to add the containers to.
     Type: AWS::EC2::Subnet::Id
   PrivateSubnet2:
-    Description: The private subnet to add the database to.
+    Description: The private subnet to add the containers to.
     Type: AWS::EC2::Subnet::Id
+  Memory:
+    Description: How much memory to give the container.
+    Type: Number
+  CPU:
+    Description: How much CPU to give the container.
+    Type: Number
   DBUsername:
     NoEcho: 'true'
     Description: Username for database access
@@ -75,8 +81,8 @@ Resources:
         - FARGATE
       ExecutionRoleArn: arn:aws:iam::405662711265:role/ecs-task-role
       NetworkMode: awsvpc
-      Cpu: 1024
-      Memory: 8192
+      Cpu: !Ref CPU
+      Memory: !Ref Memory
       ContainerDefinitions:
         - Name: uat
           Image: public.ecr.aws/t1q6b4h2/universal-application-tool:latest
@@ -95,8 +101,8 @@ Resources:
               Value: !Sub '{{resolve:secretsmanager:${DBPassword}}}'
             - Name: SECRET_KEY
               Value: !Sub '{{resolve:secretsmanager:${SecretKey}}}'
-          Cpu: 1024
-          Memory: 8192
+          Cpu: !Ref CPU
+          Memory: !Ref Memory
           PortMappings:
             - ContainerPort: '9000'
               HostPort: '9000'

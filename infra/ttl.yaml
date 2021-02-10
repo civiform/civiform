@@ -1,3 +1,6 @@
+# provided by AWS quickstart - but not available hosted on s3, so reproduced here from
+# https://github.com/aws-quickstart/quickstart-examples/blob/main/samples/cloudformation-stack-ttl/templates/cloudformation-stack-ttl.yaml
+# Applied by each dev stack.
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Schedule automatic deletion of CloudFormation stacks
 Metadata:
@@ -52,7 +55,7 @@ Resources:
       Handler: "index.handler"
       Runtime: "python3.6"
       Timeout: "5"
-      Role: # delete role
+      Role: arn:aws:iam::405662711265:role/lambda_service_role
   DeleteStackEventRule:
      DependsOn:
        - DeleteCFNLambda
@@ -113,7 +116,7 @@ Resources:
       Handler: "index.handler"
       Runtime: "python3.6"
       Timeout: "5"
-      Role: # execution role arn
+      Role: arn:aws:iam::405662711265:role/lambda_service_role
   GenerateCronExpression:
     Type: "Custom::GenerateCronExpression"
     Version: "1.0"
