@@ -19,7 +19,6 @@ Resources:
     Properties:
       Scheme: internet-facing
       IpAddressType: ipv4
-      Name: uat-lb
       SecurityGroups:
         - !Ref 'LBSecurityGroup'
       Subnets:
@@ -29,7 +28,6 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       Protocol: HTTP
-      Name: drop-traffic
       Port: 80
       VpcId: !Ref 'VPCId'
       HealthCheckPath: /
@@ -51,7 +49,6 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       Protocol: HTTP
-      Name: uat
       Port: 9000
       VpcId: !Ref 'VPCId'
       TargetType: ip
@@ -90,3 +87,8 @@ Outputs:
     Value: !GetAtt 'publiclb.LoadBalancerFullName'
     Export:
       Name: !Sub '${AWS::StackName}-LBFullName'
+  LBEndpoint:
+    Description: The DNS name of the load balancer.
+    Value: !GetAtt 'lbtarget.DNSName'
+    Export:
+      Name: !Sub '${AWS::StackName}-LBEndpoint'

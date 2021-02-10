@@ -71,3 +71,6 @@ Outputs:
   ECSCluster:
     Description: The ARN of the cluster.
     Value: !GetAtt 'Container.Outputs.ECSCluster'
+  WebRoot:
+    Description: The DNS name of the load balancer.
+    Value: !GetAtt 'LB.Outputs.LBEndpoint'

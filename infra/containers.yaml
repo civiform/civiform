@@ -40,7 +40,6 @@ Resources:
   ecscluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: UATFargateCluster
       CapacityProviders:
         - FARGATE
       DefaultCapacityProviderStrategy:
@@ -68,7 +67,6 @@ Resources:
   loggroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: uat
       RetentionInDays: 90
   ecstaskdef:
     Type: AWS::ECS::TaskDefinition
