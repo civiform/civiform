@@ -1,5 +1,6 @@
 package services.question;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
@@ -10,22 +11,25 @@ public interface QuestionService {
    * Creates a new Question Definition. Returns a QuestionDefinition object on success and null on
    * failure.
    *
-   * <p>This will fail if: - The path provided already resolves to a QuestionDefinition or Scalar.
+   * <p>This will fail if he path provided already resolves to a QuestionDefinition or Scalar.
    *
    * <p>NOTE: This does not update the version.
    */
-  public abstract Optional<QuestionDefinition> create(QuestionDefinition definition);
+  Optional<QuestionDefinition> create(QuestionDefinition definition);
 
   /**
    * Adds a new translation to an existing question definition. Returns true if the write is
    * successful.
    *
-   * <p>The write will fail if: - The path does not resolve to a QuestionDefinition. - A translation
-   * with that Locale already exists for a given question path.
+   * <p>The write will fail if:
+   *
+   * <p>- The path does not resolve to a QuestionDefinition.
+   *
+   * <p>- A translation with that Locale already exists for a given question path.
    *
    * <p>NOTE: This does not update the version.
    */
-  public abstract boolean addTranslation(
+  boolean addTranslation(
       String path, Locale Locale, String questionText, Optional<String> questionHelpText);
 
   /**
@@ -33,28 +37,45 @@ public interface QuestionService {
    *
    * <p>NOTE: This updates the service and question versions.
    */
-  public abstract QuestionDefinition update(QuestionDefinition definition);
+  QuestionDefinition update(QuestionDefinition definition);
 
   /** Checks whether a specific path is valid. */
-  public abstract boolean isValid(String pathString);
-
-  /** Gets the question definition for a given path. */
-  public abstract Optional<QuestionDefinition> getQuestionDefinition(String pathString);
+  boolean isValid(String pathString);
 
   /**
-   * Returns all of the scalar properties for a given path. If the path is invalid this returns
-   * Optional.empty().
+   * Gets the question definition for a given path.
+   *
+   * <p>If the path is to a QUESTION, it will return that.
+   *
+   * <p>If the path is to a SCALAR, it will return the parent QuestionDefinition for that Scalar.
+   *
+   * <p>If the path is invalid it will throw an InvalidPathException.
    */
-  public abstract Optional<ImmutableMap<String, ScalarType>> getPathScalars(String pathString);
+  QuestionDefinition getQuestionDefinition(String pathString);
 
-  /** Gets the type of the node if it exist. Otherwise returns Optional.empty(). */
-  public abstract Optional<PathType> getPathType(String pathString);
+  /**
+   * Returns all of the scalar properties for a given path.
+   *
+   * <p>If the path is to a QUESTION, it will return the question's scalar objects.
+   *
+   * <p>If the path is to a SCALAR, it will return a single scalar.
+   *
+   * <p>If the path is invalid it will throw an InvalidPathException.
+   */
+  ImmutableMap<String, ScalarType> getPathScalars(String pathString);
+
+  /**
+   * Gets the type of the node if it exist.
+   *
+   * <p>If the path is invalid it will throw an InvalidPathException.
+   */
+  PathType getPathType(String pathString);
 
   /** Returns all question definitions for this version. */
-  public abstract QuestionDefinition[] getAllQuestions();
+  ImmutableList<QuestionDefinition> getAllQuestions();
 
   /**
    * Returns a map of full path to ScalarType for all scalars referenced in the question service.
    */
-  public abstract ImmutableMap<String, ScalarType> getFullyQualifiedScalars();
+  ImmutableMap<String, ScalarType> getFullyQualifiedScalars();
 }
