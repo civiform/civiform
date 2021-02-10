@@ -62,6 +62,7 @@ public class QuestionDefinition {
     if (this.questionText.containsKey(locale)) {
       return this.questionText.get(locale);
     }
+
     throw new RuntimeException("Locale not found: " + locale);
   }
 
@@ -70,6 +71,7 @@ public class QuestionDefinition {
     if (this.questionHelpText.containsKey(locale)) {
       return this.questionHelpText.get(locale);
     }
+
     throw new RuntimeException("Locale not found: " + locale);
   }
 
