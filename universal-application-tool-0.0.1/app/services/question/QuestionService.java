@@ -3,7 +3,32 @@ package services.question;
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 
-public abstract class QuestionService {
+public interface QuestionService {
+
+  /**
+   * Creates a new Question Definition.
+   * 
+   * This will fail if:
+   *    - The path provided already resolves to a QuestionDefinition.
+   * NOTE: This does not update the version.
+   */
+  public abstract Optional<QuestionDefinition> create();
+    
+  /**
+   * Adds a new translation to an existing question definition.
+   * Returns true if the write is successful.
+   * 
+   * The write will fail if:
+   *    - The path does not resolve to a QuestionDefinition.
+   *    - A translation with that Locale already exists for a given question path. 
+   *
+   * NOTE: This does not update the version.
+   */
+  public abstract boolean addTranslation(
+      String path, Locale Locale, String questionText, Optional<String> questionHelpText);
+  
+  public abstract QuestionDefinition update();
+
   /** Checks whether a specific path is valid. */
   public abstract boolean isValid(String pathString);
 
