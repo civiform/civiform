@@ -16,7 +16,7 @@ public abstract class BlockDefinition {
 
   public abstract Optional<Predicate> optionalPredicate();
 
-  public abstract ImmutableList<String> question();
+  public abstract ImmutableList<String> questionDefinitions();
 
   public abstract Builder toBuilder();
 
@@ -34,7 +34,7 @@ public abstract class BlockDefinition {
 
     public abstract Builder setOptionalPredicate(Optional<Predicate> optional);
 
-    public abstract Builder setQuestion(ImmutableList<String> value);
+    public abstract Builder setQuestionDefinitions(ImmutableList<String> questionDefinitions);
 
     public abstract ImmutableList.Builder<String> questionDefinitionsBuilder();
 
