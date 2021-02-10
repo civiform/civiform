@@ -30,6 +30,9 @@ lazy val root = (project in file("."))
 
       // Security library pac4j (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "11.0.0-PLAY2.8-RC1",
+
+      // Autovalue
+      "com.google.auto.value" % "auto-value-annotations" % "1.7.4",
     ),
     javacOptions ++= Seq(
       "-encoding", "UTF-8",
