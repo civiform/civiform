@@ -50,6 +50,6 @@ public class QuestionDefinitionTest {
         new QuestionDefinition(
             "", "", "", "", "", ImmutableMap.of(), ImmutableMap.of(), ImmutableSet.of());
 
-    assertThat(question.getScalars()).containsOnly(entry("text", String));
+    assertThat(question.getScalars()).containsOnly(entry("text", String.class));
   }
 }

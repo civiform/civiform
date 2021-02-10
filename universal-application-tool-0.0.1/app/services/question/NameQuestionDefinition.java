@@ -11,10 +11,10 @@ public class NameQuestionDefinition extends QuestionDefinition {
     @Override
     public ImmutableMap[] getScalars() {
         return ImmutableMap.of(
-            "title", String,
-            "first", String,
-            "middle", String,
-            "last", String,
-            "suffix", String);
+            "title", String.class,
+            "first", String.class,
+            "middle", String.class,
+            "last", String.class,
+            "suffix", String.class);
     }
 }

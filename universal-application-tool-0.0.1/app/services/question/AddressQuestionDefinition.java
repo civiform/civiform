@@ -11,10 +11,10 @@ public class AddressQuestionDefinition extends QuestionDefinition {
     @Override
     public ImmutableMap[] getScalars() {
         return ImmutableMap.of(
-            "street", String,
-            "unit", String,
-            "city", String,
-            "state", String,
-            "zip", String);
+            "street", String.class,
+            "unit", String.class,
+            "city", String.class,
+            "state", String.class,
+            "zip", String.class);
     }
 }
