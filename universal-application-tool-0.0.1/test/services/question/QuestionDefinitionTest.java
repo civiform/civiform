@@ -62,10 +62,12 @@ public class QuestionDefinitionTest {
   }
 
   @Test
-  public void newQuestionHasTextScalar() {
+  public void newQuestionHasStringScalar() {
     QuestionDefinition question =
         new QuestionDefinition("", "", "", "", "", ImmutableMap.of(), ImmutableMap.of());
 
-    assertThat(question.getScalars()).containsOnly(entry("text", String.class));
+    assertThat(question.getScalars()).containsOnly(entry("text", ScalarType.STRING));
+    assertThat(question.getScalarType("text")).isEqualTo(ScalarType.STRING);
+    assertThat(question.getScalarType("text").getClassFor()).isEqualTo(String.class);
   }
 }

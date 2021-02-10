@@ -1,7 +1,6 @@
 package services.question;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 
 public class NameQuestionDefinition extends QuestionDefinition {
@@ -13,8 +12,7 @@ public class NameQuestionDefinition extends QuestionDefinition {
       String path,
       String description,
       ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText,
-      ImmutableSet<String> tags) {
+      ImmutableMap<Locale, String> questionHelpText) {
     super(id, version, name, path, description, questionText, questionHelpText);
   }
 
@@ -24,7 +22,8 @@ public class NameQuestionDefinition extends QuestionDefinition {
   }
 
   @Override
-  public ImmutableMap<String, Class> getScalars() {
-    return ImmutableMap.of("first", String.class, "middle", String.class, "last", String.class);
+  public ImmutableMap<String, ScalarType> getScalars() {
+    return ImmutableMap.of(
+        "first", ScalarType.STRING, "middle", ScalarType.STRING, "last", ScalarType.STRING);
   }
 }
