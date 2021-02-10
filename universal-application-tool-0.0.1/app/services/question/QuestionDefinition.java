@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 
 /** Defines a single question. */
 public class QuestionDefinition {
@@ -13,7 +14,7 @@ public class QuestionDefinition {
   private final String path;
   private final String description;
   private final ImmutableMap<Locale, String> questionText;
-  private final ImmutableMap<Locale, String> questionHelpText;
+  private final Optional<ImmutableMap<Locale, String>> questionHelpText;
 
   public QuestionDefinition(
       String id,
@@ -22,14 +23,14 @@ public class QuestionDefinition {
       String path,
       String description,
       ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText) {
+      Optional<ImmutableMap<Locale, String>> questionHelpText) {
     this.id = checkNotNull(id);
     this.version = checkNotNull(version);
     this.name = checkNotNull(name);
     this.path = checkNotNull(path);
     this.description = checkNotNull(description);
     this.questionText = checkNotNull(questionText);
-    this.questionHelpText = checkNotNull(questionHelpText);
+    this.questionHelpText = questionHelpText;
   }
 
   /** Get the unique identifier for this question. */
@@ -76,10 +77,12 @@ public class QuestionDefinition {
 
   /** Get the question help text for the given locale. */
   public String getQuestionHelpText(Locale locale) {
-    if (this.questionHelpText.containsKey(locale)) {
-      return this.questionHelpText.get(locale);
+    if (!this.questionHelpText.isPresent()) {
+      return "";
     }
-
+    if (this.questionHelpText.get().containsKey(locale)) {
+      return this.questionHelpText.get().get(locale);
+    }
     throw new RuntimeException("Locale not found: " + locale);
   }
 

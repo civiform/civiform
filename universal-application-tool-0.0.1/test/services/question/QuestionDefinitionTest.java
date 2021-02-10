@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.entry;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import org.junit.Test;
 
 public class QuestionDefinitionTest {
@@ -20,7 +21,7 @@ public class QuestionDefinitionTest {
             "my.path.name",
             "description",
             ImmutableMap.of(Locale.ENGLISH, "question?"),
-            ImmutableMap.of(Locale.ENGLISH, "help text"));
+            Optional.of(ImmutableMap.of(Locale.ENGLISH, "help text")));
 
     assertThat(question.getId()).isEqualTo("id");
     assertThat(question.getVersion()).isEqualTo("version");
@@ -34,7 +35,7 @@ public class QuestionDefinitionTest {
   @Test
   public void getQuestionTextForUnknownLocale_throwsException() {
     QuestionDefinition question =
-        new QuestionDefinition("", "", "", "", "", ImmutableMap.of(), ImmutableMap.of());
+        new QuestionDefinition("", "", "", "", "", ImmutableMap.of(), Optional.empty());
 
     Throwable thrown = catchThrowable(() -> question.getQuestionText(Locale.FRANCE));
 
@@ -45,7 +46,14 @@ public class QuestionDefinitionTest {
   @Test
   public void getQuestionHelpTextForUnknownLocale_throwsException() {
     QuestionDefinition question =
-        new QuestionDefinition("", "", "", "", "", ImmutableMap.of(), ImmutableMap.of());
+        new QuestionDefinition(
+            "",
+            "",
+            "",
+            "",
+            "",
+            ImmutableMap.of(),
+            Optional.of(ImmutableMap.of(Locale.ENGLISH, "help text")));
 
     Throwable thrown = catchThrowable(() -> question.getQuestionHelpText(Locale.FRANCE));
 
@@ -54,9 +62,16 @@ public class QuestionDefinitionTest {
   }
 
   @Test
+  public void getEmptyHelpTextForUnknownLocale_succeeds() {
+    QuestionDefinition question =
+        new QuestionDefinition("", "", "", "", "", ImmutableMap.of(), Optional.empty());
+    assertThat(question.getQuestionHelpText(Locale.FRANCE)).isEqualTo("");
+  }
+
+  @Test
   public void newQuestionHasTypeText() {
     QuestionDefinition question =
-        new QuestionDefinition("", "", "", "", "", ImmutableMap.of(), ImmutableMap.of());
+        new QuestionDefinition("", "", "", "", "", ImmutableMap.of(), Optional.empty());
 
     assertThat(question.getQuestionType()).isEqualTo(QuestionType.TEXT);
   }
@@ -64,7 +79,7 @@ public class QuestionDefinitionTest {
   @Test
   public void newQuestionHasStringScalar() {
     QuestionDefinition question =
-        new QuestionDefinition("", "", "", "", "", ImmutableMap.of(), ImmutableMap.of());
+        new QuestionDefinition("", "", "", "", "", ImmutableMap.of(), Optional.empty());
     assertThat(question.getScalars()).containsOnly(entry("text", ScalarType.STRING));
     assertThat(question.getScalarType("text")).isEqualTo(ScalarType.STRING);
     assertThat(question.getScalarType("text").getClassFor().get()).isEqualTo(String.class);
