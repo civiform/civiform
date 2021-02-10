@@ -1,10 +1,12 @@
 package services.question;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.entry;
+
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.*;
 
 public class QuestionDefinitionTest {
 
