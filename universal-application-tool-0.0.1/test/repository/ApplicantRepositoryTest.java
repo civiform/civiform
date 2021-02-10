@@ -19,9 +19,7 @@ public class ApplicantRepositoryTest extends WithPostgresContainer {
 
     Applicant a = repo.lookupApplicant(1L).toCompletableFuture().join().get();
     assertThat(a.id).isEqualTo(1L);
-    System.out.println("******HERE******");
-    System.out.println(a.getApplicantData().asJsonString());
-    //    assertThat(a.getApplicantData().read("$.applicant.birthDate", String.class))
-    //        .isEqualTo("1/1/2021");
+    assertThat(a.getApplicantData().read("$.applicant.birthDate", String.class))
+        .isEqualTo("1/1/2021");
   }
 }

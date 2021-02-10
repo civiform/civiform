@@ -4,8 +4,8 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import io.ebean.annotation.DbJson;
 import java.io.IOException;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 import play.data.validation.Constraints;
 import services.applicant.ApplicantData;
 
@@ -19,20 +19,8 @@ public class Applicant extends BaseModel {
 
   @Constraints.Required @DbJson private String object;
 
-  @Override
-  public void save() {
-    try {
-      this.object = objectAsJsonString();
-    } catch (IOException err) {
-      throw new RuntimeException(err);
-    }
-
-    super.save();
-  }
-
   public ApplicantData getApplicantData() {
     if (object == null) {
-      System.out.println("****** object == null ******");
       this.object = EMPTY_APPLICANT_DATA_JSON;
     }
 
@@ -42,6 +30,11 @@ public class Applicant extends BaseModel {
     }
 
     return applicantData;
+  }
+
+  @PrePersist
+  public void synchronizeObject() throws IOException {
+    this.object = objectAsJsonString();
   }
 
   private String objectAsJsonString() throws IOException {
