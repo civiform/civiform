@@ -11,14 +11,14 @@ public class ApplicantRepositoryTest extends WithPostgresContainer {
   public void createApplicant() {
     ApplicantRepository repo = app.injector().instanceOf(ApplicantRepository.class);
     Applicant applicant = new Applicant();
-    applicant.id = 1L;
+    applicant.id = 2L;
     String path = "$.applicant";
     applicant.getApplicantData().put(path, "birthDate", "1/1/2021");
 
     repo.insertApplicant(applicant).toCompletableFuture().join();
 
-    Applicant a = repo.lookupApplicant(1L).toCompletableFuture().join().get();
-    assertThat(a.id).isEqualTo(1L);
+    Applicant a = repo.lookupApplicant(2L).toCompletableFuture().join().get();
+    assertThat(a.id).isEqualTo(2L);
     assertThat(a.getApplicantData().read("$.applicant.birthDate", String.class))
         .isEqualTo("1/1/2021");
   }
