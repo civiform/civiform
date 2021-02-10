@@ -12,10 +12,12 @@ public class ApplicantData {
     this.jsonData = checkNotNull(jsonData);
   }
 
+  @Deprecated
   public void put(String path, String key, String value) {
     this.jsonData.put(path, key, value);
   }
 
+  @Deprecated
   public <T> T read(String path, Class<T> type) {
     return this.jsonData.read(path, type);
   }

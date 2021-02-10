@@ -31,7 +31,7 @@ public class ApplicantTest extends WithPostgresContainer {
   }
 
   @Test
-  public void onlyCreatesOneApplicantData() {
+  public void createsOnlyOneApplicantData() {
     Applicant applicant = new Applicant();
 
     ApplicantData applicantData = applicant.getApplicantData();
