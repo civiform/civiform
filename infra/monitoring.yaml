@@ -186,7 +186,7 @@ Resources:
       EvaluationPeriods: 3
       Threshold: 85
       AlarmActions:
-        - !Ref pagingalerts
+        - !Ref ticketalerts
       Metrics:
         - Id: dbcpu
           MetricStat:
@@ -210,7 +210,7 @@ Resources:
       EvaluationPeriods: 5
       Threshold: 5120
       AlarmActions:
-        - !Ref pagingalerts
+        - !Ref ticketalert
       Metrics:
         - Id: dbspace
           MetricStat:
