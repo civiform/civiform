@@ -50,6 +50,9 @@ Resources:
             Metric:
               MetricName: HTTPCode_Target_2XX_Count
               Namespace: AWS/ApplicationELB
+              Dimensions:
+                - Name: LoadBalancer
+                  Value: !Ref LBName
             Period: 60
             Stat: Sum
           ReturnData: false
@@ -58,6 +61,9 @@ Resources:
             Metric:
               MetricName: HTTPCode_Target_3XX_Count
               Namespace: AWS/ApplicationELB
+              Dimensions:
+                - Name: LoadBalancer
+                  Value: !Ref LBName
             Period: 60
             Stat: Sum
           ReturnData: false
@@ -66,6 +72,9 @@ Resources:
             Metric:
               MetricName: HTTPCode_Target_5XX_Count
               Namespace: AWS/ApplicationELB
+              Dimensions:
+                - Name: LoadBalancer
+                  Value: !Ref LBName
             Period: 60
             Stat: Sum
           ReturnData: false
