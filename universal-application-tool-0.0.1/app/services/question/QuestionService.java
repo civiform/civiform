@@ -1,38 +1,37 @@
 package services.question;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Locale;
 import java.util.Optional;
 
 public interface QuestionService {
 
   /**
-   * Creates a new Question Definition.
-   * Returns a QuestionDefinition object on success and null on failure.
-   * 
-   * This will fail if:
-   *    - The path provided already resolves to a QuestionDefinition or Scalar.
+   * Creates a new Question Definition. Returns a QuestionDefinition object on success and null on
+   * failure.
    *
-   * NOTE: This does not update the version.
+   * <p>This will fail if: - The path provided already resolves to a QuestionDefinition or Scalar.
+   *
+   * <p>NOTE: This does not update the version.
    */
   public abstract Optional<QuestionDefinition> create(QuestionDefinition definition);
-    
+
   /**
-   * Adds a new translation to an existing question definition.
-   * Returns true if the write is successful.
-   * 
-   * The write will fail if:
-   *    - The path does not resolve to a QuestionDefinition.
-   *    - A translation with that Locale already exists for a given question path. 
+   * Adds a new translation to an existing question definition. Returns true if the write is
+   * successful.
    *
-   * NOTE: This does not update the version.
+   * <p>The write will fail if: - The path does not resolve to a QuestionDefinition. - A translation
+   * with that Locale already exists for a given question path.
+   *
+   * <p>NOTE: This does not update the version.
    */
   public abstract boolean addTranslation(
       String path, Locale Locale, String questionText, Optional<String> questionHelpText);
-  
+
   /**
    * Destructive overwrite of a question at a given path.
-   * 
-   * NOTE: This updates the service and question versions.
+   *
+   * <p>NOTE: This updates the service and question versions.
    */
   public abstract QuestionDefinition update(QuestionDefinition definition);
 
