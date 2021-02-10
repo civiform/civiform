@@ -31,7 +31,10 @@ public class Applicant extends BaseModel {
   }
 
   public ApplicantData getApplicantData() {
-    if (object == null) this.object = EMPTY_APPLICANT_DATA_JSON;
+    if (object == null) {
+      System.out.println("****** object == null ******");
+      this.object = EMPTY_APPLICANT_DATA_JSON;
+    }
 
     if (this.applicantData == null) {
       DocumentContext context = JsonPath.parse(object);
