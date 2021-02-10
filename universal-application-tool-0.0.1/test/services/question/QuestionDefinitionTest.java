@@ -89,6 +89,6 @@ public class QuestionDefinitionTest {
   public void newQuestionMissingScalar_returnsOptionalEmpty() {
     QuestionDefinition question =
         new QuestionDefinition("", "", "", "", "", ImmutableMap.of(), Optional.empty());
-    assertThat(question.getScalarType("notPresent").get()).isEqualTo(Optional.empty());
+    assertThat(question.getScalarType("notPresent")).isEqualTo(Optional.empty());
   }
 }
