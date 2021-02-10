@@ -1,0 +1,33 @@
+#!/bin/bash
+
+if [ -z "$GITHUB_EVENT_PATH" ]; then
+	PR_NUMBER=localrun-$USER
+else
+	PR_NUMBER=$(jq -r .pull_request.number "$GITHUB_EVENT_PATH")
+fi
+
+set -e
+
+TIMESTAMP=$(date +%s)
+
+echo "checking if a changeset exists already..."
+if aws cloudformation describe-change-set --region us-west-2  --change-set-name auto-changeset-pr-$PR_NUMBER  --stack-name uat > /dev/null; then
+	echo "deleting..."
+	aws cloudformation delete-change-set --region us-west-2  --change-set-name auto-changeset-pr-$PR_NUMBER  --stack-name uat
+	sleep 5
+fi
+
+aws s3 sync ./infra s3://seattle-uat-cftmpl/${TIMESTAMP}
+
+aws cloudformation create-change-set --region us-west-2 --include-nested-stacks --stack-name uat --change-set-name auto-changeset-pr-$PR_NUMBER --template-url  https://seattle-uat-cftmpl.s3-us-west-2.amazonaws.com/$TIMESTAMP/stack.yaml --parameters "[{\"ParameterKey\": \"Timestamp\", \"ParameterValue\": \"$TIMESTAMP\"}]"
+
+sleep 10
+
+set +e
+rm /tmp/message
+for csn in $(aws cloudformation describe-change-set --region us-west-2 --change-set-name auto-changeset-pr-$PR_NUMBER --stack-name uat | jq -r '.Changes[].ResourceChange.ChangeSetId') ; do
+	aws cloudformation describe-change-set --region us-west-2 --change-set-name $csn | jq '.Changes[] | if .ResourceChange.Replacement == "True" then .ResourceChange.LogicalResourceId else null end' | grep -v "null" >> /tmp/message
+done
+set -e
+
+echo "::set-output name=changes_msg::$(cat /tmp/message | jq -s -c '.')"
