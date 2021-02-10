@@ -80,9 +80,11 @@ public class QuestionDefinition {
     if (!this.questionHelpText.isPresent()) {
       return "";
     }
+    
     if (this.questionHelpText.get().containsKey(locale)) {
       return this.questionHelpText.get().get(locale);
     }
+    
     throw new RuntimeException("Locale not found: " + locale);
   }
 
