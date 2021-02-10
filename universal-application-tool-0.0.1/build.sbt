@@ -33,6 +33,8 @@ lazy val root = (project in file("."))
 
       // Autovalue
       "com.google.auto.value" % "auto-value-annotations" % "1.7.4",
+      "com.google.auto.value" % "auto-value" % "1.7.4",
+      "com.google.auto.value" % "auto-value-parent" % "1.7.4",
     ),
     javacOptions ++= Seq(
       "-encoding", "UTF-8",
