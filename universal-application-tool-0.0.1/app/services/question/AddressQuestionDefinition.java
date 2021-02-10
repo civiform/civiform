@@ -9,7 +9,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
     }
      
     @Override
-    public ImmutableMap[] getScalars() {
+    public ImmutableMap<String, Class> getScalars() {
         return ImmutableMap.of(
             "street", String.class,
             "unit", String.class,
