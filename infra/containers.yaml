@@ -30,16 +30,12 @@ Parameters:
       characters.
   DBPassword:
     NoEcho: 'true'
-    Description: Password database access
+    Description: Password for database access
     Type: String
-    MinLength: '8'
-    MaxLength: '64'
   SecretKey:
     NoEcho: 'true'
     Description: Secret key for Play application
     Type: String
-    MinLength: '12'
-    MaxLength: '64'
 Resources:
   ecscluster:
     Type: AWS::ECS::Cluster
@@ -98,9 +94,9 @@ Resources:
             - Name: DB_USERNAME
               Value: !Ref 'DBUsername'
             - Name: DB_PASSWORD
-              Value: !Ref 'DBPassword'
+              Value: !Sub '{{resolve:secretsmanager:${DBPassword}}}'
             - Name: SECRET_KEY
-              Value: !Ref 'SecretKey'
+              Value: !Sub '{{resolve:secretsmanager:${SecretKey}}}'
           Cpu: 1024
           Memory: 8192
           PortMappings:
@@ -113,3 +109,25 @@ Resources:
               awslogs-region: us-west-2
               awslogs-stream-prefix: uatsrv
           Essential: true
+  autoscalingtarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MinCapacity: 2
+      MaxCapacity: 5
+      ResourceId: !Join ['/', [service, !Ref ecscluster, !GetAtt ecsservice.Name]]
+      ScalableDimension: ecs:service:DesiredCount
+      ServiceNamespace: ecs
+      RoleARN: arn:aws:iam::405662711265:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService
+  autoscalingpolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: UATAutoScalingPolicy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref autoscalingtarget
+      TargetTrackingScalingPolicyConfiguration:
+        PredefinedMetricSpecification:
+          PredefinedMetricType: ECSServiceAverageCPUUtilization
+        ScaleInCooldown: 10
+        ScaleOutCooldown: 10
+        # Keep things at or lower than 75% CPU utilization
+        TargetValue: 75
