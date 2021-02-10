@@ -4,10 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-
+import java.util.Locale;
 import org.junit.Test;
 
-import java.util.Locale;
 
 public class QuestionDefinitionTest {
 

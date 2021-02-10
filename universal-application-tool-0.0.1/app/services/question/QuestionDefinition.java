@@ -2,7 +2,6 @@ package services.question;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-
 import java.util.Locale;
 
 /** Defines a single question. */
