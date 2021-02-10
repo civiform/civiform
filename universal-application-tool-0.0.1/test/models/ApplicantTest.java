@@ -2,21 +2,21 @@ package models;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import repository.ApplicantRepository;
-import services.applicant.ApplicantData;
 import org.junit.Test;
+import repository.ApplicantRepository;
 import repository.WithPostgresContainer;
+import services.applicant.ApplicantData;
 
 public class ApplicantTest extends WithPostgresContainer {
 
   @Test
-  public void hasAJsonDocumentContextWhenCreated() {
+  public void hasAnApplicantDataWhenCreated() {
     Applicant applicant = new Applicant();
     assertThat(applicant.getApplicantData()).isInstanceOf(ApplicantData.class);
   }
 
   @Test
-  public void persistsChangesToTheDocumentContext() {
+  public void persistsChangesToTheApplicantData() {
     ApplicantRepository repo = app.injector().instanceOf(ApplicantRepository.class);
     Applicant applicant = new Applicant();
 
@@ -27,6 +27,15 @@ public class ApplicantTest extends WithPostgresContainer {
     applicant = repo.lookupApplicant(applicant.id).toCompletableFuture().join().get();
 
     assertThat(applicant.getApplicantData().read("$.applicant.birthDate", String.class))
-        .isEqualTo("Alice");
+        .isEqualTo("1/1/2021");
+  }
+
+  @Test
+  public void onlyCreatesOneApplicantData() {
+    Applicant applicant = new Applicant();
+
+    ApplicantData applicantData = applicant.getApplicantData();
+
+    assertThat(applicant.getApplicantData() == applicantData);
   }
 }

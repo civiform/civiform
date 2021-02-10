@@ -1,9 +1,6 @@
 package repository;
 
-import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableMap;
-import models.Applicant;
 import org.junit.Test;
 
 public class ApplicantRepositoryTest extends WithPostgresContainer {
