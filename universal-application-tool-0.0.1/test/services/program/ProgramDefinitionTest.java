@@ -1,7 +1,6 @@
 package services.program;
 
 import org.junit.Test;
-import scala.reflect.internal.Trees;
 
 public class ProgramDefinitionTest {
   @Test
