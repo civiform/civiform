@@ -5,7 +5,6 @@ import com.jayway.jsonpath.JsonPath;
 import io.ebean.annotation.DbJson;
 import java.io.IOException;
 import javax.persistence.*;
-
 import play.data.validation.Constraints;
 import services.applicant.ApplicantData;
 
