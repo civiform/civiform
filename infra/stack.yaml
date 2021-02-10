@@ -64,6 +64,24 @@ Resources:
         DBName: !GetAtt 'DB.Outputs.DBName'
         LBName: !GetAtt 'LB.Outputs.LBFullName'
         LBTGName: !GetAtt 'LB.Outputs.TGFullName'
+    Condition: IsProd
+  StackTTL:
+    Type: "AWS::CloudFormation::Stack"
+    Properties:
+      # A template provided by AWS that automatically deletes the current stack after a number of minutes.
+      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/ttl.yaml'
+      Parameters:
+        StackName: !Ref 'AWS::StackName'
+        TTL: '25'
+    Condition: IsTest
+Conditions:
+  IsProd: !Equals
+    - !Ref 'AWS::StackName'
+    - "uat"
+  IsTest: !Not 
+    - !Equals
+      - !Ref 'AWS::StackName'
+      - "uat"
 Outputs:
   ECSService:
     Description: The ARN of the service.

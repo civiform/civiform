@@ -89,6 +89,6 @@ Outputs:
       Name: !Sub '${AWS::StackName}-LBFullName'
   LBEndpoint:
     Description: The DNS name of the load balancer.
-    Value: !GetAtt 'lbtarget.DNSName'
+    Value: !GetAtt 'publiclb.DNSName'
     Export:
       Name: !Sub '${AWS::StackName}-LBEndpoint'

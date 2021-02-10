@@ -10,4 +10,4 @@ docker tag universal-application-tool:latest public.ecr.aws/t1q6b4h2/universal-a
 docker push public.ecr.aws/t1q6b4h2/universal-application-tool:$TIMESTAMP
 
 aws s3 sync ./infra s3://seattle-uat-cftmpl/${TIMESTAMP}
-aws cloudformation create-stack --stack-name uat-dev-$USER --template-url  https://seattle-uat-cftmpl.s3-us-west-2.amazonaws.com/$TIMESTAMP/stack.yaml --parameters "[{\"ParameterKey\": \"Timestamp\", \"ParameterValue\": \"$TIMESTAMP\"}]"
+aws cloudformation create-stack --stack-name uat-$USER --template-url  https://seattle-uat-cftmpl.s3-us-west-2.amazonaws.com/$TIMESTAMP/stack.yaml --parameters "[{\"ParameterKey\": \"Timestamp\", \"ParameterValue\": \"$TIMESTAMP\"}]"
