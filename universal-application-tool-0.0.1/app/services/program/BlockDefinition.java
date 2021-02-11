@@ -9,7 +9,7 @@ import services.question.QuestionDefinition;
 @AutoValue
 public abstract class BlockDefinition {
 
-  /** Name of a Block. */
+  /** Name of a Block used to identify it to the admin. The name is only visible to the admin so is not localized. */
   public abstract String name();
 
   /** A human readable description of the Block. */
