@@ -18,7 +18,7 @@ public interface ProgramService {
    *
    * @param id the ID of the program to retrieve
    * @return an {@link Optional} of the {@link ProgramDefinition} for the given ID if it exists, or
-   *     {@code Optional.empty()} if not
+   *     {@code Optional#empty} if not
    */
   Optional<ProgramDefinition> getProgramDefinition(long id);
 
@@ -42,27 +42,15 @@ public interface ProgramService {
   ProgramDefinition addBlockToProgram(long programId, String blockName, String blockDescription);
 
   /**
-   * Insert a new {@link BlockDefinition} at a specific index for a given program.
-   *
-   * @param programId the ID of the program to update
-   * @param blockIndex the index in the block list for the new block
-   * @param blockName a name for the block to add
-   * @param blockDescription a description of what the questions in the block address
-   * @return the updated {@link ProgramDefinition}
-   */
-  ProgramDefinition addBlockToProgram(
-      long programId, int blockIndex, String blockName, String blockDescription);
-
-  /**
    * Update a {@link BlockDefinition} with a set of questions.
    *
    * @param programId the ID of the program to update
    * @param blockIndex the index of the block to update
-   * @param questionIds an {@link ImmutableList} of questions for the block
+   * @param questionDefinitionIds an {@link ImmutableList} of questions for the block
    * @return the updated {@link ProgramDefinition}
    */
   ProgramDefinition setBlockQuestions(
-      long programId, int blockIndex, ImmutableList<String> questionIds);
+      long programId, int blockIndex, ImmutableList<String> questionDefinitionIds);
 
   /**
    * Set the hide {@link Predicate} for a block. This predicate describes under what conditions the
