@@ -73,9 +73,4 @@ public interface QuestionService {
 
   /** Returns all question definitions for this version. */
   ImmutableList<QuestionDefinition> getAllQuestions();
-
-  /**
-   * Returns a map of full path to ScalarType for all scalars referenced in the question service.
-   */
-  ImmutableMap<String, ScalarType> getFullyQualifiedScalars();
 }
