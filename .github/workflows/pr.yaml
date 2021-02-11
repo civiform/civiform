@@ -50,7 +50,17 @@ jobs:
         run: bin/check-cfn-change
 
       - uses: mshick/add-pr-comment@v1
-        if: contains(toJSON(steps.file_changes.outputs.files), 'infra/')
+        if: failure() && contains(toJSON(steps.file_changes.outputs.files), 'infra/')
+        with:
+          message: |
+            I noticed that you have created a PR which seems to contain a file that updates CloudFormation.
+            The changes failed preliminary validation, with the following message.
+
+            > ${{ steps.check_change.outputs.failure_msg }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: mshick/add-pr-comment@v1
+        if: success() && contains(toJSON(steps.file_changes.outputs.files), 'infra/')
         with:
           message: |
             I noticed that you have created a PR which seems to contain a file that updates CloudFormation.
@@ -59,8 +69,6 @@ jobs:
             The following objects will be recreated (or conditionally recreated) - please take a look and make sure
             this is correct before submitting your PR.
 
-            ```
-            ${{ steps.check_change.outputs.changes_msg }}
-            ```
+            > ${{ steps.check_change.outputs.changes_msg }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
