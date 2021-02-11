@@ -8,8 +8,8 @@ import java.util.Optional;
 public interface QuestionService {
 
   /**
-   * Creates a new Question Definition. Returns a QuestionDefinition object on success and null on
-   * failure.
+   * Creates a new Question Definition. Returns a QuestionDefinition object on success and {@link
+   * Optional#empty} on failure.
    *
    * <p>This will fail if he path provided already resolves to a QuestionDefinition or Scalar.
    *
