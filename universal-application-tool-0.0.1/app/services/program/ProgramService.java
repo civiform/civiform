@@ -2,16 +2,15 @@ package services.program;
 
 import com.google.common.collect.ImmutableList;
 
-/** Operations you can perform on Programs. */
+/** Operations you can perform on ProgramDefinitions. */
 public interface ProgramService {
 
     /** List all programs. */
-    public ImmutableList<ProgramDefinition> listProgramDefinitions();
+    ImmutableList<ProgramDefinition> listProgramDefinitions();
 
     /** Get the definition for a given program. */
-    public ProgramDefinition getProgramDefinition(String id);
+    ProgramDefinition getProgramDefinition(long id);
 
     /** Create a new program. */
-    public ProgramDefinition createProgram(String name, String description);
-
+    ProgramDefinition createProgram(String name, String description);
 }
