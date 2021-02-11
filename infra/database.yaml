@@ -56,3 +56,8 @@ Outputs:
     Value: !GetAtt 'postgresdb.Endpoint.Address'
     Export:
       Name: !Sub '${AWS::StackName}-DBAddress'
+  DBName:
+    Description: The name of the database
+    Value: !Ref postgresdb
+    Export:
+      Name: !Sub '${AWS::StackName}-DBName'
