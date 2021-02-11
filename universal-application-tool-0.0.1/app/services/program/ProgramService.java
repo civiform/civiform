@@ -50,7 +50,7 @@ public interface ProgramService {
    * @return the updated {@link ProgramDefinition}
    */
   ProgramDefinition setBlockQuestions(
-      long programId, int blockDefinitionId, ImmutableList<String> questionDefinitionIds);
+      long programId, long blockDefinitionId, ImmutableList<String> questionDefinitionIds);
 
   /**
    * Set the hide {@link Predicate} for a block. This predicate describes under what conditions the
@@ -61,7 +61,8 @@ public interface ProgramService {
    * @param predicate the {@link Predicate} for hiding the block
    * @return the updated {@link ProgramDefinition}
    */
-  ProgramDefinition setBlockHidePredicate(long programId, int blockDefinitionId, Predicate predicate);
+  ProgramDefinition setBlockHidePredicate(
+      long programId, long blockDefinitionId, Predicate predicate);
 
   /**
    * Set the optional {@link Predicate} for a block. This predicate describes under what conditions
@@ -72,5 +73,6 @@ public interface ProgramService {
    * @param predicate the {@link Predicate} for making the block optional
    * @return the updated {@link ProgramDefinition}
    */
-  ProgramDefinition setBlockOptionalPredicate(long programId, int blockDefinitionId, Predicate predicate);
+  ProgramDefinition setBlockOptionalPredicate(
+      long programId, long blockDefinitionId, Predicate predicate);
 }

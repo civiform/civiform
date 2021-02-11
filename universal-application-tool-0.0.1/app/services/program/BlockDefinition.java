@@ -13,6 +13,9 @@ import services.question.QuestionDefinition;
 @AutoValue
 public abstract class BlockDefinition {
 
+  /** Unique block identifier. */
+  public abstract long id();
+
   /**
    * Name of a Block used to identify it to the admin. The name is only visible to the admin so is
    * not localized.
@@ -42,6 +45,8 @@ public abstract class BlockDefinition {
 
   @AutoValue.Builder
   abstract static class Builder {
+    public abstract Builder setId(long id);
+
     public abstract Builder setName(String value);
 
     public abstract Builder setDescription(String value);
