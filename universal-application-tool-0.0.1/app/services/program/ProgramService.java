@@ -45,32 +45,32 @@ public interface ProgramService {
    * Update a {@link BlockDefinition} with a set of questions.
    *
    * @param programId the ID of the program to update
-   * @param blockIndex the index of the block to update
+   * @param blockDefinitionId the ID of the block to update
    * @param questionDefinitionIds an {@link ImmutableList} of questions for the block
    * @return the updated {@link ProgramDefinition}
    */
   ProgramDefinition setBlockQuestions(
-      long programId, int blockIndex, ImmutableList<String> questionDefinitionIds);
+      long programId, int blockDefinitionId, ImmutableList<String> questionDefinitionIds);
 
   /**
    * Set the hide {@link Predicate} for a block. This predicate describes under what conditions the
    * block should be hidden from an applicant filling out the program form.
    *
    * @param programId the ID of the program to update
-   * @param blockIndex the index of the block to update
+   * @param blockDefinitionId the ID of the block to update
    * @param predicate the {@link Predicate} for hiding the block
    * @return the updated {@link ProgramDefinition}
    */
-  ProgramDefinition setBlockHidePredicate(long programId, int blockIndex, Predicate predicate);
+  ProgramDefinition setBlockHidePredicate(long programId, int blockDefinitionId, Predicate predicate);
 
   /**
    * Set the optional {@link Predicate} for a block. This predicate describes under what conditions
    * the block should be optional when filling out the program form.
    *
    * @param programId the ID of the program to update
-   * @param blockIndex the index of the block to update
+   * @param blockDefinitionId the ID of the block to update
    * @param predicate the {@link Predicate} for making the block optional
    * @return the updated {@link ProgramDefinition}
    */
-  ProgramDefinition setBlockOptionalPredicate(long programId, int blockIndex, Predicate predicate);
+  ProgramDefinition setBlockOptionalPredicate(long programId, int blockDefinitionId, Predicate predicate);
 }
