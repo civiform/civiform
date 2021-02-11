@@ -50,7 +50,8 @@ public abstract class BlockDefinition {
 
     public abstract Builder setOptionalPredicate(Optional<Predicate> optional);
 
-    public abstract Builder setQuestionDefinitions(ImmutableList<String> questionDefinitions);
+    public abstract Builder setQuestionDefinitions(
+        ImmutableList<QuestionDefinition> questionDefinitions);
 
     public abstract ImmutableList.Builder<QuestionDefinition> questionDefinitionsBuilder();
 
