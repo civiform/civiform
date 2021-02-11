@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: ''
+Description: 'The VPC for the UAT.  One region, to save costs, but two AZs for reliability.  Parallel stacks - two public and two private subnets.'
 Resources:
   vpc:
     Type: AWS::EC2::VPC

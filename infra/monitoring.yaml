@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: ''
+Description: 'Monitoring for the UAT - see comments in file for alerts.'
 Parameters:
   DBName:
     Type: String
