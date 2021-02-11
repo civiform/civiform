@@ -8,10 +8,11 @@ import services.question.QuestionDefinition;
 /** Defines a single program block, which contains a list of questions and data about the block. */
 @AutoValue
 public abstract class BlockDefinition {
+
   /** Name of a Block. */
   public abstract String name();
 
-  /** Description of a Block. */
+  /** A human readable description of the Block. */
   public abstract String description();
 
   /** A {@link Predicate} that determines whether this is hidden or shown. */
