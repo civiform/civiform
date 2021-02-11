@@ -1,16 +1,18 @@
 package services.program;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableSet;
 
 /** String representation of a predicate with variables from the core data model. */
 @AutoValue
 abstract class Predicate {
-  static Predicate create(String function, ImmutableSet<String> variables) {
-    return new AutoValue_Predicate(function, variables);
+  static Predicate create(String expression) {
+    return new AutoValue_Predicate(expression);
   }
 
-  abstract String function();
-
-  abstract ImmutableSet<String> variables();
+  /**
+   * JsonPath compatible predicate expression as a string.
+   *
+   * <p>See <a href=https://github.com/json-path/JsonPath#inline-predicates>JsonPath Predicates</a>
+   */
+  abstract String expression();
 }

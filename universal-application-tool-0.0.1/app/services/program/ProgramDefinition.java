@@ -5,12 +5,17 @@ import com.google.common.collect.ImmutableList;
 
 @AutoValue
 public abstract class ProgramDefinition {
+
+  /** Unique identifier for a ProgramDefinition. */
   public abstract String id();
 
+  /** Descriptive name of a Program. */
   public abstract String name();
 
+  /** A description of a Program. */
   public abstract String description();
 
+  /** The list of {@link BlockDefinitions} that make up the program. */
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
 
   public abstract Builder toBuilder();
