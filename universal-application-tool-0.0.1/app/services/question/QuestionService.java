@@ -30,7 +30,8 @@ public interface QuestionService {
    * <p>NOTE: This does not update the version.
    */
   boolean addTranslation(
-      String path, Locale Locale, String questionText, Optional<String> questionHelpText);
+      String path, Locale Locale, String questionText, Optional<String> questionHelpText)
+      throws InvalidPathException;
 
   /**
    * Destructive overwrite of a question at a given path.
@@ -51,7 +52,7 @@ public interface QuestionService {
    *
    * <p>If the path is invalid it will throw an InvalidPathException.
    */
-  QuestionDefinition getQuestionDefinition(String pathString);
+  QuestionDefinition getQuestionDefinition(String pathString) throws InvalidPathException;
 
   /**
    * Returns all of the scalar properties for a given path.
@@ -62,14 +63,14 @@ public interface QuestionService {
    *
    * <p>If the path is invalid it will throw an InvalidPathException.
    */
-  ImmutableMap<String, ScalarType> getPathScalars(String pathString);
+  ImmutableMap<String, ScalarType> getPathScalars(String pathString) throws InvalidPathException;
 
   /**
    * Gets the type of the node if it exist.
    *
    * <p>If the path is invalid it will throw an InvalidPathException.
    */
-  PathType getPathType(String pathString);
+  PathType getPathType(String pathString) throws InvalidPathException;
 
   /** Returns all question definitions for this version. */
   ImmutableList<QuestionDefinition> getAllQuestions();
