@@ -51,6 +51,7 @@ jobs:
 
       - uses: mshick/add-pr-comment@v1
         if: failure() && contains(toJSON(steps.file_changes.outputs.files), 'infra/')
+        name: Send failure comment.
         with:
           message: |
             I noticed that you have created a PR which seems to contain a file that updates CloudFormation.
@@ -60,6 +61,7 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: mshick/add-pr-comment@v1
+        name: Send success comment.
         if: success() && contains(toJSON(steps.file_changes.outputs.files), 'infra/')
         with:
           message: |

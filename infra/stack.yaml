@@ -23,6 +23,7 @@ Resources:
       TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/security_groups.yaml'
       Parameters:
         VPCId: !GetAtt 'VPC.Outputs.VPCId'
+        ABadParameterToTestWhetherValidationWorks: 'does it?'
   LB:
     Type: AWS::CloudFormation::Stack
     Properties:
