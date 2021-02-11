@@ -5,7 +5,11 @@ import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import services.question.QuestionDefinition;
 
-/** Defines a single program block, which contains a list of questions and data about the block. */
+/**
+ * Defines a single program block, which contains a list of questions and data about the block.
+ * Blocks are displayed to applicants one per-page, and are the primary means by which applicants navigate within a program form.
+ * 
+ */
 @AutoValue
 public abstract class BlockDefinition {
 
