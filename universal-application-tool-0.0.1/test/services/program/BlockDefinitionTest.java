@@ -6,6 +6,10 @@ public class BlockDefinitionTest {
   @Test
   public void createBlockDefinition() {
     BlockDefinition block =
-        BlockDefinition.builder().setName("Block Name").setDescription("Block Description").build();
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .build();
   }
 }

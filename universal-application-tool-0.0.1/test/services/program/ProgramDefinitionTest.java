@@ -6,7 +6,11 @@ public class ProgramDefinitionTest {
   @Test
   public void createProgramDefinition() {
     BlockDefinition blockA =
-        BlockDefinition.builder().setName("Block Name").setDescription("Block Description").build();
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .build();
     ProgramDefinition.builder()
         .setId("123")
         .setName("The Program")
