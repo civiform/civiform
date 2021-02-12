@@ -2,6 +2,8 @@ package services;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableSet;
+
 /**
  * Wraps two values, labeled "errors" and "result". Errors is intended to be an immutable collection
  * of error objects while result is the result of an action. If the action was successful only

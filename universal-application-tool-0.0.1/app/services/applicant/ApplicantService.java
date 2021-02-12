@@ -1,5 +1,6 @@
 package services.applicant;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.concurrent.CompletionStage;
 import models.Applicant;
 import services.ErrorAnd;
@@ -13,7 +14,7 @@ interface ApplicantService {
    * ReadOnlyApplicantService} provided in the return value.
    */
   CompletionStage<ErrorAnd<ReadOnlyApplicantService, UpdateError>> update(
-      long applicantId, long programId, ImmutableList<Update> updates);
+      long applicantId, long programId, ImmutableSet<Update> updates);
 
   /** Creates a new Applicant for a given user. */
   CompletionStage<Applicant> createApplicant(long userId);
