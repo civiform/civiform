@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: ''
+Description: 'The main stack for the UAT.'
 Parameters:
   Timestamp:
     Description: Current timestamp in seconds.
