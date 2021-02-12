@@ -27,16 +27,16 @@ public class ProgramRepository {
     return supplyAsync(() -> ebeanServer.find(Program.class).findSet(), executionContext);
   }
 
-  public CompletionStage<Optional<Program>> lookupProgram(String name, long version) {
+  public CompletionStage<Optional<Program>> lookupProgram(String name) {
     return supplyAsync(
         () ->
-            Optional.ofNullable(
-                ebeanServer
-                    .find(Program.class)
-                    .where()
-                    .eq("name", name)
-                    .eq("version", version)
-                    .findOne()),
+            Optional.ofNullable(ebeanServer.find(Program.class).where().eq("name", name).findOne()),
+        executionContext);
+  }
+
+  public CompletionStage<Optional<Program>> lookupProgram(long id) {
+    return supplyAsync(
+        () -> Optional.ofNullable(ebeanServer.find(Program.class).where().eq("id", id).findOne()),
         executionContext);
   }
 

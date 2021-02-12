@@ -13,10 +13,10 @@ create table if not exists questions (
 );
 
 create table if not exists programs (
+  id bigserial primary key,
   name varchar,
-  version bigint,
-  object jsonb not null,
-  primary key (name, version)
+  description varchar,
+  block_container jsonb not null
 );
 
 # --- !Downs
