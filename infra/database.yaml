@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'The database - including the networking required to get it to interface with the VPC'
+Description: 'The database - including the networking required to get it to interface with the private network.'
 Parameters:
   DBPassword:
     NoEcho: 'true'
