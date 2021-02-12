@@ -1,7 +1,6 @@
 package services.applicant;
 
 import com.google.common.collect.ImmutableList;
-
 import java.util.Optional;
 
 /** Provides synchronous, read-only behavior relevant to an applicant for a specific program. */
