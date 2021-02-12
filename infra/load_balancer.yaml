@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: ''
+Description: 'The public load balancer for the UAT, plus a dummy target that drops traffic while the tool starts up.'
 Parameters:
   VPCId:
     Description: The id of the VPC to add our LB to.

@@ -18,4 +18,59 @@ jobs:
         # Confirm that we get a response on port 9000.
         run: while ! docker run --network host appropriate/curl -v -s --retry-max-time 180 --retry-connrefused http://localhost:9000/ ; do sleep 5; done
         timeout-minutes: 3
+  cloudformation:
+    runs-on: ubuntu-18.04 # for older version of awscli.
+    steps:
+      - id: file_changes
+        uses: trilom/file-changes-action@v1.2.3
+      - name: fail if created from a fork
+        if: contains(toJSON(steps.file_changes.outputs.files), 'infra/') && github.event.pull_request.head.repo.full_name != github.repository
+        run: |
+          echo "Sorry, you created this PR from a fork and therefore we don't have access to the secrets we need to run this test."
+          echo "We actually can't even post this as a comment to the GitHub PR, so you probably found this in the logs while trying to figure out what failed."
+          echo "This is for genuinely good security reasons - GitHub doesn't authorize PRs from forks to have access to secrets, but allows"
+          echo "access to any commits deemed 'safe enough' to push to the main repo."
+          echo
+          echo "To fix this issue, just push your branch to the main repo, close the PR that generated this error, and open another one."
+          echo "If that won't work for you for some reason, say because you are an OSS contributor who does not have collaborator perms on the repo,"
+          echo "you can run bin/deploy-prod and verify your changes for yourself in an AWS account that you have access to."
+          exit 1
+
+      - name: Checkout
+        if: contains(toJSON(steps.file_changes.outputs.files), 'infra/')
+        uses: actions/checkout@v2
+
+      - name: Run check-change.
+        if: contains(toJSON(steps.file_changes.outputs.files), 'infra/')
+        id: check_change
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.SESSION_TOKEN }}
+        run: bin/check-cfn-change
+
+      - uses: mshick/add-pr-comment@v1
+        if: failure() && contains(toJSON(steps.file_changes.outputs.files), 'infra/')
+        name: Send failure comment.
+        with:
+          message: |
+            I noticed that you have created a PR which seems to contain a file that updates CloudFormation.
+            The changes failed preliminary validation, with the following message.
+
+            > ${{ steps.check_change.outputs.failure_msg }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: mshick/add-pr-comment@v1
+        name: Send success comment.
+        if: success() && contains(toJSON(steps.file_changes.outputs.files), 'infra/')
+        with:
+          message: |
+            I noticed that you have created a PR which seems to contain a file that updates CloudFormation.
+            The changes passed preliminary validation!
+
+            The following objects will be recreated (or conditionally recreated) - please take a look and make sure
+            this is correct before submitting your PR.
+
+            > ${{ steps.check_change.outputs.changes_msg }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
