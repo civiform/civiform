@@ -13,7 +13,7 @@ interface ApplicantService {
    * them fail validation none of them will be written. programId is used to construct the {@code
    * ReadOnlyApplicantService} provided in the return value.
    */
-  CompletionStage<ErrorAnd<ReadOnlyApplicantService, UpdateError>> update(
+  CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, UpdateError>> update(
       long applicantId, long programId, ImmutableSet<Update> updates);
 
   /** Creates a new Applicant for a given user. */
