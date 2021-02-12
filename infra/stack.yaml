@@ -8,6 +8,10 @@ Parameters:
     Description: The name of the database user.
     Type: String
     Default: uat
+  ContainerVersion:
+    Description: Which container version to launch.
+    Type: String
+    Default: latest
 Resources:
   VPC:
     Type: AWS::CloudFormation::Stack
@@ -58,6 +62,7 @@ Resources:
         PrivateSubnet2: !GetAtt 'VPC.Outputs.PrivateSubnet2'
         LBTargetName: !GetAtt 'LB.Outputs.LBTarget'
         ContainerSecurityGroup: !GetAtt 'SecurityGroups.Outputs.ContainerGroup'
+        ContainerVersion: !Ref ContainerVersion
         CPU: !If [ IsProd, 1024, 256 ]
         Memory: !If [ IsProd, 8192, 2048 ]
   Monitoring:
@@ -76,7 +81,7 @@ Resources:
       TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/ttl.yaml'
       Parameters:
         StackName: !Ref 'AWS::StackName'
-        TTL: '3'
+        TTL: '120'
     Condition: IsTest
 Conditions:
   IsProd: !Equals

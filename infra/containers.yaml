@@ -13,6 +13,9 @@ Parameters:
   ContainerSecurityGroup:
     Description: The security group to use for the containers.
     Type: String
+  ContainerVersion:
+    Description: Which container version to launch.
+    Type: String
   PrivateSubnet1:
     Description: The private subnets to add the containers to.
     Type: AWS::EC2::Subnet::Id
@@ -85,7 +88,7 @@ Resources:
       Memory: !Ref Memory
       ContainerDefinitions:
         - Name: uat
-          Image: public.ecr.aws/t1q6b4h2/universal-application-tool:latest
+          Image: !Sub 'public.ecr.aws/t1q6b4h2/universal-application-tool:${ContainerVersion}'
           Environment:
             - Name: DB_JDBC_STRING
               Value: !Join
