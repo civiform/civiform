@@ -3,6 +3,8 @@ package models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 import services.program.BlockDefinition;
 
 /**
@@ -11,14 +13,14 @@ import services.program.BlockDefinition;
  */
 public class BlockContainer {
 
-  private final List<BlockDefinition> blockDefinitions;
+  private final ImmutableList<String> blockDefinitions;
 
   @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-  public BlockContainer(@JsonProperty("blockDefinitions") List<BlockDefinition> blockDefinitions) {
+  public BlockContainer(@JsonProperty("blockDefinitions") ImmutableList<String> blockDefinitions) {
     this.blockDefinitions = blockDefinitions;
   }
 
-  public List<BlockDefinition> blockDefinitions() {
+  public ImmutableList<String> blockDefinitions() {
     return this.blockDefinitions;
   }
 }
