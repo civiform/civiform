@@ -77,28 +77,6 @@ GET     /               controllers.HomeController.index</code></pre>
 
             <p>You can read more about <a href="https://www.playframework.com/documentation/@version/ScalaTemplates">Twirl</a>, the template language used by Play, and how Play handles <a href="https://www.playframework.com/documentation/@version/JavaActions">actions</a>.</p>
 
-            <h2>Async Controller</h2>
-
-            Now that you've seen how Play renders a page, take a look at <code>AsyncController.java</code>, which shows how to do asynchronous programming when handling a request.  The code is almost exactly the same as <code>HomeController.java</code>, but instead of returning <code>Result</code>, the action returns <code>CompletionStage&lt;Result&gt;</code> to Play.  When the execution completes, Play can use a thread to render the result without blocking the thread in the mean time.
-
-            <p>
-                <a href="@routes.AsyncController.message">Click here for the AsyncController action!</a>
-            </p>
-
-            <p>
-                You can read more about <a href="https://www.playframework.com/documentation/@version/JavaAsync">asynchronous actions</a> in the documentation.
-            </p>
-
-            <h2>Count Controller</h2>
-
-            <p>
-                Both the HomeController and AsyncController are very simple, and typically controllers present the results of the interaction of several services.  As an example, see the <code>CountController</code>, which shows how to inject a component into a controller and use the component when handling requests.  The count controller increments every time you refresh the page, so keep refreshing to see the numbers go up.
-            </p>
-
-            <p>
-                <a href="@routes.CountController.count">Click here for the CountController action!</a>
-            </p>
-
             <p>
                 You can read more about <a href="https://www.playframework.com/documentation/@version/JavaDependencyInjection">dependency injection</a> in the documentation.
             </p>
