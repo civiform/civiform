@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableSet;
  * of error objects while result is the result of an action. If the action was successful only
  * result need be provided.
  */
-class ErrorAnd<T, E> {
+public class ErrorAnd<T, E> {
   private final ImmutableSet<E> errors;
   private final T result;
 
