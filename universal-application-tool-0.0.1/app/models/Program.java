@@ -15,19 +15,4 @@ public class Program extends BaseModel {
   @Constraints.Required public String description;
 
   @Constraints.Required @DbJsonB public BlockContainer blockContainer;
-
-  //  private ProgramDefinition programDefinition;
-
-  //  public ProgramDefinition getProgramDefinition() {
-  //    if (this.programDefinition == null) {
-  //      this.programDefinition =
-  //          ProgramDefinition.builder()
-  //              .setId(this.serialVersionUID)
-  //              .setName(this.name)
-  //              .setDescription(this.description)
-  //              .setBlockDefinitions(this.blockContainer.blockDefinitions())
-  //              .build();
-  //    }
-  //    return this.programDefinition;
-  //  }
 }

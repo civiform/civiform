@@ -3,9 +3,6 @@ package models;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
-import org.junit.Before;
 import org.junit.Test;
 import repository.ProgramRepository;
 import repository.WithPostgresContainer;
