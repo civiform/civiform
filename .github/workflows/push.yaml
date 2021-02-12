@@ -5,22 +5,7 @@ on:
     branches: main
 
 jobs:
-  build_and_test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Run tests
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          tags: uat:latest
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
-
-  deploy_to_cfn:
+  build_container:
     runs-on: ubuntu-18.04 # for older version of awscli.
     steps:
       - id: file_changes
@@ -30,8 +15,16 @@ jobs:
         if: contains(toJSON(steps.file_changes.outputs.files), 'infra/')
         uses: actions/checkout@v2
 
+      - name: Run build-and-push.
+        if: "!contains(toJSON(steps.file_changes.outputs.files), 'infra/')"
+        id: build_and_push
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
+        run: bin/build-and-push
+
       - name: Run deploy-prod.
-        if: contains(toJSON(steps.file_changes.outputs.files), 'infra/')
+        if: "contains(toJSON(steps.file_changes.outputs.files), 'infra/')"
         id: deploy_prod
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
