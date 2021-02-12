@@ -45,7 +45,8 @@ lazy val root = (project in file("."))
       "-Werror"
     ),
     // Make verbose tests
-    testOptions in Test := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v"))
+    testOptions in Test := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v")),
+    javaOptions in Test += "-Dconfig.file=conf/test.conf"
   )
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 resolvers += Resolver.bintrayRepo("webjars","maven")
