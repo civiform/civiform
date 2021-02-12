@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: ''
+Description: 'The security groups get their own stack so they can refer to each other.'
 Parameters:
   VPCId:
     Description: The vpc to add the security groups to.
