@@ -7,8 +7,8 @@ import com.google.auto.value.AutoValue;
 public abstract class Block {
 
   /**
-   * The block's ID. Note this is different from the {@code BlockDefinition}'s ID because BlockDefinitions that repeat
-   * expand to multiple Blocks.
+   * The block's ID. Note this is different from the {@code BlockDefinition}'s ID because
+   * BlockDefinitions that repeat expand to multiple Blocks.
    */
   abstract long id();
 }
