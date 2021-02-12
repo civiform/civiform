@@ -1,15 +1,16 @@
 package services;
 
+import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
-import org.testcontainers.shaded.com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSet;
 
 public class ErrorAndTest {
   @Test
   public void canBeCreatedWithResultAndErrors() {
-    ErrorAnd<String, ImmutableSet<String>> errorAndResult =
-        new ErrorAnd<String, ImmutableSet<String>>("result", ImmutableSet.of("error 1", "error 2"));
+    ErrorAnd<String, String> errorAndResult =
+        new ErrorAnd<>(ImmutableSet.of("error 1", "error 2"), "result");
 
     assertThat(errorAndResult.hasResult()).isTrue();
     assertThat(errorAndResult.getResult()).isEqualTo("result");
@@ -19,11 +20,13 @@ public class ErrorAndTest {
 
   @Test
   public void canBeCreatedWithOnlyErrors() {
-    ErrorAnd<String, ImmutableSet<String>> errorAndResult =
-        new ErrorAnd<String, ImmutableSet<String>>(ImmutableSet.of("error 1", "error 2"));
+    ErrorAnd<String, String> errorAndResult = new ErrorAnd<>(ImmutableSet.of("error 1", "error 2"));
 
+    Throwable thrown = catchThrowable(() -> errorAndResult.getResult());
+
+    assertThat(thrown).isInstanceOf(RuntimeException.class);
+    assertThat(thrown).hasMessage("There is no result");
     assertThat(errorAndResult.hasResult()).isFalse();
-    // TODO: expect errorAndResult.getResult() to throw
     assertThat(errorAndResult.isError()).isTrue();
     assertThat(errorAndResult.getErrors()).containsAll(ImmutableSet.of("error 1", "error 2"));
   }
