@@ -1,0 +1,53 @@
+#!/bin/bash
+
+if [ -z "$GITHUB_EVENT_PATH" ]; then
+	PR_NUMBER=localrun-$USER
+else
+	PR_NUMBER=$(jq -r .pull_request.number "$GITHUB_EVENT_PATH")
+fi
+
+set -e
+
+TIMESTAMP=$(date +%s)
+
+echo "checking if a changeset exists already..."
+if aws cloudformation describe-change-set --region us-west-2  --change-set-name auto-changeset-pr-$PR_NUMBER  --stack-name uat > /dev/null; then
+	echo "deleting..."
+	aws cloudformation delete-change-set --region us-west-2  --change-set-name auto-changeset-pr-$PR_NUMBER  --stack-name uat
+	sleep 5
+fi
+
+aws s3 sync ./infra s3://seattle-uat-cftmpl/${TIMESTAMP}
+
+aws cloudformation create-change-set --region us-west-2 --include-nested-stacks --stack-name uat --change-set-name auto-changeset-pr-$PR_NUMBER --template-url  https://seattle-uat-cftmpl.s3-us-west-2.amazonaws.com/$TIMESTAMP/stack.yaml --parameters "[{\"ParameterKey\": \"Timestamp\", \"ParameterValue\": \"$TIMESTAMP\"}]"
+
+sleep 5
+
+rootcs=$(aws cloudformation describe-change-set --region us-west-2 --change-set-name auto-changeset-pr-$PR_NUMBER --stack-name uat)
+while [ "$(echo "$rootcs" | jq -r '.Status')" == "CREATE_IN_PROGRESS" ]; do
+	echo "Still creating, waiting..."
+	sleep 10
+	rootcs=$(aws cloudformation describe-change-set --region us-west-2 --change-set-name auto-changeset-pr-$PR_NUMBER --stack-name uat)
+done
+
+
+rootcs=$(aws cloudformation describe-change-set --region us-west-2 --change-set-name auto-changeset-pr-$PR_NUMBER --stack-name uat)
+
+if [ "$(echo "$rootcs" | jq -r '.Status')" != "CREATE_COMPLETE" ]; then
+	echo "::set-output name=failure_msg::$(echo "$rootcs" | jq -r '.StatusReason')"
+	exit 1
+fi
+
+set +e
+rm /tmp/message
+for csn in $(echo $rootcs | jq -r '.Changes[].ResourceChange.ChangeSetId') ; do
+	cs=$(aws cloudformation describe-change-set --region us-west-2 --change-set-name $csn)
+	echo "$cs" | jq '.Changes[] | if .ResourceChange.Replacement == "True" then .ResourceChange.LogicalResourceId else null end' | grep -v "null" >> /tmp/message
+	if [ "$(echo "$cs" | jq -r '.Status')" != "CREATE_COMPLETE" ]; then
+		echo "::set-output name=failure_msg::$(echo "$cs" | jq -r '.StatusReason')"
+		exit 1
+	fi
+done
+set -e
+
+echo "::set-output name=changes_msg::$(cat /tmp/message | jq -s -c '.')"

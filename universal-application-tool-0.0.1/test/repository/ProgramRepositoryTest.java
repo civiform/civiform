@@ -7,7 +7,6 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void createProgram() {
-    // arrange
     final ProgramRepository repo = app.injector().instanceOf(ProgramRepository.class);
     Program program = new Program();
     //    program.setName("program one");

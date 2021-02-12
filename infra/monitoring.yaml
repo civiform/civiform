@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: ''
+Description: 'Monitoring for the UAT - see comments in monitoring.yaml for description of which alerts we have.'
 Parameters:
   DBName:
     Type: String
@@ -219,7 +219,7 @@ Resources:
       EvaluationPeriods: 5
       Threshold: 5120
       AlarmActions:
-        - !Ref ticketalert
+        - !Ref ticketalerts
       Metrics:
         - Id: dbspace
           MetricStat:

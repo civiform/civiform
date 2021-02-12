@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: ''
+Description: 'The database - including the networking required to get it to interface with the private network.'
 Parameters:
   DBPassword:
     NoEcho: 'true'
@@ -33,6 +33,8 @@ Resources:
         - !Ref 'PrivateSubnet2'
   postgresdb:
     Type: AWS::RDS::DBInstance
+    # If you accidentally delete the database, we store a snapshot of the database.
+    DeletionPolicy: Snapshot
     Properties:
       DBInstanceIdentifier: database
       DBName: postgres

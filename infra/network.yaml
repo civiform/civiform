@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: ''
+Description: 'The "virtual private cloud" (VPC) for the UAT.  One region, to save costs, but two Availability Zones (AZs) for reliability.  We will go down if us-west-2 goes down, but not if only one building goes down.  Built with parallel stacks - two public and two private subnets, one per AZ.'
 Resources:
   vpc:
     Type: AWS::EC2::VPC
