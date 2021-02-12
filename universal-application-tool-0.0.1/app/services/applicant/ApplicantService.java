@@ -8,22 +8,20 @@ import services.ErrorAnd;
 interface ApplicantService {
 
   /**
-   * Performs a set of updates to the applicant's ApplicantData.
-   * Updates are atomic i.e. if any of them fail validation none of them will be written.
-   * programId is used to construct the {@code ReadOnlyApplicantService} provided in
-   * the return value.
+   * Performs a set of updates to the applicant's ApplicantData. Updates are atomic i.e. if any of
+   * them fail validation none of them will be written. programId is used to construct the {@code
+   * ReadOnlyApplicantService} provided in the return value.
    */
   CompletionStage<ErrorAnd<ReadOnlyApplicantService, UpdateError>> update(
-      long applicantId,
-      long programId,
-      ImmutableList<Update> updates);
+      long applicantId, long programId, ImmutableList<Update> updates);
 
   /** Creates a new Applicant for a given user. */
   CompletionStage<Applicant> createApplicant(long userId);
 
   /**
-   * Get a {@code ReadOnlyApplicantService} which implements synchronous,
-   * in-memory read behavior relevant to an applicant for a specific program.
+   * Get a {@code ReadOnlyApplicantService} which implements synchronous, in-memory read behavior
+   * relevant to an applicant for a specific program.
    */
-  CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(long applicantId, long programId);
+  CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
+      long applicantId, long programId);
 }
