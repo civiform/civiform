@@ -1,10 +1,10 @@
 package services;
 
-import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 
-import org.junit.Test;
 import com.google.common.collect.ImmutableSet;
+import org.junit.Test;
 
 public class ErrorAndTest {
   @Test
