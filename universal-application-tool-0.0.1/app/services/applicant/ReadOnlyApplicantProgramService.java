@@ -1,9 +1,6 @@
 package services.applicant;
 
-/**
- * Provides synchronous, read-only behavior relevant to an applicant
- * for a specific program.
- */
+/** Provides synchronous, read-only behavior relevant to an applicant for a specific program. */
 interface ReadOnlyApplicantProgramService {
 
   /** Get the program's current Blocks for the applicant. */

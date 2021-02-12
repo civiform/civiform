@@ -2,12 +2,10 @@ package services;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.lang.RuntimeException;
-
 /**
- * Wraps two values, labeled "errors" and "result". Errors is intended to be
- * an immutable collection of error objects while result is the result of
- * an action. If the action was successful only result need be provided.
+ * Wraps two values, labeled "errors" and "result". Errors is intended to be an immutable collection
+ * of error objects while result is the result of an action. If the action was successful only
+ * result need be provided.
  */
 class ErrorAnd<T, E> {
   private final ImmutableSet<E> errors;
@@ -17,7 +15,7 @@ class ErrorAnd<T, E> {
   public ErrorAnd(ImmutableSet<E> errors) {
     this.errors = checkNotNull(errors);
     this.result = null;
-  }n
+  }
 
   /** Constructor for the error case but when result is also useful. */
   public ErrorAnd(ImmutableSet<E> errors, T result) {
