@@ -19,3 +19,21 @@ jobs:
           tags: uat:latest
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
+
+  deploy_to_cfn:
+    runs-on: ubuntu-18.04 # for older version of awscli.
+    steps:
+      - id: file_changes
+        uses: trilom/file-changes-action@v1.2.3
+
+      - name: Checkout
+        if: contains(toJSON(steps.file_changes.outputs.files), 'infra/')
+        uses: actions/checkout@v2
+
+      - name: Run deploy-prod.
+        if: contains(toJSON(steps.file_changes.outputs.files), 'infra/')
+        id: deploy_prod
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
+        run: bin/deploy-prod
