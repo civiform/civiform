@@ -2,36 +2,56 @@ package services;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.collect.ImmutableSet;
 import java.lang.RuntimeException;
 
+/**
+ * Wraps two values, labeled "errors" and "result". Errors is intended to be
+ * an immutable collection of error objects while result is the result of
+ * an action. If the action was successful only result need be provided.
+ */
 class ErrorAnd<T, E> {
   private final ImmutableSet<E> errors;
-  private final T wrapped;
+  private final T result;
 
-  public ErrorAnd(ImmutableSet<E> errors, T wrapped) {
-    this.errors = errors;
-    this.wrapped = checkNotNull(wrapped);
+  /** Constructor for the error case. */
+  public ErrorAnd(ImmutableSet<E> errors) {
+    this.errors = checkNotNull(errors);
+    this.result = null;
+  }n
+
+  /** Constructor for the error case but when result is also useful. */
+  public ErrorAnd(ImmutableSet<E> errors, T result) {
+    this.errors = checkNotNull(errors);
+    this.result = checkNotNull(result);
   }
 
-  public ErrorAnd(T wrapped) {
-    this.wrapped = checkNotNull(wrapped);
-    this.errors = null;
+  /** Constructor for the success case. */
+  public ErrorAnd(T result) {
+    this.result = checkNotNull(result);
+    this.errors = ImmutableSet.of();
   }
 
-  public T getWrapped() {
-    return wrapped;
+  /** True if there is a result */
+  public boolean hasResult() {
+    return result != null;
   }
 
-  public boolean isError() {
-    return errors != null;
-  }
-
-  public E getErrors() {
-    if (errors == null) {
-      throw new RuntimeException("There are no errors");
+  /** Returns the result, throws a RuntimeException if there is no result. */
+  public T getResult() {
+    if (result == null) {
+      throw new RuntimeException("There is no result");
     }
 
+    return result;
+  }
+
+  /** Returns true if there are errors. */
+  public boolean isError() {
+    return !errors.isEmpty();
+  }
+
+  /** Returns the errors. */
+  public ImmutableSet<E> getErrors() {
     return errors;
   }
 }

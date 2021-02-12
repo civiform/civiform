@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: ''
+Description: 'The containers and service configuration for the UAT.'
 Parameters:
   DBAddress:
     Description: The address at which the database can be reached.
