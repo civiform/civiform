@@ -31,7 +31,7 @@ public class ErrorAnd<T, E> {
     this.errors = ImmutableSet.of();
   }
 
-  /** True if there is a result */
+  /** Returns true if there is a result */
   public boolean hasResult() {
     return result != null;
   }
