@@ -2,6 +2,8 @@ package services.question;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
@@ -16,14 +18,15 @@ public class QuestionDefinition {
   private final ImmutableMap<Locale, String> questionText;
   private final Optional<ImmutableMap<Locale, String>> questionHelpText;
 
+  @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
   public QuestionDefinition(
-      String id,
-      String version,
-      String name,
-      String path,
-      String description,
-      ImmutableMap<Locale, String> questionText,
-      Optional<ImmutableMap<Locale, String>> questionHelpText) {
+      @JsonProperty("id") String id,
+      @JsonProperty("version") String version,
+      @JsonProperty("name") String name,
+      @JsonProperty("path") String path,
+      @JsonProperty("description") String description,
+      @JsonProperty("questionText") ImmutableMap<Locale, String> questionText,
+      @JsonProperty("questionHelpText") Optional<ImmutableMap<Locale, String>> questionHelpText) {
     this.id = checkNotNull(id);
     this.version = checkNotNull(version);
     this.name = checkNotNull(name);

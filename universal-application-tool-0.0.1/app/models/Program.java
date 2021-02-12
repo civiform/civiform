@@ -1,12 +1,9 @@
 package models;
 
 import io.ebean.annotation.DbJsonB;
-import io.ebean.text.json.EJson;
-import java.io.IOException;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
-import services.program.ProgramDefinition;
 
 @Entity
 @Table(name = "programs")
