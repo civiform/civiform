@@ -12,7 +12,7 @@ public class ProgramDefinitionTest {
             .setDescription("Block Description")
             .build();
     ProgramDefinition.builder()
-        .setId("123")
+        .setId(123L)
         .setName("The Program")
         .setDescription("This program is for testing.")
         .addBlockDefinition(blockA)
