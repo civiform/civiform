@@ -25,7 +25,7 @@ public abstract class ProgramDefinition {
   }
 
   @AutoValue.Builder
-  abstract static class Builder {
+  public abstract static class Builder {
     public abstract Builder setId(String id);
 
     public abstract Builder setName(String name);
