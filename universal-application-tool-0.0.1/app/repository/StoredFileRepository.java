@@ -8,32 +8,32 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.File;
+import models.StoredFile;
 import play.db.ebean.EbeanConfig;
 
-public class FileRepository {
+public class StoredFileRepository {
 
   private final EbeanServer ebeanServer;
   private final DatabaseExecutionContext executionContext;
 
   @Inject
-  public FileRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
+  public StoredFileRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
     this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
     this.executionContext = executionContext;
   }
 
   /** Return all files in a set. */
-  public CompletionStage<Set<File>> list() {
-    return supplyAsync(() -> ebeanServer.find(File.class).findSet(), executionContext);
+  public CompletionStage<Set<StoredFile>> list() {
+    return supplyAsync(() -> ebeanServer.find(StoredFile.class).findSet(), executionContext);
   }
 
-  public CompletionStage<Optional<File>> lookupFile(Long id) {
+  public CompletionStage<Optional<StoredFile>> lookupFile(Long id) {
     return supplyAsync(
-        () -> Optional.ofNullable(ebeanServer.find(File.class).setId(id).findOne()),
+        () -> Optional.ofNullable(ebeanServer.find(StoredFile.class).setId(id).findOne()),
         executionContext);
   }
 
-  public CompletionStage<Long> insert(File file) {
+  public CompletionStage<Long> insert(StoredFile file) {
     return supplyAsync(
         () -> {
           ebeanServer.insert(file);
