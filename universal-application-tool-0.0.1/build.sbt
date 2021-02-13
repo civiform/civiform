@@ -33,8 +33,13 @@ lazy val root = (project in file("."))
       "javax.activation" % "activation" % "1.1.1",
       "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.2",
 
-      // Security library pac4j (https://github.com/pac4j/play-pac4j)
+      // Security libraries
+      // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "11.0.0-PLAY2.8-RC1",
+      "org.pac4j" % "pac4j-core" % "5.0.0-RC1",
+      // basic http authentication (for now)
+      "org.pac4j" % "pac4j-http" % "5.0.0-RC1",
+      "org.apache.shiro" % "shiro-crypto-cipher" % "1.7.1",
 
       // Autovalue
       "com.google.auto.value" % "auto-value-annotations" % "1.7.4",
@@ -56,5 +61,10 @@ resolvers += Resolver.bintrayRepo("webjars","maven")
 libraryDependencies ++= Seq(
     "org.webjars.npm" % "react" % "15.4.0",
     "org.webjars.npm" % "types__react" % "15.0.34"
+)
+dependencyOverrides ++= Seq(
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.10.5",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.10.5",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.10.5",
 )
 resolveFromWebjarsNodeModulesDir := true
