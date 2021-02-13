@@ -64,3 +64,10 @@ Resources:
         DBName: !GetAtt 'DB.Outputs.DBName'
         LBName: !GetAtt 'LB.Outputs.LBFullName'
         LBTGName: !GetAtt 'LB.Outputs.TGFullName'
+Outputs:
+  ECSService:
+    Description: The ARN of the service.
+    Value: !GetAtt 'Container.Outputs.ECSService'
+  ECSCluster:
+    Description: The ARN of the cluster.
+    Value: !GetAtt 'Container.Outputs.ECSCluster'

@@ -1,0 +1,31 @@
+name: ci
+
+on:
+  push:
+    branches: main
+
+jobs:
+  build_container:
+    runs-on: ubuntu-18.04 # for older version of awscli.
+    steps:
+      - id: file_changes
+        uses: trilom/file-changes-action@v1.2.3
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Run build-and-push.
+        if: "!contains(toJSON(steps.file_changes.outputs.files), 'infra/')"
+        id: build_and_push
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
+        run: bin/build-and-push
+
+      - name: Run deploy-prod.
+        if: "contains(toJSON(steps.file_changes.outputs.files), 'infra/')"
+        id: deploy_prod
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
+        run: bin/deploy-prod
