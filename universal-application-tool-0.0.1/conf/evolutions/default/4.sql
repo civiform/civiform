@@ -3,7 +3,7 @@
 # --- !Ups
 create table if not exists files (
   id bigserial primary key,
-  name varchar(255),
+  name varchar(255)
 );
 
 # --- !Downs
