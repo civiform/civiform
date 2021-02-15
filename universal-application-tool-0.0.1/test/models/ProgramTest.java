@@ -22,7 +22,7 @@ public class ProgramTest extends WithPostgresContainer {
 
     QuestionDefinition questionDefinition =
         new QuestionDefinition(
-            "1",
+            165L,
             "2",
             "question",
             "applicant.name",

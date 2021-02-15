@@ -7,7 +7,7 @@ import java.util.Optional;
 public class NameQuestionDefinition extends QuestionDefinition {
 
   public NameQuestionDefinition(
-      String id,
+      long id,
       String version,
       String name,
       String path,

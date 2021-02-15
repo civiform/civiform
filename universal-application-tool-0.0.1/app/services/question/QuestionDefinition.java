@@ -11,7 +11,7 @@ import java.util.Optional;
 
 /** Defines a single question. */
 public class QuestionDefinition {
-  private final String id;
+  private final long id;
   private final String version;
   private final String name;
   private final String path;
@@ -21,7 +21,7 @@ public class QuestionDefinition {
 
   @JsonCreator
   public QuestionDefinition(
-      @JsonProperty("id") String id,
+      @JsonProperty("id") long id,
       @JsonProperty("version") String version,
       @JsonProperty("name") String name,
       @JsonProperty("path") String path,
@@ -38,7 +38,7 @@ public class QuestionDefinition {
   }
 
   /** Get the unique identifier for this question. */
-  public String getId() {
+  public long getId() {
     return this.id;
   }
 
