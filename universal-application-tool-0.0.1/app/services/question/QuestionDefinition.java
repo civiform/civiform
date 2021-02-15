@@ -79,6 +79,7 @@ public class QuestionDefinition {
     throw new RuntimeException("Locale not found: " + locale);
   }
 
+  /** Get the question tests for all locales. This is used for serialization. */
   public ImmutableMap<Locale, String> getQuestionText() {
     return questionText;
   }
