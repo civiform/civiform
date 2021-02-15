@@ -1,29 +1,22 @@
 package controllers;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import javax.inject.Inject;
+import play.mvc.Controller;
 import play.mvc.Result;
-import views.html.demo;
-import static j2html.TagCreator.*;
-import j2html.tags.Tag;
-import play.twirl.api.Html;
+import views.J2HtmlDemo;
 
-import static play.mvc.Results.ok;
+public class J2HtmlDemoController extends Controller {
 
-public class J2HtmlDemoController {
+  private final J2HtmlDemo view;
+
+  @Inject
+  public J2HtmlDemoController(J2HtmlDemo view) {
+    this.view = checkNotNull(view);
+  }
 
   public Result index() {
-    return ok(demo.render(Html.apply(getHtml())));
-  }
-
-  private String getHtml() {
-    return document(html(body(h1("I'm a header!"), getForm())));
-  }
-
-  private Tag getForm() {
-    return form(
-            label("What is your first name?").attr("for", "nameFirst"),
-            input().withType("text").withName("nameFirst"),
-            input().withType("submit").withValue("Enter"))
-        .withAction("/demo")
-        .withId("demo-id");
+    return ok(view.render("Let's get started!"));
   }
 }
