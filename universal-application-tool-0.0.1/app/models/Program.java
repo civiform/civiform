@@ -15,9 +15,9 @@ import play.data.validation.Constraints;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 
+/** The ebeans mapped class for the program object. */
 @Entity
 @Table(name = "programs")
-/** The ebeans mapped class for the program object. */
 public class Program extends BaseModel {
 
   private static ObjectMapper mapper =
@@ -39,8 +39,8 @@ public class Program extends BaseModel {
     this.programDefinition = definition;
   }
 
-  @PrePersist
   /** Populates column values from {@link programDefinition} */
+  @PrePersist
   public void serializeBlockDefinitions() throws JsonProcessingException {
     this.id = this.programDefinition.id();
     this.name = this.programDefinition.name();
@@ -48,8 +48,8 @@ public class Program extends BaseModel {
     this.block_definitions = mapper.writeValueAsString(this.programDefinition.blockDefinitions());
   }
 
-  @PostLoad
   /** Populates {@link programDefinition} from column values. */
+  @PostLoad
   public void loadProgramDefinition() throws JsonProcessingException {
     this.programDefinition =
         ProgramDefinition.builder()
