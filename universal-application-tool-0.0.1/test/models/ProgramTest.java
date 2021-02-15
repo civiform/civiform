@@ -18,7 +18,6 @@ public class ProgramTest extends WithPostgresContainer {
   @Test
   public void canSaveProgram() {
     ProgramRepository repo = app.injector().instanceOf(ProgramRepository.class);
-    Program program = new Program();
 
     QuestionDefinition questionDefinition =
         new QuestionDefinition(
@@ -40,20 +39,16 @@ public class ProgramTest extends WithPostgresContainer {
 
     ProgramDefinition definition =
         ProgramDefinition.builder()
-            .setId(100l)
+            .setId(100L)
             .setName("name")
             .setDescription("desc")
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .build();
-    program.setProgramDefinition(definition);
+    Program program = new Program(definition);
 
     program.save();
 
-    Program found = repo.lookupProgram("name").toCompletableFuture().join().get();
-
-    assertThat(found.name).isEqualTo("name");
-    assertThat(found.description).isEqualTo("desc");
-    assertThat(found.id).isEqualTo(100L);
+    Program found = repo.lookupProgram(100L).toCompletableFuture().join().get();
 
     assertThat(found.getProgramDefinition().name()).isEqualTo("name");
     assertThat(found.getProgramDefinition().blockDefinitions().get(0).name())

@@ -25,17 +25,17 @@ public class Program extends BaseModel {
 
   private ProgramDefinition programDefinition;
 
-  @Constraints.Required String name;
+  private @Constraints.Required String name;
 
-  @Constraints.Required String description;
+  private @Constraints.Required String description;
 
-  @Constraints.Required @DbJson String block_definitions;
+  private @Constraints.Required @DbJson String blockDefinitions;
 
   public ProgramDefinition getProgramDefinition() {
     return this.programDefinition;
   }
 
-  public void setProgramDefinition(ProgramDefinition definition) {
+  public Program(ProgramDefinition definition) {
     this.programDefinition = definition;
   }
 
@@ -45,7 +45,7 @@ public class Program extends BaseModel {
     this.id = this.programDefinition.id();
     this.name = this.programDefinition.name();
     this.description = this.programDefinition.description();
-    this.block_definitions = mapper.writeValueAsString(this.programDefinition.blockDefinitions());
+    this.blockDefinitions = mapper.writeValueAsString(this.programDefinition.blockDefinitions());
   }
 
   /** Populates {@link programDefinition} from column values. */
@@ -58,7 +58,7 @@ public class Program extends BaseModel {
             .setDescription(this.description)
             .setBlockDefinitions(
                 mapper.readValue(
-                    this.block_definitions, new TypeReference<ImmutableList<BlockDefinition>>() {}))
+                    this.blockDefinitions, new TypeReference<ImmutableList<BlockDefinition>>() {}))
             .build();
   }
 }
