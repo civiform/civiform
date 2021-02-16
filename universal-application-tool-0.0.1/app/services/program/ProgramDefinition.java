@@ -18,7 +18,7 @@ public abstract class ProgramDefinition {
   /** A human readable description of a Program. */
   public abstract String description();
 
-  /** The list of {@link BlockDefinitions} that make up the program. */
+  /** The list of {@link BlockDefinition}s that make up the program. */
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
 
   public abstract Builder toBuilder();
