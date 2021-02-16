@@ -55,7 +55,7 @@ public interface ProgramService {
    */
   ProgramDefinition setBlockQuestions(
       long programId, long blockDefinitionId, ImmutableList<QuestionDefinition> questionDefinitions)
-      throws ProgramNotFoundException;
+      throws ProgramNotFoundException, ProgramBlockNotFoundException;
 
   /**
    * Set the hide {@link Predicate} for a block. This predicate describes under what conditions the
@@ -68,7 +68,8 @@ public interface ProgramService {
    *     does not correspond to a real Program.
    */
   ProgramDefinition setBlockHidePredicate(
-      long programId, long blockDefinitionId, Predicate predicate) throws ProgramNotFoundException;
+      long programId, long blockDefinitionId, Predicate predicate)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException;
 
   /**
    * Set the optional {@link Predicate} for a block. This predicate describes under what conditions
@@ -81,5 +82,6 @@ public interface ProgramService {
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   ProgramDefinition setBlockOptionalPredicate(
-      long programId, long blockDefinitionId, Predicate predicate) throws ProgramNotFoundException;
+      long programId, long blockDefinitionId, Predicate predicate)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException;
 }

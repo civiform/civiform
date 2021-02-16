@@ -3,7 +3,6 @@ package services.program;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
@@ -81,7 +80,8 @@ public class ProgramServiceImplTest extends WithResettingPostgresContainer {
   }
 
   @Test
-  public void setBlockQuestions_updatesBlock() throws ProgramNotFoundException {
+  public void setBlockQuestions_updatesBlock()
+      throws ProgramNotFoundException, ProgramBlockNotFoundException {
     QuestionDefinition questionDefinition =
         new QuestionDefinition(
             1L,
@@ -106,7 +106,7 @@ public class ProgramServiceImplTest extends WithResettingPostgresContainer {
 
   @Test
   public void setBlockHidePredicate_updatesBlock()
-      throws ProgramNotFoundException, JsonProcessingException {
+      throws ProgramNotFoundException, ProgramBlockNotFoundException {
     ProgramDefinition programDefinition =
         ps.createProgramDefinition("Program With Block", "This program has a block.");
     Long programId = programDefinition.id();
@@ -121,7 +121,7 @@ public class ProgramServiceImplTest extends WithResettingPostgresContainer {
 
   @Test
   public void setBlockOptionalPredicate_updatesBlock()
-      throws ProgramNotFoundException, JsonProcessingException {
+      throws ProgramNotFoundException, ProgramBlockNotFoundException {
     ProgramDefinition programDefinition =
         ps.createProgramDefinition("Program With Block", "This program has a block.");
     Long programId = programDefinition.id();
@@ -132,5 +132,29 @@ public class ProgramServiceImplTest extends WithResettingPostgresContainer {
     ProgramDefinition found = ps.getProgramDefinition(programId).orElseThrow();
 
     assertThat(found.blockDefinitions().get(0).optionalPredicate()).hasValue(predicate);
+  }
+
+  @Test
+  public void setBlockQuestions_withBogusBlockId_throwsProgramBlockNotFoundException() {
+    ProgramDefinition p = ps.createProgramDefinition("name", "description");
+    assertThatThrownBy(() -> ps.setBlockQuestions(p.id(), 1L, ImmutableList.of()))
+        .isInstanceOf(ProgramBlockNotFoundException.class)
+        .hasMessage(String.format("Block not found in Program (ID %d) for block ID 1", p.id()));
+  }
+
+  @Test
+  public void setBlockHidePredicate_withBogusBlockId_throwsProgramBlockNotFoundException() {
+    ProgramDefinition p = ps.createProgramDefinition("name", "description");
+    assertThatThrownBy(() -> ps.setBlockHidePredicate(p.id(), 1L, Predicate.create("")))
+        .isInstanceOf(ProgramBlockNotFoundException.class)
+        .hasMessage(String.format("Block not found in Program (ID %d) for block ID 1", p.id()));
+  }
+
+  @Test
+  public void setBlockOptionalPredicate_withBogusBlockId_throwsProgramBlockNotFoundException() {
+    ProgramDefinition p = ps.createProgramDefinition("name", "description");
+    assertThatThrownBy(() -> ps.setBlockOptionalPredicate(p.id(), 1L, Predicate.create("")))
+        .isInstanceOf(ProgramBlockNotFoundException.class)
+        .hasMessage(String.format("Block not found in Program (ID %d) for block ID 1", p.id()));
   }
 }

@@ -74,7 +74,7 @@ public class ProgramServiceImpl implements ProgramService {
   @Transactional
   public ProgramDefinition setBlockQuestions(
       long programId, long blockDefinitionId, ImmutableList<QuestionDefinition> questionDefinitions)
-      throws ProgramNotFoundException {
+      throws ProgramNotFoundException, ProgramBlockNotFoundException {
     ProgramDefinition programDefinition =
         getProgramDefinition(programId).orElseThrow(() -> new ProgramNotFoundException(programId));
     int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
@@ -89,7 +89,8 @@ public class ProgramServiceImpl implements ProgramService {
   @Override
   @Transactional
   public ProgramDefinition setBlockHidePredicate(
-      long programId, long blockDefinitionId, Predicate predicate) throws ProgramNotFoundException {
+      long programId, long blockDefinitionId, Predicate predicate)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException {
     ProgramDefinition programDefinition =
         getProgramDefinition(programId).orElseThrow(() -> new ProgramNotFoundException(programId));
     int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
@@ -104,7 +105,8 @@ public class ProgramServiceImpl implements ProgramService {
   @Override
   @Transactional
   public ProgramDefinition setBlockOptionalPredicate(
-      long programId, long blockDefinitionId, Predicate predicate) throws ProgramNotFoundException {
+      long programId, long blockDefinitionId, Predicate predicate)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException {
     ProgramDefinition programDefinition =
         getProgramDefinition(programId).orElseThrow(() -> new ProgramNotFoundException(programId));
     int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
@@ -116,11 +118,17 @@ public class ProgramServiceImpl implements ProgramService {
         programDefinition, blockDefinitionIndex, blockDefinition);
   }
 
-  int getBlockDefinitionIndex(ProgramDefinition programDefinition, Long blockDefinitionId) {
-    return programDefinition.blockDefinitions().stream()
-        .map(b -> b.id())
-        .collect(ImmutableList.toImmutableList())
-        .indexOf(blockDefinitionId);
+  int getBlockDefinitionIndex(ProgramDefinition programDefinition, Long blockDefinitionId)
+      throws ProgramBlockNotFoundException {
+    int index =
+        programDefinition.blockDefinitions().stream()
+            .map(b -> b.id())
+            .collect(ImmutableList.toImmutableList())
+            .indexOf(blockDefinitionId);
+    if (index == -1) {
+      throw new ProgramBlockNotFoundException(programDefinition.id(), blockDefinitionId);
+    }
+    return index;
   }
 
   private ProgramDefinition updateProgramDefinitionWithBlockDefinition(
