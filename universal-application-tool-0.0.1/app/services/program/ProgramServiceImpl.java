@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletionStage;
 import models.Program;
 import play.db.ebean.Transactional;
 import repository.ProgramRepository;
@@ -34,11 +35,14 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   public Optional<ProgramDefinition> getProgramDefinition(long id) {
+    return getProgramDefinitionAsync(id).toCompletableFuture().join();
+  }
+
+  @Override
+  public CompletionStage<Optional<ProgramDefinition>> getProgramDefinitionAsync(long id) {
     return programRepository
         .lookupProgram(id)
-        .toCompletableFuture()
-        .join()
-        .map(p -> p.getProgramDefinition());
+        .thenApply(optionalProgram -> optionalProgram.map(Program::getProgramDefinition));
   }
 
   @Override

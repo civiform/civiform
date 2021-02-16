@@ -2,6 +2,7 @@ package services.program;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import java.util.concurrent.CompletionStage;
 import services.question.QuestionDefinition;
 
 /** Operations you can perform on {@link ProgramDefinition}s. */
@@ -22,6 +23,15 @@ public interface ProgramService {
    *     {@code Optional#empty} if not
    */
   Optional<ProgramDefinition> getProgramDefinition(long id);
+
+  /**
+   * Get the definition of a given program asynchronously.
+   *
+   * @param id the ID of the program to retrieve
+   * @return an {@link Optional} of the {@link ProgramDefinition} for the given ID if it exists, or
+   *     {@code Optional#empty} if not
+   */
+  CompletionStage<Optional<ProgramDefinition>> getProgramDefinitionAsync(long id);
 
   /**
    * Create a new program.

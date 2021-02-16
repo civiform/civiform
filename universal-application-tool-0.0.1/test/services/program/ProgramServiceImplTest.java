@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.CompletionStage;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithResettingPostgresContainer;
@@ -54,6 +55,36 @@ public class ProgramServiceImplTest extends WithResettingPostgresContainer {
     Optional<ProgramDefinition> found = ps.getProgramDefinition(programDefinition.id());
 
     assertThat(found).hasValue(programDefinition);
+  }
+
+  @Test
+  public void getProgramDefinition_returnsEmptyOptionalWhenProgramNotFound() {
+    ProgramDefinition programDefinition = ps.createProgramDefinition("new program", "description");
+    Optional<ProgramDefinition> found = ps.getProgramDefinition(programDefinition.id() + 1);
+
+    assertThat(found).isEmpty();
+  }
+
+  @Test
+  public void getProgramDefinitionAsync_getsRequestedProgram() {
+    ProgramDefinition programDefinition = ps.createProgramDefinition("async", "program");
+
+    CompletionStage<Optional<ProgramDefinition>> found =
+        ps.getProgramDefinitionAsync(programDefinition.id());
+
+    assertThat(found).isDone();
+    assertThat(found.toCompletableFuture()).isCompletedWithValue(Optional.of(programDefinition));
+  }
+
+  @Test
+  public void getProgramDefinitionAsync_cannotFindRequestedProgram_returnsEmptyOptional() {
+    ProgramDefinition programDefinition = ps.createProgramDefinition("different", "program");
+
+    CompletionStage<Optional<ProgramDefinition>> found =
+        ps.getProgramDefinitionAsync(programDefinition.id() + 1);
+
+    assertThat(found).isDone();
+    assertThat(found.toCompletableFuture()).isCompletedWithValue(Optional.empty());
   }
 
   @Test
