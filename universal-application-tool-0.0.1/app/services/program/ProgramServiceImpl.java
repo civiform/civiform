@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import models.Program;
+import play.db.ebean.Transactional;
 import repository.ProgramRepository;
 import services.question.QuestionDefinition;
 
@@ -49,22 +50,30 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
+  @Transactional
   public ProgramDefinition addBlockToProgram(
       long programId, String blockName, String blockDescription) throws ProgramNotFoundException {
+    ProgramDefinition programDefinition =
+        getProgramDefinition(programId).orElseThrow(() -> new ProgramNotFoundException(programId));
+    long blockId =
+        programDefinition.blockDefinitions().stream()
+                .map(b -> b.id())
+                .max(Long::compareTo)
+                .orElseGet(() -> 0L)
+            + 1;
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
-            .setId(1L) // How to autoincrement this block id?
+            .setId(blockId)
             .setName(blockName)
             .setDescription(blockDescription)
             .build();
-    ProgramDefinition programDefinition =
-        getProgramDefinition(programId).orElseThrow(() -> new ProgramNotFoundException(programId));
     Program program =
         programDefinition.toBuilder().addBlockDefinition(blockDefinition).build().toProgram();
     return programRepository.updateProgramSync(program).getProgramDefinition();
   }
 
   @Override
+  @Transactional
   public ProgramDefinition setBlockQuestions(
       long programId, long blockDefinitionId, ImmutableList<QuestionDefinition> questionDefinitions)
       throws ProgramNotFoundException {
@@ -83,6 +92,7 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
+  @Transactional
   public ProgramDefinition setBlockHidePredicate(
       long programId, long blockDefinitionId, Predicate predicate) throws ProgramNotFoundException {
     ProgramDefinition programDefinition =
@@ -100,6 +110,7 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
+  @Transactional
   public ProgramDefinition setBlockOptionalPredicate(
       long programId, long blockDefinitionId, Predicate predicate) throws ProgramNotFoundException {
     ProgramDefinition programDefinition =
