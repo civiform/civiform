@@ -48,7 +48,7 @@ public class ProgramTest extends WithResettingPostgresContainer {
 
     program.save();
 
-    Program found = repo.lookupProgram(1L).toCompletableFuture().join().get();
+    Program found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
 
     assertThat(found.getProgramDefinition().name()).isEqualTo("ProgramTest");
     assertThat(found.getProgramDefinition().blockDefinitions().get(0).name())

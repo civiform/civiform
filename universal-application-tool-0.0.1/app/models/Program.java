@@ -6,12 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import io.ebean.annotation.DbJson;
-import javax.persistence.Entity;
-import javax.persistence.PostLoad;
-import javax.persistence.PostPersist;
-import javax.persistence.PostUpdate;
-import javax.persistence.PreUpdate;
-import javax.persistence.Table;
+import javax.persistence.*;
 import play.data.validation.Constraints;
 import services.program.ProgramDefinition;
 
@@ -37,6 +32,13 @@ public class Program extends BaseModel {
 
   public Program(ProgramDefinition definition) {
     this.programDefinition = definition;
+    this.name = definition.name();
+    this.description = definition.description();
+    try {
+      this.blockDefinitions = mapper.writeValueAsString(programDefinition.blockDefinitions());
+    } catch (JsonProcessingException e) {
+      this.blockDefinitions = "[]";
+    }
   }
 
   public Program(String name, String description) {
