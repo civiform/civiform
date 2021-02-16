@@ -10,7 +10,6 @@ lazy val root = (project in file("."))
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.5.0",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.10.3",
-      "com.fasterxml.jackson.core" % "jackson-databind" % "2.10.3",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.10.3",
 
       // Database and database testing libraries
