@@ -15,6 +15,7 @@ create table if not exists questions (
 create table if not exists programs (
   id bigserial primary key,
   name varchar,
+  description varchar,
   blocks jsonb not null
 );
 

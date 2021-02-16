@@ -27,10 +27,9 @@ public class ProgramRepository {
     return supplyAsync(() -> ebeanServer.find(Program.class).findSet(), executionContext);
   }
 
-  public CompletionStage<Optional<Program>> lookupProgram(String name) {
+  public CompletionStage<Optional<Program>> lookupProgram(long id) {
     return supplyAsync(
-        () ->
-            Optional.ofNullable(ebeanServer.find(Program.class).where().eq("name", name).findOne()),
+        () -> Optional.ofNullable(ebeanServer.find(Program.class).where().eq("id", id).findOne()),
         executionContext);
   }
 
