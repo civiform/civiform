@@ -6,7 +6,6 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.text;
 
-import j2html.Config;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.Tag;
@@ -14,10 +13,6 @@ import play.twirl.api.Content;
 
 /** Base class for all HTML views. Provides stateless convenience methods for generating HTML. */
 abstract class BaseHtmlView {
-
-  static {
-    Config.closeEmptyTags = true;
-  }
 
   protected Content htmlContent(DomContent... domContents) {
     return new HtmlResponseContent(domContents);

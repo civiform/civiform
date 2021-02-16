@@ -21,7 +21,10 @@ final class ViewUtils {
     this.assetsFinder = checkNotNull(assetsFinder);
   }
 
-  /** Generates a hidden HTML input tag containing a signed CSRF token. */
+  /**
+   * Generates a hidden HTML input tag containing a signed CSRF token. The token and tag must be
+   * present in all UAT forms.
+   */
   Tag makeCsrfTokenInputTag() {
     return input().isHidden().withValue(tokenSigner.generateSignedToken()).withName("csrfToken");
   }
@@ -31,6 +34,8 @@ final class ViewUtils {
    * public/javascripts/[filename].js.
    */
   Tag makeLocalJsTag(String filename) {
-    return script().withSrc(assetsFinder.path("javascripts/" + filename + ".js"));
+    return script()
+        .withSrc(assetsFinder.path("javascripts/" + filename + ".js"))
+        .withType("text/javascript");
   }
 }
