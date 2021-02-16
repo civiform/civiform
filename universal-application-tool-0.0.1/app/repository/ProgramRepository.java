@@ -33,45 +33,13 @@ public class ProgramRepository {
         executionContext);
   }
 
-  public CompletionStage<Program> insertProgram(Program program) {
-    return supplyAsync(
-        () -> {
-          ebeanServer.insert(program);
-          return program;
-        },
-        executionContext);
-  }
-
   public Program insertProgramSync(Program program) {
     ebeanServer.insert(program);
     return program;
   }
 
-  public CompletionStage<Program> updateProgram(Program program) {
-    return supplyAsync(
-        () -> {
-          ebeanServer.update(program);
-          return program;
-        },
-        executionContext);
-  }
-
   public Program updateProgramSync(Program program) {
     ebeanServer.update(program);
-    return program;
-  }
-
-  public CompletionStage<Program> insertOrUpdateProgram(Program program) {
-    return supplyAsync(
-        () -> {
-          ebeanServer.save(program);
-          return program;
-        },
-        executionContext);
-  }
-
-  public Program insertOrUpdateProgramSync(Program program) {
-    ebeanServer.save(program);
     return program;
   }
 }
