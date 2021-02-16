@@ -22,7 +22,7 @@ public class ProgramRepositoryTest extends WithResettingPostgresContainer {
             .build();
     Program program = new Program(definition);
 
-    repo.insertProgram(program).toCompletableFuture().join();
+    repo.insertProgramSync(program);
 
     Program found = repo.lookupProgram(1L).toCompletableFuture().join().get();
     assertThat(found.getProgramDefinition().name()).isEqualTo("ProgramRepository");

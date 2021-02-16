@@ -5,17 +5,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbJson;
 import javax.persistence.Entity;
 import javax.persistence.PostLoad;
 import javax.persistence.PostPersist;
 import javax.persistence.PostUpdate;
-import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
-import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 
 /** The ebeans mapped class for the program object. */
@@ -42,8 +39,13 @@ public class Program extends BaseModel {
     this.programDefinition = definition;
   }
 
+  public Program(String name, String description) {
+    this.name = name;
+    this.description = description;
+    this.blockDefinitions = "[]";
+  }
+
   /** Populates column values from {@link ProgramDefinition} */
-  @PrePersist
   @PreUpdate
   public void serializeBlockDefinitions() throws JsonProcessingException {
     this.id = this.programDefinition.id();

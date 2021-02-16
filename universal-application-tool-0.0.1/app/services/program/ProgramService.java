@@ -2,8 +2,6 @@ package services.program;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
-
-import services.applicant.Block;
 import services.question.QuestionDefinition;
 
 /** Operations you can perform on {@link ProgramDefinition}s. */
