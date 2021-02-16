@@ -40,6 +40,25 @@ public class ProgramServiceImplTest extends WithResettingPostgresContainer {
   }
 
   @Test
+  public void listProgramDefinitionsAsync_hasNoResults() {
+    CompletionStage<ImmutableList<ProgramDefinition>> completionStage =
+        ps.listProgramDefinitionsAsync();
+
+    assertThat(completionStage.toCompletableFuture().join()).isEmpty();
+  }
+
+  @Test
+  public void listProgramDefinitionsAsync_hasResults() {
+    ProgramDefinition first = ps.createProgramDefinition("first name", "first description");
+    ProgramDefinition second = ps.createProgramDefinition("second name", "second description");
+
+    CompletionStage<ImmutableList<ProgramDefinition>> completionStage =
+        ps.listProgramDefinitionsAsync();
+
+    assertThat(completionStage.toCompletableFuture().join()).containsExactly(first, second);
+  }
+
+  @Test
   public void createProgram_setsId() {
     assertThat(ps.listProgramDefinitions()).isEmpty();
 

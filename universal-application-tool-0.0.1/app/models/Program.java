@@ -62,21 +62,4 @@ public class Program extends BaseModel {
             .setBlockDefinitions(this.blockDefinitions.blockDefinitions())
             .build();
   }
-
-  /**
-   * A wrapper for {@link BlockDefinition}s for use in serializing to JSON in the {@link
-   * models.Program} model.
-   */
-  @AutoValue
-  abstract static class BlockContainer {
-
-    @JsonCreator
-    static BlockContainer create(
-        @JsonProperty("blockDefinitions") ImmutableList<BlockDefinition> blockDefinitions) {
-      return new AutoValue_Program_BlockContainer(blockDefinitions);
-    }
-
-    @JsonProperty("blockDefinitions")
-    public abstract ImmutableList<BlockDefinition> blockDefinitions();
-  }
 }

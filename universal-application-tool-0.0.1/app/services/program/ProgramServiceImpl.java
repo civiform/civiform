@@ -22,15 +22,18 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   public ImmutableList<ProgramDefinition> listProgramDefinitions() {
+    return listProgramDefinitionsAsync().toCompletableFuture().join();
+  }
+
+  @Override
+  public CompletionStage<ImmutableList<ProgramDefinition>> listProgramDefinitionsAsync() {
     return programRepository
         .listPrograms()
-        .toCompletableFuture()
         .thenApply(
             programs ->
                 programs.stream()
                     .map(program -> program.getProgramDefinition())
-                    .collect(ImmutableList.toImmutableList()))
-        .join();
+                    .collect(ImmutableList.toImmutableList()));
   }
 
   @Override
@@ -83,7 +86,10 @@ public class ProgramServiceImpl implements ProgramService {
         getProgramDefinition(programId).orElseThrow(() -> new ProgramNotFoundException(programId));
     int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
     BlockDefinition blockDefinition =
-        programDefinition.blockDefinitions().get(blockDefinitionIndex).toBuilder()
+        programDefinition
+            .blockDefinitions()
+            .get(blockDefinitionIndex)
+            .toBuilder()
             .setQuestionDefinitions(questionDefinitions)
             .build();
     return updateProgramDefinitionWithBlockDefinition(
@@ -99,7 +105,10 @@ public class ProgramServiceImpl implements ProgramService {
         getProgramDefinition(programId).orElseThrow(() -> new ProgramNotFoundException(programId));
     int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
     BlockDefinition blockDefinition =
-        programDefinition.blockDefinitions().get(blockDefinitionIndex).toBuilder()
+        programDefinition
+            .blockDefinitions()
+            .get(blockDefinitionIndex)
+            .toBuilder()
             .setHidePredicate(Optional.of(predicate))
             .build();
     return updateProgramDefinitionWithBlockDefinition(
@@ -115,7 +124,10 @@ public class ProgramServiceImpl implements ProgramService {
         getProgramDefinition(programId).orElseThrow(() -> new ProgramNotFoundException(programId));
     int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
     BlockDefinition blockDefinition =
-        programDefinition.blockDefinitions().get(blockDefinitionIndex).toBuilder()
+        programDefinition
+            .blockDefinitions()
+            .get(blockDefinitionIndex)
+            .toBuilder()
             .setOptionalPredicate(Optional.of(predicate))
             .build();
     return updateProgramDefinitionWithBlockDefinition(
@@ -145,7 +157,8 @@ public class ProgramServiceImpl implements ProgramService {
     ImmutableList<BlockDefinition> updatedBlockDefinitions =
         ImmutableList.copyOf(mutableBlockDefinitions);
     Program program =
-        programDefinition.toBuilder()
+        programDefinition
+            .toBuilder()
             .setBlockDefinitions(updatedBlockDefinitions)
             .build()
             .toProgram();
