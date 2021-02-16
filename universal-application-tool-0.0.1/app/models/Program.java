@@ -9,7 +9,10 @@ import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbJson;
 import javax.persistence.Entity;
 import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
 import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.program.BlockDefinition;
@@ -39,8 +42,9 @@ public class Program extends BaseModel {
     this.programDefinition = definition;
   }
 
-  /** Populates column values from {@link programDefinition} */
+  /** Populates column values from {@link ProgramDefinition} */
   @PrePersist
+  @PreUpdate
   public void serializeBlockDefinitions() throws JsonProcessingException {
     this.id = this.programDefinition.id();
     this.name = this.programDefinition.name();
@@ -48,8 +52,10 @@ public class Program extends BaseModel {
     this.blockDefinitions = mapper.writeValueAsString(this.programDefinition.blockDefinitions());
   }
 
-  /** Populates {@link programDefinition} from column values. */
+  /** Populates {@link ProgramDefinition} from column values. */
   @PostLoad
+  @PostPersist
+  @PostUpdate
   public void loadProgramDefinition() throws JsonProcessingException {
     this.programDefinition =
         ProgramDefinition.builder()

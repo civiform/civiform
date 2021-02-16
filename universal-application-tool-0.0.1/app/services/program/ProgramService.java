@@ -2,6 +2,7 @@ package services.program;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import services.question.QuestionDefinition;
 
 /** Operations you can perform on {@link ProgramDefinition}s. */
 public interface ProgramService {
@@ -29,7 +30,7 @@ public interface ProgramService {
    * @param description the description of what the program provides
    * @return the {@link ProgramDefinition} that was created
    */
-  ProgramDefinition createProgram(String name, String description);
+  ProgramDefinition createProgramDefinition(String name, String description);
 
   /**
    * Adds a {@link BlockDefinition} to the given program.
@@ -38,19 +39,23 @@ public interface ProgramService {
    * @param blockName a name for the block to add
    * @param blockDescription a description of what the questions in the block address
    * @return the updated {@link ProgramDefinition}
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
-  ProgramDefinition addBlockToProgram(long programId, String blockName, String blockDescription);
+  ProgramDefinition addBlockToProgram(long programId, String blockName, String blockDescription)
+      throws ProgramNotFoundException;
 
   /**
    * Update a {@link BlockDefinition} with a set of questions.
    *
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
-   * @param questionDefinitionIds an {@link ImmutableList} of questions for the block
+   * @param questionDefinitions an {@link ImmutableList} of questions for the block
    * @return the updated {@link ProgramDefinition}
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   ProgramDefinition setBlockQuestions(
-      long programId, long blockDefinitionId, ImmutableList<String> questionDefinitionIds);
+      long programId, long blockDefinitionId, ImmutableList<QuestionDefinition> questionDefinitions)
+      throws ProgramNotFoundException;
 
   /**
    * Set the hide {@link Predicate} for a block. This predicate describes under what conditions the
@@ -59,10 +64,11 @@ public interface ProgramService {
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
    * @param predicate the {@link Predicate} for hiding the block
-   * @return the updated {@link ProgramDefinition}
+   * @return the updated {@link ProgramDefinition} * @throws ProgramNotFoundException when programId
+   *     does not correspond to a real Program.
    */
   ProgramDefinition setBlockHidePredicate(
-      long programId, long blockDefinitionId, Predicate predicate);
+      long programId, long blockDefinitionId, Predicate predicate) throws ProgramNotFoundException;
 
   /**
    * Set the optional {@link Predicate} for a block. This predicate describes under what conditions
@@ -72,7 +78,8 @@ public interface ProgramService {
    * @param blockDefinitionId the ID of the block to update
    * @param predicate the {@link Predicate} for making the block optional
    * @return the updated {@link ProgramDefinition}
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   ProgramDefinition setBlockOptionalPredicate(
-      long programId, long blockDefinitionId, Predicate predicate);
+      long programId, long blockDefinitionId, Predicate predicate) throws ProgramNotFoundException;
 }

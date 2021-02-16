@@ -2,12 +2,15 @@ package services.program;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import javax.annotation.Nullable;
+import models.Program;
 
 @AutoValue
 public abstract class ProgramDefinition {
 
   /** Unique identifier for a ProgramDefinition. */
-  public abstract long id();
+  @Nullable
+  public abstract Long id();
 
   /** Descriptive name of a Program, e.g. Car Tab Rebate Program */
   public abstract String name();
@@ -42,5 +45,9 @@ public abstract class ProgramDefinition {
       blockDefinitionsBuilder().add(blockDefinition);
       return this;
     }
+  }
+
+  public Program toProgram() {
+    return new Program(this);
   }
 }

@@ -7,7 +7,7 @@ import models.Program;
 import org.junit.Test;
 import services.program.ProgramDefinition;
 
-public class ProgramRepositoryTest extends WithPostgresContainer {
+public class ProgramRepositoryTest extends WithResettingPostgresContainer {
 
   @Test
   public void createProgram() {
@@ -15,8 +15,8 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
 
     ProgramDefinition definition =
         ProgramDefinition.builder()
-            .setId(10L)
-            .setName("name")
+            .setId(1L)
+            .setName("ProgramRepository")
             .setDescription("desc")
             .setBlockDefinitions(ImmutableList.of())
             .build();
@@ -24,7 +24,7 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
 
     repo.insertProgram(program).toCompletableFuture().join();
 
-    Program found = repo.lookupProgram(10L).toCompletableFuture().join().get();
-    assertThat(found.getProgramDefinition().name()).isEqualTo("name");
+    Program found = repo.lookupProgram(1L).toCompletableFuture().join().get();
+    assertThat(found.getProgramDefinition().name()).isEqualTo("ProgramRepository");
   }
 }

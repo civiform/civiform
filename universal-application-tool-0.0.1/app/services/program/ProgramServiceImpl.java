@@ -1,0 +1,143 @@
+package services.program;
+
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import models.Program;
+import repository.ProgramRepository;
+import services.question.QuestionDefinition;
+
+public class ProgramServiceImpl implements ProgramService {
+
+  private ProgramRepository programRepository;
+
+  @Inject
+  public ProgramServiceImpl(ProgramRepository programRepository) {
+    this.programRepository = programRepository;
+  }
+
+  @Override
+  public ImmutableList<ProgramDefinition> listProgramDefinitions() {
+    return programRepository
+        .listPrograms()
+        .toCompletableFuture()
+        .thenApply(
+            programs ->
+                programs.stream()
+                    .map(program -> program.getProgramDefinition())
+                    .collect(ImmutableList.toImmutableList()))
+        .join();
+  }
+
+  @Override
+  public Optional<ProgramDefinition> getProgramDefinition(long id) {
+    return programRepository
+        .lookupProgram(id)
+        .toCompletableFuture()
+        .join()
+        .map(p -> p.getProgramDefinition());
+  }
+
+  @Override
+  public ProgramDefinition createProgramDefinition(String name, String description) {
+    ProgramDefinition programDefinition =
+        ProgramDefinition.builder().setName(name).setDescription(description).build();
+    Program program = new Program(programDefinition);
+    return programRepository.insertProgramSync(program).getProgramDefinition();
+  }
+
+  @Override
+  public ProgramDefinition addBlockToProgram(
+      long programId, String blockName, String blockDescription) throws ProgramNotFoundException {
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L) // How to autoincrement this block id?
+            .setName(blockName)
+            .setDescription(blockDescription)
+            .build();
+    ProgramDefinition programDefinition =
+        getProgramDefinition(programId).orElseThrow(() -> new ProgramNotFoundException(programId));
+    Program program =
+        programDefinition.toBuilder().addBlockDefinition(blockDefinition).build().toProgram();
+    return programRepository.updateProgramSync(program).getProgramDefinition();
+  }
+
+  @Override
+  public ProgramDefinition setBlockQuestions(
+      long programId, long blockDefinitionId, ImmutableList<QuestionDefinition> questionDefinitions)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition =
+        getProgramDefinition(programId).orElseThrow(() -> new ProgramNotFoundException(programId));
+    int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
+    BlockDefinition blockDefinition =
+        programDefinition
+            .blockDefinitions()
+            .get(blockDefinitionIndex)
+            .toBuilder()
+            .setQuestionDefinitions(questionDefinitions)
+            .build();
+    return updateProgramDefinitionWithBlockDefinition(
+        programDefinition, blockDefinitionIndex, blockDefinition);
+  }
+
+  @Override
+  public ProgramDefinition setBlockHidePredicate(
+      long programId, long blockDefinitionId, Predicate predicate) throws ProgramNotFoundException {
+    ProgramDefinition programDefinition =
+        getProgramDefinition(programId).orElseThrow(() -> new ProgramNotFoundException(programId));
+    int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
+    BlockDefinition blockDefinition =
+        programDefinition
+            .blockDefinitions()
+            .get(blockDefinitionIndex)
+            .toBuilder()
+            .setHidePredicate(Optional.of(predicate))
+            .build();
+    return updateProgramDefinitionWithBlockDefinition(
+        programDefinition, blockDefinitionIndex, blockDefinition);
+  }
+
+  @Override
+  public ProgramDefinition setBlockOptionalPredicate(
+      long programId, long blockDefinitionId, Predicate predicate) throws ProgramNotFoundException {
+    ProgramDefinition programDefinition =
+        getProgramDefinition(programId).orElseThrow(() -> new ProgramNotFoundException(programId));
+    int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
+    BlockDefinition blockDefinition =
+        programDefinition
+            .blockDefinitions()
+            .get(blockDefinitionIndex)
+            .toBuilder()
+            .setOptionalPredicate(Optional.of(predicate))
+            .build();
+    return updateProgramDefinitionWithBlockDefinition(
+        programDefinition, blockDefinitionIndex, blockDefinition);
+  }
+
+  int getBlockDefinitionIndex(ProgramDefinition programDefinition, Long blockDefinitionId) {
+    return programDefinition.blockDefinitions().stream()
+        .map(b -> b.id())
+        .collect(ImmutableList.toImmutableList())
+        .indexOf(blockDefinitionId);
+  }
+
+  private ProgramDefinition updateProgramDefinitionWithBlockDefinition(
+      ProgramDefinition programDefinition,
+      int blockDefinitionIndex,
+      BlockDefinition blockDefinition) {
+    List<BlockDefinition> mutableBlockDefinitions =
+        new ArrayList<>(programDefinition.blockDefinitions());
+    mutableBlockDefinitions.set(blockDefinitionIndex, blockDefinition);
+    ImmutableList<BlockDefinition> updatedBlockDefinitions =
+        mutableBlockDefinitions.stream().collect(ImmutableList.toImmutableList());
+    Program program =
+        programDefinition
+            .toBuilder()
+            .setBlockDefinitions(updatedBlockDefinitions)
+            .build()
+            .toProgram();
+    return programRepository.updateProgramSync(program).getProgramDefinition();
+  }
+}
