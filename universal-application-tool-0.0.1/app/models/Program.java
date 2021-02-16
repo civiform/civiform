@@ -1,9 +1,13 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbJson;
 import javax.persistence.*;
 import play.data.validation.Constraints;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 
 /** The ebeans mapped class for the program object. */
@@ -57,5 +61,22 @@ public class Program extends BaseModel {
             .setDescription(this.description)
             .setBlockDefinitions(this.blockDefinitions.blockDefinitions())
             .build();
+  }
+
+  /**
+   * A wrapper for {@link BlockDefinition}s for use in serializing to JSON in the {@link
+   * models.Program} model.
+   */
+  @AutoValue
+  abstract static class BlockContainer {
+
+    @JsonCreator
+    static BlockContainer create(
+        @JsonProperty("blockDefinitions") ImmutableList<BlockDefinition> blockDefinitions) {
+      return new AutoValue_Program_BlockContainer(blockDefinitions);
+    }
+
+    @JsonProperty("blockDefinitions")
+    public abstract ImmutableList<BlockDefinition> blockDefinitions();
   }
 }
