@@ -62,9 +62,7 @@ public class Program extends BaseModel {
             .setId(this.id)
             .setName(this.name)
             .setDescription(this.description)
-            .setBlockDefinitions(
-                mapper.readValue(
-                    this.blockDefinitions, new TypeReference<ImmutableList<BlockDefinition>>() {}))
+            .setBlockDefinitions(mapper.readValue(this.blockDefinitions, new TypeReference<>() {}))
             .build();
   }
 }
