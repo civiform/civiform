@@ -16,6 +16,13 @@ public interface ProgramService {
   ImmutableList<ProgramDefinition> listProgramDefinitions();
 
   /**
+   * List all programs asynchronously.
+   *
+   * @return a list of {@link ProgramDefinition}s
+   */
+  CompletionStage<ImmutableList<ProgramDefinition>> listProgramDefinitionsAsync();
+
+  /**
    * Get the definition for a given program.
    *
    * @param id the ID of the program to retrieve
