@@ -23,11 +23,13 @@ lazy val root = (project in file("."))
       "org.junit.jupiter" % "junit-jupiter-engine" % "5.4.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-api" % "5.4.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-params" % "5.4.2" % Test,
+      "com.h2database" % "h2" % "1.4.199" % Test,
 
       // Testing libraries for dealing with CompletionStage...
       "org.assertj" % "assertj-core" % "3.14.0" % Test,
       "org.awaitility" % "awaitility" % "4.0.1" % Test,
       "org.mockito" % "mockito-core" % "3.1.0" % Test,
+
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
       "javax.activation" % "activation" % "1.1.1",
