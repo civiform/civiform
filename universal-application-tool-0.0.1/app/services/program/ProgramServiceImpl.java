@@ -131,7 +131,7 @@ public class ProgramServiceImpl implements ProgramService {
         new ArrayList<>(programDefinition.blockDefinitions());
     mutableBlockDefinitions.set(blockDefinitionIndex, blockDefinition);
     ImmutableList<BlockDefinition> updatedBlockDefinitions =
-        mutableBlockDefinitions.stream().collect(ImmutableList.toImmutableList());
+        ImmutableList.copyOf(mutableBlockDefinitions);
     Program program =
         programDefinition.toBuilder()
             .setBlockDefinitions(updatedBlockDefinitions)
