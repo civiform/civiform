@@ -16,20 +16,6 @@ import services.question.QuestionDefinition;
 public class ProgramTest extends WithPostgresContainer {
 
   @Test
-  public void persistsChanges() {
-    ProgramRepository repo = app.injector().instanceOf(ProgramRepository.class);
-    Program program = new Program();
-
-    program.name = "hi";
-    program.blocks = BlockContainer.create(ImmutableList.of("hello", "world"));
-
-    program.save();
-
-    Program found = repo.lookupProgram("hi").toCompletableFuture().join().get();
-
-    assertThat(found.blocks.blockDefinitions()).contains("hello", "world");
-  }
-
   public void canSaveProgram() {
     ProgramRepository repo = app.injector().instanceOf(ProgramRepository.class);
 
