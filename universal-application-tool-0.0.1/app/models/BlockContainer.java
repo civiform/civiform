@@ -6,7 +6,10 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import services.program.BlockDefinition;
 
-/** A wrapper for {@link BlockDefinition}s for use in serializing to JSON in the {@link models.Program} model. */
+/**
+ * A wrapper for {@link BlockDefinition}s for use in serializing to JSON in the {@link
+ * models.Program} model.
+ */
 @AutoValue
 public abstract class BlockContainer {
 

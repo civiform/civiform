@@ -3,12 +3,12 @@ package models;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Test;
-import repository.ProgramRepository;
-import repository.WithPostgresContainer;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import org.junit.Test;
+import repository.ProgramRepository;
+import repository.WithPostgresContainer;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.QuestionDefinition;

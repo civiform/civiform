@@ -1,11 +1,10 @@
 package models;
 
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import io.ebean.config.ServerConfig;
 import io.ebean.event.ServerConfigStartup;
-import javax.inject.Inject;
 
 /**
  * Provides a Jackson {@link ObjectMapper} that understands how to (de)serialize Guava types and
