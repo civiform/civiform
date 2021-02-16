@@ -72,8 +72,7 @@ public class ProgramServiceImplTest extends WithResettingPostgresContainer {
     CompletionStage<Optional<ProgramDefinition>> found =
         ps.getProgramDefinitionAsync(programDefinition.id());
 
-    assertThat(found).isDone();
-    assertThat(found.toCompletableFuture()).isCompletedWithValue(Optional.of(programDefinition));
+    assertThat(found.toCompletableFuture().join()).hasValue(programDefinition);
   }
 
   @Test
@@ -83,8 +82,7 @@ public class ProgramServiceImplTest extends WithResettingPostgresContainer {
     CompletionStage<Optional<ProgramDefinition>> found =
         ps.getProgramDefinitionAsync(programDefinition.id() + 1);
 
-    assertThat(found).isDone();
-    assertThat(found.toCompletableFuture()).isCompletedWithValue(Optional.empty());
+    assertThat(found.toCompletableFuture().join()).isEmpty();
   }
 
   @Test
