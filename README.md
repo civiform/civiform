@@ -2,6 +2,7 @@
 
 The Universal Application Tool (UAT) aims to simplify the application process for benefits programs by re-using applicant data for multiple benefits applications. It is being developed by Google.org in partnership with the City of Seattle.
 
+* [Technology overview](#technology-overview)
 * [Running a local server](#running-a-local-server)
    * [Dev database](#dev-database)
 * [Run tests](#run-tests)
@@ -12,6 +13,22 @@ The Universal Application Tool (UAT) aims to simplify the application process fo
       * [Separation of concerns](#separation-of-concerns)
    * [Routing and controller methods](#routing-and-controller-methods)
    * [Testing](#testing)
+
+## Technology overview
+
+The UAT is built on [Play Framework](https://www.playframework.com/) in Java, and backed by a [PostgreSQL](https://www.postgresql.org/) database.
+
+### Views
+
+Instead of the default templating language for Play (Twirl), UAT uses the [J2Html](https://j2html.com/) Java library to render HTML.
+
+All view classes should extend [`BaseHtmlView`](https://github.com/seattle-uat/universal-application-tool/blob/main/universal-application-tool-0.0.1/app/views/BaseHtmlView.java), which has some helpful common tag helper methods.
+
+[`ViewUtils`](https://github.com/seattle-uat/universal-application-tool/blob/main/universal-application-tool-0.0.1/app/views/ViewUtils.java) is a utility class for accessing stateful view dependencies. Its `makeCsrfTokenInputTag` must be used in all UAT forms.
+
+See [`J2HtmlDemoController`](https://github.com/seattle-uat/universal-application-tool/blob/main/universal-application-tool-0.0.1/app/controllers/J2HtmlDemoController.java
+) and [`J2HtmlDemo`](https://github.com/seattle-uat/universal-application-tool/blob/main/universal-application-tool-0.0.1/app/views/J2HtmlDemo.java) for a working example.
+
 
 ## Running a local server
 
@@ -116,6 +133,7 @@ We aim for complete unit test coverage of all execution paths in the system. If 
 For Java, each class should have its own unit tests. The unit test file should mirror the implementation file - for example, `/app/package/path/MyClass.java` should have a unit test `/test/package/path/MyClassTest.java`.
 
 All major user-facing features should be covered by a functional browser test.
+
 
 # Production
 
