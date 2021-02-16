@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/bash
 
 set -e
 set +x
@@ -9,7 +9,7 @@ docker build -f prod.Dockerfile -t universal-application-tool --cache-from publi
 docker tag universal-application-tool:latest public.ecr.aws/t1q6b4h2/universal-application-tool:latest
 docker push public.ecr.aws/t1q6b4h2/universal-application-tool:latest
 
-TIMESTAMP=$(date +%s)
+ECSSERVICE=$(aws cloudformation describe-stacks --region us-west-2 --stack-name uat | jq -r '.Stacks[0].Outputs[] | select(.OutputKey == "ECSService") | .OutputValue')
+ECSCLUSTER=$(aws cloudformation describe-stacks --region us-west-2 --stack-name uat | jq -r '.Stacks[0].Outputs[] | select(.OutputKey == "ECSCluster") | .OutputValue')
 
-aws s3 sync ./infra s3://seattle-uat-cftmpl/${TIMESTAMP}
-aws cloudformation update-stack --region us-west-2 --stack-name uat --template-url  https://seattle-uat-cftmpl.s3-us-west-2.amazonaws.com/$TIMESTAMP/stack.yaml --parameters "[{\"ParameterKey\": \"Timestamp\", \"ParameterValue\": \"$TIMESTAMP\"}]"
+aws ecs update-service --region=us-west-2 --cluster "$ECSCLUSTER" --service "$ECSSERVICE" --force-new-deployment

@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableList;
 public abstract class ProgramDefinition {
 
   /** Unique identifier for a ProgramDefinition. */
-  public abstract String id();
+  public abstract long id();
 
   /** Descriptive name of a Program, e.g. Car Tab Rebate Program */
   public abstract String name();
@@ -25,8 +25,8 @@ public abstract class ProgramDefinition {
   }
 
   @AutoValue.Builder
-  abstract static class Builder {
-    public abstract Builder setId(String id);
+  public abstract static class Builder {
+    public abstract Builder setId(long id);
 
     public abstract Builder setName(String name);
 

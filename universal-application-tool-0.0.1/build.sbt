@@ -9,6 +9,8 @@ lazy val root = (project in file("."))
       javaJdbc,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.5.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.10.3",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.10.3",
 
       // Templating
       "com.j2html" % "j2html" % "1.4.0",

@@ -2,13 +2,16 @@ package services.question;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 
 /** Defines a single question. */
 public class QuestionDefinition {
-  private final String id;
+  private final long id;
   private final String version;
   private final String name;
   private final String path;
@@ -16,14 +19,15 @@ public class QuestionDefinition {
   private final ImmutableMap<Locale, String> questionText;
   private final Optional<ImmutableMap<Locale, String>> questionHelpText;
 
+  @JsonCreator
   public QuestionDefinition(
-      String id,
-      String version,
-      String name,
-      String path,
-      String description,
-      ImmutableMap<Locale, String> questionText,
-      Optional<ImmutableMap<Locale, String>> questionHelpText) {
+      @JsonProperty("id") long id,
+      @JsonProperty("version") String version,
+      @JsonProperty("name") String name,
+      @JsonProperty("path") String path,
+      @JsonProperty("description") String description,
+      @JsonProperty("questionText") ImmutableMap<Locale, String> questionText,
+      @JsonProperty("questionHelpText") Optional<ImmutableMap<Locale, String>> questionHelpText) {
     this.id = checkNotNull(id);
     this.version = checkNotNull(version);
     this.name = checkNotNull(name);
@@ -34,7 +38,7 @@ public class QuestionDefinition {
   }
 
   /** Get the unique identifier for this question. */
-  public String getId() {
+  public long getId() {
     return this.id;
   }
 
@@ -75,6 +79,11 @@ public class QuestionDefinition {
     throw new RuntimeException("Locale not found: " + locale);
   }
 
+  /** Get the question tests for all locales. This is used for serialization. */
+  public ImmutableMap<Locale, String> getQuestionText() {
+    return questionText;
+  }
+
   /** Get the question help text for the given locale. */
   public String getQuestionHelpText(Locale locale) {
     if (!this.questionHelpText.isPresent()) {
@@ -89,15 +98,18 @@ public class QuestionDefinition {
   }
 
   /** Get the type of this question. */
+  @JsonIgnore
   public QuestionType getQuestionType() {
     return QuestionType.TEXT;
   }
 
   /** Get a map of scalars stored by this question definition. */
+  @JsonIgnore
   public ImmutableMap<String, ScalarType> getScalars() {
     return ImmutableMap.of("text", ScalarType.STRING);
   }
 
+  @JsonIgnore
   public Optional<ScalarType> getScalarType(String key) {
     return Optional.ofNullable(this.getScalars().get(key));
   }
