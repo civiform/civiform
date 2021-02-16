@@ -1,13 +1,9 @@
 package models;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbJson;
 import javax.persistence.*;
 import play.data.validation.Constraints;
-import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 
 /** The ebeans mapped class for the program object. */

@@ -86,10 +86,7 @@ public class ProgramServiceImpl implements ProgramService {
         getProgramDefinition(programId).orElseThrow(() -> new ProgramNotFoundException(programId));
     int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
     BlockDefinition blockDefinition =
-        programDefinition
-            .blockDefinitions()
-            .get(blockDefinitionIndex)
-            .toBuilder()
+        programDefinition.blockDefinitions().get(blockDefinitionIndex).toBuilder()
             .setQuestionDefinitions(questionDefinitions)
             .build();
     return updateProgramDefinitionWithBlockDefinition(
@@ -105,10 +102,7 @@ public class ProgramServiceImpl implements ProgramService {
         getProgramDefinition(programId).orElseThrow(() -> new ProgramNotFoundException(programId));
     int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
     BlockDefinition blockDefinition =
-        programDefinition
-            .blockDefinitions()
-            .get(blockDefinitionIndex)
-            .toBuilder()
+        programDefinition.blockDefinitions().get(blockDefinitionIndex).toBuilder()
             .setHidePredicate(Optional.of(predicate))
             .build();
     return updateProgramDefinitionWithBlockDefinition(
@@ -124,10 +118,7 @@ public class ProgramServiceImpl implements ProgramService {
         getProgramDefinition(programId).orElseThrow(() -> new ProgramNotFoundException(programId));
     int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
     BlockDefinition blockDefinition =
-        programDefinition
-            .blockDefinitions()
-            .get(blockDefinitionIndex)
-            .toBuilder()
+        programDefinition.blockDefinitions().get(blockDefinitionIndex).toBuilder()
             .setOptionalPredicate(Optional.of(predicate))
             .build();
     return updateProgramDefinitionWithBlockDefinition(
@@ -157,8 +148,7 @@ public class ProgramServiceImpl implements ProgramService {
     ImmutableList<BlockDefinition> updatedBlockDefinitions =
         ImmutableList.copyOf(mutableBlockDefinitions);
     Program program =
-        programDefinition
-            .toBuilder()
+        programDefinition.toBuilder()
             .setBlockDefinitions(updatedBlockDefinitions)
             .build()
             .toProgram();
