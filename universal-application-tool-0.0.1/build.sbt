@@ -12,6 +12,9 @@ lazy val root = (project in file("."))
       "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.10.3",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.10.3",
 
+      // Templating
+      "com.j2html" % "j2html" % "1.4.0",
+
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.2.18",
       "org.testcontainers" % "postgresql" % "1.15.1" % Test,
