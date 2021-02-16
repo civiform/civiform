@@ -9,9 +9,8 @@ import j2html.tags.Tag;
 import javax.inject.Inject;
 import play.libs.crypto.DefaultCSRFTokenSigner;
 
-/** Utility class for accessing stateful view dependenices. */
+/** Utility class for accessing stateful view dependencies. */
 final class ViewUtils {
-
   private final DefaultCSRFTokenSigner tokenSigner;
   private final AssetsFinder assetsFinder;
 
