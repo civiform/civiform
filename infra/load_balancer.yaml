@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: ''
+Description: 'The public load balancer for the UAT, plus a dummy target that drops traffic while the tool starts up.'
 Parameters:
   VPCId:
     Description: The id of the VPC to add our LB to.
@@ -80,3 +80,13 @@ Outputs:
     Value: !Ref 'lbtarget'
     Export:
       Name: !Sub '${AWS::StackName}-LBTarget'
+  TGFullName:
+    Description: Full name of the load balancer target group.
+    Value: !GetAtt 'lbtarget.TargetGroupFullName'
+    Export:
+      Name: !Sub '${AWS::StackName}-TGFullName'
+  LBFullName:
+    Description: Full name of the load balancer.
+    Value: !GetAtt 'publiclb.LoadBalancerFullName'
+    Export:
+      Name: !Sub '${AWS::StackName}-LBFullName'

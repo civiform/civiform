@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: ''
+Description: 'The containers and service configuration for the UAT.'
 Parameters:
   DBAddress:
     Description: The address at which the database can be reached.
@@ -131,3 +131,14 @@ Resources:
         ScaleOutCooldown: 10
         # Keep things at or lower than 75% CPU utilization
         TargetValue: 75
+Outputs:
+  ECSService:
+    Description: The ARN of the service.
+    Value: !Ref 'ecsservice'
+    Export:
+      Name: !Sub '${AWS::StackName}-ECSService'
+  ECSCluster:
+    Description: The ARN of the cluster.
+    Value: !GetAtt 'ecscluster.Arn'
+    Export:
+      Name: !Sub '${AWS::StackName}-ECSCluster'

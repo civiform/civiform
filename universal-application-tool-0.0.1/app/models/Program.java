@@ -1,58 +1,69 @@
 package models;
 
-import io.ebean.annotation.DbJsonB;
-import io.ebean.text.json.EJson;
-import java.io.IOException;
-import java.util.Map;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.google.common.collect.ImmutableList;
+import io.ebean.annotation.DbJson;
 import javax.persistence.Entity;
+import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
+import services.program.BlockDefinition;
+import services.program.ProgramDefinition;
 
+/** The ebeans mapped class for the program object. */
 @Entity
 @Table(name = "programs")
-/** The ebeans mapped class for the program object. */
-public class Program {
-  private static final long serialVersionUID = 1L;
+public class Program extends BaseModel {
 
-  public Map<String, Object> getObject() {
-    return object;
+  private ProgramDefinition programDefinition;
+
+  private @Constraints.Required String name;
+
+  private @Constraints.Required String description;
+
+  private @Constraints.Required @DbJson ImmutableList<BlockDefinition> blockDefinitions;
+
+  public ProgramDefinition getProgramDefinition() {
+    return checkNotNull(this.programDefinition);
   }
 
-  public void setObject(Map<String, Object> object) {
-    this.object = object;
+  public Program(ProgramDefinition definition) {
+    this.programDefinition = definition;
+    this.name = definition.name();
+    this.description = definition.description();
+    this.blockDefinitions = definition.blockDefinitions();
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
+  public Program(String name, String description) {
     this.name = name;
+    this.description = description;
+    this.blockDefinitions = ImmutableList.of();
   }
 
-  public long getVersion() {
-    return version;
+  /** Populates column values from {@link ProgramDefinition} */
+  @PreUpdate
+  public void persistChangesToProgramDefinition() {
+    this.id = this.programDefinition.id();
+    this.name = this.programDefinition.name();
+    this.description = this.programDefinition.description();
+    this.blockDefinitions = this.programDefinition.blockDefinitions();
   }
 
-  public void setVersion(long version) {
-    this.version = version;
-  }
-
-  @Constraints.Required @DbJsonB
-  // When we build an object that Jackson can deserialize, we replace Map<String, Object> with that
-  // type.
-  // For now, this will be automatically deserialized - with subobjects being "Map<String, Object>"
-  // and lists being List<Object>.
-  Map<String, Object> object;
-
-  @Constraints.Required String name;
-
-  @Constraints.Required long version;
-
-  // This is where we write methods on the program - possibly resurfacing methods on the Jackson
-  // object.
-
-  public String objectAsJsonString() throws IOException {
-    return EJson.write(object);
+  /** Populates {@link ProgramDefinition} from column values. */
+  @PostLoad
+  @PostPersist
+  @PostUpdate
+  public void loadProgramDefinition() {
+    this.programDefinition =
+        ProgramDefinition.builder()
+            .setId(this.id)
+            .setName(this.name)
+            .setDescription(this.description)
+            .setBlockDefinitions(this.blockDefinitions)
+            .build();
   }
 }

@@ -7,6 +7,14 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       guice,
       javaJdbc,
+      // JSON libraries
+      "com.jayway.jsonpath" % "json-path" % "2.5.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.10.3",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.10.3",
+
+      // Templating
+      "com.j2html" % "j2html" % "1.4.0",
+
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.2.18",
       "org.testcontainers" % "postgresql" % "1.15.1" % Test,
@@ -27,6 +35,11 @@ lazy val root = (project in file("."))
 
       // Security library pac4j (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "11.0.0-PLAY2.8-RC1",
+
+      // Autovalue
+      "com.google.auto.value" % "auto-value-annotations" % "1.7.4",
+      "com.google.auto.value" % "auto-value" % "1.7.4",
+      "com.google.auto.value" % "auto-value-parent" % "1.7.4",
     ),
     javacOptions ++= Seq(
       "-encoding", "UTF-8",

@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: ''
+Description: 'The main stack for the UAT.'
 Parameters:
   Timestamp:
     Description: Current timestamp in seconds.
@@ -56,3 +56,18 @@ Resources:
         PrivateSubnet2: !GetAtt 'VPC.Outputs.PrivateSubnet2'
         LBTargetName: !GetAtt 'LB.Outputs.LBTarget'
         ContainerSecurityGroup: !GetAtt 'SecurityGroups.Outputs.ContainerGroup'
+  Monitoring:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/monitoring.yaml'
+      Parameters:
+        DBName: !GetAtt 'DB.Outputs.DBName'
+        LBName: !GetAtt 'LB.Outputs.LBFullName'
+        LBTGName: !GetAtt 'LB.Outputs.TGFullName'
+Outputs:
+  ECSService:
+    Description: The ARN of the service.
+    Value: !GetAtt 'Container.Outputs.ECSService'
+  ECSCluster:
+    Description: The ARN of the cluster.
+    Value: !GetAtt 'Container.Outputs.ECSCluster'
