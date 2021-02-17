@@ -14,7 +14,7 @@ POST    /postgresSync               controllers.PostgresController.createSync(re
 
 # A controller for a page for an admin to create a new application
 GET     /admin/programs             controllers.admin.AdminProgramController.list
-POST    /admin/program              controllers.admin.CreateAppController.index
+GET     /admin/programs/new         controllers.admin.CreateAppController.index
 
 GET     /demo/new                   controllers.J2HtmlDemoController.newOne(request: Request)
 POST    /demo                       controllers.J2HtmlDemoController.create(request: Request)
