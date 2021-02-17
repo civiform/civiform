@@ -32,14 +32,12 @@ public class AmazonS3Client {
     System.out.println("aws s3 enabled: " + String.valueOf(enabled()));
     if (enabled()) {
       connect();
-      createBucket();
       putObject();
     }
 
     appLifecycle.addStopHook(
         () -> {
           if (s3 != null) {
-            deleteBucket();
             s3.close();
           }
           return CompletableFuture.completedFuture(null);
@@ -48,27 +46,6 @@ public class AmazonS3Client {
 
   public boolean enabled() {
     return config.hasPath(AWS_S3_BUCKET);
-  }
-
-  public void createBucket() {
-    s3.createBucket(
-        CreateBucketRequest.builder()
-            .bucket(bucket)
-            .createBucketConfiguration(
-                CreateBucketConfiguration.builder()
-                    .locationConstraint(Region.US_WEST_2.id())
-                    .build())
-            .build());
-    s3.waiter().waitUntilBucketExists(HeadBucketRequest.builder().bucket(bucket).build());
-  }
-
-  public void deleteBucket() {
-    String file_name = "file1";
-    DeleteObjectRequest deleteObjectRequest =
-        DeleteObjectRequest.builder().bucket(bucket).key(file_name).build();
-    s3.deleteObject(deleteObjectRequest);
-    DeleteBucketRequest deleteBucketRequest = DeleteBucketRequest.builder().bucket(bucket).build();
-    s3.deleteBucket(deleteBucketRequest);
   }
 
   public void putObject() {
