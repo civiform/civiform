@@ -20,13 +20,6 @@ import views.ViewUtils;
 
 public final class ProgramList extends BaseHtmlView {
 
-  private final ViewUtils viewUtils;
-
-  @Inject
-  public ProgramList(ViewUtils viewUtils) {
-    this.viewUtils = checkNotNull(viewUtils);
-  }
-
   public Content render(ImmutableList<ProgramDefinition> programs) {
     return htmlContent(
         body(
