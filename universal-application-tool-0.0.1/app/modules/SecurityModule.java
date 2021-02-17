@@ -1,5 +1,6 @@
 package modules;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static play.mvc.Results.forbidden;
 import static play.mvc.Results.unauthorized;
 
@@ -28,6 +29,8 @@ public class SecurityModule extends AbstractModule {
   private static final String DEV_BASE_URL = "http://localhost:9000";
 
   public SecurityModule(Environment environment, com.typesafe.config.Config configuration) {
+    checkNotNull(environment);
+    checkNotNull(configuration);
     this.configuration = configuration;
     if (configuration.hasPath("baseUrl")) {
       this.baseUrl = configuration.getString("baseUrl");
