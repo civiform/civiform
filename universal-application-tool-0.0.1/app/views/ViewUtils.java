@@ -7,7 +7,6 @@ import static j2html.TagCreator.script;
 import controllers.AssetsFinder;
 import j2html.tags.Tag;
 import javax.inject.Inject;
-
 import play.mvc.Http.Request;
 import views.html.helper.CSRF;
 

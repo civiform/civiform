@@ -7,7 +7,6 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.head;
 
 import javax.inject.Inject;
-
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 

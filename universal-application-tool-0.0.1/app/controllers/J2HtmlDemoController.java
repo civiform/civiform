@@ -3,7 +3,6 @@ package controllers;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import javax.inject.Inject;
-
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
