@@ -30,8 +30,8 @@ public final class J2HtmlDemo extends BaseHtmlView {
         body(
             h1(greeting),
             form(
-                    viewUtils.makeCsrfTokenInputTag(request),
-                    textField("firstName", "What is your " + "first name?"),
+                    makeCsrfTokenInputTag(request),
+                    textField("firstName", "What is your first name?"),
                     submitButton("Enter"))
                 .withAction("/demo")
                 .withMethod("post")

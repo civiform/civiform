@@ -22,9 +22,9 @@ The UAT is built on [Play Framework](https://www.playframework.com/) in Java, an
 
 Instead of the default templating language for Play (Twirl), UAT uses the [J2Html](https://j2html.com/) Java library to render HTML.
 
-All view classes should extend [`BaseHtmlView`](https://github.com/seattle-uat/universal-application-tool/blob/main/universal-application-tool-0.0.1/app/views/BaseHtmlView.java), which has some helpful common tag helper methods.
+All view classes should extend [`BaseHtmlView`](https://github.com/seattle-uat/universal-application-tool/blob/main/universal-application-tool-0.0.1/app/views/BaseHtmlView.java), which has some helpful common tag helper methods. Its `makeCsrfTokenInputTag` must be added to all UAT forms.
 
-[`ViewUtils`](https://github.com/seattle-uat/universal-application-tool/blob/main/universal-application-tool-0.0.1/app/views/ViewUtils.java) is a utility class for accessing stateful view dependencies. Its `makeCsrfTokenInputTag` must be used in all UAT forms.
+[`ViewUtils`](https://github.com/seattle-uat/universal-application-tool/blob/main/universal-application-tool-0.0.1/app/views/ViewUtils.java) is a utility class for accessing stateful view dependencies.
 
 See [`J2HtmlDemoController`](https://github.com/seattle-uat/universal-application-tool/blob/main/universal-application-tool-0.0.1/app/controllers/J2HtmlDemoController.java
 ) and [`J2HtmlDemo`](https://github.com/seattle-uat/universal-application-tool/blob/main/universal-application-tool-0.0.1/app/views/J2HtmlDemo.java) for a working example.
