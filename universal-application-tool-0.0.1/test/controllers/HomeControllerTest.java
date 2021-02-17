@@ -1,31 +1,16 @@
 package controllers;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.Helpers.testServerPort;
 import static play.test.Helpers.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.any;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Optional;
-import javax.inject.Inject;
 import org.junit.Test;
-import org.pac4j.core.client.BaseClient;
-import org.pac4j.core.client.Client;
-import org.pac4j.core.client.Clients;
-import org.pac4j.core.client.direct.AnonymousClient;
 import org.pac4j.core.context.HttpConstants;
-import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
-import org.pac4j.core.credentials.Credentials;
-import org.pac4j.core.profile.BasicUserProfile;
-import org.pac4j.core.profile.UserProfile;
 import play.Application;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.WithApplication;
-import org.pac4j.core.config.Config;
 
 public class HomeControllerTest extends WithApplication {
 

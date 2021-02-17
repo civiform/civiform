@@ -1,5 +1,8 @@
 package modules;
 
+import static play.mvc.Results.forbidden;
+import static play.mvc.Results.unauthorized;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
@@ -10,16 +13,12 @@ import org.pac4j.core.context.HttpConstants;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.http.client.direct.DirectBasicAuthClient;
 import org.pac4j.http.client.indirect.FormClient;
-import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
 import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
 import org.pac4j.play.CallbackController;
 import org.pac4j.play.LogoutController;
 import org.pac4j.play.http.PlayHttpActionAdapter;
 import org.pac4j.play.store.PlayCookieSessionStore;
 import play.Environment;
-
-import static play.mvc.Results.forbidden;
-import static play.mvc.Results.unauthorized;
 
 public class SecurityModule extends AbstractModule {
 

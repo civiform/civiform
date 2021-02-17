@@ -6,7 +6,6 @@ import static play.test.Helpers.*;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.client.direct.AnonymousClient;

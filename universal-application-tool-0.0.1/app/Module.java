@@ -1,7 +1,5 @@
 import com.google.inject.AbstractModule;
 import java.time.Clock;
-import org.pac4j.core.context.session.SessionStore;
-import org.pac4j.play.store.PlayCookieSessionStore;
 
 /**
  * This class is a Guice module that tells Guice how to bind several different types. This Guice
