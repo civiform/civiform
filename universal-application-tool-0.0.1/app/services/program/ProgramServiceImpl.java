@@ -1,5 +1,7 @@
 package services.program;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import java.util.ArrayList;
@@ -10,8 +12,6 @@ import models.Program;
 import play.db.ebean.Transactional;
 import repository.ProgramRepository;
 import services.question.QuestionDefinition;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ProgramServiceImpl implements ProgramService {
 

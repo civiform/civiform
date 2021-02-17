@@ -1,5 +1,7 @@
 package models;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbJson;
 import javax.persistence.Entity;
@@ -11,8 +13,6 @@ import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /** The ebeans mapped class for the program object. */
 @Entity
