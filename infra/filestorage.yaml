@@ -1,5 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: ''
+Parameters:
+  S3VPCEndpoint:
+    Description: The vpc endpoint from which UAT connects to S3.
+    Type: AWS::EC2::VPCEndpoint::Id
 Resources:
   key:
     Type: AWS::KMS::Key
@@ -25,7 +29,6 @@ Resources:
   bucket:
     Type: 'AWS::S3::Bucket'
     Properties:
-      BucketName: !Sub 'secureuploads-${AWS::Region}-${AWS::AccountId}'
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
@@ -39,8 +42,27 @@ Resources:
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
     DeletionPolicy: Delete
+  bucketpolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref bucket
+      PolicyDocument:
+        Statement:
+          - Sid: Restrict access to VPC endpoint
+            Action:
+              - 's3:*'
+            Effect: Deny
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref bucket
+                - /*
+            Principal: '*'
+            Condition:
+              StringNotEquals:
+                'aws:sourceVpce': !Ref 'S3VPCEndpoint'
 Outputs:
-  bucket:
+  bucketname:
     Description: The location of the bucket for secure uploads.
     Value: !Ref bucket
     Export:

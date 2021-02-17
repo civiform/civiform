@@ -9,14 +9,16 @@ Parameters:
     Type: String
     Default: uat
 Resources:
-  Filestore:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/filestorage.yaml'
   VPC:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/network.yaml'
+  Filestore:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/filestorage.yaml'
+      Parameters:
+        S3VPCEndpoint: !GetAtt 'VPC.Outputs.S3Endpoint'
   Secrets:
     Type: AWS::CloudFormation::Stack
     Properties:

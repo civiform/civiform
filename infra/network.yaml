@@ -119,6 +119,21 @@ Resources:
     Properties:
       SubnetId: !Ref 'privsubnet2'
       RouteTableId: !Ref 'privroutetable2'
+  s3endpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action: '*'
+            Resource: '*'
+      RouteTableIds:
+        - !Ref 'privroutetable1'
+        - !Ref 'privroutetable2'
+      ServiceName: !Sub 'com.amazonaws.${AWS:Region}.s3'
+      VpcId: !Ref 'vpc'
 Outputs:
   VPCId:
     Description: The VPC Id
@@ -145,3 +160,8 @@ Outputs:
     Value: !Ref 'privsubnet2'
     Export:
       Name: !Sub '${AWS::StackName}-PrivateSubnet2'
+  S3Endpoint:
+    Description: The endpoint for accessing S3 from VPC
+    Value: !Ref 's3endpoint'
+    Export:
+      Name: !Sub '${AWS::StackName}-S3Endpoint'
