@@ -14,7 +14,7 @@ import play.twirl.api.Content;
 import views.html.helper.CSRF;
 
 /** Base class for all HTML views. Provides stateless convenience methods for generating HTML. */
-abstract class BaseHtmlView {
+public abstract class BaseHtmlView {
 
   protected Content htmlContent(DomContent... domContents) {
     return new HtmlResponseContent(domContents);
