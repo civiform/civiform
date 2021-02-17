@@ -30,7 +30,7 @@ public class HomeController extends Controller {
   }
 
   public Result loginForm(Http.Request request) throws TechnicalException {
-    final FormClient formClient = (FormClient) config.getClients().findClient("FormClient").get();
+    FormClient formClient = (FormClient) config.getClients().findClient("FormClient").get();
     return ok(views.html.loginForm.render(formClient.getCallbackUrl(), request));
   }
 
