@@ -12,6 +12,8 @@ import play.data.validation.Constraints;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /** The ebeans mapped class for the program object. */
 @Entity
 @Table(name = "programs")
@@ -26,7 +28,7 @@ public class Program extends BaseModel {
   private @Constraints.Required @DbJson ImmutableList<BlockDefinition> blockDefinitions;
 
   public ProgramDefinition getProgramDefinition() {
-    return this.programDefinition;
+    return checkNotNull(this.programDefinition);
   }
 
   public Program(ProgramDefinition definition) {

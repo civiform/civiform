@@ -11,13 +11,15 @@ import play.db.ebean.Transactional;
 import repository.ProgramRepository;
 import services.question.QuestionDefinition;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class ProgramServiceImpl implements ProgramService {
 
   private ProgramRepository programRepository;
 
   @Inject
   public ProgramServiceImpl(ProgramRepository programRepository) {
-    this.programRepository = programRepository;
+    this.programRepository = checkNotNull(programRepository);
   }
 
   @Override
