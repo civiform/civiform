@@ -1,10 +1,10 @@
 package views.admin;
 
+import static j2html.TagCreator.*;
+
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
-
-import static j2html.TagCreator.*;
 
 public final class ProgramNewOne extends BaseHtmlView {
 

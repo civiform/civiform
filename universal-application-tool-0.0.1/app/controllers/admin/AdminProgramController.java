@@ -1,5 +1,6 @@
 package controllers.admin;
 
+import java.util.Map;
 import javax.inject.Inject;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
@@ -7,8 +8,6 @@ import play.mvc.Result;
 import services.program.ProgramService;
 import views.admin.ProgramList;
 import views.admin.ProgramNewOne;
-
-import java.util.Map;
 
 /**
  * This controller contains an action to handle HTTP requests to the application's Admin "Create
