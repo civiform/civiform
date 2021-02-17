@@ -153,7 +153,8 @@ public class FakeProgramService implements ProgramService {
     mutableBlockDefinitions.set(blockDefinitionIndex, blockDefinition);
 
     programDefinition =
-        programDefinition.toBuilder()
+        programDefinition
+            .toBuilder()
             .setBlockDefinitions(ImmutableList.copyOf(mutableBlockDefinitions))
             .build();
     this.programs.put(programDefinition.id(), programDefinition);
