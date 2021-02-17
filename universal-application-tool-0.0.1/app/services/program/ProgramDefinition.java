@@ -2,6 +2,7 @@ package services.program;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import models.Program;
 
 @AutoValue
 public abstract class ProgramDefinition {
@@ -15,7 +16,7 @@ public abstract class ProgramDefinition {
   /** A human readable description of a Program. */
   public abstract String description();
 
-  /** The list of {@link BlockDefinitions} that make up the program. */
+  /** The list of {@link BlockDefinition}s that make up the program. */
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
 
   public abstract Builder toBuilder();
@@ -42,5 +43,9 @@ public abstract class ProgramDefinition {
       blockDefinitionsBuilder().add(blockDefinition);
       return this;
     }
+  }
+
+  public Program toProgram() {
+    return new Program(this);
   }
 }

@@ -16,7 +16,12 @@ import services.question.QuestionDefinition;
 @AutoValue
 public abstract class BlockDefinition {
 
-  /** Unique block identifier. */
+  /**
+   * A block identifier. Only unique between current blocks within a {@link ProgramDefinition}.
+   *
+   * <p>Blocks from one ProgramDefinition may have the same Ids as blocks from another
+   * ProgramDefinition. Blocks that are deleted from a ProgramDefinition may have its Id reused.
+   */
   @JsonProperty("id")
   public abstract long id();
 

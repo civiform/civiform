@@ -1,18 +1,22 @@
 package models;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbJson;
 import javax.persistence.Entity;
 import javax.persistence.PostLoad;
-import javax.persistence.PrePersist;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 
 /** The ebeans mapped class for the program object. */
 @Entity
 @Table(name = "programs")
-/** The ebeans mapped class for the program object. */
 public class Program extends BaseModel {
 
   private ProgramDefinition programDefinition;
@@ -21,34 +25,45 @@ public class Program extends BaseModel {
 
   private @Constraints.Required String description;
 
-  private @Constraints.Required @DbJson BlockContainer blockDefinitions;
+  private @Constraints.Required @DbJson ImmutableList<BlockDefinition> blockDefinitions;
 
   public ProgramDefinition getProgramDefinition() {
-    return this.programDefinition;
+    return checkNotNull(this.programDefinition);
   }
 
   public Program(ProgramDefinition definition) {
     this.programDefinition = definition;
+    this.name = definition.name();
+    this.description = definition.description();
+    this.blockDefinitions = definition.blockDefinitions();
+  }
+
+  public Program(String name, String description) {
+    this.name = name;
+    this.description = description;
+    this.blockDefinitions = ImmutableList.of();
   }
 
   /** Populates column values from {@link ProgramDefinition} */
-  @PrePersist
-  public void persistChangesToProgramDefinition() throws JsonProcessingException {
+  @PreUpdate
+  public void persistChangesToProgramDefinition() {
     this.id = this.programDefinition.id();
     this.name = this.programDefinition.name();
     this.description = this.programDefinition.description();
-    this.blockDefinitions = BlockContainer.create(this.programDefinition.blockDefinitions());
+    this.blockDefinitions = this.programDefinition.blockDefinitions();
   }
 
   /** Populates {@link ProgramDefinition} from column values. */
   @PostLoad
-  public void loadProgramDefinition() throws JsonProcessingException {
+  @PostPersist
+  @PostUpdate
+  public void loadProgramDefinition() {
     this.programDefinition =
         ProgramDefinition.builder()
             .setId(this.id)
             .setName(this.name)
             .setDescription(this.description)
-            .setBlockDefinitions(this.blockDefinitions.blockDefinitions())
+            .setBlockDefinitions(this.blockDefinitions)
             .build();
   }
 }
