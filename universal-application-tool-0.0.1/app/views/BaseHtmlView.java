@@ -9,7 +9,9 @@ import static j2html.TagCreator.text;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.Tag;
+import play.mvc.Http;
 import play.twirl.api.Content;
+import views.html.helper.CSRF;
 
 /** Base class for all HTML views. Provides stateless convenience methods for generating HTML. */
 abstract class BaseHtmlView {
@@ -25,6 +27,18 @@ abstract class BaseHtmlView {
 
   protected Tag submitButton(String textContents) {
     return input().withType("submit").withValue(textContents);
+  }
+
+  /**
+   * Generates a hidden HTML input tag containing a signed CSRF token. The token and tag must be
+   * present in all UAT forms.
+   */
+  Tag makeCsrfTokenInputTag(Http.Request request) {
+    return input().isHidden().withValue(getCsrfToken(request)).withName("csrfToken");
+  }
+
+  private String getCsrfToken(Http.Request request) {
+    return CSRF.getToken(request.asScala()).value();
   }
 
   protected static class HtmlResponseContent implements Content {

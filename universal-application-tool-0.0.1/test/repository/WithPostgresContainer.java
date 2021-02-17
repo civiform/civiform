@@ -3,10 +3,26 @@ package repository;
 import static play.test.Helpers.fakeApplication;
 
 import com.google.common.collect.ImmutableMap;
+import io.ebean.Ebean;
+import io.ebean.EbeanServer;
+import models.Applicant;
+import models.Person;
+import models.Program;
+import models.Question;
+import org.junit.Before;
 import play.Application;
+import play.db.ebean.EbeanConfig;
 import play.test.WithApplication;
 
 public class WithPostgresContainer extends WithApplication {
+
+  @Before
+  public void truncateTables() {
+    EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
+    EbeanServer server = Ebean.getServer(config.defaultServer());
+    server.truncate(Applicant.class, Person.class, Program.class, Question.class);
+  }
+
   protected Application provideApplication() {
     return fakeApplication(
         ImmutableMap.of(
