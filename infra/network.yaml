@@ -132,7 +132,7 @@ Resources:
       RouteTableIds:
         - !Ref 'privroutetable1'
         - !Ref 'privroutetable2'
-      ServiceName: !Sub 'com.amazonaws.${AWS:Region}.s3'
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'
       VpcId: !Ref 'vpc'
 Outputs:
   VPCId:
