@@ -1,6 +1,4 @@
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
 import static play.api.test.Helpers.testServerPort;
 import static play.test.Helpers.*;
 
@@ -40,6 +38,14 @@ public class FunctionalTest extends WithPostgresContainer {
 
   @Test
   public void listPersons() {
+    Person alice = new Person();
+    alice.name = "Alice";
+    alice.save();
+
+    Person bob = new Person();
+    bob.name = "Bob";
+    bob.save();
+
     Http.RequestBuilder request =
         fakeRequest(routes.PostgresController.index())
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
@@ -47,7 +53,7 @@ public class FunctionalTest extends WithPostgresContainer {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .isEqualTo("1: Alice\n2: Bob\n3: Charles\n4: Diana\n5: Eliza\n");
+        .isEqualTo(String.format("%d: Alice\n%d: Bob\n", alice.id, bob.id));
   }
 
   @Test
@@ -84,14 +90,14 @@ public class FunctionalTest extends WithPostgresContainer {
   @Test
   public void testPersonRepositoryLookup() {
     final PersonRepository personRepository = app.injector().instanceOf(PersonRepository.class);
-    final CompletionStage<Optional<Person>> stage = personRepository.lookup(2L);
 
-    await()
-        .atMost(1, SECONDS)
-        .until(
-            () -> {
-              final Optional<Person> bob = stage.toCompletableFuture().get();
-              return bob.map(mac -> mac.name.equals("Bob")).orElseGet(() -> false);
-            });
+    Person bob = new Person();
+    bob.name = "Bob";
+    bob.save();
+    final CompletionStage<Optional<Person>> stage = personRepository.lookup(bob.id);
+
+    Optional<Person> foundBob = stage.toCompletableFuture().join();
+
+    assertThat(stage.thenAccept(person -> assertThat(person).hasValue(bob))).isCompleted();
   }
 }
