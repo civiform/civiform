@@ -7,7 +7,7 @@ import models.Program;
 import org.junit.Test;
 import services.program.ProgramDefinition;
 
-public class ProgramRepositoryTest extends WithPostgresContainer {
+public class ProgramRepositoryTest extends WithTruncatingTables {
 
   @Test
   public void createProgram() {

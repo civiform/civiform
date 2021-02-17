@@ -8,12 +8,12 @@ import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
 import repository.ProgramRepository;
-import repository.WithPostgresContainer;
+import repository.WithTruncatingTables;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.QuestionDefinition;
 
-public class ProgramTest extends WithPostgresContainer {
+public class ProgramTest extends WithTruncatingTables {
 
   @Test
   public void canSaveProgram() {

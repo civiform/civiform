@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import repository.ApplicantRepository;
-import repository.WithPostgresContainer;
+import repository.WithTruncatingTables;
 import services.applicant.ApplicantData;
 
-public class ApplicantTest extends WithPostgresContainer {
+public class ApplicantTest extends WithTruncatingTables {
 
   @Test
   public void hasAnApplicantDataWhenCreated() {
