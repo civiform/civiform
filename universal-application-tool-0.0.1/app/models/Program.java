@@ -9,6 +9,7 @@ import javax.persistence.PostUpdate;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 
 /** The ebeans mapped class for the program object. */
@@ -22,7 +23,7 @@ public class Program extends BaseModel {
 
   private @Constraints.Required String description;
 
-  private @Constraints.Required @DbJson BlockContainer blockDefinitions;
+  private @Constraints.Required @DbJson ImmutableList<BlockDefinition> blockDefinitions;
 
   public ProgramDefinition getProgramDefinition() {
     return this.programDefinition;
@@ -32,13 +33,13 @@ public class Program extends BaseModel {
     this.programDefinition = definition;
     this.name = definition.name();
     this.description = definition.description();
-    this.blockDefinitions = BlockContainer.create(definition.blockDefinitions());
+    this.blockDefinitions = definition.blockDefinitions();
   }
 
   public Program(String name, String description) {
     this.name = name;
     this.description = description;
-    this.blockDefinitions = BlockContainer.create(ImmutableList.of());
+    this.blockDefinitions = ImmutableList.of();
   }
 
   /** Populates column values from {@link ProgramDefinition} */
@@ -47,7 +48,7 @@ public class Program extends BaseModel {
     this.id = this.programDefinition.id();
     this.name = this.programDefinition.name();
     this.description = this.programDefinition.description();
-    this.blockDefinitions = BlockContainer.create(this.programDefinition.blockDefinitions());
+    this.blockDefinitions = this.programDefinition.blockDefinitions();
   }
 
   /** Populates {@link ProgramDefinition} from column values. */
@@ -60,7 +61,7 @@ public class Program extends BaseModel {
             .setId(this.id)
             .setName(this.name)
             .setDescription(this.description)
-            .setBlockDefinitions(this.blockDefinitions.blockDefinitions())
+            .setBlockDefinitions(this.blockDefinitions)
             .build();
   }
 }
