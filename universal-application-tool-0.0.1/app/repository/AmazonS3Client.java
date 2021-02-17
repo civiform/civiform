@@ -17,8 +17,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Singleton
 public class AmazonS3Client {
-  public static final String AWS_ACCESS_KEY = "aws.access.key";
-  public static final String AWS_SECRET_KEY = "aws.secret.key";
   public static final String AWS_S3_BUCKET = "aws.s3.bucket";
 
   private final ApplicationLifecycle appLifecycle;
@@ -49,9 +47,7 @@ public class AmazonS3Client {
   }
 
   public boolean enabled() {
-    return (config.hasPath(AWS_ACCESS_KEY)
-        && config.hasPath(AWS_SECRET_KEY)
-        && config.hasPath(AWS_S3_BUCKET));
+    return config.hasPath(AWS_S3_BUCKET);
   }
 
   public void createBucket() {
@@ -85,14 +81,7 @@ public class AmazonS3Client {
   }
 
   private void connect() {
-    String accessKey = config.getString(AWS_ACCESS_KEY);
-    String secretKey = config.getString(AWS_SECRET_KEY);
     bucket = config.getString(AWS_S3_BUCKET);
-
-    if (accessKey == null || secretKey == null) {
-      throw new RuntimeException(
-          "cannot read aws.access.key or aws.secret.key from configuration.");
-    }
 
     Region region = Region.US_WEST_2;
     s3 = S3Client.builder().region(region).build();
