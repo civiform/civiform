@@ -22,7 +22,7 @@ public class ProgramRepository {
     this.executionContext = executionContext;
   }
 
-  /** Return all programs in a set. */
+  /** Return all programs in a list. */
   public CompletionStage<List<Program>> listPrograms() {
     return supplyAsync(() -> ebeanServer.find(Program.class).findList(), executionContext);
   }

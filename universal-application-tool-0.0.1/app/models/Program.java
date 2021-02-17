@@ -2,7 +2,12 @@ package models;
 
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbJson;
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
+import javax.persistence.PreUpdate;
+import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.program.ProgramDefinition;
 
