@@ -30,8 +30,7 @@ public class SecurityModule extends AbstractModule {
 
   public SecurityModule(Environment environment, com.typesafe.config.Config configuration) {
     checkNotNull(environment);
-    checkNotNull(configuration);
-    this.configuration = configuration;
+    this.configuration = checkNotNull(configuration);
     if (configuration.hasPath("baseUrl")) {
       this.baseUrl = configuration.getString("baseUrl");
     } else {
