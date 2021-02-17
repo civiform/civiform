@@ -17,7 +17,7 @@ public class J2HtmlDemoController extends Controller {
     this.view = checkNotNull(view);
   }
 
-  public Result index(Request request) {
+  public Result newOne(Request request) {
     return ok(view.render("Let's get started!", request));
   }
 
