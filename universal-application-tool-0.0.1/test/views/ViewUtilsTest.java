@@ -12,29 +12,18 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.quality.Strictness;
-import play.libs.crypto.DefaultCSRFTokenSigner;
 
 public class ViewUtilsTest {
 
   @Rule public MockitoRule rule = MockitoJUnit.rule().strictness(Strictness.STRICT_STUBS);
 
-  @Mock public DefaultCSRFTokenSigner tokenSigner;
   @Mock public AssetsFinder assetsFinder;
 
   public ViewUtils viewUtils;
 
   @Before
   public void setUp() {
-    viewUtils = new ViewUtils(tokenSigner, assetsFinder);
-  }
-
-  @Test
-  public void makeCsrfTokenInputTag_createsAHiddenFormInput() {
-    when(tokenSigner.generateSignedToken()).thenReturn("signed-token");
-    Tag result = viewUtils.makeCsrfTokenInputTag();
-
-    assertThat(result.render())
-        .isEqualTo("<input hidden value=\"signed-token\" name=\"csrfToken\">");
+    viewUtils = new ViewUtils(assetsFinder);
   }
 
   @Test

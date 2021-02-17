@@ -7,6 +7,8 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.head;
 
 import javax.inject.Inject;
+
+import play.mvc.Http.Request;
 import play.twirl.api.Content;
 
 public final class J2HtmlDemo extends BaseHtmlView {
@@ -23,16 +25,17 @@ public final class J2HtmlDemo extends BaseHtmlView {
    * All view classes should implement a `render` method that has params for whatever state is
    * needed from the internal services.
    */
-  public Content render(String greeting) {
+  public Content render(String greeting, Request request) {
     return htmlContent(
         head(viewUtils.makeLocalJsTag("hello")),
         body(
             h1(greeting),
             form(
-                    viewUtils.makeCsrfTokenInputTag(),
-                    textField("firstName", "What is your first name?"),
+                    viewUtils.makeCsrfTokenInputTag(request),
+                    textField("firstName", "What is your " + "first name?"),
                     submitButton("Enter"))
                 .withAction("/demo")
+                .withMethod("post")
                 .withId("demo-id")));
   }
 }

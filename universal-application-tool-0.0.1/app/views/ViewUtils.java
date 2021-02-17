@@ -7,16 +7,16 @@ import static j2html.TagCreator.script;
 import controllers.AssetsFinder;
 import j2html.tags.Tag;
 import javax.inject.Inject;
-import play.libs.crypto.DefaultCSRFTokenSigner;
+
+import play.mvc.Http.Request;
+import views.html.helper.CSRF;
 
 /** Utility class for accessing stateful view dependencies. */
 final class ViewUtils {
-  private final DefaultCSRFTokenSigner tokenSigner;
   private final AssetsFinder assetsFinder;
 
   @Inject
-  ViewUtils(DefaultCSRFTokenSigner tokenSigner, AssetsFinder assetsFinder) {
-    this.tokenSigner = checkNotNull(tokenSigner);
+  ViewUtils(AssetsFinder assetsFinder) {
     this.assetsFinder = checkNotNull(assetsFinder);
   }
 
@@ -24,8 +24,12 @@ final class ViewUtils {
    * Generates a hidden HTML input tag containing a signed CSRF token. The token and tag must be
    * present in all UAT forms.
    */
-  Tag makeCsrfTokenInputTag() {
-    return input().isHidden().withValue(tokenSigner.generateSignedToken()).withName("csrfToken");
+  Tag makeCsrfTokenInputTag(Request request) {
+    return input().isHidden().withValue(getCsrfToken(request)).withName("csrfToken");
+  }
+
+  private String getCsrfToken(Request request) {
+    return CSRF.getToken(request.asScala()).value();
   }
 
   /**

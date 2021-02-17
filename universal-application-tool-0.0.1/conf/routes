@@ -15,7 +15,8 @@ POST    /postgresSync               controllers.PostgresController.createSync(re
 # A controller for a page for an admin to create a new application
 GET     /admin/create               controllers.admin.CreateAppController.index
 
-GET     /demo                       controllers.J2HtmlDemoController.index
+GET     /demo                       controllers.J2HtmlDemoController.index(request: Request)
+POST    /demo                       controllers.J2HtmlDemoController.create(request: Request)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(file)
