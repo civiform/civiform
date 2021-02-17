@@ -75,6 +75,8 @@ Resources:
     Properties:
       RequiresCompatibilities:
         - FARGATE
+      # We need to create a specific task role for accessing S3
+      # TaskRoleArn: arn:aws:iam::405662711265:role/ecs-task-role
       ExecutionRoleArn: arn:aws:iam::405662711265:role/ecs-task-role
       NetworkMode: awsvpc
       Cpu: 1024

@@ -3,7 +3,7 @@ Description: ''
 Parameters:
   S3VPCEndpoint:
     Description: The vpc endpoint from which UAT connects to S3.
-    Type: AWS::EC2::VPCEndpoint::Id
+    Type: String
 Resources:
   key:
     Type: AWS::KMS::Key
