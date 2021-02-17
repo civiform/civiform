@@ -71,7 +71,10 @@ public class FakeProgramService implements ProgramService {
     int blockIndex = getIndexOfBlock(programToUpdate, blockDefinitionId);
 
     BlockDefinition updatedBlockDefinition =
-        programToUpdate.blockDefinitions().get(blockIndex).toBuilder()
+        programToUpdate
+            .blockDefinitions()
+            .get(blockIndex)
+            .toBuilder()
             .setQuestionDefinitions(questionDefinitions)
             .build();
     return updateProgramDefinitionWithBlockDefinition(
@@ -86,7 +89,10 @@ public class FakeProgramService implements ProgramService {
     int blockIndex = getIndexOfBlock(programToUpdate, blockDefinitionId);
 
     BlockDefinition updatedBlockDefinition =
-        programToUpdate.blockDefinitions().get(blockIndex).toBuilder()
+        programToUpdate
+            .blockDefinitions()
+            .get(blockIndex)
+            .toBuilder()
             .setHidePredicate(Optional.of(predicate))
             .build();
     return updateProgramDefinitionWithBlockDefinition(
@@ -101,7 +107,10 @@ public class FakeProgramService implements ProgramService {
     int blockIndex = getIndexOfBlock(programToUpdate, blockDefinitionId);
 
     BlockDefinition updatedBlockDefinition =
-        programToUpdate.blockDefinitions().get(blockIndex).toBuilder()
+        programToUpdate
+            .blockDefinitions()
+            .get(blockIndex)
+            .toBuilder()
             .setOptionalPredicate(Optional.of(predicate))
             .build();
     return updateProgramDefinitionWithBlockDefinition(
