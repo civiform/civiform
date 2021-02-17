@@ -62,6 +62,7 @@ Resources:
         PrivateSubnet2: !GetAtt 'VPC.Outputs.PrivateSubnet2'
         LBTargetName: !GetAtt 'LB.Outputs.LBTarget'
         ContainerSecurityGroup: !GetAtt 'SecurityGroups.Outputs.ContainerGroup'
+        S3BucketName: !GetAtt 'Filestore.Outputs.bucketname'
   Monitoring:
     Type: AWS::CloudFormation::Stack
     Properties:
