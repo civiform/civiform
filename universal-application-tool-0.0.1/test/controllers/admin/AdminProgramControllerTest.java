@@ -10,10 +10,12 @@ import com.google.common.collect.ImmutableMap;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
+import play.mvc.Http.Request;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.WithResettingPostgresContainer;
+import views.html.helper.CSRF;
 
 public class AdminProgramControllerTest extends WithResettingPostgresContainer {
 
@@ -47,13 +49,13 @@ public class AdminProgramControllerTest extends WithResettingPostgresContainer {
 
   @Test
   public void newOne_returnsExpectedForm() {
-    RequestBuilder requestBuilder = Helpers.fakeRequest();
-    requestBuilder = addCSRFToken(requestBuilder);
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
 
-    Result result = controller.newOne(requestBuilder.build());
+    Result result = controller.newOne(request);
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Create a new Program");
+    assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }
 
   @Test
