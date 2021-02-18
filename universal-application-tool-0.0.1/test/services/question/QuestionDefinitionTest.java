@@ -12,7 +12,7 @@ import org.junit.Test;
 public class QuestionDefinitionTest {
 
   @Test
-  public void newQuestionHasCorrectFields() {
+  public void newQuestionHasCorrectFields() throws TranslationNotFoundException {
     QuestionDefinition question =
         new QuestionDefinition(
             123L,
@@ -34,35 +34,41 @@ public class QuestionDefinitionTest {
 
   @Test
   public void getQuestionTextForUnknownLocale_throwsException() {
+    String questionPath = "question.path";
     QuestionDefinition question =
-        new QuestionDefinition(123L, 1L, "", "", "", ImmutableMap.of(), Optional.empty());
+        new QuestionDefinition(123L, 1L, "", questionPath, "", ImmutableMap.of(), Optional.empty());
 
     Throwable thrown = catchThrowable(() -> question.getQuestionText(Locale.FRANCE));
 
-    assertThat(thrown).isInstanceOf(RuntimeException.class);
-    assertThat(thrown).hasMessage("Locale not found: fr_FR");
+    assertThat(thrown).isInstanceOf(TranslationNotFoundException.class);
+    assertThat(thrown)
+        .hasMessage(
+            "Translation not found for Question at path: " + questionPath + "\n\tLocale: fr_FR");
   }
 
   @Test
   public void getQuestionHelpTextForUnknownLocale_throwsException() {
+    String questionPath = "question.path";
     QuestionDefinition question =
         new QuestionDefinition(
             123L,
             1L,
             "",
-            "",
+            questionPath,
             "",
             ImmutableMap.of(),
             Optional.of(ImmutableMap.of(Locale.ENGLISH, "help text")));
 
     Throwable thrown = catchThrowable(() -> question.getQuestionHelpText(Locale.FRANCE));
 
-    assertThat(thrown).isInstanceOf(RuntimeException.class);
-    assertThat(thrown).hasMessage("Locale not found: fr_FR");
+    assertThat(thrown).isInstanceOf(TranslationNotFoundException.class);
+    assertThat(thrown)
+        .hasMessage(
+            "Translation not found for Question at path: " + questionPath + "\n\tLocale: fr_FR");
   }
 
   @Test
-  public void getEmptyHelpTextForUnknownLocale_succeeds() {
+  public void getEmptyHelpTextForUnknownLocale_succeeds() throws TranslationNotFoundException {
     QuestionDefinition question =
         new QuestionDefinition(123L, 1L, "", "", "", ImmutableMap.of(), Optional.empty());
     assertThat(question.getQuestionHelpText(Locale.FRANCE)).isEqualTo("");
@@ -96,7 +102,7 @@ public class QuestionDefinitionTest {
             "description",
             ImmutableMap.of(),
             Optional.empty());
-    assertThat(question.getScalars(true))
+    assertThat(question.getFullyQualifiedScalars())
         .containsOnly(entry("path.to.question.text", ScalarType.STRING));
     assertThat(question.getScalarType("text").get()).isEqualTo(ScalarType.STRING);
     assertThat(question.getScalarType("text").get().getClassFor().get()).isEqualTo(String.class);

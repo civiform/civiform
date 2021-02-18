@@ -72,8 +72,7 @@ public class ReadOnlyQuestionServiceImplTest {
   @Test
   public void getPathScalars_forQuestion() throws InvalidPathException {
     ImmutableMap<String, ScalarType> result = service.getPathScalars("applicant.address");
-    ImmutableMap<String, ScalarType> expected =
-        addressQuestion.getScalars(/* includeFullPath = */ true);
+    ImmutableMap<String, ScalarType> expected = addressQuestion.getFullyQualifiedScalars();
     assertThat(result).isEqualTo(expected);
   }
 

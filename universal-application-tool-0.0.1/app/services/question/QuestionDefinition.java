@@ -71,11 +71,11 @@ public class QuestionDefinition {
   }
 
   /** Get the question text for the given locale. */
-  public String getQuestionText(Locale locale) throws RuntimeException {
+  public String getQuestionText(Locale locale) throws TranslationNotFoundException {
     if (this.questionText.containsKey(locale)) {
       return this.questionText.get(locale);
     }
-    throw new RuntimeException("Locale not found: " + locale);
+    throw new TranslationNotFoundException(this.getPath(), locale);
   }
 
   /** Get the question tests for all locales. This is used for serialization. */
@@ -84,7 +84,7 @@ public class QuestionDefinition {
   }
 
   /** Get the question help text for the given locale. */
-  public String getQuestionHelpText(Locale locale) throws RuntimeException {
+  public String getQuestionHelpText(Locale locale) throws TranslationNotFoundException {
     if (!this.questionHelpText.isPresent()) {
       return "";
     }
@@ -93,7 +93,7 @@ public class QuestionDefinition {
       return this.questionHelpText.get().get(locale);
     }
 
-    throw new RuntimeException("Locale not found: " + locale);
+    throw new TranslationNotFoundException(this.getPath(), locale);
   }
 
   /** Get the type of this question. */
@@ -110,15 +110,12 @@ public class QuestionDefinition {
 
   /** Get a map of scalars stored by this question definition. */
   @JsonIgnore
-  public ImmutableMap<String, ScalarType> getScalars(boolean includeFullPath) {
+  public ImmutableMap<String, ScalarType> getFullyQualifiedScalars() {
     ImmutableMap<String, ScalarType> scalars = this.getScalars();
-    if (includeFullPath) {
-      ImmutableMap.Builder<String, ScalarType> ret = new ImmutableMap.Builder<String, ScalarType>();
-      scalars.entrySet().stream()
-          .forEach(e -> ret.put(this.getPath() + "." + e.getKey(), e.getValue()));
-      return ret.build();
-    }
-    return scalars;
+    ImmutableMap.Builder<String, ScalarType> ret = new ImmutableMap.Builder<String, ScalarType>();
+    scalars.entrySet().stream()
+        .forEach(e -> ret.put(this.getPath() + "." + e.getKey(), e.getValue()));
+    return ret.build();
   }
 
   @JsonIgnore
