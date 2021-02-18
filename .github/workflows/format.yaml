@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: '11.0.10'
-      - uses: axel-op/googlejavaformat-action@latest
+      - uses: axel-op/googlejavaformat-action@master
         with:
           skipCommit: true
       - name: show diff
