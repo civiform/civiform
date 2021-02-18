@@ -9,7 +9,7 @@ if ! docker image inspect fmt:latest > /dev/null; then
 fi
 
 if [ $(basename "$PWD") == "universal-application-tool-0.0.1" ]; then
-	docker run --rm -it -v "${PWD}/:/code" fmt
+	docker run --rm -v "${PWD}/:/code" fmt
 else
-	docker run --rm -it -v "${PWD}/universal-application-tool-0.0.1/:/code" fmt
+	docker run --rm -v "${PWD}/universal-application-tool-0.0.1/:/code" fmt
 fi
