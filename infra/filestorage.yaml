@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: ''
+Description: 'We have a S3 bucket encrypted with "Customer master keys" (CMKs). The bucket is limited access to from within our VPC. This means the console does not have access to it, either.'
 Parameters:
   S3VPCEndpoint:
     Description: The vpc endpoint from which UAT connects to S3.
@@ -36,7 +36,8 @@ Resources:
               KMSMasterKeyID: !GetAtt key.Arn
             BucketKeyEnabled: true
       PublicAccessBlockConfiguration:
-        # This totally prevents anyone outside the AWS account using this bucket.
+        # This prevents anyone outside the AWS account using this bucket, but does not limit roles within the AWS account from accessing.
+        # This is only effective when the bucket is public without this setting. Our bucket policy below makes our bucket non-public so this setting has no effect.
         BlockPublicAcls: true
         BlockPublicPolicy: true
         IgnorePublicAcls: true
