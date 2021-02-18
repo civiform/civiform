@@ -39,8 +39,8 @@ public class ProgramTest extends WithTruncatingTables {
 
     ProgramDefinition definition =
         ProgramDefinition.builder()
-            .setId(100L)
-            .setName("name")
+            .setId(1L)
+            .setName("ProgramTest")
             .setDescription("desc")
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .build();
@@ -48,9 +48,9 @@ public class ProgramTest extends WithTruncatingTables {
 
     program.save();
 
-    Program found = repo.lookupProgram(100L).toCompletableFuture().join().get();
+    Program found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
 
-    assertThat(found.getProgramDefinition().name()).isEqualTo("name");
+    assertThat(found.getProgramDefinition().name()).isEqualTo("ProgramTest");
     assertThat(found.getProgramDefinition().blockDefinitions().get(0).name())
         .isEqualTo("First Block");
 

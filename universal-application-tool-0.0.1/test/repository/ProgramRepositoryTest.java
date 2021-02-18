@@ -2,10 +2,8 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableList;
 import models.Program;
 import org.junit.Test;
-import services.program.ProgramDefinition;
 
 public class ProgramRepositoryTest extends WithTruncatingTables {
 
@@ -13,18 +11,11 @@ public class ProgramRepositoryTest extends WithTruncatingTables {
   public void createProgram() {
     final ProgramRepository repo = app.injector().instanceOf(ProgramRepository.class);
 
-    ProgramDefinition definition =
-        ProgramDefinition.builder()
-            .setId(10L)
-            .setName("name")
-            .setDescription("desc")
-            .setBlockDefinitions(ImmutableList.of())
-            .build();
-    Program program = new Program(definition);
+    Program program = new Program("ProgramRepository", "desc");
 
-    repo.insertProgram(program).toCompletableFuture().join();
+    Program withId = repo.insertProgramSync(program);
 
-    Program found = repo.lookupProgram(10L).toCompletableFuture().join().get();
-    assertThat(found.getProgramDefinition().name()).isEqualTo("name");
+    Program found = repo.lookupProgram(withId.id).toCompletableFuture().join().get();
+    assertThat(found.getProgramDefinition().name()).isEqualTo("ProgramRepository");
   }
 }

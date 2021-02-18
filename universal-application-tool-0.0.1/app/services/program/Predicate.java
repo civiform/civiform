@@ -17,5 +17,6 @@ public abstract class Predicate {
    *
    * <p>See <a href=https://github.com/json-path/JsonPath#inline-predicates>JsonPath Predicates</a>
    */
+  @JsonProperty("expression")
   public abstract String expression();
 }
