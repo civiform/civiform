@@ -1,8 +1,8 @@
 package services.question;
 
-import java.util.concurrent.CompletionStage;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.CompletionStage;
 
 public interface QuestionService {
 

@@ -1,9 +1,8 @@
 package services.question;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import java.util.Optional;
 
 /**
  * The ReadOnlyQuestionService contains all synchronous, in-memory operations for
