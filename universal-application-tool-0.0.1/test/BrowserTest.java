@@ -38,11 +38,11 @@ public class BrowserTest extends WithBrowser {
   public void login() {
     String baseUrl = "http://localhost:" + play.api.test.Helpers.testServerPort();
     browser.goTo(baseUrl + "/loginForm");
-    browser.$("#username").click();
+    browser.$("#uname").click();
     browser.keyboard().sendKeys("test");
-    browser.$("#password").click();
+    browser.$("#pwd").click();
     browser.keyboard().sendKeys("test");
-    browser.$("#submit").click();
+    browser.$("#login").click();
     // should be redirected to root.
     assertEquals("", browser.url());
     assertTrue(browser.pageSource().contains("Your new application is ready."));

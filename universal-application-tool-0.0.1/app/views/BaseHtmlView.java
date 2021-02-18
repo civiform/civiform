@@ -21,18 +21,31 @@ abstract class BaseHtmlView {
   }
 
   protected Tag textField(String fieldName, String labelText) {
-    return label(text(labelText), input().withType("text").withName(fieldName).withId(fieldName))
+    return label(text(labelText), input().withType("text").withName(fieldName))
+        .attr("for", fieldName);
+  }
+
+  protected Tag textField(String id, String fieldName, String labelText) {
+    return label(text(labelText), input().withType("text").withName(fieldName).withId(id))
+        .attr("for", fieldName);
+  }
+
+  protected Tag passwordField(String id, String fieldName, String labelText) {
+    return label(text(labelText), input().withType("password").withName(fieldName).withId(id))
         .attr("for", fieldName);
   }
 
   protected Tag passwordField(String fieldName, String labelText) {
-    return label(
-            text(labelText), input().withType("password").withName(fieldName).withId(fieldName))
+    return label(text(labelText), input().withType("password").withName(fieldName))
         .attr("for", fieldName);
   }
 
   protected Tag submitButton(String textContents) {
-    return input().withType("submit").withId("submit").withValue(textContents);
+    return input().withType("submit").withValue(textContents);
+  }
+
+  protected Tag submitButton(String id, String textContents) {
+    return input().withType("submit").withId(id).withValue(textContents);
   }
 
   /**
