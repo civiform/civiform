@@ -1,11 +1,16 @@
 package services.question;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import java.util.concurrent.CompletionStage;
 import java.util.Locale;
 import java.util.Optional;
 
 public interface QuestionService {
+
+  /**
+   * Get a {@link ReadOnlyQuestionService} which implements synchronous, in-memory read behavior for
+   * questions.
+   */
+  CompletionStage<ReadOnlyQuestionService> getReadOnlyQuestionService();
 
   /**
    * Creates a new Question Definition. Returns a QuestionDefinition object on success and {@link
@@ -39,39 +44,4 @@ public interface QuestionService {
    * <p>NOTE: This updates the service and question versions.
    */
   QuestionDefinition update(QuestionDefinition definition);
-
-  /** Checks whether a specific path is valid. */
-  boolean isValid(String pathString);
-
-  /**
-   * Gets the question definition for a given path.
-   *
-   * <p>If the path is to a QUESTION, it will return that.
-   *
-   * <p>If the path is to a SCALAR, it will return the parent QuestionDefinition for that Scalar.
-   *
-   * <p>If the path is invalid it will throw an InvalidPathException.
-   */
-  QuestionDefinition getQuestionDefinition(String pathString) throws InvalidPathException;
-
-  /**
-   * Returns all of the scalar properties for a given path.
-   *
-   * <p>If the path is to a QUESTION, it will return the question's scalar objects.
-   *
-   * <p>If the path is to a SCALAR, it will return a single scalar.
-   *
-   * <p>If the path is invalid it will throw an InvalidPathException.
-   */
-  ImmutableMap<String, ScalarType> getPathScalars(String pathString) throws InvalidPathException;
-
-  /**
-   * Gets the type of the node if it exist.
-   *
-   * <p>If the path is invalid it will throw an InvalidPathException.
-   */
-  PathType getPathType(String pathString) throws InvalidPathException;
-
-  /** Returns all question definitions for this version. */
-  ImmutableList<QuestionDefinition> getAllQuestions();
 }

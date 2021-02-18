@@ -133,7 +133,7 @@ public class ProgramServiceImplTest extends WithResettingPostgresContainer {
     QuestionDefinition questionDefinition =
         new QuestionDefinition(
             1L,
-            "version",
+            1L,
             "name question",
             "applicant.name",
             "The name of the applicant.",
