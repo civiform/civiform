@@ -12,9 +12,8 @@ jobs:
   formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2 # v2 minimum required
-      - uses: axel-op/googlejavaformat-action@master
-        with:
-          skipCommit: true
+      - uses: actions/checkout@v2
+      - name: run formatter
+        run: ./bin/fmt
       - name: show diff
         run: git add .; git diff --exit-code HEAD
