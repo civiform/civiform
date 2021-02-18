@@ -1,9 +1,11 @@
 package modules;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static play.mvc.Results.forbidden;
-import static play.mvc.Results.unauthorized;
+import static play.mvc.Results.*;
 
+import auth.GuestClient;
+import auth.ProfileFactory;
+import auth.UATProfile;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -52,13 +54,14 @@ public class SecurityModule extends AbstractModule {
     logoutController.setDestroySession(true);
     bind(LogoutController.class).toInstance(logoutController);
 
+    PlayCookieSessionStore.JAVA_SERIALIZER.addTrustedClass(UATProfile.class);
     bind(SessionStore.class).to(PlayCookieSessionStore.class);
   }
 
   @Provides
   @Singleton
-  protected DirectBasicAuthClient provideDirectBasicAuthClient() {
-    return new DirectBasicAuthClient(new SimpleTestUsernamePasswordAuthenticator());
+  protected GuestClient guestClient(ProfileFactory profileFactory) {
+    return new GuestClient(profileFactory);
   }
 
   @Provides
@@ -70,17 +73,22 @@ public class SecurityModule extends AbstractModule {
 
   @Provides
   @Singleton
-  protected Config provideConfig(
-      DirectBasicAuthClient directBasicAuthClient, FormClient formClient) {
+  protected ProfileFactory provideProfileFactory() {
+    return new ProfileFactory();
+  }
+
+  @Provides
+  @Singleton
+  protected Config provideConfig(GuestClient guestClient, FormClient formClient) {
     // This must match the line in `routes` also.
     Clients clients = new Clients(baseUrl + "/callback");
-    clients.setClients(directBasicAuthClient, formClient);
+    clients.setClients(guestClient, formClient);
     PlayHttpActionAdapter.INSTANCE
         .getResults()
         .putAll(
             ImmutableMap.of(
                 HttpConstants.UNAUTHORIZED,
-                unauthorized("401 not authorized").as(HttpConstants.HTML_CONTENT_TYPE),
+                redirect("/loginForm?message=login"),
                 HttpConstants.FORBIDDEN,
                 forbidden("403 forbidden").as(HttpConstants.HTML_CONTENT_TYPE)));
     Config config = new Config();

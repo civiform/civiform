@@ -34,3 +34,4 @@ GET     /loginForm                   controllers.HomeController.loginForm(reques
 
 # Log out of application
 GET     /logout                      @org.pac4j.play.LogoutController.logout(request: Request)
+GET     /whoami                      controllers.ProfileController.profilePage(request: Request)
