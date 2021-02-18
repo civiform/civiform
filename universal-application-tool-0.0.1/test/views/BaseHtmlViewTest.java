@@ -32,16 +32,15 @@ public class BaseHtmlViewTest {
 
     assertThat(result.render())
         .isEqualTo(
-            "<label for=\"fieldName\">label text<input type=\"text\" name=\"fieldName\""
-                + " id=\"fieldName\"></label>");
+            "<label for=\"fieldName\">label text<input type=\"text\" name=\"fieldName\">"
+                + "</label>");
   }
 
   @Test
   public void submitButton_rendersAFormSubmitButton() {
     Tag result = testImpl.submitButton("text contents");
 
-    assertThat(result.render())
-        .isEqualTo("<input type=\"submit\" id=\"submit\" value=\"text contents\">");
+    assertThat(result.render()).isEqualTo("<input type=\"submit\" value=\"text contents\">");
   }
 
   private static class TestImpl extends BaseHtmlView {}
