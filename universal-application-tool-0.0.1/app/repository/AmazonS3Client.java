@@ -5,9 +5,12 @@ import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import play.inject.ApplicationLifecycle;
+import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Singleton
@@ -27,7 +30,8 @@ public class AmazonS3Client {
     System.out.println("aws s3 enabled: " + String.valueOf(enabled()));
     if (enabled()) {
       connect();
-      putObject();
+      putTestObject();
+      getTestObject();
     }
 
     appLifecycle.addStopHook(
@@ -43,13 +47,35 @@ public class AmazonS3Client {
     return config.hasPath(AWS_S3_BUCKET);
   }
 
-  public void putObject() {
+  public void putObject(String key, byte[] data) {
+    throwIfUninitialized();
+
+    PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucket).key(key).build();
+    s3.putObject(putObjectRequest, RequestBody.fromBytes(data));
+  }
+
+  public byte[] getObject(String key) {
+    throwIfUninitialized();
+
+    GetObjectRequest getObjectRequest = GetObjectRequest.builder().key(key).bucket(bucket).build();
+    ResponseBytes<GetObjectResponse> objectBytes = s3.getObjectAsBytes(getObjectRequest);
+    return objectBytes.asByteArray();
+  }
+
+  private void throwIfUninitialized() {
     if (s3 == null) {
       throw new RuntimeException("S3Client is not initialized.");
     }
-    s3.putObject(
-        PutObjectRequest.builder().bucket(bucket).key("file1").build(),
-        RequestBody.fromString("Testing with the AWS SDK for Java"));
+  }
+
+  private void putTestObject() {
+    String testInput = "UAT S3 test content";
+    putObject("file1", testInput.getBytes());
+  }
+
+  private void getTestObject() {
+    byte[] data = getObject("file1");
+    System.out.println("got data from s3: " + new String(data));
   }
 
   private void connect() {
