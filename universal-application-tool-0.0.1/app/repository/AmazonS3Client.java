@@ -70,10 +70,10 @@ public class AmazonS3Client {
       GetObjectRequest getObjectRequest =
           GetObjectRequest.builder().key(key).bucket(bucket).build();
       ResponseBytes<GetObjectResponse> objectBytes = s3.getObjectAsBytes(getObjectRequest);
+      return objectBytes.asByteArray();
     } catch (S3Exception e) {
       throw new RuntimeException("S3 exception: " + e.getMessage());
     }
-    return objectBytes.asByteArray();
   }
 
   private void throwIfUninitialized() {
