@@ -19,7 +19,7 @@ Resources:
           Effect: Allow
           Principal:
             AWS:
-              Fn::Join:
+              !Join
               - ''
               - - 'arn:aws:iam::'
                 - Ref: AWS::AccountId

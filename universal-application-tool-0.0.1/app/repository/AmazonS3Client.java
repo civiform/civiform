@@ -18,11 +18,13 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @Singleton
 public class AmazonS3Client {
+  public static final String AWS_S3_REGION = "aws.s3.region";
   public static final String AWS_S3_BUCKET = "aws.s3.bucket";
   private static final Logger log = LoggerFactory.getLogger("s3client");
 
   private final ApplicationLifecycle appLifecycle;
   private final Config config;
+  private Region region;
   private String bucket;
   private S3Client s3;
 
@@ -48,7 +50,7 @@ public class AmazonS3Client {
   }
 
   public boolean enabled() {
-    return config.hasPath(AWS_S3_BUCKET);
+    return (config.hasPath(AWS_S3_REGION) && config.hasPath(AWS_S3_BUCKET));
   }
 
   public void putObject(String key, byte[] data) {
@@ -93,9 +95,10 @@ public class AmazonS3Client {
   }
 
   private void connect() {
+    String regionName = config.getString(AWS_S3_REGION);
+    region = Region.fromName(regionName);
     bucket = config.getString(AWS_S3_BUCKET);
 
-    Region region = Region.US_WEST_2;
     s3 = S3Client.builder().region(region).build();
   }
 }

@@ -102,6 +102,8 @@ Resources:
               Value: !Sub '{{resolve:secretsmanager:${DBPassword}}}'
             - Name: SECRET_KEY
               Value: !Sub '{{resolve:secretsmanager:${SecretKey}}}'
+            - Name: AWS_S3_BUCKET_REGION
+              Value: !Sub '${AWS::Region}'
             - Name: AWS_S3_BUCKET_NAME
               Value: !Ref 'S3BucketName'
           Cpu: 1024
@@ -113,7 +115,7 @@ Resources:
             LogDriver: awslogs
             Options:
               awslogs-group: !Ref 'loggroup'
-              awslogs-region: us-west-2
+              awslogs-region: !Sub '${AWS::Region}'
               awslogs-stream-prefix: uatsrv
           Essential: true
   autoscalingtarget:
