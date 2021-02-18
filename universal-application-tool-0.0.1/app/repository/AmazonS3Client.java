@@ -4,6 +4,8 @@ import com.typesafe.config.Config;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.inject.ApplicationLifecycle;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -17,6 +19,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 @Singleton
 public class AmazonS3Client {
   public static final String AWS_S3_BUCKET = "aws.s3.bucket";
+  private static final Logger log = LoggerFactory.getLogger("s3client");
 
   private final ApplicationLifecycle appLifecycle;
   private final Config config;
@@ -28,7 +31,7 @@ public class AmazonS3Client {
     this.appLifecycle = appLifecycle;
     this.config = config;
 
-    System.out.println("aws s3 enabled: " + String.valueOf(enabled()));
+    log.info("aws s3 enabled: " + String.valueOf(enabled()));
     if (enabled()) {
       connect();
       putTestObject();
@@ -86,7 +89,7 @@ public class AmazonS3Client {
 
   private void getTestObject() {
     byte[] data = getObject("file1");
-    System.out.println("got data from s3: " + new String(data));
+    log.info("got data from s3: " + new String(data));
   }
 
   private void connect() {
