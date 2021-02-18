@@ -13,7 +13,7 @@ interface ReadOnlyQuestionService {
   /** Returns all question definitions for this version. */
   ImmutableList<QuestionDefinition> getAllQuestions();
 
-  /** Returns all question definitions for this version. */
+  /** Returns all scalars for this version. */
   ImmutableMap<String, ScalarType> getAllScalars();
 
   /**
