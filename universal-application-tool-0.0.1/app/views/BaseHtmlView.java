@@ -18,14 +18,6 @@ import javax.inject.Inject;
 /** Base class for all HTML views. Provides stateless convenience methods for generating HTML. */
 abstract class BaseHtmlView {
 
-  @Inject
-  public BaseHtmlView() {
-  }
-
-  protected Content htmlContent(DomContent... domContents) {
-    return new HtmlResponseContent(domContents);
-  }
-
   protected Tag textField(String fieldName, String labelText) {
     return label(text(labelText), input().withType("text").withName(fieldName))
         .attr("for", fieldName);
@@ -50,23 +42,5 @@ abstract class BaseHtmlView {
 
   private String getCsrfToken(Http.Request request) {
     return CSRF.getToken(request.asScala()).value();
-  }
-
-  protected static class HtmlResponseContent implements Content {
-    private final DomContent[] domContents;
-
-    protected HtmlResponseContent(DomContent... domContents) {
-      this.domContents = checkNotNull(domContents);
-    }
-
-    @Override
-    public String body() {
-      return document(new ContainerTag("html").with(domContents));
-    }
-
-    @Override
-    public String contentType() {
-      return "text/html; charset=UTF-8";
-    }
   }
 }

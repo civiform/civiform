@@ -1,13 +1,10 @@
 package views;
 
-import static j2html.TagCreator.div;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import j2html.tags.Tag;
 import org.junit.Before;
 import org.junit.Test;
-import play.twirl.api.Content;
-import views.BaseHtmlView.HtmlResponseContent;
 
 public class BaseHtmlViewTest {
 
@@ -16,14 +13,6 @@ public class BaseHtmlViewTest {
   @Before
   public void setUp() {
     testImpl = new TestImpl();
-  }
-
-  @Test
-  public void htmlContent_wrapsArgsInHtmlResponseContent() {
-    Content result = testImpl.htmlContent(div("hello"));
-
-    assertThat(result).isInstanceOf(HtmlResponseContent.class);
-    assertThat(result.body()).isEqualTo("<!DOCTYPE html><html><div>hello</div></html>");
   }
 
   @Test
