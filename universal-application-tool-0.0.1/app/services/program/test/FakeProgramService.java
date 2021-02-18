@@ -60,6 +60,7 @@ public class FakeProgramService implements ProgramService {
             .build();
     programDefinition = programDefinition.toBuilder().addBlockDefinition(blockDefinition).build();
     this.programs.put(programId, programDefinition);
+
     return programDefinition;
   }
 
@@ -77,6 +78,7 @@ public class FakeProgramService implements ProgramService {
             .toBuilder()
             .setQuestionDefinitions(questionDefinitions)
             .build();
+
     return updateProgramDefinitionWithBlockDefinition(
         programToUpdate, blockIndex, updatedBlockDefinition);
   }
@@ -95,6 +97,7 @@ public class FakeProgramService implements ProgramService {
             .toBuilder()
             .setHidePredicate(Optional.of(predicate))
             .build();
+
     return updateProgramDefinitionWithBlockDefinition(
         programToUpdate, blockIndex, updatedBlockDefinition);
   }
@@ -113,6 +116,7 @@ public class FakeProgramService implements ProgramService {
             .toBuilder()
             .setOptionalPredicate(Optional.of(predicate))
             .build();
+
     return updateProgramDefinitionWithBlockDefinition(
         programToUpdate, blockIndex, updatedBlockDefinition);
   }
@@ -158,6 +162,7 @@ public class FakeProgramService implements ProgramService {
             .setBlockDefinitions(ImmutableList.copyOf(mutableBlockDefinitions))
             .build();
     this.programs.put(programDefinition.id(), programDefinition);
+
     return programDefinition;
   }
 }
