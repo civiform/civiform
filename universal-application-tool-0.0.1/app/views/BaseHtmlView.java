@@ -25,6 +25,11 @@ public abstract class BaseHtmlView {
         .attr("for", fieldName);
   }
 
+  protected Tag passwordField(String fieldName, String labelText) {
+    return label(text(labelText), input().withType("password").withName(fieldName))
+        .attr("for", fieldName);
+  }
+
   protected Tag submitButton(String textContents) {
     return input().withType("submit").withValue(textContents);
   }

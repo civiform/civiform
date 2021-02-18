@@ -4,6 +4,8 @@
 
 # An example controller showing a sample home page
 GET     /                           controllers.HomeController.index
+# The root page, but requiring a login.
+GET     /secure                     controllers.HomeController.secureIndex
 
 # List all persons
 GET     /postgres                   controllers.PostgresController.index()
@@ -23,3 +25,12 @@ POST    /demo                       controllers.J2HtmlDemoController.create(requ
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(file)
 
+# Authentication callback from federated auth server
+GET     /callback                    @org.pac4j.play.CallbackController.callback(request: Request)
+POST    /callback                    @org.pac4j.play.CallbackController.callback(request: Request)
+
+# Log into application
+GET     /loginForm                   controllers.HomeController.loginForm(request: Request)
+
+# Log out of application
+GET     /logout                      @org.pac4j.play.LogoutController.logout(request: Request)
