@@ -42,11 +42,12 @@ public class ReadOnlyQuestionServiceImplTest {
 
   private ImmutableList<QuestionDefinition> questions =
       ImmutableList.of(nameQuestion, addressQuestion, basicQuestion);
-  
+
   private ReadOnlyQuestionService service = new ReadOnlyQuestionServiceImpl(questions);
-  
-  private ReadOnlyQuestionService emptyService = new ReadOnlyQuestionServiceImpl(ImmutableList.of());
-  
+
+  private ReadOnlyQuestionService emptyService =
+      new ReadOnlyQuestionServiceImpl(ImmutableList.of());
+
   @Test
   public void getAll_returnsEmpty() {
     assertThat(emptyService.getAllQuestions()).isEmpty();
@@ -71,20 +72,21 @@ public class ReadOnlyQuestionServiceImplTest {
   @Test
   public void getPathScalars_forQuestion() throws InvalidPathException {
     ImmutableMap<String, ScalarType> result = service.getPathScalars("applicant.address");
-    ImmutableMap<String, ScalarType> expected = addressQuestion.getScalars(/* includeFullPath = */ true);
+    ImmutableMap<String, ScalarType> expected =
+        addressQuestion.getScalars(/* includeFullPath = */ true);
     assertThat(result).isEqualTo(expected);
   }
 
   @Test
   public void getPathScalars_forScalar() throws InvalidPathException {
     ImmutableMap<String, ScalarType> result = service.getPathScalars("applicant.address.city");
-    ImmutableMap<String, ScalarType> expected = ImmutableMap.of("applicant.address.city", ScalarType.STRING);
+    ImmutableMap<String, ScalarType> expected =
+        ImmutableMap.of("applicant.address.city", ScalarType.STRING);
     assertThat(result).isEqualTo(expected);
   }
 
-
   @Test
-  public void getPathScalars_forInvalidPath()  {
+  public void getPathScalars_forInvalidPath() {
     assertThatThrownBy(() -> service.getPathScalars(invalidPath))
         .isInstanceOf(InvalidPathException.class)
         .hasMessage("Path not found: " + invalidPath);
@@ -106,7 +108,7 @@ public class ReadOnlyQuestionServiceImplTest {
   }
 
   @Test
-  public void getQuestionDefinition_forInvalidPath() { 
+  public void getQuestionDefinition_forInvalidPath() {
     assertThatThrownBy(() -> service.getQuestionDefinition(invalidPath))
         .isInstanceOf(InvalidPathException.class)
         .hasMessage("Path not found: " + invalidPath);
@@ -131,11 +133,11 @@ public class ReadOnlyQuestionServiceImplTest {
   public void isValid_returnsFalseWhenEmpty() {
     assertThat(emptyService.isValid("invalidPath")).isFalse();
   }
-  
+
   @Test
   public void isValid_returnsTrueForQuestion() {
     assertThat(service.isValid("applicant.name")).isTrue();
-  }  
+  }
 
   @Test
   public void isValid_returnsTrueForScalar() {
