@@ -12,6 +12,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @Singleton
 public class AmazonS3Client {
@@ -50,15 +51,25 @@ public class AmazonS3Client {
   public void putObject(String key, byte[] data) {
     throwIfUninitialized();
 
-    PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucket).key(key).build();
-    s3.putObject(putObjectRequest, RequestBody.fromBytes(data));
+    try {
+      PutObjectRequest putObjectRequest =
+          PutObjectRequest.builder().bucket(bucket).key(key).build();
+      s3.putObject(putObjectRequest, RequestBody.fromBytes(data));
+    } catch (S3Exception e) {
+      throw new RuntimeException("S3 exception: " + e.getMessage());
+    }
   }
 
   public byte[] getObject(String key) {
     throwIfUninitialized();
 
-    GetObjectRequest getObjectRequest = GetObjectRequest.builder().key(key).bucket(bucket).build();
-    ResponseBytes<GetObjectResponse> objectBytes = s3.getObjectAsBytes(getObjectRequest);
+    try {
+      GetObjectRequest getObjectRequest =
+          GetObjectRequest.builder().key(key).bucket(bucket).build();
+      ResponseBytes<GetObjectResponse> objectBytes = s3.getObjectAsBytes(getObjectRequest);
+    } catch (S3Exception e) {
+      throw new RuntimeException("S3 exception: " + e.getMessage());
+    }
     return objectBytes.asByteArray();
   }
 
