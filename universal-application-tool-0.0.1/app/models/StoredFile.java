@@ -1,6 +1,5 @@
 package models;
 
-import java.io.File;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -22,5 +21,13 @@ public class StoredFile extends BaseModel {
 
   @Constraints.Required String name;
 
-  @Transient @Constraints.Required File file;
+  public byte[] getContent() {
+    return data;
+  }
+
+  public void setContent(byte[] data) {
+    this.data = data;
+  }
+
+  @Transient @Constraints.Required byte[] data;
 }
