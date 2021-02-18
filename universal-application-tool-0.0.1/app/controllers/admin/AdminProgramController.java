@@ -1,7 +1,8 @@
 package controllers.admin;
 
-import java.util.Map;
 import javax.inject.Inject;
+import play.data.DynamicForm;
+import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
@@ -18,13 +19,18 @@ public class AdminProgramController extends Controller {
   private final ProgramService service;
   private final ProgramList listView;
   private final ProgramNewOne newOneView;
+  private final FormFactory formFactory;
 
   @Inject
   public AdminProgramController(
-      ProgramService service, ProgramList listView, ProgramNewOne newOneView) {
+      ProgramService service,
+      ProgramList listView,
+      ProgramNewOne newOneView,
+      FormFactory formFactory) {
     this.service = service;
     this.listView = listView;
     this.newOneView = newOneView;
+    this.formFactory = formFactory;
   }
 
   public Result list() {
@@ -36,8 +42,10 @@ public class AdminProgramController extends Controller {
   }
 
   public Result create(Request request) {
-    Map<String, String[]> form = request.body().asFormUrlEncoded();
-    service.createProgramDefinition(form.get("name")[0], form.get("description")[0]);
+    DynamicForm requestData = this.formFactory.form().bindFromRequest(request);
+    String name = requestData.get("name");
+    String description = requestData.get("description");
+    service.createProgramDefinition(name, description);
     return list();
   }
 }

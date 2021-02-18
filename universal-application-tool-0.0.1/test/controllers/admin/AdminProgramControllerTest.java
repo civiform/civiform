@@ -6,15 +6,16 @@ import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
 
+import com.google.common.collect.ImmutableMap;
+import models.Program;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import play.test.Helpers;
-import repository.ProgramRepository;
-import repository.WithPostgresContainer;
+import repository.WithResettingPostgresContainer;
 
-public class AdminProgramControllerTest extends WithPostgresContainer {
+public class AdminProgramControllerTest extends WithResettingPostgresContainer {
 
   private AdminProgramController controller;
 
@@ -24,12 +25,24 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void listWithNoPrograms_returnsExpectedHtml() {
+  public void listWithNoPrograms() {
     Result result = controller.list();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("UTF-8; charset=utf-8");
     assertThat(contentAsString(result)).contains("Programs");
+  }
+
+  @Test
+  public void list_returnsPrograms() {
+    insertProgram("one");
+    insertProgram("two");
+
+    Result result = controller.list();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("one");
+    assertThat(contentAsString(result)).contains("two");
   }
 
   @Test
@@ -41,6 +54,41 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Create a new Program");
+  }
+
+  @Test
+  public void create_returnsNewProgramInList() {
+    RequestBuilder requestBuilder =
+        Helpers.fakeRequest()
+            .bodyForm(
+                ImmutableMap.of("name", "New Program", "description", "This is a new program"));
+
+    Result result = controller.create(requestBuilder.build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("New Program");
+    assertThat(contentAsString(result)).contains("This is a new program");
+  }
+
+  @Test
+  public void create_includesNewAndExistingProgramsInList() {
+    insertProgram("Existing One");
+    RequestBuilder requestBuilder =
+        Helpers.fakeRequest()
+            .bodyForm(
+                ImmutableMap.of("name", "New Program", "description", "This is a new program"));
+
+    Result result = controller.create(requestBuilder.build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Existing One");
+    assertThat(contentAsString(result)).contains("New Program");
+    assertThat(contentAsString(result)).contains("This is a new program");
+  }
+
+  private static void insertProgram(String name) {
+    Program program = new Program(name, "description");
+    program.save();
   }
 
   /**
