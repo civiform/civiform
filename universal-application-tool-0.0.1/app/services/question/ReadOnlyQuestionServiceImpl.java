@@ -23,7 +23,7 @@ public class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionService {
           .forEach(
               entry -> {
                 String fullPath = questionPath + '.' + entry.getKey();
-                scalarMap.put(fullPath, questionScalars.get(entry.getValue()));
+                scalarMap.put(fullPath, entry.getValue());
                 scalarParentsMap.put(fullPath, qd);
               });
     }

@@ -30,9 +30,9 @@ interface ReadOnlyQuestionService {
   /**
    * Gets the type of the node if it exist.
    *
-   * <p>If the path is invalid it will throw an InvalidPathException.
+   * <p>If the path is invalid it will return PathType.NONE.
    */
-  PathType getPathType(String pathString) throws InvalidPathException;
+  PathType getPathType(String pathString);
 
   /**
    * Gets the question definition for a given path.
