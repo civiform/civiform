@@ -57,7 +57,7 @@ public class QuestionDefinition {
     return this.name;
   }
 
-  /** Get the path to this quesiton's parent. */
+  /** Get the full path of this question, in JSON notation. */
   public String getPath() {
     return this.path;
   }

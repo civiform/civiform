@@ -44,8 +44,7 @@ public class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionService {
       throws InvalidPathException {
     PathType pathType = this.getPathType(pathString);
     if (pathType == PathType.QUESTION) {
-      // TODO(NOW): These should be fully qualified paths.
-      return questions.get(pathString).getScalars();
+      return questions.get(pathString).getScalars(/* includeFullPath = */ true);
     } else if (pathType == PathType.SCALAR) {
       ScalarType scalarType = scalars.get(pathString);
       return ImmutableMap.of(pathString, scalarType);
