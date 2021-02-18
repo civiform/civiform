@@ -54,7 +54,7 @@ public class AmazonS3Client {
   }
 
   public void putObject(String key, byte[] data) {
-    throwIfUninitialized();
+    ensureS3Client();
 
     try {
       PutObjectRequest putObjectRequest =
@@ -66,7 +66,7 @@ public class AmazonS3Client {
   }
 
   public byte[] getObject(String key) {
-    throwIfUninitialized();
+    ensureS3Client();
 
     try {
       GetObjectRequest getObjectRequest =
@@ -78,9 +78,13 @@ public class AmazonS3Client {
     }
   }
 
-  private void throwIfUninitialized() {
+  private void ensureS3Client() {
+    if (s3 != null) {
+      return;
+    }
+    connect();
     if (s3 == null) {
-      throw new RuntimeException("S3Client is not initialized.");
+      throw new RuntimeException("Failed to create S3 client");
     }
   }
 
@@ -96,7 +100,7 @@ public class AmazonS3Client {
 
   private void connect() {
     String regionName = config.getString(AWS_S3_REGION);
-    region = Region.fromName(regionName);
+    region = Region.of(regionName);
     bucket = config.getString(AWS_S3_BUCKET);
 
     s3 = S3Client.builder().region(region).build();
