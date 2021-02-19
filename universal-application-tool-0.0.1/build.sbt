@@ -15,6 +15,8 @@ lazy val root = (project in file("."))
       // Templating
       "com.j2html" % "j2html" % "1.4.0",
 
+      // Amazon AWS SDK
+      "software.amazon.awssdk" % "aws-sdk-java" % "2.15.81",
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.2.18",
       "org.testcontainers" % "postgresql" % "1.15.1" % Test,
