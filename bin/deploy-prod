@@ -3,6 +3,7 @@
 set -e
 set +x
 export AWS_DEFAULT_REGION=us-west-2
+REGION=us-west-2
 
 aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/t1q6b4h2
 docker build -f prod.Dockerfile -t universal-application-tool --cache-from public.ecr.aws/t1q6b4h2/universal-application-tool:latest .
@@ -12,4 +13,4 @@ docker push public.ecr.aws/t1q6b4h2/universal-application-tool:latest
 TIMESTAMP=$(date +%s)
 
 aws s3 sync ./infra s3://seattle-uat-cftmpl/${TIMESTAMP}
-aws cloudformation update-stack --region us-west-2 --stack-name uat --template-url  https://seattle-uat-cftmpl.s3-us-west-2.amazonaws.com/$TIMESTAMP/stack.yaml --parameters "[{\"ParameterKey\": \"Timestamp\", \"ParameterValue\": \"$TIMESTAMP\"}]"
+aws cloudformation update-stack --region ${REGION} --stack-name uat --template-url  https://seattle-uat-cftmpl.s3-${REGION}.amazonaws.com/$TIMESTAMP/stack.yaml --parameters "[{\"ParameterKey\": \"Timestamp\", \"ParameterValue\": \"$TIMESTAMP\"}]"

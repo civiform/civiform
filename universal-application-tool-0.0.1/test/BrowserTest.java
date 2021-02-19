@@ -1,3 +1,4 @@
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static play.test.Helpers.fakeApplication;
 
@@ -16,7 +17,7 @@ public class BrowserTest extends WithBrowser {
             "db.default.driver",
             "org.testcontainers.jdbc.ContainerDatabaseDriver",
             "db.default.url",
-            // See FunctionalTest.java for explanation of this string.
+            // See WithPostgresContainer.java for explanation of this string.
             "jdbc:tc:postgresql:9.6.8:///databasename"));
   }
 
@@ -31,5 +32,21 @@ public class BrowserTest extends WithBrowser {
   public void test() {
     browser.goTo("http://localhost:" + play.api.test.Helpers.testServerPort());
     assertTrue(browser.pageSource().contains("Your new application is ready."));
+  }
+
+  @Test
+  public void login() {
+    String baseUrl = "http://localhost:" + play.api.test.Helpers.testServerPort();
+    browser.goTo(baseUrl + "/loginForm");
+    browser.$("#uname").click();
+    browser.keyboard().sendKeys("test");
+    browser.$("#pwd").click();
+    browser.keyboard().sendKeys("test");
+    browser.$("#login").click();
+    // should be redirected to root.
+    assertEquals("", browser.url());
+    assertTrue(browser.pageSource().contains("Your new application is ready."));
+    browser.goTo(baseUrl + "/secure");
+    assertTrue(browser.pageSource().contains("You are logged in."));
   }
 }

@@ -19,6 +19,9 @@ Parameters:
   PrivateSubnet2:
     Description: The private subnet to add the database to.
     Type: AWS::EC2::Subnet::Id
+  S3BucketName:
+    Description: S3 bucket name for file storage.
+    Type: String
   DBUsername:
     NoEcho: 'true'
     Description: Username for database access
@@ -75,6 +78,7 @@ Resources:
     Properties:
       RequiresCompatibilities:
         - FARGATE
+      TaskRoleArn: arn:aws:iam::405662711265:role/AmazonECSTaskS3BucketRole
       ExecutionRoleArn: arn:aws:iam::405662711265:role/ecs-task-role
       NetworkMode: awsvpc
       Cpu: 1024
@@ -97,6 +101,10 @@ Resources:
               Value: !Sub '{{resolve:secretsmanager:${DBPassword}}}'
             - Name: SECRET_KEY
               Value: !Sub '{{resolve:secretsmanager:${SecretKey}}}'
+            - Name: AWS_S3_REGION
+              Value: !Sub '${AWS::Region}'
+            - Name: AWS_S3_BUCKET_NAME
+              Value: !Ref 'S3BucketName'
           Cpu: 1024
           Memory: 8192
           PortMappings:
@@ -106,7 +114,7 @@ Resources:
             LogDriver: awslogs
             Options:
               awslogs-group: !Ref 'loggroup'
-              awslogs-region: us-west-2
+              awslogs-region: !Sub '${AWS::Region}'
               awslogs-stream-prefix: uatsrv
           Essential: true
   autoscalingtarget:
