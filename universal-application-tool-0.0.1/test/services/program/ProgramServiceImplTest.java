@@ -10,10 +10,10 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import org.junit.Before;
 import org.junit.Test;
-import repository.WithResettingPostgresContainer;
+import repository.WithPostgresContainer;
 import services.question.QuestionDefinition;
 
-public class ProgramServiceImplTest extends WithResettingPostgresContainer {
+public class ProgramServiceImplTest extends WithPostgresContainer {
 
   ProgramServiceImpl ps;
 

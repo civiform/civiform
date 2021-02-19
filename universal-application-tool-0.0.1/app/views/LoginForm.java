@@ -15,9 +15,9 @@ public class LoginForm extends BaseHtmlView {
             h1("Log In"),
             form(
                     makeCsrfTokenInputTag(request),
-                    textField("username", "Username"),
-                    passwordField("password", "Password"),
-                    submitButton("Submit"))
+                    textField("uname", "username", "Username"),
+                    passwordField("pwd", "password", "Password"),
+                    submitButton("login", "Submit"))
                 .withMethod("POST")
                 .withAction("/callback?client_name=FormClient")));
   }

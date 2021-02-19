@@ -130,10 +130,29 @@ For the same resource accessed via JSON API the routes should be under the "/api
 
 We aim for complete unit test coverage of all execution paths in the system. If you submit code that is infeasible or impractical to get full test coverage for, consider refactoring. If you would like to make an exception, include a clear explanation for why in your PR description.
 
-For Java, each class should have its own unit tests. The unit test file should mirror the implementation file - for example, `/app/package/path/MyClass.java` should have a unit test `/test/package/path/MyClassTest.java`.
+For Java, classes generally have their own unit tests. The unit test file should mirror the implementation file - for example, `/app/package/path/MyClass.java` should have a unit test `/test/package/path/MyClassTest.java`.
 
 All major user-facing features should be covered by a functional browser test.
 
+Tests that require a play application should either use `extends play.test.WithApplication` or `extends repository.WithPostgresContainer`, opting for the latter if a database is required. By default, using `extends play.test.WithApplication` will produce an application with a binding to an in-memory postgres database that is incompatible with everything and is pretty much useless.
+
+#### Controller tests
+
+Controller tests should test the integration of business logic behind each HTTP endpoint. Most controller tests should likely extend `WithResettingPostgresContainer` which provides a real database. Controllers should contain very little if any conditional logic and delegate business logic and network interactions (database, auth service, file services, etc) to service classes.
+
+* Assertions should be on the method's `Result` rather than the rendered HTML
+* Assertions may also be on the database state after the controller method has completed
+* Should not rely heavily on mocking
+
+See [AdminProgramControllerTest.java ](https://github.com/seattle-uat/universal-application-tool/pull/167/files#diff-643f94cff692c6554cd33c8e4c542b9f2bc65b4756bf027a623ce8f203d28677) for a good example of a controller test. See the [Play documentation](https://www.playframework.com/documentation/2.8.x/JavaTest#Unit-testing-controllers) for information on framework-provided testing tools.
+
+#### View tests
+
+[`BaseHtmlView`](https://github.com/seattle-uat/universal-application-tool/blob/main/universal-application-tool-0.0.1/app/views/BaseHtmlView.java) provides a number of HTML tag producing methods, for example [`Tag submitButton(String textContents)`](https://github.com/seattle-uat/universal-application-tool/blob/main/universal-application-tool-0.0.1/app/views/BaseHtmlView.java#L33). These methods tend to be fairly simple, with unit tests that are brittle to small, inconsequential changes. Whether or not to test these types of methods is at the discretion of the implementer and code reviewer(s).
+
+View classes that render a complete page should not be unit tested, but instead should have corresponding browser test(s) that asserts the key interactions for a user on that page.
+
+Question type rendering and client-side logic deserves a special mention since they can have complex interaction logic. These should be unit tested in isolation, in browser test(s).
 
 # Production
 

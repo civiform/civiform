@@ -1,0 +1,83 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'We have a S3 bucket encrypted with "Customer master keys" (CMKs). The bucket is limited access to from within our VPC. This means the console does not have access to it, either.'
+Parameters:
+  S3VPCEndpoint:
+    Description: The vpc endpoint from which UAT connects to S3.
+    Type: String
+Resources:
+  key:
+    Type: AWS::KMS::Key
+    Properties:
+      EnableKeyRotation: true
+      Description: The key used to encrypt/decrypt secure uploads to the UAT.
+      KeySpec: SYMMETRIC_DEFAULT
+      KeyPolicy:
+        Version: '2012-10-17'
+        Id: secureuploads-key
+        Statement:
+        - Sid: Enable IAM User Permissions
+          Effect: Allow
+          Principal:
+            AWS:
+              !Join
+              - ''
+              - - 'arn:aws:iam::'
+                - Ref: AWS::AccountId
+                - :root
+          Action: kms:*
+          Resource: '*'
+        - Sid: Enable UAT Server Permissions
+          Effect: Allow
+          Principal:
+            AWS: arn:aws:iam::405662711265:role/AmazonECSTaskS3BucketRole
+          Action:
+            - kms:Encrypt
+            - kms:Decrypt
+            - kms:ReEncryptFrom
+            - kms:ReEncryptTo
+            - kms:GenerateDataKey
+            - kms:GenerateDataKeyWithoutPlaintext
+            - kms:DescribeKey
+          Resource: '*'
+  bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'aws:kms'
+              KMSMasterKeyID: !GetAtt key.Arn
+            BucketKeyEnabled: true
+      PublicAccessBlockConfiguration:
+        # This prevents anyone outside the AWS account using this bucket, but does not limit roles within the AWS account from accessing.
+        # This is only effective when the bucket is public without this setting. Our bucket policy below makes our bucket non-public so this setting has no effect.
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+    DeletionPolicy: Delete
+  bucketpolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref bucket
+      PolicyDocument:
+        Statement:
+          - Sid: Restrict access to VPC endpoint
+            Action:
+              - 's3:*'
+            Effect: Deny
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref bucket
+                - /*
+            Principal: '*'
+            Condition:
+              StringNotEquals:
+                'aws:sourceVpce': !Ref 'S3VPCEndpoint'
+Outputs:
+  bucketname:
+    Description: The location of the bucket for secure uploads.
+    Value: !Ref bucket
+    Export:
+      Name: !Sub '${AWS::StackName}-SecureBucket'

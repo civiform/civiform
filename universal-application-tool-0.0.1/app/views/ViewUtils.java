@@ -8,7 +8,7 @@ import j2html.tags.Tag;
 import javax.inject.Inject;
 
 /** Utility class for accessing stateful view dependencies. */
-final class ViewUtils {
+public final class ViewUtils {
   private final AssetsFinder assetsFinder;
 
   @Inject
