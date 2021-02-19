@@ -31,10 +31,10 @@ public class Question extends BaseModel {
 
   private @Constraints.Required @DbJsonB ImmutableMap<Locale, String> questionText;
 
-  private ImmutableMap<Locale, String> questionHelpText;
+  private @DbJsonB ImmutableMap<Locale, String> questionHelpText;
 
   public Question(QuestionDefinition questionDefinition) {
-    this.questionDefinition = questionDefinition;
+    this.questionDefinition = checkNotNull(questionDefinition);
     this.version = questionDefinition.getVersion();
     this.path = questionDefinition.getPath();
     this.name = questionDefinition.getName();
