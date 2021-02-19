@@ -25,8 +25,7 @@ public class QuestionServiceImpl implements QuestionService {
 
   public Optional<QuestionDefinition> create(QuestionDefinition definition) {
     // TODO(https://github.com/seattle-uat/universal-application-tool/issues/194): Add validation.
-    Question question = 
-        this.questionRepository.insertQuestionSync(new Question(definition));
+    Question question = this.questionRepository.insertQuestionSync(new Question(definition));
     return Optional.of(question.getQuestionDefinition());
   }
 

@@ -12,17 +12,17 @@ import org.junit.Test;
 import repository.WithPostgresContainer;
 
 public class QuestionServiceImplTest extends WithPostgresContainer {
-    QuestionServiceImpl questionService;
+  QuestionServiceImpl questionService;
 
-    QuestionDefinition questionDefinition =
-        new QuestionDefinition(
-            123L,
-            1L,
-            "my name",
-            "my.path.name",
-            "description",
-            ImmutableMap.of(Locale.ENGLISH, "question?"),
-            Optional.of(ImmutableMap.of(Locale.ENGLISH, "help text")));
+  QuestionDefinition questionDefinition =
+      new QuestionDefinition(
+          123L,
+          1L,
+          "my name",
+          "my.path.name",
+          "description",
+          ImmutableMap.of(Locale.ENGLISH, "question?"),
+          Optional.of(ImmutableMap.of(Locale.ENGLISH, "help text")));
 
   @Before
   public void setProgramServiceImpl() {
@@ -42,7 +42,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   @Test
   public void create() {
     assertThat(questionService.create(questionDefinition).get().getPath())
-    .isEqualTo(questionDefinition.getPath());
+        .isEqualTo(questionDefinition.getPath());
   }
 
   @Test
