@@ -10,8 +10,10 @@ import services.program.ProgramService;
 import views.admin.ProgramListView;
 import views.admin.ProgramNewOneView;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
- * This controller contains an action to handle HTTP requests to the application's Admin "Create
+ * This controller contains an action to handle HTTP requests to the UAT's Admin "Create
  * application" page.
  */
 public class AdminProgramController extends Controller {
@@ -27,10 +29,10 @@ public class AdminProgramController extends Controller {
       ProgramListView listView,
       ProgramNewOneView newOneView,
       FormFactory formFactory) {
-    this.service = service;
-    this.listView = listView;
-    this.newOneView = newOneView;
-    this.formFactory = formFactory;
+    this.service = checkNotNull(service);
+    this.listView = checkNotNull(listView);
+    this.newOneView = checkNotNull(newOneView);
+    this.formFactory = checkNotNull(formFactory);
   }
 
   public Result list() {
