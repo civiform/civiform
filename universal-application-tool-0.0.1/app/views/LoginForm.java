@@ -1,5 +1,6 @@
 package views;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
@@ -13,7 +14,7 @@ public class LoginForm extends BaseHtmlView {
 
   @Inject
   public LoginForm(BaseHtmlLayout layout) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(Http.Request request) {

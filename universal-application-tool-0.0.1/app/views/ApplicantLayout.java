@@ -1,6 +1,8 @@
 package views;
 
-import static j2html.TagCreator.*;
+import static j2html.TagCreator.body;
+import static j2html.TagCreator.head;
+import static j2html.TagCreator.main;
 
 import j2html.tags.DomContent;
 import javax.inject.Inject;

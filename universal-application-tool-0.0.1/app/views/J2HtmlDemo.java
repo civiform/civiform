@@ -28,7 +28,7 @@ public final class J2HtmlDemo extends BaseHtmlView {
    */
   public Content render(String greeting, Request request) {
     return layout.htmlContent(
-        head(viewUtils.makeLocalJsTag("hello")),
+        head(viewUtils.makeLocalJsTag("hello"), layout.getCommonCssTag()),
         body(
             h1(greeting),
             form(
