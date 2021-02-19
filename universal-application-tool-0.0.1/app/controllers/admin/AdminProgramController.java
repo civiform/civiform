@@ -2,6 +2,7 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import forms.ProgramForm;
 import javax.inject.Inject;
 import play.data.Form;
 import play.data.FormFactory;
@@ -44,30 +45,9 @@ public class AdminProgramController extends Controller {
   }
 
   public Result create(Request request) {
-    Form<NewProgram> newProgramForm = formFactory.form(NewProgram.class);
-    NewProgram newProgram = newProgramForm.bindFromRequest(request).get();
-    service.createProgramDefinition(newProgram.getName(), newProgram.getDescription());
+    Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
+    ProgramForm program = programForm.bindFromRequest(request).get();
+    service.createProgramDefinition(program.getName(), program.getDescription());
     return found(controllers.admin.routes.AdminProgramController.index());
-  }
-
-  public static class NewProgram {
-    private String name;
-    private String description;
-
-    public String getName() {
-      return name;
-    }
-
-    public void setName(String name) {
-      this.name = name;
-    }
-
-    public String getDescription() {
-      return description;
-    }
-
-    public void setDescription(String description) {
-      this.description = description;
-    }
   }
 }
