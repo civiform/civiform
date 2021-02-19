@@ -103,7 +103,7 @@ public class FakeProgramServiceTest {
     long blockId = program.blockDefinitions().get(0).id();
 
     QuestionDefinition question =
-        new QuestionDefinition(1L, "", "", "", "", ImmutableMap.of(), Optional.empty());
+        new QuestionDefinition(1L, 1L, "", "", "", ImmutableMap.of(), Optional.empty());
     program = service.setBlockQuestions(program.id(), blockId, ImmutableList.of(question));
 
     assertThat(program.blockDefinitions().get(0).questionDefinitions()).containsExactly(question);
