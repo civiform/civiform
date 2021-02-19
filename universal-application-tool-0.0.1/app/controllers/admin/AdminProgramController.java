@@ -1,7 +1,9 @@
 package controllers.admin;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import javax.inject.Inject;
-import play.data.DynamicForm;
+import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
@@ -9,8 +11,6 @@ import play.mvc.Result;
 import services.program.ProgramService;
 import views.admin.ProgramListView;
 import views.admin.ProgramNewOneView;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * This controller contains an action to handle HTTP requests to the UAT's Admin "Create
@@ -44,10 +44,30 @@ public class AdminProgramController extends Controller {
   }
 
   public Result create(Request request) {
-    DynamicForm requestData = this.formFactory.form().bindFromRequest(request);
-    String name = requestData.get("name");
-    String description = requestData.get("description");
-    service.createProgramDefinition(name, description);
+    Form<NewProgram> newProgramForm = formFactory.form(NewProgram.class);
+    NewProgram newProgram = newProgramForm.bindFromRequest(request).get();
+    service.createProgramDefinition(newProgram.getName(), newProgram.getDescription());
     return found(controllers.admin.routes.AdminProgramController.index());
+  }
+
+  public static class NewProgram {
+    private String name;
+    private String description;
+
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    public String getDescription() {
+      return description;
+    }
+
+    public void setDescription(String description) {
+      this.description = description;
+    }
   }
 }
