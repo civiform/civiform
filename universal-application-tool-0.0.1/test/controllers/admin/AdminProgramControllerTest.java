@@ -3,7 +3,8 @@ package controllers.admin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.OK;
-import static play.test.Helpers.*;
+import static play.test.Helpers.FOUND;
+import static play.test.Helpers.contentAsString;
 
 import com.google.common.collect.ImmutableMap;
 import models.Program;
