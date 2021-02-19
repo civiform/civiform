@@ -7,10 +7,10 @@ import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
 import repository.QuestionRepository;
-import repository.WithResettingPostgresContainer;
+import repository.WithPostgresContainer;
 import services.question.QuestionDefinition;
 
-public class QuestionTest extends WithResettingPostgresContainer {
+public class QuestionTest extends WithPostgresContainer {
 
   @Test
   public void canSaveQuestion() {
@@ -23,16 +23,13 @@ public class QuestionTest extends WithResettingPostgresContainer {
 
     Question found = repo.lookupQuestion(definition.getId()).toCompletableFuture().join().get();
 
-    assertThat(found.getQuestionDefinition().getId()).isEqualTo(definition.getId());
-    assertThat(found.getQuestionDefinition().getVersion()).isEqualTo(definition.getVersion());
-    assertThat(found.getQuestionDefinition().getName()).isEqualTo(definition.getName());
-    assertThat(found.getQuestionDefinition().getPath()).isEqualTo(definition.getPath());
-    assertThat(found.getQuestionDefinition().getDescription())
-        .isEqualTo(definition.getDescription());
-    assertThat(found.getQuestionDefinition().getQuestionText())
-        .isEqualTo(definition.getQuestionText());
-    assertThat(found.getQuestionDefinition().getQuestionHelpText())
-        .isEqualTo(definition.getQuestionHelpText());
+    assertThat(found.getQuestionDefinition().getId()).isEqualTo(1L);
+    assertThat(found.getQuestionDefinition().getVersion()).isEqualTo(1L);
+    assertThat(found.getQuestionDefinition().getName()).isEqualTo("test");
+    assertThat(found.getQuestionDefinition().getPath()).isEqualTo("my.path");
+    assertThat(found.getQuestionDefinition().getDescription()).isEqualTo("");
+    assertThat(found.getQuestionDefinition().getQuestionText()).isEqualTo(ImmutableMap.of());
+    assertThat(found.getQuestionDefinition().getQuestionHelpText()).isEqualTo(Optional.empty());
   }
 
   @Test
@@ -54,8 +51,8 @@ public class QuestionTest extends WithResettingPostgresContainer {
     Question found = repo.lookupQuestion(definition.getId()).toCompletableFuture().join().get();
 
     assertThat(found.getQuestionDefinition().getQuestionText())
-        .isEqualTo(definition.getQuestionText());
+        .isEqualTo(ImmutableMap.of(Locale.ENGLISH, "hello"));
     assertThat(found.getQuestionDefinition().getQuestionHelpText())
-        .isEqualTo(definition.getQuestionHelpText());
+        .hasValue(ImmutableMap.of(Locale.ENGLISH, "help"));
   }
 }

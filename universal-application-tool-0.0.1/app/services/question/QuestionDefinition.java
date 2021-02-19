@@ -34,7 +34,7 @@ public class QuestionDefinition {
     this.path = checkNotNull(path);
     this.description = checkNotNull(description);
     this.questionText = checkNotNull(questionText);
-    this.questionHelpText = questionHelpText;
+    this.questionHelpText = checkNotNull(questionHelpText);
   }
 
   /** Get the unique identifier for this question. */
