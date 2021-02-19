@@ -34,7 +34,7 @@ public class QuestionDefinition {
     this.path = checkNotNull(path);
     this.description = checkNotNull(description);
     this.questionText = checkNotNull(questionText);
-    this.questionHelpText = questionHelpText;
+    this.questionHelpText = checkNotNull(questionHelpText);
   }
 
   /** Get the unique identifier for this question. */
@@ -94,6 +94,11 @@ public class QuestionDefinition {
     }
 
     throw new TranslationNotFoundException(this.getPath(), locale);
+  }
+
+  /** Get the question help text for all locales. This is used for serialization. */
+  public Optional<ImmutableMap<Locale, String>> getQuestionHelpText() {
+    return this.questionHelpText;
   }
 
   /** Get the type of this question. */
