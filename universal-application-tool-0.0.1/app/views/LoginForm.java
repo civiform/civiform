@@ -21,7 +21,7 @@ public class LoginForm extends BaseHtmlView {
     return layout.htmlContent(
         body(
             h1("Error: You are not logged in")
-                .withCondHidden(request.queryString("message").equals("login")),
+                .withCondHidden(!request.queryString("message").orElse("").equals("login")),
             h1("Log In"),
             form(
                     makeCsrfTokenInputTag(request),

@@ -25,6 +25,11 @@ POST    /demo                       controllers.J2HtmlDemoController.create(requ
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(file)
 
+
+# User profile pages
+GET     /users/me                    controllers.ProfileController.myProfile(request: Request)
+GET     /users/:id                   controllers.ProfileController.profilePage(request: Request, id: Long)
+
 # Authentication callback from federated auth server
 GET     /callback                    @org.pac4j.play.CallbackController.callback(request: Request)
 POST    /callback                    @org.pac4j.play.CallbackController.callback(request: Request)
@@ -34,4 +39,3 @@ GET     /loginForm                   controllers.HomeController.loginForm(reques
 
 # Log out of application
 GET     /logout                      @org.pac4j.play.LogoutController.logout(request: Request)
-GET     /whoami                      controllers.ProfileController.profilePage(request: Request)

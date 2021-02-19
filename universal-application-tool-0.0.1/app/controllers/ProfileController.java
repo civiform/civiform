@@ -19,9 +19,15 @@ public class ProfileController extends Controller {
     this.profileView = profileView;
   }
 
-  public Result profilePage(Http.Request request) {
+  public Result myProfile(Http.Request request) {
+    // Fetch the current profile from the session cookie, which the ProfileManager
+    // will fetch from the request's cookies, using the session store to decrypt it.
     PlayWebContext webContext = new PlayWebContext(request);
     ProfileManager profileManager = new ProfileManager(webContext, sessionStore);
     return ok(profileView.render(profileManager.getProfile()));
+  }
+
+  public Result profilePage(Http.Request request, Long id) {
+    throw new UnsupportedOperationException("Not implemented yet.");
   }
 }

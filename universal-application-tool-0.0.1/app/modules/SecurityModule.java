@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import java.util.Random;
 import org.pac4j.core.authorization.authorizer.RequireAllRolesAuthorizer;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
@@ -56,12 +57,31 @@ public class SecurityModule extends AbstractModule {
     logoutController.setDestroySession(true);
     bind(LogoutController.class).toInstance(logoutController);
 
-    // add a good comment here about this dumb garbage
+    // This is a weird one.  :)  The cookie session store refuses to serialize any
+    // classes it doesn't explicitly trust.  A bug in pac4j interacts badly with
+    // sbt's autoreload, so we have a little workaround here.  configure() gets called on every
+    // startup,
+    // but the JAVA_SERIALIZER object is only initialized on initial startup.
+    // So, on a second startup, we'll add the UATProfile a second time.  The
+    // trusted classes set should dedupe UATProfile against the old UATProfile,
+    // but it's technically a different class with the same name at that point,
+    // which triggers the bug.  So, we just clear the classes, which will be empty
+    // on first startup and will contain the profile on subsequent startups,
+    // so that it's always safe to add the profile.
+    // We will need to do this for every class we want to store in the cookie.
     PlayCookieSessionStore.JAVA_SERIALIZER.clearTrustedClasses();
     PlayCookieSessionStore.JAVA_SERIALIZER.addTrustedClass(UATProfile.class);
+
+    // We need to use the secret key to generate the encrypter / decrypter for the
+    // session store, so that cookies from version n of the application can be
+    // read by version n + 1.  This is especially important for dev, otherwise
+    // we're going to spend a lot of time deleting cookies.
+    Random r = new Random();
+    r.setSeed(this.configuration.getString("play.http.secret.key").hashCode());
+    byte[] aesKey = new byte[32];
+    r.nextBytes(aesKey);
     PlayCookieSessionStore sessionStore =
-        new PlayCookieSessionStore(
-            new ShiroAesDataEncrypter("devkeydevkeydevkeydevkeydevkeyde".getBytes()));
+        new PlayCookieSessionStore(new ShiroAesDataEncrypter(aesKey));
     bind(SessionStore.class).toInstance(sessionStore);
   }
 
