@@ -26,6 +26,19 @@ Resources:
                 - :root
           Action: kms:*
           Resource: '*'
+        - Sid: Enable UAT Server Permissions
+          Effect: Allow
+          Principal:
+            AWS: arn:aws:iam::405662711265:role/AmazonECSTaskS3BucketRole
+          Action:
+            - kms:Encrypt
+            - kms:Decrypt
+            - kms:ReEncryptFrom
+            - kms:ReEncryptTo
+            - kms:GenerateDataKey
+            - kms:GenerateDataKeyWithoutPlaintext
+            - kms:DescribeKey
+          Resource: '*'
   bucket:
     Type: 'AWS::S3::Bucket'
     Properties:
