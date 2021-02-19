@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import models.Program;
 import org.junit.Test;
 
-public class ProgramRepositoryTest extends WithResettingPostgresContainer {
+public class ProgramRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void createProgram() {
