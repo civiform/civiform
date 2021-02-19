@@ -1,13 +1,11 @@
 package views;
 
-import j2html.tags.DomContent;
-import play.twirl.api.Content;
-
-import javax.inject.Inject;
-
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.body;
-import static j2html.TagCreator.head;
+import static j2html.TagCreator.*;
+
+import j2html.tags.DomContent;
+import javax.inject.Inject;
+import play.twirl.api.Content;
 
 public class ApplicantLayout extends BaseHtmlLayout {
   private final ViewUtils viewUtils;
@@ -19,11 +17,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   protected Content render(DomContent... domContents) {
-    return htmlContent(head(viewUtils.makeLocalCssTag("common")), body(domContents));
+    return htmlContent(head(viewUtils.makeLocalCssTag("common")), body(main(domContents)));
   }
 }
-
-// TODO(natsid):
-// Create BaseHtmlLayout class that has htmlContent method.
-// Layout classes will extend BaseHtmlLayout.
-// Other view classes will inject their necessary layout classes and extend BaseHtmlView.

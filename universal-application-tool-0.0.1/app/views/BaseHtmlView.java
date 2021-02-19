@@ -1,19 +1,12 @@
 package views;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.document;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.text;
 
-import j2html.tags.ContainerTag;
-import j2html.tags.DomContent;
 import j2html.tags.Tag;
 import play.mvc.Http;
-import play.twirl.api.Content;
 import views.html.helper.CSRF;
-
-import javax.inject.Inject;
 
 /** Base class for all HTML views. Provides stateless convenience methods for generating HTML. */
 abstract class BaseHtmlView {

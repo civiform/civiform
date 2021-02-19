@@ -1,12 +1,12 @@
 package views;
 
+import static j2html.TagCreator.div;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Before;
 import org.junit.Test;
 import play.twirl.api.Content;
 import repository.WithPostgresContainer;
-
-import static j2html.TagCreator.div;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class BaseHtmlLayoutTest extends WithPostgresContainer {
 

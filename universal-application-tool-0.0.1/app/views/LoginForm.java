@@ -4,7 +4,6 @@ import static j2html.TagCreator.body;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 
-import akka.parboiled2.RuleTrace;
 import com.google.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;

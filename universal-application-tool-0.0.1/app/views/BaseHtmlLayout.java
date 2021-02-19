@@ -1,13 +1,12 @@
 package views;
 
-import j2html.tags.ContainerTag;
-import j2html.tags.DomContent;
-import play.twirl.api.Content;
-
-import javax.inject.Inject;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.document;
+
+import j2html.tags.ContainerTag;
+import j2html.tags.DomContent;
+import javax.inject.Inject;
+import play.twirl.api.Content;
 
 public class BaseHtmlLayout {
   private final ViewUtils viewUtils;
