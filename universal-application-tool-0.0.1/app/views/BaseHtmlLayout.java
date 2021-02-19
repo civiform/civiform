@@ -15,7 +15,7 @@ import play.twirl.api.Content;
  * <p>A layout class should describe the DOM contents of the head, header, nav, and footer. It
  * should have a `render` method that takes the DOM contents for the main tag.
  */
-public class BaseHtmlLayout {
+public class BaseHtmlLayout extends BaseHtmlView {
   protected final ViewUtils viewUtils;
 
   @Inject
