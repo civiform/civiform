@@ -9,6 +9,12 @@ import j2html.tags.Tag;
 import javax.inject.Inject;
 import play.twirl.api.Content;
 
+/**
+ * Base class for all layout classes.
+ *
+ * <p>A layout class should describe the DOM contents of the head, header, nav, and footer. It
+ * should have a `render` method that takes the DOM contents for the main tag.
+ */
 public class BaseHtmlLayout {
   protected final ViewUtils viewUtils;
 
@@ -22,6 +28,9 @@ public class BaseHtmlLayout {
     return new HtmlResponseContent(domContents);
   }
 
+  /**
+   * Returns a link tag for common CSS that should be included in the head of most other layouts.
+   */
   protected Tag getCommonCssTag() {
     return viewUtils.makeLocalCssTag("common");
   }
