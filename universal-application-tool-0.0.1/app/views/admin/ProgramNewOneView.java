@@ -2,6 +2,7 @@ package views.admin;
 
 import static j2html.TagCreator.*;
 
+import controllers.admin.routes;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
@@ -19,6 +20,6 @@ public final class ProgramNewOneView extends BaseHtmlView {
                         textField("description", "Program Description"),
                         submitButton("Create"))
                     .withMethod("post")
-                    .withAction("/admin/programs"))));
+                    .withAction(controllers.admin.routes.AdminProgramController.index().url()))));
   }
 }

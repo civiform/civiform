@@ -27,20 +27,20 @@ public class AdminProgramControllerTest extends WithResettingPostgresContainer {
   }
 
   @Test
-  public void listWithNoPrograms() {
-    Result result = controller.list();
+  public void index_withNoPrograms() {
+    Result result = controller.index();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
-    assertThat(result.charset()).hasValue("UTF-8; charset=utf-8");
+    assertThat(result.charset()).hasValue("utf-8");
     assertThat(contentAsString(result)).contains("Programs");
   }
 
   @Test
-  public void list_returnsPrograms() {
+  public void index_returnsPrograms() {
     insertProgram("one");
     insertProgram("two");
 
-    Result result = controller.list();
+    Result result = controller.index();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("one");
@@ -67,9 +67,12 @@ public class AdminProgramControllerTest extends WithResettingPostgresContainer {
 
     Result result = controller.create(requestBuilder.build());
 
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("New Program");
-    assertThat(contentAsString(result)).contains("This is a new program");
+    assertThat(result.status()).isEqualTo(FOUND);
+    assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
+
+    Result redirectResult = controller.index();
+    assertThat(contentAsString(redirectResult)).contains("New Program");
+    assertThat(contentAsString(redirectResult)).contains("This is a new program");
   }
 
   @Test
@@ -82,23 +85,17 @@ public class AdminProgramControllerTest extends WithResettingPostgresContainer {
 
     Result result = controller.create(requestBuilder.build());
 
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Existing One");
-    assertThat(contentAsString(result)).contains("New Program");
-    assertThat(contentAsString(result)).contains("This is a new program");
+    assertThat(result.status()).isEqualTo(FOUND);
+    assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
+
+    Result redirectResult = controller.index();
+    assertThat(contentAsString(redirectResult)).contains("Existing One");
+    assertThat(contentAsString(redirectResult)).contains("New Program");
+    assertThat(contentAsString(redirectResult)).contains("This is a new program");
   }
 
   private static void insertProgram(String name) {
     Program program = new Program(name, "description");
     program.save();
-  }
-
-  /**
-   * For our HTTP responses, we set the charset to "UTF-8; charset=utf-8", which is not
-   * understandable to {@code decodeString}. The Play {@link Helpers#contentAsString} tries to use
-   * the entire charset string to decode, which fails.
-   */
-  private static String contentAsString(Result result) {
-    return contentAsBytes(result).decodeString(UTF_8);
   }
 }

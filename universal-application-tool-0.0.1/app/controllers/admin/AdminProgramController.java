@@ -35,7 +35,7 @@ public class AdminProgramController extends Controller {
     this.formFactory = checkNotNull(formFactory);
   }
 
-  public Result list() {
+  public Result index() {
     return ok(listView.render(this.service.listProgramDefinitions()));
   }
 
@@ -48,6 +48,6 @@ public class AdminProgramController extends Controller {
     String name = requestData.get("name");
     String description = requestData.get("description");
     service.createProgramDefinition(name, description);
-    return list();
+    return found(controllers.admin.routes.AdminProgramController.index());
   }
 }

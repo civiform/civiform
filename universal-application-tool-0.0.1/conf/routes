@@ -15,7 +15,7 @@ POST    /postgres                   controllers.PostgresController.create(reques
 POST    /postgresSync               controllers.PostgresController.createSync(request: Request)
 
 # A controller for a page for an admin to create a new application
-GET     /admin/programs             controllers.admin.AdminProgramController.list
+GET     /admin/programs             controllers.admin.AdminProgramController.index
 GET     /admin/programs/new         controllers.admin.AdminProgramController.newOne(request: Request)
 POST    /admin/programs             controllers.admin.AdminProgramController.create(request: Request)
 
