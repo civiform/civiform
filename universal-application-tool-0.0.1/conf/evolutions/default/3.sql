@@ -13,6 +13,7 @@ create table if not exists questions (
   path varchar,
   name varchar,
   description varchar,
+  question_type varchar,
   question_text jsonb,
   question_help_text jsonb
 );
