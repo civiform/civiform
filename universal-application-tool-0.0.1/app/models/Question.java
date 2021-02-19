@@ -3,6 +3,7 @@ package models;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
+import io.ebean.annotation.DbJsonB;
 import java.util.Locale;
 import java.util.Optional;
 import javax.persistence.Entity;
@@ -11,8 +12,6 @@ import javax.persistence.PostPersist;
 import javax.persistence.PostUpdate;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
-
-import io.ebean.annotation.DbJsonB;
 import play.data.validation.Constraints;
 import services.question.QuestionDefinition;
 
@@ -61,7 +60,15 @@ public class Question extends BaseModel {
   @PostPersist
   @PostUpdate
   public void loadQuestionDefinition() {
-    this.questionDefinition = new QuestionDefinition(this.id, this.version, this.name, this.path, this.description, this.questionText, Optional.ofNullable(this.questionHelpText));
+    this.questionDefinition =
+        new QuestionDefinition(
+            this.id,
+            this.version,
+            this.name,
+            this.path,
+            this.description,
+            this.questionText,
+            Optional.ofNullable(this.questionHelpText));
   }
 
   public QuestionDefinition getQuestionDefinition() {
