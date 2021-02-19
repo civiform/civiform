@@ -21,7 +21,8 @@ public class BaseHtmlViewTest {
 
     assertThat(result.render())
         .isEqualTo(
-            "<label for=\"fieldName\">label text<input type=\"text\" name=\"fieldName\"></label>");
+            "<label for=\"fieldName\">label text<input type=\"text\" name=\"fieldName\">"
+                + "</label>");
   }
 
   @Test
