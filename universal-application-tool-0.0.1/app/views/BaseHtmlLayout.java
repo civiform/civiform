@@ -24,7 +24,7 @@ public class BaseHtmlLayout {
   }
 
   /** Returns HTTP content of type "text/html". */
-  protected Content htmlContent(DomContent... domContents) {
+  public Content htmlContent(DomContent... domContents) {
     return new HtmlResponseContent(domContents);
   }
 

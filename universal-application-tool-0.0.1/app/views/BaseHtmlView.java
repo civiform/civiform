@@ -14,7 +14,7 @@ import views.html.helper.CSRF;
  * <p>All derived view classes should inject the layout class(es) in whose context they'll be
  * rendered.
  */
-abstract class BaseHtmlView {
+public abstract class BaseHtmlView {
 
   protected Tag textField(String fieldName, String labelText) {
     return label(text(labelText), input().withType("text").withName(fieldName))
