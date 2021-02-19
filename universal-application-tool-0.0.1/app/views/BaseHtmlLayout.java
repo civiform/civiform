@@ -5,11 +5,12 @@ import static j2html.TagCreator.document;
 
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.Tag;
 import javax.inject.Inject;
 import play.twirl.api.Content;
 
 public class BaseHtmlLayout {
-  private final ViewUtils viewUtils;
+  protected final ViewUtils viewUtils;
 
   @Inject
   public BaseHtmlLayout(ViewUtils viewUtils) {
@@ -19,6 +20,10 @@ public class BaseHtmlLayout {
   /** Returns HTTP content of type "text/html". */
   protected Content htmlContent(DomContent... domContents) {
     return new HtmlResponseContent(domContents);
+  }
+
+  protected Tag getCommonCssTag() {
+    return viewUtils.makeLocalCssTag("common");
   }
 
   protected static class HtmlResponseContent implements Content {
