@@ -73,6 +73,8 @@ public abstract class BaseHtmlView {
     }
 
     @Override
-    public String contentType() { return "text/html"; }
+    public String contentType() {
+      return "text/html";
+    }
   }
 }

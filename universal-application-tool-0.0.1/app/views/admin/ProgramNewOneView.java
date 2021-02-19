@@ -2,7 +2,6 @@ package views.admin;
 
 import static j2html.TagCreator.*;
 
-import controllers.admin.routes;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import views.BaseHtmlView;

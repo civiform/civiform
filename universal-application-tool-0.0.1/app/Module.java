@@ -1,8 +1,8 @@
 import com.google.inject.AbstractModule;
 import java.time.Clock;
+import repository.AmazonS3Client;
 import services.program.ProgramService;
 import services.program.ProgramServiceImpl;
-import repository.AmazonS3Client;
 
 /**
  * This class is a Guice module that tells Guice how to bind several different types. This Guice

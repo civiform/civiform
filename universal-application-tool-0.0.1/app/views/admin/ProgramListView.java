@@ -11,7 +11,6 @@ import static j2html.TagCreator.p;
 import static j2html.attributes.Attr.FORMACTION;
 
 import com.google.common.collect.ImmutableList;
-import controllers.admin.routes;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
@@ -22,7 +21,11 @@ public final class ProgramListView extends BaseHtmlView {
     return htmlContent(
         body(
             h1("Programs"),
-            div(form(button("Add a Program").attr(FORMACTION, controllers.admin.routes.AdminProgramController.newOne()))),
+            div(
+                form(
+                    button("Add a Program")
+                        .attr(
+                            FORMACTION, controllers.admin.routes.AdminProgramController.newOne()))),
             div(each(programs, program -> div(h2(program.name()), p(program.description()))))));
   }
 }
