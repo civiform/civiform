@@ -14,7 +14,7 @@ import play.twirl.api.Content;
 import views.html.helper.CSRF;
 
 /** Base class for all HTML views. Provides stateless convenience methods for generating HTML. */
-abstract class BaseHtmlView {
+public abstract class BaseHtmlView {
 
   protected Content htmlContent(DomContent... domContents) {
     return new HtmlResponseContent(domContents);
@@ -52,7 +52,7 @@ abstract class BaseHtmlView {
    * Generates a hidden HTML input tag containing a signed CSRF token. The token and tag must be
    * present in all UAT forms.
    */
-  Tag makeCsrfTokenInputTag(Http.Request request) {
+  protected Tag makeCsrfTokenInputTag(Http.Request request) {
     return input().isHidden().withValue(getCsrfToken(request)).withName("csrfToken");
   }
 
@@ -74,7 +74,7 @@ abstract class BaseHtmlView {
 
     @Override
     public String contentType() {
-      return "text/html; charset=UTF-8";
+      return "text/html";
     }
   }
 }
