@@ -19,6 +19,6 @@ public class HomeControllerTest extends WithApplication {
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
     Result result = route(app, request);
     assertThat(result.status()).isNotEqualTo(HttpConstants.OK);
-    assertThat(result.status()).isEqualTo(HttpConstants.UNAUTHORIZED);
+    assertThat(result.redirectLocation()).contains("/loginForm?message=login");
   }
 }
