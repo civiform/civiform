@@ -41,6 +41,6 @@ public class ViewUtilsTest {
     Tag result = viewUtils.makeLocalCssTag("hello");
 
     assertThat(result.render())
-        .isEqualTo("<link href=\"/full/asset/path.css\" rel=\"stylesheets\">");
+        .isEqualTo("<link href=\"/full/asset/path.css\" rel=\"stylesheet\">");
   }
 }

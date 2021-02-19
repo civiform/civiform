@@ -33,6 +33,6 @@ final class ViewUtils {
   Tag makeLocalCssTag(String filename) {
     return link()
         .withHref(assetsFinder.path("stylesheets/" + filename + ".css"))
-        .withRel("stylesheets");
+        .withRel("stylesheet");
   }
 }
