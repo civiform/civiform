@@ -34,4 +34,13 @@ public class ViewUtilsTest {
     assertThat(result.render())
         .isEqualTo("<script src=\"/full/asset/path.js\" type=\"text/javascript\"></script>");
   }
+
+  @Test
+  public void makeLocalCssTag_createsALinkTagWithTheCss() {
+    when(assetsFinder.path("stylesheets/hello.css")).thenReturn("/full/asset/path.css");
+    Tag result = viewUtils.makeLocalCssTag("hello");
+
+    assertThat(result.render())
+        .isEqualTo("<link href=\"/full/asset/path.css\" rel=\"stylesheet\">");
+  }
 }
