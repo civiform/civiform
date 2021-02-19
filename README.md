@@ -134,6 +134,8 @@ For Java, classes generally have their own unit tests. The unit test file should
 
 All major user-facing features should be covered by a functional browser test.
 
+Tests that require a play application should either use `extends play.test.WithApplication` or `extends repository.WithPostgresContainer`, opting for the latter if a database is required. By default, using `extends play.test.WithApplication` will produce an application with a binding to an in-memory postgres database that is incompatible with everything and is pretty much useless.
+
 #### Controller tests
 
 Controller tests should test the integration of business logic behind each HTTP endpoint. Most controller tests should likely extend `WithResettingPostgresContainer` which provides a real database. Controllers should contain very little if any conditional logic and delegate business logic and network interactions (database, auth service, file services, etc) to service classes.

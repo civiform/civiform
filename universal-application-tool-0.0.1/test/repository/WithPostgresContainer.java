@@ -37,6 +37,8 @@ public class WithPostgresContainer extends WithApplication {
              * ///: hostless URI scheme - anything here would be ignored
              * databasename: the name of the db to connect to - any string is okay.
              */
-            "jdbc:tc:postgresql:12.5:///databasename"));
+            "jdbc:tc:postgresql:12.5:///databasename",
+            "play.evolutions.db.default.enabled ",
+            "true"));
   }
 }

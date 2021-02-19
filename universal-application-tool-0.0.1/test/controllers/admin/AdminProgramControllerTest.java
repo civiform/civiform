@@ -14,10 +14,10 @@ import play.mvc.Http.Request;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import play.test.Helpers;
-import repository.WithResettingPostgresContainer;
+import repository.WithPostgresContainer;
 import views.html.helper.CSRF;
 
-public class AdminProgramControllerTest extends WithResettingPostgresContainer {
+public class AdminProgramControllerTest extends WithPostgresContainer {
 
   private AdminProgramController controller;
 

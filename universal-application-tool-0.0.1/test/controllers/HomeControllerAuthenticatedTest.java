@@ -5,7 +5,6 @@ import static play.api.test.Helpers.testServerPort;
 import static play.test.Helpers.*;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,22 +16,11 @@ import org.pac4j.core.config.Config;
 import org.pac4j.core.context.HttpConstants;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.engine.DefaultSecurityLogic;
-import play.Application;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.WithApplication;
 
 public class HomeControllerAuthenticatedTest extends WithApplication {
-
-  // Should be no need for a database here.
-  protected Application provideApplication() {
-    ImmutableMap<String, String> args =
-        new ImmutableMap.Builder<String, String>()
-            .putAll(inMemoryDatabase("default", ImmutableMap.of("MODE", "PostgreSQL")))
-            .put("play.evolutions.db.default.enabled", "false")
-            .build();
-    return fakeApplication(args);
-  }
 
   @Before
   public void setUp() {
