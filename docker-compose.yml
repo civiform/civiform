@@ -19,6 +19,12 @@ services:
       - "db:database"
     ports:
       - 9000:9000
+    environment:
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+      - AWS_S3_REGION
+      - AWS_S3_BUCKET_NAME
     build: .
     volumes:
       - ./universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1
