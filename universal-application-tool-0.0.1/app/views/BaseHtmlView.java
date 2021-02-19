@@ -8,7 +8,11 @@ import j2html.tags.Tag;
 import play.mvc.Http;
 import views.html.helper.CSRF;
 
-/** Base class for all HTML views. Provides stateless convenience methods for generating HTML. */
+/**
+ * Base class for all HTML views. Provides stateless convenience methods for generating HTML.
+ *
+ * All derived view classes should inject the layout class(es) in whose context they'll be rendered.
+ */
 abstract class BaseHtmlView {
 
   protected Tag textField(String fieldName, String labelText) {
