@@ -13,6 +13,12 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/network.yaml'
+  Filestore:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/filestorage.yaml'
+      Parameters:
+        S3VPCEndpoint: !GetAtt 'VPC.Outputs.S3Endpoint'
   Secrets:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -56,6 +62,7 @@ Resources:
         PrivateSubnet2: !GetAtt 'VPC.Outputs.PrivateSubnet2'
         LBTargetName: !GetAtt 'LB.Outputs.LBTarget'
         ContainerSecurityGroup: !GetAtt 'SecurityGroups.Outputs.ContainerGroup'
+        S3BucketName: !GetAtt 'Filestore.Outputs.bucketname'
   Monitoring:
     Type: AWS::CloudFormation::Stack
     Properties:

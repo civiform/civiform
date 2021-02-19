@@ -8,13 +8,13 @@ import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
 import repository.ProgramRepository;
-import repository.WithResettingPostgresContainer;
+import repository.WithPostgresContainer;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.QuestionDefinition;
 import services.question.TranslationNotFoundException;
 
-public class ProgramTest extends WithResettingPostgresContainer {
+public class ProgramTest extends WithPostgresContainer {
 
   @Test
   public void canSaveProgram() {

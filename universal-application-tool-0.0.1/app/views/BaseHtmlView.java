@@ -14,7 +14,7 @@ import play.twirl.api.Content;
 import views.html.helper.CSRF;
 
 /** Base class for all HTML views. Provides stateless convenience methods for generating HTML. */
-abstract class BaseHtmlView {
+public abstract class BaseHtmlView {
 
   protected Content htmlContent(DomContent... domContents) {
     return new HtmlResponseContent(domContents);
@@ -22,6 +22,16 @@ abstract class BaseHtmlView {
 
   protected Tag textField(String fieldName, String labelText) {
     return label(text(labelText), input().withType("text").withName(fieldName))
+        .attr("for", fieldName);
+  }
+
+  protected Tag textField(String id, String fieldName, String labelText) {
+    return label(text(labelText), input().withType("text").withName(fieldName).withId(id))
+        .attr("for", fieldName);
+  }
+
+  protected Tag passwordField(String id, String fieldName, String labelText) {
+    return label(text(labelText), input().withType("password").withName(fieldName).withId(id))
         .attr("for", fieldName);
   }
 
@@ -34,11 +44,15 @@ abstract class BaseHtmlView {
     return input().withType("submit").withValue(textContents);
   }
 
+  protected Tag submitButton(String id, String textContents) {
+    return input().withType("submit").withId(id).withValue(textContents);
+  }
+
   /**
    * Generates a hidden HTML input tag containing a signed CSRF token. The token and tag must be
    * present in all UAT forms.
    */
-  Tag makeCsrfTokenInputTag(Http.Request request) {
+  protected Tag makeCsrfTokenInputTag(Http.Request request) {
     return input().isHidden().withValue(getCsrfToken(request)).withName("csrfToken");
   }
 
@@ -60,7 +74,7 @@ abstract class BaseHtmlView {
 
     @Override
     public String contentType() {
-      return "text/html; charset=UTF-8";
+      return "text/html";
     }
   }
 }
