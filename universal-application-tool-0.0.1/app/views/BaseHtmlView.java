@@ -41,6 +41,10 @@ public abstract class BaseHtmlView {
     return TagCreator.button(text(text)).withId(id).withType("button");
   }
 
+  protected Tag button(String text) {
+    return TagCreator.button(text(text)).withType("button");
+  }
+
   protected Tag submitButton(String textContents) {
     return input().withType("submit").withValue(textContents);
   }

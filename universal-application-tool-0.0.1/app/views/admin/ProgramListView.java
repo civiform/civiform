@@ -1,7 +1,6 @@
 package views.admin;
 
 import static j2html.TagCreator.body;
-import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
