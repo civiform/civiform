@@ -2,6 +2,7 @@ package repository;
 
 import static play.test.Helpers.fakeApplication;
 
+import akka.stream.Materializer;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
@@ -9,12 +10,37 @@ import models.Applicant;
 import models.Person;
 import models.Program;
 import models.Question;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import play.Application;
 import play.db.ebean.EbeanConfig;
-import play.test.WithApplication;
+import play.test.Helpers;
 
-public class WithPostgresContainer extends WithApplication {
+public class WithPostgresContainer {
+
+  static protected Application app;
+
+  static protected Materializer mat;
+
+  protected <T> T instanceOf(Class<T> clazz) {
+    return app.injector().instanceOf(clazz);
+  }
+
+  @BeforeClass
+  static public void startPlay() {
+    app = provideApplication();
+    Helpers.start(app);
+    mat = app.asScala().materializer();
+  }
+
+  @AfterClass
+  static public void stopPlay() {
+    if (app != null) {
+      Helpers.stop(app);
+      app = null;
+    }
+  }
 
   @Before
   public void truncateTables() {
@@ -23,7 +49,7 @@ public class WithPostgresContainer extends WithApplication {
     server.truncate(Applicant.class, Person.class, Program.class, Question.class);
   }
 
-  protected Application provideApplication() {
+  static protected Application provideApplication() {
     return fakeApplication(
         ImmutableMap.of(
             "db.default.driver",
