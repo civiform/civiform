@@ -4,29 +4,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.Helpers.testServerPort;
 import static play.test.Helpers.*;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.client.direct.AnonymousClient;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.HttpConstants;
-import play.Application;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.WithApplication;
 
 public class HomeControllerAuthenticatedTest extends WithApplication {
-
-  // Should be no need for a database here.
-  protected Application provideApplication() {
-    ImmutableMap<String, String> args =
-        new ImmutableMap.Builder<String, String>()
-            .putAll(inMemoryDatabase("default", ImmutableMap.of("MODE", "PostgreSQL")))
-            .put("play.evolutions.db.default.enabled", "false")
-            .build();
-    return fakeApplication(args);
-  }
 
   @Before
   public void setUp() {

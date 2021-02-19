@@ -10,10 +10,10 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import org.junit.Before;
 import org.junit.Test;
-import repository.WithTruncatingTables;
+import repository.WithPostgresContainer;
 import services.question.QuestionDefinition;
 
-public class ProgramServiceImplTest extends WithTruncatingTables {
+public class ProgramServiceImplTest extends WithPostgresContainer {
 
   ProgramServiceImpl ps;
 

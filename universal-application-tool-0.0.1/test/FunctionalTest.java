@@ -14,14 +14,14 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.twirl.api.Content;
 import repository.PersonRepository;
-import repository.WithTruncatingTables;
+import repository.WithPostgresContainer;
 
 /**
  * A functional test starts a Play application for every test.
  *
  * <p>https://www.playframework.com/documentation/latest/JavaFunctionalTest
  */
-public class FunctionalTest extends WithTruncatingTables {
+public class FunctionalTest extends WithPostgresContainer {
 
   @Test
   public void renderTemplate() {

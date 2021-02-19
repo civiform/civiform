@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import models.Applicant;
 import org.junit.Test;
 
-public class ApplicantRepositoryTest extends WithTruncatingTables {
+public class ApplicantRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void createApplicant() {

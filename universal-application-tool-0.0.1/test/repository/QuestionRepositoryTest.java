@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import models.Question;
 import org.junit.Test;
 
-public class QuestionRepositoryTest extends WithTruncatingTables {
+public class QuestionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void createQuestion() {

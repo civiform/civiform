@@ -134,6 +134,8 @@ For Java, each class should have its own unit tests. The unit test file should m
 
 All major user-facing features should be covered by a functional browser test.
 
+Tests that require a play application should either use `extends play.test.WithApplication` or `extends repository.WithPostgresContainer`, opting for the latter if a database is required. By default, using `extends play.test.WithApplication` will produce an application with a binding to an in-memory postgres database that is incompatible with everything and is pretty much useless.
+
 
 # Production
 
