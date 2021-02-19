@@ -6,6 +6,8 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 
 import com.google.inject.Inject;
+import controllers.routes;
+import java.util.Optional;
 import play.mvc.Http;
 import play.twirl.api.Content;
 
@@ -17,11 +19,10 @@ public class LoginForm extends BaseHtmlView {
     this.layout = checkNotNull(layout);
   }
 
-  public Content render(Http.Request request) {
+  public Content render(Http.Request request, Optional<String> message) {
     return layout.htmlContent(
         body(
-            h1("Error: You are not logged in")
-                .withCondHidden(!request.queryString("message").orElse("").equals("login")),
+            h1("Error: You are not logged in").withCondHidden(!message.orElse("").equals("login")),
             h1("Log In"),
             form(
                     makeCsrfTokenInputTag(request),
@@ -29,9 +30,9 @@ public class LoginForm extends BaseHtmlView {
                     passwordField("pwd", "password", "Password"),
                     submitButton("login", "Submit"))
                 .withMethod("POST")
-                .withAction("/callback?client_name=FormClient"),
+                .withAction(routes.CallbackController.callback("FormClient").url()),
             h1("Or, continue as guest."),
-            button("guest", "continue")
-                .attr("onclick", "window.location = '/callback?client_name=GuestClient';")));
+            redirectButton(
+                "guest", "Continue", routes.CallbackController.callback("GuestClient").url())));
   }
 }

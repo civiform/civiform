@@ -5,8 +5,10 @@ import static j2html.TagCreator.label;
 import static j2html.TagCreator.text;
 
 import j2html.TagCreator;
+import j2html.tags.DomContent;
 import j2html.tags.Tag;
 import play.mvc.Http;
+import play.twirl.api.Content;
 import views.html.helper.CSRF;
 
 /**
@@ -16,6 +18,10 @@ import views.html.helper.CSRF;
  * rendered.
  */
 public abstract class BaseHtmlView {
+
+  protected Content htmlContent(DomContent... domContents) {
+    return new BaseHtmlLayout.HtmlResponseContent(domContents);
+  }
 
   protected Tag textField(String fieldName, String labelText) {
     return label(text(labelText), input().withType("text").withName(fieldName))
@@ -38,11 +44,15 @@ public abstract class BaseHtmlView {
   }
 
   protected Tag button(String id, String text) {
-    return TagCreator.button(text(text)).withId(id).withType("button");
+    return button(text).withId(id);
   }
 
   protected Tag button(String text) {
     return TagCreator.button(text(text)).withType("button");
+  }
+
+  protected Tag redirectButton(String id, String text, String redirectUrl) {
+    return button(id, text).attr("onclick", String.format("window.location = '%s';", redirectUrl));
   }
 
   protected Tag submitButton(String textContents) {

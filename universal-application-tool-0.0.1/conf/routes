@@ -31,11 +31,11 @@ GET     /users/me                    controllers.ProfileController.myProfile(req
 GET     /users/:id                   controllers.ProfileController.profilePage(request: Request, id: Long)
 
 # Authentication callback from federated auth server
-GET     /callback                    @org.pac4j.play.CallbackController.callback(request: Request)
-POST    /callback                    @org.pac4j.play.CallbackController.callback(request: Request)
+GET     /callback                    controllers.CallbackController.callback(request: Request, client_name: String)
+POST    /callback                    controllers.CallbackController.callback(request: Request, client_name: String)
 
 # Log into application
-GET     /loginForm                   controllers.HomeController.loginForm(request: Request)
+GET     /loginForm                   controllers.HomeController.loginForm(request: Request, message: java.util.Optional[String])
 
 # Log out of application
 GET     /logout                      @org.pac4j.play.LogoutController.logout(request: Request)

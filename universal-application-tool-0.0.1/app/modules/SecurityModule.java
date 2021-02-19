@@ -10,6 +10,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import controllers.routes;
+import java.util.Optional;
 import java.util.Random;
 import org.pac4j.core.authorization.authorizer.RequireAllRolesAuthorizer;
 import org.pac4j.core.client.Clients;
@@ -45,13 +47,13 @@ public class SecurityModule extends AbstractModule {
   protected void configure() {
     // After logging in you are redirected to '/', and auth autorenews.
     CallbackController callbackController = new CallbackController();
-    callbackController.setDefaultUrl("/");
+    callbackController.setDefaultUrl(routes.HomeController.index().url());
     callbackController.setRenewSession(true);
     bind(CallbackController.class).toInstance(callbackController);
 
     // you can logout by hitting the logout endpoint, you'll be redirected to root page.
     LogoutController logoutController = new LogoutController();
-    logoutController.setDefaultUrl("/");
+    logoutController.setDefaultUrl(routes.HomeController.index().url());
     logoutController.setDestroySession(true);
     bind(LogoutController.class).toInstance(logoutController);
 
@@ -93,7 +95,9 @@ public class SecurityModule extends AbstractModule {
   @Singleton
   protected FormClient provideFormClient() {
     // This must match the line in `routes`.
-    return new FormClient(baseUrl + "/loginForm", new SimpleTestUsernamePasswordAuthenticator());
+    return new FormClient(
+        baseUrl + routes.HomeController.loginForm(Optional.empty()),
+        new SimpleTestUsernamePasswordAuthenticator());
   }
 
   @Provides
@@ -106,14 +110,14 @@ public class SecurityModule extends AbstractModule {
   @Singleton
   protected Config provideConfig(GuestClient guestClient, FormClient formClient) {
     // This must match the line in `routes` also.
-    Clients clients = new Clients(baseUrl + "/callback");
+    Clients clients = new Clients(baseUrl + routes.CallbackController.callback("FormClient"));
     clients.setClients(guestClient, formClient);
     PlayHttpActionAdapter.INSTANCE
         .getResults()
         .putAll(
             ImmutableMap.of(
                 HttpConstants.UNAUTHORIZED,
-                redirect("/loginForm?message=login"),
+                redirect(routes.HomeController.loginForm(Optional.of("login"))),
                 HttpConstants.FORBIDDEN,
                 forbidden("403 forbidden").as(HttpConstants.HTML_CONTENT_TYPE)));
     Config config = new Config();
