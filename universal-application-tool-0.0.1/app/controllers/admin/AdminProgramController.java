@@ -9,8 +9,10 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.program.ProgramDefinition;
 import services.program.ProgramService;
-import views.admin.ProgramListView;
+import views.admin.ProgramEditView;
+import views.admin.ProgramIndexView;
 import views.admin.ProgramNewOneView;
 
 /**
@@ -20,19 +22,22 @@ import views.admin.ProgramNewOneView;
 public class AdminProgramController extends Controller {
 
   private final ProgramService service;
-  private final ProgramListView listView;
+  private final ProgramIndexView listView;
   private final ProgramNewOneView newOneView;
+  private final ProgramEditView editView;
   private final FormFactory formFactory;
 
   @Inject
   public AdminProgramController(
       ProgramService service,
-      ProgramListView listView,
+      ProgramIndexView listView,
       ProgramNewOneView newOneView,
+      ProgramEditView editView,
       FormFactory formFactory) {
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);
     this.newOneView = checkNotNull(newOneView);
+    this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
   }
 
@@ -48,6 +53,21 @@ public class AdminProgramController extends Controller {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm program = programForm.bindFromRequest(request).get();
     service.createProgramDefinition(program.getName(), program.getDescription());
-    return found(controllers.admin.routes.AdminProgramController.index());
+    return found(routes.AdminProgramController.index());
+  }
+
+  public Result edit(Request request, long id) {
+    return ok(editView.render(request, service.getProgramDefinition(id).orElseThrow()));
+  }
+
+  public Result update(Request request, long id) {
+    Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
+    ProgramForm program = programForm.bindFromRequest(request).get();
+    ProgramDefinition updatedProgram =
+        service.getProgramDefinition(id).orElseThrow().toBuilder()
+            .setName(program.getName())
+            .setDescription(program.getDescription())
+            .build();
+    return found(routes.AdminProgramController.index());
   }
 }
