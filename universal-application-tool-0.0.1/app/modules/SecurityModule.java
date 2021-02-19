@@ -22,7 +22,9 @@ import org.pac4j.play.CallbackController;
 import org.pac4j.play.LogoutController;
 import org.pac4j.play.http.PlayHttpActionAdapter;
 import org.pac4j.play.store.PlayCookieSessionStore;
+import org.pac4j.play.store.ShiroAesDataEncrypter;
 import play.Environment;
+import play.api.Play;
 
 public class SecurityModule extends AbstractModule {
 
@@ -54,8 +56,13 @@ public class SecurityModule extends AbstractModule {
     logoutController.setDestroySession(true);
     bind(LogoutController.class).toInstance(logoutController);
 
+    // add a good comment here about this dumb garbage
+    PlayCookieSessionStore.JAVA_SERIALIZER.clearTrustedClasses();
     PlayCookieSessionStore.JAVA_SERIALIZER.addTrustedClass(UATProfile.class);
-    bind(SessionStore.class).to(PlayCookieSessionStore.class);
+    PlayCookieSessionStore sessionStore =
+        new PlayCookieSessionStore(
+            new ShiroAesDataEncrypter("devkeydevkeydevkeydevkeydevkeyde".getBytes()));
+    bind(SessionStore.class).toInstance(sessionStore);
   }
 
   @Provides
