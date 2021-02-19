@@ -48,5 +48,21 @@ public class BrowserTest extends WithBrowser {
     assertTrue(browser.pageSource().contains("Your new application is ready."));
     browser.goTo(baseUrl + "/secure");
     assertTrue(browser.pageSource().contains("You are logged in."));
+    browser.goTo(baseUrl + "/users/me");
+    assertTrue(browser.pageSource().contains("FormClient"));
+  }
+
+  @Test
+  public void noCredLogin() {
+    String baseUrl = "http://localhost:" + play.api.test.Helpers.testServerPort();
+    browser.goTo(baseUrl + "/loginForm");
+    browser.$("#guest").click();
+    // should be redirected to root.
+    assertEquals("", browser.url());
+    assertTrue(browser.pageSource().contains("Your new application is ready."));
+    browser.goTo(baseUrl + "/secure");
+    assertTrue(browser.pageSource().contains("You are logged in."));
+    browser.goTo(baseUrl + "/users/me");
+    assertTrue(browser.pageSource().contains("GuestClient"));
   }
 }
