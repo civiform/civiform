@@ -15,7 +15,7 @@ import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 
-public final class ProgramList extends BaseHtmlView {
+public final class ProgramListView extends BaseHtmlView {
 
   public Content render(ImmutableList<ProgramDefinition> programs) {
     return htmlContent(

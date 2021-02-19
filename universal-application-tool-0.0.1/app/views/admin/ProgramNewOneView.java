@@ -6,7 +6,7 @@ import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
 
-public final class ProgramNewOne extends BaseHtmlView {
+public final class ProgramNewOneView extends BaseHtmlView {
 
   public Content render(Request request) {
     return htmlContent(
