@@ -12,6 +12,7 @@ import repository.WithPostgresContainer;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.QuestionDefinition;
+import services.question.QuestionDefinitionMock;
 
 public class ProgramTest extends WithPostgresContainer {
 
@@ -20,7 +21,7 @@ public class ProgramTest extends WithPostgresContainer {
     ProgramRepository repo = app.injector().instanceOf(ProgramRepository.class);
 
     QuestionDefinition questionDefinition =
-        new QuestionDefinition(
+        new QuestionDefinitionMock(
             165L,
             "2",
             "question",

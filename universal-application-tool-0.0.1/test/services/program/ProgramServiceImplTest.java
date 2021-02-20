@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
 import services.question.QuestionDefinition;
+import services.question.QuestionDefinitionMock;
 
 public class ProgramServiceImplTest extends WithPostgresContainer {
 
@@ -131,7 +132,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   public void setBlockQuestions_updatesBlock()
       throws ProgramNotFoundException, ProgramBlockNotFoundException {
     QuestionDefinition questionDefinition =
-        new QuestionDefinition(
+        new QuestionDefinitionMock(
             1L,
             "version",
             "name question",

@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import services.program.*;
 import services.question.QuestionDefinition;
+import services.question.QuestionDefinitionMock;
 
 public class FakeProgramServiceTest {
 
@@ -103,7 +104,7 @@ public class FakeProgramServiceTest {
     long blockId = program.blockDefinitions().get(0).id();
 
     QuestionDefinition question =
-        new QuestionDefinition(1L, "", "", "", "", ImmutableMap.of(), Optional.empty());
+        new QuestionDefinitionMock(1L, "", "", "", "", ImmutableMap.of(), Optional.empty());
     program = service.setBlockQuestions(program.id(), blockId, ImmutableList.of(question));
 
     assertThat(program.blockDefinitions().get(0).questionDefinitions()).containsExactly(question);

@@ -10,7 +10,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 /** Defines a single question. */
-public class QuestionDefinition {
+public abstract class QuestionDefinition {
   private final long id;
   private final String version;
   private final String name;
