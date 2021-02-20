@@ -14,6 +14,7 @@ import services.program.ProgramDefinition;
 import services.question.AddressQuestionDefinition;
 import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
+import services.question.TextQuestionDefinition;
 import services.question.TranslationNotFoundException;
 
 public class ProgramTest extends WithPostgresContainer {
@@ -23,7 +24,7 @@ public class ProgramTest extends WithPostgresContainer {
     ProgramRepository repo = app.injector().instanceOf(ProgramRepository.class);
 
     QuestionDefinition questionDefinition =
-        new QuestionDefinition(
+        new TextQuestionDefinition(
             165L,
             2L,
             "question",

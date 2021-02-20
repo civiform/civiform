@@ -11,6 +11,7 @@ import repository.QuestionRepository;
 import repository.WithPostgresContainer;
 import services.question.AddressQuestionDefinition;
 import services.question.QuestionDefinition;
+import services.question.TextQuestionDefinition;
 
 public class QuestionTest extends WithPostgresContainer {
 
@@ -24,7 +25,8 @@ public class QuestionTest extends WithPostgresContainer {
   @Test
   public void canSaveQuestion() {
     QuestionDefinition definition =
-        new QuestionDefinition(1L, 1L, "test", "my.path", "", ImmutableMap.of(), Optional.empty());
+        new TextQuestionDefinition(
+            1L, 1L, "test", "my.path", "", ImmutableMap.of(), Optional.empty());
     Question question = new Question(definition);
 
     question.save();
@@ -43,7 +45,7 @@ public class QuestionTest extends WithPostgresContainer {
   @Test
   public void canSerializeLocalizationMaps() {
     QuestionDefinition definition =
-        new QuestionDefinition(
+        new TextQuestionDefinition(
             1L,
             1L,
             "",

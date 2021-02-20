@@ -18,9 +18,10 @@ import java.util.Optional;
     property = "serialization_type")
 @JsonSubTypes({
   @JsonSubTypes.Type(value = AddressQuestionDefinition.class, name = "address"),
-  @JsonSubTypes.Type(value = NameQuestionDefinition.class, name = "name")
+  @JsonSubTypes.Type(value = NameQuestionDefinition.class, name = "name"),
+  @JsonSubTypes.Type(value = TextQuestionDefinition.class, name = "text")
 })
-public class QuestionDefinition {
+public abstract class QuestionDefinition {
   private final long id;
   private final long version;
   private final String name;

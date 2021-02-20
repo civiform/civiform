@@ -8,6 +8,7 @@ import java.util.Optional;
 import models.Question;
 import org.junit.Test;
 import services.question.QuestionDefinition;
+import services.question.TextQuestionDefinition;
 
 public class QuestionRepositoryTest extends WithPostgresContainer {
 
@@ -15,7 +16,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   public void createQuestion() {
     QuestionRepository repo = app.injector().instanceOf(QuestionRepository.class);
     QuestionDefinition questionDefinition =
-        new QuestionDefinition(
+        new TextQuestionDefinition(
             165L,
             2L,
             "question",

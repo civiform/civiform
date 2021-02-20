@@ -64,10 +64,12 @@ public class QuestionDefinitionBuilder {
       case NAME:
         return new NameQuestionDefinition(
             id, version, name, path, description, questionText, questionHelpText);
-      case TEXT: // fallthrough intended.
-      default:
-        return new QuestionDefinition(
+      case TEXT:
+        return new TextQuestionDefinition(
             id, version, name, path, description, questionText, questionHelpText);
+      default:
+        // TODO: throw a real exception.
+        throw new AssertionError(this.questionType.toString());
     }
   }
 }
