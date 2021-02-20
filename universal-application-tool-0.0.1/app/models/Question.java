@@ -40,27 +40,27 @@ public class Question extends BaseModel {
 
   public Question(QuestionDefinition questionDefinition) {
     this.questionDefinition = checkNotNull(questionDefinition);
-    this.version = questionDefinition.getVersion();
-    this.path = questionDefinition.getPath();
-    this.name = questionDefinition.getName();
-    this.description = questionDefinition.getDescription();
-    this.questionText = questionDefinition.getQuestionText();
-    this.questionHelpText = questionDefinition.getQuestionHelpText().orElse(null);
-    this.questionType = questionDefinition.getQuestionType().toString();
+    version = questionDefinition.getVersion();
+    path = questionDefinition.getPath();
+    name = questionDefinition.getName();
+    description = questionDefinition.getDescription();
+    questionText = questionDefinition.getQuestionText();
+    questionHelpText = questionDefinition.getQuestionHelpText().orElse(null);
+    questionType = questionDefinition.getQuestionType().toString();
   }
 
   /** Populates column values from {@link QuestionDefinition}. */
   @PreUpdate
   @PrePersist
   public void persistChangesToQuestionDefinition() {
-    this.id = questionDefinition.getId();
-    this.version = questionDefinition.getVersion();
-    this.path = questionDefinition.getPath();
-    this.name = questionDefinition.getName();
-    this.description = questionDefinition.getDescription();
-    this.questionText = questionDefinition.getQuestionText();
-    this.questionHelpText = questionDefinition.getQuestionHelpText().orElse(null);
-    this.questionType = questionDefinition.getQuestionType().toString();
+    id = questionDefinition.getId();
+    version = questionDefinition.getVersion();
+    path = questionDefinition.getPath();
+    name = questionDefinition.getName();
+    description = questionDefinition.getDescription();
+    questionText = questionDefinition.getQuestionText();
+    questionHelpText = questionDefinition.getQuestionHelpText().orElse(null);
+    questionType = questionDefinition.getQuestionType().toString();
   }
 
   /** Populates {@link QuestionDefinition} from column values. */
@@ -70,18 +70,18 @@ public class Question extends BaseModel {
   public void loadQuestionDefinition() {
     this.questionDefinition =
         new QuestionDefinitionBuilder()
-            .setId(this.id)
-            .setVersion(this.version)
-            .setName(this.name)
-            .setPath(this.path)
-            .setDescription(this.description)
-            .setQuestionText(this.questionText)
-            .setQuestionHelpText(Optional.ofNullable(this.questionHelpText))
+            .setId(id)
+            .setVersion(version)
+            .setName(name)
+            .setPath(path)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(Optional.ofNullable(questionHelpText))
             .setQuestionType(QuestionType.valueOf(questionType))
             .build();
   }
 
   public QuestionDefinition getQuestionDefinition() {
-    return checkNotNull(this.questionDefinition);
+    return checkNotNull(questionDefinition);
   }
 }

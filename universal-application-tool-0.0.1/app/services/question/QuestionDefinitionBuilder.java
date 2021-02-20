@@ -60,32 +60,14 @@ public class QuestionDefinitionBuilder {
     switch (this.questionType) {
       case ADDRESS:
         return new AddressQuestionDefinition(
-            this.id,
-            this.version,
-            this.name,
-            this.path,
-            this.description,
-            this.questionText,
-            this.questionHelpText);
+            id, version, name, path, description, questionText, questionHelpText);
       case NAME:
         return new NameQuestionDefinition(
-            this.id,
-            this.version,
-            this.name,
-            this.path,
-            this.description,
-            this.questionText,
-            this.questionHelpText);
+            id, version, name, path, description, questionText, questionHelpText);
       case TEXT: // fallthrough intended.
       default:
         return new QuestionDefinition(
-            this.id,
-            this.version,
-            this.name,
-            this.path,
-            this.description,
-            this.questionText,
-            this.questionHelpText);
+            id, version, name, path, description, questionText, questionHelpText);
     }
   }
 }

@@ -1,5 +1,7 @@
 package services.question;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import java.util.Locale;
@@ -8,13 +10,13 @@ import java.util.concurrent.CompletionStage;
 import models.Question;
 import repository.QuestionRepository;
 
-public class QuestionServiceImpl implements QuestionService {
+public final class QuestionServiceImpl implements QuestionService {
 
   private QuestionRepository questionRepository;
 
   @Inject
   public QuestionServiceImpl(QuestionRepository questionRepository) {
-    this.questionRepository = questionRepository;
+    this.questionRepository = checkNotNull(questionRepository);
   }
 
   public boolean addTranslation(
@@ -25,12 +27,12 @@ public class QuestionServiceImpl implements QuestionService {
 
   public Optional<QuestionDefinition> create(QuestionDefinition definition) {
     // TODO(https://github.com/seattle-uat/universal-application-tool/issues/194): Add validation.
-    Question question = this.questionRepository.insertQuestionSync(new Question(definition));
+    Question question = questionRepository.insertQuestionSync(new Question(definition));
     return Optional.of(question.getQuestionDefinition());
   }
 
   public CompletionStage<ReadOnlyQuestionService> getReadOnlyQuestionService() {
-    return this.listQuestionDefinitionsAsync()
+    return listQuestionDefinitionsAsync()
         .thenApply(questionDefinitions -> new ReadOnlyQuestionServiceImpl(questionDefinitions));
   }
 
