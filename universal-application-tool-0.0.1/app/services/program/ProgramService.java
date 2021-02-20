@@ -50,6 +50,17 @@ public interface ProgramService {
   ProgramDefinition createProgramDefinition(String name, String description);
 
   /**
+   * Update a program's name and description.
+   *
+   * @param programId the ID of the program to update
+   * @param name a name for this program
+   * @param description the description of what the program provides
+   * @return the {@link ProgramDefinition} that was updated
+   */
+  ProgramDefinition updateProgramDefinition(long programId, String name, String description)
+      throws ProgramNotFoundException;
+
+  /**
    * Adds a {@link BlockDefinition} to the given program.
    *
    * @param programId the ID of the program to update
