@@ -35,7 +35,8 @@ public class QuestionDefinitionTest {
   public void getQuestionTextForUnknownLocale_throwsException() {
     String questionPath = "question.path";
     QuestionDefinition question =
-        new TextQuestionDefinition(123L, 1L, "", questionPath, "", ImmutableMap.of(), Optional.empty());
+        new TextQuestionDefinition(
+            123L, 1L, "", questionPath, "", ImmutableMap.of(), Optional.empty());
 
     Throwable thrown = catchThrowable(() -> question.getQuestionText(Locale.FRANCE));
 

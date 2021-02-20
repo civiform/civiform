@@ -56,7 +56,7 @@ public class QuestionDefinitionBuilder {
     return this;
   }
 
-  public QuestionDefinition build() {
+  public QuestionDefinition build() throws UnsupportedQuestionTypeException {
     switch (this.questionType) {
       case ADDRESS:
         return new AddressQuestionDefinition(
@@ -69,7 +69,7 @@ public class QuestionDefinitionBuilder {
             id, version, name, path, description, questionText, questionHelpText);
       default:
         // TODO: throw a real exception.
-        throw new AssertionError(this.questionType.toString());
+        throw new UnsupportedQuestionTypeException(this.questionType);
     }
   }
 }
