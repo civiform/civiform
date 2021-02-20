@@ -18,9 +18,16 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
+  public void listPrograms_empty() {
+    List<Program> allPrograms = repo.listPrograms().toCompletableFuture().join();
+
+    assertThat(allPrograms).isEmpty();
+  }
+
+  @Test
   public void listPrograms() {
-    Program one = insertProgram("one");
-    Program two = insertProgram("two");
+    Program one = saveProgram("one");
+    Program two = saveProgram("two");
 
     List<Program> allPrograms = repo.listPrograms().toCompletableFuture().join();
 
@@ -36,8 +43,8 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void lookupProgram_findsCorrectProgram() {
-    insertProgram("one");
-    Program two = insertProgram("two");
+    saveProgram("one");
+    Program two = saveProgram("two");
 
     Optional<Program> found = repo.lookupProgram(two.id).toCompletableFuture().join();
 
@@ -56,7 +63,7 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void updateProgramSync() {
-    Program existing = insertProgram("old name");
+    Program existing = saveProgram("old name");
     Program updates =
         new Program(existing.getProgramDefinition().toBuilder().setName("new name").build());
 
@@ -66,7 +73,7 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
     assertThat(updated.getProgramDefinition().name()).isEqualTo("new name");
   }
 
-  private static Program insertProgram(String name) {
+  private static Program saveProgram(String name) {
     Program program = new Program(name, "description");
     program.save();
     return program;
