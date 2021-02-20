@@ -57,11 +57,19 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
+  public ProgramDefinition updateProgramDefinition(long programId, String name, String description)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getProgramOrThrow(programId);
+    Program program =
+        programDefinition.toBuilder().setName(name).setDescription(description).build().toProgram();
+    return programRepository.updateProgramSync(program).getProgramDefinition();
+  }
+
+  @Override
   @Transactional
   public ProgramDefinition addBlockToProgram(
       long programId, String blockName, String blockDescription) throws ProgramNotFoundException {
-    ProgramDefinition programDefinition =
-        getProgramDefinition(programId).orElseThrow(() -> new ProgramNotFoundException(programId));
+    ProgramDefinition programDefinition = getProgramOrThrow(programId);
     long blockId = getNextBlockId(programDefinition);
 
     BlockDefinition blockDefinition =
@@ -81,8 +89,7 @@ public class ProgramServiceImpl implements ProgramService {
   public ProgramDefinition setBlockQuestions(
       long programId, long blockDefinitionId, ImmutableList<QuestionDefinition> questionDefinitions)
       throws ProgramNotFoundException, ProgramBlockNotFoundException {
-    ProgramDefinition programDefinition =
-        getProgramDefinition(programId).orElseThrow(() -> new ProgramNotFoundException(programId));
+    ProgramDefinition programDefinition = getProgramOrThrow(programId);
     int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
 
     BlockDefinition blockDefinition =
@@ -99,8 +106,7 @@ public class ProgramServiceImpl implements ProgramService {
   public ProgramDefinition setBlockHidePredicate(
       long programId, long blockDefinitionId, Predicate predicate)
       throws ProgramNotFoundException, ProgramBlockNotFoundException {
-    ProgramDefinition programDefinition =
-        getProgramDefinition(programId).orElseThrow(() -> new ProgramNotFoundException(programId));
+    ProgramDefinition programDefinition = getProgramOrThrow(programId);
     int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
 
     BlockDefinition blockDefinition =
@@ -117,8 +123,7 @@ public class ProgramServiceImpl implements ProgramService {
   public ProgramDefinition setBlockOptionalPredicate(
       long programId, long blockDefinitionId, Predicate predicate)
       throws ProgramNotFoundException, ProgramBlockNotFoundException {
-    ProgramDefinition programDefinition =
-        getProgramDefinition(programId).orElseThrow(() -> new ProgramNotFoundException(programId));
+    ProgramDefinition programDefinition = getProgramOrThrow(programId);
     int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
 
     BlockDefinition blockDefinition =
@@ -130,7 +135,12 @@ public class ProgramServiceImpl implements ProgramService {
         programDefinition, blockDefinitionIndex, blockDefinition);
   }
 
-  int getBlockDefinitionIndex(ProgramDefinition programDefinition, Long blockDefinitionId)
+  private ProgramDefinition getProgramOrThrow(long programId) throws ProgramNotFoundException {
+    return getProgramDefinition(programId)
+        .orElseThrow(() -> new ProgramNotFoundException((programId)));
+  }
+
+  private int getBlockDefinitionIndex(ProgramDefinition programDefinition, Long blockDefinitionId)
       throws ProgramBlockNotFoundException {
     int index =
         programDefinition.blockDefinitions().stream()

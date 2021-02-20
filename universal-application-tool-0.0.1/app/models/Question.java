@@ -15,6 +15,8 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.question.QuestionDefinition;
+import services.question.QuestionDefinitionBuilder;
+import services.question.QuestionType;
 
 @Entity
 @Table(name = "questions")
@@ -34,27 +36,31 @@ public class Question extends BaseModel {
 
   private @DbJsonB ImmutableMap<Locale, String> questionHelpText;
 
+  private @Constraints.Required String questionType;
+
   public Question(QuestionDefinition questionDefinition) {
     this.questionDefinition = checkNotNull(questionDefinition);
-    this.version = questionDefinition.getVersion();
-    this.path = questionDefinition.getPath();
-    this.name = questionDefinition.getName();
-    this.description = questionDefinition.getDescription();
-    this.questionText = questionDefinition.getQuestionText();
-    this.questionHelpText = questionDefinition.getQuestionHelpText().orElse(null);
+    version = questionDefinition.getVersion();
+    path = questionDefinition.getPath();
+    name = questionDefinition.getName();
+    description = questionDefinition.getDescription();
+    questionText = questionDefinition.getQuestionText();
+    questionHelpText = questionDefinition.getQuestionHelpText().orElse(null);
+    questionType = questionDefinition.getQuestionType().toString();
   }
 
   /** Populates column values from {@link QuestionDefinition}. */
   @PreUpdate
   @PrePersist
   public void persistChangesToQuestionDefinition() {
-    this.id = questionDefinition.getId();
-    this.version = questionDefinition.getVersion();
-    this.path = questionDefinition.getPath();
-    this.name = questionDefinition.getName();
-    this.description = questionDefinition.getDescription();
-    this.questionText = questionDefinition.getQuestionText();
-    this.questionHelpText = questionDefinition.getQuestionHelpText().orElse(null);
+    id = questionDefinition.getId();
+    version = questionDefinition.getVersion();
+    path = questionDefinition.getPath();
+    name = questionDefinition.getName();
+    description = questionDefinition.getDescription();
+    questionText = questionDefinition.getQuestionText();
+    questionHelpText = questionDefinition.getQuestionHelpText().orElse(null);
+    questionType = questionDefinition.getQuestionType().toString();
   }
 
   /** Populates {@link QuestionDefinition} from column values. */
@@ -63,17 +69,19 @@ public class Question extends BaseModel {
   @PostUpdate
   public void loadQuestionDefinition() {
     this.questionDefinition =
-        new QuestionDefinition(
-            this.id,
-            this.version,
-            this.name,
-            this.path,
-            this.description,
-            this.questionText,
-            Optional.ofNullable(this.questionHelpText));
+        new QuestionDefinitionBuilder()
+            .setId(id)
+            .setVersion(version)
+            .setName(name)
+            .setPath(path)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(Optional.ofNullable(questionHelpText))
+            .setQuestionType(QuestionType.valueOf(questionType))
+            .build();
   }
 
   public QuestionDefinition getQuestionDefinition() {
-    return checkNotNull(this.questionDefinition);
+    return checkNotNull(questionDefinition);
   }
 }

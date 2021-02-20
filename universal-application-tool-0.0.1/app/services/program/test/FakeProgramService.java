@@ -49,6 +49,16 @@ public class FakeProgramService implements ProgramService {
   }
 
   @Override
+  public ProgramDefinition updateProgramDefinition(long programId, String name, String description)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getProgramOrThrow(programId);
+    ProgramDefinition updated =
+        programDefinition.toBuilder().setName(name).setDescription(description).build();
+    this.programs.put(programId, updated);
+    return updated;
+  }
+
+  @Override
   public ProgramDefinition addBlockToProgram(
       long programId, String blockName, String blockDescription) throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramOrThrow(programId);
