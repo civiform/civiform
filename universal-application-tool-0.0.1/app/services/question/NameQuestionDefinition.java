@@ -8,7 +8,7 @@ public class NameQuestionDefinition extends QuestionDefinition {
 
   public NameQuestionDefinition(
       long id,
-      String version,
+      long version,
       String name,
       String path,
       String description,

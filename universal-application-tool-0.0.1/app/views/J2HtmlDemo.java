@@ -13,11 +13,13 @@ import play.twirl.api.Content;
 public final class J2HtmlDemo extends BaseHtmlView {
 
   private final ViewUtils viewUtils;
+  private final BaseHtmlLayout layout;
 
   /** Views needing access to stateful dependencies can inject {@link ViewUtils} */
   @Inject
-  public J2HtmlDemo(ViewUtils viewUtils) {
+  public J2HtmlDemo(ViewUtils viewUtils, BaseHtmlLayout layout) {
     this.viewUtils = checkNotNull(viewUtils);
+    this.layout = checkNotNull(layout);
   }
 
   /**
@@ -25,8 +27,8 @@ public final class J2HtmlDemo extends BaseHtmlView {
    * needed from the internal services.
    */
   public Content render(String greeting, Request request) {
-    return htmlContent(
-        head(viewUtils.makeLocalJsTag("hello")),
+    return layout.htmlContent(
+        head(viewUtils.makeLocalJsTag("hello"), layout.getCommonCssTag()),
         body(
             h1(greeting),
             form(

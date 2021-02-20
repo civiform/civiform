@@ -1,5 +1,6 @@
 package controllers;
 
+import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.exception.TechnicalException;
@@ -31,8 +32,9 @@ public class HomeController extends Controller {
     return ok(index.render("Your new application is ready.", assetsFinder));
   }
 
-  public Result loginForm(Http.Request request) throws TechnicalException {
-    return ok(this.form.render(request));
+  public Result loginForm(Http.Request request, Optional<String> message)
+      throws TechnicalException {
+    return ok(this.form.render(request, message));
   }
 
   @Secure
