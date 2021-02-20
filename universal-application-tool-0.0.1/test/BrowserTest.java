@@ -2,6 +2,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static play.test.Helpers.fakeApplication;
 
+import auth.Roles;
 import com.google.common.collect.ImmutableMap;
 import controllers.routes;
 import java.util.Optional;
@@ -20,7 +21,9 @@ public class BrowserTest extends WithBrowser {
             "org.testcontainers.jdbc.ContainerDatabaseDriver",
             "db.default.url",
             // See WithPostgresContainer.java for explanation of this string.
-            "jdbc:tc:postgresql:9.6.8:///databasename"));
+            "jdbc:tc:postgresql:12.5:///databasename",
+            "play.evolutions.db.default.enabled",
+            "true"));
   }
 
   protected TestBrowser provideBrowser(int port) {
@@ -37,24 +40,6 @@ public class BrowserTest extends WithBrowser {
   }
 
   @Test
-  public void login() {
-    String baseUrl = "http://localhost:" + play.api.test.Helpers.testServerPort();
-    browser.goTo(baseUrl + routes.HomeController.loginForm(Optional.empty()).url());
-    browser.$("#uname").click();
-    browser.keyboard().sendKeys("test");
-    browser.$("#pwd").click();
-    browser.keyboard().sendKeys("test");
-    browser.$("#login").click();
-    // should be redirected to root.
-    assertEquals("", browser.url());
-    assertTrue(browser.pageSource().contains("Your new application is ready."));
-    browser.goTo(baseUrl + routes.HomeController.secureIndex().url());
-    assertTrue(browser.pageSource().contains("You are logged in."));
-    browser.goTo(baseUrl + routes.ProfileController.myProfile().url());
-    assertTrue(browser.pageSource().contains("FormClient"));
-  }
-
-  @Test
   public void noCredLogin() {
     String baseUrl = "http://localhost:" + play.api.test.Helpers.testServerPort();
     browser.goTo(baseUrl + routes.HomeController.loginForm(Optional.empty()).url());
@@ -66,5 +51,7 @@ public class BrowserTest extends WithBrowser {
     assertTrue(browser.pageSource().contains("You are logged in."));
     browser.goTo(baseUrl + routes.ProfileController.myProfile().url());
     assertTrue(browser.pageSource().contains("GuestClient"));
+    assertTrue(browser.pageSource().contains("{\"created_time\":"));
+    assertTrue(browser.pageSource().contains(Roles.ROLE_APPLICANT));
   }
 }

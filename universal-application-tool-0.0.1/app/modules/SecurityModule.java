@@ -5,12 +5,14 @@ import static play.mvc.Results.*;
 
 import auth.GuestClient;
 import auth.ProfileFactory;
+import auth.Roles;
 import auth.UATProfile;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import controllers.routes;
+import java.time.Clock;
 import java.util.Optional;
 import java.util.Random;
 import org.pac4j.core.authorization.authorizer.RequireAllRolesAuthorizer;
@@ -18,8 +20,6 @@ import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.HttpConstants;
 import org.pac4j.core.context.session.SessionStore;
-import org.pac4j.http.client.indirect.FormClient;
-import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
 import org.pac4j.play.CallbackController;
 import org.pac4j.play.LogoutController;
 import org.pac4j.play.http.PlayHttpActionAdapter;
@@ -93,25 +93,16 @@ public class SecurityModule extends AbstractModule {
 
   @Provides
   @Singleton
-  protected FormClient provideFormClient() {
-    // This must match the line in `routes`.
-    return new FormClient(
-        baseUrl + routes.HomeController.loginForm(Optional.empty()),
-        new SimpleTestUsernamePasswordAuthenticator());
+  protected ProfileFactory provideProfileFactory(Clock clock) {
+    return new ProfileFactory(clock);
   }
 
   @Provides
   @Singleton
-  protected ProfileFactory provideProfileFactory() {
-    return new ProfileFactory();
-  }
-
-  @Provides
-  @Singleton
-  protected Config provideConfig(GuestClient guestClient, FormClient formClient) {
+  protected Config provideConfig(GuestClient guestClient) {
     // This must match the line in `routes` also.
-    Clients clients = new Clients(baseUrl + routes.CallbackController.callback("FormClient"));
-    clients.setClients(guestClient, formClient);
+    Clients clients = new Clients(baseUrl + routes.CallbackController.callback("GuestClient"));
+    clients.setClients(guestClient);
     PlayHttpActionAdapter.INSTANCE
         .getResults()
         .putAll(
@@ -122,10 +113,10 @@ public class SecurityModule extends AbstractModule {
                 forbidden("403 forbidden").as(HttpConstants.HTML_CONTENT_TYPE)));
     Config config = new Config();
     config.setClients(clients);
-    config.addAuthorizer("uatadmin", new RequireAllRolesAuthorizer("ROLE_UAT_ADMIN"));
-    config.addAuthorizer("programadmin", new RequireAllRolesAuthorizer("ROLE_PROGRAM_ADMIN"));
-    config.addAuthorizer("applicant", new RequireAllRolesAuthorizer("ROLE_APPLICANT"));
-    config.addAuthorizer("intermediary", new RequireAllRolesAuthorizer("ROLE_TI"));
+    config.addAuthorizer("uatadmin", new RequireAllRolesAuthorizer(Roles.ROLE_UAT_ADMIN));
+    config.addAuthorizer("programadmin", new RequireAllRolesAuthorizer(Roles.ROLE_PROGRAM_ADMIN));
+    config.addAuthorizer("applicant", new RequireAllRolesAuthorizer(Roles.ROLE_APPLICANT));
+    config.addAuthorizer("intermediary", new RequireAllRolesAuthorizer(Roles.ROLE_TI));
 
     config.setHttpActionAdapter(PlayHttpActionAdapter.INSTANCE);
     return config;

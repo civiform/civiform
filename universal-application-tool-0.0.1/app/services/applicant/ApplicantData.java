@@ -16,6 +16,10 @@ public class ApplicantData {
     this.jsonData.put(path, key, value);
   }
 
+  public void put(String path, String key, Object value) {
+    this.jsonData.put(path, key, value);
+  }
+
   public <T> T read(String path, Class<T> type) {
     return this.jsonData.read(path, type);
   }

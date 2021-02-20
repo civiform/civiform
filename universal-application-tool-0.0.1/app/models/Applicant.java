@@ -5,6 +5,7 @@ import com.jayway.jsonpath.JsonPath;
 import io.ebean.annotation.DbJson;
 import java.io.IOException;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
@@ -19,6 +20,7 @@ public class Applicant extends BaseModel {
   private ApplicantData applicantData;
 
   @Constraints.Required @DbJson private String object;
+  @ManyToOne private Account account;
 
   public ApplicantData getApplicantData() {
     if (object == null) {
@@ -40,5 +42,13 @@ public class Applicant extends BaseModel {
 
   private String objectAsJsonString() throws IOException {
     return getApplicantData().asJsonString();
+  }
+
+  public Account getAccount() {
+    return account;
+  }
+
+  public void setAccount(Account account) {
+    this.account = account;
   }
 }
