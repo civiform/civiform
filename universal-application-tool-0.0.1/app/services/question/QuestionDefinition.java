@@ -5,11 +5,21 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 
 /** Defines a single question. */
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "serialization_type")
+@JsonSubTypes({
+  @JsonSubTypes.Type(value = AddressQuestionDefinition.class, name = "address"),
+  @JsonSubTypes.Type(value = NameQuestionDefinition.class, name = "name")
+})
 public class QuestionDefinition {
   private final long id;
   private final long version;

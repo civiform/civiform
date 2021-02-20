@@ -1,19 +1,22 @@
 package services.question;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 
 public class NameQuestionDefinition extends QuestionDefinition {
 
+  @JsonCreator
   public NameQuestionDefinition(
-      long id,
-      long version,
-      String name,
-      String path,
-      String description,
-      ImmutableMap<Locale, String> questionText,
-      Optional<ImmutableMap<Locale, String>> questionHelpText) {
+      @JsonProperty("id") long id,
+      @JsonProperty("version") long version,
+      @JsonProperty("name") String name,
+      @JsonProperty("path") String path,
+      @JsonProperty("description") String description,
+      @JsonProperty("questionText") ImmutableMap<Locale, String> questionText,
+      @JsonProperty("questionHelpText") Optional<ImmutableMap<Locale, String>> questionHelpText) {
     super(id, version, name, path, description, questionText, questionHelpText);
   }
 

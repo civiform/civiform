@@ -5,16 +5,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import org.junit.Before;
 import org.junit.Test;
 import repository.QuestionRepository;
 import repository.WithPostgresContainer;
+import services.question.AddressQuestionDefinition;
 import services.question.QuestionDefinition;
 
 public class QuestionTest extends WithPostgresContainer {
 
+  private QuestionRepository repo;
+
+  @Before
+  public void setupQuestionRepository() {
+    repo = app.injector().instanceOf(QuestionRepository.class);
+  }
+
   @Test
   public void canSaveQuestion() {
-    QuestionRepository repo = app.injector().instanceOf(QuestionRepository.class);
     QuestionDefinition definition =
         new QuestionDefinition(1L, 1L, "test", "my.path", "", ImmutableMap.of(), Optional.empty());
     Question question = new Question(definition);
@@ -34,7 +42,6 @@ public class QuestionTest extends WithPostgresContainer {
 
   @Test
   public void canSerializeLocalizationMaps() {
-    QuestionRepository repo = app.injector().instanceOf(QuestionRepository.class);
     QuestionDefinition definition =
         new QuestionDefinition(
             1L,
@@ -54,5 +61,19 @@ public class QuestionTest extends WithPostgresContainer {
         .isEqualTo(ImmutableMap.of(Locale.ENGLISH, "hello"));
     assertThat(found.getQuestionDefinition().getQuestionHelpText())
         .hasValue(ImmutableMap.of(Locale.ENGLISH, "help"));
+  }
+
+  @Test
+  public void canSerializeDifferentQuestionTypes() {
+    AddressQuestionDefinition address =
+        new AddressQuestionDefinition(
+            1L, 1L, "address", "", "", ImmutableMap.of(), Optional.empty());
+    Question question = new Question(address);
+
+    question.save();
+
+    Question found = repo.lookupQuestion(address.getId()).toCompletableFuture().join().get();
+
+    assertThat(found.getQuestionDefinition()).isInstanceOf(AddressQuestionDefinition.class);
   }
 }
