@@ -19,6 +19,11 @@ GET     /admin/programs             controllers.admin.AdminProgramController.ind
 GET     /admin/programs/new         controllers.admin.AdminProgramController.newOne(request: Request)
 POST    /admin/programs             controllers.admin.AdminProgramController.create(request: Request)
 
+# A controller for a page for an admin to view, edit, and create questions
+GET     /admin/questions             controllers.admin.QuestionController.list(renderAs: String ?= "list")
+GET     /admin/questions/new         controllers.admin.QuestionController.create
+GET     /admin/questions/edit/:path  controllers.admin.QuestionController.edit(path: String)
+
 GET     /demo/new                   controllers.J2HtmlDemoController.newOne(request: Request)
 POST    /demo                       controllers.J2HtmlDemoController.create(request: Request)
 
