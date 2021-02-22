@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
-import services.question.QuestionDefinition;
 
 /**
  * Defines a single program block, which contains a list of questions and data about the block.
@@ -47,9 +46,9 @@ public abstract class BlockDefinition {
   @JsonProperty("optionalPredicate")
   public abstract Optional<Predicate> optionalPredicate();
 
-  /** The list of {@link QuestionDefinition}s that make up this block. */
+  /** The list of {@link ProgramQuestionDefinition}s that make up this block. */
   @JsonProperty("questionDefinitions")
-  public abstract ImmutableList<QuestionDefinition> questionDefinitions();
+  public abstract ImmutableList<ProgramQuestionDefinition> questionDefinitions();
 
   public abstract Builder toBuilder();
 
@@ -76,13 +75,13 @@ public abstract class BlockDefinition {
 
     @JsonProperty("questionDefinitions")
     public abstract Builder setQuestionDefinitions(
-        ImmutableList<QuestionDefinition> questionDefinitions);
+        ImmutableList<ProgramQuestionDefinition> questionDefinitions);
 
-    public abstract ImmutableList.Builder<QuestionDefinition> questionDefinitionsBuilder();
+    public abstract ImmutableList.Builder<ProgramQuestionDefinition> questionDefinitionsBuilder();
 
     public abstract BlockDefinition build();
 
-    public Builder addQuestion(QuestionDefinition question) {
+    public Builder addQuestion(ProgramQuestionDefinition question) {
       questionDefinitionsBuilder().add(question);
       return this;
     }
