@@ -8,7 +8,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
 
   public AddressQuestionDefinition(
       long id,
-      String version,
+      long version,
       String name,
       String path,
       String description,

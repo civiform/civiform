@@ -69,6 +69,27 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
+  public void updateProgram_withNoProgram_throwsProgramNotFoundException()
+      throws ProgramNotFoundException {
+    assertThatThrownBy(() -> ps.updateProgramDefinition(1L, "new", "new description"))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessage("Program not found for ID: 1");
+  }
+
+  @Test
+  public void updateProgram_updatesProgram() throws ProgramNotFoundException {
+    ProgramDefinition originalProgram =
+        ps.createProgramDefinition("original", "original description");
+    ProgramDefinition updatedProgram =
+        ps.updateProgramDefinition(originalProgram.id(), "new", "new description");
+
+    Optional<ProgramDefinition> found = ps.getProgramDefinition(updatedProgram.id());
+
+    assertThat(ps.listProgramDefinitions()).hasSize(1);
+    assertThat(found).hasValue(updatedProgram);
+  }
+
+  @Test
   public void getProgramDefinition_canGetANewProgram() {
     ProgramDefinition programDefinition = ps.createProgramDefinition("new program", "description");
     Optional<ProgramDefinition> found = ps.getProgramDefinition(programDefinition.id());
@@ -133,7 +154,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     QuestionDefinition questionDefinition =
         new QuestionDefinition(
             1L,
-            "version",
+            1L,
             "name question",
             "applicant.name",
             "The name of the applicant.",

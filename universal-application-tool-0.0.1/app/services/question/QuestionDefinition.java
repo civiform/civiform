@@ -12,7 +12,7 @@ import java.util.Optional;
 /** Defines a single question. */
 public class QuestionDefinition {
   private final long id;
-  private final String version;
+  private final long version;
   private final String name;
   private final String path;
   private final String description;
@@ -22,7 +22,7 @@ public class QuestionDefinition {
   @JsonCreator
   public QuestionDefinition(
       @JsonProperty("id") long id,
-      @JsonProperty("version") String version,
+      @JsonProperty("version") long version,
       @JsonProperty("name") String name,
       @JsonProperty("path") String path,
       @JsonProperty("description") String description,
@@ -34,7 +34,7 @@ public class QuestionDefinition {
     this.path = checkNotNull(path);
     this.description = checkNotNull(description);
     this.questionText = checkNotNull(questionText);
-    this.questionHelpText = questionHelpText;
+    this.questionHelpText = checkNotNull(questionHelpText);
   }
 
   /** Get the unique identifier for this question. */
@@ -43,7 +43,7 @@ public class QuestionDefinition {
   }
 
   /** Get the system version this question is pinned to. */
-  public String getVersion() {
+  public long getVersion() {
     return this.version;
   }
 
@@ -71,12 +71,11 @@ public class QuestionDefinition {
   }
 
   /** Get the question text for the given locale. */
-  public String getQuestionText(Locale locale) {
+  public String getQuestionText(Locale locale) throws TranslationNotFoundException {
     if (this.questionText.containsKey(locale)) {
       return this.questionText.get(locale);
     }
-
-    throw new RuntimeException("Locale not found: " + locale);
+    throw new TranslationNotFoundException(this.getPath(), locale);
   }
 
   /** Get the question tests for all locales. This is used for serialization. */
@@ -85,7 +84,7 @@ public class QuestionDefinition {
   }
 
   /** Get the question help text for the given locale. */
-  public String getQuestionHelpText(Locale locale) {
+  public String getQuestionHelpText(Locale locale) throws TranslationNotFoundException {
     if (!this.questionHelpText.isPresent()) {
       return "";
     }
@@ -94,7 +93,12 @@ public class QuestionDefinition {
       return this.questionHelpText.get().get(locale);
     }
 
-    throw new RuntimeException("Locale not found: " + locale);
+    throw new TranslationNotFoundException(this.getPath(), locale);
+  }
+
+  /** Get the question help text for all locales. This is used for serialization. */
+  public Optional<ImmutableMap<Locale, String>> getQuestionHelpText() {
+    return this.questionHelpText;
   }
 
   /** Get the type of this question. */
@@ -107,6 +111,16 @@ public class QuestionDefinition {
   @JsonIgnore
   public ImmutableMap<String, ScalarType> getScalars() {
     return ImmutableMap.of("text", ScalarType.STRING);
+  }
+
+  /** Get a map of scalars stored by this question definition. */
+  @JsonIgnore
+  public ImmutableMap<String, ScalarType> getFullyQualifiedScalars() {
+    ImmutableMap<String, ScalarType> scalars = this.getScalars();
+    ImmutableMap.Builder<String, ScalarType> ret = new ImmutableMap.Builder<String, ScalarType>();
+    scalars.entrySet().stream()
+        .forEach(e -> ret.put(this.getPath() + "." + e.getKey(), e.getValue()));
+    return ret.build();
   }
 
   @JsonIgnore

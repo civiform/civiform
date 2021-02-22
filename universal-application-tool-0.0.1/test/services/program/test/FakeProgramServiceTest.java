@@ -2,6 +2,7 @@ package services.program.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -47,6 +48,26 @@ public class FakeProgramServiceTest {
 
     assertThat(one.id()).isEqualTo(1L);
     assertThat(two.id()).isEqualTo(2L);
+  }
+
+  @Test
+  public void updateProgram_withNoProgram_throwsProgramNotFoundException() {
+    assertThatThrownBy(() -> service.updateProgramDefinition(1L, "new", "new description"))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessage("Program not found for ID: 1");
+  }
+
+  @Test
+  public void updateProgram_updatesProgram() throws ProgramNotFoundException {
+    ProgramDefinition originalProgram =
+        service.createProgramDefinition("original", "original description");
+    ProgramDefinition updatedProgram =
+        service.updateProgramDefinition(originalProgram.id(), "new", "new description");
+
+    Optional<ProgramDefinition> found = service.getProgramDefinition(updatedProgram.id());
+
+    assertThat(service.listProgramDefinitions()).hasSize(1);
+    assertThat(found).hasValue(updatedProgram);
   }
 
   @Test
@@ -103,7 +124,7 @@ public class FakeProgramServiceTest {
     long blockId = program.blockDefinitions().get(0).id();
 
     QuestionDefinition question =
-        new QuestionDefinition(1L, "", "", "", "", ImmutableMap.of(), Optional.empty());
+        new QuestionDefinition(1L, 1L, "", "", "", ImmutableMap.of(), Optional.empty());
     program = service.setBlockQuestions(program.id(), blockId, ImmutableList.of(question));
 
     assertThat(program.blockDefinitions().get(0).questionDefinitions()).containsExactly(question);

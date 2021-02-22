@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.Helpers.testServerPort;
 import static play.test.Helpers.*;
 
+import java.util.Optional;
 import org.junit.Test;
 import org.pac4j.core.context.HttpConstants;
 import play.mvc.Http;
@@ -19,6 +20,7 @@ public class HomeControllerTest extends WithApplication {
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
     Result result = route(app, request);
     assertThat(result.status()).isNotEqualTo(HttpConstants.OK);
-    assertThat(result.status()).isEqualTo(HttpConstants.UNAUTHORIZED);
+    assertThat(result.redirectLocation())
+        .contains(routes.HomeController.loginForm(Optional.of("login")).url());
   }
 }

@@ -32,28 +32,17 @@ public class QuestionRepository {
         executionContext);
   }
 
-  public CompletionStage<Optional<Question>> lookupQuestion(String target) {
-    return supplyAsync(
-        () ->
-            Optional.ofNullable(
-                ebeanServer
-                    .find(Question.class)
-                    .where()
-                    .jsonEqualTo("object", "target", target)
-                    .findOne()),
-        executionContext);
-  }
-
-  public CompletionStage<Void> insertQuestion(Question question) {
+  public CompletionStage<Question> insertQuestion(Question question) {
     return supplyAsync(
         () -> {
           ebeanServer.insert(question);
-          return null;
+          return question;
         },
         executionContext);
   }
 
-  public void insertQuestionSync(Question question) {
+  public Question insertQuestionSync(Question question) {
     ebeanServer.insert(question);
+    return question;
   }
 }
