@@ -30,9 +30,6 @@ public class BrowserTest extends WithBrowser {
     return Helpers.testBrowser(port);
   }
 
-  /**
-   * add your integration test here in this example we just check if the welcome page is being shown
-   */
   @Test
   public void test() {
     browser.goTo("http://localhost:" + play.api.test.Helpers.testServerPort());
@@ -52,6 +49,6 @@ public class BrowserTest extends WithBrowser {
     browser.goTo(baseUrl + routes.ProfileController.myProfile().url());
     assertTrue(browser.pageSource().contains("GuestClient"));
     assertTrue(browser.pageSource().contains("{\"created_time\":"));
-    assertTrue(browser.pageSource().contains(Roles.ROLE_APPLICANT));
+    assertTrue(browser.pageSource().contains(Roles.ROLE_APPLICANT.toString()));
   }
 }

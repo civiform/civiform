@@ -6,7 +6,7 @@ import static play.mvc.Results.*;
 import auth.GuestClient;
 import auth.ProfileFactory;
 import auth.Roles;
-import auth.UATProfile;
+import auth.UatProfile;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -70,7 +70,7 @@ public class SecurityModule extends AbstractModule {
     // so that it's always safe to add the profile.
     // We will need to do this for every class we want to store in the cookie.
     PlayCookieSessionStore.JAVA_SERIALIZER.clearTrustedClasses();
-    PlayCookieSessionStore.JAVA_SERIALIZER.addTrustedClass(UATProfile.class);
+    PlayCookieSessionStore.JAVA_SERIALIZER.addTrustedClass(UatProfile.class);
 
     // We need to use the secret key to generate the encrypter / decrypter for the
     // session store, so that cookies from version n of the application can be
@@ -113,10 +113,11 @@ public class SecurityModule extends AbstractModule {
                 forbidden("403 forbidden").as(HttpConstants.HTML_CONTENT_TYPE)));
     Config config = new Config();
     config.setClients(clients);
-    config.addAuthorizer("uatadmin", new RequireAllRolesAuthorizer(Roles.ROLE_UAT_ADMIN));
-    config.addAuthorizer("programadmin", new RequireAllRolesAuthorizer(Roles.ROLE_PROGRAM_ADMIN));
-    config.addAuthorizer("applicant", new RequireAllRolesAuthorizer(Roles.ROLE_APPLICANT));
-    config.addAuthorizer("intermediary", new RequireAllRolesAuthorizer(Roles.ROLE_TI));
+    config.addAuthorizer(
+        "uatadmin", new RequireAllRolesAuthorizer(Roles.ROLE_UAT_ADMIN.toString()));
+    config.addAuthorizer(
+        "applicant", new RequireAllRolesAuthorizer(Roles.ROLE_APPLICANT.toString()));
+    config.addAuthorizer("intermediary", new RequireAllRolesAuthorizer(Roles.ROLE_TI.toString()));
 
     config.setHttpActionAdapter(PlayHttpActionAdapter.INSTANCE);
     return config;

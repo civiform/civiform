@@ -13,10 +13,10 @@ public class ProfileFactory {
     this.clock = Preconditions.checkNotNull(clock);
   }
 
-  public UATProfile createNewApplicant() {
-    UATProfile p = new UATProfile(clock);
+  public UatProfile createNewApplicant() {
+    UatProfile p = new UatProfile(clock);
     p.init();
-    p.addRole(Roles.ROLE_APPLICANT);
+    p.addRole(Roles.ROLE_APPLICANT.toString());
     return p;
   }
 }
