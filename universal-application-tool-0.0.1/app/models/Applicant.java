@@ -1,7 +1,5 @@
 package models;
 
-import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
 import io.ebean.annotation.DbJson;
 import java.io.IOException;
 import javax.persistence.Entity;
@@ -16,20 +14,14 @@ import services.applicant.ApplicantData;
 @Table(name = "applicants")
 public class Applicant extends BaseModel {
   private static final long serialVersionUID = 1L;
-  private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
   private ApplicantData applicantData;
 
   @Constraints.Required @DbJson private String object;
   @ManyToOne private Account account;
 
   public ApplicantData getApplicantData() {
-    if (object == null) {
-      this.object = EMPTY_APPLICANT_DATA_JSON;
-    }
-
     if (this.applicantData == null) {
-      DocumentContext context = JsonPath.parse(object);
-      this.applicantData = new ApplicantData(context);
+      this.applicantData = new ApplicantData();
     }
 
     return applicantData;
