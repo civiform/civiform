@@ -17,6 +17,7 @@ import play.data.validation.Constraints;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
+import services.question.UnsupportedQuestionTypeException;
 
 @Entity
 @Table(name = "questions")
@@ -67,7 +68,7 @@ public class Question extends BaseModel {
   @PostLoad
   @PostPersist
   @PostUpdate
-  public void loadQuestionDefinition() {
+  public void loadQuestionDefinition() throws UnsupportedQuestionTypeException {
     this.questionDefinition =
         new QuestionDefinitionBuilder()
             .setId(id)
