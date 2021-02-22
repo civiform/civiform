@@ -10,9 +10,9 @@ import java.util.Locale;
  */
 public interface ReadOnlyQuestionService {
 
-  /** 
-   * Returns a valid id for new QuestionDefinitions. 
-   * TODO: Remove. The id should be set by the repository.
+  /**
+   * Returns a valid id for new QuestionDefinitions. TODO: Remove. The id should be set by the
+   * repository.
    */
   long getNextId();
 

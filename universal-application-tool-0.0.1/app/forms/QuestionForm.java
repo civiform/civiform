@@ -3,80 +3,80 @@ package forms;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Random;
 import services.question.QuestionDefinitionBuilder;
-import services.question.QuestionDefinition;
 import services.question.QuestionType;
 
 public class QuestionForm {
-    private String questionName;
-    private String questionDescription;
-    private String questionPath; 
-    private String questionType;
-    private String questionText;
-    private String questionHelpText;
+  private String questionName;
+  private String questionDescription;
+  private String questionPath;
+  private String questionType;
+  private String questionText;
+  private String questionHelpText;
 
-    public String getQuestionName() {
-        return questionName;
-    }
+  public String getQuestionName() {
+    return questionName;
+  }
 
-    public void setQuestionName(String questionName) {
-        this.questionName = questionName;
-    }
+  public void setQuestionName(String questionName) {
+    this.questionName = questionName;
+  }
 
-    public String getQuestionDescription() {
-        return questionDescription;
-    }
+  public String getQuestionDescription() {
+    return questionDescription;
+  }
 
-    public void setQuestionDescription(String questionDescription) {
-        this.questionDescription = questionDescription;
-    }
+  public void setQuestionDescription(String questionDescription) {
+    this.questionDescription = questionDescription;
+  }
 
-    public String getQuestionPath() {
-        return questionPath;
-    }
+  public String getQuestionPath() {
+    return questionPath;
+  }
 
-    public void setQuestionPath(String questionPath) {
-        this.questionPath = questionPath;
-    }
+  public void setQuestionPath(String questionPath) {
+    this.questionPath = questionPath;
+  }
 
-    public String getQuestionType() {
-        return questionType;
-    }
+  public String getQuestionType() {
+    return questionType;
+  }
 
-    public void setQuestionType(String questionType) {
-        this.questionType = questionType;
-    }
+  public void setQuestionType(String questionType) {
+    this.questionType = questionType;
+  }
 
-    public String getQuestionText() {
-        return questionText;
-    }
+  public String getQuestionText() {
+    return questionText;
+  }
 
-    public void setQuestionText(String questionText) {
-        this.questionText = questionText;
-    }
+  public void setQuestionText(String questionText) {
+    this.questionText = questionText;
+  }
 
-    public String getQuestionHelpText() {
-        return questionHelpText;
-    }
+  public String getQuestionHelpText() {
+    return questionHelpText;
+  }
 
-    public void setQuestionHelpText(String questionHelpText) {
-        this.questionHelpText = questionHelpText;
-    }
+  public void setQuestionHelpText(String questionHelpText) {
+    this.questionHelpText = questionHelpText;
+  }
 
-
-    public QuestionDefinitionBuilder getBuilder() {
-        ImmutableMap<Locale, String> questionTextMap = 
-            (questionText.length() > 0) ? ImmutableMap.of(Locale.ENGLISH, questionText): ImmutableMap.of();
-        Optional<ImmutableMap<Locale, String>> questionHelpTextMap = 
-            (questionHelpText.length() > 0) ? Optional.of(ImmutableMap.of(Locale.ENGLISH, questionHelpText))
+  public QuestionDefinitionBuilder getBuilder() {
+    ImmutableMap<Locale, String> questionTextMap =
+        (questionText.length() > 0)
+            ? ImmutableMap.of(Locale.ENGLISH, questionText)
+            : ImmutableMap.of();
+    Optional<ImmutableMap<Locale, String>> questionHelpTextMap =
+        (questionHelpText.length() > 0)
+            ? Optional.of(ImmutableMap.of(Locale.ENGLISH, questionHelpText))
             : Optional.empty();
-        return new QuestionDefinitionBuilder()
-            .setQuestionType(QuestionType.valueOf(questionType))
-            .setName(questionName == null ? "" : questionName)
-            .setPath(questionPath == null ? "" : questionPath)
-            .setDescription(questionDescription == null ? "" : questionDescription)
-            .setQuestionText(questionTextMap)
-            .setQuestionHelpText(questionHelpTextMap);
-    }
+    return new QuestionDefinitionBuilder()
+        .setQuestionType(QuestionType.valueOf(questionType))
+        .setName(questionName == null ? "" : questionName)
+        .setPath(questionPath == null ? "" : questionPath)
+        .setDescription(questionDescription == null ? "" : questionDescription)
+        .setQuestionText(questionTextMap)
+        .setQuestionHelpText(questionHelpTextMap);
+  }
 }

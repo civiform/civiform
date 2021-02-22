@@ -22,7 +22,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
       String questionPath = qd.getPath();
       // Remove this code.
       long questionId = qd.getId();
-      if (questionId >= nextId) { 
+      if (questionId >= nextId) {
         nextId = questionId + 1;
       }
       // End code block to remove.
@@ -38,7 +38,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
                   scalarParentsMap.put(fullPath, qd);
                 } catch (Exception e) {
                   System.out.println("Key already exists: " + fullPath);
-                }                
+                }
               });
     }
     this.questions = questionMap.build();
@@ -81,7 +81,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
       return PathType.SCALAR;
     }
     return PathType.NONE;
-  }  
+  }
 
   public QuestionDefinition getQuestionDefinition(long id) throws InvalidPathException {
     QuestionDefinition definition = questionIds.get(id);
