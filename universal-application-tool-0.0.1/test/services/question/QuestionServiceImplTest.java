@@ -15,7 +15,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   QuestionServiceImpl questionService;
 
   QuestionDefinition questionDefinition =
-      new QuestionDefinition(
+      new TextQuestionDefinition(
           123L,
           1L,
           "my name",

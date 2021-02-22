@@ -10,11 +10,10 @@ import java.util.Optional;
 import org.junit.Test;
 
 public class QuestionDefinitionTest {
-
   @Test
   public void newQuestionHasCorrectFields() throws TranslationNotFoundException {
     QuestionDefinition question =
-        new QuestionDefinition(
+        new TextQuestionDefinition(
             123L,
             1L,
             "my name",
@@ -36,7 +35,8 @@ public class QuestionDefinitionTest {
   public void getQuestionTextForUnknownLocale_throwsException() {
     String questionPath = "question.path";
     QuestionDefinition question =
-        new QuestionDefinition(123L, 1L, "", questionPath, "", ImmutableMap.of(), Optional.empty());
+        new TextQuestionDefinition(
+            123L, 1L, "", questionPath, "", ImmutableMap.of(), Optional.empty());
 
     Throwable thrown = catchThrowable(() -> question.getQuestionText(Locale.FRANCE));
 
@@ -50,7 +50,7 @@ public class QuestionDefinitionTest {
   public void getQuestionHelpTextForUnknownLocale_throwsException() {
     String questionPath = "question.path";
     QuestionDefinition question =
-        new QuestionDefinition(
+        new TextQuestionDefinition(
             123L,
             1L,
             "",
@@ -70,14 +70,14 @@ public class QuestionDefinitionTest {
   @Test
   public void getEmptyHelpTextForUnknownLocale_succeeds() throws TranslationNotFoundException {
     QuestionDefinition question =
-        new QuestionDefinition(123L, 1L, "", "", "", ImmutableMap.of(), Optional.empty());
+        new TextQuestionDefinition(123L, 1L, "", "", "", ImmutableMap.of(), Optional.empty());
     assertThat(question.getQuestionHelpText(Locale.FRANCE)).isEqualTo("");
   }
 
   @Test
   public void newQuestionHasTypeText() {
     QuestionDefinition question =
-        new QuestionDefinition(123L, 1L, "", "", "", ImmutableMap.of(), Optional.empty());
+        new TextQuestionDefinition(123L, 1L, "", "", "", ImmutableMap.of(), Optional.empty());
 
     assertThat(question.getQuestionType()).isEqualTo(QuestionType.TEXT);
   }
@@ -85,7 +85,7 @@ public class QuestionDefinitionTest {
   @Test
   public void newQuestionHasStringScalar() {
     QuestionDefinition question =
-        new QuestionDefinition(123L, 1L, "", "", "", ImmutableMap.of(), Optional.empty());
+        new TextQuestionDefinition(123L, 1L, "", "", "", ImmutableMap.of(), Optional.empty());
     assertThat(question.getScalars()).containsOnly(entry("text", ScalarType.STRING));
     assertThat(question.getScalarType("text").get()).isEqualTo(ScalarType.STRING);
     assertThat(question.getScalarType("text").get().getClassFor().get()).isEqualTo(String.class);
@@ -94,7 +94,7 @@ public class QuestionDefinitionTest {
   @Test
   public void newQuestionHasStringScalar_withFullPath() {
     QuestionDefinition question =
-        new QuestionDefinition(
+        new TextQuestionDefinition(
             123L,
             1L,
             "name",
@@ -111,7 +111,7 @@ public class QuestionDefinitionTest {
   @Test
   public void newQuestionMissingScalar_returnsOptionalEmpty() {
     QuestionDefinition question =
-        new QuestionDefinition(123L, 1L, "", "", "", ImmutableMap.of(), Optional.empty());
+        new TextQuestionDefinition(123L, 1L, "", "", "", ImmutableMap.of(), Optional.empty());
     assertThat(question.getScalarType("notPresent")).isEqualTo(Optional.empty());
   }
 }

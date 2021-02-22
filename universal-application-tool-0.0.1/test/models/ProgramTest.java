@@ -11,7 +11,10 @@ import repository.ProgramRepository;
 import repository.WithPostgresContainer;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.question.AddressQuestionDefinition;
+import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
+import services.question.TextQuestionDefinition;
 import services.question.TranslationNotFoundException;
 
 public class ProgramTest extends WithPostgresContainer {
@@ -21,7 +24,7 @@ public class ProgramTest extends WithPostgresContainer {
     ProgramRepository repo = app.injector().instanceOf(ProgramRepository.class);
 
     QuestionDefinition questionDefinition =
-        new QuestionDefinition(
+        new TextQuestionDefinition(
             165L,
             2L,
             "question",
@@ -67,5 +70,57 @@ public class ProgramTest extends WithPostgresContainer {
           .isEqualTo("What is your name?");
     } catch (TranslationNotFoundException e) {
     }
+  }
+
+  @Test
+  public void correctlySerializesDifferentQuestionTypes() {
+    ProgramRepository repo = app.injector().instanceOf(ProgramRepository.class);
+
+    AddressQuestionDefinition addressQuestionDefinition =
+        new AddressQuestionDefinition(
+            1L,
+            2L,
+            "question",
+            "applicant.address",
+            "applicant's address",
+            ImmutableMap.of(Locale.US, "What is your address?"),
+            Optional.empty());
+    NameQuestionDefinition nameQuestionDefinition =
+        new NameQuestionDefinition(
+            2L,
+            2L,
+            "question",
+            "applicant.name",
+            "applicant's name",
+            ImmutableMap.of(Locale.US, "What is your name?"),
+            Optional.empty());
+
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("First Block")
+            .setDescription("basic info")
+            .setQuestionDefinitions(
+                ImmutableList.of(addressQuestionDefinition, nameQuestionDefinition))
+            .build();
+
+    ProgramDefinition definition =
+        ProgramDefinition.builder()
+            .setId(1L)
+            .setName("ProgramTest")
+            .setDescription("desc")
+            .setBlockDefinitions(ImmutableList.of(blockDefinition))
+            .build();
+    Program program = new Program(definition);
+    program.save();
+
+    Program found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
+
+    QuestionDefinition addressQuestion =
+        found.getProgramDefinition().blockDefinitions().get(0).questionDefinitions().get(0);
+    assertThat(addressQuestion).isInstanceOf(AddressQuestionDefinition.class);
+    QuestionDefinition nameQuestion =
+        found.getProgramDefinition().blockDefinitions().get(0).questionDefinitions().get(1);
+    assertThat(nameQuestion).isInstanceOf(NameQuestionDefinition.class);
   }
 }
