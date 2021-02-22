@@ -43,6 +43,13 @@ public interface ReadOnlyQuestionService {
   /**
    * Gets the question definition for a given path.
    *
+   * <p>If a question with that id doesn't exist, it will throw an InvalidPathException.
+   */
+  QuestionDefinition getQuestionDefinition(long pathString) throws InvalidPathException;
+
+  /**
+   * Gets the question definition for a given path.
+   *
    * <p>If the path is to a QUESTION, it will return that.
    *
    * <p>If the path is to a SCALAR, it will return the parent QuestionDefinition for that Scalar.

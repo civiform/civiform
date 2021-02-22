@@ -7,6 +7,7 @@ import java.util.Locale;
 public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionService {
   private final ImmutableMap<String, ScalarType> scalars;
   private final ImmutableMap<String, QuestionDefinition> questions;
+  private final ImmutableMap<long, QuestionDefinition> questionIds;
   private final ImmutableMap<String, QuestionDefinition> scalarParents;
 
   private Locale preferredLocale = Locale.ENGLISH;
@@ -14,6 +15,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
 
   public ReadOnlyQuestionServiceImpl(ImmutableList<QuestionDefinition> questions) {
     ImmutableMap.Builder<String, QuestionDefinition> questionMap = ImmutableMap.builder();
+    ImmutableMap.Builder<long, QuestionDefinition> questionIdsMap = ImmutableMap.builder();
     ImmutableMap.Builder<String, ScalarType> scalarMap = ImmutableMap.builder();
     ImmutableMap.Builder<String, QuestionDefinition> scalarParentsMap = ImmutableMap.builder();
     for (QuestionDefinition qd : questions) {
@@ -25,6 +27,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
       }
       // End code block to remove.
       questionMap.put(questionPath, qd);
+      questionIdsMap.put(qd.getId(), qd);
       ImmutableMap<String, ScalarType> questionScalars = qd.getScalars();
       questionScalars.entrySet().stream()
           .forEach(
@@ -39,6 +42,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
               });
     }
     this.questions = questionMap.build();
+    this.questionIds = questionIdsMap.build();
     this.scalars = scalarMap.build();
     this.scalarParents = scalarParentsMap.build();
   }
@@ -78,6 +82,14 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     }
     return PathType.NONE;
   }  
+
+  public QuestionDefinition getQuestionDefinition(long id) throws InvalidPathException {
+    QuestionDefinition definition = questionIds.get(id);
+    if (definition != null) {
+      return definition;
+    }
+    throw new InvalidPathException("id: " + id);
+  }
 
   public QuestionDefinition getQuestionDefinition(String pathString) throws InvalidPathException {
     PathType pathType = this.getPathType(pathString);
