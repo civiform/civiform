@@ -2,6 +2,7 @@ package repository;
 
 import static play.test.Helpers.fakeApplication;
 
+import akka.stream.Materializer;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
@@ -9,21 +10,35 @@ import models.Applicant;
 import models.Person;
 import models.Program;
 import models.Question;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import play.Application;
 import play.db.ebean.EbeanConfig;
-import play.test.WithApplication;
+import play.test.Helpers;
 
-public class WithPostgresContainer extends WithApplication {
+public class WithPostgresContainer {
 
-  @Before
-  public void truncateTables() {
-    EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
-    EbeanServer server = Ebean.getServer(config.defaultServer());
-    server.truncate(Applicant.class, Person.class, Program.class, Question.class);
+  protected static Application app;
+
+  protected static Materializer mat;
+
+  @BeforeClass
+  public static void startPlay() {
+    app = provideApplication();
+    Helpers.start(app);
+    mat = app.asScala().materializer();
   }
 
-  protected Application provideApplication() {
+  @AfterClass
+  public static void stopPlay() {
+    if (app != null) {
+      Helpers.stop(app);
+      app = null;
+    }
+  }
+
+  protected static Application provideApplication() {
     return fakeApplication(
         ImmutableMap.of(
             "db.default.driver",
@@ -40,5 +55,16 @@ public class WithPostgresContainer extends WithApplication {
             "jdbc:tc:postgresql:12.5:///databasename",
             "play.evolutions.db.default.enabled ",
             "true"));
+  }
+
+  protected <T> T instanceOf(Class<T> clazz) {
+    return app.injector().instanceOf(clazz);
+  }
+
+  @Before
+  public void truncateTables() {
+    EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
+    EbeanServer server = Ebean.getServer(config.defaultServer());
+    server.truncate(Applicant.class, Person.class, Program.class, Question.class);
   }
 }
