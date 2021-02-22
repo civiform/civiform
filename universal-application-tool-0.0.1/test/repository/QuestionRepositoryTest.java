@@ -76,7 +76,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   @Test
   public void insertQuestionSync() {
     QuestionDefinition questionDefinition =
-        new QuestionDefinition(
+        new TextQuestionDefinition(
             1L,
             2L,
             "question",
@@ -93,7 +93,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
   private Question saveQuestion(long id) {
     QuestionDefinition definition =
-        new QuestionDefinition(id, 1L, "", "", "", ImmutableMap.of(), Optional.empty());
+        new TextQuestionDefinition(id, 1L, "", "", "", ImmutableMap.of(), Optional.empty());
     Question question = new Question(definition);
     question.save();
     return question;
