@@ -29,7 +29,7 @@ public class ReadOnlyQuestionServiceImplTest {
           ImmutableMap.of(Locale.ENGLISH, "What is your address?"),
           Optional.empty());
   QuestionDefinition basicQuestion =
-      new QuestionDefinition(
+      new TextQuestionDefinition(
           3L,
           1L,
           "applicant's favorite color",

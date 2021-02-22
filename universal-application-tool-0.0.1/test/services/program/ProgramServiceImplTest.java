@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
 import services.question.QuestionDefinition;
+import services.question.TextQuestionDefinition;
 
 public class ProgramServiceImplTest extends WithPostgresContainer {
 
@@ -152,7 +153,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   public void setBlockQuestions_updatesBlock()
       throws ProgramNotFoundException, ProgramBlockNotFoundException {
     QuestionDefinition questionDefinition =
-        new QuestionDefinition(
+        new TextQuestionDefinition(
             1L,
             1L,
             "name question",
