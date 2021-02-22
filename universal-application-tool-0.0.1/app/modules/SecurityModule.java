@@ -114,6 +114,8 @@ public class SecurityModule extends AbstractModule {
     Config config = new Config();
     config.setClients(clients);
     config.addAuthorizer(
+            "programadmin", new RequireAllRolesAuthorizer(Roles.ROLE_PROGRAM_ADMIN.toString()));
+    config.addAuthorizer(
         "uatadmin", new RequireAllRolesAuthorizer(Roles.ROLE_UAT_ADMIN.toString()));
     config.addAuthorizer(
         "applicant", new RequireAllRolesAuthorizer(Roles.ROLE_APPLICANT.toString()));
