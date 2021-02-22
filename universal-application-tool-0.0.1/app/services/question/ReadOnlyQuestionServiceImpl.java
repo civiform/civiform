@@ -7,7 +7,7 @@ import java.util.Locale;
 public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionService {
   private final ImmutableMap<String, ScalarType> scalars;
   private final ImmutableMap<String, QuestionDefinition> questions;
-  private final ImmutableMap<long, QuestionDefinition> questionIds;
+  private final ImmutableMap<Long, QuestionDefinition> questionIds;
   private final ImmutableMap<String, QuestionDefinition> scalarParents;
 
   private Locale preferredLocale = Locale.ENGLISH;
@@ -15,7 +15,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
 
   public ReadOnlyQuestionServiceImpl(ImmutableList<QuestionDefinition> questions) {
     ImmutableMap.Builder<String, QuestionDefinition> questionMap = ImmutableMap.builder();
-    ImmutableMap.Builder<long, QuestionDefinition> questionIdsMap = ImmutableMap.builder();
+    ImmutableMap.Builder<Long, QuestionDefinition> questionIdsMap = ImmutableMap.builder();
     ImmutableMap.Builder<String, ScalarType> scalarMap = ImmutableMap.builder();
     ImmutableMap.Builder<String, QuestionDefinition> scalarParentsMap = ImmutableMap.builder();
     for (QuestionDefinition qd : questions) {
