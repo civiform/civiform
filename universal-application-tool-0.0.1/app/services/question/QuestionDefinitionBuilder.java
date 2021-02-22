@@ -68,7 +68,6 @@ public class QuestionDefinitionBuilder {
         return new TextQuestionDefinition(
             id, version, name, path, description, questionText, questionHelpText);
       default:
-        // TODO: throw a real exception.
         throw new UnsupportedQuestionTypeException(this.questionType);
     }
   }
