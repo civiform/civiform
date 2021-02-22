@@ -18,17 +18,13 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     ImmutableMap.Builder<String, QuestionDefinition> scalarParentsMap = ImmutableMap.builder();
     for (QuestionDefinition qd : questions) {
       String questionPath = qd.getPath();
-      long questionId = qd.getId();
       // Remove this code.
+      long questionId = qd.getId();
       if (questionId >= nextId) { 
         nextId = questionId + 1;
       }
-      // End bad code block.
-     try {        
-        questionMap.put(questionPath, qd);
-      } catch (Exception e ) {
-        System.out.println("Key already exists: " + questionPath);
-      }
+      // End code block to remove.
+      questionMap.put(questionPath, qd);
       ImmutableMap<String, ScalarType> questionScalars = qd.getScalars();
       questionScalars.entrySet().stream()
           .forEach(
