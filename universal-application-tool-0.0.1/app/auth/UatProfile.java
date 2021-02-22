@@ -45,9 +45,9 @@ public class UatProfile extends CommonProfile {
   }
 
   /**
-   * This method needs to be called outside the constructor since constructors should not
-   * do database accesses (or other work).  It should be called before the object is
-   * used - the object has not been persisted / correctly created until it is called.
+   * This method needs to be called outside the constructor since constructors should not do
+   * database accesses (or other work). It should be called before the object is used - the object
+   * has not been persisted / correctly created until it is called.
    */
   public void init() {
     Account acc = new Account();
