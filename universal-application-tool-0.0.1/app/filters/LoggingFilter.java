@@ -1,5 +1,7 @@
 package filters;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.time.Clock;
 import java.util.concurrent.Executor;
 import javax.inject.Inject;
@@ -20,8 +22,8 @@ public class LoggingFilter extends EssentialFilter {
   /** @param exec This class is needed to execute code asynchronously. */
   @Inject
   public LoggingFilter(Executor exec, Clock clock) {
-    this.exec = exec;
-    this.clock = clock;
+    this.exec = checkNotNull(exec);
+    this.clock = checkNotNull(clock);
   }
 
   @Override
