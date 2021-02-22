@@ -10,6 +10,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
   private final ImmutableMap<String, QuestionDefinition> scalarParents;
 
   private Locale preferredLocale = Locale.ENGLISH;
+  private long nextId = 0;
 
   public ReadOnlyQuestionServiceImpl(ImmutableList<QuestionDefinition> questions) {
     ImmutableMap.Builder<String, QuestionDefinition> questionMap = ImmutableMap.builder();
@@ -17,14 +18,28 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     ImmutableMap.Builder<String, QuestionDefinition> scalarParentsMap = ImmutableMap.builder();
     for (QuestionDefinition qd : questions) {
       String questionPath = qd.getPath();
-      questionMap.put(questionPath, qd);
+      long questionId = qd.getId();
+      // Remove this code.
+      if (questionId >= nextId) { 
+        nextId = questionId + 1;
+      }
+      // End bad code block.
+     try {        
+        questionMap.put(questionPath, qd);
+      } catch (Exception e ) {
+        System.out.println("Key already exists: " + questionPath);
+      }
       ImmutableMap<String, ScalarType> questionScalars = qd.getScalars();
       questionScalars.entrySet().stream()
           .forEach(
               entry -> {
                 String fullPath = questionPath + '.' + entry.getKey();
-                scalarMap.put(fullPath, entry.getValue());
-                scalarParentsMap.put(fullPath, qd);
+                try {
+                  scalarMap.put(fullPath, entry.getValue());
+                  scalarParentsMap.put(fullPath, qd);
+                } catch (Exception e) {
+                  System.out.println("Key already exists: " + fullPath);
+                }                
               });
     }
     this.questions = questionMap.build();
@@ -38,6 +53,10 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
 
   public ImmutableMap<String, ScalarType> getAllScalars() {
     return scalars;
+  }
+
+  public long getNextId() {
+    return nextId++;
   }
 
   public ImmutableMap<String, ScalarType> getPathScalars(String pathString)
@@ -62,7 +81,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
       return PathType.SCALAR;
     }
     return PathType.NONE;
-  }
+  }  
 
   public QuestionDefinition getQuestionDefinition(String pathString) throws InvalidPathException {
     PathType pathType = this.getPathType(pathString);

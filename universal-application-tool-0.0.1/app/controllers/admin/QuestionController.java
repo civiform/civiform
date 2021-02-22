@@ -2,9 +2,13 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableMap;
+import forms.QuestionForm;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import java.util.Locale;
+import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
@@ -43,15 +47,23 @@ public class QuestionController extends Controller {
             });
   }
 
-  public Result write(Request request) {
-    // TODO(now): Write to database.
-    return ok(editView.render(request, Optional.empty()));
+  public CompletionStage<Result> write(Request request) {
+    Form<QuestionForm> form = formFactory.form(QuestionForm.class);    
+    QuestionForm questionForm = form.bindFromRequest(request).get();
+    return service
+        .getReadOnlyQuestionService()
+        .thenApplyAsync(readOnlyService -> {
+          QuestionDefinition definition = questionForm.getBuilder()
+            .setId(readOnlyService.getNextId())
+            .setVersion(1L).build();            
+          System.out.println("Attempting to save question with question id: " 
+            + definition.getId());
+          service.create(definition);
+          return redirect("/admin/questions");
+        });
   }
 
-  // public Result update(Request request) {}
-
   public Result create(Request request) {
-    QuestionDefinitionBuilder builder = new QuestioDefinitionBuilder();
     return ok(editView.render(request, Optional.empty()));
   }
 

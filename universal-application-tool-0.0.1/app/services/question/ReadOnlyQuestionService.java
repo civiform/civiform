@@ -10,6 +10,12 @@ import java.util.Locale;
  */
 public interface ReadOnlyQuestionService {
 
+  /** 
+   * Returns a valid id for new QuestionDefinitions. 
+   * TODO: Remove. The id should be set by the repository.
+   */
+  long getNextId();
+
   /** Returns all question definitions for this version. */
   ImmutableList<QuestionDefinition> getAllQuestions();
 

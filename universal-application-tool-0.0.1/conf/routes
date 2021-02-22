@@ -20,7 +20,7 @@ GET     /admin/programs/new         controllers.admin.AdminProgramController.new
 POST    /admin/programs             controllers.admin.AdminProgramController.create(request: Request)
 
 # A controller for a page for an admin to view, edit, and create questions
-GET     /admin/questions             controllers.admin.QuestionController.list(renderAs: String ?= "list")
+GET     /admin/questions             controllers.admin.QuestionController.list(renderAs: String ?= "table")
 GET     /admin/questions/new         controllers.admin.QuestionController.create(request: Request)
 GET     /admin/questions/edit/:path  controllers.admin.QuestionController.edit(request: Request, path: String)
 POST    /admin/questions/write       controllers.admin.QuestionController.write(request: Request)

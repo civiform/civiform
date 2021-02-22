@@ -18,10 +18,6 @@ create table if not exists questions (
   question_help_text jsonb
 );
 
-insert into questions
-  (version, path, name, description, question_type, question_text, question_help_text)
-  values (1, 'applicant.fav_color', 'Fav color', 'test', 'TEXT', '{ "EN": "Favorite color?" }', '{ "EN": "" }');
-
 create table if not exists programs (
   id bigserial primary key,
   name varchar,
