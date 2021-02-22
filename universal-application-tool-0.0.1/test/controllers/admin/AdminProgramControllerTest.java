@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.FOUND;
@@ -15,6 +16,7 @@ import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.WithPostgresContainer;
+import services.program.ProgramNotFoundException;
 import views.html.helper.CSRF;
 
 public class AdminProgramControllerTest extends WithPostgresContainer {
@@ -94,8 +96,54 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
     assertThat(contentAsString(redirectResult)).contains("This is a new program");
   }
 
-  private static void insertProgram(String name) {
+  @Test
+  public void edit_throwsProgramNotFoundException() {
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+
+    assertThatThrownBy(() -> controller.edit(request, 1L))
+        .isInstanceOf(ProgramNotFoundException.class);
+  }
+
+  @Test
+  public void edit_returnsExpectedForm() throws ProgramNotFoundException {
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Program program = insertProgram("test program");
+
+    Result result = controller.edit(request, program.id);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Edit program");
+    assertThat(contentAsString(result)).contains("test program");
+    assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
+  }
+
+  @Test
+  public void update_throwsProgramNotFoundException() {
+    assertThatThrownBy(() -> controller.update(Helpers.fakeRequest().build(), 1L))
+        .isInstanceOf(ProgramNotFoundException.class);
+  }
+
+  @Test
+  public void update_overwritesExistingProgram() throws ProgramNotFoundException {
+    insertProgram("Existing One");
+    RequestBuilder requestBuilder =
+        Helpers.fakeRequest()
+            .bodyForm(
+                ImmutableMap.of("name", "New Program", "description", "This is a new program"));
+
+    Result result = controller.update(requestBuilder.build(), 1L);
+
+    assertThat(result.status()).isEqualTo(FOUND);
+    assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
+
+    Result redirectResult = controller.index();
+    assertThat(contentAsString(redirectResult)).contains("New Program");
+    assertThat(contentAsString(redirectResult)).doesNotContain("Existing One");
+  }
+
+  private static Program insertProgram(String name) {
     Program program = new Program(name, "description");
     program.save();
+    return program;
   }
 }

@@ -33,6 +33,7 @@ public class Program extends BaseModel {
 
   public Program(ProgramDefinition definition) {
     this.programDefinition = definition;
+    this.id = definition.id();
     this.name = definition.name();
     this.description = definition.description();
     this.blockDefinitions = definition.blockDefinitions();

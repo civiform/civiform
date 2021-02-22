@@ -1,16 +1,15 @@
 package views.admin;
 
+import static j2html.TagCreator.body;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.form;
+import static j2html.TagCreator.h1;
 
 import com.google.inject.Inject;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
-
-import static j2html.TagCreator.body;
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.form;
-import static j2html.TagCreator.h1;
 
 public final class ProgramNewOneView extends BaseHtmlView {
   private final BaseHtmlLayout layout;

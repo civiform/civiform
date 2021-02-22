@@ -31,6 +31,9 @@ public final class ProgramIndexView extends BaseHtmlView {
     return div(
         div(
             join(
+                "[",
+                String.valueOf(program.id()),
+                "]",
                 program.name(),
                 "(",
                 a("edit")

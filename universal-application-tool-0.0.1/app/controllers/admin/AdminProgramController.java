@@ -9,7 +9,7 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.admin.ProgramEditView;
 import views.admin.ProgramIndexView;
@@ -56,18 +56,17 @@ public class AdminProgramController extends Controller {
     return found(routes.AdminProgramController.index());
   }
 
-  public Result edit(Request request, long id) {
-    return ok(editView.render(request, service.getProgramDefinition(id).orElseThrow()));
+  public Result edit(Request request, long id) throws ProgramNotFoundException {
+    return ok(
+        editView.render(
+            request,
+            service.getProgramDefinition(id).orElseThrow(() -> new ProgramNotFoundException(id))));
   }
 
-  public Result update(Request request, long id) {
+  public Result update(Request request, long id) throws ProgramNotFoundException {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm program = programForm.bindFromRequest(request).get();
-    ProgramDefinition updatedProgram =
-        service.getProgramDefinition(id).orElseThrow().toBuilder()
-            .setName(program.getName())
-            .setDescription(program.getDescription())
-            .build();
+    service.updateProgramDefinition(id, program.getName(), program.getDescription());
     return found(routes.AdminProgramController.index());
   }
 }
