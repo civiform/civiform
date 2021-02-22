@@ -1,6 +1,7 @@
 package services.question;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
@@ -21,11 +22,13 @@ public class AddressQuestionDefinition extends QuestionDefinition {
   }
 
   @Override
+  @JsonIgnore
   public QuestionType getQuestionType() {
     return QuestionType.ADDRESS;
   }
 
   @Override
+  @JsonIgnore
   public ImmutableMap<String, ScalarType> getScalars() {
     return ImmutableMap.of(
         "street",

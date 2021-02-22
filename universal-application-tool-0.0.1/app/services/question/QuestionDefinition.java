@@ -112,17 +112,14 @@ public abstract class QuestionDefinition {
     return this.questionHelpText;
   }
 
-  /** Get the type of this question. */
-  @JsonIgnore
-  public QuestionType getQuestionType() {
-    return QuestionType.TEXT;
-  }
+  /** Get the type of this question. Implemented methods should use @JsonIgnore. */
+  public abstract QuestionType getQuestionType();
 
-  /** Get a map of scalars stored by this question definition. */
-  @JsonIgnore
-  public ImmutableMap<String, ScalarType> getScalars() {
-    return ImmutableMap.of("text", ScalarType.STRING);
-  }
+  /**
+   * Get a map of scalars stored by this question definition. Implemented methods should
+   * use @JsonIgnore.
+   */
+  public abstract ImmutableMap<String, ScalarType> getScalars();
 
   /** Get a map of scalars stored by this question definition. */
   @JsonIgnore
