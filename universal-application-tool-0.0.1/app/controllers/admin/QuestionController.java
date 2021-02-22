@@ -7,7 +7,10 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import play.data.FormFactory;
 import play.mvc.Controller;
+import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.question.QuestionDefinition;
+import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionService;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
@@ -40,11 +43,29 @@ public class QuestionController extends Controller {
             });
   }
 
-  public Result create() {
-    return ok(editView.render(Optional.empty()));
+  public Result write(Request request) {
+    // TODO(now): Write to database.
+    return ok(editView.render(request, Optional.empty()));
   }
 
-  public Result edit(String path) {
-    return ok(editView.render(Optional.empty()));
+  // public Result update(Request request) {}
+
+  public Result create(Request request) {
+    QuestionDefinitionBuilder builder = new QuestioDefinitionBuilder();
+    return ok(editView.render(request, Optional.empty()));
+  }
+
+  public CompletionStage<Result> edit(Request request, String path) {
+    return service
+        .getReadOnlyQuestionService()
+        .thenApplyAsync(
+            readOnlyService -> {
+              Optional<QuestionDefinition> definition = Optional.empty();
+              try {
+                definition = Optional.of(readOnlyService.getQuestionDefinition(path));
+              } catch (Exception e) {
+              }
+              return ok(editView.render(request, definition));
+            });
   }
 }

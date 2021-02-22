@@ -1,12 +1,19 @@
 package views;
 
+import static j2html.TagCreator.br;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
+import static j2html.TagCreator.option;
+import static j2html.TagCreator.select;
 import static j2html.TagCreator.text;
+import static j2html.TagCreator.textarea;
 
+import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
+import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.Tag;
+import java.util.Optional;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import views.html.helper.CSRF;
@@ -21,6 +28,41 @@ public abstract class BaseHtmlView {
 
   protected Content htmlContent(DomContent... domContents) {
     return new BaseHtmlLayout.HtmlResponseContent(domContents);
+  }
+
+  protected ImmutableList<DomContent> inputWithLabel(
+      String labelValue, String inputId, Optional<String> value) {
+    Tag labelTag = label(labelValue).attr("for", inputId);
+    Tag inputTag = input().withType("text").withId(inputId).withName(inputId);
+    if (value.isPresent()) {
+      inputTag.withValue(value.get());
+    }
+    return ImmutableList.of(labelTag, br(), inputTag, br(), br());
+  }
+
+  public ImmutableList<DomContent> textAreaWithLabel(
+      String labelValue, String inputId, Optional<String> value) {
+    Tag labelTag = label(labelValue).attr("for", inputId);
+    Tag textAreaTag = textarea(value.orElse("")).withType("text").withId(inputId).withName(inputId);
+    return ImmutableList.of(labelTag, br(), textAreaTag, br(), br());
+  }
+
+  public ImmutableList<DomContent> formSelect(
+      String labelValue,
+      String selectId,
+      String[] optionLabels,
+      String[] optionValues,
+      String selectedValue) {
+    Tag labelTag = label(labelValue).attr("for", selectId);
+    ContainerTag selectTag = select().withId(selectId).withName(selectId);
+    for (int i = 0; i < optionLabels.length && i < optionValues.length; i++) {
+      Tag optionTag = option(optionLabels[i]).withValue(optionValues[i]);
+      if (optionValues[i].equals(selectedValue)) {
+        optionTag.attr("selected");
+      }
+      selectTag.with(optionTag);
+    }
+    return ImmutableList.of(labelTag, br(), selectTag, br(), br());
   }
 
   protected Tag textField(String fieldName, String labelText) {

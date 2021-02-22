@@ -21,8 +21,9 @@ POST    /admin/programs             controllers.admin.AdminProgramController.cre
 
 # A controller for a page for an admin to view, edit, and create questions
 GET     /admin/questions             controllers.admin.QuestionController.list(renderAs: String ?= "list")
-GET     /admin/questions/new         controllers.admin.QuestionController.create
-GET     /admin/questions/edit/:path  controllers.admin.QuestionController.edit(path: String)
+GET     /admin/questions/new         controllers.admin.QuestionController.create(request: Request)
+GET     /admin/questions/edit/:path  controllers.admin.QuestionController.edit(request: Request, path: String)
+POST    /admin/questions/write       controllers.admin.QuestionController.write(request: Request)
 
 GET     /demo/new                   controllers.J2HtmlDemoController.newOne(request: Request)
 POST    /demo                       controllers.J2HtmlDemoController.create(request: Request)

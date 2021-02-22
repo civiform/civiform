@@ -53,8 +53,9 @@ public final class QuestionsListView extends BaseHtmlView {
       return ImmutableList.of(renderQuestionTable(questions));
     } else if (renderAs.equalsIgnoreCase("list")) {
       ImmutableList.Builder<Tag> builder = ImmutableList.builder();
-      questions.stream()
-          .map(question -> builder.add(renderQuestionDefinitionInfo(question, renderAs)));
+      for (QuestionDefinition qd : questions) {
+        builder.add(renderQuestionDefinitionInfo(qd, renderAs));
+      }
       return builder.build();
     }
     return ImmutableList.of(div("Unknown render type: " + renderAs));
