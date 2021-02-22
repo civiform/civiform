@@ -1,5 +1,7 @@
 package controllers;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import javax.inject.Inject;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.profile.ProfileManager;
@@ -15,8 +17,8 @@ public class ProfileController extends Controller {
 
   @Inject
   public ProfileController(SessionStore sessionStore, ProfileView profileView) {
-    this.sessionStore = sessionStore;
-    this.profileView = profileView;
+    this.sessionStore = checkNotNull(sessionStore);
+    this.profileView = checkNotNull(profileView);
   }
 
   public Result myProfile(Http.Request request) {

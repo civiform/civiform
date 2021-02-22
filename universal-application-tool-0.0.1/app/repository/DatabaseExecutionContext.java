@@ -1,5 +1,7 @@
 package repository;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import akka.actor.ActorSystem;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -10,6 +12,6 @@ import play.libs.concurrent.CustomExecutionContext;
 public class DatabaseExecutionContext extends CustomExecutionContext {
   @Inject
   public DatabaseExecutionContext(ActorSystem actorSystem) {
-    super(actorSystem, "database.dispatcher");
+    super(checkNotNull(actorSystem), "database.dispatcher");
   }
 }

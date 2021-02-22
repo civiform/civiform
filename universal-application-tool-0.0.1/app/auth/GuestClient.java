@@ -1,5 +1,7 @@
 package auth;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.core.client.IndirectClient;
@@ -12,7 +14,7 @@ public class GuestClient extends IndirectClient {
 
   @Inject
   public GuestClient(ProfileFactory profileFactory) {
-    this.profileFactory = profileFactory;
+    this.profileFactory = checkNotNull(profileFactory);
   }
 
   @Override
