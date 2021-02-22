@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import forms.ProgramForm;
 import java.util.Optional;
 import javax.inject.Inject;
+import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
@@ -40,14 +41,17 @@ public class AdminProgramController extends Controller {
     this.formFactory = checkNotNull(formFactory);
   }
 
+  @Secure(authorizers = "uatadmin")
   public Result index() {
     return ok(listView.render(this.service.listProgramDefinitions()));
   }
 
+  @Secure(authorizers = "uatadmin")
   public Result newOne(Request request) {
     return ok(newOneView.render(request));
   }
 
+  @Secure(authorizers = "uatadmin")
   public Result create(Request request) {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm program = programForm.bindFromRequest(request).get();

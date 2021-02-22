@@ -97,12 +97,20 @@ public class SecurityModule extends AbstractModule {
     return new ProfileFactory(clock, dbContext, httpContext);
   }
 
+  protected FakeAdminClient fakeAdminClient(ProfileFactory profileFactory) {
+    return new FakeAdminClient(profileFactory);
+  }
+
   @Provides
   @Singleton
-  protected Config provideConfig(GuestClient guestClient) {
+  protected Config provideConfig(GuestClient guestClient, FakeAdminClient fakeAdminClient) {
     // This must match the line in `routes` also.
     Clients clients = new Clients(baseUrl + routes.CallbackController.callback("GuestClient"));
-    clients.setClients(guestClient);
+    if (this.baseUrl.equals(DEV_BASE_URL)) {
+      clients.setClients(guestClient, fakeAdminClient);
+    } else {
+      clients.setClients(guestClient);
+    }
     PlayHttpActionAdapter.INSTANCE
         .getResults()
         .putAll(
