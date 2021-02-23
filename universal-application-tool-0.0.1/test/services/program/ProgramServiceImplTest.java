@@ -16,11 +16,11 @@ import services.question.TextQuestionDefinition;
 
 public class ProgramServiceImplTest extends WithPostgresContainer {
 
-  ProgramServiceImpl ps;
+  private ProgramServiceImpl ps;
 
   @Before
   public void setProgramServiceImpl() {
-    ps = app.injector().instanceOf(ProgramServiceImpl.class);
+    ps = instanceOf(ProgramServiceImpl.class);
   }
 
   @Test
@@ -70,8 +70,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void updateProgram_withNoProgram_throwsProgramNotFoundException()
-      throws ProgramNotFoundException {
+  public void updateProgram_withNoProgram_throwsProgramNotFoundException() {
     assertThatThrownBy(() -> ps.updateProgramDefinition(1L, "new", "new description"))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessage("Program not found for ID: 1");
@@ -131,6 +130,10 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThatThrownBy(() -> ps.addBlockToProgram(1L, "name", "desc"))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessage("Program not found for ID: 1");
+
+    assertThatThrownBy(() -> ps.addBlockToProgram(1L, "name", "description", ImmutableList.of()))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessage("Program not found for ID: 1");
   }
 
   @Test
@@ -147,6 +150,34 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThat(found.blockDefinitions()).hasSize(1);
     assertThat(found.blockDefinitions())
         .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
+  }
+
+  @Test
+  public void addBlockToProgramWithQuestions_returnsProgramDefinitionWithBlock() throws Exception {
+    QuestionDefinition questionDefinition =
+        new TextQuestionDefinition(
+            1L,
+            1L,
+            "name question",
+            "applicant.name",
+            "The name of the applicant.",
+            ImmutableMap.of(Locale.US, "What is your name?"),
+            Optional.empty());
+    ProgramDefinition programDefinition = ps.createProgramDefinition("program", "description");
+    long id = programDefinition.id();
+
+    ProgramDefinition updated =
+        ps.addBlockToProgram(id, "block", "desc", ImmutableList.of(questionDefinition));
+
+    assertThat(updated.blockDefinitions()).hasSize(1);
+    assertThat(updated.blockDefinitions().get(0))
+        .isEqualTo(
+            BlockDefinition.builder()
+                .setId(1L)
+                .setName("block")
+                .setDescription("desc")
+                .setQuestionDefinitions(ImmutableList.of(questionDefinition))
+                .build());
   }
 
   @Test

@@ -61,13 +61,26 @@ public class FakeProgramService implements ProgramService {
   @Override
   public ProgramDefinition addBlockToProgram(
       long programId, String blockName, String blockDescription) throws ProgramNotFoundException {
+    return addBlockToProgram(programId, blockName, blockDescription, ImmutableList.of());
+  }
+
+  @Override
+  public ProgramDefinition addBlockToProgram(
+      long programId,
+      String blockName,
+      String blockDescription,
+      ImmutableList<QuestionDefinition> questionDefinitions)
+      throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramOrThrow(programId);
+
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(getNextBlockId(programDefinition))
             .setName(blockName)
             .setDescription(blockDescription)
+            .setQuestionDefinitions(questionDefinitions)
             .build();
+
     programDefinition = programDefinition.toBuilder().addBlockDefinition(blockDefinition).build();
     this.programs.put(programId, programDefinition);
 
