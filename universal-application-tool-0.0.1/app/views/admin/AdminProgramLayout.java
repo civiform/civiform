@@ -1,6 +1,7 @@
 package views.admin;
 
 import static j2html.TagCreator.body;
+import static j2html.TagCreator.h1;
 import static j2html.TagCreator.head;
 import static j2html.TagCreator.main;
 import static j2html.TagCreator.title;
@@ -20,6 +21,6 @@ public class AdminProgramLayout extends BaseHtmlLayout {
 
   /** Renders mainDomContents within the main tag, in the context of the applicant layout. */
   protected Content render(DomContent... mainDomContents) {
-    return htmlContent(head(getCommonCssTag()), body(title("Program"), main(mainDomContents)));
+    return htmlContent(head(getCommonCssTag()), body(h1("Program"), main(mainDomContents)));
   }
 }
