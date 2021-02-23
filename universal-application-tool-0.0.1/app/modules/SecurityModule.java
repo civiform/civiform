@@ -3,10 +3,7 @@ package modules;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static play.mvc.Results.*;
 
-import auth.GuestClient;
-import auth.ProfileFactory;
-import auth.Roles;
-import auth.UatProfile;
+import auth.*;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -26,6 +23,8 @@ import org.pac4j.play.http.PlayHttpActionAdapter;
 import org.pac4j.play.store.PlayCookieSessionStore;
 import org.pac4j.play.store.ShiroAesDataEncrypter;
 import play.Environment;
+import play.libs.concurrent.HttpExecutionContext;
+import repository.DatabaseExecutionContext;
 
 public class SecurityModule extends AbstractModule {
 
@@ -62,15 +61,15 @@ public class SecurityModule extends AbstractModule {
     // sbt's autoreload, so we have a little workaround here.  configure() gets called on every
     // startup,
     // but the JAVA_SERIALIZER object is only initialized on initial startup.
-    // So, on a second startup, we'll add the UATProfile a second time.  The
-    // trusted classes set should dedupe UATProfile against the old UATProfile,
+    // So, on a second startup, we'll add the UatProfileData a second time.  The
+    // trusted classes set should dedupe UatProfileData against the old UatProfileData,
     // but it's technically a different class with the same name at that point,
     // which triggers the bug.  So, we just clear the classes, which will be empty
     // on first startup and will contain the profile on subsequent startups,
     // so that it's always safe to add the profile.
     // We will need to do this for every class we want to store in the cookie.
     PlayCookieSessionStore.JAVA_SERIALIZER.clearTrustedClasses();
-    PlayCookieSessionStore.JAVA_SERIALIZER.addTrustedClass(UatProfile.class);
+    PlayCookieSessionStore.JAVA_SERIALIZER.addTrustedClass(UatProfileData.class);
 
     // We need to use the secret key to generate the encrypter / decrypter for the
     // session store, so that cookies from version n of the application can be
@@ -93,8 +92,9 @@ public class SecurityModule extends AbstractModule {
 
   @Provides
   @Singleton
-  protected ProfileFactory provideProfileFactory(Clock clock) {
-    return new ProfileFactory(clock);
+  protected ProfileFactory provideProfileFactory(
+      Clock clock, DatabaseExecutionContext dbContext, HttpExecutionContext httpContext) {
+    return new ProfileFactory(clock, dbContext, httpContext);
   }
 
   @Provides

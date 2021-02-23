@@ -3,60 +3,68 @@ package auth;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
-import java.time.Clock;
 import java.util.Comparator;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import javax.inject.Inject;
 import models.Account;
 import models.Applicant;
-import org.pac4j.core.profile.CommonProfile;
+import play.libs.concurrent.HttpExecutionContext;
+import repository.DatabaseExecutionContext;
 
-public class UatProfile extends CommonProfile {
-  private final Clock clock;
+/**
+ * This is a "pure" wrapper of UatProfileData. Since UatProfileData is the serialized data about a
+ * profile, this class should not store any data that should be serialized. It should contain only
+ * server-local information, like execution contexts, database connections, etc.
+ */
+public class UatProfile {
+  private DatabaseExecutionContext dbContext;
+  private HttpExecutionContext httpContext;
+  private UatProfileData profileData;
 
-  public UatProfile() {
-    this(Clock.systemDefaultZone());
-  }
-
-  public UatProfile(Clock clock) {
-    super();
-    this.clock = clock;
+  @Inject
+  public UatProfile(
+      DatabaseExecutionContext dbContext,
+      HttpExecutionContext httpContext,
+      UatProfileData profileData) {
+    this.dbContext = Preconditions.checkNotNull(dbContext);
+    this.httpContext = Preconditions.checkNotNull(httpContext);
+    this.profileData = Preconditions.checkNotNull(profileData);
   }
 
   public CompletableFuture<Applicant> getApplicant() {
     return this.getAccount()
-        .thenApply(
+        .thenApplyAsync(
             (a) ->
                 a.getApplicants().stream()
                     .sorted(
                         Comparator.comparing(
                             (applicant) -> applicant.getApplicantData().getCreatedTime()))
                     .findFirst()
-                    .orElseThrow());
+                    .orElseThrow(),
+            httpContext.current());
   }
 
   public CompletableFuture<Account> getAccount() {
     return supplyAsync(
         () -> {
           Account account = new Account();
-          account.id = Long.valueOf(this.getId());
+          account.id = Long.valueOf(this.profileData.getId());
           account.refresh();
           return account;
-        });
+        },
+        dbContext);
   }
 
-  /**
-   * This method needs to be called outside the constructor since constructors should not do
-   * database accesses (or other work). It should be called before the object is used - the object
-   * has not been persisted / correctly created until it is called.
-   */
-  public void init() {
-    Account acc = new Account();
-    acc.save();
-    Applicant newA = new Applicant();
-    newA.getApplicantData().setCreatedTime(clock.instant());
-    newA.setAccount(acc);
-    newA.save();
+  public String getClientName() {
+    return profileData.getClientName();
+  }
 
-    setId(Preconditions.checkNotNull(acc.id).toString());
+  public Set<String> getRoles() {
+    return profileData.getRoles();
+  }
+
+  public String getId() {
+    return profileData.getId();
   }
 }
