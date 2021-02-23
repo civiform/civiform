@@ -1,6 +1,7 @@
 package views;
 
 import static j2html.TagCreator.br;
+import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.option;
