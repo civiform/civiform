@@ -1,5 +1,7 @@
 package services.question;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
@@ -14,6 +16,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
   private long nextId = 0;
 
   public ReadOnlyQuestionServiceImpl(ImmutableList<QuestionDefinition> questions) {
+    checkNotNull(questions);
     ImmutableMap.Builder<String, QuestionDefinition> questionMap = ImmutableMap.builder();
     ImmutableMap.Builder<Long, QuestionDefinition> questionIdsMap = ImmutableMap.builder();
     ImmutableMap.Builder<String, ScalarType> scalarMap = ImmutableMap.builder();

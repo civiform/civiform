@@ -56,7 +56,7 @@ public class QuestionDefinitionBuilder {
     return this;
   }
 
-  public QuestionDefinition build() {
+  public QuestionDefinition build() throws UnsupportedQuestionTypeException {
     switch (this.questionType) {
       case ADDRESS:
         return new AddressQuestionDefinition(
@@ -64,10 +64,11 @@ public class QuestionDefinitionBuilder {
       case NAME:
         return new NameQuestionDefinition(
             id, version, name, path, description, questionText, questionHelpText);
-      case TEXT: // fallthrough intended.
-      default:
-        return new QuestionDefinition(
+      case TEXT:
+        return new TextQuestionDefinition(
             id, version, name, path, description, questionText, questionHelpText);
+      default:
+        throw new UnsupportedQuestionTypeException(this.questionType);
     }
   }
 }

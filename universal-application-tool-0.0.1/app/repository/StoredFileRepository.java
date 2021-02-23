@@ -1,5 +1,6 @@
 package repository;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import io.ebean.Ebean;
@@ -20,9 +21,9 @@ public class StoredFileRepository {
   @Inject
   public StoredFileRepository(
       EbeanConfig ebeanConfig, AmazonS3Client s3Client, DatabaseExecutionContext executionContext) {
-    this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
-    this.s3Client = s3Client;
-    this.executionContext = executionContext;
+    this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
+    this.s3Client = checkNotNull(s3Client);
+    this.executionContext = checkNotNull(executionContext);
   }
 
   /** Return all files in a set. */
