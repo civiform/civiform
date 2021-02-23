@@ -29,8 +29,11 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   public Content render(Request request, Optional<QuestionDefinition> question) {
+    String headerText = question.isPresent() ? "Edit Question" : "New Question";
     return layout.htmlContent(
-        body(buildQuestionForm(question.orElse(null)).with(makeCsrfTokenInputTag(request))));
+        body(
+          renderHeader(headerText),
+          buildQuestionForm(question.orElse(null)).with(makeCsrfTokenInputTag(request))));
   }
 
   public ContainerTag buildQuestionForm(QuestionDefinition definition) {

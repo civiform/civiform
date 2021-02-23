@@ -51,13 +51,18 @@ public class QuestionController extends Controller {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
-              QuestionDefinition definition =
-                  questionForm
-                      .getBuilder()
-                      .setId(readOnlyService.getNextId())
-                      .setVersion(1L)
-                      .build();
-              service.create(definition);
+              try {
+                QuestionDefinition definition =
+                    questionForm
+                        .getBuilder()
+                        .setId(readOnlyService.getNextId())
+                        .setVersion(1L)
+                        .build();
+                service.create(definition);
+              } catch (Exception e) {
+                // UnsupportedQuestionTypeException 
+                return redirect("/admin/questions");
+              }
               return redirect("/admin/questions");
             });
   }

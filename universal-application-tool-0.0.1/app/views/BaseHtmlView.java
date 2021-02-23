@@ -1,6 +1,7 @@
 package views;
 
 import static j2html.TagCreator.br;
+import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.option;
@@ -38,6 +39,10 @@ public abstract class BaseHtmlView {
       inputTag.withValue(value.get());
     }
     return ImmutableList.of(labelTag, br(), inputTag, br(), br());
+  }
+
+  public Tag renderHeader(String headerText) {
+    return h1(headerText);
   }
 
   public ImmutableList<DomContent> textAreaWithLabel(
