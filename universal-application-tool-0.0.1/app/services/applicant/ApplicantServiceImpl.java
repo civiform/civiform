@@ -13,22 +13,18 @@ import repository.ApplicantRepository;
 import services.ErrorAnd;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
-import services.question.QuestionService;
-import services.question.ReadOnlyQuestionService;
 
 public class ApplicantServiceImpl implements ApplicantService {
 
   private final ApplicantRepository applicantRepository;
   private final ProgramService programService;
-  private final QuestionService questionService;
   private final HttpExecutionContext httpExecutionContext;
 
   @Inject
   public ApplicantServiceImpl(ApplicantRepository applicantRepository,
-      QuestionService questionService, ProgramService programService,
+      ProgramService programService,
       HttpExecutionContext httpExecutionContext) {
     this.applicantRepository = checkNotNull(applicantRepository);
-    this.questionService = checkNotNull(questionService);
     this.programService = checkNotNull(programService);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
@@ -54,20 +50,14 @@ public class ApplicantServiceImpl implements ApplicantService {
         .getProgramDefinitionAsync(
             programId
         ).toCompletableFuture();
-    CompletableFuture<ReadOnlyQuestionService> readOnlyQuestionServiceCompletableFuture = questionService
-        .getReadOnlyQuestionService().toCompletableFuture();
 
-    return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture,
-        readOnlyQuestionServiceCompletableFuture)
+    return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
         .thenApplyAsync((v) -> {
           Applicant applicant = applicantCompletableFuture.join().get();
           ProgramDefinition programDefinition = programDefinitionCompletableFuture.join().get();
-          ReadOnlyQuestionService readOnlyQuestionService = readOnlyQuestionServiceCompletableFuture
-              .join();
 
           return new ReadOnlyApplicantProgramServiceImpl(applicant.getApplicantData(),
-              programDefinition,
-              readOnlyQuestionService);
+              programDefinition);
         }, httpExecutionContext.current());
   }
 }

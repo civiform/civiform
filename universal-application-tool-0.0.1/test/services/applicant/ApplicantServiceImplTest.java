@@ -42,10 +42,6 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void update_aNewValidTextScalarPath_buildsThePathAndUpdates() {
-  }
-
-  @Test
   public void getReadOnlyApplicantService_getsReadOnlyApplicantServiceForTheApplicantAndProgram() {
     Applicant applicant = subject.createApplicant(1l).toCompletableFuture().join();
 

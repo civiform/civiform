@@ -6,20 +6,17 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import services.program.ProgramDefinition;
-import services.question.ReadOnlyQuestionService;
 
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
 
   private final ApplicantData applicantData;
   private final ProgramDefinition programDefinition;
-  private final ReadOnlyQuestionService readOnlyQuestionService;
   private Optional<ImmutableList<Block>> currentBlockList = Optional.empty();
 
   protected ReadOnlyApplicantProgramServiceImpl(ApplicantData applicantData,
-      ProgramDefinition programDefinition, ReadOnlyQuestionService readOnlyQuestionService) {
+      ProgramDefinition programDefinition) {
     this.applicantData = checkNotNull(applicantData);
     this.programDefinition = checkNotNull(programDefinition);
-    this.readOnlyQuestionService = checkNotNull(readOnlyQuestionService);
   }
 
   @Override
@@ -65,6 +62,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return getBlockAfter(block.getId());
   }
 
+  // TODO(https://github.com/seattle-uat/universal-application-tool/issues/224): Implement checking blocks for completion
   @Override
   public Optional<Block> getFirstIncompleteBlock() {
     return Optional.of(getCurrentBlockList().get(0));

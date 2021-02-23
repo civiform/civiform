@@ -3,7 +3,6 @@ package services.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
-import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import services.program.BlockDefinition;
 
