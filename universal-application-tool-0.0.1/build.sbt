@@ -1,3 +1,5 @@
+import play.sbt.PlayImport.PlayKeys.playRunHooks
+
 lazy val root = (project in file("."))
   .enablePlugins(PlayJava, PlayEbean, SbtWeb)
   .settings(
@@ -73,3 +75,5 @@ dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.10.5",
 )
 resolveFromWebjarsNodeModulesDir := true
+
+playRunHooks += Webpack(baseDirectory.value)
