@@ -48,7 +48,7 @@ public class WithPostgresContainer {
              * jdbc: the standard java database connection uri scheme
              * tc: Testcontainers - the tool that starts a new container per test.
              * postgresql: which container to start
-             * 9.6.8: which version of postgres to start
+             * 12.5: which version of postgres to start
              * ///: hostless URI scheme - anything here would be ignored
              * databasename: the name of the db to connect to - any string is okay.
              */
