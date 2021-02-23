@@ -45,6 +45,13 @@ interface ReadOnlyQuestionService {
    */
   QuestionDefinition getQuestionDefinition(String pathString) throws InvalidPathException;
 
+  /**
+   * Gets the question definition for a ID.
+   *
+   * @throws QuestionNotFoundException if the question for the ID does not exist.
+   */
+  QuestionDefinition getQuestionDefinition(long id) throws QuestionNotFoundException;
+
   /** Checks whether a specific path is valid. */
   boolean isValid(String pathString);
 
