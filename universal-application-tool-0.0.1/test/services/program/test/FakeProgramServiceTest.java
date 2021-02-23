@@ -15,6 +15,9 @@ import services.question.TextQuestionDefinition;
 
 public class FakeProgramServiceTest {
 
+  private static final QuestionDefinition EMPTY_QUESTION =
+      new TextQuestionDefinition(1L, 1L, "", "", "", ImmutableMap.of(), Optional.empty());
+
   private FakeProgramService service;
 
   @Before
@@ -99,6 +102,24 @@ public class FakeProgramServiceTest {
   }
 
   @Test
+  public void addBlockWithQuestionsToProgram() throws Exception {
+    ProgramDefinition program = service.createProgramDefinition("name", "desc");
+
+    ProgramDefinition updatedProgram =
+        service.addBlockToProgram(
+            program.id(), "Block Name", "Block Description", ImmutableList.of(EMPTY_QUESTION));
+
+    assertThat(updatedProgram.blockDefinitions())
+        .containsExactly(
+            BlockDefinition.builder()
+                .setId(1L)
+                .setName("Block Name")
+                .setDescription("Block Description")
+                .setQuestionDefinitions(ImmutableList.of(EMPTY_QUESTION))
+                .build());
+  }
+
+  @Test
   public void addMultipleBlocksToProgram_blocksHaveDifferentIds() throws Exception {
     ProgramDefinition program = service.createProgramDefinition("name", "desc");
 
@@ -116,6 +137,13 @@ public class FakeProgramServiceTest {
     assertThatExceptionOfType(ProgramNotFoundException.class)
         .isThrownBy(() -> service.addBlockToProgram(123L, "Block Name", "Block Description"))
         .withMessageContaining("Program not found for ID: 123");
+
+    assertThatExceptionOfType(ProgramNotFoundException.class)
+        .isThrownBy(
+            () ->
+                service.addBlockToProgram(
+                    123L, "Block Name", "Block Description", ImmutableList.of()))
+        .withMessageContaining("Program not found for ID: 123");
   }
 
   @Test
@@ -124,11 +152,10 @@ public class FakeProgramServiceTest {
     program = service.addBlockToProgram(program.id(), "block", "withNoQuestions");
     long blockId = program.blockDefinitions().get(0).id();
 
-    QuestionDefinition question =
-        new TextQuestionDefinition(1L, 1L, "", "", "", ImmutableMap.of(), Optional.empty());
-    program = service.setBlockQuestions(program.id(), blockId, ImmutableList.of(question));
+    program = service.setBlockQuestions(program.id(), blockId, ImmutableList.of(EMPTY_QUESTION));
 
-    assertThat(program.blockDefinitions().get(0).questionDefinitions()).containsExactly(question);
+    assertThat(program.blockDefinitions().get(0).questionDefinitions())
+        .containsExactly(EMPTY_QUESTION);
   }
 
   @Test
