@@ -60,7 +60,7 @@ public class QuestionController extends Controller {
                         .build();
                 service.create(definition);
               } catch (Exception e) {
-                // UnsupportedQuestionTypeException 
+                // UnsupportedQuestionTypeException
                 return redirect("/admin/questions");
               }
               return redirect("/admin/questions");

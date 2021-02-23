@@ -4,7 +4,6 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
-import static j2html.TagCreator.h1;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
@@ -37,10 +36,6 @@ public final class QuestionsListView extends BaseHtmlView {
             .with(renderAllQuestions(questions, renderAs))
             .with(renderSummary(questions))
             .with(renderAddQuestionLink()));
-  }
-
-  public Tag renderHeader(String headerText) {
-    return h1(headerText);
   }
 
   public Tag renderAddQuestionLink() {

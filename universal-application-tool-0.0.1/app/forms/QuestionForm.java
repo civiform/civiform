@@ -71,12 +71,14 @@ public class QuestionForm {
         (questionHelpText.length() > 0)
             ? Optional.of(ImmutableMap.of(Locale.ENGLISH, questionHelpText))
             : Optional.empty();
-    return new QuestionDefinitionBuilder()
-        .setQuestionType(QuestionType.valueOf(questionType))
-        .setName(questionName == null ? "" : questionName)
-        .setPath(questionPath == null ? "" : questionPath)
-        .setDescription(questionDescription == null ? "" : questionDescription)
-        .setQuestionText(questionTextMap)
-        .setQuestionHelpText(questionHelpTextMap);
+    QuestionDefinitionBuilder builder =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.valueOf(questionType))
+            .setName(questionName == null ? "" : questionName)
+            .setPath(questionPath == null ? "" : questionPath)
+            .setDescription(questionDescription == null ? "" : questionDescription)
+            .setQuestionText(questionTextMap)
+            .setQuestionHelpText(questionHelpTextMap);
+    return builder;
   }
 }
