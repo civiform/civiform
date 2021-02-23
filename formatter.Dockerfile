@@ -7,4 +7,4 @@ RUN apt-get install -y nodejs npm
 RUN npm install -g npm@latest
 RUN npm install -g typescript typescript-formatter 
 VOLUME /code
-CMD ["sh", "-c", "java -jar /fmt.jar --replace $(find /code -name '*.java'); cd /code; npm install; tsfmt -r $(find /code -name '*.ts' -not -path 'node_modules' -not -path 'node-modules')"]
+CMD ["sh", "-c", "java -jar /fmt.jar --replace $(find /code -name '*.java'); cd /code; npm install; tsfmt -r $(find /code/app -name '*.ts' -not -path '*node_modules*' -not -path '*node-modules*')"]
