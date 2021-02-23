@@ -24,7 +24,7 @@ public class ApplicantQuestion {
 
   public String getQuestionText() {
     try {
-      return questionDefinition.getQuestionText(Locale.ENGLISH);
+      return questionDefinition.getQuestionText(applicantData.preferredLocale());
     } catch (TranslationNotFoundException e) {
       throw new RuntimeException(e);
     }
@@ -70,9 +70,19 @@ public class ApplicantQuestion {
 
   public class NameQuestion {
     private Optional<String> firstNameValue;
+    private Optional<String> middleNameValue;
+    private Optional<String> lastNameValue;
 
     public boolean hasFirstNameValue() {
       return getFirstNameValue().isPresent();
+    }
+
+    public boolean hasMiddleNameValue() {
+      return getMiddleNameValue().isPresent();
+    }
+
+    public boolean hasLastNameValue() {
+      return getLastNameValue().isPresent();
     }
 
     public Optional<String> getFirstNameValue() {
@@ -85,8 +95,36 @@ public class ApplicantQuestion {
       return firstNameValue;
     }
 
+    public Optional<String> getMiddleNameValue() {
+      if (middleNameValue != null) {
+        return middleNameValue;
+      }
+
+      middleNameValue = applicantData.readText(getMiddleNamePath());
+
+      return middleNameValue;
+    }
+
+    public Optional<String> getLastNameValue() {
+      if (lastNameValue != null) {
+        return lastNameValue;
+      }
+
+      lastNameValue = applicantData.readText(getLastNamePath());
+
+      return lastNameValue;
+    }
+
+    public String getMiddleNamePath() {
+      return questionDefinition.getPath() + ".middle";
+    }
+
     public String getFirstNamePath() {
       return questionDefinition.getPath() + ".first";
+    }
+
+    public String getLastNamePath() {
+      return questionDefinition.getPath() + ".last";
     }
   }
 }

@@ -6,6 +6,7 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import java.time.Instant;
 import com.jayway.jsonpath.PathNotFoundException;
+import java.util.Locale;
 import java.util.Optional;
 
 public class ApplicantData {
@@ -19,6 +20,10 @@ public class ApplicantData {
 
   public ApplicantData(DocumentContext jsonData) {
     this.jsonData = checkNotNull(jsonData);
+  }
+
+  public Locale preferredLocale() {
+    return Locale.ENGLISH;
   }
 
   public Optional<String> readText(String path) {
