@@ -124,6 +124,11 @@ public class ReadOnlyQuestionServiceImplTest {
   }
 
   @Test
+  public void getQuestionDefinition_byId() throws QuestionNotFoundException {
+    assertThat(service.getQuestionDefinition(1L)).isEqualTo(nameQuestion);
+  }
+
+  @Test
   public void isValid_returnsFalseForInvalid() {
     assertThat(service.isValid("invalidPath")).isFalse();
   }
