@@ -18,7 +18,8 @@ import views.html.helper.CSRF;
 public abstract class BaseHtmlView {
 
   protected Tag textField(String fieldName, String labelText) {
-    return label(text(labelText), input().withType("text").withName(fieldName))
+    return label()
+        .with(text(labelText), input().withType("text").withName(fieldName))
         .attr("for", fieldName);
   }
 
@@ -28,21 +29,23 @@ public abstract class BaseHtmlView {
   }
 
   protected Tag passwordField(String id, String fieldName, String labelText) {
-    return label(text(labelText), input().withType("password").withName(fieldName).withId(id))
+    return label()
+        .with(text(labelText), input().withType("password").withName(fieldName).withId(id))
         .attr("for", fieldName);
   }
 
   protected Tag passwordField(String fieldName, String labelText) {
-    return label(text(labelText), input().withType("password").withName(fieldName))
+    return label()
+        .with(text(labelText), input().withType("password").withName(fieldName))
         .attr("for", fieldName);
   }
 
   protected Tag submitButton(String textContents) {
-    return button(text(textContents)).withType("submit");
+    return button().with(text(textContents)).withType("submit");
   }
 
   protected Tag submitButton(String id, String textContents) {
-    return button(text(textContents)).withType("submit").withId(id);
+    return button().with(text(textContents)).withType("submit").withId(id);
   }
 
   /**
