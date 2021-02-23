@@ -4,8 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
-import java.time.Instant;
 import com.jayway.jsonpath.PathNotFoundException;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 
