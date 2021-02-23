@@ -27,21 +27,22 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
           .setDescription("Block Description B")
           .build();
 
-  ProgramDefinition programDefinition = ProgramDefinition.builder()
-      .setId(123L)
-      .setName("The Program")
-      .setDescription("This program is for testing.")
-      .addBlockDefinition(blockA)
-      .addBlockDefinition(blockB)
-      .build();
-
+  ProgramDefinition programDefinition =
+      ProgramDefinition.builder()
+          .setId(123L)
+          .setName("The Program")
+          .setDescription("This program is for testing.")
+          .addBlockDefinition(blockA)
+          .addBlockDefinition(blockB)
+          .build();
 
   ReadOnlyApplicantProgramService subject;
 
   @Before
   public void setUp() {
-    subject = new ReadOnlyApplicantProgramServiceImpl(
-        new Applicant().getApplicantData(), programDefinition);
+    subject =
+        new ReadOnlyApplicantProgramServiceImpl(
+            new Applicant().getApplicantData(), programDefinition);
   }
 
   @Test
@@ -86,12 +87,14 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
   @Test
   public void getBlockAfter_emptyBlockList_returnsEmpty() {
-    subject = new ReadOnlyApplicantProgramServiceImpl(new Applicant().getApplicantData(),
-        ProgramDefinition.builder()
-            .setId(123L)
-            .setName("The Program")
-            .setDescription("This program is for testing.")
-            .build());
+    subject =
+        new ReadOnlyApplicantProgramServiceImpl(
+            new Applicant().getApplicantData(),
+            ProgramDefinition.builder()
+                .setId(123L)
+                .setName("The Program")
+                .setDescription("This program is for testing.")
+                .build());
 
     Optional<Block> maybeBlock = subject.getBlockAfter(321L);
 

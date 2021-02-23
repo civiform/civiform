@@ -25,23 +25,22 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
     return div(
         text(question.getQuestionText()),
         label(
-            input().withType("text")
-                .withCondValue(nameQuestion.hasFirstNameValue(),
-                    nameQuestion.getFirstNameValue().orElse(""))
-                .withName(nameQuestion.getFirstNamePath())
-        ),
+            input()
+                .withType("text")
+                .withCondValue(
+                    nameQuestion.hasFirstNameValue(), nameQuestion.getFirstNameValue().orElse(""))
+                .withName(nameQuestion.getFirstNamePath())),
         label(
-            input().withType("text")
-                .withCondValue(nameQuestion.hasMiddleNameValue(),
-                    nameQuestion.getMiddleNameValue().orElse(""))
-                .withName(nameQuestion.getMiddleNamePath())
-        ),
+            input()
+                .withType("text")
+                .withCondValue(
+                    nameQuestion.hasMiddleNameValue(), nameQuestion.getMiddleNameValue().orElse(""))
+                .withName(nameQuestion.getMiddleNamePath())),
         label(
-            input().withType("text")
-                .withCondValue(nameQuestion.hasLastNameValue(),
-                    nameQuestion.getLastNameValue().orElse(""))
-                .withName(nameQuestion.getLastNamePath())
-        )
-    );
+            input()
+                .withType("text")
+                .withCondValue(
+                    nameQuestion.hasLastNameValue(), nameQuestion.getLastNameValue().orElse(""))
+                .withName(nameQuestion.getLastNamePath())));
   }
 }

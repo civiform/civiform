@@ -20,29 +20,34 @@ public final class ApplicantProgramBlocksController extends Controller {
   private final ApplicantProgramBlockEditView editView;
 
   @Inject
-  public ApplicantProgramBlocksController(ApplicantService applicantService,
-      HttpExecutionContext httpExecutionContext, ApplicantProgramBlockEditView editView) {
+  public ApplicantProgramBlocksController(
+      ApplicantService applicantService,
+      HttpExecutionContext httpExecutionContext,
+      ApplicantProgramBlockEditView editView) {
     this.applicantService = checkNotNull(applicantService);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.editView = checkNotNull(editView);
   }
 
-  public CompletionStage<Result> edit(Request request, long applicantId, long programId,
-      long blockId) {
-    return applicantService.getReadOnlyApplicantProgramService(applicantId, programId)
-        .thenApplyAsync((roApplicantProgramService) -> {
-          Optional<Block> block = roApplicantProgramService.getBlock(blockId);
+  public CompletionStage<Result> edit(
+      Request request, long applicantId, long programId, long blockId) {
+    return applicantService
+        .getReadOnlyApplicantProgramService(applicantId, programId)
+        .thenApplyAsync(
+            (roApplicantProgramService) -> {
+              Optional<Block> block = roApplicantProgramService.getBlock(blockId);
 
-          if (block.isPresent()) {
-            return ok(editView.render(request, applicantId, programId, block.get()));
-          } else {
-            throw new RuntimeException("That block isn't available");
-          }
-        }, httpExecutionContext.current());
+              if (block.isPresent()) {
+                return ok(editView.render(request, applicantId, programId, block.get()));
+              } else {
+                throw new RuntimeException("That block isn't available");
+              }
+            },
+            httpExecutionContext.current());
   }
 
-  public CompletionStage<Result> update(Request request, long applicantId, long programId,
-      long blockId) {
+  public CompletionStage<Result> update(
+      Request request, long applicantId, long programId, long blockId) {
     throw new UnsupportedOperationException("Updates aren't implemented yet");
   }
 }

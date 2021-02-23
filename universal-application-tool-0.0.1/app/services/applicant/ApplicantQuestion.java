@@ -2,7 +2,6 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.Locale;
 import java.util.Optional;
 import services.question.QuestionDefinition;
 import services.question.QuestionType;
@@ -32,7 +31,8 @@ public class ApplicantQuestion {
 
   public TextQuestion getTextQuestion() {
     if (!getType().equals(QuestionType.TEXT)) {
-      throw new RuntimeException("Question is not a TEXT question: " + questionDefinition.getPath());
+      throw new RuntimeException(
+          "Question is not a TEXT question: " + questionDefinition.getPath());
     }
 
     return new TextQuestion();
@@ -40,7 +40,8 @@ public class ApplicantQuestion {
 
   public NameQuestion getNameQuestion() {
     if (!getType().equals(QuestionType.NAME)) {
-      throw new RuntimeException("Question is not a NAME question: " + questionDefinition.getPath());
+      throw new RuntimeException(
+          "Question is not a NAME question: " + questionDefinition.getPath());
     }
 
     return new NameQuestion();

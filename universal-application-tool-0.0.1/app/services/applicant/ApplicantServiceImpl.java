@@ -21,7 +21,8 @@ public class ApplicantServiceImpl implements ApplicantService {
   private final HttpExecutionContext httpExecutionContext;
 
   @Inject
-  public ApplicantServiceImpl(ApplicantRepository applicantRepository,
+  public ApplicantServiceImpl(
+      ApplicantRepository applicantRepository,
       ProgramService programService,
       HttpExecutionContext httpExecutionContext) {
     this.applicantRepository = checkNotNull(applicantRepository);
@@ -44,20 +45,20 @@ public class ApplicantServiceImpl implements ApplicantService {
   @Override
   public CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
       long applicantId, long programId) {
-    CompletableFuture<Optional<Applicant>> applicantCompletableFuture = applicantRepository
-        .lookupApplicant(applicantId).toCompletableFuture();
-    CompletableFuture<Optional<ProgramDefinition>> programDefinitionCompletableFuture = programService
-        .getProgramDefinitionAsync(
-            programId
-        ).toCompletableFuture();
+    CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
+        applicantRepository.lookupApplicant(applicantId).toCompletableFuture();
+    CompletableFuture<Optional<ProgramDefinition>> programDefinitionCompletableFuture =
+        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
 
     return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
-        .thenApplyAsync((v) -> {
-          Applicant applicant = applicantCompletableFuture.join().get();
-          ProgramDefinition programDefinition = programDefinitionCompletableFuture.join().get();
+        .thenApplyAsync(
+            (v) -> {
+              Applicant applicant = applicantCompletableFuture.join().get();
+              ProgramDefinition programDefinition = programDefinitionCompletableFuture.join().get();
 
-          return new ReadOnlyApplicantProgramServiceImpl(applicant.getApplicantData(),
-              programDefinition);
-        }, httpExecutionContext.current());
+              return new ReadOnlyApplicantProgramServiceImpl(
+                  applicant.getApplicantData(), programDefinition);
+            },
+            httpExecutionContext.current());
   }
 }

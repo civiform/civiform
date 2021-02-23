@@ -45,31 +45,39 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   public void getReadOnlyApplicantService_getsReadOnlyApplicantServiceForTheApplicantAndProgram() {
     Applicant applicant = subject.createApplicant(1l).toCompletableFuture().join();
 
-    ReadOnlyApplicantProgramService roApplicantProgramService = subject
-        .getReadOnlyApplicantProgramService(applicant.id, programDefinition.id())
-        .toCompletableFuture().join();
+    ReadOnlyApplicantProgramService roApplicantProgramService =
+        subject
+            .getReadOnlyApplicantProgramService(applicant.id, programDefinition.id())
+            .toCompletableFuture()
+            .join();
 
     assertThat(roApplicantProgramService).isInstanceOf(ReadOnlyApplicantProgramService.class);
   }
 
   private void createQuestions() {
-    questionDefinition = questionService.create(new QuestionDefinition(
-        123L,
-        1L,
-        "my name",
-        "my.path.name",
-        "description",
-        ImmutableMap.of(Locale.ENGLISH, "question?"),
-        Optional.of(ImmutableMap.of(Locale.ENGLISH, "help text")))).get();
+    questionDefinition =
+        questionService
+            .create(
+                new QuestionDefinition(
+                    123L,
+                    1L,
+                    "my name",
+                    "my.path.name",
+                    "description",
+                    ImmutableMap.of(Locale.ENGLISH, "question?"),
+                    Optional.of(ImmutableMap.of(Locale.ENGLISH, "help text"))))
+            .get();
   }
 
   private void createProgram() throws Exception {
     programDefinition = programService.createProgramDefinition("test program", "desc");
-    programDefinition = programService
-        .addBlockToProgram(programDefinition.id(), "test block", "test block description");
-    programDefinition = programService
-        .setBlockQuestions(programDefinition.id(), programDefinition.blockDefinitions().get(0).id(),
-            ImmutableList
-                .of(questionDefinition));
+    programDefinition =
+        programService.addBlockToProgram(
+            programDefinition.id(), "test block", "test block description");
+    programDefinition =
+        programService.setBlockQuestions(
+            programDefinition.id(),
+            programDefinition.blockDefinitions().get(0).id(),
+            ImmutableList.of(questionDefinition));
   }
 }

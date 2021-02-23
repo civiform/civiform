@@ -14,6 +14,7 @@ public final class Block {
    * BlockDefinitions that repeat expand to multiple Blocks.
    */
   private final long id;
+
   private final BlockDefinition blockDefinition;
   private final ApplicantData applicantData;
 
@@ -36,8 +37,8 @@ public final class Block {
   }
 
   public ImmutableList<ApplicantQuestion> getQuestions() {
-    return blockDefinition.questionDefinitions().stream().map(questionDefinition ->
-      new ApplicantQuestion(questionDefinition, applicantData)
-    ).collect(toImmutableList());
+    return blockDefinition.questionDefinitions().stream()
+        .map(questionDefinition -> new ApplicantQuestion(questionDefinition, applicantData))
+        .collect(toImmutableList());
   }
 }

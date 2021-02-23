@@ -6,14 +6,15 @@ public class ApplicantQuestionRendererFactory {
 
   public ApplicantQuestionRenderer getRenderer(ApplicantQuestion question) {
     switch (question.getType()) {
+      case TEXT:
+        {
+          return new TextQuestionRenderer(question);
+        }
 
-      case TEXT: {
-        return new TextQuestionRenderer(question);
-      }
-
-      case NAME: {
-        return new NameQuestionRenderer(question);
-      }
+      case NAME:
+        {
+          return new NameQuestionRenderer(question);
+        }
 
       default:
         throw new UnsupportedOperationException(
