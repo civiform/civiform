@@ -13,6 +13,7 @@ import repository.WithPostgresContainer;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.program.ProgramServiceImpl;
+import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionService;
 
@@ -58,7 +59,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     questionDefinition =
         questionService
             .create(
-                new QuestionDefinition(
+                new NameQuestionDefinition(
                     123L,
                     1L,
                     "my name",
