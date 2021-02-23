@@ -4,7 +4,6 @@ import static j2html.TagCreator.body;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.head;
 import static j2html.TagCreator.main;
-import static j2html.TagCreator.title;
 
 import j2html.tags.DomContent;
 import javax.inject.Inject;
