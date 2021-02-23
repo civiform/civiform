@@ -1,5 +1,5 @@
 lazy val root = (project in file("."))
-  .enablePlugins(PlayJava, PlayEbean)
+  .enablePlugins(PlayJava, PlayEbean, SbtWeb)
   .settings(
     name := """universal-application-tool""",
     version := "0.0.1",
