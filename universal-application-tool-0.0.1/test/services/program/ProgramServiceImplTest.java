@@ -8,13 +8,9 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-
-import models.Program;
-import models.Question;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
-import services.applicant.Block;
 import services.question.QuestionDefinition;
 import services.question.QuestionService;
 import services.question.TextQuestionDefinition;
@@ -23,9 +19,15 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   private ProgramServiceImpl ps;
   private QuestionService qs;
-  private static final QuestionDefinition SIMPLE_QUESTION = new TextQuestionDefinition(
-          1L, 2L, "Name Question", "applicant.name", "The name of the applicant.",
-          ImmutableMap.of(Locale.US, "What is your name?"), Optional.empty());
+  private static final QuestionDefinition SIMPLE_QUESTION =
+      new TextQuestionDefinition(
+          1L,
+          2L,
+          "Name Question",
+          "applicant.name",
+          "The name of the applicant.",
+          ImmutableMap.of(Locale.US, "What is your name?"),
+          Optional.empty());
 
   @Before
   public void setProgramServiceImpl() {
@@ -54,11 +56,22 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   public void listProgramDefinitions_createsQuestionDefinitions() throws ProgramNotFoundException {
     qs.create(SIMPLE_QUESTION);
     ProgramDefinition program = ps.createProgramDefinition("Program Name", "Program Description");
-    ps.addBlockToProgram(program.id(), "Block", "Block Description", ImmutableList.of(ProgramQuestionDefinition.create(SIMPLE_QUESTION)));
+    ps.addBlockToProgram(
+        program.id(),
+        "Block",
+        "Block Description",
+        ImmutableList.of(ProgramQuestionDefinition.create(SIMPLE_QUESTION)));
 
     ImmutableList<ProgramDefinition> programDefinitions = ps.listProgramDefinitions();
 
-    QuestionDefinition foundQuestion = programDefinitions.get(0).blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
+    QuestionDefinition foundQuestion =
+        programDefinitions
+            .get(0)
+            .blockDefinitions()
+            .get(0)
+            .programQuestionDefinitions()
+            .get(0)
+            .getQuestionDefinition();
     assertThat(foundQuestion).isInstanceOf(TextQuestionDefinition.class);
   }
 
@@ -82,14 +95,27 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void listProgramDefinitionsAsync_createsQuestionDefinitions() throws ProgramNotFoundException {
+  public void listProgramDefinitionsAsync_createsQuestionDefinitions()
+      throws ProgramNotFoundException {
     qs.create(SIMPLE_QUESTION);
     ProgramDefinition program = ps.createProgramDefinition("Program Name", "Program Description");
-    ps.addBlockToProgram(program.id(), "Block", "Block Description", ImmutableList.of(ProgramQuestionDefinition.create(SIMPLE_QUESTION)));
+    ps.addBlockToProgram(
+        program.id(),
+        "Block",
+        "Block Description",
+        ImmutableList.of(ProgramQuestionDefinition.create(SIMPLE_QUESTION)));
 
-    ImmutableList<ProgramDefinition> programDefinitions = ps.listProgramDefinitionsAsync().toCompletableFuture().join();
+    ImmutableList<ProgramDefinition> programDefinitions =
+        ps.listProgramDefinitionsAsync().toCompletableFuture().join();
 
-    QuestionDefinition foundQuestion = programDefinitions.get(0).blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
+    QuestionDefinition foundQuestion =
+        programDefinitions
+            .get(0)
+            .blockDefinitions()
+            .get(0)
+            .programQuestionDefinitions()
+            .get(0)
+            .getQuestionDefinition();
     assertThat(foundQuestion).isInstanceOf(TextQuestionDefinition.class);
   }
 
@@ -127,11 +153,17 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   public void updateProgram_createsQuestionDefinitions() throws ProgramNotFoundException {
     qs.create(SIMPLE_QUESTION);
     ProgramDefinition program = ps.createProgramDefinition("Program Name", "Program Description");
-    ps.addBlockToProgram(program.id(), "Block", "Block Description", ImmutableList.of(ProgramQuestionDefinition.create(SIMPLE_QUESTION)));
+    ps.addBlockToProgram(
+        program.id(),
+        "Block",
+        "Block Description",
+        ImmutableList.of(ProgramQuestionDefinition.create(SIMPLE_QUESTION)));
 
-    ProgramDefinition found = ps.updateProgramDefinition(program.id(), "new name", "new description");
+    ProgramDefinition found =
+        ps.updateProgramDefinition(program.id(), "new name", "new description");
 
-    QuestionDefinition foundQuestion = found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
+    QuestionDefinition foundQuestion =
+        found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
     assertThat(foundQuestion).isInstanceOf(TextQuestionDefinition.class);
   }
 
@@ -155,11 +187,16 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   public void getProgramDefinition_createsQuestionDefinitions() throws ProgramNotFoundException {
     qs.create(SIMPLE_QUESTION);
     ProgramDefinition program = ps.createProgramDefinition("Program Name", "Program Description");
-    ps.addBlockToProgram(program.id(), "Block", "Block Description", ImmutableList.of(ProgramQuestionDefinition.create(SIMPLE_QUESTION)));
+    ps.addBlockToProgram(
+        program.id(),
+        "Block",
+        "Block Description",
+        ImmutableList.of(ProgramQuestionDefinition.create(SIMPLE_QUESTION)));
 
     ProgramDefinition found = ps.getProgramDefinition(program.id()).get();
 
-    QuestionDefinition foundQuestion = found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
+    QuestionDefinition foundQuestion =
+        found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
     assertThat(foundQuestion).isInstanceOf(TextQuestionDefinition.class);
   }
 
@@ -184,14 +221,21 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void getProgramDefinitionAsync_createsQuestionDefinitions() throws ProgramNotFoundException {
+  public void getProgramDefinitionAsync_createsQuestionDefinitions()
+      throws ProgramNotFoundException {
     qs.create(SIMPLE_QUESTION);
     ProgramDefinition program = ps.createProgramDefinition("Program Name", "Program Description");
-    ps.addBlockToProgram(program.id(), "Block", "Block Description", ImmutableList.of(ProgramQuestionDefinition.create(SIMPLE_QUESTION)));
+    ps.addBlockToProgram(
+        program.id(),
+        "Block",
+        "Block Description",
+        ImmutableList.of(ProgramQuestionDefinition.create(SIMPLE_QUESTION)));
 
-    ProgramDefinition found = ps.getProgramDefinitionAsync(program.id()).toCompletableFuture().join().get();
+    ProgramDefinition found =
+        ps.getProgramDefinitionAsync(program.id()).toCompletableFuture().join().get();
 
-    QuestionDefinition foundQuestion = found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
+    QuestionDefinition foundQuestion =
+        found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
     assertThat(foundQuestion).isInstanceOf(TextQuestionDefinition.class);
   }
 
@@ -227,13 +271,10 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     qs.create(SIMPLE_QUESTION);
     ProgramDefinition programDefinition = ps.createProgramDefinition("program", "description");
     long id = programDefinition.id();
-    ProgramQuestionDefinition programQuestionDefinition = ProgramQuestionDefinition.create(SIMPLE_QUESTION);
+    ProgramQuestionDefinition programQuestionDefinition =
+        ProgramQuestionDefinition.create(SIMPLE_QUESTION);
     ProgramDefinition updated =
-        ps.addBlockToProgram(
-            id,
-            "block",
-            "desc",
-            ImmutableList.of(programQuestionDefinition));
+        ps.addBlockToProgram(id, "block", "desc", ImmutableList.of(programQuestionDefinition));
 
     assertThat(updated.blockDefinitions()).hasSize(1);
     BlockDefinition foundBlock = updated.blockDefinitions().get(0);
@@ -255,14 +296,31 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     qs.create(SIMPLE_QUESTION);
     ProgramDefinition program = ps.createProgramDefinition("Program Name", "Program Description");
 
-    program = ps.addBlockToProgram(program.id(), "Block", "Block Description", ImmutableList.of(ProgramQuestionDefinition.create(SIMPLE_QUESTION)));
+    program =
+        ps.addBlockToProgram(
+            program.id(),
+            "Block",
+            "Block Description",
+            ImmutableList.of(ProgramQuestionDefinition.create(SIMPLE_QUESTION)));
 
-    QuestionDefinition foundQuestion = program.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
+    QuestionDefinition foundQuestion =
+        program
+            .blockDefinitions()
+            .get(0)
+            .programQuestionDefinitions()
+            .get(0)
+            .getQuestionDefinition();
     assertThat(foundQuestion).isInstanceOf(TextQuestionDefinition.class);
 
     program = ps.addBlockToProgram(program.id(), "empty block", "this block has no questions");
 
-    foundQuestion = program.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
+    foundQuestion =
+        program
+            .blockDefinitions()
+            .get(0)
+            .programQuestionDefinitions()
+            .get(0)
+            .getQuestionDefinition();
     assertThat(foundQuestion).isInstanceOf(TextQuestionDefinition.class);
   }
 
@@ -284,23 +342,27 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     BlockDefinition foundBlock = found.blockDefinitions().get(0);
     assertThat(foundBlock.programQuestionDefinitions()).hasSize(1);
 
-    ProgramQuestionDefinition foundPqd = found.blockDefinitions().get(0).programQuestionDefinitions().get(0);
+    ProgramQuestionDefinition foundPqd =
+        found.blockDefinitions().get(0).programQuestionDefinitions().get(0);
     assertThat(foundPqd.id()).isEqualTo(SIMPLE_QUESTION.getId());
     assertThat(foundPqd.getQuestionDefinition()).isInstanceOf(TextQuestionDefinition.class);
     assertThat(foundPqd.getQuestionDefinition().getName()).isEqualTo("Name Question");
   }
 
   @Test
-  public void setBlockQuestions_createsQuestionDefinitions() throws ProgramNotFoundException, ProgramBlockNotFoundException {
+  public void setBlockQuestions_createsQuestionDefinitions()
+      throws ProgramNotFoundException, ProgramBlockNotFoundException {
     qs.create(SIMPLE_QUESTION);
     ProgramDefinition programDefinition =
-            ps.createProgramDefinition("Program With Block", "This program has a block.");
+        ps.createProgramDefinition("Program With Block", "This program has a block.");
     Long programId = programDefinition.id();
     ps.addBlockToProgram(programId, "the block", "the block for the program");
 
-    ProgramDefinition found = ps.setBlockQuestions(
+    ProgramDefinition found =
+        ps.setBlockQuestions(
             programId, 1L, ImmutableList.of(ProgramQuestionDefinition.create(SIMPLE_QUESTION)));
-    QuestionDefinition foundQuestion = found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
+    QuestionDefinition foundQuestion =
+        found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
     assertThat(foundQuestion).isInstanceOf(TextQuestionDefinition.class);
   }
 
