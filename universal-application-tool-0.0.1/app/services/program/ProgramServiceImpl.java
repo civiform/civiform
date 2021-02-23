@@ -83,20 +83,16 @@ public class ProgramServiceImpl implements ProgramService {
     ProgramDefinition programDefinition = getProgramOrThrow(programId);
     long blockId = getNextBlockId(programDefinition);
 
-    BlockDefinition.Builder blockDefinitionBuilder =
+    BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(blockId)
             .setName(blockName)
-            .setDescription(blockDescription);
-    if (!questionDefinitions.isEmpty()) {
-      blockDefinitionBuilder.setQuestionDefinitions(questionDefinitions);
-    }
+            .setDescription(blockDescription)
+            .setQuestionDefinitions(questionDefinitions)
+            .build();
 
     Program program =
-        programDefinition.toBuilder()
-            .addBlockDefinition(blockDefinitionBuilder.build())
-            .build()
-            .toProgram();
+        programDefinition.toBuilder().addBlockDefinition(blockDefinition).build().toProgram();
     return programRepository.updateProgramSync(program).getProgramDefinition();
   }
 

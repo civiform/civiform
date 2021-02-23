@@ -73,16 +73,15 @@ public class FakeProgramService implements ProgramService {
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramOrThrow(programId);
 
-    BlockDefinition.Builder builder =
+    BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(getNextBlockId(programDefinition))
             .setName(blockName)
-            .setDescription(blockDescription);
-    if (!questionDefinitions.isEmpty()) {
-      builder.setQuestionDefinitions(questionDefinitions);
-    }
+            .setDescription(blockDescription)
+            .setQuestionDefinitions(questionDefinitions)
+            .build();
 
-    programDefinition = programDefinition.toBuilder().addBlockDefinition(builder.build()).build();
+    programDefinition = programDefinition.toBuilder().addBlockDefinition(blockDefinition).build();
     this.programs.put(programId, programDefinition);
 
     return programDefinition;
