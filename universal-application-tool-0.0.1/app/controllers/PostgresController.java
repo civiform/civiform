@@ -1,5 +1,7 @@
 package controllers;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Person;
@@ -22,9 +24,9 @@ public class PostgresController extends Controller {
       FormFactory formFactory,
       PersonRepository personRepository,
       HttpExecutionContext httpExecutionContext) {
-    this.formFactory = formFactory;
-    this.personRepository = personRepository;
-    this.httpExecutionContext = httpExecutionContext;
+    this.formFactory = checkNotNull(formFactory);
+    this.personRepository = checkNotNull(personRepository);
+    this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
 
   public CompletionStage<Result> index() {

@@ -1,5 +1,7 @@
 package controllers;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.core.config.Config;
@@ -18,9 +20,9 @@ public class HomeController extends Controller {
 
   @Inject
   public HomeController(AssetsFinder assetsFinder, Config config, LoginForm form) {
-    this.assetsFinder = assetsFinder;
-    this.config = config;
-    this.form = form;
+    this.assetsFinder = checkNotNull(assetsFinder);
+    this.config = checkNotNull(config);
+    this.form = checkNotNull(form);
   }
 
   /**

@@ -1,5 +1,7 @@
 package repository;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.typesafe.config.Config;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
@@ -30,8 +32,8 @@ public class AmazonS3Client {
 
   @Inject
   public AmazonS3Client(ApplicationLifecycle appLifecycle, Config config) {
-    this.appLifecycle = appLifecycle;
-    this.config = config;
+    this.appLifecycle = checkNotNull(appLifecycle);
+    this.config = checkNotNull(config);
 
     log.info("aws s3 enabled: " + String.valueOf(enabled()));
     if (enabled()) {
