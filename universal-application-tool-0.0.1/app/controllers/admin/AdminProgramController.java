@@ -3,6 +3,7 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import forms.ProgramForm;
+import java.util.Optional;
 import javax.inject.Inject;
 import play.data.Form;
 import play.data.FormFactory;
@@ -15,9 +16,6 @@ import services.program.ProgramService;
 import views.admin.ProgramEditView;
 import views.admin.ProgramIndexView;
 import views.admin.ProgramNewOneView;
-
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 /**
  * This controller contains an action to handle HTTP requests to the UAT's Admin "Create
@@ -65,8 +63,9 @@ public class AdminProgramController extends Controller {
     if (program.isEmpty()) {
       return notFound(String.format("Program ID %d not found.", id));
     } else {
-    return ok(editView.render(request, program.get()));
-  }}
+      return ok(editView.render(request, program.get()));
+    }
+  }
 
   public Result update(Request request, long id) {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);

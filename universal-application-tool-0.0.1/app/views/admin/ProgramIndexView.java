@@ -9,15 +9,22 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.join;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
 import j2html.tags.Tag;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 
 public final class ProgramIndexView extends BaseHtmlView {
+  private final AdminProgramLayout layout;
+
+  @Inject
+  public ProgramIndexView(AdminProgramLayout layout) {
+    this.layout = layout;
+  }
 
   public Content render(ImmutableList<ProgramDefinition> programs) {
-    return htmlContent(
+    return layout.render(
         body(
             h1("Programs"),
             div(

@@ -5,14 +5,22 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.join;
 
+import com.google.inject.Inject;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 
 public class ProgramEditView extends BaseHtmlView {
+  private final AdminProgramLayout layout;
+
+  @Inject
+  public ProgramEditView(AdminProgramLayout layout) {
+    this.layout = layout;
+  }
+
   public Content render(Request request, ProgramDefinition program) {
-    return htmlContent(
+    return layout.render(
         body(
             div(join("Edit program:", program.name())),
             div(
