@@ -57,8 +57,6 @@ public class QuestionController extends Controller {
                       .setId(readOnlyService.getNextId())
                       .setVersion(1L)
                       .build();
-              System.out.println(
-                  "Attempting to save question with question id: " + definition.getId());
               service.create(definition);
               return redirect("/admin/questions");
             });
@@ -77,6 +75,8 @@ public class QuestionController extends Controller {
               try {
                 definition = Optional.of(readOnlyService.getQuestionDefinition(path));
               } catch (Exception e) {
+                // If the path doesn't exist, redirect to create.
+                return redirect("/admin/questions/new");
               }
               return ok(editView.render(request, definition));
             });
