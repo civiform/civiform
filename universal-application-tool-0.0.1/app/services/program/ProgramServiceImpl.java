@@ -12,14 +12,19 @@ import models.Program;
 import play.db.ebean.Transactional;
 import repository.ProgramRepository;
 import services.question.QuestionDefinition;
+import services.question.QuestionNotFoundException;
+import services.question.QuestionService;
+import services.question.ReadOnlyQuestionService;
 
 public class ProgramServiceImpl implements ProgramService {
 
   private ProgramRepository programRepository;
+  private QuestionService questionService;
 
   @Inject
-  public ProgramServiceImpl(ProgramRepository programRepository) {
+  public ProgramServiceImpl(ProgramRepository programRepository, QuestionService questionService) {
     this.programRepository = checkNotNull(programRepository);
+    this.questionService = checkNotNull(questionService);
   }
 
   @Override
@@ -31,11 +36,18 @@ public class ProgramServiceImpl implements ProgramService {
   public CompletionStage<ImmutableList<ProgramDefinition>> listProgramDefinitionsAsync() {
     return programRepository
         .listPrograms()
-        .thenApply(
+        .thenComposeAsync(
             programs ->
-                programs.stream()
-                    .map(program -> program.getProgramDefinition())
-                    .collect(ImmutableList.toImmutableList()));
+                questionService
+                    .getReadOnlyQuestionService()
+                    .thenApply(
+                        roQuestionService ->
+                            programs.stream()
+                                .map(
+                                    program ->
+                                        syncQuestions(
+                                            program.getProgramDefinition(), roQuestionService))
+                                .collect(ImmutableList.toImmutableList())));
   }
 
   @Override
@@ -47,7 +59,8 @@ public class ProgramServiceImpl implements ProgramService {
   public CompletionStage<Optional<ProgramDefinition>> getProgramDefinitionAsync(long id) {
     return programRepository
         .lookupProgram(id)
-        .thenApply(optionalProgram -> optionalProgram.map(Program::getProgramDefinition));
+        .thenApply(
+            optionalProgram -> optionalProgram.map((p) -> syncQuestions(p.getProgramDefinition())));
   }
 
   @Override
@@ -62,7 +75,7 @@ public class ProgramServiceImpl implements ProgramService {
     ProgramDefinition programDefinition = getProgramOrThrow(programId);
     Program program =
         programDefinition.toBuilder().setName(name).setDescription(description).build().toProgram();
-    return programRepository.updateProgramSync(program).getProgramDefinition();
+    return syncQuestions(programRepository.updateProgramSync(program).getProgramDefinition());
   }
 
   @Override
@@ -78,7 +91,7 @@ public class ProgramServiceImpl implements ProgramService {
       long programId,
       String blockName,
       String blockDescription,
-      ImmutableList<QuestionDefinition> questionDefinitions)
+      ImmutableList<ProgramQuestionDefinition> questionDefinitions)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramOrThrow(programId);
     long blockId = getNextBlockId(programDefinition);
@@ -88,25 +101,27 @@ public class ProgramServiceImpl implements ProgramService {
             .setId(blockId)
             .setName(blockName)
             .setDescription(blockDescription)
-            .setQuestionDefinitions(questionDefinitions)
+            .setProgramQuestionDefinitions(questionDefinitions)
             .build();
 
     Program program =
         programDefinition.toBuilder().addBlockDefinition(blockDefinition).build().toProgram();
-    return programRepository.updateProgramSync(program).getProgramDefinition();
+    return syncQuestions(programRepository.updateProgramSync(program).getProgramDefinition());
   }
 
   @Override
   @Transactional
   public ProgramDefinition setBlockQuestions(
-      long programId, long blockDefinitionId, ImmutableList<QuestionDefinition> questionDefinitions)
+      long programId,
+      long blockDefinitionId,
+      ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions)
       throws ProgramNotFoundException, ProgramBlockNotFoundException {
     ProgramDefinition programDefinition = getProgramOrThrow(programId);
     int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
 
     BlockDefinition blockDefinition =
         programDefinition.blockDefinitions().get(blockDefinitionIndex).toBuilder()
-            .setQuestionDefinitions(questionDefinitions)
+            .setProgramQuestionDefinitions(programQuestionDefinitions)
             .build();
 
     return updateProgramDefinitionWithBlockDefinition(
@@ -183,7 +198,7 @@ public class ProgramServiceImpl implements ProgramService {
             .setBlockDefinitions(updatedBlockDefinitions)
             .build()
             .toProgram();
-    return programRepository.updateProgramSync(program).getProgramDefinition();
+    return syncQuestions(programRepository.updateProgramSync(program).getProgramDefinition());
   }
 
   private long getNextBlockId(ProgramDefinition programDefinition) {
@@ -192,5 +207,47 @@ public class ProgramServiceImpl implements ProgramService {
             .max(Long::compareTo)
             .orElseGet(() -> 0L)
         + 1;
+  }
+
+  /**
+   * Update all {@link QuestionDefinition}s in the ProgramDefinition with appropriate versions from
+   * the {@link QuestionService}.
+   */
+  private ProgramDefinition syncQuestions(ProgramDefinition programDefinition) {
+    return questionService
+        .getReadOnlyQuestionService()
+        .thenApply(
+            (roQuestionService) -> {
+              return syncQuestions(programDefinition, roQuestionService);
+            })
+        .toCompletableFuture()
+        .join();
+  }
+
+  private ProgramDefinition syncQuestions(
+      ProgramDefinition programDefinition, ReadOnlyQuestionService roQuestionService) {
+    ProgramDefinition.Builder programDefinitionBuilder = programDefinition.toBuilder();
+
+    ImmutableList.Builder<BlockDefinition> blockListBuilder = ImmutableList.builder();
+    for (BlockDefinition block : programDefinition.blockDefinitions()) {
+      BlockDefinition.Builder blockBuilder = block.toBuilder();
+
+      ImmutableList.Builder<ProgramQuestionDefinition> pqdListBuilder = ImmutableList.builder();
+      for (ProgramQuestionDefinition pqd : block.programQuestionDefinitions()) {
+        QuestionDefinition questionDefinition;
+        try {
+          questionDefinition = roQuestionService.getQuestionDefinition(pqd.id());
+        } catch (QuestionNotFoundException e) {
+          throw new RuntimeException(e);
+        }
+        pqdListBuilder.add(ProgramQuestionDefinition.create(questionDefinition));
+      }
+
+      blockBuilder.setProgramQuestionDefinitions(pqdListBuilder.build());
+      blockListBuilder.add(blockBuilder.build());
+    }
+
+    programDefinitionBuilder.setBlockDefinitions(blockListBuilder.build());
+    return programDefinitionBuilder.build();
   }
 }

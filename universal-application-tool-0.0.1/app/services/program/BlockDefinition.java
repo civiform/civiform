@@ -48,7 +48,7 @@ public abstract class BlockDefinition {
 
   /** The list of {@link ProgramQuestionDefinition}s that make up this block. */
   @JsonProperty("questionDefinitions")
-  public abstract ImmutableList<ProgramQuestionDefinition> questionDefinitions();
+  public abstract ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions();
 
   public abstract Builder toBuilder();
 
@@ -74,15 +74,16 @@ public abstract class BlockDefinition {
     public abstract Builder setOptionalPredicate(Optional<Predicate> optional);
 
     @JsonProperty("questionDefinitions")
-    public abstract Builder setQuestionDefinitions(
-        ImmutableList<ProgramQuestionDefinition> questionDefinitions);
+    public abstract Builder setProgramQuestionDefinitions(
+        ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions);
 
-    public abstract ImmutableList.Builder<ProgramQuestionDefinition> questionDefinitionsBuilder();
+    public abstract ImmutableList.Builder<ProgramQuestionDefinition>
+        programQuestionDefinitionsBuilder();
 
     public abstract BlockDefinition build();
 
     public Builder addQuestion(ProgramQuestionDefinition question) {
-      questionDefinitionsBuilder().add(question);
+      programQuestionDefinitionsBuilder().add(question);
       return this;
     }
   }

@@ -11,11 +11,11 @@ import repository.ProgramRepository;
 import repository.WithPostgresContainer;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.program.ProgramQuestionDefinition;
 import services.question.AddressQuestionDefinition;
 import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.TextQuestionDefinition;
-import services.question.TranslationNotFoundException;
 
 public class ProgramTest extends WithPostgresContainer {
 
@@ -38,7 +38,8 @@ public class ProgramTest extends WithPostgresContainer {
             .setId(1L)
             .setName("First Block")
             .setDescription("basic info")
-            .setQuestionDefinitions(ImmutableList.of(questionDefinition))
+            .setProgramQuestionDefinitions(
+                ImmutableList.of(ProgramQuestionDefinition.create(questionDefinition)))
             .build();
 
     ProgramDefinition definition =
@@ -58,18 +59,15 @@ public class ProgramTest extends WithPostgresContainer {
     assertThat(found.getProgramDefinition().blockDefinitions().get(0).name())
         .isEqualTo("First Block");
 
-    try {
-      assertThat(
-              found
-                  .getProgramDefinition()
-                  .blockDefinitions()
-                  .get(0)
-                  .questionDefinitions()
-                  .get(0)
-                  .getQuestionText(Locale.US))
-          .isEqualTo("What is your name?");
-    } catch (TranslationNotFoundException e) {
-    }
+    assertThat(
+            found
+                .getProgramDefinition()
+                .blockDefinitions()
+                .get(0)
+                .programQuestionDefinitions()
+                .get(0)
+                .id())
+        .isEqualTo(questionDefinition.getId());
   }
 
   @Test
@@ -80,7 +78,7 @@ public class ProgramTest extends WithPostgresContainer {
         new AddressQuestionDefinition(
             1L,
             2L,
-            "question",
+            "address question",
             "applicant.address",
             "applicant's address",
             ImmutableMap.of(Locale.US, "What is your address?"),
@@ -89,7 +87,7 @@ public class ProgramTest extends WithPostgresContainer {
         new NameQuestionDefinition(
             2L,
             2L,
-            "question",
+            "name question",
             "applicant.name",
             "applicant's name",
             ImmutableMap.of(Locale.US, "What is your name?"),
@@ -100,8 +98,10 @@ public class ProgramTest extends WithPostgresContainer {
             .setId(1L)
             .setName("First Block")
             .setDescription("basic info")
-            .setQuestionDefinitions(
-                ImmutableList.of(addressQuestionDefinition, nameQuestionDefinition))
+            .setProgramQuestionDefinitions(
+                ImmutableList.of(
+                    ProgramQuestionDefinition.create(addressQuestionDefinition),
+                    ProgramQuestionDefinition.create(nameQuestionDefinition)))
             .build();
 
     ProgramDefinition definition =
@@ -116,11 +116,11 @@ public class ProgramTest extends WithPostgresContainer {
 
     Program found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
 
-    QuestionDefinition addressQuestion =
-        found.getProgramDefinition().blockDefinitions().get(0).questionDefinitions().get(0);
-    assertThat(addressQuestion).isInstanceOf(AddressQuestionDefinition.class);
-    QuestionDefinition nameQuestion =
-        found.getProgramDefinition().blockDefinitions().get(0).questionDefinitions().get(1);
-    assertThat(nameQuestion).isInstanceOf(NameQuestionDefinition.class);
+    ProgramQuestionDefinition addressQuestion =
+        found.getProgramDefinition().blockDefinitions().get(0).programQuestionDefinitions().get(0);
+    assertThat(addressQuestion.id()).isEqualTo(addressQuestionDefinition.getId());
+    ProgramQuestionDefinition nameQuestion =
+        found.getProgramDefinition().blockDefinitions().get(0).programQuestionDefinitions().get(1);
+    assertThat(nameQuestion.id()).isEqualTo(nameQuestionDefinition.getId());
   }
 }

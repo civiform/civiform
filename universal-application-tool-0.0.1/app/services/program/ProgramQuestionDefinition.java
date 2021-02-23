@@ -1,56 +1,38 @@
 package services.program;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.inject.Inject;
-import models.Question;
+import com.google.auto.value.AutoValue;
+import java.util.Optional;
 import services.question.QuestionDefinition;
-import services.question.QuestionService;
 
-public class ProgramQuestionDefinition {
-  private long id;
-  private QuestionDefinition questionDefinition;
-  private String config;
-    private QuestionService service;
-
-    public ProgramQuestionDefinition(QuestionDefinition questionDefinition, String config) {
-      this.id = questionDefinition.getId();
-      this.questionDefinition = questionDefinition;
-      this.config = config;
-  }
-
-  @Inject
-  public ProgramQuestionDefinition(long id, String config, QuestionService service) {
-      this.id = id;
-      this.questionDefinition = service.getReadOnlyQuestionService()
-      this.config = config;
-      this.service = service;
-  }
+/**
+ * {@link QuestionDefinition}s will not be stored in the database as part of the {@link
+ * models.Program} model. Only the question id will be stored. It is up the {@link ProgramService}
+ * to properly populate the question definition.
+ */
+@AutoValue
+public abstract class ProgramQuestionDefinition {
 
   @JsonProperty("id")
-  public long id() {
-    return this.id;
+  public abstract long id();
+
+  @JsonIgnore
+  abstract Optional<QuestionDefinition> questionDefinition();
+
+  @JsonIgnore
+  public QuestionDefinition getQuestionDefinition() {
+    return questionDefinition().get();
   }
 
-  public void setId(long id) {
-    this.id = id;
+  @JsonCreator
+  static ProgramQuestionDefinition create(@JsonProperty("id") long id) {
+    return new AutoValue_ProgramQuestionDefinition(id, Optional.empty());
   }
 
-  @JsonProperty("config")
-  public String config() {
-    return this.config;
-  }
-  ;
-
-  public void setConfig(String config) {
-    this.config = config;
-  }
-
-  public QuestionDefinition questionDefinition() {
-    return this.questionDefinition;
-  }
-  ;
-
-  public void setQuestionDefinition(QuestionDefinition questionDefinition) {
-    this.questionDefinition = questionDefinition;
+  public static ProgramQuestionDefinition create(QuestionDefinition questionDefinition) {
+    return new AutoValue_ProgramQuestionDefinition(
+        questionDefinition.getId(), Optional.of(questionDefinition));
   }
 }

@@ -2,25 +2,11 @@ package services.question;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 
 /** Defines a single question. */
-@JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.PROPERTY,
-    property = "serialization_type")
-@JsonSubTypes({
-  @JsonSubTypes.Type(value = AddressQuestionDefinition.class, name = "address"),
-  @JsonSubTypes.Type(value = NameQuestionDefinition.class, name = "name"),
-  @JsonSubTypes.Type(value = TextQuestionDefinition.class, name = "text")
-})
 public abstract class QuestionDefinition {
   private final long id;
   private final long version;
@@ -30,15 +16,14 @@ public abstract class QuestionDefinition {
   private final ImmutableMap<Locale, String> questionText;
   private final Optional<ImmutableMap<Locale, String>> questionHelpText;
 
-  @JsonCreator
   public QuestionDefinition(
-      @JsonProperty("id") long id,
-      @JsonProperty("version") long version,
-      @JsonProperty("name") String name,
-      @JsonProperty("path") String path,
-      @JsonProperty("description") String description,
-      @JsonProperty("questionText") ImmutableMap<Locale, String> questionText,
-      @JsonProperty("questionHelpText") Optional<ImmutableMap<Locale, String>> questionHelpText) {
+      long id,
+      long version,
+      String name,
+      String path,
+      String description,
+      ImmutableMap<Locale, String> questionText,
+      Optional<ImmutableMap<Locale, String>> questionHelpText) {
     this.id = checkNotNull(id);
     this.version = checkNotNull(version);
     this.name = checkNotNull(name);
@@ -122,7 +107,6 @@ public abstract class QuestionDefinition {
   public abstract ImmutableMap<String, ScalarType> getScalars();
 
   /** Get a map of scalars stored by this question definition. */
-  @JsonIgnore
   public ImmutableMap<String, ScalarType> getFullyQualifiedScalars() {
     ImmutableMap<String, ScalarType> scalars = this.getScalars();
     ImmutableMap.Builder<String, ScalarType> ret = new ImmutableMap.Builder<String, ScalarType>();
@@ -131,7 +115,6 @@ public abstract class QuestionDefinition {
     return ret.build();
   }
 
-  @JsonIgnore
   public Optional<ScalarType> getScalarType(String key) {
     return Optional.ofNullable(this.getScalars().get(key));
   }

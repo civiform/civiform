@@ -3,7 +3,6 @@ package services.program;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import services.question.QuestionDefinition;
 
 /** Operations you can perform on {@link ProgramDefinition}s. */
 public interface ProgramService {
@@ -86,7 +85,7 @@ public interface ProgramService {
       long programId,
       String blockName,
       String blockDescription,
-      ImmutableList<QuestionDefinition> questionDefinitions)
+      ImmutableList<ProgramQuestionDefinition> questionDefinitions)
       throws ProgramNotFoundException;
 
   /**
@@ -94,12 +93,14 @@ public interface ProgramService {
    *
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
-   * @param questionDefinitions an {@link ImmutableList} of questions for the block
+   * @param programQuestionDefinition an {@link ImmutableList} of questions for the block
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   ProgramDefinition setBlockQuestions(
-      long programId, long blockDefinitionId, ImmutableList<QuestionDefinition> questionDefinitions)
+      long programId,
+      long blockDefinitionId,
+      ImmutableList<ProgramQuestionDefinition> programQuestionDefinition)
       throws ProgramNotFoundException, ProgramBlockNotFoundException;
 
   /**
