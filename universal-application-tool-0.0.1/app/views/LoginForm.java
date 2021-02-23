@@ -1,8 +1,7 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.body;
-import static j2html.TagCreator.h1;
+import static j2html.TagCreator.*;
 
 import com.google.inject.Inject;
 import controllers.routes;
@@ -22,16 +21,25 @@ public class LoginForm extends BaseHtmlView {
   public Content render(Http.Request request, Optional<String> message) {
     ContainerTag bodyTag =
         body(
-            h1("Error: You are not logged in").withCondHidden(!message.orElse("").equals("login")),
-            h1("TODO: IDCS integration"),
-            h1("Or, continue as guest."),
-            redirectButton(
-                "guest", "Continue", routes.CallbackController.callback("GuestClient").url()));
-    if (request.host().equals("localhost")) {
+            div(
+                h1("Error: You are not logged in")
+                    .withCondHidden(!message.orElse("").equals("login")),
+                h1("TODO: IDCS integration")),
+            div(
+                h1("Or, continue as guest."),
+                redirectButton(
+                    "guest", "Continue", routes.CallbackController.callback("GuestClient").url())));
+    // "defense in depth", sort of - this client won't be present in production, and this button
+    // won't show up except when running locally.
+    if (request.host().startsWith("localhost:")) {
       bodyTag =
           bodyTag.with(
-              redirectButton(
-                  "guest", "Continue", routes.CallbackController.callback("GuestClient").url()));
+              div(
+                  h1("DEBUG MODE: BECOME ADMIN"),
+                  redirectButton(
+                      "admin",
+                      "Continue",
+                      routes.CallbackController.callback("FakeAdminClient").url())));
     }
     return layout.htmlContent(bodyTag);
   }

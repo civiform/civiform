@@ -29,7 +29,7 @@ public class ProfileFactory {
   }
 
   public UatProfileData createNewAdmin() {
-      return create(Roles.ROLE_UAT_ADMIN);
+    return create(Roles.ROLE_UAT_ADMIN);
   }
 
   private UatProfileData create(Roles role) {

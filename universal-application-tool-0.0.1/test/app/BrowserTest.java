@@ -1,6 +1,8 @@
 package app;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static play.test.Helpers.fakeApplication;
 
 import auth.Roles;
@@ -71,6 +73,31 @@ public class BrowserTest extends WithBrowser {
     assertThat(browser.pageSource()).contains("GuestClient");
     assertThat(browser.pageSource()).contains("{\"created_time\":");
     assertThat(browser.pageSource()).contains(Roles.ROLE_APPLICANT.toString());
+
+    goTo(controllers.admin.routes.AdminProgramController.index());
+    assertTrue(browser.pageSource().contains("403"));
+  }
+
+
+  @Test
+  public void adminTestLogin() {
+    String baseUrl = "http://localhost:" + play.api.test.Helpers.testServerPort();
+    goTo(routes.HomeController.loginForm(Optional.empty()));
+    browser.$("#admin").click();
+    // should be redirected to root.
+    assertThat(browser.url()).isEmpty();
+    assertThat(browser.pageSource()).contains("Your new application is ready.");
+
+    goTo(routes.HomeController.secureIndex());
+    assertThat(browser.pageSource()).contains("You are logged in.");
+
+    goTo(routes.ProfileController.myProfile());
+    assertThat(browser.pageSource()).contains("FakeAdminClient");
+    assertThat(browser.pageSource()).contains("{\"created_time\":");
+    assertThat(browser.pageSource()).contains(Roles.ROLE_UAT_ADMIN.toString());
+
+    goTo(controllers.admin.routes.AdminProgramController.index());
+    assertTrue(browser.pageSource().contains("Programs"));
   }
 
   private void goTo(Call method) {
