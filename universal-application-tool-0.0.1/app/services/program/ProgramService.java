@@ -73,6 +73,23 @@ public interface ProgramService {
       throws ProgramNotFoundException;
 
   /**
+   * Adds a {@link BlockDefinition} to the given program.
+   *
+   * @param programId the ID of the program to update
+   * @param blockName a name for the block to add
+   * @param blockDescription a description of what the questions in the block address
+   * @param questionDefinitions an {@link ImmutableList} of questions for the block
+   * @return the updated {@link ProgramDefinition}
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   */
+  ProgramDefinition addBlockToProgram(
+      long programId,
+      String blockName,
+      String blockDescription,
+      ImmutableList<QuestionDefinition> questionDefinitions)
+      throws ProgramNotFoundException;
+
+  /**
    * Update a {@link BlockDefinition} with a set of questions.
    *
    * @param programId the ID of the program to update
