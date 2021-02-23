@@ -36,12 +36,8 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
           .forEach(
               entry -> {
                 String fullPath = questionPath + '.' + entry.getKey();
-                try {
-                  scalarMap.put(fullPath, entry.getValue());
-                  scalarParentsMap.put(fullPath, qd);
-                } catch (Exception e) {
-                  System.out.println("Key already exists: " + fullPath);
-                }
+                scalarMap.put(fullPath, entry.getValue());
+                scalarParentsMap.put(fullPath, qd);
               });
     }
     this.questionsById = questionIdMap.build();
