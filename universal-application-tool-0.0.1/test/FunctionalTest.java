@@ -89,7 +89,7 @@ public class FunctionalTest extends WithPostgresContainer {
 
   @Test
   public void testPersonRepositoryLookup() {
-    final PersonRepository personRepository = app.injector().instanceOf(PersonRepository.class);
+    final PersonRepository personRepository = instanceOf(PersonRepository.class);
 
     Person bob = new Person();
     bob.name = "Bob";

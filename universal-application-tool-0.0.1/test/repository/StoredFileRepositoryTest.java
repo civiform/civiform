@@ -14,8 +14,8 @@ public class StoredFileRepositoryTest extends WithPostgresContainer {
   @Test
   public void createFile() {
     AmazonS3Client s3ClientMock = mock(AmazonS3Client.class);
-    EbeanConfig ebeanConfig = app.injector().instanceOf(EbeanConfig.class);
-    DatabaseExecutionContext dbec = app.injector().instanceOf(DatabaseExecutionContext.class);
+    EbeanConfig ebeanConfig = instanceOf(EbeanConfig.class);
+    DatabaseExecutionContext dbec = instanceOf(DatabaseExecutionContext.class);
     StoredFileRepository repo = new StoredFileRepository(ebeanConfig, s3ClientMock, dbec);
     StoredFile file = new StoredFile();
     file.setName("file name");

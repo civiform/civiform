@@ -20,7 +20,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Before
   public void setProgramServiceImpl() {
-    ps = app.injector().instanceOf(ProgramServiceImpl.class);
+    ps = instanceOf(ProgramServiceImpl.class);
   }
 
   @Test

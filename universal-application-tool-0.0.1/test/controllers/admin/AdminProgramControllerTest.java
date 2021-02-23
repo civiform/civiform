@@ -23,7 +23,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
 
   @Before
   public void setup() {
-    controller = app.injector().instanceOf(AdminProgramController.class);
+    controller = instanceOf(AdminProgramController.class);
   }
 
   @Test
