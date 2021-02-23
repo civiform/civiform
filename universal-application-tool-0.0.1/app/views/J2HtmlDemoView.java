@@ -28,10 +28,7 @@ public final class J2HtmlDemoView extends BaseHtmlView {
    */
   public Content render(String greeting, Request request) {
     return layout.htmlContent(
-        head(
-            viewUtils.makeLocalJsTag("hello"),
-            layout.getCommonCssTag(),
-            viewUtils.makeLocalCssTag("styles")),
+        head(viewUtils.makeLocalJsTag("hello"), layout.getCommonCssTag()),
         body(
             h1(greeting),
             form(
@@ -41,7 +38,6 @@ public final class J2HtmlDemoView extends BaseHtmlView {
                 .withAction("/demo")
                 .withMethod("post")
                 .withId("demo-id")),
-            viewUtils.makeLocalJsTag("bundle")
-            );
+        viewUtils.makeLocalJsTag("bundle"));
   }
 }
