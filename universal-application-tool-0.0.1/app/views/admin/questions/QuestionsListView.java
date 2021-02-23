@@ -4,10 +4,8 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
-import static j2html.TagCreator.span;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
-import static j2html.TagCreator.td;
 import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
@@ -15,7 +13,6 @@ import static j2html.TagCreator.tr;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import j2html.tags.Tag;
-import java.util.Locale;
 import play.twirl.api.Content;
 import services.question.QuestionDefinition;
 import views.BaseHtmlLayout;
@@ -23,12 +20,24 @@ import views.BaseHtmlView;
 
 public final class QuestionsListView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
+  private final ImmutableList<QuestionRow> tableCells =
+      ImmutableList.of(
+          QuestionRow.ID,
+          QuestionRow.VERSION,
+          QuestionRow.PATH,
+          QuestionRow.NAME,
+          QuestionRow.DESCRIPTION,
+          QuestionRow.QUESTION_TEXT,
+          QuestionRow.QUESTION_HELP_TEXT,
+          QuestionRow.QUESTION_TYPE,
+          QuestionRow.ACTIONS);
 
   @Inject
   public QuestionsListView(BaseHtmlLayout layout) {
     this.layout = layout;
   }
 
+  /** Renders a page with either a table or a list view of all questions. */
   public Content render(ImmutableList<QuestionDefinition> questions, String renderAs) {
     return layout.htmlContent(
         body()
@@ -38,11 +47,12 @@ public final class QuestionsListView extends BaseHtmlView {
             .with(renderAddQuestionLink()));
   }
 
-  public Tag renderAddQuestionLink() {
+  private Tag renderAddQuestionLink() {
     return a("Create a new question").withHref("/admin/questions/new");
   }
 
-  public ImmutableList<Tag> renderAllQuestions(
+  /** Renders questions either as a table or a list. */
+  private ImmutableList<Tag> renderAllQuestions(
       ImmutableList<QuestionDefinition> questions, String renderAs) {
     if (renderAs.equalsIgnoreCase("table")) {
       return ImmutableList.of(renderQuestionTable(questions));
@@ -56,58 +66,32 @@ public final class QuestionsListView extends BaseHtmlView {
     return ImmutableList.of(div("Unknown render type: " + renderAs));
   }
 
-  public Tag renderSummary(ImmutableList<QuestionDefinition> questions) {
+  private Tag renderSummary(ImmutableList<QuestionDefinition> questions) {
     return div("Total Questions: " + questions.size());
   }
 
-  public Tag renderQuestionDefinitionInfo(QuestionDefinition definition, String renderAs) {
+  /** Renders a div with some basic QuestionDefinition info in it. */
+  private Tag renderQuestionDefinitionInfo(QuestionDefinition definition, String renderAs) {
     return div()
         .with(div(definition.getName()))
         .with(div(definition.getDescription()))
         .with(div(definition.getQuestionType().toString()));
   }
 
-  public Tag renderQuestionTable(ImmutableList<QuestionDefinition> questions) {
+  /** Renders the full table. */
+  private Tag renderQuestionTable(ImmutableList<QuestionDefinition> questions) {
     return table()
         .with(renderQuestionTableHeaderRow())
         .with(tbody(each(questions, question -> renderQuestionTableRow(question))));
   }
 
-  public Tag renderQuestionTableHeaderRow() {
-    ImmutableList<String> headerCells =
-        ImmutableList.of(
-            "Path",
-            "Id",
-            "Version",
-            "Name",
-            "Description",
-            "Question Text",
-            "Question Help Text",
-            "Question Type",
-            "Actions");
-    return thead(each(headerCells, headerCell -> th(headerCell)));
+  /** Render the question table header row. */
+  private Tag renderQuestionTableHeaderRow() {
+    return thead(each(tableCells, tableCell -> th(tableCell.getHeaderText())));
   }
 
   /** Display this as a table row with all fields. */
-  public Tag renderQuestionTableRow(QuestionDefinition definition) {
-    String text = "";
-    String helpText = "";
-    try {
-      text = definition.getQuestionText(Locale.ENGLISH);
-      helpText = definition.getQuestionHelpText(Locale.ENGLISH);
-    } catch (Exception e) {
-    }
-    return tr(
-        td(definition.getPath()),
-        td("" + definition.getId()),
-        td("" + definition.getVersion()),
-        td(definition.getName()),
-        td(definition.getDescription()),
-        td(text),
-        td(helpText),
-        td(definition.getQuestionType().toString()),
-        td().with(span("view"))
-            .with(span(" | "))
-            .with(a("edit").withHref("/admin/questions/edit/" + definition.getPath())));
+  private Tag renderQuestionTableRow(QuestionDefinition definition) {
+    return tr(each(tableCells, cell -> cell.getCellValue(definition)));
   }
 }
