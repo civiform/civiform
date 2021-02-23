@@ -3,9 +3,9 @@ const path = require('path');
 module.exports = {
   entry: "./app",
   output: {
+    path: path.resolve(__dirname, 'public/javascripts/'),
+    publicPath: '/javascripts/',
     filename: 'bundle.js',
-    path: path.resolve(__dirname, 'public/assets/javascripts/'),
-    publicPath: '/assets/javascripts/',
   },
   module: {
     rules: [
