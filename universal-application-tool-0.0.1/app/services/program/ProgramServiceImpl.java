@@ -69,6 +69,17 @@ public class ProgramServiceImpl implements ProgramService {
   @Transactional
   public ProgramDefinition addBlockToProgram(
       long programId, String blockName, String blockDescription) throws ProgramNotFoundException {
+    return addBlockToProgram(programId, blockName, blockDescription, ImmutableList.of());
+  }
+
+  @Override
+  @Transactional
+  public ProgramDefinition addBlockToProgram(
+      long programId,
+      String blockName,
+      String blockDescription,
+      ImmutableList<QuestionDefinition> questionDefinitions)
+      throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramOrThrow(programId);
     long blockId = getNextBlockId(programDefinition);
 
@@ -77,6 +88,7 @@ public class ProgramServiceImpl implements ProgramService {
             .setId(blockId)
             .setName(blockName)
             .setDescription(blockDescription)
+            .setQuestionDefinitions(questionDefinitions)
             .build();
 
     Program program =

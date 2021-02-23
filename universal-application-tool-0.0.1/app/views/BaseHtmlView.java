@@ -33,6 +33,12 @@ public abstract class BaseHtmlView {
         .attr("for", fieldName);
   }
 
+  protected Tag textFieldWithValue(String fieldName, String labelText, String placeholder) {
+    return label(
+            text(labelText), input().withType("text").withName(fieldName).withValue(placeholder))
+        .attr("for", fieldName);
+  }
+
   protected Tag passwordField(String id, String fieldName, String labelText) {
     return label(text(labelText), input().withType("password").withName(fieldName).withId(id))
         .attr("for", fieldName);
