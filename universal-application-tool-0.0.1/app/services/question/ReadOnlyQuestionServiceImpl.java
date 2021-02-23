@@ -9,7 +9,7 @@ import java.util.Locale;
 public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionService {
   private final ImmutableMap<String, ScalarType> scalars;
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
-  private final ImmutableMap<String, QuestionDefinition> questionsByName;
+  private final ImmutableMap<String, QuestionDefinition> questionsByPath;
   private final ImmutableMap<String, QuestionDefinition> scalarParents;
 
   private Locale preferredLocale = Locale.ENGLISH;
@@ -17,13 +17,13 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
   public ReadOnlyQuestionServiceImpl(ImmutableList<QuestionDefinition> questions) {
     checkNotNull(questions);
     ImmutableMap.Builder<Long, QuestionDefinition> questionIdMap = ImmutableMap.builder();
-    ImmutableMap.Builder<String, QuestionDefinition> questionNameMap = ImmutableMap.builder();
+    ImmutableMap.Builder<String, QuestionDefinition> questionPathMap = ImmutableMap.builder();
     ImmutableMap.Builder<String, ScalarType> scalarMap = ImmutableMap.builder();
     ImmutableMap.Builder<String, QuestionDefinition> scalarParentsMap = ImmutableMap.builder();
     for (QuestionDefinition qd : questions) {
       String questionPath = qd.getPath();
       questionIdMap.put(qd.getId(), qd);
-      questionNameMap.put(questionPath, qd);
+      questionPathMap.put(questionPath, qd);
       ImmutableMap<String, ScalarType> questionScalars = qd.getScalars();
       questionScalars.entrySet().stream()
           .forEach(
@@ -34,14 +34,14 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
               });
     }
     this.questionsById = questionIdMap.build();
-    this.questionsByName = questionNameMap.build();
+    this.questionsByPath = questionPathMap.build();
     this.scalars = scalarMap.build();
     this.scalarParents = scalarParentsMap.build();
   }
 
   @Override
   public ImmutableList<QuestionDefinition> getAllQuestions() {
-    return questionsByName.values().asList();
+    return questionsByPath.values().asList();
   }
 
   @Override
@@ -55,7 +55,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     PathType pathType = this.getPathType(pathString);
     switch (pathType) {
       case QUESTION:
-        return questionsByName.get(pathString).getFullyQualifiedScalars();
+        return questionsByPath.get(pathString).getFullyQualifiedScalars();
       case SCALAR:
         ScalarType scalarType = scalars.get(pathString);
         return ImmutableMap.of(pathString, scalarType);
@@ -67,7 +67,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
 
   @Override
   public PathType getPathType(String pathString) {
-    if (questionsByName.containsKey(pathString)) {
+    if (questionsByPath.containsKey(pathString)) {
       return PathType.QUESTION;
     } else if (scalars.containsKey(pathString)) {
       return PathType.SCALAR;
@@ -80,7 +80,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     PathType pathType = this.getPathType(pathString);
     switch (pathType) {
       case QUESTION:
-        return questionsByName.get(pathString);
+        return questionsByPath.get(pathString);
       case SCALAR:
         return scalarParents.get(pathString);
       case NONE:
@@ -99,7 +99,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
 
   @Override
   public boolean isValid(String pathString) {
-    return scalars.containsKey(pathString) || questionsByName.containsKey(pathString);
+    return scalars.containsKey(pathString) || questionsByPath.containsKey(pathString);
   }
 
   @Override
