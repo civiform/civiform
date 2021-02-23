@@ -39,14 +39,17 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     this.scalarParents = scalarParentsMap.build();
   }
 
+  @Override
   public ImmutableList<QuestionDefinition> getAllQuestions() {
     return questionsByName.values().asList();
   }
 
+  @Override
   public ImmutableMap<String, ScalarType> getAllScalars() {
     return scalars;
   }
 
+  @Override
   public ImmutableMap<String, ScalarType> getPathScalars(String pathString)
       throws InvalidPathException {
     PathType pathType = this.getPathType(pathString);
@@ -62,6 +65,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     }
   }
 
+  @Override
   public PathType getPathType(String pathString) {
     if (questionsByName.containsKey(pathString)) {
       return PathType.QUESTION;
@@ -71,6 +75,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     return PathType.NONE;
   }
 
+  @Override
   public QuestionDefinition getQuestionDefinition(String pathString) throws InvalidPathException {
     PathType pathType = this.getPathType(pathString);
     switch (pathType) {
@@ -84,6 +89,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     }
   }
 
+  @Override
   public QuestionDefinition getQuestionDefinition(long id) throws QuestionNotFoundException {
     if (questionsById.containsKey(id)) {
       return questionsById.get(id);
@@ -91,10 +97,12 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     throw new QuestionNotFoundException(id);
   }
 
+  @Override
   public boolean isValid(String pathString) {
     return scalars.containsKey(pathString) || questionsByName.containsKey(pathString);
   }
 
+  @Override
   public void setPreferredLocale(Locale locale) {
     this.preferredLocale = locale;
   }
