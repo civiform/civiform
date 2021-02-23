@@ -3,19 +3,18 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.Test;
 import java.util.Locale;
 import java.util.Optional;
+import org.junit.Test;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
-import services.question.QuestionType;
 import services.question.TextQuestionDefinition;
 import services.question.UnsupportedQuestionTypeException;
 
 public class QuestionFormTest {
 
   @Test
-  public void getBuilder_returnsCompleteBuilder() throws UnsupportedQuestionTypeException{
+  public void getBuilder_returnsCompleteBuilder() throws UnsupportedQuestionTypeException {
     QuestionForm form = new QuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
