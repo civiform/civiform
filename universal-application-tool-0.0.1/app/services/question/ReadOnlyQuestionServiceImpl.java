@@ -60,10 +60,12 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     return scalars;
   }
 
+  @Override
   public long getNextId() {
     return nextId++;
   }
 
+  @Override
   public ImmutableMap<String, ScalarType> getPathScalars(String pathString)
       throws InvalidPathException {
     PathType pathType = this.getPathType(pathString);
