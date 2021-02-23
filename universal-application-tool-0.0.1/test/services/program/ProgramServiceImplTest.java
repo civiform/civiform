@@ -16,16 +16,6 @@ import services.question.TextQuestionDefinition;
 
 public class ProgramServiceImplTest extends WithPostgresContainer {
 
-  private static final QuestionDefinition TEXT_QUESTION =
-      new TextQuestionDefinition(
-          1L,
-          1L,
-          "name question",
-          "applicant.name",
-          "The name of the applicant.",
-          ImmutableMap.of(Locale.US, "What is your name?"),
-          Optional.empty());
-
   private ProgramServiceImpl ps;
 
   @Before
@@ -164,11 +154,20 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void addBlockToProgramWithQuestions_returnsProgramDefinitionWithBlock() throws Exception {
+    QuestionDefinition questionDefinition =
+        new TextQuestionDefinition(
+            1L,
+            1L,
+            "name question",
+            "applicant.name",
+            "The name of the applicant.",
+            ImmutableMap.of(Locale.US, "What is your name?"),
+            Optional.empty());
     ProgramDefinition programDefinition = ps.createProgramDefinition("program", "description");
     long id = programDefinition.id();
 
     ProgramDefinition updated =
-        ps.addBlockToProgram(id, "block", "desc", ImmutableList.of(TEXT_QUESTION));
+        ps.addBlockToProgram(id, "block", "desc", ImmutableList.of(questionDefinition));
 
     assertThat(updated.blockDefinitions()).hasSize(1);
     assertThat(updated.blockDefinitions().get(0))
@@ -177,23 +176,33 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                 .setId(1L)
                 .setName("block")
                 .setDescription("desc")
-                .setQuestionDefinitions(ImmutableList.of(TEXT_QUESTION)));
+                .setQuestionDefinitions(ImmutableList.of(questionDefinition))
+                .build());
   }
 
   @Test
   public void setBlockQuestions_updatesBlock()
       throws ProgramNotFoundException, ProgramBlockNotFoundException {
+    QuestionDefinition questionDefinition =
+        new TextQuestionDefinition(
+            1L,
+            1L,
+            "name question",
+            "applicant.name",
+            "The name of the applicant.",
+            ImmutableMap.of(Locale.US, "What is your name?"),
+            Optional.empty());
     ProgramDefinition programDefinition =
         ps.createProgramDefinition("Program With Block", "This program has a block.");
     Long programId = programDefinition.id();
     ps.addBlockToProgram(programId, "the block", "the block for the program");
-    ps.setBlockQuestions(programId, 1L, ImmutableList.of(TEXT_QUESTION));
+    ps.setBlockQuestions(programId, 1L, ImmutableList.of(questionDefinition));
 
     ProgramDefinition found = ps.getProgramDefinition(programId).orElseThrow();
 
     assertThat(found.blockDefinitions().get(0).questionDefinitions()).hasSize(1);
-    assertThat(found.blockDefinitions().get(0).questionDefinitions().get(0))
-        .isEqualTo(TEXT_QUESTION);
+    assertThat(found.blockDefinitions().get(0).questionDefinitions().get(0).getName())
+        .isEqualTo("name question");
   }
 
   @Test
