@@ -9,11 +9,15 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.admin.ProgramEditView;
 import views.admin.ProgramIndexView;
 import views.admin.ProgramNewOneView;
+
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 /**
  * This controller contains an action to handle HTTP requests to the UAT's Admin "Create
@@ -56,17 +60,22 @@ public class AdminProgramController extends Controller {
     return found(routes.AdminProgramController.index());
   }
 
-  public Result edit(Request request, long id) throws ProgramNotFoundException {
-    return ok(
-        editView.render(
-            request,
-            service.getProgramDefinition(id).orElseThrow(() -> new ProgramNotFoundException(id))));
-  }
+  public Result edit(Request request, long id) {
+    Optional<ProgramDefinition> program = service.getProgramDefinition(id);
+    if (program.isEmpty()) {
+      return notFound(String.format("Program ID %d not found.", id));
+    } else {
+    return ok(editView.render(request, program.get()));
+  }}
 
-  public Result update(Request request, long id) throws ProgramNotFoundException {
+  public Result update(Request request, long id) {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm program = programForm.bindFromRequest(request).get();
-    service.updateProgramDefinition(id, program.getName(), program.getDescription());
-    return found(routes.AdminProgramController.index());
+    try {
+      service.updateProgramDefinition(id, program.getName(), program.getDescription());
+      return found(routes.AdminProgramController.index());
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", id));
+    }
   }
 }

@@ -3,6 +3,7 @@ package controllers.admin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
+import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.FOUND;
 import static play.test.Helpers.contentAsString;
@@ -97,11 +98,12 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void edit_throwsProgramNotFoundException() {
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+  public void edit_withInvalidProgram_returnsNotFound() {
+    Request request = Helpers.fakeRequest().build();
 
-    assertThatThrownBy(() -> controller.edit(request, 1L))
-        .isInstanceOf(ProgramNotFoundException.class);
+    Result result = controller.edit(request, 1L);
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
@@ -118,9 +120,12 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void update_throwsProgramNotFoundException() {
-    assertThatThrownBy(() -> controller.update(Helpers.fakeRequest().build(), 1L))
-        .isInstanceOf(ProgramNotFoundException.class);
+  public void update_invalidProgram_returnsNotFound() {
+    Request request = Helpers.fakeRequest().build();
+
+    Result result = controller.update(request, 1L);
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
