@@ -2,31 +2,25 @@ package controllers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.ProfileUtils;
 import javax.inject.Inject;
-import org.pac4j.core.context.session.SessionStore;
-import org.pac4j.core.profile.ProfileManager;
-import org.pac4j.play.PlayWebContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import views.ProfileView;
 
 public class ProfileController extends Controller {
-  private SessionStore sessionStore;
   private ProfileView profileView;
+  private ProfileUtils profileUtils;
 
   @Inject
-  public ProfileController(SessionStore sessionStore, ProfileView profileView) {
-    this.sessionStore = checkNotNull(sessionStore);
+  public ProfileController(ProfileUtils profileUtils, ProfileView profileView) {
+    this.profileUtils = checkNotNull(profileUtils);
     this.profileView = checkNotNull(profileView);
   }
 
   public Result myProfile(Http.Request request) {
-    // Fetch the current profile from the session cookie, which the ProfileManager
-    // will fetch from the request's cookies, using the session store to decrypt it.
-    PlayWebContext webContext = new PlayWebContext(request);
-    ProfileManager profileManager = new ProfileManager(webContext, sessionStore);
-    return ok(profileView.render(profileManager.getProfile()));
+    return ok(profileView.render(profileUtils.currentUserProfile(request)));
   }
 
   public Result profilePage(Http.Request request, Long id) {

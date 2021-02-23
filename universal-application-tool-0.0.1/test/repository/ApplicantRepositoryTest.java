@@ -57,6 +57,9 @@ public class ApplicantRepositoryTest extends WithPostgresContainer {
     String path = "$.applicant";
     applicant.getApplicantData().put(path, "birthDate", "1/1/2021");
 
+    assertThat(applicant.getApplicantData().read("$.applicant.birthDate", String.class))
+        .isEqualTo("1/1/2021");
+
     repo.insertApplicant(applicant).toCompletableFuture().join();
 
     long id = applicant.id;
