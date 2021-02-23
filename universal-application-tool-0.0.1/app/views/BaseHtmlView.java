@@ -1,5 +1,6 @@
 package views;
 
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.text;
@@ -37,11 +38,11 @@ public abstract class BaseHtmlView {
   }
 
   protected Tag submitButton(String textContents) {
-    return input().withType("submit").withValue(textContents);
+    return button(text(textContents)).withType("submit");
   }
 
   protected Tag submitButton(String id, String textContents) {
-    return input().withType("submit").withId(id).withValue(textContents);
+    return button(text(textContents)).withType("submit").withId(id);
   }
 
   /**
