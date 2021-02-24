@@ -1,11 +1,13 @@
 package views.applicant;
 
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
+import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.Tag;
@@ -44,11 +46,12 @@ public class ProgramIndexView extends BaseHtmlView {
         .with(h2(program.name()))
         .with(p(program.description()))
         .with(
-            redirectButton(
-                String.format("apply%d", program.id()),
-                "Apply",
-                controllers.applicant.routes.ApplicantProgramsController.edit(
-                        applicantId, program.id())
-                    .url()));
+            a("Apply")
+                .withId(String.format("apply%d", program.id()))
+                .attr(
+                    HREF,
+                    controllers.applicant.routes.ApplicantProgramsController.edit(
+                            applicantId, program.id())
+                        .url()));
   }
 }
