@@ -45,7 +45,7 @@ public class ProgramIndexView extends BaseHtmlView {
         .with(p(program.description()))
         .with(
             redirectButton(
-                "apply",
+                String.format("apply%d", program.id()),
                 "Apply",
                 controllers.applicant.routes.ApplicantProgramsController.edit(
                         applicantId, program.id())
