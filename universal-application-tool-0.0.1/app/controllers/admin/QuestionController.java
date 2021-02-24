@@ -46,47 +46,6 @@ public class QuestionController extends Controller {
             });
   }
 
-  public CompletionStage<Result> write(Request request) {
-    Form<QuestionForm> form = formFactory.form(QuestionForm.class);
-    QuestionForm questionForm = form.bindFromRequest(request).get();
-    return service
-        .getReadOnlyQuestionService()
-        .thenApplyAsync(
-            readOnlyService -> {
-              try {
-                QuestionDefinition definition =
-                    questionForm
-                        .getBuilder()
-                        .setId(readOnlyService.getNextId())
-                        .setVersion(1L)
-                        .build();
-                service.create(definition);
-              } catch (UnsupportedQuestionTypeException e) {
-                // I'm not sure why this would happen here, so we'll just log and redirect.
-                System.out.println(e);
-                return redirect("/admin/questions");
-              }
-              return redirect("/admin/questions");
-            });
-  }
-
-  public CompletionStage<Result> update(Request request) {
-    Form<QuestionForm> form = formFactory.form(QuestionForm.class);
-    QuestionForm questionForm = form.bindFromRequest(request).get();
-    try {
-      QuestionDefinition definition =
-          questionForm
-              .getBuilder()
-              .setId(0L)
-              .setVersion(1L)
-              .build();
-      return service.update(definition);
-    } catch (UnsupportedOperationException e) {
-      // This is expected for now until we implement update on QuestionService.
-    }
-    return redirect("/admin/questions");
-  }
-
   public Result create(Request request) {
     return ok(editView.render(request, Optional.empty()));
   }
@@ -107,6 +66,44 @@ public class QuestionController extends Controller {
               } else {
                 return redirect("/admin/questions/new");
               }
+            });
+  }
+
+  public CompletionStage<Result> update(Request request) {
+    Form<QuestionForm> form = formFactory.form(QuestionForm.class);
+    QuestionForm questionForm = form.bindFromRequest(request).get();
+    try {
+      QuestionDefinition definition = questionForm.getBuilder().setId(0L).setVersion(1L).build();
+      service.update(definition);
+    } catch (UnsupportedQuestionTypeException e) {
+      // I'm not sure why this would happen here, so we'll just log and redirect.
+      System.out.println(e);
+    } catch (UnsupportedOperationException e) {
+      // This is expected for now until we implement update on QuestionService.
+    }
+    return list("table");
+  }
+
+  public CompletionStage<Result> write(Request request) {
+    Form<QuestionForm> form = formFactory.form(QuestionForm.class);
+    QuestionForm questionForm = form.bindFromRequest(request).get();
+    return service
+        .getReadOnlyQuestionService()
+        .thenApplyAsync(
+            readOnlyService -> {
+              try {
+                QuestionDefinition definition =
+                    questionForm
+                        .getBuilder()
+                        .setId(readOnlyService.getNextId())
+                        .setVersion(1L)
+                        .build();
+                service.create(definition);
+              } catch (UnsupportedQuestionTypeException e) {
+                // I'm not sure why this would happen here, so we'll just log and redirect.
+                System.out.println(e);
+              }
+              return redirect("/admin/questions");
             });
   }
 }

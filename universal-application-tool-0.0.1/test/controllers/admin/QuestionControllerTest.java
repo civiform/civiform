@@ -15,10 +15,10 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.WithPostgresContainer;
-import views.html.helper.CSRF;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
 import services.question.UnsupportedQuestionTypeException;
+import views.html.helper.CSRF;
 
 public class QuestionControllerTest extends WithPostgresContainer {
   private QuestionController controller;
@@ -30,25 +30,31 @@ public class QuestionControllerTest extends WithPostgresContainer {
 
   @Test
   public void list_withNoQuestions() {
-    controller.list("table").thenAccept(result -> {
-        assertThat(result.status()).isEqualTo(OK);
-        assertThat(result.contentType()).hasValue("text/html");
-        assertThat(result.charset()).hasValue("utf-8");
-        assertThat(contentAsString(result)).contains("Total Questions: 0");
-        assertThat(contentAsString(result)).contains("All Questions");
-    });
+    controller
+        .list("table")
+        .thenAccept(
+            result -> {
+              assertThat(result.status()).isEqualTo(OK);
+              assertThat(result.contentType()).hasValue("text/html");
+              assertThat(result.charset()).hasValue("utf-8");
+              assertThat(contentAsString(result)).contains("Total Questions: 0");
+              assertThat(contentAsString(result)).contains("All Questions");
+            });
   }
 
   @Test
   public void list_returnsQuestions() throws UnsupportedQuestionTypeException {
     buildQuestionsList();
-    controller.list("table").thenAccept(result -> {
-      assertThat(result.status()).isEqualTo(OK);
-      assertThat(result.contentType()).hasValue("text/html");
-      assertThat(result.charset()).hasValue("utf-8");
-      assertThat(contentAsString(result)).contains("Total Questions: 1");
-      assertThat(contentAsString(result)).contains("All Questions");
-    });
+    controller
+        .list("table")
+        .thenAccept(
+            result -> {
+              assertThat(result.status()).isEqualTo(OK);
+              assertThat(result.contentType()).hasValue("text/html");
+              assertThat(result.charset()).hasValue("utf-8");
+              assertThat(contentAsString(result)).contains("Total Questions: 1");
+              assertThat(contentAsString(result)).contains("All Questions");
+            });
   }
 
   @Test
@@ -70,11 +76,14 @@ public class QuestionControllerTest extends WithPostgresContainer {
   public void edit_returnsPopulatedForm() throws UnsupportedQuestionTypeException {
     buildQuestionsList();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    controller.edit(request, "the.ultimate.question").thenAccept(result -> {
-      assertThat(result.status()).isEqualTo(OK);
-      assertThat(contentAsString(result)).contains("Edit Question");
-      assertThat(true).isTrue();
-    });
+    controller
+        .edit(request, "the.ultimate.question")
+        .thenAccept(
+            result -> {
+              assertThat(result.status()).isEqualTo(OK);
+              assertThat(contentAsString(result)).contains("Edit Question");
+              assertThat(true).isTrue();
+            });
   }
 
   @Test
@@ -82,23 +91,29 @@ public class QuestionControllerTest extends WithPostgresContainer {
     buildQuestionsList();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     // Attempts to go to /admin/questions/edit/invalid.path then redirects to /admin/questions/new
-    controller.edit(request, "invalid.path").thenAccept(result -> {
-      assertThat(result.status()).isEqualTo(OK);
-      assertThat(contentAsString(result)).contains("New Question");
-      assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
-    });
+    controller
+        .edit(request, "invalid.path")
+        .thenAccept(
+            result -> {
+              assertThat(result.status()).isEqualTo(OK);
+              assertThat(contentAsString(result)).contains("New Question");
+              assertThat(contentAsString(result))
+                  .contains(CSRF.getToken(request.asScala()).value());
+            });
   }
 
   private void buildQuestionsList() throws UnsupportedQuestionTypeException {
-    QuestionDefinitionBuilder builder = new QuestionDefinitionBuilder()
-      .setId(1L)
-      .setVersion(1L)
-      .setName("First Question")
-      .setDescription("This is the first question.")
-      .setPath("the.ultimate.question")
-      .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "What is the answer to the ultimate question?"))
-      .setQuestionHelpText(Optional.empty())
-      .setQuestionType(QuestionType.TEXT);
+    QuestionDefinitionBuilder builder =
+        new QuestionDefinitionBuilder()
+            .setId(1L)
+            .setVersion(1L)
+            .setName("First Question")
+            .setDescription("This is the first question.")
+            .setPath("the.ultimate.question")
+            .setQuestionText(
+                ImmutableMap.of(Locale.ENGLISH, "What is the answer to the ultimate question?"))
+            .setQuestionHelpText(Optional.empty())
+            .setQuestionType(QuestionType.TEXT);
     Question question = new Question(builder.build());
     question.save();
   }
