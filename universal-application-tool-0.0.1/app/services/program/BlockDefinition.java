@@ -1,10 +1,12 @@
 package services.program;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import services.question.QuestionDefinition;
 
 /**
  * Defines a single program block, which contains a list of questions and data about the block.
@@ -54,6 +56,12 @@ public abstract class BlockDefinition {
 
   public static Builder builder() {
     return new AutoValue_BlockDefinition.Builder();
+  }
+
+  /** Returns the {@link QuestionDefinition} at the specified index. */
+  @JsonIgnore
+  public QuestionDefinition getQuestionDefinition(int questionIndex) {
+    return programQuestionDefinitions().get(questionIndex).getQuestionDefinition();
   }
 
   @AutoValue.Builder

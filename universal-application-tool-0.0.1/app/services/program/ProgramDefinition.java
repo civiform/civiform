@@ -1,8 +1,10 @@
 package services.program;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import models.Program;
+import services.question.QuestionDefinition;
 
 @AutoValue
 public abstract class ProgramDefinition {
@@ -18,6 +20,16 @@ public abstract class ProgramDefinition {
 
   /** The list of {@link BlockDefinition}s that make up the program. */
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
+
+  /** Returns the {@link QuestionDefinition} at the specified block and question indices. */
+  @JsonIgnore
+  public QuestionDefinition getQuestionDefinition(int blockIndex, int questionIndex) {
+    return blockDefinitions().get(blockIndex).getQuestionDefinition(questionIndex);
+  }
+
+  public Program toProgram() {
+    return new Program(this);
+  }
 
   public abstract Builder toBuilder();
 
@@ -43,9 +55,5 @@ public abstract class ProgramDefinition {
       blockDefinitionsBuilder().add(blockDefinition);
       return this;
     }
-  }
-
-  public Program toProgram() {
-    return new Program(this);
   }
 }
