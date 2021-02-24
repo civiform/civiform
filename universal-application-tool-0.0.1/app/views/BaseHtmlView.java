@@ -26,10 +26,6 @@ import views.html.helper.CSRF;
  */
 public abstract class BaseHtmlView {
 
-  protected Content htmlContent(DomContent... domContents) {
-    return new BaseHtmlLayout.HtmlResponseContent(domContents);
-  }
-
   public Tag renderHeader(String headerText) {
     return h1(headerText);
   }
