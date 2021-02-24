@@ -40,7 +40,7 @@ public class BrowserTest extends WithBrowser {
 
   @Test
   public void homePage() {
-    browser.goTo("http://localhost:" + play.api.test.Helpers.testServerPort());
+    browser.goTo(BASE_URL);
     assertThat(browser.pageSource()).contains("Your new application is ready.");
   }
 
@@ -50,12 +50,10 @@ public class BrowserTest extends WithBrowser {
     goTo(controllers.applicant.routes.ApplicantProgramsController.index(1L));
     assertThat(browser.pageSource()).contains("My Program");
 
-    // Redirect when "apply" button is clicked.
-    String applyButtonId = "#apply" + program.id;
-    browser.$(applyButtonId).click();
-    assertThat("/" + browser.url())
-        .isEqualTo(
-            controllers.applicant.routes.ApplicantProgramsController.edit(1L, program.id).url());
+    // Redirect when "apply" link is clicked.
+    String applyLinkId = "#apply" + program.id;
+    browser.$(applyLinkId).click();
+    assertUrlEquals(controllers.applicant.routes.ApplicantProgramsController.edit(1L, program.id));
   }
 
   @Test
@@ -77,6 +75,11 @@ public class BrowserTest extends WithBrowser {
 
   private void goTo(Call method) {
     browser.goTo(BASE_URL + method.url());
+  }
+
+  /** {@code browser.url()} does not have the leading "/" but route URLs do. */
+  private void assertUrlEquals(Call method) {
+    assertThat("/" + browser.url()).isEqualTo(method.url());
   }
 
   private static Program insertProgram(String name) {
