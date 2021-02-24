@@ -93,14 +93,14 @@ public interface ProgramService {
    *
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
-   * @param programQuestionDefinition an {@link ImmutableList} of questions for the block
+   * @param programQuestionDefinitions an {@link ImmutableList} of questions for the block
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   ProgramDefinition setBlockQuestions(
       long programId,
       long blockDefinitionId,
-      ImmutableList<ProgramQuestionDefinition> programQuestionDefinition)
+      ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions)
       throws ProgramNotFoundException, ProgramBlockNotFoundException;
 
   /**
