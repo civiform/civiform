@@ -122,12 +122,14 @@ public class SecurityModule extends AbstractModule {
     Config config = new Config();
     config.setClients(clients);
     config.addAuthorizer(
-        "programadmin", new RequireAllRolesAuthorizer(Roles.ROLE_PROGRAM_ADMIN.toString()));
+        Roles.PROGRAM_ADMIN_AUTHORIZER,
+        new RequireAllRolesAuthorizer(Roles.ROLE_PROGRAM_ADMIN.toString()));
     config.addAuthorizer(
-        "uatadmin", new RequireAllRolesAuthorizer(Roles.ROLE_UAT_ADMIN.toString()));
+        Roles.UAT_ADMIN_AUTHORIZER, new RequireAllRolesAuthorizer(Roles.ROLE_UAT_ADMIN.toString()));
     config.addAuthorizer(
-        "applicant", new RequireAllRolesAuthorizer(Roles.ROLE_APPLICANT.toString()));
-    config.addAuthorizer("intermediary", new RequireAllRolesAuthorizer(Roles.ROLE_TI.toString()));
+        Roles.APPLICANT_AUTHORIZER, new RequireAllRolesAuthorizer(Roles.ROLE_APPLICANT.toString()));
+    config.addAuthorizer(
+        Roles.TI_AUTHORIZER, new RequireAllRolesAuthorizer(Roles.ROLE_TI.toString()));
 
     config.setHttpActionAdapter(PlayHttpActionAdapter.INSTANCE);
     return config;
