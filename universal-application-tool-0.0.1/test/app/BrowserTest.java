@@ -1,3 +1,5 @@
+package app;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.fakeApplication;
 
@@ -18,6 +20,7 @@ public class BrowserTest extends WithBrowser {
   private static final String LOCALHOST = "http://localhost:";
   private static final String BASE_URL = LOCALHOST + play.api.test.Helpers.testServerPort();
 
+  @Override
   protected Application provideApplication() {
     return fakeApplication(
         ImmutableMap.of(
@@ -30,6 +33,7 @@ public class BrowserTest extends WithBrowser {
             "true"));
   }
 
+  @Override
   protected TestBrowser provideBrowser(int port) {
     return Helpers.testBrowser(port);
   }

@@ -36,6 +36,6 @@ public class ApplicantTest extends WithPostgresContainer {
 
     ApplicantData applicantData = applicant.getApplicantData();
 
-    assertThat(applicant.getApplicantData() == applicantData);
+    assertThat(applicant.getApplicantData()).isEqualTo(applicantData);
   }
 }

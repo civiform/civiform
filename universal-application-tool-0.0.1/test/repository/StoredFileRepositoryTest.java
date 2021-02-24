@@ -5,6 +5,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.nio.charset.StandardCharsets;
 import models.StoredFile;
 import org.junit.Test;
 import play.db.ebean.EbeanConfig;
@@ -19,7 +20,7 @@ public class StoredFileRepositoryTest extends WithPostgresContainer {
     StoredFileRepository repo = new StoredFileRepository(ebeanConfig, s3ClientMock, dbec);
     StoredFile file = new StoredFile();
     file.setName("file name");
-    byte[] content = new String("file content").getBytes();
+    byte[] content = new String("file content").getBytes(StandardCharsets.UTF_8);
     file.setContent(content);
     when(s3ClientMock.getObject(any(String.class))).thenReturn(content);
 

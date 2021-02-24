@@ -3,6 +3,7 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.typesafe.config.Config;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -42,7 +43,7 @@ public class AmazonS3Client {
       getTestObject();
     }
 
-    appLifecycle.addStopHook(
+    this.appLifecycle.addStopHook(
         () -> {
           if (s3 != null) {
             s3.close();
@@ -92,12 +93,12 @@ public class AmazonS3Client {
 
   private void putTestObject() {
     String testInput = "UAT S3 test content";
-    putObject("file1", testInput.getBytes());
+    putObject("file1", testInput.getBytes(StandardCharsets.UTF_8));
   }
 
   private void getTestObject() {
     byte[] data = getObject("file1");
-    log.info("got data from s3: " + new String(data));
+    log.info("got data from s3: " + new String(data, StandardCharsets.UTF_8));
   }
 
   private void connect() {
