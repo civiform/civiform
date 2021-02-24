@@ -26,7 +26,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
 
   @Before
   public void setProgramServiceImpl() {
-    questionService = app.injector().instanceOf(QuestionServiceImpl.class);
+    questionService = instanceOf(QuestionServiceImpl.class);
   }
 
   @Test
