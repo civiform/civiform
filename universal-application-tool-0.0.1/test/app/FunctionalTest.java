@@ -31,7 +31,7 @@ public class FunctionalTest extends WithPostgresContainer {
     // because it makes use of assets metadata that is configured from
     // the application.
 
-    AssetsFinder assetsFinder = provideApplication().injector().instanceOf(AssetsFinder.class);
+    AssetsFinder assetsFinder = instanceOf(AssetsFinder.class);
 
     Content html = views.html.index.render("Your new application is ready.", assetsFinder);
     assertThat("text/html").isEqualTo(html.contentType());
