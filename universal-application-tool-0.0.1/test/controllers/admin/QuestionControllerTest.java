@@ -100,13 +100,13 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void update_failsGracefully() {
+  public void update_failsGracefully() throws UnsupportedQuestionTypeException {
     // Update isn't implemented yet, so we just redirect to the questions list for now.
     assertThat(true).isTrue();
   }
 
   @Test
-  public void write_addsQuestionDefinition() {
+  public void write_addsQuestionDefinition() throws UnsupportedQuestionTypeException {
     buildQuestionsList();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
