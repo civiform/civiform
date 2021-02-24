@@ -28,10 +28,6 @@ RUN apk add nodejs
 ENV PROJECT_HOME /usr/src
 ENV PROJECT_NAME universal-application-tool-0.0.1
 
-RUN mkdir /formatters
-RUN wget https://repo1.maven.org/maven2/com/google/errorprone/error_prone_core/2.5.1/error_prone_core-2.5.1-with-dependencies.jar -O /formatters/errorprone.jar
-RUN wget https://repo1.maven.org/maven2/org/checkerframework/dataflow-shaded/3.7.1/dataflow-shaded-3.7.1.jar -O /formatters/dataflow.jar
-RUN wget https://repo1.maven.org/maven2/com/google/code/findbugs/jFormatString/3.0.0/jFormatString-3.0.0.jar -O /formatters/jformatstring.jar
 COPY ${PROJECT_NAME} ${PROJECT_HOME}/${PROJECT_NAME}
 RUN cd $PROJECT_HOME/$PROJECT_NAME && \
     sbt clean compile
