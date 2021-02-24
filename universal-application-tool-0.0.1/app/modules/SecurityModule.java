@@ -97,12 +97,20 @@ public class SecurityModule extends AbstractModule {
     return new ProfileFactory(clock, dbContext, httpContext);
   }
 
+  protected FakeAdminClient fakeAdminClient(ProfileFactory profileFactory) {
+    return new FakeAdminClient(profileFactory);
+  }
+
   @Provides
   @Singleton
-  protected Config provideConfig(GuestClient guestClient) {
+  protected Config provideConfig(GuestClient guestClient, FakeAdminClient fakeAdminClient) {
     // This must match the line in `routes` also.
     Clients clients = new Clients(baseUrl + routes.CallbackController.callback("GuestClient"));
-    clients.setClients(guestClient);
+    if (this.baseUrl.equals(DEV_BASE_URL)) {
+      clients.setClients(guestClient, fakeAdminClient);
+    } else {
+      clients.setClients(guestClient);
+    }
     PlayHttpActionAdapter.INSTANCE
         .getResults()
         .putAll(
@@ -114,12 +122,14 @@ public class SecurityModule extends AbstractModule {
     Config config = new Config();
     config.setClients(clients);
     config.addAuthorizer(
-        "programadmin", new RequireAllRolesAuthorizer(Roles.ROLE_PROGRAM_ADMIN.toString()));
+        Roles.PROGRAM_ADMIN_AUTHORIZER,
+        new RequireAllRolesAuthorizer(Roles.ROLE_PROGRAM_ADMIN.toString()));
     config.addAuthorizer(
-        "uatadmin", new RequireAllRolesAuthorizer(Roles.ROLE_UAT_ADMIN.toString()));
+        Roles.UAT_ADMIN_AUTHORIZER, new RequireAllRolesAuthorizer(Roles.ROLE_UAT_ADMIN.toString()));
     config.addAuthorizer(
-        "applicant", new RequireAllRolesAuthorizer(Roles.ROLE_APPLICANT.toString()));
-    config.addAuthorizer("intermediary", new RequireAllRolesAuthorizer(Roles.ROLE_TI.toString()));
+        Roles.APPLICANT_AUTHORIZER, new RequireAllRolesAuthorizer(Roles.ROLE_APPLICANT.toString()));
+    config.addAuthorizer(
+        Roles.TI_AUTHORIZER, new RequireAllRolesAuthorizer(Roles.ROLE_TI.toString()));
 
     config.setHttpActionAdapter(PlayHttpActionAdapter.INSTANCE);
     return config;
