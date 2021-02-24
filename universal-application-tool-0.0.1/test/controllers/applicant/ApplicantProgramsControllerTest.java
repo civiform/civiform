@@ -59,10 +59,4 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).isEqualTo("Applicant 123 chose program 456");
   }
-
-  private static Program insertProgram(String name) {
-    Program program = new Program(name, "description");
-    program.save();
-    return program;
-  }
 }

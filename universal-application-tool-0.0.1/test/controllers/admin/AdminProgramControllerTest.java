@@ -144,10 +144,4 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
     assertThat(contentAsString(redirectResult)).contains("New Program");
     assertThat(contentAsString(redirectResult)).doesNotContain("Existing One");
   }
-
-  private static Program insertProgram(String name) {
-    Program program = new Program(name, "description");
-    program.save();
-    return program;
-  }
 }
