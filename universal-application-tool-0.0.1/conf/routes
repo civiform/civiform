@@ -17,6 +17,8 @@ POST    /postgresSync               controllers.PostgresController.createSync(re
 # A controller for a page for an admin to create a new application
 GET     /admin/programs             controllers.admin.AdminProgramController.index
 GET     /admin/programs/new         controllers.admin.AdminProgramController.newOne(request: Request)
+GET     /admin/programs/:id/edit    controllers.admin.AdminProgramController.edit(request: Request, id: Long)
+POST    /admin/programs/:id         controllers.admin.AdminProgramController.update(request: Request, id: Long)
 POST    /admin/programs             controllers.admin.AdminProgramController.create(request: Request)
 
 GET     /demo/new                   controllers.J2HtmlDemoController.newOne(request: Request)
@@ -25,12 +27,17 @@ POST    /demo                       controllers.J2HtmlDemoController.create(requ
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(file)
 
+
+# User profile pages
+GET     /users/me                    controllers.ProfileController.myProfile(request: Request)
+GET     /users/:id                   controllers.ProfileController.profilePage(request: Request, id: Long)
+
 # Authentication callback from federated auth server
-GET     /callback                    @org.pac4j.play.CallbackController.callback(request: Request)
-POST    /callback                    @org.pac4j.play.CallbackController.callback(request: Request)
+GET     /callback                    controllers.CallbackController.callback(request: Request, client_name: String)
+POST    /callback                    controllers.CallbackController.callback(request: Request, client_name: String)
 
 # Log into application
-GET     /loginForm                   controllers.HomeController.loginForm(request: Request)
+GET     /loginForm                   controllers.HomeController.loginForm(request: Request, message: java.util.Optional[String])
 
 # Log out of application
 GET     /logout                      @org.pac4j.play.LogoutController.logout(request: Request)

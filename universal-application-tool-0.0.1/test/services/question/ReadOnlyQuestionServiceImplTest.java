@@ -29,7 +29,7 @@ public class ReadOnlyQuestionServiceImplTest {
           ImmutableMap.of(Locale.ENGLISH, "What is your address?"),
           Optional.empty());
   QuestionDefinition basicQuestion =
-      new QuestionDefinition(
+      new TextQuestionDefinition(
           3L,
           1L,
           "applicant's favorite color",
@@ -121,6 +121,11 @@ public class ReadOnlyQuestionServiceImplTest {
   @Test
   public void getQuestionDefinition_forScalar() throws InvalidPathException {
     assertThat(service.getQuestionDefinition("applicant.name.first")).isEqualTo(nameQuestion);
+  }
+
+  @Test
+  public void getQuestionDefinition_byId() throws QuestionNotFoundException {
+    assertThat(service.getQuestionDefinition(1L)).isEqualTo(nameQuestion);
   }
 
   @Test

@@ -7,10 +7,10 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 
-public class AddressQuestionDefinition extends QuestionDefinition {
+public class TextQuestionDefinition extends QuestionDefinition {
 
   @JsonCreator
-  public AddressQuestionDefinition(
+  public TextQuestionDefinition(
       @JsonProperty("id") long id,
       @JsonProperty("version") long version,
       @JsonProperty("name") String name,
@@ -24,20 +24,12 @@ public class AddressQuestionDefinition extends QuestionDefinition {
   @Override
   @JsonIgnore
   public QuestionType getQuestionType() {
-    return QuestionType.ADDRESS;
+    return QuestionType.TEXT;
   }
 
   @Override
   @JsonIgnore
   public ImmutableMap<String, ScalarType> getScalars() {
-    return ImmutableMap.of(
-        "street",
-        ScalarType.STRING,
-        "city",
-        ScalarType.STRING,
-        "state",
-        ScalarType.STRING,
-        "zip",
-        ScalarType.STRING);
+    return ImmutableMap.of("text", ScalarType.STRING);
   }
 }

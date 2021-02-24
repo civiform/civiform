@@ -1,5 +1,8 @@
 package controllers;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.exception.TechnicalException;
@@ -17,9 +20,9 @@ public class HomeController extends Controller {
 
   @Inject
   public HomeController(AssetsFinder assetsFinder, Config config, LoginForm form) {
-    this.assetsFinder = assetsFinder;
-    this.config = config;
-    this.form = form;
+    this.assetsFinder = checkNotNull(assetsFinder);
+    this.config = checkNotNull(config);
+    this.form = checkNotNull(form);
   }
 
   /**
@@ -31,8 +34,9 @@ public class HomeController extends Controller {
     return ok(index.render("Your new application is ready.", assetsFinder));
   }
 
-  public Result loginForm(Http.Request request) throws TechnicalException {
-    return ok(this.form.render(request));
+  public Result loginForm(Http.Request request, Optional<String> message)
+      throws TechnicalException {
+    return ok(this.form.render(request, message));
   }
 
   @Secure

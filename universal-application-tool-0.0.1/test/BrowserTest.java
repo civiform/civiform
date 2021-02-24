@@ -2,7 +2,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static play.test.Helpers.fakeApplication;
 
+import auth.Roles;
 import com.google.common.collect.ImmutableMap;
+import controllers.routes;
+import java.util.Optional;
 import org.junit.Test;
 import play.Application;
 import play.test.Helpers;
@@ -18,16 +21,15 @@ public class BrowserTest extends WithBrowser {
             "org.testcontainers.jdbc.ContainerDatabaseDriver",
             "db.default.url",
             // See WithPostgresContainer.java for explanation of this string.
-            "jdbc:tc:postgresql:9.6.8:///databasename"));
+            "jdbc:tc:postgresql:12.5:///databasename",
+            "play.evolutions.db.default.enabled",
+            "true"));
   }
 
   protected TestBrowser provideBrowser(int port) {
     return Helpers.testBrowser(port);
   }
 
-  /**
-   * add your integration test here in this example we just check if the welcome page is being shown
-   */
   @Test
   public void test() {
     browser.goTo("http://localhost:" + play.api.test.Helpers.testServerPort());
@@ -35,18 +37,18 @@ public class BrowserTest extends WithBrowser {
   }
 
   @Test
-  public void login() {
+  public void noCredLogin() {
     String baseUrl = "http://localhost:" + play.api.test.Helpers.testServerPort();
-    browser.goTo(baseUrl + "/loginForm");
-    browser.$("#uname").click();
-    browser.keyboard().sendKeys("test");
-    browser.$("#pwd").click();
-    browser.keyboard().sendKeys("test");
-    browser.$("#login").click();
+    browser.goTo(baseUrl + routes.HomeController.loginForm(Optional.empty()).url());
+    browser.$("#guest").click();
     // should be redirected to root.
     assertEquals("", browser.url());
     assertTrue(browser.pageSource().contains("Your new application is ready."));
-    browser.goTo(baseUrl + "/secure");
+    browser.goTo(baseUrl + routes.HomeController.secureIndex().url());
     assertTrue(browser.pageSource().contains("You are logged in."));
+    browser.goTo(baseUrl + routes.ProfileController.myProfile().url());
+    assertTrue(browser.pageSource().contains("GuestClient"));
+    assertTrue(browser.pageSource().contains("{\"created_time\":"));
+    assertTrue(browser.pageSource().contains(Roles.ROLE_APPLICANT.toString()));
   }
 }
