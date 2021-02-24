@@ -14,7 +14,7 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
 
   @Before
   public void setupProgramRepository() {
-    repo = app.injector().instanceOf(ProgramRepository.class);
+    repo = instanceOf(ProgramRepository.class);
   }
 
   @Test

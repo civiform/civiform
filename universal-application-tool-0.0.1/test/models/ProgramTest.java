@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import org.junit.Before;
 import org.junit.Test;
 import repository.ProgramRepository;
 import repository.WithPostgresContainer;
@@ -19,10 +20,15 @@ import services.question.TranslationNotFoundException;
 
 public class ProgramTest extends WithPostgresContainer {
 
+  private ProgramRepository repo;
+
+  @Before
+  public void setupProgramRepository() {
+    repo = instanceOf(ProgramRepository.class);
+  }
+
   @Test
   public void canSaveProgram() {
-    ProgramRepository repo = app.injector().instanceOf(ProgramRepository.class);
-
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
             165L,
@@ -74,8 +80,6 @@ public class ProgramTest extends WithPostgresContainer {
 
   @Test
   public void correctlySerializesDifferentQuestionTypes() {
-    ProgramRepository repo = app.injector().instanceOf(ProgramRepository.class);
-
     AddressQuestionDefinition addressQuestionDefinition =
         new AddressQuestionDefinition(
             1L,
