@@ -20,7 +20,7 @@ enum QuestionRow {
   QUESTION_TYPE("Question Type"),
   VERSION("Version");
 
-  private String headerText;
+  private final String headerText;
 
   QuestionRow(String headerText) {
     this.headerText = headerText;

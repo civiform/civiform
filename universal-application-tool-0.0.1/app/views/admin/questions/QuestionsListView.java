@@ -59,7 +59,7 @@ public final class QuestionsListView extends BaseHtmlView {
     } else if (renderAs.equalsIgnoreCase("list")) {
       ImmutableList.Builder<Tag> builder = ImmutableList.builder();
       for (QuestionDefinition qd : questions) {
-        builder.add(renderQuestionDefinitionInfo(qd, renderAs));
+        builder.add(renderQuestionDefinitionInfo(qd));
       }
       return builder.build();
     }
@@ -71,7 +71,7 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   /** Renders a div with some basic QuestionDefinition info in it. */
-  private Tag renderQuestionDefinitionInfo(QuestionDefinition definition, String renderAs) {
+  private Tag renderQuestionDefinitionInfo(QuestionDefinition definition) {
     return div()
         .with(div(definition.getName()))
         .with(div(definition.getDescription()))

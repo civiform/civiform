@@ -70,6 +70,23 @@ public class QuestionController extends Controller {
             });
   }
 
+  public CompletionStage<Result> update(Request request) {
+    Form<QuestionForm> form = formFactory.form(QuestionForm.class);
+    QuestionForm questionForm = form.bindFromRequest(request).get();
+    try {
+      QuestionDefinition definition =
+          questionForm
+              .getBuilder()
+              .setId(0L)
+              .setVersion(1L)
+              .build();
+      return service.update(definition);
+    } catch (UnsupportedOperationException e) {
+      // This is expected for now until we implement update on QuestionService.
+    }
+    return redirect("/admin/questions");
+  }
+
   public Result create(Request request) {
     return ok(editView.render(request, Optional.empty()));
   }
