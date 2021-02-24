@@ -59,6 +59,8 @@ lazy val root = (project in file("."))
       "-Xlint:unchecked",
       "-Xlint:deprecation",
       "-XDcompilePolicy=simple",
+      // Turn off the AutoValueSubclassLeaked error since the generated
+      // code contains it - we can't control that.
       "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF",
       "-implicit:class",
       "-Werror"
