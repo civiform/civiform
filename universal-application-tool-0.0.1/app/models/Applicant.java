@@ -1,10 +1,10 @@
 package models;
 
-import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import io.ebean.annotation.DbJson;
 import java.io.IOException;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
@@ -15,21 +15,26 @@ import services.applicant.ApplicantData;
 @Table(name = "applicants")
 public class Applicant extends BaseModel {
   private static final long serialVersionUID = 1L;
-  private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
   private ApplicantData applicantData;
 
   @Constraints.Required @DbJson private String object;
+  @ManyToOne private Account account;
+
+  public Applicant() {
+    super();
+  }
 
   public ApplicantData getApplicantData() {
-    if (object == null) {
-      this.object = EMPTY_APPLICANT_DATA_JSON;
+    // This is called both before and after serialization, so we need to handle
+    // all three cases - loading from the database, where `object` contains the
+    // data and `applicantData` is null, first initialization, where `object`
+    // is null and the `applicantData` is also `null`, and in-memory use, where
+    // `object` is out-of-date but non-null, and `applicantData` is already valid.
+    if (this.applicantData == null && (object != null && !object.isEmpty())) {
+      this.applicantData = new ApplicantData(JsonPath.parse(object));
+    } else if (this.applicantData == null) {
+      this.applicantData = new ApplicantData();
     }
-
-    if (this.applicantData == null) {
-      DocumentContext context = JsonPath.parse(object);
-      this.applicantData = new ApplicantData(context);
-    }
-
     return applicantData;
   }
 
@@ -40,5 +45,13 @@ public class Applicant extends BaseModel {
 
   private String objectAsJsonString() throws IOException {
     return getApplicantData().asJsonString();
+  }
+
+  public Account getAccount() {
+    return account;
+  }
+
+  public void setAccount(Account account) {
+    this.account = account;
   }
 }

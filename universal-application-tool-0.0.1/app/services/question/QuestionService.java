@@ -35,7 +35,7 @@ public interface QuestionService {
    * <p>NOTE: This does not update the version.
    */
   boolean addTranslation(
-      String path, Locale Locale, String questionText, Optional<String> questionHelpText)
+      String path, Locale locale, String questionText, Optional<String> questionHelpText)
       throws InvalidPathException;
 
   /**

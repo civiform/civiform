@@ -1,3 +1,5 @@
+package app;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.Helpers.testServerPort;
 import static play.test.Helpers.*;
@@ -97,6 +99,7 @@ public class FunctionalTest extends WithPostgresContainer {
     final CompletionStage<Optional<Person>> stage = personRepository.lookup(bob.id);
 
     Optional<Person> foundBob = stage.toCompletableFuture().join();
+    assertThat(foundBob).isNotEmpty();
 
     assertThat(stage.thenAccept(person -> assertThat(person).hasValue(bob))).isCompleted();
   }

@@ -17,10 +17,16 @@ POST    /postgresSync               controllers.PostgresController.createSync(re
 # A controller for a page for an admin to create a new application
 GET     /admin/programs             controllers.admin.AdminProgramController.index
 GET     /admin/programs/new         controllers.admin.AdminProgramController.newOne(request: Request)
+GET     /admin/programs/:id/edit    controllers.admin.AdminProgramController.edit(request: Request, id: Long)
+POST    /admin/programs/:id         controllers.admin.AdminProgramController.update(request: Request, id: Long)
 POST    /admin/programs             controllers.admin.AdminProgramController.create(request: Request)
 
 GET     /demo/new                   controllers.J2HtmlDemoController.newOne(request: Request)
 POST    /demo                       controllers.J2HtmlDemoController.create(request: Request)
+
+# Methods for applicants
+GET /applicants/:applicantId/programs                   controllers.applicant.ApplicantProgramsController.index(applicantId: Long)
+GET /applicants/:applicantId/programs/:programId/edit   controllers.applicant.ApplicantProgramsController.edit(applicantId: Long, programId: Long)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(file)

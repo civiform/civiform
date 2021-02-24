@@ -5,10 +5,8 @@ import static j2html.TagCreator.label;
 import static j2html.TagCreator.text;
 
 import j2html.TagCreator;
-import j2html.tags.DomContent;
 import j2html.tags.Tag;
 import play.mvc.Http;
-import play.twirl.api.Content;
 import views.html.helper.CSRF;
 
 /**
@@ -19,10 +17,6 @@ import views.html.helper.CSRF;
  */
 public abstract class BaseHtmlView {
 
-  protected Content htmlContent(DomContent... domContents) {
-    return new BaseHtmlLayout.HtmlResponseContent(domContents);
-  }
-
   protected Tag textField(String fieldName, String labelText) {
     return label(text(labelText), input().withType("text").withName(fieldName))
         .attr("for", fieldName);
@@ -30,6 +24,12 @@ public abstract class BaseHtmlView {
 
   protected Tag textField(String id, String fieldName, String labelText) {
     return label(text(labelText), input().withType("text").withName(fieldName).withId(id))
+        .attr("for", fieldName);
+  }
+
+  protected Tag textFieldWithValue(String fieldName, String labelText, String placeholder) {
+    return label(
+            text(labelText), input().withType("text").withName(fieldName).withValue(placeholder))
         .attr("for", fieldName);
   }
 
