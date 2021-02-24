@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.OptionalLong;
 import java.util.concurrent.CompletionStage;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +16,6 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
 
   QuestionDefinition questionDefinition =
       new TextQuestionDefinition(
-          OptionalLong.empty(),
           1L,
           "my name",
           "my.path.name",

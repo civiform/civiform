@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.OptionalLong;
 import org.junit.Before;
 import org.junit.Test;
 import repository.QuestionRepository;
@@ -26,8 +25,7 @@ public class QuestionTest extends WithPostgresContainer {
   @Test
   public void canSaveQuestion() {
     QuestionDefinition definition =
-        new TextQuestionDefinition(
-            OptionalLong.empty(), 1L, "test", "my.path", "", ImmutableMap.of(), Optional.empty());
+        new TextQuestionDefinition(1L, "test", "my.path", "", ImmutableMap.of(), Optional.empty());
     Question question = new Question(definition);
 
     question.save();
@@ -47,7 +45,6 @@ public class QuestionTest extends WithPostgresContainer {
   public void canSerializeLocalizationMaps() {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            OptionalLong.empty(),
             1L,
             "",
             "",
@@ -69,8 +66,7 @@ public class QuestionTest extends WithPostgresContainer {
   @Test
   public void canSerializeDifferentQuestionTypes() {
     AddressQuestionDefinition address =
-        new AddressQuestionDefinition(
-            OptionalLong.empty(), 1L, "address", "", "", ImmutableMap.of(), Optional.empty());
+        new AddressQuestionDefinition(1L, "address", "", "", ImmutableMap.of(), Optional.empty());
     Question question = new Question(address);
 
     question.save();

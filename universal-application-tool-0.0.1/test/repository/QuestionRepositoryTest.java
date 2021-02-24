@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.OptionalLong;
 import java.util.Set;
 import models.Question;
 import org.junit.Before;
@@ -58,7 +57,6 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   public void insertQuestion() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            OptionalLong.empty(),
             2L,
             "question",
             "applicant.name",
@@ -78,7 +76,6 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   public void insertQuestionSync() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            OptionalLong.empty(),
             2L,
             "question",
             "applicant.name",
@@ -94,8 +91,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
   private Question saveQuestion(String path) {
     QuestionDefinition definition =
-        new TextQuestionDefinition(
-            OptionalLong.empty(), 1L, "", path, "", ImmutableMap.of(), Optional.empty());
+        new TextQuestionDefinition(1L, "", path, "", ImmutableMap.of(), Optional.empty());
     Question question = new Question(definition);
     question.save();
     return question;
