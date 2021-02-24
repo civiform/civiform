@@ -71,8 +71,17 @@ public class ProgramServiceImpl implements ProgramService {
   public CompletionStage<Optional<ProgramDefinition>> getProgramDefinitionAsync(long id) {
     return programRepository
         .lookupProgram(id)
-        .thenApplyAsync(
-            optionalProgram -> optionalProgram.map((p) -> syncQuestions(p.getProgramDefinition())),
+        .thenComposeAsync(
+            programMaybe -> {
+              if (programMaybe.isEmpty()) {
+                return CompletableFuture.completedFuture(Optional.empty());
+              }
+              return programMaybe
+                  .map(Program::getProgramDefinition)
+                  .map(this::syncProgramDefinitionQuestions)
+                  .get()
+                  .thenApply(Optional::of);
+            },
             httpExecutionContext.current());
   }
 
@@ -88,7 +97,10 @@ public class ProgramServiceImpl implements ProgramService {
     ProgramDefinition programDefinition = getProgramOrThrow(programId);
     Program program =
         programDefinition.toBuilder().setName(name).setDescription(description).build().toProgram();
-    return syncQuestions(programRepository.updateProgramSync(program).getProgramDefinition());
+    return syncProgramDefinitionQuestions(
+            programRepository.updateProgramSync(program).getProgramDefinition())
+        .toCompletableFuture()
+        .join();
   }
 
   @Override
@@ -119,7 +131,10 @@ public class ProgramServiceImpl implements ProgramService {
 
     Program program =
         programDefinition.toBuilder().addBlockDefinition(blockDefinition).build().toProgram();
-    return syncQuestions(programRepository.updateProgramSync(program).getProgramDefinition());
+    return syncProgramDefinitionQuestions(
+            programRepository.updateProgramSync(program).getProgramDefinition())
+        .toCompletableFuture()
+        .join();
   }
 
   @Override
@@ -211,7 +226,10 @@ public class ProgramServiceImpl implements ProgramService {
             .setBlockDefinitions(updatedBlockDefinitions)
             .build()
             .toProgram();
-    return syncQuestions(programRepository.updateProgramSync(program).getProgramDefinition());
+    return syncProgramDefinitionQuestions(
+            programRepository.updateProgramSync(program).getProgramDefinition())
+        .toCompletableFuture()
+        .join();
   }
 
   private long getNextBlockId(ProgramDefinition programDefinition) {
@@ -226,16 +244,14 @@ public class ProgramServiceImpl implements ProgramService {
    * Update all {@link QuestionDefinition}s in the ProgramDefinition with appropriate versions from
    * the {@link QuestionService}.
    */
-  private ProgramDefinition syncQuestions(ProgramDefinition programDefinition) {
+  private CompletionStage<ProgramDefinition> syncProgramDefinitionQuestions(
+      ProgramDefinition programDefinition) {
     return questionService
         .getReadOnlyQuestionService()
         .thenApplyAsync(
-            (roQuestionService) -> {
-              return syncProgramDefinitionQuestions(programDefinition, roQuestionService);
-            },
-            httpExecutionContext.current())
-        .toCompletableFuture()
-        .join();
+            roQuestionService ->
+                syncProgramDefinitionQuestions(programDefinition, roQuestionService),
+            httpExecutionContext.current());
   }
 
   private ProgramDefinition syncProgramDefinitionQuestions(
