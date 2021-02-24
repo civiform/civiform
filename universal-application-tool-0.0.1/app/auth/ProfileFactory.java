@@ -21,13 +21,21 @@ public class ProfileFactory {
   }
 
   public UatProfileData createNewApplicant() {
-    UatProfileData p = new UatProfileData(clock);
-    p.init(dbContext);
-    p.addRole(Roles.ROLE_APPLICANT.toString());
-    return p;
+    return create(Roles.ROLE_APPLICANT);
+  }
+
+  public UatProfileData createNewAdmin() {
+    return create(Roles.ROLE_UAT_ADMIN);
   }
 
   public UatProfile wrapProfileData(UatProfileData p) {
     return new UatProfile(dbContext, httpContext, p);
+  }
+
+  private UatProfileData create(Roles role) {
+    UatProfileData p = new UatProfileData(clock);
+    p.init(dbContext);
+    p.addRole(role.toString());
+    return p;
   }
 }
