@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Set;
 import models.Question;
 import org.junit.Before;
@@ -28,8 +29,8 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void listQuestions() {
-    Question one = saveQuestion(1L);
-    Question two = saveQuestion(2L);
+    Question one = saveQuestion("path.one");
+    Question two = saveQuestion("path.two");
 
     Set<Question> list = repo.listQuestions().toCompletableFuture().join();
 
@@ -45,8 +46,8 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void lookupQuestion_findsCorrectQuestion() {
-    saveQuestion(1L);
-    Question existing = saveQuestion(20L);
+    saveQuestion("path.one");
+    Question existing = saveQuestion("path.existing");
 
     Optional<Question> found = repo.lookupQuestion(existing.id).toCompletableFuture().join();
 
@@ -57,7 +58,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   public void insertQuestion() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            165L,
+            OptionalLong.empty(),
             2L,
             "question",
             "applicant.name",
@@ -77,7 +78,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   public void insertQuestionSync() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            1L,
+            OptionalLong.empty(),
             2L,
             "question",
             "applicant.name",
@@ -91,9 +92,10 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
     assertThat(repo.lookupQuestion(question.id).toCompletableFuture().join()).hasValue(question);
   }
 
-  private Question saveQuestion(long id) {
+  private Question saveQuestion(String path) {
     QuestionDefinition definition =
-        new TextQuestionDefinition(id, 1L, "", "", "", ImmutableMap.of(), Optional.empty());
+        new TextQuestionDefinition(
+            OptionalLong.empty(), 1L, "", path, "", ImmutableMap.of(), Optional.empty());
     Question question = new Question(definition);
     question.save();
     return question;

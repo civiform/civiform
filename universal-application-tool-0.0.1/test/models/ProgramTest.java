@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ProgramRepository;
@@ -31,7 +32,7 @@ public class ProgramTest extends WithPostgresContainer {
   public void canSaveProgram() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            165L,
+            OptionalLong.empty(),
             2L,
             "question",
             "applicant.name",
@@ -80,7 +81,7 @@ public class ProgramTest extends WithPostgresContainer {
   public void correctlySerializesDifferentQuestionTypes() {
     AddressQuestionDefinition addressQuestionDefinition =
         new AddressQuestionDefinition(
-            1L,
+            OptionalLong.empty(),
             2L,
             "address question",
             "applicant.address",
@@ -89,7 +90,7 @@ public class ProgramTest extends WithPostgresContainer {
             Optional.empty());
     NameQuestionDefinition nameQuestionDefinition =
         new NameQuestionDefinition(
-            2L,
+            OptionalLong.empty(),
             2L,
             "name question",
             "applicant.name",

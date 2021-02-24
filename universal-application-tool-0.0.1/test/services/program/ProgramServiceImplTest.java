@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.concurrent.CompletionStage;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +24,6 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   private QuestionService qs;
   private static final QuestionDefinition SIMPLE_QUESTION =
       new NameQuestionDefinition(
-          1L,
           2L,
           "Name Question",
           "applicant.name",

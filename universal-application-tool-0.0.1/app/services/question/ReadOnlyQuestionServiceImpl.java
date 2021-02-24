@@ -22,7 +22,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     ImmutableMap.Builder<String, QuestionDefinition> scalarParentsMap = ImmutableMap.builder();
     for (QuestionDefinition qd : questions) {
       String questionPath = qd.getPath();
-      questionIdMap.put(qd.getId(), qd);
+      questionIdMap.put(qd.getId().getAsLong(), qd);
       questionPathMap.put(questionPath, qd);
       ImmutableMap<String, ScalarType> questionScalars = qd.getScalars();
       questionScalars.entrySet().stream()

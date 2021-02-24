@@ -54,7 +54,7 @@ public class Question extends BaseModel {
   @PreUpdate
   @PrePersist
   public void persistChangesToQuestionDefinition() {
-    id = questionDefinition.getId();
+    id = questionDefinition.getId().orElse(0);
     version = questionDefinition.getVersion();
     path = questionDefinition.getPath();
     name = questionDefinition.getName();
