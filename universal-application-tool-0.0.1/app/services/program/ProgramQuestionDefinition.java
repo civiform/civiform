@@ -26,6 +26,10 @@ public abstract class ProgramQuestionDefinition {
     return questionDefinition().get();
   }
 
+  public boolean hasQuestionDefinition() {
+    return questionDefinition().isPresent();
+  }
+
   @JsonCreator
   static ProgramQuestionDefinition create(@JsonProperty("id") long id) {
     return new AutoValue_ProgramQuestionDefinition(id, Optional.empty());
