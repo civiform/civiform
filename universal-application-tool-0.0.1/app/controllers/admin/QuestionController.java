@@ -11,8 +11,10 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.question.InvalidPathException;
 import services.question.QuestionDefinition;
 import services.question.QuestionService;
+import services.question.UnsupportedQuestionTypeException;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
 
@@ -59,8 +61,9 @@ public class QuestionController extends Controller {
                         .setVersion(1L)
                         .build();
                 service.create(definition);
-              } catch (Exception e) {
-                // UnsupportedQuestionTypeException
+              } catch (UnsupportedQuestionTypeException e) {
+                // I'm not sure why this would happen here, so we'll just log and redirect.
+                System.out.println(e);
                 return redirect("/admin/questions");
               }
               return redirect("/admin/questions");
@@ -79,11 +82,14 @@ public class QuestionController extends Controller {
               Optional<QuestionDefinition> definition = Optional.empty();
               try {
                 definition = Optional.of(readOnlyService.getQuestionDefinition(path));
-              } catch (Exception e) {
-                // If the path doesn't exist, redirect to create.
+              } catch (InvalidPathException e) { // If the path doesn't exist, redirect to create.
+                System.out.println(e); // TODO: What are we using for logging?
+              }
+              if (definition.isPresent()) {
+                return ok(editView.render(request, definition));
+              } else {
                 return redirect("/admin/questions/new");
               }
-              return ok(editView.render(request, definition));
             });
   }
 }
