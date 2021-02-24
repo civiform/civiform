@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Optional;
 import javax.inject.Inject;
-import org.pac4j.core.config.Config;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.play.java.Secure;
 import play.mvc.*;
@@ -15,13 +14,11 @@ import views.html.*;
 public class HomeController extends Controller {
 
   private final AssetsFinder assetsFinder;
-  private final Config config;
   private final LoginForm form;
 
   @Inject
-  public HomeController(AssetsFinder assetsFinder, Config config, LoginForm form) {
+  public HomeController(AssetsFinder assetsFinder, LoginForm form) {
     this.assetsFinder = checkNotNull(assetsFinder);
-    this.config = checkNotNull(config);
     this.form = checkNotNull(form);
   }
 
