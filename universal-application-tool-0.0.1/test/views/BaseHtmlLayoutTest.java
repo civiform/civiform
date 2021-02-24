@@ -14,7 +14,7 @@ public class BaseHtmlLayoutTest extends WithPostgresContainer {
 
   @Before
   public void setUp() {
-    layout = app.injector().instanceOf(BaseHtmlLayout.class);
+    layout = instanceOf(BaseHtmlLayout.class);
   }
 
   @Test
