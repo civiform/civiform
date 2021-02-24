@@ -2,6 +2,7 @@ package controllers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.errorprone.annotations.DoNotCall;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -11,7 +12,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
-import views.ApplicantProgramBlockEditView;
+import views.applicant.ApplicantProgramBlockEditView;
 
 public final class ApplicantProgramBlocksController extends Controller {
 
@@ -40,12 +41,13 @@ public final class ApplicantProgramBlocksController extends Controller {
               if (block.isPresent()) {
                 return ok(editView.render(request, applicantId, programId, block.get()));
               } else {
-                throw new RuntimeException("That block isn't available");
+                return notFound();
               }
             },
             httpExecutionContext.current());
   }
 
+  @DoNotCall
   public CompletionStage<Result> update(
       Request request, long applicantId, long programId, long blockId) {
     throw new UnsupportedOperationException("Updates aren't implemented yet");

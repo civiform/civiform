@@ -16,6 +16,7 @@ import org.junit.BeforeClass;
 import play.Application;
 import play.db.ebean.EbeanConfig;
 import play.test.Helpers;
+import support.ResourceFabricator;
 
 public class WithPostgresContainer {
 
@@ -23,9 +24,12 @@ public class WithPostgresContainer {
 
   protected static Materializer mat;
 
+  protected static ResourceFabricator resourceFabricator;
+
   @BeforeClass
   public static void startPlay() {
     app = provideApplication();
+    resourceFabricator = new ResourceFabricator(app.injector());
     Helpers.start(app);
     mat = app.asScala().materializer();
   }
@@ -59,6 +63,10 @@ public class WithPostgresContainer {
 
   protected <T> T instanceOf(Class<T> clazz) {
     return app.injector().instanceOf(clazz);
+  }
+
+  protected ResourceFabricator resourceFabricator() {
+    return resourceFabricator;
   }
 
   @Before

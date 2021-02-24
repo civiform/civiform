@@ -2,7 +2,8 @@ package controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.Helpers.testServerPort;
-import static play.test.Helpers.*;
+import static play.test.Helpers.fakeRequest;
+import static play.test.Helpers.route;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;

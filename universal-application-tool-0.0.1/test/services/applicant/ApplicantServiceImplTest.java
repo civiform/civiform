@@ -27,9 +27,9 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
   @Before
   public void setUp() throws Exception {
-    subject = app.injector().instanceOf(ApplicantServiceImpl.class);
-    programService = app.injector().instanceOf(ProgramServiceImpl.class);
-    questionService = app.injector().instanceOf(QuestionService.class);
+    subject = instanceOf(ApplicantServiceImpl.class);
+    programService = instanceOf(ProgramServiceImpl.class);
+    questionService = instanceOf(QuestionService.class);
 
     createQuestions();
     createProgram();

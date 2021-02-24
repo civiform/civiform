@@ -1,4 +1,4 @@
-package views;
+package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.each;
@@ -13,6 +13,7 @@ import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.applicant.ApplicantQuestion;
 import services.applicant.Block;
+import views.BaseHtmlView;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 
 public final class ApplicantProgramBlockEditView extends BaseHtmlView {
