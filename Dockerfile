@@ -30,7 +30,8 @@ ENV PROJECT_NAME universal-application-tool-0.0.1
 
 COPY ${PROJECT_NAME} ${PROJECT_HOME}/${PROJECT_NAME}
 RUN cd $PROJECT_HOME/$PROJECT_NAME && \
-    sbt clean compile
+    sbt clean compile && \
+    npm install
 
 CMD ["sbt"]
 
