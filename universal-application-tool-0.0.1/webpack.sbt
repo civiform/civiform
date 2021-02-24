@@ -7,7 +7,7 @@ def runWebpack(file: File) = {
 }
 
 webpack := {
-  if(runWebpack(baseDirectory.value) != 0) throw new Exception("Something goes wrong when running webpack.")
+  if(runWebpack(baseDirectory.value) != 0) throw new Exception("Something went wrong when running webpack.")
 }
 
 dist := (dist dependsOn webpack).value
