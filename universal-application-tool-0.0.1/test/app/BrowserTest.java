@@ -10,15 +10,10 @@ import java.util.Optional;
 import models.Program;
 import org.junit.Test;
 import play.Application;
-import play.api.mvc.Call;
 import play.test.Helpers;
 import play.test.TestBrowser;
-import play.test.WithBrowser;
 
-public class BrowserTest extends WithBrowser {
-
-  private static final String LOCALHOST = "http://localhost:";
-  private static final String BASE_URL = LOCALHOST + play.api.test.Helpers.testServerPort();
+public class BrowserTest extends WithBrowserBase {
 
   @Override
   protected Application provideApplication() {
@@ -71,15 +66,6 @@ public class BrowserTest extends WithBrowser {
     assertThat(browser.pageSource()).contains("GuestClient");
     assertThat(browser.pageSource()).contains("{\"created_time\":");
     assertThat(browser.pageSource()).contains(Roles.ROLE_APPLICANT.toString());
-  }
-
-  private void goTo(Call method) {
-    browser.goTo(BASE_URL + method.url());
-  }
-
-  /** {@code browser.url()} does not have the leading "/" but route URLs do. */
-  private void assertUrlEquals(Call method) {
-    assertThat("/" + browser.url()).isEqualTo(method.url());
   }
 
   private static Program insertProgram(String name) {
