@@ -24,6 +24,10 @@ POST    /admin/programs             controllers.admin.AdminProgramController.cre
 GET     /demo/new                   controllers.J2HtmlDemoController.newOne(request: Request)
 POST    /demo                       controllers.J2HtmlDemoController.create(request: Request)
 
+# Methods for applicants
+GET /applicants/:id/programs        controllers.applicant.ApplicantProgramsController.index(id: Long)
+GET /applicants/:aid/programs/:pid  controllers.applicant.ApplicantProgramsController.edit(aid: Long, pid: Long)
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(file)
 
