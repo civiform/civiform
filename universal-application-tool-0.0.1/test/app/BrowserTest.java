@@ -1,3 +1,5 @@
+package app;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static play.test.Helpers.fakeApplication;
@@ -14,6 +16,7 @@ import play.test.WithBrowser;
 
 public class BrowserTest extends WithBrowser {
 
+  @Override
   protected Application provideApplication() {
     return fakeApplication(
         ImmutableMap.of(
@@ -26,6 +29,7 @@ public class BrowserTest extends WithBrowser {
             "true"));
   }
 
+  @Override
   protected TestBrowser provideBrowser(int port) {
     return Helpers.testBrowser(port);
   }
