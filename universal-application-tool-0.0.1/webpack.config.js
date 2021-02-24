@@ -1,4 +1,5 @@
 const path = require('path');
+const tailwindcss = require('tailwindcss');
 
 module.exports = {
   entry: "./app/index.js",
@@ -14,7 +15,16 @@ module.exports = {
         use: [
           "style-loader",
           "css-loader",
-          "postcss-loader"
+          {
+            loader: "postcss-loader",
+            options: {
+              postcssOptions: {
+                plugins: [
+                  tailwindcss
+                ],
+              },
+            },
+          },
         ],
       },
     ],
