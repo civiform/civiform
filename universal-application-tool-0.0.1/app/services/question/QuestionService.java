@@ -23,6 +23,16 @@ public interface QuestionService {
   Optional<QuestionDefinition> create(QuestionDefinition definition);
 
   /**
+   * Creates a new Question Definition. Returns a QuestionDefinition object on success and {@link
+   * Optional#empty} on failure.
+   *
+   * <p>This will fail if he path provided already resolves to a QuestionDefinition or Scalar.
+   *
+   * <p>NOTE: This does not update the version.
+   */
+  Optional<QuestionDefinition> create(String questionType, long version, String path, String name, String description, ImmutableMap<Locale, String> questionText, ImmutableMap<Locale, String> questionHelpText);
+
+  /**
    * Adds a new translation to an existing question definition. Returns true if the write is
    * successful.
    *

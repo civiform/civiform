@@ -50,6 +50,16 @@ public class Question extends BaseModel {
     questionType = questionDefinition.getQuestionType().toString();
   }
 
+  public Question(long version, String path, String name, String description, ImmutableMap<Locale, String> questionText, ImmutableMap<Locale, String> questionHelpText, String questionType) {
+    this.version = checkNotNull(version);
+    this.path = checkNotNull(path);
+    this.name = checkNotNull(name);
+    this.description = checkNotNull(description);
+    this.questionText = checkNotNull(questionText);
+    this.questionHelpText = checkNotNull(questionHelpText);
+    this.questionType = checkNotNull(questionType);
+  }
+
   /** Populates column values from {@link QuestionDefinition}. */
   @PreUpdate
   @PrePersist
