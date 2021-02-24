@@ -1,4 +1,4 @@
-package views;
+package views.applicant;
 
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.head;
@@ -8,6 +8,8 @@ import static j2html.TagCreator.title;
 import j2html.tags.DomContent;
 import javax.inject.Inject;
 import play.twirl.api.Content;
+import views.BaseHtmlLayout;
+import views.ViewUtils;
 
 public class ApplicantLayout extends BaseHtmlLayout {
 

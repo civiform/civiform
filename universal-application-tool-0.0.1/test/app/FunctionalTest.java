@@ -1,3 +1,5 @@
+package app;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.Helpers.testServerPort;
 import static play.test.Helpers.*;
@@ -29,7 +31,7 @@ public class FunctionalTest extends WithPostgresContainer {
     // because it makes use of assets metadata that is configured from
     // the application.
 
-    AssetsFinder assetsFinder = provideApplication().injector().instanceOf(AssetsFinder.class);
+    AssetsFinder assetsFinder = instanceOf(AssetsFinder.class);
 
     Content html = views.html.index.render("Your new application is ready.", assetsFinder);
     assertThat("text/html").isEqualTo(html.contentType());
@@ -89,7 +91,7 @@ public class FunctionalTest extends WithPostgresContainer {
 
   @Test
   public void testPersonRepositoryLookup() {
-    final PersonRepository personRepository = app.injector().instanceOf(PersonRepository.class);
+    final PersonRepository personRepository = instanceOf(PersonRepository.class);
 
     Person bob = new Person();
     bob.name = "Bob";
@@ -97,6 +99,7 @@ public class FunctionalTest extends WithPostgresContainer {
     final CompletionStage<Optional<Person>> stage = personRepository.lookup(bob.id);
 
     Optional<Person> foundBob = stage.toCompletableFuture().join();
+    assertThat(foundBob).isNotEmpty();
 
     assertThat(stage.thenAccept(person -> assertThat(person).hasValue(bob))).isCompleted();
   }

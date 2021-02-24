@@ -26,7 +26,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
 
   @Before
   public void setProgramServiceImpl() {
-    questionService = app.injector().instanceOf(QuestionServiceImpl.class);
+    questionService = instanceOf(QuestionServiceImpl.class);
   }
 
   @Test
@@ -36,7 +36,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
                 questionService.addTranslation(
                     "your.name", Locale.GERMAN, "Wie heisst du?", Optional.empty()))
         .isInstanceOf(UnsupportedOperationException.class)
-        .hasMessage(("Not supported yet."));
+        .hasMessage("Not supported yet.");
   }
 
   @Test
@@ -72,6 +72,6 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   public void update_notImplemented() {
     assertThatThrownBy(() -> questionService.update(null))
         .isInstanceOf(UnsupportedOperationException.class)
-        .hasMessage(("Not supported yet."));
+        .hasMessage("Not supported yet.");
   }
 }

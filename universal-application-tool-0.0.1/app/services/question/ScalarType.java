@@ -3,27 +3,20 @@ package services.question;
 import java.util.Optional;
 
 public enum ScalarType {
-  BOOLEAN,
-  BYTE,
-  CHAR,
-  DOUBLE,
-  FLOAT,
-  INT,
-  SHORT,
-  STRING;
+  BOOLEAN(boolean.class),
+  BYTE(byte.class),
+  CHAR(char.class),
+  DOUBLE(double.class),
+  FLOAT(float.class),
+  INT(int.class),
+  SHORT(short.class),
+  STRING(String.class);
 
-  private Class classOf;
-
-  static {
-    BOOLEAN.classOf = boolean.class;
-    BYTE.classOf = byte.class;
-    CHAR.classOf = char.class;
-    DOUBLE.classOf = double.class;
-    FLOAT.classOf = float.class;
-    INT.classOf = int.class;
-    SHORT.classOf = short.class;
-    STRING.classOf = String.class;
+  ScalarType(Class classOf) {
+    this.classOf = classOf;
   }
+
+  private final Class classOf;
 
   public Optional<Class> getClassFor() {
     return Optional.ofNullable(classOf);

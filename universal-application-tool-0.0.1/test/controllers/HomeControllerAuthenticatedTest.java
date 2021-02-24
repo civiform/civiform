@@ -25,7 +25,7 @@ public class HomeControllerAuthenticatedTest extends WithApplication {
   @Before
   public void setUp() {
     // Get the config, and hack it so that all requests appear authorized.
-    Config config = app.injector().instanceOf(Config.class);
+    Config config = instanceOf(Config.class);
     AnonymousClient client = AnonymousClient.INSTANCE;
     config.setClients(new Clients(client));
 

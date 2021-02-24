@@ -1,5 +1,8 @@
+package modules;
+
 import com.google.inject.AbstractModule;
 import java.time.Clock;
+import java.time.ZoneId;
 import repository.AmazonS3Client;
 import services.program.ProgramService;
 import services.program.ProgramServiceImpl;
@@ -14,12 +17,12 @@ import services.question.QuestionServiceImpl;
  * create modules in other locations by adding `play.modules.enabled` settings to the
  * `application.conf` configuration file.
  */
-public class Module extends AbstractModule {
+public class MainModule extends AbstractModule {
 
   @Override
   public void configure() {
     // Use the system clock as the default implementation of Clock
-    bind(Clock.class).toInstance(Clock.systemDefaultZone());
+    bind(Clock.class).toInstance(Clock.system(ZoneId.of("America/Los_Angeles")));
     bind(ProgramService.class).to(ProgramServiceImpl.class);
     bind(QuestionService.class).to(QuestionServiceImpl.class);
     bind(AmazonS3Client.class).asEagerSingleton();

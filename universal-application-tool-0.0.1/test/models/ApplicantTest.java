@@ -2,12 +2,20 @@ package models;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.Before;
 import org.junit.Test;
 import repository.ApplicantRepository;
 import repository.WithPostgresContainer;
 import services.applicant.ApplicantData;
 
 public class ApplicantTest extends WithPostgresContainer {
+
+  private ApplicantRepository repo;
+
+  @Before
+  public void setupApplicantRepository() {
+    repo = instanceOf(ApplicantRepository.class);
+  }
 
   @Test
   public void hasAnApplicantDataWhenCreated() {
@@ -17,7 +25,6 @@ public class ApplicantTest extends WithPostgresContainer {
 
   @Test
   public void persistsChangesToTheApplicantData() {
-    ApplicantRepository repo = app.injector().instanceOf(ApplicantRepository.class);
     Applicant applicant = new Applicant();
 
     String path = "$.applicant";
@@ -36,6 +43,6 @@ public class ApplicantTest extends WithPostgresContainer {
 
     ApplicantData applicantData = applicant.getApplicantData();
 
-    assertThat(applicant.getApplicantData() == applicantData);
+    assertThat(applicant.getApplicantData()).isEqualTo(applicantData);
   }
 }

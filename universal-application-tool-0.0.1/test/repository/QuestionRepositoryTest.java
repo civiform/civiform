@@ -18,7 +18,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
   @Before
   public void setupQuestionRepository() {
-    repo = app.injector().instanceOf(QuestionRepository.class);
+    repo = instanceOf(QuestionRepository.class);
   }
 
   @Test
