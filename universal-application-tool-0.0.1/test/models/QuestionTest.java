@@ -34,7 +34,7 @@ public class QuestionTest extends WithPostgresContainer {
 
     Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
-    assertThat(found.getQuestionDefinition().getId().getAsLong()).isEqualTo(question.id);
+    assertThat(found.getQuestionDefinition().getId()).isEqualTo(question.id);
     assertThat(found.getQuestionDefinition().getVersion()).isEqualTo(1L);
     assertThat(found.getQuestionDefinition().getName()).isEqualTo("test");
     assertThat(found.getQuestionDefinition().getPath()).isEqualTo("my.path");

@@ -24,6 +24,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   private QuestionService qs;
   private static final QuestionDefinition SIMPLE_QUESTION =
       new NameQuestionDefinition(
+          OptionalLong.of(123L),
           2L,
           "Name Question",
           "applicant.name",

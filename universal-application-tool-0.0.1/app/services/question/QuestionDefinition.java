@@ -41,18 +41,18 @@ public abstract class QuestionDefinition {
       String description,
       ImmutableMap<Locale, String> questionText,
       Optional<ImmutableMap<Locale, String>> questionHelpText) {
-    this.id = OptionalLong.empty();
-    this.version = checkNotNull(version);
-    this.name = checkNotNull(name);
-    this.path = checkNotNull(path);
-    this.description = checkNotNull(description);
-    this.questionText = checkNotNull(questionText);
-    this.questionHelpText = checkNotNull(questionHelpText);
+    this(OptionalLong.empty(), version, name, path, description, questionText, questionHelpText);
+  }
+
+  /** Return true if the question is persisted and has an unique identifier. */
+  @JsonIgnore
+  public boolean isPersisted() {
+    return this.id.isPresent();
   }
 
   /** Get the unique identifier for this question. */
-  public OptionalLong getId() {
-    return this.id;
+  public long getId() {
+    return this.id.getAsLong();
   }
 
   /** Get the system version this question is pinned to. */

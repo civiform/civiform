@@ -32,7 +32,7 @@ public class ProgramTest extends WithPostgresContainer {
   public void canSaveProgram() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            OptionalLong.empty(),
+            OptionalLong.of(123L),
             2L,
             "question",
             "applicant.name",
@@ -81,7 +81,7 @@ public class ProgramTest extends WithPostgresContainer {
   public void correctlySerializesDifferentQuestionTypes() {
     AddressQuestionDefinition addressQuestionDefinition =
         new AddressQuestionDefinition(
-            OptionalLong.empty(),
+            OptionalLong.of(456L),
             2L,
             "address question",
             "applicant.address",
@@ -90,7 +90,7 @@ public class ProgramTest extends WithPostgresContainer {
             Optional.empty());
     NameQuestionDefinition nameQuestionDefinition =
         new NameQuestionDefinition(
-            OptionalLong.empty(),
+            OptionalLong.of(789L),
             2L,
             "name question",
             "applicant.name",

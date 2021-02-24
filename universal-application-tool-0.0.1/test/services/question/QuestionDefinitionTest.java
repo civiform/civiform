@@ -15,7 +15,7 @@ public class QuestionDefinitionTest {
   public void newQuestionHasCorrectFields() throws TranslationNotFoundException {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            OptionalLong.empty(),
+            OptionalLong.of(123L),
             1L,
             "my name",
             "my.path.name",
@@ -23,7 +23,7 @@ public class QuestionDefinitionTest {
             ImmutableMap.of(Locale.ENGLISH, "question?"),
             Optional.of(ImmutableMap.of(Locale.ENGLISH, "help text")));
 
-    assertThat(question.getId()).isEqualTo(OptionalLong.empty());
+    assertThat(question.getId()).isEqualTo(123L);
     assertThat(question.getVersion()).isEqualTo(1L);
     assertThat(question.getName()).isEqualTo("my name");
     assertThat(question.getPath()).isEqualTo("my.path.name");
