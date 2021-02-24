@@ -20,6 +20,6 @@ public class AdminProgramLayout extends BaseHtmlLayout {
 
   /** Renders mainDomContents within the main tag, in the context of the applicant layout. */
   protected Content render(DomContent... mainDomContents) {
-    return htmlContent(head(getCommonCssTag()), body(h1("Program"), main(mainDomContents)));
+    return htmlContent(head(), body().with(h1("Program"), main(mainDomContents), tailwindStyles()));
   }
 }

@@ -1,6 +1,5 @@
 package views;
 
-import static j2html.TagCreator.button;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.text;
@@ -54,23 +53,24 @@ public abstract class BaseHtmlView {
   }
 
   protected Tag button(String id, String text) {
-    return button(text).withId(id);
+    return this.button(text).withId(id);
   }
 
   protected Tag button(String text) {
-    return TagCreator.button(text(text)).withType("button");
+    return TagCreator.button().with(text(text)).withType("button");
   }
 
   protected Tag redirectButton(String id, String text, String redirectUrl) {
-    return button(id, text).attr("onclick", String.format("window.location = '%s';", redirectUrl));
+    return this.button(id, text)
+        .attr("onclick", String.format("window.location = '%s';", redirectUrl));
   }
 
   protected Tag submitButton(String textContents) {
-    return button().with(text(textContents)).withType("submit");
+    return TagCreator.button().with(text(textContents)).withType("submit");
   }
 
   protected Tag submitButton(String id, String textContents) {
-    return button().with(text(textContents)).withType("submit").withId(id);
+    return TagCreator.button().with(text(textContents)).withType("submit").withId(id);
   }
 
   /**
