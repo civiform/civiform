@@ -7,9 +7,11 @@ import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import models.Program;
 import play.db.ebean.Transactional;
+import play.libs.concurrent.HttpExecutionContext;
 import repository.ProgramRepository;
 import services.question.QuestionDefinition;
 import services.question.QuestionNotFoundException;
@@ -20,11 +22,16 @@ public class ProgramServiceImpl implements ProgramService {
 
   private ProgramRepository programRepository;
   private QuestionService questionService;
+  private HttpExecutionContext httpExecutionContext;
 
   @Inject
-  public ProgramServiceImpl(ProgramRepository programRepository, QuestionService questionService) {
+  public ProgramServiceImpl(
+      ProgramRepository programRepository,
+      QuestionService questionService,
+      HttpExecutionContext ec) {
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
+    this.httpExecutionContext = checkNotNull(ec);
   }
 
   @Override
@@ -34,20 +41,25 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   public CompletionStage<ImmutableList<ProgramDefinition>> listProgramDefinitionsAsync() {
-    return programRepository
-        .listPrograms()
-        .thenComposeAsync(
-            programs ->
-                questionService
-                    .getReadOnlyQuestionService()
-                    .thenApply(
-                        roQuestionService ->
-                            programs.stream()
-                                .map(
-                                    program ->
-                                        syncQuestions(
-                                            program.getProgramDefinition(), roQuestionService))
-                                .collect(ImmutableList.toImmutableList())));
+    CompletableFuture<ReadOnlyQuestionService> roQuestionServiceFuture =
+        questionService.getReadOnlyQuestionService().toCompletableFuture();
+    CompletableFuture<List<Program>> programsFuture =
+        programRepository.listPrograms().toCompletableFuture();
+
+    return CompletableFuture.allOf(roQuestionServiceFuture, programsFuture)
+        .thenApplyAsync(
+            ignore -> {
+              ReadOnlyQuestionService roQuestionService = roQuestionServiceFuture.join();
+              List<Program> programs = programsFuture.join();
+
+              return programs.stream()
+                  .map(
+                      program ->
+                          syncProgramDefinitionQuestions(
+                              program.getProgramDefinition(), roQuestionService))
+                  .collect(ImmutableList.toImmutableList());
+            },
+            httpExecutionContext.current());
   }
 
   @Override
@@ -59,8 +71,9 @@ public class ProgramServiceImpl implements ProgramService {
   public CompletionStage<Optional<ProgramDefinition>> getProgramDefinitionAsync(long id) {
     return programRepository
         .lookupProgram(id)
-        .thenApply(
-            optionalProgram -> optionalProgram.map((p) -> syncQuestions(p.getProgramDefinition())));
+        .thenApplyAsync(
+            optionalProgram -> optionalProgram.map((p) -> syncQuestions(p.getProgramDefinition())),
+            httpExecutionContext.current());
   }
 
   @Override
@@ -216,38 +229,51 @@ public class ProgramServiceImpl implements ProgramService {
   private ProgramDefinition syncQuestions(ProgramDefinition programDefinition) {
     return questionService
         .getReadOnlyQuestionService()
-        .thenApply(
+        .thenApplyAsync(
             (roQuestionService) -> {
-              return syncQuestions(programDefinition, roQuestionService);
-            })
+              return syncProgramDefinitionQuestions(programDefinition, roQuestionService);
+            },
+            httpExecutionContext.current())
         .toCompletableFuture()
         .join();
   }
 
-  private ProgramDefinition syncQuestions(
+  private ProgramDefinition syncProgramDefinitionQuestions(
       ProgramDefinition programDefinition, ReadOnlyQuestionService roQuestionService) {
     ProgramDefinition.Builder programDefinitionBuilder = programDefinition.toBuilder();
 
     ImmutableList.Builder<BlockDefinition> blockListBuilder = ImmutableList.builder();
     for (BlockDefinition block : programDefinition.blockDefinitions()) {
-      BlockDefinition.Builder blockBuilder = block.toBuilder();
-
-      ImmutableList.Builder<ProgramQuestionDefinition> pqdListBuilder = ImmutableList.builder();
-      for (ProgramQuestionDefinition pqd : block.programQuestionDefinitions()) {
-        QuestionDefinition questionDefinition;
-        try {
-          questionDefinition = roQuestionService.getQuestionDefinition(pqd.id());
-        } catch (QuestionNotFoundException e) {
-          throw new RuntimeException(e);
-        }
-        pqdListBuilder.add(ProgramQuestionDefinition.create(questionDefinition));
-      }
-
-      blockBuilder.setProgramQuestionDefinitions(pqdListBuilder.build());
-      blockListBuilder.add(blockBuilder.build());
+      BlockDefinition syncedBlock = syncBlockDefinitionQuestions(block, roQuestionService);
+      blockListBuilder.add(syncedBlock);
     }
 
     programDefinitionBuilder.setBlockDefinitions(blockListBuilder.build());
     return programDefinitionBuilder.build();
+  }
+
+  private BlockDefinition syncBlockDefinitionQuestions(
+      BlockDefinition blockDefinition, ReadOnlyQuestionService roQuestionService) {
+    BlockDefinition.Builder blockBuilder = blockDefinition.toBuilder();
+
+    ImmutableList.Builder<ProgramQuestionDefinition> pqdListBuilder = ImmutableList.builder();
+    for (ProgramQuestionDefinition pqd : blockDefinition.programQuestionDefinitions()) {
+      ProgramQuestionDefinition syncedPqd = syncProgramQuestionDefinition(pqd, roQuestionService);
+      pqdListBuilder.add(syncedPqd);
+    }
+
+    blockBuilder.setProgramQuestionDefinitions(pqdListBuilder.build());
+    return blockBuilder.build();
+  }
+
+  private ProgramQuestionDefinition syncProgramQuestionDefinition(
+      ProgramQuestionDefinition pqd, ReadOnlyQuestionService roQuestionService) {
+    QuestionDefinition questionDefinition;
+    try {
+      questionDefinition = roQuestionService.getQuestionDefinition(pqd.id());
+    } catch (QuestionNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+    return ProgramQuestionDefinition.create(questionDefinition);
   }
 }
