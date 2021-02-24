@@ -19,23 +19,27 @@ public final class QuestionServiceImpl implements QuestionService {
     this.questionRepository = checkNotNull(questionRepository);
   }
 
+  @Override
   public boolean addTranslation(
-      String path, Locale Locale, String questionText, Optional<String> questionHelpText)
+      String path, Locale locale, String questionText, Optional<String> questionHelpText)
       throws InvalidPathException {
     throw new java.lang.UnsupportedOperationException("Not supported yet.");
   }
 
+  @Override
   public Optional<QuestionDefinition> create(QuestionDefinition definition) {
     // TODO(https://github.com/seattle-uat/universal-application-tool/issues/194): Add validation.
     Question question = questionRepository.insertQuestionSync(new Question(definition));
     return Optional.of(question.getQuestionDefinition());
   }
 
+  @Override
   public CompletionStage<ReadOnlyQuestionService> getReadOnlyQuestionService() {
     return listQuestionDefinitionsAsync()
         .thenApply(questionDefinitions -> new ReadOnlyQuestionServiceImpl(questionDefinitions));
   }
 
+  @Override
   public QuestionDefinition update(QuestionDefinition definition) {
     throw new java.lang.UnsupportedOperationException("Not supported yet.");
   }
