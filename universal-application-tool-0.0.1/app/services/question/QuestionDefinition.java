@@ -34,6 +34,22 @@ public abstract class QuestionDefinition {
     this.questionHelpText = checkNotNull(questionHelpText);
   }
 
+  public QuestionDefinition(
+      long version,
+      String name,
+      String path,
+      String description,
+      ImmutableMap<Locale, String> questionText,
+      Optional<ImmutableMap<Locale, String>> questionHelpText) {
+    this.id = OptionalLong.empty();
+    this.version = checkNotNull(version);
+    this.name = checkNotNull(name);
+    this.path = checkNotNull(path);
+    this.description = checkNotNull(description);
+    this.questionText = checkNotNull(questionText);
+    this.questionHelpText = checkNotNull(questionHelpText);
+  }
+
   /** Get the unique identifier for this question. */
   public OptionalLong getId() {
     return this.id;
