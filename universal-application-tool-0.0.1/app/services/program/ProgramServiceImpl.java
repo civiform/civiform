@@ -149,7 +149,7 @@ public class ProgramServiceImpl implements ProgramService {
 
   private ProgramDefinition getProgramOrThrow(long programId) throws ProgramNotFoundException {
     return getProgramDefinition(programId)
-        .orElseThrow(() -> new ProgramNotFoundException((programId)));
+        .orElseThrow(() -> new ProgramNotFoundException(programId));
   }
 
   private int getBlockDefinitionIndex(ProgramDefinition programDefinition, Long blockDefinitionId)

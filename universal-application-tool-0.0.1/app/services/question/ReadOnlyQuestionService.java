@@ -60,4 +60,5 @@ interface ReadOnlyQuestionService {
    * preferred locale.
    */
   void setPreferredLocale(Locale locale);
+  Locale getPreferredLocale();
 }

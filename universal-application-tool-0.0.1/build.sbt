@@ -49,12 +49,18 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value-annotations" % "1.7.4",
       "com.google.auto.value" % "auto-value" % "1.7.4",
       "com.google.auto.value" % "auto-value-parent" % "1.7.4",
+
+      // Errorprone
+      "com.google.errorprone" % "error_prone_core" % "2.5.1",
     ),
     javacOptions ++= Seq(
       "-encoding", "UTF-8",
       "-parameters",
       "-Xlint:unchecked",
       "-Xlint:deprecation",
+      "-XDcompilePolicy=simple",
+      "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF",
+      "-implicit:class",
       "-Werror"
     ),
     // Make verbose tests

@@ -4,6 +4,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
 import java.time.Clock;
+import java.time.ZoneId;
 import models.Account;
 import models.Applicant;
 import org.pac4j.core.profile.CommonProfile;
@@ -20,7 +21,7 @@ public class UatProfileData extends CommonProfile {
   private Clock clock;
 
   public UatProfileData() {
-    this(Clock.systemDefaultZone());
+    this(Clock.system(ZoneId.of("America/Los_Angeles")));
   }
 
   public UatProfileData(Clock clock) {
