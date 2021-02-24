@@ -4,8 +4,8 @@ const tailwindcss = require('tailwindcss');
 module.exports = {
   entry: "./app/index.js",
   output: {
-    path: path.resolve(__dirname, 'public/javascripts/'),
-    publicPath: '/javascripts/',
+    path: path.resolve(__dirname, 'public/javascripts'),
+    publicPath: '/javascripts',
     filename: 'bundle.js',
   },
   module: {
