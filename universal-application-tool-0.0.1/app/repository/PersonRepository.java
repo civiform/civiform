@@ -12,7 +12,6 @@ import javax.inject.Inject;
 import models.Person;
 import play.db.ebean.EbeanConfig;
 
-/** */
 public class PersonRepository {
 
   private final EbeanServer ebeanServer;

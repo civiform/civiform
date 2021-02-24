@@ -13,6 +13,7 @@ import io.ebean.event.ServerConfigStartup;
  */
 public class EbeanServerConfigStartup implements ServerConfigStartup {
 
+  @Override
   public void onStart(ServerConfig serverConfig) {
     ObjectMapper mapper =
         new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());

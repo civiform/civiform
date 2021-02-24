@@ -118,4 +118,9 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
   public void setPreferredLocale(Locale locale) {
     this.preferredLocale = locale;
   }
+
+  @Override
+  public Locale getPreferredLocale() {
+    return this.preferredLocale;
+  }
 }

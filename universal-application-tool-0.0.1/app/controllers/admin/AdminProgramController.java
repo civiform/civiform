@@ -17,10 +17,7 @@ import views.admin.ProgramEditView;
 import views.admin.ProgramIndexView;
 import views.admin.ProgramNewOneView;
 
-/**
- * This controller contains an action to handle HTTP requests to the UAT's Admin "Create
- * application" page.
- */
+/** Controller for handling methods for admins managing program definitions. */
 public class AdminProgramController extends Controller {
 
   private final ProgramService service;
