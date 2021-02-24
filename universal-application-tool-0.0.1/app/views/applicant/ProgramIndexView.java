@@ -6,7 +6,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
-import static j2html.TagCreator.p;
 import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
@@ -44,7 +43,6 @@ public class ProgramIndexView extends BaseHtmlView {
   private Tag shortProgram(long applicantId, ProgramDefinition program) {
     return div()
         .with(h2(program.name()))
-        .with(p(program.description()))
         .with(
             a("Apply")
                 .withId(String.format("apply%d", program.id()))
