@@ -1,7 +1,9 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.*;
+import static j2html.TagCreator.body;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.h1;
 
 import com.google.inject.Inject;
 import controllers.routes;

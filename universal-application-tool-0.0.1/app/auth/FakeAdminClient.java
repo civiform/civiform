@@ -1,5 +1,6 @@
 package auth;
 
+import com.google.common.base.Preconditions;
 import controllers.admin.routes;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -13,7 +14,7 @@ public class FakeAdminClient extends IndirectClient {
 
   @Inject
   public FakeAdminClient(ProfileFactory profileFactory) {
-    this.profileFactory = profileFactory;
+    this.profileFactory = Preconditions.checkNotNull(profileFactory);
   }
 
   @Override
@@ -23,7 +24,7 @@ public class FakeAdminClient extends IndirectClient {
           // Double check that we haven't been fooled into allowing this somehow.
           if (!ctx.getServerName().equals("localhost")) {
             throw new UnsupportedOperationException(
-                "You cannot create an admin unless you are running locally.");
+                "You cannot create a fake admin unless you are running locally.");
           }
           return Optional.of(new AnonymousCredentials());
         });

@@ -24,12 +24,12 @@ public class ProfileFactory {
     return create(Roles.ROLE_APPLICANT);
   }
 
-  public UatProfile wrapProfileData(UatProfileData p) {
-    return new UatProfile(dbContext, httpContext, p);
-  }
-
   public UatProfileData createNewAdmin() {
     return create(Roles.ROLE_UAT_ADMIN);
+  }
+
+  public UatProfile wrapProfileData(UatProfileData p) {
+    return new UatProfile(dbContext, httpContext, p);
   }
 
   private UatProfileData create(Roles role) {

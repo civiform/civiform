@@ -1,7 +1,6 @@
 package app;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static play.test.Helpers.fakeApplication;
 
@@ -78,10 +77,8 @@ public class BrowserTest extends WithBrowser {
     assertTrue(browser.pageSource().contains("403"));
   }
 
-
   @Test
   public void adminTestLogin() {
-    String baseUrl = "http://localhost:" + play.api.test.Helpers.testServerPort();
     goTo(routes.HomeController.loginForm(Optional.empty()));
     browser.$("#admin").click();
     // should be redirected to root.
