@@ -34,14 +34,13 @@ public class LoginForm extends BaseHtmlView {
     // "defense in depth", sort of - this client won't be present in production, and this button
     // won't show up except when running locally.
     if (request.host().startsWith("localhost:")) {
-      bodyTag =
-          bodyTag.with(
-              div(
-                  h1("DEBUG MODE: BECOME ADMIN"),
-                  redirectButton(
-                      "admin",
-                      "Continue",
-                      routes.CallbackController.callback("FakeAdminClient").url())));
+      bodyTag.with(
+          div(
+              h1("DEBUG MODE: BECOME ADMIN"),
+              redirectButton(
+                  "admin",
+                  "Continue",
+                  routes.CallbackController.callback("FakeAdminClient").url())));
     }
     return layout.htmlContent(bodyTag);
   }
