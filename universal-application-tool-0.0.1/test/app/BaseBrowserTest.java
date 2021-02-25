@@ -41,8 +41,8 @@ public class BaseBrowserTest extends WithBrowser {
     browser.goTo(BASE_URL + method.url());
   }
 
-  protected void goTo(String url) {
-    browser.goTo(BASE_URL + url);
+  protected void goTo(Call method, Http.RequestBuilder builder) {
+    browser.goTo(BASE_URL + "/" + method.relativeTo(builder.build()));
   }
 
   /**
@@ -71,8 +71,9 @@ public class BaseBrowserTest extends WithBrowser {
         Helpers.fakeRequest()
             .method("post")
             .bodyForm(ImmutableMap.of("name", name, "description", "A new program"));
-    goTo(
+    System.out.println(
         controllers.admin.routes.AdminProgramController.create()
             .relativeTo(requestBuilder.build()));
+    goTo(controllers.admin.routes.AdminProgramController.create(), requestBuilder);
   }
 }

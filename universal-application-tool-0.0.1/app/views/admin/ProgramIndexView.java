@@ -7,6 +7,8 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.join;
+import static j2html.attributes.Attr.HREF;
+import static j2html.attributes.Attr.ID;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -30,7 +32,8 @@ public final class ProgramIndexView extends BaseHtmlView {
             div(
                 form(
                     a("Add a Program")
-                        .attr("href", controllers.admin.routes.AdminProgramController.newOne()))),
+                        .attr(ID, "add-new")
+                        .attr(HREF, controllers.admin.routes.AdminProgramController.newOne()))),
             div(each(programs, this::shortProgram))));
   }
 
