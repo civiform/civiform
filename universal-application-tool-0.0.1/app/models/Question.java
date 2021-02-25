@@ -41,6 +41,9 @@ public class Question extends BaseModel {
 
   public Question(QuestionDefinition questionDefinition) {
     this.questionDefinition = checkNotNull(questionDefinition);
+    if (questionDefinition.isPersisted()) {
+      id = questionDefinition.getId();
+    }
     version = questionDefinition.getVersion();
     path = questionDefinition.getPath();
     name = questionDefinition.getName();
@@ -54,7 +57,9 @@ public class Question extends BaseModel {
   @PreUpdate
   @PrePersist
   public void persistChangesToQuestionDefinition() {
-    id = questionDefinition.getId();
+    if (questionDefinition.isPersisted()) {
+      id = questionDefinition.getId();
+    }
     version = questionDefinition.getVersion();
     path = questionDefinition.getPath();
     name = questionDefinition.getName();

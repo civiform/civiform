@@ -3,10 +3,11 @@ package services.question;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 
 public class QuestionDefinitionBuilder {
 
-  private long id;
+  private OptionalLong id = OptionalLong.empty();
   private long version;
   private String name;
   private String path;
@@ -16,7 +17,7 @@ public class QuestionDefinitionBuilder {
   private QuestionType questionType = QuestionType.TEXT;
 
   public QuestionDefinitionBuilder setId(long id) {
-    this.id = id;
+    this.id = OptionalLong.of(id);
     return this;
   }
 
