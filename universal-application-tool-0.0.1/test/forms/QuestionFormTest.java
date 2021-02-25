@@ -25,13 +25,12 @@ public class QuestionFormTest {
     form.setQuestionType("TEXT");
     QuestionDefinitionBuilder builder = form.getBuilder();
 
-    // The QuestionForm does not set version or id, which are needed in order to build the
-    // QuestionDefinition.
+    // The QuestionForm does not set version, which is needed in order to build the
+    // QuestionDefinition. How we get this value hasn't been determined.
     builder.setVersion(1L);
 
     TextQuestionDefinition expected =
         new TextQuestionDefinition(
-            OptionalLong.empty(),
             1L,
             "name",
             "my.question.path",

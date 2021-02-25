@@ -144,7 +144,6 @@ public class QuestionControllerTest extends WithPostgresContainer {
   private void buildQuestionsList() throws UnsupportedQuestionTypeException {
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
-            .setId(1L)
             .setVersion(1L)
             .setName("First Question")
             .setDescription("This is the first question.")

@@ -108,7 +108,7 @@ public class QuestionController extends Controller {
     Form<QuestionForm> form = formFactory.form(QuestionForm.class);
     QuestionForm questionForm = form.bindFromRequest(request).get();
     try {
-      QuestionDefinition definition = questionForm.getBuilder().setId(0L).setVersion(1L).build();
+      QuestionDefinition definition = questionForm.getBuilder().setId(id).setVersion(1L).build();
       service.update(definition);
     } catch (UnsupportedQuestionTypeException e) {
       // I'm not sure why this would happen here, so we'll just log and redirect.
