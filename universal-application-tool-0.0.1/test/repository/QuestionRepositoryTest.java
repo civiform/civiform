@@ -54,6 +54,32 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
+  public void pathConflicts_returnsTrueForBadPaths() {
+    String path = "applicant.address";
+
+    assertThat(pathConflicts(path, "applicant")).isTrue();
+    assertThat(pathConflicts(path, "applicant.address")).isTrue();
+    assertThat(pathConflicts(path, "applicant.address.street")).isTrue();
+    assertThat(pathConflicts(path, "applicant.address.some.other.field")).isTrue();
+  }
+
+  @Test
+  public void pathConflicts_returnsFalseForValidPaths() {
+    String path = "applicant.address";
+
+    assertThat(pathConflicts(path, "applicant.employment")).isFalse();
+    assertThat(pathConflicts(path, "other.path")).isFalse();
+    assertThat(pathConflicts(path, "other.applicant")).isFalse();
+    assertThat(pathConflicts(path, "other.applicant.address")).isFalse();
+    assertThat(pathConflicts(path, "other.applicant.address.street")).isFalse();
+    assertThat(pathConflicts(path, "other.applicant.address.some.other.field")).isFalse();
+  }
+
+  private boolean pathConflicts(String path, String otherPath) {
+    return QuestionRepository.PathConflictDetector.pathConflicts(path, otherPath);
+  }
+
+  @Test
   public void lookupPathConflict_returnsFalseWhenNoQuestions() {
     Boolean hasConflict = repo.lookupPathConflict("path.one").toCompletableFuture().join();
 

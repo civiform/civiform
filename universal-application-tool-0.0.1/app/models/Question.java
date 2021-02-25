@@ -38,6 +38,10 @@ public class Question extends BaseModel {
 
   private @Constraints.Required String questionType;
 
+  public String getPath() {
+    return path;
+  }
+
   public Question(QuestionDefinition questionDefinition) {
     this.questionDefinition = checkNotNull(questionDefinition);
     if (questionDefinition.isPersisted()) {
@@ -88,9 +92,5 @@ public class Question extends BaseModel {
 
   public QuestionDefinition getQuestionDefinition() {
     return checkNotNull(questionDefinition);
-  }
-
-  public boolean pathConflictsWith(String otherPath) {
-    return path.startsWith(otherPath) || otherPath.startsWith(path);
   }
 }

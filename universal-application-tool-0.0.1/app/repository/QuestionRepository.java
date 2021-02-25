@@ -47,11 +47,15 @@ public class QuestionRepository {
 
     public boolean checkConflict(Question question) {
       boolean proceed = true;
-      if (question.pathConflictsWith(newPath)) {
+      if (pathConflicts(question.getPath(), newPath)) {
         conflict = Boolean.TRUE;
         proceed = false;
       }
       return proceed;
+    }
+
+    public static boolean pathConflicts(String path, String otherPath) {
+      return path.startsWith(otherPath) || otherPath.startsWith(path);
     }
   }
 
