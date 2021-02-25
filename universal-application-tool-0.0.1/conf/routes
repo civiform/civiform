@@ -31,6 +31,9 @@ GET /applicants/:applicantId/programs/:programId/edit   controllers.applicant.Ap
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(file)
 
+# Applicant program forms
+GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit   controllers.ApplicantProgramBlocksController.edit(request: Request, applicantId: Long, programId: Long, blockId: Long)
+POST    /applicants/:applicantId/programs/:programId/blocks/:blockId        controllers.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: Long)
 
 # User profile pages
 GET     /users/me                    controllers.ProfileController.myProfile(request: Request)
