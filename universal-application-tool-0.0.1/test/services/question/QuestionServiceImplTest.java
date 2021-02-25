@@ -46,6 +46,20 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
+  public void create_failsWithInvalidPathPattern() {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            1L,
+            "name",
+            "#invalid&path-pattern!",
+            "description",
+            ImmutableMap.of(Locale.ENGLISH, "question?"),
+            Optional.empty());
+
+    assertThat(questionService.create(question).isPresent()).isFalse();
+  }
+
+  @Test
   public void create_returnsQuestionDefinitionWhenSucceeds() {
     assertThat(questionService.create(questionDefinition).get().getPath())
         .isEqualTo(questionDefinition.getPath());

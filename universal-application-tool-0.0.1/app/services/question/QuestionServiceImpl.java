@@ -57,12 +57,16 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   private boolean isValid(QuestionDefinition definition) {
+    String newPath = definition.getPath().toLowerCase();
+    if (!validPathPattern(newPath)) {
+      return false;
+    }
     boolean hasConflict =
-        questionRepository
-            .lookupPathConflict(definition.getPath())
-            .toCompletableFuture()
-            .join()
-            .booleanValue();
+        questionRepository.lookupPathConflict(newPath).toCompletableFuture().join().booleanValue();
     return !hasConflict;
+  }
+
+  private boolean validPathPattern(String path) {
+    return path.matches("^([a-z]+[.])*[a-z]+$");
   }
 }
