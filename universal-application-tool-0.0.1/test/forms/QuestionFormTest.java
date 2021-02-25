@@ -46,5 +46,7 @@ public class QuestionFormTest {
     assertThat(actual.getQuestionType()).isEqualTo(expected.getQuestionType());
     assertThat(actual.getPath()).isEqualTo(expected.getPath());
     assertThat(actual.getDescription()).isEqualTo(expected.getDescription());
+    assertThat(actual.getQuestionText()).isEqualTo(expected.getQuestionText());
+    assertThat(actual.getQuestionHelpText()).isEqualTo(expected.getQuestionHelpText());
   }
 }

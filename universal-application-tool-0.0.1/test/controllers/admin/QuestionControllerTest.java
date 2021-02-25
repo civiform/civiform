@@ -30,13 +30,25 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void create_returnsExpectedForm() {
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    Result result = controller.create(request);
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("New Question");
-    assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
+  public void create_addsQuestionDefinition() throws UnsupportedQuestionTypeException {
+    buildQuestionsList();
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    formData
+        .put("questionName", "name")
+        .put("questionDescription", "desc")
+        .put("questionPath", "my.question.path")
+        .put("questionType", "TEXT")
+        .put("questionText", "Hi mom!")
+        .put("questionHelpText", ":-)");
+    RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
+    controller
+        .create(requestBuilder.build())
+        .thenAccept(
+            result -> {
+              // Validate the path (my.question.path) appears on the page.
+              assertThat(contentAsString(result)).contains("Total Questions: 2");
+              assertThat(contentAsString(result)).contains("All Questions");
+            });
   }
 
   @Test
@@ -66,15 +78,14 @@ public class QuestionControllerTest extends WithPostgresContainer {
               assertThat(result.status()).isEqualTo(OK);
               assertThat(contentAsString(result)).contains("Edit Question");
               // TODO: Add additional validations.
-              assertThat(true).isTrue();
             });
   }
 
   @Test
-  public void list_returnsQuestions() throws UnsupportedQuestionTypeException {
+  public void index_returnsQuestions() throws UnsupportedQuestionTypeException {
     buildQuestionsList();
     controller
-        .list("table")
+        .index("table")
         .thenAccept(
             result -> {
               assertThat(result.status()).isEqualTo(OK);
@@ -86,9 +97,9 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void list_withNoQuestions() {
+  public void index_withNoQuestions() {
     controller
-        .list("table")
+        .index("table")
         .thenAccept(
             result -> {
               assertThat(result.status()).isEqualTo(OK);
@@ -100,13 +111,18 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void update_failsGracefully() throws UnsupportedQuestionTypeException {
-    // Update isn't implemented yet, so we just redirect to the questions list for now.
-    assertThat(true).isTrue();
+  public void newOne_returnsExpectedForm() {
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Result result = controller.newOne(request);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("New Question");
+    assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }
 
   @Test
-  public void write_addsQuestionDefinition() throws UnsupportedQuestionTypeException {
+  public void update_failsGracefully() throws UnsupportedQuestionTypeException {
+    // Update isn't implemented yet, so we just redirect to the questions list for now.
     buildQuestionsList();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
@@ -118,13 +134,11 @@ public class QuestionControllerTest extends WithPostgresContainer {
         .put("questionHelpText", ":-)");
     RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
     controller
-        .write(requestBuilder.build())
+        .update(requestBuilder.build(), 1L)
         .thenAccept(
             result -> {
-              // Validate the path (my.question.path) appears on the page.
-              assertThat(contentAsString(result)).contains("Total Questions: 2");
+              assertThat(contentAsString(result)).contains("Total Questions: 1");
               assertThat(contentAsString(result)).contains("All Questions");
-              assertThat(true).isTrue();
             });
   }
 

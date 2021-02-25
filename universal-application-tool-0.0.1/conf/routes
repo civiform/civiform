@@ -22,11 +22,11 @@ POST    /admin/programs/:id         controllers.admin.AdminProgramController.upd
 POST    /admin/programs             controllers.admin.AdminProgramController.create(request: Request)
 
 # A controller for a page for an admin to view, edit, and create questions
-GET     /admin/questions             controllers.admin.QuestionController.list(renderAs: String ?= "table")
-GET     /admin/questions/new         controllers.admin.QuestionController.create(request: Request)
-GET     /admin/questions/edit/:path  controllers.admin.QuestionController.edit(request: Request, path: String)
-POST    /admin/questions/update      controllers.admin.QuestionController.update(request: Request)
-POST    /admin/questions/write       controllers.admin.QuestionController.write(request: Request)
+GET     /admin/questions             controllers.admin.QuestionController.index(renderAs: String ?= "table")
+GET     /admin/questions/new         controllers.admin.QuestionController.newOne(request: Request)
+GET     /admin/questions/:path/edit  controllers.admin.QuestionController.edit(request: Request, path: String)
+POST    /admin/questions/:id         controllers.admin.QuestionController.update(request: Request, id: Long)
+POST    /admin/questions             controllers.admin.QuestionController.create(request: Request)
 
 GET     /demo/new                   controllers.J2HtmlDemoController.newOne(request: Request)
 POST    /demo                       controllers.J2HtmlDemoController.create(request: Request)

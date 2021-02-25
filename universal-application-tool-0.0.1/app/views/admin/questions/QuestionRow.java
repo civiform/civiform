@@ -59,7 +59,7 @@ enum QuestionRow {
       case ACTIONS:
         return td().with(span("view"))
             .with(span(" | "))
-            .with(a("edit").withHref("/admin/questions/edit/" + definition.getPath()));
+            .with(a("edit").withHref("/admin/questions/" + definition.getPath() + "/edit"));
       default:
         return td("");
     }

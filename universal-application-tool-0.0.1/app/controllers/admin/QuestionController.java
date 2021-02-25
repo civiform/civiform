@@ -4,8 +4,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import forms.QuestionForm;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
@@ -19,6 +22,7 @@ import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
 
 public class QuestionController extends Controller {
+  final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
   private final QuestionService service;
   private final QuestionsListView listView;
@@ -37,54 +41,7 @@ public class QuestionController extends Controller {
     this.formFactory = checkNotNull(formFactory);
   }
 
-  public CompletionStage<Result> list(String renderAs) {
-    return service
-        .getReadOnlyQuestionService()
-        .thenApplyAsync(
-            readOnlyService -> {
-              return ok(listView.render(readOnlyService.getAllQuestions(), renderAs));
-            });
-  }
-
-  public Result create(Request request) {
-    return ok(editView.render(request, Optional.empty()));
-  }
-
-  public CompletionStage<Result> edit(Request request, String path) {
-    return service
-        .getReadOnlyQuestionService()
-        .thenApplyAsync(
-            readOnlyService -> {
-              Optional<QuestionDefinition> definition = Optional.empty();
-              try {
-                definition = Optional.of(readOnlyService.getQuestionDefinition(path));
-              } catch (InvalidPathException e) { // If the path doesn't exist, redirect to create.
-                System.out.println(e); // TODO: What are we using for logging?
-              }
-              if (definition.isPresent()) {
-                return ok(editView.render(request, definition));
-              } else {
-                return redirect("/admin/questions/new");
-              }
-            });
-  }
-
-  public CompletionStage<Result> update(Request request) {
-    Form<QuestionForm> form = formFactory.form(QuestionForm.class);
-    QuestionForm questionForm = form.bindFromRequest(request).get();
-    try {
-      QuestionDefinition definition = questionForm.getBuilder().setId(0L).setVersion(1L).build();
-      service.update(definition);
-    } catch (UnsupportedQuestionTypeException e) {
-      // I'm not sure why this would happen here, so we'll just log and redirect.
-      System.out.println(e);
-    } catch (UnsupportedOperationException e) {
-      // This is expected for now until we implement update on QuestionService.
-    }
-    return list("table");
-  }
-
-  public CompletionStage<Result> write(Request request) {
+  public CompletionStage<Result> create(Request request) {
     Form<QuestionForm> form = formFactory.form(QuestionForm.class);
     QuestionForm questionForm = form.bindFromRequest(request).get();
     return service
@@ -101,9 +58,56 @@ public class QuestionController extends Controller {
                 service.create(definition);
               } catch (UnsupportedQuestionTypeException e) {
                 // I'm not sure why this would happen here, so we'll just log and redirect.
-                System.out.println(e);
+                LOG.info(e.toString());
               }
               return redirect("/admin/questions");
             });
+  }
+
+  public CompletionStage<Result> edit(Request request, String path) {
+    return service
+        .getReadOnlyQuestionService()
+        .thenApplyAsync(
+            readOnlyService -> {
+              Optional<QuestionDefinition> definition = Optional.empty();
+              try {
+                definition = Optional.of(readOnlyService.getQuestionDefinition(path));
+              } catch (InvalidPathException e) { // If the path doesn't exist, redirect to create.
+                LOG.info(e.toString());
+              }
+              if (definition.isPresent()) {
+                return ok(editView.render(request, definition));
+              } else {
+                return redirect("/admin/questions/new");
+              }
+            });
+  }
+
+  public Result newOne(Request request) {
+    return ok(editView.render(request, Optional.empty()));
+  }
+
+  public CompletionStage<Result> index(String renderAs) {
+    return service
+        .getReadOnlyQuestionService()
+        .thenApplyAsync(
+            readOnlyService -> {
+              return ok(listView.render(readOnlyService.getAllQuestions(), renderAs));
+            });
+  }
+
+  public CompletionStage<Result> update(Request request, Long id) {
+    Form<QuestionForm> form = formFactory.form(QuestionForm.class);
+    QuestionForm questionForm = form.bindFromRequest(request).get();
+    try {
+      QuestionDefinition definition = questionForm.getBuilder().setId(0L).setVersion(1L).build();
+      service.update(definition);
+    } catch (UnsupportedQuestionTypeException e) {
+      // I'm not sure why this would happen here, so we'll just log and redirect.
+      LOG.info(e.toString());
+    } catch (UnsupportedOperationException e) {
+      // This is expected for now until we implement update on QuestionService.
+    }
+    return CompletableFuture.completedFuture(redirect("/admin/questions"));
   }
 }

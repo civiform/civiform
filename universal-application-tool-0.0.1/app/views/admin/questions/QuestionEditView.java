@@ -46,7 +46,7 @@ public final class QuestionEditView extends BaseHtmlView {
 
     if (definition != null) { // Editing a question.
       buttonText = "Update";
-      formTag.withAction("/admin/questions/update");
+      formTag.withAction("/admin/questions/" + definition.getId());
       formTag.with(
           label("id: " + definition.getId()),
           br(),
@@ -55,14 +55,17 @@ public final class QuestionEditView extends BaseHtmlView {
           br());
       try {
         questionText = Optional.of(definition.getQuestionText(Locale.ENGLISH));
+      } catch (TranslationNotFoundException e) {
+        questionText = Optional.of("Missing Text");
+      }
+      try {
         questionHelpText = Optional.of(definition.getQuestionHelpText(Locale.ENGLISH));
       } catch (TranslationNotFoundException e) {
-        questionText = Optional.of("Error");
-        questionHelpText = Optional.of("Error");
+        questionHelpText = Optional.of("Missing Text");
       }
     } else {
       buttonText = "Create";
-      formTag.withAction("/admin/questions/write");
+      formTag.withAction("/admin/questions");
     }
 
     formTag
