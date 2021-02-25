@@ -111,8 +111,7 @@ public abstract class BaseHtmlView {
   }
 
   protected Tag redirectButton(String id, String text, String redirectUrl) {
-    return button(id, text)
-            .attr("onclick", String.format("window.location = '%s';", redirectUrl));
+    return button(id, text).attr("onclick", String.format("window.location = '%s';", redirectUrl));
   }
 
   public ImmutableList<DomContent> formSelect(
