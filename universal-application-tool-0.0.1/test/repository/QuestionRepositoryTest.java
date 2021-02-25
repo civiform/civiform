@@ -54,6 +54,31 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
+  public void lookupPathConflict_returnsFalseWhenNoQuestions() {
+    Boolean hasConflict = repo.lookupPathConflict("path.one").toCompletableFuture().join();
+
+    assertThat(hasConflict).isEqualTo(Boolean.FALSE);
+  }
+
+  @Test
+  public void lookupPathConflict_returnsFalseWhenNoPathConflict() {
+    saveQuestion("path.one");
+    saveQuestion("path.two");
+    Boolean hasConflict = repo.lookupPathConflict("path.other").toCompletableFuture().join();
+
+    assertThat(hasConflict).isEqualTo(Boolean.FALSE);
+  }
+
+  @Test
+  public void lookupPathConflict_returnsTrueWhenPathConflicts() {
+    saveQuestion("path.one");
+    saveQuestion("path.two");
+    Boolean hasConflict = repo.lookupPathConflict("path.one").toCompletableFuture().join();
+
+    assertThat(hasConflict).isEqualTo(Boolean.TRUE);
+  }
+
+  @Test
   public void lookupQuestionByPath_returnsEmptyOptionalWhenQuestionNotFound() {
     Optional<Question> found =
         repo.lookupQuestionByPath("invalid.path").toCompletableFuture().join();
