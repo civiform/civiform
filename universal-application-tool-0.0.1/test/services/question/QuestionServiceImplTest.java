@@ -39,7 +39,14 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void create() {
+  public void create_returnsOptionalEmptyWhenFails() {
+    questionService.create(questionDefinition);
+
+    assertThat(questionService.create(questionDefinition).isPresent()).isFalse();
+  }
+
+  @Test
+  public void create_returnsQuestionDefinitionWhenSucceeds() {
     assertThat(questionService.create(questionDefinition).get().getPath())
         .isEqualTo(questionDefinition.getPath());
   }
@@ -51,9 +58,9 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
     CompletionStage<ReadOnlyQuestionService> completionStage =
         questionService.getReadOnlyQuestionService();
 
-    ReadOnlyQuestionService emptyService = completionStage.toCompletableFuture().join();
+    ReadOnlyQuestionService roService = completionStage.toCompletableFuture().join();
 
-    assertThat(emptyService.getAllQuestions().size()).isEqualTo(1);
+    assertThat(roService.getAllQuestions().size()).isEqualTo(1);
   }
 
   @Test

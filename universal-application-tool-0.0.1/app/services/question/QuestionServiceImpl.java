@@ -28,7 +28,9 @@ public final class QuestionServiceImpl implements QuestionService {
 
   @Override
   public Optional<QuestionDefinition> create(QuestionDefinition definition) {
-    // TODO(https://github.com/seattle-uat/universal-application-tool/issues/194): Add validation.
+    if (!isValid(definition)) {
+      return Optional.empty();
+    }
     Question question = questionRepository.insertQuestionSync(new Question(definition));
     return Optional.of(question.getQuestionDefinition());
   }
@@ -52,5 +54,15 @@ public final class QuestionServiceImpl implements QuestionService {
                 questions.stream()
                     .map(question -> question.getQuestionDefinition())
                     .collect(ImmutableList.toImmutableList()));
+  }
+
+  private boolean isValid(QuestionDefinition definition) {
+    boolean hasConflict =
+        questionRepository
+            .lookupPathConflict(definition.getPath())
+            .toCompletableFuture()
+            .join()
+            .booleanValue();
+    return !hasConflict;
   }
 }
