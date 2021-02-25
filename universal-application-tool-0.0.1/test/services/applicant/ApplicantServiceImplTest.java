@@ -61,7 +61,6 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         questionService
             .create(
                 new NameQuestionDefinition(
-                    123L,
                     1L,
                     "my name",
                     "my.path.name",
