@@ -8,7 +8,7 @@ import java.util.Locale;
  * The ReadOnlyQuestionService contains all synchronous, in-memory operations for
  * QuestionDefinitions.
  */
-interface ReadOnlyQuestionService {
+public interface ReadOnlyQuestionService {
 
   /** Returns all question definitions for this version. */
   ImmutableList<QuestionDefinition> getAllQuestions();

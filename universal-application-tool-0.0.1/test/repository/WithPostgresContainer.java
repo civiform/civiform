@@ -17,8 +17,7 @@ import org.junit.BeforeClass;
 import play.Application;
 import play.db.ebean.EbeanConfig;
 import play.test.Helpers;
-import services.question.QuestionDefinition;
-import services.question.TextQuestionDefinition;
+import support.ResourceFabricator;
 
 public class WithPostgresContainer {
 
@@ -26,9 +25,12 @@ public class WithPostgresContainer {
 
   protected static Materializer mat;
 
+  protected static ResourceFabricator resourceFabricator;
+
   @BeforeClass
   public static void startPlay() {
     app = provideApplication();
+    resourceFabricator = new ResourceFabricator(app.injector());
     Helpers.start(app);
     mat = app.asScala().materializer();
   }
@@ -64,36 +66,14 @@ public class WithPostgresContainer {
     return app.injector().instanceOf(clazz);
   }
 
+  protected ResourceFabricator resourceFabricator() {
+    return resourceFabricator;
+  }
+
   @Before
   public void truncateTables() {
     EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
     EbeanServer server = Ebean.getServer(config.defaultServer());
     server.truncate(Applicant.class, Person.class, Program.class, Question.class);
-  }
-
-  /**
-   * Convenience method for saving a program to the database.
-   *
-   * @param name the name of the program to store
-   * @return the {@link Program} model that was created
-   */
-  protected static Program insertProgram(String name) {
-    Program program = new Program(name, "description");
-    program.save();
-    return program;
-  }
-
-  /**
-   * Convenience method for saving a question to the database with the given ID.
-   *
-   * @param id the ID for the question to save
-   * @return the {@link Question} model that was created
-   */
-  protected Question insertQuestion(long id) {
-    QuestionDefinition definition =
-        new TextQuestionDefinition(id, 1L, "", "", "", ImmutableMap.of(), Optional.empty());
-    Question question = new Question(definition);
-    question.save();
-    return question;
   }
 }
