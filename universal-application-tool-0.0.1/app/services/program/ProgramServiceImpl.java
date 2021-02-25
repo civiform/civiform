@@ -72,16 +72,14 @@ public class ProgramServiceImpl implements ProgramService {
     return programRepository
         .lookupProgram(id)
         .thenComposeAsync(
-            programMaybe -> {
-              if (programMaybe.isEmpty()) {
-                return CompletableFuture.completedFuture(Optional.empty());
-              }
-              return programMaybe
-                  .map(Program::getProgramDefinition)
-                  .map(this::syncProgramDefinitionQuestions)
-                  .get()
-                  .thenApply(Optional::of);
-            },
+            programMaybe ->
+                programMaybe.isEmpty()
+                    ? CompletableFuture.completedFuture(Optional.empty())
+                    : programMaybe
+                        .map(Program::getProgramDefinition)
+                        .map(this::syncProgramDefinitionQuestions)
+                        .get()
+                        .thenApply(Optional::of),
             httpExecutionContext.current());
   }
 
