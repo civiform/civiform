@@ -1,5 +1,6 @@
 package services.program;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
@@ -47,14 +48,20 @@ public abstract class BlockDefinition {
   @JsonProperty("optionalPredicate")
   public abstract Optional<Predicate> optionalPredicate();
 
-  /** The list of {@link QuestionDefinition}s that make up this block. */
+  /** The list of {@link ProgramQuestionDefinition}s that make up this block. */
   @JsonProperty("questionDefinitions")
-  public abstract ImmutableList<QuestionDefinition> questionDefinitions();
+  public abstract ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions();
 
   public abstract Builder toBuilder();
 
   public static Builder builder() {
     return new AutoValue_BlockDefinition.Builder();
+  }
+
+  /** Returns the {@link QuestionDefinition} at the specified index. */
+  @JsonIgnore
+  public QuestionDefinition getQuestionDefinition(int questionIndex) {
+    return programQuestionDefinitions().get(questionIndex).getQuestionDefinition();
   }
 
   @AutoValue.Builder
@@ -75,15 +82,16 @@ public abstract class BlockDefinition {
     public abstract Builder setOptionalPredicate(Optional<Predicate> optional);
 
     @JsonProperty("questionDefinitions")
-    public abstract Builder setQuestionDefinitions(
-        ImmutableList<QuestionDefinition> questionDefinitions);
+    public abstract Builder setProgramQuestionDefinitions(
+        ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions);
 
-    public abstract ImmutableList.Builder<QuestionDefinition> questionDefinitionsBuilder();
+    public abstract ImmutableList.Builder<ProgramQuestionDefinition>
+        programQuestionDefinitionsBuilder();
 
     public abstract BlockDefinition build();
 
-    public Builder addQuestion(QuestionDefinition question) {
-      questionDefinitionsBuilder().add(question);
+    public Builder addQuestion(ProgramQuestionDefinition question) {
+      programQuestionDefinitionsBuilder().add(question);
       return this;
     }
   }

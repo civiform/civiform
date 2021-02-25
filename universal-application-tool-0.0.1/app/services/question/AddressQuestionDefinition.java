@@ -1,34 +1,39 @@
 package services.question;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 
 public class AddressQuestionDefinition extends QuestionDefinition {
 
-  @JsonCreator
   public AddressQuestionDefinition(
-      @JsonProperty("id") long id,
-      @JsonProperty("version") long version,
-      @JsonProperty("name") String name,
-      @JsonProperty("path") String path,
-      @JsonProperty("description") String description,
-      @JsonProperty("questionText") ImmutableMap<Locale, String> questionText,
-      @JsonProperty("questionHelpText") Optional<ImmutableMap<Locale, String>> questionHelpText) {
+      OptionalLong id,
+      long version,
+      String name,
+      String path,
+      String description,
+      ImmutableMap<Locale, String> questionText,
+      Optional<ImmutableMap<Locale, String>> questionHelpText) {
     super(id, version, name, path, description, questionText, questionHelpText);
   }
 
+  public AddressQuestionDefinition(
+      long version,
+      String name,
+      String path,
+      String description,
+      ImmutableMap<Locale, String> questionText,
+      Optional<ImmutableMap<Locale, String>> questionHelpText) {
+    super(version, name, path, description, questionText, questionHelpText);
+  }
+
   @Override
-  @JsonIgnore
   public QuestionType getQuestionType() {
     return QuestionType.ADDRESS;
   }
 
   @Override
-  @JsonIgnore
   public ImmutableMap<String, ScalarType> getScalars() {
     return ImmutableMap.of(
         "street",

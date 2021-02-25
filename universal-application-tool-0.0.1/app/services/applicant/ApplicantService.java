@@ -6,7 +6,7 @@ import models.Applicant;
 import services.ErrorAnd;
 
 /** Defines the interface facade for Applicant service */
-interface ApplicantService {
+public interface ApplicantService {
 
   /**
    * Performs a set of updates to the applicant's {@link ApplicantData}. Updates are atomic i.e. if

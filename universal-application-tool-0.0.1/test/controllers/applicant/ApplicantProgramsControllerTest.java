@@ -16,7 +16,7 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
   @Before
   public void setupController() {
-    controller = instanceOf(ApplicantProgramsController.class);
+    controller = resourceFabricator().instanceOf(ApplicantProgramsController.class);
   }
 
   @Test
@@ -31,8 +31,8 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
   @Test
   public void index_withPrograms_returnsAllPrograms() {
-    insertProgram("one");
-    insertProgram("two");
+    resourceFabricator().insertProgram("one");
+    resourceFabricator().insertProgram("two");
 
     Result result = controller.index(1L).toCompletableFuture().join();
 
@@ -43,7 +43,7 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
   @Test
   public void index_withProgram_includesApplyButtonWithRedirect() {
-    Program program = insertProgram("program");
+    Program program = resourceFabricator().insertProgram("program");
 
     Result result = controller.index(1L).toCompletableFuture().join();
 
@@ -58,11 +58,5 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).isEqualTo("Applicant 123 chose program 456");
-  }
-
-  private static Program insertProgram(String name) {
-    Program program = new Program(name, "description");
-    program.save();
-    return program;
   }
 }

@@ -16,7 +16,6 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
 
   QuestionDefinition questionDefinition =
       new TextQuestionDefinition(
-          123L,
           1L,
           "my name",
           "my.path.name",
@@ -26,7 +25,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
 
   @Before
   public void setProgramServiceImpl() {
-    questionService = app.injector().instanceOf(QuestionServiceImpl.class);
+    questionService = instanceOf(QuestionServiceImpl.class);
   }
 
   @Test

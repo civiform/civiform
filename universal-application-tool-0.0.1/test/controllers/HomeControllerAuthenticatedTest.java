@@ -2,7 +2,8 @@ package controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.Helpers.testServerPort;
-import static play.test.Helpers.*;
+import static play.test.Helpers.fakeRequest;
+import static play.test.Helpers.route;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -25,7 +26,7 @@ public class HomeControllerAuthenticatedTest extends WithApplication {
   @Before
   public void setUp() {
     // Get the config, and hack it so that all requests appear authorized.
-    Config config = app.injector().instanceOf(Config.class);
+    Config config = instanceOf(Config.class);
     AnonymousClient client = AnonymousClient.INSTANCE;
     config.setClients(new Clients(client));
 
