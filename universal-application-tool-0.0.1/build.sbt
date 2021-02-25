@@ -1,7 +1,7 @@
 import play.sbt.PlayImport.PlayKeys.playRunHooks
 
 lazy val root = (project in file("."))
-  .enablePlugins(PlayJava, PlayEbean, SbtWeb)
+  .enablePlugins(PlayJava, PlayEbean)
   .settings(
     name := """universal-application-tool""",
     version := "0.0.1",
