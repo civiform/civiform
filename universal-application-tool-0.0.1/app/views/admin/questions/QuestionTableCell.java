@@ -63,7 +63,7 @@ enum QuestionTableCell {
                 a("edit")
                     .withHref(
                         controllers.admin.routes.QuestionController.edit(definition.getPath())
-                            .toString()));
+                            .url()));
       default:
         return td("");
     }

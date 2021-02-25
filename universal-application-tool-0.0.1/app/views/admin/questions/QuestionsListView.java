@@ -38,7 +38,7 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   /** Renders a page with either a table or a list view of all questions. */
-  public Content render(ImmutableList<Tag> questionContent) {
+  private Content render(ImmutableList<Tag> questionContent) {
     return layout.htmlContent(
         body()
             .with(renderHeader("All Questions"))
