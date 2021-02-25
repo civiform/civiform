@@ -54,7 +54,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
             "#invalid&path-pattern!",
             "description",
             ImmutableMap.of(Locale.ENGLISH, "question?"),
-            Optional.empty());
+            ImmutableMap.of());
 
     assertThat(questionService.create(question).isPresent()).isFalse();
   }
