@@ -53,12 +53,7 @@ public class QuestionController extends Controller {
         .thenApplyAsync(
             readOnlyService -> {
               try {
-                QuestionDefinition definition =
-                    questionForm
-                        .getBuilder()
-                        .setId(readOnlyService.getNextId())
-                        .setVersion(1L)
-                        .build();
+                QuestionDefinition definition = questionForm.getBuilder().setVersion(1L).build();
                 service.create(definition);
               } catch (UnsupportedQuestionTypeException e) {
                 // I'm not sure why this would happen here, so we'll just log and redirect.

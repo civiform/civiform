@@ -13,7 +13,6 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
   private final ImmutableMap<String, QuestionDefinition> scalarParents;
 
   private Locale preferredLocale = Locale.ENGLISH;
-  private long nextId = 0;
 
   public ReadOnlyQuestionServiceImpl(ImmutableList<QuestionDefinition> questions) {
     checkNotNull(questions);
@@ -23,12 +22,6 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     ImmutableMap.Builder<String, QuestionDefinition> scalarParentsMap = ImmutableMap.builder();
     for (QuestionDefinition qd : questions) {
       String questionPath = qd.getPath();
-      // Remove this code.
-      long questionId = qd.getId();
-      if (questionId >= nextId) {
-        nextId = questionId + 1;
-      }
-      // End code block to remove.
       questionIdMap.put(qd.getId(), qd);
       questionPathMap.put(questionPath, qd);
       ImmutableMap<String, ScalarType> questionScalars = qd.getScalars();
@@ -54,11 +47,6 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
   @Override
   public ImmutableMap<String, ScalarType> getAllScalars() {
     return scalars;
-  }
-
-  @Override
-  public long getNextId() {
-    return nextId++;
   }
 
   @Override

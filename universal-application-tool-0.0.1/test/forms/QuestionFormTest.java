@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import org.junit.Test;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
@@ -26,12 +27,11 @@ public class QuestionFormTest {
 
     // The QuestionForm does not set version or id, which are needed in order to build the
     // QuestionDefinition.
-    builder.setId(1L);
     builder.setVersion(1L);
 
     TextQuestionDefinition expected =
         new TextQuestionDefinition(
-            1L,
+            OptionalLong.empty(),
             1L,
             "name",
             "my.question.path",
@@ -40,7 +40,7 @@ public class QuestionFormTest {
             Optional.empty());
     QuestionDefinition actual = builder.build();
 
-    assertThat(actual.getId()).isEqualTo(expected.getId());
+    assertThat(actual.isPersisted()).isFalse();
     assertThat(actual.getVersion()).isEqualTo(expected.getVersion());
     assertThat(actual.getName()).isEqualTo(expected.getName());
     assertThat(actual.getQuestionType()).isEqualTo(expected.getQuestionType());
