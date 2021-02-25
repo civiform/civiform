@@ -4,26 +4,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.fakeApplication;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.BeforeClass;
+import controllers.routes;
+import java.util.Optional;
 import play.Application;
 import play.api.mvc.Call;
+import play.mvc.Http;
 import play.test.Helpers;
-import play.test.TestBrowser;
 import play.test.WithBrowser;
-import support.ResourceFabricator;
 
 public class BaseBrowserTest extends WithBrowser {
 
   private static final String LOCALHOST = "http://localhost:";
 
   protected static final String BASE_URL = LOCALHOST + play.api.test.Helpers.testServerPort();
-
-  private ResourceFabricator resourceFabricator;
-
-  @BeforeClass
-  public void setupResources() {
-    resourceFabricator = app.injector().instanceOf(ResourceFabricator.class);
-  }
 
   @Override
   protected Application provideApplication() {
@@ -38,15 +31,6 @@ public class BaseBrowserTest extends WithBrowser {
             "true"));
   }
 
-  @Override
-  protected TestBrowser provideBrowser(int port) {
-    return Helpers.testBrowser(port);
-  }
-
-  protected ResourceFabricator resourceFabricator() {
-    return resourceFabricator;
-  }
-
   /**
    * Redirect to the given route, using reverse routing:
    * https://www.playframework.com/documentation/2.8.x/JavaRouting#Reverse-routing
@@ -57,6 +41,10 @@ public class BaseBrowserTest extends WithBrowser {
     browser.goTo(BASE_URL + method.url());
   }
 
+  protected void goTo(String url) {
+    browser.goTo(BASE_URL + url);
+  }
+
   /**
    * Asserts that the current url is equal to the given route method. {@code browser.url()} does not
    * have the leading "/" but route URLs do.
@@ -65,5 +53,26 @@ public class BaseBrowserTest extends WithBrowser {
    */
   protected void assertUrlEquals(Call method) {
     assertThat("/" + browser.url()).isEqualTo(method.url());
+  }
+
+  protected void loginAsAdmin() {
+    goTo(routes.HomeController.loginForm(Optional.empty()));
+    browser.$("#admin").click();
+  }
+
+  /**
+   * Add a program through the admin flow.
+   *
+   * @param name a name for the new program
+   */
+  protected void addProgram(String name) {
+    loginAsAdmin();
+    Http.RequestBuilder requestBuilder =
+        Helpers.fakeRequest()
+            .method("post")
+            .bodyForm(ImmutableMap.of("name", name, "description", "A new program"));
+    goTo(
+        controllers.admin.routes.AdminProgramController.create()
+            .relativeTo(requestBuilder.build()));
   }
 }

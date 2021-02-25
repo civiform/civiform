@@ -37,8 +37,7 @@ public class SecurityBrowserTest extends BaseBrowserTest {
 
   @Test
   public void adminTestLogin() {
-    goTo(routes.HomeController.loginForm(Optional.empty()));
-    browser.$("#admin").click();
+    loginAsAdmin();
     // should be redirected to root.
     assertThat(browser.url()).isEmpty();
     assertThat(browser.pageSource()).contains("Your new application is ready.");
