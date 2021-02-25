@@ -46,20 +46,20 @@ public abstract class BaseHtmlView {
         .attr("for", fieldName);
   }
 
-  protected Tag button(String text) {
-    return TagCreator.button(text(text)).withType("button");
+  protected Tag button(String textContents) {
+    return TagCreator.button(text(textContents)).withType("button");
   }
 
-  protected Tag button(String id, String text) {
-    return button(text).withId(id);
+  protected Tag button(String id, String textContents) {
+    return button(textContents).withId(id);
   }
 
-  protected Tag submitButton(String text) {
-    return button(text).withType("submit");
+  protected Tag submitButton(String textContents) {
+    return TagCreator.button(text(textContents)).withType("submit");
   }
 
-  protected Tag submitButton(String id, String text) {
-    return button(id, text).withType("submit");
+  protected Tag submitButton(String id, String textContents) {
+    return submitButton(textContents).withId(id);
   }
 
   protected Tag redirectButton(String id, String text, String redirectUrl) {
