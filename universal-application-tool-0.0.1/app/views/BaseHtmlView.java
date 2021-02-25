@@ -46,12 +46,12 @@ public abstract class BaseHtmlView {
         .attr("for", fieldName);
   }
 
-  protected Tag button(String id, String text) {
-    return button(text).withId(id);
-  }
-
   protected Tag button(String text) {
     return TagCreator.button(text(text)).withType("button");
+  }
+
+  protected Tag button(String id, String text) {
+    return button(text).withId(id);
   }
 
   protected Tag submitButton(String text) {
