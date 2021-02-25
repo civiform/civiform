@@ -37,33 +37,34 @@ public final class QuestionsListView extends BaseHtmlView {
     this.layout = layout;
   }
 
+
   /** Renders a page with either a table or a list view of all questions. */
-  public Content render(ImmutableList<QuestionDefinition> questions, String renderAs) {
+  public Content render(ImmutableList<Tag> questionContent) {
     return layout.htmlContent(
         body()
             .with(renderHeader("All Questions"))
-            .with(renderAllQuestions(questions, renderAs))
-            .with(renderSummary(questions))
+            .with(questionContent)
             .with(renderAddQuestionLink()));
+  }
+
+  /** Renders a page with either a table view of all questions. */
+  public Content renderAsTable(ImmutableList<QuestionDefinition> questions) {
+    return render(ImmutableList.of(
+      renderQuestionTable(questions),
+      renderSummary(questions)));
+  }
+
+  /** Renders a page with either a list view of all questions. */
+  public Content renderAsList(ImmutableList<QuestionDefinition> questions) {
+    ImmutableList.Builder<Tag> builder = ImmutableList.builder();
+    for (QuestionDefinition qd : questions) {
+      builder.add(renderQuestionDefinitionInfo(qd));
+    }
+    return render(builder.build());
   }
 
   private Tag renderAddQuestionLink() {
     return a("Create a new question").withHref("/admin/questions/new");
-  }
-
-  /** Renders questions either as a table or a list. */
-  private ImmutableList<Tag> renderAllQuestions(
-      ImmutableList<QuestionDefinition> questions, String renderAs) {
-    if (renderAs.equalsIgnoreCase("table")) {
-      return ImmutableList.of(renderQuestionTable(questions));
-    } else if (renderAs.equalsIgnoreCase("list")) {
-      ImmutableList.Builder<Tag> builder = ImmutableList.builder();
-      for (QuestionDefinition qd : questions) {
-        builder.add(renderQuestionDefinitionInfo(qd));
-      }
-      return builder.build();
-    }
-    return ImmutableList.of(div("Unknown render type: " + renderAs));
   }
 
   private Tag renderSummary(ImmutableList<QuestionDefinition> questions) {

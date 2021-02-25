@@ -95,7 +95,14 @@ public class QuestionController extends Controller {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
-              return ok(listView.render(readOnlyService.getAllQuestions(), renderAs));
+              switch (renderAs) {
+                case "list":
+                  return ok(listView.renderAsList(readOnlyService.getAllQuestions()));
+                case "table":
+                  return ok(listView.renderAsTable(readOnlyService.getAllQuestions()));
+                default:
+                  return badRequest();
+              }
             },
             httpExecutionContext.current());
   }

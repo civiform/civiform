@@ -64,13 +64,13 @@ public class QuestionForm {
 
   public QuestionDefinitionBuilder getBuilder() {
     ImmutableMap<Locale, String> questionTextMap =
-        (questionText.length() > 0)
-            ? ImmutableMap.of(Locale.ENGLISH, questionText)
-            : ImmutableMap.of();
+        questionText.isEmpty()
+            ? ImmutableMap.of()
+            : ImmutableMap.of(Locale.ENGLISH, questionText);
     Optional<ImmutableMap<Locale, String>> questionHelpTextMap =
-        (questionHelpText.length() > 0)
-            ? Optional.of(ImmutableMap.of(Locale.ENGLISH, questionHelpText))
-            : Optional.empty();
+        questionHelpText.isEmpty()
+            ? Optional.empty()
+            : Optional.of(ImmutableMap.of(Locale.ENGLISH, questionHelpText));
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setQuestionType(QuestionType.valueOf(questionType))
