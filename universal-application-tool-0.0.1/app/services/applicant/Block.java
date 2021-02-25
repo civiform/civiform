@@ -5,6 +5,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import services.program.BlockDefinition;
+import services.program.ProgramQuestionDefinition;
 
 /** Represents a block in the context of a specific user's application. */
 public final class Block {
@@ -37,7 +38,8 @@ public final class Block {
   }
 
   public ImmutableList<ApplicantQuestion> getQuestions() {
-    return blockDefinition.questionDefinitions().stream()
+    return blockDefinition.programQuestionDefinitions().stream()
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
         .map(questionDefinition -> new ApplicantQuestion(questionDefinition, applicantData))
         .collect(toImmutableList());
   }

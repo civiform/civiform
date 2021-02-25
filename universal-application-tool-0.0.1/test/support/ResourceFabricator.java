@@ -10,6 +10,7 @@ import models.Applicant;
 import models.Program;
 import play.inject.Injector;
 import services.program.ProgramDefinition;
+import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
 import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
@@ -58,7 +59,7 @@ public class ResourceFabricator {
           programService.setBlockQuestions(
               programDefinition.id(),
               programDefinition.blockDefinitions().get(0).id(),
-              ImmutableList.of(insertQuestionDefinition()));
+              ImmutableList.of(ProgramQuestionDefinition.create(insertQuestionDefinition())));
 
       return programDefinition;
     } catch (Exception e) {

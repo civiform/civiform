@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
 import services.program.ProgramDefinition;
+import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
 import services.program.ProgramServiceImpl;
 import services.question.NameQuestionDefinition;
@@ -79,6 +80,6 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         programService.setBlockQuestions(
             programDefinition.id(),
             programDefinition.blockDefinitions().get(0).id(),
-            ImmutableList.of(questionDefinition));
+            ImmutableList.of(ProgramQuestionDefinition.create(questionDefinition)));
   }
 }

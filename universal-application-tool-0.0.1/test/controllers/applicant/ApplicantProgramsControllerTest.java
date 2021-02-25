@@ -49,8 +49,7 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains(
-            controllers.applicant.routes.ApplicantProgramsController.edit(1L, program.id).url());
+        .contains(routes.ApplicantProgramsController.edit(1L, program.id).url());
   }
 
   @Test

@@ -59,6 +59,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void getBlock_blockExists_returnsTheBlock() {
     Optional<Block> maybeBlock = subject.getBlock(123L);
+
     assertThat(maybeBlock).isPresent();
     assertThat(maybeBlock.get().getId()).isEqualTo(123L);
   }
