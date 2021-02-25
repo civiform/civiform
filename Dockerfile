@@ -32,7 +32,7 @@ COPY ${PROJECT_NAME} ${PROJECT_HOME}/${PROJECT_NAME}
 RUN cd $PROJECT_HOME/$PROJECT_NAME && sbt reload
 ADD entrypoint.sh /entrypoint.sh
 
-ENTRYPOINT "/entrypoint.sh"
+ENTRYPOINT ["/entrypoint.sh"]
 
 EXPOSE 9000
 WORKDIR $PROJECT_HOME/$PROJECT_NAME

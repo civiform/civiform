@@ -22,7 +22,7 @@ jobs:
       - name: Build prod container
         run: docker build -f prod.Dockerfile -t uat:prod ./
       - name: Build the stack
-        run: docker-compose -f infra/prod-simulator-compose.yaml up -d
+        run: docker-compose -f infra/prod-simulator-compose.yml up -d
         env:
           SECRET_KEY: notarealsecret
       - name: Test
