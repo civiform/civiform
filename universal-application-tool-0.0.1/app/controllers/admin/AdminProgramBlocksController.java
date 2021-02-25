@@ -17,8 +17,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class AdminProgramBlocksController extends Controller {
 
     private final ProgramService service;
-    private final ProgramBlockEditView blockEditView;
-    private final FormFactory formFactory;
+    // private final ProgramBlockEditView blockEditView;
+    // private final FormFactory formFactory;
 
     @Inject
     public AdminProgramBlocksController(
@@ -26,8 +26,8 @@ public class AdminProgramBlocksController extends Controller {
             ProgramBlockEditView blockEditView,
             FormFactory formFactory) {
         this.service = checkNotNull(service);
-        this.blockEditView = checkNotNull(blockEditView);
-        this.formFactory = checkNotNull(formFactory);
+        // this.blockEditView = checkNotNull(blockEditView);
+        // this.formFactory = checkNotNull(formFactory);
     }
 
     public Result index(long programId) {

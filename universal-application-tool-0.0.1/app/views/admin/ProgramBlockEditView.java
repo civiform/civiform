@@ -7,16 +7,21 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 
-public class ProgramBlockEditView  extends BaseHtmlView {
-    private final AdminProgramLayout layout;
+public class ProgramBlockEditView extends BaseHtmlView {
 
-    @Inject
-    public ProgramBlockEditView(AdminProgramLayout layout) {
-        this.layout = layout;
-    }
+  private final AdminProgramLayout layout;
 
-    public Content render(Request request, ProgramDefinition program) { return layout.render(); }
+  @Inject
+  public ProgramBlockEditView(AdminProgramLayout layout) {
+    this.layout = layout;
+  }
+
+  public Content render(Request request, ProgramDefinition program) {
+    return layout.render();
+  }
 
 
-    public Content render(Request request, ProgramDefinition program, BlockDefinition block) { return layout.render(); }
+  public Content render(Request request, ProgramDefinition program, BlockDefinition block) {
+    return layout.render();
+  }
 }
