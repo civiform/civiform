@@ -22,6 +22,9 @@ public abstract class ProgramDefinition {
   /** The list of {@link BlockDefinition}s that make up the program. */
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
 
+  /** The list of {@link ExportDefinition}s that make up the program. */
+  public abstract ImmutableList<ExportDefinition> exportDefinitions();
+
   /** Returns the {@link QuestionDefinition} at the specified block and question indices. */
   @JsonIgnore
   public QuestionDefinition getQuestionDefinition(int blockIndex, int questionIndex) {
@@ -52,12 +55,21 @@ public abstract class ProgramDefinition {
 
     public abstract Builder setBlockDefinitions(ImmutableList<BlockDefinition> blockDefinitions);
 
+    public abstract Builder setExportDefinitions(ImmutableList<ExportDefinition> exportDefinitions);
+
     public abstract ImmutableList.Builder<BlockDefinition> blockDefinitionsBuilder();
+
+    public abstract ImmutableList.Builder<ExportDefinition> exportDefinitionsBuilder();
 
     public abstract ProgramDefinition build();
 
     public Builder addBlockDefinition(BlockDefinition blockDefinition) {
       blockDefinitionsBuilder().add(blockDefinition);
+      return this;
+    }
+
+    public Builder addExportDefinition(ExportDefinition exportDefinition) {
+      exportDefinitionsBuilder().add(exportDefinition);
       return this;
     }
   }
