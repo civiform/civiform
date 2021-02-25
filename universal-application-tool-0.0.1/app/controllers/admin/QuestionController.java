@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.Form;
 import play.data.FormFactory;
+import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
@@ -28,17 +29,20 @@ public class QuestionController extends Controller {
   private final QuestionsListView listView;
   private final QuestionEditView editView;
   private final FormFactory formFactory;
+  private final HttpExecutionContext httpExecutionContext;
 
   @Inject
   public QuestionController(
       QuestionService service,
       QuestionsListView listView,
       QuestionEditView editView,
-      FormFactory formFactory) {
+      FormFactory formFactory,
+      HttpExecutionContext httpExecutionContext) {
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);
     this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
+    this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
 
   public CompletionStage<Result> create(Request request) {
@@ -60,8 +64,9 @@ public class QuestionController extends Controller {
                 // I'm not sure why this would happen here, so we'll just log and redirect.
                 LOG.info(e.toString());
               }
-              return redirect("/admin/questions");
-            });
+              return redirect(routes.QuestionController.index("table"));
+            },
+            httpExecutionContext.current());
   }
 
   public CompletionStage<Result> edit(Request request, String path) {
@@ -74,13 +79,11 @@ public class QuestionController extends Controller {
                 definition = Optional.of(readOnlyService.getQuestionDefinition(path));
               } catch (InvalidPathException e) { // If the path doesn't exist, redirect to create.
                 LOG.info(e.toString());
+                return redirect(routes.QuestionController.create());
               }
-              if (definition.isPresent()) {
-                return ok(editView.render(request, definition));
-              } else {
-                return redirect("/admin/questions/new");
-              }
-            });
+              return ok(editView.render(request, definition));
+            },
+            httpExecutionContext.current());
   }
 
   public Result newOne(Request request) {
@@ -93,9 +96,11 @@ public class QuestionController extends Controller {
         .thenApplyAsync(
             readOnlyService -> {
               return ok(listView.render(readOnlyService.getAllQuestions(), renderAs));
-            });
+            },
+            httpExecutionContext.current());
   }
 
+  // TODO():
   public CompletionStage<Result> update(Request request, Long id) {
     Form<QuestionForm> form = formFactory.form(QuestionForm.class);
     QuestionForm questionForm = form.bindFromRequest(request).get();
@@ -108,6 +113,6 @@ public class QuestionController extends Controller {
     } catch (UnsupportedOperationException e) {
       // This is expected for now until we implement update on QuestionService.
     }
-    return CompletableFuture.completedFuture(redirect("/admin/questions"));
+    return CompletableFuture.completedFuture(redirect(routes.QuestionController.index("table")));
   }
 }

@@ -20,17 +20,17 @@ import views.BaseHtmlView;
 
 public final class QuestionsListView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
-  private final ImmutableList<QuestionRow> tableCells =
+  private final ImmutableList<QuestionTableCell> tableCells =
       ImmutableList.of(
-          QuestionRow.ID,
-          QuestionRow.VERSION,
-          QuestionRow.PATH,
-          QuestionRow.NAME,
-          QuestionRow.DESCRIPTION,
-          QuestionRow.QUESTION_TEXT,
-          QuestionRow.QUESTION_HELP_TEXT,
-          QuestionRow.QUESTION_TYPE,
-          QuestionRow.ACTIONS);
+          QuestionTableCell.ID,
+          QuestionTableCell.VERSION,
+          QuestionTableCell.PATH,
+          QuestionTableCell.NAME,
+          QuestionTableCell.DESCRIPTION,
+          QuestionTableCell.QUESTION_TEXT,
+          QuestionTableCell.QUESTION_HELP_TEXT,
+          QuestionTableCell.QUESTION_TYPE,
+          QuestionTableCell.ACTIONS);
 
   @Inject
   public QuestionsListView(BaseHtmlLayout layout) {

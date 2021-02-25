@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
@@ -33,10 +34,10 @@ public final class QuestionEditView extends BaseHtmlView {
     return layout.htmlContent(
         body(
             renderHeader(headerText),
-            buildQuestionForm(question.orElse(null)).with(makeCsrfTokenInputTag(request))));
+            buildQuestionForm(question).with(makeCsrfTokenInputTag(request))));
   }
 
-  private ContainerTag buildQuestionForm(QuestionDefinition definition) {
+  private ContainerTag buildQuestionForm(Optional<QuestionDefinition> optionalDefinition) {
     String buttonText = "";
 
     ContainerTag formTag = form().withMethod("POST");
@@ -44,9 +45,11 @@ public final class QuestionEditView extends BaseHtmlView {
     Optional<String> questionText = Optional.empty();
     Optional<String> questionHelpText = Optional.empty();
 
-    if (definition != null) { // Editing a question.
+    if (optionalDefinition.isPresent()) { // Editing a question.
+      QuestionDefinition definition = optionalDefinition.get();
       buttonText = "Update";
-      formTag.withAction("/admin/questions/" + definition.getId());
+      formTag.withAction(
+          controllers.admin.routes.QuestionController.edit(definition.getPath()).toString());
       formTag.with(
           label("id: " + definition.getId()),
           br(),
@@ -65,39 +68,50 @@ public final class QuestionEditView extends BaseHtmlView {
       }
     } else {
       buttonText = "Create";
-      formTag.withAction("/admin/questions");
+      formTag.withAction(controllers.admin.routes.QuestionController.newOne().toString());
     }
 
     formTag
         .with(
-            inputWithLabel(
+            textInputWithLabel(
                 "Name: ",
                 "questionName",
-                Optional.ofNullable(definition == null ? null : definition.getName())))
+                optionalDefinition.isPresent()
+                    ? Optional.of(optionalDefinition.get().getName())
+                    : Optional.empty()))
         .with(
-            inputWithLabel(
+            textInputWithLabel(
                 "Description: ",
                 "questionDescription",
-                Optional.ofNullable(definition == null ? null : definition.getDescription())))
+                optionalDefinition.isPresent()
+                    ? Optional.of(optionalDefinition.get().getDescription())
+                    : Optional.empty()))
         .with(
-            inputWithLabel(
+            textInputWithLabel(
                 "Path: ",
                 "questionPath",
-                Optional.ofNullable(definition == null ? null : definition.getPath())))
+                optionalDefinition.isPresent()
+                    ? Optional.of(optionalDefinition.get().getPath())
+                    : Optional.empty()))
         .with(textAreaWithLabel("Question Text: ", "questionText", questionText))
         .with(textAreaWithLabel("Question Help Text: ", "questionHelpText", questionHelpText))
         .with(
             formQuestionTypeSelect(
-                definition == null ? QuestionType.TEXT : definition.getQuestionType()))
+                optionalDefinition.isPresent()
+                    ? optionalDefinition.get().getQuestionType()
+                    : QuestionType.TEXT))
         .with(submitButton(buttonText));
+
     return formTag;
   }
 
   private ImmutableList<DomContent> formQuestionTypeSelect(QuestionType selectedType) {
     QuestionType[] questionTypes = QuestionType.values();
-    String[] labels =
-        Arrays.stream(questionTypes).map(item -> item.toString()).toArray(String[]::new);
-    String[] values = Arrays.stream(questionTypes).map(item -> item.name()).toArray(String[]::new);
-    return this.formSelect("Question type: ", "questionType", labels, values, selectedType.name());
+    ImmutableList<SimpleEntry<String, String>> options =
+        Arrays.stream(questionTypes)
+            .map(item -> new SimpleEntry<String, String>(item.toString(), item.name()))
+            .collect(ImmutableList.toImmutableList());
+
+    return formSelect("Question type: ", "questionType", options, selectedType.name());
   }
 }

@@ -14,6 +14,7 @@ import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.Tag;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Optional;
 import play.mvc.Http;
 import views.html.helper.CSRF;
@@ -30,13 +31,14 @@ public abstract class BaseHtmlView {
     return h1(headerText);
   }
 
-  protected ImmutableList<DomContent> inputWithLabel(
+  protected ImmutableList<DomContent> textInputWithLabel(
       String labelValue, String inputId, Optional<String> value) {
     Tag labelTag = label(labelValue).attr("for", inputId);
     Tag inputTag = input().withType("text").withId(inputId).withName(inputId);
     if (value.isPresent()) {
       inputTag.withValue(value.get());
     }
+
     return ImmutableList.of(labelTag, br(), inputTag, br(), br());
   }
 
@@ -44,24 +46,26 @@ public abstract class BaseHtmlView {
       String labelValue, String inputId, Optional<String> value) {
     Tag labelTag = label(labelValue).attr("for", inputId);
     Tag textAreaTag = textarea(value.orElse("")).withType("text").withId(inputId).withName(inputId);
+
     return ImmutableList.of(labelTag, br(), textAreaTag, br(), br());
   }
 
   public ImmutableList<DomContent> formSelect(
       String labelValue,
       String selectId,
-      String[] optionLabels,
-      String[] optionValues,
+      ImmutableList<SimpleEntry<String, String>> options,
       String selectedValue) {
     Tag labelTag = label(labelValue).attr("for", selectId);
     ContainerTag selectTag = select().withId(selectId).withName(selectId);
-    for (int i = 0; i < optionLabels.length && i < optionValues.length; i++) {
-      Tag optionTag = option(optionLabels[i]).withValue(optionValues[i]);
-      if (optionValues[i].equals(selectedValue)) {
+
+    for (SimpleEntry<String, String> option : options) {
+      Tag optionTag = option(option.getKey()).withValue(option.getValue());
+      if (option.getValue().equals(selectedValue)) {
         optionTag.attr("selected");
       }
       selectTag.with(optionTag);
     }
+
     return ImmutableList.of(labelTag, br(), selectTag, br(), br());
   }
 

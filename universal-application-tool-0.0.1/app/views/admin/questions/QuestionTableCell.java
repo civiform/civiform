@@ -9,7 +9,7 @@ import java.util.Locale;
 import services.question.QuestionDefinition;
 import services.question.TranslationNotFoundException;
 
-enum QuestionRow {
+enum QuestionTableCell {
   ACTIONS("Actions"),
   DESCRIPTION("Description"),
   ID("Id"),
@@ -22,7 +22,7 @@ enum QuestionRow {
 
   private final String headerText;
 
-  QuestionRow(String headerText) {
+  QuestionTableCell(String headerText) {
     this.headerText = headerText;
   }
 
@@ -59,7 +59,11 @@ enum QuestionRow {
       case ACTIONS:
         return td().with(span("view"))
             .with(span(" | "))
-            .with(a("edit").withHref("/admin/questions/" + definition.getPath() + "/edit"));
+            .with(
+                a("edit")
+                    .withHref(
+                        controllers.admin.routes.QuestionController.edit(definition.getPath())
+                            .toString()));
       default:
         return td("");
     }
