@@ -28,8 +28,8 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void listQuestions() {
-    Question one = resourceFabricator().insertQuestion("one");
-    Question two = resourceFabricator().insertQuestion("two");
+    Question one = resourceFabricator().insertQuestion("path.one");
+    Question two = resourceFabricator().insertQuestion("path.two");
 
     Set<Question> list = repo.listQuestions().toCompletableFuture().join();
 
@@ -45,8 +45,8 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void lookupQuestion_findsCorrectQuestion() {
-    resourceFabricator().insertQuestion("one");
-    Question existing = resourceFabricator().insertQuestion("a.b");
+    resourceFabricator().insertQuestion("path.one");
+    Question existing = resourceFabricator().insertQuestion("path.existing");
 
     Optional<Question> found = repo.lookupQuestion(existing.id).toCompletableFuture().join();
 
@@ -57,7 +57,6 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   public void insertQuestion() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            165L,
             2L,
             "question",
             "applicant.name",
@@ -77,7 +76,6 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   public void insertQuestionSync() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            1L,
             2L,
             "question",
             "applicant.name",

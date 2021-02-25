@@ -7,12 +7,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import org.junit.Test;
 
 public class ReadOnlyQuestionServiceImplTest {
+  // The tests mimic that the persisted questions are read into ReadOnlyQuestionService.
+  // Therefore, question ids cannot be empty.
   NameQuestionDefinition nameQuestion =
       new NameQuestionDefinition(
-          1L,
+          OptionalLong.of(123L),
           1L,
           "applicant name",
           "applicant.name",
@@ -21,7 +24,7 @@ public class ReadOnlyQuestionServiceImplTest {
           Optional.empty());
   AddressQuestionDefinition addressQuestion =
       new AddressQuestionDefinition(
-          2L,
+          OptionalLong.of(456L),
           1L,
           "applicant addresss",
           "applicant.address",
@@ -30,7 +33,7 @@ public class ReadOnlyQuestionServiceImplTest {
           Optional.empty());
   QuestionDefinition basicQuestion =
       new TextQuestionDefinition(
-          3L,
+          OptionalLong.of(789L),
           1L,
           "applicant's favorite color",
           "applicant.favoriteColor",
@@ -125,7 +128,7 @@ public class ReadOnlyQuestionServiceImplTest {
 
   @Test
   public void getQuestionDefinition_byId() throws QuestionNotFoundException {
-    assertThat(service.getQuestionDefinition(1L)).isEqualTo(nameQuestion);
+    assertThat(service.getQuestionDefinition(123L)).isEqualTo(nameQuestion);
   }
 
   @Test

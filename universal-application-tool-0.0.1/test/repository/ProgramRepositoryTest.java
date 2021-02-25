@@ -26,8 +26,8 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void listPrograms() {
-    Program one = insertProgram("one");
-    Program two = insertProgram("two");
+    Program one = resourceFabricator().insertProgram("one");
+    Program two = resourceFabricator().insertProgram("two");
 
     List<Program> allPrograms = repo.listPrograms().toCompletableFuture().join();
 
@@ -43,8 +43,8 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void lookupProgram_findsCorrectProgram() {
-    insertProgram("one");
-    Program two = insertProgram("two");
+    resourceFabricator().insertProgram("one");
+    Program two = resourceFabricator().insertProgram("two");
 
     Optional<Program> found = repo.lookupProgram(two.id).toCompletableFuture().join();
 
@@ -63,7 +63,7 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void updateProgramSync() {
-    Program existing = insertProgram("old name");
+    Program existing = resourceFabricator().insertProgram("old name");
     Program updates =
         new Program(existing.getProgramDefinition().toBuilder().setName("new name").build());
 

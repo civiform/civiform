@@ -38,7 +38,7 @@ public class ResourceFabricator {
 
   public Question insertQuestion(String path) {
     QuestionDefinition definition =
-        new TextQuestionDefinition(1L, 1L, "", path, "", ImmutableMap.of(), Optional.empty());
+        new TextQuestionDefinition(1L, "", path, "", ImmutableMap.of(), Optional.empty());
     Question question = new Question(definition);
     question.save();
     return question;
@@ -48,7 +48,6 @@ public class ResourceFabricator {
     return questionService
         .create(
             new NameQuestionDefinition(
-                123L,
                 1L,
                 "my name",
                 "my.path.name",

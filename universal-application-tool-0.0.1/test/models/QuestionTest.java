@@ -25,15 +25,14 @@ public class QuestionTest extends WithPostgresContainer {
   @Test
   public void canSaveQuestion() {
     QuestionDefinition definition =
-        new TextQuestionDefinition(
-            1L, 1L, "test", "my.path", "", ImmutableMap.of(), Optional.empty());
+        new TextQuestionDefinition(1L, "test", "my.path", "", ImmutableMap.of(), Optional.empty());
     Question question = new Question(definition);
 
     question.save();
 
-    Question found = repo.lookupQuestion(definition.getId()).toCompletableFuture().join().get();
+    Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
-    assertThat(found.getQuestionDefinition().getId()).isEqualTo(1L);
+    assertThat(found.getQuestionDefinition().getId()).isEqualTo(question.id);
     assertThat(found.getQuestionDefinition().getVersion()).isEqualTo(1L);
     assertThat(found.getQuestionDefinition().getName()).isEqualTo("test");
     assertThat(found.getQuestionDefinition().getPath()).isEqualTo("my.path");
@@ -47,7 +46,6 @@ public class QuestionTest extends WithPostgresContainer {
     QuestionDefinition definition =
         new TextQuestionDefinition(
             1L,
-            1L,
             "",
             "",
             "",
@@ -57,7 +55,7 @@ public class QuestionTest extends WithPostgresContainer {
 
     question.save();
 
-    Question found = repo.lookupQuestion(definition.getId()).toCompletableFuture().join().get();
+    Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
     assertThat(found.getQuestionDefinition().getQuestionText())
         .isEqualTo(ImmutableMap.of(Locale.ENGLISH, "hello"));
@@ -68,13 +66,12 @@ public class QuestionTest extends WithPostgresContainer {
   @Test
   public void canSerializeDifferentQuestionTypes() {
     AddressQuestionDefinition address =
-        new AddressQuestionDefinition(
-            1L, 1L, "address", "", "", ImmutableMap.of(), Optional.empty());
+        new AddressQuestionDefinition(1L, "address", "", "", ImmutableMap.of(), Optional.empty());
     Question question = new Question(address);
 
     question.save();
 
-    Question found = repo.lookupQuestion(address.getId()).toCompletableFuture().join().get();
+    Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
     assertThat(found.getQuestionDefinition()).isInstanceOf(AddressQuestionDefinition.class);
   }

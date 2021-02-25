@@ -11,7 +11,7 @@ public class SecurityBrowserTest extends WithBrowserBase {
 
   @Test
   public void homePage() {
-    browser.goTo(baseUrl());
+    browser.goTo(BASE_URL);
     assertThat(browser.pageSource()).contains("Your new application is ready.");
   }
 

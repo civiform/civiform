@@ -15,7 +15,8 @@ import support.ResourceFabricator;
 public class WithBrowserBase extends WithBrowser {
 
   private static final String LOCALHOST = "http://localhost:";
-  private static final String BASE_URL = LOCALHOST + play.api.test.Helpers.testServerPort();
+
+  protected static final String BASE_URL = LOCALHOST + play.api.test.Helpers.testServerPort();
 
   private ResourceFabricator resourceFabricator;
 
@@ -44,10 +45,6 @@ public class WithBrowserBase extends WithBrowser {
 
   protected ResourceFabricator resourceFabricator() {
     return resourceFabricator;
-  }
-
-  protected String baseUrl() {
-    return BASE_URL;
   }
 
   /**

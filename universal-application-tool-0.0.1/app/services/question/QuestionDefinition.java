@@ -5,10 +5,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 
 /** Defines a single question. */
 public abstract class QuestionDefinition {
-  private final long id;
+  private final OptionalLong id;
   private final long version;
   private final String name;
   private final String path;
@@ -17,7 +18,7 @@ public abstract class QuestionDefinition {
   private final Optional<ImmutableMap<Locale, String>> questionHelpText;
 
   public QuestionDefinition(
-      long id,
+      OptionalLong id,
       long version,
       String name,
       String path,
@@ -33,9 +34,24 @@ public abstract class QuestionDefinition {
     this.questionHelpText = checkNotNull(questionHelpText);
   }
 
+  public QuestionDefinition(
+      long version,
+      String name,
+      String path,
+      String description,
+      ImmutableMap<Locale, String> questionText,
+      Optional<ImmutableMap<Locale, String>> questionHelpText) {
+    this(OptionalLong.empty(), version, name, path, description, questionText, questionHelpText);
+  }
+
+  /** Return true if the question is persisted and has an unique identifier. */
+  public boolean isPersisted() {
+    return this.id.isPresent();
+  }
+
   /** Get the unique identifier for this question. */
   public long getId() {
-    return this.id;
+    return this.id.getAsLong();
   }
 
   /** Get the system version this question is pinned to. */
