@@ -13,7 +13,7 @@ jobs:
       - name: Build test container
         run: docker build -t uat ./
       - name: Run tests
-        run: docker run -v /var/run/docker.sock:/var/run/docker.sock uat sbt clean test
+        run: docker run -v /var/run/docker.sock:/var/run/docker.sock uat test
   test_prod:
     runs-on: ubuntu-latest
     steps:
