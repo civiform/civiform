@@ -34,21 +34,21 @@ public class QuestionRepository {
   }
 
   static class PathConflictDetector {
-    Boolean conflict = Boolean.FALSE;
-    String newPath;
+    private boolean conflict = false;
+    private final String newPath;
 
-    public PathConflictDetector(String newPath) {
+    PathConflictDetector(String newPath) {
       this.newPath = checkNotNull(newPath);
     }
 
     public Boolean hasConflict() {
-      return conflict;
+      return Boolean.valueOf(conflict);
     }
 
     public boolean checkConflict(Question question) {
       boolean proceed = true;
       if (pathConflicts(question.getPath(), newPath)) {
-        conflict = Boolean.TRUE;
+        conflict = true;
         proceed = false;
       }
       return proceed;
