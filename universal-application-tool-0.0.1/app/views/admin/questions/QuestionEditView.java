@@ -2,8 +2,8 @@ package views.admin.questions;
 
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.br;
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.label;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -12,7 +12,6 @@ import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
-import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.question.QuestionDefinition;
@@ -28,61 +27,62 @@ public final class QuestionEditView extends BaseHtmlView {
     this.layout = layout;
   }
 
-  public Content render(Request request, Optional<QuestionDefinition> question) {
-    String headerText = question.isPresent() ? "Edit Question" : "New Question";
+  public Content renderNewQuestionForm(Request request) {
     return layout.htmlContent(
         body(
-            renderHeader(headerText),
-            buildQuestionForm(question).with(makeCsrfTokenInputTag(request))));
+            renderHeader("New Question"),
+            buildNewQuestionForm().with(makeCsrfTokenInputTag(request))));
   }
 
-  private ContainerTag buildQuestionForm(Optional<QuestionDefinition> optionalDefinition) {
-    String buttonText = "";
+  public Content renderEditQuestionForm(Request request, QuestionDefinition question) {
+    return layout.htmlContent(
+        body(
+            renderHeader("Edit Question"),
+            buildEditQuestionForm(question).with(makeCsrfTokenInputTag(request))));
+  }
 
-    ContainerTag formTag = form().withMethod("POST");
-
-    QuestionForm form = new QuestionForm(optionalDefinition);
-
-    if (optionalDefinition.isPresent()) { // Editing a question.
-      QuestionDefinition definition = optionalDefinition.get();
-      buttonText = "Update";
-      formTag.withAction(
-          controllers.admin.routes.QuestionController.update(definition.getId()).url());
-      formTag.with(
-          label("id: " + definition.getId()),
-          br(),
-          label("version: " + definition.getVersion()),
-          br(),
-          br());
-    } else {
-      buttonText = "Create";
-      formTag.withAction(controllers.admin.routes.QuestionController.create().url());
-    }
-
+  private ContainerTag buildNewQuestionForm() {
+    QuestionForm questionForm = new QuestionForm();
+    ContainerTag formTag = buildQuestionForm(questionForm);
     formTag
-        .with(textInputWithLabel("Name: ", "questionName", form.getQuestionName()))
+        .withAction(controllers.admin.routes.QuestionController.create().url())
+        .with(submitButton("Create"));
+
+    return formTag;
+  }
+
+  private ContainerTag buildEditQuestionForm(QuestionDefinition definition) {
+    QuestionForm questionForm = new QuestionForm(definition);
+    ContainerTag formTag = buildQuestionForm(questionForm);
+    formTag.with(
+        div("id: " + definition.getId()), div("version: " + definition.getVersion()), br());
+    formTag
+        .withAction(controllers.admin.routes.QuestionController.update(definition.getId()).url())
+        .with(submitButton("Update"));
+
+    return formTag;
+  }
+
+  private ContainerTag buildQuestionForm(QuestionForm questionForm) {
+    ContainerTag formTag = form().withMethod("POST");
+    formTag
+        .with(textInputWithLabel("Name: ", "questionName", questionForm.getQuestionName()))
         .with(
             textInputWithLabel(
-                "Description: ", "questionDescription", form.getQuestionDescription()))
-        .with(textInputWithLabel("Path: ", "questionPath", form.getQuestionPath()))
-        .with(textAreaWithLabel("Question Text: ", "questionText", form.getQuestionText()))
+                "Description: ", "questionDescription", questionForm.getQuestionDescription()))
+        .with(textInputWithLabel("Path: ", "questionPath", questionForm.getQuestionPath()))
+        .with(textAreaWithLabel("Question Text: ", "questionText", questionForm.getQuestionText()))
         .with(
             textAreaWithLabel(
-                "Question Help Text: ", "questionHelpText", form.getQuestionHelpText()))
-        .with(
-            formQuestionTypeSelect(
-                optionalDefinition.isPresent()
-                    ? optionalDefinition.get().getQuestionType()
-                    : QuestionType.TEXT))
-        .with(submitButton(buttonText));
+                "Question Help Text: ", "questionHelpText", questionForm.getQuestionHelpText()))
+        .with(formQuestionTypeSelect(QuestionType.valueOf(questionForm.getQuestionType())));
 
     return formTag;
   }
 
   private ImmutableList<DomContent> formQuestionTypeSelect(QuestionType selectedType) {
-    QuestionType[] questionTypes = QuestionType.values();
     ImmutableList<SimpleEntry<String, String>> options =
-        Arrays.stream(questionTypes)
+        Arrays.stream(QuestionType.values())
             .map(item -> new SimpleEntry<String, String>(item.toString(), item.name()))
             .collect(ImmutableList.toImmutableList());
 

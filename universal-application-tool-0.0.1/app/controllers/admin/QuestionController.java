@@ -3,7 +3,6 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import forms.QuestionForm;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -69,20 +68,19 @@ public class QuestionController extends Controller {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
-              Optional<QuestionDefinition> definition = Optional.empty();
               try {
-                definition = Optional.of(readOnlyService.getQuestionDefinition(path));
+                QuestionDefinition definition = readOnlyService.getQuestionDefinition(path);
+                return ok(editView.renderEditQuestionForm(request, definition));
               } catch (InvalidPathException e) { // If the path doesn't exist, redirect to newOne.
                 LOG.info(e.toString());
                 return redirect(routes.QuestionController.newOne());
               }
-              return ok(editView.render(request, definition));
             },
             httpExecutionContext.current());
   }
 
   public Result newOne(Request request) {
-    return ok(editView.render(request, Optional.empty()));
+    return ok(editView.renderNewQuestionForm(request));
   }
 
   public CompletionStage<Result> index(String renderAs) {

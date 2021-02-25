@@ -9,34 +9,38 @@ import services.question.QuestionType;
 import services.question.TranslationNotFoundException;
 
 public class QuestionForm {
-  private String questionName = "";
-  private String questionDescription = "";
-  private String questionPath = "";
-  private String questionType = "";
-  private String questionText = "";
-  private String questionHelpText = "";
+  private String questionName;
+  private String questionDescription;
+  private String questionPath;
+  private String questionType;
+  private String questionText;
+  private String questionHelpText;
 
-  public QuestionForm() {}
+  public QuestionForm() {
+    questionName = "";
+    questionDescription = "";
+    questionPath = "";
+    questionType = "TEXT";
+    questionText = "";
+    questionHelpText = "";
+  }
 
-  public QuestionForm(Optional<QuestionDefinition> definition) {
-    if (definition.isPresent()) {
-      QuestionDefinition qd = definition.get();
-      questionName = qd.getName();
-      questionDescription = qd.getDescription();
-      questionPath = qd.getPath();
-      questionType = qd.getQuestionType().name();
+  public QuestionForm(QuestionDefinition qd) {
+    questionName = qd.getName();
+    questionDescription = qd.getDescription();
+    questionPath = qd.getPath();
+    questionType = qd.getQuestionType().name();
 
-      try {
-        questionText = qd.getQuestionText(Locale.ENGLISH);
-      } catch (TranslationNotFoundException e) {
-        questionText = "Missing Text";
-      }
+    try {
+      questionText = qd.getQuestionText(Locale.ENGLISH);
+    } catch (TranslationNotFoundException e) {
+      questionText = "Missing Text";
+    }
 
-      try {
-        questionHelpText = qd.getQuestionHelpText(Locale.ENGLISH);
-      } catch (TranslationNotFoundException e) {
-        questionHelpText = "Missing Text";
-      }
+    try {
+      questionHelpText = qd.getQuestionHelpText(Locale.ENGLISH);
+    } catch (TranslationNotFoundException e) {
+      questionHelpText = "Missing Text";
     }
   }
 

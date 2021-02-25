@@ -66,25 +66,6 @@ public abstract class BaseHtmlView {
     return textAreaWithLabel(labelValue, inputId, optionalValue);
   }
 
-  public ImmutableList<DomContent> formSelect(
-      String labelValue,
-      String selectId,
-      ImmutableList<SimpleEntry<String, String>> options,
-      String selectedValue) {
-    Tag labelTag = label(labelValue).attr("for", selectId);
-    ContainerTag selectTag = select().withId(selectId).withName(selectId);
-
-    for (SimpleEntry<String, String> option : options) {
-      Tag optionTag = option(option.getKey()).withValue(option.getValue());
-      if (option.getValue().equals(selectedValue)) {
-        optionTag.attr("selected");
-      }
-      selectTag.with(optionTag);
-    }
-
-    return ImmutableList.of(labelTag, br(), selectTag, br(), br());
-  }
-
   protected Tag textField(String fieldName, String labelText) {
     return label(text(labelText), input().withType("text").withName(fieldName))
         .attr("for", fieldName);
@@ -121,6 +102,25 @@ public abstract class BaseHtmlView {
 
   protected Tag redirectButton(String id, String text, String redirectUrl) {
     return button(id, text).attr("onclick", String.format("window.location = '%s';", redirectUrl));
+  }
+
+  public ImmutableList<DomContent> formSelect(
+      String labelValue,
+      String selectId,
+      ImmutableList<SimpleEntry<String, String>> options,
+      String selectedValue) {
+    Tag labelTag = label(labelValue).attr("for", selectId);
+    ContainerTag selectTag = select().withId(selectId).withName(selectId);
+
+    for (SimpleEntry<String, String> option : options) {
+      Tag optionTag = option(option.getKey()).withValue(option.getValue());
+      if (option.getValue().equals(selectedValue)) {
+        optionTag.attr("selected");
+      }
+      selectTag.with(optionTag);
+    }
+
+    return ImmutableList.of(labelTag, br(), selectTag, br(), br());
   }
 
   protected Tag submitButton(String textContents) {
