@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.OptionalLong;
 import org.junit.Test;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
