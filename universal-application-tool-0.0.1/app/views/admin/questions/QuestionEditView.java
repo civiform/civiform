@@ -49,7 +49,7 @@ public final class QuestionEditView extends BaseHtmlView {
       QuestionDefinition definition = optionalDefinition.get();
       buttonText = "Update";
       formTag.withAction(
-          controllers.admin.routes.QuestionController.edit(definition.getPath()).toString());
+          controllers.admin.routes.QuestionController.update(definition.getId()).toString());
       formTag.with(
           label("id: " + definition.getId()),
           br(),
@@ -68,7 +68,7 @@ public final class QuestionEditView extends BaseHtmlView {
       }
     } else {
       buttonText = "Create";
-      formTag.withAction(controllers.admin.routes.QuestionController.newOne().toString());
+      formTag.withAction(controllers.admin.routes.QuestionController.create().toString());
     }
 
     formTag

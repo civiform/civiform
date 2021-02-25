@@ -72,9 +72,9 @@ public class QuestionController extends Controller {
               Optional<QuestionDefinition> definition = Optional.empty();
               try {
                 definition = Optional.of(readOnlyService.getQuestionDefinition(path));
-              } catch (InvalidPathException e) { // If the path doesn't exist, redirect to create.
+              } catch (InvalidPathException e) { // If the path doesn't exist, redirect to newOne.
                 LOG.info(e.toString());
-                return redirect(routes.QuestionController.create());
+                return redirect(routes.QuestionController.newOne());
               }
               return ok(editView.render(request, definition));
             },
