@@ -45,7 +45,6 @@ public abstract class QuestionDefinition {
   }
 
   /** Return true if the question is persisted and has an unique identifier. */
-  @JsonIgnore
   public boolean isPersisted() {
     return this.id.isPresent();
   }
