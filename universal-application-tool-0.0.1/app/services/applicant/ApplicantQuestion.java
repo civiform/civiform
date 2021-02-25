@@ -7,6 +7,12 @@ import services.question.QuestionDefinition;
 import services.question.QuestionType;
 import services.question.TranslationNotFoundException;
 
+/**
+ * Represents a question in the context of a specific applicant. Contains non-static inner classes
+ * that represent the question as a specific question type (e.g. {@link NameQuestion}). These inner
+ * classes provide access to the applicant's answer for the question. They can also implement
+ * server-side validation logic.
+ */
 public class ApplicantQuestion {
 
   private final QuestionDefinition questionDefinition;
@@ -59,7 +65,7 @@ public class ApplicantQuestion {
         return textValue;
       }
 
-      textValue = applicantData.readText(questionDefinition.getPath());
+      textValue = applicantData.readString(questionDefinition.getPath());
 
       return textValue;
     }
@@ -91,7 +97,7 @@ public class ApplicantQuestion {
         return firstNameValue;
       }
 
-      firstNameValue = applicantData.readText(getFirstNamePath());
+      firstNameValue = applicantData.readString(getFirstNamePath());
 
       return firstNameValue;
     }
@@ -101,7 +107,7 @@ public class ApplicantQuestion {
         return middleNameValue;
       }
 
-      middleNameValue = applicantData.readText(getMiddleNamePath());
+      middleNameValue = applicantData.readString(getMiddleNamePath());
 
       return middleNameValue;
     }
@@ -111,19 +117,22 @@ public class ApplicantQuestion {
         return lastNameValue;
       }
 
-      lastNameValue = applicantData.readText(getLastNamePath());
+      lastNameValue = applicantData.readString(getLastNamePath());
 
       return lastNameValue;
     }
 
+    // TODO: implement named methods for retrieving scalar paths instead of concatenating strings.
     public String getMiddleNamePath() {
       return questionDefinition.getPath() + ".middle";
     }
 
+    // TODO: implement named methods for retrieving scalar paths instead of concatenating strings.
     public String getFirstNamePath() {
       return questionDefinition.getPath() + ".first";
     }
 
+    // TODO: implement named methods for retrieving scalar paths instead of concatenating strings.
     public String getLastNamePath() {
       return questionDefinition.getPath() + ".last";
     }

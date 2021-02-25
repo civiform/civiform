@@ -26,7 +26,13 @@ public class ApplicantData {
     return Locale.ENGLISH;
   }
 
-  public Optional<String> readText(String path) {
+  /**
+   * Attempts to read a string at the given path in the applicant's answer data.
+   * Returns an {@code Optional.empty()} if the path does not exist.
+   *
+   * The design suggestion for these methods is to have one per {@link services.question.ScalarType}
+   * */
+  public Optional<String> readString(String path) {
     try {
       return Optional.of(jsonData.read(path, String.class));
     } catch (PathNotFoundException e) {
