@@ -47,24 +47,24 @@ public abstract class BaseHtmlView {
   }
 
   protected Tag button(String id, String text) {
-    return this.button(text).withId(id);
+    return button(text).withId(id);
   }
 
   protected Tag button(String text) {
     return TagCreator.button().with(text(text)).withType("button");
   }
 
+  protected Tag submitButton(String text) {
+    return button(text).withType("submit");
+  }
+
+  protected Tag submitButton(String id, String text) {
+    return button(id, text).withType("submit");
+  }
+
   protected Tag redirectButton(String id, String text, String redirectUrl) {
-    return this.button(id, text)
-        .attr("onclick", String.format("window.location = '%s';", redirectUrl));
-  }
-
-  protected Tag submitButton(String textContents) {
-    return TagCreator.button().with(text(textContents)).withType("submit");
-  }
-
-  protected Tag submitButton(String id, String textContents) {
-    return TagCreator.button().with(text(textContents)).withType("submit").withId(id);
+    return button(id, text)
+            .attr("onclick", String.format("window.location = '%s';", redirectUrl));
   }
 
   /**
