@@ -6,7 +6,6 @@ import akka.stream.Materializer;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
-import java.util.Optional;
 import models.Applicant;
 import models.Person;
 import models.Program;

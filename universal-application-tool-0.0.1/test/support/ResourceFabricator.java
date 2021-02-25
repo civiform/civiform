@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.Optional;
 import models.Applicant;
 import models.Program;
+import models.Question;
 import play.inject.Injector;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
@@ -15,6 +16,7 @@ import services.program.ProgramService;
 import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionService;
+import services.question.TextQuestionDefinition;
 
 public class ResourceFabricator {
 
@@ -32,6 +34,14 @@ public class ResourceFabricator {
     Program program = new Program(name, "description");
     program.save();
     return program;
+  }
+
+  public Question insertQuestion(String path) {
+    QuestionDefinition definition =
+        new TextQuestionDefinition(1L, 1L, "", path, "", ImmutableMap.of(), Optional.empty());
+    Question question = new Question(definition);
+    question.save();
+    return question;
   }
 
   public QuestionDefinition insertQuestionDefinition() {

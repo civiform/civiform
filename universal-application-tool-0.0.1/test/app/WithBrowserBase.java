@@ -4,20 +4,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.fakeApplication;
 
 import com.google.common.collect.ImmutableMap;
-import models.Program;
+import org.junit.BeforeClass;
 import play.Application;
 import play.api.mvc.Call;
 import play.test.Helpers;
 import play.test.TestBrowser;
 import play.test.WithBrowser;
-
-import javax.inject.Singleton;
+import support.ResourceFabricator;
 
 public class WithBrowserBase extends WithBrowser {
 
   private static final String LOCALHOST = "http://localhost:";
+  private static final String BASE_URL = LOCALHOST + play.api.test.Helpers.testServerPort();
 
-  protected static final String BASE_URL = LOCALHOST + play.api.test.Helpers.testServerPort();
+  private ResourceFabricator resourceFabricator;
+
+  @BeforeClass
+  public void setupResources() {
+    resourceFabricator = app.injector().instanceOf(ResourceFabricator.class);
+  }
 
   @Override
   protected Application provideApplication() {
@@ -35,6 +40,14 @@ public class WithBrowserBase extends WithBrowser {
   @Override
   protected TestBrowser provideBrowser(int port) {
     return Helpers.testBrowser(port);
+  }
+
+  protected ResourceFabricator resourceFabricator() {
+    return resourceFabricator;
+  }
+
+  protected String baseUrl() {
+    return BASE_URL;
   }
 
   /**
@@ -55,17 +68,5 @@ public class WithBrowserBase extends WithBrowser {
    */
   protected void assertUrlEquals(Call method) {
     assertThat("/" + browser.url()).isEqualTo(method.url());
-  }
-
-  /**
-   * Convenience method for saving a program to the database.
-   *
-   * @param name the name of the program to store
-   * @return the {@link Program} instance that was created
-   */
-  protected static Program insertProgram(String name) {
-    Program program = new Program(name, "description");
-    program.save();
-    return program;
   }
 }

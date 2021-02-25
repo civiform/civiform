@@ -28,8 +28,8 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void listQuestions() {
-    Question one = insertQuestion(1L);
-    Question two = insertQuestion(2L);
+    Question one = resourceFabricator().insertQuestion("one");
+    Question two = resourceFabricator().insertQuestion("two");
 
     Set<Question> list = repo.listQuestions().toCompletableFuture().join();
 
@@ -45,8 +45,8 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void lookupQuestion_findsCorrectQuestion() {
-    insertQuestion(1L);
-    Question existing = insertQuestion(20L);
+    resourceFabricator().insertQuestion("one");
+    Question existing = resourceFabricator().insertQuestion("a.b");
 
     Optional<Question> found = repo.lookupQuestion(existing.id).toCompletableFuture().join();
 

@@ -9,7 +9,7 @@ public class ApplicantBrowserTest extends WithBrowserBase {
 
   @Test
   public void applicantProgramList_selectApply_redirectsToEdit() {
-    Program program = insertProgram("My Program");
+    Program program = resourceFabricator().insertProgram("My Program");
     goTo(controllers.applicant.routes.ApplicantProgramsController.index(1L));
     assertThat(browser.pageSource()).contains("My Program");
 
