@@ -64,9 +64,7 @@ public class QuestionForm {
 
   public QuestionDefinitionBuilder getBuilder() {
     ImmutableMap<Locale, String> questionTextMap =
-        questionText.isEmpty()
-            ? ImmutableMap.of()
-            : ImmutableMap.of(Locale.ENGLISH, questionText);
+        questionText.isEmpty() ? ImmutableMap.of() : ImmutableMap.of(Locale.ENGLISH, questionText);
     Optional<ImmutableMap<Locale, String>> questionHelpTextMap =
         questionHelpText.isEmpty()
             ? Optional.empty()
