@@ -8,3 +8,4 @@ RUNNING_PID
 .bsp/
 .DS_Store
 node_modules
+bundle.js

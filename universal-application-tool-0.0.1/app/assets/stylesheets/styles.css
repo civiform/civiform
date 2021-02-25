@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Add global styles and classes here.
+ *
+ * TODO: Note that the following styles are meant as how-to illustrations and do not yet reflect official UAT styles.
+ */
+@layer base {
+  h1 {
+    @apply text-2xl;
+  }
+  h2 {
+    @apply text-xl;
+  }
+  button {
+    @apply bg-blue-500 text-white font-bold py-2 px-4 rounded;
+  }
+  button:hover {
+    @apply bg-blue-700;
+  }
+}
