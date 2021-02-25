@@ -74,4 +74,32 @@ public class QuestionTest extends WithPostgresContainer {
 
     assertThat(found.getQuestionDefinition()).isInstanceOf(AddressQuestionDefinition.class);
   }
+
+  @Test
+  public void pathConflictsWith_returnsTrueForBadPaths() {
+    AddressQuestionDefinition address =
+        new AddressQuestionDefinition(
+            1L, "name", "applicant.address", "", ImmutableMap.of(), Optional.empty());
+    Question question = new Question(address);
+
+    assertThat(question.pathConflictsWith("applicant")).isTrue();
+    assertThat(question.pathConflictsWith("applicant.address")).isTrue();
+    assertThat(question.pathConflictsWith("applicant.address.street")).isTrue();
+    assertThat(question.pathConflictsWith("applicant.address.some.other.field")).isTrue();
+  }
+
+  @Test
+  public void pathConflictsWith_returnsFalseForValidPaths() {
+    AddressQuestionDefinition address =
+        new AddressQuestionDefinition(
+            1L, "name", "applicant.address", "", ImmutableMap.of(), Optional.empty());
+    Question question = new Question(address);
+
+    assertThat(question.pathConflictsWith("applicant.employment")).isFalse();
+    assertThat(question.pathConflictsWith("other.path")).isFalse();
+    assertThat(question.pathConflictsWith("other.applicant")).isFalse();
+    assertThat(question.pathConflictsWith("other.applicant.address")).isFalse();
+    assertThat(question.pathConflictsWith("other.applicant.address.street")).isFalse();
+    assertThat(question.pathConflictsWith("other.applicant.address.some.other.field")).isFalse();
+  }
 }

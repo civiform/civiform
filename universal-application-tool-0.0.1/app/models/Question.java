@@ -89,4 +89,8 @@ public class Question extends BaseModel {
   public QuestionDefinition getQuestionDefinition() {
     return checkNotNull(questionDefinition);
   }
+
+  public boolean pathConflictsWith(String otherPath) {
+    return path.startsWith(otherPath) || otherPath.startsWith(path);
+  }
 }
