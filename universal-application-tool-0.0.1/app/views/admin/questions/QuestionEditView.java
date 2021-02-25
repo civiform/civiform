@@ -7,17 +7,16 @@ import static j2html.TagCreator.label;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import forms.QuestionForm;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.question.QuestionDefinition;
 import services.question.QuestionType;
-import services.question.TranslationNotFoundException;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 
@@ -42,59 +41,34 @@ public final class QuestionEditView extends BaseHtmlView {
 
     ContainerTag formTag = form().withMethod("POST");
 
-    Optional<String> questionText = Optional.empty();
-    Optional<String> questionHelpText = Optional.empty();
+    QuestionForm form = new QuestionForm(optionalDefinition);
 
     if (optionalDefinition.isPresent()) { // Editing a question.
       QuestionDefinition definition = optionalDefinition.get();
       buttonText = "Update";
       formTag.withAction(
-          controllers.admin.routes.QuestionController.update(definition.getId()).toString());
+          controllers.admin.routes.QuestionController.update(definition.getId()).url());
       formTag.with(
           label("id: " + definition.getId()),
           br(),
           label("version: " + definition.getVersion()),
           br(),
           br());
-      try {
-        questionText = Optional.of(definition.getQuestionText(Locale.ENGLISH));
-      } catch (TranslationNotFoundException e) {
-        questionText = Optional.of("Missing Text");
-      }
-      try {
-        questionHelpText = Optional.of(definition.getQuestionHelpText(Locale.ENGLISH));
-      } catch (TranslationNotFoundException e) {
-        questionHelpText = Optional.of("Missing Text");
-      }
     } else {
       buttonText = "Create";
-      formTag.withAction(controllers.admin.routes.QuestionController.create().toString());
+      formTag.withAction(controllers.admin.routes.QuestionController.create().url());
     }
 
     formTag
+        .with(textInputWithLabel("Name: ", "questionName", form.getQuestionName()))
         .with(
             textInputWithLabel(
-                "Name: ",
-                "questionName",
-                optionalDefinition.isPresent()
-                    ? Optional.of(optionalDefinition.get().getName())
-                    : Optional.empty()))
+                "Description: ", "questionDescription", form.getQuestionDescription()))
+        .with(textInputWithLabel("Path: ", "questionPath", form.getQuestionPath()))
+        .with(textAreaWithLabel("Question Text: ", "questionText", form.getQuestionText()))
         .with(
-            textInputWithLabel(
-                "Description: ",
-                "questionDescription",
-                optionalDefinition.isPresent()
-                    ? Optional.of(optionalDefinition.get().getDescription())
-                    : Optional.empty()))
-        .with(
-            textInputWithLabel(
-                "Path: ",
-                "questionPath",
-                optionalDefinition.isPresent()
-                    ? Optional.of(optionalDefinition.get().getPath())
-                    : Optional.empty()))
-        .with(textAreaWithLabel("Question Text: ", "questionText", questionText))
-        .with(textAreaWithLabel("Question Help Text: ", "questionHelpText", questionHelpText))
+            textAreaWithLabel(
+                "Question Help Text: ", "questionHelpText", form.getQuestionHelpText()))
         .with(
             formQuestionTypeSelect(
                 optionalDefinition.isPresent()

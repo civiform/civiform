@@ -3,16 +3,42 @@ package forms;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
+import services.question.TranslationNotFoundException;
 
 public class QuestionForm {
-  private String questionName;
-  private String questionDescription;
-  private String questionPath;
-  private String questionType;
-  private String questionText;
-  private String questionHelpText;
+  private String questionName = "";
+  private String questionDescription = "";
+  private String questionPath = "";
+  private String questionType = "";
+  private String questionText = "";
+  private String questionHelpText = "";
+
+  public QuestionForm() {}
+
+  public QuestionForm(Optional<QuestionDefinition> definition) {
+    if (definition.isPresent()) {
+      QuestionDefinition qd = definition.get();
+      questionName = qd.getName();
+      questionDescription = qd.getDescription();
+      questionPath = qd.getPath();
+      questionType = qd.getQuestionType().name();
+
+      try {
+        questionText = qd.getQuestionText(Locale.ENGLISH);
+      } catch (TranslationNotFoundException e) {
+        questionText = "Missing Text";
+      }
+
+      try {
+        questionHelpText = qd.getQuestionHelpText(Locale.ENGLISH);
+      } catch (TranslationNotFoundException e) {
+        questionHelpText = "Missing Text";
+      }
+    }
+  }
 
   public String getQuestionName() {
     return questionName;

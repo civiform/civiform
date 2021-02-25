@@ -42,12 +42,28 @@ public abstract class BaseHtmlView {
     return ImmutableList.of(labelTag, br(), inputTag, br(), br());
   }
 
+  public ImmutableList<DomContent> textInputWithLabel(
+      String labelValue, String inputId, String value) {
+    Optional<String> optionalValue =
+        (value == null || value.isEmpty()) ? Optional.empty() : Optional.of(value);
+
+    return textInputWithLabel(labelValue, inputId, optionalValue);
+  }
+
   public ImmutableList<DomContent> textAreaWithLabel(
       String labelValue, String inputId, Optional<String> value) {
     Tag labelTag = label(labelValue).attr("for", inputId);
     Tag textAreaTag = textarea(value.orElse("")).withType("text").withId(inputId).withName(inputId);
 
     return ImmutableList.of(labelTag, br(), textAreaTag, br(), br());
+  }
+
+  public ImmutableList<DomContent> textAreaWithLabel(
+      String labelValue, String inputId, String value) {
+    Optional<String> optionalValue =
+        (value == null || value.isEmpty()) ? Optional.empty() : Optional.of(value);
+
+    return textAreaWithLabel(labelValue, inputId, optionalValue);
   }
 
   public ImmutableList<DomContent> formSelect(
