@@ -49,8 +49,8 @@ public class ResourceFabricator {
 
   public ProgramDefinition insertProgramWithOneBlock(String name) {
     try {
-      ProgramDefinition programDefinition = programService
-          .createProgramDefinition("test program", "desc");
+      ProgramDefinition programDefinition =
+          programService.createProgramDefinition("test program", "desc");
       programDefinition =
           programService.addBlockToProgram(
               programDefinition.id(), "test block", "test block description");

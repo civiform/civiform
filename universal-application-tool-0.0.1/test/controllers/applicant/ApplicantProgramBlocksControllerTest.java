@@ -33,12 +33,12 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
   public void edit_toAnExistingBlock_rendersTheBlock() {
     Http.Request request =
         addCSRFToken(
-            fakeRequest(
-                routes.ApplicantProgramBlocksController.edit(applicant.id, program.id(), 1L)))
+                fakeRequest(
+                    routes.ApplicantProgramBlocksController.edit(applicant.id, program.id(), 1L)))
             .build();
 
-    Result result = subject.edit(request, applicant.id, program.id(), 1L).toCompletableFuture()
-        .join();
+    Result result =
+        subject.edit(request, applicant.id, program.id(), 1L).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
   }
@@ -49,8 +49,8 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
         fakeRequest(routes.ApplicantProgramBlocksController.edit(applicant.id, program.id(), 2L))
             .build();
 
-    Result result = subject.edit(request, applicant.id, program.id(), 2L).toCompletableFuture()
-        .join();
+    Result result =
+        subject.edit(request, applicant.id, program.id(), 2L).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
