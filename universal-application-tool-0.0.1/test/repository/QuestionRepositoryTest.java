@@ -1,6 +1,7 @@
 package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
@@ -124,13 +125,14 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
-  public void lookupQuestionByPath_findsLatestVersionedQuestion() {
+  public void lookupQuestionByPath_versioningNotSupportedYet() {
     saveQuestion("path.one");
-    Question v2 = saveQuestion("path.one", 2L);
+    saveQuestion("path.one", 2L);
 
-    Optional<Question> found = repo.lookupQuestionByPath("path.one").toCompletableFuture().join();
-
-    assertThat(found).hasValue(v2);
+    assertThatThrownBy(() -> repo.lookupQuestionByPath("path.one").toCompletableFuture().join())
+        .isInstanceOf(java.util.concurrent.CompletionException.class)
+        .hasMessageContaining("NonUniqueResultException")
+        .hasMessageContaining("expecting 0 or 1 results but got [2]");
   }
 
   @Test

@@ -73,14 +73,7 @@ public class QuestionRepository {
     return supplyAsync(
         () ->
             Optional.ofNullable(
-                ebeanServer
-                    .find(Question.class)
-                    .where()
-                    .eq("path", path)
-                    .orderBy()
-                    .desc("version")
-                    .setMaxRows(1)
-                    .findOne()),
+                ebeanServer.find(Question.class).where().eq("path", path).findOne()),
         executionContext);
   }
 
