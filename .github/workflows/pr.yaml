@@ -10,14 +10,30 @@ jobs:
     steps:
       - name: check out pr branch
         uses: actions/checkout@v2
-      - name: Run tests in tester
-        run: docker build -t uat ./; docker run -v /var/run/docker.sock:/var/run/docker.sock uat sbt clean test
+      - name: Build test container
+        run: docker build -t uat ./
+      - name: Run tests
+        run: docker run -v /var/run/docker.sock:/var/run/docker.sock uat sbt clean test
+  test_prod:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check out pr branch
+        uses: actions/checkout@v2
+      - name: Build prod container
+        run: docker build -f prod.Dockerfile -t uat:prod ./
       - name: Build the stack
-        run: docker-compose up -d
+        run: docker-compose -f infra/prod-simulator-compose.yaml up -d
+        env:
+          SECRET_KEY: notarealsecret
       - name: Test
         # Confirm that we get a response on port 9000.
         run: while ! docker run --network host appropriate/curl -v -s --retry-max-time 180 --retry-connrefused http://localhost:9000/ ; do sleep 5; done
         timeout-minutes: 3
+      - name: Specifically test that webpack assets are present.
+        # Confirm that we get a response on port 9000.
+        run: while ! docker run --network host appropriate/curl -v -s --retry-max-time 180 --retry-connrefused http://localhost:9000/assets/javascripts/bundle.js ; do sleep 5; done
+        timeout-minutes: 1
+
   cloudformation:
     runs-on: ubuntu-18.04 # for older version of awscli.
     steps:

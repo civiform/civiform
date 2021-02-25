@@ -29,11 +29,9 @@ ENV PROJECT_HOME /usr/src
 ENV PROJECT_NAME universal-application-tool-0.0.1
 
 COPY ${PROJECT_NAME} ${PROJECT_HOME}/${PROJECT_NAME}
-RUN cd $PROJECT_HOME/$PROJECT_NAME && \
-    sbt clean compile && \
-    npm install
+RUN cd $PROJECT_HOME/$PROJECT_NAME && sbt reload
 
-CMD ["sbt"]
+CMD ["sh", "-c", "npm install && sbt"]
 
 EXPOSE 9000
 WORKDIR $PROJECT_HOME/$PROJECT_NAME

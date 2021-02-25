@@ -18,7 +18,7 @@ RUN apk add --no-cache --update bash wget && mkdir -p "$SBT_HOME" && \
 RUN apk add --no-cache git openssh
 
 # Install node.js
-RUN apk add nodejs
+RUN apk add --update npm
 
 # Copy play project and compile it.
 # This will download all the ivy2 and sbt dependencies and install them
@@ -36,7 +36,7 @@ RUN cd $PROJECT_HOME/$PROJECT_NAME && \
 # we built with sbt dist.
 FROM adoptopenjdk/openjdk11:alpine-slim AS stage2
 COPY --from=stage1 /usr/src/universal-application-tool-0.0.1/target/universal/universal-application-tool-0.0.1.zip ./uat.zip
-RUN apk add bash
+RUN apk add bash nodejs npm
 RUN unzip ./uat.zip; chmod +x ./universal-application-tool-0.0.1/bin/universal-application-tool
 
 CMD ["./universal-application-tool-0.0.1/bin/universal-application-tool"]

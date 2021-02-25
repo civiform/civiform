@@ -10,13 +10,13 @@ object Webpack {
 
       override def beforeStarted() = {
         process = Option(
-          Process("./node_modules/.bin/webpack", base).run()
+          Process("npx webpack", base).run()
         )
       }
 
       override def afterStarted() = {
         process = Option(
-          Process("./node_modules/.bin/webpack --watch", base).run()
+          Process("npx webpack --watch", base).run()
         )
       }
 
