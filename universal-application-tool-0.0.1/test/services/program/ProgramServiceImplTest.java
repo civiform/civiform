@@ -28,7 +28,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
           "applicant.name",
           "The name of the applicant.",
           ImmutableMap.of(Locale.US, "What is your name?"),
-          Optional.empty());
+          ImmutableMap.of());
 
   @Before
   public void setProgramServiceImpl() {
@@ -132,7 +132,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     "applicant.address",
                     "Applicant's address",
                     ImmutableMap.of(Locale.US, "What is your addess?"),
-                    Optional.empty()))
+                    ImmutableMap.of()))
             .get();
     QuestionDefinition questionThree =
         qs.create(
@@ -142,7 +142,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     "applicant.favcolor",
                     "Applicant's favorite color",
                     ImmutableMap.of(Locale.US, "Is orange your favorite color?"),
-                    Optional.empty()))
+                    ImmutableMap.of()))
             .get();
 
     ProgramDefinition programOne =

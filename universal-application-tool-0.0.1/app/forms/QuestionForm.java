@@ -2,7 +2,6 @@ package forms;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import java.util.Optional;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
@@ -95,10 +94,10 @@ public class QuestionForm {
   public QuestionDefinitionBuilder getBuilder() {
     ImmutableMap<Locale, String> questionTextMap =
         questionText.isEmpty() ? ImmutableMap.of() : ImmutableMap.of(Locale.ENGLISH, questionText);
-    Optional<ImmutableMap<Locale, String>> questionHelpTextMap =
+    ImmutableMap<Locale, String> questionHelpTextMap =
         questionHelpText.isEmpty()
-            ? Optional.empty()
-            : Optional.of(ImmutableMap.of(Locale.ENGLISH, questionHelpText));
+            ? ImmutableMap.of()
+            : ImmutableMap.of(Locale.ENGLISH, questionHelpText);
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setQuestionType(QuestionType.valueOf(questionType))

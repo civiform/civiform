@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import java.util.Optional;
 import models.Applicant;
 import models.Program;
 import play.inject.Injector;
@@ -43,7 +42,7 @@ public class ResourceFabricator {
                 "my.path.name",
                 "description",
                 ImmutableMap.of(Locale.ENGLISH, "question?"),
-                Optional.of(ImmutableMap.of(Locale.ENGLISH, "help text"))))
+                ImmutableMap.of(Locale.ENGLISH, "help text")))
         .get();
   }
 
