@@ -14,12 +14,17 @@ GET     /postgres                   controllers.PostgresController.index()
 POST    /postgres                   controllers.PostgresController.create(request: Request)
 POST    /postgresSync               controllers.PostgresController.createSync(request: Request)
 
-# A controller for a page for an admin to create a new application
-GET     /admin/programs             controllers.admin.AdminProgramController.index
-GET     /admin/programs/new         controllers.admin.AdminProgramController.newOne(request: Request)
-GET     /admin/programs/:id/edit    controllers.admin.AdminProgramController.edit(request: Request, id: Long)
-POST    /admin/programs/:id         controllers.admin.AdminProgramController.update(request: Request, id: Long)
-POST    /admin/programs             controllers.admin.AdminProgramController.create(request: Request)
+# A controller for pages for an admin to create and maintain programs
+GET     /admin/programs                    controllers.admin.AdminProgramController.index
+GET     /admin/programs/new                controllers.admin.AdminProgramController.newOne(request: Request)
+GET     /admin/programs/:programId/edit          controllers.admin.AdminProgramController.edit(request: Request, programId: Long)
+POST    /admin/programs                    controllers.admin.AdminProgramController.create(request: Request)
+POST    /admin/programs/:programId               controllers.admin.AdminProgramController.update(request: Request, programId: Long)
+
+# A controller for pages for an admin to create and maintain blocks for a program
+GET     /admin/programs/:programId/blocks        controllers.admin.AdminProgramBlocksController.index(programId: Long)
+GET     /admin/programs/:programId/blocks/new    controllers.admin.AdminProgramBlocksController.newOne(request: Request, programId: Long)
+# GET     /admin/programs/:programId/blocks/:blockId/edit    controllers.admin.AdminProgramBlocksController.edit(request: Request, programId: Long, blockId: Long)
 
 # A controller for a page for an admin to view, edit, and create questions
 GET     /admin/questions             controllers.admin.QuestionController.index(renderAs: String ?= "table")
