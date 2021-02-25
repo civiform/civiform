@@ -62,7 +62,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
             "applicant.name",
             "applicant's name",
             ImmutableMap.of(Locale.US, "What is your name?"),
-            Optional.empty());
+            ImmutableMap.of());
     Question question = new Question(questionDefinition);
 
     repo.insertQuestion(question).toCompletableFuture().join();
@@ -81,7 +81,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
             "applicant.name",
             "applicant's name",
             ImmutableMap.of(Locale.US, "What is your name?"),
-            Optional.empty());
+            ImmutableMap.of());
     Question question = new Question(questionDefinition);
 
     repo.insertQuestionSync(question);
@@ -91,7 +91,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
   private Question saveQuestion(String path) {
     QuestionDefinition definition =
-        new TextQuestionDefinition(1L, "", path, "", ImmutableMap.of(), Optional.empty());
+        new TextQuestionDefinition(1L, "", path, "", ImmutableMap.of(), ImmutableMap.of());
     Question question = new Question(definition);
     question.save();
     return question;

@@ -15,7 +15,7 @@ public abstract class QuestionDefinition {
   private final String path;
   private final String description;
   private final ImmutableMap<Locale, String> questionText;
-  private final Optional<ImmutableMap<Locale, String>> questionHelpText;
+  private final ImmutableMap<Locale, String> questionHelpText;
 
   public QuestionDefinition(
       OptionalLong id,
@@ -24,7 +24,7 @@ public abstract class QuestionDefinition {
       String path,
       String description,
       ImmutableMap<Locale, String> questionText,
-      Optional<ImmutableMap<Locale, String>> questionHelpText) {
+      ImmutableMap<Locale, String> questionHelpText) {
     this.id = id;
     this.version = version;
     this.name = checkNotNull(name);
@@ -40,7 +40,7 @@ public abstract class QuestionDefinition {
       String path,
       String description,
       ImmutableMap<Locale, String> questionText,
-      Optional<ImmutableMap<Locale, String>> questionHelpText) {
+      ImmutableMap<Locale, String> questionHelpText) {
     this(OptionalLong.empty(), version, name, path, description, questionText, questionHelpText);
   }
 
@@ -97,19 +97,19 @@ public abstract class QuestionDefinition {
 
   /** Get the question help text for the given locale. */
   public String getQuestionHelpText(Locale locale) throws TranslationNotFoundException {
-    if (!this.questionHelpText.isPresent()) {
+    if (this.questionHelpText.isEmpty()) {
       return "";
     }
 
-    if (this.questionHelpText.get().containsKey(locale)) {
-      return this.questionHelpText.get().get(locale);
+    if (this.questionHelpText.containsKey(locale)) {
+      return this.questionHelpText.get(locale);
     }
 
     throw new TranslationNotFoundException(this.getPath(), locale);
   }
 
   /** Get the question help text for all locales. This is used for serialization. */
-  public Optional<ImmutableMap<Locale, String>> getQuestionHelpText() {
+  public ImmutableMap<Locale, String> getQuestionHelpText() {
     return this.questionHelpText;
   }
 

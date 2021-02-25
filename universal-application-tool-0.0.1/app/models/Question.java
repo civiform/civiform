@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.annotation.DbJsonB;
 import java.util.Locale;
-import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.PostLoad;
 import javax.persistence.PostPersist;
@@ -35,7 +34,7 @@ public class Question extends BaseModel {
 
   private @Constraints.Required @DbJsonB ImmutableMap<Locale, String> questionText;
 
-  private @DbJsonB ImmutableMap<Locale, String> questionHelpText;
+  private @Constraints.Required @DbJsonB ImmutableMap<Locale, String> questionHelpText;
 
   private @Constraints.Required String questionType;
 
@@ -49,7 +48,7 @@ public class Question extends BaseModel {
     name = questionDefinition.getName();
     description = questionDefinition.getDescription();
     questionText = questionDefinition.getQuestionText();
-    questionHelpText = questionDefinition.getQuestionHelpText().orElse(null);
+    questionHelpText = questionDefinition.getQuestionHelpText();
     questionType = questionDefinition.getQuestionType().toString();
   }
 
@@ -65,7 +64,7 @@ public class Question extends BaseModel {
     name = questionDefinition.getName();
     description = questionDefinition.getDescription();
     questionText = questionDefinition.getQuestionText();
-    questionHelpText = questionDefinition.getQuestionHelpText().orElse(null);
+    questionHelpText = questionDefinition.getQuestionHelpText();
     questionType = questionDefinition.getQuestionType().toString();
   }
 
@@ -82,7 +81,7 @@ public class Question extends BaseModel {
             .setPath(path)
             .setDescription(description)
             .setQuestionText(questionText)
-            .setQuestionHelpText(Optional.ofNullable(questionHelpText))
+            .setQuestionHelpText(questionHelpText)
             .setQuestionType(QuestionType.valueOf(questionType))
             .build();
   }

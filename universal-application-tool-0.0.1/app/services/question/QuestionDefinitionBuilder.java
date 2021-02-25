@@ -2,7 +2,6 @@ package services.question;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.OptionalLong;
 
 public class QuestionDefinitionBuilder {
@@ -13,7 +12,7 @@ public class QuestionDefinitionBuilder {
   private String path;
   private String description;
   private ImmutableMap<Locale, String> questionText;
-  private Optional<ImmutableMap<Locale, String>> questionHelpText;
+  private ImmutableMap<Locale, String> questionHelpText;
   private QuestionType questionType = QuestionType.TEXT;
 
   public QuestionDefinitionBuilder setId(long id) {
@@ -47,7 +46,7 @@ public class QuestionDefinitionBuilder {
   }
 
   public QuestionDefinitionBuilder setQuestionHelpText(
-      Optional<ImmutableMap<Locale, String>> questionHelpText) {
+      ImmutableMap<Locale, String> questionHelpText) {
     this.questionHelpText = questionHelpText;
     return this;
   }

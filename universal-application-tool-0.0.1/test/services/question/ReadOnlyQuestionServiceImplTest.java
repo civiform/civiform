@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.OptionalLong;
 import org.junit.Test;
 
@@ -21,7 +20,7 @@ public class ReadOnlyQuestionServiceImplTest {
           "applicant.name",
           "The name of the applicant",
           ImmutableMap.of(Locale.ENGLISH, "What is your name?"),
-          Optional.empty());
+          ImmutableMap.of());
   AddressQuestionDefinition addressQuestion =
       new AddressQuestionDefinition(
           OptionalLong.of(456L),
@@ -30,7 +29,7 @@ public class ReadOnlyQuestionServiceImplTest {
           "applicant.address",
           "The address of the applicant",
           ImmutableMap.of(Locale.ENGLISH, "What is your address?"),
-          Optional.empty());
+          ImmutableMap.of());
   QuestionDefinition basicQuestion =
       new TextQuestionDefinition(
           OptionalLong.of(789L),
@@ -39,7 +38,7 @@ public class ReadOnlyQuestionServiceImplTest {
           "applicant.favoriteColor",
           "The favorite color of the applicant",
           ImmutableMap.of(Locale.ENGLISH, "What is your favorite color?"),
-          Optional.empty());
+          ImmutableMap.of());
 
   private String invalidPath = "invalid.path";
 

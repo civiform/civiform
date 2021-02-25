@@ -21,7 +21,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
           "my.path.name",
           "description",
           ImmutableMap.of(Locale.ENGLISH, "question?"),
-          Optional.of(ImmutableMap.of(Locale.ENGLISH, "help text")));
+          ImmutableMap.of(Locale.ENGLISH, "help text"));
 
   @Before
   public void setProgramServiceImpl() {
