@@ -45,7 +45,6 @@ public class QuestionControllerTest extends WithPostgresContainer {
         .create(requestBuilder.build())
         .thenAccept(
             result -> {
-              // Validate the path (my.question.path) appears on the page.
               assertThat(contentAsString(result)).contains("Total Questions: 2");
               assertThat(contentAsString(result)).contains("All Questions");
             });
@@ -77,7 +76,6 @@ public class QuestionControllerTest extends WithPostgresContainer {
             result -> {
               assertThat(result.status()).isEqualTo(OK);
               assertThat(contentAsString(result)).contains("Edit Question");
-              // TODO: Add additional validations.
             });
   }
 
@@ -122,7 +120,8 @@ public class QuestionControllerTest extends WithPostgresContainer {
 
   @Test
   public void update_failsGracefully() throws UnsupportedQuestionTypeException {
-    // Update isn't implemented yet, so we just redirect to the questions list for now.
+    // TODO: Update isn't implemented yet, so we just redirect to the questions list for now.
+    // https://github.com/seattle-uat/universal-application-tool/issues/103
     buildQuestionsList();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
