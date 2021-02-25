@@ -29,7 +29,7 @@ public class BaseHtmlViewTest {
   public void submitButton_rendersAFormSubmitButton() {
     Tag result = testImpl.submitButton("text contents");
 
-    assertThat(result.render()).isEqualTo("<input type=\"submit\" value=\"text contents\">");
+    assertThat(result.render()).isEqualTo("<button type=\"submit\">text contents</button>");
   }
 
   private static class TestImpl extends BaseHtmlView {}
