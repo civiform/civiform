@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -57,8 +59,8 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   private boolean isValid(QuestionDefinition definition) {
-    String newPath = definition.getPath().toLowerCase();
-    if (!validPathPattern(newPath)) {
+    String newPath = definition.getPath();
+    if (!isValidPathPattern(newPath)) {
       return false;
     }
     boolean hasConflict =
@@ -66,7 +68,11 @@ public final class QuestionServiceImpl implements QuestionService {
     return !hasConflict;
   }
 
-  private boolean validPathPattern(String path) {
-    return path.matches("^([a-z]+[.])*[a-z]+$");
+  private boolean isValidPathPattern(String path) {
+    try {
+      return URLEncoder.encode(path, StandardCharsets.UTF_8.name()).equals(path);
+    } catch (Exception e) {
+      return false;
+    }
   }
 }
