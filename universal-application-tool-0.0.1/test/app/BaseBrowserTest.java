@@ -12,7 +12,7 @@ import play.test.TestBrowser;
 import play.test.WithBrowser;
 import support.ResourceFabricator;
 
-public class WithBrowserBase extends WithBrowser {
+public class BaseBrowserTest extends WithBrowser {
 
   private static final String LOCALHOST = "http://localhost:";
 

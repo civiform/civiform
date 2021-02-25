@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import models.Program;
 import org.junit.Test;
 
-public class ApplicantBrowserTest extends WithBrowserBase {
+public class ApplicantBrowserTest extends BaseBrowserTest {
 
   @Test
   public void applicantProgramList_selectApply_redirectsToEdit() {

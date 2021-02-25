@@ -7,7 +7,7 @@ import controllers.routes;
 import java.util.Optional;
 import org.junit.Test;
 
-public class SecurityBrowserTest extends WithBrowserBase {
+public class SecurityBrowserTest extends BaseBrowserTest {
 
   @Test
   public void homePage() {
