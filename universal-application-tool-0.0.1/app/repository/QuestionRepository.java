@@ -33,6 +33,21 @@ public class QuestionRepository {
         executionContext);
   }
 
+  public CompletionStage<Optional<Question>> lookupQuestionByPath(String path) {
+    return supplyAsync(
+        () ->
+            Optional.ofNullable(
+                ebeanServer
+                    .find(Question.class)
+                    .where()
+                    .eq("path", path)
+                    .orderBy()
+                    .desc("version")
+                    .setMaxRows(1)
+                    .findOne()),
+        executionContext);
+  }
+
   public CompletionStage<Question> insertQuestion(Question question) {
     return supplyAsync(
         () -> {
