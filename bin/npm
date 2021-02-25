@@ -4,4 +4,5 @@
 # moving up one dir, and printing the name of that directory.
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd .. && pwd )"
 # allocate a tty for better test output even though not strictly needed.
-docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock -v $DIR/universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1 uat $@
+docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock -v $DIR/universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1 --entrypoint npm uat $@
+
