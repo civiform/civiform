@@ -60,6 +60,7 @@ public class PdfExporterTest {
 
   @Test
   public void fillOneFormEntry() throws IOException {
+    // Check that the form is as expected.
     File basePdf = new File("test/export/base.pdf");
     assertThat(basePdf.canRead()).isTrue();
     PDDocument doc = PDDocument.load(basePdf);
@@ -67,6 +68,7 @@ public class PdfExporterTest {
     assertThat(formfield).isNotNull();
     assertThat(formfield.getValueAsString()).isEmpty();
 
+    // Create exporter and perform export.
     ExporterFactory exporterFactory = new ExporterFactory();
     List<Exporter> exporters = exporterFactory.createExporters(this.fakeProgramWithPdfExport);
     assertThat(exporters).hasSize(1);
@@ -74,6 +76,7 @@ public class PdfExporterTest {
     exporters.get(0).export(fakeApplicant, writer);
     writer.close();
 
+    // Load output document and check value.
     PDDocument outputDocument = PDDocument.load(inMemoryBytes.toByteArray());
     PDField outputField = outputDocument.getDocumentCatalog().getAcroForm().getField("formfield");
     assertThat(outputField).isNotNull();

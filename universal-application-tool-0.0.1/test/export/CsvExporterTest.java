@@ -33,6 +33,7 @@ public class CsvExporterTest {
                 ExportDefinition.builder()
                     .setEngine(ExportEngine.CSV)
                     .setCsvConfig(
+                        // write the first and last name, plus some misc. data.
                         CsvExportConfig.builder()
                             .setHeaders(ImmutableList.of("first name", "last name", "column"))
                             .setColumns(
@@ -89,5 +90,6 @@ public class CsvExporterTest {
     List<CSVRecord> records = parser.getRecords();
     assertThat(records).hasSize(2);
     assertThat(records.get(0).get("first name")).isEqualTo("Alice");
+    assertThat(records.get(1).get("last name")).isEqualTo("Baker");
   }
 }

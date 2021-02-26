@@ -2,11 +2,9 @@ package export;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URI;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
@@ -18,21 +16,17 @@ public class PdfExporter implements Exporter {
   private PDDocument baseDocument;
   private ImmutableMap<String, String> fieldToValue;
 
-  public PdfExporter(String documentUrl, Map<String, String> fieldToValue) throws IOException {
-    baseDocument = PDDocument.load(new URL(documentUrl).openStream());
-    this.fieldToValue = ImmutableMap.copyOf(fieldToValue);
-  }
-
   public PdfExporter(URI documentUrl, Map<String, String> fieldToValue) throws IOException {
     baseDocument = PDDocument.load(documentUrl.toURL().openStream());
     this.fieldToValue = ImmutableMap.copyOf(fieldToValue);
   }
 
-  public PdfExporter(File document, Map<String, String> fieldToValue) throws IOException {
-    baseDocument = PDDocument.load(document);
-    this.fieldToValue = ImmutableMap.copyOf(fieldToValue);
-  }
-
+  /**
+   * Write a PDF containing the filled-in base form to the provided writer. For the PDF to be valid,
+   * the writer should contain no previous writes and should be closed immediately after this call.
+   * This function marshals the output document in memory due to restrictions of the PDDocument
+   * class.
+   */
   @Override
   public void export(Applicant applicant, Writer writer) throws IOException {
     PDAcroForm form = baseDocument.getDocumentCatalog().getAcroForm();
