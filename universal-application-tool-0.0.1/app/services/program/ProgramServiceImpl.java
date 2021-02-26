@@ -103,6 +103,12 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
+  public ProgramDefinition addBlockToProgram(long programId) throws ProgramNotFoundException {
+    return addBlockToProgram(programId, "", "", ImmutableList.of());
+  }
+
+  @Override
+  @Transactional
   public ProgramDefinition addBlockToProgram(
       long programId, String blockName, String blockDescription) throws ProgramNotFoundException {
     return addBlockToProgram(programId, blockName, blockDescription, ImmutableList.of());
