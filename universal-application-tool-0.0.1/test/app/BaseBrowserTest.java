@@ -10,7 +10,6 @@ import controllers.routes;
 import java.util.Optional;
 import play.Application;
 import play.api.mvc.Call;
-import play.mvc.Http;
 import play.test.WithBrowser;
 
 public class BaseBrowserTest extends WithBrowser {
@@ -40,10 +39,6 @@ public class BaseBrowserTest extends WithBrowser {
    */
   protected void goTo(Call method) {
     browser.goTo(BASE_URL + method.url());
-  }
-
-  protected void goTo(Call method, Http.RequestBuilder builder) {
-    browser.goTo(BASE_URL + "/" + method.relativeTo(builder.build()));
   }
 
   /**
