@@ -65,7 +65,7 @@ public abstract class BlockDefinition {
   }
 
   @Override
-  public boolean equals(Object other) {
+  public final boolean equals(Object other) {
     if (other == this) {
       return true;
     }
@@ -77,6 +77,11 @@ public abstract class BlockDefinition {
     BlockDefinition otherBlockDefinition = (BlockDefinition) other;
 
     return Long.compare(otherBlockDefinition.id(), id()) == 0;
+  }
+
+  @Override
+  public final int hashCode() {
+    return String.valueOf(id()).hashCode();
   }
 
   @AutoValue.Builder
