@@ -337,7 +337,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
         .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
 
     BlockDefinition block = found.blockDefinitions().get(0);
-    assertThat(block.name()).isEqualTo("");
+    assertThat(block.name()).isEqualTo("Block 1");
     assertThat(block.description()).isEqualTo("");
     assertThat(block.programQuestionDefinitions()).hasSize(0);
   }
