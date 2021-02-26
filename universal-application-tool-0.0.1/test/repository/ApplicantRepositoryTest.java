@@ -42,7 +42,7 @@ public class ApplicantRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
-  public void lookupApplicant_findsCorrectProgram() {
+  public void lookupApplicant_findsCorrectApplicant() {
     saveApplicant("Alice");
     Applicant two = saveApplicant("Bob");
 

@@ -33,6 +33,52 @@ public class QuestionRepository {
         executionContext);
   }
 
+  static class PathConflictDetector {
+    private Optional<Question> conflictedQuestion = Optional.empty();
+    private final String newPath;
+
+    PathConflictDetector(String newPath) {
+      this.newPath = checkNotNull(newPath);
+    }
+
+    Optional<Question> getConflictedQuestion() {
+      return conflictedQuestion;
+    }
+
+    boolean checkConflict(Question question) {
+      boolean proceed = true;
+      if (pathConflicts(question.getPath(), newPath)) {
+        conflictedQuestion = Optional.of(question);
+        proceed = false;
+      }
+      return proceed;
+    }
+
+    static boolean pathConflicts(String path, String otherPath) {
+      path = path.toLowerCase();
+      otherPath = otherPath.toLowerCase();
+      return path.startsWith(otherPath) || otherPath.startsWith(path);
+    }
+  }
+
+  public CompletionStage<Optional<Question>> findConflictingQuestion(String newPath) {
+    return supplyAsync(
+        () -> {
+          PathConflictDetector detector = new PathConflictDetector(newPath);
+          ebeanServer.find(Question.class).findEachWhile(detector::checkConflict);
+          return detector.getConflictedQuestion();
+        },
+        executionContext);
+  }
+
+  public CompletionStage<Optional<Question>> lookupQuestionByPath(String path) {
+    return supplyAsync(
+        () ->
+            Optional.ofNullable(
+                ebeanServer.find(Question.class).where().eq("path", path).findOne()),
+        executionContext);
+  }
+
   public CompletionStage<Question> insertQuestion(Question question) {
     return supplyAsync(
         () -> {

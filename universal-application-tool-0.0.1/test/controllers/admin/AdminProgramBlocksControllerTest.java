@@ -32,7 +32,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
   @Test
   public void index_withProgramWithNoBlocks_redirectsToCreate() {
-    Program program = resourceFabricator().insertProgram("program");
+    Program program = resourceCreator().insertProgram("program");
 
     Result result = controller.index(program.id);
 
@@ -45,7 +45,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
   public void index_withProgramWithBlocks_redirectsToEdit() {
     BlockDefinition block =
         BlockDefinition.builder().setId(1L).setName("block").setDescription("desc").build();
-    Program program = resourceFabricator().insertProgram("program", block);
+    Program program = resourceCreator().insertProgram("program", block);
 
     Result result = controller.index(program.id);
 
@@ -63,7 +63,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
   @Test
   public void create_withProgram_addsBlock() {
-    Program program = resourceFabricator().insertProgram("program");
+    Program program = resourceCreator().insertProgram("program");
     Result result = controller.create(program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -78,7 +78,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
   public void create_withProgramWithBlock_addsBlock() {
     BlockDefinition block =
         BlockDefinition.builder().setId(1L).setName("block").setDescription("desc").build();
-    Program program = resourceFabricator().insertProgram("program", block);
+    Program program = resourceCreator().insertProgram("program", block);
     Result result = controller.create(program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -102,7 +102,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
     Http.Request request = fakeRequest().build();
     BlockDefinition block =
         BlockDefinition.builder().setId(1L).setName("block").setDescription("desc").build();
-    Program program = resourceFabricator().insertProgram("program", block);
+    Program program = resourceCreator().insertProgram("program", block);
     Result result = controller.edit(request, program.id, 2L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -113,7 +113,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
     Http.Request request = fakeRequest().build();
     BlockDefinition block =
         BlockDefinition.builder().setId(1L).setName("block").setDescription("desc").build();
-    Program program = resourceFabricator().insertProgram("program", block);
+    Program program = resourceCreator().insertProgram("program", block);
     Result result = controller.edit(request, program.id, 1L);
 
     assertThat(result.status()).isEqualTo(OK);

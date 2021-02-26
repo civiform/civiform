@@ -38,6 +38,10 @@ public class Question extends BaseModel {
 
   private @Constraints.Required String questionType;
 
+  public String getPath() {
+    return path;
+  }
+
   public Question(QuestionDefinition questionDefinition) {
     this.questionDefinition = checkNotNull(questionDefinition);
     if (questionDefinition.isPersisted()) {
