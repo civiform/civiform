@@ -19,6 +19,6 @@ public class AdminLayout extends BaseHtmlLayout {
 
   /** Renders mainDomContents within the main tag, in the context of the admin layout. */
   protected Content render(DomContent... mainDomContents) {
-    return htmlContent(head(getCommonCssTag()), body(main(mainDomContents)));
+    return htmlContent(head(tailwindStyles(), getCommonCssTag()), body(main(mainDomContents)));
   }
 }
