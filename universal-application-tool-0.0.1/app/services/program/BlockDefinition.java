@@ -64,6 +64,21 @@ public abstract class BlockDefinition {
     return programQuestionDefinitions().get(questionIndex).getQuestionDefinition();
   }
 
+  @Override
+  public boolean equals(Object other) {
+    if (other == this) {
+      return true;
+    }
+
+    if (!(other instanceof AutoValue_BlockDefinition)) {
+      return false;
+    }
+
+    BlockDefinition otherBlockDefinition = (BlockDefinition) other;
+
+    return Long.compare(otherBlockDefinition.id(), id()) == 0;
+  }
+
   @AutoValue.Builder
   public abstract static class Builder {
     @JsonProperty("id")
