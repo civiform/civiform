@@ -48,9 +48,7 @@ public class AdminProgramBlocksController extends Controller {
     ProgramDefinition program;
 
     try {
-      // TODO: add a method to ProgramService for creating a block with the name "Block #" where
-      //       # is the index of the block + 1.
-      program = service.addBlockToProgram(programId, "", "");
+      program = service.addBlockToProgram(programId);
     } catch (ProgramNotFoundException e) {
       // This really shouldn't happen because the first if check should catch it
       return notFound(e.toString());

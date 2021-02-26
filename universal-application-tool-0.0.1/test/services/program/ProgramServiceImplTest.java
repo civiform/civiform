@@ -309,6 +309,10 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void addBlockToProgram_noProgram_throwsProgramNotFoundException() {
+    assertThatThrownBy(() -> ps.addBlockToProgram(1L))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessage("Program not found for ID: 1");
+
     assertThatThrownBy(() -> ps.addBlockToProgram(1L, "name", "desc"))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessage("Program not found for ID: 1");
@@ -316,6 +320,26 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThatThrownBy(() -> ps.addBlockToProgram(1L, "name", "description", ImmutableList.of()))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessage("Program not found for ID: 1");
+  }
+
+  @Test
+  public void addBlockToProgram_emptyBlock_returnsProgramDefinitionWithBlock()
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition =
+        ps.createProgramDefinition("Program With Block", "This program has a block.");
+    Long programId = programDefinition.id();
+    ProgramDefinition updatedProgramDefinition = ps.addBlockToProgram(programDefinition.id());
+
+    ProgramDefinition found = ps.getProgramDefinition(programId).orElseThrow();
+
+    assertThat(found.blockDefinitions()).hasSize(1);
+    assertThat(found.blockDefinitions())
+        .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
+
+    BlockDefinition block = found.blockDefinitions().get(0);
+    assertThat(block.name()).isEqualTo("Block 1");
+    assertThat(block.description()).isEqualTo("");
+    assertThat(block.programQuestionDefinitions()).hasSize(0);
   }
 
   @Test
@@ -335,7 +359,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void addBlockToProgramWithQuestions_returnsProgramDefinitionWithBlock() throws Exception {
+  public void addBlockToProgram_WithQuestions_returnsProgramDefinitionWithBlock()
+      throws ProgramNotFoundException {
     QuestionDefinition question = qs.create(SIMPLE_QUESTION).get();
     ProgramDefinition programDefinition = ps.createProgramDefinition("program", "description");
     long id = programDefinition.id();
