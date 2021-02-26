@@ -1,4 +1,4 @@
-package controllers;
+package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

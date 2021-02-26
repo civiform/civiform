@@ -2,12 +2,14 @@ package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Result;
+import services.applicant.ApplicantService;
+import services.applicant.Block;
 import services.program.ProgramService;
 import views.applicant.ProgramIndexView;
 
@@ -15,15 +17,18 @@ import views.applicant.ProgramIndexView;
 public class ApplicantProgramsController extends Controller {
 
   private final HttpExecutionContext httpContext;
+  private final ApplicantService applicantService;
   private final ProgramService programService;
   private final ProgramIndexView programIndexView;
 
   @Inject
   public ApplicantProgramsController(
       HttpExecutionContext httpContext,
+      ApplicantService applicantService,
       ProgramService programService,
       ProgramIndexView programIndexView) {
     this.httpContext = httpContext;
+    this.applicantService = applicantService;
     this.programService = checkNotNull(programService);
     this.programIndexView = checkNotNull(programIndexView);
   }
@@ -35,10 +40,23 @@ public class ApplicantProgramsController extends Controller {
             programs -> ok(programIndexView.render(applicantId, programs)), httpContext.current());
   }
 
-  // TODO(https://github.com/seattle-uat/universal-application-tool/issues/224): Go to the next
-  // block for the chosen program
   public CompletionStage<Result> edit(long applicantId, long programId) {
-    return CompletableFuture.completedFuture(
-        ok("Applicant " + applicantId + " chose program " + programId));
+    // Determine first incomplete block, then redirect to other edit.
+    return applicantService
+        .getReadOnlyApplicantProgramService(applicantId, programId)
+        .thenApplyAsync(
+            roApplicantService -> {
+              Optional<Block> block = roApplicantService.getFirstIncompleteBlock();
+              if (block.isPresent()) {
+                return found(
+                    routes.ApplicantProgramBlocksController.edit(
+                        applicantId, programId, block.get().getId()));
+              } else {
+                // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): All
+                // blocks are filled in, so redirect to end of program submission.
+                return found(routes.ApplicantProgramsController.index());
+              }
+            },
+            httpContext.current());
   }
 }
