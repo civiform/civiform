@@ -5,5 +5,5 @@ import models.Applicant;
 
 public class PdfExporter implements Exporter {
   @Override
-  public void export(Applicant a, Writer w) {}
+  public void export(Applicant applicant, Writer writer) {}
 }

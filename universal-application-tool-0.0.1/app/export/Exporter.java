@@ -4,5 +4,6 @@ import java.io.Writer;
 import models.Applicant;
 
 public interface Exporter {
-  public void export(Applicant a, Writer w);
+  /** Write the data for the specified applicant to the specified writer. */
+  void export(Applicant applicant, Writer writer);
 }
