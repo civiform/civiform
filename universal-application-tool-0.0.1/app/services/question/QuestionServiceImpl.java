@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -28,7 +30,9 @@ public final class QuestionServiceImpl implements QuestionService {
 
   @Override
   public Optional<QuestionDefinition> create(QuestionDefinition definition) {
-    // TODO(https://github.com/seattle-uat/universal-application-tool/issues/194): Add validation.
+    if (!isValid(definition)) {
+      return Optional.empty();
+    }
     Question question = questionRepository.insertQuestionSync(new Question(definition));
     return Optional.of(question.getQuestionDefinition());
   }
@@ -52,5 +56,23 @@ public final class QuestionServiceImpl implements QuestionService {
                 questions.stream()
                     .map(question -> question.getQuestionDefinition())
                     .collect(ImmutableList.toImmutableList()));
+  }
+
+  private boolean isValid(QuestionDefinition definition) {
+    String newPath = definition.getPath();
+    if (!isValidPathPattern(newPath)) {
+      return false;
+    }
+    boolean hasConflict =
+        questionRepository
+            .findConflictingQuestion(newPath)
+            .toCompletableFuture()
+            .join()
+            .isPresent();
+    return !hasConflict;
+  }
+
+  private boolean isValidPathPattern(String path) {
+    return URLEncoder.encode(path, StandardCharsets.UTF_8).equals(path);
   }
 }
