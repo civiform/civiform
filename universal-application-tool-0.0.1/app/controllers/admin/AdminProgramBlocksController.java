@@ -12,22 +12,27 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.question.QuestionService;
+import services.question.ReadOnlyQuestionService;
 import views.admin.programs.ProgramBlockEditView;
 
 public class AdminProgramBlocksController extends Controller {
 
-  private final ProgramService service;
+  private final ProgramService programService;
   private final ProgramBlockEditView editView;
+  private final QuestionService questionService;
 
   @Inject
   public AdminProgramBlocksController(
-      ProgramService service, ProgramBlockEditView editView, FormFactory formFactory) {
-    this.service = checkNotNull(service);
+      ProgramService programService, QuestionService questionService, ProgramBlockEditView editView,
+      FormFactory formFactory) {
+    this.programService = checkNotNull(programService);
+    this.questionService = checkNotNull(questionService);
     this.editView = checkNotNull(editView);
   }
 
   public Result index(long programId) {
-    Optional<ProgramDefinition> programMaybe = service.getProgramDefinition(programId);
+    Optional<ProgramDefinition> programMaybe = programService.getProgramDefinition(programId);
 
     if (programMaybe.isEmpty()) {
       return notFound(String.format("Program ID %d not found.", programId));
@@ -48,7 +53,7 @@ public class AdminProgramBlocksController extends Controller {
     ProgramDefinition program;
 
     try {
-      program = service.addBlockToProgram(programId);
+      program = programService.addBlockToProgram(programId);
     } catch (ProgramNotFoundException e) {
       // This really shouldn't happen because the first if check should catch it
       return notFound(e.toString());
@@ -60,7 +65,7 @@ public class AdminProgramBlocksController extends Controller {
   }
 
   public Result edit(Request request, long programId, long blockId) {
-    Optional<ProgramDefinition> programMaybe = service.getProgramDefinition(programId);
+    Optional<ProgramDefinition> programMaybe = programService.getProgramDefinition(programId);
 
     if (programMaybe.isEmpty()) {
       return notFound(String.format("Program ID %d not found.", programId));
@@ -74,7 +79,9 @@ public class AdminProgramBlocksController extends Controller {
     }
 
     BlockDefinition block = blockMaybe.get();
+    ReadOnlyQuestionService roQuestionService = questionService.getReadOnlyQuestionService()
+        .toCompletableFuture().join();
 
-    return ok(editView.render(request, program, block));
+    return ok(editView.render(request, program, block, roQuestionService.getAllQuestions()));
   }
 }
