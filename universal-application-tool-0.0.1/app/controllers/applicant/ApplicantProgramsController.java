@@ -54,7 +54,7 @@ public class ApplicantProgramsController extends Controller {
               } else {
                 // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): All
                 // blocks are filled in, so redirect to end of program submission.
-                return found(routes.ApplicantProgramsController.index());
+                return found(routes.ApplicantProgramsController.index(applicantId));
               }
             },
             httpContext.current());
