@@ -3,6 +3,7 @@ package services.program;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import models.Program;
 import services.question.QuestionDefinition;
 
@@ -25,6 +26,10 @@ public abstract class ProgramDefinition {
   @JsonIgnore
   public QuestionDefinition getQuestionDefinition(int blockIndex, int questionIndex) {
     return blockDefinitions().get(blockIndex).getQuestionDefinition(questionIndex);
+  }
+
+  public Optional<BlockDefinition> getBlockDefinition(long blockId) {
+    return blockDefinitions().stream().filter(b -> b.id() == blockId).findAny();
   }
 
   public Program toProgram() {

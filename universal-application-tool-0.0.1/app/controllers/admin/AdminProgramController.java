@@ -57,7 +57,7 @@ public class AdminProgramController extends Controller {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm program = programForm.bindFromRequest(request).get();
     service.createProgramDefinition(program.getName(), program.getDescription());
-    return found(routes.AdminProgramController.index());
+    return redirect(routes.AdminProgramController.index().url());
   }
 
   public Result edit(Request request, long id) {
@@ -74,7 +74,7 @@ public class AdminProgramController extends Controller {
     ProgramForm program = programForm.bindFromRequest(request).get();
     try {
       service.updateProgramDefinition(id, program.getName(), program.getDescription());
-      return found(routes.AdminProgramController.index());
+      return redirect(routes.AdminProgramController.index().url());
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", id));
     }

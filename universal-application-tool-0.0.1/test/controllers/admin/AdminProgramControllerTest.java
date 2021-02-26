@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
-import static play.test.Helpers.FOUND;
+import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 
 import com.google.common.collect.ImmutableMap;
@@ -69,7 +69,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
 
     Result result = controller.create(requestBuilder.build());
 
-    assertThat(result.status()).isEqualTo(FOUND);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
 
     Result redirectResult = controller.index();
@@ -87,7 +87,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
 
     Result result = controller.create(requestBuilder.build());
 
-    assertThat(result.status()).isEqualTo(FOUND);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
 
     Result redirectResult = controller.index();
@@ -137,7 +137,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
 
     Result result = controller.update(requestBuilder.build(), 1L);
 
-    assertThat(result.status()).isEqualTo(FOUND);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
 
     Result redirectResult = controller.index();

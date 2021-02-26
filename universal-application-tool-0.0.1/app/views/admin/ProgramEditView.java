@@ -13,10 +13,10 @@ import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 
 public class ProgramEditView extends BaseHtmlView {
-  private final AdminProgramLayout layout;
+  private final AdminLayout layout;
 
   @Inject
-  public ProgramEditView(AdminProgramLayout layout) {
+  public ProgramEditView(AdminLayout layout) {
     this.layout = layout;
   }
 
@@ -36,6 +36,10 @@ public class ProgramEditView extends BaseHtmlView {
                     .withAction(
                         controllers.admin.routes.AdminProgramController.update(program.id())
                             .url())),
-                div(a().withText("Manage Questions").withHref(controllers.admin.routes.AdminProgramBlocksController.index(program.id()).url()))));
+            div(
+                a().withText("Manage Questions")
+                    .withHref(
+                        controllers.admin.routes.AdminProgramBlocksController.index(program.id())
+                            .url()))));
   }
 }
