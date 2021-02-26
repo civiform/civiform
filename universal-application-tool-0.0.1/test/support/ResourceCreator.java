@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Locale;
 import models.Applicant;
 import models.Program;
 import models.Question;
@@ -48,7 +49,12 @@ public class ResourceCreator {
     return questionService
         .create(
             new TextQuestionDefinition(
-                1L, "", "my.path.name", "", ImmutableMap.of(), ImmutableMap.of()))
+                1L,
+                "",
+                "my.path.name",
+                "",
+                ImmutableMap.of(Locale.ENGLISH, "question?"),
+                ImmutableMap.of(Locale.ENGLISH, "help text")))
         .get();
   }
 
