@@ -62,5 +62,6 @@ GET     /loginForm                   controllers.HomeController.loginForm(reques
 GET     /logout                      @org.pac4j.play.LogoutController.logout(request: Request)
 
 # Seed the database with test content to develop against
-GET     /seed-db                     controllers.dev.DatabaseSeedController.ask()
-POST    /seed-db                     controllers.dev.DatabaseSeedController.seed()
+GET     /dev/seed                    controllers.dev.DatabaseSeedController.index(request: Request)
+POST    /dev/seed                    controllers.dev.DatabaseSeedController.seed()
+POST    /dev/seed                    controllers.dev.DatabaseSeedController.clear()
