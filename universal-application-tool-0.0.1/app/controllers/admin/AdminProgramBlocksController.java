@@ -12,7 +12,7 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import views.admin.ProgramBlockEditView;
+import views.admin.programs.ProgramBlockEditView;
 
 public class AdminProgramBlocksController extends Controller {
 

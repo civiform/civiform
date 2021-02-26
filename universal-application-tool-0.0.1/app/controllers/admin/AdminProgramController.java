@@ -15,9 +15,9 @@ import play.mvc.Result;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import views.admin.ProgramEditView;
-import views.admin.ProgramIndexView;
-import views.admin.ProgramNewOneView;
+import views.admin.programs.ProgramEditView;
+import views.admin.programs.ProgramIndexView;
+import views.admin.programs.ProgramNewOneView;
 
 /** Controller for handling methods for admins managing program definitions. */
 public class AdminProgramController extends Controller {
