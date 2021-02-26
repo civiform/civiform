@@ -16,10 +16,10 @@ import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 
 public final class ProgramIndexView extends BaseHtmlView {
-  private final AdminProgramLayout layout;
+  private final AdminLayout layout;
 
   @Inject
-  public ProgramIndexView(AdminProgramLayout layout) {
+  public ProgramIndexView(AdminLayout layout) {
     this.layout = layout;
   }
 

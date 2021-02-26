@@ -16,6 +16,8 @@ import play.twirl.api.Content;
  * should have a `render` method that takes the DOM contents for the main tag.
  */
 public class BaseHtmlLayout extends BaseHtmlView {
+  private static final String WEBPACK_OUTPUT_FILENAME = "bundle";
+
   protected final ViewUtils viewUtils;
 
   @Inject
@@ -29,10 +31,16 @@ public class BaseHtmlLayout extends BaseHtmlView {
   }
 
   /**
-   * Returns a link tag for common CSS that should be included in the head of most other layouts.
+   * Returns a script tag that loads Tailwindcss styles and configurations common to all pages in
+   * the UAT.
+   *
+   * <p>This should be added to the end of the body of all layouts. Adding it to the end of the body
+   * allows the page to begin rendering before the script is loaded.
+   *
+   * <p>Adding this to a page allows Tailwindcss utility classes to be be usable on that page.
    */
-  protected Tag getCommonCssTag() {
-    return viewUtils.makeLocalCssTag("common");
+  protected Tag tailwindStyles() {
+    return viewUtils.makeLocalJsTag(WEBPACK_OUTPUT_FILENAME);
   }
 
   protected static class HtmlResponseContent implements Content {

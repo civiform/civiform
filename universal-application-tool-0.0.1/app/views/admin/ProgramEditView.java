@@ -1,5 +1,6 @@
 package views.admin;
 
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
@@ -12,10 +13,10 @@ import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 
 public class ProgramEditView extends BaseHtmlView {
-  private final AdminProgramLayout layout;
+  private final AdminLayout layout;
 
   @Inject
-  public ProgramEditView(AdminProgramLayout layout) {
+  public ProgramEditView(AdminLayout layout) {
     this.layout = layout;
   }
 
@@ -34,6 +35,11 @@ public class ProgramEditView extends BaseHtmlView {
                     .withMethod("post")
                     .withAction(
                         controllers.admin.routes.AdminProgramController.update(program.id())
+                            .url())),
+            div(
+                a().withText("Manage Questions")
+                    .withHref(
+                        controllers.admin.routes.AdminProgramBlocksController.index(program.id())
                             .url()))));
   }
 }

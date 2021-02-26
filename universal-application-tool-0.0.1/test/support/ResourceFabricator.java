@@ -5,11 +5,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import java.util.Optional;
 import models.Applicant;
 import models.Program;
 import models.Question;
 import play.inject.Injector;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
@@ -30,37 +30,45 @@ public class ResourceFabricator {
     this.questionService = injector.instanceOf(QuestionService.class);
   }
 
+  public <T> T instanceOf(Class<T> clazz) {
+    return injector.instanceOf(clazz);
+  }
+
+  public Question insertQuestion(String path) {
+    return insertQuestion(path, 1L);
+  }
+
+  public Question insertQuestion(String path, long version) {
+    QuestionDefinition definition =
+            new TextQuestionDefinition(version, "", path, "", ImmutableMap.of(), ImmutableMap.of());
+    Question question = new Question(definition);
+    question.save();
+    return question;
+  }
+
   public Program insertProgram(String name) {
     Program program = new Program(name, "description");
     program.save();
     return program;
   }
 
-  public Question insertQuestion(String path) {
-    QuestionDefinition definition =
-        new TextQuestionDefinition(1L, "", path, "", ImmutableMap.of(), Optional.empty());
-    Question question = new Question(definition);
-    question.save();
-    return question;
-  }
+  public Program insertProgram(String name, BlockDefinition block) {
+    Program program = new Program(name, "description");
 
-  public QuestionDefinition insertQuestionDefinition() {
-    return questionService
-        .create(
-            new NameQuestionDefinition(
-                1L,
-                "my name",
-                "my.path.name",
-                "description",
-                ImmutableMap.of(Locale.ENGLISH, "question?"),
-                Optional.of(ImmutableMap.of(Locale.ENGLISH, "help text"))))
-        .get();
+    program.save();
+
+    ProgramDefinition programDefinition =
+            program.getProgramDefinition().toBuilder().addBlockDefinition(block).build();
+    program = programDefinition.toProgram();
+    program.update();
+
+    return program;
   }
 
   public ProgramDefinition insertProgramWithOneBlock(String name) {
     try {
       ProgramDefinition programDefinition =
-          programService.createProgramDefinition("test program", "desc");
+          programService.createProgramDefinition(name, "desc");
       programDefinition =
           programService.addBlockToProgram(
               programDefinition.id(), "test block", "test block description");
@@ -68,7 +76,7 @@ public class ResourceFabricator {
           programService.setBlockQuestions(
               programDefinition.id(),
               programDefinition.blockDefinitions().get(0).id(),
-              ImmutableList.of(ProgramQuestionDefinition.create(insertQuestionDefinition())));
+              ImmutableList.of(ProgramQuestionDefinition.create(insertQuestion("my.path"))));
 
       return programDefinition;
     } catch (Exception e) {
@@ -80,9 +88,5 @@ public class ResourceFabricator {
     Applicant applicant = new Applicant();
     applicant.save();
     return applicant;
-  }
-
-  public <T> T instanceOf(Class<T> clazz) {
-    return injector.instanceOf(clazz);
   }
 }

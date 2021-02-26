@@ -2,7 +2,6 @@ package services.question;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.OptionalLong;
 
 public class NameQuestionDefinition extends QuestionDefinition {
@@ -14,7 +13,7 @@ public class NameQuestionDefinition extends QuestionDefinition {
       String path,
       String description,
       ImmutableMap<Locale, String> questionText,
-      Optional<ImmutableMap<Locale, String>> questionHelpText) {
+      ImmutableMap<Locale, String> questionHelpText) {
     super(id, version, name, path, description, questionText, questionHelpText);
   }
 
@@ -24,7 +23,7 @@ public class NameQuestionDefinition extends QuestionDefinition {
       String path,
       String description,
       ImmutableMap<Locale, String> questionText,
-      Optional<ImmutableMap<Locale, String>> questionHelpText) {
+      ImmutableMap<Locale, String> questionHelpText) {
     super(version, name, path, description, questionText, questionHelpText);
   }
 

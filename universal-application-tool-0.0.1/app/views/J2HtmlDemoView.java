@@ -10,14 +10,14 @@ import javax.inject.Inject;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 
-public final class J2HtmlDemo extends BaseHtmlView {
+public final class J2HtmlDemoView extends BaseHtmlView {
 
   private final ViewUtils viewUtils;
   private final BaseHtmlLayout layout;
 
   /** Views needing access to stateful dependencies can inject {@link ViewUtils} */
   @Inject
-  public J2HtmlDemo(ViewUtils viewUtils, BaseHtmlLayout layout) {
+  public J2HtmlDemoView(ViewUtils viewUtils, BaseHtmlLayout layout) {
     this.viewUtils = checkNotNull(viewUtils);
     this.layout = checkNotNull(layout);
   }
@@ -28,7 +28,7 @@ public final class J2HtmlDemo extends BaseHtmlView {
    */
   public Content render(String greeting, Request request) {
     return layout.htmlContent(
-        head(viewUtils.makeLocalJsTag("hello"), layout.getCommonCssTag()),
+        head(viewUtils.makeLocalJsTag("hello"), viewUtils.makeLocalCssTag("styles")),
         body(
             h1(greeting),
             form(
@@ -37,6 +37,7 @@ public final class J2HtmlDemo extends BaseHtmlView {
                     submitButton("Enter"))
                 .withAction("/demo")
                 .withMethod("post")
-                .withId("demo-id")));
+                .withId("demo-id")),
+        layout.tailwindStyles());
   }
 }

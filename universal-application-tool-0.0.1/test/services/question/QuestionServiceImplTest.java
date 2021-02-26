@@ -21,7 +21,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
           "my.path.name",
           "description",
           ImmutableMap.of(Locale.ENGLISH, "question?"),
-          Optional.of(ImmutableMap.of(Locale.ENGLISH, "help text")));
+          ImmutableMap.of(Locale.ENGLISH, "help text"));
 
   @Before
   public void setProgramServiceImpl() {
@@ -39,7 +39,28 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void create() {
+  public void create_returnsOptionalEmptyWhenFails() {
+    questionService.create(questionDefinition);
+
+    assertThat(questionService.create(questionDefinition).isPresent()).isFalse();
+  }
+
+  @Test
+  public void create_failsWithInvalidPathPattern() {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            1L,
+            "name",
+            "#invalid&path-pattern!",
+            "description",
+            ImmutableMap.of(Locale.ENGLISH, "question?"),
+            ImmutableMap.of());
+
+    assertThat(questionService.create(question).isPresent()).isFalse();
+  }
+
+  @Test
+  public void create_returnsQuestionDefinitionWhenSucceeds() {
     assertThat(questionService.create(questionDefinition).get().getPath())
         .isEqualTo(questionDefinition.getPath());
   }
@@ -51,9 +72,9 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
     CompletionStage<ReadOnlyQuestionService> completionStage =
         questionService.getReadOnlyQuestionService();
 
-    ReadOnlyQuestionService emptyService = completionStage.toCompletableFuture().join();
+    ReadOnlyQuestionService roService = completionStage.toCompletableFuture().join();
 
-    assertThat(emptyService.getAllQuestions().size()).isEqualTo(1);
+    assertThat(roService.getAllQuestions().size()).isEqualTo(1);
   }
 
   @Test

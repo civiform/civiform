@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import java.util.Optional;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,7 +65,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
                     "my.path.name",
                     "description",
                     ImmutableMap.of(Locale.ENGLISH, "question?"),
-                    Optional.of(ImmutableMap.of(Locale.ENGLISH, "help text"))))
+                    ImmutableMap.of(Locale.ENGLISH, "help text")))
             .get();
   }
 
