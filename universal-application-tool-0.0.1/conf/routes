@@ -60,3 +60,7 @@ GET     /loginForm                   controllers.HomeController.loginForm(reques
 
 # Log out of application
 GET     /logout                      @org.pac4j.play.LogoutController.logout(request: Request)
+
+# Seed the database with some test content for developing against
+GET    /seed-db
+POST   /seed-db
