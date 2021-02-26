@@ -37,8 +37,8 @@ GET     /demo/new                   controllers.J2HtmlDemoController.newOne(requ
 POST    /demo                       controllers.J2HtmlDemoController.create(request: Request)
 
 # Methods for applicants
-GET /applicants/:applicantId/programs                   controllers.applicant.ApplicantProgramsController.index(applicantId: Long)
-GET /applicants/:applicantId/programs/:programId/edit   controllers.applicant.ApplicantProgramsController.edit(applicantId: Long, programId: Long)
+GET     /applicants/:applicantId/programs                   controllers.applicant.ApplicantProgramsController.index(applicantId: Long)
+GET     /applicants/:applicantId/programs/:programId/edit   controllers.applicant.ApplicantProgramsController.edit(applicantId: Long, programId: Long)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(file)
