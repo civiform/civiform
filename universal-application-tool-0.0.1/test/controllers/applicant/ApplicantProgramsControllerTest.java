@@ -16,7 +16,7 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
   @Before
   public void setupController() {
-    controller = resourceFabricator().instanceOf(ApplicantProgramsController.class);
+    controller = resourceCreator().instanceOf(ApplicantProgramsController.class);
   }
 
   @Test
@@ -31,8 +31,8 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
   @Test
   public void index_withPrograms_returnsAllPrograms() {
-    resourceFabricator().insertProgram("one");
-    resourceFabricator().insertProgram("two");
+    resourceCreator().insertProgram("one");
+    resourceCreator().insertProgram("two");
 
     Result result = controller.index(1L).toCompletableFuture().join();
 
@@ -43,7 +43,7 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
   @Test
   public void index_withProgram_includesApplyButtonWithRedirect() {
-    Program program = resourceFabricator().insertProgram("program");
+    Program program = resourceCreator().insertProgram("program");
 
     Result result = controller.index(1L).toCompletableFuture().join();
 

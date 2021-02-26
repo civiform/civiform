@@ -29,8 +29,8 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void listQuestions() {
-    Question one = saveQuestion("path.one");
-    Question two = saveQuestion("path.two");
+    Question one = resourceCreator().insertQuestion("path.one");
+    Question two = resourceCreator().insertQuestion("path.two");
 
     Set<Question> list = repo.listQuestions().toCompletableFuture().join();
 
@@ -46,8 +46,8 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void lookupQuestion_findsCorrectQuestion() {
-    saveQuestion("path.one");
-    Question existing = saveQuestion("path.existing");
+    resourceCreator().insertQuestion("path.one");
+    Question existing = resourceCreator().insertQuestion("path.existing");
 
     Optional<Question> found = repo.lookupQuestion(existing.id).toCompletableFuture().join();
 
@@ -90,8 +90,8 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void findConflictingQuestion_returnsEmptyWhenNoPathConflict() {
-    saveQuestion("path.one");
-    saveQuestion("path.two");
+    resourceCreator().insertQuestion("path.one");
+    resourceCreator().insertQuestion("path.two");
 
     Optional<Question> found =
         repo.findConflictingQuestion("path.other").toCompletableFuture().join();
@@ -101,8 +101,8 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void findConflictingQuestion_returnsQuestionWhenConflictingPath() {
-    Question questionOne = saveQuestion("path.one");
-    saveQuestion("path.two");
+    Question questionOne = resourceCreator().insertQuestion("path.one");
+    resourceCreator().insertQuestion("path.two");
 
     Optional<Question> found =
         repo.findConflictingQuestion("path.one").toCompletableFuture().join();
@@ -120,8 +120,8 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void lookupQuestionByPath_findsCorrectQuestion() {
-    saveQuestion("path.one");
-    Question existing = saveQuestion("path.existing");
+    resourceCreator().insertQuestion("path.one");
+    Question existing = resourceCreator().insertQuestion("path.existing");
 
     Optional<Question> found =
         repo.lookupQuestionByPath("path.existing").toCompletableFuture().join();
@@ -131,8 +131,8 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void lookupQuestionByPath_versioningNotSupportedYet() {
-    saveQuestion("path.one");
-    saveQuestion("path.one", 2L);
+    resourceCreator().insertQuestion("path.one");
+    resourceCreator().insertQuestion("path.one", 2L);
 
     assertThatThrownBy(() -> repo.lookupQuestionByPath("path.one").toCompletableFuture().join())
         .isInstanceOf(java.util.concurrent.CompletionException.class)
@@ -174,17 +174,5 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
     repo.insertQuestionSync(question);
 
     assertThat(repo.lookupQuestion(question.id).toCompletableFuture().join()).hasValue(question);
-  }
-
-  private Question saveQuestion(String path) {
-    return saveQuestion(path, 1L);
-  }
-
-  private Question saveQuestion(String path, long version) {
-    QuestionDefinition definition =
-        new TextQuestionDefinition(version, "", path, "", ImmutableMap.of(), ImmutableMap.of());
-    Question question = new Question(definition);
-    question.save();
-    return question;
   }
 }

@@ -38,8 +38,8 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
 
   @Test
   public void index_returnsPrograms() {
-    resourceFabricator().insertProgram("one");
-    resourceFabricator().insertProgram("two");
+    resourceCreator().insertProgram("one");
+    resourceCreator().insertProgram("two");
 
     Result result = controller.index();
 
@@ -78,7 +78,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
 
   @Test
   public void create_includesNewAndExistingProgramsInList() {
-    resourceFabricator().insertProgram("Existing One");
+    resourceCreator().insertProgram("Existing One");
     RequestBuilder requestBuilder =
         Helpers.fakeRequest()
             .bodyForm(
@@ -107,7 +107,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
   @Test
   public void edit_returnsExpectedForm() {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    Program program = resourceFabricator().insertProgram("test program");
+    Program program = resourceCreator().insertProgram("test program");
 
     Result result = controller.edit(request, program.id);
 
@@ -128,7 +128,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
 
   @Test
   public void update_overwritesExistingProgram() {
-    resourceFabricator().insertProgram("Existing One");
+    resourceCreator().insertProgram("Existing One");
     RequestBuilder requestBuilder =
         Helpers.fakeRequest()
             .bodyForm(
