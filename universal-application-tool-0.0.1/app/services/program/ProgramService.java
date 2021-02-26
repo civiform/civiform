@@ -70,6 +70,14 @@ public interface ProgramService {
    */
   ProgramDefinition addBlockToProgram(long programId, String blockName, String blockDescription)
       throws ProgramNotFoundException;
+  /**
+   * Adds an empty {@link BlockDefinition} to the given program.
+   *
+   * @param programId the ID of the program to update
+   * @return the updated {@link ProgramDefinition}
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   */
+  ProgramDefinition addBlockToProgram(long programId) throws ProgramNotFoundException;
 
   /**
    * Adds a {@link BlockDefinition} to the given program.
