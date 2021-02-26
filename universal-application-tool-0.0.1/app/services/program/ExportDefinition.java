@@ -22,6 +22,10 @@ public abstract class ExportDefinition {
   @Nullable
   public abstract CsvExportConfig csvConfig();
 
+  public static ExportDefinition.Builder builder() {
+    return new AutoValue_ExportDefinition.Builder();
+  }
+
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract ExportDefinition.Builder setEngine(ExportEngine engine);

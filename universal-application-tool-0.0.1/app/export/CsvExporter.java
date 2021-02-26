@@ -28,6 +28,7 @@ public class CsvExporter implements Exporter {
     CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT.withFirstRecordAsHeader());
     if (!wroteHeaders) {
       this.writeHeaders(printer);
+      wroteHeaders = true;
     }
     for (String column : this.columns) {
       Optional<String> value = applicant.getApplicantData().readString(column);

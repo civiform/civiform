@@ -1,7 +1,6 @@
 package export;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import models.Program;
 import services.program.ExportDefinition;
@@ -13,10 +12,15 @@ public class ExporterFactory {
     for (ExportDefinition exportDefinition : program.getProgramDefinition().exportDefinitions()) {
       switch (exportDefinition.engine()) {
         case PDF:
-          list.add(new PdfExporter(exportDefinition.pdfConfig().baseDocument(), ImmutableMap.of()));
+          list.add(
+              new PdfExporter(
+                  exportDefinition.pdfConfig().baseDocument(),
+                  exportDefinition.pdfConfig().mappings()));
           break;
         case CSV:
-          list.add(new CsvExporter(exportDefinition.csvConfig().headers(), exportDefinition.csvConfig().columns()));
+          list.add(
+              new CsvExporter(
+                  exportDefinition.csvConfig().headers(), exportDefinition.csvConfig().columns()));
           break;
         default:
           throw new IllegalArgumentException(
