@@ -1,5 +1,6 @@
 package export;
 
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
@@ -7,21 +8,23 @@ import java.util.Optional;
 import models.Applicant;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import services.program.Column;
 
 public class CsvExporter implements Exporter {
   private boolean wroteHeaders;
-  private List<String> headers;
-  private List<String> columns;
+  private ImmutableList<Column> columns;
 
-  public CsvExporter(List<String> headers, List<String> columns) {
+  public CsvExporter(List<Column> columns) {
     this.wroteHeaders = false;
-    this.headers = headers;
-    this.columns = columns;
+    this.columns = ImmutableList.copyOf(columns);
   }
 
   private void maybeWriteHeaders(CSVPrinter printer) throws IOException {
     if (!wroteHeaders) {
-      printer.printRecord(headers);
+      for (Column column : columns) {
+        printer.print(column.header());
+      }
+      printer.println();
       wroteHeaders = true;
     }
   }
@@ -35,8 +38,8 @@ public class CsvExporter implements Exporter {
   public void export(Applicant applicant, Writer writer) throws IOException {
     CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT.withFirstRecordAsHeader());
     this.maybeWriteHeaders(printer);
-    for (String column : this.columns) {
-      Optional<String> value = applicant.getApplicantData().readString(column);
+    for (Column column : this.columns) {
+      Optional<String> value = applicant.getApplicantData().readString(column.jsonPath());
       printer.print(value.orElse("COLUMN_EMPTY"));
     }
     printer.println();

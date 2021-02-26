@@ -35,12 +35,21 @@ public class CsvExporterTest {
                     .setCsvConfig(
                         // write the first and last name, plus some misc. data.
                         CsvExportConfig.builder()
-                            .setHeaders(ImmutableList.of("first name", "last name", "column"))
-                            .setColumns(
-                                ImmutableList.of(
-                                    "$.applicant.first_name",
-                                    "$.applicant.last_name",
-                                    "$.applicant.column"))
+                            .addColumn(
+                                Column.builder()
+                                    .setHeader("first name")
+                                    .setJsonPath("$.applicant.first_name")
+                                    .build())
+                            .addColumn(
+                                Column.builder()
+                                    .setHeader("last name")
+                                    .setJsonPath("$.applicant.last_name")
+                                    .build())
+                            .addColumn(
+                                Column.builder()
+                                    .setHeader("column")
+                                    .setJsonPath("$.applicant.column")
+                                    .build())
                             .build())
                     .build())
             .build();

@@ -18,9 +18,7 @@ public class ExporterFactory {
                   exportDefinition.pdfConfig().mappings()));
           break;
         case CSV:
-          list.add(
-              new CsvExporter(
-                  exportDefinition.csvConfig().headers(), exportDefinition.csvConfig().columns()));
+          list.add(new CsvExporter(exportDefinition.csvConfig().columns()));
           break;
         default:
           throw new IllegalArgumentException(
