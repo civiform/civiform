@@ -44,6 +44,14 @@ public class ResourceCreator {
     return question;
   }
 
+  public QuestionDefinition insertQuestionDefinition() {
+    return questionService
+        .create(
+            new TextQuestionDefinition(
+                1L, "", "my.path.name", "", ImmutableMap.of(), ImmutableMap.of()))
+        .get();
+  }
+
   public Program insertProgram(String name) {
     Program program = new Program(name, "description");
     program.save();
@@ -73,7 +81,7 @@ public class ResourceCreator {
           programService.setBlockQuestions(
               programDefinition.id(),
               programDefinition.blockDefinitions().get(0).id(),
-              ImmutableList.of(ProgramQuestionDefinition.create(insertQuestion("my.path"))));
+              ImmutableList.of(ProgramQuestionDefinition.create(insertQuestionDefinition())));
 
       return programDefinition;
     } catch (Exception e) {
