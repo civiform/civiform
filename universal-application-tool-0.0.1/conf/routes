@@ -44,8 +44,8 @@ GET /applicants/:applicantId/programs/:programId/edit   controllers.applicant.Ap
 GET     /assets/*file               controllers.Assets.versioned(file)
 
 # Applicant program forms
-GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit   controllers.ApplicantProgramBlocksController.edit(request: Request, applicantId: Long, programId: Long, blockId: Long)
-POST    /applicants/:applicantId/programs/:programId/blocks/:blockId        controllers.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: Long)
+GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit   controllers.applicant.ApplicantProgramBlocksController.edit(request: Request, applicantId: Long, programId: Long, blockId: Long)
+POST    /applicants/:applicantId/programs/:programId/blocks/:blockId        controllers.applicant.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: Long)
 
 # User profile pages
 GET     /users/me                    controllers.ProfileController.myProfile(request: Request)
