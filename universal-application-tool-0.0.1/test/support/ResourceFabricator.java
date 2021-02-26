@@ -8,6 +8,7 @@ import java.util.Locale;
 import models.Applicant;
 import models.Program;
 import play.inject.Injector;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
@@ -73,5 +74,18 @@ public class ResourceFabricator {
 
   public <T> T instanceOf(Class<T> clazz) {
     return injector.instanceOf(clazz);
+  }
+
+  public Program insertProgram(String name, BlockDefinition block) {
+    Program program = new Program(name, "description");
+
+    program.save();
+
+    ProgramDefinition programDefinition =
+        program.getProgramDefinition().toBuilder().addBlockDefinition(block).build();
+    program = programDefinition.toProgram();
+    program.update();
+
+    return program;
   }
 }
