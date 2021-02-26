@@ -41,11 +41,11 @@ public class QuestionRepository {
       this.newPath = checkNotNull(newPath);
     }
 
-    public Optional<Question> getConflictedQuestion() {
+    Optional<Question> getConflictedQuestion() {
       return conflictedQuestion;
     }
 
-    public boolean checkConflict(Question question) {
+    boolean checkConflict(Question question) {
       boolean proceed = true;
       if (pathConflicts(question.getPath(), newPath)) {
         conflictedQuestion = Optional.of(question);
@@ -54,7 +54,7 @@ public class QuestionRepository {
       return proceed;
     }
 
-    public static boolean pathConflicts(String path, String otherPath) {
+    static boolean pathConflicts(String path, String otherPath) {
       path = path.toLowerCase();
       otherPath = otherPath.toLowerCase();
       return path.startsWith(otherPath) || otherPath.startsWith(path);
