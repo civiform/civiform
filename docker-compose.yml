@@ -28,4 +28,4 @@ services:
     build: .
     volumes:
       - ./universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1
-    command: ~run
+    command: sbt ~run
