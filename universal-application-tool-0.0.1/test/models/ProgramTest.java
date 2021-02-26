@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.OptionalLong;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +37,7 @@ public class ProgramTest extends WithPostgresContainer {
             "applicant.name",
             "applicant's name",
             ImmutableMap.of(Locale.US, "What is your name?"),
-            Optional.empty());
+            ImmutableMap.of());
 
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
@@ -87,7 +86,7 @@ public class ProgramTest extends WithPostgresContainer {
             "applicant.address",
             "applicant's address",
             ImmutableMap.of(Locale.US, "What is your address?"),
-            Optional.empty());
+            ImmutableMap.of());
     NameQuestionDefinition nameQuestionDefinition =
         new NameQuestionDefinition(
             OptionalLong.of(789L),
@@ -96,7 +95,7 @@ public class ProgramTest extends WithPostgresContainer {
             "applicant.name",
             "applicant's name",
             ImmutableMap.of(Locale.US, "What is your name?"),
-            Optional.empty());
+            ImmutableMap.of());
 
     BlockDefinition blockDefinition =
         BlockDefinition.builder()

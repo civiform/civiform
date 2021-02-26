@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import java.util.Optional;
 import org.junit.Test;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
@@ -35,7 +34,7 @@ public class QuestionFormTest {
             "my.question.path",
             "description",
             ImmutableMap.of(Locale.ENGLISH, "What is the question text?"),
-            Optional.empty());
+            ImmutableMap.of());
     QuestionDefinition actual = builder.build();
 
     assertThat(actual.isPersisted()).isFalse();

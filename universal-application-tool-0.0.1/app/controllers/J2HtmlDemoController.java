@@ -6,14 +6,14 @@ import javax.inject.Inject;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import views.J2HtmlDemo;
+import views.J2HtmlDemoView;
 
 public class J2HtmlDemoController extends Controller {
 
-  private final J2HtmlDemo view;
+  private final J2HtmlDemoView view;
 
   @Inject
-  public J2HtmlDemoController(J2HtmlDemo view) {
+  public J2HtmlDemoController(J2HtmlDemoView view) {
     this.view = checkNotNull(view);
   }
 

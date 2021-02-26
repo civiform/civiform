@@ -66,7 +66,8 @@ public abstract class BaseHtmlView {
   }
 
   protected Tag textField(String fieldName, String labelText) {
-    return label(text(labelText), input().withType("text").withName(fieldName))
+    return label()
+        .with(text(labelText), input().withType("text").withName(fieldName))
         .attr(Attr.FOR, fieldName);
   }
 
@@ -82,21 +83,31 @@ public abstract class BaseHtmlView {
   }
 
   protected Tag passwordField(String id, String fieldName, String labelText) {
-    return label(text(labelText), input().withType("password").withName(fieldName).withId(id))
+    return label()
+        .with(text(labelText), input().withType("password").withName(fieldName).withId(id))
         .attr(Attr.FOR, fieldName);
   }
 
   protected Tag passwordField(String fieldName, String labelText) {
-    return label(text(labelText), input().withType("password").withName(fieldName))
+    return label()
+        .with(text(labelText), input().withType("password").withName(fieldName))
         .attr(Attr.FOR, fieldName);
   }
 
-  protected Tag button(String id, String text) {
-    return button(text).withId(id);
+  protected Tag button(String textContents) {
+    return TagCreator.button(text(textContents)).withType("button");
   }
 
-  protected Tag button(String text) {
-    return TagCreator.button(text(text)).withType("button");
+  protected Tag button(String id, String textContents) {
+    return button(textContents).withId(id);
+  }
+
+  protected Tag submitButton(String textContents) {
+    return TagCreator.button(text(textContents)).withType("submit");
+  }
+
+  protected Tag submitButton(String id, String textContents) {
+    return submitButton(textContents).withId(id);
   }
 
   protected Tag redirectButton(String id, String text, String redirectUrl) {
@@ -120,14 +131,6 @@ public abstract class BaseHtmlView {
     }
 
     return ImmutableList.of(labelTag, br(), selectTag, br(), br());
-  }
-
-  protected Tag submitButton(String textContents) {
-    return input().withType("submit").withValue(textContents);
-  }
-
-  protected Tag submitButton(String id, String textContents) {
-    return input().withType("submit").withId(id).withValue(textContents);
   }
 
   /**

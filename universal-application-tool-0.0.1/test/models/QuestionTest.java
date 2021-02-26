@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import repository.QuestionRepository;
@@ -25,7 +24,7 @@ public class QuestionTest extends WithPostgresContainer {
   @Test
   public void canSaveQuestion() {
     QuestionDefinition definition =
-        new TextQuestionDefinition(1L, "test", "my.path", "", ImmutableMap.of(), Optional.empty());
+        new TextQuestionDefinition(1L, "test", "my.path", "", ImmutableMap.of(), ImmutableMap.of());
     Question question = new Question(definition);
 
     question.save();
@@ -38,7 +37,7 @@ public class QuestionTest extends WithPostgresContainer {
     assertThat(found.getQuestionDefinition().getPath()).isEqualTo("my.path");
     assertThat(found.getQuestionDefinition().getDescription()).isEqualTo("");
     assertThat(found.getQuestionDefinition().getQuestionText()).isEqualTo(ImmutableMap.of());
-    assertThat(found.getQuestionDefinition().getQuestionHelpText()).isEqualTo(Optional.empty());
+    assertThat(found.getQuestionDefinition().getQuestionHelpText()).isEqualTo(ImmutableMap.of());
   }
 
   @Test
@@ -50,7 +49,7 @@ public class QuestionTest extends WithPostgresContainer {
             "",
             "",
             ImmutableMap.of(Locale.ENGLISH, "hello"),
-            Optional.of(ImmutableMap.of(Locale.ENGLISH, "help")));
+            ImmutableMap.of(Locale.ENGLISH, "help"));
     Question question = new Question(definition);
 
     question.save();
@@ -60,13 +59,13 @@ public class QuestionTest extends WithPostgresContainer {
     assertThat(found.getQuestionDefinition().getQuestionText())
         .isEqualTo(ImmutableMap.of(Locale.ENGLISH, "hello"));
     assertThat(found.getQuestionDefinition().getQuestionHelpText())
-        .hasValue(ImmutableMap.of(Locale.ENGLISH, "help"));
+        .isEqualTo(ImmutableMap.of(Locale.ENGLISH, "help"));
   }
 
   @Test
   public void canSerializeDifferentQuestionTypes() {
     AddressQuestionDefinition address =
-        new AddressQuestionDefinition(1L, "address", "", "", ImmutableMap.of(), Optional.empty());
+        new AddressQuestionDefinition(1L, "address", "", "", ImmutableMap.of(), ImmutableMap.of());
     Question question = new Question(address);
 
     question.save();

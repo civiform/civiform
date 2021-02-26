@@ -11,10 +11,10 @@ import play.twirl.api.Content;
 import views.BaseHtmlView;
 
 public final class ProgramNewOneView extends BaseHtmlView {
-  private final AdminProgramLayout layout;
+  private final AdminLayout layout;
 
   @Inject
-  public ProgramNewOneView(AdminProgramLayout layout) {
+  public ProgramNewOneView(AdminLayout layout) {
     this.layout = layout;
   }
 
