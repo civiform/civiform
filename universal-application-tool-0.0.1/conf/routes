@@ -37,15 +37,15 @@ GET     /demo/new                   controllers.J2HtmlDemoController.newOne(requ
 POST    /demo                       controllers.J2HtmlDemoController.create(request: Request)
 
 # Methods for applicants
-GET /applicants/:applicantId/programs                   controllers.applicant.ApplicantProgramsController.index(applicantId: Long)
-GET /applicants/:applicantId/programs/:programId/edit   controllers.applicant.ApplicantProgramsController.edit(applicantId: Long, programId: Long)
+GET     /applicants/:applicantId/programs                   controllers.applicant.ApplicantProgramsController.index(applicantId: Long)
+GET     /applicants/:applicantId/programs/:programId/edit   controllers.applicant.ApplicantProgramsController.edit(applicantId: Long, programId: Long)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(file)
 
 # Applicant program forms
-GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit   controllers.ApplicantProgramBlocksController.edit(request: Request, applicantId: Long, programId: Long, blockId: Long)
-POST    /applicants/:applicantId/programs/:programId/blocks/:blockId        controllers.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: Long)
+GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit   controllers.applicant.ApplicantProgramBlocksController.edit(request: Request, applicantId: Long, programId: Long, blockId: Long)
+POST    /applicants/:applicantId/programs/:programId/blocks/:blockId        controllers.applicant.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: Long)
 
 # User profile pages
 GET     /users/me                    controllers.ProfileController.myProfile(request: Request)

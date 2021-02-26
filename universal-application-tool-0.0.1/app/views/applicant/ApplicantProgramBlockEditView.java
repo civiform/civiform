@@ -7,6 +7,7 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.p;
 
 import com.google.inject.Inject;
+import controllers.applicant.routes;
 import j2html.tags.Tag;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
@@ -30,9 +31,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
   public Content render(Request request, long applicantId, long programId, Block block) {
     String formAction =
-        controllers.routes.ApplicantProgramBlocksController.update(
-                applicantId, programId, block.getId())
-            .url();
+        routes.ApplicantProgramBlocksController.update(applicantId, programId, block.getId()).url();
 
     return layout.render(
         h1(block.getName()),
