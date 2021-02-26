@@ -28,7 +28,7 @@ import views.dev.DatabaseSeedView;
 public class DatabaseSeedController extends Controller {
   private final DatabaseSeedView view;
   private final ApplicationLifecycle appLifecycle;
-  private final EbeanConfig ebeanConfig;
+  private final EbeanServer ebeanServer;
   private final QuestionService questionService;
   private final ProgramService programService;
 
@@ -41,7 +41,7 @@ public class DatabaseSeedController extends Controller {
       ProgramService programService) {
     this.view = view;
     this.appLifecycle = appLifecycle;
-    this.ebeanConfig = ebeanConfig;
+    this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
     this.questionService = questionService;
     this.programService = programService;
 
@@ -58,7 +58,8 @@ public class DatabaseSeedController extends Controller {
     //   One to generate base mock content
     //   One to clear the databases
     ImmutableList<ProgramDefinition> programDefinitions = programService.listProgramDefinitions();
-    return ok(view.render(request, programDefinitions, request.flash().get("success")));
+    ImmutableList<QuestionDefinition> questionDefinitions = questionService.getReadOnlyQuestionService().toCompletableFuture().join().getAllQuestions();
+    return ok(view.render(request, programDefinitions, questionDefinitions, request.flash().get("success")));
   }
 
   public Result seed() {
@@ -149,7 +150,6 @@ public class DatabaseSeedController extends Controller {
   }
 
   private void truncateTables() {
-    EbeanServer server = Ebean.getServer(ebeanConfig.defaultServer());
-    server.truncate(Program.class, Question.class);
+    ebeanServer.truncate(Program.class, Question.class);
   }
 }

@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
+import services.question.QuestionDefinition;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 
@@ -34,25 +35,19 @@ public class DatabaseSeedView extends BaseHtmlView {
   public Content render(
       Request request,
       ImmutableList<ProgramDefinition> programDefinitions,
+      ImmutableList<QuestionDefinition> questionDefinitions,
       Optional<String> maybeFlash) {
 
-    String flash = "";
-    if (maybeFlash.isPresent()) flash = maybeFlash.get();
-
-    String prettyPrograms;
-    try {
-      prettyPrograms =
-              objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(programDefinitions);
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
-    }
+    String prettyPrograms = getPrettyJson(programDefinitions);
+    String prettyQuestions = getPrettyJson(questionDefinitions);
 
     return layout.htmlContent(
         head(title("Seed database")),
         body()
-            .with(div(flash))
+            .with(div(maybeFlash.orElse("")))
             .with(h1("Dev mode database manager"))
             .with(div().with(h2("Current Programs:")).with(pre(prettyPrograms)))
+            .with(div().with(h2("Current Questions:")).with(pre(prettyQuestions)))
             .with(
                 form()
                     .with(makeCsrfTokenInputTag(request))
@@ -66,5 +61,14 @@ public class DatabaseSeedView extends BaseHtmlView {
                     .withMethod("post")
                     .withAction(routes.DatabaseSeedController.clear().url()))
             .with(layout.tailwindStyles()));
+  }
+
+  private <T> String getPrettyJson(ImmutableList<T> list) {
+    try {
+      return
+              objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(list);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
