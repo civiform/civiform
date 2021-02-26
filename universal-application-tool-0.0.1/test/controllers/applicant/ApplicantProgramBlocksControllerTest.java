@@ -25,8 +25,8 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
   @Before
   public void setUp() {
     subject = instanceOf(ApplicantProgramBlocksController.class);
-    program = resourceFabricator().insertProgramWithOneBlock("Test program");
-    applicant = resourceFabricator().insertApplicant();
+    program = resourceCreator().insertProgramWithOneBlock("Test program");
+    applicant = resourceCreator().insertApplicant();
   }
 
   @Test

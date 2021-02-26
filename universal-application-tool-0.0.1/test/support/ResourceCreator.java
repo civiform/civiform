@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.util.Locale;
 import models.Applicant;
 import models.Program;
 import models.Question;
@@ -13,18 +12,17 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
-import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionService;
 import services.question.TextQuestionDefinition;
 
-public class ResourceFabricator {
+public class ResourceCreator {
 
   private final Injector injector;
   private final ProgramService programService;
   private final QuestionService questionService;
 
-  public ResourceFabricator(Injector injector) {
+  public ResourceCreator(Injector injector) {
     this.injector = checkNotNull(injector);
     this.programService = injector.instanceOf(ProgramService.class);
     this.questionService = injector.instanceOf(QuestionService.class);
@@ -40,7 +38,7 @@ public class ResourceFabricator {
 
   public Question insertQuestion(String path, long version) {
     QuestionDefinition definition =
-            new TextQuestionDefinition(version, "", path, "", ImmutableMap.of(), ImmutableMap.of());
+        new TextQuestionDefinition(version, "", path, "", ImmutableMap.of(), ImmutableMap.of());
     Question question = new Question(definition);
     question.save();
     return question;
@@ -58,7 +56,7 @@ public class ResourceFabricator {
     program.save();
 
     ProgramDefinition programDefinition =
-            program.getProgramDefinition().toBuilder().addBlockDefinition(block).build();
+        program.getProgramDefinition().toBuilder().addBlockDefinition(block).build();
     program = programDefinition.toProgram();
     program.update();
 
@@ -67,8 +65,7 @@ public class ResourceFabricator {
 
   public ProgramDefinition insertProgramWithOneBlock(String name) {
     try {
-      ProgramDefinition programDefinition =
-          programService.createProgramDefinition(name, "desc");
+      ProgramDefinition programDefinition = programService.createProgramDefinition(name, "desc");
       programDefinition =
           programService.addBlockToProgram(
               programDefinition.id(), "test block", "test block description");
