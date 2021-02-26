@@ -1,6 +1,8 @@
 package app;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.fluentlenium.core.filter.FilterConstructor.withName;
+import static org.fluentlenium.core.filter.FilterConstructor.withText;
 import static play.test.Helpers.fakeApplication;
 
 import com.google.common.collect.ImmutableMap;
@@ -9,7 +11,6 @@ import java.util.Optional;
 import play.Application;
 import play.api.mvc.Call;
 import play.mvc.Http;
-import play.test.Helpers;
 import play.test.WithBrowser;
 
 public class BaseBrowserTest extends WithBrowser {
@@ -66,14 +67,14 @@ public class BaseBrowserTest extends WithBrowser {
    * @param name a name for the new program
    */
   protected void addProgram(String name) {
+    // Go to admin index and click "New Program"
     loginAsAdmin();
-    Http.RequestBuilder requestBuilder =
-        Helpers.fakeRequest()
-            .method("post")
-            .bodyForm(ImmutableMap.of("name", name, "description", "A new program"));
-    System.out.println(
-        controllers.admin.routes.AdminProgramController.create()
-            .relativeTo(requestBuilder.build()));
-    goTo(controllers.admin.routes.AdminProgramController.create(), requestBuilder);
+    goTo(controllers.admin.routes.AdminProgramController.index());
+    browser.$("#new-program").click();
+
+    // Fill out name and description for program and submit.
+    browser.$("input", withName("name")).fill().with(name);
+    browser.$("input", withName("description")).fill().with("Test description");
+    browser.$("button", withText("Create")).click();
   }
 }

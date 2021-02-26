@@ -32,7 +32,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             div(
                 form(
                     a("Add a Program")
-                        .attr(ID, "add-new")
+                        .attr(ID, "new-program")
                         .attr(HREF, controllers.admin.routes.AdminProgramController.newOne()))),
             div(each(programs, this::shortProgram))));
   }
