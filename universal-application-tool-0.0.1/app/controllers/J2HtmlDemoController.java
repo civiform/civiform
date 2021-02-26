@@ -76,7 +76,7 @@ public class J2HtmlDemoController extends Controller {
                 path,
                 "description",
                 ImmutableMap.of(Locale.ENGLISH, "question?"),
-                Optional.of(ImmutableMap.of(Locale.ENGLISH, "help text"))))
+                ImmutableMap.of(Locale.ENGLISH, "help text")))
         .get();
   }
 
