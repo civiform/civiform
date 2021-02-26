@@ -81,28 +81,33 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
-  public void lookupPathConflict_returnsFalseWhenNoQuestions() {
-    Boolean hasConflict = repo.lookupPathConflict("path.one").toCompletableFuture().join();
+  public void findConflictingQuestion_returnsEmptyWhenNoQuestions() {
+    Optional<Question> found =
+        repo.findConflictingQuestion("path.one").toCompletableFuture().join();
 
-    assertThat(hasConflict).isEqualTo(Boolean.FALSE);
+    assertThat(found).isEmpty();
   }
 
   @Test
-  public void lookupPathConflict_returnsFalseWhenNoPathConflict() {
+  public void findConflictingQuestion_returnsEmptyWhenNoPathConflict() {
     saveQuestion("path.one");
     saveQuestion("path.two");
-    Boolean hasConflict = repo.lookupPathConflict("path.other").toCompletableFuture().join();
 
-    assertThat(hasConflict).isEqualTo(Boolean.FALSE);
+    Optional<Question> found =
+        repo.findConflictingQuestion("path.other").toCompletableFuture().join();
+
+    assertThat(found).isEmpty();
   }
 
   @Test
-  public void lookupPathConflict_returnsTrueWhenPathConflicts() {
-    saveQuestion("path.one");
+  public void findConflictingQuestion_returnsQuestionWhenConflictingPath() {
+    Question questionOne = saveQuestion("path.one");
     saveQuestion("path.two");
-    Boolean hasConflict = repo.lookupPathConflict("path.one").toCompletableFuture().join();
 
-    assertThat(hasConflict).isEqualTo(Boolean.TRUE);
+    Optional<Question> found =
+        repo.findConflictingQuestion("path.one").toCompletableFuture().join();
+
+    assertThat(found).hasValue(questionOne);
   }
 
   @Test

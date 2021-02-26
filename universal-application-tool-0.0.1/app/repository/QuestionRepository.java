@@ -34,21 +34,21 @@ public class QuestionRepository {
   }
 
   static class PathConflictDetector {
-    private boolean conflict = false;
+    private Optional<Question> conflictedQuestion = Optional.empty();
     private final String newPath;
 
     PathConflictDetector(String newPath) {
       this.newPath = checkNotNull(newPath);
     }
 
-    public Boolean hasConflict() {
-      return Boolean.valueOf(conflict);
+    public Optional<Question> getConflictedQuestion() {
+      return conflictedQuestion;
     }
 
     public boolean checkConflict(Question question) {
       boolean proceed = true;
       if (pathConflicts(question.getPath(), newPath)) {
-        conflict = true;
+        conflictedQuestion = Optional.of(question);
         proceed = false;
       }
       return proceed;
@@ -61,12 +61,12 @@ public class QuestionRepository {
     }
   }
 
-  public CompletionStage<Boolean> lookupPathConflict(String newPath) {
+  public CompletionStage<Optional<Question>> findConflictingQuestion(String newPath) {
     return supplyAsync(
         () -> {
           PathConflictDetector detector = new PathConflictDetector(newPath);
           ebeanServer.find(Question.class).findEachWhile(detector::checkConflict);
-          return detector.hasConflict();
+          return detector.getConflictedQuestion();
         },
         executionContext);
   }

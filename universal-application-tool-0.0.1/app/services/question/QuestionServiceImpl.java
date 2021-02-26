@@ -64,7 +64,11 @@ public final class QuestionServiceImpl implements QuestionService {
       return false;
     }
     boolean hasConflict =
-        questionRepository.lookupPathConflict(newPath).toCompletableFuture().join().booleanValue();
+        questionRepository
+            .findConflictingQuestion(newPath)
+            .toCompletableFuture()
+            .join()
+            .isPresent();
     return !hasConflict;
   }
 
