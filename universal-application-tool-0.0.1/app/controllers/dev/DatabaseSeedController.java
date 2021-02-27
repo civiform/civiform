@@ -1,5 +1,7 @@
 package controllers.dev;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
@@ -38,11 +40,11 @@ public class DatabaseSeedController extends Controller {
       QuestionService questionService,
       ProgramService programService,
       Environment environment) {
-    this.view = view;
-    this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
-    this.questionService = questionService;
-    this.programService = programService;
-    this.environment = environment;
+    this.view = checkNotNull(view);
+    this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
+    this.questionService = checkNotNull(questionService);
+    this.programService = checkNotNull(programService);
+    this.environment = checkNotNull(environment);
   }
 
   /**
@@ -101,13 +103,13 @@ public class DatabaseSeedController extends Controller {
         .get();
   }
 
-  private QuestionDefinition insertTextQuestionDefinition(String name) {
+  private QuestionDefinition insertColorQuestionDefinition() {
     return questionService
         .create(
             new TextQuestionDefinition(
                 1L,
-                name,
-                "applicant." + name,
+                "color",
+                "applicant.color",
                 "description",
                 ImmutableMap.of(Locale.ENGLISH, "What is your favorite color?"),
                 ImmutableMap.of(Locale.ENGLISH, "help text")))
@@ -140,7 +142,7 @@ public class DatabaseSeedController extends Controller {
               programDefinition.blockDefinitions().get(0).id(),
               ImmutableList.of(
                   ProgramQuestionDefinition.create(insertNameQuestionDefinition()),
-                  ProgramQuestionDefinition.create(insertTextQuestionDefinition("color"))));
+                  ProgramQuestionDefinition.create(insertColorQuestionDefinition())));
 
       programDefinition =
           programService.addBlockToProgram(programDefinition.id(), "Block 2", "address");

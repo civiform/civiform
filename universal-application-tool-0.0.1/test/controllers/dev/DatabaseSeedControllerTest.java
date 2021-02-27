@@ -33,15 +33,13 @@ public class DatabaseSeedControllerTest extends WithPostgresContainer {
 
     // Seed the fake data.
     result = controller.seed();
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("The database has been seeded");
-    assertThat(contentAsString(result)).contains("Mock program");
+    assertThat(result.redirectLocation()).hasValue(routes.DatabaseSeedController.index().url());
+    assertThat(result.flash().get("success")).hasValue("The database has been seeded");
 
     // Clear the data.
     result = controller.clear();
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("The database has been cleared");
-    assertThat(contentAsString(result)).doesNotContain("Mock program");
+    assertThat(result.redirectLocation()).hasValue(routes.DatabaseSeedController.index().url());
+    assertThat(result.flash().get("success")).hasValue("The database has been cleared");
   }
 
   @Test

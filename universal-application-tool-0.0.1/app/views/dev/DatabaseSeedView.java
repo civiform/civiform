@@ -1,5 +1,6 @@
 package views.dev;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
@@ -29,8 +30,8 @@ public class DatabaseSeedView extends BaseHtmlView {
 
   @Inject
   public DatabaseSeedView(BaseHtmlLayout layout, ObjectMapper objectMapper) {
-    this.layout = layout;
-    this.objectMapper = objectMapper;
+    this.layout = checkNotNull(layout);
+    this.objectMapper = checkNotNull(objectMapper);
   }
 
   public Content render(
