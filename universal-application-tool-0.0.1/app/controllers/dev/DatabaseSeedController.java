@@ -6,7 +6,6 @@ import com.google.inject.Inject;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
 import models.Program;
 import models.Question;
 import play.Environment;
@@ -48,12 +47,6 @@ public class DatabaseSeedController extends Controller {
     this.questionService = questionService;
     this.programService = programService;
     this.environment = environment;
-
-    this.appLifecycle.addStopHook(
-        () -> {
-          truncateTables();
-          return CompletableFuture.completedFuture(null);
-        });
   }
 
   /**
