@@ -1,6 +1,7 @@
 package controllers.dev;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
@@ -12,6 +13,7 @@ import play.Mode;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Result;
 import repository.WithPostgresContainer;
+import support.TestConstants;
 
 public class DatabaseSeedControllerTest extends WithPostgresContainer {
 
@@ -25,7 +27,7 @@ public class DatabaseSeedControllerTest extends WithPostgresContainer {
   @Test
   public void seedAndClearDatabase_displaysCorrectInformation() {
     // Navigate to index before seeding - should not have the fake program.
-    Result result = controller.index(fakeRequest().build());
+    Result result = controller.index(addCSRFToken(fakeRequest()).build());
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).doesNotContain("Mock program");
 
@@ -69,6 +71,7 @@ public class DatabaseSeedControllerTest extends WithPostgresContainer {
   private DatabaseSeedController createControllerInMode(Mode mode) {
     return new GuiceApplicationBuilder()
         .in(mode)
+        .configure(TestConstants.TEST_DATABASE_CONFIG)
         .build()
         .injector()
         .instanceOf(DatabaseSeedController.class);
