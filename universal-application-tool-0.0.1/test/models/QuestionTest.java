@@ -1,6 +1,7 @@
 package models;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
@@ -10,7 +11,9 @@ import repository.QuestionRepository;
 import repository.WithPostgresContainer;
 import services.question.AddressQuestionDefinition;
 import services.question.QuestionDefinition;
+import services.question.QuestionDefinitionBuilder;
 import services.question.TextQuestionDefinition;
+import services.question.UnsupportedQuestionTypeException;
 
 public class QuestionTest extends WithPostgresContainer {
 
@@ -22,7 +25,7 @@ public class QuestionTest extends WithPostgresContainer {
   }
 
   @Test
-  public void canSaveQuestion() {
+  public void canSaveQuestion() throws UnsupportedQuestionTypeException {
     QuestionDefinition definition =
         new TextQuestionDefinition(1L, "test", "my.path", "", ImmutableMap.of(), ImmutableMap.of());
     Question question = new Question(definition);
@@ -31,13 +34,8 @@ public class QuestionTest extends WithPostgresContainer {
 
     Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
-    assertThat(found.getQuestionDefinition().getId()).isEqualTo(question.id);
-    assertThat(found.getQuestionDefinition().getVersion()).isEqualTo(1L);
-    assertThat(found.getQuestionDefinition().getName()).isEqualTo("test");
-    assertThat(found.getQuestionDefinition().getPath()).isEqualTo("my.path");
-    assertThat(found.getQuestionDefinition().getDescription()).isEqualTo("");
-    assertThat(found.getQuestionDefinition().getQuestionText()).isEqualTo(ImmutableMap.of());
-    assertThat(found.getQuestionDefinition().getQuestionHelpText()).isEqualTo(ImmutableMap.of());
+    QuestionDefinition expected = new QuestionDefinitionBuilder(definition).setId(question.id).build();
+    assertEquals(expected, found.getQuestionDefinition());
   }
 
   @Test
