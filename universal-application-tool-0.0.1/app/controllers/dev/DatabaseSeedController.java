@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import models.Program;
 import models.Question;
+import play.Environment;
 import play.db.ebean.EbeanConfig;
 import play.inject.ApplicationLifecycle;
 import play.mvc.Controller;
@@ -31,6 +32,7 @@ public class DatabaseSeedController extends Controller {
   private final EbeanServer ebeanServer;
   private final QuestionService questionService;
   private final ProgramService programService;
+  private final Environment environment;
 
   @Inject
   public DatabaseSeedController(
@@ -38,12 +40,14 @@ public class DatabaseSeedController extends Controller {
       ApplicationLifecycle appLifecycle,
       EbeanConfig ebeanConfig,
       QuestionService questionService,
-      ProgramService programService) {
+      ProgramService programService,
+      Environment environment) {
     this.view = view;
     this.appLifecycle = appLifecycle;
     this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
     this.questionService = questionService;
     this.programService = programService;
+    this.environment = environment;
 
     this.appLifecycle.addStopHook(
         () -> {
@@ -52,34 +56,50 @@ public class DatabaseSeedController extends Controller {
         });
   }
 
+  /**
+   * Display state of the database in roughly formatted string. Displays a button to generate mock
+   * database content and another to clear the database.
+   */
   public Result index(Request request) {
-    // Display state of the database in roughly formatted string
-    // Offer two buttons:
-    //   One to generate base mock content
-    //   One to clear the databases
-    ImmutableList<ProgramDefinition> programDefinitions = programService.listProgramDefinitions();
-    ImmutableList<QuestionDefinition> questionDefinitions = questionService.getReadOnlyQuestionService().toCompletableFuture().join().getAllQuestions();
-    return ok(view.render(request, programDefinitions, questionDefinitions, request.flash().get("success")));
+    if (environment.isDev()) {
+      ImmutableList<ProgramDefinition> programDefinitions = programService.listProgramDefinitions();
+      ImmutableList<QuestionDefinition> questionDefinitions =
+          questionService
+              .getReadOnlyQuestionService()
+              .toCompletableFuture()
+              .join()
+              .getAllQuestions();
+      return ok(
+          view.render(
+              request, programDefinitions, questionDefinitions, request.flash().get("success")));
+    } else {
+      return notFound();
+    }
   }
 
   public Result seed() {
-    // Need to make sure to only insert the base mock content if it's not already there - otherwise
-    // we will run into issues with duplicate paths. Do this by checking for the program rather
-    // than truncating tables.
-    truncateTables();
-    insertProgramWithBlocks("Mock program");
-    return redirect(routes.DatabaseSeedController.index().url())
-        .flashing("success", "The database has been seeded");
+    // TODO: consider checking whether the test program already exists.
+    if (environment.isDev()) {
+      insertProgramWithBlocks("Mock program");
+      return redirect(routes.DatabaseSeedController.index().url())
+          .flashing("success", "The database has been seeded");
+    } else {
+      return notFound();
+    }
   }
 
+  /** Remove all content from the program and question tables. */
   public Result clear() {
-    // Remove all content from database.
-    truncateTables();
-    return redirect(routes.DatabaseSeedController.index().url())
-        .flashing("success", "The database has been cleared");
+    if (environment.isDev()) {
+      truncateTables();
+      return redirect(routes.DatabaseSeedController.index().url())
+          .flashing("success", "The database has been cleared");
+    } else {
+      return notFound();
+    }
   }
 
-  public QuestionDefinition insertNameQuestionDefinition() {
+  private QuestionDefinition insertNameQuestionDefinition() {
     return questionService
         .create(
             new NameQuestionDefinition(
@@ -92,7 +112,7 @@ public class DatabaseSeedController extends Controller {
         .get();
   }
 
-  public QuestionDefinition insertTextQuestionDefinition(String name) {
+  private QuestionDefinition insertTextQuestionDefinition(String name) {
     return questionService
         .create(
             new TextQuestionDefinition(
@@ -105,7 +125,7 @@ public class DatabaseSeedController extends Controller {
         .get();
   }
 
-  public QuestionDefinition insertAddressQuestionDefinition() {
+  private QuestionDefinition insertAddressQuestionDefinition() {
     return questionService
         .create(
             new AddressQuestionDefinition(
@@ -118,7 +138,7 @@ public class DatabaseSeedController extends Controller {
         .get();
   }
 
-  public ProgramDefinition insertProgramWithBlocks(String name) {
+  private ProgramDefinition insertProgramWithBlocks(String name) {
     try {
       ProgramDefinition programDefinition = programService.createProgramDefinition(name, "desc");
 
@@ -134,14 +154,13 @@ public class DatabaseSeedController extends Controller {
                   ProgramQuestionDefinition.create(insertTextQuestionDefinition("color"))));
 
       programDefinition =
-              programService.addBlockToProgram(
-                      programDefinition.id(), "Block 2", "address");
+          programService.addBlockToProgram(programDefinition.id(), "Block 2", "address");
       programDefinition =
-              programService.setBlockQuestions(
-                      programDefinition.id(),
-                      programDefinition.blockDefinitions().get(1).id(),
-                      ImmutableList.of(
-                              ProgramQuestionDefinition.create(insertAddressQuestionDefinition())));
+          programService.setBlockQuestions(
+              programDefinition.id(),
+              programDefinition.blockDefinitions().get(1).id(),
+              ImmutableList.of(
+                  ProgramQuestionDefinition.create(insertAddressQuestionDefinition())));
 
       return programDefinition;
     } catch (Exception e) {

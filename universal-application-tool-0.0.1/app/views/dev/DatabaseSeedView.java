@@ -42,10 +42,10 @@ public class DatabaseSeedView extends BaseHtmlView {
     String prettyQuestions = getPrettyJson(questionDefinitions);
 
     return layout.htmlContent(
-        head(title("Seed database")),
+        head(title("Dev Database Seeder")),
         body()
             .with(div(maybeFlash.orElse("")))
-            .with(h1("Dev mode database manager"))
+            .with(h1("Dev Database Seeder"))
             .with(div().with(h2("Current Programs:")).with(pre(prettyPrograms)))
             .with(div().with(h2("Current Questions:")).with(pre(prettyQuestions)))
             .with(
@@ -57,7 +57,7 @@ public class DatabaseSeedView extends BaseHtmlView {
             .with(
                 form()
                     .with(makeCsrfTokenInputTag(request))
-                    .with(submitButton("Clear all programs"))
+                    .with(submitButton("Clear all programs and questions"))
                     .withMethod("post")
                     .withAction(routes.DatabaseSeedController.clear().url()))
             .with(layout.tailwindStyles()));
@@ -65,8 +65,7 @@ public class DatabaseSeedView extends BaseHtmlView {
 
   private <T> String getPrettyJson(ImmutableList<T> list) {
     try {
-      return
-              objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(list);
+      return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(list);
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
     }
