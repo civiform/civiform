@@ -34,7 +34,8 @@ public class QuestionTest extends WithPostgresContainer {
 
     Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
-    QuestionDefinition expected = new QuestionDefinitionBuilder(definition).setId(question.id).build();
+    QuestionDefinition expected =
+        new QuestionDefinitionBuilder(definition).setId(question.id).build();
     assertEquals(expected, found.getQuestionDefinition());
   }
 

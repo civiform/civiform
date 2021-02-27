@@ -2,7 +2,6 @@ package services.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;

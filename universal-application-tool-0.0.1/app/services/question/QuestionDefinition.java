@@ -142,24 +142,23 @@ public abstract class QuestionDefinition {
   }
 
   @Override
-  public boolean equals(Object other) {    
+  public boolean equals(Object other) {
     if (other instanceof QuestionDefinition) {
       QuestionDefinition o = (QuestionDefinition) other;
-      
-      return this.equalsIgnoreId(other) 
-        && this.isPersisted() == o.isPersisted()
-        && (!this.isPersisted() || this.getId() == o.getId());
+
+      return this.equalsIgnoreId(other)
+          && this.isPersisted() == o.isPersisted()
+          && (!this.isPersisted() || this.getId() == o.getId());
     }
 
     return false;
   }
 
   /**
-   * When an object is created, it is sent to the server without an id.
-   * The object returned from QuestionService should be the QuestionDefinition 
-   * with the id.
-   * 
-   * This checks all other fields ignoring the id.
+   * When an object is created, it is sent to the server without an id. The object returned from
+   * QuestionService should be the QuestionDefinition with the id.
+   *
+   * <p>This checks all other fields ignoring the id.
    */
   public boolean equalsIgnoreId(Object other) {
     if (other instanceof QuestionDefinition) {
@@ -174,6 +173,5 @@ public abstract class QuestionDefinition {
           && this.questionHelpText.equals(o.getQuestionHelpText());
     }
     return false;
-    
   }
 }
