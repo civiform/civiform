@@ -21,6 +21,7 @@ import services.program.ProgramDefinition;
 import services.question.QuestionDefinition;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
+import views.Styles;
 
 public class DatabaseSeedView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
@@ -46,21 +47,27 @@ public class DatabaseSeedView extends BaseHtmlView {
         body()
             .with(div(maybeFlash.orElse("")))
             .with(h1("Dev Database Seeder"))
-            .with(div().with(h2("Current Programs:")).with(pre(prettyPrograms)))
-            .with(div().with(h2("Current Questions:")).with(pre(prettyQuestions)))
             .with(
-                form()
-                    .with(makeCsrfTokenInputTag(request))
-                    .with(submitButton("Generate mock program"))
-                    .withMethod("post")
-                    .withAction(routes.DatabaseSeedController.seed().url()))
+                div()
+                    .with(
+                        form()
+                            .with(makeCsrfTokenInputTag(request))
+                            .with(submitButton("Generate mock program"))
+                            .withMethod("post")
+                            .withAction(routes.DatabaseSeedController.seed().url()))
+                    .with(
+                        form()
+                            .with(makeCsrfTokenInputTag(request))
+                            .with(submitButton("Clear all programs and questions"))
+                            .withMethod("post")
+                            .withAction(routes.DatabaseSeedController.clear().url())))
             .with(
-                form()
-                    .with(makeCsrfTokenInputTag(request))
-                    .with(submitButton("Clear all programs and questions"))
-                    .withMethod("post")
-                    .withAction(routes.DatabaseSeedController.clear().url()))
-            .with(layout.tailwindStyles()));
+                div()
+                    .withClasses(Styles.GRID, Styles.GRID_COLS_2)
+                    .with(div().with(h2("Current Programs:")).with(pre(prettyPrograms)))
+                    .with(div().with(h2("Current Questions:")).with(pre(prettyQuestions))))
+            .with(layout.tailwindStyles())
+            .withClasses(Styles.PX_5, Styles.PY_6));
   }
 
   private <T> String getPrettyJson(ImmutableList<T> list) {
