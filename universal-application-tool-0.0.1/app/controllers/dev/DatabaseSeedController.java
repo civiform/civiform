@@ -10,7 +10,6 @@ import models.Program;
 import models.Question;
 import play.Environment;
 import play.db.ebean.EbeanConfig;
-import play.inject.ApplicationLifecycle;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
@@ -27,7 +26,6 @@ import views.dev.DatabaseSeedView;
 /** Controller for seeding the database with test content to develop against. */
 public class DatabaseSeedController extends Controller {
   private final DatabaseSeedView view;
-  private final ApplicationLifecycle appLifecycle;
   private final EbeanServer ebeanServer;
   private final QuestionService questionService;
   private final ProgramService programService;
@@ -36,13 +34,11 @@ public class DatabaseSeedController extends Controller {
   @Inject
   public DatabaseSeedController(
       DatabaseSeedView view,
-      ApplicationLifecycle appLifecycle,
       EbeanConfig ebeanConfig,
       QuestionService questionService,
       ProgramService programService,
       Environment environment) {
     this.view = view;
-    this.appLifecycle = appLifecycle;
     this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
     this.questionService = questionService;
     this.programService = programService;
