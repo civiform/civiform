@@ -3,6 +3,7 @@ package views.admin.programs;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.li;
@@ -30,34 +31,36 @@ public class ProgramBlockEditView extends BaseHtmlView {
     this.layout = checkNotNull(layout);
   }
 
-  public Content render(Request request, ProgramDefinition program, BlockDefinition block,
+  public Content render(
+      Request request,
+      ProgramDefinition program,
+      BlockDefinition block,
       ImmutableList<QuestionDefinition> questions) {
     Tag csrfTag = makeCsrfTokenInputTag(request);
     System.out.println(csrfTag.render());
     return layout.render(
         title(program),
-        topButtons(program),
+        topButtons(request, program),
         div()
             .withClass(Styles.FLEX)
             .with(blockOrderPanel(program, block))
-            .with(blockEditPanel(block))
-            .with(questionBankPanel(questions))
-    );
+            .with(blockEditPanel(request, program, block))
+            .with(questionBankPanel(questions)));
   }
 
   private Tag title(ProgramDefinition program) {
     return h1(program.name() + " Questions");
   }
 
-  private ContainerTag topButtons(ProgramDefinition program) {
-    String addBlockUrl = controllers.admin.routes.AdminProgramBlocksController.create(program.id())
-        .url();
+  private ContainerTag topButtons(Request request, ProgramDefinition program) {
+    String addBlockUrl =
+        controllers.admin.routes.AdminProgramBlocksController.create(program.id()).url();
+    ContainerTag addBlockButton =
+            form(makeCsrfTokenInputTag(request), submitButton("Add Block"))
+                    .withMethod("post")
+                    .withAction(addBlockUrl);
 
-    return
-        div().with(
-            a("Add block")
-                .withHref(
-                    addBlockUrl));
+    return div(addBlockButton);
   }
 
   private ContainerTag blockOrderPanel(ProgramDefinition program, BlockDefinition focusedBlock) {
@@ -79,23 +82,29 @@ public class ProgramBlockEditView extends BaseHtmlView {
     return div().withClasses(Styles.FLEX_INITIAL).with(list);
   }
 
-  private ContainerTag blockEditPanel(BlockDefinition block) {
-    return div()
-        .withClass(Styles.FLEX_AUTO)
-        .with(h1(block.name()));
+  private ContainerTag blockEditPanel(
+      Request request, ProgramDefinition program, BlockDefinition block) {
+    return div().withClass(Styles.FLEX_AUTO).with(blockEditPanelTop(request, program, block));
+  }
+
+  private ContainerTag blockEditPanelTop(
+      Request request, ProgramDefinition program, BlockDefinition block) {
+    String deleteBlockLink =
+        controllers.admin.routes.AdminProgramBlocksController.destroy(program.id(), block.id())
+            .url();
+    ContainerTag deleteButton =
+        form(makeCsrfTokenInputTag(request), submitButton("Delete Block"))
+            .withMethod("post")
+            .withAction(deleteBlockLink);
+    return div().withClass(Styles.FLEX).with(h1(block.name())).with(deleteButton);
   }
 
   private ContainerTag questionBankPanel(ImmutableList<QuestionDefinition> questionDefinitions) {
     ContainerTag questionList = ul().withClass(Styles.OVERFLOW_X_SCROLL);
 
-    questionDefinitions.forEach(questionDefinition ->
-        questionList.with(
-            li(questionDefinition.getName())
-        )
-    );
+    questionDefinitions.forEach(
+        questionDefinition -> questionList.with(li(questionDefinition.getName())));
 
-    return div().withClasses(Styles.FLEX_INITIAL)
-        .with(h2("Question Bank"))
-        .with(questionList);
+    return div().withClasses(Styles.FLEX_INITIAL).with(h2("Question Bank")).with(questionList);
   }
 }

@@ -104,15 +104,15 @@ APIs should follow [REST](https://en.wikipedia.org/wiki/Representational_state_t
 
 For a resource called "programs" that implements the standard actions via HTML requests the routes would be:
 
-|HTTP verb|URL path          |Controller#method         |Use                                                                                                                                                      |
-|---------|------------------|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
-|GET      |/programs         |ProgramsController#index  |Get a list of all programs                                                                                                                               |
-|GET      |/programs/new     |ProgramsController#newOne |Get an HTML form for creating a new program (Note: the associated controller method is named `newOne` since `new` is disallowed as a method name in Java)|
-|POST     |/programs         |ProgramsController#create |Create a new program, probably redirect to the #show method to view it                                                                                   |
-|GET      |/programs/:id     |ProgramsController#show   |Get the details of a specific program                                                                                                                    |
-|GET      |/programs/:id/edit|ProgramsController#edit   |Get an HTML form for editing an existing program                                                                                                         |
-|PATCH/PUT|/programs/:id     |ProgramsController#update |Update an existing program                                                                                                                               |
-|DELETE   |/programs/:id     |ProgramsController#destroy|Delete an existing program, probably redirect to the #index method                                                                                       |
+|HTTP verb|URL path             |Controller#method         |Use                                                                                                                                                      |
+|---------|---------------------|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+|GET      |/programs            |ProgramsController#index  |Get a list of all programs                                                                                                                               |
+|GET      |/programs/new        |ProgramsController#newOne |Get an HTML form for creating a new program (Note: the associated controller method is named `newOne` since `new` is disallowed as a method name in Java)|
+|POST     |/programs            |ProgramsController#create |Create a new program, probably redirect to the #show method to view it                                                                                   |
+|GET      |/programs/:id        |ProgramsController#show   |Get the details of a specific program                                                                                                                    |
+|GET      |/programs/:id/edit   |ProgramsController#edit   |Get an HTML form for editing an existing program                                                                                                         |
+|POST     |/programs/:id        |ProgramsController#update |Update an existing program                                                                                                                               |
+|POST     |/programs/:id/delete |ProgramsController#destroy|Delete an existing program, probably redirect to the #index method                                                                                       |
 
 #### API routing convention
 

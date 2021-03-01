@@ -24,7 +24,9 @@ public class AdminProgramBlocksController extends Controller {
 
   @Inject
   public AdminProgramBlocksController(
-      ProgramService programService, QuestionService questionService, ProgramBlockEditView editView,
+      ProgramService programService,
+      QuestionService questionService,
+      ProgramBlockEditView editView,
       FormFactory formFactory) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
@@ -79,9 +81,18 @@ public class AdminProgramBlocksController extends Controller {
     }
 
     BlockDefinition block = blockMaybe.get();
-    ReadOnlyQuestionService roQuestionService = questionService.getReadOnlyQuestionService()
-        .toCompletableFuture().join();
+    ReadOnlyQuestionService roQuestionService =
+        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
     return ok(editView.render(request, program, block, roQuestionService.getAllQuestions()));
+  }
+
+  public Result destroy(long programId, long blockId) {
+    try {
+      programService.deleteBlock(programId, blockId);
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    }
+    return redirect(routes.AdminProgramBlocksController.index(programId));
   }
 }
