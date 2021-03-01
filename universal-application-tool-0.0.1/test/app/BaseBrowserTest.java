@@ -63,7 +63,7 @@ public class BaseBrowserTest extends WithBrowser {
   protected long loginAsApplicant() {
     goTo(routes.HomeController.loginForm(Optional.empty()));
     browser.$("#guest").click();
-    String guestId = browser.$("#guest-id").values().get(0);
+    String guestId = browser.$("#guest-id").first().text();
     return Long.parseLong(guestId);
   }
 
