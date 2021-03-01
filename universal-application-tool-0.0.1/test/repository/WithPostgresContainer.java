@@ -3,7 +3,6 @@ package repository;
 import static play.test.Helpers.fakeApplication;
 
 import akka.stream.Materializer;
-import com.google.common.collect.ImmutableMap;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import models.Applicant;
@@ -17,6 +16,7 @@ import play.Application;
 import play.db.ebean.EbeanConfig;
 import play.test.Helpers;
 import support.ResourceCreator;
+import support.TestConstants;
 
 public class WithPostgresContainer {
 
@@ -43,22 +43,7 @@ public class WithPostgresContainer {
   }
 
   protected static Application provideApplication() {
-    return fakeApplication(
-        ImmutableMap.of(
-            "db.default.driver",
-            "org.testcontainers.jdbc.ContainerDatabaseDriver",
-            "db.default.url",
-            /* This is a magic string.  The components of it are
-             * jdbc: the standard java database connection uri scheme
-             * tc: Testcontainers - the tool that starts a new container per test.
-             * postgresql: which container to start
-             * 12.5: which version of postgres to start
-             * ///: hostless URI scheme - anything here would be ignored
-             * databasename: the name of the db to connect to - any string is okay.
-             */
-            "jdbc:tc:postgresql:12.5:///databasename",
-            "play.evolutions.db.default.enabled ",
-            "true"));
+    return fakeApplication(TestConstants.TEST_DATABASE_CONFIG);
   }
 
   protected <T> T instanceOf(Class<T> clazz) {

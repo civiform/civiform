@@ -5,12 +5,12 @@ import static org.fluentlenium.core.filter.FilterConstructor.withName;
 import static org.fluentlenium.core.filter.FilterConstructor.withText;
 import static play.test.Helpers.fakeApplication;
 
-import com.google.common.collect.ImmutableMap;
 import controllers.routes;
 import java.util.Optional;
 import play.Application;
 import play.api.mvc.Call;
 import play.test.WithBrowser;
+import support.TestConstants;
 
 public class BaseBrowserTest extends WithBrowser {
 
@@ -19,15 +19,7 @@ public class BaseBrowserTest extends WithBrowser {
 
   @Override
   protected Application provideApplication() {
-    return fakeApplication(
-        ImmutableMap.of(
-            "db.default.driver",
-            "org.testcontainers.jdbc.ContainerDatabaseDriver",
-            "db.default.url",
-            // See WithPostgresContainer.java for explanation of this string.
-            "jdbc:tc:postgresql:12.5:///databasename",
-            "play.evolutions.db.default.enabled",
-            "true"));
+    return fakeApplication(TestConstants.TEST_DATABASE_CONFIG);
   }
 
   /**

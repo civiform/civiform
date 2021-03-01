@@ -1,6 +1,7 @@
 package app;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import auth.Roles;
 import controllers.routes;
@@ -32,12 +33,13 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     assertThat(browser.pageSource()).contains(Roles.ROLE_APPLICANT.toString());
 
     goTo(controllers.admin.routes.AdminProgramController.index());
-    assertThat(browser.pageSource()).contains("403");
+    assertTrue(browser.pageSource().contains("403"));
   }
 
   @Test
   public void adminTestLogin() {
-    loginAsAdmin();
+    goTo(routes.HomeController.loginForm(Optional.empty()));
+    browser.$("#admin").click();
     // should be redirected to root.
     assertThat(browser.url()).isEmpty();
     assertThat(browser.pageSource()).contains("Your new application is ready.");
@@ -51,6 +53,6 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     assertThat(browser.pageSource()).contains(Roles.ROLE_UAT_ADMIN.toString());
 
     goTo(controllers.admin.routes.AdminProgramController.index());
-    assertThat(browser.pageSource()).contains("Programs");
+    assertTrue(browser.pageSource().contains("Programs"));
   }
 }
