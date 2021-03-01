@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-18.04 # for older version of awscli.
     steps:
       - id: file_changes
-        uses: trilom/file-changes-action@v1.2.3
+        uses: trilom/file-changes-action@v1.2.4
 
       - name: Checkout
         uses: actions/checkout@v2
