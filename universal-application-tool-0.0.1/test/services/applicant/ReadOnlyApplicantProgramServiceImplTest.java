@@ -101,4 +101,20 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
     assertThat(maybeBlock).isEmpty();
   }
+
+  @Test
+  public void getFirstIncompleteBlock_emptyBlockList_returnsEmpty() {
+    subject =
+        new ReadOnlyApplicantProgramServiceImpl(
+            new Applicant().getApplicantData(),
+            ProgramDefinition.builder()
+                .setId(123L)
+                .setName("The Program")
+                .setDescription("This program is for testing.")
+                .build());
+
+    Optional<Block> maybeBlock = subject.getFirstIncompleteBlock();
+
+    assertThat(maybeBlock).isEmpty();
+  }
 }

@@ -1,14 +1,17 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 
+import models.Applicant;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Result;
 import repository.WithPostgresContainer;
+import services.program.ProgramDefinition;
 
 public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
@@ -52,11 +55,34 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
         .contains(routes.ApplicantProgramsController.edit(1L, program.id).url());
   }
 
+  // TODO(https://github.com/seattle-uat/universal-application-tool/issues/224): Should redirect to
+  // next incomplete block rather than first block.
   @Test
-  public void edit_returnsTemporaryString() {
-    Result result = controller.edit(123L, 456L).toCompletableFuture().join();
+  public void edit_redirectsToFirstBlock() {
+    Applicant applicant = resourceCreator().insertApplicant();
+    ProgramDefinition programDefinition = resourceCreator().insertProgramWithOneBlock("My Program");
 
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).isEqualTo("Applicant 123 chose program 456");
+    Result result =
+        controller.edit(applicant.id, programDefinition.id()).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(FOUND);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.ApplicantProgramBlocksController.edit(applicant.id, programDefinition.id(), 1)
+                .url());
+  }
+
+  // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Should redirect to
+  // end of program submission.
+  @Test
+  public void edit_whenNoMoreIncompleteBlocks_redirectsToListOfPrograms() {
+    Applicant applicant = resourceCreator().insertApplicant();
+    Program program = resourceCreator().insertProgram("My Program");
+
+    Result result = controller.edit(applicant.id, program.id).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(FOUND);
+    assertThat(result.redirectLocation())
+        .hasValue(routes.ApplicantProgramsController.index(applicant.id).url());
   }
 }

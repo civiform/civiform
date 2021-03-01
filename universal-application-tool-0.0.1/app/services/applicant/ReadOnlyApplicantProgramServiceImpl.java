@@ -64,6 +64,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   // blocks for completion
   @Override
   public Optional<Block> getFirstIncompleteBlock() {
-    return Optional.of(getCurrentBlockList().get(0));
+    ImmutableList<Block> currentBlockList = getCurrentBlockList();
+    if (currentBlockList.isEmpty()) return Optional.empty();
+    else return Optional.of(currentBlockList.get(0));
   }
 }
