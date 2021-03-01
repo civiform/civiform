@@ -86,7 +86,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
   }
 
   private ContainerTag questionBankPanel(ImmutableList<QuestionDefinition> questionDefinitions) {
-    ContainerTag questionList = ul().withClass(Styles.OVERFLOW_X_SCROLL);
+    ContainerTag questionList = ul().withClass(Styles.OVERFLOW_Y_SCROLL);
 
     questionDefinitions.forEach(questionDefinition ->
         questionList.with(
