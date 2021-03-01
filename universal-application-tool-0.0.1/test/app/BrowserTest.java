@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 import static play.test.Helpers.fakeApplication;
 
 import auth.Roles;
-import com.google.common.collect.ImmutableMap;
 import controllers.routes;
 import java.util.Optional;
 import models.Program;
@@ -15,6 +14,7 @@ import play.api.mvc.Call;
 import play.test.Helpers;
 import play.test.TestBrowser;
 import play.test.WithBrowser;
+import support.TestConstants;
 
 public class BrowserTest extends WithBrowser {
 
@@ -23,15 +23,7 @@ public class BrowserTest extends WithBrowser {
 
   @Override
   protected Application provideApplication() {
-    return fakeApplication(
-        ImmutableMap.of(
-            "db.default.driver",
-            "org.testcontainers.jdbc.ContainerDatabaseDriver",
-            "db.default.url",
-            // See WithPostgresContainer.java for explanation of this string.
-            "jdbc:tc:postgresql:12.5:///databasename",
-            "play.evolutions.db.default.enabled",
-            "true"));
+    return fakeApplication(TestConstants.TEST_DATABASE_CONFIG);
   }
 
   @Override

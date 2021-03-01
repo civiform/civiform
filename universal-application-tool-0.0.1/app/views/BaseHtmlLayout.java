@@ -39,7 +39,7 @@ public class BaseHtmlLayout extends BaseHtmlView {
    *
    * <p>Adding this to a page allows Tailwindcss utility classes to be be usable on that page.
    */
-  protected Tag tailwindStyles() {
+  public Tag tailwindStyles() {
     return viewUtils.makeLocalJsTag(WEBPACK_OUTPUT_FILENAME);
   }
 
