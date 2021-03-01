@@ -9,11 +9,12 @@ public class ApplicantBrowserTest extends BaseBrowserTest {
   @Test
   public void applicantProgramList_selectApply_redirectsToEdit() {
     addProgram("My Program");
-    goTo(controllers.applicant.routes.ApplicantProgramsController.index(1L));
+    long id = loginAsApplicant();
+    goTo(controllers.applicant.routes.ApplicantProgramsController.index(id));
     assertThat(browser.pageSource()).contains("My Program");
 
     // Redirect when "apply" link is clicked.
     browser.$("#apply1").click();
-    assertUrlEquals(controllers.applicant.routes.ApplicantProgramsController.edit(1L, 1L));
+    assertUrlEquals(controllers.applicant.routes.ApplicantProgramsController.edit(id, 1L));
   }
 }

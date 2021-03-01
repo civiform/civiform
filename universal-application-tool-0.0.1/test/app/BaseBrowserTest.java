@@ -15,7 +15,6 @@ import play.test.WithBrowser;
 public class BaseBrowserTest extends WithBrowser {
 
   private static final String LOCALHOST = "http://localhost:";
-
   protected static final String BASE_URL = LOCALHOST + play.api.test.Helpers.testServerPort();
 
   @Override
@@ -51,13 +50,26 @@ public class BaseBrowserTest extends WithBrowser {
     assertThat("/" + browser.url()).isEqualTo(method.url());
   }
 
+  protected void logout() {
+    goTo(org.pac4j.play.routes.LogoutController.logout());
+  }
+
   protected void loginAsAdmin() {
     goTo(routes.HomeController.loginForm(Optional.empty()));
     browser.$("#admin").click();
   }
 
+  /** Log in as a guest (applicant) and return the applicant ID for the user. */
+  protected long loginAsApplicant() {
+    goTo(routes.HomeController.loginForm(Optional.empty()));
+    browser.$("#guest").click();
+    String guestId = browser.$("#guest-id").values().get(0);
+    return Long.parseLong(guestId);
+  }
+
   /**
-   * Add a program through the admin flow.
+   * Add a program through the admin flow. This will log the user in as an admin and log them out
+   * after the program is added.
    *
    * @param name a name for the new program
    */
@@ -71,5 +83,8 @@ public class BaseBrowserTest extends WithBrowser {
     browser.$("input", withName("name")).fill().with(name);
     browser.$("input", withName("description")).fill().with("Test description");
     browser.$("button", withText("Create")).click();
+
+    // Log out of the admin session.
+    logout();
   }
 }
