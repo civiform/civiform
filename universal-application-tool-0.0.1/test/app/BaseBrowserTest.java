@@ -6,9 +6,17 @@ import static org.fluentlenium.core.filter.FilterConstructor.withText;
 import static play.test.Helpers.fakeApplication;
 
 import controllers.routes;
+import io.ebean.Ebean;
+import io.ebean.EbeanServer;
 import java.util.Optional;
+import models.Applicant;
+import models.Person;
+import models.Program;
+import models.Question;
+import org.junit.Before;
 import play.Application;
 import play.api.mvc.Call;
+import play.db.ebean.EbeanConfig;
 import play.test.WithBrowser;
 import support.TestConstants;
 
@@ -20,6 +28,13 @@ public class BaseBrowserTest extends WithBrowser {
   @Override
   protected Application provideApplication() {
     return fakeApplication(TestConstants.TEST_DATABASE_CONFIG);
+  }
+
+  @Before
+  public void truncateTables() {
+    EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
+    EbeanServer server = Ebean.getServer(config.defaultServer());
+    server.truncate(Applicant.class, Person.class, Program.class, Question.class);
   }
 
   /**
@@ -55,6 +70,9 @@ public class BaseBrowserTest extends WithBrowser {
   protected long loginAsApplicant() {
     goTo(routes.HomeController.loginForm(Optional.empty()));
     browser.$("#guest").click();
+
+    // Find the ID on the user information page
+    goTo(routes.ProfileController.myProfile());
     String guestId = browser.$("#guest-id").first().text();
     return Long.parseLong(guestId);
   }
