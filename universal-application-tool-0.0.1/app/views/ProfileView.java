@@ -25,7 +25,7 @@ public class ProfileView extends BaseHtmlView {
       return layout.htmlContent(
           body(
               h1(profile.getClientName()),
-              h1(profile.getId()).withId("guest-id"),
+              h1(profile.getId()).withId("profile-id"),
               h1("Roles"),
               text(profile.getRoles().toString()),
               h1("JSON"),

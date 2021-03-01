@@ -73,7 +73,7 @@ public class BaseBrowserTest extends WithBrowser {
 
     // Find the ID on the user information page
     goTo(routes.ProfileController.myProfile());
-    String guestId = browser.$("#guest-id").first().text();
+    String guestId = browser.$("#profile-id").first().text();
     return Long.parseLong(guestId);
   }
 
