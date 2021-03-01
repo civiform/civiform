@@ -37,8 +37,8 @@ GET     /demo/new                   controllers.J2HtmlDemoController.newOne(requ
 POST    /demo                       controllers.J2HtmlDemoController.create(request: Request)
 
 # Methods for applicants
-GET /applicants/:applicantId/programs                   controllers.applicant.ApplicantProgramsController.index(applicantId: Long)
-GET /applicants/:applicantId/programs/:programId/edit   controllers.applicant.ApplicantProgramsController.edit(applicantId: Long, programId: Long)
+GET     /applicants/:applicantId/programs                   controllers.applicant.ApplicantProgramsController.index(applicantId: Long)
+GET     /applicants/:applicantId/programs/:programId/edit   controllers.applicant.ApplicantProgramsController.edit(applicantId: Long, programId: Long)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(file)
@@ -60,3 +60,8 @@ GET     /loginForm                   controllers.HomeController.loginForm(reques
 
 # Log out of application
 GET     /logout                      @org.pac4j.play.LogoutController.logout(request: Request)
+
+# Methods for development: seed the database with test content to develop against, and clear the database
+GET     /dev/seed                    controllers.dev.DatabaseSeedController.index(request: Request)
+POST    /dev/seed                    controllers.dev.DatabaseSeedController.seed()
+POST    /dev/seed/clear              controllers.dev.DatabaseSeedController.clear()
