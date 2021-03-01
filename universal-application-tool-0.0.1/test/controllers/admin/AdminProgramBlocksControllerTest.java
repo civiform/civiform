@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
@@ -9,7 +10,7 @@ import static play.test.Helpers.fakeRequest;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
-import play.mvc.Http;
+import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.WithPostgresContainer;
 import services.program.BlockDefinition;
@@ -91,7 +92,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
   @Test
   public void edit_withInvalidProgram_notFound() {
-    Http.Request request = fakeRequest().build();
+    Request request = fakeRequest().build();
     Result result = controller.edit(request, 1L, 1L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -99,7 +100,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
   @Test
   public void edit_withInvalidBlock_notFound() {
-    Http.Request request = fakeRequest().build();
+    Request request = fakeRequest().build();
     BlockDefinition block =
         BlockDefinition.builder().setId(1L).setName("block").setDescription("desc").build();
     Program program = resourceCreator().insertProgram("program", block);
@@ -110,7 +111,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
   @Test
   public void edit_withProgramWithBlock_OK() {
-    Http.Request request = fakeRequest().build();
+    Request request = addCSRFToken(fakeRequest()).build();
     BlockDefinition block =
         BlockDefinition.builder().setId(1L).setName("block").setDescription("desc").build();
     Program program = resourceCreator().insertProgram("program", block);
