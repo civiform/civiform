@@ -68,7 +68,7 @@ public class DatabaseSeedView extends BaseHtmlView {
                     .with(div().with(h2("Current Programs:")).with(pre(prettyPrograms)))
                     .with(div().with(h2("Current Questions:")).with(pre(prettyQuestions))))
             .with(layout.tailwindStyles())
-            .withClasses(Styles.PX_5, Styles.PY_6));
+            .withClasses(Styles.PX_6, Styles.PY_6));
   }
 
   private <T> String getPrettyJson(ImmutableList<T> list) {
