@@ -7,8 +7,10 @@ import org.junit.Test;
 
 public class ApplicantBrowserTest extends BaseBrowserTest {
 
+  // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Expect a redirect
+  // to end of program submission.
   @Test
-  public void applicantProgramList_selectApply_redirectsToEdit() {
+  public void applicantProgramList_selectApply_noIncompleteBlocks_redirectsToProgramList() {
     addProgram("My Program");
     long id = loginAsApplicant();
     goTo(controllers.applicant.routes.ApplicantProgramsController.index(id));
@@ -16,7 +18,6 @@ public class ApplicantBrowserTest extends BaseBrowserTest {
 
     // Redirect when "apply" link is clicked.
     browser.$(withText("Apply")).first().click();
-    // TODO: This should test the page content when the page is created.
-    assertThat(browser.pageSource()).contains("Applicant " + id + " chose program");
+    assertThat(browser.pageSource()).contains("Programs");
   }
 }
