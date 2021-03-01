@@ -67,14 +67,9 @@ public class BaseBrowserTest extends WithBrowser {
   }
 
   /** Log in as a guest (applicant) and return the applicant ID for the user. */
-  protected long loginAsApplicant() {
+  protected void loginAsApplicant() {
     goTo(routes.HomeController.loginForm(Optional.empty()));
     browser.$("#guest").click();
-
-    // Find the ID on the user information page
-    goTo(routes.ProfileController.myProfile());
-    String guestId = browser.$("#profile-id").first().text();
-    return Long.parseLong(guestId);
   }
 
   /**
