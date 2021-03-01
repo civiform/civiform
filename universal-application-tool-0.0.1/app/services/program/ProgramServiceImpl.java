@@ -197,6 +197,25 @@ public class ProgramServiceImpl implements ProgramService {
         programDefinition, blockDefinitionIndex, blockDefinition);
   }
 
+  @Override
+  @Transactional
+  public ProgramDefinition deleteBlock(long programId, long blockDefinitionId)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getProgramOrThrow(programId);
+
+    ImmutableList<BlockDefinition> newBlocks =
+        programDefinition.blockDefinitions().stream()
+            .filter(block -> block.id() != blockDefinitionId)
+            .collect(ImmutableList.toImmutableList());
+
+    Program program =
+        programDefinition.toBuilder().setBlockDefinitions(newBlocks).build().toProgram();
+    return syncProgramDefinitionQuestions(
+            programRepository.updateProgramSync(program).getProgramDefinition())
+        .toCompletableFuture()
+        .join();
+  }
+
   private ProgramDefinition getProgramOrThrow(long programId) throws ProgramNotFoundException {
     return getProgramDefinition(programId)
         .orElseThrow(() -> new ProgramNotFoundException(programId));
