@@ -72,7 +72,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
               .url();
       ContainerTag link = a().withText(block.name()).withHref(editBlockLink);
 
-      if (block.equals(focusedBlock)) {
+      if (block.hasSameId(focusedBlock)) {
         link.withClass(Styles.FONT_BOLD);
       }
 

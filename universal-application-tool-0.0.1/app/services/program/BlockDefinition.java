@@ -64,24 +64,8 @@ public abstract class BlockDefinition {
     return programQuestionDefinitions().get(questionIndex).getQuestionDefinition();
   }
 
-  @Override
-  public final boolean equals(Object other) {
-    if (other == this) {
-      return true;
-    }
-
-    if (!(other instanceof AutoValue_BlockDefinition)) {
-      return false;
-    }
-
-    BlockDefinition otherBlockDefinition = (BlockDefinition) other;
-
-    return Long.compare(otherBlockDefinition.id(), id()) == 0;
-  }
-
-  @Override
-  public final int hashCode() {
-    return String.valueOf(id()).hashCode();
+  public boolean hasSameId(BlockDefinition other) {
+    return other.id() == id();
   }
 
   @AutoValue.Builder
