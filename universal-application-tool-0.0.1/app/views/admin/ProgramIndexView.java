@@ -30,7 +30,8 @@ public final class ProgramIndexView extends BaseHtmlView {
             div(
                 form(
                     a("Add a Program")
-                        .attr("href", controllers.admin.routes.AdminProgramController.newOne()))),
+                        .withId("new-program")
+                        .withHref(controllers.admin.routes.AdminProgramController.newOne().url()))),
             div(each(programs, this::shortProgram))));
   }
 
