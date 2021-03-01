@@ -133,6 +133,6 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-            .hasValue(routes.AdminProgramBlocksController.index(program.id).url());
+        .hasValue(routes.AdminProgramBlocksController.index(program.id).url());
   }
 }

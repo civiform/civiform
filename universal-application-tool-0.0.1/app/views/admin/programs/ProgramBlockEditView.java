@@ -56,9 +56,9 @@ public class ProgramBlockEditView extends BaseHtmlView {
     String addBlockUrl =
         controllers.admin.routes.AdminProgramBlocksController.create(program.id()).url();
     ContainerTag addBlockButton =
-            form(makeCsrfTokenInputTag(request), submitButton("Add Block"))
-                    .withMethod("post")
-                    .withAction(addBlockUrl);
+        form(makeCsrfTokenInputTag(request), submitButton("Add Block"))
+            .withMethod("post")
+            .withAction(addBlockUrl);
 
     return div(addBlockButton);
   }
