@@ -1,6 +1,7 @@
 package app;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.fluentlenium.core.filter.FilterConstructor.withText;
 
 import org.junit.Test;
 
@@ -14,7 +15,8 @@ public class ApplicantBrowserTest extends BaseBrowserTest {
     assertThat(browser.pageSource()).contains("My Program");
 
     // Redirect when "apply" link is clicked.
-    browser.$("#apply1").click();
-    assertUrlEquals(controllers.applicant.routes.ApplicantProgramsController.edit(id, 1L));
+    browser.$(withText("Apply")).first().click();
+    // TODO: This should test the page content when the page is created.
+    assertThat(browser.pageSource()).contains("Applicant " + id + " chose program");
   }
 }
