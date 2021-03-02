@@ -71,7 +71,7 @@ public class ApplicantData {
       ApplicantData that = (ApplicantData) object;
       // Need to compare the JSON strings rather than the DocumentContexts themselves since
       // DocumentContext does not override equals.
-      return Objects.equals(this.jsonData.jsonString(), that.jsonData.jsonString());
+      return this.jsonData.jsonString().equals(that.jsonData.jsonString());
     }
     return false;
   }
