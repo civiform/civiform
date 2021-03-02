@@ -35,6 +35,15 @@ public class ApplicantQuestion {
     }
   }
 
+  public AddressQuestion getAddressQuestion() {
+    if (!getType().equals(QuestionType.ADDRESS)) {
+      throw new RuntimeException(
+          "Question is not an ADDRESS question: " + questionDefinition.getPath());
+    }
+
+    return new AddressQuestion();
+  }
+
   public TextQuestion getTextQuestion() {
     if (!getType().equals(QuestionType.TEXT)) {
       throw new RuntimeException(
@@ -51,6 +60,85 @@ public class ApplicantQuestion {
     }
 
     return new NameQuestion();
+  }
+
+  public class AddressQuestion {
+    private Optional<String> streetValue;
+    private Optional<String> cityValue;
+    private Optional<String> stateValue;
+    private Optional<String> zipValue;
+
+    public boolean hasStreetValue() {
+      return getStreetValue().isPresent();
+    }
+
+    public boolean hasCityValue() {
+      return getCityValue().isPresent();
+    }
+
+    public boolean hasStateValue() {
+      return getStateValue().isPresent();
+    }
+
+    public boolean hasZipValue() {
+      return getZipValue().isPresent();
+    }
+
+    public Optional<String> getStreetValue() {
+      if (streetValue != null) {
+        return streetValue;
+      }
+
+      streetValue = applicantData.readString(getStreetPath());
+      return streetValue;
+    }
+
+    public Optional<String> getCityValue() {
+      if (cityValue != null) {
+        return cityValue;
+      }
+
+      cityValue = applicantData.readString(getCityPath());
+      return cityValue;
+    }
+
+    public Optional<String> getStateValue() {
+      if (stateValue != null) {
+        return stateValue;
+      }
+
+      stateValue = applicantData.readString(getStatePath());
+      return stateValue;
+    }
+
+    public Optional<String> getZipValue() {
+      if (zipValue != null) {
+        return zipValue;
+      }
+
+      zipValue = applicantData.readString(getZipPath());
+      return zipValue;
+    }
+
+    // TODO: implement named methods for retrieving scalar paths instead of concatenating strings.
+    public String getStreetPath() {
+      return questionDefinition.getPath() + ".street";
+    }
+
+    // TODO: implement named methods for retrieving scalar paths instead of concatenating strings.
+    public String getCityPath() {
+      return questionDefinition.getPath() + ".city";
+    }
+
+    // TODO: implement named methods for retrieving scalar paths instead of concatenating strings.
+    public String getStatePath() {
+      return questionDefinition.getPath() + ".state";
+    }
+
+    // TODO: implement named methods for retrieving scalar paths instead of concatenating strings.
+    public String getZipPath() {
+      return questionDefinition.getPath() + ".zip";
+    }
   }
 
   public class TextQuestion {
