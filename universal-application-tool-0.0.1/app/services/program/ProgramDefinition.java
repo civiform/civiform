@@ -33,10 +33,10 @@ public abstract class ProgramDefinition {
 
   /** Returns the {@link BlockDefinition} at the specified block index if available. */
   public Optional<BlockDefinition> getBlockDefinition(int blockIndex) {
-    if (blockIndex < blockDefinitions().size()) {
-      return Optional.of(blockDefinitions().get(blockIndex));
+    if (blockIndex < 0 && blockIndex >= blockDefinitions().size()) {
+      return Optional.empty();
     }
-    return Optional.empty();
+    return Optional.of(blockDefinitions().get(blockIndex));
   }
 
   /** Returns the {@link BlockDefinition} with the specified block id if available. */
