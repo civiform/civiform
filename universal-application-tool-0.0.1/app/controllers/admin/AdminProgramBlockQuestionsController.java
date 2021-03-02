@@ -11,7 +11,10 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.program.ProgramBlockNotFoundException;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.question.QuestionNotFoundException;
 
 public class AdminProgramBlockQuestionsController extends Controller {
 
@@ -19,8 +22,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
   private final FormFactory formFactory;
 
   @Inject
-  public AdminProgramBlockQuestionsController(ProgramService programService,
-      FormFactory formFactory) {
+  public AdminProgramBlockQuestionsController(
+      ProgramService programService, FormFactory formFactory) {
     this.programService = checkNotNull(programService);
     this.formFactory = checkNotNull(formFactory);
   }
@@ -28,13 +31,21 @@ public class AdminProgramBlockQuestionsController extends Controller {
   @Secure(authorizers = Labels.UAT_ADMIN)
   public Result create(Request request, long programId, long blockId) {
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
+    ImmutableList<Long> questionIds =
+        requestData.rawData().entrySet().stream()
+            .filter(formField -> formField.getKey().startsWith("question-"))
+            .map(formField -> Long.valueOf(formField.getValue()))
+            .collect(ImmutableList.toImmutableList());
 
-    ImmutableList<Long> questionIds = requestData.rawData().entrySet().stream()
-        .filter(formField -> formField.getKey().startsWith("question-"))
-        .map(formField -> Long.getLong(formField.getValue()))
-        .collect(ImmutableList.toImmutableList());
-
-    programService.addQuestionsToBlock(programId, blockId, questionIds);
+    try {
+      programService.addQuestionsToBlock(programId, blockId, questionIds);
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    } catch (ProgramBlockNotFoundException e) {
+      return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
+    } catch (QuestionNotFoundException e) {
+      return notFound(String.format("Question ID %s not found", questionIds));
+    }
 
     return redirect(controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId));
   }

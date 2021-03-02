@@ -137,9 +137,7 @@ public interface ProgramService {
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   ProgramDefinition addQuestionsToBlock(
-      long programId,
-      long blockDefinitionId,
-      ImmutableList<Long> questionIds)
+      long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
       throws ProgramNotFoundException, ProgramBlockNotFoundException, QuestionNotFoundException;
 
   /**

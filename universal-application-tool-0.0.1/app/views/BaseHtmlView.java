@@ -65,11 +65,12 @@ public abstract class BaseHtmlView {
     return textAreaWithLabel(labelValue, inputId, optionalValue);
   }
 
-  protected Tag checkboxInputWithLabel(String labelText, String inputId, String inputName,
-      String inputValue) {
+  protected Tag checkboxInputWithLabel(
+      String labelText, String inputId, String inputName, String inputValue) {
     return label()
         .with(
-            input().withType("checkbox").withName(inputName).withValue(inputValue).withId(inputId), text(labelText));
+            input().withType("checkbox").withName(inputName).withValue(inputValue).withId(inputId),
+            text(labelText));
   }
 
   protected Tag textField(String fieldName, String labelText) {
@@ -85,7 +86,7 @@ public abstract class BaseHtmlView {
 
   protected Tag textFieldWithValue(String fieldName, String labelText, String placeholder) {
     return label(
-        text(labelText), input().withType("text").withName(fieldName).withValue(placeholder))
+            text(labelText), input().withType("text").withName(fieldName).withValue(placeholder))
         .attr(Attr.FOR, fieldName);
   }
 

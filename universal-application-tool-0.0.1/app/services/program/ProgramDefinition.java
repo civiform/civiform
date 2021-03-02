@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+
+import com.google.common.collect.ImmutableSet;
 import models.Program;
 import services.question.QuestionDefinition;
 
@@ -51,6 +53,11 @@ public abstract class ProgramDefinition {
 
   public int getQuestionCount() {
     return blockDefinitions().stream().mapToInt(BlockDefinition::getQuestionCount).sum();
+
+  private ImmutableSet<Long> questionIds;
+
+  public boolean hasQuestion(QuestionDefinition question) {
+
   }
 
   public Program toProgram() {
