@@ -2,7 +2,7 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import auth.Roles;
+import auth.Authorizers;
 import forms.ProgramForm;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -42,17 +42,17 @@ public class AdminProgramController extends Controller {
     this.formFactory = checkNotNull(formFactory);
   }
 
-  @Secure(authorizers = Roles.UAT_ADMIN_AUTHORIZER)
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result index() {
     return ok(listView.render(this.service.listProgramDefinitions()));
   }
 
-  @Secure(authorizers = Roles.UAT_ADMIN_AUTHORIZER)
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result newOne(Request request) {
     return ok(newOneView.render(request));
   }
 
-  @Secure(authorizers = Roles.UAT_ADMIN_AUTHORIZER)
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result create(Request request) {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm program = programForm.bindFromRequest(request).get();
@@ -60,6 +60,7 @@ public class AdminProgramController extends Controller {
     return redirect(routes.AdminProgramController.index().url());
   }
 
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result edit(Request request, long id) {
     Optional<ProgramDefinition> program = service.getProgramDefinition(id);
     if (program.isEmpty()) {
@@ -69,6 +70,7 @@ public class AdminProgramController extends Controller {
     }
   }
 
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result update(Request request, long id) {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm program = programForm.bindFromRequest(request).get();
