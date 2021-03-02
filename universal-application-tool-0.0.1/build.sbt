@@ -34,6 +34,9 @@ lazy val root = (project in file("."))
       "org.awaitility" % "awaitility" % "4.0.1" % Test,
       "org.mockito" % "mockito-core" % "3.1.0" % Test,
 
+      // More testing
+      "com.google.guava" % "guava-testlib" % "30.1-jre" % Test,
+
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
       "javax.activation" % "activation" % "1.1.1",
