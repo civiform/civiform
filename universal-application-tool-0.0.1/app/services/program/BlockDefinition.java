@@ -63,6 +63,10 @@ public abstract class BlockDefinition {
   public QuestionDefinition getQuestionDefinition(int questionIndex) {
     return programQuestionDefinitions().get(questionIndex).getQuestionDefinition();
   }
+  
+  public int getQuestionCount() {
+    return programQuestionDefinitions().size();
+  }
 
   public boolean hasSameId(BlockDefinition other) {
     return other.id() == id();

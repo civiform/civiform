@@ -44,6 +44,18 @@ public abstract class ProgramDefinition {
     return blockDefinitions().stream().filter(b -> b.id() == blockId).findAny();
   }
 
+  public int getBlockCount() {
+    return blockDefinitions().size();
+  }
+
+  public int getQuestionCount() {
+    int total = 0;
+    for (BlockDefinition block : blockDefinitions()) {
+      total += block.getQuestionCount();
+    }
+    return total;
+  }
+
   public Program toProgram() {
     return new Program(this);
   }
