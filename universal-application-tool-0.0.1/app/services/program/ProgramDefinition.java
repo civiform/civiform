@@ -31,6 +31,15 @@ public abstract class ProgramDefinition {
     return blockDefinitions().get(blockIndex).getQuestionDefinition(questionIndex);
   }
 
+  /** Returns the {@link BlockDefinition} at the specified block index if available. */
+  public Optional<BlockDefinition> getBlockDefinition(int blockIndex) {
+    if (blockIndex < 0 || blockIndex >= blockDefinitions().size()) {
+      return Optional.empty();
+    }
+    return Optional.of(blockDefinitions().get(blockIndex));
+  }
+
+  /** Returns the {@link BlockDefinition} with the specified block id if available. */
   public Optional<BlockDefinition> getBlockDefinition(long blockId) {
     return blockDefinitions().stream().filter(b -> b.id() == blockId).findAny();
   }

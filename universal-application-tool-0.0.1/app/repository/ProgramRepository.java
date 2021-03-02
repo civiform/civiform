@@ -3,9 +3,9 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -24,14 +24,14 @@ public class ProgramRepository {
   }
 
   /** Return all programs in a list. */
-  // TODO: use ImmutableList
-  public CompletionStage<List<Program>> listPrograms() {
-    return supplyAsync(() -> ebeanServer.find(Program.class).findList(), executionContext);
+  public CompletionStage<ImmutableList<Program>> listPrograms() {
+    return supplyAsync(
+        () -> ImmutableList.copyOf(ebeanServer.find(Program.class).findList()), executionContext);
   }
 
   public CompletionStage<Optional<Program>> lookupProgram(long id) {
     return supplyAsync(
-        () -> Optional.ofNullable(ebeanServer.find(Program.class).where().eq("id", id).findOne()),
+        () -> ebeanServer.find(Program.class).where().eq("id", id).findOneOrEmpty(),
         executionContext);
   }
 

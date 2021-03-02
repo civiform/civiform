@@ -29,8 +29,7 @@ public class QuestionRepository {
 
   public CompletionStage<Optional<Question>> lookupQuestion(long id) {
     return supplyAsync(
-        () -> Optional.ofNullable(ebeanServer.find(Question.class).setId(id).findOne()),
-        executionContext);
+        () -> ebeanServer.find(Question.class).setId(id).findOneOrEmpty(), executionContext);
   }
 
   static class PathConflictDetector {
@@ -73,9 +72,7 @@ public class QuestionRepository {
 
   public CompletionStage<Optional<Question>> lookupQuestionByPath(String path) {
     return supplyAsync(
-        () ->
-            Optional.ofNullable(
-                ebeanServer.find(Question.class).where().eq("path", path).findOne()),
+        () -> ebeanServer.find(Question.class).where().eq("path", path).findOneOrEmpty(),
         executionContext);
   }
 

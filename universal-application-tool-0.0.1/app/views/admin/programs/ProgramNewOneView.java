@@ -1,4 +1,4 @@
-package views.admin;
+package views.admin.programs;
 
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
@@ -9,6 +9,7 @@ import com.google.inject.Inject;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
+import views.admin.AdminLayout;
 
 public final class ProgramNewOneView extends BaseHtmlView {
   private final AdminLayout layout;

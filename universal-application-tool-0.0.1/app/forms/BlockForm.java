@@ -2,7 +2,7 @@ package forms;
 
 import play.data.validation.Constraints;
 
-public class ProgramForm {
+public class BlockForm {
   private @Constraints.Required String name;
   private @Constraints.Required String description;
 

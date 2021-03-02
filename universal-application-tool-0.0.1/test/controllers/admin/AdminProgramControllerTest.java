@@ -119,7 +119,10 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
 
   @Test
   public void update_invalidProgram_returnsNotFound() {
-    Request request = Helpers.fakeRequest().build();
+    Request request =
+        Helpers.fakeRequest()
+            .bodyForm(ImmutableMap.of("name", "name", "description", "description"))
+            .build();
 
     Result result = controller.update(request, 1L);
 

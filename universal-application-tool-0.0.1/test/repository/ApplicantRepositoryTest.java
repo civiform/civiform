@@ -69,6 +69,23 @@ public class ApplicantRepositoryTest extends WithPostgresContainer {
         .isEqualTo("1/1/2021");
   }
 
+  @Test
+  public void lookupApplicantSync_returnsEmptyOptionalWhenApplicantNotFound() {
+    Optional<Applicant> found = repo.lookupApplicantSync(1L);
+
+    assertThat(found).isEmpty();
+  }
+
+  @Test
+  public void lookupApplicantSync_findsCorrectApplicant() {
+    saveApplicant("Alice");
+    Applicant two = saveApplicant("Bob");
+
+    Optional<Applicant> found = repo.lookupApplicantSync(two.id);
+
+    assertThat(found).hasValue(two);
+  }
+
   private Applicant saveApplicant(String name) {
     Applicant applicant = new Applicant();
     applicant.getApplicantData().put("$.applicant", "name", name);

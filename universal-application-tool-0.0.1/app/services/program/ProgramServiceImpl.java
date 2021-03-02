@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import forms.BlockForm;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,9 +21,9 @@ import services.question.ReadOnlyQuestionService;
 
 public class ProgramServiceImpl implements ProgramService {
 
-  private ProgramRepository programRepository;
-  private QuestionService questionService;
-  private HttpExecutionContext httpExecutionContext;
+  private final ProgramRepository programRepository;
+  private final QuestionService questionService;
+  private final HttpExecutionContext httpExecutionContext;
 
   @Inject
   public ProgramServiceImpl(
@@ -43,14 +44,14 @@ public class ProgramServiceImpl implements ProgramService {
   public CompletionStage<ImmutableList<ProgramDefinition>> listProgramDefinitionsAsync() {
     CompletableFuture<ReadOnlyQuestionService> roQuestionServiceFuture =
         questionService.getReadOnlyQuestionService().toCompletableFuture();
-    CompletableFuture<List<Program>> programsFuture =
+    CompletableFuture<ImmutableList<Program>> programsFuture =
         programRepository.listPrograms().toCompletableFuture();
 
     return CompletableFuture.allOf(roQuestionServiceFuture, programsFuture)
         .thenApplyAsync(
             ignore -> {
               ReadOnlyQuestionService roQuestionService = roQuestionServiceFuture.join();
-              List<Program> programs = programsFuture.join();
+              ImmutableList<Program> programs = programsFuture.join();
 
               return programs.stream()
                   .map(
@@ -142,6 +143,23 @@ public class ProgramServiceImpl implements ProgramService {
             programRepository.updateProgramSync(program).getProgramDefinition())
         .toCompletableFuture()
         .join();
+  }
+
+  @Override
+  @Transactional
+  public ProgramDefinition updateBlock(long programId, long blockDefinitionId, BlockForm blockForm)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException {
+    ProgramDefinition programDefinition = getProgramOrThrow(programId);
+    int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
+
+    BlockDefinition blockDefinition =
+        programDefinition.blockDefinitions().get(blockDefinitionIndex).toBuilder()
+            .setName(blockForm.getName())
+            .setDescription(blockForm.getDescription())
+            .build();
+
+    return updateProgramDefinitionWithBlockDefinition(
+        programDefinition, blockDefinitionIndex, blockDefinition);
   }
 
   @Override
