@@ -37,13 +37,6 @@ public class QuestionFormTest {
             ImmutableMap.of());
     QuestionDefinition actual = builder.build();
 
-    assertThat(actual.isPersisted()).isFalse();
-    assertThat(actual.getVersion()).isEqualTo(expected.getVersion());
-    assertThat(actual.getName()).isEqualTo(expected.getName());
-    assertThat(actual.getQuestionType()).isEqualTo(expected.getQuestionType());
-    assertThat(actual.getPath()).isEqualTo(expected.getPath());
-    assertThat(actual.getDescription()).isEqualTo(expected.getDescription());
-    assertThat(actual.getQuestionText()).isEqualTo(expected.getQuestionText());
-    assertThat(actual.getQuestionHelpText()).isEqualTo(expected.getQuestionHelpText());
+    assertThat(actual).isEqualTo(expected);
   }
 }

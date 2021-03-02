@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalLong;
 
@@ -133,5 +134,48 @@ public abstract class QuestionDefinition {
 
   public Optional<ScalarType> getScalarType(String key) {
     return Optional.ofNullable(this.getScalars().get(key));
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, version, path);
+  }
+
+  /** Two QuestionDefinitions are considered equal if all of their properties are the same. */
+  @Override
+  public boolean equals(Object other) {
+    return this.idEquals(other) && this.equalsIgnoreId(other);
+  }
+
+  public boolean idEquals(Object other) {
+    if (other instanceof QuestionDefinition) {
+      QuestionDefinition o = (QuestionDefinition) other;
+
+      return this.isPersisted() == o.isPersisted()
+          && (!this.isPersisted() || this.getId() == o.getId());
+    }
+
+    return false;
+  }
+
+  /**
+   * When an object is created, it is sent to the server without an id. The object returned from
+   * QuestionService should be the QuestionDefinition with the id.
+   *
+   * <p>This checks all other fields ignoring the id.
+   */
+  public boolean equalsIgnoreId(Object other) {
+    if (other instanceof QuestionDefinition) {
+      QuestionDefinition o = (QuestionDefinition) other;
+
+      return this.getQuestionType().equals(o.getQuestionType())
+          && this.version == o.getVersion()
+          && this.name.equals(o.getName())
+          && this.path.equals(o.getPath())
+          && this.description.equals(o.getDescription())
+          && this.questionText.equals(o.getQuestionText())
+          && this.questionHelpText.equals(o.getQuestionHelpText());
+    }
+    return false;
   }
 }

@@ -8,9 +8,106 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
+import org.junit.Before;
 import org.junit.Test;
 
 public class QuestionDefinitionTest {
+  QuestionDefinitionBuilder builder;
+
+  @Before
+  public void setup() {
+    builder =
+        new QuestionDefinitionBuilder()
+            .setVersion(1L)
+            .setName("my name")
+            .setPath("my.path.name")
+            .setDescription("description")
+            .setQuestionType(QuestionType.TEXT)
+            .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "question?"))
+            .setQuestionHelpText(ImmutableMap.of(Locale.ENGLISH, "help text"));
+  }
+
+  @Test
+  public void testEquality_true() throws UnsupportedQuestionTypeException {
+    QuestionDefinition question = builder.setId(123L).build();
+    assertThat(question.equals(question)).isTrue();
+    QuestionDefinition sameQuestion = new QuestionDefinitionBuilder(question).build();
+    assertThat(question.equals(sameQuestion)).isTrue();
+  }
+
+  @Test
+  public void testEquality_nullReturnsFalse() throws UnsupportedQuestionTypeException {
+    QuestionDefinition question = builder.setId(123L).build();
+    assertThat(question.equals(null)).isFalse();
+  }
+
+  @Test
+  public void testEquality_differentHelpTextReturnsFalse() throws UnsupportedQuestionTypeException {
+    QuestionDefinition question = builder.setId(123L).build();
+
+    QuestionDefinition differentQuestionHelpText =
+        new QuestionDefinitionBuilder(question)
+            .setQuestionHelpText(ImmutableMap.of(Locale.ENGLISH, "different help text"))
+            .build();
+    assertThat(question.equals(differentQuestionHelpText)).isFalse();
+  }
+
+  @Test
+  public void testEquality_differentTextReturnsFalse() throws UnsupportedQuestionTypeException {
+    QuestionDefinition question = builder.setId(123L).build();
+
+    QuestionDefinition differentQuestionText =
+        new QuestionDefinitionBuilder(question)
+            .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "question text?"))
+            .build();
+    assertThat(question.equals(differentQuestionText)).isFalse();
+  }
+
+  @Test
+  public void testEquality_differentQuestionTypeReturnsFalse()
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinition question = builder.setId(123L).build();
+
+    QuestionDefinition differentQuestionType =
+        new QuestionDefinitionBuilder(question).setQuestionType(QuestionType.ADDRESS).build();
+    assertThat(question.equals(differentQuestionType)).isFalse();
+  }
+
+  @Test
+  public void testEquality_differentIdReturnsFalse() throws UnsupportedQuestionTypeException {
+    QuestionDefinition question = builder.setId(123L).build();
+
+    QuestionDefinition unpersistedQuestion = builder.clearId().build();
+    assertThat(question.equals(unpersistedQuestion)).isFalse();
+
+    QuestionDefinition differentId = builder.setId(456L).build();
+    assertThat(question.equals(differentId)).isFalse();
+  }
+
+  @Test
+  public void testEquality_differentVersionReturnsFalse() throws UnsupportedQuestionTypeException {
+    QuestionDefinition question = builder.setId(123L).build();
+
+    QuestionDefinition differentVersion = builder.setVersion(2L).build();
+    assertThat(question.equals(differentVersion)).isFalse();
+  }
+
+  @Test
+  public void testEquality_differentNameReturnsFalse() throws UnsupportedQuestionTypeException {
+    QuestionDefinition question = builder.setId(123L).build();
+    QuestionDefinition differentName = builder.setName("Different name").build();
+    assertThat(question.equals(differentName)).isFalse();
+  }
+
+  @Test
+  public void testEquality_differentDescriptionReturnsFalse()
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinition question = builder.setId(123L).build();
+    QuestionDefinition differentDescription =
+        builder.setDescription("Different description").build();
+    assertThat(question.equals(differentDescription)).isFalse();
+  }
+
   @Test
   public void newQuestionHasCorrectFields() throws TranslationNotFoundException {
     QuestionDefinition question =
