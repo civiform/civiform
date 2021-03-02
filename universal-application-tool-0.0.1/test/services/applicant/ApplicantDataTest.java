@@ -22,11 +22,12 @@ public class ApplicantDataTest {
 
   @Test
   public void equality() {
-    DocumentContext jsonData =
+    DocumentContext testData =
         JsonPath.parse("{ \"applicant\": { \"testKey\": \"testValue\"}, \"metadata\": {}}");
+
     new EqualsTester()
         .addEqualityGroup(new ApplicantData(), new ApplicantData())
-        .addEqualityGroup(new ApplicantData(jsonData), new ApplicantData(jsonData))
+        .addEqualityGroup(new ApplicantData(testData), new ApplicantData(testData))
         .testEquals();
   }
 }
