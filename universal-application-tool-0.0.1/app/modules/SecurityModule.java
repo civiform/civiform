@@ -1,9 +1,15 @@
 package modules;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static play.mvc.Results.*;
+import static play.mvc.Results.forbidden;
+import static play.mvc.Results.redirect;
 
-import auth.*;
+import auth.Authorizers;
+import auth.FakeAdminClient;
+import auth.GuestClient;
+import auth.ProfileFactory;
+import auth.Roles;
+import auth.UatProfileData;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -122,14 +128,16 @@ public class SecurityModule extends AbstractModule {
     Config config = new Config();
     config.setClients(clients);
     config.addAuthorizer(
-        Roles.PROGRAM_ADMIN_AUTHORIZER,
+        Authorizers.PROGRAM_ADMIN.toString(),
         new RequireAllRolesAuthorizer(Roles.ROLE_PROGRAM_ADMIN.toString()));
     config.addAuthorizer(
-        Roles.UAT_ADMIN_AUTHORIZER, new RequireAllRolesAuthorizer(Roles.ROLE_UAT_ADMIN.toString()));
+        Authorizers.UAT_ADMIN.toString(),
+        new RequireAllRolesAuthorizer(Roles.ROLE_UAT_ADMIN.toString()));
     config.addAuthorizer(
-        Roles.APPLICANT_AUTHORIZER, new RequireAllRolesAuthorizer(Roles.ROLE_APPLICANT.toString()));
+        Authorizers.APPLICANT.toString(),
+        new RequireAllRolesAuthorizer(Roles.ROLE_APPLICANT.toString()));
     config.addAuthorizer(
-        Roles.TI_AUTHORIZER, new RequireAllRolesAuthorizer(Roles.ROLE_TI.toString()));
+        Authorizers.TI.toString(), new RequireAllRolesAuthorizer(Roles.ROLE_TI.toString()));
 
     config.setHttpActionAdapter(PlayHttpActionAdapter.INSTANCE);
     return config;
