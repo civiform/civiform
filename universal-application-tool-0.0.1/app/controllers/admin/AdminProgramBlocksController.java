@@ -2,32 +2,44 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import forms.BlockForm;
 import java.util.Optional;
 import javax.inject.Inject;
+import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.program.BlockDefinition;
+import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import views.admin.ProgramBlockEditView;
+import services.question.QuestionService;
+import services.question.ReadOnlyQuestionService;
+import views.admin.programs.ProgramBlockEditView;
 
 public class AdminProgramBlocksController extends Controller {
 
-  private final ProgramService service;
+  private final ProgramService programService;
   private final ProgramBlockEditView editView;
+  private final QuestionService questionService;
+  private final FormFactory formFactory;
 
   @Inject
   public AdminProgramBlocksController(
-      ProgramService service, ProgramBlockEditView editView, FormFactory formFactory) {
-    this.service = checkNotNull(service);
+      ProgramService programService,
+      QuestionService questionService,
+      ProgramBlockEditView editView,
+      FormFactory formFactory) {
+    this.programService = checkNotNull(programService);
+    this.questionService = checkNotNull(questionService);
     this.editView = checkNotNull(editView);
+    this.formFactory = checkNotNull(formFactory);
   }
 
   public Result index(long programId) {
-    Optional<ProgramDefinition> programMaybe = service.getProgramDefinition(programId);
+    Optional<ProgramDefinition> programMaybe = programService.getProgramDefinition(programId);
 
     if (programMaybe.isEmpty()) {
       return notFound(String.format("Program ID %d not found.", programId));
@@ -35,7 +47,7 @@ public class AdminProgramBlocksController extends Controller {
 
     ProgramDefinition program = programMaybe.get();
 
-    if (program.blockDefinitions().size() == 0) {
+    if (program.blockDefinitions().isEmpty()) {
       return redirect(routes.AdminProgramBlocksController.create(programId));
     }
 
@@ -48,7 +60,7 @@ public class AdminProgramBlocksController extends Controller {
     ProgramDefinition program;
 
     try {
-      program = service.addBlockToProgram(programId);
+      program = programService.addBlockToProgram(programId);
     } catch (ProgramNotFoundException e) {
       // This really shouldn't happen because the first if check should catch it
       return notFound(e.toString());
@@ -60,7 +72,7 @@ public class AdminProgramBlocksController extends Controller {
   }
 
   public Result edit(Request request, long programId, long blockId) {
-    Optional<ProgramDefinition> programMaybe = service.getProgramDefinition(programId);
+    Optional<ProgramDefinition> programMaybe = programService.getProgramDefinition(programId);
 
     if (programMaybe.isEmpty()) {
       return notFound(String.format("Program ID %d not found.", programId));
@@ -74,7 +86,31 @@ public class AdminProgramBlocksController extends Controller {
     }
 
     BlockDefinition block = blockMaybe.get();
+    ReadOnlyQuestionService roQuestionService =
+        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
-    return ok(editView.render(request, program, block));
+    return ok(editView.render(request, program, block, roQuestionService.getAllQuestions()));
+  }
+
+  public Result update(Request request, long programId, long blockId) {
+    Form<BlockForm> blockFormWrapper = formFactory.form(BlockForm.class);
+    BlockForm blockForm = blockFormWrapper.bindFromRequest(request).get();
+
+    try {
+      programService.updateBlock(programId, blockId, blockForm);
+    } catch (ProgramNotFoundException | ProgramBlockNotFoundException e) {
+      return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
+    }
+
+    return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
+  }
+
+  public Result destroy(long programId, long blockId) {
+    try {
+      programService.deleteBlock(programId, blockId);
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    }
+    return redirect(routes.AdminProgramBlocksController.index(programId));
   }
 }

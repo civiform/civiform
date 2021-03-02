@@ -1,4 +1,4 @@
-package views.admin;
+package views.admin.programs;
 
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.body;
@@ -14,6 +14,7 @@ import j2html.tags.Tag;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
+import views.admin.AdminLayout;
 
 public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;

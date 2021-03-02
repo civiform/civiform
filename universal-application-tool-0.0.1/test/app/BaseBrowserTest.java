@@ -1,6 +1,7 @@
 package app;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.fluentlenium.core.filter.FilterConstructor.containingText;
 import static org.fluentlenium.core.filter.FilterConstructor.withName;
 import static org.fluentlenium.core.filter.FilterConstructor.withText;
 import static play.test.Helpers.fakeApplication;
@@ -80,7 +81,6 @@ public class BaseBrowserTest extends WithBrowser {
    */
   protected void addProgram(String name) {
     // Go to admin index and click "New Program"
-    loginAsAdmin();
     goTo(controllers.admin.routes.AdminProgramController.index());
     browser.$("#new-program").click();
 
@@ -88,8 +88,18 @@ public class BaseBrowserTest extends WithBrowser {
     browser.$("input", withName("name")).fill().with(name);
     browser.$("input", withName("description")).fill().with("Test description");
     browser.$("button", withText("Create")).click();
+  }
 
-    // Log out of the admin session.
-    logout();
+  /**
+   * Navigates to the block management dashboard for the existing program with the given name.
+   *
+   * @param programName the name of the program to manage questions for.
+   */
+  protected void manageExistingProgramQuestions(String programName) {
+    goTo(controllers.admin.routes.AdminProgramController.index());
+    browser.$("div", containingText(programName)).$("a").first().click();
+    assertThat(browser.pageSource()).contains("Edit program: " + programName);
+    browser.$("a", withText("Manage Questions")).first().click();
+    assertThat(browser.pageSource()).contains(programName + " Questions");
   }
 }

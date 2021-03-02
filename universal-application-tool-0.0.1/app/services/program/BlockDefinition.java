@@ -64,6 +64,10 @@ public abstract class BlockDefinition {
     return programQuestionDefinitions().get(questionIndex).getQuestionDefinition();
   }
 
+  public boolean hasSameId(BlockDefinition other) {
+    return other.id() == id();
+  }
+
   @AutoValue.Builder
   public abstract static class Builder {
     @JsonProperty("id")
