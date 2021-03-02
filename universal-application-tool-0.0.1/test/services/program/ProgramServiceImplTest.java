@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import forms.BlockForm;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -415,6 +416,32 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
             .get(0)
             .getQuestionDefinition();
     assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
+  }
+
+  @Test
+  public void updateBlock_noProgram_throwsProgramNotFoundException() {
+    assertThatThrownBy(() -> ps.updateBlock(1L, 1L, new BlockForm()))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessage("Program not found for ID: 1");
+  }
+
+  @Test
+  public void updateBlock() throws ProgramNotFoundException, ProgramBlockNotFoundException {
+    ProgramDefinition program = ps.createProgramDefinition("Program", "description");
+    program = ps.addBlockToProgram(program.id(), "initial block name", "initial block description");
+    long blockId = program.blockDefinitions().get(0).id();
+
+    BlockForm blockForm = new BlockForm();
+    blockForm.setName("new block name");
+    blockForm.setDescription("new description");
+
+    ps.updateBlock(program.id(), blockId, blockForm);
+
+    ProgramDefinition found = ps.getProgramDefinition(program.id()).orElseThrow();
+
+    assertThat(found.blockDefinitions()).hasSize(1);
+    assertThat(found.getBlockDefinition(blockId).get().name()).isEqualTo("new block name");
+    assertThat(found.getBlockDefinition(blockId).get().description()).isEqualTo("new description");
   }
 
   @Test
