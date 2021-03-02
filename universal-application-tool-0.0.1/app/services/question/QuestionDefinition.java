@@ -141,13 +141,17 @@ public abstract class QuestionDefinition {
     return Objects.hash(id, version, path);
   }
 
+  /** Two QuestionDefinitions are considered equal if all of their properties are the same. */
   @Override
   public boolean equals(Object other) {
+    return this.idEquals(other) && this.equalsIgnoreId(other);
+  }
+
+  public boolean idEquals(Object other) {
     if (other instanceof QuestionDefinition) {
       QuestionDefinition o = (QuestionDefinition) other;
 
-      return this.equalsIgnoreId(other)
-          && this.isPersisted() == o.isPersisted()
+      return this.isPersisted() == o.isPersisted()
           && (!this.isPersisted() || this.getId() == o.getId());
     }
 
