@@ -16,6 +16,11 @@ public class ApplicantQuestionRendererFactory {
           return new NameQuestionRenderer(question);
         }
 
+      case ADDRESS:
+        {
+          return new AddressQuestionRenderer(question);
+        }
+
       default:
         throw new UnsupportedOperationException(
             "Unrecognized question type: " + question.getType());
