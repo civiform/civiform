@@ -121,14 +121,14 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void delete_withInvalidProgram_notFound() {
+  public void destroy_withInvalidProgram_notFound() {
     Result result = controller.destroy(1L, 1L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
-  public void delete_withProgram_redirects() {
+  public void destroy_withProgram_redirects() {
     Program program = resourceCreator().insertProgram("program");
     Result result = controller.destroy(program.id, 1L);
 
