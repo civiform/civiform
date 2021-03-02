@@ -15,6 +15,27 @@ public class QuestionDefinitionBuilder {
   private ImmutableMap<Locale, String> questionHelpText;
   private QuestionType questionType = QuestionType.TEXT;
 
+  public QuestionDefinitionBuilder() {}
+
+  public QuestionDefinitionBuilder(QuestionDefinition definition) {
+    if (definition.isPersisted()) {
+      long definitionId = definition.getId();
+      this.id = OptionalLong.of(definitionId);
+    }
+    version = definition.getVersion();
+    name = definition.getName();
+    path = definition.getPath();
+    description = definition.getDescription();
+    questionText = definition.getQuestionText();
+    questionHelpText = definition.getQuestionHelpText();
+    questionType = definition.getQuestionType();
+  }
+
+  public QuestionDefinitionBuilder clearId() {
+    this.id = OptionalLong.empty();
+    return this;
+  }
+
   public QuestionDefinitionBuilder setId(long id) {
     this.id = OptionalLong.of(id);
     return this;
