@@ -552,4 +552,41 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
         found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
     assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
   }
+
+  @Test
+  public void deleteBlock_invalidProgram_throwsProgramNotfoundException() {
+    assertThatThrownBy(() -> ps.deleteBlock(1L, 2L))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessage("Program not found for ID: 1");
+  }
+
+  @Test
+  public void deleteBlock_constructsQuestionDefinitions() throws ProgramNotFoundException {
+    QuestionDefinition question = qs.create(SIMPLE_QUESTION).get();
+    ProgramDefinition programDefinition =
+        ps.createProgramDefinition("Program With Block", "This program has a block.");
+    Long programId = programDefinition.id();
+    ps.addBlockToProgram(
+        programId,
+        "the block",
+        "the block for the program",
+        ImmutableList.of(ProgramQuestionDefinition.create(question)));
+    ps.addBlockToProgram(
+        programId,
+        "the second block",
+        "the second block for the program",
+        ImmutableList.of(ProgramQuestionDefinition.create(question)));
+
+    ProgramDefinition result = ps.deleteBlock(programId, 1L);
+
+    assertThat(result.blockDefinitions()).hasSize(1);
+
+    BlockDefinition blockResult = result.blockDefinitions().get(0);
+    assertThat(blockResult.name()).isEqualTo("the second block");
+    assertThat(blockResult.programQuestionDefinitions()).hasSize(1);
+
+    QuestionDefinition questionResult =
+        blockResult.programQuestionDefinitions().get(0).getQuestionDefinition();
+    assertThat(questionResult).isInstanceOf(NameQuestionDefinition.class);
+  }
 }

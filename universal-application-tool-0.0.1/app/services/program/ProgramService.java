@@ -138,4 +138,13 @@ public interface ProgramService {
   ProgramDefinition setBlockOptionalPredicate(
       long programId, long blockDefinitionId, Predicate predicate)
       throws ProgramNotFoundException, ProgramBlockNotFoundException;
+
+  /**
+   * Delete a block from a program if the block ID is present. Otherwise, does nothing.
+   *
+   * @return the updated {@link ProgramDefinition}
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   */
+  ProgramDefinition deleteBlock(long programId, long blockDefinitionId)
+      throws ProgramNotFoundException;
 }
