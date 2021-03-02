@@ -56,6 +56,7 @@ public class QuestionController extends Controller {
             readOnlyService -> {
               try {
                 QuestionDefinition definition = questionForm.getBuilder().setVersion(1L).build();
+                // handle failure here.
                 service.create(definition);
               } catch (UnsupportedQuestionTypeException e) {
                 // I'm not sure why this would happen here, so we'll just log and redirect.
