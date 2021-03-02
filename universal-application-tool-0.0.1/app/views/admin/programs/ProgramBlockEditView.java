@@ -45,7 +45,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withClasses(Styles.FLEX)
             .with(blockOrderPanel(program, block))
             .with(blockEditPanel(csrfTag, program, block))
-            .with(questionBankPanel(questions)));
+            .with(questionBankPanel(csrfTag, questions, program, block)));
   }
 
   private Tag title(ProgramDefinition program) {
@@ -86,16 +86,16 @@ public class ProgramBlockEditView extends BaseHtmlView {
         .with(
             div(
                 form(
-                        csrfTag,
-                        div(textFieldWithValue("name", "Block Name", block.name())),
-                        div(
-                            textFieldWithValue(
-                                "description", "Block Description", block.description())),
-                        submitButton("Update Block"))
+                    csrfTag,
+                    div(textFieldWithValue("name", "Block Name", block.name())),
+                    div(
+                        textFieldWithValue(
+                            "description", "Block Description", block.description())),
+                    submitButton("Update Block"))
                     .withMethod("post")
                     .withAction(
                         controllers.admin.routes.AdminProgramBlocksController.update(
-                                program.id(), block.id())
+                            program.id(), block.id())
                             .url())));
   }
 
@@ -109,12 +109,25 @@ public class ProgramBlockEditView extends BaseHtmlView {
     return div().withClass(Styles.FLEX).with(h1(block.name())).with(deleteButton);
   }
 
-  private ContainerTag questionBankPanel(ImmutableList<QuestionDefinition> questionDefinitions) {
+  private ContainerTag questionBankPanel(Tag csrfTag,
+      ImmutableList<QuestionDefinition> questionDefinitions, ProgramDefinition program,
+      BlockDefinition block) {
+    ContainerTag questionBank = div().withClasses(Styles.FLEX_INITIAL).with(h2("Question Bank"));
+    ContainerTag form = form().withMethod("post").withAction(
+        controllers.admin.routes.AdminProgramBlockQuestionsController
+            .create(program.id(), block.id()).url())
+        .with(csrfTag)
+        .with(submitButton("Add to Block"));
+
     ContainerTag questionList = ul().withClass(Styles.OVERFLOW_X_SCROLL);
 
     questionDefinitions.forEach(
-        questionDefinition -> questionList.with(li(questionDefinition.getName())));
+        questionDefinition -> questionList.with(li(
+            checkboxInputWithLabel(questionDefinition.getName(), "" + questionDefinition.getId(),
+                "question-" + questionDefinition.getId(),
+                String.valueOf(questionDefinition.getId()))
+        )));
 
-    return div().withClasses(Styles.FLEX_INITIAL).with(h2("Question Bank")).with(questionList);
+    return questionBank.with(form.with(questionList));
   }
 }
