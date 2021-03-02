@@ -63,7 +63,7 @@ public abstract class BlockDefinition {
   public QuestionDefinition getQuestionDefinition(int questionIndex) {
     return programQuestionDefinitions().get(questionIndex).getQuestionDefinition();
   }
-  
+
   public int getQuestionCount() {
     return programQuestionDefinitions().size();
   }

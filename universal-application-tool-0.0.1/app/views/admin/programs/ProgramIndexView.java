@@ -54,18 +54,18 @@ public final class ProgramIndexView extends BaseHtmlView {
                 StyleUtils.FOCUS, ImmutableList.of(Styles.OUTLINE_NONE, Styles.RING_2)));
   }
 
-  public Tag renderProgramListItem(ProgramDefinition program) {    
+  public Tag renderProgramListItem(ProgramDefinition program) {
     // TODO: Move Strings out of here for i18n.
     String programStatusText = "Draft";
     String lastEditText = "Last updated 2 hours ago."; // TODO: Need to generate this.
     String editLinkText = "Edit →";
-    
+
     String programTitleText = program.name();
     String programDescriptionText = program.description();
     long programId = program.id();
     String blockCountText = "Blocks: " + program.getBlockCount();
     String questionCountText = "Questions: " + program.getQuestionCount();
-    
+
     Tag topContent =
         div(
                 div(
