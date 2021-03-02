@@ -69,6 +69,8 @@ public class ApplicantData {
   public boolean equals(@Nullable Object object) {
     if (object instanceof ApplicantData) {
       ApplicantData that = (ApplicantData) object;
+      // Need to compare the JSON strings rather than the DocumentContexts themselves since
+      // DocumentContext does not override equals.
       return Objects.equals(this.jsonData.jsonString(), that.jsonData.jsonString());
     }
     return false;
