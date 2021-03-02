@@ -3,6 +3,8 @@ package controllers.applicant;
 import auth.ProfileUtils;
 import auth.UatProfile;
 import com.google.common.collect.ImmutableList;
+
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -13,7 +15,6 @@ import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 
 public class ApplicantMessages {
-  private static final String ENGLISH = "en";
 
   private final MessagesApi messagesApi;
   private final ProfileUtils profileUtils;
@@ -44,6 +45,6 @@ public class ApplicantMessages {
     }
 
     return CompletableFuture.completedFuture(
-        messagesApi.preferred(ImmutableList.of(Lang.forCode(ENGLISH))));
+        messagesApi.preferred(ImmutableList.of(new Lang(Locale.ENGLISH))));
   }
 }
