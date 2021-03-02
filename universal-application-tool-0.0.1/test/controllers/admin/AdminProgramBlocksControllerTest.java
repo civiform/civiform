@@ -5,8 +5,10 @@ import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
+import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
+import com.google.common.collect.ImmutableMap;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +16,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.WithPostgresContainer;
 import services.program.BlockDefinition;
+import services.program.ProgramDefinition;
 
 public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
@@ -118,6 +121,44 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
     Result result = controller.edit(request, program.id, 1L);
 
     assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void update_noProgram_notFound() {
+    Request request =
+        fakeRequest()
+            .bodyForm(ImmutableMap.of("name", "name", "description", "description"))
+            .build();
+
+    Result result = controller.update(request, 1L, 1L);
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void update_overwritesExistingBlock() {
+    ProgramDefinition program = resourceCreator().insertProgramWithOneBlock("program");
+    Request request =
+        fakeRequest()
+            .bodyForm(ImmutableMap.of("name", "updated name", "description", "udpated description"))
+            .build();
+
+    Result result =
+        controller.update(request, program.id(), program.getBlockDefinition(0).get().id());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramBlocksController.edit(
+                    program.id(), program.getBlockDefinition(0).get().id())
+                .url());
+
+    Result redirectResult =
+        controller.edit(
+            addCSRFToken(fakeRequest()).build(),
+            program.id(),
+            program.getBlockDefinition(0).get().id());
+    assertThat(contentAsString(redirectResult)).contains("updated name");
   }
 
   @Test
