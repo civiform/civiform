@@ -182,7 +182,8 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   public void updateQuestion() throws UnsupportedQuestionTypeException {
     Question question = resourceCreator().insertQuestion("path.one");
     QuestionDefinition questionDefinition = question.getQuestionDefinition();
-    questionDefinition = new QuestionDefinitionBuilder(questionDefinition).setDescription("new description").build();
+    questionDefinition =
+        new QuestionDefinitionBuilder(questionDefinition).setDescription("new description").build();
 
     repo.updateQuestion(new Question(questionDefinition)).toCompletableFuture().join();
 
@@ -194,7 +195,8 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   public void updateQuestionSync() throws UnsupportedQuestionTypeException {
     Question question = resourceCreator().insertQuestion("path.one");
     QuestionDefinition questionDefinition = question.getQuestionDefinition();
-    questionDefinition = new QuestionDefinitionBuilder(questionDefinition).setDescription("new description").build();
+    questionDefinition =
+        new QuestionDefinitionBuilder(questionDefinition).setDescription("new description").build();
 
     repo.updateQuestionSync(new Question(questionDefinition));
 

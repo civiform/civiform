@@ -17,6 +17,7 @@ import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.question.InvalidPathException;
+import services.question.InvalidUpdateException;
 import services.question.QuestionDefinition;
 import services.question.QuestionService;
 import services.question.UnsupportedQuestionTypeException;
@@ -114,12 +115,12 @@ public class QuestionController extends Controller {
     Form<QuestionForm> form = formFactory.form(QuestionForm.class);
     QuestionForm questionForm = form.bindFromRequest(request).get();
     try {
-      QuestionDefinition definition = questionForm.getBuilder().setId(id).setVersion(1L).build();
+      QuestionDefinition definition = questionForm.getBuilder().setVersion(1L).build();
       service.update(definition);
     } catch (UnsupportedQuestionTypeException e) {
       // I'm not sure why this would happen here, so we'll just log and redirect.
       LOG.info(e.toString());
-    } catch (UnsupportedOperationException e) {
+    } catch (InvalidUpdateException e) {
       // This is expected for now until we implement update on QuestionService.
     }
     return CompletableFuture.completedFuture(redirect(routes.QuestionController.index("table")));

@@ -89,9 +89,30 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void update_notImplemented() {
-    assertThatThrownBy(() -> questionService.update(null))
-        .isInstanceOf(UnsupportedOperationException.class)
-        .hasMessage("Not supported yet.");
+  public void update_returnsQuestionDefinitionWhenSucceeds()
+      throws InvalidUpdateException, UnsupportedQuestionTypeException {
+    QuestionDefinition question = questionService.create(questionDefinition).get();
+    QuestionDefinition toUpdate =
+        new QuestionDefinitionBuilder(question).setName("updated name").build();
+
+    assertThat(questionService.update(toUpdate).getName()).isEqualTo("updated name");
+  }
+
+  @Test
+  public void update_failsWhenQuestionNotPersisted() {
+    assertThatThrownBy(() -> questionService.update(questionDefinition))
+        .isInstanceOf(InvalidUpdateException.class)
+        .hasMessageContaining("question definition is not persisted");
+  }
+
+  @Test
+  public void update_failsWhenQuestionPathChanges() throws UnsupportedQuestionTypeException {
+    QuestionDefinition question = questionService.create(questionDefinition).get();
+    QuestionDefinition toUpdate =
+        new QuestionDefinitionBuilder(question).setPath("new.path").build();
+
+    assertThatThrownBy(() -> questionService.update(toUpdate))
+        .isInstanceOf(InvalidUpdateException.class)
+        .hasMessageContaining("question paths mismatch");
   }
 }
