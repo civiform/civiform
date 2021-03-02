@@ -29,8 +29,7 @@ public class ApplicantRepository {
 
   public CompletionStage<Optional<Applicant>> lookupApplicant(long id) {
     return supplyAsync(
-        () -> Optional.ofNullable(ebeanServer.find(Applicant.class).setId(id).findOne()),
-        executionContext);
+        () -> ebeanServer.find(Applicant.class).setId(id).findOneOrEmpty(), executionContext);
   }
 
   public CompletionStage<Void> insertApplicant(Applicant applicant) {
