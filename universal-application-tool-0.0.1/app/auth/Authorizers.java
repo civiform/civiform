@@ -12,9 +12,9 @@ public enum Authorizers {
   PROGRAM_ADMIN(Labels.PROGRAM_ADMIN);
 
   /**
-   * This Labels class is used to provide constant variables for annotations. This nested static
-   * class should only contain constant string values that are used to initialize {@link
-   * Authorizers}.
+   * This Labels class is required to provide references to String constants for {@link
+   * org.pac4j.play.java.Secure} annotations. This nested static class should only contain constant
+   * string values that are used to initialize {@link Authorizers}.
    */
   public static final class Labels {
     public static final String APPLICANT = "applicant";
