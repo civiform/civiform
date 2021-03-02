@@ -3,7 +3,7 @@ package auth;
 /**
  * This enum represents Authorizers to be used with pac4j.
  *
- * <p>The enum values should always look like &#60;Authorizer&#62;(Labels.&#60;Authorizer&#62;).
+ * <p>The enum values should always look like &lt;Authorizer&gt;(Labels.&lt;Authorizer&gt;).
  */
 public enum Authorizers {
   APPLICANT(Labels.APPLICANT),
