@@ -41,4 +41,8 @@ public class ApplicantRepository {
         },
         executionContext);
   }
+
+  public Optional<Applicant> lookupApplicantSync(long id) {
+    return ebeanServer.find(Applicant.class).setId(id).findOneOrEmpty();
+  }
 }
