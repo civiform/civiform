@@ -31,7 +31,7 @@ public class ProgramRepository {
 
   public CompletionStage<Optional<Program>> lookupProgram(long id) {
     return supplyAsync(
-        () -> Optional.ofNullable(ebeanServer.find(Program.class).where().eq("id", id).findOne()),
+        () -> ebeanServer.find(Program.class).where().eq("id", id).findOneOrEmpty(),
         executionContext);
   }
 
