@@ -1,6 +1,7 @@
 package services.program;
 
 import com.google.common.collect.ImmutableList;
+import forms.BlockForm;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
@@ -109,6 +110,19 @@ public interface ProgramService {
       long programId,
       long blockDefinitionId,
       ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException;
+
+  /**
+   * Update a {@link BlockDefinition}'s attributes.
+   *
+   * @param programId the ID of the program to update
+   * @param blockDefinitionId the ID of the block to update
+   * @param blockForm a {@link BlockForm} object containing the new attributes for the block
+   * @return the updated {@link ProgramDefinition}
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramBlockNotFoundException when blockID does not correspond to a real Block.
+   */
+  ProgramDefinition updateBlock(long programId, long blockDefinitionId, BlockForm blockForm)
       throws ProgramNotFoundException, ProgramBlockNotFoundException;
 
   /**

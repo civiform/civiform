@@ -2,13 +2,16 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import forms.BlockForm;
 import java.util.Optional;
 import javax.inject.Inject;
+import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.program.BlockDefinition;
+import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -21,6 +24,7 @@ public class AdminProgramBlocksController extends Controller {
   private final ProgramService programService;
   private final ProgramBlockEditView editView;
   private final QuestionService questionService;
+  private final FormFactory formFactory;
 
   @Inject
   public AdminProgramBlocksController(
@@ -31,6 +35,7 @@ public class AdminProgramBlocksController extends Controller {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.editView = checkNotNull(editView);
+    this.formFactory = checkNotNull(formFactory);
   }
 
   public Result index(long programId) {
@@ -42,7 +47,7 @@ public class AdminProgramBlocksController extends Controller {
 
     ProgramDefinition program = programMaybe.get();
 
-    if (program.blockDefinitions().size() == 0) {
+    if (program.blockDefinitions().isEmpty()) {
       return redirect(routes.AdminProgramBlocksController.create(programId));
     }
 
@@ -85,6 +90,19 @@ public class AdminProgramBlocksController extends Controller {
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
     return ok(editView.render(request, program, block, roQuestionService.getAllQuestions()));
+  }
+
+  public Result update(Request request, long programId, long blockId) {
+    Form<BlockForm> blockFormWrapper = formFactory.form(BlockForm.class);
+    BlockForm blockForm = blockFormWrapper.bindFromRequest(request).get();
+
+    try {
+      programService.updateBlock(programId, blockId, blockForm);
+    } catch (ProgramNotFoundException | ProgramBlockNotFoundException e) {
+      return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
+    }
+
+    return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
   }
 
   public Result destroy(long programId, long blockId) {

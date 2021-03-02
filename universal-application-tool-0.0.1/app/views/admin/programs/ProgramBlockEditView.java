@@ -37,14 +37,14 @@ public class ProgramBlockEditView extends BaseHtmlView {
       BlockDefinition block,
       ImmutableList<QuestionDefinition> questions) {
     Tag csrfTag = makeCsrfTokenInputTag(request);
-    System.out.println(csrfTag.render());
+
     return layout.render(
         title(program),
-        topButtons(request, program),
+        topButtons(program),
         div()
-            .withClass(Styles.FLEX)
+            .withClasses(Styles.FLEX)
             .with(blockOrderPanel(program, block))
-            .with(blockEditPanel(request, program, block))
+            .with(blockEditPanel(csrfTag, program, block))
             .with(questionBankPanel(questions)));
   }
 
@@ -52,15 +52,11 @@ public class ProgramBlockEditView extends BaseHtmlView {
     return h1(program.name() + " Questions");
   }
 
-  private ContainerTag topButtons(Request request, ProgramDefinition program) {
+  private ContainerTag topButtons(ProgramDefinition program) {
     String addBlockUrl =
         controllers.admin.routes.AdminProgramBlocksController.create(program.id()).url();
-    ContainerTag addBlockButton =
-        form(makeCsrfTokenInputTag(request), submitButton("Add Block"))
-            .withMethod("post")
-            .withAction(addBlockUrl);
 
-    return div(addBlockButton);
+    return div(a("Add Block").withHref(addBlockUrl));
   }
 
   private ContainerTag blockOrderPanel(ProgramDefinition program, BlockDefinition focusedBlock) {
@@ -83,19 +79,33 @@ public class ProgramBlockEditView extends BaseHtmlView {
   }
 
   private ContainerTag blockEditPanel(
-      Request request, ProgramDefinition program, BlockDefinition block) {
-    return div().withClass(Styles.FLEX_AUTO).with(blockEditPanelTop(request, program, block));
+      Tag csrfTag, ProgramDefinition program, BlockDefinition block) {
+    return div()
+        .withClass(Styles.FLEX_AUTO)
+        .with(blockEditPanelTop(csrfTag, program, block))
+        .with(
+            div(
+                form(
+                        csrfTag,
+                        div(textFieldWithValue("name", "Block Name", block.name())),
+                        div(
+                            textFieldWithValue(
+                                "description", "Block Description", block.description())),
+                        submitButton("Update Block"))
+                    .withMethod("post")
+                    .withAction(
+                        controllers.admin.routes.AdminProgramBlocksController.update(
+                                program.id(), block.id())
+                            .url())));
   }
 
   private ContainerTag blockEditPanelTop(
-      Request request, ProgramDefinition program, BlockDefinition block) {
+      Tag csrfTag, ProgramDefinition program, BlockDefinition block) {
     String deleteBlockLink =
         controllers.admin.routes.AdminProgramBlocksController.destroy(program.id(), block.id())
             .url();
     ContainerTag deleteButton =
-        form(makeCsrfTokenInputTag(request), submitButton("Delete Block"))
-            .withMethod("post")
-            .withAction(deleteBlockLink);
+        form(csrfTag, submitButton("Delete Block")).withMethod("post").withAction(deleteBlockLink);
     return div().withClass(Styles.FLEX).with(h1(block.name())).with(deleteButton);
   }
 

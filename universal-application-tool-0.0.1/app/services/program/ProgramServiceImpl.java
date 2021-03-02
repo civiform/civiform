@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import forms.BlockForm;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,9 +21,9 @@ import services.question.ReadOnlyQuestionService;
 
 public class ProgramServiceImpl implements ProgramService {
 
-  private ProgramRepository programRepository;
-  private QuestionService questionService;
-  private HttpExecutionContext httpExecutionContext;
+  private final ProgramRepository programRepository;
+  private final QuestionService questionService;
+  private final HttpExecutionContext httpExecutionContext;
 
   @Inject
   public ProgramServiceImpl(
@@ -157,6 +158,23 @@ public class ProgramServiceImpl implements ProgramService {
     BlockDefinition blockDefinition =
         programDefinition.blockDefinitions().get(blockDefinitionIndex).toBuilder()
             .setProgramQuestionDefinitions(programQuestionDefinitions)
+            .build();
+
+    return updateProgramDefinitionWithBlockDefinition(
+        programDefinition, blockDefinitionIndex, blockDefinition);
+  }
+
+  @Override
+  @Transactional
+  public ProgramDefinition updateBlock(long programId, long blockDefinitionId, BlockForm blockForm)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException {
+    ProgramDefinition programDefinition = getProgramOrThrow(programId);
+    int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
+
+    BlockDefinition blockDefinition =
+        programDefinition.blockDefinitions().get(blockDefinitionIndex).toBuilder()
+            .setName(blockForm.getName())
+            .setDescription(blockForm.getDescription())
             .build();
 
     return updateProgramDefinitionWithBlockDefinition(
