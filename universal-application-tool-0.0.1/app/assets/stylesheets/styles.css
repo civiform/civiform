@@ -20,7 +20,4 @@
   button:hover {
     @apply bg-blue-700;
   }
-  main {
-    @apply max-w-screen-xl mx-auto;
-  }
 }
