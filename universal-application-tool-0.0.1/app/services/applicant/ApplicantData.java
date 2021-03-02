@@ -7,7 +7,9 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import java.time.Instant;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 public class ApplicantData {
 
@@ -61,5 +63,21 @@ public class ApplicantData {
 
   public String asJsonString() {
     return this.jsonData.jsonString();
+  }
+
+  @Override
+  public boolean equals(@Nullable Object object) {
+    if (object instanceof ApplicantData) {
+      ApplicantData that = (ApplicantData) object;
+      // Need to compare the JSON strings rather than the DocumentContexts themselves since
+      // DocumentContext does not override equals.
+      return this.jsonData.jsonString().equals(that.jsonData.jsonString());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(jsonData.jsonString());
   }
 }
