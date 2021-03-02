@@ -6,7 +6,6 @@ import akka.stream.Materializer;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import models.Applicant;
-import models.Person;
 import models.Program;
 import models.Question;
 import org.junit.AfterClass;
@@ -58,6 +57,6 @@ public class WithPostgresContainer {
   public void truncateTables() {
     EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
     EbeanServer server = Ebean.getServer(config.defaultServer());
-    server.truncate(Applicant.class, Person.class, Program.class, Question.class);
+    server.truncate(Applicant.class, Program.class, Question.class);
   }
 }
