@@ -44,14 +44,14 @@ public class ProgramServiceImpl implements ProgramService {
   public CompletionStage<ImmutableList<ProgramDefinition>> listProgramDefinitionsAsync() {
     CompletableFuture<ReadOnlyQuestionService> roQuestionServiceFuture =
         questionService.getReadOnlyQuestionService().toCompletableFuture();
-    CompletableFuture<List<Program>> programsFuture =
+    CompletableFuture<ImmutableList<Program>> programsFuture =
         programRepository.listPrograms().toCompletableFuture();
 
     return CompletableFuture.allOf(roQuestionServiceFuture, programsFuture)
         .thenApplyAsync(
             ignore -> {
               ReadOnlyQuestionService roQuestionService = roQuestionServiceFuture.join();
-              List<Program> programs = programsFuture.join();
+              ImmutableList<Program> programs = programsFuture.join();
 
               return programs.stream()
                   .map(

@@ -2,6 +2,7 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Optional;
 import models.Program;
@@ -29,7 +30,7 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
     Program one = resourceCreator().insertProgram("one");
     Program two = resourceCreator().insertProgram("two");
 
-    List<Program> allPrograms = repo.listPrograms().toCompletableFuture().join();
+    ImmutableList<Program> allPrograms = repo.listPrograms().toCompletableFuture().join();
 
     assertThat(allPrograms).containsExactly(one, two);
   }
