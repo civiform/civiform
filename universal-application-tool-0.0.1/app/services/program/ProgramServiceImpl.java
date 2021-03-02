@@ -147,6 +147,23 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
+  public ProgramDefinition updateBlock(long programId, long blockDefinitionId, BlockForm blockForm)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException {
+    ProgramDefinition programDefinition = getProgramOrThrow(programId);
+    int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
+
+    BlockDefinition blockDefinition =
+        programDefinition.blockDefinitions().get(blockDefinitionIndex).toBuilder()
+            .setName(blockForm.getName())
+            .setDescription(blockForm.getDescription())
+            .build();
+
+    return updateProgramDefinitionWithBlockDefinition(
+        programDefinition, blockDefinitionIndex, blockDefinition);
+  }
+
+  @Override
+  @Transactional
   public ProgramDefinition setBlockQuestions(
       long programId,
       long blockDefinitionId,
@@ -158,23 +175,6 @@ public class ProgramServiceImpl implements ProgramService {
     BlockDefinition blockDefinition =
         programDefinition.blockDefinitions().get(blockDefinitionIndex).toBuilder()
             .setProgramQuestionDefinitions(programQuestionDefinitions)
-            .build();
-
-    return updateProgramDefinitionWithBlockDefinition(
-        programDefinition, blockDefinitionIndex, blockDefinition);
-  }
-
-  @Override
-  @Transactional
-  public ProgramDefinition updateBlock(long programId, long blockDefinitionId, BlockForm blockForm)
-      throws ProgramNotFoundException, ProgramBlockNotFoundException {
-    ProgramDefinition programDefinition = getProgramOrThrow(programId);
-    int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
-
-    BlockDefinition blockDefinition =
-        programDefinition.blockDefinitions().get(blockDefinitionIndex).toBuilder()
-            .setName(blockForm.getName())
-            .setDescription(blockForm.getDescription())
             .build();
 
     return updateProgramDefinitionWithBlockDefinition(
