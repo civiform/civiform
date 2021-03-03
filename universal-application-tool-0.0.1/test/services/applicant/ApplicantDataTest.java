@@ -3,12 +3,11 @@ package services.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import java.time.Instant;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.Test;
 
@@ -36,15 +35,45 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void read_findsCorrectValue() throws Exception {
+  public void put_addsAScalar() {
     ApplicantData data = new ApplicantData();
-    data.put(Path.create("favorites"), new HashMap<>());
-    data.put(Path.create("favorites.color"), "blue");
-    data.put(Path.create("favorites.sandwich"), "PB&J");
 
-    Optional<String> found = data.read(Path.create("favorites.sandwich"), String.class);
+    data.put(Path.create("age"), 99);
 
-    assertThat(found).hasValue("PB&J");
+    assertThat(data.asJsonString()).isEqualTo("{\"applicant\":{\"age\":99},\"metadata\":{}}");
+  }
+
+  @Test
+  public void put_addsANestedScalar() {
+    ApplicantData data = new ApplicantData();
+
+    data.put(Path.create("favorites.food.apple"), "Granny Smith");
+
+    assertThat(data.asJsonString()).isEqualTo("");
+  }
+
+  @Test
+  public void put_addsAMap() {
+    ApplicantData data = new ApplicantData();
+    Map<String, String> favorites = Map.of("sandwich", "PB&J", "color", "blue");
+
+    data.put(Path.create("favorites"), favorites);
+
+    String expected =
+    "{\"applicant\":{\"favorites\":{\"sandwich\":\"PB&J\",\"color\":\"blue\"}},\"metadata\":{}}";
+    assertThat(data.asJsonString()).isEqualTo(expected);
+  }
+
+  @Test
+  public void read_findsCorrectValue() throws Exception {
+    DocumentContext testData =
+        JsonPath.parse(
+            "{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} }, \"metadata\": {}}");
+    ApplicantData data = new ApplicantData(testData);
+
+    Optional<String> found = data.read(Path.create("favorites.color"), String.class);
+
+    assertThat(found).hasValue("orange");
   }
 
   @Test
