@@ -80,8 +80,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
   private ContainerTag blockEditPanel(
       Tag csrfTag, ProgramDefinition program, BlockDefinition block) {
-    ContainerTag questionList = ul();
-
+    ContainerTag questionList = ul().withId("blockQuestions");
     block
         .programQuestionDefinitions()
         .forEach(
@@ -148,7 +147,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .with(csrfTag)
             .with(submitButton("Add to Block"));
 
-    ContainerTag questionList = ul().withClass(Styles.OVERFLOW_X_SCROLL);
+    ContainerTag questionList =
+        ul().withId("questionBankQuestions").withClass(Styles.OVERFLOW_X_SCROLL);
 
     questionDefinitions.stream()
         .filter(question -> !program.hasQuestion(question))
