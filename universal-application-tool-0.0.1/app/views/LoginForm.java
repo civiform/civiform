@@ -5,6 +5,8 @@ import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
 
+import auth.FakeAdminClient;
+import auth.GuestClient;
 import com.google.inject.Inject;
 import controllers.routes;
 import j2html.tags.ContainerTag;
@@ -30,7 +32,10 @@ public class LoginForm extends BaseHtmlView {
             div(
                 h1("Or, continue as guest."),
                 redirectButton(
-                    "guest", "Continue", routes.CallbackController.callback("GuestClient").url())));
+                    "guest",
+                    "Continue",
+                    routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())));
+
     // "defense in depth", sort of - this client won't be present in production, and this button
     // won't show up except when running locally.
     if (request.host().startsWith("localhost:")) {
@@ -40,8 +45,9 @@ public class LoginForm extends BaseHtmlView {
               redirectButton(
                   "admin",
                   "Continue",
-                  routes.CallbackController.callback("FakeAdminClient").url())));
+                  routes.CallbackController.callback(FakeAdminClient.CLIENT_NAME).url())));
     }
+
     return layout.htmlContent(bodyTag);
   }
 }

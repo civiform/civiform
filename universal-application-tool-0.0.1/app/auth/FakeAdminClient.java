@@ -10,6 +10,8 @@ import org.pac4j.core.util.HttpActionHelper;
 
 public class FakeAdminClient extends IndirectClient {
 
+  public static final String CLIENT_NAME = "FakeAdminClient";
+
   private ProfileFactory profileFactory;
 
   @Inject
