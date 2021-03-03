@@ -3,10 +3,12 @@ package services.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Optional;
 import org.junit.Test;
 
@@ -36,10 +38,11 @@ public class ApplicantDataTest {
   @Test
   public void read_findsCorrectValue() throws Exception {
     ApplicantData data = new ApplicantData();
-    data.put(Path.create("color"), "blue");
-    data.put(Path.create("sandwich"), "PB&J");
+    data.put(Path.create("favorites"), new HashMap<>());
+    data.put(Path.create("favorites.color"), "blue");
+    data.put(Path.create("favorites.sandwich"), "PB&J");
 
-    Optional<String> found = data.read(Path.create("sandwich"), String.class);
+    Optional<String> found = data.read(Path.create("favorites.sandwich"), String.class);
 
     assertThat(found).hasValue("PB&J");
   }
