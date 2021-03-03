@@ -7,6 +7,7 @@ import org.junit.Test;
 import repository.ApplicantRepository;
 import repository.WithPostgresContainer;
 import services.applicant.ApplicantData;
+import services.applicant.Path;
 
 public class ApplicantTest extends WithPostgresContainer {
 
@@ -24,17 +25,16 @@ public class ApplicantTest extends WithPostgresContainer {
   }
 
   @Test
-  public void persistsChangesToTheApplicantData() {
+  public void persistsChangesToTheApplicantData() throws Exception {
     Applicant applicant = new Applicant();
 
-    String path = "$.applicant";
-    applicant.getApplicantData().put(path, "birthDate", "1/1/2021");
+    Path path = Path.create("$.applicant.birthDate");
+    applicant.getApplicantData().put(path, "1/1/2021");
     applicant.save();
 
     applicant = repo.lookupApplicant(applicant.id).toCompletableFuture().join().get();
 
-    assertThat(applicant.getApplicantData().read("$.applicant.birthDate", String.class))
-        .isEqualTo("1/1/2021");
+    assertThat(applicant.getApplicantData().read(path, String.class)).hasValue("1/1/2021");
   }
 
   @Test

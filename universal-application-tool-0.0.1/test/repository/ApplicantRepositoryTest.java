@@ -7,6 +7,7 @@ import java.util.Set;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
+import services.applicant.Path;
 
 public class ApplicantRepositoryTest extends WithPostgresContainer {
 
@@ -52,12 +53,12 @@ public class ApplicantRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
-  public void insertApplicant() {
+  public void insertApplicant() throws Exception {
     Applicant applicant = new Applicant();
-    String path = "$.applicant";
-    applicant.getApplicantData().put(path, "birthDate", "1/1/2021");
+    String path = "$.applicant.birthdate";
+    applicant.getApplicantData().put(Path.create(path), "1/1/2021");
 
-    assertThat(applicant.getApplicantData().read("$.applicant.birthDate", String.class))
+    assertThat(applicant.getApplicantData().read(Path.create(path), String.class))
         .isEqualTo("1/1/2021");
 
     repo.insertApplicant(applicant).toCompletableFuture().join();
@@ -65,8 +66,7 @@ public class ApplicantRepositoryTest extends WithPostgresContainer {
     long id = applicant.id;
     Applicant a = repo.lookupApplicant(id).toCompletableFuture().join().get();
     assertThat(a.id).isEqualTo(id);
-    assertThat(a.getApplicantData().read("$.applicant.birthDate", String.class))
-        .isEqualTo("1/1/2021");
+    assertThat(a.getApplicantData().read(Path.create(path), String.class)).hasValue("1/1/2021");
   }
 
   @Test
@@ -88,7 +88,7 @@ public class ApplicantRepositoryTest extends WithPostgresContainer {
 
   private Applicant saveApplicant(String name) {
     Applicant applicant = new Applicant();
-    applicant.getApplicantData().put("$.applicant", "name", name);
+    applicant.getApplicantData().put(Path.create("$.applicant.name"), name);
     applicant.save();
     return applicant;
   }
