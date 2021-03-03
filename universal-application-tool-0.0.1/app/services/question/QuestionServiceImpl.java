@@ -80,6 +80,9 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   private boolean isValidPathPattern(String path) {
+    if (path.isBlank()) {
+      return false;
+    }
     return URLEncoder.encode(path, StandardCharsets.UTF_8).equals(path);
   }
 
