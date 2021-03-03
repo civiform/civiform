@@ -12,16 +12,19 @@ public class Updater {
   }
 
   /** Performs updates on applicant data. */
-  void update(ImmutableSet<Update> updates) {}
+  void update(ImmutableSet<Update> updates) {
+    updates.forEach(update -> applicantData.put(Path.create(update.path()), update.value()));
+  }
 
   /** Runs validation logic on applicant data. */
   @DoNotCall
-  ImmutableSet<String> validate(ProgramDefinition programDefinition) {
+  final ImmutableSet<String> validate(ProgramDefinition programDefinition) {
     return null;
   }
 
   /** Saves applicantData to the database. */
   void save() {
-    // TODO: Need to verify validate has been called and/or do some other data scrubbing before saving.
+    // TODO: Need to verify validate has been called and/or do some other data scrubbing before
+    // saving.
   }
 }
