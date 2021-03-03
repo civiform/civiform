@@ -221,6 +221,38 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
+  public ProgramDefinition removeQuestionsFromBlock(
+      long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
+      throws QuestionNotFoundException, ProgramNotFoundException, ProgramBlockNotFoundException {
+    ProgramDefinition programDefinition = getProgramOrThrow(programId);
+
+    for (long questionId : questionIds) {
+      if (!programDefinition.hasQuestion(questionId)) {
+        throw new QuestionNotFoundException(questionId);
+      }
+    }
+
+    int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
+
+    BlockDefinition blockDefinition =
+        programDefinition.blockDefinitions().get(blockDefinitionIndex);
+
+    ImmutableList<ProgramQuestionDefinition> newProgramQuestionDefinitions =
+        blockDefinition.programQuestionDefinitions().stream()
+            .filter(pqd -> !questionIds.contains(pqd.getQuestionDefinition().getId()))
+            .collect(ImmutableList.toImmutableList());
+
+    blockDefinition =
+        blockDefinition.toBuilder()
+            .setProgramQuestionDefinitions(newProgramQuestionDefinitions)
+            .build();
+
+    return updateProgramDefinitionWithBlockDefinition(
+        programDefinition, blockDefinitionIndex, blockDefinition);
+  }
+
+  @Override
+  @Transactional
   public ProgramDefinition setBlockHidePredicate(
       long programId, long blockDefinitionId, Predicate predicate)
       throws ProgramNotFoundException, ProgramBlockNotFoundException {

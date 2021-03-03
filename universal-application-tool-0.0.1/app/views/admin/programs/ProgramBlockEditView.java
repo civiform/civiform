@@ -92,16 +92,16 @@ public class ProgramBlockEditView extends BaseHtmlView {
         .with(
             div(
                 form(
-                    csrfTag,
-                    div(textFieldWithValue("name", "Block Name", block.name())),
-                    div(
-                        textFieldWithValue(
-                            "description", "Block Description", block.description())),
-                    submitButton("Update Block"))
+                        csrfTag,
+                        div(textFieldWithValue("name", "Block Name", block.name())),
+                        div(
+                            textFieldWithValue(
+                                "description", "Block Description", block.description())),
+                        submitButton("Update Block"))
                     .withMethod("post")
                     .withAction(
                         controllers.admin.routes.AdminProgramBlocksController.update(
-                            program.id(), block.id())
+                                program.id(), block.id())
                             .url()),
                 questionList));
   }
@@ -127,23 +127,24 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withMethod("post")
             .withAction(
                 controllers.admin.routes.AdminProgramBlockQuestionsController.create(
-                    program.id(), block.id())
+                        program.id(), block.id())
                     .url())
             .with(csrfTag)
             .with(submitButton("Add to Block"));
 
-
     ContainerTag questionList = ul().withClass(Styles.OVERFLOW_X_SCROLL);
 
-    questionDefinitions.stream().filter(question -> !program.hasQuestion(question)).forEach(
-        questionDefinition ->
-            questionList.with(
-                li(
-                    checkboxInputWithLabel(
-                        questionDefinition.getName(),
-                        "" + questionDefinition.getId(),
-                        "question-" + questionDefinition.getId(),
-                        String.valueOf(questionDefinition.getId())))));
+    questionDefinitions.stream()
+        .filter(question -> !program.hasQuestion(question))
+        .forEach(
+            questionDefinition ->
+                questionList.with(
+                    li(
+                        checkboxInputWithLabel(
+                            questionDefinition.getName(),
+                            "" + questionDefinition.getId(),
+                            "question-" + questionDefinition.getId(),
+                            String.valueOf(questionDefinition.getId())))));
 
     return questionBank.with(form.with(questionList));
   }

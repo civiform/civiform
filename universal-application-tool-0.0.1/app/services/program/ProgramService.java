@@ -128,7 +128,7 @@ public interface ProgramService {
       throws ProgramNotFoundException, ProgramBlockNotFoundException;
 
   /**
-   * Update a {@link BlockDefinition} with a set of questions.
+   * Update a {@link BlockDefinition} to include additional questions.
    *
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
@@ -137,6 +137,19 @@ public interface ProgramService {
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   ProgramDefinition addQuestionsToBlock(
+      long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException, QuestionNotFoundException;
+
+  /**
+   * Update a {@link BlockDefinition} to remove questions.
+   *
+   * @param programId the ID of the program to update
+   * @param blockDefinitionId the ID of the block to update
+   * @param questionIds an {@link ImmutableList} of question IDs to be removed from the block
+   * @return the updated {@link ProgramDefinition}
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   */
+  ProgramDefinition removeQuestionsFromBlock(
       long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
       throws ProgramNotFoundException, ProgramBlockNotFoundException, QuestionNotFoundException;
 

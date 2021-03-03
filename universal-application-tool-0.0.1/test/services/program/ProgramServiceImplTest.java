@@ -20,8 +20,6 @@ import services.question.TextQuestionDefinition;
 
 public class ProgramServiceImplTest extends WithPostgresContainer {
 
-  private ProgramServiceImpl ps;
-  private QuestionService qs;
   private static final QuestionDefinition SIMPLE_QUESTION =
       new NameQuestionDefinition(
           2L,
@@ -30,6 +28,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
           "The name of the applicant.",
           ImmutableMap.of(Locale.US, "What is your name?"),
           ImmutableMap.of());
+  private ProgramServiceImpl ps;
+  private QuestionService qs;
 
   @Before
   public void setProgramServiceImpl() {
@@ -492,6 +492,56 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     QuestionDefinition foundQuestion =
         found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
     assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
+  }
+
+  @Test
+  public void addQuestionsToBlock_addsQuestionsToTheBlock() throws Exception {
+    QuestionDefinition questionA =
+        resourceCreator().insertQuestion("applicant.questionA").getQuestionDefinition();
+    QuestionDefinition questionB =
+        resourceCreator().insertQuestion("applicant.questionB").getQuestionDefinition();
+
+    BlockDefinition block =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("block 1")
+            .setDescription("block the first")
+            .addQuestion(ProgramQuestionDefinition.create(questionA))
+            .build();
+
+    ProgramDefinition program =
+        resourceCreator().insertProgram("test program", block).getProgramDefinition();
+
+    program = ps.addQuestionsToBlock(program.id(), block.id(), ImmutableList.of(questionB.getId()));
+
+    assertThat(program.hasQuestion(questionA)).isTrue();
+    assertThat(program.hasQuestion(questionB)).isTrue();
+  }
+
+  @Test
+  public void removeQuestionsFromBlock_removesQuestionsFromTheBlock() throws Exception {
+    QuestionDefinition questionA =
+        resourceCreator().insertQuestion("applicant.questionA").getQuestionDefinition();
+    QuestionDefinition questionB =
+        resourceCreator().insertQuestion("applicant.questionB").getQuestionDefinition();
+
+    BlockDefinition block =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("block 1")
+            .setDescription("block the first")
+            .addQuestion(ProgramQuestionDefinition.create(questionA))
+            .addQuestion(ProgramQuestionDefinition.create(questionB))
+            .build();
+
+    ProgramDefinition program =
+        resourceCreator().insertProgram("test program", block).getProgramDefinition();
+
+    program =
+        ps.removeQuestionsFromBlock(program.id(), block.id(), ImmutableList.of(questionB.getId()));
+
+    assertThat(program.hasQuestion(questionA)).isTrue();
+    assertThat(program.hasQuestion(questionB)).isFalse();
   }
 
   @Test

@@ -69,7 +69,8 @@ public class ProgramDefinitionTest {
             .setDescription("description")
             .setQuestionType(QuestionType.TEXT)
             .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "question?"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.ENGLISH, "help text")).build();
+            .setQuestionHelpText(ImmutableMap.of(Locale.ENGLISH, "help text"))
+            .build();
     QuestionDefinition questionB =
         new QuestionDefinitionBuilder()
             .setId(2L)
@@ -79,7 +80,8 @@ public class ProgramDefinitionTest {
             .setDescription("description")
             .setQuestionType(QuestionType.TEXT)
             .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "question?"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.ENGLISH, "help text")).build();
+            .setQuestionHelpText(ImmutableMap.of(Locale.ENGLISH, "help text"))
+            .build();
     QuestionDefinition questionC =
         new QuestionDefinitionBuilder()
             .setId(3L)
@@ -89,7 +91,8 @@ public class ProgramDefinitionTest {
             .setDescription("description")
             .setQuestionType(QuestionType.TEXT)
             .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "question?"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.ENGLISH, "help text")).build();
+            .setQuestionHelpText(ImmutableMap.of(Locale.ENGLISH, "help text"))
+            .build();
 
     BlockDefinition blockA =
         BlockDefinition.builder()

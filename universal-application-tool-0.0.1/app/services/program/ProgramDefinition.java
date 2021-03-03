@@ -17,42 +17,28 @@ public abstract class ProgramDefinition {
     return new AutoValue_ProgramDefinition.Builder();
   }
 
-  /**
-   * Unique identifier for a ProgramDefinition.
-   */
+  /** Unique identifier for a ProgramDefinition. */
   public abstract long id();
 
-  /**
-   * Descriptive name of a Program, e.g. Car Tab Rebate Program
-   */
+  /** Descriptive name of a Program, e.g. Car Tab Rebate Program */
   public abstract String name();
 
-  /**
-   * A human readable description of a Program.
-   */
+  /** A human readable description of a Program. */
   public abstract String description();
 
-  /**
-   * The list of {@link BlockDefinition}s that make up the program.
-   */
+  /** The list of {@link BlockDefinition}s that make up the program. */
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
 
-  /**
-   * The list of {@link ExportDefinition}s that make up the program.
-   */
+  /** The list of {@link ExportDefinition}s that make up the program. */
   public abstract ImmutableList<ExportDefinition> exportDefinitions();
 
-  /**
-   * Returns the {@link QuestionDefinition} at the specified block and question indices.
-   */
+  /** Returns the {@link QuestionDefinition} at the specified block and question indices. */
   @JsonIgnore
   public QuestionDefinition getQuestionDefinition(int blockIndex, int questionIndex) {
     return blockDefinitions().get(blockIndex).getQuestionDefinition(questionIndex);
   }
 
-  /**
-   * Returns the {@link BlockDefinition} at the specified block index if available.
-   */
+  /** Returns the {@link BlockDefinition} at the specified block index if available. */
   public Optional<BlockDefinition> getBlockDefinition(int blockIndex) {
     if (blockIndex < 0 || blockIndex >= blockDefinitions().size()) {
       return Optional.empty();
@@ -60,9 +46,7 @@ public abstract class ProgramDefinition {
     return Optional.of(blockDefinitions().get(blockIndex));
   }
 
-  /**
-   * Returns the {@link BlockDefinition} with the specified block id if available.
-   */
+  /** Returns the {@link BlockDefinition} with the specified block id if available. */
   public Optional<BlockDefinition> getBlockDefinition(long blockId) {
     return blockDefinitions().stream().filter(b -> b.id() == blockId).findAny();
   }
@@ -77,16 +61,25 @@ public abstract class ProgramDefinition {
 
   private ImmutableSet<Long> questionIds;
 
+  /** True if a question with the given question's ID is in the program. */
   public boolean hasQuestion(QuestionDefinition question) {
+    return hasQuestion(question.getId());
+  }
+
+  /** True if a question with the given questionId is in the program. */
+  public boolean hasQuestion(long questionId) {
     if (questionIds.isEmpty()) {
-      questionIds = Optional
-          .of(blockDefinitions().stream().map(BlockDefinition::programQuestionDefinitions)
-              .flatMap(ImmutableList::stream)
-              .map(ProgramQuestionDefinition::getQuestionDefinition).map(QuestionDefinition::getId)
-              .collect(ImmutableSet.toImmutableSet()));
+      questionIds =
+          Optional.of(
+              blockDefinitions().stream()
+                  .map(BlockDefinition::programQuestionDefinitions)
+                  .flatMap(ImmutableList::stream)
+                  .map(ProgramQuestionDefinition::getQuestionDefinition)
+                  .map(QuestionDefinition::getId)
+                  .collect(ImmutableSet.toImmutableSet()));
     }
 
-    return questionIds.get().contains(question.getId());
+    return questionIds.get().contains(questionId);
   }
 
   public Program toProgram() {
