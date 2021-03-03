@@ -118,25 +118,46 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void update_failsGracefully() throws UnsupportedQuestionTypeException {
-    // TODO: Update isn't implemented yet, so we just redirect to the questions list for now.
-    // https://github.com/seattle-uat/universal-application-tool/issues/103
-    buildQuestionsList();
+  public void update_updatesQuestionDefinition() {
+    Question question = resourceCreator().insertQuestion("my.path");
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
         .put("questionName", "name")
         .put("questionDescription", "desc")
-        .put("questionPath", "my.question.path")
+        .put("questionPath", "my.path")
         .put("questionType", "TEXT")
-        .put("questionText", "Hi mom!")
+        .put("questionText", "question text updated!")
         .put("questionHelpText", ":-)");
     RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
     controller
-        .update(requestBuilder.build(), 1L)
+        .update(requestBuilder.build(), question.id)
         .thenAccept(
             result -> {
               assertThat(contentAsString(result)).contains("Total Questions: 1");
               assertThat(contentAsString(result)).contains("All Questions");
+              assertThat(contentAsString(result)).contains("question text updated");
+            });
+  }
+
+  @Test
+  public void update_failsGracefullyWhenUpdateFails() {
+    Question question = resourceCreator().insertQuestion("my.path");
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    formData
+        .put("questionName", "name")
+        .put("questionDescription", "desc")
+        .put("questionPath", "invalid.path")
+        .put("questionType", "TEXT")
+        .put("questionText", "question text updated!")
+        .put("questionHelpText", ":-)");
+    RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
+    controller
+        .update(requestBuilder.build(), question.id)
+        .thenAccept(
+            result -> {
+              assertThat(contentAsString(result)).contains("Total Questions: 1");
+              assertThat(contentAsString(result)).contains("All Questions");
+              assertThat(contentAsString(result)).doesNotContain("question text updated");
             });
   }
 

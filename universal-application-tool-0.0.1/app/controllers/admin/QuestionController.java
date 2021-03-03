@@ -108,20 +108,19 @@ public class QuestionController extends Controller {
             httpExecutionContext.current());
   }
 
-  // TODO: Implement update question.
-  // https://github.com/seattle-uat/universal-application-tool/issues/103
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public CompletionStage<Result> update(Request request, Long id) {
     Form<QuestionForm> form = formFactory.form(QuestionForm.class);
     QuestionForm questionForm = form.bindFromRequest(request).get();
     try {
-      QuestionDefinition definition = questionForm.getBuilder().setVersion(1L).build();
+      QuestionDefinition definition = questionForm.getBuilder().setId(id).setVersion(1L).build();
       service.update(definition);
     } catch (UnsupportedQuestionTypeException e) {
       // I'm not sure why this would happen here, so we'll just log and redirect.
       LOG.info(e.toString());
     } catch (InvalidUpdateException e) {
-      // This is expected for now until we implement update on QuestionService.
+      // handle exception
+      LOG.info(e.toString());
     }
     return CompletableFuture.completedFuture(redirect(routes.QuestionController.index("table")));
   }
