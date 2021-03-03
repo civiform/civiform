@@ -24,4 +24,34 @@ public class ProgramAdministrationBrowserTest extends BaseBrowserTest {
     assertThat(browser.$("input", withName("description")).values())
         .contains("updated block description");
   }
+
+  @Test
+  public void addAndRemoveQuestionsToAProgram() {
+    String questionName = "name question";
+    String questionRemovedName = "removed question";
+    String programName = "Reduced fee lunches";
+
+    loginAsAdmin();
+    addQuestion(questionName);
+    addQuestion(questionRemovedName);
+    addProgram(programName);
+    addQuestionsToProgram(programName, questionName, questionRemovedName);
+
+    assertThat(browser.$("#blockQuestions").$("li").textContents()).contains(questionName);
+    assertThat(browser.$("#blockQuestions").$("li").textContents()).contains(questionRemovedName);
+    assertThat(browser.$("#questionBlockQuestions").$("li").textContents())
+        .doesNotContain(questionName);
+    assertThat(browser.$("#questionBlockQuestions").$("li").textContents())
+        .doesNotContain(questionRemovedName);
+
+    removeQuestionsToProgram(programName, questionRemovedName);
+
+    assertThat(browser.$("#blockQuestions").$("li").textContents()).contains(questionName);
+    assertThat(browser.$("#blockQuestions").$("li").textContents())
+        .doesNotContain(questionRemovedName);
+    assertThat(browser.$("#questionBlockQuestions").$("li").textContents())
+        .doesNotContain(questionName);
+    assertThat(browser.$("#questionBankQuestions").$("li").textContents())
+        .contains(questionRemovedName);
+  }
 }
