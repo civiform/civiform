@@ -30,9 +30,10 @@ public final class ProgramIndexView extends BaseHtmlView {
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
-            .with(h1("Programs").withClasses(Styles.MY_4),
-            each(programs, this::renderProgramListItem),
-            renderNewProgramButton());
+            .with(
+                h1("Programs").withClasses(Styles.MY_4),
+                each(programs, this::renderProgramListItem),
+                renderNewProgramButton());
 
     return layout.render(head(layout.tailwindStyles()), body(contentDiv));
   }
