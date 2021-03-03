@@ -8,6 +8,6 @@ public class QuestionNotFoundException extends Exception {
   public QuestionNotFoundException(long questionId, long programId) {
     super(
         String.format(
-            "Question not found for Question (ID %d) in Program (ID %d)", questionId, programId));
+            "Question (ID %d) not found in Program (ID %d)", questionId, programId));
   }
 }

@@ -512,7 +512,9 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     program.id(), block.id(), ImmutableList.of(questionA.getId())))
         .isInstanceOf(DuplicateProgramQuestionException.class)
         .hasMessage(
-            String.format("Question (ID %d) already exists in Program (ID 1)", questionA.getId()));
+            String.format(
+                "Question (ID %d) already exists in Program (ID %d)",
+                questionA.getId(), program.id()));
     ;
   }
 
@@ -562,7 +564,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     program.id(), block.id(), ImmutableList.of(questionA.getId())))
         .isInstanceOf(QuestionNotFoundException.class)
         .hasMessage(
-            String.format("Question (ID %d) not found in Program (ID 1)", questionA.getId()));
+            String.format(
+                "Question (ID %d) not found in Program (ID %d)", questionA.getId(), program.id()));
     ;
   }
 
