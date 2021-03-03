@@ -201,15 +201,12 @@ public class ProgramServiceImpl implements ProgramService {
     ImmutableList.Builder<ProgramQuestionDefinition> newQuestionListBuilder =
         ImmutableList.builder();
     newQuestionListBuilder.addAll(programQuestionDefinitions);
-    questionIds.forEach(
-        qid -> {
-          try {
-            newQuestionListBuilder.add(
-                ProgramQuestionDefinition.create(roQuestionService.getQuestionDefinition(qid)));
-          } catch (QuestionNotFoundException e) {
-            // do nothing
-          }
-        });
+
+    for (long qid : questionIds) {
+      newQuestionListBuilder.add(
+          ProgramQuestionDefinition.create(roQuestionService.getQuestionDefinition(qid)));
+    }
+
     ImmutableList<ProgramQuestionDefinition> newProgramQuestionDefinitions =
         newQuestionListBuilder.build();
 
