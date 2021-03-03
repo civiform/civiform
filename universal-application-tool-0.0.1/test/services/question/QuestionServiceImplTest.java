@@ -89,9 +89,50 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void update_notImplemented() {
-    assertThatThrownBy(() -> questionService.update(null))
-        .isInstanceOf(UnsupportedOperationException.class)
-        .hasMessage("Not supported yet.");
+  public void update_returnsQuestionDefinitionWhenSucceeds()
+      throws InvalidUpdateException, UnsupportedQuestionTypeException {
+    QuestionDefinition question = questionService.create(questionDefinition).get();
+    QuestionDefinition toUpdate =
+        new QuestionDefinitionBuilder(question).setName("updated name").build();
+
+    assertThat(questionService.update(toUpdate).getName()).isEqualTo("updated name");
+  }
+
+  @Test
+  public void update_failsWhenQuestionNotPersisted() {
+    assertThatThrownBy(() -> questionService.update(questionDefinition))
+        .isInstanceOf(InvalidUpdateException.class)
+        .hasMessageContaining("question definition is not persisted");
+  }
+
+  @Test
+  public void update_failsWhenQuestionNotExistent() throws UnsupportedQuestionTypeException {
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder(questionDefinition).setId(9999L).build();
+    assertThatThrownBy(() -> questionService.update(question))
+        .isInstanceOf(InvalidUpdateException.class)
+        .hasMessageContaining("question with id 9999 does not exist");
+  }
+
+  @Test
+  public void update_failsWhenQuestionPathChanges() throws UnsupportedQuestionTypeException {
+    QuestionDefinition question = questionService.create(questionDefinition).get();
+    QuestionDefinition toUpdate =
+        new QuestionDefinitionBuilder(question).setPath("new.path").build();
+
+    assertThatThrownBy(() -> questionService.update(toUpdate))
+        .isInstanceOf(InvalidUpdateException.class)
+        .hasMessageContaining("question paths mismatch");
+  }
+
+  @Test
+  public void update_failsWhenQuestionTypeChanges() throws UnsupportedQuestionTypeException {
+    QuestionDefinition question = questionService.create(questionDefinition).get();
+    QuestionDefinition toUpdate =
+        new QuestionDefinitionBuilder(question).setQuestionType(QuestionType.ADDRESS).build();
+
+    assertThatThrownBy(() -> questionService.update(toUpdate))
+        .isInstanceOf(InvalidUpdateException.class)
+        .hasMessageContaining("question types mismatch");
   }
 }

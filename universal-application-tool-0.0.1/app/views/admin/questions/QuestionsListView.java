@@ -13,6 +13,7 @@ import static j2html.TagCreator.tr;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import j2html.tags.Tag;
+import java.util.Optional;
 import play.twirl.api.Content;
 import services.question.QuestionDefinition;
 import views.BaseHtmlLayout;
@@ -38,26 +39,30 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   /** Renders a page with either a table or a list view of all questions. */
-  private Content render(ImmutableList<Tag> questionContent) {
+  private Content render(ImmutableList<Tag> questionContent, Optional<String> maybeFlash) {
     return layout.htmlContent(
         body()
+            .with(div(maybeFlash.orElse("")))
             .with(renderHeader("All Questions"))
             .with(questionContent)
             .with(renderAddQuestionLink()));
   }
 
   /** Renders a page with either a table view of all questions. */
-  public Content renderAsTable(ImmutableList<QuestionDefinition> questions) {
-    return render(ImmutableList.of(renderQuestionTable(questions), renderSummary(questions)));
+  public Content renderAsTable(
+      ImmutableList<QuestionDefinition> questions, Optional<String> maybeFlash) {
+    return render(
+        ImmutableList.of(renderQuestionTable(questions), renderSummary(questions)), maybeFlash);
   }
 
   /** Renders a page with either a list view of all questions. */
-  public Content renderAsList(ImmutableList<QuestionDefinition> questions) {
+  public Content renderAsList(
+      ImmutableList<QuestionDefinition> questions, Optional<String> maybeFlash) {
     ImmutableList.Builder<Tag> builder = ImmutableList.builder();
     for (QuestionDefinition qd : questions) {
       builder.add(renderQuestionDefinitionInfo(qd));
     }
-    return render(builder.build());
+    return render(builder.build(), maybeFlash);
   }
 
   private Tag renderAddQuestionLink() {

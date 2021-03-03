@@ -26,7 +26,7 @@ public abstract class QuestionDefinition {
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
-    this.id = id;
+    this.id = checkNotNull(id);
     this.version = version;
     this.name = checkNotNull(name);
     this.path = checkNotNull(path);

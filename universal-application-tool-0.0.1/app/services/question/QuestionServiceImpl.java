@@ -44,8 +44,20 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   @Override
-  public QuestionDefinition update(QuestionDefinition definition) {
-    throw new java.lang.UnsupportedOperationException("Not supported yet.");
+  public QuestionDefinition update(QuestionDefinition definition) throws InvalidUpdateException {
+    if (!definition.isPersisted()) {
+      throw new InvalidUpdateException("question definition is not persisted");
+    }
+    Optional<Question> maybeQuestion =
+        questionRepository.lookupQuestion(definition.getId()).toCompletableFuture().join();
+    if (!maybeQuestion.isPresent()) {
+      throw new InvalidUpdateException(
+          String.format("question with id %d does not exist", definition.getId()));
+    }
+    Question question = maybeQuestion.get();
+    assertQuestionInvariants(question.getQuestionDefinition(), definition);
+    question = questionRepository.updateQuestionSync(new Question(definition));
+    return question.getQuestionDefinition();
   }
 
   private CompletionStage<ImmutableList<QuestionDefinition>> listQuestionDefinitionsAsync() {
@@ -58,8 +70,8 @@ public final class QuestionServiceImpl implements QuestionService {
                     .collect(ImmutableList.toImmutableList()));
   }
 
-  private boolean isValid(QuestionDefinition definition) {
-    String newPath = definition.getPath();
+  private boolean isValid(QuestionDefinition newDefinition) {
+    String newPath = newDefinition.getPath();
     if (!isValidPathPattern(newPath)) {
       return false;
     }
@@ -73,6 +85,25 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   private boolean isValidPathPattern(String path) {
+    if (path.isBlank()) {
+      return false;
+    }
     return URLEncoder.encode(path, StandardCharsets.UTF_8).equals(path);
+  }
+
+  private void assertQuestionInvariants(QuestionDefinition definition, QuestionDefinition toUpdate)
+      throws InvalidUpdateException {
+    if (!definition.getPath().equals(toUpdate.getPath())) {
+      throw new InvalidUpdateException(
+          String.format(
+              "question paths mismatch: %s does not match %s",
+              definition.getPath(), toUpdate.getPath()));
+    }
+    if (!definition.getQuestionType().equals(toUpdate.getQuestionType())) {
+      throw new InvalidUpdateException(
+          String.format(
+              "question types mismatch: %s does not match %s",
+              definition.getQuestionType().toString(), toUpdate.getQuestionType().toString()));
+    }
   }
 }

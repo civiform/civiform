@@ -22,7 +22,7 @@ GET     /admin/programs/:programId/blocks/create             controllers.admin.A
 POST    /admin/programs/:programId/blocks/:blockId/delete    controllers.admin.AdminProgramBlocksController.destroy(programId: Long, blockId: Long)
 
 # A controller for a page for an admin to view, edit, and create questions
-GET     /admin/questions             controllers.admin.QuestionController.index(renderAs: String ?= "table")
+GET     /admin/questions             controllers.admin.QuestionController.index(request: Request, renderAs: String ?= "table")
 GET     /admin/questions/new         controllers.admin.QuestionController.newOne(request: Request)
 GET     /admin/questions/:path/edit  controllers.admin.QuestionController.edit(request: Request, path: String)
 POST    /admin/questions/:id         controllers.admin.QuestionController.update(request: Request, id: Long)

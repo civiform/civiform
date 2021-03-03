@@ -143,7 +143,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
     assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
 
     Result redirectResult = controller.index();
-    assertThat(contentAsString(redirectResult)).contains("New Program");
+    assertThat(contentAsString(redirectResult)).contains("Create new program");
     assertThat(contentAsString(redirectResult)).doesNotContain("Existing One");
   }
 }

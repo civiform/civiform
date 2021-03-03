@@ -89,4 +89,18 @@ public class QuestionRepository {
     ebeanServer.insert(question);
     return question;
   }
+
+  public CompletionStage<Question> updateQuestion(Question question) {
+    return supplyAsync(
+        () -> {
+          ebeanServer.update(question);
+          return question;
+        },
+        executionContext);
+  }
+
+  public Question updateQuestionSync(Question question) {
+    ebeanServer.update(question);
+    return question;
+  }
 }
