@@ -65,6 +65,14 @@ public abstract class BaseHtmlView {
     return textAreaWithLabel(labelValue, inputId, optionalValue);
   }
 
+  protected Tag checkboxInputWithLabel(
+      String labelText, String inputId, String inputName, String inputValue) {
+    return label()
+        .with(
+            input().withType("checkbox").withName(inputName).withValue(inputValue).withId(inputId),
+            text(labelText));
+  }
+
   protected Tag textField(String fieldName, String labelText) {
     return label()
         .with(text(labelText), input().withType("text").withName(fieldName))

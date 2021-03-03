@@ -3,12 +3,19 @@ package services.program;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import models.Program;
 import services.question.QuestionDefinition;
 
 @AutoValue
 public abstract class ProgramDefinition {
+
+  private Optional<ImmutableSet<Long>> questionIds = Optional.empty();
+
+  public static Builder builder() {
+    return new AutoValue_ProgramDefinition.Builder();
+  }
 
   /** Unique identifier for a ProgramDefinition. */
   public abstract long id();
@@ -49,8 +56,32 @@ public abstract class ProgramDefinition {
     return blockDefinitions().size();
   }
 
+  @JsonIgnore
   public int getQuestionCount() {
     return blockDefinitions().stream().mapToInt(BlockDefinition::getQuestionCount).sum();
+  }
+
+  /** True if a question with the given question's ID is in the program. */
+  @JsonIgnore
+  public boolean hasQuestion(QuestionDefinition question) {
+    return hasQuestion(question.getId());
+  }
+
+  /** True if a question with the given questionId is in the program. */
+  @JsonIgnore
+  public boolean hasQuestion(long questionId) {
+    if (questionIds.isEmpty()) {
+      questionIds =
+          Optional.of(
+              blockDefinitions().stream()
+                  .map(BlockDefinition::programQuestionDefinitions)
+                  .flatMap(ImmutableList::stream)
+                  .map(ProgramQuestionDefinition::getQuestionDefinition)
+                  .map(QuestionDefinition::getId)
+                  .collect(ImmutableSet.toImmutableSet()));
+    }
+
+    return questionIds.get().contains(questionId);
   }
 
   public Program toProgram() {
@@ -59,12 +90,9 @@ public abstract class ProgramDefinition {
 
   public abstract Builder toBuilder();
 
-  public static Builder builder() {
-    return new AutoValue_ProgramDefinition.Builder();
-  }
-
   @AutoValue.Builder
   public abstract static class Builder {
+
     public abstract Builder setId(long id);
 
     public abstract Builder setName(String name);

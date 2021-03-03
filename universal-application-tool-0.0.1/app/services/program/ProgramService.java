@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import forms.BlockForm;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import services.question.QuestionNotFoundException;
 
 /** Operations you can perform on {@link ProgramDefinition}s. */
 public interface ProgramService {
@@ -71,6 +72,7 @@ public interface ProgramService {
    */
   ProgramDefinition addBlockToProgram(long programId, String blockName, String blockDescription)
       throws ProgramNotFoundException;
+
   /**
    * Adds an empty {@link BlockDefinition} to the given program.
    *
@@ -124,6 +126,33 @@ public interface ProgramService {
       long blockDefinitionId,
       ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions)
       throws ProgramNotFoundException, ProgramBlockNotFoundException;
+
+  /**
+   * Update a {@link BlockDefinition} to include additional questions.
+   *
+   * @param programId the ID of the program to update
+   * @param blockDefinitionId the ID of the block to update
+   * @param questionIds an {@link ImmutableList} of question IDs for the block
+   * @return the updated {@link ProgramDefinition}
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   */
+  ProgramDefinition addQuestionsToBlock(
+      long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException, QuestionNotFoundException,
+          DuplicateProgramQuestionException;
+
+  /**
+   * Update a {@link BlockDefinition} to remove questions.
+   *
+   * @param programId the ID of the program to update
+   * @param blockDefinitionId the ID of the block to update
+   * @param questionIds an {@link ImmutableList} of question IDs to be removed from the block
+   * @return the updated {@link ProgramDefinition}
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   */
+  ProgramDefinition removeQuestionsFromBlock(
+      long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException, QuestionNotFoundException;
 
   /**
    * Set the hide {@link Predicate} for a block. This predicate describes under what conditions the
