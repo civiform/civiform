@@ -27,6 +27,7 @@
   <logger name="play" level="INFO" />
   <logger name="application" level="DEBUG" />
   <logger name="loggingfilter" level="INFO" />
+  <logger name="controllers.admin.QuestionController" level="INFO" />
 
   <!-- Off these ones as they are annoying, and anyway we manage configuration ourselves -->
   <logger name="com.gargoylesoftware.htmlunit" level="OFF" />

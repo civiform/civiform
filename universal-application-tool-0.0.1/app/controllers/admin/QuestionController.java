@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import forms.QuestionForm;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -17,6 +18,7 @@ import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.question.InvalidPathException;
+import services.question.InvalidUpdateException;
 import services.question.QuestionDefinition;
 import services.question.QuestionService;
 import services.question.UnsupportedQuestionTypeException;
@@ -54,14 +56,21 @@ public class QuestionController extends Controller {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
+              String exception = "";
               try {
                 QuestionDefinition definition = questionForm.getBuilder().setVersion(1L).build();
-                service.create(definition);
+                boolean success = service.create(definition).isPresent();
+                if (!success) {
+                  exception =
+                      String.format(
+                          "create failed: this is most likely you specify an invalid path %s",
+                          definition.getPath());
+                }
               } catch (UnsupportedQuestionTypeException e) {
-                // I'm not sure why this would happen here, so we'll just log and redirect.
-                LOG.info(e.toString());
+                exception = e.toString();
+                LOG.info(exception);
               }
-              return redirect(routes.QuestionController.index("table"));
+              return withException(redirect(routes.QuestionController.index("table")), exception);
             },
             httpExecutionContext.current());
   }
@@ -89,16 +98,17 @@ public class QuestionController extends Controller {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public CompletionStage<Result> index(String renderAs) {
+  public CompletionStage<Result> index(Request request, String renderAs) {
+    Optional<String> maybeFlash = request.flash().get("exception");
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
               switch (renderAs) {
                 case "list":
-                  return ok(listView.renderAsList(readOnlyService.getAllQuestions()));
+                  return ok(listView.renderAsList(readOnlyService.getAllQuestions(), maybeFlash));
                 case "table":
-                  return ok(listView.renderAsTable(readOnlyService.getAllQuestions()));
+                  return ok(listView.renderAsTable(readOnlyService.getAllQuestions(), maybeFlash));
                 default:
                   return badRequest();
               }
@@ -106,21 +116,29 @@ public class QuestionController extends Controller {
             httpExecutionContext.current());
   }
 
-  // TODO: Implement update question.
-  // https://github.com/seattle-uat/universal-application-tool/issues/103
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public CompletionStage<Result> update(Request request, Long id) {
     Form<QuestionForm> form = formFactory.form(QuestionForm.class);
     QuestionForm questionForm = form.bindFromRequest(request).get();
+    String exception = "";
     try {
       QuestionDefinition definition = questionForm.getBuilder().setId(id).setVersion(1L).build();
       service.update(definition);
     } catch (UnsupportedQuestionTypeException e) {
-      // I'm not sure why this would happen here, so we'll just log and redirect.
-      LOG.info(e.toString());
-    } catch (UnsupportedOperationException e) {
-      // This is expected for now until we implement update on QuestionService.
+      exception = e.toString();
+      LOG.info(exception);
+    } catch (InvalidUpdateException e) {
+      exception = e.toString();
+      LOG.info(exception);
     }
-    return CompletableFuture.completedFuture(redirect(routes.QuestionController.index("table")));
+    return CompletableFuture.completedFuture(
+        withException(redirect(routes.QuestionController.index("table")), exception));
+  }
+
+  private Result withException(Result result, String exception) {
+    if (!exception.isEmpty()) {
+      return result.flashing("exception", exception);
+    }
+    return result;
   }
 }

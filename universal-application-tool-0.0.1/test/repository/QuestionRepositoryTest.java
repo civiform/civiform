@@ -11,7 +11,9 @@ import models.Question;
 import org.junit.Before;
 import org.junit.Test;
 import services.question.QuestionDefinition;
+import services.question.QuestionDefinitionBuilder;
 import services.question.TextQuestionDefinition;
+import services.question.UnsupportedQuestionTypeException;
 
 public class QuestionRepositoryTest extends WithPostgresContainer {
 
@@ -174,5 +176,31 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
     repo.insertQuestionSync(question);
 
     assertThat(repo.lookupQuestion(question.id).toCompletableFuture().join()).hasValue(question);
+  }
+
+  @Test
+  public void updateQuestion() throws UnsupportedQuestionTypeException {
+    Question question = resourceCreator().insertQuestion("path.one");
+    QuestionDefinition questionDefinition = question.getQuestionDefinition();
+    questionDefinition =
+        new QuestionDefinitionBuilder(questionDefinition).setDescription("new description").build();
+
+    repo.updateQuestion(new Question(questionDefinition)).toCompletableFuture().join();
+
+    Question q = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    assertThat(q.getQuestionDefinition()).isEqualTo(questionDefinition);
+  }
+
+  @Test
+  public void updateQuestionSync() throws UnsupportedQuestionTypeException {
+    Question question = resourceCreator().insertQuestion("path.one");
+    QuestionDefinition questionDefinition = question.getQuestionDefinition();
+    questionDefinition =
+        new QuestionDefinitionBuilder(questionDefinition).setDescription("new description").build();
+
+    repo.updateQuestionSync(new Question(questionDefinition));
+
+    Question q = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    assertThat(q.getQuestionDefinition()).isEqualTo(questionDefinition);
   }
 }
