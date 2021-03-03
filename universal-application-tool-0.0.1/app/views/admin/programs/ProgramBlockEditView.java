@@ -158,7 +158,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     li(
                         checkboxInputWithLabel(
                             questionDefinition.getName(),
-                            "" + questionDefinition.getId(),
+                            "question-" + questionDefinition.getId(),
                             "question-" + questionDefinition.getId(),
                             String.valueOf(questionDefinition.getId())))));
 
