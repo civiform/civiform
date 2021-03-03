@@ -124,4 +124,15 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
         .isInstanceOf(InvalidUpdateException.class)
         .hasMessageContaining("question paths mismatch");
   }
+
+  @Test
+  public void update_failsWhenQuestionTypeChanges() throws UnsupportedQuestionTypeException {
+    QuestionDefinition question = questionService.create(questionDefinition).get();
+    QuestionDefinition toUpdate =
+        new QuestionDefinitionBuilder(question).setQuestionType(QuestionType.ADDRESS).build();
+
+    assertThatThrownBy(() -> questionService.update(toUpdate))
+        .isInstanceOf(InvalidUpdateException.class)
+        .hasMessageContaining("question types mismatch");
+  }
 }

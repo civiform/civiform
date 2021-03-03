@@ -99,5 +99,11 @@ public final class QuestionServiceImpl implements QuestionService {
               "question paths mismatch: %s does not match %s",
               definition.getPath(), toUpdate.getPath()));
     }
+    if (!definition.getQuestionType().equals(toUpdate.getQuestionType())) {
+      throw new InvalidUpdateException(
+          String.format(
+              "question types mismatch: %s does not match %s",
+              definition.getQuestionType().toString(), toUpdate.getQuestionType().toString()));
+    }
   }
 }
