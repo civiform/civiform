@@ -63,12 +63,11 @@ public class ReadOnlyQuestionServiceImplTest {
 
   @Test
   public void getAllScalars() {
-    int expectedScalars =
-        nameQuestion.getScalars().size()
-            + addressQuestion.getScalars().size()
-            + basicQuestion.getScalars().size();
-    assertThat(service.getAllScalars().size()).isEqualTo(expectedScalars);
-    // TODO: Verify the contents not just the size.
+    ImmutableMap.Builder<String, ScalarType> scalars = ImmutableMap.builder();
+    scalars.putAll(nameQuestion.getScalars());
+    scalars.putAll(addressQuestion.getScalars());
+    scalars.putAll(basicQuestion.getScalars());
+    assertThat(service.getAllScalars()).isEqualTo(scalars.build());
   }
 
   @Test
