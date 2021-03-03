@@ -4,16 +4,21 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.PathNotFoundException;
+import com.jayway.jsonpath.ReadContext;
 import com.jayway.jsonpath.spi.mapper.MappingException;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import javax.swing.text.Document;
 
 public class ApplicantData {
   private static final Splitter JSON_SPLITTER = Splitter.on('.');
@@ -49,14 +54,34 @@ public class ApplicantData {
     }
   }
 
-  // TODO: consider using Jackson or GSON for writing and JsonPath for reading.
-  // Perhaps use Jackson or gson for reading as well, and only use JsonPath for predicates.
-  //
   public void put(Path path, Object value) {
-    List<String> pathElements = JSON_SPLITTER.splitToList(path.withApplicantPrefix());
+    // Suppress errors thrown by JsonPath and instead return null if a path does not exist in a JSON blob.
+    Configuration suppressExceptionConfiguration = Configuration
+            .defaultConfiguration()
+            .addOptions(Option.SUPPRESS_EXCEPTIONS);
+    DocumentContext jsonData = JsonPath.using(suppressExceptionConfiguration).parse(this.jsonData.jsonString());
+
+    List<String> pathSegments = JSON_SPLITTER.splitToList(path.withApplicantPrefix());
+    List<String> parentSegments = pathSegments.subList(0, pathSegments.size() - 1);
+
+    for (int i = 0; i <= parentSegments.size() - 1; i++) {
+      String currentPath = JSON_JOINER.join(parentSegments.subList(0, i + 1));
+      String pathData = jsonData.read(currentPath);
+      if (pathData == null) {
+        List<String> currentPathSegments =
+                 JSON_SPLITTER.splitToList(Path.create(currentPath).withApplicantPrefix());
+        String parentPath =
+                JSON_JOINER.join(currentPathSegments.subList(0, currentPathSegments.size() - 1));
+        String name =
+                currentPathSegments.get(currentPathSegments.size() - 1);
+        jsonData.put(parentPath, name, new HashMap<>());
+        this.jsonData.put(parentPath, name, new HashMap<>());
+      }
+    }
+
     this.jsonData.put(
-        JSON_JOINER.join(pathElements.subList(0, pathElements.size() - 1)),
-        pathElements.get(pathElements.size() - 1),
+        JSON_JOINER.join(parentSegments),
+        pathSegments.get(pathSegments.size() - 1),
         value);
   }
 
