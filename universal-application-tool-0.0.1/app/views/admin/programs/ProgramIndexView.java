@@ -53,9 +53,8 @@ public final class ProgramIndexView extends BaseHtmlView {
             Styles.RING_OFFSET_2,
             Styles.BG_BLUE_400,
             Styles.TEXT_WHITE,
-            StyleUtils.applyUtilityClass(StyleUtils.HOVER, Styles.BG_BLUE_500),
-            StyleUtils.applyUtilityClass(
-                StyleUtils.FOCUS, ImmutableList.of(Styles.OUTLINE_NONE, Styles.RING_2)));
+            StyleUtils.hover(Styles.BG_BLUE_500),
+            StyleUtils.focus(ImmutableList.of(Styles.OUTLINE_NONE, Styles.RING_2)));
   }
 
   public Tag renderProgramListItem(ProgramDefinition program) {
@@ -116,7 +115,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         .withClasses(
             Styles.MR_2,
             Styles.TEXT_BLUE_400,
-            StyleUtils.applyUtilityClass(StyleUtils.HOVER, Styles.TEXT_BLUE_500),
+            StyleUtils.hover(Styles.TEXT_BLUE_500),
             StyleUtils.applyUtilityClass(StyleUtils.RESPONSIVE_MD, Styles.MR_4));
   }
 }

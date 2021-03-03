@@ -24,4 +24,26 @@ public class StyleUtilsTest {
 
     assertEquals(expected, result);
   }
+
+  @Test
+  public void focus_returnsExpected() {
+    String expected = "focus:outline-none focus:ring-2";
+    String result = StyleUtils.focus(ImmutableList.of(Styles.OUTLINE_NONE, Styles.RING_2));
+    assertEquals(expected, result);
+
+    expected = "focus:outline-none";
+    result = StyleUtils.focus(Styles.OUTLINE_NONE);
+    assertEquals(expected, result);
+  }
+
+  @Test
+  public void hover_returnsExpected() {
+    String expected = "hover:outline-none hover:ring-2";
+    String result = StyleUtils.hover(ImmutableList.of(Styles.OUTLINE_NONE, Styles.RING_2));
+    assertEquals(expected, result);
+
+    expected = "hover:outline-none";
+    result = StyleUtils.hover(Styles.OUTLINE_NONE);
+    assertEquals(expected, result);
+  }
 }

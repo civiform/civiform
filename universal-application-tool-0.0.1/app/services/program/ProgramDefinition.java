@@ -50,11 +50,7 @@ public abstract class ProgramDefinition {
   }
 
   public int getQuestionCount() {
-    int total = 0;
-    for (BlockDefinition block : blockDefinitions()) {
-      total += block.getQuestionCount();
-    }
-    return total;
+    return blockDefinitions().stream().mapToInt(BlockDefinition::getQuestionCount).sum();
   }
 
   public Program toProgram() {
