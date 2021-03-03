@@ -10,6 +10,8 @@ import org.pac4j.core.util.HttpActionHelper;
 
 public class GuestClient extends IndirectClient {
 
+  public static final String CLIENT_NAME = "GuestClient";
+
   private ProfileFactory profileFactory;
 
   @Inject

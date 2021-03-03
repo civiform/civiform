@@ -47,6 +47,10 @@ public class BaseBrowserTest extends WithBrowser {
     browser.goTo(BASE_URL + method.url());
   }
 
+  protected void goToRootUrl() {
+    browser.goTo(BASE_URL);
+  }
+
   /**
    * Asserts that the current url is equal to the given route method. {@code browser.url()} does not
    * have the leading "/" but route URLs do.
@@ -67,9 +71,17 @@ public class BaseBrowserTest extends WithBrowser {
   }
 
   /** Log in as a guest (applicant) and return the applicant ID for the user. */
-  protected void loginAsApplicant() {
+  protected void loginAsGuest() {
     goTo(routes.HomeController.loginForm(Optional.empty()));
     browser.$("#guest").click();
+  }
+
+  protected long getApplicantId() {
+    goTo(routes.ProfileController.myProfile());
+    Optional<String> stringId =
+        browser.$("#applicant-id").attributes("data-applicant-id").stream().findFirst();
+    assertThat(stringId).isNotEmpty();
+    return Long.valueOf(stringId.get());
   }
 
   /**

@@ -2,42 +2,75 @@ package controllers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.ProfileUtils;
+import auth.UatProfile;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.play.java.Secure;
-import play.mvc.*;
+import play.libs.concurrent.HttpExecutionContext;
+import play.mvc.Controller;
+import play.mvc.Http;
+import play.mvc.Result;
 import views.LoginForm;
-import views.html.*;
+import views.html.index;
 
-/** This controller contains an action to handle HTTP requests to the application's home page. */
 public class HomeController extends Controller {
 
   private final AssetsFinder assetsFinder;
-  private final LoginForm form;
+  private final LoginForm loginForm;
+  private final ProfileUtils profileUtils;
+  private final HttpExecutionContext httpExecutionContext;
 
   @Inject
-  public HomeController(AssetsFinder assetsFinder, LoginForm form) {
+  public HomeController(
+      AssetsFinder assetsFinder,
+      LoginForm form,
+      ProfileUtils profileUtils,
+      HttpExecutionContext httpExecutionContext) {
     this.assetsFinder = checkNotNull(assetsFinder);
-    this.form = checkNotNull(form);
+    this.loginForm = checkNotNull(form);
+    this.profileUtils = checkNotNull(profileUtils);
+    this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
 
-  /**
-   * An action that renders an HTML page with a welcome message. The configuration in the <code>
-   * routes</code> file means that this method will be called when the application receives a <code>
-   * GET</code> request with a path of <code>/</code>.
-   */
-  public Result index() {
-    return ok(index.render("Your new application is ready.", assetsFinder));
+  public CompletionStage<Result> index(Http.Request request) {
+    Optional<UatProfile> maybeProfile = profileUtils.currentUserProfile(request);
+
+    if (maybeProfile.isEmpty()) {
+      return CompletableFuture.completedFuture(
+          redirect(controllers.routes.HomeController.loginForm(Optional.empty())));
+    }
+
+    UatProfile profile = maybeProfile.get();
+
+    if (profile.isUatAdmin()) {
+      return CompletableFuture.completedFuture(
+          redirect(controllers.admin.routes.AdminProgramController.index()));
+    } else {
+      return profile
+          .getApplicant()
+          .thenApplyAsync(
+              applicant ->
+                  redirect(
+                      controllers.applicant.routes.ApplicantProgramsController.index(applicant.id)),
+              httpExecutionContext.current());
+    }
   }
 
   public Result loginForm(Http.Request request, Optional<String> message)
       throws TechnicalException {
-    return ok(this.form.render(request, message));
+    return ok(loginForm.render(request, message));
+  }
+
+  public Result playIndex() {
+    return ok(index.render("public index", assetsFinder));
   }
 
   @Secure
-  public Result secureIndex() {
+  public Result securePlayIndex() {
     return ok(index.render("You are logged in.", assetsFinder));
   }
 }

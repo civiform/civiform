@@ -2,10 +2,10 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# An example controller showing a sample home page
-GET     /                           controllers.HomeController.index
-# The root page, but requiring a login.
-GET     /secure                     controllers.HomeController.secureIndex
+# The landing page
+GET     /                           controllers.HomeController.index(request: Request)
+GET     /playIndex                  controllers.HomeController.playIndex()
+GET     /securePlayIndex            controllers.HomeController.securePlayIndex()
 
 # A controller for pages for an admin to create and maintain programs
 GET     /admin/programs                    controllers.admin.AdminProgramController.index
