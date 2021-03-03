@@ -19,7 +19,7 @@ public class CsvExporter implements Exporter {
     this.columns = ImmutableList.copyOf(columns);
   }
 
-  private void maybeWriteHeaders(CSVPrinter printer) throws IOException {
+  private void writeHeadersOnFirstExport(CSVPrinter printer) throws IOException {
     if (!wroteHeaders) {
       for (Column column : columns) {
         printer.print(column.header());
@@ -37,7 +37,7 @@ public class CsvExporter implements Exporter {
   @Override
   public void export(Applicant applicant, Writer writer) throws IOException {
     CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT.withFirstRecordAsHeader());
-    this.maybeWriteHeaders(printer);
+    this.writeHeadersOnFirstExport(printer);
     for (Column column : this.columns) {
       Optional<String> value = applicant.getApplicantData().readString(column.jsonPath());
       printer.print(value.orElse("COLUMN_EMPTY"));

@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 import models.Applicant;
 import models.Program;
 import org.apache.commons.csv.CSVFormat;
@@ -22,6 +23,26 @@ public class CsvExporterTest {
   private Writer writer;
   private ByteArrayOutputStream inMemoryBytes;
 
+  public static CsvExportConfig createFakeCsvConfig() {
+    return CsvExportConfig.builder()
+            .addColumn(
+                    Column.builder()
+                            .setHeader("first name")
+                            .setJsonPath("$.applicant.first_name")
+                            .build())
+            .addColumn(
+                    Column.builder()
+                            .setHeader("last name")
+                            .setJsonPath("$.applicant.last_name")
+                            .build())
+            .addColumn(
+                    Column.builder()
+                            .setHeader("column")
+                            .setJsonPath("$.applicant.column")
+                            .build())
+            .build();
+  }
+
   @BeforeClass
   public static void createFakeProgram() {
     ProgramDefinition definition =
@@ -32,25 +53,7 @@ public class CsvExporterTest {
             .addExportDefinition(
                 ExportDefinition.builder()
                     .setEngine(ExportEngine.CSV)
-                    .setCsvConfig(
-                        // write the first and last name, plus some misc. data.
-                        CsvExportConfig.builder()
-                            .addColumn(
-                                Column.builder()
-                                    .setHeader("first name")
-                                    .setJsonPath("$.applicant.first_name")
-                                    .build())
-                            .addColumn(
-                                Column.builder()
-                                    .setHeader("last name")
-                                    .setJsonPath("$.applicant.last_name")
-                                    .build())
-                            .addColumn(
-                                Column.builder()
-                                    .setHeader("column")
-                                    .setJsonPath("$.applicant.column")
-                                    .build())
-                            .build())
+                    .setCsvConfig(Optional.of(createFakeCsvConfig()))
                     .build())
             .build();
     fakeProgramWithCsvExport = new Program(definition);

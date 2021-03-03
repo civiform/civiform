@@ -3,6 +3,7 @@ package services.program;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
+import java.util.Optional;
 import javax.annotation.Nullable;
 
 @AutoValue
@@ -14,13 +15,11 @@ public abstract class ExportDefinition {
 
   /** The configuration of the PDF export - only if engine == "pdf". */
   @JsonProperty("pdfConfig")
-  @Nullable
-  public abstract PdfExportConfig pdfConfig();
+  public abstract Optional<PdfExportConfig> pdfConfig();
 
   /** The configuration of the CSV export - only if engine == "csv". */
   @JsonProperty("csvConfig")
-  @Nullable
-  public abstract CsvExportConfig csvConfig();
+  public abstract Optional<CsvExportConfig> csvConfig();
 
   public static ExportDefinition.Builder builder() {
     return new AutoValue_ExportDefinition.Builder();
@@ -30,9 +29,9 @@ public abstract class ExportDefinition {
   public abstract static class Builder {
     public abstract ExportDefinition.Builder setEngine(ExportEngine engine);
 
-    public abstract ExportDefinition.Builder setCsvConfig(CsvExportConfig csvConfig);
+    public abstract ExportDefinition.Builder setCsvConfig(Optional<CsvExportConfig> csvConfig);
 
-    public abstract ExportDefinition.Builder setPdfConfig(PdfExportConfig pdfConfig);
+    public abstract ExportDefinition.Builder setPdfConfig(Optional<PdfExportConfig> pdfConfig);
 
     public abstract ExportDefinition build();
   }

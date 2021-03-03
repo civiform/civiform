@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 import models.Applicant;
 import models.Program;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -37,10 +38,10 @@ public class PdfExporterTest {
                 ExportDefinition.builder()
                     .setEngine(ExportEngine.PDF)
                     .setPdfConfig(
-                        PdfExportConfig.builder()
+                            Optional.of(PdfExportConfig.builder()
                             .setBaseDocument(basePdf.toURI())
                             .setMappings(ImmutableMap.of("formfield", "$.applicant.formValue"))
-                            .build())
+                            .build()))
                     .build())
             .build();
     fakeProgramWithPdfExport = new Program(definition);

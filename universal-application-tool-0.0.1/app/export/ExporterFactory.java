@@ -14,11 +14,11 @@ public class ExporterFactory {
         case PDF:
           list.add(
               new PdfExporter(
-                  exportDefinition.pdfConfig().baseDocument(),
-                  exportDefinition.pdfConfig().mappings()));
+                  exportDefinition.pdfConfig().orElseThrow().baseDocument(),
+                  exportDefinition.pdfConfig().orElseThrow().mappings()));
           break;
         case CSV:
-          list.add(new CsvExporter(exportDefinition.csvConfig().columns()));
+          list.add(new CsvExporter(exportDefinition.csvConfig().orElseThrow().columns()));
           break;
         default:
           throw new IllegalArgumentException(
