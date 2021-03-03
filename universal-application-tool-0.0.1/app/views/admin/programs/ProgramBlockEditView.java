@@ -84,7 +84,15 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
     block
         .programQuestionDefinitions()
-        .forEach(pqd -> questionList.with(li(pqd.getQuestionDefinition().getName())));
+        .forEach(
+            pqd ->
+                questionList.with(
+                    li(
+                        checkboxInputWithLabel(
+                            pqd.getQuestionDefinition().getName(),
+                            "block-question-" + pqd.getQuestionDefinition().getId(),
+                            "block-question-" + pqd.getQuestionDefinition().getId(),
+                            String.valueOf(pqd.getQuestionDefinition().getId())))));
 
     return div()
         .withClass(Styles.FLEX_AUTO)
@@ -103,7 +111,15 @@ public class ProgramBlockEditView extends BaseHtmlView {
                         controllers.admin.routes.AdminProgramBlocksController.update(
                                 program.id(), block.id())
                             .url()),
-                questionList));
+                form()
+                    .withMethod("post")
+                    .withAction(
+                        controllers.admin.routes.AdminProgramBlockQuestionsController.destroy(
+                                program.id(), block.id())
+                            .url())
+                    .with(csrfTag)
+                    .with(questionList)
+                    .with(submitButton("Remove questions"))));
   }
 
   private ContainerTag blockEditPanelTop(

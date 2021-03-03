@@ -51,9 +51,25 @@ public class AdminProgramBlockQuestionsController extends Controller {
   }
 
   @Secure(authorizers = Labels.UAT_ADMIN)
-  public Result destroy(Request request, long programId, long blockId, long questionId) {
+  public Result destroy(Request request, long programId, long blockId) {
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
-    System.out.println(requestData.rawData());
+
+    ImmutableList<Long> questionIds =
+        requestData.rawData().entrySet().stream()
+            .filter(formField -> formField.getKey().startsWith("block-question-"))
+            .map(formField -> Long.valueOf(formField.getValue()))
+            .collect(ImmutableList.toImmutableList());
+
+    try {
+      programService.removeQuestionsFromBlock(programId, blockId, questionIds);
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    } catch (ProgramBlockNotFoundException e) {
+      return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
+    } catch (QuestionNotFoundException e) {
+      return notFound(String.format("Question ID %s not found", questionIds));
+    }
+
     return redirect(controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId));
   }
 }
