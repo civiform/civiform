@@ -35,13 +35,45 @@ public class AddressQuestionDefinition extends QuestionDefinition {
   @Override
   public ImmutableMap<String, ScalarType> getScalars() {
     return ImmutableMap.of(
-        "street",
-        ScalarType.STRING,
-        "city",
-        ScalarType.STRING,
-        "state",
-        ScalarType.STRING,
-        "zip",
-        ScalarType.STRING);
+        getStreetPath(),
+        getStreetType(),
+        getCityPath(),
+        getCityType(),
+        getStatePath(),
+        getStateType(),
+        getZipPath(),
+        getZipType());
+  }
+
+  public String getStreetPath() {
+    return getPath() + ".street";
+  }
+
+  public ScalarType getStreetType() {
+    return ScalarType.STRING;
+  }
+
+  public String getCityPath() {
+    return getPath() + ".city";
+  }
+
+  public ScalarType getCityType() {
+    return ScalarType.STRING;
+  }
+
+  public String getStatePath() {
+    return getPath() + ".state";
+  }
+
+  public ScalarType getStateType() {
+    return ScalarType.STRING;
+  }
+
+  public String getZipPath() {
+    return getPath() + ".zip";
+  }
+
+  public ScalarType getZipType() {
+    return ScalarType.STRING;
   }
 }

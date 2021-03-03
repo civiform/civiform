@@ -35,6 +35,35 @@ public class NameQuestionDefinition extends QuestionDefinition {
   @Override
   public ImmutableMap<String, ScalarType> getScalars() {
     return ImmutableMap.of(
-        "first", ScalarType.STRING, "middle", ScalarType.STRING, "last", ScalarType.STRING);
+        getFirstNamePath(),
+        getFirstNameType(),
+        getMiddleNamePath(),
+        getMiddleNameType(),
+        getLastNamePath(),
+        getLastNameType());
+  }
+
+  public String getFirstNamePath() {
+    return getPath() + ".first";
+  }
+
+  public ScalarType getFirstNameType() {
+    return ScalarType.STRING;
+  }
+
+  public String getMiddleNamePath() {
+    return getPath() + ".middle";
+  }
+
+  public ScalarType getMiddleNameType() {
+    return ScalarType.STRING;
+  }
+
+  public String getLastNamePath() {
+    return getPath() + ".last";
+  }
+
+  public ScalarType getLastNameType() {
+    return ScalarType.STRING;
   }
 }

@@ -34,6 +34,14 @@ public class TextQuestionDefinition extends QuestionDefinition {
 
   @Override
   public ImmutableMap<String, ScalarType> getScalars() {
-    return ImmutableMap.of("text", ScalarType.STRING);
+    return ImmutableMap.of(getTextPath(), getTextType());
+  }
+
+  public String getTextPath() {
+    return getPath();
+  }
+
+  public ScalarType getTextType() {
+    return ScalarType.STRING;
   }
 }

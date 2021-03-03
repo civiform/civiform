@@ -181,21 +181,12 @@ public class QuestionDefinitionTest {
   @Test
   public void newQuestionHasStringScalar() {
     QuestionDefinition question =
-        new TextQuestionDefinition(1L, "", "", "", ImmutableMap.of(), ImmutableMap.of());
-    assertThat(question.getScalars()).containsOnly(entry("text", ScalarType.STRING));
-    assertThat(question.getScalarType("text").get()).isEqualTo(ScalarType.STRING);
-    assertThat(question.getScalarType("text").get().getClassFor().get()).isEqualTo(String.class);
-  }
-
-  @Test
-  public void newQuestionHasStringScalar_withFullPath() {
-    QuestionDefinition question =
         new TextQuestionDefinition(
             1L, "name", "path.to.question", "description", ImmutableMap.of(), ImmutableMap.of());
-    assertThat(question.getFullyQualifiedScalars())
-        .containsOnly(entry("path.to.question.text", ScalarType.STRING));
-    assertThat(question.getScalarType("text").get()).isEqualTo(ScalarType.STRING);
-    assertThat(question.getScalarType("text").get().getClassFor().get()).isEqualTo(String.class);
+    assertThat(question.getScalars()).containsOnly(entry("path.to.question", ScalarType.STRING));
+    assertThat(question.getScalarType("path.to.question").get()).isEqualTo(ScalarType.STRING);
+    assertThat(question.getScalarType("path.to.question").get().getClassFor().get())
+        .isEqualTo(String.class);
   }
 
   @Test

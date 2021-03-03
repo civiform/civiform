@@ -63,18 +63,17 @@ public class ReadOnlyQuestionServiceImplTest {
 
   @Test
   public void getAllScalars() {
-    int expectedScalars =
-        nameQuestion.getScalars().size()
-            + addressQuestion.getScalars().size()
-            + basicQuestion.getScalars().size();
-    assertThat(service.getAllScalars().size()).isEqualTo(expectedScalars);
-    // TODO: Verify the contents not just the size.
+    ImmutableMap.Builder<String, ScalarType> scalars = ImmutableMap.builder();
+    scalars.putAll(nameQuestion.getScalars());
+    scalars.putAll(addressQuestion.getScalars());
+    scalars.putAll(basicQuestion.getScalars());
+    assertThat(service.getAllScalars()).isEqualTo(scalars.build());
   }
 
   @Test
   public void getPathScalars_forQuestion() throws InvalidPathException {
     ImmutableMap<String, ScalarType> result = service.getPathScalars("applicant.address");
-    ImmutableMap<String, ScalarType> expected = addressQuestion.getFullyQualifiedScalars();
+    ImmutableMap<String, ScalarType> expected = addressQuestion.getScalars();
     assertThat(result).isEqualTo(expected);
   }
 
