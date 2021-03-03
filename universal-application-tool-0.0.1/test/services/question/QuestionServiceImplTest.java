@@ -106,6 +106,15 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
+  public void update_failsWhenQuestionNotExistent() throws UnsupportedQuestionTypeException {
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder(questionDefinition).setId(9999L).build();
+    assertThatThrownBy(() -> questionService.update(question))
+        .isInstanceOf(InvalidUpdateException.class)
+        .hasMessageContaining("question with id 9999 does not exist");
+  }
+
+  @Test
   public void update_failsWhenQuestionPathChanges() throws UnsupportedQuestionTypeException {
     QuestionDefinition question = questionService.create(questionDefinition).get();
     QuestionDefinition toUpdate =

@@ -48,8 +48,13 @@ public final class QuestionServiceImpl implements QuestionService {
     if (!definition.isPersisted()) {
       throw new InvalidUpdateException("question definition is not persisted");
     }
-    Question question =
-        questionRepository.lookupQuestion(definition.getId()).toCompletableFuture().join().get();
+    Optional<Question> maybeQuestion =
+        questionRepository.lookupQuestion(definition.getId()).toCompletableFuture().join();
+    if (!maybeQuestion.isPresent()) {
+      throw new InvalidUpdateException(
+          String.format("question with id %d does not exist", definition.getId()));
+    }
+    Question question = maybeQuestion.get();
     assertQuestionInvariants(question.getQuestionDefinition(), definition);
     question = questionRepository.updateQuestionSync(new Question(definition));
     return question.getQuestionDefinition();
