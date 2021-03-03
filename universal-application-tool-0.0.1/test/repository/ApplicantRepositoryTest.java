@@ -59,7 +59,7 @@ public class ApplicantRepositoryTest extends WithPostgresContainer {
     applicant.getApplicantData().put(Path.create(path), "1/1/2021");
 
     assertThat(applicant.getApplicantData().read(Path.create(path), String.class))
-        .isEqualTo("1/1/2021");
+        .hasValue("1/1/2021");
 
     repo.insertApplicant(applicant).toCompletableFuture().join();
 
