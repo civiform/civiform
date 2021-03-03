@@ -34,6 +34,18 @@ public class PathTest {
   }
 
   @Test
+  public void parentPath() {
+    Path path = Path.create("one.two.three.me");
+    assertThat(path.parentPath()).isEqualTo("one.two.three");
+  }
+
+  @Test
+  public void keyName() {
+    Path path = Path.create("one.two.name");
+    assertThat(path.keyName()).isEqualTo("name");
+  }
+
+  @Test
   public void fullPathSegments() {
     Path path = Path.create("personality.favorites.color");
     assertThat(path.fullPathSegments()).containsExactly(Path.create("personality"), Path.create("personality.favorites"), Path.create("personality.favorites.color"));
@@ -42,6 +54,6 @@ public class PathTest {
   @Test
   public void parentSegments() {
     Path path = Path.create("animals.favorites.dog");
-    assertThat(path.parentSegments()).containsExactly(Path.create("animals"), Path.create("animals.favorites"), Path.create("animals.favorites.dog"));
+    assertThat(path.parentSegments()).containsExactly(Path.create("animals"), Path.create("animals.favorites"));
   }
 }

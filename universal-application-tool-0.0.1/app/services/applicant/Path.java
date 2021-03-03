@@ -47,9 +47,18 @@ public abstract class Path {
   }
 
   @Memoized
+  public String parentPath() {
+    return JSON_JOINER.join(segments().subList(0, segments().size() - 1));
+  }
+
+  @Memoized
+  public String keyName() {
+    return segments().get(segments().size() - 1);
+  }
+
+  @Memoized
   public ImmutableList<String> segments() {
-    System.out.println("In segments!");
-    return ImmutableList.copyOf(JSON_SPLITTER.splitToList(path()));
+    return ImmutableList.copyOf(JSON_SPLITTER.splitToList(withApplicantPrefix()));
   }
 
   /**
@@ -71,6 +80,7 @@ public abstract class Path {
     return builder.build();
   }
 
+  @Memoized
   public ImmutableList<Path> parentSegments() {
     ImmutableList.Builder<Path> builder = ImmutableList.builder();
     if (segments().isEmpty()) {
@@ -79,7 +89,7 @@ public abstract class Path {
 
     String path = segments().get(0);
     builder.add(Path.create(path));
-    for (int i = 1; i < segments().size(); i++) {
+    for (int i = 1; i < segments().size() - 1; i++) {
       path += '.' + segments().get(i);
       builder.add(Path.create(path));
     }

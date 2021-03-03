@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
@@ -21,14 +22,16 @@ import javax.annotation.Nullable;
 import javax.swing.text.Document;
 
 public class ApplicantData {
-  private static final Splitter JSON_SPLITTER = Splitter.on('.');
-  private static final Joiner JSON_JOINER = Joiner.on('.');
+  // Suppress errors thrown by JsonPath and instead return null if a path does not exist in a JSON blob.
+  private static final Configuration CONFIGURATION = Configuration
+          .defaultConfiguration()
+          .addOptions(Option.SUPPRESS_EXCEPTIONS);
 
   private DocumentContext jsonData;
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
 
   public ApplicantData() {
-    this(JsonPath.parse(EMPTY_APPLICANT_DATA_JSON));
+    this(JsonPath.using(CONFIGURATION).parse(EMPTY_APPLICANT_DATA_JSON));
   }
 
   public ApplicantData(DocumentContext jsonData) {
@@ -55,34 +58,13 @@ public class ApplicantData {
   }
 
   public void put(Path path, Object value) {
-    // Suppress errors thrown by JsonPath and instead return null if a path does not exist in a JSON blob.
-    Configuration suppressExceptionConfiguration = Configuration
-            .defaultConfiguration()
-            .addOptions(Option.SUPPRESS_EXCEPTIONS);
-    DocumentContext jsonData = JsonPath.using(suppressExceptionConfiguration).parse(this.jsonData.jsonString());
-
-    List<String> pathSegments = JSON_SPLITTER.splitToList(path.withApplicantPrefix());
-    List<String> parentSegments = pathSegments.subList(0, pathSegments.size() - 1);
-
-    for (int i = 0; i <= parentSegments.size() - 1; i++) {
-      String currentPath = JSON_JOINER.join(parentSegments.subList(0, i + 1));
-      String pathData = jsonData.read(currentPath);
-      if (pathData == null) {
-        List<String> currentPathSegments =
-                 JSON_SPLITTER.splitToList(Path.create(currentPath).withApplicantPrefix());
-        String parentPath =
-                JSON_JOINER.join(currentPathSegments.subList(0, currentPathSegments.size() - 1));
-        String name =
-                currentPathSegments.get(currentPathSegments.size() - 1);
-        jsonData.put(parentPath, name, new HashMap<>());
-        this.jsonData.put(parentPath, name, new HashMap<>());
+    path.parentSegments().forEach(segmentPath -> {
+      if (this.jsonData.read(segmentPath.path()) == null) {
+        this.jsonData.put(segmentPath.parentPath(), segmentPath.keyName(), new HashMap<>());
       }
-    }
+    });
 
-    this.jsonData.put(
-        JSON_JOINER.join(parentSegments),
-        pathSegments.get(pathSegments.size() - 1),
-        value);
+    this.jsonData.put(path.parentPath(), path.keyName(), value);
   }
 
   /**
@@ -96,7 +78,7 @@ public class ApplicantData {
    */
   public <T> Optional<T> read(Path path, Class<T> type) throws JsonPathTypeMismatchException {
     try {
-      return Optional.of(this.jsonData.read(path.withApplicantPrefix(), type));
+      return Optional.ofNullable(this.jsonData.read(path.withApplicantPrefix(), type));
     } catch (PathNotFoundException e) {
       return Optional.empty();
     } catch (MappingException e) {
