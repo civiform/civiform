@@ -38,10 +38,11 @@ public class PdfExporterTest {
                 ExportDefinition.builder()
                     .setEngine(ExportEngine.PDF)
                     .setPdfConfig(
-                            Optional.of(PdfExportConfig.builder()
-                            .setBaseDocument(basePdf.toURI())
-                            .setMappings(ImmutableMap.of("formfield", "$.applicant.formValue"))
-                            .build()))
+                        Optional.of(
+                            PdfExportConfig.builder()
+                                .setBaseDocument(basePdf.toURI())
+                                .setMappings(ImmutableMap.of("formfield", "$.applicant.formValue"))
+                                .build()))
                     .build())
             .build();
     fakeProgramWithPdfExport = new Program(definition);

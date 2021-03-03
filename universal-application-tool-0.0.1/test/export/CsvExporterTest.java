@@ -25,22 +25,12 @@ public class CsvExporterTest {
 
   public static CsvExportConfig createFakeCsvConfig() {
     return CsvExportConfig.builder()
-            .addColumn(
-                    Column.builder()
-                            .setHeader("first name")
-                            .setJsonPath("$.applicant.first_name")
-                            .build())
-            .addColumn(
-                    Column.builder()
-                            .setHeader("last name")
-                            .setJsonPath("$.applicant.last_name")
-                            .build())
-            .addColumn(
-                    Column.builder()
-                            .setHeader("column")
-                            .setJsonPath("$.applicant.column")
-                            .build())
-            .build();
+        .addColumn(
+            Column.builder().setHeader("first name").setJsonPath("$.applicant.first_name").build())
+        .addColumn(
+            Column.builder().setHeader("last name").setJsonPath("$.applicant.last_name").build())
+        .addColumn(Column.builder().setHeader("column").setJsonPath("$.applicant.column").build())
+        .build();
   }
 
   @BeforeClass

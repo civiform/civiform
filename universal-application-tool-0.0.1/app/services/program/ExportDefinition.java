@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import java.util.Optional;
-import javax.annotation.Nullable;
 
 @AutoValue
 @JsonDeserialize(builder = AutoValue_ExportDefinition.Builder.class)
