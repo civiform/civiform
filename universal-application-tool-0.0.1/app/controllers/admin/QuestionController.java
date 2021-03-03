@@ -68,7 +68,7 @@ public class QuestionController extends Controller {
                 }
               } catch (UnsupportedQuestionTypeException e) {
                 exception = e.toString();
-                LOG.info(e.toString());
+                LOG.info(exception);
               }
               return withException(redirect(routes.QuestionController.index("table")), exception);
             },
@@ -126,10 +126,10 @@ public class QuestionController extends Controller {
       service.update(definition);
     } catch (UnsupportedQuestionTypeException e) {
       exception = e.toString();
-      LOG.info(e.toString());
+      LOG.info(exception);
     } catch (InvalidUpdateException e) {
       exception = e.toString();
-      LOG.info(e.toString());
+      LOG.info(exception);
     }
     return CompletableFuture.completedFuture(
         withException(redirect(routes.QuestionController.index("table")), exception));
