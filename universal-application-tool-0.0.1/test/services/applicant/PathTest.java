@@ -26,4 +26,22 @@ public class PathTest {
   public void withMetadataPrefix() {
     assertThat(Path.create("first.name").withMetadataPrefix()).isEqualTo("metadata.first.name");
   }
+
+  @Test
+  public void segments() {
+    Path path = Path.create("my.super.long.path");
+    assertThat(path.segments()).containsExactly("my", "super", "long", "path");
+  }
+
+  @Test
+  public void fullPathSegments() {
+    Path path = Path.create("personality.favorites.color");
+    assertThat(path.fullPathSegments()).containsExactly(Path.create("personality"), Path.create("personality.favorites"), Path.create("personality.favorites.color"));
+  }
+
+  @Test
+  public void parentSegments() {
+    Path path = Path.create("animals.favorites.dog");
+    assertThat(path.parentSegments()).containsExactly(Path.create("animals"), Path.create("animals.favorites"), Path.create("animals.favorites.dog"));
+  }
 }

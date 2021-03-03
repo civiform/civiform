@@ -16,8 +16,6 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 public class ApplicantData {
-  public static final String APPLICANT_PREFIX = "applicant";
-  public static final String METADATA_PREFIX = "metadata";
   private static final Splitter JSON_SPLITTER = Splitter.on('.');
   private static final Joiner JSON_JOINER = Joiner.on('.');
 
