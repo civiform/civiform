@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import forms.QuestionForm;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -55,15 +56,21 @@ public class QuestionController extends Controller {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
+              String exception = "";
               try {
                 QuestionDefinition definition = questionForm.getBuilder().setVersion(1L).build();
-                // handle failure here.
-                service.create(definition);
+                boolean success = service.create(definition).isPresent();
+                if (!success) {
+                  exception =
+                      String.format(
+                          "create failed: this is most likely you specify an invalid path %s",
+                          definition.getPath());
+                }
               } catch (UnsupportedQuestionTypeException e) {
-                // I'm not sure why this would happen here, so we'll just log and redirect.
+                exception = e.toString();
                 LOG.info(e.toString());
               }
-              return redirect(routes.QuestionController.index("table"));
+              return withException(redirect(routes.QuestionController.index("table")), exception);
             },
             httpExecutionContext.current());
   }
@@ -91,16 +98,17 @@ public class QuestionController extends Controller {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public CompletionStage<Result> index(String renderAs) {
+  public CompletionStage<Result> index(Request request, String renderAs) {
+    Optional<String> maybeFlash = request.flash().get("exception");
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
               switch (renderAs) {
                 case "list":
-                  return ok(listView.renderAsList(readOnlyService.getAllQuestions()));
+                  return ok(listView.renderAsList(readOnlyService.getAllQuestions(), maybeFlash));
                 case "table":
-                  return ok(listView.renderAsTable(readOnlyService.getAllQuestions()));
+                  return ok(listView.renderAsTable(readOnlyService.getAllQuestions(), maybeFlash));
                 default:
                   return badRequest();
               }
@@ -112,16 +120,25 @@ public class QuestionController extends Controller {
   public CompletionStage<Result> update(Request request, Long id) {
     Form<QuestionForm> form = formFactory.form(QuestionForm.class);
     QuestionForm questionForm = form.bindFromRequest(request).get();
+    String exception = "";
     try {
       QuestionDefinition definition = questionForm.getBuilder().setId(id).setVersion(1L).build();
       service.update(definition);
     } catch (UnsupportedQuestionTypeException e) {
-      // I'm not sure why this would happen here, so we'll just log and redirect.
+      exception = e.toString();
       LOG.info(e.toString());
     } catch (InvalidUpdateException e) {
-      // handle exception
+      exception = e.toString();
       LOG.info(e.toString());
     }
-    return CompletableFuture.completedFuture(redirect(routes.QuestionController.index("table")));
+    return CompletableFuture.completedFuture(
+        withException(redirect(routes.QuestionController.index("table")), exception));
+  }
+
+  private Result withException(Result result, String exception) {
+    if (!exception.isEmpty()) {
+      return result.flashing("exception", exception);
+    }
+    return result;
   }
 }
