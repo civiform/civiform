@@ -15,6 +15,7 @@ import repository.WithPostgresContainer;
 import services.question.AddressQuestionDefinition;
 import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
+import services.question.QuestionNotFoundException;
 import services.question.QuestionService;
 import services.question.TextQuestionDefinition;
 
@@ -206,7 +207,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void updateProgram_updatesProgram() throws ProgramNotFoundException {
+  public void updateProgram_updatesProgram() throws Exception {
     ProgramDefinition originalProgram =
         ps.createProgramDefinition("original", "original description");
     ProgramDefinition updatedProgram =
@@ -219,7 +220,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void updateProgram_constructsQuestionDefinitions() throws ProgramNotFoundException {
+  public void updateProgram_constructsQuestionDefinitions() throws Exception {
     QuestionDefinition question = qs.create(SIMPLE_QUESTION).get();
     ProgramDefinition program = ps.createProgramDefinition("Program Name", "Program Description");
     ps.addBlockToProgram(
@@ -253,7 +254,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void getProgramDefinition_constructsQuestionDefinitions() throws ProgramNotFoundException {
+  public void getProgramDefinition_constructsQuestionDefinitions() throws Exception {
     QuestionDefinition question = qs.create(SIMPLE_QUESTION).get();
     ProgramDefinition program = ps.createProgramDefinition("Program Name", "Program Description");
     ps.addBlockToProgram(
@@ -290,8 +291,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void getProgramDefinitionAsync_constructsQuestionDefinitions()
-      throws ProgramNotFoundException {
+  public void getProgramDefinitionAsync_constructsQuestionDefinitions() throws Exception {
     QuestionDefinition question = qs.create(SIMPLE_QUESTION).get();
     ProgramDefinition program = ps.createProgramDefinition("Program Name", "Program Description");
     ps.addBlockToProgram(
@@ -324,8 +324,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void addBlockToProgram_emptyBlock_returnsProgramDefinitionWithBlock()
-      throws ProgramNotFoundException {
+  public void addBlockToProgram_emptyBlock_returnsProgramDefinitionWithBlock() throws Exception {
     ProgramDefinition programDefinition =
         ps.createProgramDefinition("Program With Block", "This program has a block.");
     Long programId = programDefinition.id();
@@ -344,8 +343,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void addBlockToProgram_returnsProgramDefinitionWithBlock()
-      throws ProgramNotFoundException {
+  public void addBlockToProgram_returnsProgramDefinitionWithBlock() throws Exception {
     ProgramDefinition programDefinition =
         ps.createProgramDefinition("Program With Block", "This program has a block.");
     Long programId = programDefinition.id();
@@ -360,8 +358,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void addBlockToProgram_WithQuestions_returnsProgramDefinitionWithBlock()
-      throws ProgramNotFoundException {
+  public void addBlockToProgram_WithQuestions_returnsProgramDefinitionWithBlock() throws Exception {
     QuestionDefinition question = qs.create(SIMPLE_QUESTION).get();
     ProgramDefinition programDefinition = ps.createProgramDefinition("program", "description");
     long id = programDefinition.id();
@@ -386,7 +383,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void addBlockToProgram_constructsQuestionDefinitions() throws ProgramNotFoundException {
+  public void addBlockToProgram_constructsQuestionDefinitions() throws Exception {
     QuestionDefinition question = qs.create(SIMPLE_QUESTION).get();
     ProgramDefinition program = ps.createProgramDefinition("Program Name", "Program Description");
 
@@ -426,7 +423,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void updateBlock() throws ProgramNotFoundException, ProgramBlockNotFoundException {
+  public void updateBlock() throws Exception {
     ProgramDefinition program = ps.createProgramDefinition("Program", "description");
     program = ps.addBlockToProgram(program.id(), "initial block name", "initial block description");
     long blockId = program.blockDefinitions().get(0).id();
@@ -445,8 +442,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void setBlockQuestions_updatesBlock()
-      throws ProgramNotFoundException, ProgramBlockNotFoundException {
+  public void setBlockQuestions_updatesBlock() throws Exception {
     QuestionDefinition question = qs.create(SIMPLE_QUESTION).get();
 
     ProgramDefinition programDefinition =
@@ -478,8 +474,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void setBlockQuestions_constructsQuestionDefinitions()
-      throws ProgramNotFoundException, ProgramBlockNotFoundException {
+  public void setBlockQuestions_constructsQuestionDefinitions() throws Exception {
     QuestionDefinition question = qs.create(SIMPLE_QUESTION).get();
     ProgramDefinition programDefinition =
         ps.createProgramDefinition("Program With Block", "This program has a block.");
@@ -492,6 +487,33 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     QuestionDefinition foundQuestion =
         found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
     assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
+  }
+
+  @Test
+  public void addQuestionsToBlock_withDuplicatedQuestions_throwsDuplicateProgramQuestionException()
+      throws Exception {
+    QuestionDefinition questionA =
+        resourceCreator().insertQuestion("applicant.questionA").getQuestionDefinition();
+
+    BlockDefinition block =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("block 1")
+            .setDescription("block the first")
+            .addQuestion(ProgramQuestionDefinition.create(questionA))
+            .build();
+
+    ProgramDefinition program =
+        resourceCreator().insertProgram("test program", block).getProgramDefinition();
+
+    assertThatThrownBy(
+            () ->
+                ps.addQuestionsToBlock(
+                    program.id(), block.id(), ImmutableList.of(questionA.getId())))
+        .isInstanceOf(DuplicateProgramQuestionException.class)
+        .hasMessage(
+            String.format("Question (ID %d) already exists in Program (ID 1)", questionA.getId()));
+    ;
   }
 
   @Test
@@ -516,6 +538,32 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
     assertThat(program.hasQuestion(questionA)).isTrue();
     assertThat(program.hasQuestion(questionB)).isTrue();
+  }
+
+  @Test
+  public void removeQuestionsFromBlock_withoutQuestion_throwsQuestionNotFoundException()
+      throws Exception {
+    QuestionDefinition questionA =
+        resourceCreator().insertQuestion("applicant.questionA").getQuestionDefinition();
+
+    BlockDefinition block =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("block 1")
+            .setDescription("block the first")
+            .build();
+
+    ProgramDefinition program =
+        resourceCreator().insertProgram("test program", block).getProgramDefinition();
+
+    assertThatThrownBy(
+            () ->
+                ps.removeQuestionsFromBlock(
+                    program.id(), block.id(), ImmutableList.of(questionA.getId())))
+        .isInstanceOf(QuestionNotFoundException.class)
+        .hasMessage(
+            String.format("Question (ID %d) not found in Program (ID 1)", questionA.getId()));
+    ;
   }
 
   @Test
@@ -545,8 +593,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void setBlockHidePredicate_updatesBlock()
-      throws ProgramNotFoundException, ProgramBlockNotFoundException {
+  public void setBlockHidePredicate_updatesBlock() throws Exception {
     ProgramDefinition programDefinition =
         ps.createProgramDefinition("Program With Block", "This program has a block.");
     Long programId = programDefinition.id();
@@ -568,8 +615,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void setBlockHidePredicate_constructsQuestionDefinitions()
-      throws ProgramNotFoundException, ProgramBlockNotFoundException {
+  public void setBlockHidePredicate_constructsQuestionDefinitions() throws Exception {
     QuestionDefinition question = qs.create(SIMPLE_QUESTION).get();
     ProgramDefinition programDefinition =
         ps.createProgramDefinition("Program With Block", "This program has a block.");
@@ -588,8 +634,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void setBlockOptionalPredicate_updatesBlock()
-      throws ProgramNotFoundException, ProgramBlockNotFoundException {
+  public void setBlockOptionalPredicate_updatesBlock() throws Exception {
     ProgramDefinition programDefinition =
         ps.createProgramDefinition("Program With Block", "This program has a block.");
     Long programId = programDefinition.id();
@@ -611,8 +656,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void setBlockOptionalPredicate_constructsQuestionDefinitions()
-      throws ProgramNotFoundException, ProgramBlockNotFoundException {
+  public void setBlockOptionalPredicate_constructsQuestionDefinitions() throws Exception {
     QuestionDefinition question = qs.create(SIMPLE_QUESTION).get();
     ProgramDefinition programDefinition =
         ps.createProgramDefinition("Program With Block", "This program has a block.");
@@ -638,7 +682,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void deleteBlock_constructsQuestionDefinitions() throws ProgramNotFoundException {
+  public void deleteBlock_constructsQuestionDefinitions() throws Exception {
     QuestionDefinition question = qs.create(SIMPLE_QUESTION).get();
     ProgramDefinition programDefinition =
         ps.createProgramDefinition("Program With Block", "This program has a block.");

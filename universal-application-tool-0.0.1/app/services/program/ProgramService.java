@@ -138,7 +138,8 @@ public interface ProgramService {
    */
   ProgramDefinition addQuestionsToBlock(
       long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
-      throws ProgramNotFoundException, ProgramBlockNotFoundException, QuestionNotFoundException;
+      throws ProgramNotFoundException, ProgramBlockNotFoundException, QuestionNotFoundException,
+          DuplicateProgramQuestionException;
 
   /**
    * Update a {@link BlockDefinition} to remove questions.

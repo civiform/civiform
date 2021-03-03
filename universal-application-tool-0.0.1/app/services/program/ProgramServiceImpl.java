@@ -185,8 +185,16 @@ public class ProgramServiceImpl implements ProgramService {
   @Transactional
   public ProgramDefinition addQuestionsToBlock(
       long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
-      throws QuestionNotFoundException, ProgramNotFoundException, ProgramBlockNotFoundException {
+      throws DuplicateProgramQuestionException, QuestionNotFoundException, ProgramNotFoundException,
+          ProgramBlockNotFoundException {
     ProgramDefinition programDefinition = getProgramOrThrow(programId);
+
+    for (long questionId : questionIds) {
+      if (programDefinition.hasQuestion(questionId)) {
+        throw new DuplicateProgramQuestionException(programId, questionId);
+      }
+    }
+
     int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
 
     BlockDefinition blockDefinition =
@@ -195,12 +203,12 @@ public class ProgramServiceImpl implements ProgramService {
     ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions =
         blockDefinition.programQuestionDefinitions();
 
-    ReadOnlyQuestionService roQuestionService =
-        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
-
     ImmutableList.Builder<ProgramQuestionDefinition> newQuestionListBuilder =
         ImmutableList.builder();
     newQuestionListBuilder.addAll(programQuestionDefinitions);
+
+    ReadOnlyQuestionService roQuestionService =
+        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
     for (long qid : questionIds) {
       newQuestionListBuilder.add(
@@ -228,7 +236,7 @@ public class ProgramServiceImpl implements ProgramService {
 
     for (long questionId : questionIds) {
       if (!programDefinition.hasQuestion(questionId)) {
-        throw new QuestionNotFoundException(questionId);
+        throw new QuestionNotFoundException(questionId, programId);
       }
     }
 
@@ -239,7 +247,7 @@ public class ProgramServiceImpl implements ProgramService {
 
     ImmutableList<ProgramQuestionDefinition> newProgramQuestionDefinitions =
         blockDefinition.programQuestionDefinitions().stream()
-            .filter(pqd -> !questionIds.contains(pqd.getQuestionDefinition().getId()))
+            .filter(pqd -> !questionIds.contains(pqd.id()))
             .collect(ImmutableList.toImmutableList());
 
     blockDefinition =

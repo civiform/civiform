@@ -11,6 +11,7 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.program.DuplicateProgramQuestionException;
 import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -44,7 +45,11 @@ public class AdminProgramBlockQuestionsController extends Controller {
     } catch (ProgramBlockNotFoundException e) {
       return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
     } catch (QuestionNotFoundException e) {
-      return notFound(String.format("Question ID %s not found", questionIds));
+      return notFound(String.format("Question IDs %s not found", questionIds));
+    } catch (DuplicateProgramQuestionException e) {
+      return notFound(
+          String.format(
+              "Some Question IDs %s already exist in Program ID %d", questionIds, programId));
     }
 
     return redirect(controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId));
