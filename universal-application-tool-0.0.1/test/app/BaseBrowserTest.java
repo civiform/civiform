@@ -115,7 +115,7 @@ public class BaseBrowserTest extends WithBrowser {
    */
   protected void manageExistingProgramQuestions(String programName) {
     goTo(controllers.admin.routes.AdminProgramController.index());
-    browser.$("div", containingText(programName)).$("a", withText("edit")).first().click();
+    browser.$("div", containingText(programName)).$("a", containingText("Edit")).first().click();
     assertThat(browser.pageSource()).contains("Edit program: " + programName);
     browser.$("a", withText("Manage Questions")).first().click();
     assertThat(browser.pageSource()).contains(programName + " Questions");
