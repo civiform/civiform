@@ -60,8 +60,6 @@ public abstract class ProgramDefinition {
   public int getQuestionCount() {
     return blockDefinitions().stream().mapToInt(BlockDefinition::getQuestionCount).sum();
 
-  private ImmutableSet<Long> questionIds;
-
   /** True if a question with the given question's ID is in the program. */
   @JsonIgnore
   public boolean hasQuestion(QuestionDefinition question) {
