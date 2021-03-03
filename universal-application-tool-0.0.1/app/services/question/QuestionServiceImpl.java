@@ -3,6 +3,7 @@ package services.question;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -11,6 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Question;
 import repository.QuestionRepository;
+import services.ErrorAnd;
 
 public final class QuestionServiceImpl implements QuestionService {
 
@@ -29,12 +31,12 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   @Override
-  public Optional<QuestionDefinition> create(QuestionDefinition definition) {
+  public ErrorAnd<QuestionDefinition, QuestionServiceError> create(QuestionDefinition definition) {
     if (!isValid(definition)) {
-      return Optional.empty();
+      return ErrorAnd.error(ImmutableSet.of());
     }
     Question question = questionRepository.insertQuestionSync(new Question(definition));
-    return Optional.of(question.getQuestionDefinition());
+    return ErrorAnd.of(question.getQuestionDefinition());
   }
 
   @Override

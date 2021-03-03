@@ -42,7 +42,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   public void create_returnsOptionalEmptyWhenFails() {
     questionService.create(questionDefinition);
 
-    assertThat(questionService.create(questionDefinition).isPresent()).isFalse();
+    assertThat(questionService.create(questionDefinition).hasResult()).isFalse();
   }
 
   @Test
@@ -56,12 +56,12 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
             ImmutableMap.of(Locale.ENGLISH, "question?"),
             ImmutableMap.of());
 
-    assertThat(questionService.create(question).isPresent()).isFalse();
+    assertThat(questionService.create(question).hasResult()).isFalse();
   }
 
   @Test
   public void create_returnsQuestionDefinitionWhenSucceeds() {
-    assertThat(questionService.create(questionDefinition).get().getPath())
+    assertThat(questionService.create(questionDefinition).getResult().getPath())
         .isEqualTo(questionDefinition.getPath());
   }
 
@@ -91,7 +91,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   @Test
   public void update_returnsQuestionDefinitionWhenSucceeds()
       throws InvalidUpdateException, UnsupportedQuestionTypeException {
-    QuestionDefinition question = questionService.create(questionDefinition).get();
+    QuestionDefinition question = questionService.create(questionDefinition).getResult();
     QuestionDefinition toUpdate =
         new QuestionDefinitionBuilder(question).setName("updated name").build();
 
@@ -116,7 +116,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void update_failsWhenQuestionPathChanges() throws UnsupportedQuestionTypeException {
-    QuestionDefinition question = questionService.create(questionDefinition).get();
+    QuestionDefinition question = questionService.create(questionDefinition).getResult();
     QuestionDefinition toUpdate =
         new QuestionDefinitionBuilder(question).setPath("new.path").build();
 
@@ -127,7 +127,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void update_failsWhenQuestionTypeChanges() throws UnsupportedQuestionTypeException {
-    QuestionDefinition question = questionService.create(questionDefinition).get();
+    QuestionDefinition question = questionService.create(questionDefinition).getResult();
     QuestionDefinition toUpdate =
         new QuestionDefinitionBuilder(question).setQuestionType(QuestionType.ADDRESS).build();
 

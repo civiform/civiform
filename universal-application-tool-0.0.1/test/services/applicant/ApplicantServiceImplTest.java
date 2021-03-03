@@ -66,7 +66,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
                     "description",
                     ImmutableMap.of(Locale.ENGLISH, "question?"),
                     ImmutableMap.of(Locale.ENGLISH, "help text")))
-            .get();
+            .getResult();
   }
 
   private void createProgram() throws Exception {

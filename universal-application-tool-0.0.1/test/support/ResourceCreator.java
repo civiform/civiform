@@ -54,7 +54,7 @@ public class ResourceCreator {
                 "",
                 ImmutableMap.of(Locale.ENGLISH, "question?"),
                 ImmutableMap.of(Locale.ENGLISH, "help text")))
-        .get();
+        .getResult();
   }
 
   public Program insertProgram(String name) {

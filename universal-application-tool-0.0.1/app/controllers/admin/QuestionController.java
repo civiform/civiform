@@ -59,7 +59,7 @@ public class QuestionController extends Controller {
               String exception = "";
               try {
                 QuestionDefinition definition = questionForm.getBuilder().setVersion(1L).build();
-                boolean success = service.create(definition).isPresent();
+                boolean success = service.create(definition).hasResult();
                 if (!success) {
                   exception =
                       String.format(
