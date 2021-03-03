@@ -58,6 +58,10 @@ lazy val root = (project in file("."))
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.5.1",
+
+      // Apache libraries for export
+      "org.apache.pdfbox" % "pdfbox" % "2.0.22",
+      "org.apache.commons" % "commons-csv" % "1.4",
     ),
     javacOptions ++= Seq(
       "-encoding", "UTF-8",
