@@ -64,6 +64,7 @@ public abstract class BlockDefinition {
     return programQuestionDefinitions().get(questionIndex).getQuestionDefinition();
   }
 
+  @JsonIgnore
   public int getQuestionCount() {
     return programQuestionDefinitions().size();
   }

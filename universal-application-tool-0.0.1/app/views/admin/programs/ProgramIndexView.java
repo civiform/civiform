@@ -4,6 +4,7 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.h1;
 import static j2html.TagCreator.head;
 import static j2html.TagCreator.p;
 
@@ -28,15 +29,17 @@ public final class ProgramIndexView extends BaseHtmlView {
   public Content render(ImmutableList<ProgramDefinition> programs) {
     Tag contentDiv =
         div()
-            .withClasses(Styles.P_20)
-            .with(each(programs, this::renderProgramListItem))
-            .with(renderNewProgramButton());
+            .withClasses(Styles.PX_20)
+            .with(h1("Programs").withClasses(Styles.MY_4),
+            each(programs, this::renderProgramListItem),
+            renderNewProgramButton());
 
     return layout.render(head(layout.tailwindStyles()), body(contentDiv));
   }
 
   public Tag renderNewProgramButton() {
     return a("Create new program")
+        .withId("new-program")
         .withHref(controllers.admin.routes.AdminProgramController.newOne().url())
         .withClasses(
             Styles.INLINE_BLOCK,
