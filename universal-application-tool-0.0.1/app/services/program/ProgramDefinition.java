@@ -59,6 +59,7 @@ public abstract class ProgramDefinition {
   @JsonIgnore
   public int getQuestionCount() {
     return blockDefinitions().stream().mapToInt(BlockDefinition::getQuestionCount).sum();
+  }
 
   /** True if a question with the given question's ID is in the program. */
   @JsonIgnore
