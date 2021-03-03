@@ -2,10 +2,12 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.Authorizers;
 import forms.QuestionForm;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.Form;
@@ -44,6 +46,7 @@ public class QuestionController extends Controller {
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
 
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public CompletionStage<Result> create(Request request) {
     Form<QuestionForm> form = formFactory.form(QuestionForm.class);
     QuestionForm questionForm = form.bindFromRequest(request).get();
@@ -63,6 +66,7 @@ public class QuestionController extends Controller {
             httpExecutionContext.current());
   }
 
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public CompletionStage<Result> edit(Request request, String path) {
     return service
         .getReadOnlyQuestionService()
@@ -79,10 +83,12 @@ public class QuestionController extends Controller {
             httpExecutionContext.current());
   }
 
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result newOne(Request request) {
     return ok(editView.renderNewQuestionForm(request));
   }
 
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public CompletionStage<Result> index(String renderAs) {
     return service
         .getReadOnlyQuestionService()
@@ -102,6 +108,7 @@ public class QuestionController extends Controller {
 
   // TODO: Implement update question.
   // https://github.com/seattle-uat/universal-application-tool/issues/103
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public CompletionStage<Result> update(Request request, Long id) {
     Form<QuestionForm> form = formFactory.form(QuestionForm.class);
     QuestionForm questionForm = form.bindFromRequest(request).get();

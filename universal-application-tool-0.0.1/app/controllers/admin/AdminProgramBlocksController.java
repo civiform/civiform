@@ -2,9 +2,11 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.Authorizers;
 import forms.BlockForm;
 import java.util.Optional;
 import javax.inject.Inject;
+import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
@@ -38,6 +40,7 @@ public class AdminProgramBlocksController extends Controller {
     this.formFactory = checkNotNull(formFactory);
   }
 
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result index(long programId) {
     Optional<ProgramDefinition> programMaybe = programService.getProgramDefinition(programId);
 
@@ -56,6 +59,7 @@ public class AdminProgramBlocksController extends Controller {
             programId, program.blockDefinitions().get(program.blockDefinitions().size() - 1).id()));
   }
 
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result create(long programId) {
     ProgramDefinition program;
 
@@ -71,6 +75,7 @@ public class AdminProgramBlocksController extends Controller {
     return redirect(routes.AdminProgramBlocksController.edit(programId, blockId).url());
   }
 
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result edit(Request request, long programId, long blockId) {
     Optional<ProgramDefinition> programMaybe = programService.getProgramDefinition(programId);
 
@@ -92,6 +97,7 @@ public class AdminProgramBlocksController extends Controller {
     return ok(editView.render(request, program, block, roQuestionService.getAllQuestions()));
   }
 
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result update(Request request, long programId, long blockId) {
     Form<BlockForm> blockFormWrapper = formFactory.form(BlockForm.class);
     BlockForm blockForm = blockFormWrapper.bindFromRequest(request).get();
@@ -105,6 +111,7 @@ public class AdminProgramBlocksController extends Controller {
     return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
   }
 
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result destroy(long programId, long blockId) {
     try {
       programService.deleteBlock(programId, blockId);
