@@ -44,7 +44,7 @@ public class DatabaseSeedView extends BaseHtmlView {
     String prettyQuestions = getPrettyJson(questionDefinitions);
 
     return layout.htmlContent(
-        head(title("Dev Database Seeder")),
+        head(title("Dev Database Seeder"), layout.tailwindStyles()),
         body()
             .with(div(maybeFlash.orElse("")))
             .with(h1("Dev Database Seeder"))
@@ -67,7 +67,6 @@ public class DatabaseSeedView extends BaseHtmlView {
                     .withClasses(Styles.GRID, Styles.GRID_COLS_2)
                     .with(div().with(h2("Current Programs:")).with(pre(prettyPrograms)))
                     .with(div().with(h2("Current Questions:")).with(pre(prettyQuestions))))
-            .with(layout.tailwindStyles())
             .withClasses(Styles.PX_6, Styles.PY_6));
   }
 
