@@ -11,20 +11,33 @@ import org.junit.Test;
 public class SecurityBrowserTest extends BaseBrowserTest {
 
   @Test
-  public void homePage() {
-    browser.goTo(BASE_URL);
-    assertThat(browser.pageSource()).contains("Your new application is ready.");
+  public void homePage_whenNotLoggedIn_redirectsToLoginForm() {
+    goToRootUrl();
+    assertUrlEquals(routes.HomeController.loginForm(Optional.empty()));
+  }
+
+  @Test
+  public void homePage_whenLoggedInAsAdmin_redirectsToAdminProgramList() {
+    loginAsAdmin();
+    goToRootUrl();
+    assertUrlEquals(controllers.admin.routes.AdminProgramController.index());
+  }
+
+  @Test
+  public void homePage_whenLoggedInAsApplicant_redirectsToApplicantProgramList() {
+    loginAsGuest();
+    long applicantId = getApplicantId();
+
+    goToRootUrl();
+
+    assertUrlEquals(controllers.applicant.routes.ApplicantProgramsController.index(applicantId));
   }
 
   @Test
   public void noCredLogin() {
-    goTo(routes.HomeController.loginForm(Optional.empty()));
-    browser.$("#guest").click();
+    loginAsGuest();
     // should be redirected to root.
-    assertThat(browser.url()).isEmpty();
-    assertThat(browser.pageSource()).contains("Your new application is ready.");
-
-    goTo(routes.HomeController.secureIndex());
+    goTo(routes.HomeController.securePlayIndex());
     assertThat(browser.pageSource()).contains("You are logged in.");
 
     goTo(routes.ProfileController.myProfile());
@@ -38,13 +51,9 @@ public class SecurityBrowserTest extends BaseBrowserTest {
 
   @Test
   public void adminTestLogin() {
-    goTo(routes.HomeController.loginForm(Optional.empty()));
-    browser.$("#admin").click();
-    // should be redirected to root.
-    assertThat(browser.url()).isEmpty();
-    assertThat(browser.pageSource()).contains("Your new application is ready.");
+    loginAsAdmin();
 
-    goTo(routes.HomeController.secureIndex());
+    goTo(routes.HomeController.securePlayIndex());
     assertThat(browser.pageSource()).contains("You are logged in.");
 
     goTo(routes.ProfileController.myProfile());
