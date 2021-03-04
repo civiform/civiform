@@ -6,7 +6,6 @@ import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
-import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.spi.mapper.MappingException;
 import java.time.Instant;
 import java.util.HashMap;
@@ -41,7 +40,7 @@ public class ApplicantData {
    * structure along the way, i.e., creates parent objects where necessary.
    *
    * @param path the {@link Path} with the fully specified path, e.g., "applicant.favorites.color"
-   *     or the equivalent "$.applicant.favorite.colors" is equivalent.
+   *     or the equivalent "$.applicant.favorite.colors".
    * @param value the value to place; values of type Map will create the equivalent JSON structure
    */
   public void put(Path path, Object value) {
@@ -83,6 +82,18 @@ public class ApplicantData {
   public <T> Optional<T> read(String pathAsString, Class<T> type)
       throws JsonPathTypeMismatchException {
     return this.read(Path.create(pathAsString), type);
+  }
+
+  /**
+   * Attempt to read a string at the given path. Returns {@code Optional#empty} if the path does not
+   * exist or a value other than String is found.
+   */
+  public Optional<String> readString(String pathAsString) {
+    try {
+      return this.read(pathAsString, String.class);
+    } catch (JsonPathTypeMismatchException e) {
+      return Optional.empty();
+    }
   }
 
   public Instant getCreatedTime() {

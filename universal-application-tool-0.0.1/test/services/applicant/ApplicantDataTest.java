@@ -132,4 +132,25 @@ public class ApplicantDataTest {
 
     assertThat(found).hasValue("orange");
   }
+
+  @Test
+  public void readString_findsStringValue() {
+    DocumentContext testData = JsonPath.parse("{ \"applicant\": { \"color\": \"orange\"} }");
+    ApplicantData data = new ApplicantData(testData);
+
+    Optional<String> found = data.readString("applicant.color");
+
+    assertThat(found).hasValue("orange");
+  }
+
+  @Test
+  public void readString_returnsEmptyWhenTypeMismatch() {
+    DocumentContext testData =
+        JsonPath.parse("{ \"applicant\": { \"object\": { \"number\": 27 } } }");
+    ApplicantData data = new ApplicantData(testData);
+
+    Optional<String> found = data.readString("applicant.object");
+
+    assertThat(found).isEmpty();
+  }
 }
