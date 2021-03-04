@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import forms.QuestionForm;
 import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -58,21 +59,23 @@ public class QuestionController extends Controller {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
-              String exception = "";
+              String errorMessage = "";
               try {
                 QuestionDefinition definition = questionForm.getBuilder().setVersion(1L).build();
                 ErrorAnd<QuestionDefinition, QuestionServiceError> result =
                     service.create(definition);
                 if (result.isError()) {
+                  StringJoiner messageJoiner = new StringJoiner(". ", "", ".");
                   for (QuestionServiceError e : result.getErrors()) {
-                    exception += e.message();
+                    messageJoiner.add(e.message());
                   }
+                  errorMessage = messageJoiner.toString();
                 }
               } catch (UnsupportedQuestionTypeException e) {
-                exception = e.toString();
-                LOG.info(exception);
+                errorMessage = e.toString();
+                LOG.info(errorMessage);
               }
-              return withException(redirect(routes.QuestionController.index("table")), exception);
+              return withMessage(redirect(routes.QuestionController.index("table")), errorMessage);
             },
             httpExecutionContext.current());
   }
@@ -101,7 +104,7 @@ public class QuestionController extends Controller {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public CompletionStage<Result> index(Request request, String renderAs) {
-    Optional<String> maybeFlash = request.flash().get("exception");
+    Optional<String> maybeFlash = request.flash().get("message");
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
@@ -134,12 +137,12 @@ public class QuestionController extends Controller {
       LOG.info(exception);
     }
     return CompletableFuture.completedFuture(
-        withException(redirect(routes.QuestionController.index("table")), exception));
+        withMessage(redirect(routes.QuestionController.index("table")), exception));
   }
 
-  private Result withException(Result result, String exception) {
-    if (!exception.isEmpty()) {
-      return result.flashing("exception", exception);
+  private Result withMessage(Result result, String message) {
+    if (!message.isEmpty()) {
+      return result.flashing("message", message);
     }
     return result;
   }

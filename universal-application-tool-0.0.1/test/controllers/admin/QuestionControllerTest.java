@@ -64,7 +64,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
             result -> {
               assertThat(result.redirectLocation())
                   .hasValue(routes.QuestionController.index("table").url());
-              assertThat(result.flash().get("exception").get()).contains("#invalid_path!");
+              assertThat(result.flash().get("message").get()).contains("#invalid_path!");
             })
         .toCompletableFuture()
         .join();
@@ -139,9 +139,8 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void index_showsExceptionFlash() {
-    Request request =
-        addCSRFToken(Helpers.fakeRequest().flash("exception", "has exception")).build();
+  public void index_showsMessageFlash() {
+    Request request = addCSRFToken(Helpers.fakeRequest().flash("message", "has message")).build();
     controller
         .index(request, "table")
         .thenAccept(
@@ -149,7 +148,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
               assertThat(result.status()).isEqualTo(OK);
               assertThat(result.contentType()).hasValue("text/html");
               assertThat(result.charset()).hasValue("utf-8");
-              assertThat(contentAsString(result)).contains("has exception");
+              assertThat(contentAsString(result)).contains("has message");
             })
         .toCompletableFuture()
         .join();
@@ -201,7 +200,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
             result -> {
               assertThat(result.redirectLocation())
                   .hasValue(routes.QuestionController.index("table").url());
-              assertThat(result.flash().get("exception").get()).contains("invalid.path");
+              assertThat(result.flash().get("message").get()).contains("invalid.path");
             })
         .toCompletableFuture()
         .join();
