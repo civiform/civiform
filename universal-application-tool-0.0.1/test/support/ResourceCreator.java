@@ -51,7 +51,7 @@ public class ResourceCreator {
             new TextQuestionDefinition(
                 1L,
                 "",
-                "my.path.name",
+                "applicant.my.path.name",
                 "",
                 ImmutableMap.of(Locale.ENGLISH, "question?"),
                 ImmutableMap.of(Locale.ENGLISH, "help text")))

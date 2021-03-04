@@ -30,12 +30,13 @@ public abstract class Path {
     return new AutoValue_Path(JSON_JOINER.join(pathSegments));
   }
 
-  /**
-   * A single path in JSON notation, without the $. JsonPath prefix nor the applicant or metadata
-   * prefixes.
-   */
+  /** A single path in JSON notation, without the $. JsonPath prefix. */
   public abstract String path();
 
+  /**
+   * The {@link Path} of the parent. For example, a path {@code applicant.favorites.color} would
+   * return {@code applicant.favorites}.
+   */
   @Memoized
   public Path parentPath() {
     if (segments().isEmpty()) {
@@ -44,6 +45,10 @@ public abstract class Path {
     return Path.create(segments().subList(0, segments().size() - 1));
   }
 
+  /**
+   * The last segment in this path. For example, a path {@code applicant.favorites.color} would
+   * return "color".
+   */
   @Memoized
   public String keyName() {
     if (segments().isEmpty()) {
@@ -52,6 +57,10 @@ public abstract class Path {
     return segments().get(segments().size() - 1);
   }
 
+  /**
+   * The list of path segments. A path {@code applicant.favorites.color} would return ["applicant",
+   * "favorites", "color"].
+   */
   @Memoized
   public ImmutableList<String> segments() {
     if (path().isEmpty()) {
