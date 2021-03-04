@@ -5,31 +5,29 @@ import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 
 /**
- * Represents a path into the applicant JSON data. Stored as the path to data without the JSON
- * prefixes {@code applicant} or {@code metadata}.
+ * Represents a path into the applicant JSON data. Stored as the path to data without the JsonPath
+ * prefix {@code $.}.
  */
 @AutoValue
 public abstract class Path {
-  private static final String JSON_PATH_START = "$.";
-  private static final String APPLICANT_PREFIX = "applicant.";
-  private static final String METADATA_PREFIX = "metadata.";
-  private static final Splitter JSON_SPLITTER = Splitter.on('.');
-  private static final Joiner JSON_JOINER = Joiner.on('.');
+  private static final char JSON_PATH_DIVIDER = '.';
+  private static final String JSON_PATH_START = "$" + JSON_PATH_DIVIDER;
+  private static final Splitter JSON_SPLITTER = Splitter.on(JSON_PATH_DIVIDER);
+  private static final Joiner JSON_JOINER = Joiner.on(JSON_PATH_DIVIDER);
 
   public static Path create(String path) {
     if (path.startsWith(JSON_PATH_START)) {
       path = path.substring(JSON_PATH_START.length());
     }
 
-    if (path.startsWith(APPLICANT_PREFIX)) {
-      path = path.substring(APPLICANT_PREFIX.length());
-    } else if (path.startsWith(METADATA_PREFIX)) {
-      path = path.substring(METADATA_PREFIX.length());
-    }
-
     return new AutoValue_Path(path);
+  }
+
+  private static Path create(ImmutableList<String> pathSegments) {
+    return new AutoValue_Path(JSON_JOINER.join(pathSegments));
   }
 
   /**
@@ -38,62 +36,45 @@ public abstract class Path {
    */
   public abstract String path();
 
-  public String withApplicantPrefix() {
-    return APPLICANT_PREFIX + path();
-  }
-
-  public String withMetadataPrefix() {
-    return METADATA_PREFIX + path();
-  }
-
   @Memoized
-  public String parentPath() {
-    return JSON_JOINER.join(segments().subList(0, segments().size() - 1));
+  public Path parentPath() {
+    if (segments().isEmpty()) {
+      return Path.create("");
+    }
+    return Path.create(segments().subList(0, segments().size() - 1));
   }
 
   @Memoized
   public String keyName() {
+    if (segments().isEmpty()) {
+      return "";
+    }
     return segments().get(segments().size() - 1);
   }
 
   @Memoized
   public ImmutableList<String> segments() {
-    return ImmutableList.copyOf(JSON_SPLITTER.splitToList(withApplicantPrefix()));
+    if (path().isEmpty()) {
+      return ImmutableList.of();
+    }
+    return ImmutableList.copyOf(JSON_SPLITTER.splitToList(path()));
   }
 
   /**
-   * List of JSON annotation paths for each segment in this path. For example, a Path of
-   * personality.favorites.color would return [personality, personality.favorites,
+   * List of JSON annotation paths for each segment of the parent path. For example, a Path of
+   * personality.favorites.color.blue would return [personality, personality.favorites,
    * personality.favorites.color].
    */
   @Memoized
-  public ImmutableList<Path> fullPathSegments() {
-    ImmutableList.Builder<Path> builder = ImmutableList.builder();
-    ImmutableList.Builder<String> path = ImmutableList.builder();
-    // Thoughts: use lists, then create a path constructor for ImmutableList?
-    segments()
-        .forEach(
-            segment -> {
-              path.add(segment);
-              builder.add(Path.create(JSON_JOINER.join(path.build())));
-            });
-    return builder.build();
-  }
+  public ImmutableList<Path> parentPaths() {
+    ArrayList<Path> parentPaths = new ArrayList<>();
+    Path currentPath = parentPath();
 
-  @Memoized
-  public ImmutableList<Path> parentSegments() {
-    ImmutableList.Builder<Path> builder = ImmutableList.builder();
-    if (segments().isEmpty()) {
-      return builder.build();
+    while (!currentPath.path().isEmpty()) {
+      parentPaths.add(0, currentPath);
+      currentPath = currentPath.parentPath();
     }
 
-    String path = segments().get(0);
-    builder.add(Path.create(path));
-    for (int i = 1; i < segments().size() - 1; i++) {
-      path += '.' + segments().get(i);
-      builder.add(Path.create(path));
-    }
-
-    return builder.build();
+    return ImmutableList.copyOf(parentPaths);
   }
 }

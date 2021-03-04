@@ -7,24 +7,20 @@ import org.junit.Test;
 public class PathTest {
 
   @Test
-  public void pathWithPrefix_removesOnlyPrefixes() {
-    String expectedPath = "favorite.color";
-    assertThat(Path.create("$.applicant." + expectedPath).path()).isEqualTo(expectedPath);
-    assertThat(Path.create("$.metadata." + expectedPath).path()).isEqualTo(expectedPath);
-    assertThat(Path.create("applicant." + expectedPath).path()).isEqualTo(expectedPath);
-    assertThat(Path.create("metadata." + expectedPath).path()).isEqualTo(expectedPath);
-    assertThat(Path.create(expectedPath).path()).isEqualTo(expectedPath);
+  public void pathWithPrefix_removesOnlyPrefix() {
+    String path = "favorite.color";
+    assertThat(Path.create("$.applicant." + path).path()).isEqualTo("applicant.favorite.color");
+    assertThat(Path.create(path).path()).isEqualTo(path);
   }
 
   @Test
-  public void withApplicantPrefix() {
-    assertThat(Path.create("favorite.color").withApplicantPrefix())
-        .isEqualTo("applicant.favorite.color");
+  public void segments_emptyPath() {
+    assertThat(Path.create("").segments()).isEmpty();
   }
 
   @Test
-  public void withMetadataPrefix() {
-    assertThat(Path.create("first.name").withMetadataPrefix()).isEqualTo("metadata.first.name");
+  public void segments_oneSegment() {
+    assertThat(Path.create("applicant").segments()).containsExactly("applicant");
   }
 
   @Test
@@ -34,9 +30,33 @@ public class PathTest {
   }
 
   @Test
+  public void parentPath_emptyPath() {
+    Path path = Path.create("");
+    assertThat(path.parentPath()).isEqualTo(Path.create(""));
+  }
+
+  @Test
+  public void parentPath_oneSegment() {
+    Path path = Path.create("applicant");
+    assertThat(path.parentPath()).isEqualTo(Path.create(""));
+  }
+
+  @Test
   public void parentPath() {
     Path path = Path.create("one.two.three.me");
-    assertThat(path.parentPath()).isEqualTo("one.two.three");
+    assertThat(path.parentPath()).isEqualTo(Path.create("one.two.three"));
+  }
+
+  @Test
+  public void keyName_emptyPath() {
+    Path path = Path.create("");
+    assertThat(path.keyName()).isEqualTo("");
+  }
+
+  @Test
+  public void keyName_oneSegment() {
+    Path path = Path.create("applicant");
+    assertThat(path.keyName()).isEqualTo("applicant");
   }
 
   @Test
@@ -46,14 +66,21 @@ public class PathTest {
   }
 
   @Test
-  public void fullPathSegments() {
-    Path path = Path.create("personality.favorites.color");
-    assertThat(path.fullPathSegments()).containsExactly(Path.create("personality"), Path.create("personality.favorites"), Path.create("personality.favorites.color"));
+  public void parentPaths_emptyPath() {
+    Path path = Path.create("");
+    assertThat(path.parentPaths()).isEmpty();
   }
 
   @Test
-  public void parentSegments() {
+  public void parentPaths_oneSegment() {
+    Path path = Path.create("applicant");
+    assertThat(path.parentPaths()).isEmpty();
+  }
+
+  @Test
+  public void parentPaths() {
     Path path = Path.create("animals.favorites.dog");
-    assertThat(path.parentSegments()).containsExactly(Path.create("animals"), Path.create("animals.favorites"));
+    assertThat(path.parentPaths())
+        .containsExactly(Path.create("animals"), Path.create("animals.favorites"));
   }
 }

@@ -2,30 +2,24 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.PathNotFoundException;
-import com.jayway.jsonpath.ReadContext;
 import com.jayway.jsonpath.spi.mapper.MappingException;
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import javax.swing.text.Document;
 
 public class ApplicantData {
-  // Suppress errors thrown by JsonPath and instead return null if a path does not exist in a JSON blob.
-  private static final Configuration CONFIGURATION = Configuration
-          .defaultConfiguration()
-          .addOptions(Option.SUPPRESS_EXCEPTIONS);
+  // Suppress errors thrown by JsonPath and instead return null if a path does not exist in a JSON
+  // blob.
+  private static final Configuration CONFIGURATION =
+      Configuration.defaultConfiguration().addOptions(Option.SUPPRESS_EXCEPTIONS);
 
   private DocumentContext jsonData;
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
@@ -58,13 +52,16 @@ public class ApplicantData {
   }
 
   public void put(Path path, Object value) {
-    path.parentSegments().forEach(segmentPath -> {
-      if (this.jsonData.read(segmentPath.path()) == null) {
-        this.jsonData.put(segmentPath.parentPath(), segmentPath.keyName(), new HashMap<>());
-      }
-    });
+    path.parentPaths()
+        .forEach(
+            segmentPath -> {
+              if (this.jsonData.read(segmentPath.path()) == null) {
+                this.jsonData.put(
+                    segmentPath.parentPath().path(), segmentPath.keyName(), new HashMap<>());
+              }
+            });
 
-    this.jsonData.put(path.parentPath(), path.keyName(), value);
+    this.jsonData.put(path.parentPath().path(), path.keyName(), value);
   }
 
   /**
@@ -78,7 +75,7 @@ public class ApplicantData {
    */
   public <T> Optional<T> read(Path path, Class<T> type) throws JsonPathTypeMismatchException {
     try {
-      return Optional.ofNullable(this.jsonData.read(path.withApplicantPrefix(), type));
+      return Optional.ofNullable(this.jsonData.read(path.path(), type));
     } catch (PathNotFoundException e) {
       return Optional.empty();
     } catch (MappingException e) {
