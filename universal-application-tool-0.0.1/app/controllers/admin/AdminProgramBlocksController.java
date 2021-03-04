@@ -15,6 +15,7 @@ import play.mvc.Result;
 import services.program.BlockDefinition;
 import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
+import services.program.ProgramNeedsABlockException;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
@@ -49,10 +50,6 @@ public class AdminProgramBlocksController extends Controller {
     }
 
     ProgramDefinition program = programMaybe.get();
-
-    if (program.blockDefinitions().isEmpty()) {
-      return redirect(routes.AdminProgramBlocksController.create(programId));
-    }
 
     return redirect(
         routes.AdminProgramBlocksController.edit(
@@ -117,6 +114,8 @@ public class AdminProgramBlocksController extends Controller {
       programService.deleteBlock(programId, blockId);
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
+    } catch (ProgramNeedsABlockException e) {
+      return notFound(String.format("Cannot delete the last block of a program."));
     }
     return redirect(routes.AdminProgramBlocksController.index(programId));
   }

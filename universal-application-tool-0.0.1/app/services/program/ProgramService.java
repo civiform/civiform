@@ -42,7 +42,7 @@ public interface ProgramService {
   CompletionStage<Optional<ProgramDefinition>> getProgramDefinitionAsync(long id);
 
   /**
-   * Create a new program.
+   * Create a new program with an empty block.
    *
    * @param name a name for this program
    * @param description the description of what the program provides
@@ -187,7 +187,8 @@ public interface ProgramService {
    *
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramNeedsABlockException when trying to delete the last block of a Program.
    */
   ProgramDefinition deleteBlock(long programId, long blockDefinitionId)
-      throws ProgramNotFoundException;
+      throws ProgramNotFoundException, ProgramNeedsABlockException;
 }

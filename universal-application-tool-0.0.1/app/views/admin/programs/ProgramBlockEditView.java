@@ -40,7 +40,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
     return layout.render(
         title(program),
-        topButtons(program),
+        topButtons(csrfTag, program),
         div()
             .withClasses(Styles.FLEX)
             .with(blockOrderPanel(program, block))
@@ -52,11 +52,13 @@ public class ProgramBlockEditView extends BaseHtmlView {
     return h1(program.name() + " Questions");
   }
 
-  private ContainerTag topButtons(ProgramDefinition program) {
+  private ContainerTag topButtons(Tag csrfTag, ProgramDefinition program) {
     String addBlockUrl =
         controllers.admin.routes.AdminProgramBlocksController.create(program.id()).url();
+    ContainerTag addBlockForm =
+        form(csrfTag, submitButton("Add Block")).withMethod("post").withAction(addBlockUrl);
 
-    return div(a("Add Block").withHref(addBlockUrl));
+    return div(addBlockForm);
   }
 
   private ContainerTag blockOrderPanel(ProgramDefinition program, BlockDefinition focusedBlock) {
@@ -126,9 +128,16 @@ public class ProgramBlockEditView extends BaseHtmlView {
     String deleteBlockLink =
         controllers.admin.routes.AdminProgramBlocksController.destroy(program.id(), block.id())
             .url();
-    ContainerTag deleteButton =
-        form(csrfTag, submitButton("Delete Block")).withMethod("post").withAction(deleteBlockLink);
-    return div().withClass(Styles.FLEX).with(h1(block.name())).with(deleteButton);
+
+    ContainerTag blockEditPanelTop = div().withClass(Styles.FLEX).with(h1(block.name()));
+    if (program.blockDefinitions().size() > 1) {
+      ContainerTag deleteButton =
+          form(csrfTag, submitButton("Delete Block"))
+              .withMethod("post")
+              .withAction(deleteBlockLink);
+      blockEditPanelTop.with(deleteButton);
+    }
+    return blockEditPanelTop;
   }
 
   private ContainerTag questionBankPanel(
