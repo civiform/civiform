@@ -4,14 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
-import repository.ApplicantRepository;
 import repository.WithPostgresContainer;
-import services.ErrorAnd;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
@@ -25,7 +22,6 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   private ApplicantServiceImpl subject;
   private ProgramService programService;
   private QuestionService questionService;
-  private ApplicantRepository applicantRepository;
   private QuestionDefinition questionDefinition;
   private ProgramDefinition programDefinition;
 
@@ -34,29 +30,9 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     subject = instanceOf(ApplicantServiceImpl.class);
     programService = instanceOf(ProgramServiceImpl.class);
     questionService = instanceOf(QuestionService.class);
-    applicantRepository = app.injector().instanceOf(ApplicantRepository.class);
 
     createQuestions();
     createProgram();
-  }
-
-  @Test
-  public void update_emptySetOfUpdates_isNotAnErrorAndDoesNotChangeApplicant() {
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
-    ApplicantData applicantDataBefore = applicant.getApplicantData();
-
-    ErrorAnd<ReadOnlyApplicantProgramService, UpdateError> errorAnd =
-        subject
-            .update(applicant.id, programDefinition.id(), ImmutableSet.<Update>builder().build())
-            .toCompletableFuture()
-            .join();
-
-    ApplicantData applicantDataAfter =
-        applicantRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
-
-    assertThat(applicantDataAfter).isEqualTo(applicantDataBefore);
-    assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
-    assertThat(errorAnd.isError()).isFalse();
   }
 
   @Test

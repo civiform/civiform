@@ -33,34 +33,7 @@ public class ApplicantServiceImpl implements ApplicantService {
   @Override
   public CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, UpdateError>> update(
       long applicantId, long programId, ImmutableSet<Update> updates) {
-    // ApplicantData applicantData = applicant.getApplicantData();
-    // Updater updater = new Updater(applicantData)
-    // updater.update(updates)
-    // ImmutableSet<UpdateError> errors = updater.validate()
-    //
-    // if errors.isEmpty()
-    //   updater.save()
-    //   return the ro app program service (no errors)
-    // else
-    //   return the ro app service and the set of errors
-
-    CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
-        applicantRepository.lookupApplicant(applicantId).toCompletableFuture();
-    CompletableFuture<Optional<ProgramDefinition>> programDefinitionCompletableFuture =
-        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
-
-    return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
-        .thenApplyAsync(
-            (v) -> {
-              Applicant applicant = applicantCompletableFuture.join().get();
-              ProgramDefinition programDefinition = programDefinitionCompletableFuture.join().get();
-
-              ReadOnlyApplicantProgramService roApplicantProgramService =
-                  new ReadOnlyApplicantProgramServiceImpl(
-                      applicant.getApplicantData(), programDefinition);
-              return new ErrorAnd<>(roApplicantProgramService);
-            },
-            httpExecutionContext.current());
+    throw new UnsupportedOperationException();
   }
 
   @Override
