@@ -51,7 +51,7 @@ public class PdfExporterTest {
   @Before
   public void createFakeApplicant() {
     this.fakeApplicant = new Applicant();
-    this.fakeApplicant.getApplicantData().put("$.applicant", "formValue", APPLICANT_VALUE);
+    this.fakeApplicant.getApplicantData().put("applicant.formValue", APPLICANT_VALUE);
   }
 
   @Before

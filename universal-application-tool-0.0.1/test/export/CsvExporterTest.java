@@ -52,16 +52,16 @@ public class CsvExporterTest {
   @Before
   public void createFakeApplicants() {
     Applicant fakeApplicantOne = new Applicant();
-    fakeApplicantOne.getApplicantData().put("$.applicant", "first_name", "Alice");
-    fakeApplicantOne.getApplicantData().put("$.applicant", "last_name", "Appleton");
+    fakeApplicantOne.getApplicantData().put("applicant.first_name", "Alice");
+    fakeApplicantOne.getApplicantData().put("applicant.last_name", "Appleton");
     fakeApplicantOne
         .getApplicantData()
-        .put("$.applicant", "column", "Some Value \" containing ,,, special characters");
+        .put("applicant.column", "Some Value \" containing ,,, special characters");
 
     Applicant fakeApplicantTwo = new Applicant();
-    fakeApplicantTwo.getApplicantData().put("$.applicant", "first_name", "Bob");
-    fakeApplicantTwo.getApplicantData().put("$.applicant", "last_name", "Baker");
-    fakeApplicantTwo.getApplicantData().put("$.applicant", "column", "");
+    fakeApplicantTwo.getApplicantData().put("applicant.first_name", "Bob");
+    fakeApplicantTwo.getApplicantData().put("applicant.last_name", "Baker");
+    fakeApplicantTwo.getApplicantData().put("applicant.column", "");
     this.fakeApplicants = ImmutableList.of(fakeApplicantOne, fakeApplicantTwo);
   }
 
