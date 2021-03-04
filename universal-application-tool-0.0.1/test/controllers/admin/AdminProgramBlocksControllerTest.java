@@ -35,17 +35,6 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void index_withProgramWithNoBlocks_redirectsToCreate() {
-    Program program = resourceCreator().insertProgram("program");
-
-    Result result = controller.index(program.id);
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.create(program.id).url());
-  }
-
-  @Test
   public void index_withProgramWithBlocks_redirectsToEdit() {
     BlockDefinition block =
         BlockDefinition.builder().setId(1L).setName("block").setDescription("desc").build();
@@ -72,10 +61,10 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.edit(program.id, 1L).url());
+        .hasValue(routes.AdminProgramBlocksController.edit(program.id, 2L).url());
 
     program.refresh();
-    assertThat(program.getProgramDefinition().blockDefinitions()).hasSize(1);
+    assertThat(program.getProgramDefinition().blockDefinitions()).hasSize(2);
   }
 
   @Test
@@ -170,11 +159,20 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
   @Test
   public void destroy_withProgram_redirects() {
-    Program program = resourceCreator().insertProgram("program");
-    Result result = controller.destroy(program.id, 1L);
+    ProgramDefinition program = resourceCreator().insertProgramWithOneBlock("program");
+    controller.create(program.id());
+    Result result = controller.destroy(program.id(), 1L);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.index(program.id).url());
+        .hasValue(routes.AdminProgramBlocksController.index(program.id()).url());
+  }
+
+  @Test
+  public void destroy_lastBlock_notFound() {
+    Program program = resourceCreator().insertProgram("program");
+    Result result = controller.destroy(program.id, 1L);
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 }

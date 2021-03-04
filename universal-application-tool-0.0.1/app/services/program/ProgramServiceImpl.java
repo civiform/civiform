@@ -296,13 +296,16 @@ public class ProgramServiceImpl implements ProgramService {
   @Override
   @Transactional
   public ProgramDefinition deleteBlock(long programId, long blockDefinitionId)
-      throws ProgramNotFoundException {
+      throws ProgramNotFoundException, ProgramNeedsABlockException {
     ProgramDefinition programDefinition = getProgramOrThrow(programId);
 
     ImmutableList<BlockDefinition> newBlocks =
         programDefinition.blockDefinitions().stream()
             .filter(block -> block.id() != blockDefinitionId)
             .collect(ImmutableList.toImmutableList());
+    if (newBlocks.isEmpty()) {
+      throw new ProgramNeedsABlockException(programId);
+    }
 
     Program program =
         programDefinition.toBuilder().setBlockDefinitions(newBlocks).build().toProgram();

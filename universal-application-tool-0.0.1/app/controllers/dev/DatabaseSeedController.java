@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
+import forms.BlockForm;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Locale;
@@ -133,9 +134,15 @@ public class DatabaseSeedController extends Controller {
     try {
       ProgramDefinition programDefinition = programService.createProgramDefinition(name, "desc");
 
+      BlockForm firstBlockForm = new BlockForm();
+      firstBlockForm.setName("Block 1");
+      firstBlockForm.setDescription("name and favorite color");
+
       programDefinition =
-          programService.addBlockToProgram(
-              programDefinition.id(), "Block 1", "name and favorite color");
+          programService.updateBlock(
+              programDefinition.id(),
+              programDefinition.blockDefinitions().get(0).id(),
+              firstBlockForm);
       programDefinition =
           programService.setBlockQuestions(
               programDefinition.id(),
@@ -145,11 +152,10 @@ public class DatabaseSeedController extends Controller {
                   ProgramQuestionDefinition.create(insertColorQuestionDefinition())));
 
       programDefinition =
-          programService.addBlockToProgram(programDefinition.id(), "Block 2", "address");
-      programDefinition =
-          programService.setBlockQuestions(
+          programService.addBlockToProgram(
               programDefinition.id(),
-              programDefinition.blockDefinitions().get(1).id(),
+              "Block 2",
+              "address",
               ImmutableList.of(
                   ProgramQuestionDefinition.create(insertAddressQuestionDefinition())));
 

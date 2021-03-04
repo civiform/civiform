@@ -18,7 +18,7 @@ POST    /admin/programs/:programId         controllers.admin.AdminProgramControl
 GET     /admin/programs/:programId/blocks                    controllers.admin.AdminProgramBlocksController.index(programId: Long)
 GET     /admin/programs/:programId/blocks/:blockId/edit      controllers.admin.AdminProgramBlocksController.edit(request: Request, programId: Long, blockId: Long)
 POST    /admin/programs/:programId/blocks/:blockId           controllers.admin.AdminProgramBlocksController.update(request: Request, programId: Long, blockId: Long)
-GET     /admin/programs/:programId/blocks/create             controllers.admin.AdminProgramBlocksController.create(programId: Long)
+POST    /admin/programs/:programId/blocks                    controllers.admin.AdminProgramBlocksController.create(programId: Long)
 POST    /admin/programs/:programId/blocks/:blockId/delete    controllers.admin.AdminProgramBlocksController.destroy(programId: Long, blockId: Long)
 
 # A controller for adding and removing questions from program blocks
