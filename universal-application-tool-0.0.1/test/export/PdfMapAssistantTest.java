@@ -45,8 +45,8 @@ public class PdfMapAssistantTest {
         PDField newField = newDoc.getDocumentCatalog().getAcroForm().getField("formfield");
         assertThat(newField).isNotNull();
         assertThat(newField).isInstanceOf(PDListBox.class);
-        assertThat(newField.isRequired()).isTrue();
         assertThat(((PDListBox)newField).getOptions()).hasSameElementsAs(ImmutableList.of("foo", "bar"));
+        assertThat(newField.isRequired()).isTrue();
         newDoc.close();
     }
 }
