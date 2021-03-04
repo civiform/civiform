@@ -24,11 +24,11 @@ public class ApplicantData {
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
 
   public ApplicantData() {
-    this(JsonPath.using(CONFIGURATION).parse(EMPTY_APPLICANT_DATA_JSON));
+    this(EMPTY_APPLICANT_DATA_JSON);
   }
 
-  public ApplicantData(DocumentContext jsonData) {
-    this.jsonData = checkNotNull(jsonData);
+  public ApplicantData(String jsonData) {
+    this.jsonData = JsonPath.using(CONFIGURATION).parse(checkNotNull(jsonData));
   }
 
   public Locale preferredLocale() {

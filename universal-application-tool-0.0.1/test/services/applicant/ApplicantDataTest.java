@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 import com.google.common.testing.EqualsTester;
-import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -26,8 +24,7 @@ public class ApplicantDataTest {
 
   @Test
   public void equality() {
-    DocumentContext testData =
-        JsonPath.parse("{ \"applicant\": { \"testKey\": \"testValue\"}, \"metadata\": {}}");
+    String testData = "{ \"applicant\": { \"testKey\": \"testValue\"}, \"metadata\": {}}";
 
     new EqualsTester()
         .addEqualityGroup(new ApplicantData(), new ApplicantData())
@@ -92,8 +89,7 @@ public class ApplicantDataTest {
 
   @Test
   public void read_findsCorrectValue() throws Exception {
-    DocumentContext testData =
-        JsonPath.parse("{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} } }");
+    String testData = "{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} } }";
     ApplicantData data = new ApplicantData(testData);
 
     Optional<String> found = data.read(Path.create("applicant.favorites.color"), String.class);
@@ -112,8 +108,7 @@ public class ApplicantDataTest {
 
   @Test
   public void read_valueIsWrongType_throwsException() {
-    DocumentContext testData =
-        JsonPath.parse("{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} } }");
+    String testData = "{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} } }";
     ApplicantData data = new ApplicantData(testData);
 
     assertThatThrownBy(() -> data.read(Path.create("applicant.favorites.color"), Integer.class))
@@ -124,8 +119,7 @@ public class ApplicantDataTest {
 
   @Test
   public void read_withStringPath_findsCorrectValue() throws Exception {
-    DocumentContext testData =
-        JsonPath.parse("{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} } }");
+    String testData = "{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} } }";
     ApplicantData data = new ApplicantData(testData);
 
     Optional<String> found = data.read("applicant.favorites.color", String.class);
@@ -135,7 +129,7 @@ public class ApplicantDataTest {
 
   @Test
   public void readString_findsStringValue() {
-    DocumentContext testData = JsonPath.parse("{ \"applicant\": { \"color\": \"orange\"} }");
+    String testData = "{ \"applicant\": { \"color\": \"orange\"} }";
     ApplicantData data = new ApplicantData(testData);
 
     Optional<String> found = data.readString("applicant.color");
@@ -145,8 +139,7 @@ public class ApplicantDataTest {
 
   @Test
   public void readString_returnsEmptyWhenTypeMismatch() {
-    DocumentContext testData =
-        JsonPath.parse("{ \"applicant\": { \"object\": { \"number\": 27 } } }");
+    String testData = "{ \"applicant\": { \"object\": { \"number\": 27 } } }";
     ApplicantData data = new ApplicantData(testData);
 
     Optional<String> found = data.readString("applicant.object");
