@@ -32,8 +32,9 @@ public final class QuestionServiceImpl implements QuestionService {
 
   @Override
   public ErrorAnd<QuestionDefinition, QuestionServiceError> create(QuestionDefinition definition) {
-    if (!isValid(definition)) {
-      return ErrorAnd.error(ImmutableSet.of());
+    Optional<QuestionServiceError> maybeError = validate(definition);
+    if (maybeError.isPresent()) {
+      return ErrorAnd.error(ImmutableSet.of(maybeError.get()));
     }
     Question question = questionRepository.insertQuestionSync(new Question(definition));
     return ErrorAnd.of(question.getQuestionDefinition());
@@ -72,18 +73,21 @@ public final class QuestionServiceImpl implements QuestionService {
                     .collect(ImmutableList.toImmutableList()));
   }
 
-  private boolean isValid(QuestionDefinition newDefinition) {
+  private Optional<QuestionServiceError> validate(QuestionDefinition newDefinition) {
     String newPath = newDefinition.getPath();
     if (!isValidPathPattern(newPath)) {
-      return false;
+      return Optional.of(
+          QuestionServiceError.of(String.format("invalid path pattern: '%s'", newPath)));
     }
-    boolean hasConflict =
-        questionRepository
-            .findConflictingQuestion(newPath)
-            .toCompletableFuture()
-            .join()
-            .isPresent();
-    return !hasConflict;
+    Optional<Question> maybeConflict =
+        questionRepository.findConflictingQuestion(newPath).toCompletableFuture().join();
+    if (maybeConflict.isPresent()) {
+      Question question = maybeConflict.get();
+      return Optional.of(
+          QuestionServiceError.of(
+              String.format("path '%s' conflicts with question: %s", newPath, question.getPath())));
+    }
+    return Optional.empty();
   }
 
   private boolean isValidPathPattern(String path) {

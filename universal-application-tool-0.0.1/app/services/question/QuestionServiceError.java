@@ -6,6 +6,10 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 public abstract class QuestionServiceError {
 
+  public static QuestionServiceError of(String message) {
+    return new AutoValue_QuestionServiceError(message);
+  }
+
   /** The failure message. */
-  abstract String message();
+  public abstract String message();
 }

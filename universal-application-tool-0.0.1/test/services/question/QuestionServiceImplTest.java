@@ -10,6 +10,7 @@ import java.util.concurrent.CompletionStage;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
+import services.ErrorAnd;
 
 public class QuestionServiceImplTest extends WithPostgresContainer {
   QuestionServiceImpl questionService;
@@ -39,10 +40,20 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void create_returnsOptionalEmptyWhenFails() {
+  public void create_failsWhenPathConflicts() {
     questionService.create(questionDefinition);
 
-    assertThat(questionService.create(questionDefinition).hasResult()).isFalse();
+    ErrorAnd<QuestionDefinition, QuestionServiceError> errorAndResult =
+        questionService.create(questionDefinition);
+
+    assertThat(errorAndResult.hasResult()).isFalse();
+    assertThat(errorAndResult.isError()).isTrue();
+    assertThat(errorAndResult.getErrors())
+        .containsOnly(
+            QuestionServiceError.of(
+                String.format(
+                    "path '%s' conflicts with question: %s",
+                    questionDefinition.getPath(), questionDefinition.getPath())));
   }
 
   @Test
@@ -56,13 +67,25 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
             ImmutableMap.of(Locale.ENGLISH, "question?"),
             ImmutableMap.of());
 
-    assertThat(questionService.create(question).hasResult()).isFalse();
+    ErrorAnd<QuestionDefinition, QuestionServiceError> errorAndResult =
+        questionService.create(question);
+
+    assertThat(errorAndResult.hasResult()).isFalse();
+    assertThat(errorAndResult.isError()).isTrue();
+    assertThat(errorAndResult.getErrors())
+        .containsOnly(
+            QuestionServiceError.of(
+                String.format("invalid path pattern: '%s'", question.getPath())));
   }
 
   @Test
   public void create_returnsQuestionDefinitionWhenSucceeds() {
-    assertThat(questionService.create(questionDefinition).getResult().getPath())
-        .isEqualTo(questionDefinition.getPath());
+    ErrorAnd<QuestionDefinition, QuestionServiceError> errorAndResult =
+        questionService.create(questionDefinition);
+
+    assertThat(errorAndResult.isError()).isFalse();
+    assertThat(errorAndResult.hasResult()).isTrue();
+    assertThat(errorAndResult.getResult().getPath()).isEqualTo(questionDefinition.getPath());
   }
 
   @Test
