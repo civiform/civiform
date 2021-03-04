@@ -49,9 +49,9 @@ public class ResourceCreator {
         .create(
             new TextQuestionDefinition(
                 1L,
-                "",
+                "question name",
                 "my.path.name",
-                "",
+                "description",
                 ImmutableMap.of(Locale.ENGLISH, "question?"),
                 ImmutableMap.of(Locale.ENGLISH, "help text")))
         .getResult();
