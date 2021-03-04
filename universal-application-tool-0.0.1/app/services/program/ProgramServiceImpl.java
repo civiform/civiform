@@ -183,6 +183,84 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
+  public ProgramDefinition addQuestionsToBlock(
+      long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
+      throws DuplicateProgramQuestionException, QuestionNotFoundException, ProgramNotFoundException,
+          ProgramBlockNotFoundException {
+    ProgramDefinition programDefinition = getProgramOrThrow(programId);
+
+    for (long questionId : questionIds) {
+      if (programDefinition.hasQuestion(questionId)) {
+        throw new DuplicateProgramQuestionException(programId, questionId);
+      }
+    }
+
+    int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
+
+    BlockDefinition blockDefinition =
+        programDefinition.blockDefinitions().get(blockDefinitionIndex);
+
+    ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions =
+        blockDefinition.programQuestionDefinitions();
+
+    ImmutableList.Builder<ProgramQuestionDefinition> newQuestionListBuilder =
+        ImmutableList.builder();
+    newQuestionListBuilder.addAll(programQuestionDefinitions);
+
+    ReadOnlyQuestionService roQuestionService =
+        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+
+    for (long qid : questionIds) {
+      newQuestionListBuilder.add(
+          ProgramQuestionDefinition.create(roQuestionService.getQuestionDefinition(qid)));
+    }
+
+    ImmutableList<ProgramQuestionDefinition> newProgramQuestionDefinitions =
+        newQuestionListBuilder.build();
+
+    blockDefinition =
+        blockDefinition.toBuilder()
+            .setProgramQuestionDefinitions(newProgramQuestionDefinitions)
+            .build();
+
+    return updateProgramDefinitionWithBlockDefinition(
+        programDefinition, blockDefinitionIndex, blockDefinition);
+  }
+
+  @Override
+  @Transactional
+  public ProgramDefinition removeQuestionsFromBlock(
+      long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
+      throws QuestionNotFoundException, ProgramNotFoundException, ProgramBlockNotFoundException {
+    ProgramDefinition programDefinition = getProgramOrThrow(programId);
+
+    for (long questionId : questionIds) {
+      if (!programDefinition.hasQuestion(questionId)) {
+        throw new QuestionNotFoundException(questionId, programId);
+      }
+    }
+
+    int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
+
+    BlockDefinition blockDefinition =
+        programDefinition.blockDefinitions().get(blockDefinitionIndex);
+
+    ImmutableList<ProgramQuestionDefinition> newProgramQuestionDefinitions =
+        blockDefinition.programQuestionDefinitions().stream()
+            .filter(pqd -> !questionIds.contains(pqd.id()))
+            .collect(ImmutableList.toImmutableList());
+
+    blockDefinition =
+        blockDefinition.toBuilder()
+            .setProgramQuestionDefinitions(newProgramQuestionDefinitions)
+            .build();
+
+    return updateProgramDefinitionWithBlockDefinition(
+        programDefinition, blockDefinitionIndex, blockDefinition);
+  }
+
+  @Override
+  @Transactional
   public ProgramDefinition setBlockHidePredicate(
       long programId, long blockDefinitionId, Predicate predicate)
       throws ProgramNotFoundException, ProgramBlockNotFoundException {

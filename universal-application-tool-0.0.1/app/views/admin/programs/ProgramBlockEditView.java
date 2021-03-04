@@ -45,7 +45,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withClasses(Styles.FLEX)
             .with(blockOrderPanel(program, block))
             .with(blockEditPanel(csrfTag, program, block))
-            .with(questionBankPanel(questions)));
+            .with(questionBankPanel(csrfTag, questions, program, block)));
   }
 
   private Tag title(ProgramDefinition program) {
@@ -80,6 +80,19 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
   private ContainerTag blockEditPanel(
       Tag csrfTag, ProgramDefinition program, BlockDefinition block) {
+    ContainerTag questionList = ul().withId("blockQuestions");
+    block
+        .programQuestionDefinitions()
+        .forEach(
+            pqd ->
+                questionList.with(
+                    li(
+                        checkboxInputWithLabel(
+                            pqd.getQuestionDefinition().getName(),
+                            "block-question-" + pqd.getQuestionDefinition().getId(),
+                            "block-question-" + pqd.getQuestionDefinition().getId(),
+                            String.valueOf(pqd.getQuestionDefinition().getId())))));
+
     return div()
         .withClass(Styles.FLEX_AUTO)
         .with(blockEditPanelTop(csrfTag, program, block))
@@ -96,7 +109,16 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     .withAction(
                         controllers.admin.routes.AdminProgramBlocksController.update(
                                 program.id(), block.id())
-                            .url())));
+                            .url()),
+                form()
+                    .withMethod("post")
+                    .withAction(
+                        controllers.admin.routes.AdminProgramBlockQuestionsController.destroy(
+                                program.id(), block.id())
+                            .url())
+                    .with(csrfTag)
+                    .with(questionList)
+                    .with(submitButton("Remove questions"))));
   }
 
   private ContainerTag blockEditPanelTop(
@@ -109,12 +131,37 @@ public class ProgramBlockEditView extends BaseHtmlView {
     return div().withClass(Styles.FLEX).with(h1(block.name())).with(deleteButton);
   }
 
-  private ContainerTag questionBankPanel(ImmutableList<QuestionDefinition> questionDefinitions) {
-    ContainerTag questionList = ul().withClass(Styles.OVERFLOW_X_SCROLL);
+  private ContainerTag questionBankPanel(
+      Tag csrfTag,
+      ImmutableList<QuestionDefinition> questionDefinitions,
+      ProgramDefinition program,
+      BlockDefinition block) {
+    ContainerTag questionBank = div().withClasses(Styles.FLEX_INITIAL).with(h2("Question Bank"));
+    ContainerTag form =
+        form()
+            .withMethod("post")
+            .withAction(
+                controllers.admin.routes.AdminProgramBlockQuestionsController.create(
+                        program.id(), block.id())
+                    .url())
+            .with(csrfTag)
+            .with(submitButton("Add to Block"));
 
-    questionDefinitions.forEach(
-        questionDefinition -> questionList.with(li(questionDefinition.getName())));
+    ContainerTag questionList =
+        ul().withId("questionBankQuestions").withClass(Styles.OVERFLOW_X_SCROLL);
 
-    return div().withClasses(Styles.FLEX_INITIAL).with(h2("Question Bank")).with(questionList);
+    questionDefinitions.stream()
+        .filter(question -> !program.hasQuestion(question))
+        .forEach(
+            questionDefinition ->
+                questionList.with(
+                    li(
+                        checkboxInputWithLabel(
+                            questionDefinition.getName(),
+                            "question-" + questionDefinition.getId(),
+                            "question-" + questionDefinition.getId(),
+                            String.valueOf(questionDefinition.getId())))));
+
+    return questionBank.with(form.with(questionList));
   }
 }

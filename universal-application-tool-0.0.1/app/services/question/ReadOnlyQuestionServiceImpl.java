@@ -21,22 +21,20 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     ImmutableMap.Builder<String, ScalarType> scalarMap = ImmutableMap.builder();
     ImmutableMap.Builder<String, QuestionDefinition> scalarParentsMap = ImmutableMap.builder();
     for (QuestionDefinition qd : questions) {
-      String questionPath = qd.getPath();
       questionIdMap.put(qd.getId(), qd);
-      questionPathMap.put(questionPath, qd);
+      questionPathMap.put(qd.getPath(), qd);
       ImmutableMap<String, ScalarType> questionScalars = qd.getScalars();
       questionScalars.entrySet().stream()
           .forEach(
               entry -> {
-                String fullPath = questionPath + '.' + entry.getKey();
-                scalarMap.put(fullPath, entry.getValue());
-                scalarParentsMap.put(fullPath, qd);
+                scalarMap.put(entry.getKey(), entry.getValue());
+                scalarParentsMap.put(entry.getKey(), qd);
               });
     }
-    this.questionsById = questionIdMap.build();
-    this.questionsByPath = questionPathMap.build();
-    this.scalars = scalarMap.build();
-    this.scalarParents = scalarParentsMap.build();
+    questionsById = questionIdMap.build();
+    questionsByPath = questionPathMap.build();
+    scalars = scalarMap.build();
+    scalarParents = scalarParentsMap.build();
   }
 
   @Override
@@ -55,7 +53,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     PathType pathType = this.getPathType(pathString);
     switch (pathType) {
       case QUESTION:
-        return questionsByPath.get(pathString).getFullyQualifiedScalars();
+        return questionsByPath.get(pathString).getScalars();
       case SCALAR:
         ScalarType scalarType = scalars.get(pathString);
         return ImmutableMap.of(pathString, scalarType);

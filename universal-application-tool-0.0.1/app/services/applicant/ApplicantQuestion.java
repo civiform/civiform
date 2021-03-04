@@ -3,8 +3,11 @@ package services.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Optional;
+import services.question.AddressQuestionDefinition;
+import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionType;
+import services.question.TextQuestionDefinition;
 import services.question.TranslationNotFoundException;
 
 /**
@@ -36,29 +39,14 @@ public class ApplicantQuestion {
   }
 
   public AddressQuestion getAddressQuestion() {
-    if (!getType().equals(QuestionType.ADDRESS)) {
-      throw new RuntimeException(
-          "Question is not an ADDRESS question: " + questionDefinition.getPath());
-    }
-
     return new AddressQuestion();
   }
 
   public TextQuestion getTextQuestion() {
-    if (!getType().equals(QuestionType.TEXT)) {
-      throw new RuntimeException(
-          "Question is not a TEXT question: " + questionDefinition.getPath());
-    }
-
     return new TextQuestion();
   }
 
   public NameQuestion getNameQuestion() {
-    if (!getType().equals(QuestionType.NAME)) {
-      throw new RuntimeException(
-          "Question is not a NAME question: " + questionDefinition.getPath());
-    }
-
     return new NameQuestion();
   }
 
@@ -67,6 +55,10 @@ public class ApplicantQuestion {
     private Optional<String> cityValue;
     private Optional<String> stateValue;
     private Optional<String> zipValue;
+
+    public AddressQuestion() {
+      assertQuestionType();
+    }
 
     public boolean hasStreetValue() {
       return getStreetValue().isPresent();
@@ -120,29 +112,43 @@ public class ApplicantQuestion {
       return zipValue;
     }
 
-    // TODO: implement named methods for retrieving scalar paths instead of concatenating strings.
+    public void assertQuestionType() {
+      if (!getType().equals(QuestionType.ADDRESS)) {
+        throw new RuntimeException(
+            String.format(
+                "Question is not an ADDRESS question: %s (type: %s)",
+                questionDefinition.getPath(), questionDefinition.getQuestionType()));
+      }
+    }
+
+    public AddressQuestionDefinition getQuestionDefinition() {
+      assertQuestionType();
+      return (AddressQuestionDefinition) questionDefinition;
+    }
+
     public String getStreetPath() {
-      return questionDefinition.getPath() + ".street";
+      return getQuestionDefinition().getStreetPath();
     }
 
-    // TODO: implement named methods for retrieving scalar paths instead of concatenating strings.
     public String getCityPath() {
-      return questionDefinition.getPath() + ".city";
+      return getQuestionDefinition().getCityPath();
     }
 
-    // TODO: implement named methods for retrieving scalar paths instead of concatenating strings.
     public String getStatePath() {
-      return questionDefinition.getPath() + ".state";
+      return getQuestionDefinition().getStatePath();
     }
 
-    // TODO: implement named methods for retrieving scalar paths instead of concatenating strings.
     public String getZipPath() {
-      return questionDefinition.getPath() + ".zip";
+      return getQuestionDefinition().getZipPath();
     }
   }
 
   public class TextQuestion {
     private Optional<String> textValue;
+
+    public TextQuestion() {
+      assertQuestionType();
+    }
 
     public boolean hasValue() {
       return getTextValue().isPresent();
@@ -158,8 +164,22 @@ public class ApplicantQuestion {
       return textValue;
     }
 
+    public void assertQuestionType() {
+      if (!getType().equals(QuestionType.TEXT)) {
+        throw new RuntimeException(
+            String.format(
+                "Question is not a TEXT question: %s (type: %s)",
+                questionDefinition.getPath(), questionDefinition.getQuestionType()));
+      }
+    }
+
+    public TextQuestionDefinition getQuestionDefinition() {
+      assertQuestionType();
+      return (TextQuestionDefinition) questionDefinition;
+    }
+
     public String getTextPath() {
-      return questionDefinition.getPath();
+      return getQuestionDefinition().getTextPath();
     }
   }
 
@@ -167,6 +187,10 @@ public class ApplicantQuestion {
     private Optional<String> firstNameValue;
     private Optional<String> middleNameValue;
     private Optional<String> lastNameValue;
+
+    public NameQuestion() {
+      assertQuestionType();
+    }
 
     public boolean hasFirstNameValue() {
       return getFirstNameValue().isPresent();
@@ -210,19 +234,30 @@ public class ApplicantQuestion {
       return lastNameValue;
     }
 
-    // TODO: implement named methods for retrieving scalar paths instead of concatenating strings.
+    public void assertQuestionType() {
+      if (!getType().equals(QuestionType.NAME)) {
+        throw new RuntimeException(
+            String.format(
+                "Question is not a NAME question: %s (type: %s)",
+                questionDefinition.getPath(), questionDefinition.getQuestionType()));
+      }
+    }
+
+    public NameQuestionDefinition getQuestionDefinition() {
+      assertQuestionType();
+      return (NameQuestionDefinition) questionDefinition;
+    }
+
     public String getMiddleNamePath() {
-      return questionDefinition.getPath() + ".middle";
+      return getQuestionDefinition().getMiddleNamePath();
     }
 
-    // TODO: implement named methods for retrieving scalar paths instead of concatenating strings.
     public String getFirstNamePath() {
-      return questionDefinition.getPath() + ".first";
+      return getQuestionDefinition().getFirstNamePath();
     }
 
-    // TODO: implement named methods for retrieving scalar paths instead of concatenating strings.
     public String getLastNamePath() {
-      return questionDefinition.getPath() + ".last";
+      return getQuestionDefinition().getLastNamePath();
     }
   }
 }

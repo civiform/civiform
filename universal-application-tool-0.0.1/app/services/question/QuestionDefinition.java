@@ -114,26 +114,14 @@ public abstract class QuestionDefinition {
     return this.questionHelpText;
   }
 
-  /** Get the type of this question. Implemented methods should use @JsonIgnore. */
+  /** Get the type of this question. */
   public abstract QuestionType getQuestionType();
 
-  /**
-   * Get a map of scalars stored by this question definition. Implemented methods should
-   * use @JsonIgnore.
-   */
+  /** Get a map of scalars stored by this question definition. */
   public abstract ImmutableMap<String, ScalarType> getScalars();
 
-  /** Get a map of scalars stored by this question definition. */
-  public ImmutableMap<String, ScalarType> getFullyQualifiedScalars() {
-    ImmutableMap<String, ScalarType> scalars = this.getScalars();
-    ImmutableMap.Builder<String, ScalarType> ret = new ImmutableMap.Builder<String, ScalarType>();
-    scalars.entrySet().stream()
-        .forEach(e -> ret.put(this.getPath() + "." + e.getKey(), e.getValue()));
-    return ret.build();
-  }
-
-  public Optional<ScalarType> getScalarType(String key) {
-    return Optional.ofNullable(this.getScalars().get(key));
+  public Optional<ScalarType> getScalarType(String path) {
+    return Optional.ofNullable(this.getScalars().get(path));
   }
 
   @Override

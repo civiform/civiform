@@ -48,7 +48,7 @@ public class HomeControllerAuthenticatedTest extends WithApplication {
   @Test
   public void testAuthenticatedSecurePage() {
     Http.RequestBuilder request =
-        fakeRequest(routes.HomeController.secureIndex())
+        fakeRequest(routes.HomeController.securePlayIndex())
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
     Result result = route(app, request);
     assertThat(result.status()).isEqualTo(HttpConstants.OK);

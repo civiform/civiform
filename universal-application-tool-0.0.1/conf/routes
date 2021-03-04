@@ -2,10 +2,10 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# An example controller showing a sample home page
-GET     /                           controllers.HomeController.index
-# The root page, but requiring a login.
-GET     /secure                     controllers.HomeController.secureIndex
+# The landing page
+GET     /                           controllers.HomeController.index(request: Request)
+GET     /playIndex                  controllers.HomeController.playIndex()
+GET     /securePlayIndex            controllers.HomeController.securePlayIndex()
 
 # A controller for pages for an admin to create and maintain programs
 GET     /admin/programs                    controllers.admin.AdminProgramController.index
@@ -20,6 +20,10 @@ GET     /admin/programs/:programId/blocks/:blockId/edit      controllers.admin.A
 POST    /admin/programs/:programId/blocks/:blockId           controllers.admin.AdminProgramBlocksController.update(request: Request, programId: Long, blockId: Long)
 GET     /admin/programs/:programId/blocks/create             controllers.admin.AdminProgramBlocksController.create(programId: Long)
 POST    /admin/programs/:programId/blocks/:blockId/delete    controllers.admin.AdminProgramBlocksController.destroy(programId: Long, blockId: Long)
+
+# A controller for adding and removing questions from program blocks
+POST    /admin/programs/:programId/blocks/:blockId/questions               controllers.admin.AdminProgramBlockQuestionsController.create(request: Request, programId: Long, blockId: Long)
+POST    /admin/programs/:programId/blocks/:blockId/questions/delete        controllers.admin.AdminProgramBlockQuestionsController.destroy(request: Request, programId: Long, blockId: Long)
 
 # A controller for a page for an admin to view, edit, and create questions
 GET     /admin/questions             controllers.admin.QuestionController.index(request: Request, renderAs: String ?= "table")

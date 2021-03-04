@@ -64,6 +64,10 @@ public class UatProfile {
     return profileData.getRoles();
   }
 
+  public boolean isUatAdmin() {
+    return profileData.getRoles().contains(Roles.ROLE_UAT_ADMIN.toString());
+  }
+
   public String getId() {
     return profileData.getId();
   }
