@@ -118,13 +118,14 @@ public class ApplicantDataTest {
 
     assertThatThrownBy(() -> data.read(Path.create("applicant.favorites.color"), Integer.class))
         .isInstanceOf(JsonPathTypeMismatchException.class)
-        .hasMessage("applicant.favorites.color does not have expected type class java.lang.Integer");
+        .hasMessage(
+            "applicant.favorites.color does not have expected type class java.lang.Integer");
   }
 
   @Test
   public void read_withStringPath_findsCorrectValue() throws Exception {
     DocumentContext testData =
-            JsonPath.parse("{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} } }");
+        JsonPath.parse("{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} } }");
     ApplicantData data = new ApplicantData(testData);
 
     Optional<String> found = data.read("applicant.favorites.color", String.class);

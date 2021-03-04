@@ -37,20 +37,13 @@ public class ApplicantData {
   }
 
   /**
-   * Attempts to read a string at the given path in the applicant's answer data. Returns an {@code
-   * Optional.empty()} if the path does not exist.
+   * Puts the given value at the given path in the underlying JSON data. Builds up the necessary
+   * structure along the way, i.e., creates parent objects where necessary.
    *
-   * <p>The design suggestion for these methods is to have one per {@link
-   * services.question.ScalarType}
+   * @param path the {@link Path} with the fully specified path, e.g., "applicant.favorites.color"
+   *     or the equivalent "$.applicant.favorite.colors" is equivalent.
+   * @param value the value to place; values of type Map will create the equivalent JSON structure
    */
-  public Optional<String> readString(String path) {
-    try {
-      return Optional.of(jsonData.read(path, String.class));
-    } catch (PathNotFoundException e) {
-      return Optional.empty();
-    }
-  }
-
   public void put(Path path, Object value) {
     path.parentPaths()
         .forEach(
@@ -88,7 +81,7 @@ public class ApplicantData {
 
   /** Same as the above, but accepts path as a string. */
   public <T> Optional<T> read(String pathAsString, Class<T> type)
-          throws JsonPathTypeMismatchException {
+      throws JsonPathTypeMismatchException {
     return this.read(Path.create(pathAsString), type);
   }
 
