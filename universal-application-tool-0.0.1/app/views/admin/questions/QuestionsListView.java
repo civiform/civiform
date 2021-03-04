@@ -16,11 +16,11 @@ import j2html.tags.Tag;
 import java.util.Optional;
 import play.twirl.api.Content;
 import services.question.QuestionDefinition;
-import views.BaseHtmlLayout;
 import views.BaseHtmlView;
+import views.admin.AdminLayout;
 
 public final class QuestionsListView extends BaseHtmlView {
-  private final BaseHtmlLayout layout;
+  private final AdminLayout layout;
   private final ImmutableList<QuestionTableCell> tableCells =
       ImmutableList.of(
           QuestionTableCell.ID,
@@ -34,13 +34,13 @@ public final class QuestionsListView extends BaseHtmlView {
           QuestionTableCell.ACTIONS);
 
   @Inject
-  public QuestionsListView(BaseHtmlLayout layout) {
+  public QuestionsListView(AdminLayout layout) {
     this.layout = layout;
   }
 
   /** Renders a page with either a table or a list view of all questions. */
   private Content render(ImmutableList<Tag> questionContent, Optional<String> maybeFlash) {
-    return layout.htmlContent(
+    return layout.render(
         body()
             .with(div(maybeFlash.orElse("")))
             .with(renderHeader("All Questions"))
