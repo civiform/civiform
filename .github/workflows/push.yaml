@@ -14,6 +14,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Run build-dev.
+        id: build_dev
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
+        run: bin/build-dev
+
       - name: Run build-and-push.
         if: "!contains(toJSON(steps.file_changes.outputs.files), 'infra/')"
         id: build_and_push

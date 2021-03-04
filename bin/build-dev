@@ -1,0 +1,11 @@
+#! /bin/bash
+
+set -e
+set +x
+export AWS_DEFAULT_REGION=us-west-2
+REGION=us-west-2
+
+aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/t1q6b4h2
+docker build -t uat-dev --cache-from public.ecr.aws/t1q6b4h2/uat-dev:latest .
+docker tag uat-dev:latest public.ecr.aws/t1q6b4h2/uat-dev:latest
+docker push public.ecr.aws/t1q6b4h2/uat-dev:latest

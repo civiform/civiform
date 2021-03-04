@@ -54,4 +54,21 @@ public class ProgramAdministrationBrowserTest extends BaseBrowserTest {
     assertThat(browser.$("#questionBankQuestions").$("li").textContents())
         .contains(questionRemovedName);
   }
+
+  @Test
+  public void headerNavWorks() {
+    loginAsAdmin();
+
+    // Go to questions
+    browser.$("header").$("a", withText("Questions")).first().click();
+    assertThat(browser.pageSource()).contains("All Questions");
+
+    // Go to programs
+    browser.$("header").$("a", withText("Programs")).first().click();
+    assertThat(browser.pageSource()).contains("All Programs");
+
+    // Logout
+    browser.$("header").$("a", withText("Logout")).first().click();
+    assertThat(browser.url()).contains("loginForm");
+  }
 }
