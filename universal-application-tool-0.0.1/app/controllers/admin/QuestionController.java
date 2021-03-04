@@ -17,10 +17,12 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.ErrorAnd;
 import services.question.InvalidPathException;
 import services.question.InvalidUpdateException;
 import services.question.QuestionDefinition;
 import services.question.QuestionService;
+import services.question.QuestionServiceError;
 import services.question.UnsupportedQuestionTypeException;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
@@ -59,12 +61,12 @@ public class QuestionController extends Controller {
               String exception = "";
               try {
                 QuestionDefinition definition = questionForm.getBuilder().setVersion(1L).build();
-                boolean success = service.create(definition).hasResult();
-                if (!success) {
-                  exception =
-                      String.format(
-                          "create failed: this is most likely you specify an invalid path %s",
-                          definition.getPath());
+                ErrorAnd<QuestionDefinition, QuestionServiceError> result =
+                    service.create(definition);
+                if (result.isError()) {
+                  for (QuestionServiceError e : result.getErrors()) {
+                    exception += e.message();
+                  }
                 }
               } catch (UnsupportedQuestionTypeException e) {
                 exception = e.toString();
