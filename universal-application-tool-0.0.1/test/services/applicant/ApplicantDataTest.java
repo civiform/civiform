@@ -85,7 +85,7 @@ public class ApplicantDataTest {
     String expected =
         "{\"applicant\":{\"favorites\":{\"food\":{\"apple\":\"Granny Smith\"}}},\"metadata\":{}}";
 
-    data.put("applicant.favorites.food.apple", "Granny Smith");
+    data.put(Path.create("applicant.favorites.food.apple"), "Granny Smith");
 
     assertThat(data.asJsonString()).isEqualTo(expected);
   }
@@ -96,7 +96,7 @@ public class ApplicantDataTest {
         JsonPath.parse("{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} } }");
     ApplicantData data = new ApplicantData(testData);
 
-    Optional<String> found = data.read("applicant.favorites.color", String.class);
+    Optional<String> found = data.read(Path.create("applicant.favorites.color"), String.class);
 
     assertThat(found).hasValue("orange");
   }
@@ -105,7 +105,7 @@ public class ApplicantDataTest {
   public void read_pathNotPresent_returnsEmptyOptional() throws Exception {
     ApplicantData data = new ApplicantData();
 
-    Optional<String> found = data.read("my.fake.path", String.class);
+    Optional<String> found = data.read(Path.create("my.fake.path"), String.class);
 
     assertThat(found).isEmpty();
   }
@@ -116,8 +116,19 @@ public class ApplicantDataTest {
         JsonPath.parse("{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} } }");
     ApplicantData data = new ApplicantData(testData);
 
-    assertThatThrownBy(() -> data.read("applicant.favorites.color", Integer.class))
+    assertThatThrownBy(() -> data.read(Path.create("applicant.favorites.color"), Integer.class))
         .isInstanceOf(JsonPathTypeMismatchException.class)
         .hasMessage("applicant.favorites.color does not have expected type class java.lang.Integer");
+  }
+
+  @Test
+  public void read_withStringPath_findsCorrectValue() throws Exception {
+    DocumentContext testData =
+            JsonPath.parse("{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} } }");
+    ApplicantData data = new ApplicantData(testData);
+
+    Optional<String> found = data.read("applicant.favorites.color", String.class);
+
+    assertThat(found).hasValue("orange");
   }
 }

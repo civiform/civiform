@@ -51,10 +51,6 @@ public class ApplicantData {
     }
   }
 
-  public void put(String pathAsString, Object value) {
-    this.put(Path.create(pathAsString), value);
-  }
-
   public void put(Path path, Object value) {
     path.parentPaths()
         .forEach(
@@ -68,9 +64,9 @@ public class ApplicantData {
     this.jsonData.put(path.parentPath().path(), path.keyName(), value);
   }
 
-  public <T> Optional<T> read(String pathAsString, Class<T> type)
-      throws JsonPathTypeMismatchException {
-    return this.read(Path.create(pathAsString), type);
+  /** Same as the above, but accepts path as a string. */
+  public void put(String pathAsString, Object value) {
+    this.put(Path.create(pathAsString), value);
   }
 
   /**
@@ -88,6 +84,12 @@ public class ApplicantData {
     } catch (MappingException e) {
       throw new JsonPathTypeMismatchException(path.path(), type, e);
     }
+  }
+
+  /** Same as the above, but accepts path as a string. */
+  public <T> Optional<T> read(String pathAsString, Class<T> type)
+          throws JsonPathTypeMismatchException {
+    return this.read(Path.create(pathAsString), type);
   }
 
   public Instant getCreatedTime() {
