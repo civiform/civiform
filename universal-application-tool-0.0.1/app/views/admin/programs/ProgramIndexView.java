@@ -31,7 +31,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         div()
             .withClasses(Styles.PX_20)
             .with(
-                h1("Programs").withClasses(Styles.MY_4),
+                h1("All Programs").withClasses(Styles.MY_4),
                 each(programs, this::renderProgramListItem),
                 renderNewProgramButton());
 
