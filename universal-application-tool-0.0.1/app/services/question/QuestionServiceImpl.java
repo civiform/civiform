@@ -3,14 +3,14 @@ package services.question;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Question;
 import repository.QuestionRepository;
+import services.ErrorAnd;
 
 public final class QuestionServiceImpl implements QuestionService {
 
@@ -29,12 +29,13 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   @Override
-  public Optional<QuestionDefinition> create(QuestionDefinition definition) {
-    if (!isValid(definition)) {
-      return Optional.empty();
+  public ErrorAnd<QuestionDefinition, QuestionServiceError> create(QuestionDefinition definition) {
+    ImmutableSet<QuestionServiceError> errors = validate(definition);
+    if (!errors.isEmpty()) {
+      return ErrorAnd.error(errors);
     }
     Question question = questionRepository.insertQuestionSync(new Question(definition));
-    return Optional.of(question.getQuestionDefinition());
+    return ErrorAnd.of(question.getQuestionDefinition());
   }
 
   @Override
@@ -70,25 +71,21 @@ public final class QuestionServiceImpl implements QuestionService {
                     .collect(ImmutableList.toImmutableList()));
   }
 
-  private boolean isValid(QuestionDefinition newDefinition) {
+  private ImmutableSet<QuestionServiceError> validate(QuestionDefinition newDefinition) {
+    ImmutableSet<QuestionServiceError> errors = newDefinition.validate();
+    if (!errors.isEmpty()) {
+      return errors;
+    }
     String newPath = newDefinition.getPath();
-    if (!isValidPathPattern(newPath)) {
-      return false;
+    Optional<Question> maybeConflict =
+        questionRepository.findConflictingQuestion(newPath).toCompletableFuture().join();
+    if (maybeConflict.isPresent()) {
+      Question question = maybeConflict.get();
+      return ImmutableSet.of(
+          QuestionServiceError.of(
+              String.format("path '%s' conflicts with question: %s", newPath, question.getPath())));
     }
-    boolean hasConflict =
-        questionRepository
-            .findConflictingQuestion(newPath)
-            .toCompletableFuture()
-            .join()
-            .isPresent();
-    return !hasConflict;
-  }
-
-  private boolean isValidPathPattern(String path) {
-    if (path.isBlank()) {
-      return false;
-    }
-    return URLEncoder.encode(path, StandardCharsets.UTF_8).equals(path);
+    return ImmutableSet.of();
   }
 
   private void assertQuestionInvariants(QuestionDefinition definition, QuestionDefinition toUpdate)

@@ -3,6 +3,9 @@ package services.question;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
@@ -122,6 +125,35 @@ public abstract class QuestionDefinition {
 
   public Optional<ScalarType> getScalarType(String path) {
     return Optional.ofNullable(this.getScalars().get(path));
+  }
+
+  /** Validate that all required fields are present and valid for the question. */
+  public ImmutableSet<QuestionServiceError> validate() {
+    ImmutableSet.Builder<QuestionServiceError> errors =
+        new ImmutableSet.Builder<QuestionServiceError>();
+    if (version < 1) {
+      errors.add(QuestionServiceError.of(String.format("invalid version: %d", version)));
+    }
+    if (name.isBlank()) {
+      errors.add(QuestionServiceError.of("blank name"));
+    }
+    if (!hasValidPathPattern()) {
+      errors.add(QuestionServiceError.of(String.format("invalid path pattern: '%s'", path)));
+    }
+    if (description.isBlank()) {
+      errors.add(QuestionServiceError.of("blank description"));
+    }
+    if (questionText.isEmpty()) {
+      errors.add(QuestionServiceError.of("no question text"));
+    }
+    return errors.build();
+  }
+
+  private boolean hasValidPathPattern() {
+    if (path.isBlank()) {
+      return false;
+    }
+    return URLEncoder.encode(path, StandardCharsets.UTF_8).equals(path);
   }
 
   @Override
