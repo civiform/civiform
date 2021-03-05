@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 /**
  * Represents a path into the applicant JSON data. Stored as the path to data without the JsonPath
- * prefix {@code $.}.
+ * prefix: $.
  */
 @AutoValue
 public abstract class Path {
