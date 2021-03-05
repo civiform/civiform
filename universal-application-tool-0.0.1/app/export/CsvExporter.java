@@ -8,6 +8,7 @@ import java.util.Optional;
 import models.Applicant;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import services.applicant.Path;
 import services.program.Column;
 
 public class CsvExporter implements Exporter {
@@ -39,7 +40,8 @@ public class CsvExporter implements Exporter {
     CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT.withFirstRecordAsHeader());
     this.writeHeadersOnFirstExport(printer);
     for (Column column : this.columns) {
-      Optional<String> value = applicant.getApplicantData().readString(column.jsonPath());
+      Optional<String> value =
+          applicant.getApplicantData().readString(Path.create(column.jsonPath()));
       printer.print(value.orElse("COLUMN_EMPTY"));
     }
     printer.println();

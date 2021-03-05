@@ -81,7 +81,7 @@ public class ApplicantQuestion {
         return streetValue;
       }
 
-      streetValue = applicantData.readString(getStreetPath());
+      streetValue = applicantData.readString(Path.create(getStreetPath()));
       return streetValue;
     }
 
@@ -90,7 +90,7 @@ public class ApplicantQuestion {
         return cityValue;
       }
 
-      cityValue = applicantData.readString(getCityPath());
+      cityValue = applicantData.readString(Path.create(getCityPath()));
       return cityValue;
     }
 
@@ -99,7 +99,7 @@ public class ApplicantQuestion {
         return stateValue;
       }
 
-      stateValue = applicantData.readString(getStatePath());
+      stateValue = applicantData.readString(Path.create(getStatePath()));
       return stateValue;
     }
 
@@ -108,7 +108,7 @@ public class ApplicantQuestion {
         return zipValue;
       }
 
-      zipValue = applicantData.readString(getZipPath());
+      zipValue = applicantData.readString(Path.create(getZipPath()));
       return zipValue;
     }
 
@@ -159,7 +159,7 @@ public class ApplicantQuestion {
         return textValue;
       }
 
-      textValue = applicantData.readString(questionDefinition.getPath());
+      textValue = applicantData.readString(Path.create(questionDefinition.getPath()));
 
       return textValue;
     }
@@ -209,7 +209,7 @@ public class ApplicantQuestion {
         return firstNameValue;
       }
 
-      firstNameValue = applicantData.readString(getFirstNamePath());
+      firstNameValue = applicantData.readString(Path.create(getFirstNamePath()));
 
       return firstNameValue;
     }
@@ -219,7 +219,7 @@ public class ApplicantQuestion {
         return middleNameValue;
       }
 
-      middleNameValue = applicantData.readString(getMiddleNamePath());
+      middleNameValue = applicantData.readString(Path.create(getMiddleNamePath()));
 
       return middleNameValue;
     }
@@ -229,7 +229,7 @@ public class ApplicantQuestion {
         return lastNameValue;
       }
 
-      lastNameValue = applicantData.readString(getLastNamePath());
+      lastNameValue = applicantData.readString(Path.create(getLastNamePath()));
 
       return lastNameValue;
     }

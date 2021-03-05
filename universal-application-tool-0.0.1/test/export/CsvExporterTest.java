@@ -15,6 +15,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import services.applicant.Path;
 import services.program.*;
 
 public class CsvExporterTest {
@@ -52,16 +53,17 @@ public class CsvExporterTest {
   @Before
   public void createFakeApplicants() {
     Applicant fakeApplicantOne = new Applicant();
-    fakeApplicantOne.getApplicantData().put("$.applicant", "first_name", "Alice");
-    fakeApplicantOne.getApplicantData().put("$.applicant", "last_name", "Appleton");
+    fakeApplicantOne.getApplicantData().putString(Path.create("applicant.first_name"), "Alice");
+    fakeApplicantOne.getApplicantData().putString(Path.create("applicant.last_name"), "Appleton");
     fakeApplicantOne
         .getApplicantData()
-        .put("$.applicant", "column", "Some Value \" containing ,,, special characters");
+        .putString(
+            Path.create("applicant.column"), "Some Value \" containing ,,, special characters");
 
     Applicant fakeApplicantTwo = new Applicant();
-    fakeApplicantTwo.getApplicantData().put("$.applicant", "first_name", "Bob");
-    fakeApplicantTwo.getApplicantData().put("$.applicant", "last_name", "Baker");
-    fakeApplicantTwo.getApplicantData().put("$.applicant", "column", "");
+    fakeApplicantTwo.getApplicantData().putString(Path.create("applicant.first_name"), "Bob");
+    fakeApplicantTwo.getApplicantData().putString(Path.create("applicant.last_name"), "Baker");
+    fakeApplicantTwo.getApplicantData().putString(Path.create("applicant.column"), "");
     this.fakeApplicants = ImmutableList.of(fakeApplicantOne, fakeApplicantTwo);
   }
 

@@ -1,6 +1,5 @@
 package models;
 
-import com.jayway.jsonpath.JsonPath;
 import io.ebean.annotation.DbJson;
 import java.io.IOException;
 import javax.persistence.Entity;
@@ -31,7 +30,7 @@ public class Applicant extends BaseModel {
     // is null and the `applicantData` is also `null`, and in-memory use, where
     // `object` is out-of-date but non-null, and `applicantData` is already valid.
     if (this.applicantData == null && (object != null && !object.isEmpty())) {
-      this.applicantData = new ApplicantData(JsonPath.parse(object));
+      this.applicantData = new ApplicantData(object);
     } else if (this.applicantData == null) {
       this.applicantData = new ApplicantData();
     }
