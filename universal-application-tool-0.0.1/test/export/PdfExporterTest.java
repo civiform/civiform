@@ -14,6 +14,7 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import services.applicant.Path;
 import services.program.ExportDefinition;
 import services.program.ExportEngine;
 import services.program.PdfExportConfig;
@@ -51,7 +52,9 @@ public class PdfExporterTest {
   @Before
   public void createFakeApplicant() {
     this.fakeApplicant = new Applicant();
-    this.fakeApplicant.getApplicantData().put("applicant.formValue", APPLICANT_VALUE);
+    this.fakeApplicant
+        .getApplicantData()
+        .putString(Path.create("applicant.formValue"), APPLICANT_VALUE);
   }
 
   @Before

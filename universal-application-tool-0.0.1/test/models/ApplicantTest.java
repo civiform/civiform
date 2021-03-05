@@ -29,7 +29,7 @@ public class ApplicantTest extends WithPostgresContainer {
     Applicant applicant = new Applicant();
 
     Path path = Path.create("$.applicant.birthDate");
-    applicant.getApplicantData().put(path, "1/1/2021");
+    applicant.getApplicantData().putString(path, "1/1/2021");
     applicant.save();
 
     applicant = repo.lookupApplicant(applicant.id).toCompletableFuture().join().get();

@@ -56,7 +56,7 @@ public class ApplicantRepositoryTest extends WithPostgresContainer {
   public void insertApplicant() throws Exception {
     Applicant applicant = new Applicant();
     String path = "$.applicant.birthdate";
-    applicant.getApplicantData().put(Path.create(path), "1/1/2021");
+    applicant.getApplicantData().putString(Path.create(path), "1/1/2021");
 
     assertThat(applicant.getApplicantData().read(Path.create(path), String.class))
         .hasValue("1/1/2021");
@@ -88,7 +88,7 @@ public class ApplicantRepositoryTest extends WithPostgresContainer {
 
   private Applicant saveApplicant(String name) {
     Applicant applicant = new Applicant();
-    applicant.getApplicantData().put(Path.create("$.applicant.name"), name);
+    applicant.getApplicantData().putString(Path.create("$.applicant.name"), name);
     applicant.save();
     return applicant;
   }

@@ -3,10 +3,9 @@ package services.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
 import java.time.Instant;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Optional;
 import org.junit.Test;
 
@@ -36,7 +35,7 @@ public class ApplicantDataTest {
   public void put_addsAScalar() {
     ApplicantData data = new ApplicantData();
 
-    data.put(Path.create("applicant.age"), 99);
+    data.putInteger(Path.create("applicant.age"), 99);
 
     assertThat(data.asJsonString()).isEqualTo("{\"applicant\":{\"age\":99},\"metadata\":{}}");
   }
@@ -47,7 +46,7 @@ public class ApplicantDataTest {
     String expected =
         "{\"applicant\":{\"favorites\":{\"food\":{\"apple\":\"Granny Smith\"}}},\"metadata\":{}}";
 
-    data.put(Path.create("applicant.favorites.food.apple"), "Granny Smith");
+    data.putString(Path.create("applicant.favorites.food.apple"), "Granny Smith");
 
     assertThat(data.asJsonString()).isEqualTo(expected);
   }
@@ -55,34 +54,11 @@ public class ApplicantDataTest {
   @Test
   public void put_addsAMap() {
     ApplicantData data = new ApplicantData();
-    // Use LinkedHashMap for predictable ordering so that string comparison is consistent.
-    Map<String, String> favorites = new LinkedHashMap<>();
-    favorites.put("sandwich", "PB&J");
-    favorites.put("color", "blue");
+    ImmutableMap<String, String> map = ImmutableMap.of("sandwich", "PB&J", "color", "blue");
     String expected =
         "{\"applicant\":{\"favorites\":{\"sandwich\":\"PB&J\",\"color\":\"blue\"}},\"metadata\":{}}";
 
-    data.put(Path.create("applicant.favorites"), favorites);
-
-    assertThat(data.asJsonString()).isEqualTo(expected);
-  }
-
-  @Test
-  public void put_withStringPath_addsAScalar() {
-    ApplicantData data = new ApplicantData();
-
-    data.put("applicant.age", 99);
-
-    assertThat(data.asJsonString()).isEqualTo("{\"applicant\":{\"age\":99},\"metadata\":{}}");
-  }
-
-  @Test
-  public void put_withStringPath_addsANestedScalar() {
-    ApplicantData data = new ApplicantData();
-    String expected =
-        "{\"applicant\":{\"favorites\":{\"food\":{\"apple\":\"Granny Smith\"}}},\"metadata\":{}}";
-
-    data.put(Path.create("applicant.favorites.food.apple"), "Granny Smith");
+    data.putObject(Path.create("applicant.favorites"), map);
 
     assertThat(data.asJsonString()).isEqualTo(expected);
   }

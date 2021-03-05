@@ -2,6 +2,7 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
@@ -35,6 +36,18 @@ public class ApplicantData {
     return Locale.ENGLISH;
   }
 
+  public void putString(Path path, String value) {
+    put(path, value);
+  }
+
+  public void putInteger(Path path, int value) {
+    put(path, value);
+  }
+
+  public <K, V> void putObject(Path path, ImmutableMap<K, V> value) {
+    put(path, value);
+  }
+
   /**
    * Puts the given value at the given path in the underlying JSON data. Builds up the necessary
    * structure along the way, i.e., creates parent objects where necessary.
@@ -43,7 +56,7 @@ public class ApplicantData {
    *     or the equivalent "$.applicant.favorite.colors".
    * @param value the value to place; values of type Map will create the equivalent JSON structure
    */
-  public void put(Path path, Object value) {
+  private void put(Path path, Object value) {
     path.parentPaths()
         .forEach(
             segmentPath -> {
@@ -54,11 +67,6 @@ public class ApplicantData {
             });
 
     this.jsonData.put(path.parentPath().path(), path.keyName(), value);
-  }
-
-  /** Same as the above, but accepts path as a string. */
-  public void put(String pathAsString, Object value) {
-    this.put(Path.create(pathAsString), value);
   }
 
   /**
