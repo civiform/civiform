@@ -3,6 +3,7 @@ package services.question;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import services.ErrorAnd;
 
 public interface QuestionService {
 
@@ -20,7 +21,7 @@ public interface QuestionService {
    *
    * <p>NOTE: This does not update the version.
    */
-  Optional<QuestionDefinition> create(QuestionDefinition definition);
+  ErrorAnd<QuestionDefinition, QuestionServiceError> create(QuestionDefinition definition);
 
   /**
    * Adds a new translation to an existing question definition. Returns true if the write is

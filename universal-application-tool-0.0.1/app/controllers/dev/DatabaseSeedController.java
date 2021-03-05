@@ -101,7 +101,7 @@ public class DatabaseSeedController extends Controller {
                 "description",
                 ImmutableMap.of(Locale.ENGLISH, "What is your name?"),
                 ImmutableMap.of(Locale.ENGLISH, "help text")))
-        .get();
+        .getResult();
   }
 
   private QuestionDefinition insertColorQuestionDefinition() {
@@ -114,7 +114,7 @@ public class DatabaseSeedController extends Controller {
                 "description",
                 ImmutableMap.of(Locale.ENGLISH, "What is your favorite color?"),
                 ImmutableMap.of(Locale.ENGLISH, "help text")))
-        .get();
+        .getResult();
   }
 
   private QuestionDefinition insertAddressQuestionDefinition() {
@@ -127,7 +127,7 @@ public class DatabaseSeedController extends Controller {
                 "description",
                 ImmutableMap.of(Locale.ENGLISH, "What is your address?"),
                 ImmutableMap.of(Locale.ENGLISH, "help text")))
-        .get();
+        .getResult();
   }
 
   private ProgramDefinition insertProgramWithBlocks(String name) {
