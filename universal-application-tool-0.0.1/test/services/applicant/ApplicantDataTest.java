@@ -1,7 +1,6 @@
 package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
@@ -64,53 +63,22 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void read_findsCorrectValue() throws Exception {
+  public void readString_findsCorrectValue() throws Exception {
     String testData = "{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} } }";
     ApplicantData data = new ApplicantData(testData);
 
-    Optional<String> found = data.read(Path.create("applicant.favorites.color"), String.class);
+    Optional<String> found = data.readString(Path.create("applicant.favorites.color"));
 
     assertThat(found).hasValue("orange");
   }
 
   @Test
-  public void read_pathNotPresent_returnsEmptyOptional() throws Exception {
+  public void readString_pathNotPresent_returnsEmptyOptional() throws Exception {
     ApplicantData data = new ApplicantData();
 
-    Optional<String> found = data.read(Path.create("my.fake.path"), String.class);
+    Optional<String> found = data.readString(Path.create("my.fake.path"));
 
     assertThat(found).isEmpty();
-  }
-
-  @Test
-  public void read_valueIsWrongType_throwsException() {
-    String testData = "{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} } }";
-    ApplicantData data = new ApplicantData(testData);
-
-    assertThatThrownBy(() -> data.read(Path.create("applicant.favorites.color"), Integer.class))
-        .isInstanceOf(JsonPathTypeMismatchException.class)
-        .hasMessage(
-            "applicant.favorites.color does not have expected type class java.lang.Integer");
-  }
-
-  @Test
-  public void read_withStringPath_findsCorrectValue() throws Exception {
-    String testData = "{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} } }";
-    ApplicantData data = new ApplicantData(testData);
-
-    Optional<String> found = data.read("applicant.favorites.color", String.class);
-
-    assertThat(found).hasValue("orange");
-  }
-
-  @Test
-  public void readString_findsStringValue() {
-    String testData = "{ \"applicant\": { \"color\": \"orange\"} }";
-    ApplicantData data = new ApplicantData(testData);
-
-    Optional<String> found = data.readString("applicant.color");
-
-    assertThat(found).hasValue("orange");
   }
 
   @Test
@@ -118,7 +86,7 @@ public class ApplicantDataTest {
     String testData = "{ \"applicant\": { \"object\": { \"number\": 27 } } }";
     ApplicantData data = new ApplicantData(testData);
 
-    Optional<String> found = data.readString("applicant.object");
+    Optional<String> found = data.readString(Path.create("applicant.object"));
 
     assertThat(found).isEmpty();
   }

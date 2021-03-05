@@ -70,6 +70,18 @@ public class ApplicantData {
   }
 
   /**
+   * Attempt to read a string at the given path. Returns {@code Optional#empty} if the path does not
+   * exist or a value other than String is found.
+   */
+  public Optional<String> readString(Path path) {
+    try {
+      return this.read(path, String.class);
+    } catch (JsonPathTypeMismatchException e) {
+      return Optional.empty();
+    }
+  }
+
+  /**
    * Returns the value at the given path, if it exists; otherwise returns {@link Optional#empty}.
    *
    * @param path the {@link Path} for the desired scalar
@@ -78,29 +90,11 @@ public class ApplicantData {
    * @return optionally returns the value at the path if it exists, or empty if not
    * @throws JsonPathTypeMismatchException if the scalar at that path is not the expected type
    */
-  public <T> Optional<T> read(Path path, Class<T> type) throws JsonPathTypeMismatchException {
+  private <T> Optional<T> read(Path path, Class<T> type) throws JsonPathTypeMismatchException {
     try {
       return Optional.ofNullable(this.jsonData.read(path.path(), type));
     } catch (MappingException e) {
       throw new JsonPathTypeMismatchException(path.path(), type, e);
-    }
-  }
-
-  /** Same as the above, but accepts path as a string. */
-  public <T> Optional<T> read(String pathAsString, Class<T> type)
-      throws JsonPathTypeMismatchException {
-    return this.read(Path.create(pathAsString), type);
-  }
-
-  /**
-   * Attempt to read a string at the given path. Returns {@code Optional#empty} if the path does not
-   * exist or a value other than String is found.
-   */
-  public Optional<String> readString(String pathAsString) {
-    try {
-      return this.read(pathAsString, String.class);
-    } catch (JsonPathTypeMismatchException e) {
-      return Optional.empty();
     }
   }
 

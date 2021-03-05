@@ -34,7 +34,7 @@ public class ApplicantTest extends WithPostgresContainer {
 
     applicant = repo.lookupApplicant(applicant.id).toCompletableFuture().join().get();
 
-    assertThat(applicant.getApplicantData().read(path, String.class)).hasValue("1/1/2021");
+    assertThat(applicant.getApplicantData().readString(path)).hasValue("1/1/2021");
   }
 
   @Test
