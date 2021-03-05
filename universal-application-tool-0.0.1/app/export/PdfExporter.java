@@ -11,6 +11,7 @@ import java.util.Optional;
 import models.Applicant;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
+import services.applicant.Path;
 
 public class PdfExporter implements Exporter {
   private PDDocument baseDocument;
@@ -31,7 +32,8 @@ public class PdfExporter implements Exporter {
   public void export(Applicant applicant, Writer writer) throws IOException {
     PDAcroForm form = baseDocument.getDocumentCatalog().getAcroForm();
     for (Map.Entry<String, String> fToV : fieldToValue.entrySet()) {
-      Optional<String> applicantValue = applicant.getApplicantData().readString(fToV.getValue());
+      Optional<String> applicantValue =
+          applicant.getApplicantData().readString(Path.create(fToV.getValue()));
       if (applicantValue.isPresent()) {
         form.getField(fToV.getKey()).setValue(applicantValue.get());
       }
