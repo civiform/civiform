@@ -195,4 +195,30 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(1L, "", "", "", ImmutableMap.of(), ImmutableMap.of());
     assertThat(question.getScalarType("notPresent")).isEqualTo(Optional.empty());
   }
+
+  @Test
+  public void validateWellFormedQuestion_returnsNoErrors() {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            1L,
+            "name",
+            "path",
+            "description",
+            ImmutableMap.of(Locale.ENGLISH, "question?"),
+            ImmutableMap.of());
+    assertThat(question.validate()).isEmpty();
+  }
+
+  @Test
+  public void validateBadQuestion_returnsErrors() {
+    QuestionDefinition question =
+        new TextQuestionDefinition(-1L, "", "", "", ImmutableMap.of(), ImmutableMap.of());
+    assertThat(question.validate())
+        .containsOnly(
+            QuestionServiceError.of("invalid version: -1"),
+            QuestionServiceError.of("blank name"),
+            QuestionServiceError.of("invalid path pattern: ''"),
+            QuestionServiceError.of("blank description"),
+            QuestionServiceError.of("no question text"));
+  }
 }
