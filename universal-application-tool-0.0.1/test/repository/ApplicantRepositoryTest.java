@@ -7,7 +7,7 @@ import java.util.Set;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
-import services.applicant.Path;
+import services.Path;
 
 public class ApplicantRepositoryTest extends WithPostgresContainer {
 

@@ -3,6 +3,7 @@ package services.question;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.OptionalLong;
+import services.Path;
 
 public class NameQuestionDefinition extends QuestionDefinition {
 
@@ -10,7 +11,7 @@ public class NameQuestionDefinition extends QuestionDefinition {
       OptionalLong id,
       long version,
       String name,
-      String path,
+      Path path,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
@@ -20,7 +21,7 @@ public class NameQuestionDefinition extends QuestionDefinition {
   public NameQuestionDefinition(
       long version,
       String name,
-      String path,
+      Path path,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
@@ -33,7 +34,7 @@ public class NameQuestionDefinition extends QuestionDefinition {
   }
 
   @Override
-  public ImmutableMap<String, ScalarType> getScalars() {
+  public ImmutableMap<Path, ScalarType> getScalars() {
     return ImmutableMap.of(
         getFirstNamePath(),
         getFirstNameType(),
@@ -43,24 +44,24 @@ public class NameQuestionDefinition extends QuestionDefinition {
         getLastNameType());
   }
 
-  public String getFirstNamePath() {
-    return getPath() + ".first";
+  public Path getFirstNamePath() {
+    return getPath().toBuilder().append(".first").build();
   }
 
   public ScalarType getFirstNameType() {
     return ScalarType.STRING;
   }
 
-  public String getMiddleNamePath() {
-    return getPath() + ".middle";
+  public Path getMiddleNamePath() {
+    return getPath().toBuilder().append(".middle").build();
   }
 
   public ScalarType getMiddleNameType() {
     return ScalarType.STRING;
   }
 
-  public String getLastNamePath() {
-    return getPath() + ".last";
+  public Path getLastNamePath() {
+    return getPath().toBuilder().append(".last").build();
   }
 
   public ScalarType getLastNameType() {

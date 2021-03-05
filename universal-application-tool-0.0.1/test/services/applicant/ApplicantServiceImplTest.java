@@ -9,6 +9,7 @@ import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
+import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
@@ -62,7 +63,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
                 new NameQuestionDefinition(
                     1L,
                     "my name",
-                    "my.path.name",
+                    Path.create("my.path.name"),
                     "description",
                     ImmutableMap.of(Locale.ENGLISH, "question?"),
                     ImmutableMap.of(Locale.ENGLISH, "help text")))

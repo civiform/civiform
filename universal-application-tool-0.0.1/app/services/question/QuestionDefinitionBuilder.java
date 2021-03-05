@@ -3,13 +3,14 @@ package services.question;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.OptionalLong;
+import services.Path;
 
 public class QuestionDefinitionBuilder {
 
   private OptionalLong id = OptionalLong.empty();
   private long version;
   private String name;
-  private String path;
+  private Path path;
   private String description;
   private ImmutableMap<Locale, String> questionText;
   private ImmutableMap<Locale, String> questionHelpText;
@@ -51,7 +52,7 @@ public class QuestionDefinitionBuilder {
     return this;
   }
 
-  public QuestionDefinitionBuilder setPath(String path) {
+  public QuestionDefinitionBuilder setPath(Path path) {
     this.path = path;
     return this;
   }

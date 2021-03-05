@@ -1,4 +1,4 @@
-package services.applicant;
+package services;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -82,5 +82,20 @@ public class PathTest {
     Path path = Path.create("animals.favorites.dog");
     assertThat(path.parentPaths())
         .containsExactly(Path.create("animals"), Path.create("animals.favorites"));
+  }
+
+  @Test
+  public void pathBuilder() {
+    Path path = Path.builder().setPath("applicant.my.path").build();
+    assertThat(path.path()).isEqualTo("applicant.my.path");
+
+    path = path.toBuilder().append("another").build();
+    assertThat(path.path()).isEqualTo("applicant.my.path.another");
+
+    path = path.toBuilder().append("part").build();
+    assertThat(path.path()).isEqualTo("applicant.my.path.another.part");
+
+    path = path.toBuilder().setPath("something.new").build();
+    assertThat(path.path()).isEqualTo("something.new");
   }
 }

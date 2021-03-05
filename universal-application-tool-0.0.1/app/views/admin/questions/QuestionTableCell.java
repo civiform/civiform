@@ -33,7 +33,7 @@ enum QuestionTableCell {
   public Tag getCellValue(QuestionDefinition definition) {
     switch (this) {
       case PATH:
-        return td(definition.getPath());
+        return td(definition.getPath().path());
       case ID:
         return td("" + definition.getId());
       case VERSION:
@@ -62,7 +62,8 @@ enum QuestionTableCell {
             .with(
                 a("edit")
                     .withHref(
-                        controllers.admin.routes.QuestionController.edit(definition.getPath())
+                        controllers.admin.routes.QuestionController.edit(
+                                definition.getPath().path())
                             .url()));
       default:
         return td("");

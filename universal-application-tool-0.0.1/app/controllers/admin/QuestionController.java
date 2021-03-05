@@ -19,6 +19,7 @@ import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.ErrorAnd;
+import services.Path;
 import services.question.InvalidPathException;
 import services.question.InvalidUpdateException;
 import services.question.QuestionDefinition;
@@ -87,7 +88,8 @@ public class QuestionController extends Controller {
         .thenApplyAsync(
             readOnlyService -> {
               try {
-                QuestionDefinition definition = readOnlyService.getQuestionDefinition(path);
+                QuestionDefinition definition =
+                    readOnlyService.getQuestionDefinition(Path.create(path));
                 return ok(editView.renderEditQuestionForm(request, definition));
               } catch (InvalidPathException e) { // If the path doesn't exist, redirect to newOne.
                 LOG.info(e.toString());

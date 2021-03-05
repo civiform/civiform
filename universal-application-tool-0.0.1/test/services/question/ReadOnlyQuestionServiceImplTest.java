@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.OptionalLong;
 import org.junit.Test;
+import services.Path;
 
 public class ReadOnlyQuestionServiceImplTest {
   // The tests mimic that the persisted questions are read into ReadOnlyQuestionService.
@@ -17,7 +18,7 @@ public class ReadOnlyQuestionServiceImplTest {
           OptionalLong.of(123L),
           1L,
           "applicant name",
-          "applicant.name",
+          Path.create("applicant.name"),
           "The name of the applicant",
           ImmutableMap.of(Locale.ENGLISH, "What is your name?"),
           ImmutableMap.of());
@@ -26,7 +27,7 @@ public class ReadOnlyQuestionServiceImplTest {
           OptionalLong.of(456L),
           1L,
           "applicant addresss",
-          "applicant.address",
+          Path.create("applicant.address"),
           "The address of the applicant",
           ImmutableMap.of(Locale.ENGLISH, "What is your address?"),
           ImmutableMap.of());
@@ -35,12 +36,12 @@ public class ReadOnlyQuestionServiceImplTest {
           OptionalLong.of(789L),
           1L,
           "applicant's favorite color",
-          "applicant.favoriteColor",
+          Path.create("applicant.favoriteColor"),
           "The favorite color of the applicant",
           ImmutableMap.of(Locale.ENGLISH, "What is your favorite color?"),
           ImmutableMap.of());
 
-  private String invalidPath = "invalid.path";
+  private Path invalidPath = Path.create("invalid.path");
 
   private ImmutableList<QuestionDefinition> questions =
       ImmutableList.of(nameQuestion, addressQuestion, basicQuestion);
@@ -63,7 +64,7 @@ public class ReadOnlyQuestionServiceImplTest {
 
   @Test
   public void getAllScalars() {
-    ImmutableMap.Builder<String, ScalarType> scalars = ImmutableMap.builder();
+    ImmutableMap.Builder<Path, ScalarType> scalars = ImmutableMap.builder();
     scalars.putAll(nameQuestion.getScalars());
     scalars.putAll(addressQuestion.getScalars());
     scalars.putAll(basicQuestion.getScalars());
@@ -72,16 +73,18 @@ public class ReadOnlyQuestionServiceImplTest {
 
   @Test
   public void getPathScalars_forQuestion() throws InvalidPathException {
-    ImmutableMap<String, ScalarType> result = service.getPathScalars("applicant.address");
-    ImmutableMap<String, ScalarType> expected = addressQuestion.getScalars();
+    ImmutableMap<Path, ScalarType> result =
+        service.getPathScalars(Path.create("applicant.address"));
+    ImmutableMap<Path, ScalarType> expected = addressQuestion.getScalars();
     assertThat(result).isEqualTo(expected);
   }
 
   @Test
   public void getPathScalars_forScalar() throws InvalidPathException {
-    ImmutableMap<String, ScalarType> result = service.getPathScalars("applicant.address.city");
-    ImmutableMap<String, ScalarType> expected =
-        ImmutableMap.of("applicant.address.city", ScalarType.STRING);
+    ImmutableMap<Path, ScalarType> result =
+        service.getPathScalars(Path.create("applicant.address.city"));
+    ImmutableMap<Path, ScalarType> expected =
+        ImmutableMap.of(Path.create("applicant.address.city"), ScalarType.STRING);
     assertThat(result).isEqualTo(expected);
   }
 
@@ -99,12 +102,13 @@ public class ReadOnlyQuestionServiceImplTest {
 
   @Test
   public void getPathType_forQuestion() {
-    assertThat(service.getPathType("applicant.favoriteColor")).isEqualTo(PathType.QUESTION);
+    assertThat(service.getPathType(Path.create("applicant.favoriteColor")))
+        .isEqualTo(PathType.QUESTION);
   }
 
   @Test
   public void getPathType_forScalar() {
-    assertThat(service.getPathType("applicant.name.first")).isEqualTo(PathType.SCALAR);
+    assertThat(service.getPathType(Path.create("applicant.name.first"))).isEqualTo(PathType.SCALAR);
   }
 
   @Test
@@ -116,12 +120,14 @@ public class ReadOnlyQuestionServiceImplTest {
 
   @Test
   public void getQuestionDefinition_forQuestion() throws InvalidPathException {
-    assertThat(service.getQuestionDefinition("applicant.address")).isEqualTo(addressQuestion);
+    assertThat(service.getQuestionDefinition(Path.create("applicant.address")))
+        .isEqualTo(addressQuestion);
   }
 
   @Test
   public void getQuestionDefinition_forScalar() throws InvalidPathException {
-    assertThat(service.getQuestionDefinition("applicant.name.first")).isEqualTo(nameQuestion);
+    assertThat(service.getQuestionDefinition(Path.create("applicant.name.first")))
+        .isEqualTo(nameQuestion);
   }
 
   @Test
@@ -131,21 +137,21 @@ public class ReadOnlyQuestionServiceImplTest {
 
   @Test
   public void isValid_returnsFalseForInvalid() {
-    assertThat(service.isValid("invalidPath")).isFalse();
+    assertThat(service.isValid(Path.create("invalidPath"))).isFalse();
   }
 
   @Test
   public void isValid_returnsFalseWhenEmpty() {
-    assertThat(emptyService.isValid("invalidPath")).isFalse();
+    assertThat(emptyService.isValid(Path.create("invalidPath"))).isFalse();
   }
 
   @Test
   public void isValid_returnsTrueForQuestion() {
-    assertThat(service.isValid("applicant.name")).isTrue();
+    assertThat(service.isValid(Path.create("applicant.name"))).isTrue();
   }
 
   @Test
   public void isValid_returnsTrueForScalar() {
-    assertThat(service.isValid("applicant.name.first")).isTrue();
+    assertThat(service.isValid(Path.create("applicant.name.first"))).isTrue();
   }
 }

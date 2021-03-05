@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import repository.QuestionRepository;
 import repository.WithPostgresContainer;
+import services.Path;
 import services.question.AddressQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
@@ -27,7 +28,8 @@ public class QuestionTest extends WithPostgresContainer {
   @Test
   public void canSaveQuestion() throws UnsupportedQuestionTypeException {
     QuestionDefinition definition =
-        new TextQuestionDefinition(1L, "test", "my.path", "", ImmutableMap.of(), ImmutableMap.of());
+        new TextQuestionDefinition(
+            1L, "test", Path.create("my.path"), "", ImmutableMap.of(), ImmutableMap.of());
     Question question = new Question(definition);
 
     question.save();
@@ -45,7 +47,7 @@ public class QuestionTest extends WithPostgresContainer {
         new TextQuestionDefinition(
             1L,
             "",
-            "",
+            Path.create(""),
             "",
             ImmutableMap.of(Locale.ENGLISH, "hello"),
             ImmutableMap.of(Locale.ENGLISH, "help"));
@@ -64,7 +66,8 @@ public class QuestionTest extends WithPostgresContainer {
   @Test
   public void canSerializeDifferentQuestionTypes() {
     AddressQuestionDefinition address =
-        new AddressQuestionDefinition(1L, "address", "", "", ImmutableMap.of(), ImmutableMap.of());
+        new AddressQuestionDefinition(
+            1L, "address", Path.create(""), "", ImmutableMap.of(), ImmutableMap.of());
     Question question = new Question(address);
 
     question.save();
