@@ -55,7 +55,7 @@ Resources:
       Port: 9000
       VpcId: !Ref 'VPCId'
       TargetType: ip
-      HealthCheckPath: /
+      HealthCheckPath: /playIndex
       HealthCheckProtocol: HTTP
       HealthCheckIntervalSeconds: 10
       HealthCheckTimeoutSeconds: 5

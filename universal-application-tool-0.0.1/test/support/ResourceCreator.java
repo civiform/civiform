@@ -11,7 +11,6 @@ import models.Question;
 import play.inject.Injector;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
-import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
 import services.question.QuestionDefinition;
 import services.question.QuestionService;
@@ -70,7 +69,9 @@ public class ResourceCreator {
     program.save();
 
     ProgramDefinition programDefinition =
-        program.getProgramDefinition().toBuilder().addBlockDefinition(block).build();
+        program.getProgramDefinition().toBuilder()
+            .setBlockDefinitions(ImmutableList.of(block))
+            .build();
     program = programDefinition.toProgram();
     program.update();
 
@@ -81,13 +82,8 @@ public class ResourceCreator {
     try {
       ProgramDefinition programDefinition = programService.createProgramDefinition(name, "desc");
       programDefinition =
-          programService.addBlockToProgram(
-              programDefinition.id(), "test block", "test block description");
-      programDefinition =
-          programService.setBlockQuestions(
-              programDefinition.id(),
-              programDefinition.blockDefinitions().get(0).id(),
-              ImmutableList.of(ProgramQuestionDefinition.create(insertQuestionDefinition())));
+          programService.addQuestionsToBlock(
+              programDefinition.id(), 1L, ImmutableList.of(insertQuestionDefinition().getId()));
 
       return programDefinition;
     } catch (Exception e) {
