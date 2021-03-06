@@ -44,7 +44,16 @@ public class ApplicantQuestion {
     }
   }
 
+  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+    // TODO: Validate applicantData against validation logic in questionDefinition, if any.
+    return ImmutableSet.of();
+  }
+
   public boolean hasErrors() {
+    if (!getQuestionErrors().isEmpty()) {
+      return true;
+    }
+
     switch (getType()) {
       case ADDRESS:
         return getAddressQuestion().hasErrors();
