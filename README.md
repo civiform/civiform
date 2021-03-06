@@ -1,3 +1,5 @@
+![CI status](https://github.com/seattle-uat/universal-application-tool/actions/workflows/push.yaml/badge.svg)
+
 # Universal Application Tool
 
 The Universal Application Tool (UAT) aims to simplify the application process for benefits programs by re-using applicant data for multiple benefits applications. It is being developed by Google.org in partnership with the City of Seattle.
@@ -13,6 +15,20 @@ The Universal Application Tool (UAT) aims to simplify the application process fo
       * [Separation of concerns](#separation-of-concerns)
    * [Routing and controller methods](#routing-and-controller-methods)
    * [Testing](#testing)
+
+## Contributing
+
+First, please read our [code of conduct](code_of_conduct.md).
+
+### Issue tracking
+
+Development tasks are managed in the github issues for this repository. When you begin working on an issue, please self-assign or comment on it indicating you're beginning work to avoid duplicate effort.
+
+### Pull requests
+
+When you're ready to submit your code, open a pull request with "Closes #X" to link the relavant issue. When your PR is approved by at least one maintainer it is ready to submit.
+
+It's easy for the intention of code review comments to be unclear or get misinterpreted. To help with communication, reviewers are encouraged to use [conventional comments](https://conventionalcomments.org/) and explicitly indicate that comments are `(blocking)`, where the discussion must be resolved for PR to be approved, or `(non-blocking)` where resolving the discussion is optional for the implementer.
 
 ## Technology overview
 
