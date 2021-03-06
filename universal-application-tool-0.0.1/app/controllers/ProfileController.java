@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import org.pac4j.play.java.Secure;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -30,6 +31,7 @@ public class ProfileController extends Controller {
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
 
+  @Secure(clients = "OidcClient")
   public CompletionStage<Result> myProfile(Http.Request request) {
     Optional<UatProfile> maybeProfile = profileUtils.currentUserProfile(request);
 

@@ -54,6 +54,11 @@ GET     /users/:id                   controllers.ProfileController.profilePage(r
 GET     /callback                    controllers.CallbackController.callback(request: Request, client_name: String)
 POST    /callback                    controllers.CallbackController.callback(request: Request, client_name: String)
 
++nocsrf
+GET     /callback/:client_name       controllers.CallbackController.callback(request: Request, client_name: String)
++nocsrf
+POST    /callback/:client_name       controllers.CallbackController.callback(request: Request, client_name: String)
+
 # Log into application
 GET     /loginForm                   controllers.HomeController.loginForm(request: Request, message: java.util.Optional[String])
 

@@ -23,6 +23,9 @@ import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.HttpConstants;
 import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.http.callback.PathParameterCallbackUrlResolver;
+import org.pac4j.oidc.client.OidcClient;
+import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.play.CallbackController;
 import org.pac4j.play.LogoutController;
 import org.pac4j.play.http.PlayHttpActionAdapter;
@@ -103,19 +106,38 @@ public class SecurityModule extends AbstractModule {
     return new ProfileFactory(clock, dbContext, httpContext);
   }
 
+  @Provides
+  @Singleton
   protected FakeAdminClient fakeAdminClient(ProfileFactory profileFactory) {
     return new FakeAdminClient(profileFactory);
   }
 
   @Provides
   @Singleton
-  protected Config provideConfig(GuestClient guestClient, FakeAdminClient fakeAdminClient) {
-    // This must match the line in `routes` also.
-    Clients clients = new Clients(baseUrl + routes.CallbackController.callback("GuestClient"));
+  protected OidcClient provideIDCSClient() {
+    OidcConfiguration config = new OidcConfiguration();
+    config.setClientId(this.configuration.getString("idcs.client_id"));
+    config.setSecret(this.configuration.getString("idcs.secret"));
+    config.setDiscoveryURI(this.configuration.getString("idcs.discovery_uri"));
+    config.setResponseMode("form_post");
+    config.setResponseType("id_token");
+    config.setUseNonce(true);
+    config.setWithState(false);
+    OidcClient client = new OidcClient(config);
+    client.setCallbackUrl(baseUrl + "/callback");
+    client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
+    return client;
+  }
+
+  @Provides
+  @Singleton
+  protected Config provideConfig(
+      GuestClient guestClient, OidcClient idcsClient, FakeAdminClient fakeAdminClient) {
+    Clients clients = new Clients(baseUrl + "/callback");
     if (this.baseUrl.equals(DEV_BASE_URL)) {
-      clients.setClients(guestClient, fakeAdminClient);
+      clients.setClients(guestClient, idcsClient, fakeAdminClient);
     } else {
-      clients.setClients(guestClient);
+      clients.setClients(guestClient, idcsClient);
     }
     PlayHttpActionAdapter.INSTANCE
         .getResults()

@@ -10,6 +10,7 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       guice,
       javaJdbc,
+      caffeine,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.5.0",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.10.3",
@@ -46,10 +47,13 @@ lazy val root = (project in file("."))
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
-      "org.pac4j" %% "play-pac4j" % "11.0.0-PLAY2.8-RC1",
-      "org.pac4j" % "pac4j-core" % "5.0.0-RC1",
-      // basic http authentication (for now)
-      "org.pac4j" % "pac4j-http" % "5.0.0-RC1",
+      "org.pac4j" %% "play-pac4j" % "11.0.0-PLAY2.8-RC2",
+      "org.pac4j" % "pac4j-core" % "5.0.0-RC2",
+      // basic http authentication (for the anonymous client)
+      "org.pac4j" % "pac4j-http" % "5.0.0-RC2",
+      // OIDC authentication
+      "org.pac4j" % "pac4j-oidc" % "5.0.0-RC2",
+      // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.7.1",
 
       // Autovalue
