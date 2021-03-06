@@ -41,6 +41,15 @@ public class ApplicantRepository {
         executionContext);
   }
 
+  public CompletionStage<Void> updateApplicant(Applicant applicant) {
+    return supplyAsync(
+        () -> {
+          ebeanServer.update(applicant);
+          return null;
+        },
+        executionContext);
+  }
+
   public Optional<Applicant> lookupApplicantSync(long id) {
     return ebeanServer.find(Applicant.class).setId(id).findOneOrEmpty();
   }

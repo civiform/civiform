@@ -4,9 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
+import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import java.util.List;
 import java.util.Optional;
+import services.applicant.Path;
 import services.question.QuestionDefinition;
+import services.question.ScalarType;
 
 /**
  * Defines a single program block, which contains a list of questions and data about the block.
@@ -67,6 +73,35 @@ public abstract class BlockDefinition {
   @JsonIgnore
   public int getQuestionCount() {
     return programQuestionDefinitions().size();
+  }
+
+  @JsonIgnore
+  @Memoized
+  public ImmutableMap<String, ScalarType> scalarTypes() {
+    ImmutableMap.Builder<String, ScalarType> scalarTypesBuilder = ImmutableMap.builder();
+    programQuestionDefinitions().stream()
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .map(QuestionDefinition::getScalars)
+        .forEach(scalarTypesBuilder::putAll);
+
+    return scalarTypesBuilder.build();
+  }
+
+  @JsonIgnore
+  public Optional<ScalarType> getScalarType(Path path) {
+    return Optional.ofNullable(scalarTypes().get(path.path()));
+  }
+
+  @JsonIgnore
+  public boolean hasPaths(List<Path> paths) {
+    ImmutableSet<String> stringPaths =
+        paths.stream().map(Path::path).collect(ImmutableSet.toImmutableSet());
+    return scalarTypes().keySet().containsAll(stringPaths);
+  }
+
+  @JsonIgnore
+  public boolean hasPaths(Path... paths) {
+    return hasPaths(ImmutableList.copyOf(paths));
   }
 
   public boolean hasSameId(BlockDefinition other) {

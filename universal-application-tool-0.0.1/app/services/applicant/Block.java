@@ -43,4 +43,8 @@ public final class Block {
         .map(questionDefinition -> new ApplicantQuestion(questionDefinition, applicantData))
         .collect(toImmutableList());
   }
+
+  public boolean isValid() {
+    return true;
+  }
 }
