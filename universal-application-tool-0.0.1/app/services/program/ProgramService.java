@@ -161,8 +161,8 @@ public interface ProgramService {
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
    * @param predicate the {@link Predicate} for hiding the block
-   * @return the updated {@link ProgramDefinition} * @throws ProgramNotFoundException when programId
-   *     does not correspond to a real Program.
+   * @return the updated {@link ProgramDefinition}
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   ProgramDefinition setBlockHidePredicate(
       long programId, long blockDefinitionId, Predicate predicate)
