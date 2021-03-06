@@ -6,6 +6,8 @@ lazy val root = (project in file("."))
     name := """universal-application-tool""",
     version := "0.0.1",
     scalaVersion := "2.13.1",
+    autoAPIMappings := true,
+    maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
       guice,
       javaJdbc,
