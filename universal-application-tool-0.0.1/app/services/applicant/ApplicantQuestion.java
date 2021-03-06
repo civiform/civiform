@@ -45,7 +45,8 @@ public class ApplicantQuestion {
   }
 
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    // TODO: Validate applicantData against validation logic in questionDefinition, if any.
+    // TODO: Once QuestionDefinition has validation predicates, validate applicantData against
+    //  validation logic in questionDefinition, if any.
     return ImmutableSet.of();
   }
 
