@@ -47,7 +47,7 @@ public class QuestionTest extends WithPostgresContainer {
         new TextQuestionDefinition(
             1L,
             "",
-            Path.create(""),
+            Path.empty(),
             "",
             ImmutableMap.of(Locale.ENGLISH, "hello"),
             ImmutableMap.of(Locale.ENGLISH, "help"));
@@ -67,7 +67,7 @@ public class QuestionTest extends WithPostgresContainer {
   public void canSerializeDifferentQuestionTypes() {
     AddressQuestionDefinition address =
         new AddressQuestionDefinition(
-            1L, "address", Path.create(""), "", ImmutableMap.of(), ImmutableMap.of());
+            1L, "address", Path.empty(), "", ImmutableMap.of(), ImmutableMap.of());
     Question question = new Question(address);
 
     question.save();

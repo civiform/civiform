@@ -21,7 +21,7 @@ public class QuestionForm {
   public QuestionForm() {
     questionName = "";
     questionDescription = "";
-    questionPath = Path.create("");
+    questionPath = Path.empty();
     questionType = "TEXT";
     questionText = "";
     questionHelpText = "";

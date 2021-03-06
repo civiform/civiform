@@ -84,7 +84,8 @@ public final class QuestionServiceImpl implements QuestionService {
       Question question = maybeConflict.get();
       return ImmutableSet.of(
           QuestionServiceError.of(
-              String.format("path '%s' conflicts with question: %s", newPath, question.getPath())));
+              String.format(
+                  "path '%s' conflicts with question: %s", newPath.path(), question.getPath())));
     }
     return ImmutableSet.of();
   }
@@ -95,7 +96,7 @@ public final class QuestionServiceImpl implements QuestionService {
       throw new InvalidUpdateException(
           String.format(
               "question paths mismatch: %s does not match %s",
-              definition.getPath(), toUpdate.getPath()));
+              definition.getPath().path(), toUpdate.getPath().path()));
     }
     if (!definition.getQuestionType().equals(toUpdate.getQuestionType())) {
       throw new InvalidUpdateException(

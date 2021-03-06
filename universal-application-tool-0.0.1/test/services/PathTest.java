@@ -7,15 +7,22 @@ import org.junit.Test;
 public class PathTest {
 
   @Test
-  public void pathWithPrefix_removesOnlyPrefix() {
+  public void pathWithPrefix_removesOnlyPrefixAndWhitespace() {
     String path = "favorite.color";
     assertThat(Path.create("$.applicant." + path).path()).isEqualTo("applicant.favorite.color");
     assertThat(Path.create(path).path()).isEqualTo(path);
+    assertThat(Path.create("      applicant.hello   ").path()).isEqualTo("applicant.hello");
+    assertThat(Path.create("    $.applicant  ").path()).isEqualTo("applicant");
+  }
+
+  @Test
+  public void createPathFromString_returnsEmptyPathIfStringIsEmpty() {
+    assertThat(Path.create("")).isEqualTo(Path.empty());
   }
 
   @Test
   public void segments_emptyPath() {
-    assertThat(Path.create("").segments()).isEmpty();
+    assertThat(Path.empty().segments()).isEmpty();
   }
 
   @Test
@@ -31,7 +38,7 @@ public class PathTest {
 
   @Test
   public void parentPath_emptyPath() {
-    Path path = Path.create("");
+    Path path = Path.empty();
     assertThat(path.parentPath()).isEqualTo(Path.create(""));
   }
 
@@ -49,7 +56,7 @@ public class PathTest {
 
   @Test
   public void keyName_emptyPath() {
-    Path path = Path.create("");
+    Path path = Path.empty();
     assertThat(path.keyName()).isEqualTo("");
   }
 
@@ -67,7 +74,7 @@ public class PathTest {
 
   @Test
   public void parentPaths_emptyPath() {
-    Path path = Path.create("");
+    Path path = Path.empty();
     assertThat(path.parentPaths()).isEmpty();
   }
 

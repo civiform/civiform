@@ -54,7 +54,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
             QuestionServiceError.of(
                 String.format(
                     "path '%s' conflicts with question: %s",
-                    questionDefinition.getPath(), questionDefinition.getPath())));
+                    questionDefinition.getPath().path(), questionDefinition.getPath().path())));
   }
 
   @Test
@@ -76,7 +76,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
     assertThat(errorAndResult.getErrors())
         .containsOnly(
             QuestionServiceError.of(
-                String.format("invalid path pattern: '%s'", question.getPath())));
+                String.format("invalid path pattern: '%s'", question.getPath().path())));
   }
 
   @Test

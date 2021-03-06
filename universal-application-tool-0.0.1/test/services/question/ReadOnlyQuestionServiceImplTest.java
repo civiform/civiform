@@ -92,7 +92,7 @@ public class ReadOnlyQuestionServiceImplTest {
   public void getPathScalars_forInvalidPath() {
     assertThatThrownBy(() -> service.getPathScalars(invalidPath))
         .isInstanceOf(InvalidPathException.class)
-        .hasMessage("Path not found: " + invalidPath);
+        .hasMessage("Path not found: " + invalidPath.path());
   }
 
   @Test
@@ -115,7 +115,7 @@ public class ReadOnlyQuestionServiceImplTest {
   public void getQuestionDefinition_forInvalidPath() {
     assertThatThrownBy(() -> service.getQuestionDefinition(invalidPath))
         .isInstanceOf(InvalidPathException.class)
-        .hasMessage("Path not found: " + invalidPath);
+        .hasMessage("Path not found: " + invalidPath.path());
   }
 
   @Test

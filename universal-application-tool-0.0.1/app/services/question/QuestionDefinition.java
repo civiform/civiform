@@ -139,7 +139,7 @@ public abstract class QuestionDefinition {
       errors.add(QuestionServiceError.of("blank name"));
     }
     if (!hasValidPathPattern()) {
-      errors.add(QuestionServiceError.of(String.format("invalid path pattern: '%s'", path)));
+      errors.add(QuestionServiceError.of(String.format("invalid path pattern: '%s'", path.path())));
     }
     if (description.isBlank()) {
       errors.add(QuestionServiceError.of("blank description"));
