@@ -1,15 +1,19 @@
 package views;
 
 import static j2html.TagCreator.br;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
+import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.textarea;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
@@ -18,6 +22,7 @@ import j2html.tags.Tag;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Optional;
 import play.mvc.Http;
+import services.applicant.ValidationErrorMessage;
 import views.html.helper.CSRF;
 
 /**
@@ -30,6 +35,10 @@ public abstract class BaseHtmlView {
 
   public Tag renderHeader(String headerText) {
     return h1(headerText);
+  }
+
+  protected ContainerTag renderFieldErrors(ImmutableSet<ValidationErrorMessage> errors) {
+    return div(each(errors, error -> span(error.message())));
   }
 
   protected ImmutableList<DomContent> textInputWithLabel(

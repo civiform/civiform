@@ -6,15 +6,12 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import services.question.AddressQuestionDefinition;
 import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionType;
 import services.question.TextQuestionDefinition;
 import services.question.TranslationNotFoundException;
-
-import javax.validation.Valid;
 
 /**
  * Represents a question in the context of a specific applicant. Contains non-static inner classes
@@ -80,10 +77,12 @@ public class ApplicantQuestion {
   }
 
   private interface PresentsErrors {
+
     boolean hasErrors();
   }
 
   public class AddressQuestion implements PresentsErrors {
+
     private Optional<String> streetValue;
     private Optional<String> cityValue;
     private Optional<String> stateValue;
@@ -100,12 +99,12 @@ public class ApplicantQuestion {
 
     private ImmutableSet<ValidationErrorMessage> getAllErrors() {
       return ImmutableSet.<ValidationErrorMessage>builder()
-              .addAll(getAddressErrors())
-              .addAll(getStreetErrors())
-              .addAll(getCityErrors())
-              .addAll(getStateErrors())
-              .addAll(getZipErrors())
-              .build();
+          .addAll(getAddressErrors())
+          .addAll(getStreetErrors())
+          .addAll(getCityErrors())
+          .addAll(getStateErrors())
+          .addAll(getZipErrors())
+          .build();
     }
 
     public ImmutableSet<ValidationErrorMessage> getAddressErrors() {
@@ -239,6 +238,7 @@ public class ApplicantQuestion {
   }
 
   public class TextQuestion implements PresentsErrors {
+
     private Optional<String> textValue;
 
     public TextQuestion() {
@@ -285,6 +285,7 @@ public class ApplicantQuestion {
   }
 
   public class NameQuestion implements PresentsErrors {
+
     private Optional<String> firstNameValue;
     private Optional<String> middleNameValue;
     private Optional<String> lastNameValue;
@@ -298,24 +299,24 @@ public class ApplicantQuestion {
       return !getAllErrors().isEmpty();
     }
 
-    public ImmutableSet<String> getAllErrors() {
-      return ImmutableSet.<String>builder()
+    public ImmutableSet<ValidationErrorMessage> getAllErrors() {
+      return ImmutableSet.<ValidationErrorMessage>builder()
           .addAll(getFirstNameErrors())
           .addAll(getLastNameErrors())
           .build();
     }
 
-    public ImmutableSet<String> getFirstNameErrors() {
+    public ImmutableSet<ValidationErrorMessage> getFirstNameErrors() {
       if (hasFirstNameValue() && getFirstNameValue().get().isEmpty()) {
-        return ImmutableSet.of("First name is required.");
+        return ImmutableSet.of(ValidationErrorMessage.create("First name is required."));
       }
 
       return ImmutableSet.of();
     }
 
-    public ImmutableSet<String> getLastNameErrors() {
+    public ImmutableSet<ValidationErrorMessage> getLastNameErrors() {
       if (hasLastNameValue() && getLastNameValue().get().isEmpty()) {
-        return ImmutableSet.of("Last name is required.");
+        return ImmutableSet.of(ValidationErrorMessage.create("Last name is required."));
       }
 
       return ImmutableSet.of();
