@@ -6,7 +6,6 @@ lazy val root = (project in file("."))
     name := """universal-application-tool""",
     version := "0.0.1",
     scalaVersion := "2.13.1",
-    autoAPIMappings := true,
     maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
       guice,
@@ -79,7 +78,10 @@ lazy val root = (project in file("."))
     ),
     // Make verbose tests
     testOptions in Test := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v")),
-    javaOptions in Test += "-Dconfig.file=conf/application.test.conf"
+    // Use test config for tests
+    javaOptions in Test += "-Dconfig.file=conf/application.test.conf",
+    // Turn off scaladoc link warnings
+    scalacOptions in (Compile, doc) += "-no-link-warnings"
   )
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 resolvers += Resolver.bintrayRepo("webjars","maven")
