@@ -50,5 +50,6 @@ public interface QuestionService {
    *
    * <p>NOTE: This does not update the version.
    */
-  QuestionDefinition update(QuestionDefinition definition) throws InvalidUpdateException;
+  ErrorAnd<QuestionDefinition, QuestionServiceError> update(QuestionDefinition definition)
+      throws InvalidUpdateException;
 }

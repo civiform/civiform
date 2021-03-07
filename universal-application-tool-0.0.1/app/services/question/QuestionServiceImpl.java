@@ -45,7 +45,8 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   @Override
-  public QuestionDefinition update(QuestionDefinition definition) throws InvalidUpdateException {
+  public ErrorAnd<QuestionDefinition, QuestionServiceError> update(QuestionDefinition definition)
+      throws InvalidUpdateException {
     if (!definition.isPersisted()) {
       throw new InvalidUpdateException("question definition is not persisted");
     }
@@ -56,9 +57,13 @@ public final class QuestionServiceImpl implements QuestionService {
           String.format("question with id %d does not exist", definition.getId()));
     }
     Question question = maybeQuestion.get();
-    assertQuestionInvariants(question.getQuestionDefinition(), definition);
+    ImmutableSet<QuestionServiceError> errors =
+        validateQuestionInvariants(question.getQuestionDefinition(), definition);
+    if (!errors.isEmpty()) {
+      return ErrorAnd.error(errors);
+    }
     question = questionRepository.updateQuestionSync(new Question(definition));
-    return question.getQuestionDefinition();
+    return ErrorAnd.of(question.getQuestionDefinition());
   }
 
   private CompletionStage<ImmutableList<QuestionDefinition>> listQuestionDefinitionsAsync() {
@@ -88,19 +93,24 @@ public final class QuestionServiceImpl implements QuestionService {
     return ImmutableSet.of();
   }
 
-  private void assertQuestionInvariants(QuestionDefinition definition, QuestionDefinition toUpdate)
-      throws InvalidUpdateException {
+  private ImmutableSet<QuestionServiceError> validateQuestionInvariants(
+      QuestionDefinition definition, QuestionDefinition toUpdate) {
+    ImmutableSet.Builder<QuestionServiceError> errors =
+        new ImmutableSet.Builder<QuestionServiceError>();
     if (!definition.getPath().equals(toUpdate.getPath())) {
-      throw new InvalidUpdateException(
-          String.format(
-              "question paths mismatch: %s does not match %s",
-              definition.getPath(), toUpdate.getPath()));
+      errors.add(
+          QuestionServiceError.of(
+              String.format(
+                  "question paths mismatch: %s does not match %s",
+                  definition.getPath(), toUpdate.getPath())));
     }
     if (!definition.getQuestionType().equals(toUpdate.getQuestionType())) {
-      throw new InvalidUpdateException(
-          String.format(
-              "question types mismatch: %s does not match %s",
-              definition.getQuestionType().toString(), toUpdate.getQuestionType().toString()));
+      errors.add(
+          QuestionServiceError.of(
+              String.format(
+                  "question types mismatch: %s does not match %s",
+                  definition.getQuestionType().toString(), toUpdate.getQuestionType().toString())));
     }
+    return errors.build();
   }
 }
