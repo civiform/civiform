@@ -46,25 +46,28 @@ public class QuestionControllerTest extends WithPostgresContainer {
             result -> {
               assertThat(result.redirectLocation())
                   .hasValue(routes.QuestionController.index("table").url());
-              assertThat(result.flash()).isNull();
+              assertThat(result.flash().get("message").get()).contains("created");
             })
         .toCompletableFuture()
         .join();
   }
 
   @Test
-  public void create_redirectsWithFlashOnFailure() throws UnsupportedQuestionTypeException {
+  public void create_failsWithErrorMessageAndRedirectsToNewPageWithFieldsPopulated()
+      throws UnsupportedQuestionTypeException {
     buildQuestionsList();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
-    formData.put("questionPath", "#invalid_path!");
+    formData.put("questionName", "name").put("questionPath", "#invalid_path!");
     RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
     controller
         .create(requestBuilder.build())
         .thenAccept(
             result -> {
               assertThat(result.redirectLocation())
-                  .hasValue(routes.QuestionController.index("table").url());
+                  .hasValue(routes.QuestionController.newOne().url());
               assertThat(result.flash().get("message").get()).contains("#invalid_path!");
+              assertThat(result.flash().get("questionName").get()).contains("name");
+              assertThat(result.flash().get("questionPath").get()).contains("#invalid_path!");
             })
         .toCompletableFuture()
         .join();

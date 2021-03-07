@@ -3,7 +3,9 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
+import com.google.common.collect.ImmutableMap;
 import forms.QuestionForm;
+import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
@@ -59,7 +61,6 @@ public class QuestionController extends Controller {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
-              String errorMessage = "";
               try {
                 QuestionDefinition definition = questionForm.getBuilder().setVersion(1L).build();
                 ErrorAnd<QuestionDefinition, QuestionServiceError> result =
@@ -69,13 +70,20 @@ public class QuestionController extends Controller {
                   for (QuestionServiceError e : result.getErrors()) {
                     messageJoiner.add(e.message());
                   }
-                  errorMessage = messageJoiner.toString();
+                  String errorMessage = messageJoiner.toString();
+                  return withData(
+                      withMessage(redirect(routes.QuestionController.newOne()), errorMessage),
+                      questionForm.getData());
                 }
               } catch (UnsupportedQuestionTypeException e) {
-                errorMessage = e.toString();
+                String errorMessage = e.toString();
                 LOG.info(errorMessage);
+                return badRequest(errorMessage);
               }
-              return withMessage(redirect(routes.QuestionController.index("table")), errorMessage);
+              String successMessage =
+                  String.format("question %s created", questionForm.getQuestionPath());
+              return withMessage(
+                  redirect(routes.QuestionController.index("table")), successMessage);
             },
             httpExecutionContext.current());
   }
@@ -143,6 +151,15 @@ public class QuestionController extends Controller {
   private Result withMessage(Result result, String message) {
     if (!message.isEmpty()) {
       return result.flashing("message", message);
+    }
+    return result;
+  }
+
+  private Result withData(Result result, ImmutableMap<String, String> data) {
+    if (!data.isEmpty()) {
+      for (Map.Entry<String, String> entry : data.entrySet()) {
+        result = result.flashing(entry.getKey(), entry.getValue());
+      }
     }
     return result;
   }

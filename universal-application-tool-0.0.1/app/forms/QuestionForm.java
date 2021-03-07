@@ -93,6 +93,17 @@ public class QuestionForm {
     this.questionHelpText = checkNotNull(questionHelpText);
   }
 
+  public ImmutableMap<String, String> getData() {
+    return ImmutableMap.<String, String>builder()
+        .put("questionName", questionName)
+        .put("questionDescription", questionDescription)
+        .put("questionPath", questionPath)
+        .put("questionType", questionType)
+        .put("questionText", questionText)
+        .put("questionHelpText", questionHelpText)
+        .build();
+  }
+
   public QuestionDefinitionBuilder getBuilder() {
     ImmutableMap<Locale, String> questionTextMap =
         questionText.isEmpty() ? ImmutableMap.of() : ImmutableMap.of(Locale.ENGLISH, questionText);
