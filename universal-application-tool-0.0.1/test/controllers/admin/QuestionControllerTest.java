@@ -91,16 +91,14 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void edit_invalidPathRedirectsToNew() throws Exception {
+  public void edit_invalidPathReturnsBadRequest() throws Exception {
     buildQuestionsList();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    // Attempts to go to /admin/questions/edit/invalid.path then redirects to /admin/questions/new
     controller
         .edit(request, "invalid.path")
         .thenAccept(
             result -> {
-              assertThat(result.redirectLocation())
-                  .hasValue(routes.QuestionController.newOne().url());
+              assertThat(result.status()).isEqualTo(BAD_REQUEST);
             })
         .toCompletableFuture()
         .join();

@@ -104,9 +104,9 @@ public class QuestionController extends Controller {
               try {
                 QuestionDefinition definition = readOnlyService.getQuestionDefinition(path);
                 return ok(editView.renderEditQuestionForm(request, definition));
-              } catch (InvalidPathException e) { // If the path doesn't exist, redirect to newOne.
+              } catch (InvalidPathException e) {
                 LOG.info(e.toString());
-                return redirect(routes.QuestionController.newOne());
+                return badRequest();
               }
             },
             httpExecutionContext.current());
