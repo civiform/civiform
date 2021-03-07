@@ -2,6 +2,7 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
+import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 
@@ -29,7 +30,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void create_redirectsOnSuccess() throws UnsupportedQuestionTypeException {
+  public void create_redirectsOnSuccess() throws Exception {
     buildQuestionsList();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
@@ -54,7 +55,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
 
   @Test
   public void create_failsWithErrorMessageAndRedirectsToNewPageWithFieldsPopulated()
-      throws UnsupportedQuestionTypeException {
+      throws Exception {
     buildQuestionsList();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData.put("questionName", "name").put("questionPath", "#invalid_path!");
@@ -74,7 +75,23 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void edit_invalidPathRedirectsToNew() throws UnsupportedQuestionTypeException {
+  public void create_failsWithInvalidQuestionType() throws Exception {
+    buildQuestionsList();
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    formData.put("questionName", "name").put("questionType", "INVALID_TYPE");
+    RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
+    controller
+        .create(requestBuilder.build())
+        .thenAccept(
+            result -> {
+              assertThat(result.status()).isEqualTo(BAD_REQUEST);
+            })
+        .toCompletableFuture()
+        .join();
+  }
+
+  @Test
+  public void edit_invalidPathRedirectsToNew() throws Exception {
     buildQuestionsList();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     // Attempts to go to /admin/questions/edit/invalid.path then redirects to /admin/questions/new
@@ -90,7 +107,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void edit_returnsPopulatedForm() throws UnsupportedQuestionTypeException {
+  public void edit_returnsPopulatedForm() throws Exception {
     buildQuestionsList();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     controller
@@ -107,7 +124,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void index_returnsQuestions() throws UnsupportedQuestionTypeException {
+  public void index_returnsQuestions() throws Exception {
     buildQuestionsList();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     controller

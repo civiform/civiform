@@ -22,6 +22,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.ErrorAnd;
 import services.question.InvalidPathException;
+import services.question.InvalidQuestionTypeException;
 import services.question.InvalidUpdateException;
 import services.question.QuestionDefinition;
 import services.question.QuestionService;
@@ -76,9 +77,15 @@ public class QuestionController extends Controller {
                       questionForm.getData());
                 }
               } catch (UnsupportedQuestionTypeException e) {
+                // These are valid question types, but are not fully supported yet.
                 String errorMessage = e.toString();
-                LOG.info(errorMessage);
-                return badRequest(errorMessage);
+                return withData(
+                    withMessage(redirect(routes.QuestionController.newOne()), errorMessage),
+                    questionForm.getData());
+              } catch (InvalidQuestionTypeException e) {
+                // These are unrecognized invalid question types.
+                LOG.info(e.toString());
+                return badRequest();
               }
               String successMessage =
                   String.format("question %s created", questionForm.getQuestionPath());
@@ -138,6 +145,9 @@ public class QuestionController extends Controller {
       QuestionDefinition definition = questionForm.getBuilder().setId(id).setVersion(1L).build();
       service.update(definition);
     } catch (UnsupportedQuestionTypeException e) {
+      exception = e.toString();
+      LOG.info(exception);
+    } catch (InvalidQuestionTypeException e) {
       exception = e.toString();
       LOG.info(exception);
     } catch (InvalidUpdateException e) {
