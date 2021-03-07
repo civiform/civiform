@@ -202,7 +202,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void update_failsWithErrorMessageAndRedirectsToEditPageWithFieldsPopulated() {
+  public void update_failsWithErrorMessageAndRedirectsToEditPage() {
     Question question = resourceCreator().insertQuestion("my.path");
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData.put("questionPath", "invalid.path").put("questionText", "question text updated!");
@@ -213,8 +213,6 @@ public class QuestionControllerTest extends WithPostgresContainer {
     assertThat(result.redirectLocation())
         .hasValue(routes.QuestionController.edit(question.id).url());
     assertThat(result.flash().get("message").get()).contains("invalid.path");
-    assertThat(result.flash().get("questionPath").get()).contains("invalid.path");
-    assertThat(result.flash().get("questionText").get()).contains("question text updated!");
   }
 
   @Test

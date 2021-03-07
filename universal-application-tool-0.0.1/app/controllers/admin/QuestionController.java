@@ -149,16 +149,12 @@ public class QuestionController extends Controller {
           messageJoiner.add(e.message());
         }
         String errorMessage = messageJoiner.toString();
-        return withData(
-            withMessage(redirect(routes.QuestionController.edit(id)), errorMessage),
-            questionForm.getData());
+        return withMessage(redirect(routes.QuestionController.edit(id)), errorMessage);
       }
     } catch (UnsupportedQuestionTypeException e) {
       // These are valid question types, but are not fully supported yet.
       String errorMessage = e.toString();
-      return withData(
-          withMessage(redirect(routes.QuestionController.edit(id)), errorMessage),
-          questionForm.getData());
+      return withMessage(redirect(routes.QuestionController.edit(id)), errorMessage);
     } catch (InvalidQuestionTypeException e) {
       // These are unrecognized invalid question types.
       return badRequest(e.toString());
