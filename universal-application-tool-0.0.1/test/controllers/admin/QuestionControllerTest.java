@@ -194,34 +194,39 @@ public class QuestionControllerTest extends WithPostgresContainer {
         .put("questionText", "question text updated!")
         .put("questionHelpText", ":-)");
     RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
-    controller
-        .update(requestBuilder.build(), question.id)
-        .thenAccept(
-            result -> {
-              assertThat(result.redirectLocation())
-                  .hasValue(routes.QuestionController.index("table").url());
-              assertThat(result.flash()).isNull();
-            })
-        .toCompletableFuture()
-        .join();
+
+    Result result = controller.update(requestBuilder.build(), question.id);
+
+    assertThat(result.redirectLocation()).hasValue(routes.QuestionController.index("table").url());
+    assertThat(result.flash().get("message").get()).contains("updated");
   }
 
   @Test
-  public void update_redirectsWithFlashOnFailure() {
+  public void update_failsWithErrorMessageAndRedirectsToEditPageWithFieldsPopulated() {
     Question question = resourceCreator().insertQuestion("my.path");
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData.put("questionPath", "invalid.path").put("questionText", "question text updated!");
     RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
-    controller
-        .update(requestBuilder.build(), question.id)
-        .thenAccept(
-            result -> {
-              assertThat(result.redirectLocation())
-                  .hasValue(routes.QuestionController.index("table").url());
-              assertThat(result.flash().get("message").get()).contains("invalid.path");
-            })
-        .toCompletableFuture()
-        .join();
+
+    Result result = controller.update(requestBuilder.build(), question.id);
+
+    assertThat(result.redirectLocation())
+        .hasValue(routes.QuestionController.edit(question.id).url());
+    assertThat(result.flash().get("message").get()).contains("invalid.path");
+    assertThat(result.flash().get("questionPath").get()).contains("invalid.path");
+    assertThat(result.flash().get("questionText").get()).contains("question text updated!");
+  }
+
+  @Test
+  public void update_failsWithInvalidQuestionType() {
+    Question question = resourceCreator().insertQuestion("my.path");
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    formData.put("questionType", "INVALID_TYPE").put("questionText", "question text updated!");
+    RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
+
+    Result result = controller.update(requestBuilder.build(), question.id);
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
   private Question buildQuestionsList() throws UnsupportedQuestionTypeException {

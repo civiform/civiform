@@ -8,7 +8,6 @@ import forms.QuestionForm;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -137,25 +136,39 @@ public class QuestionController extends Controller {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public CompletionStage<Result> update(Request request, Long id) {
+  public Result update(Request request, Long id) {
     Form<QuestionForm> form = formFactory.form(QuestionForm.class);
     QuestionForm questionForm = form.bindFromRequest(request).get();
-    String exception = "";
     try {
       QuestionDefinition definition = questionForm.getBuilder().setId(id).setVersion(1L).build();
-      service.update(definition);
+      ErrorAnd<QuestionDefinition, QuestionServiceError> result = service.update(definition);
+      if (result.isError()) {
+        StringJoiner messageJoiner = new StringJoiner(". ", "", ".");
+        for (QuestionServiceError e : result.getErrors()) {
+          messageJoiner.add(e.message());
+        }
+        String errorMessage = messageJoiner.toString();
+        return withData(
+            withMessage(redirect(routes.QuestionController.edit(id)), errorMessage),
+            questionForm.getData());
+      }
     } catch (UnsupportedQuestionTypeException e) {
-      exception = e.toString();
-      LOG.info(exception);
+      // These are valid question types, but are not fully supported yet.
+      String errorMessage = e.toString();
+      return withData(
+          withMessage(redirect(routes.QuestionController.edit(id)), errorMessage),
+          questionForm.getData());
     } catch (InvalidQuestionTypeException e) {
-      exception = e.toString();
-      LOG.info(exception);
+      // These are unrecognized invalid question types.
+      LOG.info(e.toString());
+      return badRequest();
     } catch (InvalidUpdateException e) {
-      exception = e.toString();
-      LOG.info(exception);
+      // Ill-formed update request
+      LOG.info(e.toString());
+      return badRequest();
     }
-    return CompletableFuture.completedFuture(
-        withMessage(redirect(routes.QuestionController.index("table")), exception));
+    String successMessage = String.format("question %s updated", questionForm.getQuestionPath());
+    return withMessage(redirect(routes.QuestionController.index("table")), successMessage);
   }
 
   private Result withMessage(Result result, String message) {
