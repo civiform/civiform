@@ -83,8 +83,7 @@ public class QuestionController extends Controller {
                     questionForm.getData());
               } catch (InvalidQuestionTypeException e) {
                 // These are unrecognized invalid question types.
-                LOG.info(e.toString());
-                return badRequest();
+                return badRequest(e.toString());
               }
               String successMessage =
                   String.format("question %s created", questionForm.getQuestionPath());
@@ -104,8 +103,7 @@ public class QuestionController extends Controller {
                 QuestionDefinition definition = readOnlyService.getQuestionDefinition(id);
                 return ok(editView.renderEditQuestionForm(request, definition));
               } catch (QuestionNotFoundException e) {
-                LOG.info(e.toString());
-                return badRequest();
+                return badRequest(e.toString());
               }
             },
             httpExecutionContext.current());
@@ -129,7 +127,10 @@ public class QuestionController extends Controller {
                 case "table":
                   return ok(listView.renderAsTable(readOnlyService.getAllQuestions(), maybeFlash));
                 default:
-                  return badRequest();
+                  return badRequest(
+                      String.format(
+                          "unrecognized renderAs: '%s', accepted values include 'list' and 'table'",
+                          renderAs));
               }
             },
             httpExecutionContext.current());
@@ -160,12 +161,10 @@ public class QuestionController extends Controller {
           questionForm.getData());
     } catch (InvalidQuestionTypeException e) {
       // These are unrecognized invalid question types.
-      LOG.info(e.toString());
-      return badRequest();
+      return badRequest(e.toString());
     } catch (InvalidUpdateException e) {
       // Ill-formed update request
-      LOG.info(e.toString());
-      return badRequest();
+      return badRequest(e.toString());
     }
     String successMessage = String.format("question %s updated", questionForm.getQuestionPath());
     return withMessage(redirect(routes.QuestionController.index("table")), successMessage);
