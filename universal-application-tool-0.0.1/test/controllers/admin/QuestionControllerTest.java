@@ -91,11 +91,11 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void edit_invalidPathReturnsBadRequest() throws Exception {
+  public void edit_invalidIDReturnsBadRequest() throws Exception {
     buildQuestionsList();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     controller
-        .edit(request, "invalid.path")
+        .edit(request, 9999L)
         .thenAccept(
             result -> {
               assertThat(result.status()).isEqualTo(BAD_REQUEST);
@@ -106,10 +106,10 @@ public class QuestionControllerTest extends WithPostgresContainer {
 
   @Test
   public void edit_returnsPopulatedForm() throws Exception {
-    buildQuestionsList();
+    Question question = buildQuestionsList();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     controller
-        .edit(request, "the.ultimate.question")
+        .edit(request, question.id)
         .thenAccept(
             result -> {
               assertThat(result.status()).isEqualTo(OK);
@@ -224,7 +224,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
         .join();
   }
 
-  private void buildQuestionsList() throws UnsupportedQuestionTypeException {
+  private Question buildQuestionsList() throws UnsupportedQuestionTypeException {
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setVersion(1L)
@@ -237,5 +237,6 @@ public class QuestionControllerTest extends WithPostgresContainer {
             .setQuestionType(QuestionType.TEXT);
     Question question = new Question(builder.build());
     question.save();
+    return question;
   }
 }

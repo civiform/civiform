@@ -21,10 +21,10 @@ import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.ErrorAnd;
-import services.question.InvalidPathException;
 import services.question.InvalidQuestionTypeException;
 import services.question.InvalidUpdateException;
 import services.question.QuestionDefinition;
+import services.question.QuestionNotFoundException;
 import services.question.QuestionService;
 import services.question.QuestionServiceError;
 import services.question.UnsupportedQuestionTypeException;
@@ -96,15 +96,15 @@ public class QuestionController extends Controller {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public CompletionStage<Result> edit(Request request, String path) {
+  public CompletionStage<Result> edit(Request request, Long id) {
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
               try {
-                QuestionDefinition definition = readOnlyService.getQuestionDefinition(path);
+                QuestionDefinition definition = readOnlyService.getQuestionDefinition(id);
                 return ok(editView.renderEditQuestionForm(request, definition));
-              } catch (InvalidPathException e) {
+              } catch (QuestionNotFoundException e) {
                 LOG.info(e.toString());
                 return badRequest();
               }
