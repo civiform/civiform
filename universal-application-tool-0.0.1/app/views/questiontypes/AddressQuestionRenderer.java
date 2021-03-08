@@ -31,7 +31,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                     addressQuestion.hasStreetValue(), addressQuestion.getStreetValue().orElse(""))
                 .withName(addressQuestion.getStreetPath().path())
                 .withPlaceholder("Street address"),
-            renderFieldErrors(addressQuestion.getStreetErrors())),
+            fieldErrors(addressQuestion.getStreetErrors())),
         label(
             input()
                 .withType("text")
@@ -39,7 +39,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                     addressQuestion.hasCityValue(), addressQuestion.getCityValue().orElse(""))
                 .withName(addressQuestion.getCityPath().path())
                 .withPlaceholder("City"),
-            renderFieldErrors(addressQuestion.getCityErrors())),
+            fieldErrors(addressQuestion.getCityErrors())),
         label(
             input()
                 .withType("text")
@@ -47,7 +47,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                     addressQuestion.hasStateValue(), addressQuestion.getStateValue().orElse(""))
                 .withName(addressQuestion.getStatePath().path())
                 .withPlaceholder("State"),
-            renderFieldErrors(addressQuestion.getStateErrors())),
+            fieldErrors(addressQuestion.getStateErrors())),
         label(
             input()
                 .withType("text")
@@ -55,6 +55,6 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                     addressQuestion.hasZipValue(), addressQuestion.getZipValue().orElse(""))
                 .withName(addressQuestion.getZipPath().path())
                 .withPlaceholder("Zip code"),
-            renderFieldErrors(addressQuestion.getZipErrors())));
+            fieldErrors(addressQuestion.getZipErrors())));
   }
 }

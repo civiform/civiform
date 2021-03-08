@@ -37,7 +37,7 @@ public abstract class BaseHtmlView {
     return h1(headerText);
   }
 
-  protected ContainerTag renderFieldErrors(ImmutableSet<ValidationErrorMessage> errors) {
+  protected ContainerTag fieldErrors(ImmutableSet<ValidationErrorMessage> errors) {
     return div(each(errors, error -> span(error.message())));
   }
 

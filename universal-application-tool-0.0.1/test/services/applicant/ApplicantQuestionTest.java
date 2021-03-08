@@ -7,6 +7,7 @@ import java.util.Locale;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
+import services.Path;
 import services.question.AddressQuestionDefinition;
 import services.question.NameQuestionDefinition;
 import services.question.TextQuestionDefinition;
@@ -17,7 +18,7 @@ public class ApplicantQuestionTest {
       new TextQuestionDefinition(
           1L,
           "question name",
-          "applicant.my.path.name",
+          Path.create("applicant.my.path.name"),
           "description",
           ImmutableMap.of(Locale.ENGLISH, "question?"),
           ImmutableMap.of(Locale.ENGLISH, "help text"));
@@ -25,7 +26,7 @@ public class ApplicantQuestionTest {
       new NameQuestionDefinition(
           1L,
           "question name",
-          "applicant.my.path.name",
+          Path.create("applicant.my.path.name"),
           "description",
           ImmutableMap.of(Locale.ENGLISH, "question?"),
           ImmutableMap.of(Locale.ENGLISH, "help text"));
@@ -33,7 +34,7 @@ public class ApplicantQuestionTest {
       new AddressQuestionDefinition(
           1L,
           "question name",
-          "applicant.my.path.name",
+          Path.create("applicant.my.path.name"),
           "description",
           ImmutableMap.of(Locale.ENGLISH, "question?"),
           ImmutableMap.of(Locale.ENGLISH, "help text"));
@@ -60,7 +61,7 @@ public class ApplicantQuestionTest {
 
   @Test
   public void textQuestion_withPresentApplicantData() {
-    applicantData.putString(Path.create(textQuestionDefinition.getPath()), "hello");
+    applicantData.putString(textQuestionDefinition.getPath(), "hello");
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(textQuestionDefinition, applicantData);
     ApplicantQuestion.TextQuestion textQuestion = applicantQuestion.getTextQuestion();
@@ -82,8 +83,8 @@ public class ApplicantQuestionTest {
 
   @Test
   public void nameQuestion_withInvalidApplicantData() {
-    applicantData.putString(Path.create(nameQuestionDefinition.getFirstNamePath()), "");
-    applicantData.putString(Path.create(nameQuestionDefinition.getLastNamePath()), "");
+    applicantData.putString(nameQuestionDefinition.getFirstNamePath(), "");
+    applicantData.putString(nameQuestionDefinition.getLastNamePath(), "");
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(nameQuestionDefinition, applicantData);
     ApplicantQuestion.NameQuestion nameQuestion = applicantQuestion.getNameQuestion();
@@ -97,8 +98,8 @@ public class ApplicantQuestionTest {
 
   @Test
   public void nameQuestion_withValidApplicantData() {
-    applicantData.putString(Path.create(nameQuestionDefinition.getFirstNamePath()), "Wendel");
-    applicantData.putString(Path.create(nameQuestionDefinition.getLastNamePath()), "Patrick");
+    applicantData.putString(nameQuestionDefinition.getFirstNamePath(), "Wendel");
+    applicantData.putString(nameQuestionDefinition.getLastNamePath(), "Patrick");
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(nameQuestionDefinition, applicantData);
     ApplicantQuestion.NameQuestion nameQuestion = applicantQuestion.getNameQuestion();
@@ -121,10 +122,10 @@ public class ApplicantQuestionTest {
 
   @Test
   public void addressQuestion_withInvalidApplicantData() {
-    applicantData.putString(Path.create(addressQuestionDefinition.getStreetPath()), "");
-    applicantData.putString(Path.create(addressQuestionDefinition.getCityPath()), "");
-    applicantData.putString(Path.create(addressQuestionDefinition.getStatePath()), "");
-    applicantData.putString(Path.create(addressQuestionDefinition.getZipPath()), "");
+    applicantData.putString(addressQuestionDefinition.getStreetPath(), "");
+    applicantData.putString(addressQuestionDefinition.getCityPath(), "");
+    applicantData.putString(addressQuestionDefinition.getStatePath(), "");
+    applicantData.putString(addressQuestionDefinition.getZipPath(), "");
 
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(addressQuestionDefinition, applicantData);
@@ -140,7 +141,7 @@ public class ApplicantQuestionTest {
     assertThat(addressQuestion.getZipErrors())
         .contains(ValidationErrorMessage.create("Zip code is required."));
 
-    applicantData.putString(Path.create(addressQuestionDefinition.getZipPath()), "not a zip code");
+    applicantData.putString(addressQuestionDefinition.getZipPath(), "not a zip code");
     addressQuestion =
         new ApplicantQuestion(addressQuestionDefinition, applicantData).getAddressQuestion();
 
@@ -150,10 +151,10 @@ public class ApplicantQuestionTest {
 
   @Test
   public void addressQuestion_withValidApplicantData() {
-    applicantData.putString(Path.create(addressQuestionDefinition.getStreetPath()), "85 Pike St");
-    applicantData.putString(Path.create(addressQuestionDefinition.getCityPath()), "Seattle");
-    applicantData.putString(Path.create(addressQuestionDefinition.getStatePath()), "WA");
-    applicantData.putString(Path.create(addressQuestionDefinition.getZipPath()), "98101");
+    applicantData.putString(addressQuestionDefinition.getStreetPath(), "85 Pike St");
+    applicantData.putString(addressQuestionDefinition.getCityPath(), "Seattle");
+    applicantData.putString(addressQuestionDefinition.getStatePath(), "WA");
+    applicantData.putString(addressQuestionDefinition.getZipPath(), "98101");
 
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(addressQuestionDefinition, applicantData);

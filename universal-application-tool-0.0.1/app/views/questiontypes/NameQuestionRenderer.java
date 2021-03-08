@@ -30,7 +30,7 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                 .withCondValue(
                     nameQuestion.hasFirstNameValue(), nameQuestion.getFirstNameValue().orElse(""))
                 .withName(nameQuestion.getFirstNamePath().path()),
-            renderFieldErrors(nameQuestion.getFirstNameErrors())),
+            fieldErrors(nameQuestion.getFirstNameErrors())),
         label(
             input()
                 .withType("text")
@@ -43,6 +43,6 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                 .withCondValue(
                     nameQuestion.hasLastNameValue(), nameQuestion.getLastNameValue().orElse(""))
                 .withName(nameQuestion.getLastNamePath().path()),
-            renderFieldErrors(nameQuestion.getLastNameErrors())));
+            fieldErrors(nameQuestion.getLastNameErrors())));
   }
 }
