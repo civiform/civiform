@@ -53,14 +53,27 @@ public class ApplicantRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
-  public void insertApplicant() throws Exception {
+  public void insertApplicant() {
     Applicant applicant = new Applicant();
     String path = "$.applicant.birthdate";
     applicant.getApplicantData().putString(Path.create(path), "1/1/2021");
 
-    assertThat(applicant.getApplicantData().readString(Path.create(path))).hasValue("1/1/2021");
-
     repo.insertApplicant(applicant).toCompletableFuture().join();
+
+    long id = applicant.id;
+    Applicant a = repo.lookupApplicant(id).toCompletableFuture().join().get();
+    assertThat(a.id).isEqualTo(id);
+    assertThat(a.getApplicantData().readString(Path.create(path))).hasValue("1/1/2021");
+  }
+
+  @Test
+  public void updateApplicant() {
+    Applicant applicant = new Applicant();
+    repo.insertApplicant(applicant).toCompletableFuture().join();
+    String path = "$.applicant.birthdate";
+    applicant.getApplicantData().putString(Path.create(path), "1/1/2021");
+
+    repo.updateApplicant(applicant).toCompletableFuture().join();
 
     long id = applicant.id;
     Applicant a = repo.lookupApplicant(id).toCompletableFuture().join().get();
