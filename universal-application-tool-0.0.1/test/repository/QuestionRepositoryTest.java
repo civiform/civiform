@@ -10,6 +10,7 @@ import java.util.Set;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
+import services.Path;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.TextQuestionDefinition;
@@ -85,7 +86,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   @Test
   public void findConflictingQuestion_returnsEmptyWhenNoQuestions() {
     Optional<Question> found =
-        repo.findConflictingQuestion("path.one").toCompletableFuture().join();
+        repo.findConflictingQuestion(Path.create("path.one")).toCompletableFuture().join();
 
     assertThat(found).isEmpty();
   }
@@ -96,7 +97,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
     resourceCreator().insertQuestion("path.two");
 
     Optional<Question> found =
-        repo.findConflictingQuestion("path.other").toCompletableFuture().join();
+        repo.findConflictingQuestion(Path.create("path.other")).toCompletableFuture().join();
 
     assertThat(found).isEmpty();
   }
@@ -107,7 +108,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
     resourceCreator().insertQuestion("path.two");
 
     Optional<Question> found =
-        repo.findConflictingQuestion("path.one").toCompletableFuture().join();
+        repo.findConflictingQuestion(Path.create("path.one")).toCompletableFuture().join();
 
     assertThat(found).hasValue(questionOne);
   }
@@ -148,7 +149,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
         new TextQuestionDefinition(
             2L,
             "question",
-            "applicant.name",
+            Path.create("applicant.name"),
             "applicant's name",
             ImmutableMap.of(Locale.US, "What is your name?"),
             ImmutableMap.of());
@@ -167,7 +168,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
         new TextQuestionDefinition(
             2L,
             "question",
-            "applicant.name",
+            Path.create("applicant.name"),
             "applicant's name",
             ImmutableMap.of(Locale.US, "What is your name?"),
             ImmutableMap.of());

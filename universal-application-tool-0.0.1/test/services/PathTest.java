@@ -1,4 +1,4 @@
-package services.applicant;
+package services;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -7,15 +7,22 @@ import org.junit.Test;
 public class PathTest {
 
   @Test
-  public void pathWithPrefix_removesOnlyPrefix() {
+  public void pathWithPrefix_removesOnlyPrefixAndWhitespace() {
     String path = "favorite.color";
     assertThat(Path.create("$.applicant." + path).path()).isEqualTo("applicant.favorite.color");
     assertThat(Path.create(path).path()).isEqualTo(path);
+    assertThat(Path.create("      applicant.hello   ").path()).isEqualTo("applicant.hello");
+    assertThat(Path.create("    $.applicant  ").path()).isEqualTo("applicant");
+  }
+
+  @Test
+  public void createPathFromString_returnsEmptyPathIfStringIsEmpty() {
+    assertThat(Path.create("")).isEqualTo(Path.empty());
   }
 
   @Test
   public void segments_emptyPath() {
-    assertThat(Path.create("").segments()).isEmpty();
+    assertThat(Path.empty().segments()).isEmpty();
   }
 
   @Test
@@ -31,7 +38,7 @@ public class PathTest {
 
   @Test
   public void parentPath_emptyPath() {
-    Path path = Path.create("");
+    Path path = Path.empty();
     assertThat(path.parentPath()).isEqualTo(Path.create(""));
   }
 
@@ -49,7 +56,7 @@ public class PathTest {
 
   @Test
   public void keyName_emptyPath() {
-    Path path = Path.create("");
+    Path path = Path.empty();
     assertThat(path.keyName()).isEqualTo("");
   }
 
@@ -67,7 +74,7 @@ public class PathTest {
 
   @Test
   public void parentPaths_emptyPath() {
-    Path path = Path.create("");
+    Path path = Path.empty();
     assertThat(path.parentPaths()).isEmpty();
   }
 
@@ -82,5 +89,20 @@ public class PathTest {
     Path path = Path.create("animals.favorites.dog");
     assertThat(path.parentPaths())
         .containsExactly(Path.create("animals"), Path.create("animals.favorites"));
+  }
+
+  @Test
+  public void pathBuilder() {
+    Path path = Path.builder().setPath("applicant.my.path").build();
+    assertThat(path.path()).isEqualTo("applicant.my.path");
+
+    path = path.toBuilder().append("another").build();
+    assertThat(path.path()).isEqualTo("applicant.my.path.another");
+
+    path = path.toBuilder().append("part").build();
+    assertThat(path.path()).isEqualTo("applicant.my.path.another.part");
+
+    path = path.toBuilder().setPath("something.new").build();
+    assertThat(path.path()).isEqualTo("something.new");
   }
 }

@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import services.Path;
 import services.question.AddressQuestionDefinition;
 import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
@@ -175,7 +176,7 @@ public class ApplicantQuestion {
         return streetValue;
       }
 
-      streetValue = applicantData.readString(Path.create(getStreetPath()));
+      streetValue = applicantData.readString(getStreetPath());
       return streetValue;
     }
 
@@ -184,7 +185,7 @@ public class ApplicantQuestion {
         return cityValue;
       }
 
-      cityValue = applicantData.readString(Path.create(getCityPath()));
+      cityValue = applicantData.readString(getCityPath());
       return cityValue;
     }
 
@@ -193,7 +194,7 @@ public class ApplicantQuestion {
         return stateValue;
       }
 
-      stateValue = applicantData.readString(Path.create(getStatePath()));
+      stateValue = applicantData.readString(getStatePath());
       return stateValue;
     }
 
@@ -202,7 +203,7 @@ public class ApplicantQuestion {
         return zipValue;
       }
 
-      zipValue = applicantData.readString(Path.create(getZipPath()));
+      zipValue = applicantData.readString(getZipPath());
       return zipValue;
     }
 
@@ -220,19 +221,19 @@ public class ApplicantQuestion {
       return (AddressQuestionDefinition) questionDefinition;
     }
 
-    public String getStreetPath() {
+    public Path getStreetPath() {
       return getQuestionDefinition().getStreetPath();
     }
 
-    public String getCityPath() {
+    public Path getCityPath() {
       return getQuestionDefinition().getCityPath();
     }
 
-    public String getStatePath() {
+    public Path getStatePath() {
       return getQuestionDefinition().getStatePath();
     }
 
-    public String getZipPath() {
+    public Path getZipPath() {
       return getQuestionDefinition().getZipPath();
     }
   }
@@ -260,7 +261,7 @@ public class ApplicantQuestion {
         return textValue;
       }
 
-      textValue = applicantData.readString(Path.create(questionDefinition.getPath()));
+      textValue = applicantData.readString(questionDefinition.getPath());
 
       return textValue;
     }
@@ -279,7 +280,7 @@ public class ApplicantQuestion {
       return (TextQuestionDefinition) questionDefinition;
     }
 
-    public String getTextPath() {
+    public Path getTextPath() {
       return getQuestionDefinition().getTextPath();
     }
   }
@@ -339,7 +340,7 @@ public class ApplicantQuestion {
         return firstNameValue;
       }
 
-      firstNameValue = applicantData.readString(Path.create(getFirstNamePath()));
+      firstNameValue = applicantData.readString(getFirstNamePath());
 
       return firstNameValue;
     }
@@ -349,7 +350,7 @@ public class ApplicantQuestion {
         return middleNameValue;
       }
 
-      middleNameValue = applicantData.readString(Path.create(getMiddleNamePath()));
+      middleNameValue = applicantData.readString(getMiddleNamePath());
 
       return middleNameValue;
     }
@@ -359,7 +360,7 @@ public class ApplicantQuestion {
         return lastNameValue;
       }
 
-      lastNameValue = applicantData.readString(Path.create(getLastNamePath()));
+      lastNameValue = applicantData.readString(getLastNamePath());
 
       return lastNameValue;
     }
@@ -378,15 +379,15 @@ public class ApplicantQuestion {
       return (NameQuestionDefinition) questionDefinition;
     }
 
-    public String getMiddleNamePath() {
+    public Path getMiddleNamePath() {
       return getQuestionDefinition().getMiddleNamePath();
     }
 
-    public String getFirstNamePath() {
+    public Path getFirstNamePath() {
       return getQuestionDefinition().getFirstNamePath();
     }
 
-    public String getLastNamePath() {
+    public Path getLastNamePath() {
       return getQuestionDefinition().getLastNamePath();
     }
   }

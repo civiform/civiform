@@ -1,7 +1,9 @@
 package services.question;
 
+import services.Path;
+
 public class InvalidPathException extends Exception {
-  public InvalidPathException(String pathName) {
-    super("Path not found: " + pathName);
+  public InvalidPathException(Path pathName) {
+    super("Path not found: " + pathName.path());
   }
 }

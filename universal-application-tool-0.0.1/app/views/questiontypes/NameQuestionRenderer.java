@@ -29,20 +29,20 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                 .withType("text")
                 .withCondValue(
                     nameQuestion.hasFirstNameValue(), nameQuestion.getFirstNameValue().orElse(""))
-                .withName(nameQuestion.getFirstNamePath()),
+                .withName(nameQuestion.getFirstNamePath().path()),
             renderFieldErrors(nameQuestion.getFirstNameErrors())),
         label(
             input()
                 .withType("text")
                 .withCondValue(
                     nameQuestion.hasMiddleNameValue(), nameQuestion.getMiddleNameValue().orElse(""))
-                .withName(nameQuestion.getMiddleNamePath())),
+                .withName(nameQuestion.getMiddleNamePath().path())),
         label(
             input()
                 .withType("text")
                 .withCondValue(
                     nameQuestion.hasLastNameValue(), nameQuestion.getLastNameValue().orElse(""))
-                .withName(nameQuestion.getLastNamePath()),
+                .withName(nameQuestion.getLastNamePath().path()),
             renderFieldErrors(nameQuestion.getLastNameErrors())));
   }
 }

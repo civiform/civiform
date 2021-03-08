@@ -6,8 +6,8 @@ import org.junit.Before;
 import org.junit.Test;
 import repository.ApplicantRepository;
 import repository.WithPostgresContainer;
+import services.Path;
 import services.applicant.ApplicantData;
-import services.applicant.Path;
 
 public class ApplicantTest extends WithPostgresContainer {
 
