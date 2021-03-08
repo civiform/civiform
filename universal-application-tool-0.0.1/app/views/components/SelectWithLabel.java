@@ -4,10 +4,10 @@ import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
 
 import com.google.common.collect.ImmutableList;
-import java.util.AbstractMap.SimpleEntry;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.AbstractMap.SimpleEntry;
 
 public class SelectWithLabel extends FieldWithLabel {
 
@@ -37,7 +37,7 @@ public class SelectWithLabel extends FieldWithLabel {
   @Override
   public SelectWithLabel setValue(String value) {
     super.setValue(value);
-    return this;  
+    return this;
   }
 
   @Override

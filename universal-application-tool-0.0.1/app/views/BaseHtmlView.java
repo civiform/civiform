@@ -1,23 +1,17 @@
 package views;
 
-import static j2html.TagCreator.br;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
-import static j2html.TagCreator.option;
-import static j2html.TagCreator.select;
 import static j2html.TagCreator.text;
 
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
-import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.Tag;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.Optional;
 import play.mvc.Http;
-import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.html.helper.CSRF;
 
@@ -31,38 +25,6 @@ public abstract class BaseHtmlView {
 
   public Tag renderHeader(String headerText) {
     return h1(headerText);
-  }
-
-  protected DomContent textInputWithLabel(
-      String labelValue, String inputId, Optional<String> value) {
-    FieldWithLabel field = FieldWithLabel.createInputWithLabel(inputId).setLabelText(labelValue);
-    if (value.isPresent()) {
-      field.setValue(value.get());
-    }
-    return field.getContainer();
-  }
-
-  public DomContent textInputWithLabel(
-      String labelValue, String inputId, String value) {
-    Optional<String> optionalValue = Optional.ofNullable(value).filter(s -> !s.trim().isEmpty());
-
-    return textInputWithLabel(labelValue, inputId, optionalValue);
-  }
-
-  public DomContent textAreaWithLabel(
-      String labelValue, String inputId, Optional<String> value) {
-    FieldWithLabel field = FieldWithLabel.createTextAreaWithLabel(inputId).setLabelText(labelValue);
-    if (value.isPresent()) {
-      field.setValue(value.get());
-    }
-    return field.getContainer();
-  }
-
-  public DomContent textAreaWithLabel(
-      String labelValue, String inputId, String value) {
-    Optional<String> optionalValue = Optional.ofNullable(value).filter(s -> !s.trim().isEmpty());
-
-    return textAreaWithLabel(labelValue, inputId, optionalValue);
   }
 
   protected Tag checkboxInputWithLabel(
@@ -110,10 +72,11 @@ public abstract class BaseHtmlView {
       String selectId,
       ImmutableList<SimpleEntry<String, String>> options,
       String selectedValue) {
-    SelectWithLabel selectWithLabel = new SelectWithLabel(selectId)
-      .setLabelText(labelValue)
-      .setOptions(options)
-      .setValue(selectedValue);
+    SelectWithLabel selectWithLabel =
+        new SelectWithLabel(selectId)
+            .setLabelText(labelValue)
+            .setOptions(options)
+            .setValue(selectedValue);
     return ImmutableList.of(selectWithLabel.getContainer());
   }
 

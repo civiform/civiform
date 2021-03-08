@@ -38,16 +38,15 @@ public class FieldWithLabel {
   public FieldWithLabel(Tag fieldTag, String inputId) {
     this.fieldTag =
         fieldTag.withId(inputId).withName(inputId).withClasses(FieldWithLabel.CORE_FIELD_CLASSES);
-
     this.labelTag = label().attr(Attr.FOR, inputId).withClasses(FieldWithLabel.CORE_LABEL_CLASSES);
   }
 
-  public static FieldWithLabel createInputWithLabel(String inputId) {
+  public static FieldWithLabel createInput(String inputId) {
     Tag fieldTag = input().withType("text");
     return new FieldWithLabel(fieldTag, inputId);
   }
 
-  public static FieldWithLabel createTextAreaWithLabel(String inputId) {
+  public static FieldWithLabel createTextArea(String inputId) {
     Tag fieldTag = textarea().withType("text");
     return new FieldWithLabel(fieldTag, inputId);
   }

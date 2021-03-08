@@ -21,6 +21,7 @@ import services.question.QuestionDefinition;
 import views.BaseHtmlView;
 import views.Styles;
 import views.admin.AdminLayout;
+import views.components.FieldWithLabel;
 
 public class ProgramBlockEditView extends BaseHtmlView {
 
@@ -102,10 +103,14 @@ public class ProgramBlockEditView extends BaseHtmlView {
             div(
                 form(
                         csrfTag,
-                        div(textInputWithLabel("Block Name", "name", block.name())),
-                        div(
-                            textAreaWithLabel(
-                                "Block Description", "description", block.description())),
+                        FieldWithLabel.createInput("name")
+                            .setLabelText("Block name")
+                            .setValue(block.name())
+                            .getContainer(),
+                        FieldWithLabel.createTextArea("description")
+                            .setLabelText("Block description")
+                            .setValue(block.description())
+                            .getContainer(),
                         submitButton("Update Block"))
                     .withMethod("post")
                     .withAction(
