@@ -33,7 +33,7 @@ enum QuestionTableCell {
   public Tag getCellValue(QuestionDefinition definition) {
     switch (this) {
       case PATH:
-        return td(definition.getPath());
+        return td(definition.getPath().path());
       case ID:
         return td("" + definition.getId());
       case VERSION:

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import org.junit.Test;
+import services.Path;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
@@ -65,7 +66,7 @@ public class ProgramDefinitionTest {
             .setId(1L)
             .setVersion(1L)
             .setName("my name")
-            .setPath("my.path.name")
+            .setPath(Path.create("my.path.name"))
             .setDescription("description")
             .setQuestionType(QuestionType.TEXT)
             .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "question?"))
@@ -76,7 +77,7 @@ public class ProgramDefinitionTest {
             .setId(2L)
             .setVersion(1L)
             .setName("my name")
-            .setPath("my.path.name")
+            .setPath(Path.create("my.path.name"))
             .setDescription("description")
             .setQuestionType(QuestionType.TEXT)
             .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "question?"))
@@ -87,7 +88,7 @@ public class ProgramDefinitionTest {
             .setId(3L)
             .setVersion(1L)
             .setName("my name")
-            .setPath("my.path.name")
+            .setPath(Path.create("my.path.name"))
             .setDescription("description")
             .setQuestionType(QuestionType.TEXT)
             .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "question?"))

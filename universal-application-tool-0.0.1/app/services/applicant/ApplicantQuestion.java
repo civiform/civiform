@@ -2,7 +2,11 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import services.Path;
 import services.question.AddressQuestionDefinition;
 import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
@@ -38,6 +42,29 @@ public class ApplicantQuestion {
     }
   }
 
+  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+    // TODO: Once QuestionDefinition has validation predicates, validate applicantData against
+    //  validation logic in questionDefinition, if any.
+    return ImmutableSet.of();
+  }
+
+  public boolean hasErrors() {
+    if (!getQuestionErrors().isEmpty()) {
+      return true;
+    }
+
+    switch (getType()) {
+      case ADDRESS:
+        return getAddressQuestion().hasErrors();
+      case NAME:
+        return getNameQuestion().hasErrors();
+      case TEXT:
+        return getTextQuestion().hasErrors();
+      default:
+        throw new RuntimeException("Unrecognized question type: " + getType());
+    }
+  }
+
   public AddressQuestion getAddressQuestion() {
     return new AddressQuestion();
   }
@@ -50,7 +77,13 @@ public class ApplicantQuestion {
     return new NameQuestion();
   }
 
-  public class AddressQuestion {
+  private interface PresentsErrors {
+
+    boolean hasErrors();
+  }
+
+  public class AddressQuestion implements PresentsErrors {
+
     private Optional<String> streetValue;
     private Optional<String> cityValue;
     private Optional<String> stateValue;
@@ -58,6 +91,68 @@ public class ApplicantQuestion {
 
     public AddressQuestion() {
       assertQuestionType();
+    }
+
+    @Override
+    public boolean hasErrors() {
+      return !getAllErrors().isEmpty();
+    }
+
+    private ImmutableSet<ValidationErrorMessage> getAllErrors() {
+      return ImmutableSet.<ValidationErrorMessage>builder()
+          .addAll(getAddressErrors())
+          .addAll(getStreetErrors())
+          .addAll(getCityErrors())
+          .addAll(getStateErrors())
+          .addAll(getZipErrors())
+          .build();
+    }
+
+    public ImmutableSet<ValidationErrorMessage> getAddressErrors() {
+      // TODO: Implement address validation.
+      return ImmutableSet.of();
+    }
+
+    public ImmutableSet<ValidationErrorMessage> getStreetErrors() {
+      if (hasStreetValue() && getStreetValue().get().isEmpty()) {
+        return ImmutableSet.of(ValidationErrorMessage.create("Street is required."));
+      }
+
+      return ImmutableSet.of();
+    }
+
+    public ImmutableSet<ValidationErrorMessage> getCityErrors() {
+      if (hasCityValue() && getCityValue().get().isEmpty()) {
+        return ImmutableSet.of(ValidationErrorMessage.create("City is required."));
+      }
+
+      return ImmutableSet.of();
+    }
+
+    public ImmutableSet<ValidationErrorMessage> getStateErrors() {
+      // TODO: Validate state further.
+      if (hasStateValue() && getStateValue().get().isEmpty()) {
+        return ImmutableSet.of(ValidationErrorMessage.create("State is required."));
+      }
+
+      return ImmutableSet.of();
+    }
+
+    public ImmutableSet<ValidationErrorMessage> getZipErrors() {
+      if (hasZipValue()) {
+        String zipValue = getZipValue().get();
+        if (zipValue.isEmpty()) {
+          return ImmutableSet.of(ValidationErrorMessage.create("Zip code is required."));
+        }
+
+        Pattern pattern = Pattern.compile("^[0-9]{5}(?:-[0-9]{4})?$");
+        Matcher matcher = pattern.matcher(zipValue);
+        if (!matcher.matches()) {
+          return ImmutableSet.of(ValidationErrorMessage.create("Invalid zip code."));
+        }
+      }
+
+      return ImmutableSet.of();
     }
 
     public boolean hasStreetValue() {
@@ -81,7 +176,7 @@ public class ApplicantQuestion {
         return streetValue;
       }
 
-      streetValue = applicantData.readString(Path.create(getStreetPath()));
+      streetValue = applicantData.readString(getStreetPath());
       return streetValue;
     }
 
@@ -90,7 +185,7 @@ public class ApplicantQuestion {
         return cityValue;
       }
 
-      cityValue = applicantData.readString(Path.create(getCityPath()));
+      cityValue = applicantData.readString(getCityPath());
       return cityValue;
     }
 
@@ -99,7 +194,7 @@ public class ApplicantQuestion {
         return stateValue;
       }
 
-      stateValue = applicantData.readString(Path.create(getStatePath()));
+      stateValue = applicantData.readString(getStatePath());
       return stateValue;
     }
 
@@ -108,7 +203,7 @@ public class ApplicantQuestion {
         return zipValue;
       }
 
-      zipValue = applicantData.readString(Path.create(getZipPath()));
+      zipValue = applicantData.readString(getZipPath());
       return zipValue;
     }
 
@@ -126,28 +221,35 @@ public class ApplicantQuestion {
       return (AddressQuestionDefinition) questionDefinition;
     }
 
-    public String getStreetPath() {
+    public Path getStreetPath() {
       return getQuestionDefinition().getStreetPath();
     }
 
-    public String getCityPath() {
+    public Path getCityPath() {
       return getQuestionDefinition().getCityPath();
     }
 
-    public String getStatePath() {
+    public Path getStatePath() {
       return getQuestionDefinition().getStatePath();
     }
 
-    public String getZipPath() {
+    public Path getZipPath() {
       return getQuestionDefinition().getZipPath();
     }
   }
 
-  public class TextQuestion {
+  public class TextQuestion implements PresentsErrors {
+
     private Optional<String> textValue;
 
     public TextQuestion() {
       assertQuestionType();
+    }
+
+    @Override
+    public boolean hasErrors() {
+      // There are no inherent requirements in a text question.
+      return false;
     }
 
     public boolean hasValue() {
@@ -159,7 +261,7 @@ public class ApplicantQuestion {
         return textValue;
       }
 
-      textValue = applicantData.readString(Path.create(questionDefinition.getPath()));
+      textValue = applicantData.readString(questionDefinition.getPath());
 
       return textValue;
     }
@@ -178,18 +280,47 @@ public class ApplicantQuestion {
       return (TextQuestionDefinition) questionDefinition;
     }
 
-    public String getTextPath() {
+    public Path getTextPath() {
       return getQuestionDefinition().getTextPath();
     }
   }
 
-  public class NameQuestion {
+  public class NameQuestion implements PresentsErrors {
+
     private Optional<String> firstNameValue;
     private Optional<String> middleNameValue;
     private Optional<String> lastNameValue;
 
     public NameQuestion() {
       assertQuestionType();
+    }
+
+    @Override
+    public boolean hasErrors() {
+      return !getAllErrors().isEmpty();
+    }
+
+    public ImmutableSet<ValidationErrorMessage> getAllErrors() {
+      return ImmutableSet.<ValidationErrorMessage>builder()
+          .addAll(getFirstNameErrors())
+          .addAll(getLastNameErrors())
+          .build();
+    }
+
+    public ImmutableSet<ValidationErrorMessage> getFirstNameErrors() {
+      if (hasFirstNameValue() && getFirstNameValue().get().isEmpty()) {
+        return ImmutableSet.of(ValidationErrorMessage.create("First name is required."));
+      }
+
+      return ImmutableSet.of();
+    }
+
+    public ImmutableSet<ValidationErrorMessage> getLastNameErrors() {
+      if (hasLastNameValue() && getLastNameValue().get().isEmpty()) {
+        return ImmutableSet.of(ValidationErrorMessage.create("Last name is required."));
+      }
+
+      return ImmutableSet.of();
     }
 
     public boolean hasFirstNameValue() {
@@ -209,7 +340,7 @@ public class ApplicantQuestion {
         return firstNameValue;
       }
 
-      firstNameValue = applicantData.readString(Path.create(getFirstNamePath()));
+      firstNameValue = applicantData.readString(getFirstNamePath());
 
       return firstNameValue;
     }
@@ -219,7 +350,7 @@ public class ApplicantQuestion {
         return middleNameValue;
       }
 
-      middleNameValue = applicantData.readString(Path.create(getMiddleNamePath()));
+      middleNameValue = applicantData.readString(getMiddleNamePath());
 
       return middleNameValue;
     }
@@ -229,7 +360,7 @@ public class ApplicantQuestion {
         return lastNameValue;
       }
 
-      lastNameValue = applicantData.readString(Path.create(getLastNamePath()));
+      lastNameValue = applicantData.readString(getLastNamePath());
 
       return lastNameValue;
     }
@@ -248,15 +379,15 @@ public class ApplicantQuestion {
       return (NameQuestionDefinition) questionDefinition;
     }
 
-    public String getMiddleNamePath() {
+    public Path getMiddleNamePath() {
       return getQuestionDefinition().getMiddleNamePath();
     }
 
-    public String getFirstNamePath() {
+    public Path getFirstNamePath() {
       return getQuestionDefinition().getFirstNamePath();
     }
 
-    public String getLastNamePath() {
+    public Path getLastNamePath() {
       return getQuestionDefinition().getLastNamePath();
     }
   }

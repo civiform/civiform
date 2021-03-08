@@ -4,6 +4,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import services.ErrorAnd;
+import services.Path;
 
 public interface QuestionService {
 
@@ -36,7 +37,7 @@ public interface QuestionService {
    * <p>NOTE: This does not update the version.
    */
   boolean addTranslation(
-      String path, Locale locale, String questionText, Optional<String> questionHelpText)
+      Path path, Locale locale, String questionText, Optional<String> questionHelpText)
       throws InvalidPathException;
 
   /**

@@ -26,6 +26,6 @@ public class TextQuestionRenderer extends BaseHtmlView implements ApplicantQuest
         input()
             .withType("text")
             .withCondValue(textQuestion.hasValue(), textQuestion.getTextValue().orElse(""))
-            .withName(textQuestion.getTextPath()));
+            .withName(textQuestion.getTextPath().path()));
   }
 }

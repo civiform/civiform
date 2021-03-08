@@ -16,6 +16,7 @@ import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.WithPostgresContainer;
+import services.Path;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
 import services.question.UnsupportedQuestionTypeException;
@@ -233,7 +234,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
             .setVersion(1L)
             .setName("First Question")
             .setDescription("This is the first question.")
-            .setPath("the.ultimate.question")
+            .setPath(Path.create("the.ultimate.question"))
             .setQuestionText(
                 ImmutableMap.of(Locale.ENGLISH, "What is the answer to the ultimate question?"))
             .setQuestionHelpText(ImmutableMap.of())

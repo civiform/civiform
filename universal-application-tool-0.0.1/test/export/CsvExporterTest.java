@@ -15,7 +15,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import services.applicant.Path;
+import services.Path;
 import services.program.*;
 
 public class CsvExporterTest {

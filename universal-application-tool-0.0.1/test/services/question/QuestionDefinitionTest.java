@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import org.junit.Before;
 import org.junit.Test;
+import services.Path;
 
 public class QuestionDefinitionTest {
   QuestionDefinitionBuilder builder;
@@ -20,7 +21,7 @@ public class QuestionDefinitionTest {
         new QuestionDefinitionBuilder()
             .setVersion(1L)
             .setName("my name")
-            .setPath("my.path.name")
+            .setPath(Path.create("my.path.name"))
             .setDescription("description")
             .setQuestionType(QuestionType.TEXT)
             .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "question?"))
@@ -115,7 +116,7 @@ public class QuestionDefinitionTest {
             OptionalLong.of(123L),
             1L,
             "my name",
-            "my.path.name",
+            Path.create("my.path.name"),
             "description",
             ImmutableMap.of(Locale.ENGLISH, "question?"),
             ImmutableMap.of(Locale.ENGLISH, "help text"));
@@ -123,7 +124,7 @@ public class QuestionDefinitionTest {
     assertThat(question.getId()).isEqualTo(123L);
     assertThat(question.getVersion()).isEqualTo(1L);
     assertThat(question.getName()).isEqualTo("my name");
-    assertThat(question.getPath()).isEqualTo("my.path.name");
+    assertThat(question.getPath().path()).isEqualTo("my.path.name");
     assertThat(question.getDescription()).isEqualTo("description");
     assertThat(question.getQuestionText(Locale.ENGLISH)).isEqualTo("question?");
     assertThat(question.getQuestionHelpText(Locale.ENGLISH)).isEqualTo("help text");
@@ -133,7 +134,8 @@ public class QuestionDefinitionTest {
   public void getQuestionTextForUnknownLocale_throwsException() {
     String questionPath = "question.path";
     QuestionDefinition question =
-        new TextQuestionDefinition(1L, "", questionPath, "", ImmutableMap.of(), ImmutableMap.of());
+        new TextQuestionDefinition(
+            1L, "", Path.create(questionPath), "", ImmutableMap.of(), ImmutableMap.of());
 
     Throwable thrown = catchThrowable(() -> question.getQuestionText(Locale.FRANCE));
 
@@ -150,7 +152,7 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(
             1L,
             "",
-            questionPath,
+            Path.create(questionPath),
             "",
             ImmutableMap.of(),
             ImmutableMap.of(Locale.ENGLISH, "help text"));
@@ -166,14 +168,14 @@ public class QuestionDefinitionTest {
   @Test
   public void getEmptyHelpTextForUnknownLocale_succeeds() throws TranslationNotFoundException {
     QuestionDefinition question =
-        new TextQuestionDefinition(1L, "", "", "", ImmutableMap.of(), ImmutableMap.of());
+        new TextQuestionDefinition(1L, "", Path.empty(), "", ImmutableMap.of(), ImmutableMap.of());
     assertThat(question.getQuestionHelpText(Locale.FRANCE)).isEqualTo("");
   }
 
   @Test
   public void newQuestionHasTypeText() {
     QuestionDefinition question =
-        new TextQuestionDefinition(1L, "", "", "", ImmutableMap.of(), ImmutableMap.of());
+        new TextQuestionDefinition(1L, "", Path.empty(), "", ImmutableMap.of(), ImmutableMap.of());
 
     assertThat(question.getQuestionType()).isEqualTo(QuestionType.TEXT);
   }
@@ -182,18 +184,25 @@ public class QuestionDefinitionTest {
   public void newQuestionHasStringScalar() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            1L, "name", "path.to.question", "description", ImmutableMap.of(), ImmutableMap.of());
-    assertThat(question.getScalars()).containsOnly(entry("path.to.question", ScalarType.STRING));
-    assertThat(question.getScalarType("path.to.question").get()).isEqualTo(ScalarType.STRING);
-    assertThat(question.getScalarType("path.to.question").get().getClassFor().get())
+            1L,
+            "name",
+            Path.create("path.to.question"),
+            "description",
+            ImmutableMap.of(),
+            ImmutableMap.of());
+    assertThat(question.getScalars())
+        .containsOnly(entry(Path.create("path.to.question"), ScalarType.STRING));
+    assertThat(question.getScalarType(Path.create("path.to.question")).get())
+        .isEqualTo(ScalarType.STRING);
+    assertThat(question.getScalarType(Path.create("path.to.question")).get().getClassFor().get())
         .isEqualTo(String.class);
   }
 
   @Test
   public void newQuestionMissingScalar_returnsOptionalEmpty() {
     QuestionDefinition question =
-        new TextQuestionDefinition(1L, "", "", "", ImmutableMap.of(), ImmutableMap.of());
-    assertThat(question.getScalarType("notPresent")).isEqualTo(Optional.empty());
+        new TextQuestionDefinition(1L, "", Path.empty(), "", ImmutableMap.of(), ImmutableMap.of());
+    assertThat(question.getScalarType(Path.create("notPresent"))).isEqualTo(Optional.empty());
   }
 
   @Test
@@ -202,7 +211,7 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(
             1L,
             "name",
-            "path",
+            Path.create("path"),
             "description",
             ImmutableMap.of(Locale.ENGLISH, "question?"),
             ImmutableMap.of());
@@ -212,7 +221,7 @@ public class QuestionDefinitionTest {
   @Test
   public void validateBadQuestion_returnsErrors() {
     QuestionDefinition question =
-        new TextQuestionDefinition(-1L, "", "", "", ImmutableMap.of(), ImmutableMap.of());
+        new TextQuestionDefinition(-1L, "", Path.empty(), "", ImmutableMap.of(), ImmutableMap.of());
     assertThat(question.validate())
         .containsOnly(
             QuestionServiceError.of("invalid version: -1"),

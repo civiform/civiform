@@ -104,7 +104,7 @@ public final class QuestionEditView extends BaseHtmlView {
         .with(
             textInputWithLabel(
                 "Description: ", "questionDescription", questionForm.getQuestionDescription()))
-        .with(textInputWithLabel("Path: ", "questionPath", questionForm.getQuestionPath()))
+        .with(textInputWithLabel("Path: ", "questionPath", questionForm.getQuestionPath().path()))
         .with(textAreaWithLabel("Question Text: ", "questionText", questionForm.getQuestionText()))
         .with(
             textAreaWithLabel(

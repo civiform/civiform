@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import services.Path;
 import services.question.InvalidQuestionTypeException;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
@@ -13,7 +14,7 @@ import services.question.TranslationNotFoundException;
 public class QuestionForm {
   private String questionName;
   private String questionDescription;
-  private String questionPath;
+  private Path questionPath;
   private String questionType;
   private String questionText;
   private String questionHelpText;
@@ -21,7 +22,7 @@ public class QuestionForm {
   public QuestionForm() {
     questionName = "";
     questionDescription = "";
-    questionPath = "";
+    questionPath = Path.empty();
     questionType = "TEXT";
     questionText = "";
     questionHelpText = "";
@@ -62,12 +63,12 @@ public class QuestionForm {
     this.questionDescription = checkNotNull(questionDescription);
   }
 
-  public String getQuestionPath() {
+  public Path getQuestionPath() {
     return questionPath;
   }
 
   public void setQuestionPath(String questionPath) {
-    this.questionPath = checkNotNull(questionPath);
+    this.questionPath = Path.create(checkNotNull(questionPath));
   }
 
   public String getQuestionType() {
@@ -98,7 +99,7 @@ public class QuestionForm {
     return ImmutableMap.<String, String>builder()
         .put("questionName", questionName)
         .put("questionDescription", questionDescription)
-        .put("questionPath", questionPath)
+        .put("questionPath", questionPath.path())
         .put("questionType", questionType)
         .put("questionText", questionText)
         .put("questionHelpText", questionHelpText)
