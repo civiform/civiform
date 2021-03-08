@@ -8,7 +8,7 @@ import java.util.Optional;
 import models.Applicant;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import services.applicant.Path;
+import services.Path;
 import services.program.Column;
 
 public class CsvExporter implements Exporter {
