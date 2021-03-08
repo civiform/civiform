@@ -44,7 +44,7 @@ public interface ReadOnlyQuestionService {
    *
    * <p>If the path is invalid it will throw an InvalidPathException.
    */
-  QuestionDefinition getQuestionDefinition(Path path) throws InvalidPathException;
+  QuestionDefinition getQuestionDefinition(String path) throws InvalidPathException;
 
   /**
    * Gets the question definition for a ID.
