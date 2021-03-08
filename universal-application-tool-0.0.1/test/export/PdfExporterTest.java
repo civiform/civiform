@@ -14,7 +14,7 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import services.applicant.Path;
+import services.Path;
 import services.program.ExportDefinition;
 import services.program.ExportEngine;
 import services.program.PdfExportConfig;

@@ -11,7 +11,7 @@ import java.util.Optional;
 import models.Applicant;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
-import services.applicant.Path;
+import services.Path;
 
 public class PdfExporter implements Exporter {
   private PDDocument baseDocument;

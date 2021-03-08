@@ -29,28 +29,32 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                 .withType("text")
                 .withCondValue(
                     addressQuestion.hasStreetValue(), addressQuestion.getStreetValue().orElse(""))
-                .withName(addressQuestion.getStreetPath())
-                .withPlaceholder("Street address")),
+                .withName(addressQuestion.getStreetPath().path())
+                .withPlaceholder("Street address"),
+            fieldErrors(addressQuestion.getStreetErrors())),
         label(
             input()
                 .withType("text")
                 .withCondValue(
                     addressQuestion.hasCityValue(), addressQuestion.getCityValue().orElse(""))
-                .withName(addressQuestion.getCityPath())
-                .withPlaceholder("City")),
+                .withName(addressQuestion.getCityPath().path())
+                .withPlaceholder("City"),
+            fieldErrors(addressQuestion.getCityErrors())),
         label(
             input()
                 .withType("text")
                 .withCondValue(
                     addressQuestion.hasStateValue(), addressQuestion.getStateValue().orElse(""))
-                .withName(addressQuestion.getStatePath())
-                .withPlaceholder("State")),
+                .withName(addressQuestion.getStatePath().path())
+                .withPlaceholder("State"),
+            fieldErrors(addressQuestion.getStateErrors())),
         label(
             input()
                 .withType("text")
                 .withCondValue(
                     addressQuestion.hasZipValue(), addressQuestion.getZipValue().orElse(""))
-                .withName(addressQuestion.getZipPath())
-                .withPlaceholder("Zip code")));
+                .withName(addressQuestion.getZipPath().path())
+                .withPlaceholder("Zip code"),
+            fieldErrors(addressQuestion.getZipErrors())));
   }
 }

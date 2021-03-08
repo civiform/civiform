@@ -3,6 +3,7 @@ package services.question;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import services.Path;
 
 /**
  * The ReadOnlyQuestionService contains all synchronous, in-memory operations for
@@ -14,7 +15,7 @@ public interface ReadOnlyQuestionService {
   ImmutableList<QuestionDefinition> getAllQuestions();
 
   /** Returns all scalars for this version. */
-  ImmutableMap<String, ScalarType> getAllScalars();
+  ImmutableMap<Path, ScalarType> getAllScalars();
 
   /**
    * Returns all of the scalar properties for a given path.
@@ -25,17 +26,17 @@ public interface ReadOnlyQuestionService {
    *
    * <p>If the path is invalid it will throw an InvalidPathException.
    */
-  ImmutableMap<String, ScalarType> getPathScalars(String pathString) throws InvalidPathException;
+  ImmutableMap<Path, ScalarType> getPathScalars(Path path) throws InvalidPathException;
 
   /**
    * Gets the type of the node if it exist.
    *
    * <p>If the path is invalid it will return PathType.NONE.
    */
-  PathType getPathType(String pathString);
+  PathType getPathType(Path path);
 
   /**
-   * Gets the question definition for a given path.
+   * Gets the question definition for a given String path.
    *
    * <p>If the path is to a QUESTION, it will return that.
    *
@@ -43,7 +44,18 @@ public interface ReadOnlyQuestionService {
    *
    * <p>If the path is invalid it will throw an InvalidPathException.
    */
-  QuestionDefinition getQuestionDefinition(String pathString) throws InvalidPathException;
+  QuestionDefinition getQuestionDefinition(String path) throws InvalidPathException;
+
+  /**
+   * Gets the question definition for a given {@link Path}.
+   *
+   * <p>If the path is to a QUESTION, it will return that.
+   *
+   * <p>If the path is to a SCALAR, it will return the parent QuestionDefinition for that Scalar.
+   *
+   * <p>If the path is invalid it will throw an InvalidPathException.
+   */
+  QuestionDefinition getQuestionDefinition(Path path) throws InvalidPathException;
 
   /**
    * Gets the question definition for a ID.
@@ -53,7 +65,7 @@ public interface ReadOnlyQuestionService {
   QuestionDefinition getQuestionDefinition(long id) throws QuestionNotFoundException;
 
   /** Checks whether a specific path is valid. */
-  boolean isValid(String pathString);
+  boolean isValid(Path path);
 
   /**
    * When getting question text and help text we need to send the Locale. If absent it will use the

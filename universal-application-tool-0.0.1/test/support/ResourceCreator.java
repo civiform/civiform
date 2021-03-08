@@ -9,6 +9,7 @@ import models.Applicant;
 import models.Program;
 import models.Question;
 import play.inject.Injector;
+import services.Path;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
@@ -32,13 +33,14 @@ public class ResourceCreator {
     return injector.instanceOf(clazz);
   }
 
-  public Question insertQuestion(String path) {
-    return insertQuestion(path, 1L);
+  public Question insertQuestion(String pathString) {
+    return insertQuestion(pathString, 1L);
   }
 
-  public Question insertQuestion(String path, long version) {
+  public Question insertQuestion(String pathString, long version) {
     QuestionDefinition definition =
-        new TextQuestionDefinition(version, "", path, "", ImmutableMap.of(), ImmutableMap.of());
+        new TextQuestionDefinition(
+            version, "", Path.create(pathString), "", ImmutableMap.of(), ImmutableMap.of());
     Question question = new Question(definition);
     question.save();
     return question;
@@ -50,7 +52,7 @@ public class ResourceCreator {
             new TextQuestionDefinition(
                 1L,
                 "question name",
-                "applicant.my.path.name",
+                Path.create("applicant.my.path.name"),
                 "description",
                 ImmutableMap.of(Locale.ENGLISH, "question?"),
                 ImmutableMap.of(Locale.ENGLISH, "help text")))

@@ -3,6 +3,7 @@ package services.question;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.OptionalLong;
+import services.Path;
 
 public class TextQuestionDefinition extends QuestionDefinition {
 
@@ -10,7 +11,7 @@ public class TextQuestionDefinition extends QuestionDefinition {
       OptionalLong id,
       long version,
       String name,
-      String path,
+      Path path,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
@@ -20,7 +21,7 @@ public class TextQuestionDefinition extends QuestionDefinition {
   public TextQuestionDefinition(
       long version,
       String name,
-      String path,
+      Path path,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
@@ -33,11 +34,11 @@ public class TextQuestionDefinition extends QuestionDefinition {
   }
 
   @Override
-  public ImmutableMap<String, ScalarType> getScalars() {
+  public ImmutableMap<Path, ScalarType> getScalars() {
     return ImmutableMap.of(getTextPath(), getTextType());
   }
 
-  public String getTextPath() {
+  public Path getTextPath() {
     return getPath();
   }
 

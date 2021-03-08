@@ -11,6 +11,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Question;
 import play.db.ebean.EbeanConfig;
+import services.Path;
 
 public class QuestionRepository {
 
@@ -36,8 +37,8 @@ public class QuestionRepository {
     private Optional<Question> conflictedQuestion = Optional.empty();
     private final String newPath;
 
-    PathConflictDetector(String newPath) {
-      this.newPath = checkNotNull(newPath);
+    PathConflictDetector(Path newPath) {
+      this.newPath = checkNotNull(newPath).path();
     }
 
     Optional<Question> getConflictedQuestion() {
@@ -60,7 +61,7 @@ public class QuestionRepository {
     }
   }
 
-  public CompletionStage<Optional<Question>> findConflictingQuestion(String newPath) {
+  public CompletionStage<Optional<Question>> findConflictingQuestion(Path newPath) {
     return supplyAsync(
         () -> {
           PathConflictDetector detector = new PathConflictDetector(newPath);
