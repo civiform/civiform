@@ -102,10 +102,10 @@ public class ProgramBlockEditView extends BaseHtmlView {
             div(
                 form(
                         csrfTag,
-                        div(textFieldWithValue("name", "Block Name", block.name())),
+                        div(textInputWithLabel("Block Name", "name", block.name())),
                         div(
-                            textFieldWithValue(
-                                "description", "Block Description", block.description())),
+                            textAreaWithLabel(
+                                "Block Description", "description", block.description())),
                         submitButton("Update Block"))
                     .withMethod("post")
                     .withAction(

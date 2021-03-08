@@ -6,6 +6,7 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.head;
 
+import java.util.Optional;
 import javax.inject.Inject;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
@@ -33,7 +34,7 @@ public final class J2HtmlDemoView extends BaseHtmlView {
             h1(greeting),
             form(
                     makeCsrfTokenInputTag(request),
-                    textField("firstName", "What is your first name?"),
+                    textInputWithLabel("What is your first name?", "firstName", Optional.empty()),
                     submitButton("Enter"))
                 .withAction("/demo")
                 .withMethod("post")

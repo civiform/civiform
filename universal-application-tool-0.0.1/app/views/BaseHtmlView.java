@@ -7,7 +7,6 @@ import static j2html.TagCreator.label;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
 import static j2html.TagCreator.text;
-import static j2html.TagCreator.textarea;
 
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
@@ -18,6 +17,8 @@ import j2html.tags.Tag;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Optional;
 import play.mvc.Http;
+import views.components.FieldWithLabel;
+import views.components.SelectWithLabel;
 import views.html.helper.CSRF;
 
 /**
@@ -32,33 +33,32 @@ public abstract class BaseHtmlView {
     return h1(headerText);
   }
 
-  protected ImmutableList<DomContent> textInputWithLabel(
+  protected DomContent textInputWithLabel(
       String labelValue, String inputId, Optional<String> value) {
-    Tag labelTag = label(labelValue).attr(Attr.FOR, inputId);
-    Tag inputTag = input().withType("text").withId(inputId).withName(inputId);
+    FieldWithLabel field = FieldWithLabel.createInputWithLabel(inputId).setLabelText(labelValue);
     if (value.isPresent()) {
-      inputTag.withValue(value.get());
+      field.setValue(value.get());
     }
-
-    return ImmutableList.of(labelTag, br(), inputTag, br(), br());
+    return field.getContainer();
   }
 
-  public ImmutableList<DomContent> textInputWithLabel(
+  public DomContent textInputWithLabel(
       String labelValue, String inputId, String value) {
     Optional<String> optionalValue = Optional.ofNullable(value).filter(s -> !s.trim().isEmpty());
 
     return textInputWithLabel(labelValue, inputId, optionalValue);
   }
 
-  public ImmutableList<DomContent> textAreaWithLabel(
+  public DomContent textAreaWithLabel(
       String labelValue, String inputId, Optional<String> value) {
-    Tag labelTag = label(labelValue).attr(Attr.FOR, inputId);
-    Tag textAreaTag = textarea(value.orElse("")).withType("text").withId(inputId).withName(inputId);
-
-    return ImmutableList.of(labelTag, br(), textAreaTag, br(), br());
+    FieldWithLabel field = FieldWithLabel.createTextAreaWithLabel(inputId).setLabelText(labelValue);
+    if (value.isPresent()) {
+      field.setValue(value.get());
+    }
+    return field.getContainer();
   }
 
-  public ImmutableList<DomContent> textAreaWithLabel(
+  public DomContent textAreaWithLabel(
       String labelValue, String inputId, String value) {
     Optional<String> optionalValue = Optional.ofNullable(value).filter(s -> !s.trim().isEmpty());
 
@@ -71,23 +71,6 @@ public abstract class BaseHtmlView {
         .with(
             input().withType("checkbox").withName(inputName).withValue(inputValue).withId(inputId),
             text(labelText));
-  }
-
-  protected Tag textField(String fieldName, String labelText) {
-    return label()
-        .with(text(labelText), input().withType("text").withName(fieldName))
-        .attr(Attr.FOR, fieldName);
-  }
-
-  protected Tag textField(String id, String fieldName, String labelText) {
-    return label(text(labelText), input().withType("text").withName(fieldName).withId(id))
-        .attr(Attr.FOR, fieldName);
-  }
-
-  protected Tag textFieldWithValue(String fieldName, String labelText, String placeholder) {
-    return label(
-            text(labelText), input().withType("text").withName(fieldName).withValue(placeholder))
-        .attr(Attr.FOR, fieldName);
   }
 
   protected Tag passwordField(String id, String fieldName, String labelText) {
@@ -127,18 +110,11 @@ public abstract class BaseHtmlView {
       String selectId,
       ImmutableList<SimpleEntry<String, String>> options,
       String selectedValue) {
-    Tag labelTag = label(labelValue).attr(Attr.FOR, selectId);
-    ContainerTag selectTag = select().withId(selectId).withName(selectId);
-
-    for (SimpleEntry<String, String> option : options) {
-      Tag optionTag = option(option.getKey()).withValue(option.getValue());
-      if (option.getValue().equals(selectedValue)) {
-        optionTag.attr(Attr.SELECTED);
-      }
-      selectTag.with(optionTag);
-    }
-
-    return ImmutableList.of(labelTag, br(), selectTag, br(), br());
+    SelectWithLabel selectWithLabel = new SelectWithLabel(selectId)
+      .setLabelText(labelValue)
+      .setOptions(options)
+      .setValue(selectedValue);
+    return ImmutableList.of(selectWithLabel.getContainer());
   }
 
   /**

@@ -28,10 +28,10 @@ public class ProgramEditView extends BaseHtmlView {
             div(
                 form(
                         makeCsrfTokenInputTag(request),
-                        div(textFieldWithValue("name", "Program Name", program.name())),
+                        div(textInputWithLabel("Program Name", "name", program.name())),
                         div(
-                            textFieldWithValue(
-                                "description", "Program Description", program.description())),
+                            textAreaWithLabel(
+                                "Program Description", "description", program.description())),
                         submitButton("Save"))
                     .withMethod("post")
                     .withAction(
