@@ -3,6 +3,8 @@ package services.question;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import services.ErrorAnd;
+import services.Path;
 
 public interface QuestionService {
 
@@ -16,11 +18,11 @@ public interface QuestionService {
    * Creates a new Question Definition. Returns a QuestionDefinition object on success and {@link
    * Optional#empty} on failure.
    *
-   * <p>This will fail if he path provided already resolves to a QuestionDefinition or Scalar.
+   * <p>This will fail if the path provided already resolves to a QuestionDefinition or Scalar.
    *
    * <p>NOTE: This does not update the version.
    */
-  Optional<QuestionDefinition> create(QuestionDefinition definition);
+  ErrorAnd<QuestionDefinition, QuestionServiceError> create(QuestionDefinition definition);
 
   /**
    * Adds a new translation to an existing question definition. Returns true if the write is
@@ -35,13 +37,19 @@ public interface QuestionService {
    * <p>NOTE: This does not update the version.
    */
   boolean addTranslation(
-      String path, Locale locale, String questionText, Optional<String> questionHelpText)
+      Path path, Locale locale, String questionText, Optional<String> questionHelpText)
       throws InvalidPathException;
 
   /**
    * Destructive overwrite of a question at a given path.
    *
-   * <p>NOTE: This updates the service and question versions.
+   * <p>The write will fail if:
+   *
+   * <p>- The QuestionDefinition is not persisted yet.
+   *
+   * <p>- The path is different from the original path.
+   *
+   * <p>NOTE: This does not update the version.
    */
-  QuestionDefinition update(QuestionDefinition definition);
+  QuestionDefinition update(QuestionDefinition definition) throws InvalidUpdateException;
 }

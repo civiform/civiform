@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import forms.BlockForm;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import services.question.QuestionNotFoundException;
 
 /** Operations you can perform on {@link ProgramDefinition}s. */
 public interface ProgramService {
@@ -41,7 +42,7 @@ public interface ProgramService {
   CompletionStage<Optional<ProgramDefinition>> getProgramDefinitionAsync(long id);
 
   /**
-   * Create a new program.
+   * Create a new program with an empty block.
    *
    * @param name a name for this program
    * @param description the description of what the program provides
@@ -71,6 +72,7 @@ public interface ProgramService {
    */
   ProgramDefinition addBlockToProgram(long programId, String blockName, String blockDescription)
       throws ProgramNotFoundException;
+
   /**
    * Adds an empty {@link BlockDefinition} to the given program.
    *
@@ -126,14 +128,41 @@ public interface ProgramService {
       throws ProgramNotFoundException, ProgramBlockNotFoundException;
 
   /**
+   * Update a {@link BlockDefinition} to include additional questions.
+   *
+   * @param programId the ID of the program to update
+   * @param blockDefinitionId the ID of the block to update
+   * @param questionIds an {@link ImmutableList} of question IDs for the block
+   * @return the updated {@link ProgramDefinition}
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   */
+  ProgramDefinition addQuestionsToBlock(
+      long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException, QuestionNotFoundException,
+          DuplicateProgramQuestionException;
+
+  /**
+   * Update a {@link BlockDefinition} to remove questions.
+   *
+   * @param programId the ID of the program to update
+   * @param blockDefinitionId the ID of the block to update
+   * @param questionIds an {@link ImmutableList} of question IDs to be removed from the block
+   * @return the updated {@link ProgramDefinition}
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   */
+  ProgramDefinition removeQuestionsFromBlock(
+      long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException, QuestionNotFoundException;
+
+  /**
    * Set the hide {@link Predicate} for a block. This predicate describes under what conditions the
    * block should be hidden from an applicant filling out the program form.
    *
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
    * @param predicate the {@link Predicate} for hiding the block
-   * @return the updated {@link ProgramDefinition} * @throws ProgramNotFoundException when programId
-   *     does not correspond to a real Program.
+   * @return the updated {@link ProgramDefinition}
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   ProgramDefinition setBlockHidePredicate(
       long programId, long blockDefinitionId, Predicate predicate)
@@ -158,7 +187,8 @@ public interface ProgramService {
    *
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramNeedsABlockException when trying to delete the last block of a Program.
    */
   ProgramDefinition deleteBlock(long programId, long blockDefinitionId)
-      throws ProgramNotFoundException;
+      throws ProgramNotFoundException, ProgramNeedsABlockException;
 }

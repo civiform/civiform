@@ -16,26 +16,26 @@ import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.question.QuestionDefinition;
 import services.question.QuestionType;
-import views.BaseHtmlLayout;
 import views.BaseHtmlView;
+import views.admin.AdminLayout;
 
 public final class QuestionEditView extends BaseHtmlView {
-  private final BaseHtmlLayout layout;
+  private final AdminLayout layout;
 
   @Inject
-  public QuestionEditView(BaseHtmlLayout layout) {
+  public QuestionEditView(AdminLayout layout) {
     this.layout = layout;
   }
 
   public Content renderNewQuestionForm(Request request) {
-    return layout.htmlContent(
+    return layout.render(
         body(
             renderHeader("New Question"),
             buildNewQuestionForm().with(makeCsrfTokenInputTag(request))));
   }
 
   public Content renderEditQuestionForm(Request request, QuestionDefinition question) {
-    return layout.htmlContent(
+    return layout.render(
         body(
             renderHeader("Edit Question"),
             buildEditQuestionForm(question).with(makeCsrfTokenInputTag(request))));
@@ -70,7 +70,7 @@ public final class QuestionEditView extends BaseHtmlView {
         .with(
             textInputWithLabel(
                 "Description: ", "questionDescription", questionForm.getQuestionDescription()))
-        .with(textInputWithLabel("Path: ", "questionPath", questionForm.getQuestionPath()))
+        .with(textInputWithLabel("Path: ", "questionPath", questionForm.getQuestionPath().path()))
         .with(textAreaWithLabel("Question Text: ", "questionText", questionForm.getQuestionText()))
         .with(
             textAreaWithLabel(

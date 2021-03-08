@@ -1,7 +1,7 @@
 package services.program;
 
 public class ProgramBlockNotFoundException extends Exception {
-  public ProgramBlockNotFoundException(long programid, long blockid) {
-    super("Block not found in Program (ID " + programid + ") for block ID " + blockid);
+  public ProgramBlockNotFoundException(long programId, long blockId) {
+    super("Block not found in Program (ID " + programId + ") for block ID " + blockId);
   }
 }

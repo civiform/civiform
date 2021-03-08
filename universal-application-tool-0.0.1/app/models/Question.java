@@ -13,6 +13,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
+import services.Path;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
@@ -48,7 +49,7 @@ public class Question extends BaseModel {
       id = questionDefinition.getId();
     }
     version = questionDefinition.getVersion();
-    path = questionDefinition.getPath();
+    path = questionDefinition.getPath().path();
     name = questionDefinition.getName();
     description = questionDefinition.getDescription();
     questionText = questionDefinition.getQuestionText();
@@ -64,7 +65,7 @@ public class Question extends BaseModel {
       id = questionDefinition.getId();
     }
     version = questionDefinition.getVersion();
-    path = questionDefinition.getPath();
+    path = questionDefinition.getPath().path();
     name = questionDefinition.getName();
     description = questionDefinition.getDescription();
     questionText = questionDefinition.getQuestionText();
@@ -82,7 +83,7 @@ public class Question extends BaseModel {
             .setId(id)
             .setVersion(version)
             .setName(name)
-            .setPath(path)
+            .setPath(Path.create(path))
             .setDescription(description)
             .setQuestionText(questionText)
             .setQuestionHelpText(questionHelpText)

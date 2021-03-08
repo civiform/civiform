@@ -3,17 +3,21 @@ package services.question;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalLong;
+import services.Path;
 
 /** Defines a single question. */
 public abstract class QuestionDefinition {
   private final OptionalLong id;
   private final long version;
   private final String name;
-  private final String path;
+  private final Path path;
   private final String description;
   private final ImmutableMap<Locale, String> questionText;
   private final ImmutableMap<Locale, String> questionHelpText;
@@ -22,11 +26,11 @@ public abstract class QuestionDefinition {
       OptionalLong id,
       long version,
       String name,
-      String path,
+      Path path,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
-    this.id = id;
+    this.id = checkNotNull(id);
     this.version = version;
     this.name = checkNotNull(name);
     this.path = checkNotNull(path);
@@ -38,7 +42,7 @@ public abstract class QuestionDefinition {
   public QuestionDefinition(
       long version,
       String name,
-      String path,
+      Path path,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
@@ -70,7 +74,7 @@ public abstract class QuestionDefinition {
   }
 
   /** Get the full path of this question, in JSON notation. */
-  public String getPath() {
+  public Path getPath() {
     return this.path;
   }
 
@@ -88,7 +92,7 @@ public abstract class QuestionDefinition {
     if (this.questionText.containsKey(locale)) {
       return this.questionText.get(locale);
     }
-    throw new TranslationNotFoundException(this.getPath(), locale);
+    throw new TranslationNotFoundException(this.getPath().path(), locale);
   }
 
   /** Get the question tests for all locales. This is used for serialization. */
@@ -106,7 +110,7 @@ public abstract class QuestionDefinition {
       return this.questionHelpText.get(locale);
     }
 
-    throw new TranslationNotFoundException(this.getPath(), locale);
+    throw new TranslationNotFoundException(this.getPath().path(), locale);
   }
 
   /** Get the question help text for all locales. This is used for serialization. */
@@ -114,26 +118,43 @@ public abstract class QuestionDefinition {
     return this.questionHelpText;
   }
 
-  /** Get the type of this question. Implemented methods should use @JsonIgnore. */
+  /** Get the type of this question. */
   public abstract QuestionType getQuestionType();
 
-  /**
-   * Get a map of scalars stored by this question definition. Implemented methods should
-   * use @JsonIgnore.
-   */
-  public abstract ImmutableMap<String, ScalarType> getScalars();
-
   /** Get a map of scalars stored by this question definition. */
-  public ImmutableMap<String, ScalarType> getFullyQualifiedScalars() {
-    ImmutableMap<String, ScalarType> scalars = this.getScalars();
-    ImmutableMap.Builder<String, ScalarType> ret = new ImmutableMap.Builder<String, ScalarType>();
-    scalars.entrySet().stream()
-        .forEach(e -> ret.put(this.getPath() + "." + e.getKey(), e.getValue()));
-    return ret.build();
+  public abstract ImmutableMap<Path, ScalarType> getScalars();
+
+  public Optional<ScalarType> getScalarType(Path path) {
+    return Optional.ofNullable(this.getScalars().get(path));
   }
 
-  public Optional<ScalarType> getScalarType(String key) {
-    return Optional.ofNullable(this.getScalars().get(key));
+  /** Validate that all required fields are present and valid for the question. */
+  public ImmutableSet<QuestionServiceError> validate() {
+    ImmutableSet.Builder<QuestionServiceError> errors =
+        new ImmutableSet.Builder<QuestionServiceError>();
+    if (version < 1) {
+      errors.add(QuestionServiceError.of(String.format("invalid version: %d", version)));
+    }
+    if (name.isBlank()) {
+      errors.add(QuestionServiceError.of("blank name"));
+    }
+    if (!hasValidPathPattern()) {
+      errors.add(QuestionServiceError.of(String.format("invalid path pattern: '%s'", path.path())));
+    }
+    if (description.isBlank()) {
+      errors.add(QuestionServiceError.of("blank description"));
+    }
+    if (questionText.isEmpty()) {
+      errors.add(QuestionServiceError.of("no question text"));
+    }
+    return errors.build();
+  }
+
+  private boolean hasValidPathPattern() {
+    if (path.path().isBlank()) {
+      return false;
+    }
+    return URLEncoder.encode(path.path(), StandardCharsets.UTF_8).equals(path.path());
   }
 
   @Override

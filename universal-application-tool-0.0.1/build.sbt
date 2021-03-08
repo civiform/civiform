@@ -6,6 +6,7 @@ lazy val root = (project in file("."))
     name := """universal-application-tool""",
     version := "0.0.1",
     scalaVersion := "2.13.1",
+    maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
       guice,
       javaJdbc,
@@ -34,6 +35,10 @@ lazy val root = (project in file("."))
       "org.awaitility" % "awaitility" % "4.0.1" % Test,
       "org.mockito" % "mockito-core" % "3.1.0" % Test,
 
+      // EqualsTester
+      // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
+      "com.google.guava" % "guava-testlib" % "30.1-jre" % Test,
+
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
       "javax.activation" % "activation" % "1.1.1",
@@ -54,6 +59,10 @@ lazy val root = (project in file("."))
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.5.1",
+
+      // Apache libraries for export
+      "org.apache.pdfbox" % "pdfbox" % "2.0.22",
+      "org.apache.commons" % "commons-csv" % "1.4",
     ),
     javacOptions ++= Seq(
       "-encoding", "UTF-8",
@@ -69,7 +78,10 @@ lazy val root = (project in file("."))
     ),
     // Make verbose tests
     testOptions in Test := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v")),
-    javaOptions in Test += "-Dconfig.file=conf/application.test.conf"
+    // Use test config for tests
+    javaOptions in Test += "-Dconfig.file=conf/application.test.conf",
+    // Turn off scaladoc link warnings
+    scalacOptions in (Compile, doc) += "-no-link-warnings"
   )
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 resolvers += Resolver.bintrayRepo("webjars","maven")

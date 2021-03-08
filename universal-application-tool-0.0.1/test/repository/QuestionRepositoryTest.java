@@ -10,8 +10,11 @@ import java.util.Set;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
+import services.Path;
 import services.question.QuestionDefinition;
+import services.question.QuestionDefinitionBuilder;
 import services.question.TextQuestionDefinition;
+import services.question.UnsupportedQuestionTypeException;
 
 public class QuestionRepositoryTest extends WithPostgresContainer {
 
@@ -83,7 +86,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   @Test
   public void findConflictingQuestion_returnsEmptyWhenNoQuestions() {
     Optional<Question> found =
-        repo.findConflictingQuestion("path.one").toCompletableFuture().join();
+        repo.findConflictingQuestion(Path.create("path.one")).toCompletableFuture().join();
 
     assertThat(found).isEmpty();
   }
@@ -94,7 +97,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
     resourceCreator().insertQuestion("path.two");
 
     Optional<Question> found =
-        repo.findConflictingQuestion("path.other").toCompletableFuture().join();
+        repo.findConflictingQuestion(Path.create("path.other")).toCompletableFuture().join();
 
     assertThat(found).isEmpty();
   }
@@ -105,7 +108,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
     resourceCreator().insertQuestion("path.two");
 
     Optional<Question> found =
-        repo.findConflictingQuestion("path.one").toCompletableFuture().join();
+        repo.findConflictingQuestion(Path.create("path.one")).toCompletableFuture().join();
 
     assertThat(found).hasValue(questionOne);
   }
@@ -146,7 +149,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
         new TextQuestionDefinition(
             2L,
             "question",
-            "applicant.name",
+            Path.create("applicant.name"),
             "applicant's name",
             ImmutableMap.of(Locale.US, "What is your name?"),
             ImmutableMap.of());
@@ -165,7 +168,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
         new TextQuestionDefinition(
             2L,
             "question",
-            "applicant.name",
+            Path.create("applicant.name"),
             "applicant's name",
             ImmutableMap.of(Locale.US, "What is your name?"),
             ImmutableMap.of());
@@ -174,5 +177,31 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
     repo.insertQuestionSync(question);
 
     assertThat(repo.lookupQuestion(question.id).toCompletableFuture().join()).hasValue(question);
+  }
+
+  @Test
+  public void updateQuestion() throws UnsupportedQuestionTypeException {
+    Question question = resourceCreator().insertQuestion("path.one");
+    QuestionDefinition questionDefinition = question.getQuestionDefinition();
+    questionDefinition =
+        new QuestionDefinitionBuilder(questionDefinition).setDescription("new description").build();
+
+    repo.updateQuestion(new Question(questionDefinition)).toCompletableFuture().join();
+
+    Question q = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    assertThat(q.getQuestionDefinition()).isEqualTo(questionDefinition);
+  }
+
+  @Test
+  public void updateQuestionSync() throws UnsupportedQuestionTypeException {
+    Question question = resourceCreator().insertQuestion("path.one");
+    QuestionDefinition questionDefinition = question.getQuestionDefinition();
+    questionDefinition =
+        new QuestionDefinitionBuilder(questionDefinition).setDescription("new description").build();
+
+    repo.updateQuestionSync(new Question(questionDefinition));
+
+    Question q = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    assertThat(q.getQuestionDefinition()).isEqualTo(questionDefinition);
   }
 }

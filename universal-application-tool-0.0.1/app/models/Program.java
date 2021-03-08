@@ -39,10 +39,21 @@ public class Program extends BaseModel {
     this.blockDefinitions = definition.blockDefinitions();
   }
 
+  /**
+   * Construct a new Program object with the given program name and description, and with an empty
+   * block named Block 1.
+   */
   public Program(String name, String description) {
     this.name = name;
     this.description = description;
-    this.blockDefinitions = ImmutableList.of();
+    BlockDefinition emptyBlock =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("Block 1")
+            .setDescription("")
+            .setProgramQuestionDefinitions(ImmutableList.of())
+            .build();
+    this.blockDefinitions = ImmutableList.of(emptyBlock);
   }
 
   /** Populates column values from {@link ProgramDefinition} */

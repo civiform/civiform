@@ -2,10 +2,14 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.Authorizers;
 import forms.QuestionForm;
+import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.Form;
@@ -14,9 +18,12 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.ErrorAnd;
 import services.question.InvalidPathException;
+import services.question.InvalidUpdateException;
 import services.question.QuestionDefinition;
 import services.question.QuestionService;
+import services.question.QuestionServiceError;
 import services.question.UnsupportedQuestionTypeException;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
@@ -44,6 +51,7 @@ public class QuestionController extends Controller {
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
 
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public CompletionStage<Result> create(Request request) {
     Form<QuestionForm> form = formFactory.form(QuestionForm.class);
     QuestionForm questionForm = form.bindFromRequest(request).get();
@@ -51,18 +59,28 @@ public class QuestionController extends Controller {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
+              String errorMessage = "";
               try {
                 QuestionDefinition definition = questionForm.getBuilder().setVersion(1L).build();
-                service.create(definition);
+                ErrorAnd<QuestionDefinition, QuestionServiceError> result =
+                    service.create(definition);
+                if (result.isError()) {
+                  StringJoiner messageJoiner = new StringJoiner(". ", "", ".");
+                  for (QuestionServiceError e : result.getErrors()) {
+                    messageJoiner.add(e.message());
+                  }
+                  errorMessage = messageJoiner.toString();
+                }
               } catch (UnsupportedQuestionTypeException e) {
-                // I'm not sure why this would happen here, so we'll just log and redirect.
-                LOG.info(e.toString());
+                errorMessage = e.toString();
+                LOG.info(errorMessage);
               }
-              return redirect(routes.QuestionController.index("table"));
+              return withMessage(redirect(routes.QuestionController.index("table")), errorMessage);
             },
             httpExecutionContext.current());
   }
 
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public CompletionStage<Result> edit(Request request, String path) {
     return service
         .getReadOnlyQuestionService()
@@ -79,20 +97,23 @@ public class QuestionController extends Controller {
             httpExecutionContext.current());
   }
 
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result newOne(Request request) {
     return ok(editView.renderNewQuestionForm(request));
   }
 
-  public CompletionStage<Result> index(String renderAs) {
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public CompletionStage<Result> index(Request request, String renderAs) {
+    Optional<String> maybeFlash = request.flash().get("message");
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
               switch (renderAs) {
                 case "list":
-                  return ok(listView.renderAsList(readOnlyService.getAllQuestions()));
+                  return ok(listView.renderAsList(readOnlyService.getAllQuestions(), maybeFlash));
                 case "table":
-                  return ok(listView.renderAsTable(readOnlyService.getAllQuestions()));
+                  return ok(listView.renderAsTable(readOnlyService.getAllQuestions(), maybeFlash));
                 default:
                   return badRequest();
               }
@@ -100,20 +121,29 @@ public class QuestionController extends Controller {
             httpExecutionContext.current());
   }
 
-  // TODO: Implement update question.
-  // https://github.com/seattle-uat/universal-application-tool/issues/103
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public CompletionStage<Result> update(Request request, Long id) {
     Form<QuestionForm> form = formFactory.form(QuestionForm.class);
     QuestionForm questionForm = form.bindFromRequest(request).get();
+    String exception = "";
     try {
       QuestionDefinition definition = questionForm.getBuilder().setId(id).setVersion(1L).build();
       service.update(definition);
     } catch (UnsupportedQuestionTypeException e) {
-      // I'm not sure why this would happen here, so we'll just log and redirect.
-      LOG.info(e.toString());
-    } catch (UnsupportedOperationException e) {
-      // This is expected for now until we implement update on QuestionService.
+      exception = e.toString();
+      LOG.info(exception);
+    } catch (InvalidUpdateException e) {
+      exception = e.toString();
+      LOG.info(exception);
     }
-    return CompletableFuture.completedFuture(redirect(routes.QuestionController.index("table")));
+    return CompletableFuture.completedFuture(
+        withMessage(redirect(routes.QuestionController.index("table")), exception));
+  }
+
+  private Result withMessage(Result result, String message) {
+    if (!message.isEmpty()) {
+      return result.flashing("message", message);
+    }
+    return result;
   }
 }

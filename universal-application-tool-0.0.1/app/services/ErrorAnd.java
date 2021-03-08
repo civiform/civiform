@@ -10,6 +10,18 @@ import com.google.common.collect.ImmutableSet;
  * result need be provided.
  */
 public class ErrorAnd<T, E> {
+  public static <T, E> ErrorAnd<T, E> error(ImmutableSet<E> errors) {
+    return new ErrorAnd<>(errors);
+  }
+
+  public static <T, E> ErrorAnd<T, E> errorAnd(ImmutableSet<E> errors, T result) {
+    return new ErrorAnd<>(errors, result);
+  }
+
+  public static <T, E> ErrorAnd<T, E> of(T result) {
+    return new ErrorAnd<>(result);
+  }
+
   private final ImmutableSet<E> errors;
   private final T result;
 

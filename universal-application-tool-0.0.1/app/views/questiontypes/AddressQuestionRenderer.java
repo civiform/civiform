@@ -29,28 +29,28 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                 .withType("text")
                 .withCondValue(
                     addressQuestion.hasStreetValue(), addressQuestion.getStreetValue().orElse(""))
-                .withName(addressQuestion.getStreetPath())
+                .withName(addressQuestion.getStreetPath().path())
                 .withPlaceholder("Street address")),
         label(
             input()
                 .withType("text")
                 .withCondValue(
                     addressQuestion.hasCityValue(), addressQuestion.getCityValue().orElse(""))
-                .withName(addressQuestion.getCityPath())
+                .withName(addressQuestion.getCityPath().path())
                 .withPlaceholder("City")),
         label(
             input()
                 .withType("text")
                 .withCondValue(
                     addressQuestion.hasStateValue(), addressQuestion.getStateValue().orElse(""))
-                .withName(addressQuestion.getStatePath())
+                .withName(addressQuestion.getStatePath().path())
                 .withPlaceholder("State")),
         label(
             input()
                 .withType("text")
                 .withCondValue(
                     addressQuestion.hasZipValue(), addressQuestion.getZipValue().orElse(""))
-                .withName(addressQuestion.getZipPath())
+                .withName(addressQuestion.getZipPath().path())
                 .withPlaceholder("Zip code")));
   }
 }

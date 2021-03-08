@@ -3,14 +3,15 @@ package services.question;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Question;
 import repository.QuestionRepository;
+import services.ErrorAnd;
+import services.Path;
 
 public final class QuestionServiceImpl implements QuestionService {
 
@@ -23,18 +24,19 @@ public final class QuestionServiceImpl implements QuestionService {
 
   @Override
   public boolean addTranslation(
-      String path, Locale locale, String questionText, Optional<String> questionHelpText)
+      Path path, Locale locale, String questionText, Optional<String> questionHelpText)
       throws InvalidPathException {
     throw new java.lang.UnsupportedOperationException("Not supported yet.");
   }
 
   @Override
-  public Optional<QuestionDefinition> create(QuestionDefinition definition) {
-    if (!isValid(definition)) {
-      return Optional.empty();
+  public ErrorAnd<QuestionDefinition, QuestionServiceError> create(QuestionDefinition definition) {
+    ImmutableSet<QuestionServiceError> errors = validate(definition);
+    if (!errors.isEmpty()) {
+      return ErrorAnd.error(errors);
     }
     Question question = questionRepository.insertQuestionSync(new Question(definition));
-    return Optional.of(question.getQuestionDefinition());
+    return ErrorAnd.of(question.getQuestionDefinition());
   }
 
   @Override
@@ -44,8 +46,20 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   @Override
-  public QuestionDefinition update(QuestionDefinition definition) {
-    throw new java.lang.UnsupportedOperationException("Not supported yet.");
+  public QuestionDefinition update(QuestionDefinition definition) throws InvalidUpdateException {
+    if (!definition.isPersisted()) {
+      throw new InvalidUpdateException("question definition is not persisted");
+    }
+    Optional<Question> maybeQuestion =
+        questionRepository.lookupQuestion(definition.getId()).toCompletableFuture().join();
+    if (!maybeQuestion.isPresent()) {
+      throw new InvalidUpdateException(
+          String.format("question with id %d does not exist", definition.getId()));
+    }
+    Question question = maybeQuestion.get();
+    assertQuestionInvariants(question.getQuestionDefinition(), definition);
+    question = questionRepository.updateQuestionSync(new Question(definition));
+    return question.getQuestionDefinition();
   }
 
   private CompletionStage<ImmutableList<QuestionDefinition>> listQuestionDefinitionsAsync() {
@@ -58,21 +72,37 @@ public final class QuestionServiceImpl implements QuestionService {
                     .collect(ImmutableList.toImmutableList()));
   }
 
-  private boolean isValid(QuestionDefinition definition) {
-    String newPath = definition.getPath();
-    if (!isValidPathPattern(newPath)) {
-      return false;
+  private ImmutableSet<QuestionServiceError> validate(QuestionDefinition newDefinition) {
+    ImmutableSet<QuestionServiceError> errors = newDefinition.validate();
+    if (!errors.isEmpty()) {
+      return errors;
     }
-    boolean hasConflict =
-        questionRepository
-            .findConflictingQuestion(newPath)
-            .toCompletableFuture()
-            .join()
-            .isPresent();
-    return !hasConflict;
+    Path newPath = newDefinition.getPath();
+    Optional<Question> maybeConflict =
+        questionRepository.findConflictingQuestion(newPath).toCompletableFuture().join();
+    if (maybeConflict.isPresent()) {
+      Question question = maybeConflict.get();
+      return ImmutableSet.of(
+          QuestionServiceError.of(
+              String.format(
+                  "path '%s' conflicts with question: %s", newPath.path(), question.getPath())));
+    }
+    return ImmutableSet.of();
   }
 
-  private boolean isValidPathPattern(String path) {
-    return URLEncoder.encode(path, StandardCharsets.UTF_8).equals(path);
+  private void assertQuestionInvariants(QuestionDefinition definition, QuestionDefinition toUpdate)
+      throws InvalidUpdateException {
+    if (!definition.getPath().equals(toUpdate.getPath())) {
+      throw new InvalidUpdateException(
+          String.format(
+              "question paths mismatch: %s does not match %s",
+              definition.getPath().path(), toUpdate.getPath().path()));
+    }
+    if (!definition.getQuestionType().equals(toUpdate.getQuestionType())) {
+      throw new InvalidUpdateException(
+          String.format(
+              "question types mismatch: %s does not match %s",
+              definition.getQuestionType().toString(), toUpdate.getQuestionType().toString()));
+    }
   }
 }

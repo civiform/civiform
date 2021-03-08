@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
+import forms.BlockForm;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Locale;
@@ -15,6 +16,7 @@ import play.db.ebean.EbeanConfig;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
@@ -96,11 +98,11 @@ public class DatabaseSeedController extends Controller {
             new NameQuestionDefinition(
                 1L,
                 "name",
-                "applicant.name",
+                Path.create("applicant.name"),
                 "description",
                 ImmutableMap.of(Locale.ENGLISH, "What is your name?"),
                 ImmutableMap.of(Locale.ENGLISH, "help text")))
-        .get();
+        .getResult();
   }
 
   private QuestionDefinition insertColorQuestionDefinition() {
@@ -109,11 +111,11 @@ public class DatabaseSeedController extends Controller {
             new TextQuestionDefinition(
                 1L,
                 "color",
-                "applicant.color",
+                Path.create("applicant.color"),
                 "description",
                 ImmutableMap.of(Locale.ENGLISH, "What is your favorite color?"),
                 ImmutableMap.of(Locale.ENGLISH, "help text")))
-        .get();
+        .getResult();
   }
 
   private QuestionDefinition insertAddressQuestionDefinition() {
@@ -122,20 +124,26 @@ public class DatabaseSeedController extends Controller {
             new AddressQuestionDefinition(
                 1L,
                 "address",
-                "applicant.address",
+                Path.create("applicant.address"),
                 "description",
                 ImmutableMap.of(Locale.ENGLISH, "What is your address?"),
                 ImmutableMap.of(Locale.ENGLISH, "help text")))
-        .get();
+        .getResult();
   }
 
   private ProgramDefinition insertProgramWithBlocks(String name) {
     try {
       ProgramDefinition programDefinition = programService.createProgramDefinition(name, "desc");
 
+      BlockForm firstBlockForm = new BlockForm();
+      firstBlockForm.setName("Block 1");
+      firstBlockForm.setDescription("name and favorite color");
+
       programDefinition =
-          programService.addBlockToProgram(
-              programDefinition.id(), "Block 1", "name and favorite color");
+          programService.updateBlock(
+              programDefinition.id(),
+              programDefinition.blockDefinitions().get(0).id(),
+              firstBlockForm);
       programDefinition =
           programService.setBlockQuestions(
               programDefinition.id(),
@@ -145,11 +153,10 @@ public class DatabaseSeedController extends Controller {
                   ProgramQuestionDefinition.create(insertColorQuestionDefinition())));
 
       programDefinition =
-          programService.addBlockToProgram(programDefinition.id(), "Block 2", "address");
-      programDefinition =
-          programService.setBlockQuestions(
+          programService.addBlockToProgram(
               programDefinition.id(),
-              programDefinition.blockDefinitions().get(1).id(),
+              "Block 2",
+              "address",
               ImmutableList.of(
                   ProgramQuestionDefinition.create(insertAddressQuestionDefinition())));
 

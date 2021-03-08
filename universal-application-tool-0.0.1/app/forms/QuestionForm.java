@@ -1,7 +1,10 @@
 package forms;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import services.Path;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
@@ -10,7 +13,7 @@ import services.question.TranslationNotFoundException;
 public class QuestionForm {
   private String questionName;
   private String questionDescription;
-  private String questionPath;
+  private Path questionPath;
   private String questionType;
   private String questionText;
   private String questionHelpText;
@@ -18,7 +21,7 @@ public class QuestionForm {
   public QuestionForm() {
     questionName = "";
     questionDescription = "";
-    questionPath = "";
+    questionPath = Path.empty();
     questionType = "TEXT";
     questionText = "";
     questionHelpText = "";
@@ -48,7 +51,7 @@ public class QuestionForm {
   }
 
   public void setQuestionName(String questionName) {
-    this.questionName = questionName;
+    this.questionName = checkNotNull(questionName);
   }
 
   public String getQuestionDescription() {
@@ -56,15 +59,15 @@ public class QuestionForm {
   }
 
   public void setQuestionDescription(String questionDescription) {
-    this.questionDescription = questionDescription;
+    this.questionDescription = checkNotNull(questionDescription);
   }
 
-  public String getQuestionPath() {
+  public Path getQuestionPath() {
     return questionPath;
   }
 
   public void setQuestionPath(String questionPath) {
-    this.questionPath = questionPath;
+    this.questionPath = Path.create(checkNotNull(questionPath));
   }
 
   public String getQuestionType() {
@@ -72,7 +75,7 @@ public class QuestionForm {
   }
 
   public void setQuestionType(String questionType) {
-    this.questionType = questionType;
+    this.questionType = checkNotNull(questionType);
   }
 
   public String getQuestionText() {
@@ -80,7 +83,7 @@ public class QuestionForm {
   }
 
   public void setQuestionText(String questionText) {
-    this.questionText = questionText;
+    this.questionText = checkNotNull(questionText);
   }
 
   public String getQuestionHelpText() {
@@ -88,7 +91,7 @@ public class QuestionForm {
   }
 
   public void setQuestionHelpText(String questionHelpText) {
-    this.questionHelpText = questionHelpText;
+    this.questionHelpText = checkNotNull(questionHelpText);
   }
 
   public QuestionDefinitionBuilder getBuilder() {
@@ -101,9 +104,9 @@ public class QuestionForm {
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setQuestionType(QuestionType.valueOf(questionType))
-            .setName(questionName == null ? "" : questionName)
-            .setPath(questionPath == null ? "" : questionPath)
-            .setDescription(questionDescription == null ? "" : questionDescription)
+            .setName(questionName)
+            .setPath(questionPath)
+            .setDescription(questionDescription)
             .setQuestionText(questionTextMap)
             .setQuestionHelpText(questionHelpTextMap);
     return builder;

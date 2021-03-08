@@ -15,6 +15,7 @@ import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.WithPostgresContainer;
+import services.Path;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
 import services.question.UnsupportedQuestionTypeException;
@@ -29,7 +30,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void create_addsQuestionDefinition() throws UnsupportedQuestionTypeException {
+  public void create_redirectsOnSuccess() throws UnsupportedQuestionTypeException {
     buildQuestionsList();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
@@ -44,9 +45,30 @@ public class QuestionControllerTest extends WithPostgresContainer {
         .create(requestBuilder.build())
         .thenAccept(
             result -> {
-              assertThat(contentAsString(result)).contains("Total Questions: 2");
-              assertThat(contentAsString(result)).contains("All Questions");
-            });
+              assertThat(result.redirectLocation())
+                  .hasValue(routes.QuestionController.index("table").url());
+              assertThat(result.flash()).isNull();
+            })
+        .toCompletableFuture()
+        .join();
+  }
+
+  @Test
+  public void create_redirectsWithFlashOnFailure() throws UnsupportedQuestionTypeException {
+    buildQuestionsList();
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    formData.put("questionPath", "#invalid_path!");
+    RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
+    controller
+        .create(requestBuilder.build())
+        .thenAccept(
+            result -> {
+              assertThat(result.redirectLocation())
+                  .hasValue(routes.QuestionController.index("table").url());
+              assertThat(result.flash().get("message").get()).contains("#invalid_path!");
+            })
+        .toCompletableFuture()
+        .join();
   }
 
   @Test
@@ -58,11 +80,11 @@ public class QuestionControllerTest extends WithPostgresContainer {
         .edit(request, "invalid.path")
         .thenAccept(
             result -> {
-              assertThat(result.status()).isEqualTo(OK);
-              assertThat(contentAsString(result)).contains("New Question");
-              assertThat(contentAsString(result))
-                  .contains(CSRF.getToken(request.asScala()).value());
-            });
+              assertThat(result.redirectLocation())
+                  .hasValue(routes.QuestionController.newOne().url());
+            })
+        .toCompletableFuture()
+        .join();
   }
 
   @Test
@@ -75,14 +97,19 @@ public class QuestionControllerTest extends WithPostgresContainer {
             result -> {
               assertThat(result.status()).isEqualTo(OK);
               assertThat(contentAsString(result)).contains("Edit Question");
-            });
+              assertThat(contentAsString(result))
+                  .contains(CSRF.getToken(request.asScala()).value());
+            })
+        .toCompletableFuture()
+        .join();
   }
 
   @Test
   public void index_returnsQuestions() throws UnsupportedQuestionTypeException {
     buildQuestionsList();
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     controller
-        .index("table")
+        .index(request, "table")
         .thenAccept(
             result -> {
               assertThat(result.status()).isEqualTo(OK);
@@ -90,13 +117,16 @@ public class QuestionControllerTest extends WithPostgresContainer {
               assertThat(result.charset()).hasValue("utf-8");
               assertThat(contentAsString(result)).contains("Total Questions: 1");
               assertThat(contentAsString(result)).contains("All Questions");
-            });
+            })
+        .toCompletableFuture()
+        .join();
   }
 
   @Test
   public void index_withNoQuestions() {
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
     controller
-        .index("table")
+        .index(request, "table")
         .thenAccept(
             result -> {
               assertThat(result.status()).isEqualTo(OK);
@@ -104,7 +134,25 @@ public class QuestionControllerTest extends WithPostgresContainer {
               assertThat(result.charset()).hasValue("utf-8");
               assertThat(contentAsString(result)).contains("Total Questions: 0");
               assertThat(contentAsString(result)).contains("All Questions");
-            });
+            })
+        .toCompletableFuture()
+        .join();
+  }
+
+  @Test
+  public void index_showsMessageFlash() {
+    Request request = addCSRFToken(Helpers.fakeRequest().flash("message", "has message")).build();
+    controller
+        .index(request, "table")
+        .thenAccept(
+            result -> {
+              assertThat(result.status()).isEqualTo(OK);
+              assertThat(result.contentType()).hasValue("text/html");
+              assertThat(result.charset()).hasValue("utf-8");
+              assertThat(contentAsString(result)).contains("has message");
+            })
+        .toCompletableFuture()
+        .join();
   }
 
   @Test
@@ -118,26 +166,45 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void update_failsGracefully() throws UnsupportedQuestionTypeException {
-    // TODO: Update isn't implemented yet, so we just redirect to the questions list for now.
-    // https://github.com/seattle-uat/universal-application-tool/issues/103
-    buildQuestionsList();
+  public void update_redirectsOnSuccess() {
+    Question question = resourceCreator().insertQuestion("my.path");
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
         .put("questionName", "name")
         .put("questionDescription", "desc")
-        .put("questionPath", "my.question.path")
+        .put("questionPath", "my.path")
         .put("questionType", "TEXT")
-        .put("questionText", "Hi mom!")
+        .put("questionText", "question text updated!")
         .put("questionHelpText", ":-)");
     RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
     controller
-        .update(requestBuilder.build(), 1L)
+        .update(requestBuilder.build(), question.id)
         .thenAccept(
             result -> {
-              assertThat(contentAsString(result)).contains("Total Questions: 1");
-              assertThat(contentAsString(result)).contains("All Questions");
-            });
+              assertThat(result.redirectLocation())
+                  .hasValue(routes.QuestionController.index("table").url());
+              assertThat(result.flash()).isNull();
+            })
+        .toCompletableFuture()
+        .join();
+  }
+
+  @Test
+  public void update_redirectsWithFlashOnFailure() {
+    Question question = resourceCreator().insertQuestion("my.path");
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    formData.put("questionPath", "invalid.path").put("questionText", "question text updated!");
+    RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
+    controller
+        .update(requestBuilder.build(), question.id)
+        .thenAccept(
+            result -> {
+              assertThat(result.redirectLocation())
+                  .hasValue(routes.QuestionController.index("table").url());
+              assertThat(result.flash().get("message").get()).contains("invalid.path");
+            })
+        .toCompletableFuture()
+        .join();
   }
 
   private void buildQuestionsList() throws UnsupportedQuestionTypeException {
@@ -146,7 +213,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
             .setVersion(1L)
             .setName("First Question")
             .setDescription("This is the first question.")
-            .setPath("the.ultimate.question")
+            .setPath(Path.create("the.ultimate.question"))
             .setQuestionText(
                 ImmutableMap.of(Locale.ENGLISH, "What is the answer to the ultimate question?"))
             .setQuestionHelpText(ImmutableMap.of())

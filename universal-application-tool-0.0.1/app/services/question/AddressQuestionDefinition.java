@@ -3,6 +3,7 @@ package services.question;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.OptionalLong;
+import services.Path;
 
 public class AddressQuestionDefinition extends QuestionDefinition {
 
@@ -10,7 +11,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
       OptionalLong id,
       long version,
       String name,
-      String path,
+      Path path,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
@@ -20,7 +21,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
   public AddressQuestionDefinition(
       long version,
       String name,
-      String path,
+      Path path,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
@@ -33,15 +34,47 @@ public class AddressQuestionDefinition extends QuestionDefinition {
   }
 
   @Override
-  public ImmutableMap<String, ScalarType> getScalars() {
+  public ImmutableMap<Path, ScalarType> getScalars() {
     return ImmutableMap.of(
-        "street",
-        ScalarType.STRING,
-        "city",
-        ScalarType.STRING,
-        "state",
-        ScalarType.STRING,
-        "zip",
-        ScalarType.STRING);
+        getStreetPath(),
+        getStreetType(),
+        getCityPath(),
+        getCityType(),
+        getStatePath(),
+        getStateType(),
+        getZipPath(),
+        getZipType());
+  }
+
+  public Path getStreetPath() {
+    return getPath().toBuilder().append("street").build();
+  }
+
+  public ScalarType getStreetType() {
+    return ScalarType.STRING;
+  }
+
+  public Path getCityPath() {
+    return getPath().toBuilder().append("city").build();
+  }
+
+  public ScalarType getCityType() {
+    return ScalarType.STRING;
+  }
+
+  public Path getStatePath() {
+    return getPath().toBuilder().append("state").build();
+  }
+
+  public ScalarType getStateType() {
+    return ScalarType.STRING;
+  }
+
+  public Path getZipPath() {
+    return getPath().toBuilder().append("zip").build();
+  }
+
+  public ScalarType getZipType() {
+    return ScalarType.STRING;
   }
 }
