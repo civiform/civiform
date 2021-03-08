@@ -36,7 +36,7 @@ public interface ReadOnlyQuestionService {
   PathType getPathType(Path path);
 
   /**
-   * Gets the question definition for a given path.
+   * Gets the question definition for a given String path.
    *
    * <p>If the path is to a QUESTION, it will return that.
    *
@@ -45,6 +45,17 @@ public interface ReadOnlyQuestionService {
    * <p>If the path is invalid it will throw an InvalidPathException.
    */
   QuestionDefinition getQuestionDefinition(String path) throws InvalidPathException;
+
+  /**
+   * Gets the question definition for a given {@link Path}.
+   *
+   * <p>If the path is to a QUESTION, it will return that.
+   *
+   * <p>If the path is to a SCALAR, it will return the parent QuestionDefinition for that Scalar.
+   *
+   * <p>If the path is invalid it will throw an InvalidPathException.
+   */
+  QuestionDefinition getQuestionDefinition(Path path) throws InvalidPathException;
 
   /**
    * Gets the question definition for a ID.

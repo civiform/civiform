@@ -78,7 +78,8 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     return getQuestionDefinition(Path.create(stringPath));
   }
 
-  private QuestionDefinition getQuestionDefinition(Path path) throws InvalidPathException {
+  @Override
+  public QuestionDefinition getQuestionDefinition(Path path) throws InvalidPathException {
     PathType pathType = this.getPathType(path);
     switch (pathType) {
       case QUESTION:
