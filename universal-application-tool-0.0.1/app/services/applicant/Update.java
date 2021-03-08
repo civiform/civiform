@@ -1,6 +1,7 @@
 package services.applicant;
 
 import com.google.auto.value.AutoValue;
+import services.Path;
 
 @AutoValue
 public abstract class Update {

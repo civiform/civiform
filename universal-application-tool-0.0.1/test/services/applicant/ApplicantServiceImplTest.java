@@ -12,6 +12,7 @@ import org.junit.Test;
 import repository.ApplicantRepository;
 import repository.WithPostgresContainer;
 import services.ErrorAnd;
+import services.Path;
 import services.program.PathNotInBlockException;
 import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
@@ -90,18 +91,19 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
 
     ImmutableSet<Update> updates =
-            ImmutableSet.of(
-                    Update.create(Path.create("applicant.name.first"), "Alice"),
-                    Update.create(Path.create("applicant.name.last"), "Doe"));
+        ImmutableSet.of(
+            Update.create(Path.create("applicant.name.first"), "Alice"),
+            Update.create(Path.create("applicant.name.last"), "Doe"));
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
-            subject
-                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 100L, updates)
-                    .toCompletableFuture()
-                    .join();
+        subject
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 100L, updates)
+            .toCompletableFuture()
+            .join();
     assertThat(errorAnd.hasResult()).isFalse();
     assertThat(errorAnd.getErrors()).hasSize(1);
-    assertThat(errorAnd.getErrors().asList().get(0)).isInstanceOf(ProgramBlockNotFoundException.class);
+    assertThat(errorAnd.getErrors().asList().get(0))
+        .isInstanceOf(ProgramBlockNotFoundException.class);
   }
 
   @Test
@@ -109,15 +111,15 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
 
     ImmutableSet<Update> updates =
-            ImmutableSet.of(
-                    Update.create(Path.create("applicant.name.first"), "Alice"),
-                    Update.create(Path.create("this.is.not.in.block"), "Doe"));
+        ImmutableSet.of(
+            Update.create(Path.create("applicant.name.first"), "Alice"),
+            Update.create(Path.create("this.is.not.in.block"), "Doe"));
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
-            subject
-                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 1L, updates)
-                    .toCompletableFuture()
-                    .join();
+        subject
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 1L, updates)
+            .toCompletableFuture()
+            .join();
     assertThat(errorAnd.hasResult()).isFalse();
     assertThat(errorAnd.getErrors()).hasSize(1);
     assertThat(errorAnd.getErrors().asList().get(0)).isInstanceOf(PathNotInBlockException.class);
@@ -150,7 +152,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
                 new NameQuestionDefinition(
                     1L,
                     "my name",
-                    "applicant.name",
+                    Path.create("applicant.name"),
                     "description",
                     ImmutableMap.of(Locale.ENGLISH, "question?"),
                     ImmutableMap.of(Locale.ENGLISH, "help text")))

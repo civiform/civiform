@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import services.Path;
 
 public class ApplicantData {
   // Suppress errors thrown by JsonPath and instead return null if a path does not exist in a JSON

@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import org.junit.Test;
-import services.applicant.Path;
+import services.Path;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
@@ -69,7 +69,7 @@ public class BlockDefinitionTest {
             .setId(1L)
             .setVersion(1L)
             .setName("name")
-            .setPath("applicant.name")
+            .setPath(Path.create("applicant.name"))
             .setDescription("name question")
             .setQuestionType(QuestionType.NAME)
             .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "What is your name?"))
@@ -80,7 +80,7 @@ public class BlockDefinitionTest {
             .setId(2L)
             .setVersion(1L)
             .setName("address")
-            .setPath("applicant.address")
+            .setPath(Path.create("applicant.address"))
             .setDescription("address question")
             .setQuestionType(QuestionType.ADDRESS)
             .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "What is your address?"))
@@ -91,7 +91,7 @@ public class BlockDefinitionTest {
             .setId(3L)
             .setVersion(1L)
             .setName("color")
-            .setPath("applicant.color")
+            .setPath(Path.create("applicant.color"))
             .setDescription("color")
             .setQuestionType(QuestionType.TEXT)
             .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "What is your favorite color?"))

@@ -11,6 +11,7 @@ import java.util.concurrent.CompletionStage;
 import models.Question;
 import repository.QuestionRepository;
 import services.ErrorAnd;
+import services.Path;
 
 public final class QuestionServiceImpl implements QuestionService {
 
@@ -23,7 +24,7 @@ public final class QuestionServiceImpl implements QuestionService {
 
   @Override
   public boolean addTranslation(
-      String path, Locale locale, String questionText, Optional<String> questionHelpText)
+      Path path, Locale locale, String questionText, Optional<String> questionHelpText)
       throws InvalidPathException {
     throw new java.lang.UnsupportedOperationException("Not supported yet.");
   }
@@ -76,14 +77,15 @@ public final class QuestionServiceImpl implements QuestionService {
     if (!errors.isEmpty()) {
       return errors;
     }
-    String newPath = newDefinition.getPath();
+    Path newPath = newDefinition.getPath();
     Optional<Question> maybeConflict =
         questionRepository.findConflictingQuestion(newPath).toCompletableFuture().join();
     if (maybeConflict.isPresent()) {
       Question question = maybeConflict.get();
       return ImmutableSet.of(
           QuestionServiceError.of(
-              String.format("path '%s' conflicts with question: %s", newPath, question.getPath())));
+              String.format(
+                  "path '%s' conflicts with question: %s", newPath.path(), question.getPath())));
     }
     return ImmutableSet.of();
   }
@@ -94,7 +96,7 @@ public final class QuestionServiceImpl implements QuestionService {
       throw new InvalidUpdateException(
           String.format(
               "question paths mismatch: %s does not match %s",
-              definition.getPath(), toUpdate.getPath()));
+              definition.getPath().path(), toUpdate.getPath().path()));
     }
     if (!definition.getQuestionType().equals(toUpdate.getQuestionType())) {
       throw new InvalidUpdateException(

@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import repository.ProgramRepository;
 import repository.WithPostgresContainer;
+import services.Path;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
@@ -34,7 +35,7 @@ public class ProgramTest extends WithPostgresContainer {
             OptionalLong.of(123L),
             2L,
             "question",
-            "applicant.name",
+            Path.create("applicant.name"),
             "applicant's name",
             ImmutableMap.of(Locale.US, "What is your name?"),
             ImmutableMap.of());
@@ -83,7 +84,7 @@ public class ProgramTest extends WithPostgresContainer {
             OptionalLong.of(456L),
             2L,
             "address question",
-            "applicant.address",
+            Path.create("applicant.address"),
             "applicant's address",
             ImmutableMap.of(Locale.US, "What is your address?"),
             ImmutableMap.of());
@@ -92,7 +93,7 @@ public class ProgramTest extends WithPostgresContainer {
             OptionalLong.of(789L),
             2L,
             "name question",
-            "applicant.name",
+            Path.create("applicant.name"),
             "applicant's name",
             ImmutableMap.of(Locale.US, "What is your name?"),
             ImmutableMap.of());

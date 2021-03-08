@@ -1,6 +1,6 @@
 package services.program;
 
-import services.applicant.Path;
+import services.Path;
 
 public class PathNotInBlockException extends Exception {
 

@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Optional;
-import services.applicant.Path;
+import services.Path;
 import services.question.QuestionDefinition;
 import services.question.ScalarType;
 
@@ -77,8 +77,8 @@ public abstract class BlockDefinition {
 
   @JsonIgnore
   @Memoized
-  public ImmutableMap<String, ScalarType> scalarTypes() {
-    ImmutableMap.Builder<String, ScalarType> scalarTypesBuilder = ImmutableMap.builder();
+  public ImmutableMap<Path, ScalarType> scalarTypes() {
+    ImmutableMap.Builder<Path, ScalarType> scalarTypesBuilder = ImmutableMap.builder();
     programQuestionDefinitions().stream()
         .map(ProgramQuestionDefinition::getQuestionDefinition)
         .map(QuestionDefinition::getScalars)
@@ -89,14 +89,12 @@ public abstract class BlockDefinition {
 
   @JsonIgnore
   public Optional<ScalarType> getScalarType(Path path) {
-    return Optional.ofNullable(scalarTypes().get(path.path()));
+    return Optional.ofNullable(scalarTypes().get(path));
   }
 
   @JsonIgnore
   public boolean hasPaths(List<Path> paths) {
-    ImmutableSet<String> stringPaths =
-        paths.stream().map(Path::path).collect(ImmutableSet.toImmutableSet());
-    return scalarTypes().keySet().containsAll(stringPaths);
+    return scalarTypes().keySet().containsAll(ImmutableSet.copyOf(paths));
   }
 
   @JsonIgnore
