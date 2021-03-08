@@ -21,9 +21,9 @@ public class ApplicantData {
   // blob.
   private static final Configuration CONFIGURATION =
       Configuration.defaultConfiguration().addOptions(Option.SUPPRESS_EXCEPTIONS);
+  private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
 
   private DocumentContext jsonData;
-  private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
 
   public ApplicantData() {
     this(EMPTY_APPLICANT_DATA_JSON);

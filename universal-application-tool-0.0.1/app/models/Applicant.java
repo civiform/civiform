@@ -1,10 +1,10 @@
 package models;
 
 import io.ebean.annotation.DbJson;
-import java.io.IOException;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.applicant.ApplicantData;
@@ -38,11 +38,12 @@ public class Applicant extends BaseModel {
   }
 
   @PrePersist
-  public void synchronizeObject() throws IOException {
+  @PreUpdate
+  public void synchronizeObject() {
     this.object = objectAsJsonString();
   }
 
-  private String objectAsJsonString() throws IOException {
+  private String objectAsJsonString() {
     return getApplicantData().asJsonString();
   }
 
