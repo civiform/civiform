@@ -62,8 +62,4 @@ public final class Block {
     }
     return errorsMemo.get();
   }
-
-  public boolean isValid() {
-    return true;
-  }
 }
