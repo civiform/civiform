@@ -2,7 +2,6 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -14,6 +13,7 @@ import repository.ApplicantRepository;
 import services.ErrorAnd;
 import services.program.BlockDefinition;
 import services.program.PathNotInBlockException;
+import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.question.ScalarType;
@@ -36,8 +36,9 @@ public class ApplicantServiceImpl implements ApplicantService {
   }
 
   @Override
-  public CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, String>> stageAndUpdateIfValid(
-      long applicantId, long programId, long blockId, ImmutableSet<Update> updates) {
+  public CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>>
+      stageAndUpdateIfValid(
+          long applicantId, long programId, long blockId, ImmutableSet<Update> updates) {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
         applicantRepository.lookupApplicant(applicantId).toCompletableFuture();
 
@@ -50,10 +51,12 @@ public class ApplicantServiceImpl implements ApplicantService {
               Applicant applicant = applicantCompletableFuture.join().get();
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join().get();
 
-              ImmutableSet<String> updateErrors =
-                  stageUpdates(applicant, programDefinition, blockId, updates);
-              if (!updateErrors.isEmpty()) {
-                return CompletableFuture.completedFuture(ErrorAnd.error(updateErrors));
+              try {
+                stageUpdates(applicant, programDefinition, blockId, updates);
+              } catch (ProgramBlockNotFoundException
+                  | UnsupportedScalarTypeException
+                  | PathNotInBlockException e) {
+                return CompletableFuture.completedFuture(ErrorAnd.error(ImmutableSet.of(e)));
               }
 
               ReadOnlyApplicantProgramService roApplicantProgramService =
@@ -100,57 +103,40 @@ public class ApplicantServiceImpl implements ApplicantService {
             httpExecutionContext.current());
   }
 
-  /**
-   * Tries to perform an in-place update of {@link ApplicantData}. Returns error messages if it is
-   * impossible to perform the operation.
-   */
-  private ImmutableSet<String> stageUpdates(
+  /** In-place update of {@link Applicant}'s data. */
+  private void stageUpdates(
       Applicant applicant,
       ProgramDefinition programDefinition,
       long blockId,
-      ImmutableSet<Update> updates) {
+      ImmutableSet<Update> updates)
+      throws ProgramBlockNotFoundException, UnsupportedScalarTypeException,
+          PathNotInBlockException {
 
-    Optional<BlockDefinition> blockDefinitionMaybe = programDefinition.getBlockDefinition(blockId);
-    if (blockDefinitionMaybe.isEmpty()) {
-      return ImmutableSet.of("Block not found.");
-    }
-    BlockDefinition blockDefinition = blockDefinitionMaybe.get();
-
-    ImmutableList<Path> updatePaths =
-        updates.stream().map(Update::path).collect(ImmutableList.toImmutableList());
-    if (!blockDefinition.hasPaths(updatePaths)) {
-      return ImmutableSet.of("Not all paths exist in this Block.");
-    }
-
-    try {
-      stageUpdates(applicant.getApplicantData(), blockDefinition, updates);
-    } catch (UnsupportedScalarTypeException e) {
-      return ImmutableSet.of("Unrecognized scalar type");
-    } catch (PathNotInBlockException e) {
-      return ImmutableSet.of("Update path does not exist.");
-    }
-
-    return ImmutableSet.of();
+    BlockDefinition blockDefinition =
+        programDefinition
+            .getBlockDefinition(blockId)
+            .orElseThrow(() -> new ProgramBlockNotFoundException(programDefinition.id(), blockId));
+    stageUpdates(applicant.getApplicantData(), blockDefinition, updates);
   }
 
-  /** In-place update of applicant data. */
+  /** In-place update of {@link ApplicantData}. */
   private void stageUpdates(
       ApplicantData applicantData, BlockDefinition blockDefinition, ImmutableSet<Update> updates)
       throws UnsupportedScalarTypeException, PathNotInBlockException {
     for (Update update : updates) {
-      Optional<ScalarType> typeMaybe = blockDefinition.getScalarType(update.path());
-      if (typeMaybe.isEmpty()) {
-        throw new PathNotInBlockException(blockDefinition, update.path());
-      }
-      switch (typeMaybe.get()) {
+      ScalarType type =
+          blockDefinition
+              .getScalarType(update.path())
+              .orElseThrow(() -> new PathNotInBlockException(blockDefinition, update.path()));
+      switch (type) {
         case STRING:
-          applicantData.putString(update.path(), (String) update.value());
+          applicantData.putString(update.path(), update.value());
           break;
         case INT:
-          applicantData.putInteger(update.path(), (Integer) update.value());
+          applicantData.putInteger(update.path(), Integer.valueOf(update.value()));
           break;
         default:
-          throw new UnsupportedScalarTypeException(typeMaybe.get());
+          throw new UnsupportedScalarTypeException(type);
       }
     }
   }

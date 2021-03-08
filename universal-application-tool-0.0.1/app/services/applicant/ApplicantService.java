@@ -18,7 +18,7 @@ public interface ApplicantService {
    *     invalid data with errors associated with it. If the service cannot perform the update, an
    *     {@link ErrorAnd} is returned in the error state.
    */
-  CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, String>> stageAndUpdateIfValid(
+  CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>> stageAndUpdateIfValid(
       long applicantId, long programId, long blockId, ImmutableSet<Update> updates);
 
   /** Creates a new {@link models.Applicant} at for latest application version for a given user. */

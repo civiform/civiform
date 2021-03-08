@@ -12,6 +12,8 @@ import org.junit.Test;
 import repository.ApplicantRepository;
 import repository.WithPostgresContainer;
 import services.ErrorAnd;
+import services.program.PathNotInBlockException;
+import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
@@ -40,11 +42,11 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void update_emptySetOfUpdates_isNotAnErrorAndDoesNotChangeApplicant() {
+  public void stageAndUpdateIfValid_emptySetOfUpdates_isNotAnErrorAndDoesNotChangeApplicant() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     ApplicantData applicantDataBefore = applicant.getApplicantData();
 
-    ErrorAnd<ReadOnlyApplicantProgramService, String> errorAnd =
+    ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
             .stageAndUpdateIfValid(
                 applicant.id, programDefinition.id(), 1L, ImmutableSet.<Update>builder().build())
@@ -60,7 +62,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void update_withUpdates_isOk() {
+  public void stageAndUpdateIfValid_withUpdates_isOk() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
 
     ImmutableSet<Update> updates =
@@ -68,7 +70,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             Update.create(Path.create("applicant.name.first"), "Alice"),
             Update.create(Path.create("applicant.name.last"), "Doe"));
 
-    ErrorAnd<ReadOnlyApplicantProgramService, String> errorAnd =
+    ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
             .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 1L, updates)
             .toCompletableFuture()
@@ -81,6 +83,44 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         applicantRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(applicantDataAfter.asJsonString()).contains("Alice", "Doe");
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_hasProgramNotFoundException() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+
+    ImmutableSet<Update> updates =
+            ImmutableSet.of(
+                    Update.create(Path.create("applicant.name.first"), "Alice"),
+                    Update.create(Path.create("applicant.name.last"), "Doe"));
+
+    ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
+            subject
+                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 100L, updates)
+                    .toCompletableFuture()
+                    .join();
+    assertThat(errorAnd.hasResult()).isFalse();
+    assertThat(errorAnd.getErrors()).hasSize(1);
+    assertThat(errorAnd.getErrors().asList().get(0)).isInstanceOf(ProgramBlockNotFoundException.class);
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_hasPathNotInBlockException() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+
+    ImmutableSet<Update> updates =
+            ImmutableSet.of(
+                    Update.create(Path.create("applicant.name.first"), "Alice"),
+                    Update.create(Path.create("this.is.not.in.block"), "Doe"));
+
+    ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
+            subject
+                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 1L, updates)
+                    .toCompletableFuture()
+                    .join();
+    assertThat(errorAnd.hasResult()).isFalse();
+    assertThat(errorAnd.getErrors()).hasSize(1);
+    assertThat(errorAnd.getErrors().asList().get(0)).isInstanceOf(PathNotInBlockException.class);
   }
 
   @Test

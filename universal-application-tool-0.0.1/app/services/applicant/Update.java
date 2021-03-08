@@ -12,9 +12,9 @@ public abstract class Update {
   public abstract Path path();
 
   /** The value to update the the applicant's {@link ApplicantData} to. */
-  public abstract Object value();
+  public abstract String value();
 
-  public static Update create(Path path, Object value) {
+  public static Update create(Path path, String value) {
     return new AutoValue_Update(path, value);
   }
 }
