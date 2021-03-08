@@ -12,7 +12,6 @@ import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
-import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.question.QuestionDefinition;
@@ -29,26 +28,39 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   public Content renderNewQuestionForm(Request request) {
-    Optional<String> maybeMessage = request.flash().get("message");
     return layout.render(
         body(
-            div(maybeMessage.orElse("")),
             renderHeader("New Question"),
-            buildNewQuestionForm(request).with(makeCsrfTokenInputTag(request))));
+            buildNewQuestionForm(new QuestionForm()).with(makeCsrfTokenInputTag(request))));
+  }
+
+  public Content renderNewQuestionForm(Request request, QuestionForm questionForm, String message) {
+    return layout.render(
+        body(
+            div(message),
+            renderHeader("New Question"),
+            buildNewQuestionForm(questionForm).with(makeCsrfTokenInputTag(request))));
   }
 
   public Content renderEditQuestionForm(Request request, QuestionDefinition question) {
-    Optional<String> maybeMessage = request.flash().get("message");
     return layout.render(
         body(
-            div(maybeMessage.orElse("")),
             renderHeader("Edit Question"),
-            buildEditQuestionForm(question).with(makeCsrfTokenInputTag(request))));
+            buildEditQuestionForm(
+                    question.getId(), question.getVersion(), new QuestionForm(question))
+                .with(makeCsrfTokenInputTag(request))));
   }
 
-  private ContainerTag buildNewQuestionForm(Request request) {
-    QuestionForm questionForm = new QuestionForm();
-    questionForm = fillDataFromRequest(request, questionForm);
+  public Content renderEditQuestionForm(
+      Request request, long id, long version, QuestionForm questionForm, String message) {
+    return layout.render(
+        body(
+            div(message),
+            renderHeader("Edit Question"),
+            buildEditQuestionForm(id, version, questionForm).with(makeCsrfTokenInputTag(request))));
+  }
+
+  private ContainerTag buildNewQuestionForm(QuestionForm questionForm) {
     ContainerTag formTag = buildQuestionForm(questionForm);
     formTag
         .withAction(controllers.admin.routes.QuestionController.create().url())
@@ -57,44 +69,14 @@ public final class QuestionEditView extends BaseHtmlView {
     return formTag;
   }
 
-  private ContainerTag buildEditQuestionForm(QuestionDefinition definition) {
-    QuestionForm questionForm = new QuestionForm(definition);
+  private ContainerTag buildEditQuestionForm(long id, long version, QuestionForm questionForm) {
     ContainerTag formTag = buildQuestionForm(questionForm);
-    formTag.with(
-        div("id: " + definition.getId()), div("version: " + definition.getVersion()), br());
+    formTag.with(div("id: " + id), div("version: " + version), br());
     formTag
-        .withAction(controllers.admin.routes.QuestionController.update(definition.getId()).url())
+        .withAction(controllers.admin.routes.QuestionController.update(id).url())
         .with(submitButton("Update"));
 
     return formTag;
-  }
-
-  private QuestionForm fillDataFromRequest(Request request, QuestionForm questionForm) {
-    Optional<String> questionName = request.flash().get("questionName");
-    if (questionName.isPresent()) {
-      questionForm.setQuestionName(questionName.get());
-    }
-    Optional<String> questionDescription = request.flash().get("questionDescription");
-    if (questionDescription.isPresent()) {
-      questionForm.setQuestionDescription(questionDescription.get());
-    }
-    Optional<String> questionPath = request.flash().get("questionPath");
-    if (questionPath.isPresent()) {
-      questionForm.setQuestionPath(questionPath.get());
-    }
-    Optional<String> questionType = request.flash().get("questionType");
-    if (questionType.isPresent()) {
-      questionForm.setQuestionType(questionType.get());
-    }
-    Optional<String> questionText = request.flash().get("questionText");
-    if (questionText.isPresent()) {
-      questionForm.setQuestionText(questionText.get());
-    }
-    Optional<String> questionHelpText = request.flash().get("questionHelpText");
-    if (questionHelpText.isPresent()) {
-      questionForm.setQuestionHelpText(questionHelpText.get());
-    }
-    return questionForm;
   }
 
   private ContainerTag buildQuestionForm(QuestionForm questionForm) {

@@ -55,21 +55,21 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void create_failsWithErrorMessageAndRedirectsToNewPageWithFieldsPopulated()
-      throws Exception {
+  public void create_failsWithErrorMessageAndPopulatedFields() throws Exception {
     buildQuestionsList();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData.put("questionName", "name").put("questionPath", "#invalid_path!");
-    RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
+    Request request = addCSRFToken(Helpers.fakeRequest().bodyForm(formData.build())).build();
     controller
-        .create(requestBuilder.build())
+        .create(request)
         .thenAccept(
             result -> {
-              assertThat(result.redirectLocation())
-                  .hasValue(routes.QuestionController.newOne().url());
-              assertThat(result.flash().get("message").get()).contains("#invalid_path!");
-              assertThat(result.flash().get("questionName").get()).contains("name");
-              assertThat(result.flash().get("questionPath").get()).contains("#invalid_path!");
+              assertThat(result.status()).isEqualTo(OK);
+              assertThat(contentAsString(result)).contains("New Question");
+              assertThat(contentAsString(result))
+                  .contains(CSRF.getToken(request.asScala()).value());
+              assertThat(contentAsString(result)).contains("name");
+              assertThat(contentAsString(result)).contains("#invalid_path!");
             })
         .toCompletableFuture()
         .join();
@@ -203,17 +203,19 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void update_failsWithErrorMessageAndRedirectsToEditPage() {
+  public void update_failsWithErrorMessageAndPopulatedFields() {
     Question question = resourceCreator().insertQuestion("my.path");
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData.put("questionPath", "invalid.path").put("questionText", "question text updated!");
-    RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
+    Request request = addCSRFToken(Helpers.fakeRequest().bodyForm(formData.build())).build();
 
-    Result result = controller.update(requestBuilder.build(), question.id);
+    Result result = controller.update(request, question.id);
 
-    assertThat(result.redirectLocation())
-        .hasValue(routes.QuestionController.edit(question.id).url());
-    assertThat(result.flash().get("message").get()).contains("invalid.path");
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Edit Question");
+    assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
+    assertThat(contentAsString(result)).contains("invalid.path");
+    assertThat(contentAsString(result)).contains("question text updated!");
   }
 
   @Test

@@ -3,9 +3,7 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
-import com.google.common.collect.ImmutableMap;
 import forms.QuestionForm;
-import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.concurrent.CompletionStage;
@@ -71,16 +69,12 @@ public class QuestionController extends Controller {
                     messageJoiner.add(e.message());
                   }
                   String errorMessage = messageJoiner.toString();
-                  return withData(
-                      withMessage(redirect(routes.QuestionController.newOne()), errorMessage),
-                      questionForm.getData());
+                  return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
                 }
               } catch (UnsupportedQuestionTypeException e) {
                 // These are valid question types, but are not fully supported yet.
                 String errorMessage = e.toString();
-                return withData(
-                    withMessage(redirect(routes.QuestionController.newOne()), errorMessage),
-                    questionForm.getData());
+                return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
               } catch (InvalidQuestionTypeException e) {
                 // These are unrecognized invalid question types.
                 return badRequest(e.toString());
@@ -149,12 +143,12 @@ public class QuestionController extends Controller {
           messageJoiner.add(e.message());
         }
         String errorMessage = messageJoiner.toString();
-        return withMessage(redirect(routes.QuestionController.edit(id)), errorMessage);
+        return ok(editView.renderEditQuestionForm(request, id, 1L, questionForm, errorMessage));
       }
     } catch (UnsupportedQuestionTypeException e) {
       // These are valid question types, but are not fully supported yet.
       String errorMessage = e.toString();
-      return withMessage(redirect(routes.QuestionController.edit(id)), errorMessage);
+      return ok(editView.renderEditQuestionForm(request, id, 1L, questionForm, errorMessage));
     } catch (InvalidQuestionTypeException e) {
       // These are unrecognized invalid question types.
       return badRequest(e.toString());
@@ -169,15 +163,6 @@ public class QuestionController extends Controller {
   private Result withMessage(Result result, String message) {
     if (!message.isEmpty()) {
       return result.flashing("message", message);
-    }
-    return result;
-  }
-
-  private Result withData(Result result, ImmutableMap<String, String> data) {
-    if (!data.isEmpty()) {
-      for (Map.Entry<String, String> entry : data.entrySet()) {
-        result = result.flashing(entry.getKey(), entry.getValue());
-      }
     }
     return result;
   }
