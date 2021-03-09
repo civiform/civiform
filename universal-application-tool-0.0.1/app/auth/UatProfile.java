@@ -84,7 +84,7 @@ public class UatProfile {
   }
 
   public CompletableFuture<String> getEmailAddress() {
-    return this.getAccount().thenApplyAsync(a -> a.getEmailAddress());
+    return this.getAccount().thenApplyAsync(Account::getEmailAddress);
   }
 
   public UatProfileData getProfileData() {

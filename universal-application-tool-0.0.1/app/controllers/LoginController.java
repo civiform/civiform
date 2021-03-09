@@ -1,5 +1,6 @@
 package controllers;
 
+import com.google.common.base.Preconditions;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -19,19 +20,24 @@ import play.mvc.Result;
  * normally you need to be logged out in order to be redirected to a login page.
  */
 public class LoginController extends Controller {
-  @Inject
-  @Nullable
-  @Named("idcs")
-  OidcClient idcsClient;
+  private final OidcClient idcsClient;
+
+  private final OidcClient adClient;
+
+  private final SessionStore sessionStore;
+
+  private final HttpActionAdapter httpActionAdapter;
 
   @Inject
-  @Nullable
-  @Named("ad")
-  OidcClient adClient;
-
-  @Inject SessionStore sessionStore;
-
-  HttpActionAdapter httpActionAdapter = PlayHttpActionAdapter.INSTANCE;
+  public LoginController(
+      @Named("ad") @Nullable OidcClient adClient,
+      @Named("idcs") @Nullable OidcClient idcsClient,
+      SessionStore sessionStore) {
+    this.idcsClient = idcsClient;
+    this.adClient = adClient;
+    this.sessionStore = Preconditions.checkNotNull(sessionStore);
+    this.httpActionAdapter = PlayHttpActionAdapter.INSTANCE;
+  }
 
   public Result idcsLogin(Http.Request request) {
     return login(request, idcsClient);
@@ -43,6 +49,9 @@ public class LoginController extends Controller {
 
   // Logic taken from org.pac4j.play.deadbolt2.Pac4jHandler.beforeAuthCheck.
   private Result login(Http.Request request, OidcClient client) {
+    if (client == null) {
+      return badRequest("Identity provider secrets not configured.");
+    }
     PlayWebContext webContext = new PlayWebContext(request);
     Optional<RedirectionAction> redirect = client.getRedirectionAction(webContext, sessionStore);
     if (redirect.isPresent()) {

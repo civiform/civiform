@@ -7,7 +7,8 @@ import org.pac4j.oidc.profile.OidcProfile;
 /**
  * This class takes an existing UAT profile and augments it with the information from an AD profile.
  * Right now this is only extracting the email address, as a proof that this works - it needs to be
- * built out. TODO(nathan): decide what can be extracted and extract it.
+ * built out. TODO(https://github.com/seattle-uat/universal-application-tool/issues/384): extract
+ * what's possible.
  */
 public class AdfsProfileAdapter extends UatProfileAdapter {
 
@@ -25,7 +26,8 @@ public class AdfsProfileAdapter extends UatProfileAdapter {
   @Override
   public UatProfileData mergeUatProfile(UatProfile uatProfile, OidcProfile oidcProfile) {
     // The key in AD is just "email".
-    // TODO(nathan): what if there's already an email address?
+    // TODO(https://github.com/seattle-uat/universal-application-tool/issues/385): what if there's
+    // already an email?
     uatProfile.setEmailAddress(oidcProfile.getAttribute("email", String.class)).join();
     return uatProfile.getProfileData();
   }

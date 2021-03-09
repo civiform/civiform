@@ -124,7 +124,8 @@ public class SecurityModule extends AbstractModule {
   @Nullable
   @Singleton
   protected OidcClient provideIDCSClient(ProfileFactory profileFactory) {
-    if (!this.configuration.hasPath("idcs.client_id") || !this.configuration.hasPath("idcs.secret")) {
+    if (!this.configuration.hasPath("idcs.client_id")
+        || !this.configuration.hasPath("idcs.secret")) {
       return null;
     }
     OidcConfiguration config = new OidcConfiguration();
@@ -147,7 +148,8 @@ public class SecurityModule extends AbstractModule {
   @Nullable
   @Singleton
   protected OidcClient provideAdClient(ProfileFactory profileFactory) {
-    if (!this.configuration.hasPath("adfs.client_id") || !this.configuration.hasPath("adfs.secret")) {
+    if (!this.configuration.hasPath("adfs.client_id")
+        || !this.configuration.hasPath("adfs.secret")) {
       return null;
     }
     OidcConfiguration config = new OidcConfiguration();
@@ -182,7 +184,7 @@ public class SecurityModule extends AbstractModule {
       clientList.add(adClient);
     }
     if (this.baseUrl.equals(DEV_BASE_URL)) {
-        clientList.add(fakeAdminClient);
+      clientList.add(fakeAdminClient);
     }
     Clients clients = new Clients(baseUrl + "/callback");
     clients.setClients(clientList);
