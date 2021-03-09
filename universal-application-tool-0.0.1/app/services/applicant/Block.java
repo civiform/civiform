@@ -58,7 +58,7 @@ public final class Block {
   public boolean hasErrors() {
     if (errorsMemo.isEmpty()) {
       this.errorsMemo =
-          getQuestions().stream().map(ApplicantQuestion::hasErrors).reduce(Boolean::logicalAnd);
+          getQuestions().stream().map(ApplicantQuestion::hasErrors).reduce(Boolean::logicalOr);
     }
     return errorsMemo.get();
   }
