@@ -25,6 +25,6 @@
   }
 
   main {
-    @apply max-w-screen-xl mx-auto;
+    @apply w-screen max-w-screen-xl mx-auto overflow-y-auto mt-12;
   }
 }
