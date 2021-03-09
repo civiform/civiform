@@ -9,12 +9,17 @@ import services.ErrorAnd;
 public interface ApplicantService {
 
   /**
-   * Performs a set of updates to the applicant's {@link ApplicantData}. Updates are atomic i.e. if
-   * any of them fail validation none of them will be written. programId is used to construct the
-   * {@link ReadOnlyApplicantProgramService} provided in the return value.
+   * Attempts to perform a set of updates to the applicant's {@link ApplicantData}. If updates are
+   * valid, they are saved to storage.
+   *
+   * <p>Updates are atomic i.e. if any of them fail validation none of them will be written.
+   *
+   * @return a {@link ReadOnlyApplicantProgramService} that reflects the updates, which may have
+   *     invalid data with errors associated with it. If the service cannot perform the update, an
+   *     {@link ErrorAnd} is returned in the error state.
    */
-  CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, UpdateError>> update(
-      long applicantId, long programId, ImmutableSet<Update> updates);
+  CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>> stageAndUpdateIfValid(
+      long applicantId, long programId, long blockId, ImmutableSet<Update> updates);
 
   /** Creates a new {@link models.Applicant} at for latest application version for a given user. */
   CompletionStage<Applicant> createApplicant(long userId);

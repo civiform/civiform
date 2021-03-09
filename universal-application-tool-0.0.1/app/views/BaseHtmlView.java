@@ -8,6 +8,7 @@ import static j2html.TagCreator.text;
 import j2html.TagCreator;
 import j2html.tags.Tag;
 import play.mvc.Http;
+import services.applicant.ValidationErrorMessage;
 import views.html.helper.CSRF;
 
 /**
@@ -21,13 +22,9 @@ public abstract class BaseHtmlView {
   public Tag renderHeader(String headerText) {
     return h1(headerText);
   }
-
-  protected Tag checkboxInputWithLabel(
-      String labelText, String inputId, String inputName, String inputValue) {
-    return label()
-        .with(
-            input().withType("checkbox").withName(inputName).withValue(inputValue).withId(inputId),
-            text(labelText));
+  
+  protected ContainerTag fieldErrors(ImmutableSet<ValidationErrorMessage> errors) {
+    return div(each(errors, error -> span(error.message())));
   }
 
   protected Tag button(String textContents) {
