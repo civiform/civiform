@@ -91,8 +91,8 @@ public class FieldWithLabel {
   public ContainerTag getContainer() {
     if (!this.isRendered) {
       this.renderedElement =
-        div(labelTag.withText(this.labelText), fieldTag.withValue(this.fieldValue))
-          .withClasses(Styles.MX_4, Styles.MB_6);
+          div(labelTag.withText(this.labelText), fieldTag.withValue(this.fieldValue))
+              .withClasses(Styles.MX_4, Styles.MB_6);
       this.isRendered = true;
     }
     return renderedElement;
