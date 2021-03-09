@@ -64,37 +64,25 @@ public final class ApplicantProgramBlocksController extends Controller {
     return applicantService
         .stageAndUpdateIfValid(applicantId, programId, blockId, formData)
         .thenApplyAsync(
-            (errorAndROApplicantProgramService) -> {
-              ReadOnlyApplicantProgramService roApplicantProgramService =
-                  errorAndROApplicantProgramService.getResult();
-              return updateResult(
-                  request, applicantId, programId, blockId, roApplicantProgramService);
+            (roApplicantProgramService) -> {
+              Block thisBlockUpdated = roApplicantProgramService.getBlock(blockId).orElseThrow();
+
+              // Validation errors: re-render this block with errors and previously entered data.
+              if (thisBlockUpdated.hasErrors()) {
+                return ok(editView.render(request, applicantId, programId, thisBlockUpdated));
+              }
+
+              // TODO: redirect to review page when it is available.
+              Result reviewPageRedirect = redirect(routes.ApplicantProgramsController.index(applicantId));
+              Optional<Long> nextBlockIdMaybe =
+                      roApplicantProgramService.getFirstIncompleteBlock().map(Block::getId);
+              return nextBlockIdMaybe.isEmpty()
+                      ? reviewPageRedirect
+                      : redirect(
+                      routes.ApplicantProgramBlocksController.edit(
+                              applicantId, programId, nextBlockIdMaybe.get()));
             },
             httpExecutionContext.current());
-  }
-
-  private Result updateResult(
-      Request request,
-      long applicantId,
-      long programId,
-      long blockId,
-      ReadOnlyApplicantProgramService roApplicantProgramService) {
-    Block thisBlockUpdated = roApplicantProgramService.getBlock(blockId).orElseThrow();
-
-    // Validation errors: re-render this block with errors and previously entered data.
-    if (thisBlockUpdated.hasErrors()) {
-      return ok(editView.render(request, applicantId, programId, thisBlockUpdated));
-    }
-
-    // TODO: redirect to review page when it is available.
-    Result reviewPageRedirect = redirect(routes.ApplicantProgramsController.index(applicantId));
-    Optional<Long> nextBlockIdMaybe =
-        roApplicantProgramService.getFirstIncompleteBlock().map(Block::getId);
-    return nextBlockIdMaybe.isEmpty()
-        ? reviewPageRedirect
-        : redirect(
-            routes.ApplicantProgramBlocksController.edit(
-                applicantId, programId, nextBlockIdMaybe.get()));
   }
 
   private ImmutableMap<String, String> cleanForm(Map<String, String> formData) {
