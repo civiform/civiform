@@ -88,13 +88,19 @@ public abstract class BlockDefinition {
   }
 
   @JsonIgnore
+  @Memoized
+  public ImmutableSet<Path> scalarPaths() {
+    return scalarTypes().keySet();
+  }
+
+  @JsonIgnore
   public Optional<ScalarType> getScalarType(Path path) {
     return Optional.ofNullable(scalarTypes().get(path));
   }
 
   @JsonIgnore
   public boolean hasPaths(List<Path> paths) {
-    return scalarTypes().keySet().containsAll(ImmutableSet.copyOf(paths));
+    return scalarPaths().containsAll(ImmutableSet.copyOf(paths));
   }
 
   @JsonIgnore

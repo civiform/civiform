@@ -52,7 +52,7 @@ public class ApplicantProgramsController extends Controller {
               if (block.isPresent()) {
                 return found(
                     routes.ApplicantProgramBlocksController.edit(
-                        applicantId, programId, block.get().getId()));
+                        applicantId, programId, block.get().id()));
               } else {
                 // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): All
                 // blocks are filled in, so redirect to end of program submission.

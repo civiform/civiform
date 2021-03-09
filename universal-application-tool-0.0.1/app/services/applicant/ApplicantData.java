@@ -37,6 +37,10 @@ public class ApplicantData {
     return Locale.ENGLISH;
   }
 
+  public boolean hasPath(Path path) {
+    return this.jsonData.read(path.path()) != null;
+  }
+
   public void putString(Path path, String value) {
     put(path, value);
   }
@@ -61,7 +65,7 @@ public class ApplicantData {
     path.parentPaths()
         .forEach(
             segmentPath -> {
-              if (this.jsonData.read(segmentPath.path()) == null) {
+              if (!hasPath(segmentPath)) {
                 this.jsonData.put(
                     segmentPath.parentPath().path(), segmentPath.keyName(), new HashMap<>());
               }

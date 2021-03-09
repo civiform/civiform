@@ -31,7 +31,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
   public Content render(Request request, long applicantId, long programId, Block block) {
     String formAction =
-        routes.ApplicantProgramBlocksController.update(applicantId, programId, block.getId()).url();
+        routes.ApplicantProgramBlocksController.update(applicantId, programId, block.id()).url();
 
     return layout.render(
         h1(block.getName()),

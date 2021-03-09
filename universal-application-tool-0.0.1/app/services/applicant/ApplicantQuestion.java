@@ -3,9 +3,11 @@ package services.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import services.Path;
 import services.question.AddressQuestionDefinition;
 import services.question.NameQuestionDefinition;
@@ -390,5 +392,20 @@ public class ApplicantQuestion {
     public Path getLastNamePath() {
       return getQuestionDefinition().getLastNamePath();
     }
+  }
+
+  @Override
+  public boolean equals(@Nullable Object object) {
+    if (object instanceof ApplicantQuestion) {
+      ApplicantQuestion that = (ApplicantQuestion) object;
+      return this.questionDefinition.equals(that.questionDefinition)
+          && this.applicantData.equals(that.applicantData);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(questionDefinition, applicantData);
   }
 }

@@ -32,6 +32,20 @@ public class ApplicantDataTest {
   }
 
   @Test
+  public void hasPath_pathNotFound_returnsFalse() {
+    ApplicantData data = new ApplicantData();
+    assertThat(data.hasPath(Path.create("nonexistent"))).isFalse();
+  }
+
+  @Test
+  public void hasPath_pathExists_returnsTrue() {
+    ApplicantData data = new ApplicantData();
+    Path path = Path.create("applicant.text");
+    data.putString(path, "hello");
+    assertThat(data.hasPath(path)).isTrue();
+  }
+
+  @Test
   public void put_addsAScalar() {
     ApplicantData data = new ApplicantData();
 

@@ -27,7 +27,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
     ImmutableList<Block> blocks =
         programDefinition.blockDefinitions().stream()
-            .map(blockDefinition -> new Block(blockDefinition.id(), blockDefinition, applicantData))
+            .map(
+                blockDefinition ->
+                    Block.create(blockDefinition.id(), blockDefinition, applicantData))
             .collect(toImmutableList());
 
     currentBlockList = Optional.of(blocks);
@@ -37,7 +39,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public Optional<Block> getBlock(long blockId) {
-    return getCurrentBlockList().stream().filter((block) -> block.getId() == blockId).findFirst();
+    return getCurrentBlockList().stream().filter((block) -> block.id() == blockId).findFirst();
   }
 
   @Override
@@ -45,7 +47,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     ImmutableList<Block> blocks = getCurrentBlockList();
 
     for (int i = 0; i < blocks.size() - 1; i++) {
-      if (blocks.get(i).getId() != blockId) {
+      if (blocks.get(i).id() != blockId) {
         continue;
       }
 
@@ -57,14 +59,13 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public Optional<Block> getBlockAfter(Block block) {
-    return getBlockAfter(block.getId());
+    return getBlockAfter(block.id());
   }
 
   // TODO(https://github.com/seattle-uat/universal-application-tool/issues/224): Implement checking
   // blocks for completion
   @Override
   public Optional<Block> getFirstIncompleteBlock() {
-    ImmutableList<Block> currentBlockList = getCurrentBlockList();
-    return currentBlockList.isEmpty() ? Optional.empty() : Optional.of(currentBlockList.get(0));
+    return getCurrentBlockList().stream().filter(block -> !block.isComplete()).findFirst();
   }
 }
