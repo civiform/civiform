@@ -1,11 +1,11 @@
 package models;
 
 import io.ebean.annotation.DbJson;
-import java.io.IOException;
 import java.util.Locale;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.applicant.ApplicantData;
@@ -46,12 +46,12 @@ public class Applicant extends BaseModel {
   }
 
   @PrePersist
-  public void synchronizeData() throws IOException {
-    this.preferredLocale = getApplicantData().preferredLocale().toLanguageTag();
+  @PreUpdate
+  public void synchronizeObject() {
     this.object = objectAsJsonString();
   }
 
-  private String objectAsJsonString() throws IOException {
+  private String objectAsJsonString() {
     return getApplicantData().asJsonString();
   }
 
