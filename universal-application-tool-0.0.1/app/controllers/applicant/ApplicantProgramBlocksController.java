@@ -17,7 +17,6 @@ import play.mvc.Result;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
-import services.program.ProgramBlockNotFoundException;
 import views.applicant.ApplicantProgramBlockEditView;
 
 public final class ApplicantProgramBlocksController extends Controller {
@@ -66,19 +65,12 @@ public final class ApplicantProgramBlocksController extends Controller {
         .stageAndUpdateIfValid(applicantId, programId, blockId, formData)
         .thenApplyAsync(
             (errorAndROApplicantProgramService) -> {
-              if (errorAndROApplicantProgramService.isError()) {
-                return badRequest("The server cannot process this request.");
-              }
-
               ReadOnlyApplicantProgramService roApplicantProgramService =
                   errorAndROApplicantProgramService.getResult();
-              try {
-                return updateResult(
-                    request, applicantId, programId, blockId, roApplicantProgramService);
-              } catch (ProgramBlockNotFoundException e) {
-                return badRequest("The server cannot process this request.");
-              }
-            });
+              return updateResult(
+                  request, applicantId, programId, blockId, roApplicantProgramService);
+            },
+            httpExecutionContext.current());
   }
 
   private Result updateResult(
@@ -86,12 +78,8 @@ public final class ApplicantProgramBlocksController extends Controller {
       long applicantId,
       long programId,
       long blockId,
-      ReadOnlyApplicantProgramService roApplicantProgramService)
-      throws ProgramBlockNotFoundException {
-    Block thisBlockUpdated =
-        roApplicantProgramService
-            .getBlock(blockId)
-            .orElseThrow(() -> new ProgramBlockNotFoundException(programId, blockId));
+      ReadOnlyApplicantProgramService roApplicantProgramService) {
+    Block thisBlockUpdated = roApplicantProgramService.getBlock(blockId).orElseThrow();
 
     // Validation errors: re-render this block with errors and previously entered data.
     if (thisBlockUpdated.hasErrors()) {
@@ -100,7 +88,8 @@ public final class ApplicantProgramBlocksController extends Controller {
 
     // TODO: redirect to review page when it is available.
     Result reviewPageRedirect = redirect(routes.ApplicantProgramsController.index(applicantId));
-    Optional<Long> nextBlockIdMaybe = roApplicantProgramService.getFirstIncompleteBlock().map(Block::getId);
+    Optional<Long> nextBlockIdMaybe =
+        roApplicantProgramService.getFirstIncompleteBlock().map(Block::getId);
     return nextBlockIdMaybe.isEmpty()
         ? reviewPageRedirect
         : redirect(
