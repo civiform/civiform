@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
@@ -17,6 +19,7 @@ import play.mvc.Result;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.program.ProgramBlockNotFoundException;
 import views.applicant.ApplicantProgramBlockEditView;
 
 public final class ApplicantProgramBlocksController extends Controller {
@@ -26,6 +29,8 @@ public final class ApplicantProgramBlocksController extends Controller {
   private final HttpExecutionContext httpExecutionContext;
   private final ApplicantProgramBlockEditView editView;
   private final FormFactory formFactory;
+
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Inject
   public ApplicantProgramBlocksController(
@@ -65,21 +70,37 @@ public final class ApplicantProgramBlocksController extends Controller {
         .stageAndUpdateIfValid(applicantId, programId, blockId, formData)
         .thenApplyAsync(
             (errorAndROApplicantProgramService) -> {
+              if (errorAndROApplicantProgramService.isError()) {
+                errorAndROApplicantProgramService
+                    .getErrors()
+                    .forEach(e -> logger.error("Exception while updating applicant data", e));
+                return badRequest();
+              }
               ReadOnlyApplicantProgramService roApplicantProgramService =
                   errorAndROApplicantProgramService.getResult();
-              return updateResult(
-                  request, applicantId, programId, blockId, roApplicantProgramService);
+
+              try {
+                return update(
+                    request, applicantId, programId, blockId, roApplicantProgramService);
+              } catch (ProgramBlockNotFoundException e) {
+                logger.error("Exception while updating applicant data", e);
+                return badRequest();
+              }
             },
             httpExecutionContext.current());
   }
 
-  private Result updateResult(
+  private Result update(
       Request request,
       long applicantId,
       long programId,
       long blockId,
-      ReadOnlyApplicantProgramService roApplicantProgramService) {
-    Block thisBlockUpdated = roApplicantProgramService.getBlock(blockId).orElseThrow();
+      ReadOnlyApplicantProgramService roApplicantProgramService)
+      throws ProgramBlockNotFoundException {
+    Block thisBlockUpdated =
+        roApplicantProgramService
+            .getBlock(blockId)
+            .orElseThrow(() -> new ProgramBlockNotFoundException(programId, blockId));
 
     // Validation errors: re-render this block with errors and previously entered data.
     if (thisBlockUpdated.hasErrors()) {
