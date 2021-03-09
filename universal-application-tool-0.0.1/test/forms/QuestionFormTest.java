@@ -9,12 +9,11 @@ import services.Path;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.TextQuestionDefinition;
-import services.question.UnsupportedQuestionTypeException;
 
 public class QuestionFormTest {
 
   @Test
-  public void getBuilder_returnsCompleteBuilder() throws UnsupportedQuestionTypeException {
+  public void getBuilder_returnsCompleteBuilder() throws Exception {
     QuestionForm form = new QuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");

@@ -118,8 +118,12 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
     QuestionDefinition question = questionService.create(questionDefinition).getResult();
     QuestionDefinition toUpdate =
         new QuestionDefinitionBuilder(question).setName("updated name").build();
+    ErrorAnd<QuestionDefinition, QuestionServiceError> errorAndResult =
+        questionService.update(toUpdate);
 
-    assertThat(questionService.update(toUpdate).getName()).isEqualTo("updated name");
+    assertThat(errorAndResult.isError()).isFalse();
+    assertThat(errorAndResult.hasResult()).isTrue();
+    assertThat(errorAndResult.getResult().getName()).isEqualTo("updated name");
   }
 
   @Test
@@ -139,24 +143,28 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void update_failsWhenQuestionPathChanges() throws UnsupportedQuestionTypeException {
+  public void update_failsWhenQuestionInvariantsChange() throws Exception {
     QuestionDefinition question = questionService.create(questionDefinition).getResult();
     QuestionDefinition toUpdate =
-        new QuestionDefinitionBuilder(question).setPath(Path.create("new.path")).build();
+        new QuestionDefinitionBuilder(question)
+            .setPath(Path.create("new.path"))
+            .setQuestionType(QuestionType.ADDRESS)
+            .build();
 
-    assertThatThrownBy(() -> questionService.update(toUpdate))
-        .isInstanceOf(InvalidUpdateException.class)
-        .hasMessageContaining("question paths mismatch");
-  }
+    ErrorAnd<QuestionDefinition, QuestionServiceError> errorAndResult =
+        questionService.update(toUpdate);
 
-  @Test
-  public void update_failsWhenQuestionTypeChanges() throws UnsupportedQuestionTypeException {
-    QuestionDefinition question = questionService.create(questionDefinition).getResult();
-    QuestionDefinition toUpdate =
-        new QuestionDefinitionBuilder(question).setQuestionType(QuestionType.ADDRESS).build();
-
-    assertThatThrownBy(() -> questionService.update(toUpdate))
-        .isInstanceOf(InvalidUpdateException.class)
-        .hasMessageContaining("question types mismatch");
+    assertThat(errorAndResult.hasResult()).isFalse();
+    assertThat(errorAndResult.isError()).isTrue();
+    assertThat(errorAndResult.getErrors())
+        .containsOnly(
+            QuestionServiceError.of(
+                String.format(
+                    "question paths mismatch: %s does not match %s",
+                    question.getPath().path(), toUpdate.getPath().path())),
+            QuestionServiceError.of(
+                String.format(
+                    "question types mismatch: %s does not match %s",
+                    question.getQuestionType().toString(), toUpdate.getQuestionType().toString())));
   }
 }
