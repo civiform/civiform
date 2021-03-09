@@ -17,6 +17,7 @@ import play.mvc.Result;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.program.ProgramBlockNotFoundException;
 import views.applicant.ApplicantProgramBlockEditView;
 
 public final class ApplicantProgramBlocksController extends Controller {
@@ -71,30 +72,40 @@ public final class ApplicantProgramBlocksController extends Controller {
 
               ReadOnlyApplicantProgramService roApplicantProgramService =
                   errorAndROApplicantProgramService.getResult();
-
-              Optional<Block> updatedBlockMaybe = roApplicantProgramService.getBlock(blockId);
-              if (updatedBlockMaybe.isEmpty()) {
+              try {
+                return updateResult(
+                    request, applicantId, programId, blockId, roApplicantProgramService);
+              } catch (ProgramBlockNotFoundException e) {
                 return badRequest("The server cannot process this request.");
               }
-              Block updatedBlock = updatedBlockMaybe.get();
-
-              if (!updatedBlock.hasErrors()) {
-                // Validation errors: re-render this block with errors and previously entered data.
-                return ok(editView.render(request, applicantId, programId, updatedBlock));
-              }
-
-              // Successfully saved applicant data
-
-              Optional<Block> nextBlockMaybe = roApplicantProgramService.getFirstIncompleteBlock();
-              if (nextBlockMaybe.isEmpty()) {
-                // TODO: Redirect to answer review page.
-                return redirect(routes.ApplicantProgramsController.index(applicantId));
-              }
-
-              return redirect(
-                  routes.ApplicantProgramBlocksController.edit(
-                      applicantId, programId, nextBlockMaybe.get().getId()));
             });
+  }
+
+  private Result updateResult(
+      Request request,
+      long applicantId,
+      long programId,
+      long blockId,
+      ReadOnlyApplicantProgramService roApplicantProgramService)
+      throws ProgramBlockNotFoundException {
+    Block thisBlockUpdated =
+        roApplicantProgramService
+            .getBlock(blockId)
+            .orElseThrow(() -> new ProgramBlockNotFoundException(programId, blockId));
+
+    // Validation errors: re-render this block with errors and previously entered data.
+    if (thisBlockUpdated.hasErrors()) {
+      return ok(editView.render(request, applicantId, programId, thisBlockUpdated));
+    }
+
+    // TODO: redirect to review page when it is available.
+    Result reviewPageRedirect = redirect(routes.ApplicantProgramsController.index(applicantId));
+    Optional<Long> nextBlockIdMaybe = roApplicantProgramService.getFirstIncompleteBlock().map(Block::getId);
+    return nextBlockIdMaybe.isEmpty()
+        ? reviewPageRedirect
+        : redirect(
+            routes.ApplicantProgramBlocksController.edit(
+                applicantId, programId, nextBlockIdMaybe.get()));
   }
 
   private ImmutableMap<String, String> cleanForm(Map<String, String> formData) {

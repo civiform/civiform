@@ -23,8 +23,8 @@ public interface ApplicantService {
       long applicantId, long programId, long blockId, ImmutableSet<Update> updates);
 
   /**
-   * Equivalent to the other {@link ApplicantService#stageAndUpdateIfValid(long, long, long, ImmutableSet<Update>)},
-   * but takes a map representing the {@link Update}s.
+   * Equivalent to the other {@link ApplicantService#stageAndUpdateIfValid(long, long, long,
+   * ImmutableSet<Update>)}, but takes a map representing the {@link Update}s.
    */
   CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>> stageAndUpdateIfValid(
       long applicantId, long programId, long blockId, ImmutableMap<String, String> updateMap);

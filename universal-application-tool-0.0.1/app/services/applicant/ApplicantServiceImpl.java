@@ -58,7 +58,8 @@ public class ApplicantServiceImpl implements ApplicantService {
               } catch (ProgramBlockNotFoundException
                   | UnsupportedScalarTypeException
                   | PathNotInBlockException e) {
-                return CompletableFuture.completedFuture(ErrorAnd.error(ImmutableSet.of(e)));
+                throw new RuntimeException(
+                    e); // CompletableFuture.completedFuture(ErrorAnd.error(ImmutableSet.of(e)));
               }
 
               ReadOnlyApplicantProgramService roApplicantProgramService =
