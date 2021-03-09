@@ -1,6 +1,7 @@
 package controllers;
 
 import java.util.Optional;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
 import org.pac4j.core.context.session.SessionStore;
@@ -19,10 +20,12 @@ import play.mvc.Result;
  */
 public class LoginController extends Controller {
   @Inject
+  @Nullable
   @Named("idcs")
   OidcClient idcsClient;
 
   @Inject
+  @Nullable
   @Named("ad")
   OidcClient adClient;
 

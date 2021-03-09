@@ -18,10 +18,14 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import controllers.routes;
 import java.time.Clock;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import javax.annotation.Nullable;
 import javax.inject.Named;
 import org.pac4j.core.authorization.authorizer.RequireAllRolesAuthorizer;
+import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.HttpConstants;
@@ -117,8 +121,12 @@ public class SecurityModule extends AbstractModule {
 
   @Named("idcs")
   @Provides
+  @Nullable
   @Singleton
   protected OidcClient provideIDCSClient(ProfileFactory profileFactory) {
+    if (!this.configuration.hasPath("idcs.client_id") || !this.configuration.hasPath("idcs.secret")) {
+      return null;
+    }
     OidcConfiguration config = new OidcConfiguration();
     config.setClientId(this.configuration.getString("idcs.client_id"));
     config.setSecret(this.configuration.getString("idcs.secret"));
@@ -136,8 +144,12 @@ public class SecurityModule extends AbstractModule {
 
   @Named("ad")
   @Provides
+  @Nullable
   @Singleton
   protected OidcClient provideAdClient(ProfileFactory profileFactory) {
+    if (!this.configuration.hasPath("adfs.client_id") || !this.configuration.hasPath("adfs.secret")) {
+      return null;
+    }
     OidcConfiguration config = new OidcConfiguration();
     config.setClientId(this.configuration.getString("adfs.client_id"));
     config.setSecret(this.configuration.getString("adfs.secret"));
@@ -158,15 +170,22 @@ public class SecurityModule extends AbstractModule {
   @Singleton
   protected Config provideConfig(
       GuestClient guestClient,
-      @Named("ad") OidcClient adClient,
-      @Named("idcs") OidcClient idcsClient,
+      @Named("ad") @Nullable OidcClient adClient,
+      @Named("idcs") @Nullable OidcClient idcsClient,
       FakeAdminClient fakeAdminClient) {
-    Clients clients = new Clients(baseUrl + "/callback");
-    if (this.baseUrl.equals(DEV_BASE_URL)) {
-      clients.setClients(guestClient, idcsClient, adClient, fakeAdminClient);
-    } else {
-      clients.setClients(guestClient, idcsClient, adClient);
+    List<Client> clientList = new ArrayList<Client>();
+    clientList.add(guestClient);
+    if (idcsClient != null) {
+      clientList.add(idcsClient);
     }
+    if (adClient != null) {
+      clientList.add(adClient);
+    }
+    if (this.baseUrl.equals(DEV_BASE_URL)) {
+        clientList.add(fakeAdminClient);
+    }
+    Clients clients = new Clients(baseUrl + "/callback");
+    clients.setClients(clientList);
     PlayHttpActionAdapter.INSTANCE
         .getResults()
         .putAll(
