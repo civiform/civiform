@@ -19,6 +19,7 @@ import services.question.QuestionType;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
+import views.components.SelectWithLabel;
 
 public final class QuestionEditView extends BaseHtmlView {
   private final AdminLayout layout;
@@ -98,12 +99,16 @@ public final class QuestionEditView extends BaseHtmlView {
     return formTag;
   }
 
-  private ImmutableList<DomContent> formQuestionTypeSelect(QuestionType selectedType) {
+  private DomContent formQuestionTypeSelect(QuestionType selectedType) {
     ImmutableList<SimpleEntry<String, String>> options =
         Arrays.stream(QuestionType.values())
             .map(item -> new SimpleEntry<String, String>(item.toString(), item.name()))
             .collect(ImmutableList.toImmutableList());
 
-    return formSelect("Question type: ", "questionType", options, selectedType.name());
+    return new SelectWithLabel("questionType")
+        .setLabelText("Question type")
+        .setOptions(options)
+        .setValue(selectedType.name())
+        .getContainer();
   }
 }

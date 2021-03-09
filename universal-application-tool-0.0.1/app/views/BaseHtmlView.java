@@ -5,14 +5,9 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.text;
 
-import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
-import j2html.attributes.Attr;
-import j2html.tags.DomContent;
 import j2html.tags.Tag;
-import java.util.AbstractMap.SimpleEntry;
 import play.mvc.Http;
-import views.components.SelectWithLabel;
 import views.html.helper.CSRF;
 
 /**
@@ -35,18 +30,6 @@ public abstract class BaseHtmlView {
             text(labelText));
   }
 
-  protected Tag passwordField(String id, String fieldName, String labelText) {
-    return label()
-        .with(text(labelText), input().withType("password").withName(fieldName).withId(id))
-        .attr(Attr.FOR, fieldName);
-  }
-
-  protected Tag passwordField(String fieldName, String labelText) {
-    return label()
-        .with(text(labelText), input().withType("password").withName(fieldName))
-        .attr(Attr.FOR, fieldName);
-  }
-
   protected Tag button(String textContents) {
     return TagCreator.button(text(textContents)).withType("button");
   }
@@ -65,19 +48,6 @@ public abstract class BaseHtmlView {
 
   protected Tag redirectButton(String id, String text, String redirectUrl) {
     return button(id, text).attr("onclick", String.format("window.location = '%s';", redirectUrl));
-  }
-
-  public ImmutableList<DomContent> formSelect(
-      String labelValue,
-      String selectId,
-      ImmutableList<SimpleEntry<String, String>> options,
-      String selectedValue) {
-    SelectWithLabel selectWithLabel =
-        new SelectWithLabel(selectId)
-            .setLabelText(labelValue)
-            .setOptions(options)
-            .setValue(selectedValue);
-    return ImmutableList.of(selectWithLabel.getContainer());
   }
 
   /**
