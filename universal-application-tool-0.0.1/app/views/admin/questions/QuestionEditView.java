@@ -46,17 +46,18 @@ public final class QuestionEditView extends BaseHtmlView {
     return layout.render(
         body(
             renderHeader("Edit Question"),
-            buildEditQuestionForm(new QuestionForm(question))
+            buildEditQuestionForm(
+                    question.getId(), question.getVersion(), new QuestionForm(question))
                 .with(makeCsrfTokenInputTag(request))));
   }
 
   public Content renderEditQuestionForm(
-      Request request, QuestionForm questionForm, String message) {
+      Request request, long id, long version, QuestionForm questionForm, String message) {
     return layout.render(
         body(
             div(message),
             renderHeader("Edit Question"),
-            buildEditQuestionForm(questionForm).with(makeCsrfTokenInputTag(request))));
+            buildEditQuestionForm(id, version, questionForm).with(makeCsrfTokenInputTag(request))));
   }
 
   private ContainerTag buildNewQuestionForm(QuestionForm questionForm) {
@@ -68,15 +69,11 @@ public final class QuestionEditView extends BaseHtmlView {
     return formTag;
   }
 
-  private ContainerTag buildEditQuestionForm(QuestionForm questionForm) {
+  private ContainerTag buildEditQuestionForm(long id, long version, QuestionForm questionForm) {
     ContainerTag formTag = buildQuestionForm(questionForm);
-    formTag.with(
-        div("id: " + questionForm.getQuestionId()),
-        div("version: " + questionForm.getQuestionVersion()),
-        br());
+    formTag.with(div("id: " + id), div("version: " + version), br());
     formTag
-        .withAction(
-            controllers.admin.routes.QuestionController.update(questionForm.getQuestionId()).url())
+        .withAction(controllers.admin.routes.QuestionController.update(id).url())
         .with(submitButton("Update"));
 
     return formTag;
@@ -85,8 +82,6 @@ public final class QuestionEditView extends BaseHtmlView {
   private ContainerTag buildQuestionForm(QuestionForm questionForm) {
     ContainerTag formTag = form().withMethod("POST");
     formTag
-        .with(hiddenInputWithValue("questionId", questionForm.getQuestionIdString()))
-        .with(hiddenInputWithValue("questionVersion", questionForm.getQuestionVersionString()))
         .with(textInputWithLabel("Name: ", "questionName", questionForm.getQuestionName()))
         .with(
             textInputWithLabel(

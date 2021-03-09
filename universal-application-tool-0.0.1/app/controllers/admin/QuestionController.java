@@ -80,7 +80,7 @@ public class QuestionController extends Controller {
                 return badRequest(e.toString());
               }
               String successMessage =
-                  String.format("question %s created", questionForm.getQuestionPath().path());
+                  String.format("question %s created", questionForm.getQuestionPath());
               return withMessage(
                   redirect(routes.QuestionController.index("table")), successMessage);
             },
@@ -135,7 +135,7 @@ public class QuestionController extends Controller {
     Form<QuestionForm> form = formFactory.form(QuestionForm.class);
     QuestionForm questionForm = form.bindFromRequest(request).get();
     try {
-      QuestionDefinition definition = questionForm.getBuilder().build();
+      QuestionDefinition definition = questionForm.getBuilder().setId(id).setVersion(1L).build();
       ErrorAnd<QuestionDefinition, QuestionServiceError> result = service.update(definition);
       if (result.isError()) {
         StringJoiner messageJoiner = new StringJoiner(". ", "", ".");
@@ -143,12 +143,12 @@ public class QuestionController extends Controller {
           messageJoiner.add(e.message());
         }
         String errorMessage = messageJoiner.toString();
-        return ok(editView.renderEditQuestionForm(request, questionForm, errorMessage));
+        return ok(editView.renderEditQuestionForm(request, id, 1L, questionForm, errorMessage));
       }
     } catch (UnsupportedQuestionTypeException e) {
       // These are valid question types, but are not fully supported yet.
       String errorMessage = e.toString();
-      return ok(editView.renderEditQuestionForm(request, questionForm, errorMessage));
+      return ok(editView.renderEditQuestionForm(request, id, 1L, questionForm, errorMessage));
     } catch (InvalidQuestionTypeException e) {
       // These are unrecognized invalid question types.
       return badRequest(e.toString());
@@ -156,8 +156,7 @@ public class QuestionController extends Controller {
       // Ill-formed update request
       return badRequest(e.toString());
     }
-    String successMessage =
-        String.format("question %s updated", questionForm.getQuestionPath().path());
+    String successMessage = String.format("question %s updated", questionForm.getQuestionPath());
     return withMessage(redirect(routes.QuestionController.index("table")), successMessage);
   }
 
