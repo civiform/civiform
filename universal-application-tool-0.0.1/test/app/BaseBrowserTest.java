@@ -18,6 +18,8 @@ import play.Application;
 import play.api.mvc.Call;
 import play.db.ebean.EbeanConfig;
 import play.test.WithBrowser;
+import services.question.QuestionType;
+import services.question.ScalarType;
 import support.TestConstants;
 
 public class BaseBrowserTest extends WithBrowser {
@@ -103,8 +105,25 @@ public class BaseBrowserTest extends WithBrowser {
     assertThat(browser.pageSource()).contains(name);
   }
 
-  /** Add a question through the admin flow. This requires the admin is logged in. */
+  /** Add a question through the admin flow. This requires the admin to be logged in. */
   protected void addQuestion(String questionName) {
+    addQuestion(questionName, questionName.replace(" ", "."), QuestionType.TEXT);
+  }
+
+  protected void addTextQuestion(String questionName, String path) {
+    addQuestion(questionName, path, QuestionType.TEXT);
+  }
+
+  protected void addNameQuestion(String questionName, String path) {
+    addQuestion(questionName, path, QuestionType.NAME);
+  }
+
+  protected void addAddressQuestion(String questionName, String path) {
+    addQuestion(questionName, path, QuestionType.ADDRESS);
+  }
+
+  /** Add a question through the admin flow. This requires the admin to be logged in. */
+  protected void addQuestion(String questionName, String path, QuestionType questionType) {
     // Go to admin question index and click "Create a new question".
     goTo(controllers.admin.routes.QuestionController.index("table"));
     browser.$("a", withText("Create a new question")).first().click();
@@ -112,8 +131,11 @@ public class BaseBrowserTest extends WithBrowser {
     // Fill out the question form and click submit.
     browser.$("input", withName("questionName")).fill().with(questionName);
     browser.$("input", withName("questionDescription")).fill().with("question description");
-    browser.$("input", withName("questionPath")).fill().with(questionName.replace(" ", "."));
+    browser.$("input", withName("questionPath")).fill().with(path);
     browser.$("textarea", withName("questionText")).fill().with("question text");
+
+    // TODO: Select the given questionType in the type dropdown.
+
     browser.$("button", withText("Create")).first().click();
 
     // Check that question is added.
