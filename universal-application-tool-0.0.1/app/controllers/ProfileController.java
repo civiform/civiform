@@ -31,7 +31,6 @@ public class ProfileController extends Controller {
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
 
-  @Secure(clients = "OidcClient")
   public CompletionStage<Result> myProfile(Http.Request request) {
     Optional<UatProfile> maybeProfile = profileUtils.currentUserProfile(request);
 

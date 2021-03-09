@@ -27,6 +27,8 @@ services:
       - AWS_S3_BUCKET_NAME
       - IDCS_CLIENT_ID
       - IDCS_SECRET
+      - ADFS_CLIENT_ID
+      - ADFS_SECRET
     build: .
     volumes:
       - ./universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1

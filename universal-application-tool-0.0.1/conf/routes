@@ -61,6 +61,8 @@ POST    /callback/:client_name       controllers.CallbackController.callback(req
 
 # Log into application
 GET     /loginForm                   controllers.HomeController.loginForm(request: Request, message: java.util.Optional[String])
+GET     /idcsLogin                   controllers.LoginController.idcsLogin(request: Request)
+GET     /adfsLogin                   controllers.LoginController.adfsLogin(request: Request)
 
 # Log out of application
 GET     /logout                      @org.pac4j.play.LogoutController.logout(request: Request)

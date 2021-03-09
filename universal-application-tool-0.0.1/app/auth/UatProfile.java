@@ -71,4 +71,16 @@ public class UatProfile {
   public String getId() {
     return profileData.getId();
   }
+
+  public CompletableFuture<Void> setEmailAddress(String emailAddress) {
+    return this.getAccount().thenApplyAsync(a -> {a.setEmailAddress(emailAddress); a.save(); return null;}, dbContext);
+  }
+
+  public CompletableFuture<String> getEmailAddress() {
+    return this.getAccount().thenApplyAsync(a -> a.getEmailAddress());
+  }
+
+  public UatProfileData getProfileData() {
+    return this.profileData;
+  }
 }

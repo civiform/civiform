@@ -3,6 +3,7 @@ package auth;
 import com.google.common.base.Preconditions;
 import java.time.Clock;
 import javax.inject.Inject;
+import org.pac4j.oidc.profile.OidcProfile;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.DatabaseExecutionContext;
 

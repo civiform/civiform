@@ -4,12 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static play.mvc.Results.forbidden;
 import static play.mvc.Results.redirect;
 
-import auth.Authorizers;
-import auth.FakeAdminClient;
-import auth.GuestClient;
-import auth.ProfileFactory;
-import auth.Roles;
-import auth.UatProfileData;
+import auth.*;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -18,6 +13,7 @@ import controllers.routes;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.Random;
+import javax.inject.Named;
 import org.pac4j.core.authorization.authorizer.RequireAllRolesAuthorizer;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
@@ -112,9 +108,10 @@ public class SecurityModule extends AbstractModule {
     return new FakeAdminClient(profileFactory);
   }
 
+  @Named("idcs")
   @Provides
   @Singleton
-  protected OidcClient provideIDCSClient() {
+  protected OidcClient provideIDCSClient(ProfileFactory profileFactory) {
     OidcConfiguration config = new OidcConfiguration();
     config.setClientId(this.configuration.getString("idcs.client_id"));
     config.setSecret(this.configuration.getString("idcs.secret"));
@@ -125,6 +122,27 @@ public class SecurityModule extends AbstractModule {
     config.setWithState(false);
     OidcClient client = new OidcClient(config);
     client.setCallbackUrl(baseUrl + "/callback");
+    client.setProfileCreator(new IdcsProfileAdapter(config, client, profileFactory));
+    client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
+    return client;
+  }
+
+  @Named("ad")
+  @Provides
+  @Singleton
+  protected OidcClient provideAdClient(ProfileFactory profileFactory) {
+    OidcConfiguration config = new OidcConfiguration();
+    config.setClientId(this.configuration.getString("adfs.client_id"));
+    config.setSecret(this.configuration.getString("adfs.secret"));
+    config.setDiscoveryURI(this.configuration.getString("adfs.discovery_uri"));
+    config.setResponseMode("form_post");
+    config.setResponseType("id_token");
+    config.setUseNonce(true);
+    config.setWithState(false);
+    OidcClient client = new OidcClient(config);
+    client.setName("AdClient");
+    client.setCallbackUrl(baseUrl + "/callback");
+    client.setProfileCreator(new AdfsProfileAdapter(config, client, profileFactory));
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     return client;
   }
@@ -132,12 +150,12 @@ public class SecurityModule extends AbstractModule {
   @Provides
   @Singleton
   protected Config provideConfig(
-      GuestClient guestClient, OidcClient idcsClient, FakeAdminClient fakeAdminClient) {
+      GuestClient guestClient, @Named("ad") OidcClient adClient, @Named("idcs") OidcClient idcsClient, FakeAdminClient fakeAdminClient) {
     Clients clients = new Clients(baseUrl + "/callback");
     if (this.baseUrl.equals(DEV_BASE_URL)) {
-      clients.setClients(guestClient, idcsClient, fakeAdminClient);
+      clients.setClients(guestClient, idcsClient, adClient, fakeAdminClient);
     } else {
-      clients.setClients(guestClient, idcsClient);
+      clients.setClients(guestClient, idcsClient, adClient);
     }
     PlayHttpActionAdapter.INSTANCE
         .getResults()
