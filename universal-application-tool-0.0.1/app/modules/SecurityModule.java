@@ -17,6 +17,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import controllers.routes;
+import java.net.URI;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
@@ -183,7 +184,7 @@ public class SecurityModule extends AbstractModule {
     if (adClient != null) {
       clientList.add(adClient);
     }
-    if (this.baseUrl.equals(DEV_BASE_URL)) {
+    if (URI.create(this.baseUrl).getHost().equals("localhost")) {
       clientList.add(fakeAdminClient);
     }
     Clients clients = new Clients(baseUrl + "/callback");
