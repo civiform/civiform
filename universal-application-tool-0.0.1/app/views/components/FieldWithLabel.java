@@ -12,7 +12,7 @@ import views.BaseStyles;
 import views.Styles;
 
 public class FieldWithLabel {
-  public static String[] CORE_FIELD_CLASSES = {
+  private static final String[] CORE_FIELD_CLASSES = {
     BaseStyles.FIELD_BACKGROUND_COLOR,
     BaseStyles.FIELD_BORDER_COLOR,
     Styles.BLOCK,
@@ -20,7 +20,8 @@ public class FieldWithLabel {
     Styles.P_2,
     Styles.W_FULL
   };
-  public static String[] CORE_LABEL_CLASSES = {
+
+  private static final String[] CORE_LABEL_CLASSES = {
     BaseStyles.LABEL_BACKGROUND_COLOR,
     BaseStyles.LABEL_TEXT_COLOR,
     Styles.BLOCK,
