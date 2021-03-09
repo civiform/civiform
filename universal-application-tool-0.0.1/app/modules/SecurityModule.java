@@ -4,7 +4,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static play.mvc.Results.forbidden;
 import static play.mvc.Results.redirect;
 
-import auth.*;
+import auth.AdfsProfileAdapter;
+import auth.Authorizers;
+import auth.FakeAdminClient;
+import auth.GuestClient;
+import auth.IdcsProfileAdapter;
+import auth.ProfileFactory;
+import auth.Roles;
+import auth.UatProfileData;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;

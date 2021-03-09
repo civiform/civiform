@@ -19,13 +19,19 @@ public class ProfileUtils {
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
   }
 
+  /**
+   * Fetch the current profile from the session cookie, which the ProfileManager will fetch from the
+   * request's cookies, using the injected session store to decrypt it.
+   */
   public Optional<UatProfile> currentUserProfile(Http.Request request) {
-    // Fetch the current profile from the session cookie, which the ProfileManager
-    // will fetch from the request's cookies, using the session store to decrypt it.
     PlayWebContext webContext = new PlayWebContext(request);
     return currentUserProfile(webContext);
   }
 
+  /**
+   * Fetch the current profile from the session cookie, which the ProfileManager will fetch from the
+   * context's cookies, using the injected session store to decrypt it.
+   */
   public Optional<UatProfile> currentUserProfile(WebContext webContext) {
     ProfileManager profileManager = new ProfileManager(webContext, sessionStore);
     Optional<UatProfileData> p = profileManager.getProfile(UatProfileData.class);

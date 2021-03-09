@@ -30,6 +30,10 @@ public class LoggingFilter extends EssentialFilter {
     this.clock = checkNotNull(clock);
   }
 
+  /**
+   * Logic to log a request and response, including extremely detailed logging of the exact request
+   * and response (subject to ordering in the filter list...) at TRACE level.
+   */
   @Override
   public EssentialAction apply(EssentialAction next) {
     return EssentialAction.of(

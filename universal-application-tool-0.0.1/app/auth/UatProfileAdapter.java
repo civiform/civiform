@@ -12,6 +12,13 @@ import org.pac4j.oidc.profile.creator.OidcProfileCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class ensures that the OidcProfileCreator that both the AD and IDCS clients use will
+ * generate a UatProfile object. This is necessary for merging those accounts with existing accounts
+ * - that's not usually needed in web applications which is why we have to write this class - pac4j
+ * doesn't come with it. It's abstract because AD and IDCS need slightly different implementations
+ * of the two abstract methods.
+ */
 public abstract class UatProfileAdapter extends OidcProfileCreator {
   protected ProfileFactory profileFactory;
 
@@ -23,8 +30,10 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
     this.profileFactory = profileFactory;
   }
 
+  /** Create a totally new UAT profile from the provided OidcProfile. */
   public abstract UatProfileData uatProfileFromOidcProfile(OidcProfile profile);
 
+  /** Merge the two provided profiles into a new UatProfileData. */
   public abstract UatProfileData mergeUatProfile(UatProfile uatProfile, OidcProfile oidcProfile);
 
   @Override

@@ -13,6 +13,10 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 
+/**
+ * These routes can be hit even if you are logged in already, which is what allows the merge logic -
+ * normally you need to be logged out in order to be redirected to a login page.
+ */
 public class LoginController extends Controller {
   @Inject
   @Named("idcs")
@@ -34,6 +38,7 @@ public class LoginController extends Controller {
     return login(request, adClient);
   }
 
+  // Logic taken from org.pac4j.play.deadbolt2.Pac4jHandler.beforeAuthCheck.
   private Result login(Http.Request request, OidcClient client) {
     PlayWebContext webContext = new PlayWebContext(request);
     Optional<RedirectionAction> redirect = client.getRedirectionAction(webContext, sessionStore);

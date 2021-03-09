@@ -10,7 +10,6 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       guice,
       javaJdbc,
-      caffeine,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.5.0",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.10.3",
