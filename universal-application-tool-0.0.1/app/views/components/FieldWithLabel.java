@@ -34,16 +34,12 @@ public class FieldWithLabel {
 
   protected Tag fieldTag;
   protected String fieldValue = "";
-  protected ContainerTag labelTag;
   protected String labelText = "";
-
-  protected ContainerTag renderedElement;
-  protected boolean isRendered = false;
+  protected String id;
 
   public FieldWithLabel(Tag fieldTag, String inputId) {
-    this.fieldTag =
-        fieldTag.withId(inputId).withName(inputId).withClasses(FieldWithLabel.CORE_FIELD_CLASSES);
-    this.labelTag = label().attr(Attr.FOR, inputId).withClasses(FieldWithLabel.CORE_LABEL_CLASSES);
+    this.id = inputId;
+    this.fieldTag = fieldTag.withId(id).withName(id).withClasses(FieldWithLabel.CORE_FIELD_CLASSES);
   }
 
   public static FieldWithLabel createInput(String inputId) {
@@ -57,45 +53,31 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setId(String inputId) {
-    if (this.isRendered) {
-      return this;
-    }
     fieldTag.withId(inputId).withName(inputId);
-    labelTag.attr(Attr.FOR, inputId);
     return this;
   }
 
   public FieldWithLabel setLabelText(String labelText) {
-    if (this.isRendered) {
-      return this;
-    }
     this.labelText = labelText;
     return this;
   }
 
   public FieldWithLabel setPlaceholderText(String placeholder) {
-    if (this.isRendered) {
-      return this;
-    }
     fieldTag.withPlaceholder(placeholder);
     return this;
   }
 
   public FieldWithLabel setValue(String value) {
-    if (this.isRendered) {
-      return this;
-    }
     this.fieldValue = value;
     return this;
   }
 
   public ContainerTag getContainer() {
-    if (!this.isRendered) {
-      this.renderedElement =
-          div(labelTag.withText(this.labelText), fieldTag.withValue(this.fieldValue))
-              .withClasses(Styles.MX_4, Styles.MB_6);
-      this.isRendered = true;
-    }
-    return renderedElement;
+    ContainerTag labelTag =
+        label()
+            .attr(Attr.FOR, this.id)
+            .withClasses(FieldWithLabel.CORE_LABEL_CLASSES)
+            .withText(this.labelText);
+    return div(labelTag, fieldTag.withValue(this.fieldValue)).withClasses(Styles.MX_4, Styles.MB_6);
   }
 }
