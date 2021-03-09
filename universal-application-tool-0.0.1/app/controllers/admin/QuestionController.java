@@ -80,7 +80,7 @@ public class QuestionController extends Controller {
                 return badRequest(e.toString());
               }
               String successMessage =
-                  String.format("question %s created", questionForm.getQuestionPath());
+                  String.format("question %s created", questionForm.getQuestionPath().path());
               return withMessage(
                   redirect(routes.QuestionController.index("table")), successMessage);
             },
@@ -156,7 +156,8 @@ public class QuestionController extends Controller {
       // Ill-formed update request
       return badRequest(e.toString());
     }
-    String successMessage = String.format("question %s updated", questionForm.getQuestionPath());
+    String successMessage =
+        String.format("question %s updated", questionForm.getQuestionPath().path());
     return withMessage(redirect(routes.QuestionController.index("table")), successMessage);
   }
 
