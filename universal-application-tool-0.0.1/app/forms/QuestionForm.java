@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import services.Path;
+import services.question.InvalidQuestionTypeException;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
@@ -94,7 +95,7 @@ public class QuestionForm {
     this.questionHelpText = checkNotNull(questionHelpText);
   }
 
-  public QuestionDefinitionBuilder getBuilder() {
+  public QuestionDefinitionBuilder getBuilder() throws InvalidQuestionTypeException {
     ImmutableMap<Locale, String> questionTextMap =
         questionText.isEmpty() ? ImmutableMap.of() : ImmutableMap.of(Locale.ENGLISH, questionText);
     ImmutableMap<Locale, String> questionHelpTextMap =
@@ -103,7 +104,7 @@ public class QuestionForm {
             : ImmutableMap.of(Locale.ENGLISH, questionHelpText);
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
-            .setQuestionType(QuestionType.valueOf(questionType))
+            .setQuestionType(QuestionType.of(questionType))
             .setName(questionName)
             .setPath(questionPath)
             .setDescription(questionDescription)
