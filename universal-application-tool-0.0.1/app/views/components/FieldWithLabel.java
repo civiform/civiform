@@ -8,32 +8,36 @@ import static j2html.TagCreator.textarea;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import views.BaseStyles;
 import views.Styles;
 
 public class FieldWithLabel {
   public static String[] CORE_FIELD_CLASSES = {
+    BaseStyles.FIELD_BACKGROUND_COLOR,
+    BaseStyles.FIELD_BORDER_COLOR,
     Styles.BLOCK,
-    Styles.W_FULL,
-    Styles.BG_GRAY_50,
     Styles.BORDER,
-    Styles.BORDER_GRAY_500,
-    Styles.P_2
+    Styles.P_2,
+    Styles.W_FULL
   };
   public static String[] CORE_LABEL_CLASSES = {
-    Styles._MX_1,
+    BaseStyles.LABEL_BACKGROUND_COLOR,
+    BaseStyles.LABEL_TEXT_COLOR,
     Styles.BLOCK,
-    Styles.UPPERCASE,
-    Styles.TRACKING_WIDE,
-    Styles.TEXT_GRAY_600,
-    Styles.TEXT_XS,
     Styles.FONT_BOLD,
-    Styles.MB_2
+    Styles.TEXT_XS,
+    Styles._MX_1,
+    Styles.MB_2,
+    Styles.UPPERCASE
   };
 
   protected Tag fieldTag;
   protected String fieldValue = "";
   protected ContainerTag labelTag;
   protected String labelText = "";
+
+  protected ContainerTag renderedElement;
+  protected boolean isRendered = false;
 
   public FieldWithLabel(Tag fieldTag, String inputId) {
     this.fieldTag =
@@ -52,28 +56,45 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setId(String inputId) {
+    if (this.isRendered) {
+      return this;
+    }
     fieldTag.withId(inputId).withName(inputId);
     labelTag.attr(Attr.FOR, inputId);
     return this;
   }
 
   public FieldWithLabel setLabelText(String labelText) {
+    if (this.isRendered) {
+      return this;
+    }
     this.labelText = labelText;
     return this;
   }
 
   public FieldWithLabel setPlaceholderText(String placeholder) {
+    if (this.isRendered) {
+      return this;
+    }
     fieldTag.withPlaceholder(placeholder);
     return this;
   }
 
   public FieldWithLabel setValue(String value) {
+    if (this.isRendered) {
+      return this;
+    }
     this.fieldValue = value;
     return this;
   }
 
   public ContainerTag getContainer() {
-    return div(labelTag.withText(this.labelText), fieldTag.withValue(this.fieldValue))
-        .withClasses(Styles.MX_4, Styles.MB_6);
+    if (!this.isRendered) {
+      this.renderedElement =
+        div(labelTag.withText(this.labelText), fieldTag.withValue(this.fieldValue))
+          .withClasses(Styles.MX_4, Styles.MB_6);
+      this.isRendered = true;
+    }
+    return renderedElement;
   }
 }

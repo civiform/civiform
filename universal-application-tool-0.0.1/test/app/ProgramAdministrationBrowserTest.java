@@ -1,7 +1,6 @@
 package app;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.fluentlenium.core.filter.FilterConstructor.withName;
 import static org.fluentlenium.core.filter.FilterConstructor.withText;
 
 import org.junit.Test;
@@ -16,13 +15,17 @@ public class ProgramAdministrationBrowserTest extends BaseBrowserTest {
     addProgram(programName);
     manageExistingProgramQuestions(programName);
 
-    browser.$("input", withName("name")).fill().with("updated block name");
-    browser.$("input", withName("description")).fill().with("updated block description");
+    String nameValue = "updated block name";
+    String descriptionValue = "updated block description";
+
+    fillInput("name", nameValue);
+    fillTextArea("description", descriptionValue);
     browser.$("button", withText("Update Block")).click();
 
-    assertThat(browser.$("input", withName("name")).values()).contains("updated block name");
-    assertThat(browser.$("input", withName("description")).values())
-        .contains("updated block description");
+    assertThat(getInputValue("name")).isEqualTo(nameValue);
+
+    // TODO: I cannot for the life of me figure out how to get just the value here.
+    assertThat(textAreaContains("description", descriptionValue)).isTrue();
   }
 
   @Test

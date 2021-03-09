@@ -11,13 +11,16 @@ import java.util.AbstractMap.SimpleEntry;
 
 public class SelectWithLabel extends FieldWithLabel {
 
-  private ImmutableList<SimpleEntry<String, String>> options;
+  private ImmutableList<SimpleEntry<String, String>> options = ImmutableList.of();
 
   public SelectWithLabel(String inputId) {
     super(select(), inputId);
   }
 
   public SelectWithLabel setOptions(ImmutableList<SimpleEntry<String, String>> options) {
+    if (this.isRendered) {
+      return this;
+    }
     this.options = options;
     return this;
   }
@@ -42,12 +45,14 @@ public class SelectWithLabel extends FieldWithLabel {
 
   @Override
   public ContainerTag getContainer() {
-    for (SimpleEntry<String, String> option : this.options) {
-      Tag optionTag = option(option.getKey()).withValue(option.getValue());
-      if (option.getValue().equals(this.fieldValue)) {
-        optionTag.attr(Attr.SELECTED);
+    if (!this.isRendered) {
+      for (SimpleEntry<String, String> option : this.options) {
+        Tag optionTag = option(option.getKey()).withValue(option.getValue());
+        if (option.getValue().equals(this.fieldValue)) {
+          optionTag.attr(Attr.SELECTED);
+        }
+        ((ContainerTag) fieldTag).with(optionTag);
       }
-      ((ContainerTag) fieldTag).with(optionTag);
     }
     return super.getContainer();
   }
