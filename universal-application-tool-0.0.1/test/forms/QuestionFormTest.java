@@ -15,6 +15,7 @@ public class QuestionFormTest {
   @Test
   public void getBuilder_returnsCompleteBuilder() throws Exception {
     QuestionForm form = new QuestionForm();
+    form.setQuestionVersion("1");
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionPath("my.question.path");
@@ -22,10 +23,6 @@ public class QuestionFormTest {
     form.setQuestionHelpText("");
     form.setQuestionType("TEXT");
     QuestionDefinitionBuilder builder = form.getBuilder();
-
-    // The QuestionForm does not set version, which is needed in order to build the
-    // QuestionDefinition. How we get this value hasn't been determined.
-    builder.setVersion(1L);
 
     TextQuestionDefinition expected =
         new TextQuestionDefinition(

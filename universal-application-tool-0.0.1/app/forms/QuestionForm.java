@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.OptionalLong;
 import services.Path;
 import services.question.InvalidQuestionTypeException;
 import services.question.QuestionDefinition;
@@ -12,6 +13,8 @@ import services.question.QuestionType;
 import services.question.TranslationNotFoundException;
 
 public class QuestionForm {
+  private OptionalLong questionId;
+  private long questionVersion;
   private String questionName;
   private String questionDescription;
   private Path questionPath;
@@ -20,6 +23,8 @@ public class QuestionForm {
   private String questionHelpText;
 
   public QuestionForm() {
+    questionId = OptionalLong.empty();
+    questionVersion = 1L;
     questionName = "";
     questionDescription = "";
     questionPath = Path.empty();
@@ -29,6 +34,8 @@ public class QuestionForm {
   }
 
   public QuestionForm(QuestionDefinition qd) {
+    questionId = OptionalLong.of(qd.getId());
+    questionVersion = qd.getVersion();
     questionName = qd.getName();
     questionDescription = qd.getDescription();
     questionPath = qd.getPath();
@@ -45,6 +52,39 @@ public class QuestionForm {
     } catch (TranslationNotFoundException e) {
       questionHelpText = "Missing Text";
     }
+  }
+
+  public boolean hasQuestionId() {
+    return questionId.isPresent();
+  }
+
+  public long getQuestionId() {
+    return questionId.getAsLong();
+  }
+
+  public String getQuestionIdString() {
+    if (questionId.isPresent()) {
+      return Long.toString(questionId.getAsLong());
+    }
+    return "";
+  }
+
+  public void setQuestionId(String questionId) {
+    if (!questionId.isBlank()) {
+      this.questionId = OptionalLong.of(Long.parseLong(questionId));
+    }
+  }
+
+  public long getQuestionVersion() {
+    return questionVersion;
+  }
+
+  public String getQuestionVersionString() {
+    return Long.toString(questionVersion);
+  }
+
+  public void setQuestionVersion(String questionVersion) {
+    this.questionVersion = Long.parseLong(questionVersion);
   }
 
   public String getQuestionName() {
@@ -95,17 +135,6 @@ public class QuestionForm {
     this.questionHelpText = checkNotNull(questionHelpText);
   }
 
-  public ImmutableMap<String, String> getData() {
-    return ImmutableMap.<String, String>builder()
-        .put("questionName", questionName)
-        .put("questionDescription", questionDescription)
-        .put("questionPath", questionPath.path())
-        .put("questionType", questionType)
-        .put("questionText", questionText)
-        .put("questionHelpText", questionHelpText)
-        .build();
-  }
-
   public QuestionDefinitionBuilder getBuilder() throws InvalidQuestionTypeException {
     ImmutableMap<Locale, String> questionTextMap =
         questionText.isEmpty() ? ImmutableMap.of() : ImmutableMap.of(Locale.ENGLISH, questionText);
@@ -116,11 +145,15 @@ public class QuestionForm {
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setQuestionType(QuestionType.of(questionType))
+            .setVersion(questionVersion)
             .setName(questionName)
             .setPath(questionPath)
             .setDescription(questionDescription)
             .setQuestionText(questionTextMap)
             .setQuestionHelpText(questionHelpTextMap);
+    if (questionId.isPresent()) {
+      builder.setId(questionId.getAsLong());
+    }
     return builder;
   }
 }

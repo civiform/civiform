@@ -111,6 +111,10 @@ public abstract class BaseHtmlView {
         .attr(Attr.FOR, fieldName);
   }
 
+  protected Tag hiddenInputWithValue(String fieldName, String hiddenValue) {
+    return input().withType("hidden").withName(fieldName).withValue(hiddenValue).withId(fieldName);
+  }
+
   protected Tag button(String textContents) {
     return TagCreator.button(text(textContents)).withType("button");
   }
