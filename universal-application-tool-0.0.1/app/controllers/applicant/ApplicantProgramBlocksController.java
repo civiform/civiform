@@ -80,8 +80,7 @@ public final class ApplicantProgramBlocksController extends Controller {
                   errorAndROApplicantProgramService.getResult();
 
               try {
-                return update(
-                    request, applicantId, programId, blockId, roApplicantProgramService);
+                return update(request, applicantId, programId, blockId, roApplicantProgramService);
               } catch (ProgramBlockNotFoundException e) {
                 logger.error("Exception while updating applicant data", e);
                 return badRequest();
