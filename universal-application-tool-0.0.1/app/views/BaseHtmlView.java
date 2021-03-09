@@ -27,11 +27,11 @@ public abstract class BaseHtmlView {
   public Tag renderHeader(String headerText) {
     return h1(headerText);
   }
-  
+
   protected ContainerTag fieldErrors(ImmutableSet<ValidationErrorMessage> errors) {
     return div(each(errors, error -> span(error.message())));
   }
-  
+
   protected Tag checkboxInputWithLabel(
       String labelText, String inputId, String inputName, String inputValue) {
     return label()
