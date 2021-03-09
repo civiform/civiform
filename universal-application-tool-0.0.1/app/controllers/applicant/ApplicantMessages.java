@@ -3,7 +3,6 @@ package controllers.applicant;
 import auth.ProfileUtils;
 import auth.UatProfile;
 import com.google.common.collect.ImmutableList;
-
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -14,6 +13,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 
+/** Create a {@link Messages} instance for the given applicant based on their preferred language. */
 public class ApplicantMessages {
 
   private final MessagesApi messagesApi;

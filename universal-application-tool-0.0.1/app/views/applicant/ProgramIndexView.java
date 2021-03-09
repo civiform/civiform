@@ -37,19 +37,15 @@ public class ProgramIndexView extends BaseHtmlView {
    * @return HTML content for rendering the list of available programs
    */
   public Content render(
-          Messages messages, long applicantId, ImmutableList<ProgramDefinition> programs) {
+      Messages messages, long applicantId, ImmutableList<ProgramDefinition> programs) {
     String applyMessage = messages.at("apply");
     return layout.render(
         body()
             .with(h1(messages.at("programs")))
-            .with(
-                each(
-                    programs,
-                    program -> shortProgram(applicantId, applyMessage, program))));
+            .with(each(programs, program -> shortProgram(applicantId, applyMessage, program))));
   }
 
-  private Tag shortProgram(
-      long applicantId, String applyMessage, ProgramDefinition program) {
+  private Tag shortProgram(long applicantId, String applyMessage, ProgramDefinition program) {
     return div()
         .with(h2(program.name()))
         .with(
