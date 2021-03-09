@@ -31,18 +31,36 @@ public final class QuestionEditView extends BaseHtmlView {
     return layout.render(
         body(
             renderHeader("New Question"),
-            buildNewQuestionForm().with(makeCsrfTokenInputTag(request))));
+            buildNewQuestionForm(new QuestionForm()).with(makeCsrfTokenInputTag(request))));
+  }
+
+  public Content renderNewQuestionForm(Request request, QuestionForm questionForm, String message) {
+    return layout.render(
+        body(
+            div(message),
+            renderHeader("New Question"),
+            buildNewQuestionForm(questionForm).with(makeCsrfTokenInputTag(request))));
   }
 
   public Content renderEditQuestionForm(Request request, QuestionDefinition question) {
     return layout.render(
         body(
             renderHeader("Edit Question"),
-            buildEditQuestionForm(question).with(makeCsrfTokenInputTag(request))));
+            buildEditQuestionForm(
+                    question.getId(), question.getVersion(), new QuestionForm(question))
+                .with(makeCsrfTokenInputTag(request))));
   }
 
-  private ContainerTag buildNewQuestionForm() {
-    QuestionForm questionForm = new QuestionForm();
+  public Content renderEditQuestionForm(
+      Request request, long id, long version, QuestionForm questionForm, String message) {
+    return layout.render(
+        body(
+            div(message),
+            renderHeader("Edit Question"),
+            buildEditQuestionForm(id, version, questionForm).with(makeCsrfTokenInputTag(request))));
+  }
+
+  private ContainerTag buildNewQuestionForm(QuestionForm questionForm) {
     ContainerTag formTag = buildQuestionForm(questionForm);
     formTag
         .withAction(controllers.admin.routes.QuestionController.create().url())
@@ -51,13 +69,11 @@ public final class QuestionEditView extends BaseHtmlView {
     return formTag;
   }
 
-  private ContainerTag buildEditQuestionForm(QuestionDefinition definition) {
-    QuestionForm questionForm = new QuestionForm(definition);
+  private ContainerTag buildEditQuestionForm(long id, long version, QuestionForm questionForm) {
     ContainerTag formTag = buildQuestionForm(questionForm);
-    formTag.with(
-        div("id: " + definition.getId()), div("version: " + definition.getVersion()), br());
+    formTag.with(div("id: " + id), div("version: " + version), br());
     formTag
-        .withAction(controllers.admin.routes.QuestionController.update(definition.getId()).url())
+        .withAction(controllers.admin.routes.QuestionController.update(id).url())
         .with(submitButton("Update"));
 
     return formTag;

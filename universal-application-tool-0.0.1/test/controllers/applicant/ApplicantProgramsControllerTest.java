@@ -81,7 +81,8 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Different");
-    assertThat(result.cookie(messagesApi.langCookieName()).get().value()).isEqualTo(Lang.defaultLang().code());
+    assertThat(result.cookie(messagesApi.langCookieName()).get().value())
+        .isEqualTo(Lang.defaultLang().code());
   }
 
   // TODO(https://github.com/seattle-uat/universal-application-tool/issues/224): Should redirect to

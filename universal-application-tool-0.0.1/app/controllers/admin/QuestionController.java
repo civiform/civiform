@@ -6,7 +6,6 @@ import auth.Authorizers;
 import forms.QuestionForm;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -19,9 +18,10 @@ import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.ErrorAnd;
-import services.question.InvalidPathException;
+import services.question.InvalidQuestionTypeException;
 import services.question.InvalidUpdateException;
 import services.question.QuestionDefinition;
+import services.question.QuestionNotFoundException;
 import services.question.QuestionService;
 import services.question.QuestionServiceError;
 import services.question.UnsupportedQuestionTypeException;
@@ -59,7 +59,6 @@ public class QuestionController extends Controller {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
-              String errorMessage = "";
               try {
                 QuestionDefinition definition = questionForm.getBuilder().setVersion(1L).build();
                 ErrorAnd<QuestionDefinition, QuestionServiceError> result =
@@ -69,29 +68,36 @@ public class QuestionController extends Controller {
                   for (QuestionServiceError e : result.getErrors()) {
                     messageJoiner.add(e.message());
                   }
-                  errorMessage = messageJoiner.toString();
+                  String errorMessage = messageJoiner.toString();
+                  return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
                 }
               } catch (UnsupportedQuestionTypeException e) {
-                errorMessage = e.toString();
-                LOG.info(errorMessage);
+                // These are valid question types, but are not fully supported yet.
+                String errorMessage = e.toString();
+                return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
+              } catch (InvalidQuestionTypeException e) {
+                // These are unrecognized invalid question types.
+                return badRequest(e.toString());
               }
-              return withMessage(redirect(routes.QuestionController.index("table")), errorMessage);
+              String successMessage =
+                  String.format("question %s created", questionForm.getQuestionPath().path());
+              return withMessage(
+                  redirect(routes.QuestionController.index("table")), successMessage);
             },
             httpExecutionContext.current());
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public CompletionStage<Result> edit(Request request, String path) {
+  public CompletionStage<Result> edit(Request request, Long id) {
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
               try {
-                QuestionDefinition definition = readOnlyService.getQuestionDefinition(path);
+                QuestionDefinition definition = readOnlyService.getQuestionDefinition(id);
                 return ok(editView.renderEditQuestionForm(request, definition));
-              } catch (InvalidPathException e) { // If the path doesn't exist, redirect to newOne.
-                LOG.info(e.toString());
-                return redirect(routes.QuestionController.newOne());
+              } catch (QuestionNotFoundException e) {
+                return badRequest(e.toString());
               }
             },
             httpExecutionContext.current());
@@ -115,29 +121,44 @@ public class QuestionController extends Controller {
                 case "table":
                   return ok(listView.renderAsTable(readOnlyService.getAllQuestions(), maybeFlash));
                 default:
-                  return badRequest();
+                  return badRequest(
+                      String.format(
+                          "unrecognized renderAs: '%s', accepted values include 'list' and 'table'",
+                          renderAs));
               }
             },
             httpExecutionContext.current());
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public CompletionStage<Result> update(Request request, Long id) {
+  public Result update(Request request, Long id) {
     Form<QuestionForm> form = formFactory.form(QuestionForm.class);
     QuestionForm questionForm = form.bindFromRequest(request).get();
-    String exception = "";
     try {
       QuestionDefinition definition = questionForm.getBuilder().setId(id).setVersion(1L).build();
-      service.update(definition);
+      ErrorAnd<QuestionDefinition, QuestionServiceError> result = service.update(definition);
+      if (result.isError()) {
+        StringJoiner messageJoiner = new StringJoiner(". ", "", ".");
+        for (QuestionServiceError e : result.getErrors()) {
+          messageJoiner.add(e.message());
+        }
+        String errorMessage = messageJoiner.toString();
+        return ok(editView.renderEditQuestionForm(request, id, 1L, questionForm, errorMessage));
+      }
     } catch (UnsupportedQuestionTypeException e) {
-      exception = e.toString();
-      LOG.info(exception);
+      // These are valid question types, but are not fully supported yet.
+      String errorMessage = e.toString();
+      return ok(editView.renderEditQuestionForm(request, id, 1L, questionForm, errorMessage));
+    } catch (InvalidQuestionTypeException e) {
+      // These are unrecognized invalid question types.
+      return badRequest(e.toString());
     } catch (InvalidUpdateException e) {
-      exception = e.toString();
-      LOG.info(exception);
+      // Ill-formed update request
+      return badRequest(e.toString());
     }
-    return CompletableFuture.completedFuture(
-        withMessage(redirect(routes.QuestionController.index("table")), exception));
+    String successMessage =
+        String.format("question %s updated", questionForm.getQuestionPath().path());
+    return withMessage(redirect(routes.QuestionController.index("table")), successMessage);
   }
 
   private Result withMessage(Result result, String message) {
