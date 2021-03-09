@@ -10,7 +10,6 @@ import controllers.routes;
 import java.util.Optional;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 import play.Application;
@@ -32,7 +31,6 @@ public class SecurityBrowserTest extends BaseBrowserTest {
             .putAll(
                 TestConstants.oidcConfig(oidcProvider.getHost(), oidcProvider.getMappedPort(3380)))
             .build();
-    LoggerFactory.getLogger(SecurityBrowserTest.class).debug(config.toString());
     return fakeApplication(config);
   }
 

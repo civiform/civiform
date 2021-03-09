@@ -1,10 +1,11 @@
 package controllers;
 
+import auth.AdOidcClient;
+import auth.IdcsOidcClient;
 import com.google.common.base.Preconditions;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import javax.inject.Named;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.http.adapter.HttpActionAdapter;
@@ -30,8 +31,8 @@ public class LoginController extends Controller {
 
   @Inject
   public LoginController(
-      @Named("ad") @Nullable OidcClient adClient,
-      @Named("idcs") @Nullable OidcClient idcsClient,
+      @AdOidcClient @Nullable OidcClient adClient,
+      @IdcsOidcClient @Nullable OidcClient idcsClient,
       SessionStore sessionStore) {
     this.idcsClient = idcsClient;
     this.adClient = adClient;

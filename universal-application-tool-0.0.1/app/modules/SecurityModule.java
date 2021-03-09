@@ -4,14 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static play.mvc.Results.forbidden;
 import static play.mvc.Results.redirect;
 
-import auth.AdfsProfileAdapter;
-import auth.Authorizers;
-import auth.FakeAdminClient;
-import auth.GuestClient;
-import auth.IdcsProfileAdapter;
-import auth.ProfileFactory;
-import auth.Roles;
-import auth.UatProfileData;
+import auth.*;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -24,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
-import javax.inject.Named;
 import org.pac4j.core.authorization.authorizer.RequireAllRolesAuthorizer;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
@@ -120,10 +112,10 @@ public class SecurityModule extends AbstractModule {
     return new FakeAdminClient(profileFactory);
   }
 
-  @Named("idcs")
   @Provides
   @Nullable
   @Singleton
+  @IdcsOidcClient
   protected OidcClient provideIDCSClient(ProfileFactory profileFactory) {
     if (!this.configuration.hasPath("idcs.client_id")
         || !this.configuration.hasPath("idcs.secret")) {
@@ -144,10 +136,10 @@ public class SecurityModule extends AbstractModule {
     return client;
   }
 
-  @Named("ad")
   @Provides
   @Nullable
   @Singleton
+  @AdOidcClient
   protected OidcClient provideAdClient(ProfileFactory profileFactory) {
     if (!this.configuration.hasPath("adfs.client_id")
         || !this.configuration.hasPath("adfs.secret")) {
@@ -173,8 +165,8 @@ public class SecurityModule extends AbstractModule {
   @Singleton
   protected Config provideConfig(
       GuestClient guestClient,
-      @Named("ad") @Nullable OidcClient adClient,
-      @Named("idcs") @Nullable OidcClient idcsClient,
+      @AdOidcClient @Nullable OidcClient adClient,
+      @IdcsOidcClient @Nullable OidcClient idcsClient,
       FakeAdminClient fakeAdminClient) {
     List<Client> clientList = new ArrayList<Client>();
     clientList.add(guestClient);

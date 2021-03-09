@@ -46,9 +46,7 @@ public class LoggingFilter extends EssentialFilter {
                     log.info(
                         "{}\t{}\t{}ms\t{}", request.method(), request.uri(), time, result.status());
                     StringBuilder requestCookies = new StringBuilder();
-                    Iterator<Http.Cookie> requestCookieIterator = request.cookies().iterator();
-                    while (requestCookieIterator.hasNext()) {
-                      Http.Cookie cookie = requestCookieIterator.next();
+                    for (Http.Cookie cookie : request.cookies()) {
                       requestCookies.append(
                           String.format("key: %s, value: %s\n", cookie.name(), cookie.value()));
                     }
@@ -63,9 +61,7 @@ public class LoggingFilter extends EssentialFilter {
                     }
 
                     StringBuilder responseCookies = new StringBuilder();
-                    Iterator<Http.Cookie> responseCookieIterator = result.cookies().iterator();
-                    while (responseCookieIterator.hasNext()) {
-                      Http.Cookie cookie = responseCookieIterator.next();
+                    for (Http.Cookie cookie : result.cookies()) {
                       responseCookies.append(
                           String.format("key: %s, value: %s\n", cookie.name(), cookie.value()));
                     }
