@@ -73,7 +73,14 @@ public class UatProfile {
   }
 
   public CompletableFuture<Void> setEmailAddress(String emailAddress) {
-    return this.getAccount().thenApplyAsync(a -> {a.setEmailAddress(emailAddress); a.save(); return null;}, dbContext);
+    return this.getAccount()
+        .thenApplyAsync(
+            a -> {
+              a.setEmailAddress(emailAddress);
+              a.save();
+              return null;
+            },
+            dbContext);
   }
 
   public CompletableFuture<String> getEmailAddress() {

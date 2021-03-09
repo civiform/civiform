@@ -150,7 +150,10 @@ public class SecurityModule extends AbstractModule {
   @Provides
   @Singleton
   protected Config provideConfig(
-      GuestClient guestClient, @Named("ad") OidcClient adClient, @Named("idcs") OidcClient idcsClient, FakeAdminClient fakeAdminClient) {
+      GuestClient guestClient,
+      @Named("ad") OidcClient adClient,
+      @Named("idcs") OidcClient idcsClient,
+      FakeAdminClient fakeAdminClient) {
     Clients clients = new Clients(baseUrl + "/callback");
     if (this.baseUrl.equals(DEV_BASE_URL)) {
       clients.setClients(guestClient, idcsClient, adClient, fakeAdminClient);
