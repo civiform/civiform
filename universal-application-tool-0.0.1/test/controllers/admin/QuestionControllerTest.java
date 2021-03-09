@@ -188,6 +188,8 @@ public class QuestionControllerTest extends WithPostgresContainer {
     Question question = resourceCreator().insertQuestion("my.path");
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
+        .put("questionId", Long.toString(question.id))
+        .put("questionVersion", "1")
         .put("questionName", "name")
         .put("questionDescription", "desc")
         .put("questionPath", "my.path")
@@ -206,7 +208,11 @@ public class QuestionControllerTest extends WithPostgresContainer {
   public void update_failsWithErrorMessageAndPopulatedFields() {
     Question question = resourceCreator().insertQuestion("my.path");
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
-    formData.put("questionPath", "invalid.path").put("questionText", "question text updated!");
+    formData
+        .put("questionId", Long.toString(question.id))
+        .put("questionVersion", "1")
+        .put("questionPath", "invalid.path")
+        .put("questionText", "question text updated!");
     Request request = addCSRFToken(Helpers.fakeRequest().bodyForm(formData.build())).build();
 
     Result result = controller.update(request, question.id);
@@ -222,7 +228,11 @@ public class QuestionControllerTest extends WithPostgresContainer {
   public void update_failsWithInvalidQuestionType() {
     Question question = resourceCreator().insertQuestion("my.path");
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
-    formData.put("questionType", "INVALID_TYPE").put("questionText", "question text updated!");
+    formData
+        .put("questionId", Long.toString(question.id))
+        .put("questionVersion", "1")
+        .put("questionType", "INVALID_TYPE")
+        .put("questionText", "question text updated!");
     RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
 
     Result result = controller.update(requestBuilder.build(), question.id);
