@@ -29,11 +29,18 @@ public class FieldWithLabelTest {
   }
 
   @Test
-  public void ignoresCallsAfterRender() {
+  public void canEditAfterRender() {
     FieldWithLabel fieldWithLabel = FieldWithLabel.createTextArea("id");
     String fieldHtml = fieldWithLabel.getContainer().render();
+    assertThat(fieldWithLabel.getContainer().render()).isEqualTo(fieldHtml);
     fieldWithLabel.setId("other_id");
+    String otherFieldHtml = fieldWithLabel.getContainer().render();
+    assertThat(otherFieldHtml).isNotEqualTo(fieldHtml);
     fieldWithLabel.setValue("value");
+    assertThat(fieldWithLabel.getContainer().render()).isNotEqualTo(otherFieldHtml);
+    assertThat(fieldWithLabel.getContainer().render()).isNotEqualTo(fieldHtml);
+    fieldWithLabel.setId("id");
+    fieldWithLabel.setValue("");
     assertThat(fieldWithLabel.getContainer().render()).isEqualTo(fieldHtml);
   }
 }
