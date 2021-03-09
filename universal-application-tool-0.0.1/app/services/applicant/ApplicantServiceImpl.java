@@ -2,6 +2,7 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -11,6 +12,7 @@ import models.Applicant;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicantRepository;
 import services.ErrorAnd;
+import services.Path;
 import services.program.BlockDefinition;
 import services.program.PathNotInBlockException;
 import services.program.ProgramBlockNotFoundException;
@@ -75,6 +77,18 @@ public class ApplicantServiceImpl implements ApplicantService {
               return CompletableFuture.completedFuture(ErrorAnd.of(roApplicantProgramService));
             },
             httpExecutionContext.current());
+  }
+
+  @Override
+  public CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>>
+      stageAndUpdateIfValid(
+          long applicantId, long programId, long blockId, ImmutableMap<String, String> updateMap) {
+    ImmutableSet<Update> updates =
+        updateMap.entrySet().stream()
+            .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
+            .collect(ImmutableSet.toImmutableSet());
+
+    return stageAndUpdateIfValid(applicantId, programId, blockId, updates);
   }
 
   @Override
