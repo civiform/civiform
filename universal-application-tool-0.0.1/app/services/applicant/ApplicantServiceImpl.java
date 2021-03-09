@@ -38,7 +38,7 @@ public class ApplicantServiceImpl implements ApplicantService {
   }
 
   @Override
-  public CompletionStage<ReadOnlyApplicantProgramService>
+  public CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>>
       stageAndUpdateIfValid(
           long applicantId, long programId, long blockId, ImmutableSet<Update> updates) {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
@@ -58,7 +58,7 @@ public class ApplicantServiceImpl implements ApplicantService {
               } catch (ProgramBlockNotFoundException
                   | UnsupportedScalarTypeException
                   | PathNotInBlockException e) {
-                throw new RuntimeException(e);
+                return CompletableFuture.completedFuture(ErrorAnd.error(ImmutableSet.of(e)));
               }
 
               ReadOnlyApplicantProgramService roApplicantProgramService =
@@ -70,17 +70,17 @@ public class ApplicantServiceImpl implements ApplicantService {
                 return applicantRepository
                     .updateApplicant(applicant)
                     .thenApplyAsync(
-                        (finishedSaving) -> roApplicantProgramService,
+                        (finishedSaving) -> ErrorAnd.of(roApplicantProgramService),
                         httpExecutionContext.current());
               }
 
-              return CompletableFuture.completedFuture(roApplicantProgramService);
+              return CompletableFuture.completedFuture(ErrorAnd.of(roApplicantProgramService));
             },
             httpExecutionContext.current());
   }
 
   @Override
-  public CompletionStage<ReadOnlyApplicantProgramService>
+  public CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>>
       stageAndUpdateIfValid(
           long applicantId, long programId, long blockId, ImmutableMap<String, String> updateMap) {
     ImmutableSet<Update> updates =
