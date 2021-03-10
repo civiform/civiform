@@ -6,6 +6,10 @@ import org.pac4j.core.exception.http.WithContentAction;
 public class ProfileMergeConflictException extends HttpAction implements WithContentAction {
   private final String message;
 
+  /**
+   * When this exception is thrown in a controlller, the resulting response will be a 400 and
+   * the provided message will be displayed to the user (unformatted, for now).
+   */
   ProfileMergeConflictException(String message) {
     super(400);
     this.message = message;
