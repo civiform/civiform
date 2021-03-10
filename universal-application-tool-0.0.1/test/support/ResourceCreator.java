@@ -60,21 +60,6 @@ public class ResourceCreator {
     return ProgramBuilder.newProgram(name, "description").build();
   }
 
-  public Program insertPrograms(String name, BlockDefinition block) {
-    Program program = new Program(name, "description");
-
-    program.save();
-
-    ProgramDefinition programDefinition =
-        program.getProgramDefinition().toBuilder()
-            .setBlockDefinitions(ImmutableList.of(block))
-            .build();
-    program = programDefinition.toProgram();
-    program.update();
-
-    return program;
-  }
-
   public ProgramDefinition insertProgramWithOneBlock(String name) {
     return ProgramBuilder.newProgram(name, "desc")
         .withBlock("Block 1")
