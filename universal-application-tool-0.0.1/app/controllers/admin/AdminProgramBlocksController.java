@@ -43,17 +43,15 @@ public class AdminProgramBlocksController extends Controller {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result index(long programId) {
-    Optional<ProgramDefinition> programMaybe = programService.getProgramDefinition(programId);
-
-    if (programMaybe.isEmpty()) {
-      return notFound(String.format("Program ID %d not found.", programId));
+    try {
+      ProgramDefinition program = programService.getProgramDefinition(programId);
+      return redirect(
+          routes.AdminProgramBlocksController.edit(
+              programId,
+              program.blockDefinitions().get(program.blockDefinitions().size() - 1).id()));
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.toString());
     }
-
-    ProgramDefinition program = programMaybe.get();
-
-    return redirect(
-        routes.AdminProgramBlocksController.edit(
-            programId, program.blockDefinitions().get(program.blockDefinitions().size() - 1).id()));
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
@@ -74,24 +72,22 @@ public class AdminProgramBlocksController extends Controller {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result edit(Request request, long programId, long blockId) {
-    Optional<ProgramDefinition> programMaybe = programService.getProgramDefinition(programId);
+    try {
+      ProgramDefinition program = programService.getProgramDefinition(programId);
+      Optional<BlockDefinition> blockMaybe = program.getBlockDefinition(blockId);
 
-    if (programMaybe.isEmpty()) {
-      return notFound(String.format("Program ID %d not found.", programId));
+      if (blockMaybe.isEmpty()) {
+        return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
+      }
+
+      BlockDefinition block = blockMaybe.get();
+      ReadOnlyQuestionService roQuestionService =
+          questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+
+      return ok(editView.render(request, program, block, roQuestionService.getAllQuestions()));
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.toString());
     }
-
-    ProgramDefinition program = programMaybe.get();
-    Optional<BlockDefinition> blockMaybe = program.getBlockDefinition(blockId);
-
-    if (blockMaybe.isEmpty()) {
-      return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
-    }
-
-    BlockDefinition block = blockMaybe.get();
-    ReadOnlyQuestionService roQuestionService =
-        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
-
-    return ok(editView.render(request, program, block, roQuestionService.getAllQuestions()));
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)

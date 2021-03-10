@@ -42,14 +42,15 @@ public class ApplicantServiceImpl implements ApplicantService {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
         applicantRepository.lookupApplicant(applicantId).toCompletableFuture();
 
-    CompletableFuture<Optional<ProgramDefinition>> programDefinitionCompletableFuture =
+    CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
         programService.getProgramDefinitionAsync(programId).toCompletableFuture();
 
     return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
         .thenComposeAsync(
             (v) -> {
               Applicant applicant = applicantCompletableFuture.join().get();
-              ProgramDefinition programDefinition = programDefinitionCompletableFuture.join().get();
+              // TODO: handle program not found exception
+              ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
 
               try {
                 stageUpdates(applicant, programDefinition, blockId, updates);
@@ -88,14 +89,15 @@ public class ApplicantServiceImpl implements ApplicantService {
       long applicantId, long programId) {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
         applicantRepository.lookupApplicant(applicantId).toCompletableFuture();
-    CompletableFuture<Optional<ProgramDefinition>> programDefinitionCompletableFuture =
+    CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
         programService.getProgramDefinitionAsync(programId).toCompletableFuture();
 
     return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
         .thenApplyAsync(
             (v) -> {
               Applicant applicant = applicantCompletableFuture.join().get();
-              ProgramDefinition programDefinition = programDefinitionCompletableFuture.join().get();
+              // TODO: handle program not found exception
+              ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
 
               return new ReadOnlyApplicantProgramServiceImpl(
                   applicant.getApplicantData(), programDefinition);

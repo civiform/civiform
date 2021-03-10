@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import forms.BlockForm;
 import java.util.Locale;
-import java.util.Optional;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import org.junit.Before;
 import org.junit.Test;
@@ -205,10 +205,10 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     ProgramDefinition updatedProgram =
         ps.updateProgramDefinition(originalProgram.id(), "new", "new description");
 
-    Optional<ProgramDefinition> found = ps.getProgramDefinition(updatedProgram.id());
+    ProgramDefinition found = ps.getProgramDefinition(updatedProgram.id());
 
     assertThat(ps.listProgramDefinitions()).hasSize(1);
-    assertThat(found).hasValue(updatedProgram);
+    assertThat(found).isEqualTo(updatedProgram);
   }
 
   @Test
@@ -226,19 +226,20 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void getProgramDefinition_canGetANewProgram() {
+  public void getProgramDefinition_canGetANewProgram() throws Exception {
     ProgramDefinition programDefinition = ps.createProgramDefinition("new program", "description");
-    Optional<ProgramDefinition> found = ps.getProgramDefinition(programDefinition.id());
+    ProgramDefinition found = ps.getProgramDefinition(programDefinition.id());
 
-    assertThat(found).hasValue(programDefinition);
+    assertThat(found).isEqualTo(programDefinition);
   }
 
   @Test
-  public void getProgramDefinition_returnsEmptyOptionalWhenProgramNotFound() {
+  public void getProgramDefinition_throwsWhenProgramNotFound() {
     ProgramDefinition programDefinition = ps.createProgramDefinition("new program", "description");
-    Optional<ProgramDefinition> found = ps.getProgramDefinition(programDefinition.id() + 1);
 
-    assertThat(found).isEmpty();
+    assertThatThrownBy(() -> ps.getProgramDefinition(programDefinition.id() + 1))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID");
   }
 
   @Test
@@ -247,7 +248,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     ProgramDefinition program = ps.createProgramDefinition("Program Name", "Program Description");
     ps.addQuestionsToBlock(program.id(), 1L, ImmutableList.of(question.getId()));
 
-    ProgramDefinition found = ps.getProgramDefinition(program.id()).get();
+    ProgramDefinition found = ps.getProgramDefinition(program.id());
 
     QuestionDefinition foundQuestion =
         found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
@@ -258,20 +259,22 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   public void getProgramDefinitionAsync_getsRequestedProgram() {
     ProgramDefinition programDefinition = ps.createProgramDefinition("async", "program");
 
-    CompletionStage<Optional<ProgramDefinition>> found =
-        ps.getProgramDefinitionAsync(programDefinition.id());
+    CompletionStage<ProgramDefinition> found = ps.getProgramDefinitionAsync(programDefinition.id());
 
-    assertThat(found.toCompletableFuture().join()).hasValue(programDefinition);
+    assertThat(found.toCompletableFuture().join()).isEqualTo(programDefinition);
   }
 
   @Test
-  public void getProgramDefinitionAsync_cannotFindRequestedProgram_returnsEmptyOptional() {
+  public void getProgramDefinitionAsync_cannotFindRequestedProgram_throwsException() {
     ProgramDefinition programDefinition = ps.createProgramDefinition("different", "program");
 
-    CompletionStage<Optional<ProgramDefinition>> found =
+    CompletionStage<ProgramDefinition> found =
         ps.getProgramDefinitionAsync(programDefinition.id() + 1);
 
-    assertThat(found.toCompletableFuture().join()).isEmpty();
+    assertThatThrownBy(() -> found.toCompletableFuture().join())
+        .isInstanceOf(CompletionException.class)
+        .hasCauseInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID");
   }
 
   @Test
@@ -281,7 +284,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     ps.addQuestionsToBlock(program.id(), 1L, ImmutableList.of(question.getId()));
 
     ProgramDefinition found =
-        ps.getProgramDefinitionAsync(program.id()).toCompletableFuture().join().get();
+        ps.getProgramDefinitionAsync(program.id()).toCompletableFuture().join();
 
     QuestionDefinition foundQuestion =
         found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
@@ -310,7 +313,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     Long programId = programDefinition.id();
     ProgramDefinition updatedProgramDefinition = ps.addBlockToProgram(programDefinition.id());
 
-    ProgramDefinition found = ps.getProgramDefinition(programId).orElseThrow();
+    ProgramDefinition found = ps.getProgramDefinition(programId);
 
     assertThat(found.blockDefinitions()).hasSize(2);
     assertThat(found.blockDefinitions())
@@ -335,7 +338,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     ProgramDefinition updatedProgramDefinition =
         ps.addBlockToProgram(programDefinition.id(), "the block", "the block for the program");
 
-    ProgramDefinition found = ps.getProgramDefinition(programId).orElseThrow();
+    ProgramDefinition found = ps.getProgramDefinition(programId);
 
     assertThat(found.blockDefinitions()).hasSize(2);
     assertThat(found.blockDefinitions())
@@ -433,7 +436,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
     ps.updateBlock(program.id(), 1L, blockForm);
 
-    ProgramDefinition found = ps.getProgramDefinition(program.id()).orElseThrow();
+    ProgramDefinition found = ps.getProgramDefinition(program.id());
 
     assertThat(found.blockDefinitions()).hasSize(1);
     assertThat(found.getBlockDefinition(1L).get().name()).isEqualTo("new block name");
@@ -450,7 +453,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     ps.setBlockQuestions(
         programId, 1L, ImmutableList.of(ProgramQuestionDefinition.create(question)));
 
-    ProgramDefinition found = ps.getProgramDefinition(programId).orElseThrow();
+    ProgramDefinition found = ps.getProgramDefinition(programId);
     assertThat(found.blockDefinitions()).hasSize(1);
 
     BlockDefinition foundBlock = found.blockDefinitions().get(0);
@@ -602,7 +605,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     Predicate predicate = Predicate.create("hide predicate");
     ps.setBlockHidePredicate(programId, 1L, predicate);
 
-    ProgramDefinition found = ps.getProgramDefinition(programId).orElseThrow();
+    ProgramDefinition found = ps.getProgramDefinition(programId);
 
     assertThat(found.blockDefinitions().get(0).hidePredicate()).hasValue(predicate);
   }
@@ -644,7 +647,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     Predicate predicate = Predicate.create("hide predicate");
     ps.setBlockOptionalPredicate(programId, 1L, predicate);
 
-    ProgramDefinition found = ps.getProgramDefinition(programId).orElseThrow();
+    ProgramDefinition found = ps.getProgramDefinition(programId);
 
     assertThat(found.blockDefinitions().get(0).optionalPredicate()).hasValue(predicate);
   }
