@@ -12,7 +12,6 @@ import play.inject.Injector;
 import services.Path;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
-import services.program.ProgramService;
 import services.question.QuestionDefinition;
 import services.question.QuestionService;
 import services.question.TextQuestionDefinition;
@@ -20,12 +19,10 @@ import services.question.TextQuestionDefinition;
 public class ResourceCreator {
 
   private final Injector injector;
-  private final ProgramService programService;
   private final QuestionService questionService;
 
   public ResourceCreator(Injector injector) {
     this.injector = checkNotNull(injector);
-    this.programService = injector.instanceOf(ProgramService.class);
     this.questionService = injector.instanceOf(QuestionService.class);
   }
 
@@ -60,12 +57,10 @@ public class ResourceCreator {
   }
 
   public Program insertProgram(String name) {
-    Program program = new Program(name, "description");
-    program.save();
-    return program;
+    return ProgramBuilder.newProgram(name, "description").build();
   }
 
-  public Program insertProgram(String name, BlockDefinition block) {
+  public Program insertPrograms(String name, BlockDefinition block) {
     Program program = new Program(name, "description");
 
     program.save();
@@ -81,16 +76,10 @@ public class ResourceCreator {
   }
 
   public ProgramDefinition insertProgramWithOneBlock(String name) {
-    try {
-      ProgramDefinition programDefinition = programService.createProgramDefinition(name, "desc");
-      programDefinition =
-          programService.addQuestionsToBlock(
-              programDefinition.id(), 1L, ImmutableList.of(insertQuestionDefinition().getId()));
-
-      return programDefinition;
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    return ProgramBuilder.newProgram(name, "desc")
+        .withBlock("Block 1")
+        .withQuestionDefinition(insertQuestionDefinition())
+        .buildDefinition();
   }
 
   public Applicant insertApplicant() {
