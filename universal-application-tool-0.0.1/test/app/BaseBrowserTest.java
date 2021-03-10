@@ -13,13 +13,13 @@ import java.util.Optional;
 import models.Applicant;
 import models.Program;
 import models.Question;
+import org.fluentlenium.core.domain.FluentWebElement;
 import org.junit.Before;
 import play.Application;
 import play.api.mvc.Call;
 import play.db.ebean.EbeanConfig;
 import play.test.WithBrowser;
 import services.question.QuestionType;
-import services.question.ScalarType;
 import support.TestConstants;
 
 public class BaseBrowserTest extends WithBrowser {
@@ -129,12 +129,11 @@ public class BaseBrowserTest extends WithBrowser {
     browser.$("a", withText("Create a new question")).first().click();
 
     // Fill out the question form and click submit.
-    browser.$("input", withName("questionName")).fill().with(questionName);
-    browser.$("input", withName("questionDescription")).fill().with("question description");
-    browser.$("input", withName("questionPath")).fill().with(path);
-    browser.$("textarea", withName("questionText")).fill().with("question text");
-
-    // TODO: Select the given questionType in the type dropdown.
+    fillInput("questionName", questionName);
+    fillTextArea("questionDescription", "question description");
+    fillInput("questionPath", questionName.replace(" ", "."));
+    fillTextArea("questionText", "question text");
+    selectAnOption("questionType", questionType.toString());
 
     browser.$("button", withText("Create")).first().click();
 
@@ -155,24 +154,44 @@ public class BaseBrowserTest extends WithBrowser {
     assertThat(browser.pageSource()).contains(programName + " Questions");
   }
 
-  protected void addQuestionsToProgram(String programName, String... questions) {
+  /** Adds the questions with the given names to the first block in the given program. */
+  protected void addQuestionsToProgramFirstBlock(String programName, String... questionNames) {
     manageExistingProgramQuestions(programName);
+    addQuestionsToBlock(questionNames);
+  }
 
+  /** Adds the questions with the given names to a new block in the given program. */
+  protected void addQuestionsToProgramNewBlock(String programName, String... questionNames) {
+    manageExistingProgramQuestions(programName);
+    browser.$("button", withText("Add block")).click();
+    addQuestionsToBlock(questionNames);
+  }
+
+  /**
+   * Adds the given questions to the block currently shown. Depends on already being in the
+   * block-editing context.
+   */
+  private void addQuestionsToBlock(String... questionNames) {
     // Add questions to the block.
-    for (String question : questions) {
-      browser.$("#questionBankQuestions").$("label", withText(question)).$("input").first().click();
+    for (String questionName : questionNames) {
+      browser
+          .$("#questionBankQuestions")
+          .$("label", withText(questionName))
+          .$("input")
+          .first()
+          .click();
     }
     browser.$("button", containingText("Add to Block")).first().click();
 
     // Check that questions are added.
-    for (String question : questions) {
-      assertThat(browser.$("#blockQuestions").$("li").textContents()).contains(question);
+    for (String questionName : questionNames) {
+      assertThat(browser.$("#blockQuestions").$("li").textContents()).contains(questionName);
       assertThat(browser.$("#questionBankQuestions").$("li").textContents())
-          .doesNotContain(question);
+          .doesNotContain(questionName);
     }
   }
 
-  protected void removeQuestionsToProgram(String programName, String... questions) {
+  protected void removeQuestionsFromProgram(String programName, String... questions) {
     manageExistingProgramQuestions(programName);
 
     // Remove questions to the block.
@@ -186,5 +205,36 @@ public class BaseBrowserTest extends WithBrowser {
       assertThat(browser.$("#blockQuestions").$("li").textContents()).doesNotContain(question);
       assertThat(browser.$("#questionBankQuestions").$("li").textContents()).contains(question);
     }
+  }
+
+  protected void fillInput(String name, String text) {
+    browser.$("input", withName(name)).fill().with(text);
+  }
+
+  protected String getInputValue(String name) {
+    return browser.$("input", withName(name)).first().value();
+  }
+
+  protected void fillTextArea(String name, String text) {
+    WebElement element =
+        browser.getDriver().findElement(By.cssSelector("textarea[name=" + name + "]"));
+    element.clear();
+    element.sendKeys(text);
+  }
+
+  protected String getTextAreaString(String name) {
+    return browser
+        .getDriver()
+        .findElement(By.cssSelector("textarea[name=" + name + "]"))
+        .toString();
+  }
+
+  protected boolean textAreaContains(String name, String value) {
+    return getTextAreaString(name).contains(String.format("value=\"%s\"", value));
+  }
+
+  protected void selectAnOption(String selectName, String option) {
+    FluentWebElement select = browser.$("select", withName(selectName)).first();
+    select.fillSelect().withValue(option);
   }
 }

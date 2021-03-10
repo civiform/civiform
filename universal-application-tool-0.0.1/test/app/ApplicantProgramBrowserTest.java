@@ -3,29 +3,29 @@ package app;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.fluentlenium.core.filter.FilterConstructor.withText;
+
 public class ApplicantProgramBrowserTest extends BaseBrowserTest {
 
   @Before
   public void setUp() {
-    String programName = "Mock program";
-    String questionName1 = "name";
-    String questionName2 = "color";
-    String questionName3 = "address";
+    // Create a program with two blocks.
 
-    // Set up a program with two blocks.
+    String programName = "Mock program";
     loginAsAdmin();
-    addQuestion(questionName1);
-    addQuestion(questionName2);
-    addQuestion(questionName3);
+    addNameQuestion("name", "applicant.name");
+    addTextQuestion("color", "applicant.color");
+    addAddressQuestion("Address", "applicant.address");
 
     addProgram(programName);
-    manageExistingProgramQuestions(programName);
 
-
+    addQuestionsToProgramFirstBlock(programName, "name", "color");
+    addQuestionsToProgramNewBlock(programName, "address");
   }
 
   @Test
   public void submitABlock() {
-
+    loginAsGuest();
+    browser.$("button", withText("Apply")).click();
   }
 }
