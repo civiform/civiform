@@ -76,8 +76,17 @@ public class UatProfile {
     return this.getAccount()
         .thenApplyAsync(
             a -> {
-              a.setEmailAddress(emailAddress);
-              a.save();
+              String existingEmail = a.getEmailAddress();
+              if (existingEmail == null || existingEmail.equals("")) {
+                a.setEmailAddress(emailAddress);
+                a.save();
+              } else if (!existingEmail.equals(emailAddress)) {
+                throw new ProfileMergeConflictException(
+                    String.format(
+                        "Profile already contains an email address: %s - which is different from"
+                            + " the new email address %s.",
+                        existingEmail, emailAddress));
+              }
               return null;
             },
             dbContext);
