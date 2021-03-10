@@ -1,16 +1,15 @@
 package support;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import models.Program;
 import org.junit.Test;
 import repository.WithPostgresContainer;
 import services.Path;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
-import services.program.ProgramNeedsABlockException;
 import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
@@ -30,7 +29,7 @@ public class ProgramBuilderTest extends WithPostgresContainer {
             .withName("block 2")
             .withDescription("block 2 description")
             .withBlock("block 3", "block 3 description")
-            .build();
+            .buildDefinition();
 
     assertThat(programDefinition.id()).isGreaterThan(0);
     assertThat(programDefinition.name()).isEqualTo("a new name");
@@ -52,6 +51,14 @@ public class ProgramBuilderTest extends WithPostgresContainer {
   }
 
   @Test
+  public void createProgramWithEmptyBlock() {
+    ProgramDefinition program = ProgramBuilder.newProgram("name", "desc").buildDefinition();
+
+    assertThat(program.getBlockDefinition(0).get().name()).isEqualTo("");
+    assertThat(program.getBlockDefinition(0).get().description()).isEqualTo("");
+  }
+
+  @Test
   public void createProgramWithQuestions() throws Exception {
     QuestionDefinition nameQuestionDefinition =
         new QuestionDefinitionBuilder()
@@ -69,8 +76,8 @@ public class ProgramBuilderTest extends WithPostgresContainer {
             .withBlock()
             .withName("block 1")
             .withDescription("block 1 description")
-            .withQuestion(nameQuestionDefinition)
-            .build();
+            .withQuestionDefinition(nameQuestionDefinition)
+            .buildDefinition();
 
     assertThat(programDefinition.id()).isGreaterThan(0);
     assertThat(programDefinition.blockDefinitions()).hasSize(1);
@@ -81,8 +88,11 @@ public class ProgramBuilderTest extends WithPostgresContainer {
   }
 
   @Test
-  public void program_withNoBlocks_throws() {
-    assertThatThrownBy(() -> ProgramBuilder.newProgram("name", "description").build())
-        .isInstanceOf(ProgramNeedsABlockException.class);
+  public void emptyProgram() {
+    Program program = ProgramBuilder.newProgram().build();
+
+    assertThat(program.id).isGreaterThan(0);
+    assertThat(program.getProgramDefinition().name()).isEqualTo("");
+    assertThat(program.getProgramDefinition().description()).isEqualTo("");
   }
 }

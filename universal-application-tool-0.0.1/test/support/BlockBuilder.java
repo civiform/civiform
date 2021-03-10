@@ -1,6 +1,8 @@
 package support;
 
 import com.google.common.collect.ImmutableList;
+import models.Program;
+import models.Question;
 import services.program.BlockDefinition;
 import services.program.Predicate;
 import services.program.ProgramDefinition;
@@ -24,7 +26,15 @@ public class BlockBuilder {
 
   static BlockBuilder newBlock(ProgramBuilder programBuilder, long id) {
     BlockBuilder blockBuilder = new BlockBuilder(programBuilder);
-    blockBuilder.blockDefBuilder = BlockDefinition.builder().setId(id);
+    blockBuilder.blockDefBuilder =
+        BlockDefinition.builder().setId(id).setName("").setDescription("");
+    return blockBuilder;
+  }
+
+  static BlockBuilder newBlock(ProgramBuilder programBuilder, long id, String name) {
+    BlockBuilder blockBuilder = new BlockBuilder(programBuilder);
+    blockBuilder.blockDefBuilder =
+        BlockDefinition.builder().setId(id).setName(name).setDescription("");
     return blockBuilder;
   }
 
@@ -66,12 +76,27 @@ public class BlockBuilder {
     return this;
   }
 
-  public BlockBuilder withQuestion(QuestionDefinition question) {
+  public BlockBuilder withQuestion(Question question) {
+    blockDefBuilder.addQuestion(ProgramQuestionDefinition.create(question.getQuestionDefinition()));
+    return this;
+  }
+
+  public BlockBuilder withQuestionDefinition(QuestionDefinition question) {
     blockDefBuilder.addQuestion(ProgramQuestionDefinition.create(question));
     return this;
   }
 
-  public BlockBuilder withQuestions(ImmutableList<QuestionDefinition> questions) {
+  public BlockBuilder withQuestions(ImmutableList<Question> questions) {
+    ImmutableList<ProgramQuestionDefinition> pqds =
+        questions.stream()
+            .map(Question::getQuestionDefinition)
+            .map(ProgramQuestionDefinition::create)
+            .collect(ImmutableList.toImmutableList());
+    blockDefBuilder.setProgramQuestionDefinitions(pqds);
+    return this;
+  }
+
+  public BlockBuilder withQuestionDefinitions(ImmutableList<QuestionDefinition> questions) {
     ImmutableList<ProgramQuestionDefinition> pqds =
         questions.stream()
             .map(ProgramQuestionDefinition::create)
@@ -90,7 +115,12 @@ public class BlockBuilder {
     return programBuilder.withBlock(name, description);
   }
 
-  public ProgramDefinition build() {
-    return programBuilder.builder.addBlockDefinition(blockDefBuilder.build()).build();
+  public ProgramDefinition buildDefinition() {
+    return build().getProgramDefinition();
+  }
+
+  public Program build() {
+    programBuilder.builder.addBlockDefinition(blockDefBuilder.build());
+    return programBuilder.build();
   }
 }

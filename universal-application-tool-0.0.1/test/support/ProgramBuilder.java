@@ -3,7 +3,6 @@ package support;
 import com.google.common.collect.ImmutableList;
 import models.Program;
 import services.program.ProgramDefinition;
-import services.program.ProgramNeedsABlockException;
 
 public class ProgramBuilder {
 
@@ -17,6 +16,20 @@ public class ProgramBuilder {
   private ProgramBuilder(ProgramDefinition.Builder builder, int numBlocks) {
     this.builder = builder;
     this.numBlocks = numBlocks;
+  }
+
+  public static ProgramBuilder newProgram() {
+    Program program = new Program("", "");
+    program.save();
+    return new ProgramBuilder(
+        program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of()));
+  }
+
+  public static ProgramBuilder newProgram(String name) {
+    Program program = new Program(name, "");
+    program.save();
+    return new ProgramBuilder(
+        program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of()));
   }
 
   public static ProgramBuilder newProgram(String name, String description) {
@@ -41,17 +54,29 @@ public class ProgramBuilder {
     return BlockBuilder.newBlock(this, blockId);
   }
 
+  public BlockBuilder withBlock(String name) {
+    long blockId = Long.valueOf(++numBlocks);
+    return BlockBuilder.newBlock(this, blockId, name);
+  }
+
   public BlockBuilder withBlock(String name, String description) {
     long blockId = Long.valueOf(++numBlocks);
     return BlockBuilder.newBlock(this, blockId, name, description);
   }
 
-  public ProgramDefinition build() throws ProgramNeedsABlockException {
+  public ProgramDefinition buildDefinition() {
+    Program program = build();
+    return program.getProgramDefinition();
+  }
+
+  public Program build() {
     ProgramDefinition programDefinition = builder.build();
     if (programDefinition.blockDefinitions().isEmpty()) {
-      throw new ProgramNeedsABlockException(programDefinition.id());
+      return withBlock().build();
     }
-    programDefinition.toProgram().save();
-    return programDefinition;
+
+    Program program = programDefinition.toProgram();
+    program.update();
+    return program;
   }
 }
