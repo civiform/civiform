@@ -1,6 +1,5 @@
 package services.program;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -33,7 +32,6 @@ public abstract class ProgramDefinition {
   public abstract ImmutableList<ExportDefinition> exportDefinitions();
 
   /** Returns the {@link QuestionDefinition} at the specified block and question indices. */
-  @JsonIgnore
   public QuestionDefinition getQuestionDefinition(int blockIndex, int questionIndex) {
     return blockDefinitions().get(blockIndex).getQuestionDefinition(questionIndex);
   }
@@ -51,24 +49,20 @@ public abstract class ProgramDefinition {
     return blockDefinitions().stream().filter(b -> b.id() == blockId).findAny();
   }
 
-  @JsonIgnore
   public int getBlockCount() {
     return blockDefinitions().size();
   }
 
-  @JsonIgnore
   public int getQuestionCount() {
     return blockDefinitions().stream().mapToInt(BlockDefinition::getQuestionCount).sum();
   }
 
   /** True if a question with the given question's ID is in the program. */
-  @JsonIgnore
   public boolean hasQuestion(QuestionDefinition question) {
     return hasQuestion(question.getId());
   }
 
   /** True if a question with the given questionId is in the program. */
-  @JsonIgnore
   public boolean hasQuestion(long questionId) {
     if (questionIds.isEmpty()) {
       questionIds =
