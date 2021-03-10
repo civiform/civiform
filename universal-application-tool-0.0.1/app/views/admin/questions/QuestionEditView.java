@@ -18,6 +18,8 @@ import services.question.QuestionDefinition;
 import services.question.QuestionType;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
+import views.components.FieldWithLabel;
+import views.components.SelectWithLabel;
 
 public final class QuestionEditView extends BaseHtmlView {
   private final AdminLayout layout;
@@ -31,18 +33,36 @@ public final class QuestionEditView extends BaseHtmlView {
     return layout.render(
         body(
             renderHeader("New Question"),
-            buildNewQuestionForm().with(makeCsrfTokenInputTag(request))));
+            buildNewQuestionForm(new QuestionForm()).with(makeCsrfTokenInputTag(request))));
+  }
+
+  public Content renderNewQuestionForm(Request request, QuestionForm questionForm, String message) {
+    return layout.render(
+        body(
+            div(message),
+            renderHeader("New Question"),
+            buildNewQuestionForm(questionForm).with(makeCsrfTokenInputTag(request))));
   }
 
   public Content renderEditQuestionForm(Request request, QuestionDefinition question) {
     return layout.render(
         body(
             renderHeader("Edit Question"),
-            buildEditQuestionForm(question).with(makeCsrfTokenInputTag(request))));
+            buildEditQuestionForm(
+                    question.getId(), question.getVersion(), new QuestionForm(question))
+                .with(makeCsrfTokenInputTag(request))));
   }
 
-  private ContainerTag buildNewQuestionForm() {
-    QuestionForm questionForm = new QuestionForm();
+  public Content renderEditQuestionForm(
+      Request request, long id, long version, QuestionForm questionForm, String message) {
+    return layout.render(
+        body(
+            div(message),
+            renderHeader("Edit Question"),
+            buildEditQuestionForm(id, version, questionForm).with(makeCsrfTokenInputTag(request))));
+  }
+
+  private ContainerTag buildNewQuestionForm(QuestionForm questionForm) {
     ContainerTag formTag = buildQuestionForm(questionForm);
     formTag
         .withAction(controllers.admin.routes.QuestionController.create().url())
@@ -51,13 +71,11 @@ public final class QuestionEditView extends BaseHtmlView {
     return formTag;
   }
 
-  private ContainerTag buildEditQuestionForm(QuestionDefinition definition) {
-    QuestionForm questionForm = new QuestionForm(definition);
+  private ContainerTag buildEditQuestionForm(long id, long version, QuestionForm questionForm) {
     ContainerTag formTag = buildQuestionForm(questionForm);
-    formTag.with(
-        div("id: " + definition.getId()), div("version: " + definition.getVersion()), br());
+    formTag.with(div("id: " + id), div("version: " + version), br());
     formTag
-        .withAction(controllers.admin.routes.QuestionController.update(definition.getId()).url())
+        .withAction(controllers.admin.routes.QuestionController.update(id).url())
         .with(submitButton("Update"));
 
     return formTag;
@@ -66,26 +84,47 @@ public final class QuestionEditView extends BaseHtmlView {
   private ContainerTag buildQuestionForm(QuestionForm questionForm) {
     ContainerTag formTag = form().withMethod("POST");
     formTag
-        .with(textInputWithLabel("Name: ", "questionName", questionForm.getQuestionName()))
         .with(
-            textInputWithLabel(
-                "Description: ", "questionDescription", questionForm.getQuestionDescription()))
-        .with(textInputWithLabel("Path: ", "questionPath", questionForm.getQuestionPath()))
-        .with(textAreaWithLabel("Question Text: ", "questionText", questionForm.getQuestionText()))
-        .with(
-            textAreaWithLabel(
-                "Question Help Text: ", "questionHelpText", questionForm.getQuestionHelpText()))
+            FieldWithLabel.createInput("questionName")
+                .setLabelText("Name")
+                .setPlaceholderText("The name displayed in the question builder")
+                .setValue(questionForm.getQuestionName())
+                .getContainer(),
+            FieldWithLabel.createTextArea("questionDescription")
+                .setLabelText("Description")
+                .setPlaceholderText("The description displayed in the question builder")
+                .setValue(questionForm.getQuestionDescription())
+                .getContainer(),
+            FieldWithLabel.createInput("questionPath")
+                .setLabelText("Path")
+                .setPlaceholderText("The path used to store question data")
+                .setValue(questionForm.getQuestionPath().path())
+                .getContainer(),
+            FieldWithLabel.createTextArea("questionText")
+                .setLabelText("Question text")
+                .setPlaceholderText("The question text displayed to the applicant")
+                .setValue(questionForm.getQuestionText())
+                .getContainer(),
+            FieldWithLabel.createTextArea("questionHelpText")
+                .setLabelText("Question help text")
+                .setPlaceholderText("The question help text displayed to the applicant")
+                .setValue(questionForm.getQuestionText())
+                .getContainer())
         .with(formQuestionTypeSelect(QuestionType.valueOf(questionForm.getQuestionType())));
 
     return formTag;
   }
 
-  private ImmutableList<DomContent> formQuestionTypeSelect(QuestionType selectedType) {
+  private DomContent formQuestionTypeSelect(QuestionType selectedType) {
     ImmutableList<SimpleEntry<String, String>> options =
         Arrays.stream(QuestionType.values())
             .map(item -> new SimpleEntry<String, String>(item.toString(), item.name()))
             .collect(ImmutableList.toImmutableList());
 
-    return formSelect("Question type: ", "questionType", options, selectedType.name());
+    return new SelectWithLabel("questionType")
+        .setLabelText("Question type")
+        .setOptions(options)
+        .setValue(selectedType.name())
+        .getContainer();
   }
 }

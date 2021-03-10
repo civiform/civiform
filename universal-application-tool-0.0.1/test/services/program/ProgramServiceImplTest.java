@@ -12,6 +12,7 @@ import java.util.concurrent.CompletionStage;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
+import services.Path;
 import services.question.AddressQuestionDefinition;
 import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
@@ -25,7 +26,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
       new NameQuestionDefinition(
           2L,
           "Name Question",
-          "applicant.name",
+          Path.create("applicant.name"),
           "The name of the applicant.",
           ImmutableMap.of(Locale.US, "What is your name?"),
           ImmutableMap.of());
@@ -121,7 +122,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                 new AddressQuestionDefinition(
                     3L,
                     "Applicant Address",
-                    "applicant.address",
+                    Path.create("applicant.address"),
                     "Applicant's address",
                     ImmutableMap.of(Locale.US, "What is your addess?"),
                     ImmutableMap.of()))
@@ -131,7 +132,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                 new TextQuestionDefinition(
                     3L,
                     "Favorite color",
-                    "applicant.favcolor",
+                    Path.create("applicant.favcolor"),
                     "Applicant's favorite color",
                     ImmutableMap.of(Locale.US, "Is orange your favorite color?"),
                     ImmutableMap.of()))

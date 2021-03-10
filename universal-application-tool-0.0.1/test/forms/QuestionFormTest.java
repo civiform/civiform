@@ -5,15 +5,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import org.junit.Test;
+import services.Path;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.TextQuestionDefinition;
-import services.question.UnsupportedQuestionTypeException;
 
 public class QuestionFormTest {
 
   @Test
-  public void getBuilder_returnsCompleteBuilder() throws UnsupportedQuestionTypeException {
+  public void getBuilder_returnsCompleteBuilder() throws Exception {
     QuestionForm form = new QuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
@@ -31,7 +31,7 @@ public class QuestionFormTest {
         new TextQuestionDefinition(
             1L,
             "name",
-            "my.question.path",
+            Path.create("my.question.path"),
             "description",
             ImmutableMap.of(Locale.ENGLISH, "What is the question text?"),
             ImmutableMap.of());

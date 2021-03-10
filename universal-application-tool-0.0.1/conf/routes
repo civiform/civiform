@@ -28,7 +28,7 @@ POST    /admin/programs/:programId/blocks/:blockId/questions/delete        contr
 # A controller for a page for an admin to view, edit, and create questions
 GET     /admin/questions             controllers.admin.QuestionController.index(request: Request, renderAs: String ?= "table")
 GET     /admin/questions/new         controllers.admin.QuestionController.newOne(request: Request)
-GET     /admin/questions/:path/edit  controllers.admin.QuestionController.edit(request: Request, path: String)
+GET     /admin/questions/:id/edit    controllers.admin.QuestionController.edit(request: Request, id: Long)
 POST    /admin/questions/:id         controllers.admin.QuestionController.update(request: Request, id: Long)
 POST    /admin/questions             controllers.admin.QuestionController.create(request: Request)
 
@@ -50,12 +50,23 @@ POST    /applicants/:applicantId/programs/:programId/blocks/:blockId        cont
 GET     /users/me                    controllers.ProfileController.myProfile(request: Request)
 GET     /users/:id                   controllers.ProfileController.profilePage(request: Request, id: Long)
 
-# Authentication callback from federated auth server
+# Authentication callback from local auth - nonfederated.  Requires CSRF token.
+# Provides client name as url parameter.
 GET     /callback                    controllers.CallbackController.callback(request: Request, client_name: String)
 POST    /callback                    controllers.CallbackController.callback(request: Request, client_name: String)
 
+# Our federated systems can't provide the mandatory CSRF token, but it's okay - the requests
+# are signed by a key, so the requests cannot be forged anyway.
+# Provides client name as path parameter.
++nocsrf
+GET     /callback/:client_name       controllers.CallbackController.callback(request: Request, client_name: String)
++nocsrf
+POST    /callback/:client_name       controllers.CallbackController.callback(request: Request, client_name: String)
+
 # Log into application
 GET     /loginForm                   controllers.HomeController.loginForm(request: Request, message: java.util.Optional[String])
+GET     /idcsLogin                   controllers.LoginController.idcsLogin(request: Request)
+GET     /adfsLogin                   controllers.LoginController.adfsLogin(request: Request)
 
 # Log out of application
 GET     /logout                      @org.pac4j.play.LogoutController.logout(request: Request)

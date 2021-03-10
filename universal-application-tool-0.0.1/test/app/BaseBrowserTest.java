@@ -15,6 +15,8 @@ import models.Program;
 import models.Question;
 import org.fluentlenium.core.domain.FluentWebElement;
 import org.junit.Before;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import play.Application;
 import play.api.mvc.Call;
 import play.db.ebean.EbeanConfig;
@@ -97,8 +99,8 @@ public class BaseBrowserTest extends WithBrowser {
     browser.$("#new-program").click();
 
     // Fill out name and description for program and submit.
-    browser.$("input", withName("name")).fill().with(name);
-    browser.$("input", withName("description")).fill().with("Test description");
+    fillInput("name", name);
+    fillTextArea("description", "Test description");
     browser.$("button", withText("Create")).click();
 
     // Check that program is added.

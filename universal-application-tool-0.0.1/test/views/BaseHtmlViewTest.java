@@ -16,16 +16,6 @@ public class BaseHtmlViewTest {
   }
 
   @Test
-  public void textField_rendersATestFieldWrappedInALabel() {
-    Tag result = testImpl.textField("fieldName", "label text");
-
-    assertThat(result.render())
-        .isEqualTo(
-            "<label for=\"fieldName\">label text<input type=\"text\" name=\"fieldName\">"
-                + "</label>");
-  }
-
-  @Test
   public void submitButton_rendersAFormSubmitButton() {
     Tag result = testImpl.submitButton("text contents");
 

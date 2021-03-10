@@ -11,6 +11,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.apache.pdfbox.pdmodel.interactive.form.PDListBox;
 import org.junit.Test;
+import services.Path;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
@@ -25,7 +26,7 @@ public class PdfMapAssistantTest {
             .setQuestionText(ImmutableMap.of())
             .setQuestionHelpText(ImmutableMap.of())
             .setQuestionType(QuestionType.TEXT)
-            .setPath("$.applicant.fake.path")
+            .setPath(Path.create("$.applicant.fake.path"))
             .build();
     return new Question(questionDefinition);
   }

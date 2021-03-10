@@ -16,6 +16,7 @@ import play.db.ebean.EbeanConfig;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
@@ -97,7 +98,7 @@ public class DatabaseSeedController extends Controller {
             new NameQuestionDefinition(
                 1L,
                 "name",
-                "applicant.name",
+                Path.create("applicant.name"),
                 "description",
                 ImmutableMap.of(Locale.ENGLISH, "What is your name?"),
                 ImmutableMap.of(Locale.ENGLISH, "help text")))
@@ -110,7 +111,7 @@ public class DatabaseSeedController extends Controller {
             new TextQuestionDefinition(
                 1L,
                 "color",
-                "applicant.color",
+                Path.create("applicant.color"),
                 "description",
                 ImmutableMap.of(Locale.ENGLISH, "What is your favorite color?"),
                 ImmutableMap.of(Locale.ENGLISH, "help text")))
@@ -123,7 +124,7 @@ public class DatabaseSeedController extends Controller {
             new AddressQuestionDefinition(
                 1L,
                 "address",
-                "applicant.address",
+                Path.create("applicant.address"),
                 "description",
                 ImmutableMap.of(Locale.ENGLISH, "What is your address?"),
                 ImmutableMap.of(Locale.ENGLISH, "help text")))

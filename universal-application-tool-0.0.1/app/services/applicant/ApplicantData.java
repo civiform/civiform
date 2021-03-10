@@ -14,15 +14,16 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import services.Path;
 
 public class ApplicantData {
   // Suppress errors thrown by JsonPath and instead return null if a path does not exist in a JSON
   // blob.
   private static final Configuration CONFIGURATION =
       Configuration.defaultConfiguration().addOptions(Option.SUPPRESS_EXCEPTIONS);
+  private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
 
   private DocumentContext jsonData;
-  private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
 
   public ApplicantData() {
     this(EMPTY_APPLICANT_DATA_JSON);

@@ -6,6 +6,7 @@ lazy val root = (project in file("."))
     name := """universal-application-tool""",
     version := "0.0.1",
     scalaVersion := "2.13.1",
+    maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
       guice,
       javaJdbc,
@@ -45,10 +46,13 @@ lazy val root = (project in file("."))
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
-      "org.pac4j" %% "play-pac4j" % "11.0.0-PLAY2.8-RC1",
-      "org.pac4j" % "pac4j-core" % "5.0.0-RC1",
-      // basic http authentication (for now)
-      "org.pac4j" % "pac4j-http" % "5.0.0-RC1",
+      "org.pac4j" %% "play-pac4j" % "11.0.0-PLAY2.8-RC2",
+      "org.pac4j" % "pac4j-core" % "5.0.0-RC2",
+      // basic http authentication (for the anonymous client)
+      "org.pac4j" % "pac4j-http" % "5.0.0-RC2",
+      // OIDC authentication
+      "org.pac4j" % "pac4j-oidc" % "5.0.0-RC2",
+      // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.7.1",
 
       // Autovalue
@@ -77,7 +81,10 @@ lazy val root = (project in file("."))
     ),
     // Make verbose tests
     testOptions in Test := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v")),
-    javaOptions in Test += "-Dconfig.file=conf/application.test.conf"
+    // Use test config for tests
+    javaOptions in Test += "-Dconfig.file=conf/application.test.conf",
+    // Turn off scaladoc link warnings
+    scalacOptions in (Compile, doc) += "-no-link-warnings"
   )
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 resolvers += Resolver.bintrayRepo("webjars","maven")
