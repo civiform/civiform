@@ -3,7 +3,6 @@ package views.admin.programs;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.h1;
 
 import com.google.inject.Inject;
 import play.mvc.Http.Request;
@@ -23,7 +22,7 @@ public final class ProgramNewOneView extends BaseHtmlView {
   public Content render(Request request) {
     return layout.render(
         body(
-            h1("Create a new Program"),
+            renderHeader("New program"),
             div(
                 form(
                         makeCsrfTokenInputTag(request),

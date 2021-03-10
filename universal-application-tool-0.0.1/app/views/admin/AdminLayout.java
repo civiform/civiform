@@ -26,7 +26,7 @@ public class AdminLayout extends BaseHtmlLayout {
 
   /** Renders mainDomContents within the main tag, in the context of the admin layout. */
   public Content render(DomContent... mainDomContents) {
-    String questionLink = controllers.admin.routes.QuestionController.index("table").url();
+    String questionLink = controllers.admin.routes.QuestionController.index().url();
     String programLink = controllers.admin.routes.AdminProgramController.index().url();
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     ContainerTag adminHeader =
@@ -35,12 +35,23 @@ public class AdminLayout extends BaseHtmlLayout {
             .with(headerLink("Programs", programLink))
             .with(headerLink("Logout", logoutLink, ImmutableList.of(Styles.FLOAT_RIGHT)))
             .withClasses(BaseStyles.NAV_STYLES);
+
+    ContainerTag mainContent =
+        main(mainDomContents)
+            .withClasses(
+                Styles.BG_WHITE,
+                Styles.BORDER,
+                Styles.BORDER_GRAY_200,
+                Styles.PX_2,
+                Styles.SHADOW_LG);
+
     return htmlContent(
         head(tailwindStyles()),
         body()
             .with(adminHeader)
-            .with(main(mainDomContents))
+            .with(mainContent)
             .withClasses(
+                BaseStyles.BODY_GRADIENT_STYLE,
                 Styles.BOX_BORDER,
                 Styles.H_SCREEN,
                 Styles.W_SCREEN,

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.stream.Collectors;
 
 public class StyleUtils {
+  public static String EVEN = "even";
   public static String FOCUS = "focus";
   public static String HOVER = "hover";
 
@@ -19,6 +20,14 @@ public class StyleUtils {
 
   public static String applyUtilityClass(String utility, ImmutableList<String> styles) {
     return styles.stream().map(entry -> utility + ":" + entry).collect(Collectors.joining(" "));
+  }
+
+  public static String even(String style) {
+    return applyUtilityClass(EVEN, style);
+  }
+
+  public static String even(ImmutableList<String> styles) {
+    return applyUtilityClass(EVEN, styles);
   }
 
   public static String focus(String style) {

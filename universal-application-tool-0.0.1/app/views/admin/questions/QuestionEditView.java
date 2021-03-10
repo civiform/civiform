@@ -1,7 +1,6 @@
 package views.admin.questions;
 
 import static j2html.TagCreator.body;
-import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 
@@ -17,6 +16,7 @@ import play.twirl.api.Content;
 import services.question.QuestionDefinition;
 import services.question.QuestionType;
 import views.BaseHtmlView;
+import views.Styles;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
@@ -48,36 +48,33 @@ public final class QuestionEditView extends BaseHtmlView {
     return layout.render(
         body(
             renderHeader("Edit Question"),
-            buildEditQuestionForm(
-                    question.getId(), question.getVersion(), new QuestionForm(question))
+            buildEditQuestionForm(question.getId(), new QuestionForm(question))
                 .with(makeCsrfTokenInputTag(request))));
   }
 
   public Content renderEditQuestionForm(
-      Request request, long id, long version, QuestionForm questionForm, String message) {
+      Request request, long id, QuestionForm questionForm, String message) {
     return layout.render(
         body(
             div(message),
             renderHeader("Edit Question"),
-            buildEditQuestionForm(id, version, questionForm).with(makeCsrfTokenInputTag(request))));
+            buildEditQuestionForm(id, questionForm).with(makeCsrfTokenInputTag(request))));
   }
 
   private ContainerTag buildNewQuestionForm(QuestionForm questionForm) {
     ContainerTag formTag = buildQuestionForm(questionForm);
     formTag
         .withAction(controllers.admin.routes.QuestionController.create().url())
-        .with(submitButton("Create"));
+        .with(submitButton("Create").withClass(Styles.ML_2));
 
     return formTag;
   }
 
-  private ContainerTag buildEditQuestionForm(long id, long version, QuestionForm questionForm) {
+  private ContainerTag buildEditQuestionForm(long id, QuestionForm questionForm) {
     ContainerTag formTag = buildQuestionForm(questionForm);
-    formTag.with(div("id: " + id), div("version: " + version), br());
     formTag
         .withAction(controllers.admin.routes.QuestionController.update(id).url())
-        .with(submitButton("Update"));
-
+        .with(submitButton("Update").withClass(Styles.ML_2));
     return formTag;
   }
 
