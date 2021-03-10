@@ -55,7 +55,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
     Result result = controller.newOne(request);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Create a new Program");
+    assertThat(contentAsString(result)).contains("New program");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }
 
