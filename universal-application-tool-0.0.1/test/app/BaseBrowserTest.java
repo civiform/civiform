@@ -14,6 +14,8 @@ import models.Applicant;
 import models.Program;
 import models.Question;
 import org.junit.Before;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import play.Application;
 import play.api.mvc.Call;
 import play.db.ebean.EbeanConfig;
@@ -95,8 +97,8 @@ public class BaseBrowserTest extends WithBrowser {
     browser.$("#new-program").click();
 
     // Fill out name and description for program and submit.
-    browser.$("input", withName("name")).fill().with(name);
-    browser.$("input", withName("description")).fill().with("Test description");
+    fillInput("name", name);
+    fillTextArea("description", "Test description");
     browser.$("button", withText("Create")).click();
 
     // Check that program is added.
@@ -110,10 +112,10 @@ public class BaseBrowserTest extends WithBrowser {
     browser.$("a", withText("Create a new question")).first().click();
 
     // Fill out the question form and click submit.
-    browser.$("input", withName("questionName")).fill().with(questionName);
-    browser.$("input", withName("questionDescription")).fill().with("question description");
-    browser.$("input", withName("questionPath")).fill().with(questionName.replace(" ", "."));
-    browser.$("textarea", withName("questionText")).fill().with("question text");
+    fillInput("questionName", questionName);
+    fillTextArea("questionDescription", "question description");
+    fillInput("questionPath", questionName.replace(" ", "."));
+    fillTextArea("questionText", "question text");
     browser.$("button", withText("Create")).first().click();
 
     // Check that question is added.
@@ -164,5 +166,31 @@ public class BaseBrowserTest extends WithBrowser {
       assertThat(browser.$("#blockQuestions").$("li").textContents()).doesNotContain(question);
       assertThat(browser.$("#questionBankQuestions").$("li").textContents()).contains(question);
     }
+  }
+
+  protected void fillInput(String name, String text) {
+    browser.$("input", withName(name)).fill().with(text);
+  }
+
+  protected String getInputValue(String name) {
+    return browser.$("input", withName(name)).first().value();
+  }
+
+  protected void fillTextArea(String name, String text) {
+    WebElement element =
+        browser.getDriver().findElement(By.cssSelector("textarea[name=" + name + "]"));
+    element.clear();
+    element.sendKeys(text);
+  }
+
+  protected String getTextAreaString(String name) {
+    return browser
+        .getDriver()
+        .findElement(By.cssSelector("textarea[name=" + name + "]"))
+        .toString();
+  }
+
+  protected boolean textAreaContains(String name, String value) {
+    return getTextAreaString(name).contains(String.format("value=\"%s\"", value));
   }
 }
