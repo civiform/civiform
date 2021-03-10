@@ -127,8 +127,8 @@ public abstract class BlockDefinition {
     @JsonProperty("optionalPredicate")
     public abstract Builder setOptionalPredicate(Optional<Predicate> optional);
 
-    public Builder setOptionalPredicate(Predicate hide) {
-      return this.setOptionalPredicate(Optional.of(hide));
+    public Builder setOptionalPredicate(Predicate optional) {
+      return this.setOptionalPredicate(Optional.of(optional));
     }
 
     @JsonProperty("questionDefinitions")
