@@ -13,11 +13,21 @@ public class Account extends BaseModel {
   @OneToMany(mappedBy = "account")
   private List<Applicant> applicants;
 
+  private String emailAddress;
+
   public List<Applicant> getApplicants() {
     return applicants;
   }
 
   public void setApplicants(List<Applicant> applicants) {
     this.applicants = applicants;
+  }
+
+  public void setEmailAddress(String emailAddress) {
+    this.emailAddress = emailAddress;
+  }
+
+  public String getEmailAddress() {
+    return this.emailAddress;
   }
 }

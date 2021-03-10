@@ -102,6 +102,7 @@ public abstract class BlockDefinition {
     return hasPaths(ImmutableList.copyOf(paths));
   }
 
+  @JsonIgnore
   public boolean hasSameId(BlockDefinition other) {
     return other.id() == id();
   }
