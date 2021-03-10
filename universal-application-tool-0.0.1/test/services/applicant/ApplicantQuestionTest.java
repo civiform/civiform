@@ -3,6 +3,7 @@ package services.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.testing.EqualsTester;
 import java.util.Locale;
 import models.Applicant;
 import org.junit.Before;
@@ -165,5 +166,23 @@ public class ApplicantQuestionTest {
     assertThat(addressQuestion.getCityValue().get()).isEqualTo("Seattle");
     assertThat(addressQuestion.getStateValue().get()).isEqualTo("WA");
     assertThat(addressQuestion.getZipValue().get()).isEqualTo("98101");
+  }
+
+  @Test
+  public void equals() {
+    ApplicantData dataWithAnswers = new ApplicantData();
+    dataWithAnswers.putString(Path.create("applicant.color"), "blue");
+
+    new EqualsTester()
+        .addEqualityGroup(
+            new ApplicantQuestion(textQuestionDefinition, new ApplicantData()),
+            new ApplicantQuestion(textQuestionDefinition, new ApplicantData()))
+        .addEqualityGroup(
+            new ApplicantQuestion(textQuestionDefinition, dataWithAnswers),
+            new ApplicantQuestion(textQuestionDefinition, dataWithAnswers))
+        .addEqualityGroup(
+            new ApplicantQuestion(addressQuestionDefinition, new ApplicantData()),
+            new ApplicantQuestion(addressQuestionDefinition, new ApplicantData()))
+        .testEquals();
   }
 }
