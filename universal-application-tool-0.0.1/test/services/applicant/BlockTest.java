@@ -60,6 +60,7 @@ public class BlockTest {
     assertThat(block.getQuestions()).containsExactlyElementsOf(expected);
   }
 
+  // TODO(): Add more tests for hasErrors once question validation is implemented for at least one type.
   @Test
   public void hasErrors_returnsFalseIfBlockHasNoQuestions() {
     BlockDefinition definition =
@@ -128,6 +129,8 @@ public class BlockTest {
     applicantData.putString(Path.create("applicant.name"), "Alice");
     assertThat(block.isComplete()).isTrue();
   }
+
+  // TODO(cdanzi): Add test for updating ApplicantData
 
   private static BlockDefinition setUpBlockWithQuestions() {
     Path namePath = Path.create("applicant.name");

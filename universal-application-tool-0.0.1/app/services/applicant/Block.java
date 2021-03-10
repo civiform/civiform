@@ -26,6 +26,7 @@ public abstract class Block {
 
   abstract BlockDefinition blockDefinition();
 
+  /** Note: This is a mutable type - the underlying JSON can change. */
   abstract ApplicantData applicantData();
 
   @Memoized
@@ -46,10 +47,10 @@ public abstract class Block {
         .collect(toImmutableList());
   }
 
-  @Memoized
+  /** Note - this cannot be memoized since ApplicantData may change. */
   public boolean hasErrors() {
     Optional<Boolean> hasErrors =
-        getQuestions().stream().map(ApplicantQuestion::hasErrors).reduce(Boolean::logicalAnd);
+        getQuestions().stream().map(ApplicantQuestion::hasErrors).reduce(Boolean::logicalOr);
     return hasErrors.isPresent() ? hasErrors.get() : false;
   }
 
@@ -58,7 +59,7 @@ public abstract class Block {
    * paths for all required questions in this block. Note: this cannot be memoized, since we need to
    * reflect internal changes to ApplicantData.
    */
-  public boolean isComplete() {
+  public boolean isCompleteWithoutErrors() {
     return blockDefinition().scalarPaths().stream()
         .filter(path -> !applicantData().hasPath(path))
         .findAny()
