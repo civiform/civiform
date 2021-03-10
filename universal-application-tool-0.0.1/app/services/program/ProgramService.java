@@ -36,8 +36,8 @@ public interface ProgramService {
    *
    * @param id the ID of the program to retrieve
    * @return the {@link ProgramDefinition} for the given ID if it exists, or a
-   *     ProgramNotFoundException wrapped in CompletionException is thrown when ID does not
-   *     correspond to a real Program
+   *     ProgramNotFoundException is thrown when the future completes and ID does not correspond to
+   *     a real Program
    */
   CompletionStage<ProgramDefinition> getProgramDefinitionAsync(long id);
 

@@ -49,7 +49,6 @@ public class ApplicantServiceImpl implements ApplicantService {
         .thenComposeAsync(
             (v) -> {
               Applicant applicant = applicantCompletableFuture.join().get();
-              // TODO: handle program not found exception
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
 
               try {
@@ -96,7 +95,6 @@ public class ApplicantServiceImpl implements ApplicantService {
         .thenApplyAsync(
             (v) -> {
               Applicant applicant = applicantCompletableFuture.join().get();
-              // TODO: handle program not found exception
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
 
               return new ReadOnlyApplicantProgramServiceImpl(
