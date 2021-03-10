@@ -104,7 +104,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void update_withInvalidBlock_notFound() {
+  public void update_withInvalidBlockId_notFound() {
     Program program = ProgramBuilder.newProgram().build();
     Request request =
         fakeRequest()
