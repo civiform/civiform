@@ -107,7 +107,7 @@ public class BaseBrowserTest extends WithBrowser {
     assertThat(browser.pageSource()).contains(name);
   }
 
-  /** Add a question through the admin flow. This requires the admin to be logged in. */
+  /** Adds a test question through the admin flow. This requires the admin to be logged in. */
   protected void addQuestion(String questionName) {
     addQuestion(questionName, questionName.replace(" ", "."), QuestionType.TEXT);
   }
@@ -124,7 +124,7 @@ public class BaseBrowserTest extends WithBrowser {
     addQuestion(questionName, path, QuestionType.ADDRESS);
   }
 
-  /** Add a question through the admin flow. This requires the admin to be logged in. */
+  /** Adds a question through the admin flow. This requires the admin to be logged in. */
   protected void addQuestion(String questionName, String path, QuestionType questionType) {
     // Go to admin question index and click "Create a new question".
     goTo(controllers.admin.routes.QuestionController.index("table"));
@@ -133,7 +133,7 @@ public class BaseBrowserTest extends WithBrowser {
     // Fill out the question form and click submit.
     fillInput("questionName", questionName);
     fillTextArea("questionDescription", "question description");
-    fillInput("questionPath", questionName.replace(" ", "."));
+    fillInput("questionPath", path);
     fillTextArea("questionText", "question text");
     selectAnOption("questionType", questionType.toString());
 
