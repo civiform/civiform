@@ -12,7 +12,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import play.mvc.Result;
 import repository.WithPostgresContainer;
-import services.program.ProgramDefinition;
+import support.ProgramBuilder;
 
 public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
@@ -56,22 +56,22 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
         .contains(routes.ApplicantProgramsController.edit(1L, program.id).url());
   }
 
-  // TODO(https://github.com/seattle-uat/universal-application-tool/issues/224): Should redirect to
-  // next incomplete block rather than first block.
   @Test
-  public void edit_redirectsToFirstBlock() {
+  public void edit_withNewProgram_redirectsToFirstBlock() {
     Applicant applicant = resourceCreator().insertApplicant();
-    ProgramDefinition programDefinition = resourceCreator().insertProgramWithOneBlock("My Program");
+    Program program = ProgramBuilder.newProgram().build();
 
-    Result result =
-        controller.edit(applicant.id, programDefinition.id()).toCompletableFuture().join();
+    Result result = controller.edit(applicant.id, program.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
-        .hasValue(
-            routes.ApplicantProgramBlocksController.edit(applicant.id, programDefinition.id(), 1)
-                .url());
+        .hasValue(routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, 1).url());
   }
+
+  // TODO(https://github.com/seattle-uat/universal-application-tool/issues/224): Should redirect to
+  // next incomplete block rather than first block.
+  @Ignore
+  public void edit_redirectsToFirstIncompleteBlock() {}
 
   // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Should redirect to
   // end of program submission.
