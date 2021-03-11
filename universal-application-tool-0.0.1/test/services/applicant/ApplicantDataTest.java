@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
 import java.time.Instant;
+import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
 import services.Path;
@@ -29,6 +30,12 @@ public class ApplicantDataTest {
         .addEqualityGroup(new ApplicantData(), new ApplicantData())
         .addEqualityGroup(new ApplicantData(testData), new ApplicantData(testData))
         .testEquals();
+  }
+
+  @Test
+  public void preferredLocale_defaultsToEnglish() {
+    ApplicantData data = new ApplicantData();
+    assertThat(data.preferredLocale()).isEqualTo(Locale.ENGLISH);
   }
 
   @Test

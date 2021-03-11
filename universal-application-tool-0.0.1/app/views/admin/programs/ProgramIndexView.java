@@ -1,6 +1,5 @@
 package views.admin.programs;
 
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
@@ -17,6 +16,7 @@ import views.BaseHtmlView;
 import views.StyleUtils;
 import views.Styles;
 import views.admin.AdminLayout;
+import views.components.LinkElement;
 
 public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;
@@ -39,22 +39,12 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   public Tag renderNewProgramButton() {
-    return a("Create new program")
-        .withId("new-program")
-        .withHref(controllers.admin.routes.AdminProgramController.newOne().url())
-        .withClasses(
-            Styles.INLINE_BLOCK,
-            Styles.CURSOR_POINTER,
-            Styles.PY_4,
-            Styles.PX_3,
-            Styles.MY_2,
-            Styles.ROUNDED_MD,
-            Styles.RING_BLUE_200,
-            Styles.RING_OFFSET_2,
-            Styles.BG_BLUE_400,
-            Styles.TEXT_WHITE,
-            StyleUtils.hover(Styles.BG_BLUE_500),
-            StyleUtils.focus(ImmutableList.of(Styles.OUTLINE_NONE, Styles.RING_2)));
+    String link = controllers.admin.routes.AdminProgramController.newOne().url();
+    return new LinkElement()
+        .setId("new-program")
+        .setHref(link)
+        .setText("Create new program")
+        .asButton();
   }
 
   public Tag renderProgramListItem(ProgramDefinition program) {
@@ -110,12 +100,8 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   Tag renderEditLink(String text, long programId) {
-    return a(text)
-        .withHref(controllers.admin.routes.AdminProgramController.edit(programId).url())
-        .withClasses(
-            Styles.MR_2,
-            Styles.TEXT_BLUE_400,
-            StyleUtils.hover(Styles.TEXT_BLUE_500),
-            StyleUtils.applyUtilityClass(StyleUtils.RESPONSIVE_MD, Styles.MR_4));
+    String editLink = controllers.admin.routes.AdminProgramController.edit(programId).url();
+
+    return new LinkElement().setHref(editLink).setText(text).setStyles(Styles.MR_2).asAnchorText();
   }
 }
