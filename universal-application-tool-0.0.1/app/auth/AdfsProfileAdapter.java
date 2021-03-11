@@ -24,17 +24,13 @@ public class AdfsProfileAdapter extends UatProfileAdapter {
   }
 
   @Override
-  public UatProfileData uatProfileFromOidcProfile(OidcProfile profile) {
-    return mergeUatProfile(
-        profileFactory.wrapProfileData(profileFactory.createNewAdmin()), profile);
+  protected String emailAttributeName() {
+    return "email";
   }
 
   @Override
-  public UatProfileData mergeUatProfile(UatProfile uatProfile, OidcProfile oidcProfile) {
-    // The key in AD is just "email".
-    String emailAddress = oidcProfile.getAttribute("email", String.class);
-    uatProfile.setEmailAddress(emailAddress).join();
-    uatProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
-    return uatProfile.getProfileData();
+  public UatProfileData uatProfileFromOidcProfile(OidcProfile profile) {
+    return mergeUatProfile(
+        profileFactory.wrapProfileData(profileFactory.createNewAdmin()), profile);
   }
 }

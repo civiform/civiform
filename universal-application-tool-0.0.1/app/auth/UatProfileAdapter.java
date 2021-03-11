@@ -8,6 +8,7 @@ import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.profile.UserProfile;
+import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
@@ -39,11 +40,18 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
     this.applicantRepositoryProvider = applicantRepositoryProvider;
   }
 
+  protected abstract String emailAttributeName();
+
   /** Create a totally new UAT profile from the provided OidcProfile. */
-  public abstract UatProfileData uatProfileFromOidcProfile(OidcProfile profile);
+  public UatProfileData mergeUatProfile(UatProfile uatProfile, OidcProfile oidcProfile) {
+    String emailAddress = oidcProfile.getAttribute(emailAttributeName(), String.class);
+    uatProfile.setEmailAddress(emailAddress).join();
+    uatProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
+    return uatProfile.getProfileData();
+  }
 
   /** Merge the two provided profiles into a new UatProfileData. */
-  public abstract UatProfileData mergeUatProfile(UatProfile uatProfile, OidcProfile oidcProfile);
+  public abstract UatProfileData uatProfileFromOidcProfile(OidcProfile oidcProfile);
 
   @Override
   public Optional<UserProfile> create(
@@ -68,7 +76,7 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
     Optional<Applicant> existingApplicant =
         applicantRepositoryProvider
             .get()
-            .lookupApplicant(profile.getEmail())
+            .lookupApplicant(profile.getAttribute(emailAttributeName(), String.class))
             .toCompletableFuture()
             .join();
 
