@@ -10,4 +10,8 @@ if [ -z "$USE_LOCAL_UAT" ]; then
 	docker tag public.ecr.aws/t1q6b4h2/uat-dev:latest uat
 fi
 
+if [ -f ".secrets" ]; then
+	. .secrets
+fi
+
 docker-compose up

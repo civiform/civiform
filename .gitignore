@@ -7,5 +7,6 @@ RUNNING_PID
 *.swp
 .bsp/
 .DS_Store
+.secrets
 node_modules
 bundle.js

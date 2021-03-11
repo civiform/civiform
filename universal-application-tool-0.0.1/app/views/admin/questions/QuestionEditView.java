@@ -18,6 +18,8 @@ import services.question.QuestionDefinition;
 import services.question.QuestionType;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
+import views.components.FieldWithLabel;
+import views.components.SelectWithLabel;
 
 public final class QuestionEditView extends BaseHtmlView {
   private final AdminLayout layout;
@@ -82,26 +84,47 @@ public final class QuestionEditView extends BaseHtmlView {
   private ContainerTag buildQuestionForm(QuestionForm questionForm) {
     ContainerTag formTag = form().withMethod("POST");
     formTag
-        .with(textInputWithLabel("Name: ", "questionName", questionForm.getQuestionName()))
         .with(
-            textInputWithLabel(
-                "Description: ", "questionDescription", questionForm.getQuestionDescription()))
-        .with(textInputWithLabel("Path: ", "questionPath", questionForm.getQuestionPath().path()))
-        .with(textAreaWithLabel("Question Text: ", "questionText", questionForm.getQuestionText()))
-        .with(
-            textAreaWithLabel(
-                "Question Help Text: ", "questionHelpText", questionForm.getQuestionHelpText()))
+            FieldWithLabel.createInput("questionName")
+                .setLabelText("Name")
+                .setPlaceholderText("The name displayed in the question builder")
+                .setValue(questionForm.getQuestionName())
+                .getContainer(),
+            FieldWithLabel.createTextArea("questionDescription")
+                .setLabelText("Description")
+                .setPlaceholderText("The description displayed in the question builder")
+                .setValue(questionForm.getQuestionDescription())
+                .getContainer(),
+            FieldWithLabel.createInput("questionPath")
+                .setLabelText("Path")
+                .setPlaceholderText("The path used to store question data")
+                .setValue(questionForm.getQuestionPath().path())
+                .getContainer(),
+            FieldWithLabel.createTextArea("questionText")
+                .setLabelText("Question text")
+                .setPlaceholderText("The question text displayed to the applicant")
+                .setValue(questionForm.getQuestionText())
+                .getContainer(),
+            FieldWithLabel.createTextArea("questionHelpText")
+                .setLabelText("Question help text")
+                .setPlaceholderText("The question help text displayed to the applicant")
+                .setValue(questionForm.getQuestionText())
+                .getContainer())
         .with(formQuestionTypeSelect(QuestionType.valueOf(questionForm.getQuestionType())));
 
     return formTag;
   }
 
-  private ImmutableList<DomContent> formQuestionTypeSelect(QuestionType selectedType) {
+  private DomContent formQuestionTypeSelect(QuestionType selectedType) {
     ImmutableList<SimpleEntry<String, String>> options =
         Arrays.stream(QuestionType.values())
             .map(item -> new SimpleEntry<String, String>(item.toString(), item.name()))
             .collect(ImmutableList.toImmutableList());
 
-    return formSelect("Question type: ", "questionType", options, selectedType.name());
+    return new SelectWithLabel("questionType")
+        .setLabelText("Question type")
+        .setOptions(options)
+        .setValue(selectedType.name())
+        .getContainer();
   }
 }
