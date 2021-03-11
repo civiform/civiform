@@ -26,6 +26,7 @@ public abstract class ProgramQuestionDefinition {
     return questionDefinition().get();
   }
 
+  @JsonIgnore
   public boolean hasQuestionDefinition() {
     return questionDefinition().isPresent();
   }

@@ -9,6 +9,7 @@ import static j2html.TagCreator.head;
 import javax.inject.Inject;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import views.components.FieldWithLabel;
 
 public final class J2HtmlDemoView extends BaseHtmlView {
 
@@ -33,7 +34,9 @@ public final class J2HtmlDemoView extends BaseHtmlView {
             h1(greeting),
             form(
                     makeCsrfTokenInputTag(request),
-                    textField("firstName", "What is your first name?"),
+                    FieldWithLabel.createInput("firstName")
+                        .setLabelText("What is your first name?")
+                        .getContainer(),
                     submitButton("Enter"))
                 .withAction("/demo")
                 .withMethod("post")
