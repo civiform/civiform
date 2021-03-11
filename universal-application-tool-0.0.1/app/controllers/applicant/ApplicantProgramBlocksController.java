@@ -6,6 +6,7 @@ import com.google.errorprone.annotations.DoNotCall;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
@@ -17,15 +18,18 @@ import views.applicant.ApplicantProgramBlockEditView;
 public final class ApplicantProgramBlocksController extends Controller {
 
   private final ApplicantService applicantService;
+  private final MessagesApi messagesApi;
   private final HttpExecutionContext httpExecutionContext;
   private final ApplicantProgramBlockEditView editView;
 
   @Inject
   public ApplicantProgramBlocksController(
       ApplicantService applicantService,
+      MessagesApi messagesApi,
       HttpExecutionContext httpExecutionContext,
       ApplicantProgramBlockEditView editView) {
     this.applicantService = checkNotNull(applicantService);
+    this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.editView = checkNotNull(editView);
   }
@@ -39,7 +43,13 @@ public final class ApplicantProgramBlocksController extends Controller {
               Optional<Block> block = roApplicantProgramService.getBlock(blockId);
 
               if (block.isPresent()) {
-                return ok(editView.render(request, applicantId, programId, block.get()));
+                return ok(
+                    editView.render(
+                        request,
+                        messagesApi.preferred(request),
+                        applicantId,
+                        programId,
+                        block.get()));
               } else {
                 return notFound();
               }

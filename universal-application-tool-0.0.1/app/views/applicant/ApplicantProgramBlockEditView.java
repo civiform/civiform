@@ -9,6 +9,7 @@ import static j2html.TagCreator.p;
 import com.google.inject.Inject;
 import controllers.applicant.routes;
 import j2html.tags.Tag;
+import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
@@ -29,7 +30,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     this.applicantQuestionRendererFactory = checkNotNull(applicantQuestionRendererFactory);
   }
 
-  public Content render(Request request, long applicantId, long programId, Block block) {
+  public Content render(
+      Request request, Messages messages, long applicantId, long programId, Block block) {
     String formAction =
         routes.ApplicantProgramBlocksController.update(applicantId, programId, block.getId()).url();
 
@@ -41,7 +43,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             .withMethod(HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(request))
             .with(each(block.getQuestions(), this::renderQuestion))
-            .with(submitButton("Save and continue")));
+            .with(submitButton(messages.at("nextBlock"))));
   }
 
   private Tag renderQuestion(ApplicantQuestion question) {

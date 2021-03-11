@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
@@ -44,8 +43,8 @@ public class ApplicantProgramsController extends Controller {
         .listProgramDefinitionsAsync()
         .thenApplyAsync(
             programs -> {
-              Messages messages = messagesApi.preferred(request);
-              return ok(programIndexView.render(messages, applicantId, programs));
+              return ok(
+                  programIndexView.render(messagesApi.preferred(request), applicantId, programs));
             },
             httpContext.current());
   }
