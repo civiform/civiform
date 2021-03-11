@@ -92,7 +92,7 @@ public class ApplicantQuestion {
     }
 
     @Override
-    private ImmutableSet<ValidationErrorMessage> getErrors() {
+    public ImmutableSet<ValidationErrorMessage> getErrors() {
       return ImmutableSet.<ValidationErrorMessage>builder()
           .addAll(getAddressErrors())
           .addAll(getStreetErrors())

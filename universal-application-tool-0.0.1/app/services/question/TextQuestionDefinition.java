@@ -8,6 +8,9 @@ import services.Path;
 
 public class TextQuestionDefinition extends QuestionDefinition {
 
+  private OptionalInt minLength = OptionalInt.empty();
+  private OptionalInt maxLength = OptionalInt.empty();
+
   public TextQuestionDefinition(
       OptionalLong id,
       long version,
@@ -48,10 +51,18 @@ public class TextQuestionDefinition extends QuestionDefinition {
   }
 
   public OptionalInt getMinLength() {
-    return OptionalInt.of(0);
+    return minLength;
+  }
+
+  public void setMinLength(int minLength) {
+    this.minLength = OptionalInt.of(minLength);
   }
 
   public OptionalInt getMaxLength() {
-    return OptionalInt.of(20);
+    return maxLength;
+  }
+
+  public void setMaxLength(int maxLength) {
+    this.maxLength = OptionalInt.of(maxLength);
   }
 }
