@@ -4,15 +4,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.concurrent.ExecutionException;
+import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.oidc.profile.OidcProfile;
 import repository.WithPostgresContainer;
 
 public class ProfileMergeTest extends WithPostgresContainer {
+
+  private IdcsProfileAdapter profileAdapter;
+  private ProfileFactory profileFactory;
+
+  @Before
+  public void setupFactory() {
+    profileFactory = instanceOf(ProfileFactory.class);
+    profileAdapter = new IdcsProfileAdapter(null, null, profileFactory);
+  }
+
+
   @Test
   public void testProfileCreation() throws ExecutionException, InterruptedException {
-    ProfileFactory profileFactory = app.injector().instanceOf(ProfileFactory.class);
-    IdcsProfileAdapter profileAdapter = new IdcsProfileAdapter(null, null, profileFactory);
     OidcProfile oidcProfile = new OidcProfile();
     oidcProfile.addAttribute("user_emailid", "foo@example.com");
 
@@ -25,8 +35,6 @@ public class ProfileMergeTest extends WithPostgresContainer {
 
   @Test
   public void testSuccessfulProfileMerge() {
-    ProfileFactory profileFactory = app.injector().instanceOf(ProfileFactory.class);
-    IdcsProfileAdapter profileAdapter = new IdcsProfileAdapter(null, null, profileFactory);
     OidcProfile oidcProfile = new OidcProfile();
     oidcProfile.addAttribute("user_emailid", "foo@example.com");
 
@@ -41,8 +49,6 @@ public class ProfileMergeTest extends WithPostgresContainer {
 
   @Test
   public void testFailedProfileMerge() {
-    ProfileFactory profileFactory = app.injector().instanceOf(ProfileFactory.class);
-    IdcsProfileAdapter profileAdapter = new IdcsProfileAdapter(null, null, profileFactory);
     OidcProfile oidcProfile = new OidcProfile();
     oidcProfile.addAttribute("user_emailid", "foo@example.com");
     OidcProfile conflictingProfile = new OidcProfile();
