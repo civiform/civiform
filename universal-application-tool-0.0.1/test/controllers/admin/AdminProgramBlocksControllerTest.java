@@ -15,8 +15,8 @@ import org.junit.Test;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.WithPostgresContainer;
-import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import support.ProgramBuilder;
 
 public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
@@ -35,10 +35,8 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void index_withProgramWithBlocks_redirectsToEdit() {
-    BlockDefinition block =
-        BlockDefinition.builder().setId(1L).setName("block").setDescription("desc").build();
-    Program program = resourceCreator().insertProgram("program", block);
+  public void index_withProgram_redirectsToEdit() {
+    Program program = ProgramBuilder.newProgram().build();
 
     Result result = controller.index(program.id);
 
@@ -56,22 +54,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
   @Test
   public void create_withProgram_addsBlock() {
-    Program program = resourceCreator().insertProgram("program");
-    Result result = controller.create(program.id);
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.edit(program.id, 2L).url());
-
-    program.refresh();
-    assertThat(program.getProgramDefinition().blockDefinitions()).hasSize(2);
-  }
-
-  @Test
-  public void create_withProgramWithBlock_addsBlock() {
-    BlockDefinition block =
-        BlockDefinition.builder().setId(1L).setName("block").setDescription("desc").build();
-    Program program = resourceCreator().insertProgram("program", block);
+    Program program = ProgramBuilder.newProgram().build();
     Result result = controller.create(program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -92,28 +75,24 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
   @Test
   public void edit_withInvalidBlock_notFound() {
+    Program program = ProgramBuilder.newProgram().build();
     Request request = fakeRequest().build();
-    BlockDefinition block =
-        BlockDefinition.builder().setId(1L).setName("block").setDescription("desc").build();
-    Program program = resourceCreator().insertProgram("program", block);
     Result result = controller.edit(request, program.id, 2L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
-  public void edit_withProgramWithBlock_OK() {
+  public void edit_withProgram_OK() {
+    Program program = ProgramBuilder.newProgram().build();
     Request request = addCSRFToken(fakeRequest()).build();
-    BlockDefinition block =
-        BlockDefinition.builder().setId(1L).setName("block").setDescription("desc").build();
-    Program program = resourceCreator().insertProgram("program", block);
     Result result = controller.edit(request, program.id, 1L);
 
     assertThat(result.status()).isEqualTo(OK);
   }
 
   @Test
-  public void update_noProgram_notFound() {
+  public void update_withInvalidProgram_notFound() {
     Request request =
         fakeRequest()
             .bodyForm(ImmutableMap.of("name", "name", "description", "description"))
@@ -125,8 +104,21 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
   }
 
   @Test
+  public void update_withInvalidBlockId_notFound() {
+    Program program = ProgramBuilder.newProgram().build();
+    Request request =
+        fakeRequest()
+            .bodyForm(ImmutableMap.of("name", "name", "description", "description"))
+            .build();
+
+    Result result = controller.update(request, program.id, 2L);
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
   public void update_overwritesExistingBlock() {
-    ProgramDefinition program = resourceCreator().insertProgramWithOneBlock("program");
+    ProgramDefinition program = ProgramBuilder.newProgram().buildDefinition();
     Request request =
         fakeRequest()
             .bodyForm(ImmutableMap.of("name", "updated name", "description", "udpated description"))
@@ -158,19 +150,18 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void destroy_withProgram_redirects() {
-    ProgramDefinition program = resourceCreator().insertProgramWithOneBlock("program");
-    controller.create(program.id());
-    Result result = controller.destroy(program.id(), 1L);
+  public void destroy_programWithTwoBlocks_redirects() {
+    Program program = ProgramBuilder.newProgram().withBlock().withBlock().build();
+    Result result = controller.destroy(program.id, 1L);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.index(program.id()).url());
+        .hasValue(routes.AdminProgramBlocksController.index(program.id).url());
   }
 
   @Test
   public void destroy_lastBlock_notFound() {
-    Program program = resourceCreator().insertProgram("program");
+    Program program = ProgramBuilder.newProgram().build();
     Result result = controller.destroy(program.id, 1L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
