@@ -34,7 +34,8 @@ public final class J2HtmlDemoView extends BaseHtmlView {
             h1(greeting),
             form(
                     makeCsrfTokenInputTag(request),
-                    FieldWithLabel.createInput("firstName")
+                    FieldWithLabel.input()
+                        .setId("firstName")
                         .setLabelText("What is your first name?")
                         .getContainer(),
                     submitButton("Enter"))

@@ -1,7 +1,5 @@
 package support;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import models.Applicant;
@@ -16,16 +14,10 @@ import services.question.TextQuestionDefinition;
 
 public class ResourceCreator {
 
-  private final Injector injector;
   private final QuestionService questionService;
 
   public ResourceCreator(Injector injector) {
-    this.injector = checkNotNull(injector);
     this.questionService = injector.instanceOf(QuestionService.class);
-  }
-
-  public <T> T instanceOf(Class<T> clazz) {
-    return injector.instanceOf(clazz);
   }
 
   public Question insertQuestion(String pathString) {

@@ -105,4 +105,9 @@ public final class Block {
   public int hashCode() {
     return Objects.hash(id, blockDefinition, applicantData);
   }
+
+  @Override
+  public String toString() {
+    return "Block [id: " + this.id + "]";
+  }
 }

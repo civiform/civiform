@@ -26,7 +26,7 @@ POST    /admin/programs/:programId/blocks/:blockId/questions               contr
 POST    /admin/programs/:programId/blocks/:blockId/questions/delete        controllers.admin.AdminProgramBlockQuestionsController.destroy(request: Request, programId: Long, blockId: Long)
 
 # A controller for a page for an admin to view, edit, and create questions
-GET     /admin/questions             controllers.admin.QuestionController.index(request: Request, renderAs: String ?= "table")
+GET     /admin/questions             controllers.admin.QuestionController.index(request: Request)
 GET     /admin/questions/new         controllers.admin.QuestionController.newOne(request: Request)
 GET     /admin/questions/:id/edit    controllers.admin.QuestionController.edit(request: Request, id: Long)
 POST    /admin/questions/:id         controllers.admin.QuestionController.update(request: Request, id: Long)
@@ -36,7 +36,7 @@ GET     /demo/new                   controllers.J2HtmlDemoController.newOne(requ
 POST    /demo                       controllers.J2HtmlDemoController.create(request: Request)
 
 # Methods for applicants
-GET     /applicants/:applicantId/programs                   controllers.applicant.ApplicantProgramsController.index(applicantId: Long)
+GET     /applicants/:applicantId/programs                   controllers.applicant.ApplicantProgramsController.index(request: Request, applicantId: Long)
 GET     /applicants/:applicantId/programs/:programId/edit   controllers.applicant.ApplicantProgramsController.edit(applicantId: Long, programId: Long)
 
 # Map static resources from the /public folder to the /assets URL path

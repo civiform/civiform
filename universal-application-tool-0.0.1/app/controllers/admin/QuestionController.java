@@ -81,8 +81,7 @@ public class QuestionController extends Controller {
               }
               String successMessage =
                   String.format("question %s created", questionForm.getQuestionPath().path());
-              return withMessage(
-                  redirect(routes.QuestionController.index("table")), successMessage);
+              return withMessage(redirect(routes.QuestionController.index()), successMessage);
             },
             httpExecutionContext.current());
   }
@@ -109,23 +108,13 @@ public class QuestionController extends Controller {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public CompletionStage<Result> index(Request request, String renderAs) {
+  public CompletionStage<Result> index(Request request) {
     Optional<String> maybeFlash = request.flash().get("message");
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
-              switch (renderAs) {
-                case "list":
-                  return ok(listView.renderAsList(readOnlyService.getAllQuestions(), maybeFlash));
-                case "table":
-                  return ok(listView.renderAsTable(readOnlyService.getAllQuestions(), maybeFlash));
-                default:
-                  return badRequest(
-                      String.format(
-                          "unrecognized renderAs: '%s', accepted values include 'list' and 'table'",
-                          renderAs));
-              }
+              return ok(listView.render(readOnlyService.getAllQuestions(), maybeFlash));
             },
             httpExecutionContext.current());
   }
@@ -143,12 +132,12 @@ public class QuestionController extends Controller {
           messageJoiner.add(e.message());
         }
         String errorMessage = messageJoiner.toString();
-        return ok(editView.renderEditQuestionForm(request, id, 1L, questionForm, errorMessage));
+        return ok(editView.renderEditQuestionForm(request, id, questionForm, errorMessage));
       }
     } catch (UnsupportedQuestionTypeException e) {
       // These are valid question types, but are not fully supported yet.
       String errorMessage = e.toString();
-      return ok(editView.renderEditQuestionForm(request, id, 1L, questionForm, errorMessage));
+      return ok(editView.renderEditQuestionForm(request, id, questionForm, errorMessage));
     } catch (InvalidQuestionTypeException e) {
       // These are unrecognized invalid question types.
       return badRequest(e.toString());
@@ -158,7 +147,7 @@ public class QuestionController extends Controller {
     }
     String successMessage =
         String.format("question %s updated", questionForm.getQuestionPath().path());
-    return withMessage(redirect(routes.QuestionController.index("table")), successMessage);
+    return withMessage(redirect(routes.QuestionController.index()), successMessage);
   }
 
   private Result withMessage(Result result, String message) {

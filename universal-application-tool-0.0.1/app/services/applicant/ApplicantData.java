@@ -22,7 +22,9 @@ public class ApplicantData {
   private static final Configuration CONFIGURATION =
       Configuration.defaultConfiguration().addOptions(Option.SUPPRESS_EXCEPTIONS);
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
+  private static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
 
+  private Locale preferredLocale;
   private DocumentContext jsonData;
 
   public ApplicantData() {
@@ -30,11 +32,20 @@ public class ApplicantData {
   }
 
   public ApplicantData(String jsonData) {
+    this(DEFAULT_LOCALE, jsonData);
+  }
+
+  public ApplicantData(Locale preferredLocale, String jsonData) {
+    this.preferredLocale = preferredLocale;
     this.jsonData = JsonPath.using(CONFIGURATION).parse(checkNotNull(jsonData));
   }
 
   public Locale preferredLocale() {
-    return Locale.ENGLISH;
+    return this.preferredLocale;
+  }
+
+  public void setPreferredLocale(Locale locale) {
+    this.preferredLocale = locale;
   }
 
   public boolean hasPath(Path path) {
