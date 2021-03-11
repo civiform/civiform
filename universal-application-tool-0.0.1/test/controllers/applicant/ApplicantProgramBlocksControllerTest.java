@@ -2,30 +2,22 @@ package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
-import static play.inject.Bindings.bind;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
-import static play.test.Helpers.stubMessagesApi;
-
-import java.util.Collections;
-import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
+import controllers.LocalizationHelper;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
-import play.api.i18n.DefaultLangs;
 import play.i18n.Lang;
-import play.i18n.Langs;
 import play.i18n.MessagesApi;
-import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.WithPostgresContainer;
 import services.program.ProgramDefinition;
-import support.TestConstants;
 
 public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer {
 
@@ -68,21 +60,10 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
 
   @Test
   public void edit_withMessages_returnsCorrectButtonText() {
-    // Stub the MessagesApi with fake translations.
-    Langs langs = new Langs(new DefaultLangs());
-    Map<String, String> translations = Collections.singletonMap("button.nextBlock", "Different");
-    Map<String, Map<String, String>> messageMap =
-        ImmutableMap.of(Lang.defaultLang().code(), translations);
-    MessagesApi messagesApi = stubMessagesApi(messageMap, langs);
-
-    // Override the injected MessagesApi in the controller.
+    MessagesApi messagesApi =
+        LocalizationHelper.fakeMessagesApi(ImmutableMap.of("button.nextBlock", "Different"));
     subject =
-        new GuiceApplicationBuilder()
-            .configure(TestConstants.TEST_DATABASE_CONFIG)
-            .overrides(bind(MessagesApi.class).toInstance(messagesApi))
-            .build()
-            .injector()
-            .instanceOf(ApplicantProgramBlocksController.class);
+        LocalizationHelper.overrideMessagesApi(messagesApi, ApplicantProgramBlocksController.class);
 
     Http.Request request =
         addCSRFToken(
