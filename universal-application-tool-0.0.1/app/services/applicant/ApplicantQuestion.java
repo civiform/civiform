@@ -43,14 +43,14 @@ public class ApplicantQuestion {
   }
 
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    return questionErrors().validateQuestionPredicates();
+    return errorsPresenter().getQuestionErrors();
   }
 
   public boolean hasErrors() {
     if (!getQuestionErrors().isEmpty()) {
       return true;
     }
-    return questionErrors().hasTypeSpecificErrors();
+    return errorsPresenter().hasTypeSpecificErrors();
   }
 
   public AddressQuestion getAddressQuestion() {
@@ -65,7 +65,7 @@ public class ApplicantQuestion {
     return new NameQuestion();
   }
 
-  private PresentsErrors questionErrors() {
+  private PresentsErrors errorsPresenter() {
     switch (getType()) {
       case ADDRESS:
         return getAddressQuestion();
@@ -79,8 +79,8 @@ public class ApplicantQuestion {
   }
 
   private interface PresentsErrors {
-    /** Validates if values meet conditions defined by admins. */
-    ImmutableSet<ValidationErrorMessage> validateQuestionPredicates();
+    /** Returns errors if values do not meet conditions defined by admins. */
+    ImmutableSet<ValidationErrorMessage> getQuestionErrors();
     /**
      * Returns true if there is any type specific errors. The validation does not consider
      * admin-defined conditions.
@@ -100,7 +100,7 @@ public class ApplicantQuestion {
     }
 
     @Override
-    public ImmutableSet<ValidationErrorMessage> validateQuestionPredicates() {
+    public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
       // TODO: Implement admin-defined validation.
       return ImmutableSet.of();
     }
@@ -259,7 +259,7 @@ public class ApplicantQuestion {
     }
 
     @Override
-    public ImmutableSet<ValidationErrorMessage> validateQuestionPredicates() {
+    public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
       TextQuestionDefinition definition = getQuestionDefinition();
       int textLength = getTextValue().map(s -> s.length()).orElse(0);
       ImmutableSet.Builder<ValidationErrorMessage> errors =
@@ -338,7 +338,7 @@ public class ApplicantQuestion {
     }
 
     @Override
-    public ImmutableSet<ValidationErrorMessage> validateQuestionPredicates() {
+    public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
       // TODO: Implement admin-defined validation.
       return ImmutableSet.of();
     }
