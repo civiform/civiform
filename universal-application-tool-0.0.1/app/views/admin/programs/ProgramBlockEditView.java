@@ -103,11 +103,13 @@ public class ProgramBlockEditView extends BaseHtmlView {
             div(
                 form(
                         csrfTag,
-                        FieldWithLabel.createInput("name")
+                        FieldWithLabel.input()
+                            .setId("name")
                             .setLabelText("Block name")
                             .setValue(block.name())
                             .getContainer(),
-                        FieldWithLabel.createTextArea("description")
+                        FieldWithLabel.textArea()
+                            .setId("description")
                             .setLabelText("Block description")
                             .setValue(block.description())
                             .getContainer(),

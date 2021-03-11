@@ -26,11 +26,13 @@ public final class ProgramNewOneView extends BaseHtmlView {
             div(
                 form(
                         makeCsrfTokenInputTag(request),
-                        FieldWithLabel.createInput("name")
+                        FieldWithLabel.input()
+                            .setId("name")
                             .setLabelText("Program name")
                             .setPlaceholderText("The name of the program")
                             .getContainer(),
-                        FieldWithLabel.createTextArea("description")
+                        FieldWithLabel.textArea()
+                            .setId("description")
                             .setLabelText("Program description")
                             .setPlaceholderText("The description of the program")
                             .getContainer(),

@@ -82,27 +82,32 @@ public final class QuestionEditView extends BaseHtmlView {
     ContainerTag formTag = form().withMethod("POST");
     formTag
         .with(
-            FieldWithLabel.createInput("questionName")
+            FieldWithLabel.input()
+                .setId("questionName")
                 .setLabelText("Name")
                 .setPlaceholderText("The name displayed in the question builder")
                 .setValue(questionForm.getQuestionName())
                 .getContainer(),
-            FieldWithLabel.createTextArea("questionDescription")
+            FieldWithLabel.textArea()
+                .setId("questionDescription")
                 .setLabelText("Description")
                 .setPlaceholderText("The description displayed in the question builder")
                 .setValue(questionForm.getQuestionDescription())
                 .getContainer(),
-            FieldWithLabel.createInput("questionPath")
+            FieldWithLabel.input()
+                .setId("questionPath")
                 .setLabelText("Path")
                 .setPlaceholderText("The path used to store question data")
                 .setValue(questionForm.getQuestionPath().path())
                 .getContainer(),
-            FieldWithLabel.createTextArea("questionText")
+            FieldWithLabel.textArea()
+                .setId("questionText")
                 .setLabelText("Question text")
                 .setPlaceholderText("The question text displayed to the applicant")
                 .setValue(questionForm.getQuestionText())
                 .getContainer(),
-            FieldWithLabel.createTextArea("questionHelpText")
+            FieldWithLabel.textArea()
+                .setId("questionHelpText")
                 .setLabelText("Question help text")
                 .setPlaceholderText("The question help text displayed to the applicant")
                 .setValue(questionForm.getQuestionText())
@@ -118,7 +123,8 @@ public final class QuestionEditView extends BaseHtmlView {
             .map(item -> new SimpleEntry<String, String>(item.toString(), item.name()))
             .collect(ImmutableList.toImmutableList());
 
-    return new SelectWithLabel("questionType")
+    return new SelectWithLabel()
+        .setId("questionType")
         .setLabelText("Question type")
         .setOptions(options)
         .setValue(selectedType.name())

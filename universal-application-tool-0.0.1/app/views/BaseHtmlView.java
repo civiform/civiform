@@ -1,6 +1,5 @@
 package views;
 
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
@@ -9,7 +8,6 @@ import static j2html.TagCreator.label;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
@@ -28,32 +26,6 @@ public abstract class BaseHtmlView {
 
   public Tag renderHeader(String headerText) {
     return h1(headerText).withClasses(Styles.M_2);
-  }
-
-  public Tag renderLink(String text, String link, String... styles) {
-    return a().withText(text)
-        .withHref(link)
-        .withClasses(
-            BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT, StyleUtils.joinStyles(styles));
-  }
-
-  public Tag renderLinkButton(String text, String link, String... styles) {
-    return a(text)
-        .withHref(link)
-        .withClasses(
-            Styles.FLOAT_LEFT,
-            Styles.INLINE_BLOCK,
-            Styles.CURSOR_POINTER,
-            Styles.P_2,
-            Styles.M_2,
-            Styles.ROUNDED_MD,
-            Styles.RING_BLUE_200,
-            Styles.RING_OFFSET_2,
-            Styles.BG_BLUE_400,
-            Styles.TEXT_WHITE,
-            StyleUtils.hover(Styles.BG_BLUE_500),
-            StyleUtils.focus(ImmutableList.of(Styles.OUTLINE_NONE, Styles.RING_2)),
-            StyleUtils.joinStyles(styles));
   }
 
   protected ContainerTag fieldErrors(ImmutableSet<ValidationErrorMessage> errors) {

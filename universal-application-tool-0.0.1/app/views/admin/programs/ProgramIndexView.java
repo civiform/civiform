@@ -16,6 +16,7 @@ import views.BaseHtmlView;
 import views.StyleUtils;
 import views.Styles;
 import views.admin.AdminLayout;
+import views.components.LinkElement;
 
 public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;
@@ -39,7 +40,11 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   public Tag renderNewProgramButton() {
     String link = controllers.admin.routes.AdminProgramController.newOne().url();
-    return renderLinkButton("Create new program", link).withId("new-program");
+    return new LinkElement()
+        .setId("new-program")
+        .setHref(link)
+        .setText("Create new program")
+        .asButton();
   }
 
   public Tag renderProgramListItem(ProgramDefinition program) {
@@ -96,10 +101,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   Tag renderEditLink(String text, long programId) {
     String editLink = controllers.admin.routes.AdminProgramController.edit(programId).url();
-    return renderLink(
-        text,
-        editLink,
-        String.join(
-            " ", Styles.MR_2, StyleUtils.applyUtilityClass(StyleUtils.RESPONSIVE_MD, Styles.MR_4)));
+
+    return new LinkElement().setHref(editLink).setText(text).setStyles(Styles.MR_2).asAnchorText();
   }
 }

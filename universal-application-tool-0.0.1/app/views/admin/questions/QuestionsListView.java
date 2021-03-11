@@ -22,6 +22,7 @@ import views.BaseStyles;
 import views.StyleUtils;
 import views.Styles;
 import views.admin.AdminLayout;
+import views.components.LinkElement;
 
 public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
@@ -42,7 +43,12 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private Tag renderAddQuestionLink() {
-    return renderLinkButton("Create new question", controllers.admin.routes.QuestionController.newOne().url()).withId("createQuestion");
+    String link = controllers.admin.routes.QuestionController.newOne().url();
+    return new LinkElement()
+        .setId("createQuestion")
+        .setHref(link)
+        .setText("Create new question")
+        .asButton();
   }
 
   private Tag renderSummary(ImmutableList<QuestionDefinition> questions) {
@@ -112,10 +118,10 @@ public final class QuestionsListView extends BaseHtmlView {
     String link = controllers.admin.routes.QuestionController.edit(definition.getId()).url();
     return td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT)
         .with(
-            renderLink(
-                linkText,
-                link,
-                Styles.MR_2,
-                StyleUtils.applyUtilityClass(StyleUtils.RESPONSIVE_MD, Styles.MR_4)));
+            new LinkElement()
+                .setHref(link)
+                .setText(linkText)
+                .setStyles(Styles.MR_2)
+                .asAnchorText());
   }
 }

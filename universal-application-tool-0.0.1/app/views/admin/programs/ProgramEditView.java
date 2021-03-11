@@ -11,6 +11,7 @@ import views.BaseHtmlView;
 import views.Styles;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
+import views.components.LinkElement;
 
 public class ProgramEditView extends BaseHtmlView {
   private final AdminLayout layout;
@@ -26,20 +27,25 @@ public class ProgramEditView extends BaseHtmlView {
     ContainerTag formTag =
         form(
                 makeCsrfTokenInputTag(request),
-                FieldWithLabel.createInput("name")
+                FieldWithLabel.input()
+                    .setId("name")
                     .setLabelText("Program name")
                     .setPlaceholderText("The name of the program")
                     .setValue(program.name())
                     .getContainer(),
-                FieldWithLabel.createTextArea("description")
+                FieldWithLabel.textArea()
+                    .setId("description")
                     .setLabelText("Program description")
                     .setPlaceholderText("The description of the program")
                     .setValue(program.description())
                     .getContainer(),
                 submitButton("Save"),
-                renderLink(
-                        "Manage Questions →", manageQuestionLink, Styles.MX_4, Styles.FLOAT_RIGHT)
-                    .withId("manageQuestions"))
+                new LinkElement()
+                    .setId("manageQuestions")
+                    .setHref(manageQuestionLink)
+                    .setText("Manage Questions →")
+                    .setStyles(Styles.MX_4, Styles.FLOAT_RIGHT)
+                    .asAnchorText())
             .withMethod("post")
             .withAction(controllers.admin.routes.AdminProgramController.update(program.id()).url());
     return layout.render(renderHeader(String.format("Edit program: %s", program.name())), formTag);
