@@ -43,20 +43,14 @@ public class ApplicantQuestion {
   }
 
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    switch (getType()) {
-      case ADDRESS:
-        return getAddressQuestion().getErrors();
-      case NAME:
-        return getNameQuestion().getErrors();
-      case TEXT:
-        return getTextQuestion().getErrors();
-      default:
-        throw new RuntimeException("Unrecognized question type: " + getType());
-    }
+    return questionErrors().validateQuestionPredicates();
   }
 
   public boolean hasErrors() {
-    return !getQuestionErrors().isEmpty();
+    if (!getQuestionErrors().isEmpty()) {
+      return true;
+    }
+    return questionErrors().hasTypeSpecificErrors();
   }
 
   public AddressQuestion getAddressQuestion() {
@@ -71,9 +65,27 @@ public class ApplicantQuestion {
     return new NameQuestion();
   }
 
-  private interface PresentsErrors {
+  private PresentsErrors questionErrors() {
+    switch (getType()) {
+      case ADDRESS:
+        return getAddressQuestion();
+      case NAME:
+        return getNameQuestion();
+      case TEXT:
+        return getTextQuestion();
+      default:
+        throw new RuntimeException("Unrecognized question type: " + getType());
+    }
+  }
 
-    ImmutableSet<ValidationErrorMessage> getErrors();
+  private interface PresentsErrors {
+    /** Validates if values meet conditions defined by admins. */
+    ImmutableSet<ValidationErrorMessage> validateQuestionPredicates();
+    /**
+     * Returns true if there is any type specific errors. The validation does not consider
+     * admin-defined conditions.
+     */
+    boolean hasTypeSpecificErrors();
   }
 
   public class AddressQuestion implements PresentsErrors {
@@ -87,12 +99,18 @@ public class ApplicantQuestion {
       assertQuestionType();
     }
 
-    public boolean hasErrors() {
-      return !getErrors().isEmpty();
+    @Override
+    public ImmutableSet<ValidationErrorMessage> validateQuestionPredicates() {
+      // TODO: Implement admin-defined validation.
+      return ImmutableSet.of();
     }
 
     @Override
-    public ImmutableSet<ValidationErrorMessage> getErrors() {
+    public boolean hasTypeSpecificErrors() {
+      return !getAllTypeSpecificErrors().isEmpty();
+    }
+
+    public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
       return ImmutableSet.<ValidationErrorMessage>builder()
           .addAll(getAddressErrors())
           .addAll(getStreetErrors())
@@ -240,18 +258,10 @@ public class ApplicantQuestion {
       assertQuestionType();
     }
 
-    public boolean hasErrors() {
-      return !getErrors().isEmpty();
-    }
-
     @Override
-    public ImmutableSet<ValidationErrorMessage> getErrors() {
-      if (!hasValue()) {
-        return ImmutableSet.of(ValidationErrorMessage.create("not completed yet"));
-      }
-
+    public ImmutableSet<ValidationErrorMessage> validateQuestionPredicates() {
       TextQuestionDefinition definition = getQuestionDefinition();
-      int textLength = getTextValue().get().length();
+      int textLength = getTextValue().map(s -> s.length()).orElse(0);
       ImmutableSet.Builder<ValidationErrorMessage> errors =
           ImmutableSet.<ValidationErrorMessage>builder();
 
@@ -276,6 +286,12 @@ public class ApplicantQuestion {
       }
 
       return errors.build();
+    }
+
+    @Override
+    public boolean hasTypeSpecificErrors() {
+      // There are no inherent requirements in a text question.
+      return false;
     }
 
     public boolean hasValue() {
@@ -321,12 +337,18 @@ public class ApplicantQuestion {
       assertQuestionType();
     }
 
-    public boolean hasErrors() {
-      return !getErrors().isEmpty();
+    @Override
+    public ImmutableSet<ValidationErrorMessage> validateQuestionPredicates() {
+      // TODO: Implement admin-defined validation.
+      return ImmutableSet.of();
     }
 
     @Override
-    public ImmutableSet<ValidationErrorMessage> getErrors() {
+    public boolean hasTypeSpecificErrors() {
+      return !getAllTypeSpecificErrors().isEmpty();
+    }
+
+    public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
       return ImmutableSet.<ValidationErrorMessage>builder()
           .addAll(getFirstNameErrors())
           .addAll(getLastNameErrors())

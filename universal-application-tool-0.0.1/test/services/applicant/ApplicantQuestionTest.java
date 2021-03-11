@@ -56,9 +56,7 @@ public class ApplicantQuestionTest {
     assertThat(applicantQuestion.getTextQuestion())
         .isInstanceOf(ApplicantQuestion.TextQuestion.class);
     assertThat(applicantQuestion.getQuestionText()).isEqualTo("question?");
-    assertThat(applicantQuestion.hasErrors()).isTrue();
-    assertThat(applicantQuestion.getQuestionErrors())
-        .containsOnly(ValidationErrorMessage.create("not completed yet"));
+    assertThat(applicantQuestion.hasErrors()).isFalse();
   }
 
   @Test
@@ -68,7 +66,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(textQuestionDefinition, applicantData);
     ApplicantQuestion.TextQuestion textQuestion = applicantQuestion.getTextQuestion();
 
-    assertThat(textQuestion.hasErrors()).isFalse();
+    assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(textQuestion.getTextValue().get()).isEqualTo("hello");
   }
 
@@ -88,8 +86,9 @@ public class ApplicantQuestionTest {
     ApplicantQuestion applicantQuestion = new ApplicantQuestion(question, applicantData);
     ApplicantQuestion.TextQuestion textQuestion = applicantQuestion.getTextQuestion();
 
-    assertThat(textQuestion.hasErrors()).isTrue();
-    assertThat(textQuestion.getErrors())
+    assertThat(applicantQuestion.hasErrors()).isTrue();
+    assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(textQuestion.validateQuestionPredicates())
         .containsOnly(ValidationErrorMessage.create("text length 5 is larger than max length 4"));
     assertThat(textQuestion.getTextValue().get()).isEqualTo("hello");
   }
