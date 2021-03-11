@@ -6,12 +6,13 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.p;
 
+import com.google.auto.value.AutoValue;
 import com.google.inject.Inject;
 import controllers.applicant.routes;
 import j2html.tags.Tag;
 import play.i18n.Messages;
+import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
-import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.applicant.ApplicantQuestion;
 import services.applicant.Block;
@@ -30,23 +31,56 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     this.applicantQuestionRendererFactory = checkNotNull(applicantQuestionRendererFactory);
   }
 
-  public Content render(
-      Request request, Messages messages, long applicantId, long programId, Block block) {
+  public Content render(Params params) {
     String formAction =
-        routes.ApplicantProgramBlocksController.update(applicantId, programId, block.getId()).url();
+        routes.ApplicantProgramBlocksController.update(
+                params.applicantId(), params.programId(), params.block().getId())
+            .url();
 
     return layout.render(
-        h1(block.getName()),
-        p(block.getDescription()),
+        h1(params.block().getName()),
+        p(params.block().getDescription()),
         form()
             .withAction(formAction)
             .withMethod(HttpVerbs.POST)
-            .with(makeCsrfTokenInputTag(request))
-            .with(each(block.getQuestions(), this::renderQuestion))
-            .with(submitButton(messages.at("button.nextBlock"))));
+            .with(makeCsrfTokenInputTag(params.request()))
+            .with(each(params.block().getQuestions(), this::renderQuestion))
+            .with(submitButton(params.messages().at("button.nextBlock"))));
   }
 
   private Tag renderQuestion(ApplicantQuestion question) {
     return applicantQuestionRendererFactory.getRenderer(question).render();
+  }
+
+  @AutoValue
+  public abstract static class Params {
+    public static Builder builder() {
+      return new AutoValue_ApplicantProgramBlockEditView_Params.Builder();
+    }
+
+    abstract Http.Request request();
+
+    abstract Messages messages();
+
+    abstract long applicantId();
+
+    abstract long programId();
+
+    abstract Block block();
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+      public abstract Builder setRequest(Http.Request request);
+
+      public abstract Builder setMessages(Messages messages);
+
+      public abstract Builder setApplicantId(long applicantId);
+
+      public abstract Builder setProgramId(long programId);
+
+      public abstract Builder setBlock(Block block);
+
+      public abstract Params build();
+    }
   }
 }

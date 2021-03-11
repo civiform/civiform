@@ -62,4 +62,9 @@ public final class Block {
     }
     return errorsMemo.get();
   }
+
+  @Override
+  public String toString() {
+    return "Id: " + this.id;
+  }
 }

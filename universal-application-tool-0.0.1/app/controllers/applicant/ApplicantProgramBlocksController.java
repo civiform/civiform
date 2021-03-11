@@ -45,11 +45,13 @@ public final class ApplicantProgramBlocksController extends Controller {
               if (block.isPresent()) {
                 return ok(
                     editView.render(
-                        request,
-                        messagesApi.preferred(request),
-                        applicantId,
-                        programId,
-                        block.get()));
+                        ApplicantProgramBlockEditView.Params.builder()
+                            .setRequest(request)
+                            .setMessages(messagesApi.preferred(request))
+                            .setApplicantId(applicantId)
+                            .setProgramId(programId)
+                            .setBlock(block.get())
+                            .build()));
               } else {
                 return notFound();
               }
