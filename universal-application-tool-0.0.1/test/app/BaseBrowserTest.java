@@ -165,7 +165,7 @@ public class BaseBrowserTest extends WithBrowser {
   /** Adds the questions with the given names to a new block in the given program. */
   protected void addQuestionsToProgramNewBlock(String programName, String... questionNames) {
     manageExistingProgramQuestions(programName);
-    browser.$("button", withText("Add block")).click();
+    browser.$("button", withText("Add Block")).click();
     addQuestionsToBlock(questionNames);
   }
 
