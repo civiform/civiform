@@ -67,7 +67,10 @@ public final class QuestionsListView extends BaseHtmlView {
             .with(
                 th("Actions")
                     .withClasses(
-                        BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT, Styles.PR_8, Styles.W_1_5)));
+                        BaseStyles.TABLE_CELL_STYLES,
+                        Styles.TEXT_RIGHT,
+                        Styles.PR_8,
+                        Styles.W_1_5)));
   }
 
   /** Display this as a table row with all fields. */
