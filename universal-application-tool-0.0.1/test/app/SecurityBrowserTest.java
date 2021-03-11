@@ -16,8 +16,7 @@ import play.Application;
 import support.TestConstants;
 
 public class SecurityBrowserTest extends BaseBrowserTest {
-  public static final DockerImageName OIDC_IMAGE =
-      DockerImageName.parse("public.ecr.aws/t1q6b4h2/oidc-provider:latest");
+  public static final DockerImageName OIDC_IMAGE = DockerImageName.parse("oidc-provider:latest");
 
   @ClassRule
   public static GenericContainer<?> oidcProvider =
@@ -93,6 +92,7 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     assertThat(browser.pageSource()).contains("You are logged in.");
     goTo(routes.ProfileController.myProfile());
     assertThat(browser.pageSource()).contains("OidcClient");
+    assertThat(browser.pageSource()).contains("username@example.com");
   }
 
   @Test
