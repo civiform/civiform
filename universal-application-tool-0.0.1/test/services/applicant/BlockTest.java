@@ -19,13 +19,13 @@ public class BlockTest {
   public void create() {
     BlockDefinition definition =
         BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
-    Block block = Block.create(1L, definition, new ApplicantData());
-    assertThat(block.id()).isEqualTo(1L);
+    Block block = new Block(1L, definition, new ApplicantData());
+    assertThat(block.getId()).isEqualTo(1L);
     assertThat(block.getName()).isEqualTo("name");
     assertThat(block.getDescription()).isEqualTo("description");
     assertThat(block.getQuestions()).isEmpty();
     assertThat(block.hasErrors()).isFalse();
-    assertThat(block.isComplete()).isTrue();
+    assertThat(block.isCompleteWithoutErrors()).isTrue();
   }
 
   @Test
@@ -52,7 +52,7 @@ public class BlockTest {
             .build();
     ApplicantData applicantData = new ApplicantData();
 
-    Block block = Block.create(1L, definition, applicantData);
+    Block block = new Block(1L, definition, applicantData);
 
     ImmutableList<ApplicantQuestion> expected =
         ImmutableList.of(
@@ -60,12 +60,13 @@ public class BlockTest {
     assertThat(block.getQuestions()).containsExactlyElementsOf(expected);
   }
 
-  // TODO(): Add more tests for hasErrors once question validation is implemented for at least one type.
+  // TODO(https://github.com/seattle-uat/universal-application-tool/issues/377): Add more tests for
+  // hasErrors once question validation is implemented for at least one type.
   @Test
   public void hasErrors_returnsFalseIfBlockHasNoQuestions() {
     BlockDefinition definition =
         BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
-    Block block = Block.create(1L, definition, new ApplicantData());
+    Block block = new Block(1L, definition, new ApplicantData());
 
     assertThat(block.hasErrors()).isFalse();
   }
@@ -74,9 +75,9 @@ public class BlockTest {
   public void isComplete_returnsTrueForBlockWithNoQuestions() {
     BlockDefinition definition =
         BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
-    Block block = Block.create(1L, definition, new ApplicantData());
+    Block block = new Block(1L, definition, new ApplicantData());
 
-    assertThat(block.isComplete()).isTrue();
+    assertThat(block.isCompleteWithoutErrors()).isTrue();
   }
 
   @Test
@@ -84,10 +85,10 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = Block.create(1L, definition, applicantData);
+    Block block = new Block(1L, definition, applicantData);
 
     // No questions filled in yet.
-    assertThat(block.isComplete()).isFalse();
+    assertThat(block.isCompleteWithoutErrors()).isFalse();
   }
 
   @Test
@@ -97,9 +98,9 @@ public class BlockTest {
     applicantData.putString(Path.create("applicant.color"), "maroon");
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = Block.create(1L, definition, applicantData);
+    Block block = new Block(1L, definition, applicantData);
 
-    assertThat(block.isComplete()).isFalse();
+    assertThat(block.isCompleteWithoutErrors()).isFalse();
   }
 
   @Test
@@ -110,9 +111,9 @@ public class BlockTest {
     applicantData.putString(Path.create("applicant.name"), "Alice");
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = Block.create(1L, definition, applicantData);
+    Block block = new Block(1L, definition, applicantData);
 
-    assertThat(block.isComplete()).isTrue();
+    assertThat(block.isCompleteWithoutErrors()).isTrue();
   }
 
   @Test
@@ -120,17 +121,15 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = Block.create(1L, definition, applicantData);
+    Block block = new Block(1L, definition, applicantData);
 
-    assertThat(block.isComplete()).isFalse();
+    assertThat(block.isCompleteWithoutErrors()).isFalse();
 
     // Complete the block.
     applicantData.putString(Path.create("applicant.color"), "maroon");
     applicantData.putString(Path.create("applicant.name"), "Alice");
-    assertThat(block.isComplete()).isTrue();
+    assertThat(block.isCompleteWithoutErrors()).isTrue();
   }
-
-  // TODO(cdanzi): Add test for updating ApplicantData
 
   private static BlockDefinition setUpBlockWithQuestions() {
     Path namePath = Path.create("applicant.name");

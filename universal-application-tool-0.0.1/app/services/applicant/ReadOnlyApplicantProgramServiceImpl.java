@@ -27,9 +27,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
     ImmutableList<Block> blocks =
         programDefinition.blockDefinitions().stream()
-            .map(
-                blockDefinition ->
-                    Block.create(blockDefinition.id(), blockDefinition, applicantData))
+            .map(blockDefinition -> new Block(blockDefinition.id(), blockDefinition, applicantData))
             .filter(block -> !block.isCompleteWithoutErrors())
             .collect(toImmutableList());
 
@@ -40,7 +38,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public Optional<Block> getBlock(long blockId) {
-    return getCurrentBlockList().stream().filter((block) -> block.id() == blockId).findFirst();
+    return getCurrentBlockList().stream().filter((block) -> block.getId() == blockId).findFirst();
   }
 
   @Override
@@ -48,7 +46,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     ImmutableList<Block> blocks = getCurrentBlockList();
 
     for (int i = 0; i < blocks.size() - 1; i++) {
-      if (blocks.get(i).id() != blockId) {
+      if (blocks.get(i).getId() != blockId) {
         continue;
       }
 
@@ -60,11 +58,13 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public Optional<Block> getBlockAfter(Block block) {
-    return getBlockAfter(block.id());
+    return getBlockAfter(block.getId());
   }
 
   @Override
   public Optional<Block> getFirstIncompleteBlock() {
-    return getCurrentBlockList().isEmpty() ? Optional.empty() : Optional.of(getCurrentBlockList().get(0));
+    return getCurrentBlockList().isEmpty()
+        ? Optional.empty()
+        : Optional.of(getCurrentBlockList().get(0));
   }
 }

@@ -40,6 +40,8 @@ public class ApplicantProgramsController extends Controller {
             programs -> ok(programIndexView.render(applicantId, programs)), httpContext.current());
   }
 
+  // TODO(https://github.com/seattle-uat/universal-application-tool/issues/224): Get next incomplete
+  // block instead of just first block.
   public CompletionStage<Result> edit(long applicantId, long programId) {
     // Determine first incomplete block, then redirect to other edit.
     return applicantService
@@ -50,7 +52,7 @@ public class ApplicantProgramsController extends Controller {
               if (block.isPresent()) {
                 return found(
                     routes.ApplicantProgramBlocksController.edit(
-                        applicantId, programId, block.get().id()));
+                        applicantId, programId, block.get().getId()));
               } else {
                 // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): All
                 // blocks are filled in, so redirect to end of program submission.

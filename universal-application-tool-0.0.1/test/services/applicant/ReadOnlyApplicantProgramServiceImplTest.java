@@ -56,7 +56,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
     assertThat(blockList.size()).isEqualTo(2);
     Block block = blockList.get(0);
-    assertThat(block.id()).isEqualTo(123L);
+    assertThat(block.getId()).isEqualTo(123L);
     assertThat(block.getName()).isEqualTo("Block Name");
     assertThat(block.getDescription()).isEqualTo("Block Description");
   }
@@ -66,7 +66,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     Optional<Block> maybeBlock = subject.getBlock(123L);
 
     assertThat(maybeBlock).isPresent();
-    assertThat(maybeBlock.get().id()).isEqualTo(123L);
+    assertThat(maybeBlock.get().getId()).isEqualTo(123L);
   }
 
   @Test
@@ -81,7 +81,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     Optional<Block> maybeBlock = subject.getBlockAfter(123L);
 
     assertThat(maybeBlock).isPresent();
-    assertThat(maybeBlock.get().id()).isEqualTo(321L);
+    assertThat(maybeBlock.get().getId()).isEqualTo(321L);
   }
 
   @Test
@@ -140,7 +140,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
     Optional<Block> maybeBlock = subject.getFirstIncompleteBlock();
 
-    assertThat(maybeBlock).hasValue(Block.create(456L, blockOne, new ApplicantData()));
+    assertThat(maybeBlock).hasValue(new Block(456L, blockOne, new ApplicantData()));
   }
 
   @Test
@@ -165,7 +165,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
     Optional<Block> maybeBlock = subject.getFirstIncompleteBlock();
 
-    assertThat(maybeBlock).hasValue(Block.create(456L, blockTwo, applicantData));
+    assertThat(maybeBlock).hasValue(new Block(456L, blockTwo, applicantData));
   }
 
   @Test
