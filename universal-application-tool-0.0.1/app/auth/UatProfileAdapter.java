@@ -2,6 +2,7 @@ package auth;
 
 import com.google.common.base.Preconditions;
 import java.util.Optional;
+import javax.inject.Provider;
 import models.Applicant;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
@@ -24,13 +25,18 @@ import repository.ApplicantRepository;
  */
 public abstract class UatProfileAdapter extends OidcProfileCreator {
   protected final ProfileFactory profileFactory;
+  protected final Provider<ApplicantRepository> applicantRepositoryProvider;
 
   private static Logger LOG = LoggerFactory.getLogger(UatProfileAdapter.class);
 
   public UatProfileAdapter(
-      OidcConfiguration configuration, OidcClient client, ProfileFactory profileFactory) {
+      OidcConfiguration configuration,
+      OidcClient client,
+      ProfileFactory profileFactory,
+      Provider<ApplicantRepository> applicantRepositoryProvider) {
     super(configuration, client);
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
+    this.applicantRepositoryProvider = applicantRepositoryProvider;
   }
 
   /** Create a totally new UAT profile from the provided OidcProfile. */
@@ -60,7 +66,8 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
     OidcProfile profile = (OidcProfile) oidcProfile.get();
     // Check if we already have a profile in the database for this user.
     Optional<Applicant> existingApplicant =
-        ApplicantRepository.INSTANCE
+        applicantRepositoryProvider
+            .get()
             .lookupApplicant(profile.getEmail())
             .toCompletableFuture()
             .join();
@@ -80,8 +87,10 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
         existingProfile =
             Optional.of(
                 profileFactory.wrapApplicant(
-                    ApplicantRepository.INSTANCE.mergeApplicants(
-                        existingProfile.get().getApplicant().join(), existingApplicant.get())));
+                    applicantRepositoryProvider
+                        .get()
+                        .mergeApplicants(
+                            existingProfile.get().getApplicant().join(), existingApplicant.get())));
       }
     }
 

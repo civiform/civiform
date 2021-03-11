@@ -18,17 +18,11 @@ public class ApplicantRepository {
 
   private final EbeanServer ebeanServer;
   private final DatabaseExecutionContext executionContext;
-  // This is needed in the auth.UatProfileAdapter family of classes, which need to be
-  // initialized before the client objects.  At that time, the ebeanConfig is not available,
-  // so it's impossible to inject this repository into that object.
-  // TODO(someone with guice experience): is there a better way?
-  public static ApplicantRepository INSTANCE;
 
   @Inject
   public ApplicantRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
     this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
     this.executionContext = checkNotNull(executionContext);
-    INSTANCE = this;
   }
 
   public CompletionStage<Set<Applicant>> listApplicants() {
@@ -43,6 +37,9 @@ public class ApplicantRepository {
   public CompletionStage<Optional<Applicant>> lookupApplicant(String emailAddress) {
     return supplyAsync(
         () -> {
+            if (emailAddress == null || emailAddress.isEmpty()) {
+                return Optional.empty();
+            }
           Optional<Account> account =
               ebeanServer
                   .find(Account.class)

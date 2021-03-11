@@ -4,9 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.concurrent.ExecutionException;
+import javax.inject.Provider;
 import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.oidc.profile.OidcProfile;
+import repository.ApplicantRepository;
 import repository.WithPostgresContainer;
 
 public class ProfileMergeTest extends WithPostgresContainer {
@@ -17,7 +19,18 @@ public class ProfileMergeTest extends WithPostgresContainer {
   @Before
   public void setupFactory() {
     profileFactory = instanceOf(ProfileFactory.class);
-    profileAdapter = new IdcsProfileAdapter(null, null, profileFactory);
+    ApplicantRepository repository = instanceOf(ApplicantRepository.class);
+    profileAdapter =
+        new IdcsProfileAdapter(
+            null,
+            null,
+            profileFactory,
+            new Provider<ApplicantRepository>() {
+              @Override
+              public ApplicantRepository get() {
+                return repository;
+              }
+            });
   }
 
   @Test

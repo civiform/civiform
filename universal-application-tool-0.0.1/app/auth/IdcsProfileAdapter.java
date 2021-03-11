@@ -1,9 +1,11 @@
 package auth;
 
+import javax.inject.Provider;
 import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
+import repository.ApplicantRepository;
 
 /**
  * This class takes an existing UAT profile and augments it with the information from an IDCS
@@ -15,8 +17,11 @@ import org.pac4j.oidc.profile.OidcProfile;
 public class IdcsProfileAdapter extends UatProfileAdapter {
 
   public IdcsProfileAdapter(
-      OidcConfiguration configuration, OidcClient client, ProfileFactory profileFactory) {
-    super(configuration, client, profileFactory);
+      OidcConfiguration configuration,
+      OidcClient client,
+      ProfileFactory profileFactory,
+      Provider<ApplicantRepository> applicantRepositoryProvider) {
+    super(configuration, client, profileFactory, applicantRepositoryProvider);
   }
 
   @Override
