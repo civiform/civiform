@@ -2,6 +2,7 @@ package services.question;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.OptionalInt;
 import java.util.OptionalLong;
 import services.Path;
 
@@ -46,11 +47,11 @@ public class TextQuestionDefinition extends QuestionDefinition {
     return ScalarType.STRING;
   }
 
-  public int getMinLength() {
-    return 0;
+  public OptionalInt getMinLength() {
+    return OptionalInt.of(0);
   }
 
-  public int getMaxLength() {
-    return 20;
+  public OptionalInt getMaxLength() {
+    return OptionalInt.of(20);
   }
 }

@@ -42,17 +42,21 @@ public class ApplicantQuestion {
     }
   }
 
-  public boolean hasErrors() {
+  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     switch (getType()) {
       case ADDRESS:
-        return getAddressQuestion().hasErrors();
+        return getAddressQuestion().getErrors();
       case NAME:
-        return getNameQuestion().hasErrors();
+        return getNameQuestion().getErrors();
       case TEXT:
-        return getTextQuestion().hasErrors();
+        return getTextQuestion().getErrors();
       default:
         throw new RuntimeException("Unrecognized question type: " + getType());
     }
+  }
+
+  public boolean hasErrors() {
+    return !getQuestionErrors().isEmpty();
   }
 
   public AddressQuestion getAddressQuestion() {
@@ -69,7 +73,7 @@ public class ApplicantQuestion {
 
   private interface PresentsErrors {
 
-    boolean hasErrors();
+    ImmutableSet<ValidationErrorMessage> getErrors();
   }
 
   public class AddressQuestion implements PresentsErrors {
@@ -83,12 +87,12 @@ public class ApplicantQuestion {
       assertQuestionType();
     }
 
-    @Override
     public boolean hasErrors() {
-      return !getAllErrors().isEmpty();
+      return !getErrors().isEmpty();
     }
 
-    private ImmutableSet<ValidationErrorMessage> getAllErrors() {
+    @Override
+    private ImmutableSet<ValidationErrorMessage> getErrors() {
       return ImmutableSet.<ValidationErrorMessage>builder()
           .addAll(getAddressErrors())
           .addAll(getStreetErrors())
@@ -236,15 +240,42 @@ public class ApplicantQuestion {
       assertQuestionType();
     }
 
-    @Override
     public boolean hasErrors() {
-      if (hasValue()) {
-        return getTextValue()
-            .filter(s -> s.length() >= getQuestionDefinition().getMinLength())
-            .filter(s -> s.length() <= getQuestionDefinition().getMaxLength())
-            .isEmpty();
+      return !getErrors().isEmpty();
+    }
+
+    @Override
+    public ImmutableSet<ValidationErrorMessage> getErrors() {
+      if (!hasValue()) {
+        return ImmutableSet.of(ValidationErrorMessage.create("not completed yet"));
       }
-      return false;
+
+      TextQuestionDefinition definition = getQuestionDefinition();
+      int textLength = getTextValue().get().length();
+      ImmutableSet.Builder<ValidationErrorMessage> errors =
+          ImmutableSet.<ValidationErrorMessage>builder();
+
+      if (definition.getMinLength().isPresent()) {
+        int minLength = definition.getMinLength().getAsInt();
+        if (textLength < minLength) {
+          errors.add(
+              ValidationErrorMessage.create(
+                  String.format(
+                      "text length %d is smaller than min length %d", textLength, minLength)));
+        }
+      }
+
+      if (definition.getMaxLength().isPresent()) {
+        int maxLength = definition.getMaxLength().getAsInt();
+        if (textLength > maxLength) {
+          errors.add(
+              ValidationErrorMessage.create(
+                  String.format(
+                      "text length %d is larger than max length %d", textLength, maxLength)));
+        }
+      }
+
+      return errors.build();
     }
 
     public boolean hasValue() {
@@ -290,12 +321,12 @@ public class ApplicantQuestion {
       assertQuestionType();
     }
 
-    @Override
     public boolean hasErrors() {
-      return !getAllErrors().isEmpty();
+      return !getErrors().isEmpty();
     }
 
-    public ImmutableSet<ValidationErrorMessage> getAllErrors() {
+    @Override
+    public ImmutableSet<ValidationErrorMessage> getErrors() {
       return ImmutableSet.<ValidationErrorMessage>builder()
           .addAll(getFirstNameErrors())
           .addAll(getLastNameErrors())
