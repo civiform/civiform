@@ -1,10 +1,10 @@
 package views.components;
 
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.textarea;
 
+import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
@@ -35,25 +35,24 @@ public class FieldWithLabel {
   protected Tag fieldTag;
   protected String fieldValue = "";
   protected String labelText = "";
-  protected String id;
+  protected String id = "";
 
-  public FieldWithLabel(Tag fieldTag, String inputId) {
-    this.id = inputId;
-    this.fieldTag = fieldTag.withId(id).withName(id).withClasses(FieldWithLabel.CORE_FIELD_CLASSES);
+  public FieldWithLabel(Tag fieldTag) {
+    this.fieldTag = fieldTag.withClasses(FieldWithLabel.CORE_FIELD_CLASSES);
   }
 
-  public static FieldWithLabel createInput(String inputId) {
-    Tag fieldTag = input().withType("text");
-    return new FieldWithLabel(fieldTag, inputId);
+  public static FieldWithLabel input() {
+    Tag fieldTag = TagCreator.input().withType("text");
+    return new FieldWithLabel(fieldTag);
   }
 
-  public static FieldWithLabel createTextArea(String inputId) {
+  public static FieldWithLabel textArea() {
     Tag fieldTag = textarea().withType("text");
-    return new FieldWithLabel(fieldTag, inputId);
+    return new FieldWithLabel(fieldTag);
   }
 
   public FieldWithLabel setId(String inputId) {
-    fieldTag.withId(inputId).withName(inputId);
+    this.id = inputId;
     return this;
   }
 
@@ -73,11 +72,12 @@ public class FieldWithLabel {
   }
 
   public ContainerTag getContainer() {
+    fieldTag.withId(this.id).withName(id).withValue(this.fieldValue);
     ContainerTag labelTag =
         label()
             .attr(Attr.FOR, this.id)
             .withClasses(FieldWithLabel.CORE_LABEL_CLASSES)
             .withText(this.labelText);
-    return div(labelTag, fieldTag.withValue(this.fieldValue)).withClasses(Styles.MX_4, Styles.MB_6);
+    return div(labelTag, fieldTag).withClasses(Styles.MX_4, Styles.MB_6);
   }
 }

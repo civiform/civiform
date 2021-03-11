@@ -3,6 +3,7 @@
 # --- !Ups
 create table if not exists applicants (
   id bigserial primary key,
+  preferred_locale varchar,
   object jsonb not null
   -- No other constraint on applicant - empty object acceptable.
 );

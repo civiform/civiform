@@ -10,6 +10,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.play.java.Secure;
+import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -22,6 +23,7 @@ public class HomeController extends Controller {
   private final AssetsFinder assetsFinder;
   private final LoginForm loginForm;
   private final ProfileUtils profileUtils;
+  private final MessagesApi messagesApi;
   private final HttpExecutionContext httpExecutionContext;
 
   @Inject
@@ -29,10 +31,12 @@ public class HomeController extends Controller {
       AssetsFinder assetsFinder,
       LoginForm form,
       ProfileUtils profileUtils,
+      MessagesApi messagesApi,
       HttpExecutionContext httpExecutionContext) {
     this.assetsFinder = checkNotNull(assetsFinder);
     this.loginForm = checkNotNull(form);
     this.profileUtils = checkNotNull(profileUtils);
+    this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
 
@@ -55,7 +59,9 @@ public class HomeController extends Controller {
           .thenApplyAsync(
               applicant ->
                   redirect(
-                      controllers.applicant.routes.ApplicantProgramsController.index(applicant.id)),
+                          controllers.applicant.routes.ApplicantProgramsController.index(
+                              applicant.id))
+                      .withLang(applicant.getApplicantData().preferredLocale(), messagesApi),
               httpExecutionContext.current());
     }
   }

@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.data.FormFactory;
+import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
@@ -26,6 +27,7 @@ public final class ApplicantProgramBlocksController extends Controller {
   private static final ImmutableSet<String> STRIPPED_FORM_FIELDS = ImmutableSet.of("csrfToken");
 
   private final ApplicantService applicantService;
+  private final MessagesApi messagesApi;
   private final HttpExecutionContext httpExecutionContext;
   private final ApplicantProgramBlockEditView editView;
   private final FormFactory formFactory;
@@ -35,10 +37,12 @@ public final class ApplicantProgramBlocksController extends Controller {
   @Inject
   public ApplicantProgramBlocksController(
       ApplicantService applicantService,
+      MessagesApi messagesApi,
       HttpExecutionContext httpExecutionContext,
       ApplicantProgramBlockEditView editView,
       FormFactory formFactory) {
     this.applicantService = checkNotNull(applicantService);
+    this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
@@ -53,7 +57,15 @@ public final class ApplicantProgramBlocksController extends Controller {
               Optional<Block> block = roApplicantProgramService.getBlock(blockId);
 
               if (block.isPresent()) {
-                return ok(editView.render(request, applicantId, programId, block.get()));
+                return ok(
+                    editView.render(
+                        ApplicantProgramBlockEditView.Params.builder()
+                            .setRequest(request)
+                            .setMessages(messagesApi.preferred(request))
+                            .setApplicantId(applicantId)
+                            .setProgramId(programId)
+                            .setBlock(block.get())
+                            .build()));
               } else {
                 return notFound();
               }
@@ -103,7 +115,15 @@ public final class ApplicantProgramBlocksController extends Controller {
 
     // Validation errors: re-render this block with errors and previously entered data.
     if (thisBlockUpdated.hasErrors()) {
-      return ok(editView.render(request, applicantId, programId, thisBlockUpdated));
+      return ok(
+          editView.render(
+              ApplicantProgramBlockEditView.Params.builder()
+                  .setRequest(request)
+                  .setMessages(messagesApi.preferred(request))
+                  .setApplicantId(applicantId)
+                  .setProgramId(programId)
+                  .setBlock(thisBlockUpdated)
+                  .build()));
     }
 
     // TODO: redirect to review page when it is available.

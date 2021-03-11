@@ -8,8 +8,10 @@ import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
+import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Locale;
 import models.Applicant;
 import models.Program;
 import org.junit.Before;
@@ -183,5 +185,20 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
     String reviewRoute = routes.ApplicantProgramsController.index(applicant.id).url();
 
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
+
+  public void edit_withMessages_returnsCorrectButtonText() {
+    Http.Request request =
+        addCSRFToken(
+                fakeRequest(
+                        routes.ApplicantProgramBlocksController.edit(
+                            applicant.id, program.id(), 1L))
+                    .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()))
+            .build();
+
+    Result result =
+        subject.edit(request, applicant.id, program.id(), 1L).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Guardar y continuar");
   }
 }
