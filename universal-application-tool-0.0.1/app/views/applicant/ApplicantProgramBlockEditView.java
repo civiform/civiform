@@ -43,7 +43,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             .withMethod(HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(request))
             .with(each(block.getQuestions(), this::renderQuestion))
-            .with(submitButton(messages.at("nextBlock"))));
+            .with(submitButton(messages.at("button.nextBlock"))));
   }
 
   private Tag renderQuestion(ApplicantQuestion question) {

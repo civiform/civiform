@@ -11,10 +11,11 @@ import static play.test.Helpers.stubMessagesApi;
 
 import java.util.Collections;
 import java.util.Map;
+
+import com.google.common.collect.ImmutableMap;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
-import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 import play.api.i18n.DefaultLangs;
 import play.i18n.Lang;
 import play.i18n.Langs;
@@ -69,7 +70,7 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
   public void edit_withMessages_returnsCorrectButtonText() {
     // Stub the MessagesApi with fake translations.
     Langs langs = new Langs(new DefaultLangs());
-    Map<String, String> translations = Collections.singletonMap("nextBlock", "Different");
+    Map<String, String> translations = Collections.singletonMap("button.nextBlock", "Different");
     Map<String, Map<String, String>> messageMap =
         ImmutableMap.of(Lang.defaultLang().code(), translations);
     MessagesApi messagesApi = stubMessagesApi(messageMap, langs);

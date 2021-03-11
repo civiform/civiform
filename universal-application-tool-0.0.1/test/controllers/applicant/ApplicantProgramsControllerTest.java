@@ -10,12 +10,13 @@ import static play.test.Helpers.stubMessagesApi;
 
 import java.util.Collections;
 import java.util.Map;
+
+import com.google.common.collect.ImmutableMap;
 import models.Applicant;
 import models.Program;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 import play.api.i18n.DefaultLangs;
 import play.i18n.Lang;
 import play.i18n.Langs;
@@ -73,7 +74,7 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
   public void index_usesMessagesForUserPreferredLocale() {
     // Stub the MessagesApi with fake translations.
     Langs langs = new Langs(new DefaultLangs());
-    Map<String, String> translations = Collections.singletonMap("programs", "Different");
+    Map<String, String> translations = Collections.singletonMap("title.programs", "Different");
     Map<String, Map<String, String>> messageMap =
         ImmutableMap.of(Lang.defaultLang().code(), translations);
     MessagesApi messagesApi = stubMessagesApi(messageMap, langs);

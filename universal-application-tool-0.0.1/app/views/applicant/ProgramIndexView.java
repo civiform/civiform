@@ -38,10 +38,10 @@ public class ProgramIndexView extends BaseHtmlView {
    */
   public Content render(
       Messages messages, long applicantId, ImmutableList<ProgramDefinition> programs) {
-    String applyMessage = messages.at("apply");
+    String applyMessage = messages.at("button.apply");
     return layout.render(
         body()
-            .with(h1(messages.at("programs")))
+            .with(h1(messages.at("title.programs")))
             .with(each(programs, program -> shortProgram(applicantId, applyMessage, program))));
   }
 

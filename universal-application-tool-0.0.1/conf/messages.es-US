@@ -1,3 +1,4 @@
-apply=Solicitud
-programs=Programas
-nextBlock=Guardar y continuar
+button.apply=Solicitar
+button.nextBlock=Guardar y continuar
+
+title.programs=Programas
