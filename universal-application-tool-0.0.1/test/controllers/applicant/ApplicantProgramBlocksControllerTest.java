@@ -185,18 +185,19 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
     String reviewRoute = routes.ApplicantProgramsController.index(applicant.id).url();
 
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
+  }
 
+  @Test
   public void edit_withMessages_returnsCorrectButtonText() {
-    Http.Request request =
+    Request request =
         addCSRFToken(
                 fakeRequest(
-                        routes.ApplicantProgramBlocksController.edit(
-                            applicant.id, program.id(), 1L))
+                        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, 1L))
                     .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()))
             .build();
 
     Result result =
-        subject.edit(request, applicant.id, program.id(), 1L).toCompletableFuture().join();
+        subject.edit(request, applicant.id, program.id, 1L).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Guardar y continuar");
