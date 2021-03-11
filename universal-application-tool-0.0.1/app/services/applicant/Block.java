@@ -65,6 +65,6 @@ public final class Block {
 
   @Override
   public String toString() {
-    return "Id: " + this.id;
+    return "Block [id: " + this.id + "]";
   }
 }

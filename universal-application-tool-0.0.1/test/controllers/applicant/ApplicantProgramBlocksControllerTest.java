@@ -6,14 +6,12 @@ import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
+import static play.test.Helpers.stubMessagesApi;
 
-import com.google.common.collect.ImmutableMap;
-import controllers.LocalizationHelper;
+import java.util.Locale;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
-import play.i18n.Lang;
-import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.WithPostgresContainer;
@@ -60,23 +58,18 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
 
   @Test
   public void edit_withMessages_returnsCorrectButtonText() {
-    MessagesApi messagesApi =
-        LocalizationHelper.fakeMessagesApi(ImmutableMap.of("button.nextBlock", "Different"));
-    subject =
-        LocalizationHelper.overrideMessagesApi(messagesApi, ApplicantProgramBlocksController.class);
-
     Http.Request request =
         addCSRFToken(
                 fakeRequest(
                         routes.ApplicantProgramBlocksController.edit(
                             applicant.id, program.id(), 1L))
-                    .langCookie(Lang.defaultLang(), messagesApi))
+                    .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()))
             .build();
 
     Result result =
         subject.edit(request, applicant.id, program.id(), 1L).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Different");
+    assertThat(contentAsString(result)).contains("Guardar y continuar");
   }
 }
