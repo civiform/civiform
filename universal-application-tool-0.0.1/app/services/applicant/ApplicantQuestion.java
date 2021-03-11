@@ -276,20 +276,14 @@ public class ApplicantQuestion {
       if (definition.getMinLength().isPresent()) {
         int minLength = definition.getMinLength().getAsInt();
         if (textLength < minLength) {
-          errors.add(
-              ValidationErrorMessage.create(
-                  String.format(
-                      "text length %d is smaller than min length %d", textLength, minLength)));
+          errors.add(ValidationErrorMessage.textTooShortError(minLength));
         }
       }
 
       if (definition.getMaxLength().isPresent()) {
         int maxLength = definition.getMaxLength().getAsInt();
         if (textLength > maxLength) {
-          errors.add(
-              ValidationErrorMessage.create(
-                  String.format(
-                      "text length %d is larger than max length %d", textLength, maxLength)));
+          errors.add(ValidationErrorMessage.textTooLongError(maxLength));
         }
       }
 

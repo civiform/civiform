@@ -94,7 +94,7 @@ public class ApplicantQuestionTest {
     assertThat(applicantQuestion.hasErrors()).isTrue();
     assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(textQuestion.getQuestionErrors())
-        .containsOnly(ValidationErrorMessage.create("text length 5 is larger than max length 4"));
+        .containsOnly(ValidationErrorMessage.textTooLongError(4));
     assertThat(textQuestion.getTextValue().get()).isEqualTo("hello");
   }
 
