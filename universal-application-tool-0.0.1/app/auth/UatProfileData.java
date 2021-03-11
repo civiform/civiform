@@ -29,12 +29,20 @@ public class UatProfileData extends CommonProfile {
     this.clock = Preconditions.checkNotNull(clock);
   }
 
+  public UatProfileData(Clock clock, Long accountId) {
+    this(clock);
+    this.setId(accountId.toString());
+  }
+
   /**
    * This method needs to be called outside the constructor since constructors should not do
    * database accesses (or other work). It should be called before the object is used - the object
    * has not been persisted / correctly created until it is called.
    */
   public void init(DatabaseExecutionContext dbContext) {
+    if (this.getId() != null && !this.getId().isEmpty()) {
+      return;
+    }
     // We use this async only to make sure we run in the db execution context - this method cannot
     // be
     // asynchronous because the security code that executes it is entirely synchronous.

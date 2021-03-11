@@ -36,15 +36,22 @@ public class SecurityBrowserTest extends BaseBrowserTest {
 
   protected void loginWithSimulatedIdcs() {
     goTo(routes.LoginController.idcsLogin());
-    assertThat(browser.pageSource()).contains("Sign-in");
-    browser.$("[name='login']").click();
-    browser.keyboard().sendKeys("username");
-    browser.$("[name='password']").click();
-    browser.keyboard().sendKeys("password");
-    // Log in.
-    browser.$(".login-submit").click();
-    // Bypass consent screen.
-    browser.$(".login-submit").click();
+    // If we are not cookied, enter a username and password.
+    if (browser.pageSource().contains("Enter any login")) {
+      browser.$("[name='login']").click();
+      browser.keyboard().sendKeys("username");
+      browser.$("[name='password']").click();
+      browser.keyboard().sendKeys("password");
+      // Log in.
+      browser.$(".login-submit").click();
+      // Bypass consent screen.
+      browser.$(".login-submit").click();
+    } else {
+      // If we *are* cookied, we have to click this button twice.  Best way to
+      // find out is if we still have a login-submit button to hit.
+      browser.$(".login-submit").click();
+      browser.$(".login-submit").click();
+    }
   }
 
   @Test
@@ -106,6 +113,13 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     long applicantId = getApplicantId();
 
     // Then, login with IDCS and show that the applicant ID is the same.
+    loginWithSimulatedIdcs();
+    goTo(routes.ProfileController.myProfile());
+    assertThat(browser.pageSource()).contains("OidcClient");
+    assertThat(applicantId).isEqualTo(getApplicantId());
+
+    logout();
+
     loginWithSimulatedIdcs();
     goTo(routes.ProfileController.myProfile());
     assertThat(browser.pageSource()).contains("OidcClient");

@@ -2,6 +2,7 @@ package auth;
 
 import com.google.common.base.Preconditions;
 import java.util.Optional;
+import models.Applicant;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
@@ -12,6 +13,7 @@ import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.oidc.profile.creator.OidcProfileCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import repository.ApplicantRepository;
 
 /**
  * This class ensures that the OidcProfileCreator that both the AD and IDCS clients use will
@@ -41,7 +43,6 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
   public Optional<UserProfile> create(
       Credentials cred, WebContext context, SessionStore sessionStore) {
     ProfileUtils profileUtils = new ProfileUtils(sessionStore, profileFactory);
-    Optional<UatProfile> existingProfile = profileUtils.currentUserProfile(context);
     Optional<UserProfile> oidcProfile = super.create(cred, context, sessionStore);
 
     if (oidcProfile.isEmpty()) {
@@ -55,7 +56,36 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
       return Optional.empty();
     }
 
+    Optional<UatProfile> existingProfile = profileUtils.currentUserProfile(context);
     OidcProfile profile = (OidcProfile) oidcProfile.get();
+    // Check if we already have a profile in the database for this user.
+    Optional<Applicant> existingApplicant =
+        ApplicantRepository.INSTANCE
+            .lookupApplicant(profile.getEmail())
+            .toCompletableFuture()
+            .join();
+
+    // Now we have a three-way merge situation.  We might have
+    // 1) an applicant in the database,
+    // 2) a guest profile in the browser cookie
+    // 3) an OIDC account in the callback from the OIDC server.
+    // We will merge 1 and 2, if present, into `existingProfile`, then merge in 3.
+
+    if (existingApplicant.isPresent()) {
+      if (existingProfile.isEmpty()) {
+        // Easy merge case - we have an existing applicant, but no guest profile.
+        // This will be the most common.
+        existingProfile = Optional.of(profileFactory.wrapApplicant(existingApplicant.get()));
+      } else {
+        existingProfile =
+            Optional.of(
+                profileFactory.wrapApplicant(
+                    ApplicantRepository.INSTANCE.mergeApplicants(
+                        existingProfile.get().getApplicant().join(), existingApplicant.get())));
+      }
+    }
+
+    // Now merge in the information sent to us by the OIDC server.
     if (existingProfile.isEmpty()) {
       LOG.debug("Found no existing profile in session cookie.");
       return Optional.of(uatProfileFromOidcProfile(profile));

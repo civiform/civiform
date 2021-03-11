@@ -9,8 +9,11 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.spi.mapper.MappingException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -133,8 +136,53 @@ public class ApplicantData {
     return false;
   }
 
+  public boolean hasPath(Path path) {
+    try {
+      return read(path, Object.class).isPresent();
+    } catch (JsonPathTypeMismatchException e) {
+      return false;
+    }
+  }
+
   @Override
   public int hashCode() {
     return Objects.hash(jsonData.jsonString());
+  }
+
+  public List<Path> mergeFrom(ApplicantData other) {
+    Map<?, ?> rootAsMap = other.jsonData.read("$", Map.class);
+    return mergeFrom(Path.empty(), rootAsMap);
+  }
+
+  private List<Path> mergeFrom(Path rootKey, Map<?, ?> other) {
+    List<Path> pathsRemoved = new ArrayList<>();
+    for (Map.Entry<?, ?> entry : other.entrySet()) {
+      String key = entry.getKey().toString();
+      Path path = rootKey.toBuilder().append(key).build();
+      if (hasPath(path)) {
+        if (entry.getValue() instanceof Map) {
+          // Recurse into maps.
+          pathsRemoved.addAll(mergeFrom(path, (Map) entry.getValue()));
+        } else if (entry.getValue() instanceof List) {
+          // Add items from lists.
+          for (Object item : (List) entry.getValue()) {
+            this.jsonData.add(path.path(), item);
+          }
+        } else {
+          try {
+            if (!this.read(path, Object.class).equals(entry.getValue())) {
+              pathsRemoved.add(path);
+            }
+          } catch (JsonPathTypeMismatchException e) {
+            // If we can't confirm they're equal, consider it removed.
+            pathsRemoved.add(path);
+          }
+        }
+      } else {
+        // currently empty, can add.
+        this.put(path, entry.getValue());
+      }
+    }
+    return pathsRemoved;
   }
 }
