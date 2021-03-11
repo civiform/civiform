@@ -42,12 +42,12 @@ public class ApplicantQuestion {
     }
   }
 
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    return errorsPresenter().getQuestionErrors();
+  public boolean hasQuestionErrors() {
+    return errorsPresenter().hasQuestionErrors();
   }
 
   public boolean hasErrors() {
-    if (!getQuestionErrors().isEmpty()) {
+    if (hasQuestionErrors()) {
       return true;
     }
     return errorsPresenter().hasTypeSpecificErrors();
@@ -79,8 +79,8 @@ public class ApplicantQuestion {
   }
 
   private interface PresentsErrors {
-    /** Returns errors if values do not meet conditions defined by admins. */
-    ImmutableSet<ValidationErrorMessage> getQuestionErrors();
+    /** Returns true if values do not meet conditions defined by admins. */
+    boolean hasQuestionErrors();
     /**
      * Returns true if there is any type specific errors. The validation does not consider
      * admin-defined conditions.
@@ -100,6 +100,10 @@ public class ApplicantQuestion {
     }
 
     @Override
+    public boolean hasQuestionErrors() {
+      return !getQuestionErrors().isEmpty();
+    }
+
     public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
       // TODO: Implement admin-defined validation.
       return ImmutableSet.of();
@@ -259,6 +263,10 @@ public class ApplicantQuestion {
     }
 
     @Override
+    public boolean hasQuestionErrors() {
+      return !getQuestionErrors().isEmpty();
+    }
+
     public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
       TextQuestionDefinition definition = getQuestionDefinition();
       int textLength = getTextValue().map(s -> s.length()).orElse(0);
@@ -338,6 +346,10 @@ public class ApplicantQuestion {
     }
 
     @Override
+    public boolean hasQuestionErrors() {
+      return !getQuestionErrors().isEmpty();
+    }
+
     public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
       // TODO: Implement admin-defined validation.
       return ImmutableSet.of();
