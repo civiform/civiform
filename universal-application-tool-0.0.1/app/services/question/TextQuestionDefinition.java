@@ -45,4 +45,12 @@ public class TextQuestionDefinition extends QuestionDefinition {
   public ScalarType getTextType() {
     return ScalarType.STRING;
   }
+
+  public int getMinLength() {
+    return 0;
+  }
+
+  public int getMaxLength() {
+    return 20;
+  }
 }

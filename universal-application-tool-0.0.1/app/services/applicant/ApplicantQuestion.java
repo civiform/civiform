@@ -42,17 +42,7 @@ public class ApplicantQuestion {
     }
   }
 
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    // TODO: Once QuestionDefinition has validation predicates, validate applicantData against
-    //  validation logic in questionDefinition, if any.
-    return ImmutableSet.of();
-  }
-
   public boolean hasErrors() {
-    if (!getQuestionErrors().isEmpty()) {
-      return true;
-    }
-
     switch (getType()) {
       case ADDRESS:
         return getAddressQuestion().hasErrors();
@@ -248,7 +238,12 @@ public class ApplicantQuestion {
 
     @Override
     public boolean hasErrors() {
-      // There are no inherent requirements in a text question.
+      if (hasValue()) {
+        return getTextValue()
+            .filter(s -> s.length() >= getQuestionDefinition().getMinLength())
+            .filter(s -> s.length() <= getQuestionDefinition().getMaxLength())
+            .isEmpty();
+      }
       return false;
     }
 
