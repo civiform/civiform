@@ -23,6 +23,7 @@ public final class Block {
   private final ApplicantData applicantData;
   private Optional<ImmutableList<ApplicantQuestion>> questionsMemo = Optional.empty();
   private Optional<Boolean> errorsMemo = Optional.empty();
+  private Optional<Boolean> isCompleteWithoutErrorsCached = Optional.empty();
 
   Block(long id, BlockDefinition blockDefinition, ApplicantData applicantData) {
     this.id = id;
@@ -73,10 +74,20 @@ public final class Block {
    * memoized, since we need to reflect internal changes to ApplicantData.
    */
   public boolean isCompleteWithoutErrors() {
-    return blockDefinition.scalarPaths().stream()
+    boolean isCompleteWithoutErrors = blockDefinition.scalarPaths().stream()
         .filter(path -> !applicantData.hasPath(path) && !hasErrors())
         .findAny()
         .isEmpty();
+    isCompleteWithoutErrorsCached = Optional.of(isCompleteWithoutErrors);
+    return isCompleteWithoutErrors;
+  }
+
+  /** Call this method if and only if you are sure the underlying {@link ApplicantData} has not changed. */
+  public boolean isCompleteWithoutErrorsCached() {
+    if (isCompleteWithoutErrorsCached.isPresent()) {
+      return isCompleteWithoutErrorsCached.get();
+    }
+    return isCompleteWithoutErrors();
   }
 
   @Override
