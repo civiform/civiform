@@ -2,6 +2,7 @@ package app;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fluentlenium.core.filter.FilterConstructor.containingText;
+import static org.fluentlenium.core.filter.FilterConstructor.withId;
 import static org.fluentlenium.core.filter.FilterConstructor.withName;
 import static org.fluentlenium.core.filter.FilterConstructor.withText;
 import static play.test.Helpers.fakeApplication;
@@ -127,8 +128,8 @@ public class BaseBrowserTest extends WithBrowser {
   /** Adds a question through the admin flow. This requires the admin to be logged in. */
   protected void addQuestion(String questionName, String path, QuestionType questionType) {
     // Go to admin question index and click "Create a new question".
-    goTo(controllers.admin.routes.QuestionController.index("table"));
-    browser.$("a", withText("Create a new question")).first().click();
+    goTo(controllers.admin.routes.QuestionController.index());
+    browser.$("a", withId("createQuestion")).first().click();
 
     // Fill out the question form and click submit.
     fillInput("questionName", questionName);
@@ -152,7 +153,7 @@ public class BaseBrowserTest extends WithBrowser {
     goTo(controllers.admin.routes.AdminProgramController.index());
     browser.$("div", containingText(programName)).$("a", containingText("Edit")).first().click();
     assertThat(browser.pageSource()).contains("Edit program: " + programName);
-    browser.$("a", withText("Manage Questions")).first().click();
+    browser.$("a", withId("manageQuestions")).first().click();
     assertThat(browser.pageSource()).contains(programName + " Questions");
   }
 

@@ -25,7 +25,7 @@ import views.html.helper.CSRF;
 public abstract class BaseHtmlView {
 
   public Tag renderHeader(String headerText) {
-    return h1(headerText);
+    return h1(headerText).withClasses(Styles.M_2);
   }
 
   protected ContainerTag fieldErrors(ImmutableSet<ValidationErrorMessage> errors) {
