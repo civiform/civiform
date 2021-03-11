@@ -2,6 +2,7 @@ package models;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Locale;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ApplicantRepository;
@@ -35,6 +36,21 @@ public class ApplicantTest extends WithPostgresContainer {
     applicant = repo.lookupApplicant(applicant.id).toCompletableFuture().join().get();
 
     assertThat(applicant.getApplicantData().readString(path)).hasValue("1/1/2021");
+  }
+
+  @Test
+  public void storesAndRetrievesPreferredLocale() {
+    // Default to English
+    Applicant applicant = new Applicant();
+    assertThat(applicant.getApplicantData().preferredLocale()).isEqualTo(Locale.ENGLISH);
+
+    // Set locale
+    applicant.getApplicantData().setPreferredLocale(Locale.FRANCE);
+    applicant.save();
+
+    applicant = repo.lookupApplicant(applicant.id).toCompletableFuture().join().get();
+
+    assertThat(applicant.getApplicantData().preferredLocale()).isEqualTo(Locale.FRANCE);
   }
 
   @Test
