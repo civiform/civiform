@@ -62,12 +62,12 @@ public final class QuestionsListView extends BaseHtmlView {
   private Tag renderQuestionTableHeaderRow() {
     return thead(
         tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
-            .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-2/5"))
-            .with(th("Question text").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-2/5"))
+            .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_2_5))
+            .with(th("Question text").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_2_5))
             .with(
                 th("Actions")
                     .withClasses(
-                        BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT, Styles.PR_8, "w-1/5")));
+                        BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT, Styles.PR_8, Styles.W_1_5)));
   }
 
   /** Display this as a table row with all fields. */
