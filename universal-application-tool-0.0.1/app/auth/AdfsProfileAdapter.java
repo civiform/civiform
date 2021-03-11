@@ -1,5 +1,6 @@
 package auth;
 
+import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
@@ -26,9 +27,9 @@ public class AdfsProfileAdapter extends UatProfileAdapter {
   @Override
   public UatProfileData mergeUatProfile(UatProfile uatProfile, OidcProfile oidcProfile) {
     // The key in AD is just "email".
-    // TODO(https://github.com/seattle-uat/universal-application-tool/issues/385): what if there's
-    // already an email?
-    uatProfile.setEmailAddress(oidcProfile.getAttribute("email", String.class)).join();
+    String emailAddress = oidcProfile.getAttribute("email", String.class);
+    uatProfile.setEmailAddress(emailAddress).join();
+    uatProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
     return uatProfile.getProfileData();
   }
 }
