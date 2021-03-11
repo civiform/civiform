@@ -109,7 +109,7 @@ public final class ApplicantProgramBlocksController extends Controller {
     // TODO: redirect to review page when it is available.
     Result reviewPageRedirect = redirect(routes.ApplicantProgramsController.index(applicantId));
     Optional<Long> nextBlockIdMaybe =
-        roApplicantProgramService.getFirstIncompleteBlock().map(Block::getId);
+        roApplicantProgramService.getBlockAfter(blockId).map(Block::getId);
     return nextBlockIdMaybe.isEmpty()
         ? reviewPageRedirect
         : redirect(

@@ -154,16 +154,13 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
         subject.update(request, applicant.id, program.id, 1L).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    // TODO: change nextBlockEditRoute when ReadOnlyApplicantService.getFirstIncompleteBlock is
-    // implemented.
     String nextBlockEditRoute =
-        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, 1L).url();
+        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, 2L).url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
   }
 
   @Test
   public void update_completedProgram_redirectsToReviewPage() {
-
     program =
         ProgramBuilder.newProgram()
             .withBlock("block 1")
@@ -183,8 +180,7 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
     // TODO: change reviewRoute when review page is available.
-    String reviewRoute =
-        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, 1L).url();
+    String reviewRoute = routes.ApplicantProgramsController.index(applicant.id).url();
 
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
   }
