@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.testing.EqualsTester;
 import java.util.OptionalLong;
 import org.junit.Test;
 import services.Path;
@@ -16,7 +17,7 @@ import services.question.TextQuestionDefinition;
 public class BlockTest {
 
   @Test
-  public void create() {
+  public void createNewBlock() {
     BlockDefinition definition =
         BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
     Block block = new Block(1L, definition, new ApplicantData());
@@ -26,6 +27,41 @@ public class BlockTest {
     assertThat(block.getQuestions()).isEmpty();
     assertThat(block.hasErrors()).isFalse();
     assertThat(block.isCompleteWithoutErrors()).isTrue();
+  }
+
+  @Test
+  public void equalsAndHashCode() {
+    BlockDefinition definition =
+        BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            OptionalLong.of(2L), 1L, "", Path.empty(), "", ImmutableMap.of(), ImmutableMap.of());
+    ApplicantData applicant = new ApplicantData();
+    applicant.putString(Path.create("applicant.hello"), "world");
+
+    new EqualsTester()
+        .addEqualityGroup(
+            new Block(1L, definition, new ApplicantData()),
+            new Block(1L, definition, new ApplicantData()))
+        .addEqualityGroup(
+            new Block(2L, definition, new ApplicantData()),
+            new Block(2L, definition, new ApplicantData()))
+        .addEqualityGroup(
+            new Block(
+                1L,
+                definition.toBuilder()
+                    .addQuestion(ProgramQuestionDefinition.create(question))
+                    .build(),
+                new ApplicantData()),
+            new Block(
+                1L,
+                definition.toBuilder()
+                    .addQuestion(ProgramQuestionDefinition.create(question))
+                    .build(),
+                new ApplicantData()))
+        .addEqualityGroup(
+            new Block(1L, definition, applicant), new Block(1L, definition, applicant))
+        .testEquals();
   }
 
   @Test

@@ -4,7 +4,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Objects;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import services.program.BlockDefinition;
 import services.program.ProgramQuestionDefinition;
 
@@ -19,7 +21,6 @@ public final class Block {
 
   private final BlockDefinition blockDefinition;
   private final ApplicantData applicantData;
-  // TODO: Make Block an AutoValue instead of implementing our own memoization.
   private Optional<ImmutableList<ApplicantQuestion>> questionsMemo = Optional.empty();
   private Optional<Boolean> errorsMemo = Optional.empty();
 
@@ -76,5 +77,21 @@ public final class Block {
         .filter(path -> !applicantData.hasPath(path) && !hasErrors())
         .findAny()
         .isEmpty();
+  }
+
+  @Override
+  public boolean equals(@Nullable Object object) {
+    if (object instanceof Block) {
+      Block that = (Block) object;
+      return this.id == that.id
+          && this.blockDefinition.equals(that.blockDefinition)
+          && this.applicantData.equals(that.applicantData);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, blockDefinition, applicantData);
   }
 }
