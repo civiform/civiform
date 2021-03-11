@@ -30,21 +30,14 @@ public abstract class BaseHtmlView {
     return h1(headerText).withClasses(Styles.M_2);
   }
 
-  public Tag renderLink(String text, String link) {
-    return renderLink(text, link, "");
-  }
-
-  public Tag renderLink(String text, String link, String withClasses) {
+  public Tag renderLink(String text, String link, String... styles) {
     return a().withText(text)
         .withHref(link)
-        .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT, withClasses);
+        .withClasses(
+            BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT, StyleUtils.joinStyles(styles));
   }
 
-  public Tag renderLinkButton(String text, String link) {
-    return renderLinkButton(text, link, "");
-  }
-
-  public Tag renderLinkButton(String text, String link, String withClasses) {
+  public Tag renderLinkButton(String text, String link, String... styles) {
     return a(text)
         .withHref(link)
         .withClasses(
@@ -60,7 +53,7 @@ public abstract class BaseHtmlView {
             Styles.TEXT_WHITE,
             StyleUtils.hover(Styles.BG_BLUE_500),
             StyleUtils.focus(ImmutableList.of(Styles.OUTLINE_NONE, Styles.RING_2)),
-            withClasses);
+            StyleUtils.joinStyles(styles));
   }
 
   protected ContainerTag fieldErrors(ImmutableSet<ValidationErrorMessage> errors) {

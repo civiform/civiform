@@ -45,4 +45,8 @@ public class StyleUtils {
   public static String hover(ImmutableList<String> styles) {
     return applyUtilityClass(HOVER, styles);
   }
+
+  public static String joinStyles(String... styles) {
+    return String.join(" ", styles);
+  }
 }

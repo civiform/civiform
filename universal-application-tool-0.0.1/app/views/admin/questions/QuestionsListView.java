@@ -42,7 +42,7 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private Tag renderAddQuestionLink() {
-    return renderLinkButton("Create new question", "/admin/questions/new").withId("createQuestion");
+    return renderLinkButton("Create new question", controllers.admin.routes.QuestionController.newOne().url()).withId("createQuestion");
   }
 
   private Tag renderSummary(ImmutableList<QuestionDefinition> questions) {
@@ -115,9 +115,7 @@ public final class QuestionsListView extends BaseHtmlView {
             renderLink(
                 linkText,
                 link,
-                String.join(
-                    " ",
-                    Styles.MR_2,
-                    StyleUtils.applyUtilityClass(StyleUtils.RESPONSIVE_MD, Styles.MR_4))));
+                Styles.MR_2,
+                StyleUtils.applyUtilityClass(StyleUtils.RESPONSIVE_MD, Styles.MR_4)));
   }
 }

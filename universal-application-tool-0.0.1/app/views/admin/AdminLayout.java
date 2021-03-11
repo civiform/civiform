@@ -6,7 +6,6 @@ import static j2html.TagCreator.head;
 import static j2html.TagCreator.main;
 import static j2html.TagCreator.nav;
 
-import com.google.common.collect.ImmutableList;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.Tag;
@@ -14,6 +13,7 @@ import javax.inject.Inject;
 import play.twirl.api.Content;
 import views.BaseHtmlLayout;
 import views.BaseStyles;
+import views.StyleUtils;
 import views.Styles;
 import views.ViewUtils;
 
@@ -33,7 +33,7 @@ public class AdminLayout extends BaseHtmlLayout {
         nav()
             .with(headerLink("Questions", questionLink))
             .with(headerLink("Programs", programLink))
-            .with(headerLink("Logout", logoutLink, ImmutableList.of(Styles.FLOAT_RIGHT)))
+            .with(headerLink("Logout", logoutLink, Styles.FLOAT_RIGHT))
             .withClasses(BaseStyles.NAV_STYLES);
 
     ContainerTag mainContent =
@@ -59,11 +59,7 @@ public class AdminLayout extends BaseHtmlLayout {
                 Styles.FLEX));
   }
 
-  public Tag headerLink(String text, String href) {
-    return headerLink(text, href, ImmutableList.of());
-  }
-
-  public Tag headerLink(String text, String href, ImmutableList<String> styles) {
-    return a(text).withHref(href).withClasses(Styles.PX_3, String.join(" ", styles));
+  public Tag headerLink(String text, String href, String... styles) {
+    return a(text).withHref(href).withClasses(Styles.PX_3, StyleUtils.joinStyles(styles));
   }
 }

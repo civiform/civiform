@@ -38,9 +38,7 @@ public class ProgramEditView extends BaseHtmlView {
                     .getContainer(),
                 submitButton("Save"),
                 renderLink(
-                        "Manage Questions →",
-                        manageQuestionLink,
-                        String.join(" ", Styles.MX_4, Styles.FLOAT_RIGHT))
+                        "Manage Questions →", manageQuestionLink, Styles.MX_4, Styles.FLOAT_RIGHT)
                     .withId("manageQuestions"))
             .withMethod("post")
             .withAction(controllers.admin.routes.AdminProgramController.update(program.id()).url());
