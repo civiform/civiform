@@ -77,7 +77,7 @@ public class UatProfile {
         .thenApplyAsync(
             a -> {
               String existingEmail = a.getEmailAddress();
-              if (existingEmail == null || existingEmail.equals("")) {
+              if (existingEmail == null || existingEmail.isEmpty()) {
                 a.setEmailAddress(emailAddress);
                 a.save();
               } else if (!existingEmail.equals(emailAddress)) {
