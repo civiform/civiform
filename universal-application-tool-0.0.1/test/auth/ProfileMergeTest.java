@@ -20,7 +20,6 @@ public class ProfileMergeTest extends WithPostgresContainer {
     profileAdapter = new IdcsProfileAdapter(null, null, profileFactory);
   }
 
-
   @Test
   public void testProfileCreation() throws ExecutionException, InterruptedException {
     OidcProfile oidcProfile = new OidcProfile();
