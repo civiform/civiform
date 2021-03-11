@@ -10,6 +10,8 @@ import org.junit.Test;
 import services.Path;
 import services.question.AddressQuestionDefinition;
 import services.question.NameQuestionDefinition;
+import services.question.QuestionDefinitionBuilder;
+import services.question.QuestionType;
 import services.question.TextQuestionDefinition;
 
 public class ApplicantQuestionTest {
@@ -71,15 +73,18 @@ public class ApplicantQuestionTest {
   }
 
   @Test
-  public void textQuestion_withPresentApplicantData_failsValidation() {
+  public void textQuestion_withPresentApplicantData_failsValidation() throws Exception {
     TextQuestionDefinition question =
-        new TextQuestionDefinition(
-            1L,
-            "question name",
-            Path.create("applicant.my.path.name"),
-            "description",
-            ImmutableMap.of(Locale.ENGLISH, "question?"),
-            ImmutableMap.of(Locale.ENGLISH, "help text"));
+        (TextQuestionDefinition)
+            new QuestionDefinitionBuilder()
+                .setQuestionType(QuestionType.TEXT)
+                .setVersion(1L)
+                .setName("question name")
+                .setPath(Path.create("applicant.my.path.name"))
+                .setDescription("description")
+                .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "question?"))
+                .setQuestionHelpText(ImmutableMap.of(Locale.ENGLISH, "help text"))
+                .build();
     question.setMinLength(0);
     question.setMaxLength(4);
     applicantData.putString(question.getPath(), "hello");
