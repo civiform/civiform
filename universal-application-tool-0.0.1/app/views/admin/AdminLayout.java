@@ -6,7 +6,6 @@ import static j2html.TagCreator.head;
 import static j2html.TagCreator.main;
 import static j2html.TagCreator.nav;
 
-import com.google.common.collect.ImmutableList;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.Tag;
@@ -14,6 +13,7 @@ import javax.inject.Inject;
 import play.twirl.api.Content;
 import views.BaseHtmlLayout;
 import views.BaseStyles;
+import views.StyleUtils;
 import views.Styles;
 import views.ViewUtils;
 
@@ -26,21 +26,32 @@ public class AdminLayout extends BaseHtmlLayout {
 
   /** Renders mainDomContents within the main tag, in the context of the admin layout. */
   public Content render(DomContent... mainDomContents) {
-    String questionLink = controllers.admin.routes.QuestionController.index("table").url();
+    String questionLink = controllers.admin.routes.QuestionController.index().url();
     String programLink = controllers.admin.routes.AdminProgramController.index().url();
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     ContainerTag adminHeader =
         nav()
             .with(headerLink("Questions", questionLink))
             .with(headerLink("Programs", programLink))
-            .with(headerLink("Logout", logoutLink, ImmutableList.of(Styles.FLOAT_RIGHT)))
+            .with(headerLink("Logout", logoutLink, Styles.FLOAT_RIGHT))
             .withClasses(BaseStyles.NAV_STYLES);
+
+    ContainerTag mainContent =
+        main(mainDomContents)
+            .withClasses(
+                Styles.BG_WHITE,
+                Styles.BORDER,
+                Styles.BORDER_GRAY_200,
+                Styles.PX_2,
+                Styles.SHADOW_LG);
+
     return htmlContent(
         head(tailwindStyles()),
         body()
             .with(adminHeader)
-            .with(main(mainDomContents))
+            .with(mainContent)
             .withClasses(
+                BaseStyles.BODY_GRADIENT_STYLE,
                 Styles.BOX_BORDER,
                 Styles.H_SCREEN,
                 Styles.W_SCREEN,
@@ -48,11 +59,7 @@ public class AdminLayout extends BaseHtmlLayout {
                 Styles.FLEX));
   }
 
-  public Tag headerLink(String text, String href) {
-    return headerLink(text, href, ImmutableList.of());
-  }
-
-  public Tag headerLink(String text, String href, ImmutableList<String> styles) {
-    return a(text).withHref(href).withClasses(Styles.PX_3, String.join(" ", styles));
+  public Tag headerLink(String text, String href, String... styles) {
+    return a(text).withHref(href).withClasses(Styles.PX_3, StyleUtils.joinStyles(styles));
   }
 }

@@ -10,14 +10,14 @@ public class SelectWithLabelTest {
 
   @Test
   public void createSelect_rendersSelect() {
-    SelectWithLabel selectWithLabel = new SelectWithLabel("id");
+    SelectWithLabel selectWithLabel = new SelectWithLabel().setId("id");
     assertThat(selectWithLabel.getContainer().render()).contains("<select");
     assertThat(selectWithLabel.getContainer().render()).doesNotContain("<option");
   }
 
   @Test
   public void createSelect_rendersOptions() {
-    SelectWithLabel selectWithLabel = new SelectWithLabel("id");
+    SelectWithLabel selectWithLabel = new SelectWithLabel().setId("id");
     ImmutableList<SimpleEntry<String, String>> options =
         ImmutableList.of(new SimpleEntry<String, String>("a", "b"));
     selectWithLabel.setOptions(options);
@@ -26,7 +26,7 @@ public class SelectWithLabelTest {
 
   @Test
   public void createSelect_rendersSelectedOption() {
-    SelectWithLabel selectWithLabel = new SelectWithLabel("id");
+    SelectWithLabel selectWithLabel = new SelectWithLabel().setId("id");
     ImmutableList<SimpleEntry<String, String>> options =
         ImmutableList.of(new SimpleEntry<String, String>("a", "b"));
     selectWithLabel.setOptions(options);
