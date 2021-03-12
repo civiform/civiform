@@ -4,13 +4,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.h1;
-import static j2html.TagCreator.h2;
-import static j2html.TagCreator.li;
-import static j2html.TagCreator.ul;
+import static j2html.TagCreator.main;
+import static j2html.TagCreator.p;
+import static j2html.TagCreator.text;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import play.mvc.Http.Request;
@@ -19,13 +19,22 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.QuestionDefinition;
 import views.BaseHtmlView;
+import views.StyleUtils;
 import views.Styles;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
+import views.components.Icons;
+import views.components.QuestionBank;
 
 public class ProgramBlockEditView extends BaseHtmlView {
 
   private final AdminLayout layout;
+
+  private static final String CREATE_BLOCK_FORM = "block-create";
+  private static final String DELETE_BLOCK_FORM = "block-delete";
+  private static final String UPDATE_BLOCK_FORM = "block-update";
+  private static final String ADD_QUESTION_FORM = "question-add";
+  private static final String DELETE_QUESTION_FORM = "question-delete";
 
   @Inject
   public ProgramBlockEditView(AdminLayout layout) {
@@ -38,146 +47,189 @@ public class ProgramBlockEditView extends BaseHtmlView {
       BlockDefinition block,
       ImmutableList<QuestionDefinition> questions) {
     Tag csrfTag = makeCsrfTokenInputTag(request);
+    ContainerTag mainContent =
+        main(
+            addFormEndpoints(csrfTag, program.id(), block.id()),
+            programInfo(program),
+            div()
+                .withId("program-block-info")
+                .withClasses("flex flex-grow -mx-2")
+                .with(blockOrderPanel(program, block))
+                .with(blockEditPanel(program, block))
+                .with(questionBankPanel(questions, program)));
 
-    return layout.render(
-        title(program),
-        topButtons(csrfTag, program),
+    return layout.renderMain(mainContent, Styles.FLEX, Styles.FLEX_COL);
+  }
+
+  private Tag addFormEndpoints(Tag csrfTag, long programId, long blockId) {
+    String blockCreateAction =
+        controllers.admin.routes.AdminProgramBlocksController.create(programId).url();
+    ContainerTag createBlockForm =
+        form(csrfTag).withId(CREATE_BLOCK_FORM).withMethod("post").withAction(blockCreateAction);
+
+    String blockDeleteAction =
+        controllers.admin.routes.AdminProgramBlocksController.destroy(programId, blockId).url();
+    ContainerTag deleteBlockForm =
+        form(csrfTag).withId(DELETE_BLOCK_FORM).withMethod("post").withAction(blockDeleteAction);
+
+    String blockUpdateAction =
+        controllers.admin.routes.AdminProgramBlocksController.update(programId, blockId).url();
+    ContainerTag updateBlockForm =
+        form(csrfTag).withId(UPDATE_BLOCK_FORM).withMethod("post").withAction(blockUpdateAction);
+
+        String deleteQuestionAction =
+        controllers.admin.routes.AdminProgramBlockQuestionsController.destroy(
+            programId, blockId).url();
+    ContainerTag deleteQuestionForm =
+        form(csrfTag).withId(DELETE_QUESTION_FORM).withMethod("post").withAction(deleteQuestionAction);
+
+    String addQuestionAction =
+        controllers.admin.routes.AdminProgramBlockQuestionsController.create(
+                programId, blockId).url();
+    ContainerTag addQuestionForm =
+        form(csrfTag).withId(ADD_QUESTION_FORM).withMethod("post").withAction(addQuestionAction);
+    return div(createBlockForm, deleteBlockForm, updateBlockForm, deleteQuestionForm, addQuestionForm).withClasses(Styles.HIDDEN);
+  }
+
+  private Tag programInfo(ProgramDefinition program) {
+    ContainerTag programStatus =
+        div("Draft").withId("program-status").withClasses(Styles.TEXT_XS, Styles.UPPERCASE);
+    ContainerTag programTitle =
+        div(program.name()).withId("program-title").withClasses(Styles.TEXT_3XL, Styles.PB_3);
+    ContainerTag programDescription = div(program.description()).withClasses(Styles.TEXT_SM);
+
+    ContainerTag programInfo =
+        div(programStatus, programTitle, programDescription)
+            .withId("program-info")
+            .withClasses(
+                Styles.BG_GRAY_100,
+                Styles.TEXT_GRAY_800,
+                Styles.SHADOW_MD,
+                Styles.P_8,
+                Styles.PT_4,
+                Styles._MX_2);
+
+    return programInfo;
+  }
+
+  public ContainerTag blockOrderPanel(ProgramDefinition program, BlockDefinition focusedBlock) {
+    ContainerTag ret =
         div()
-            .withClasses(Styles.FLEX)
-            .with(blockOrderPanel(program, block))
-            .with(blockEditPanel(csrfTag, program, block))
-            .with(questionBankPanel(csrfTag, questions, program, block)));
-  }
-
-  private Tag title(ProgramDefinition program) {
-    return h1(program.name() + " Questions");
-  }
-
-  private ContainerTag topButtons(Tag csrfTag, ProgramDefinition program) {
-    String addBlockUrl =
-        controllers.admin.routes.AdminProgramBlocksController.create(program.id()).url();
-    ContainerTag addBlockForm =
-        form(csrfTag, submitButton("Add Block")).withMethod("post").withAction(addBlockUrl);
-
-    return div(addBlockForm);
-  }
-
-  private ContainerTag blockOrderPanel(ProgramDefinition program, BlockDefinition focusedBlock) {
-    ContainerTag list = ul();
+            .withClasses(
+                Styles.SHADOW_LG,
+                Styles.PT_6,
+                Styles.W_1_5,
+                Styles.BORDER_R,
+                Styles.BORDER_GRAY_200);
 
     for (BlockDefinition block : program.blockDefinitions()) {
       String editBlockLink =
           controllers.admin.routes.AdminProgramBlocksController.edit(program.id(), block.id())
               .url();
-      ContainerTag link = a().withText(block.name()).withHref(editBlockLink);
 
-      if (block.hasSameId(focusedBlock)) {
-        link.withClass(Styles.FONT_BOLD);
+      // TODO: Not i18n safe.
+      int numQuestions = block.getQuestionCount();
+      String questionCountText = String.format("%d Question", numQuestions);
+      if (numQuestions != 1) {
+        questionCountText += 's';
       }
+      String blockName = block.name();
 
-      list.with(li(link));
+      ContainerTag blockTag =
+          a().withHref(editBlockLink)
+              .with(p(blockName), p(questionCountText).withClasses(Styles.TEXT_SM));
+      String selectedClasses = block.hasSameId(focusedBlock) ? Styles.BG_GRAY_100 : "";
+      blockTag.withClasses(Styles.BLOCK, Styles.PY_2, Styles.PX_4, selectedClasses);
+      ret.with(blockTag);
     }
 
-    return div().withClasses(Styles.FLEX_INITIAL).with(list);
+    ret.with(submitButton("Add Block").attr("form", CREATE_BLOCK_FORM).withClasses(Styles.M_4));
+    return ret;
   }
 
-  private ContainerTag blockEditPanel(
-      Tag csrfTag, ProgramDefinition program, BlockDefinition block) {
-    ContainerTag questionList = ul().withId("blockQuestions");
+  private ContainerTag blockEditPanel(ProgramDefinition program, BlockDefinition block) {
+
+    ContainerTag blockInfoDiv =
+        div(
+            FieldWithLabel.input()
+                .setFormId(UPDATE_BLOCK_FORM)
+                .setId("name")
+                .setLabelText("Block name")
+                .setValue(block.name())
+                .getContainer(),
+            FieldWithLabel.textArea()
+                .setFormId(UPDATE_BLOCK_FORM)
+                .setId("description")
+                .setLabelText("Block description")
+                .setValue(block.description())
+                .getContainer(),
+            submitButton("Update Block")
+                .attr("form", UPDATE_BLOCK_FORM)
+                .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
+    if (program.blockDefinitions().size() > 1) {
+      blockInfoDiv.with(
+          submitButton("Delete Block")
+              .attr("form", DELETE_BLOCK_FORM)
+              .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
+    }
+
+    ContainerTag questionsList = div().withId("blockQuestions");
     block
         .programQuestionDefinitions()
-        .forEach(
-            pqd ->
-                questionList.with(
-                    li(
-                        checkboxInputWithLabel(
-                            pqd.getQuestionDefinition().getName(),
-                            "block-question-" + pqd.getQuestionDefinition().getId(),
-                            "block-question-" + pqd.getQuestionDefinition().getId(),
-                            String.valueOf(pqd.getQuestionDefinition().getId())))));
+        .forEach(pqd -> questionsList.with(renderQuestion(pqd.getQuestionDefinition())));
 
-    return div()
-        .withClass(Styles.FLEX_AUTO)
-        .with(blockEditPanelTop(csrfTag, program, block))
-        .with(
-            div(
-                form(
-                        csrfTag,
-                        FieldWithLabel.input()
-                            .setId("name")
-                            .setLabelText("Block name")
-                            .setValue(block.name())
-                            .getContainer(),
-                        FieldWithLabel.textArea()
-                            .setId("description")
-                            .setLabelText("Block description")
-                            .setValue(block.description())
-                            .getContainer(),
-                        submitButton("Update Block"))
-                    .withMethod("post")
-                    .withAction(
-                        controllers.admin.routes.AdminProgramBlocksController.update(
-                                program.id(), block.id())
-                            .url()),
-                form()
-                    .withMethod("post")
-                    .withAction(
-                        controllers.admin.routes.AdminProgramBlockQuestionsController.destroy(
-                                program.id(), block.id())
-                            .url())
-                    .with(csrfTag)
-                    .with(questionList)
-                    .with(submitButton("Remove questions"))));
+    return div().withClasses(Styles.FLEX_AUTO, Styles.PY_6).with(blockInfoDiv, questionsList);
   }
 
-  private ContainerTag blockEditPanelTop(
-      Tag csrfTag, ProgramDefinition program, BlockDefinition block) {
-    String deleteBlockLink =
-        controllers.admin.routes.AdminProgramBlocksController.destroy(program.id(), block.id())
-            .url();
+  public ContainerTag renderQuestion(QuestionDefinition definition) {
+    ContainerTag ret =
+        div()
+            .attr(
+                "onclick",
+                String.format(
+                    "document.getElementById('block-question-%d').click()", definition.getId()))
+            .withClasses(
+                Styles.MX_4,
+                Styles.MY_2,
+                Styles.BORDER,
+                Styles.BORDER_GRAY_200,
+                Styles.PX_4,
+                Styles.PY_2,
+                Styles.FLEX,
+                Styles.ITEMS_START,
+                StyleUtils.hover(Styles.TEXT_GRAY_800, Styles.BG_GRAY_100));
 
-    ContainerTag blockEditPanelTop = div().withClass(Styles.FLEX).with(h1(block.name()));
-    if (program.blockDefinitions().size() > 1) {
-      ContainerTag deleteButton =
-          form(csrfTag, submitButton("Delete Block"))
-              .withMethod("post")
-              .withAction(deleteBlockLink);
-      blockEditPanelTop.with(deleteButton);
-    }
-    return blockEditPanelTop;
+    Tag removeButton =
+        TagCreator.button(text("-"))
+            .attr("form", DELETE_QUESTION_FORM)
+            .withType("submit")
+            .withId("block-question-" + definition.getId())
+            .withName("block-question-" + definition.getId())
+            .withValue(definition.getId() + "")
+            .withClasses("hidden");
+
+    ContainerTag icon =
+        Icons.questionTypeSvg(definition.getQuestionType(), 24)
+            .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
+    ContainerTag content =
+        div()
+            .withClasses(Styles.ML_4)
+            .with(
+                p(definition.getName()).withClasses("text-base font-medium text-primaryText"),
+                p(definition.getDescription()).withClasses("mt-1 text-sm text-secondaryText"),
+                removeButton);
+    return ret.with(icon, content);
   }
 
   private ContainerTag questionBankPanel(
-      Tag csrfTag,
       ImmutableList<QuestionDefinition> questionDefinitions,
-      ProgramDefinition program,
-      BlockDefinition block) {
-    ContainerTag questionBank = div().withClasses(Styles.FLEX_INITIAL).with(h2("Question Bank"));
-    ContainerTag form =
-        form()
-            .withMethod("post")
-            .withAction(
-                controllers.admin.routes.AdminProgramBlockQuestionsController.create(
-                        program.id(), block.id())
-                    .url())
-            .with(csrfTag)
-            .with(submitButton("Add to Block"));
+      ProgramDefinition program) {
+    QuestionBank qb =
+        new QuestionBank()
+            .setFormId(ADD_QUESTION_FORM)
+            .setQuestions(questionDefinitions)
+            .setProgram(program);
 
-    ContainerTag questionList =
-        ul().withId("questionBankQuestions").withClass(Styles.OVERFLOW_X_SCROLL);
-
-    questionDefinitions.stream()
-        .filter(question -> !program.hasQuestion(question))
-        .forEach(
-            questionDefinition ->
-                questionList.with(
-                    li(
-                        checkboxInputWithLabel(
-                            questionDefinition.getName(),
-                            "question-" + questionDefinition.getId(),
-                            "question-" + questionDefinition.getId(),
-                            String.valueOf(questionDefinition.getId())))));
-
-    return questionBank.with(form.with(questionList));
+    return qb.getContainer();
   }
 }
