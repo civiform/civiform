@@ -74,15 +74,19 @@ public final class Block {
    * memoized, since we need to reflect internal changes to ApplicantData.
    */
   public boolean isCompleteWithoutErrors() {
-    boolean isCompleteWithoutErrors = blockDefinition.scalarPaths().stream()
-        .filter(path -> !applicantData.hasPath(path) && !hasErrors())
-        .findAny()
-        .isEmpty();
+    boolean isCompleteWithoutErrors =
+        blockDefinition.scalarPaths().stream()
+            .filter(path -> !applicantData.hasPath(path) && !hasErrors())
+            .findAny()
+            .isEmpty();
     isCompleteWithoutErrorsCached = Optional.of(isCompleteWithoutErrors);
     return isCompleteWithoutErrors;
   }
 
-  /** Call this method if and only if you are sure the underlying {@link ApplicantData} has not changed. */
+  /**
+   * Call this method if and only if you are sure the underlying {@link ApplicantData} has not
+   * changed.
+   */
   public boolean isCompleteWithoutErrorsCached() {
     if (isCompleteWithoutErrorsCached.isPresent()) {
       return isCompleteWithoutErrorsCached.get();
