@@ -14,7 +14,7 @@ import services.applicant.ApplicantQuestion;
 import services.question.TextQuestionDefinition;
 
 public class TextQuestionRendererTest extends WithPostgresContainer {
-  private static final TextQuestionDefinition textQuestionDefinition =
+  private static final TextQuestionDefinition TEXT_QUESTION_DEFINITION =
       new TextQuestionDefinition(
           1L,
           "question name",
@@ -29,7 +29,7 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
 
   @Before
   public void setUp() {
-    ApplicantQuestion question = new ApplicantQuestion(textQuestionDefinition, applicantData);
+    ApplicantQuestion question = new ApplicantQuestion(TEXT_QUESTION_DEFINITION, applicantData);
     renderer = new TextQuestionRenderer(question);
   }
 
@@ -42,8 +42,8 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
 
   @Test
   public void render_withMinLengthError() {
-    textQuestionDefinition.setMinLength(1);
-    applicantData.putString(textQuestionDefinition.getTextPath(), "");
+    TEXT_QUESTION_DEFINITION.setMinLength(1);
+    applicantData.putString(TEXT_QUESTION_DEFINITION.getTextPath(), "");
 
     Tag result = renderer.render();
 
@@ -52,8 +52,8 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
 
   @Test
   public void render_withMaxLengthError() {
-    textQuestionDefinition.setMaxLength(3);
-    applicantData.putString(textQuestionDefinition.getTextPath(), "abcd");
+    TEXT_QUESTION_DEFINITION.setMaxLength(3);
+    applicantData.putString(TEXT_QUESTION_DEFINITION.getTextPath(), "abcd");
 
     Tag result = renderer.render();
 
