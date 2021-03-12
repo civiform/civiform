@@ -140,14 +140,6 @@ public class ApplicantData {
     return false;
   }
 
-  public boolean hasPath(Path path) {
-    try {
-      return read(path, Object.class).isPresent();
-    } catch (JsonPathTypeMismatchException e) {
-      return false;
-    }
-  }
-
   @Override
   public int hashCode() {
     return Objects.hash(jsonData.jsonString());
