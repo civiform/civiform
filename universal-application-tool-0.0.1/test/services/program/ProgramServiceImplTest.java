@@ -231,7 +231,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void getProgramDefinition_returnsEmptyOptionalWhenProgramNotFound() {
+  public void getProgramDefinition_throwsWhenProgramNotFound() {
     assertThatThrownBy(() -> ps.getProgramDefinition(1L))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessageContaining("Program not found for ID");
@@ -260,7 +260,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void getProgramDefinitionAsync_cannotFindRequestedProgram_returnsEmptyOptional() {
+  public void getProgramDefinitionAsync_cannotFindRequestedProgram_throwsException() {
     ProgramDefinition programDefinition = ProgramBuilder.newProgram().buildDefinition();
 
     CompletionStage<ProgramDefinition> found =

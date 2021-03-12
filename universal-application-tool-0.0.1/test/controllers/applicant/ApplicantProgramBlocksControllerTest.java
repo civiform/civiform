@@ -38,7 +38,7 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
 
   @Test
   public void edit_toAProgramThatDoesNotExist_returns404() {
-    Http.Request request =
+    Request request =
         fakeRequest(routes.ApplicantProgramBlocksController.edit(applicant.id, 2L, 1L)).build();
 
     Result result = subject.edit(request, applicant.id, 2L, 1L).toCompletableFuture().join();

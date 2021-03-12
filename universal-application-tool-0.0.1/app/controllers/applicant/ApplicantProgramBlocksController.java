@@ -111,7 +111,18 @@ public final class ApplicantProgramBlocksController extends Controller {
                 return badRequest();
               }
             },
-            httpExecutionContext.current());
+            httpExecutionContext.current())
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                Throwable cause = ex.getCause();
+                if (cause instanceof ProgramNotFoundException) {
+                  return badRequest(cause.toString());
+                }
+                throw new RuntimeException(cause);
+              }
+              throw new RuntimeException(ex);
+            });
   }
 
   private Result update(

@@ -1,6 +1,7 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
@@ -70,6 +71,15 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Programas");
+  }
+
+  @Test
+  public void edit_invalidProgram_returnsBadRequest() {
+    Applicant applicant = resourceCreator().insertApplicant();
+
+    Result result = controller.edit(applicant.id, 9999L).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
   // TODO(https://github.com/seattle-uat/universal-application-tool/issues/224): Should redirect to
