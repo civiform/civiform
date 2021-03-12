@@ -81,20 +81,20 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
             .join();
 
     // Now we have a three-way merge situation.  We might have
-    // 1) an applicant in the database,
-    // 2) a guest profile in the browser cookie
-    // 3) an OIDC account in the callback from the OIDC server.
-    // We will merge 1 and 2, if present, into `existingProfile`, then merge in 3.
+    // 1) an applicant in the database (`existingApplicant`),
+    // 2) a guest profile in the browser cookie (`existingProfile`)
+    // 3) an OIDC account in the callback from the OIDC server (`profile`).
+    // We will merge 1 and 2, if present, into `existingProfile`, then merge in `profile`.
 
     if (existingApplicant.isPresent()) {
       if (existingProfile.isEmpty()) {
         // Easy merge case - we have an existing applicant, but no guest profile.
         // This will be the most common.
-        existingProfile = Optional.of(profileFactory.wrapApplicant(existingApplicant.get()));
+        existingProfile = Optional.of(profileFactory.wrap(existingApplicant.get()));
       } else {
         existingProfile =
             Optional.of(
-                profileFactory.wrapApplicant(
+                profileFactory.wrap(
                     applicantRepositoryProvider
                         .get()
                         .mergeApplicants(

@@ -41,11 +41,11 @@ public class ProfileFactory {
     return p;
   }
 
-  public UatProfile wrapAccount(Account account) {
+  public UatProfile wrap(Account account) {
     return wrapProfileData(new UatProfileData(clock, account.id));
   }
 
-  public UatProfile wrapApplicant(Applicant applicant) {
+  public UatProfile wrap(Applicant applicant) {
     return wrapProfileData(new UatProfileData(clock, applicant.getAccount().id));
   }
 }

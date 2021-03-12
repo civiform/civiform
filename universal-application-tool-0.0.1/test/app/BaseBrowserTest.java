@@ -11,6 +11,7 @@ import controllers.routes;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Optional;
+import models.Account;
 import models.Applicant;
 import models.Program;
 import models.Question;
@@ -39,7 +40,7 @@ public class BaseBrowserTest extends WithBrowser {
   public void truncateTables() {
     EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
     EbeanServer server = Ebean.getServer(config.defaultServer());
-    server.truncate(Applicant.class, Program.class, Question.class);
+    server.truncate(Applicant.class, Program.class, Question.class, Account.class);
   }
 
   /**
