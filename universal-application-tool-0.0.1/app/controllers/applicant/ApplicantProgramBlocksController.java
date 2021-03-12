@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.errorprone.annotations.DoNotCall;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import play.i18n.MessagesApi;
@@ -13,6 +14,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
+import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramBlockEditView;
 
 public final class ApplicantProgramBlocksController extends Controller {
@@ -56,7 +58,18 @@ public final class ApplicantProgramBlocksController extends Controller {
                 return notFound();
               }
             },
-            httpExecutionContext.current());
+            httpExecutionContext.current())
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                Throwable cause = ex.getCause();
+                if (cause instanceof ProgramNotFoundException) {
+                  return notFound(cause.toString());
+                }
+                throw new RuntimeException(cause);
+              }
+              throw new RuntimeException(ex);
+            });
   }
 
   @DoNotCall
