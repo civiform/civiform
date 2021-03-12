@@ -223,7 +223,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void getProgramDefinition_canGetANewProgram() throws Exception {
+  public void getProgramDefinition() throws Exception {
     ProgramDefinition programDefinition = ProgramBuilder.newProgram().buildDefinition();
     ProgramDefinition found = ps.getProgramDefinition(programDefinition.id());
 

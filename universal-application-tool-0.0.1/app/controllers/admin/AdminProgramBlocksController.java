@@ -82,9 +82,7 @@ public class AdminProgramBlocksController extends Controller {
           questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
       return ok(editView.render(request, program, block, roQuestionService.getAllQuestions()));
-    } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
-    } catch (ProgramBlockNotFoundException e) {
+    } catch (ProgramNotFoundException | ProgramBlockNotFoundException e) {
       return notFound(e.toString());
     }
   }
@@ -97,7 +95,7 @@ public class AdminProgramBlocksController extends Controller {
     try {
       programService.updateBlock(programId, blockId, blockForm);
     } catch (ProgramNotFoundException | ProgramBlockNotFoundException e) {
-      return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
+      return notFound(e.toString());
     }
 
     return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
@@ -107,10 +105,8 @@ public class AdminProgramBlocksController extends Controller {
   public Result destroy(long programId, long blockId) {
     try {
       programService.deleteBlock(programId, blockId);
-    } catch (ProgramNotFoundException e) {
-      return notFound(String.format("Program ID %d not found.", programId));
-    } catch (ProgramNeedsABlockException e) {
-      return notFound(String.format("Cannot delete the last block of a program."));
+    } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
+      return notFound(e.toString());
     }
     return redirect(routes.AdminProgramBlocksController.index(programId));
   }
