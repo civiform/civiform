@@ -181,7 +181,8 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
-    // TODO: change reviewRoute when review page is available.
+    // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Change
+    //  reviewRoute when review page is available.
     String reviewRoute = routes.ApplicantProgramsController.index(applicant.id).url();
 
     assertThat(result.redirectLocation()).hasValue(reviewRoute);

@@ -126,7 +126,8 @@ public final class ApplicantProgramBlocksController extends Controller {
                   .build()));
     }
 
-    // TODO: redirect to review page when it is available.
+    // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Redirect to
+    //  review page when it is available.
     Result reviewPageRedirect = redirect(routes.ApplicantProgramsController.index(applicantId));
     Optional<Long> nextBlockIdMaybe =
         roApplicantProgramService.getBlockAfter(blockId).map(Block::getId);

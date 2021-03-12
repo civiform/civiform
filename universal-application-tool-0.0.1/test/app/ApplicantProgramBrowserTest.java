@@ -63,7 +63,8 @@ public class ApplicantProgramBrowserTest extends BaseBrowserTest {
 
     browser.$("button", withText("Save and continue")).click();
 
-    // TODO: Expect review page when it is implemented.
+    // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Expect review
+    //  page when it is implemented.
     // All blocks complete. Back to list of programs.
     assertThat(browser.$("h1", withText("Programs")).present()).isTrue();
     assertThat(browser.$("h2", withText("Mock program")).present()).isTrue();
