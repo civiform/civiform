@@ -25,7 +25,7 @@ public class ApplicantQuestion {
   private final QuestionDefinition questionDefinition;
   private final ApplicantData applicantData;
 
-  ApplicantQuestion(QuestionDefinition questionDefinition, ApplicantData applicantData) {
+  public ApplicantQuestion(QuestionDefinition questionDefinition, ApplicantData applicantData) {
     this.questionDefinition = checkNotNull(questionDefinition);
     this.applicantData = checkNotNull(applicantData);
   }
@@ -268,6 +268,10 @@ public class ApplicantQuestion {
     }
 
     public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+      if (!hasValue()) {
+        return ImmutableSet.of();
+      }
+
       TextQuestionDefinition definition = getQuestionDefinition();
       int textLength = getTextValue().map(s -> s.length()).orElse(0);
       ImmutableSet.Builder<ValidationErrorMessage> errors =
