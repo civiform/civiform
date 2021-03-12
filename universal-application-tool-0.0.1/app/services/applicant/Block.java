@@ -22,7 +22,6 @@ public final class Block {
   private final BlockDefinition blockDefinition;
   private final ApplicantData applicantData;
   private Optional<ImmutableList<ApplicantQuestion>> questionsMemo = Optional.empty();
-  private Optional<Boolean> errorsMemo = Optional.empty();
 
   Block(long id, BlockDefinition blockDefinition, ApplicantData applicantData) {
     this.id = id;
@@ -57,14 +56,10 @@ public final class Block {
   }
 
   public boolean hasErrors() {
-    if (errorsMemo.isEmpty()) {
-      if (getQuestions().isEmpty()) {
-        return false;
-      }
-      this.errorsMemo =
-          getQuestions().stream().map(ApplicantQuestion::hasErrors).reduce(Boolean::logicalOr);
-    }
-    return errorsMemo.get();
+    return getQuestions().stream()
+        .map(ApplicantQuestion::hasErrors)
+        .reduce(Boolean::logicalOr)
+        .orElse(false);
   }
 
   /**
