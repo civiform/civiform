@@ -3,7 +3,6 @@ package services.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import models.Applicant;
 import org.junit.Before;
@@ -50,8 +49,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
   @Test
   public void getCurrentBlockList_doesNotIncludeCompleteBlocks() {
-    // Answer the first block's questions (name)
-    applicantData.putString(nameQuestion.getPath(), "my name");
+    // Answer block one questions
+    answerNameQuestion();
 
     ImmutableList<Block> blockList = subject.getCurrentBlockList();
 
@@ -62,9 +61,9 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void getCurrentBlockList_returnsEmptyListIfAllBlocksComplete() {
     // Answer all questions
-    applicantData.putString(nameQuestion.getPath(), "my name");
-    applicantData.putString(colorQuestion.getPath(), "mauve");
-    applicantData.putObject(addressQuestion.getPath(), ImmutableMap.of("scalar", "value"));
+    answerNameQuestion();
+    answerColorQuestion();
+    answerAddressQuestion();
 
     ImmutableList<Block> blockList = subject.getCurrentBlockList();
 
@@ -134,5 +133,24 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
     assertThat(maybeBlock).isNotEmpty();
     assertThat(maybeBlock.get().getName()).isEqualTo("Block one");
+  }
+
+  private void answerNameQuestion() {
+    applicantData.putString(nameQuestion.getPath().toBuilder().append("first").build(), "Alice");
+    applicantData.putString(nameQuestion.getPath().toBuilder().append("middle").build(), "");
+    applicantData.putString(nameQuestion.getPath().toBuilder().append("last").build(), "Last");
+  }
+
+  private void answerColorQuestion() {
+    applicantData.putString(colorQuestion.getPath(), "mauve");
+  }
+
+  private void answerAddressQuestion() {
+    applicantData.putString(
+        addressQuestion.getPath().toBuilder().append("street").build(), "123 Rhode St.");
+    applicantData.putString(
+        addressQuestion.getPath().toBuilder().append("city").build(), "Seattle");
+    applicantData.putString(addressQuestion.getPath().toBuilder().append("state").build(), "WA");
+    applicantData.putString(addressQuestion.getPath().toBuilder().append("zip").build(), "12345");
   }
 }

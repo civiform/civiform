@@ -89,16 +89,16 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
   @Test
   public void edit_redirectsToFirstIncompleteBlock() {
-    QuestionDefinition nameQuestion = Questions.applicantName().getQuestionDefinition();
+    QuestionDefinition colorQuestion = Questions.applicantFavoriteColor().getQuestionDefinition();
     Applicant applicant = resourceCreator().insertApplicant();
     Program program =
         ProgramBuilder.newProgram()
             .withBlock()
-            .withQuestionDefinition(nameQuestion)
+            .withQuestionDefinition(colorQuestion)
             .withBlock()
-            .withQuestion(Questions.applicantFavoriteColor())
+            .withQuestion(Questions.applicantAddress())
             .build();
-    applicant.getApplicantData().putString(nameQuestion.getPath(), "Ferdinand");
+    applicant.getApplicantData().putString(colorQuestion.getPath(), "forest green");
     applicant.save();
 
     Result result = controller.edit(applicant.id, program.id).toCompletableFuture().join();
