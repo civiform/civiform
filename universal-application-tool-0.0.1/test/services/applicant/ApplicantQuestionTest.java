@@ -11,6 +11,8 @@ import org.junit.Test;
 import services.Path;
 import services.question.AddressQuestionDefinition;
 import services.question.NameQuestionDefinition;
+import services.question.QuestionDefinitionBuilder;
+import services.question.QuestionType;
 import services.question.TextQuestionDefinition;
 
 public class ApplicantQuestionTest {
@@ -67,7 +69,33 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(textQuestionDefinition, applicantData);
     ApplicantQuestion.TextQuestion textQuestion = applicantQuestion.getTextQuestion();
 
-    assertThat(textQuestion.hasErrors()).isFalse();
+    assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(textQuestion.getTextValue().get()).isEqualTo("hello");
+  }
+
+  @Test
+  public void textQuestion_withPresentApplicantData_failsValidation() throws Exception {
+    TextQuestionDefinition question =
+        (TextQuestionDefinition)
+            new QuestionDefinitionBuilder()
+                .setQuestionType(QuestionType.TEXT)
+                .setVersion(1L)
+                .setName("question name")
+                .setPath(Path.create("applicant.my.path.name"))
+                .setDescription("description")
+                .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "question?"))
+                .setQuestionHelpText(ImmutableMap.of(Locale.ENGLISH, "help text"))
+                .build();
+    question.setMinLength(0);
+    question.setMaxLength(4);
+    applicantData.putString(question.getPath(), "hello");
+    ApplicantQuestion applicantQuestion = new ApplicantQuestion(question, applicantData);
+    ApplicantQuestion.TextQuestion textQuestion = applicantQuestion.getTextQuestion();
+
+    assertThat(applicantQuestion.hasErrors()).isTrue();
+    assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(textQuestion.getQuestionErrors())
+        .containsOnly(ValidationErrorMessage.textTooLongError(4));
     assertThat(textQuestion.getTextValue().get()).isEqualTo("hello");
   }
 

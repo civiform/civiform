@@ -93,6 +93,7 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     assertThat(browser.pageSource()).contains("You are logged in.");
     goTo(routes.ProfileController.myProfile());
     assertThat(browser.pageSource()).contains("OidcClient");
+    assertThat(browser.pageSource()).contains("username@example.com");
   }
 
   @Test

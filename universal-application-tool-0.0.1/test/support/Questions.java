@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import models.Question;
 import services.Path;
 import services.question.AddressQuestionDefinition;
+import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.TextQuestionDefinition;
 
@@ -48,7 +49,7 @@ public class Questions {
 
   private static Question applicantName(QuestionEnum ignore) {
     QuestionDefinition definition =
-        new TextQuestionDefinition(
+        new NameQuestionDefinition(
             VERSION,
             "applicant name",
             Path.create("applicant.name"),

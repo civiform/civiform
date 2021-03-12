@@ -35,7 +35,9 @@ public class ProfileView extends BaseHtmlView {
             h1("Profile Roles"),
             text(profile.getRoles().toString()),
             h1("Applicant Data JSON"),
-            text(applicant.getApplicantData().asJsonString())));
+            text(applicant.getApplicantData().asJsonString()),
+            h1("Applicant Email Address (if present)"),
+            text(applicant.getAccount().getEmailAddress())));
   }
 
   public Content renderNoProfile() {

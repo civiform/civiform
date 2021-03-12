@@ -2,6 +2,7 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -11,10 +12,12 @@ import models.Applicant;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicantRepository;
 import services.ErrorAnd;
+import services.Path;
 import services.program.BlockDefinition;
 import services.program.PathNotInBlockException;
 import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.ScalarType;
 import services.question.UnsupportedScalarTypeException;
@@ -48,8 +51,20 @@ public class ApplicantServiceImpl implements ApplicantService {
     return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
         .thenComposeAsync(
             (v) -> {
-              Applicant applicant = applicantCompletableFuture.join().get();
-              ProgramDefinition programDefinition = programDefinitionCompletableFuture.join().get();
+              Optional<Applicant> applicantMaybe = applicantCompletableFuture.join();
+              if (applicantMaybe.isEmpty()) {
+                return CompletableFuture.completedFuture(
+                    ErrorAnd.error(ImmutableSet.of(new ApplicantNotFoundException(applicantId))));
+              }
+              Applicant applicant = applicantMaybe.get();
+
+              Optional<ProgramDefinition> programDefinitionMaybe =
+                  programDefinitionCompletableFuture.join();
+              if (programDefinitionMaybe.isEmpty()) {
+                return CompletableFuture.completedFuture(
+                    ErrorAnd.error(ImmutableSet.of(new ProgramNotFoundException(programId))));
+              }
+              ProgramDefinition programDefinition = programDefinitionMaybe.get();
 
               try {
                 stageUpdates(applicant, programDefinition, blockId, updates);
@@ -75,6 +90,18 @@ public class ApplicantServiceImpl implements ApplicantService {
               return CompletableFuture.completedFuture(ErrorAnd.of(roApplicantProgramService));
             },
             httpExecutionContext.current());
+  }
+
+  @Override
+  public CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>>
+      stageAndUpdateIfValid(
+          long applicantId, long programId, long blockId, ImmutableMap<String, String> updateMap) {
+    ImmutableSet<Update> updates =
+        updateMap.entrySet().stream()
+            .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
+            .collect(ImmutableSet.toImmutableSet());
+
+    return stageAndUpdateIfValid(applicantId, programId, blockId, updates);
   }
 
   @Override
