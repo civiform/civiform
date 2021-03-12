@@ -86,7 +86,7 @@ public final class ApplicantProgramBlocksController extends Controller {
                 errorAndROApplicantProgramService
                     .getErrors()
                     .forEach(e -> logger.error("Exception while updating applicant data", e));
-                return badRequest();
+                return badRequest("Unable to process this request");
               }
               ReadOnlyApplicantProgramService roApplicantProgramService =
                   errorAndROApplicantProgramService.getResult();
@@ -95,7 +95,7 @@ public final class ApplicantProgramBlocksController extends Controller {
                 return update(request, applicantId, programId, blockId, roApplicantProgramService);
               } catch (ProgramBlockNotFoundException e) {
                 logger.error("Exception while updating applicant data", e);
-                return badRequest();
+                return badRequest("Unable to process this request");
               }
             },
             httpExecutionContext.current());
