@@ -74,9 +74,10 @@ public final class Block {
    */
   public boolean isCompleteWithoutErrors() {
     return blockDefinition.scalarPaths().stream()
-        .filter(path -> !applicantData.hasPath(path) && !hasErrors())
-        .findAny()
-        .isEmpty();
+            .filter(path -> !applicantData.hasPath(path))
+            .findAny()
+            .isEmpty()
+        && !hasErrors();
   }
 
   @Override
