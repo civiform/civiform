@@ -17,7 +17,6 @@ import services.program.BlockDefinition;
 import services.program.PathNotInBlockException;
 import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
-import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.ScalarType;
 import services.question.UnsupportedScalarTypeException;
@@ -45,7 +44,7 @@ public class ApplicantServiceImpl implements ApplicantService {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
         applicantRepository.lookupApplicant(applicantId).toCompletableFuture();
 
-    CompletableFuture<Optional<ProgramDefinition>> programDefinitionCompletableFuture =
+    CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
         programService.getProgramDefinitionAsync(programId).toCompletableFuture();
 
     return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
@@ -58,13 +57,7 @@ public class ApplicantServiceImpl implements ApplicantService {
               }
               Applicant applicant = applicantMaybe.get();
 
-              Optional<ProgramDefinition> programDefinitionMaybe =
-                  programDefinitionCompletableFuture.join();
-              if (programDefinitionMaybe.isEmpty()) {
-                return CompletableFuture.completedFuture(
-                    ErrorAnd.error(ImmutableSet.of(new ProgramNotFoundException(programId))));
-              }
-              ProgramDefinition programDefinition = programDefinitionMaybe.get();
+              ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
 
               try {
                 stageUpdates(applicant, programDefinition, blockId, updates);
@@ -115,14 +108,14 @@ public class ApplicantServiceImpl implements ApplicantService {
       long applicantId, long programId) {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
         applicantRepository.lookupApplicant(applicantId).toCompletableFuture();
-    CompletableFuture<Optional<ProgramDefinition>> programDefinitionCompletableFuture =
+    CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
         programService.getProgramDefinitionAsync(programId).toCompletableFuture();
 
     return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
         .thenApplyAsync(
             (v) -> {
               Applicant applicant = applicantCompletableFuture.join().get();
-              ProgramDefinition programDefinition = programDefinitionCompletableFuture.join().get();
+              ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
 
               return new ReadOnlyApplicantProgramServiceImpl(
                   applicant.getApplicantData(), programDefinition);
