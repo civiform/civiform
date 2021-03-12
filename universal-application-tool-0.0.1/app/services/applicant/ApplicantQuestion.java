@@ -42,27 +42,15 @@ public class ApplicantQuestion {
     }
   }
 
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    // TODO: Once QuestionDefinition has validation predicates, validate applicantData against
-    //  validation logic in questionDefinition, if any.
-    return ImmutableSet.of();
+  public boolean hasQuestionErrors() {
+    return errorsPresenter().hasQuestionErrors();
   }
 
   public boolean hasErrors() {
-    if (!getQuestionErrors().isEmpty()) {
+    if (hasQuestionErrors()) {
       return true;
     }
-
-    switch (getType()) {
-      case ADDRESS:
-        return getAddressQuestion().hasErrors();
-      case NAME:
-        return getNameQuestion().hasErrors();
-      case TEXT:
-        return getTextQuestion().hasErrors();
-      default:
-        throw new RuntimeException("Unrecognized question type: " + getType());
-    }
+    return errorsPresenter().hasTypeSpecificErrors();
   }
 
   public AddressQuestion getAddressQuestion() {
@@ -77,9 +65,27 @@ public class ApplicantQuestion {
     return new NameQuestion();
   }
 
-  private interface PresentsErrors {
+  public PresentsErrors errorsPresenter() {
+    switch (getType()) {
+      case ADDRESS:
+        return getAddressQuestion();
+      case NAME:
+        return getNameQuestion();
+      case TEXT:
+        return getTextQuestion();
+      default:
+        throw new RuntimeException("Unrecognized question type: " + getType());
+    }
+  }
 
-    boolean hasErrors();
+  public interface PresentsErrors {
+    /** Returns true if values do not meet conditions defined by admins. */
+    boolean hasQuestionErrors();
+    /**
+     * Returns true if there is any type specific errors. The validation does not consider
+     * admin-defined conditions.
+     */
+    boolean hasTypeSpecificErrors();
   }
 
   public class AddressQuestion implements PresentsErrors {
@@ -94,11 +100,21 @@ public class ApplicantQuestion {
     }
 
     @Override
-    public boolean hasErrors() {
-      return !getAllErrors().isEmpty();
+    public boolean hasQuestionErrors() {
+      return !getQuestionErrors().isEmpty();
     }
 
-    private ImmutableSet<ValidationErrorMessage> getAllErrors() {
+    public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+      // TODO: Implement admin-defined validation.
+      return ImmutableSet.of();
+    }
+
+    @Override
+    public boolean hasTypeSpecificErrors() {
+      return !getAllTypeSpecificErrors().isEmpty();
+    }
+
+    public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
       return ImmutableSet.<ValidationErrorMessage>builder()
           .addAll(getAddressErrors())
           .addAll(getStreetErrors())
@@ -247,7 +263,35 @@ public class ApplicantQuestion {
     }
 
     @Override
-    public boolean hasErrors() {
+    public boolean hasQuestionErrors() {
+      return !getQuestionErrors().isEmpty();
+    }
+
+    public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+      TextQuestionDefinition definition = getQuestionDefinition();
+      int textLength = getTextValue().map(s -> s.length()).orElse(0);
+      ImmutableSet.Builder<ValidationErrorMessage> errors =
+          ImmutableSet.<ValidationErrorMessage>builder();
+
+      if (definition.getMinLength().isPresent()) {
+        int minLength = definition.getMinLength().getAsInt();
+        if (textLength < minLength) {
+          errors.add(ValidationErrorMessage.textTooShortError(minLength));
+        }
+      }
+
+      if (definition.getMaxLength().isPresent()) {
+        int maxLength = definition.getMaxLength().getAsInt();
+        if (textLength > maxLength) {
+          errors.add(ValidationErrorMessage.textTooLongError(maxLength));
+        }
+      }
+
+      return errors.build();
+    }
+
+    @Override
+    public boolean hasTypeSpecificErrors() {
       // There are no inherent requirements in a text question.
       return false;
     }
@@ -296,11 +340,21 @@ public class ApplicantQuestion {
     }
 
     @Override
-    public boolean hasErrors() {
-      return !getAllErrors().isEmpty();
+    public boolean hasQuestionErrors() {
+      return !getQuestionErrors().isEmpty();
     }
 
-    public ImmutableSet<ValidationErrorMessage> getAllErrors() {
+    public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+      // TODO: Implement admin-defined validation.
+      return ImmutableSet.of();
+    }
+
+    @Override
+    public boolean hasTypeSpecificErrors() {
+      return !getAllTypeSpecificErrors().isEmpty();
+    }
+
+    public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
       return ImmutableSet.<ValidationErrorMessage>builder()
           .addAll(getFirstNameErrors())
           .addAll(getLastNameErrors())
