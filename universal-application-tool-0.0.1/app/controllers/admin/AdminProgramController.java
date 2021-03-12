@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import forms.ProgramForm;
-import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -62,11 +61,11 @@ public class AdminProgramController extends Controller {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result edit(Request request, long id) {
-    Optional<ProgramDefinition> program = service.getProgramDefinition(id);
-    if (program.isEmpty()) {
-      return notFound(String.format("Program ID %d not found.", id));
-    } else {
-      return ok(editView.render(request, program.get()));
+    try {
+      ProgramDefinition program = service.getProgramDefinition(id);
+      return ok(editView.render(request, program));
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.toString());
     }
   }
 

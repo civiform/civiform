@@ -2,7 +2,6 @@ package services.program;
 
 import com.google.common.collect.ImmutableList;
 import forms.BlockForm;
-import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import services.question.QuestionNotFoundException;
 
@@ -27,19 +26,20 @@ public interface ProgramService {
    * Get the definition for a given program.
    *
    * @param id the ID of the program to retrieve
-   * @return an {@link Optional} of the {@link ProgramDefinition} for the given ID if it exists, or
-   *     {@code Optional#empty} if not
+   * @return the {@link ProgramDefinition} for the given ID if it exists
+   * @throws ProgramNotFoundException when ID does not correspond to a real Program
    */
-  Optional<ProgramDefinition> getProgramDefinition(long id);
+  ProgramDefinition getProgramDefinition(long id) throws ProgramNotFoundException;
 
   /**
    * Get the definition of a given program asynchronously.
    *
    * @param id the ID of the program to retrieve
-   * @return an {@link Optional} of the {@link ProgramDefinition} for the given ID if it exists, or
-   *     {@code Optional#empty} if not
+   * @return the {@link ProgramDefinition} for the given ID if it exists, or a
+   *     ProgramNotFoundException is thrown when the future completes and ID does not correspond to
+   *     a real Program
    */
-  CompletionStage<Optional<ProgramDefinition>> getProgramDefinitionAsync(long id);
+  CompletionStage<ProgramDefinition> getProgramDefinitionAsync(long id);
 
   /**
    * Create a new program with an empty block.

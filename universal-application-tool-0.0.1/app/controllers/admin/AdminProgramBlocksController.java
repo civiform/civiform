@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import forms.BlockForm;
-import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -43,17 +42,15 @@ public class AdminProgramBlocksController extends Controller {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result index(long programId) {
-    Optional<ProgramDefinition> programMaybe = programService.getProgramDefinition(programId);
-
-    if (programMaybe.isEmpty()) {
-      return notFound(String.format("Program ID %d not found.", programId));
+    try {
+      ProgramDefinition program = programService.getProgramDefinition(programId);
+      return redirect(
+          routes.AdminProgramBlocksController.edit(
+              programId,
+              program.blockDefinitions().get(program.blockDefinitions().size() - 1).id()));
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.toString());
     }
-
-    ProgramDefinition program = programMaybe.get();
-
-    return redirect(
-        routes.AdminProgramBlocksController.edit(
-            programId, program.blockDefinitions().get(program.blockDefinitions().size() - 1).id()));
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
@@ -74,24 +71,20 @@ public class AdminProgramBlocksController extends Controller {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result edit(Request request, long programId, long blockId) {
-    Optional<ProgramDefinition> programMaybe = programService.getProgramDefinition(programId);
+    try {
+      ProgramDefinition program = programService.getProgramDefinition(programId);
+      BlockDefinition block =
+          program
+              .getBlockDefinition(blockId)
+              .orElseThrow(() -> new ProgramBlockNotFoundException(programId, blockId));
 
-    if (programMaybe.isEmpty()) {
-      return notFound(String.format("Program ID %d not found.", programId));
+      ReadOnlyQuestionService roQuestionService =
+          questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+
+      return ok(editView.render(request, program, block, roQuestionService.getAllQuestions()));
+    } catch (ProgramNotFoundException | ProgramBlockNotFoundException e) {
+      return notFound(e.toString());
     }
-
-    ProgramDefinition program = programMaybe.get();
-    Optional<BlockDefinition> blockMaybe = program.getBlockDefinition(blockId);
-
-    if (blockMaybe.isEmpty()) {
-      return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
-    }
-
-    BlockDefinition block = blockMaybe.get();
-    ReadOnlyQuestionService roQuestionService =
-        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
-
-    return ok(editView.render(request, program, block, roQuestionService.getAllQuestions()));
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
@@ -102,7 +95,7 @@ public class AdminProgramBlocksController extends Controller {
     try {
       programService.updateBlock(programId, blockId, blockForm);
     } catch (ProgramNotFoundException | ProgramBlockNotFoundException e) {
-      return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
+      return notFound(e.toString());
     }
 
     return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
@@ -112,10 +105,8 @@ public class AdminProgramBlocksController extends Controller {
   public Result destroy(long programId, long blockId) {
     try {
       programService.deleteBlock(programId, blockId);
-    } catch (ProgramNotFoundException e) {
-      return notFound(String.format("Program ID %d not found.", programId));
-    } catch (ProgramNeedsABlockException e) {
-      return notFound(String.format("Cannot delete the last block of a program."));
+    } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
+      return notFound(e.toString());
     }
     return redirect(routes.AdminProgramBlocksController.index(programId));
   }
