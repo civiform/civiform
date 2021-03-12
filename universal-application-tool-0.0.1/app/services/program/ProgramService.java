@@ -5,7 +5,13 @@ import forms.BlockForm;
 import java.util.concurrent.CompletionStage;
 import services.question.QuestionNotFoundException;
 
-/** Operations you can perform on {@link ProgramDefinition}s. */
+/**
+ * The service responsible for accessing the Program resource. Admins create programs to represent
+ * specific benefits programs that applicants can apply for. Each program consists of a list of
+ * sequential {@link BlockDefinition}s that are rendered one per-page for the applicant. A {@link
+ * BlockDefinition} contains one or more {@link services.question.QuestionDefinition}s defined in
+ * the {@link services.question.QuestionService}.
+ */
 public interface ProgramService {
 
   /**
@@ -36,8 +42,8 @@ public interface ProgramService {
    *
    * @param id the ID of the program to retrieve
    * @return the {@link ProgramDefinition} for the given ID if it exists, or a
-   *     ProgramNotFoundException is thrown when the future completes and ID does not correspond to
-   *     a real Program
+   * ProgramNotFoundException is thrown when the future completes and ID does not correspond to a
+   * real Program
    */
   CompletionStage<ProgramDefinition> getProgramDefinitionAsync(long id);
 
@@ -139,7 +145,7 @@ public interface ProgramService {
   ProgramDefinition addQuestionsToBlock(
       long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
       throws ProgramNotFoundException, ProgramBlockNotFoundException, QuestionNotFoundException,
-          DuplicateProgramQuestionException;
+      DuplicateProgramQuestionException;
 
   /**
    * Update a {@link BlockDefinition} to remove questions.
