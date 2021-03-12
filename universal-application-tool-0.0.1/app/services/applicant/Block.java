@@ -58,8 +58,13 @@ public final class Block {
   public boolean hasErrors() {
     if (errorsMemo.isEmpty()) {
       this.errorsMemo =
-          getQuestions().stream().map(ApplicantQuestion::hasErrors).reduce(Boolean::logicalAnd);
+          getQuestions().stream().map(ApplicantQuestion::hasErrors).reduce(Boolean::logicalOr);
     }
     return errorsMemo.get();
+  }
+
+  @Override
+  public String toString() {
+    return "Block [id: " + this.id + "]";
   }
 }

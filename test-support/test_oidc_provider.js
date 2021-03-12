@@ -8,9 +8,27 @@ const configuration = {
     grant_types: ['implicit'],
     // "native" because we're on localhost.
     application_type: 'native',
-    scopes: ['openid'],
+    scopes: ['openid', 'profile'],
     redirect_uris: ['http://localhost:9000/callback/OidcClient', 'http://localhost:9000/callback/AdClient', 'http://localhost:19001/callback/OidcClient', 'http://localhost:19001/callback/AdClient'],
   }],
+  async findAccount(ctx, id) {
+    return {
+      accountId: id,
+      async claims() {
+        return {
+          sub: id,
+          // pretend to be IDCS which uses this key for user email.
+          user_emailid: id + "@example.com",
+          // lie about verification for tests.
+          email_verified: true
+        };
+      },
+    };
+  },
+  claims: {
+    openid: ['sub'],
+    email: ['user_emailid', 'email_verified'],
+  }
 };
 
 const oidc = new Provider('http://localhost:3380', configuration);

@@ -2,6 +2,7 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -11,6 +12,7 @@ import models.Applicant;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicantRepository;
 import services.ErrorAnd;
+import services.Path;
 import services.program.BlockDefinition;
 import services.program.PathNotInBlockException;
 import services.program.ProgramBlockNotFoundException;
@@ -42,14 +44,20 @@ public class ApplicantServiceImpl implements ApplicantService {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
         applicantRepository.lookupApplicant(applicantId).toCompletableFuture();
 
-    CompletableFuture<Optional<ProgramDefinition>> programDefinitionCompletableFuture =
+    CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
         programService.getProgramDefinitionAsync(programId).toCompletableFuture();
 
     return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
         .thenComposeAsync(
             (v) -> {
-              Applicant applicant = applicantCompletableFuture.join().get();
-              ProgramDefinition programDefinition = programDefinitionCompletableFuture.join().get();
+              Optional<Applicant> applicantMaybe = applicantCompletableFuture.join();
+              if (applicantMaybe.isEmpty()) {
+                return CompletableFuture.completedFuture(
+                    ErrorAnd.error(ImmutableSet.of(new ApplicantNotFoundException(applicantId))));
+              }
+              Applicant applicant = applicantMaybe.get();
+
+              ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
 
               try {
                 stageUpdates(applicant, programDefinition, blockId, updates);
@@ -78,6 +86,18 @@ public class ApplicantServiceImpl implements ApplicantService {
   }
 
   @Override
+  public CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>>
+      stageAndUpdateIfValid(
+          long applicantId, long programId, long blockId, ImmutableMap<String, String> updateMap) {
+    ImmutableSet<Update> updates =
+        updateMap.entrySet().stream()
+            .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
+            .collect(ImmutableSet.toImmutableSet());
+
+    return stageAndUpdateIfValid(applicantId, programId, blockId, updates);
+  }
+
+  @Override
   public CompletionStage<Applicant> createApplicant(long userId) {
     Applicant applicant = new Applicant();
     return applicantRepository.insertApplicant(applicant).thenApply((unused) -> applicant);
@@ -88,14 +108,14 @@ public class ApplicantServiceImpl implements ApplicantService {
       long applicantId, long programId) {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
         applicantRepository.lookupApplicant(applicantId).toCompletableFuture();
-    CompletableFuture<Optional<ProgramDefinition>> programDefinitionCompletableFuture =
+    CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
         programService.getProgramDefinitionAsync(programId).toCompletableFuture();
 
     return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
         .thenApplyAsync(
             (v) -> {
               Applicant applicant = applicantCompletableFuture.join().get();
-              ProgramDefinition programDefinition = programDefinitionCompletableFuture.join().get();
+              ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
 
               return new ReadOnlyApplicantProgramServiceImpl(
                   applicant.getApplicantData(), programDefinition);

@@ -1,11 +1,13 @@
 package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
+import java.util.concurrent.CompletionException;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +18,7 @@ import services.Path;
 import services.program.PathNotInBlockException;
 import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
 import services.program.ProgramServiceImpl;
@@ -87,19 +90,51 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void stageAndUpdateIfValid_hasProgramNotFoundException() {
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
-
-    ImmutableSet<Update> updates =
-        ImmutableSet.of(
-            Update.create(Path.create("applicant.name.first"), "Alice"),
-            Update.create(Path.create("applicant.name.last"), "Doe"));
+  public void stageAndUpdateIfValid_hasApplicantNotFoundException() {
+    ImmutableSet<Update> updates = ImmutableSet.of();
+    long badApplicantId = 1L;
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 100L, updates)
+            .stageAndUpdateIfValid(badApplicantId, programDefinition.id(), 1L, updates)
             .toCompletableFuture()
             .join();
+
+    assertThat(errorAnd.hasResult()).isFalse();
+    assertThat(errorAnd.getErrors()).hasSize(1);
+    assertThat(errorAnd.getErrors().asList().get(0)).isInstanceOf(ApplicantNotFoundException.class);
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_hasProgramNotFoundException() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    ImmutableSet<Update> updates = ImmutableSet.of();
+    long badProgramId = programDefinition.id() + 1000L;
+
+    Throwable thrown =
+        catchThrowable(
+            () ->
+                subject
+                    .stageAndUpdateIfValid(applicant.id, badProgramId, 1L, updates)
+                    .toCompletableFuture()
+                    .join());
+
+    assertThat(thrown).isInstanceOf(CompletionException.class);
+    assertThat(thrown).hasCauseInstanceOf(ProgramNotFoundException.class);
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_hasProgramBlockNotFoundException() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    ImmutableSet<Update> updates = ImmutableSet.of();
+    long badBlockId = 100L;
+
+    ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
+        subject
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), badBlockId, updates)
+            .toCompletableFuture()
+            .join();
+
     assertThat(errorAnd.hasResult()).isFalse();
     assertThat(errorAnd.getErrors()).hasSize(1);
     assertThat(errorAnd.getErrors().asList().get(0))
@@ -109,7 +144,6 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   @Test
   public void stageAndUpdateIfValid_hasPathNotInBlockException() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
-
     ImmutableSet<Update> updates =
         ImmutableSet.of(
             Update.create(Path.create("applicant.name.first"), "Alice"),
@@ -120,6 +154,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 1L, updates)
             .toCompletableFuture()
             .join();
+
     assertThat(errorAnd.hasResult()).isFalse();
     assertThat(errorAnd.getErrors()).hasSize(1);
     assertThat(errorAnd.getErrors().asList().get(0)).isInstanceOf(PathNotInBlockException.class);

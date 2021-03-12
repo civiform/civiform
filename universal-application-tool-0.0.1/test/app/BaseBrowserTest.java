@@ -11,6 +11,7 @@ import controllers.routes;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Optional;
+import models.Account;
 import models.Applicant;
 import models.Program;
 import models.Question;
@@ -39,7 +40,7 @@ public class BaseBrowserTest extends WithBrowser {
   public void truncateTables() {
     EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
     EbeanServer server = Ebean.getServer(config.defaultServer());
-    server.truncate(Applicant.class, Program.class, Question.class);
+    server.truncate(Applicant.class, Program.class, Question.class, Account.class);
   }
 
   /**
@@ -166,7 +167,7 @@ public class BaseBrowserTest extends WithBrowser {
   /** Adds the questions with the given names to a new block in the given program. */
   protected void addQuestionsToProgramNewBlock(String programName, String... questionNames) {
     manageExistingProgramQuestions(programName);
-    browser.$("button", withText("Add block")).click();
+    browser.$("button", withText("Add Block")).click();
     addQuestionsToBlock(questionNames);
   }
 

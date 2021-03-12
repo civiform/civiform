@@ -1,6 +1,7 @@
 package models;
 
 import io.ebean.annotation.DbJson;
+import java.util.Locale;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
@@ -16,6 +17,8 @@ public class Applicant extends BaseModel {
   private static final long serialVersionUID = 1L;
   private ApplicantData applicantData;
 
+  private String preferredLocale;
+
   @Constraints.Required @DbJson private String object;
   @ManyToOne private Account account;
 
@@ -30,7 +33,12 @@ public class Applicant extends BaseModel {
     // is null and the `applicantData` is also `null`, and in-memory use, where
     // `object` is out-of-date but non-null, and `applicantData` is already valid.
     if (this.applicantData == null && (object != null && !object.isEmpty())) {
-      this.applicantData = new ApplicantData(object);
+      if (preferredLocale == null || preferredLocale.isEmpty()) {
+        // Default to English until the applicant specifies their preferred language.
+        this.applicantData = new ApplicantData(object);
+      } else {
+        this.applicantData = new ApplicantData(Locale.forLanguageTag(preferredLocale), object);
+      }
     } else if (this.applicantData == null) {
       this.applicantData = new ApplicantData();
     }
@@ -40,6 +48,7 @@ public class Applicant extends BaseModel {
   @PrePersist
   @PreUpdate
   public void synchronizeObject() {
+    this.preferredLocale = getApplicantData().preferredLocale().toLanguageTag();
     this.object = objectAsJsonString();
   }
 
