@@ -16,7 +16,9 @@ import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.WithPostgresContainer;
+import services.question.QuestionDefinition;
 import support.ProgramBuilder;
+import support.Questions;
 
 public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
@@ -72,12 +74,11 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
     assertThat(contentAsString(result)).contains("Programas");
   }
 
-  // TODO(https://github.com/seattle-uat/universal-application-tool/issues/224): Should redirect to
-  //  next incomplete block rather than first block.
   @Test
   public void edit_withNewProgram_redirectsToFirstBlock() {
     Applicant applicant = resourceCreator().insertApplicant();
-    Program program = ProgramBuilder.newProgram().build();
+    Program program =
+        ProgramBuilder.newProgram().withBlock().withQuestion(Questions.applicantName()).build();
 
     Result result = controller.edit(applicant.id, program.id).toCompletableFuture().join();
 
@@ -86,10 +87,26 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
         .hasValue(routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, 1).url());
   }
 
-  // TODO(https://github.com/seattle-uat/universal-application-tool/issues/224): Should redirect to
-  //  next incomplete block rather than first block.
-  @Ignore
-  public void edit_redirectsToFirstIncompleteBlock() {}
+  @Test
+  public void edit_redirectsToFirstIncompleteBlock() {
+    QuestionDefinition nameQuestion = Questions.applicantName().getQuestionDefinition();
+    Applicant applicant = resourceCreator().insertApplicant();
+    Program program =
+        ProgramBuilder.newProgram()
+            .withBlock()
+            .withQuestionDefinition(nameQuestion)
+            .withBlock()
+            .withQuestion(Questions.applicantFavoriteColor())
+            .build();
+    applicant.getApplicantData().putString(nameQuestion.getPath(), "Ferdinand");
+    applicant.save();
+
+    Result result = controller.edit(applicant.id, program.id).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(FOUND);
+    assertThat(result.redirectLocation())
+        .hasValue(routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, 2).url());
+  }
 
   // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Should redirect to
   //  end of program submission.

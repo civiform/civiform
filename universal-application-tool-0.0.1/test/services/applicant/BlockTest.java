@@ -108,6 +108,29 @@ public class BlockTest {
   }
 
   @Test
+  public void hasErrors_returnsFalseIfQuestionsHaveNoErrors() {
+    QuestionDefinition text =
+        new TextQuestionDefinition(
+            OptionalLong.of(2L),
+            1L,
+            "",
+            Path.create("test"),
+            "",
+            ImmutableMap.of(),
+            ImmutableMap.of());
+    BlockDefinition definition =
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("name")
+            .setDescription("description")
+            .addQuestion(ProgramQuestionDefinition.create(text))
+            .build();
+    Block block = new Block(1L, definition, new ApplicantData());
+
+    assertThat(block.hasErrors()).isFalse();
+  }
+
+  @Test
   public void isComplete_returnsTrueForBlockWithNoQuestions() {
     BlockDefinition definition =
         BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();

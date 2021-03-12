@@ -3,6 +3,7 @@ package services.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import models.Applicant;
 import org.junit.Before;
@@ -15,29 +16,26 @@ import support.Questions;
 
 public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContainer {
 
-  private static final QuestionDefinition NAME_QUESTION =
-      Questions.applicantName().getQuestionDefinition();
-  private static final QuestionDefinition COLOR_QUESTION =
-      Questions.applicantFavoriteColor().getQuestionDefinition();
-  private static final QuestionDefinition ADDRESS_QUESTION =
-      Questions.applicantAddress().getQuestionDefinition();
-
-  private ProgramDefinition programDefinition =
-      ProgramBuilder.newProgram()
-          .withBlock("Block one")
-          .withQuestionDefinition(NAME_QUESTION)
-          .withBlock("Block two")
-          .withQuestionDefinition(COLOR_QUESTION)
-          .withQuestionDefinition(ADDRESS_QUESTION)
-          .buildDefinition();
-
+  private QuestionDefinition nameQuestion;
+  private QuestionDefinition colorQuestion;
+  private QuestionDefinition addressQuestion;
   private ApplicantData applicantData;
   private ReadOnlyApplicantProgramService subject;
 
   @Before
   public void setUp() {
-    // Reset ApplicantData
     applicantData = new ApplicantData();
+    nameQuestion = Questions.applicantName().getQuestionDefinition();
+    colorQuestion = Questions.applicantFavoriteColor().getQuestionDefinition();
+    addressQuestion = Questions.applicantAddress().getQuestionDefinition();
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newProgram()
+            .withBlock("Block one")
+            .withQuestionDefinition(nameQuestion)
+            .withBlock("Block two")
+            .withQuestionDefinition(colorQuestion)
+            .withQuestionDefinition(addressQuestion)
+            .buildDefinition();
     subject = new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
   }
 
@@ -52,8 +50,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
   @Test
   public void getCurrentBlockList_doesNotIncludeCompleteBlocks() {
-    // Answer the first question (name)
-    applicantData.putString(NAME_QUESTION.getPath(), "my name");
+    // Answer the first block's questions (name)
+    applicantData.putString(nameQuestion.getPath(), "my name");
 
     ImmutableList<Block> blockList = subject.getCurrentBlockList();
 
@@ -64,8 +62,9 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void getCurrentBlockList_returnsEmptyListIfAllBlocksComplete() {
     // Answer all questions
-    applicantData.putString(NAME_QUESTION.getPath(), "my name");
-    applicantData.putString(COLOR_QUESTION.getPath(), "mauve");
+    applicantData.putString(nameQuestion.getPath(), "my name");
+    applicantData.putString(colorQuestion.getPath(), "mauve");
+    applicantData.putObject(addressQuestion.getPath(), ImmutableMap.of("scalar", "value"));
 
     ImmutableList<Block> blockList = subject.getCurrentBlockList();
 
