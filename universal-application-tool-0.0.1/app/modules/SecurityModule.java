@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
+import javax.inject.Provider;
 import org.pac4j.core.authorization.authorizer.RequireAllRolesAuthorizer;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
@@ -42,6 +43,7 @@ import org.pac4j.play.store.PlayCookieSessionStore;
 import org.pac4j.play.store.ShiroAesDataEncrypter;
 import play.Environment;
 import play.libs.concurrent.HttpExecutionContext;
+import repository.ApplicantRepository;
 import repository.DatabaseExecutionContext;
 
 public class SecurityModule extends AbstractModule {
@@ -125,7 +127,8 @@ public class SecurityModule extends AbstractModule {
   @Nullable
   @Singleton
   @IdcsOidcClient
-  protected OidcClient provideIDCSClient(ProfileFactory profileFactory) {
+  protected OidcClient provideIDCSClient(
+      ProfileFactory profileFactory, Provider<ApplicantRepository> applicantRepositoryProvider) {
     if (!this.configuration.hasPath("idcs.client_id")
         || !this.configuration.hasPath("idcs.secret")) {
       return null;
@@ -140,7 +143,8 @@ public class SecurityModule extends AbstractModule {
     config.setWithState(false);
     OidcClient client = new OidcClient(config);
     client.setCallbackUrl(baseUrl + "/callback");
-    client.setProfileCreator(new IdcsProfileAdapter(config, client, profileFactory));
+    client.setProfileCreator(
+        new IdcsProfileAdapter(config, client, profileFactory, applicantRepositoryProvider));
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     return client;
   }
@@ -149,7 +153,8 @@ public class SecurityModule extends AbstractModule {
   @Nullable
   @Singleton
   @AdOidcClient
-  protected OidcClient provideAdClient(ProfileFactory profileFactory) {
+  protected OidcClient provideAdClient(
+      ProfileFactory profileFactory, Provider<ApplicantRepository> applicantRepositoryProvider) {
     if (!this.configuration.hasPath("adfs.client_id")
         || !this.configuration.hasPath("adfs.secret")) {
       return null;
@@ -165,7 +170,8 @@ public class SecurityModule extends AbstractModule {
     OidcClient client = new OidcClient(config);
     client.setName("AdClient");
     client.setCallbackUrl(baseUrl + "/callback");
-    client.setProfileCreator(new AdfsProfileAdapter(config, client, profileFactory));
+    client.setProfileCreator(
+        new AdfsProfileAdapter(config, client, profileFactory, applicantRepositoryProvider));
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     return client;
   }

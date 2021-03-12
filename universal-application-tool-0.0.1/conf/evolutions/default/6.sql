@@ -1,6 +1,7 @@
 # --- !Ups
 
 alter table accounts add email_address varchar;
+alter table accounts add unique (email_address);
 
 # --- !Downs
 

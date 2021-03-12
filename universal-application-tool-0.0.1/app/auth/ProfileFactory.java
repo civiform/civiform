@@ -3,6 +3,8 @@ package auth;
 import com.google.common.base.Preconditions;
 import java.time.Clock;
 import javax.inject.Inject;
+import models.Account;
+import models.Applicant;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.DatabaseExecutionContext;
 
@@ -37,5 +39,13 @@ public class ProfileFactory {
     p.init(dbContext);
     p.addRole(role.toString());
     return p;
+  }
+
+  public UatProfile wrap(Account account) {
+    return wrapProfileData(new UatProfileData(clock, account.id));
+  }
+
+  public UatProfile wrap(Applicant applicant) {
+    return wrapProfileData(new UatProfileData(clock, applicant.getAccount().id));
   }
 }
