@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import forms.BlockForm;
-import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -74,18 +73,18 @@ public class AdminProgramBlocksController extends Controller {
   public Result edit(Request request, long programId, long blockId) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
-      Optional<BlockDefinition> blockMaybe = program.getBlockDefinition(blockId);
+      BlockDefinition block =
+          program
+              .getBlockDefinition(blockId)
+              .orElseThrow(() -> new ProgramBlockNotFoundException(programId, blockId));
 
-      if (blockMaybe.isEmpty()) {
-        return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
-      }
-
-      BlockDefinition block = blockMaybe.get();
       ReadOnlyQuestionService roQuestionService =
           questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
       return ok(editView.render(request, program, block, roQuestionService.getAllQuestions()));
     } catch (ProgramNotFoundException e) {
+      return notFound(e.toString());
+    } catch (ProgramBlockNotFoundException e) {
       return notFound(e.toString());
     }
   }
