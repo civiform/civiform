@@ -2,10 +2,14 @@ package services.question;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.OptionalInt;
 import java.util.OptionalLong;
 import services.Path;
 
 public class TextQuestionDefinition extends QuestionDefinition {
+
+  private OptionalInt minLength = OptionalInt.empty();
+  private OptionalInt maxLength = OptionalInt.empty();
 
   public TextQuestionDefinition(
       OptionalLong id,
@@ -44,5 +48,21 @@ public class TextQuestionDefinition extends QuestionDefinition {
 
   public ScalarType getTextType() {
     return ScalarType.STRING;
+  }
+
+  public OptionalInt getMinLength() {
+    return minLength;
+  }
+
+  public void setMinLength(int minLength) {
+    this.minLength = OptionalInt.of(minLength);
+  }
+
+  public OptionalInt getMaxLength() {
+    return maxLength;
+  }
+
+  public void setMaxLength(int maxLength) {
+    this.maxLength = OptionalInt.of(maxLength);
   }
 }
