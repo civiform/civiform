@@ -16,6 +16,7 @@ import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.WithPostgresContainer;
+import support.ProgramBuilder;
 import views.html.helper.CSRF;
 
 public class AdminProgramControllerTest extends WithPostgresContainer {
@@ -38,8 +39,8 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
 
   @Test
   public void index_returnsPrograms() {
-    resourceCreator().insertProgram("one");
-    resourceCreator().insertProgram("two");
+    ProgramBuilder.newProgram("one").build();
+    ProgramBuilder.newProgram("two").build();
 
     Result result = controller.index();
 
@@ -55,7 +56,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
     Result result = controller.newOne(request);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Create a new Program");
+    assertThat(contentAsString(result)).contains("New program");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }
 
@@ -78,7 +79,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
 
   @Test
   public void create_includesNewAndExistingProgramsInList() {
-    resourceCreator().insertProgram("Existing One");
+    ProgramBuilder.newProgram("Existing One").build();
     RequestBuilder requestBuilder =
         Helpers.fakeRequest()
             .bodyForm(
@@ -107,7 +108,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
   @Test
   public void edit_returnsExpectedForm() {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    Program program = resourceCreator().insertProgram("test program");
+    Program program = ProgramBuilder.newProgram("test program").build();
 
     Result result = controller.edit(request, program.id);
 
@@ -131,13 +132,13 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
 
   @Test
   public void update_overwritesExistingProgram() {
-    resourceCreator().insertProgram("Existing One");
+    Program program = ProgramBuilder.newProgram("Existing One").build();
     RequestBuilder requestBuilder =
         Helpers.fakeRequest()
             .bodyForm(
                 ImmutableMap.of("name", "New Program", "description", "This is a new program"));
 
-    Result result = controller.update(requestBuilder.build(), 1L);
+    Result result = controller.update(requestBuilder.build(), program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());

@@ -4,8 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
+import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
+import static play.test.Helpers.stubMessagesApi;
 
+import java.util.Locale;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,5 +54,22 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
         subject.edit(request, applicant.id, program.id(), 2L).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void edit_withMessages_returnsCorrectButtonText() {
+    Http.Request request =
+        addCSRFToken(
+                fakeRequest(
+                        routes.ApplicantProgramBlocksController.edit(
+                            applicant.id, program.id(), 1L))
+                    .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()))
+            .build();
+
+    Result result =
+        subject.edit(request, applicant.id, program.id(), 1L).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Guardar y continuar");
   }
 }

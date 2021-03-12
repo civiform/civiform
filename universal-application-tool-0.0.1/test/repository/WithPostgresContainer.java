@@ -14,6 +14,7 @@ import org.junit.BeforeClass;
 import play.Application;
 import play.db.ebean.EbeanConfig;
 import play.test.Helpers;
+import support.Questions;
 import support.ResourceCreator;
 import support.TestConstants;
 
@@ -58,5 +59,10 @@ public class WithPostgresContainer {
     EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
     EbeanServer server = Ebean.getServer(config.defaultServer());
     server.truncate(Applicant.class, Program.class, Question.class);
+  }
+
+  @Before
+  public void resetSupportQuestionsCache() {
+    Questions.reset();
   }
 }

@@ -47,7 +47,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
         .thenAccept(
             result -> {
               assertThat(result.redirectLocation())
-                  .hasValue(routes.QuestionController.index("table").url());
+                  .hasValue(routes.QuestionController.index().url());
               assertThat(result.flash().get("message").get()).contains("created");
             })
         .toCompletableFuture()
@@ -127,7 +127,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
     buildQuestionsList();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     controller
-        .index(request, "table")
+        .index(request)
         .thenAccept(
             result -> {
               assertThat(result.status()).isEqualTo(OK);
@@ -144,7 +144,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
   public void index_withNoQuestions() {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     controller
-        .index(request, "table")
+        .index(request)
         .thenAccept(
             result -> {
               assertThat(result.status()).isEqualTo(OK);
@@ -161,7 +161,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
   public void index_showsMessageFlash() {
     Request request = addCSRFToken(Helpers.fakeRequest().flash("message", "has message")).build();
     controller
-        .index(request, "table")
+        .index(request)
         .thenAccept(
             result -> {
               assertThat(result.status()).isEqualTo(OK);
@@ -198,7 +198,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
 
     Result result = controller.update(requestBuilder.build(), question.id);
 
-    assertThat(result.redirectLocation()).hasValue(routes.QuestionController.index("table").url());
+    assertThat(result.redirectLocation()).hasValue(routes.QuestionController.index().url());
     assertThat(result.flash().get("message").get()).contains("updated");
   }
 

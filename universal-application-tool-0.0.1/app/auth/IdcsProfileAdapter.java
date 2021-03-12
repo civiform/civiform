@@ -1,5 +1,6 @@
 package auth;
 
+import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
@@ -30,9 +31,9 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
     // because the two systems hold totally different amounts of data - IDCS holds almost
     // nothing while AD holds a lot - even though at time of writing they're identical except
     // for this line.
-    // TODO(https://github.com/seattle-uat/universal-application-tool/issues/385): what if there's
-    // already an email?
-    uatProfile.setEmailAddress(oidcProfile.getAttribute("user_emailid", String.class)).join();
+    String emailAddress = oidcProfile.getAttribute("user_emailid", String.class);
+    uatProfile.setEmailAddress(emailAddress).join();
+    uatProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
     return uatProfile.getProfileData();
   }
 }

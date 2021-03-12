@@ -13,8 +13,8 @@ public class SelectWithLabel extends FieldWithLabel {
 
   private ImmutableList<SimpleEntry<String, String>> options = ImmutableList.of();
 
-  public SelectWithLabel(String inputId) {
-    super(select(), inputId);
+  public SelectWithLabel() {
+    super(select());
   }
 
   public SelectWithLabel setOptions(ImmutableList<SimpleEntry<String, String>> options) {
