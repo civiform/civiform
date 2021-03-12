@@ -65,7 +65,7 @@ public class ApplicantQuestion {
     return new NameQuestion();
   }
 
-  private PresentsErrors errorsPresenter() {
+  public PresentsErrors errorsPresenter() {
     switch (getType()) {
       case ADDRESS:
         return getAddressQuestion();
@@ -78,7 +78,7 @@ public class ApplicantQuestion {
     }
   }
 
-  private interface PresentsErrors {
+  public interface PresentsErrors {
     /** Returns true if values do not meet conditions defined by admins. */
     boolean hasQuestionErrors();
     /**
