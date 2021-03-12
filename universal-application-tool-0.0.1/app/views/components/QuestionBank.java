@@ -7,6 +7,7 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
 import com.google.common.collect.ImmutableList;
+import j2html.attributes.Attr;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
@@ -57,7 +58,7 @@ public class QuestionBank {
         input()
             .withType("text")
             .withName("questionFilter")
-            .attr("placeholder", "Filter questions")
+            .attr(Attr.PLACEHOLDER, "Filter questions")
             .withClasses(
                 Styles.H_10,
                 Styles.PX_10,
@@ -108,7 +109,7 @@ public class QuestionBank {
 
     Tag addButton =
         TagCreator.button(text("+"))
-            .attr("form", formId)
+            .attr(Attr.FORM, formId)
             .withType("submit")
             .withId("question-" + definition.getId())
             .withName("question-" + definition.getId())
