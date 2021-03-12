@@ -22,10 +22,10 @@ public interface ApplicantService {
    * <p>Updates are atomic i.e. if any of them fail validation none of them will be written.
    *
    * @return a {@link ReadOnlyApplicantProgramService} that reflects the updates, which may have
-   * invalid data with errors associated with it. If the service cannot perform the update, an
-   * {@link ErrorAnd} is returned in the error state.
-   * <p>A ProgramNotFoundException may be thrown when the future completes if the programId does
-   * not correspond to a real Program.
+   *     invalid data with errors associated with it. If the service cannot perform the update, an
+   *     {@link ErrorAnd} is returned in the error state.
+   *     <p>A ProgramNotFoundException may be thrown when the future completes if the programId does
+   *     not correspond to a real Program.
    */
   CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>> stageAndUpdateIfValid(
       long applicantId, long programId, long blockId, ImmutableSet<Update> updates);
@@ -37,17 +37,15 @@ public interface ApplicantService {
   CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>> stageAndUpdateIfValid(
       long applicantId, long programId, long blockId, ImmutableMap<String, String> updateMap);
 
-  /**
-   * Creates a new {@link models.Applicant} at for latest application version for a given user.
-   */
+  /** Creates a new {@link models.Applicant} at for latest application version for a given user. */
   CompletionStage<Applicant> createApplicant(long userId);
 
   /**
    * Get a {@link ReadOnlyApplicantProgramService} which implements synchronous, in-memory read
    * behavior relevant to an applicant for a specific program.
    *
-   * <p>A ProgramNotFoundException may be thrown when the future completes if the programId does
-   * not correspond to a real Program.
+   * <p>A ProgramNotFoundException may be thrown when the future completes if the programId does not
+   * correspond to a real Program.
    */
   CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
       long applicantId, long programId);

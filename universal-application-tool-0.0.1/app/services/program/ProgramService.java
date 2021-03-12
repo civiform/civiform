@@ -42,8 +42,8 @@ public interface ProgramService {
    *
    * @param id the ID of the program to retrieve
    * @return the {@link ProgramDefinition} for the given ID if it exists, or a
-   * ProgramNotFoundException is thrown when the future completes and ID does not correspond to a
-   * real Program
+   *     ProgramNotFoundException is thrown when the future completes and ID does not correspond to
+   *     a real Program
    */
   CompletionStage<ProgramDefinition> getProgramDefinitionAsync(long id);
 
@@ -145,7 +145,7 @@ public interface ProgramService {
   ProgramDefinition addQuestionsToBlock(
       long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
       throws ProgramNotFoundException, ProgramBlockNotFoundException, QuestionNotFoundException,
-      DuplicateProgramQuestionException;
+          DuplicateProgramQuestionException;
 
   /**
    * Update a {@link BlockDefinition} to remove questions.
