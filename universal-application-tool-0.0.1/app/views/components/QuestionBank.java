@@ -7,8 +7,8 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
 import com.google.common.collect.ImmutableList;
-import j2html.attributes.Attr;
 import j2html.TagCreator;
+import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Comparator;
