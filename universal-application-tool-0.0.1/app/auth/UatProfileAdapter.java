@@ -70,9 +70,8 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
       return Optional.empty();
     }
 
-    Optional<UatProfile> existingProfile = profileUtils.currentUserProfile(context);
     OidcProfile profile = (OidcProfile) oidcProfile.get();
-    // Check if we already have a profile in the database for this user.
+    // Check if we already have a profile in the database for the user returned to us by OIDC.
     Optional<Applicant> existingApplicant =
         applicantRepositoryProvider
             .get()
@@ -86,6 +85,7 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
     // 3) an OIDC account in the callback from the OIDC server (`profile`).
     // We will merge 1 and 2, if present, into `existingProfile`, then merge in `profile`.
 
+    Optional<UatProfile> existingProfile = profileUtils.currentUserProfile(context);
     if (existingApplicant.isPresent()) {
       if (existingProfile.isEmpty()) {
         // Easy merge case - we have an existing applicant, but no guest profile.

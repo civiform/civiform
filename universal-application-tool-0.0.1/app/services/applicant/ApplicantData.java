@@ -2,6 +2,7 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
@@ -9,7 +10,6 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.spi.mapper.MappingException;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -149,13 +149,19 @@ public class ApplicantData {
     return Objects.hash(jsonData.jsonString());
   }
 
-  public List<Path> mergeFrom(ApplicantData other) {
+  /**
+   * Copies all keys from {@code other}, recursively. All lists are merged. No values will be
+   * overwritten.
+   *
+   * @return A list of {@code Path}s whose values could not be copied due to conflicts.
+   */
+  public ImmutableList<Path> mergeFrom(ApplicantData other) {
     Map<?, ?> rootAsMap = other.jsonData.read("$", Map.class);
     return mergeFrom(Path.empty(), rootAsMap);
   }
 
-  private List<Path> mergeFrom(Path rootKey, Map<?, ?> other) {
-    List<Path> pathsRemoved = new ArrayList<>();
+  private ImmutableList<Path> mergeFrom(Path rootKey, Map<?, ?> other) {
+    ImmutableList.Builder<Path> pathsRemoved = new ImmutableList.Builder<>();
     for (Map.Entry<?, ?> entry : other.entrySet()) {
       String key = entry.getKey().toString();
       Path path = rootKey.toBuilder().append(key).build();
@@ -183,6 +189,6 @@ public class ApplicantData {
         this.put(path, entry.getValue());
       }
     }
-    return pathsRemoved;
+    return pathsRemoved.build();
   }
 }

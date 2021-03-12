@@ -75,7 +75,9 @@ public class ApplicantTest extends WithPostgresContainer {
     data2.putString(foo, "bar");
     data2.putString(subMapBar, "bar");
     data1.putString(subMapFoo, "also_foo");
+
     List<Path> removedPaths = data1.mergeFrom(data2);
+
     assertThat(removedPaths).contains(foo);
     assertThat(removedPaths).doesNotContain(subMapFoo);
     assertThat(data1.readString(subMapBar)).isNotEmpty();

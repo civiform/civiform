@@ -37,22 +37,22 @@ public class ApplicantRepository {
   public CompletionStage<Optional<Applicant>> lookupApplicant(String emailAddress) {
     return supplyAsync(
         () -> {
-            if (emailAddress == null || emailAddress.isEmpty()) {
-                return Optional.empty();
-            }
-          Optional<Account> account =
+          if (emailAddress == null || emailAddress.isEmpty()) {
+            return Optional.empty();
+          }
+          Optional<Account> accountMaybe =
               ebeanServer
                   .find(Account.class)
                   .where()
                   .eq("email_address", emailAddress)
                   .findOneOrEmpty();
-          if (account.isEmpty()) {
-            return Optional.empty();
-          }
           // Return the applicant which was most recently created.
-          return account.get().getApplicants().stream()
-              .max(
-                  Comparator.comparing(applicant -> applicant.getApplicantData().getCreatedTime()));
+          return accountMaybe.flatMap(
+              applicant ->
+                  applicant.getApplicants().stream()
+                      .max(
+                          Comparator.comparing(
+                              compared -> compared.getApplicantData().getCreatedTime())));
         },
         executionContext);
   }
