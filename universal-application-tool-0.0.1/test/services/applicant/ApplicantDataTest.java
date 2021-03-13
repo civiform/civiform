@@ -79,7 +79,7 @@ public class ApplicantDataTest {
 
     assertThat(found).hasValue("orange");
   }
-  
+
   @Test
   public void readInteger_findsCorrectValue() throws Exception {
     String testData = "{ \"applicant\": { \"age\": 30 } }";

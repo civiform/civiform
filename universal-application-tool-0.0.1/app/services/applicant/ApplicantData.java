@@ -95,10 +95,10 @@ public class ApplicantData {
       return Optional.empty();
     }
   }
-  
+
   /**
-   * Attempt to read a integer at the given path. Returns {@code Optional#empty} if the path does not
-   * exist or a value other than Integer is found.
+   * Attempt to read a integer at the given path. Returns {@code Optional#empty} if the path does
+   * not exist or a value other than Integer is found.
    */
   public Optional<Integer> readInteger(Path path) {
     try {
