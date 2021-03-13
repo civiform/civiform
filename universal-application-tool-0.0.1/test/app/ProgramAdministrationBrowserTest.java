@@ -40,22 +40,11 @@ public class ProgramAdministrationBrowserTest extends BaseBrowserTest {
     addProgram(programName);
     addQuestionsToProgramFirstBlock(programName, questionName, questionRemovedName);
 
-    assertThat(browser.$("#blockQuestions").$("li").textContents()).contains(questionName);
-    assertThat(browser.$("#blockQuestions").$("li").textContents()).contains(questionRemovedName);
-    assertThat(browser.$("#questionBlockQuestions").$("li").textContents())
-        .doesNotContain(questionName);
-    assertThat(browser.$("#questionBlockQuestions").$("li").textContents())
-        .doesNotContain(questionRemovedName);
-
     removeQuestionsFromProgram(programName, questionRemovedName);
 
-    assertThat(browser.$("#blockQuestions").$("li").textContents()).contains(questionName);
-    assertThat(browser.$("#blockQuestions").$("li").textContents())
-        .doesNotContain(questionRemovedName);
-    assertThat(browser.$("#questionBlockQuestions").$("li").textContents())
+    assertThat(browser.$("#blockQuestions button").textContents()).contains(questionName);
+    assertThat(browser.$("#questionBankQuestions button").textContents())
         .doesNotContain(questionName);
-    assertThat(browser.$("#questionBankQuestions").$("li").textContents())
-        .contains(questionRemovedName);
   }
 
   @Test

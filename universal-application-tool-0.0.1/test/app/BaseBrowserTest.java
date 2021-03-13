@@ -18,7 +18,6 @@ import models.Question;
 import org.fluentlenium.core.domain.FluentWebElement;
 import org.junit.Before;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 import play.Application;
 import play.api.mvc.Call;
 import play.db.ebean.EbeanConfig;
@@ -106,7 +105,7 @@ public class BaseBrowserTest extends WithBrowser {
     browser.$("button", withText("Create")).click();
 
     // Check that program is added.
-    assertThat(browser.pageSource()).contains(name);
+    assertThat(bodySource()).contains(name);
   }
 
   /** Adds a test question through the admin flow. This requires the admin to be logged in. */
@@ -142,7 +141,7 @@ public class BaseBrowserTest extends WithBrowser {
     browser.$("button", withText("Create")).first().click();
 
     // Check that question is added.
-    assertThat(browser.pageSource()).contains(questionName);
+    assertThat(bodySource()).contains(questionName);
   }
 
   /**
@@ -153,9 +152,8 @@ public class BaseBrowserTest extends WithBrowser {
   protected void manageExistingProgramQuestions(String programName) {
     goTo(controllers.admin.routes.AdminProgramController.index());
     browser.$("div", containingText(programName)).$("a", containingText("Edit")).first().click();
-    assertThat(browser.pageSource()).contains("Edit program: " + programName);
+    assertThat(bodySource()).contains("Edit program: " + programName);
     browser.$("a", withId("manageQuestions")).first().click();
-    assertThat(browser.pageSource()).contains(programName + " Questions");
   }
 
   /** Adds the questions with the given names to the first block in the given program. */
@@ -176,38 +174,28 @@ public class BaseBrowserTest extends WithBrowser {
    * block-editing context.
    */
   private void addQuestionsToBlock(String... questionNames) {
-    // Add questions to the block.
     for (String questionName : questionNames) {
-      browser
-          .$("#questionBankQuestions")
-          .$("label", withText(questionName))
-          .$("input")
-          .first()
-          .click();
-    }
-    browser.$("button", containingText("Add to Block")).first().click();
+      // Add question to the block.
+      FluentWebElement questionButton = browser.$("#questionBankQuestions button", withText(questionName)).first();
+      questionButton.click();
 
-    // Check that questions are added.
-    for (String questionName : questionNames) {
-      assertThat(browser.$("#blockQuestions").$("li").textContents()).contains(questionName);
-      assertThat(browser.$("#questionBankQuestions").$("li").textContents())
+      // Check that question is added.
+      assertThat(browser.$("#questionBankQuestions button").textContents())
           .doesNotContain(questionName);
+      assertThat(browser.$("#blockQuestions button").textContents()).contains(questionName);
     }
   }
 
   protected void removeQuestionsFromProgram(String programName, String... questions) {
     manageExistingProgramQuestions(programName);
 
-    // Remove questions to the block.
     for (String question : questions) {
-      browser.$("#blockQuestions").$("label", withText(question)).$("input").first().click();
-    }
-    browser.$("button", containingText("Remove questions")).first().click();
-
-    // Check that questions are removed.
-    for (String question : questions) {
-      assertThat(browser.$("#blockQuestions").$("li").textContents()).doesNotContain(question);
-      assertThat(browser.$("#questionBankQuestions").$("li").textContents()).contains(question);
+      // Remove question from the block.
+      browser.$("#blockQuestions button", withText(question)).click();
+      // Check that question is removed.
+      assertThat(browser.$("#blockQuestions button").textContents()).doesNotContain(question);
+      assertThat(browser.$("#questionBankQuestions button").textContents())
+          .contains(question);
     }
   }
 
@@ -220,10 +208,11 @@ public class BaseBrowserTest extends WithBrowser {
   }
 
   protected void fillTextArea(String name, String text) {
-    WebElement element =
-        browser.getDriver().findElement(By.cssSelector("textarea[name=" + name + "]"));
-    element.clear();
-    element.sendKeys(text);
+    browser.$("textarea", withName(name)).fill().with(text);
+  }
+
+  protected String bodySource() {
+    return browser.$("body").first().html();
   }
 
   protected String getTextAreaString(String name) {
@@ -234,7 +223,7 @@ public class BaseBrowserTest extends WithBrowser {
   }
 
   protected boolean textAreaContains(String name, String value) {
-    return getTextAreaString(name).contains(String.format("value=\"%s\"", value));
+    return getTextAreaString(name).contains(value);
   }
 
   protected void selectAnOption(String selectName, String option) {

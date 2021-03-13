@@ -52,7 +52,7 @@ public class QuestionBank {
 
     ContainerTag headerDiv =
         h1("Question bank").withClasses(Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
-    contentDiv.with(headerDiv);
+    contentDiv.withId("questionBankQuestions").with(headerDiv);
 
     Tag filterInput =
         input()
@@ -93,11 +93,9 @@ public class QuestionBank {
 
   private ContainerTag renderQuestionDefinition(QuestionDefinition definition) {
     ContainerTag ret =
-        div()
-            .attr(
-                "onclick",
-                String.format("document.getElementById('question-%d').click()", definition.getId()))
+        div().withId("add-question-" + definition.getId())
             .withClasses(
+                Styles.RELATIVE,
                 Styles._M_3,
                 Styles.P_3,
                 Styles.FLEX,
@@ -109,14 +107,13 @@ public class QuestionBank {
                     Styles.SCALE_105, Styles.TEXT_GRAY_800, Styles.BORDER, Styles.BORDER_GRAY_100));
 
     Tag addButton =
-        TagCreator.button(text("+"))
+        TagCreator.button(text(definition.getName()))
             .attr(Attr.FORM, formId)
             .withType("submit")
             .withId("question-" + definition.getId())
             .withName("question-" + definition.getId())
             .withValue(definition.getId() + "")
-            .withClasses(Styles.HIDDEN);
-
+            .withClasses(Styles.OPACITY_0, Styles.ABSOLUTE, Styles.LEFT_0, Styles.TOP_0, Styles.W_FULL, Styles.H_FULL);
     ContainerTag icon =
         Icons.questionTypeSvg(definition.getQuestionType(), 24)
             .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);

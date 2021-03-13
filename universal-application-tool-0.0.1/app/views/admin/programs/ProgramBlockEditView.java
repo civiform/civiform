@@ -192,11 +192,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
   public ContainerTag renderQuestion(QuestionDefinition definition) {
     ContainerTag ret =
         div()
-            .attr(
-                "onclick",
-                String.format(
-                    "document.getElementById('block-question-%d').click()", definition.getId()))
             .withClasses(
+                Styles.RELATIVE,
                 Styles.MX_4,
                 Styles.MY_2,
                 Styles.BORDER,
@@ -208,13 +205,13 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 StyleUtils.hover(Styles.TEXT_GRAY_800, Styles.BG_GRAY_100));
 
     Tag removeButton =
-        TagCreator.button(text("-"))
+        TagCreator.button(text(definition.getName()))
             .attr(Attr.FORM, DELETE_QUESTION_FORM_ID)
             .withType("submit")
             .withId("block-question-" + definition.getId())
             .withName("block-question-" + definition.getId())
             .withValue(definition.getId() + "")
-            .withClasses(Styles.HIDDEN);
+            .withClasses(Styles.OPACITY_0, Styles.ABSOLUTE, Styles.LEFT_0, Styles.TOP_0, Styles.W_FULL, Styles.H_FULL);
 
     ContainerTag icon =
         Icons.questionTypeSvg(definition.getQuestionType(), 24)
