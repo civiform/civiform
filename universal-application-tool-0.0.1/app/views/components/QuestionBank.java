@@ -105,7 +105,8 @@ public class QuestionBank {
                 Styles.ROUNDED_LG,
                 Styles.TRANSITION_ALL,
                 Styles.TRANSFORM,
-                StyleUtils.hover(Styles.SCALE_105, Styles.TEXT_GRAY_800));
+                StyleUtils.hover(
+                    Styles.SCALE_105, Styles.TEXT_GRAY_800, Styles.BORDER, Styles.BORDER_GRAY_100));
 
     Tag addButton =
         TagCreator.button(text("+"))
