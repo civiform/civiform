@@ -6,50 +6,64 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import java.util.OptionalLong;
+import org.junit.Before;
 import org.junit.Test;
 import services.Path;
 
 public class ReadOnlyQuestionServiceImplTest {
-  // The tests mimic that the persisted questions are read into ReadOnlyQuestionService.
-  // Therefore, question ids cannot be empty.
-  NameQuestionDefinition nameQuestion =
-      new NameQuestionDefinition(
-          OptionalLong.of(123L),
-          1L,
-          "applicant name",
-          Path.create("applicant.name"),
-          "The name of the applicant",
-          ImmutableMap.of(Locale.ENGLISH, "What is your name?"),
-          ImmutableMap.of());
-  AddressQuestionDefinition addressQuestion =
-      new AddressQuestionDefinition(
-          OptionalLong.of(456L),
-          1L,
-          "applicant addresss",
-          Path.create("applicant.address"),
-          "The address of the applicant",
-          ImmutableMap.of(Locale.ENGLISH, "What is your address?"),
-          ImmutableMap.of());
-  QuestionDefinition basicQuestion =
-      new TextQuestionDefinition(
-          OptionalLong.of(789L),
-          1L,
-          "applicant's favorite color",
-          Path.create("applicant.favoriteColor"),
-          "The favorite color of the applicant",
-          ImmutableMap.of(Locale.ENGLISH, "What is your favorite color?"),
-          ImmutableMap.of());
 
-  private Path invalidPath = Path.create("invalid.path");
+  private NameQuestionDefinition nameQuestion;
+  private AddressQuestionDefinition addressQuestion;
+  private QuestionDefinition basicQuestion;
 
-  private ImmutableList<QuestionDefinition> questions =
-      ImmutableList.of(nameQuestion, addressQuestion, basicQuestion);
+  private final Path invalidPath = Path.create("invalid.path");
 
-  private ReadOnlyQuestionService service = new ReadOnlyQuestionServiceImpl(questions);
+  private ImmutableList<QuestionDefinition> questions;
 
-  private ReadOnlyQuestionService emptyService =
+  private ReadOnlyQuestionService service;
+
+  private final ReadOnlyQuestionService emptyService =
       new ReadOnlyQuestionServiceImpl(ImmutableList.of());
+
+  @Before
+  public void setupQuestions() throws UnsupportedQuestionTypeException {
+    // The tests mimic that the persisted questions are read into ReadOnlyQuestionService.
+    // Therefore, question ids cannot be empty.
+    nameQuestion =
+        (NameQuestionDefinition)
+            new QuestionDefinitionBuilder()
+                .setQuestionType(QuestionType.NAME)
+                .setId(123L)
+                .setVersion(1L)
+                .setName("applicant name")
+                .setPath(Path.create("applicant.name"))
+                .setDescription("The name of the applicant")
+                .setQuestionText(ImmutableMap.of(Locale.US, "What is your name?"))
+                .build();
+    addressQuestion =
+        (AddressQuestionDefinition)
+            new QuestionDefinitionBuilder()
+                .setQuestionType(QuestionType.ADDRESS)
+                .setId(456L)
+                .setVersion(1L)
+                .setName("applicant addresss")
+                .setPath(Path.create("applicant.address"))
+                .setDescription("The address of the applicant")
+                .setQuestionText(ImmutableMap.of(Locale.US, "What is your address?"))
+                .build();
+    basicQuestion =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.TEXT)
+            .setId(789L)
+            .setVersion(1L)
+            .setName("applicant's favorite color")
+            .setPath(Path.create("applicant.favoriteColor"))
+            .setDescription("The favorite color of the applicant")
+            .setQuestionText(ImmutableMap.of(Locale.US, "What is your favorite color?"))
+            .build();
+    questions = ImmutableList.of(nameQuestion, addressQuestion, basicQuestion);
+    service = new ReadOnlyQuestionServiceImpl(questions);
+  }
 
   @Test
   public void getAll_returnsEmpty() {

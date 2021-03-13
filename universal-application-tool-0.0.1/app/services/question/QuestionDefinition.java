@@ -21,6 +21,7 @@ public abstract class QuestionDefinition {
   private final String description;
   private final ImmutableMap<Locale, String> questionText;
   private final ImmutableMap<Locale, String> questionHelpText;
+  private final ImmutableMap<ValidationPredicate, String> validationPredicates;
 
   public QuestionDefinition(
       OptionalLong id,
@@ -29,7 +30,8 @@ public abstract class QuestionDefinition {
       Path path,
       String description,
       ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText) {
+      ImmutableMap<Locale, String> questionHelpText,
+      ImmutableMap<ValidationPredicate, String> validationPredicates) {
     this.id = checkNotNull(id);
     this.version = version;
     this.name = checkNotNull(name);
@@ -37,6 +39,26 @@ public abstract class QuestionDefinition {
     this.description = checkNotNull(description);
     this.questionText = checkNotNull(questionText);
     this.questionHelpText = checkNotNull(questionHelpText);
+    this.validationPredicates = checkNotNull(validationPredicates);
+  }
+
+  public QuestionDefinition(
+      long version,
+      String name,
+      Path path,
+      String description,
+      ImmutableMap<Locale, String> questionText,
+      ImmutableMap<Locale, String> questionHelpText,
+      ImmutableMap<ValidationPredicate, String> validationPredicates) {
+    this(
+        OptionalLong.empty(),
+        version,
+        name,
+        path,
+        description,
+        questionText,
+        questionHelpText,
+        validationPredicates);
   }
 
   public QuestionDefinition(
@@ -46,7 +68,15 @@ public abstract class QuestionDefinition {
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
-    this(OptionalLong.empty(), version, name, path, description, questionText, questionHelpText);
+    this(
+        OptionalLong.empty(),
+        version,
+        name,
+        path,
+        description,
+        questionText,
+        questionHelpText,
+        ImmutableMap.of());
   }
 
   /** Return true if the question is persisted and has an unique identifier. */
@@ -116,6 +146,11 @@ public abstract class QuestionDefinition {
   /** Get the question help text for all locales. This is used for serialization. */
   public ImmutableMap<Locale, String> getQuestionHelpText() {
     return this.questionHelpText;
+  }
+
+  /** Get the validation predicates. This is used for serialization. */
+  public ImmutableMap<ValidationPredicate, String> getValidationPredicates() {
+    return this.validationPredicates;
   }
 
   /** Get the type of this question. */
@@ -195,7 +230,8 @@ public abstract class QuestionDefinition {
           && this.path.equals(o.getPath())
           && this.description.equals(o.getDescription())
           && this.questionText.equals(o.getQuestionText())
-          && this.questionHelpText.equals(o.getQuestionHelpText());
+          && this.questionHelpText.equals(o.getQuestionHelpText())
+          && this.validationPredicates.equals(o.getValidationPredicates());
     }
     return false;
   }

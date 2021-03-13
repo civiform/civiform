@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.entry;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.OptionalLong;
 import org.junit.Before;
 import org.junit.Test;
 import services.Path;
@@ -110,24 +109,26 @@ public class QuestionDefinitionTest {
   }
 
   @Test
-  public void newQuestionHasCorrectFields() throws TranslationNotFoundException {
+  public void newQuestionHasCorrectFields() throws Exception {
     QuestionDefinition question =
-        new TextQuestionDefinition(
-            OptionalLong.of(123L),
-            1L,
-            "my name",
-            Path.create("my.path.name"),
-            "description",
-            ImmutableMap.of(Locale.ENGLISH, "question?"),
-            ImmutableMap.of(Locale.ENGLISH, "help text"));
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.TEXT)
+            .setId(123L)
+            .setVersion(1L)
+            .setName("my name")
+            .setPath(Path.create("my.path.name"))
+            .setDescription("description")
+            .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
+            .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
+            .build();
 
     assertThat(question.getId()).isEqualTo(123L);
     assertThat(question.getVersion()).isEqualTo(1L);
     assertThat(question.getName()).isEqualTo("my name");
     assertThat(question.getPath().path()).isEqualTo("my.path.name");
     assertThat(question.getDescription()).isEqualTo("description");
-    assertThat(question.getQuestionText(Locale.ENGLISH)).isEqualTo("question?");
-    assertThat(question.getQuestionHelpText(Locale.ENGLISH)).isEqualTo("help text");
+    assertThat(question.getQuestionText(Locale.US)).isEqualTo("question?");
+    assertThat(question.getQuestionHelpText(Locale.US)).isEqualTo("help text");
   }
 
   @Test

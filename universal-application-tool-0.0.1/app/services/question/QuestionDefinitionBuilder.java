@@ -13,8 +13,9 @@ public class QuestionDefinitionBuilder {
   private Path path;
   private String description;
   private ImmutableMap<Locale, String> questionText;
-  private ImmutableMap<Locale, String> questionHelpText;
+  private ImmutableMap<Locale, String> questionHelpText = ImmutableMap.of();
   private QuestionType questionType = QuestionType.TEXT;
+  private ImmutableMap<ValidationPredicate, String> validationPredicates = ImmutableMap.of();
 
   public QuestionDefinitionBuilder() {}
 
@@ -30,6 +31,7 @@ public class QuestionDefinitionBuilder {
     questionText = definition.getQuestionText();
     questionHelpText = definition.getQuestionHelpText();
     questionType = definition.getQuestionType();
+    validationPredicates = definition.getValidationPredicates();
   }
 
   public QuestionDefinitionBuilder clearId() {
@@ -78,17 +80,44 @@ public class QuestionDefinitionBuilder {
     return this;
   }
 
+  public QuestionDefinitionBuilder setValidationPredicates(
+      ImmutableMap<ValidationPredicate, String> validationPredicates) {
+    this.validationPredicates = validationPredicates;
+    return this;
+  }
+
   public QuestionDefinition build() throws UnsupportedQuestionTypeException {
     switch (this.questionType) {
       case ADDRESS:
         return new AddressQuestionDefinition(
-            id, version, name, path, description, questionText, questionHelpText);
+            id,
+            version,
+            name,
+            path,
+            description,
+            questionText,
+            questionHelpText,
+            validationPredicates);
       case NAME:
         return new NameQuestionDefinition(
-            id, version, name, path, description, questionText, questionHelpText);
+            id,
+            version,
+            name,
+            path,
+            description,
+            questionText,
+            questionHelpText,
+            validationPredicates);
       case TEXT:
         return new TextQuestionDefinition(
-            id, version, name, path, description, questionText, questionHelpText);
+            id,
+            version,
+            name,
+            path,
+            description,
+            questionText,
+            questionHelpText,
+            validationPredicates);
       default:
         throw new UnsupportedQuestionTypeException(this.questionType);
     }

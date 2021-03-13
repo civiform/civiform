@@ -14,8 +14,21 @@ public class NameQuestionDefinition extends QuestionDefinition {
       Path path,
       String description,
       ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText) {
-    super(id, version, name, path, description, questionText, questionHelpText);
+      ImmutableMap<Locale, String> questionHelpText,
+      ImmutableMap<ValidationPredicate, String> validationPredicates) {
+    super(
+        id, version, name, path, description, questionText, questionHelpText, validationPredicates);
+  }
+
+  public NameQuestionDefinition(
+      long version,
+      String name,
+      Path path,
+      String description,
+      ImmutableMap<Locale, String> questionText,
+      ImmutableMap<Locale, String> questionHelpText,
+      ImmutableMap<ValidationPredicate, String> validationPredicates) {
+    super(version, name, path, description, questionText, questionHelpText, validationPredicates);
   }
 
   public NameQuestionDefinition(
