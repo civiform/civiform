@@ -24,7 +24,8 @@ public class QuestionDefinitionTest {
             .setDescription("description")
             .setQuestionType(QuestionType.TEXT)
             .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "question?"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.ENGLISH, "help text"));
+            .setQuestionHelpText(ImmutableMap.of(Locale.ENGLISH, "help text"))
+            .setValidationPredicates(ImmutableMap.of(ValidationPredicate.TEXT_MAX_LENGTH, "128"));
   }
 
   @Test
@@ -39,6 +40,18 @@ public class QuestionDefinitionTest {
   public void testEquality_nullReturnsFalse() throws UnsupportedQuestionTypeException {
     QuestionDefinition question = builder.setId(123L).build();
     assertThat(question.equals(null)).isFalse();
+  }
+
+  @Test
+  public void testEquality_differentPredicatesReturnsFalse()
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinition question = builder.setId(123L).build();
+
+    QuestionDefinition differentQuestionPredicates =
+        new QuestionDefinitionBuilder(question)
+            .setValidationPredicates(ImmutableMap.of(ValidationPredicate.TEXT_MAX_LENGTH, "1"))
+            .build();
+    assertThat(question.equals(differentQuestionPredicates)).isFalse();
   }
 
   @Test
@@ -120,6 +133,7 @@ public class QuestionDefinitionTest {
             .setDescription("description")
             .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
             .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
+            .setValidationPredicates(ImmutableMap.of(ValidationPredicate.TEXT_MIN_LENGTH, "0"))
             .build();
 
     assertThat(question.getId()).isEqualTo(123L);
@@ -129,6 +143,8 @@ public class QuestionDefinitionTest {
     assertThat(question.getDescription()).isEqualTo("description");
     assertThat(question.getQuestionText(Locale.US)).isEqualTo("question?");
     assertThat(question.getQuestionHelpText(Locale.US)).isEqualTo("help text");
+    assertThat(question.getValidationPredicates())
+        .isEqualTo(ImmutableMap.of(ValidationPredicate.TEXT_MIN_LENGTH, "0"));
   }
 
   @Test
