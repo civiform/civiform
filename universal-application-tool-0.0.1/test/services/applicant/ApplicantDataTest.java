@@ -100,11 +100,30 @@ public class ApplicantDataTest {
   }
 
   @Test
+  public void readInteger_pathNotPresent_returnsEmptyOptional() throws Exception {
+    ApplicantData data = new ApplicantData();
+
+    Optional<Integer> found = data.readInteger(Path.create("my.fake.path"));
+
+    assertThat(found).isEmpty();
+  }
+
+  @Test
   public void readString_returnsEmptyWhenTypeMismatch() {
     String testData = "{ \"applicant\": { \"object\": { \"number\": 27 } } }";
     ApplicantData data = new ApplicantData(testData);
 
     Optional<String> found = data.readString(Path.create("applicant.object"));
+
+    assertThat(found).isEmpty();
+  }
+
+  @Test
+  public void readInteger_returnsEmptyWhenTypeMismatch() {
+    String testData = "{ \"applicant\": { \"object\": { \"name\": \"John\" } } }";
+    ApplicantData data = new ApplicantData(testData);
+
+    Optional<Integer> found = data.readInteger(Path.create("applicant.object.name"));
 
     assertThat(found).isEmpty();
   }
