@@ -1,2 +1,2 @@
 # Declare files that will always have LF line endings on commit.
-*.* text eol=lf
+*.sh text eol=lf
