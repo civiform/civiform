@@ -95,6 +95,18 @@ public class ApplicantData {
       return Optional.empty();
     }
   }
+  
+  /**
+   * Attempt to read a integer at the given path. Returns {@code Optional#empty} if the path does not
+   * exist or a value other than Integer is found.
+   */
+  public Optional<String> readInteger(Path path) {
+    try {
+      return this.read(path, Integer.class);
+    } catch (JsonPathTypeMismatchException e) {
+      return Optional.empty();
+    }
+  }
 
   /**
    * Returns the value at the given path, if it exists; otherwise returns {@link Optional#empty}.
