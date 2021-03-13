@@ -44,8 +44,8 @@ public class Icons {
     return svg(iconPath, width, height);
   }
 
-  public static ContainerTag svg(String pathString, int size) {
-    return svg(pathString, size, size);
+  public static ContainerTag svg(String pathString, int pixelSize) {
+    return svg(pathString, pixelSize, pixelSize);
   }
 
   public static ContainerTag svg(String pathString, int width, int height) {

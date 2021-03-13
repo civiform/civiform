@@ -7,6 +7,7 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.main;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
+import static views.ViewUtils.POST;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -31,12 +32,11 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
   private final AdminLayout layout;
 
-  private static final String CREATE_BLOCK_FORM = "block-create";
-  private static final String DELETE_BLOCK_FORM = "block-delete";
-  private static final String UPDATE_BLOCK_FORM = "block-update";
-  private static final String ADD_QUESTION_FORM = "question-add";
-  private static final String DELETE_QUESTION_FORM = "question-delete";
-  private static final String POST = "post";
+  private static final String CREATE_BLOCK_FORM_ID = "block-create";
+  private static final String DELETE_BLOCK_FORM_ID = "block-delete";
+  private static final String UPDATE_BLOCK_FORM_ID = "block-update";
+  private static final String ADD_QUESTION_FORM_ID = "question-add";
+  private static final String DELETE_QUESTION_FORM_ID = "question-delete";
 
   @Inject
   public ProgramBlockEditView(AdminLayout layout) {
@@ -67,24 +67,24 @@ public class ProgramBlockEditView extends BaseHtmlView {
     String blockCreateAction =
         controllers.admin.routes.AdminProgramBlocksController.create(programId).url();
     ContainerTag createBlockForm =
-        form(csrfTag).withId(CREATE_BLOCK_FORM).withMethod(POST).withAction(blockCreateAction);
+        form(csrfTag).withId(CREATE_BLOCK_FORM_ID).withMethod(POST).withAction(blockCreateAction);
 
     String blockDeleteAction =
         controllers.admin.routes.AdminProgramBlocksController.destroy(programId, blockId).url();
     ContainerTag deleteBlockForm =
-        form(csrfTag).withId(DELETE_BLOCK_FORM).withMethod(POST).withAction(blockDeleteAction);
+        form(csrfTag).withId(DELETE_BLOCK_FORM_ID).withMethod(POST).withAction(blockDeleteAction);
 
     String blockUpdateAction =
         controllers.admin.routes.AdminProgramBlocksController.update(programId, blockId).url();
     ContainerTag updateBlockForm =
-        form(csrfTag).withId(UPDATE_BLOCK_FORM).withMethod(POST).withAction(blockUpdateAction);
+        form(csrfTag).withId(UPDATE_BLOCK_FORM_ID).withMethod(POST).withAction(blockUpdateAction);
 
     String deleteQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.destroy(programId, blockId)
             .url();
     ContainerTag deleteQuestionForm =
         form(csrfTag)
-            .withId(DELETE_QUESTION_FORM)
+            .withId(DELETE_QUESTION_FORM_ID)
             .withMethod(POST)
             .withAction(deleteQuestionAction);
 
@@ -92,7 +92,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
         controllers.admin.routes.AdminProgramBlockQuestionsController.create(programId, blockId)
             .url();
     ContainerTag addQuestionForm =
-        form(csrfTag).withId(ADD_QUESTION_FORM).withMethod(POST).withAction(addQuestionAction);
+        form(csrfTag).withId(ADD_QUESTION_FORM_ID).withMethod(POST).withAction(addQuestionAction);
     return div(
             createBlockForm, deleteBlockForm, updateBlockForm, deleteQuestionForm, addQuestionForm)
         .withClasses(Styles.HIDDEN);
@@ -150,7 +150,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
       ret.with(blockTag);
     }
 
-    ret.with(submitButton("Add Block").attr(Attr.FORM, CREATE_BLOCK_FORM).withClasses(Styles.M_4));
+    ret.with(
+        submitButton("Add Block").attr(Attr.FORM, CREATE_BLOCK_FORM_ID).withClasses(Styles.M_4));
     return ret;
   }
 
@@ -159,24 +160,24 @@ public class ProgramBlockEditView extends BaseHtmlView {
     ContainerTag blockInfoDiv =
         div(
             FieldWithLabel.input()
-                .setFormId(UPDATE_BLOCK_FORM)
+                .setFormId(UPDATE_BLOCK_FORM_ID)
                 .setId("name")
                 .setLabelText("Block name")
                 .setValue(block.name())
                 .getContainer(),
             FieldWithLabel.textArea()
-                .setFormId(UPDATE_BLOCK_FORM)
+                .setFormId(UPDATE_BLOCK_FORM_ID)
                 .setId("description")
                 .setLabelText("Block description")
                 .setValue(block.description())
                 .getContainer(),
             submitButton("Update Block")
-                .attr(Attr.FORM, UPDATE_BLOCK_FORM)
+                .attr(Attr.FORM, UPDATE_BLOCK_FORM_ID)
                 .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
     if (program.blockDefinitions().size() > 1) {
       blockInfoDiv.with(
           submitButton("Delete Block")
-              .attr(Attr.FORM, DELETE_BLOCK_FORM)
+              .attr(Attr.FORM, DELETE_BLOCK_FORM_ID)
               .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
     }
 
@@ -208,7 +209,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
     Tag removeButton =
         TagCreator.button(text("-"))
-            .attr(Attr.FORM, DELETE_QUESTION_FORM)
+            .attr(Attr.FORM, DELETE_QUESTION_FORM_ID)
             .withType("submit")
             .withId("block-question-" + definition.getId())
             .withName("block-question-" + definition.getId())
@@ -232,7 +233,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
       ImmutableList<QuestionDefinition> questionDefinitions, ProgramDefinition program) {
     QuestionBank qb =
         new QuestionBank()
-            .setFormId(ADD_QUESTION_FORM)
+            .setFormId(ADD_QUESTION_FORM_ID)
             .setQuestions(questionDefinitions)
             .setProgram(program);
 
