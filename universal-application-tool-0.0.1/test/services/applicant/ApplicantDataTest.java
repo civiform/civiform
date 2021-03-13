@@ -82,11 +82,12 @@ public class ApplicantDataTest {
   
   @Test
   public void readInteger_findsCorrectValue() throws Exception {
-	  String testData = "{ \"applicant\": { \"age\": 30 } }";
-	  ApplicantData data = new ApplicantData(testData);
-	  
-	  Optional<Integer> found = data.readInteger(Path.create("applicant.age"));
-	  assertThat(found).hasValue(30);
+    String testData = "{ \"applicant\": { \"age\": 30 } }";
+    ApplicantData data = new ApplicantData(testData);
+
+    Optional<Integer> found = data.readInteger(Path.create("applicant.age"));
+
+    assertThat(found).hasValue(30);
   }
 
   @Test
