@@ -1,0 +1,51 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+.vector{
+    height: auto;
+    width: 50%;
+ 
+}
+#container {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    min-height: 95vh;
+    padding: 0 150px 0 150px;
+}
+
+#content-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+
+}
+
+#content-container > h1{
+    color: #0371e7;
+    margin: 0 0 20px 0;
+}
+#content-container > p{
+    margin: 0 0 10px 0;
+}
+
+#homepage-button{
+    background-color: #007cfe;
+    color: #ffff;
+    border: none;
+    border-radius: 15px;
+    height: 2rem;
+    width: 8rem;
+ 
+}
+
+#buttons-container {
+    width: 100%
+}
+#buttons-container > a {
+    margin-left: 20px;
+}
