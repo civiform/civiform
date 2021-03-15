@@ -62,6 +62,9 @@ public class LinkElement {
   }
 
   public Tag asButton() {
-    return a(text).withCondId(!Strings.isNullOrEmpty(id),id).withHref(href).withClasses(DEFAULT_LINK_BUTTON_STYLES, styles);    
+    return a(text)
+        .withCondId(!Strings.isNullOrEmpty(id), id)
+        .withHref(href)
+        .withClasses(DEFAULT_LINK_BUTTON_STYLES, styles);
   }
 }

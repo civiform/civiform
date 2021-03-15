@@ -155,7 +155,9 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .setLabelText("Block description")
             .setValue(block.description())
             .getContainer(),
-        submitButton("Update Block").withId("update-block-button").withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
+        submitButton("Update Block")
+            .withId("update-block-button")
+            .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
     if (program.blockDefinitions().size() > 1) {
       blockInfoForm.with(
           submitButton("Delete Block")
@@ -169,7 +171,10 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 program.id(), block.id())
             .url();
     ContainerTag questionDeleteForm =
-        form(csrfTag).withId("block-questions-form").withMethod(POST).withAction(deleteQuestionAction);
+        form(csrfTag)
+            .withId("block-questions-form")
+            .withMethod(POST)
+            .withAction(deleteQuestionAction);
     block
         .programQuestionDefinitions()
         .forEach(pqd -> questionDeleteForm.with(renderQuestion(pqd.getQuestionDefinition())));

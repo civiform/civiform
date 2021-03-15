@@ -103,7 +103,10 @@ public final class ProgramIndexView extends BaseHtmlView {
     String editLink = controllers.admin.routes.AdminProgramController.edit(programId).url();
 
     return new LinkElement()
-      .setId("program-edit-link-" + programId).setHref(editLink).setText(text)
-      .setStyles(Styles.MR_2).asAnchorText();
+        .setId("program-edit-link-" + programId)
+        .setHref(editLink)
+        .setText(text)
+        .setStyles(Styles.MR_2)
+        .asAnchorText();
   }
 }

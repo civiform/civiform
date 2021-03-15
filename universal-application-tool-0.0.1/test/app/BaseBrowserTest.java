@@ -196,7 +196,7 @@ public class BaseBrowserTest extends WithBrowser {
       assertThat(browser.$("#question-bank-questions button").textContents()).contains(question);
     }
   }
-  
+
   protected String bodySource() {
     return browser.$("body").first().html();
   }

@@ -97,11 +97,11 @@ public class FieldWithLabel {
     } else {
       fieldTag.withValue(this.fieldValue);
     }
-    
+
     fieldTag
-      .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
-      .withName(this.fieldName)
-      .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText);
+        .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
+        .withName(this.fieldName)
+        .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText);
 
     if (formId.length() > 0) {
       fieldTag.attr("form", formId);
