@@ -176,7 +176,7 @@ public class BaseBrowserTest extends WithBrowser {
   protected void addQuestionsToBlock(String... questionNames) {
     for (String questionName : questionNames) {
       // Add question to the block.
-      browser.$("#questionBankQuestions button").first().click();
+      browser.$("#questionBankQuestions button", withText(questionName)).first().click();
 
       // Check that question is added.
       assertThat(browser.$("#questionBankQuestions button").textContents())
