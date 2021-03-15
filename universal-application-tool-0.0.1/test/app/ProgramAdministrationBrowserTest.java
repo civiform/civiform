@@ -2,50 +2,11 @@ package app;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fluentlenium.core.filter.FilterConstructor.withText;
+import static org.fluentlenium.core.filter.FilterConstructor.withId;
 
 import org.junit.Test;
 
 public class ProgramAdministrationBrowserTest extends BaseBrowserTest {
-
-  @Test
-  public void managingAProgram() {
-    String programName = "Reduced fee lunches";
-
-    loginAsAdmin();
-    addProgram(programName);
-    manageExistingProgramQuestions(programName);
-
-    String nameValue = "updated block name";
-    String descriptionValue = "updated block description";
-
-    fillInput("name", nameValue);
-    fillTextArea("description", descriptionValue);
-    browser.$("button", withText("Update Block")).click();
-
-    assertThat(getInputValue("name")).isEqualTo(nameValue);
-
-    // TODO: I cannot for the life of me figure out how to get just the value here.
-    assertThat(textAreaContains("description", descriptionValue)).isTrue();
-  }
-
-  @Test
-  public void addAndRemoveQuestionsToAProgram() {
-    String questionName = "name question";
-    String questionRemovedName = "removed question";
-    String programName = "Reduced fee lunches";
-
-    loginAsAdmin();
-    addQuestion(questionName);
-    addQuestion(questionRemovedName);
-    addProgram(programName);
-    addQuestionsToProgramFirstBlock(programName, questionName, questionRemovedName);
-
-    removeQuestionsFromProgram(programName, questionRemovedName);
-
-    assertThat(browser.$("#blockQuestions button").textContents()).contains(questionName);
-    assertThat(browser.$("#questionBankQuestions button").textContents())
-        .doesNotContain(questionName);
-  }
 
   @Test
   public void headerNavWorks() {
@@ -63,4 +24,56 @@ public class ProgramAdministrationBrowserTest extends BaseBrowserTest {
     browser.$("nav").$("a", withText("Logout")).first().click();
     assertThat(browser.url()).contains("loginForm");
   }
+
+  @Test
+  public void managingAProgram() {
+    String questionName = "name question";
+    String questionRemovedName = "removed question";
+    String programName = "Reduced fee lunches";
+
+    loginAsAdmin();
+    addProgram(programName);
+    addQuestion(questionName);
+    addQuestion(questionRemovedName);
+    manageExistingProgramQuestions(programName);
+
+    String nameValue = "updated block name";
+    String descriptionValue = "updated block description";
+
+    // update block name and description.
+    fillInput("name", nameValue);
+    fillTextArea("description", descriptionValue);
+    browser.$("button", withText("Update Block")).click();
+
+    // assert that block was successfully updated.
+    assertThat(getInputValue("name")).isEqualTo(nameValue);
+    assertThat(getTextAreaValue("description")).isEqualTo(descriptionValue);
+
+    // add questions to block 1.
+    addQuestionsToProgramFirstBlock(programName, questionName, questionRemovedName);
+    
+    // Remove question from block 1.
+    removeQuestionsFromProgram(programName, questionRemovedName);
+    assertThat(browser.$("#blockQuestions button").textContents()).contains(questionName);
+    assertThat(browser.$("#questionBankQuestions button").textContents())
+        .doesNotContain(questionName);
+
+    // add block to program
+    browser.$("button", withId("add-block-button")).first().click();
+    assertThat(getInputValue("name")).isEqualTo("Block 2");
+    assertThat(getTextAreaValue("description")).isEqualTo("");
+
+    // add question to block 2 
+    addQuestionsToBlock(questionRemovedName);
+
+    // delete block 2
+    browser.$("button", withId("delete-block-button")).first().click();
+    assertThat(getInputValue("name")).isEqualTo(nameValue);
+    assertThat(getTextAreaValue("description")).isEqualTo(descriptionValue);
+   
+    assertThat(browser.$("#blockQuestions button").textContents()).contains(questionName);
+    assertThat(browser.$("#questionBankQuestions button").textContents())
+        .contains(questionRemovedName); 
+  }
+
 }

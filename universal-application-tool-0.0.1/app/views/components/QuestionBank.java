@@ -1,10 +1,12 @@
 package views.components;
 
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
+import static views.ViewUtils.POST;
 
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
@@ -20,15 +22,21 @@ import views.Styles;
 public class QuestionBank {
   private ProgramDefinition program;
   private ImmutableList<QuestionDefinition> questions = ImmutableList.of();
-  private String formId = "";
+  private Tag csrfTag = div();
+  private String questionAction = "";
 
   public QuestionBank setProgram(ProgramDefinition program) {
     this.program = program;
     return this;
   }
 
-  public QuestionBank setFormId(String formId) {
-    this.formId = formId;
+  public QuestionBank setQuestionAction(String actionUrl) {
+    this.questionAction = actionUrl;
+    return this;
+  }
+
+  public QuestionBank setCsrfTag(Tag csrfTag) {
+    this.csrfTag = csrfTag;
     return this;
   }
 
@@ -42,10 +50,13 @@ public class QuestionBank {
   }
 
   private ContainerTag questionBankPanel() {
-    ContainerTag ret = div().withClasses(Styles.INLINE_BLOCK, Styles.W_1_4);
+    ContainerTag questionForm = 
+      form(this.csrfTag).withMethod(POST).withAction(questionAction);
+
+      div().withClasses(Styles.INLINE_BLOCK, Styles.W_1_4);
     ContainerTag innerDiv =
         div().withClasses(Styles.SHADOW_LG, Styles.OVERFLOW_HIDDEN, Styles.H_FULL);
-    ret.with(innerDiv);
+    questionForm.with(innerDiv);
     ContainerTag contentDiv =
         div().withClasses(Styles.RELATIVE, Styles.GRID, Styles.GAP_6, Styles.PX_5, Styles.PY_6);
     innerDiv.with(contentDiv);
@@ -88,11 +99,11 @@ public class QuestionBank {
         .forEach(
             questionDefinition -> contentDiv.with(renderQuestionDefinition(questionDefinition)));
 
-    return ret;
+    return questionForm;
   }
 
   private ContainerTag renderQuestionDefinition(QuestionDefinition definition) {
-    ContainerTag ret =
+    ContainerTag questionDiv =
         div().withId("add-question-" + definition.getId())
             .withClasses(
                 Styles.RELATIVE,
@@ -108,7 +119,6 @@ public class QuestionBank {
 
     Tag addButton =
         TagCreator.button(text(definition.getName()))
-            .attr(Attr.FORM, formId)
             .withType("submit")
             .withId("question-" + definition.getId())
             .withName("question-" + definition.getId())
@@ -124,6 +134,6 @@ public class QuestionBank {
                 p(definition.getName()),
                 p(definition.getDescription()).withClasses(Styles.MT_1, Styles.TEXT_SM),
                 addButton);
-    return ret.with(icon, content);
+    return questionDiv.with(icon, content);
   }
 }

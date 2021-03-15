@@ -173,11 +173,10 @@ public class BaseBrowserTest extends WithBrowser {
    * Adds the given questions to the block currently shown. Depends on already being in the
    * block-editing context.
    */
-  private void addQuestionsToBlock(String... questionNames) {
+  protected void addQuestionsToBlock(String... questionNames) {
     for (String questionName : questionNames) {
       // Add question to the block.
-      FluentWebElement questionButton = browser.$("#questionBankQuestions button", withText(questionName)).first();
-      questionButton.click();
+      browser.$("#questionBankQuestions button").first().click();
 
       // Check that question is added.
       assertThat(browser.$("#questionBankQuestions button").textContents())
@@ -215,15 +214,11 @@ public class BaseBrowserTest extends WithBrowser {
     return browser.$("body").first().html();
   }
 
-  protected String getTextAreaString(String name) {
+  protected String getTextAreaValue(String name) {
     return browser
         .getDriver()
         .findElement(By.cssSelector("textarea[name=" + name + "]"))
-        .toString();
-  }
-
-  protected boolean textAreaContains(String name, String value) {
-    return getTextAreaString(name).contains(value);
+        .getText();
   }
 
   protected void selectAnOption(String selectName, String option) {
