@@ -99,12 +99,12 @@ public final class QuestionsListView extends BaseHtmlView {
     String questionHelpText = "";
 
     try {
-      questionText = definition.getQuestionText(Locale.ENGLISH);
+      questionText = definition.getQuestionText(Locale.US);
     } catch (TranslationNotFoundException e) { // Ignore. Leaving blank
     }
 
     try {
-      questionHelpText = definition.getQuestionHelpText(Locale.ENGLISH);
+      questionHelpText = definition.getQuestionHelpText(Locale.US);
     } catch (TranslationNotFoundException e) { // Ignore. Leaving blank
     }
 

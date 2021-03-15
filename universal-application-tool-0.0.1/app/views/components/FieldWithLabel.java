@@ -70,6 +70,11 @@ public class FieldWithLabel {
     return this;
   }
 
+  public FieldWithLabel setFormId(String formId) {
+    this.formId = formId;
+    return this;
+  }
+
   public FieldWithLabel setLabelText(String labelText) {
     this.labelText = labelText;
     return this;

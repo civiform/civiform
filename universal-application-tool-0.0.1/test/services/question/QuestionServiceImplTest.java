@@ -22,8 +22,8 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
           "my name",
           Path.create("my.path.name"),
           "description",
-          ImmutableMap.of(Locale.ENGLISH, "question?"),
-          ImmutableMap.of(Locale.ENGLISH, "help text"));
+          ImmutableMap.of(Locale.US, "question?"),
+          ImmutableMap.of(Locale.US, "help text"));
 
   @Before
   public void setProgramServiceImpl() {
@@ -65,7 +65,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
             "name",
             Path.create("#invalid&path-pattern!"),
             "description",
-            ImmutableMap.of(Locale.ENGLISH, "question?"),
+            ImmutableMap.of(Locale.US, "question?"),
             ImmutableMap.of());
 
     ErrorAnd<QuestionDefinition, QuestionServiceError> errorAndResult =

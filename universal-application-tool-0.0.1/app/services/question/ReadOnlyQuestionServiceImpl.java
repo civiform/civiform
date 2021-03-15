@@ -13,7 +13,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
   private final ImmutableMap<Path, QuestionDefinition> questionsByPath;
   private final ImmutableMap<Path, QuestionDefinition> scalarParents;
 
-  private Locale preferredLocale = Locale.ENGLISH;
+  private Locale preferredLocale = Locale.US;
 
   public ReadOnlyQuestionServiceImpl(ImmutableList<QuestionDefinition> questions) {
     checkNotNull(questions);

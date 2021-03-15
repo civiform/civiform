@@ -35,13 +35,13 @@ public class QuestionForm {
     questionType = qd.getQuestionType().name();
 
     try {
-      questionText = qd.getQuestionText(Locale.ENGLISH);
+      questionText = qd.getQuestionText(Locale.US);
     } catch (TranslationNotFoundException e) {
       questionText = "Missing Text";
     }
 
     try {
-      questionHelpText = qd.getQuestionHelpText(Locale.ENGLISH);
+      questionHelpText = qd.getQuestionHelpText(Locale.US);
     } catch (TranslationNotFoundException e) {
       questionHelpText = "Missing Text";
     }
@@ -97,11 +97,11 @@ public class QuestionForm {
 
   public QuestionDefinitionBuilder getBuilder() throws InvalidQuestionTypeException {
     ImmutableMap<Locale, String> questionTextMap =
-        questionText.isEmpty() ? ImmutableMap.of() : ImmutableMap.of(Locale.ENGLISH, questionText);
+        questionText.isEmpty() ? ImmutableMap.of() : ImmutableMap.of(Locale.US, questionText);
     ImmutableMap<Locale, String> questionHelpTextMap =
         questionHelpText.isEmpty()
             ? ImmutableMap.of()
-            : ImmutableMap.of(Locale.ENGLISH, questionHelpText);
+            : ImmutableMap.of(Locale.US, questionHelpText);
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setQuestionType(QuestionType.of(questionType))
