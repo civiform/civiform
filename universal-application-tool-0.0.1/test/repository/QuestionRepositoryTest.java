@@ -77,6 +77,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
     assertThat(pathConflicts(path, "other.applicant.address")).isFalse();
     assertThat(pathConflicts(path, "other.applicant.address.street")).isFalse();
     assertThat(pathConflicts(path, "other.applicant.address.some.other.field")).isFalse();
+    assertThat(pathConflicts(path, "applicant.addressSome")).isFalse();
   }
 
   private boolean pathConflicts(String path, String otherPath) {

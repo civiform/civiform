@@ -55,8 +55,8 @@ public class QuestionRepository {
     }
 
     static boolean pathConflicts(String path, String otherPath) {
-      path = path.toLowerCase();
-      otherPath = otherPath.toLowerCase();
+      path = path.toLowerCase() + ".";
+      otherPath = otherPath.toLowerCase() + ".";
       return path.startsWith(otherPath) || otherPath.startsWith(path);
     }
   }
