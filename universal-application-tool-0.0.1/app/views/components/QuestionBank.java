@@ -50,10 +50,9 @@ public class QuestionBank {
   }
 
   private ContainerTag questionBankPanel() {
-    ContainerTag questionForm = 
-      form(this.csrfTag).withMethod(POST).withAction(questionAction);
+    ContainerTag questionForm = form(this.csrfTag).withMethod(POST).withAction(questionAction);
 
-      div().withClasses(Styles.INLINE_BLOCK, Styles.W_1_4);
+    div().withClasses(Styles.INLINE_BLOCK, Styles.W_1_4);
     ContainerTag innerDiv =
         div().withClasses(Styles.SHADOW_LG, Styles.OVERFLOW_HIDDEN, Styles.H_FULL);
     questionForm.with(innerDiv);
@@ -104,7 +103,8 @@ public class QuestionBank {
 
   private ContainerTag renderQuestionDefinition(QuestionDefinition definition) {
     ContainerTag questionDiv =
-        div().withId("add-question-" + definition.getId())
+        div()
+            .withId("add-question-" + definition.getId())
             .withClasses(
                 Styles.RELATIVE,
                 Styles._M_3,
@@ -123,7 +123,13 @@ public class QuestionBank {
             .withId("question-" + definition.getId())
             .withName("question-" + definition.getId())
             .withValue(definition.getId() + "")
-            .withClasses(Styles.OPACITY_0, Styles.ABSOLUTE, Styles.LEFT_0, Styles.TOP_0, Styles.W_FULL, Styles.H_FULL);
+            .withClasses(
+                Styles.OPACITY_0,
+                Styles.ABSOLUTE,
+                Styles.LEFT_0,
+                Styles.TOP_0,
+                Styles.W_FULL,
+                Styles.H_FULL);
     ContainerTag icon =
         Icons.questionTypeSvg(definition.getQuestionType(), 24)
             .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);

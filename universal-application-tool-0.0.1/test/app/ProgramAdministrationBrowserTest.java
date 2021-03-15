@@ -1,8 +1,8 @@
 package app;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.fluentlenium.core.filter.FilterConstructor.withText;
 import static org.fluentlenium.core.filter.FilterConstructor.withId;
+import static org.fluentlenium.core.filter.FilterConstructor.withText;
 
 import org.junit.Test;
 
@@ -51,7 +51,7 @@ public class ProgramAdministrationBrowserTest extends BaseBrowserTest {
 
     // add questions to block 1.
     addQuestionsToProgramFirstBlock(programName, questionName, questionRemovedName);
-    
+
     // Remove question from block 1.
     removeQuestionsFromProgram(programName, questionRemovedName);
     assertThat(browser.$("#blockQuestions button").textContents()).contains(questionName);
@@ -63,17 +63,16 @@ public class ProgramAdministrationBrowserTest extends BaseBrowserTest {
     assertThat(getInputValue("name")).isEqualTo("Block 2");
     assertThat(getTextAreaValue("description")).isEqualTo("");
 
-    // add question to block 2 
+    // add question to block 2
     addQuestionsToBlock(questionRemovedName);
 
     // delete block 2
     browser.$("button", withId("delete-block-button")).first().click();
     assertThat(getInputValue("name")).isEqualTo(nameValue);
     assertThat(getTextAreaValue("description")).isEqualTo(descriptionValue);
-   
+
     assertThat(browser.$("#blockQuestions button").textContents()).contains(questionName);
     assertThat(browser.$("#questionBankQuestions button").textContents())
-        .contains(questionRemovedName); 
+        .contains(questionRemovedName);
   }
-
 }

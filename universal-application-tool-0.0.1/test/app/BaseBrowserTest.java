@@ -193,8 +193,7 @@ public class BaseBrowserTest extends WithBrowser {
       browser.$("#blockQuestions button", withText(question)).click();
       // Check that question is removed.
       assertThat(browser.$("#blockQuestions button").textContents()).doesNotContain(question);
-      assertThat(browser.$("#questionBankQuestions button").textContents())
-          .contains(question);
+      assertThat(browser.$("#questionBankQuestions button").textContents()).contains(question);
     }
   }
 
@@ -215,10 +214,7 @@ public class BaseBrowserTest extends WithBrowser {
   }
 
   protected String getTextAreaValue(String name) {
-    return browser
-        .getDriver()
-        .findElement(By.cssSelector("textarea[name=" + name + "]"))
-        .getText();
+    return browser.getDriver().findElement(By.cssSelector("textarea[name=" + name + "]")).getText();
   }
 
   protected void selectAnOption(String selectName, String option) {
