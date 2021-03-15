@@ -20,7 +20,7 @@ public class ReadOnlyQuestionServiceImplTest {
           "applicant name",
           Path.create("applicant.name"),
           "The name of the applicant",
-          ImmutableMap.of(Locale.ENGLISH, "What is your name?"),
+          ImmutableMap.of(Locale.US, "What is your name?"),
           ImmutableMap.of());
   AddressQuestionDefinition addressQuestion =
       new AddressQuestionDefinition(
@@ -29,7 +29,7 @@ public class ReadOnlyQuestionServiceImplTest {
           "applicant addresss",
           Path.create("applicant.address"),
           "The address of the applicant",
-          ImmutableMap.of(Locale.ENGLISH, "What is your address?"),
+          ImmutableMap.of(Locale.US, "What is your address?"),
           ImmutableMap.of());
   QuestionDefinition basicQuestion =
       new TextQuestionDefinition(
@@ -38,7 +38,7 @@ public class ReadOnlyQuestionServiceImplTest {
           "applicant's favorite color",
           Path.create("applicant.favoriteColor"),
           "The favorite color of the applicant",
-          ImmutableMap.of(Locale.ENGLISH, "What is your favorite color?"),
+          ImmutableMap.of(Locale.US, "What is your favorite color?"),
           ImmutableMap.of());
 
   private Path invalidPath = Path.create("invalid.path");

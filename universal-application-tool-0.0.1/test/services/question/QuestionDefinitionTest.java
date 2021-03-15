@@ -24,8 +24,8 @@ public class QuestionDefinitionTest {
             .setPath(Path.create("my.path.name"))
             .setDescription("description")
             .setQuestionType(QuestionType.TEXT)
-            .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "question?"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.ENGLISH, "help text"));
+            .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
+            .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"));
   }
 
   @Test
@@ -48,7 +48,7 @@ public class QuestionDefinitionTest {
 
     QuestionDefinition differentQuestionHelpText =
         new QuestionDefinitionBuilder(question)
-            .setQuestionHelpText(ImmutableMap.of(Locale.ENGLISH, "different help text"))
+            .setQuestionHelpText(ImmutableMap.of(Locale.US, "different help text"))
             .build();
     assertThat(question.equals(differentQuestionHelpText)).isFalse();
   }
@@ -59,7 +59,7 @@ public class QuestionDefinitionTest {
 
     QuestionDefinition differentQuestionText =
         new QuestionDefinitionBuilder(question)
-            .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "question text?"))
+            .setQuestionText(ImmutableMap.of(Locale.US, "question text?"))
             .build();
     assertThat(question.equals(differentQuestionText)).isFalse();
   }
@@ -118,16 +118,16 @@ public class QuestionDefinitionTest {
             "my name",
             Path.create("my.path.name"),
             "description",
-            ImmutableMap.of(Locale.ENGLISH, "question?"),
-            ImmutableMap.of(Locale.ENGLISH, "help text"));
+            ImmutableMap.of(Locale.US, "question?"),
+            ImmutableMap.of(Locale.US, "help text"));
 
     assertThat(question.getId()).isEqualTo(123L);
     assertThat(question.getVersion()).isEqualTo(1L);
     assertThat(question.getName()).isEqualTo("my name");
     assertThat(question.getPath().path()).isEqualTo("my.path.name");
     assertThat(question.getDescription()).isEqualTo("description");
-    assertThat(question.getQuestionText(Locale.ENGLISH)).isEqualTo("question?");
-    assertThat(question.getQuestionHelpText(Locale.ENGLISH)).isEqualTo("help text");
+    assertThat(question.getQuestionText(Locale.US)).isEqualTo("question?");
+    assertThat(question.getQuestionHelpText(Locale.US)).isEqualTo("help text");
   }
 
   @Test
@@ -155,7 +155,7 @@ public class QuestionDefinitionTest {
             Path.create(questionPath),
             "",
             ImmutableMap.of(),
-            ImmutableMap.of(Locale.ENGLISH, "help text"));
+            ImmutableMap.of(Locale.US, "help text"));
 
     Throwable thrown = catchThrowable(() -> question.getQuestionHelpText(Locale.FRANCE));
 
@@ -213,7 +213,7 @@ public class QuestionDefinitionTest {
             "name",
             Path.create("path"),
             "description",
-            ImmutableMap.of(Locale.ENGLISH, "question?"),
+            ImmutableMap.of(Locale.US, "question?"),
             ImmutableMap.of());
     assertThat(question.validate()).isEmpty();
   }

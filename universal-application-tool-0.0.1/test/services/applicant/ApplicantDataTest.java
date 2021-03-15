@@ -35,7 +35,7 @@ public class ApplicantDataTest {
   @Test
   public void preferredLocale_defaultsToEnglish() {
     ApplicantData data = new ApplicantData();
-    assertThat(data.preferredLocale()).isEqualTo(Locale.ENGLISH);
+    assertThat(data.preferredLocale()).isEqualTo(Locale.US);
   }
 
   @Test

@@ -72,7 +72,7 @@ public class BlockDefinitionTest {
             .setPath(Path.create("applicant.name"))
             .setDescription("name question")
             .setQuestionType(QuestionType.NAME)
-            .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "What is your name?"))
+            .setQuestionText(ImmutableMap.of(Locale.US, "What is your name?"))
             .setQuestionHelpText(ImmutableMap.of())
             .build();
     QuestionDefinition addressQuestion =
@@ -83,7 +83,7 @@ public class BlockDefinitionTest {
             .setPath(Path.create("applicant.address"))
             .setDescription("address question")
             .setQuestionType(QuestionType.ADDRESS)
-            .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "What is your address?"))
+            .setQuestionText(ImmutableMap.of(Locale.US, "What is your address?"))
             .setQuestionHelpText(ImmutableMap.of())
             .build();
     QuestionDefinition colorQuestion =
@@ -94,7 +94,7 @@ public class BlockDefinitionTest {
             .setPath(Path.create("applicant.color"))
             .setDescription("color")
             .setQuestionType(QuestionType.TEXT)
-            .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "What is your favorite color?"))
+            .setQuestionText(ImmutableMap.of(Locale.US, "What is your favorite color?"))
             .setQuestionHelpText(ImmutableMap.of())
             .build();
 
