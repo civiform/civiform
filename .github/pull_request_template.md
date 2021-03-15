@@ -6,4 +6,4 @@ Please explain the changes you made here.
 - [ ] Extended the README / documentation, if necessary
 
 ### Issue(s)
-[Fixes] #<issue_number>
+Fixes #<issue_number>; Fixes #<issue_number>; Fixes #<issue_number>...
