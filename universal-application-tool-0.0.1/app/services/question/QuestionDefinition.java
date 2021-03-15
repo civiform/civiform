@@ -2,6 +2,10 @@ package services.question;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.net.URLEncoder;
@@ -21,7 +25,7 @@ public abstract class QuestionDefinition {
   private final String description;
   private final ImmutableMap<Locale, String> questionText;
   private final ImmutableMap<Locale, String> questionHelpText;
-  private final ImmutableMap<ValidationPredicate, String> validationPredicates;
+  private final ValidationPredicates validationPredicates;
 
   public QuestionDefinition(
       OptionalLong id,
@@ -31,7 +35,7 @@ public abstract class QuestionDefinition {
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      ImmutableMap<ValidationPredicate, String> validationPredicates) {
+      ValidationPredicates validationPredicates) {
     this.id = checkNotNull(id);
     this.version = version;
     this.name = checkNotNull(name);
@@ -49,7 +53,7 @@ public abstract class QuestionDefinition {
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      ImmutableMap<ValidationPredicate, String> validationPredicates) {
+      ValidationPredicates validationPredicates) {
     this(
         OptionalLong.empty(),
         version,
@@ -61,22 +65,17 @@ public abstract class QuestionDefinition {
         validationPredicates);
   }
 
-  public QuestionDefinition(
-      long version,
-      String name,
-      Path path,
-      String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText) {
-    this(
-        OptionalLong.empty(),
-        version,
-        name,
-        path,
-        description,
-        questionText,
-        questionHelpText,
-        ImmutableMap.of());
+  public abstract static class ValidationPredicates {
+    protected static final ObjectMapper mapper =
+        new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
+
+    public String serializeAsString() {
+      try {
+        return mapper.writeValueAsString(this);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
+    }
   }
 
   /** Return true if the question is persisted and has an unique identifier. */
@@ -148,9 +147,14 @@ public abstract class QuestionDefinition {
     return this.questionHelpText;
   }
 
-  /** Get the validation predicates. This is used for serialization. */
-  public ImmutableMap<ValidationPredicate, String> getValidationPredicates() {
-    return this.validationPredicates;
+  /** Get the validation predicates. */
+  public ValidationPredicates getValidationPredicates() {
+    return validationPredicates;
+  }
+
+  /** Serialize validation predicates as a string This is used for persisting in database. */
+  public String getValidationPredicatesAsString() {
+    return validationPredicates.serializeAsString();
   }
 
   /** Get the type of this question. */

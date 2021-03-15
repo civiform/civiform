@@ -14,8 +14,8 @@ import services.question.AddressQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.TextQuestionDefinition;
+import services.question.TextQuestionDefinition.TextValidationPredicates;
 import services.question.UnsupportedQuestionTypeException;
-import services.question.ValidationPredicate;
 
 public class QuestionTest extends WithPostgresContainer {
 
@@ -88,11 +88,7 @@ public class QuestionTest extends WithPostgresContainer {
             "",
             ImmutableMap.of(),
             ImmutableMap.of(),
-            ImmutableMap.of(
-                ValidationPredicate.TEXT_MIN_LENGTH,
-                "0",
-                ValidationPredicate.TEXT_MAX_LENGTH,
-                "128"));
+            TextValidationPredicates.create(0, 128));
     Question question = new Question(definition);
 
     question.save();
@@ -100,11 +96,6 @@ public class QuestionTest extends WithPostgresContainer {
     Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
     assertThat(found.getQuestionDefinition().getValidationPredicates())
-        .isEqualTo(
-            ImmutableMap.of(
-                ValidationPredicate.TEXT_MIN_LENGTH,
-                "0",
-                ValidationPredicate.TEXT_MAX_LENGTH,
-                "128"));
+        .isEqualTo(TextValidationPredicates.create(0, 128));
   }
 }

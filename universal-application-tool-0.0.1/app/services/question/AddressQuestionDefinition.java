@@ -1,5 +1,7 @@
 package services.question;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.OptionalLong;
@@ -15,7 +17,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      ImmutableMap<ValidationPredicate, String> validationPredicates) {
+      AddressValidationPredicates validationPredicates) {
     super(
         id, version, name, path, description, questionText, questionHelpText, validationPredicates);
   }
@@ -27,7 +29,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      ImmutableMap<ValidationPredicate, String> validationPredicates) {
+      AddressValidationPredicates validationPredicates) {
     super(version, name, path, description, questionText, questionHelpText, validationPredicates);
   }
 
@@ -38,7 +40,35 @@ public class AddressQuestionDefinition extends QuestionDefinition {
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
-    super(version, name, path, description, questionText, questionHelpText);
+    super(
+        version,
+        name,
+        path,
+        description,
+        questionText,
+        questionHelpText,
+        AddressValidationPredicates.create());
+  }
+
+  @AutoValue
+  public abstract static class AddressValidationPredicates extends ValidationPredicates {
+
+    public static AddressValidationPredicates parse(String jsonString) {
+      try {
+        return mapper.readValue(
+            jsonString, AutoValue_AddressQuestionDefinition_AddressValidationPredicates.class);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    public static AddressValidationPredicates create() {
+      return new AutoValue_AddressQuestionDefinition_AddressValidationPredicates();
+    }
+  }
+
+  public AddressValidationPredicates getAddressValidationPredicates() {
+    return (AddressValidationPredicates) getValidationPredicates();
   }
 
   @Override

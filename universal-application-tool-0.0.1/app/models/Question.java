@@ -18,7 +18,6 @@ import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
 import services.question.UnsupportedQuestionTypeException;
-import services.question.ValidationPredicate;
 
 @Entity
 @Table(name = "questions")
@@ -40,8 +39,7 @@ public class Question extends BaseModel {
 
   private @Constraints.Required String questionType;
 
-  private @Constraints.Required @DbJsonB ImmutableMap<ValidationPredicate, String>
-      validationPredicates;
+  private @Constraints.Required @DbJsonB String validationPredicates;
 
   public String getPath() {
     return path;
@@ -59,7 +57,7 @@ public class Question extends BaseModel {
     questionText = questionDefinition.getQuestionText();
     questionHelpText = questionDefinition.getQuestionHelpText();
     questionType = questionDefinition.getQuestionType().toString();
-    validationPredicates = questionDefinition.getValidationPredicates();
+    validationPredicates = questionDefinition.getValidationPredicatesAsString();
   }
 
   /** Populates column values from {@link QuestionDefinition}. */
@@ -76,7 +74,7 @@ public class Question extends BaseModel {
     questionText = questionDefinition.getQuestionText();
     questionHelpText = questionDefinition.getQuestionHelpText();
     questionType = questionDefinition.getQuestionType().toString();
-    validationPredicates = questionDefinition.getValidationPredicates();
+    validationPredicates = questionDefinition.getValidationPredicatesAsString();
   }
 
   /** Populates {@link QuestionDefinition} from column values. */
@@ -94,7 +92,7 @@ public class Question extends BaseModel {
             .setQuestionText(questionText)
             .setQuestionHelpText(questionHelpText)
             .setQuestionType(QuestionType.valueOf(questionType))
-            .setValidationPredicates(validationPredicates)
+            .setValidationPredicatesString(validationPredicates)
             .build();
   }
 

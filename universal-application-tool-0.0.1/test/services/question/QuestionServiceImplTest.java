@@ -12,6 +12,7 @@ import org.junit.Test;
 import repository.WithPostgresContainer;
 import services.ErrorAnd;
 import services.Path;
+import services.question.AddressQuestionDefinition.AddressValidationPredicates;
 
 public class QuestionServiceImplTest extends WithPostgresContainer {
   QuestionServiceImpl questionService;
@@ -149,6 +150,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
         new QuestionDefinitionBuilder(question)
             .setPath(Path.create("new.path"))
             .setQuestionType(QuestionType.ADDRESS)
+            .setValidationPredicates(AddressValidationPredicates.create())
             .build();
 
     ErrorAnd<QuestionDefinition, QuestionServiceError> errorAndResult =

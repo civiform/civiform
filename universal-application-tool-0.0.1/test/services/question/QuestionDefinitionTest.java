@@ -10,6 +10,8 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import services.Path;
+import services.question.AddressQuestionDefinition.AddressValidationPredicates;
+import services.question.TextQuestionDefinition.TextValidationPredicates;
 
 public class QuestionDefinitionTest {
   QuestionDefinitionBuilder builder;
@@ -25,7 +27,7 @@ public class QuestionDefinitionTest {
             .setQuestionType(QuestionType.TEXT)
             .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "question?"))
             .setQuestionHelpText(ImmutableMap.of(Locale.ENGLISH, "help text"))
-            .setValidationPredicates(ImmutableMap.of(ValidationPredicate.TEXT_MAX_LENGTH, "128"));
+            .setValidationPredicates(TextValidationPredicates.builder().setMaxLength(128).build());
   }
 
   @Test
@@ -49,7 +51,7 @@ public class QuestionDefinitionTest {
 
     QuestionDefinition differentQuestionPredicates =
         new QuestionDefinitionBuilder(question)
-            .setValidationPredicates(ImmutableMap.of(ValidationPredicate.TEXT_MAX_LENGTH, "1"))
+            .setValidationPredicates(TextValidationPredicates.builder().setMaxLength(1).build())
             .build();
     assertThat(question.equals(differentQuestionPredicates)).isFalse();
   }
@@ -82,7 +84,10 @@ public class QuestionDefinitionTest {
     QuestionDefinition question = builder.setId(123L).build();
 
     QuestionDefinition differentQuestionType =
-        new QuestionDefinitionBuilder(question).setQuestionType(QuestionType.ADDRESS).build();
+        new QuestionDefinitionBuilder(question)
+            .setQuestionType(QuestionType.ADDRESS)
+            .setValidationPredicates(AddressValidationPredicates.create())
+            .build();
     assertThat(question.equals(differentQuestionType)).isFalse();
   }
 
@@ -133,7 +138,7 @@ public class QuestionDefinitionTest {
             .setDescription("description")
             .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
             .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
-            .setValidationPredicates(ImmutableMap.of(ValidationPredicate.TEXT_MIN_LENGTH, "0"))
+            .setValidationPredicates(TextValidationPredicates.builder().setMinLength(0).build())
             .build();
 
     assertThat(question.getId()).isEqualTo(123L);
@@ -144,7 +149,7 @@ public class QuestionDefinitionTest {
     assertThat(question.getQuestionText(Locale.US)).isEqualTo("question?");
     assertThat(question.getQuestionHelpText(Locale.US)).isEqualTo("help text");
     assertThat(question.getValidationPredicates())
-        .isEqualTo(ImmutableMap.of(ValidationPredicate.TEXT_MIN_LENGTH, "0"));
+        .isEqualTo(TextValidationPredicates.builder().setMinLength(0).build());
   }
 
   @Test
