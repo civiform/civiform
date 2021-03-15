@@ -189,8 +189,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
                     "my name",
                     Path.create("applicant.name"),
                     "description",
-                    ImmutableMap.of(Locale.ENGLISH, "question?"),
-                    ImmutableMap.of(Locale.ENGLISH, "help text")))
+                    ImmutableMap.of(Locale.US, "question?"),
+                    ImmutableMap.of(Locale.US, "help text")))
             .getResult();
   }
 

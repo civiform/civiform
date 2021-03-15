@@ -33,7 +33,7 @@ public class QuestionFormTest {
             "name",
             Path.create("my.question.path"),
             "description",
-            ImmutableMap.of(Locale.ENGLISH, "What is the question text?"),
+            ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of());
     QuestionDefinition actual = builder.build();
 
