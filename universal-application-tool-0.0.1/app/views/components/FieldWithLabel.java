@@ -101,15 +101,12 @@ public class FieldWithLabel {
     fieldTag
         .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
         .withName(this.fieldName)
-        .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText);
-
-    if (formId.length() > 0) {
-      fieldTag.attr("form", formId);
-    }
+        .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
+        .withCondAttr(!Strings.isNullOrEmpty(this.placeholderText), "form", formId);
 
     ContainerTag labelTag =
         label()
-            .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FOR, this.formId)
+            .condAttr(!Strings.isNullOrEmpty(this.id), Attr.FOR, this.id)
             .withClasses(FieldWithLabel.CORE_LABEL_CLASSES)
             .withText(this.labelText);
     return div(labelTag, fieldTag).withClasses(Styles.MX_4, Styles.MB_6);
