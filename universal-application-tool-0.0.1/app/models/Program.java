@@ -4,7 +4,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbJson;
+import java.util.List;
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import javax.persistence.PostLoad;
 import javax.persistence.PostPersist;
 import javax.persistence.PostUpdate;
@@ -26,6 +28,9 @@ public class Program extends BaseModel {
   private @Constraints.Required String description;
 
   private @Constraints.Required @DbJson ImmutableList<BlockDefinition> blockDefinitions;
+
+  @OneToMany(mappedBy = "program")
+  private List<Application> applications;
 
   public ProgramDefinition getProgramDefinition() {
     return checkNotNull(this.programDefinition);
@@ -77,5 +82,9 @@ public class Program extends BaseModel {
             .setDescription(this.description)
             .setBlockDefinitions(this.blockDefinitions)
             .build();
+  }
+
+  public ImmutableList<Application> getApplications() {
+    return ImmutableList.copyOf(applications);
   }
 }

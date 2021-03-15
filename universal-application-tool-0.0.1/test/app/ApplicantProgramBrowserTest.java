@@ -1,16 +1,25 @@
 package app;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.fluentlenium.core.filter.FilterConstructor.containingText;
 import static org.fluentlenium.core.filter.FilterConstructor.withName;
 import static org.fluentlenium.core.filter.FilterConstructor.withText;
 
+import java.util.List;
+import java.util.Optional;
+import models.Applicant;
+import models.Application;
 import org.junit.Before;
 import org.junit.Test;
+import repository.ApplicantRepository;
 
 public class ApplicantProgramBrowserTest extends BaseBrowserTest {
 
+  private ApplicantRepository applicantRepository;
+
   @Before
   public void setUp() {
+    applicantRepository = app.injector().instanceOf(ApplicantRepository.class);
     // Create a program with two blocks.
 
     loginAsAdmin();
@@ -66,6 +75,7 @@ public class ApplicantProgramBrowserTest extends BaseBrowserTest {
     // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Expect review
     //  page when it is implemented.
     // All blocks complete. Back to list of programs.
+    assertThat(browser.$("p", containingText("Successfully saved application")).present()).isTrue();
     assertThat(browser.$("h1", withText("Programs")).present()).isTrue();
     assertThat(browser.$("h2", withText("Mock program")).present()).isTrue();
 
@@ -74,5 +84,12 @@ public class ApplicantProgramBrowserTest extends BaseBrowserTest {
     assertThat(getInputValue("applicant.name.first")).isEqualTo("Finn");
     assertThat(getInputValue("applicant.name.last")).isEqualTo("the Human");
     assertThat(getInputValue("applicant.color")).isEqualTo("baby blue");
+
+    long applicantId = getApplicantId();
+    Optional<Applicant> applicantMaybe = applicantRepository.lookupApplicant(applicantId).toCompletableFuture().join();
+    assertThat(applicantMaybe).isPresent();
+    Applicant applicant = applicantMaybe.get();
+    List<Application> applicationList = applicant.getApplications();
+    assertThat(applicationList.size()).isEqualTo(1);
   }
 }

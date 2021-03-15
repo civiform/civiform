@@ -1,6 +1,8 @@
 package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.concurrent.CompletableFuture.failedFuture;
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -9,15 +11,18 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
+import play.mvc.Call;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.ApplicationRepository;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
@@ -33,6 +38,7 @@ public final class ApplicantProgramBlocksController extends Controller {
   private final HttpExecutionContext httpExecutionContext;
   private final ApplicantProgramBlockEditView editView;
   private final FormFactory formFactory;
+  private final ApplicationRepository applicationRepository;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -42,12 +48,14 @@ public final class ApplicantProgramBlocksController extends Controller {
       MessagesApi messagesApi,
       HttpExecutionContext httpExecutionContext,
       ApplicantProgramBlockEditView editView,
-      FormFactory formFactory) {
+      FormFactory formFactory,
+      ApplicationRepository applicationRepository) {
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
+    this.applicationRepository = checkNotNull(applicationRepository);
   }
 
   public CompletionStage<Result> edit(
@@ -93,23 +101,18 @@ public final class ApplicantProgramBlocksController extends Controller {
 
     return applicantService
         .stageAndUpdateIfValid(applicantId, programId, blockId, formData)
-        .thenApplyAsync(
+        .thenComposeAsync(
             (errorAndROApplicantProgramService) -> {
               if (errorAndROApplicantProgramService.isError()) {
                 errorAndROApplicantProgramService
                     .getErrors()
                     .forEach(e -> logger.error("Exception while updating applicant data", e));
-                return badRequest("Unable to process this request");
+                return supplyAsync(() -> badRequest("Unable to process this request"));
               }
               ReadOnlyApplicantProgramService roApplicantProgramService =
                   errorAndROApplicantProgramService.getResult();
 
-              try {
-                return update(request, applicantId, programId, blockId, roApplicantProgramService);
-              } catch (ProgramBlockNotFoundException e) {
-                logger.error("Exception while updating applicant data", e);
-                return badRequest("Unable to process this request");
-              }
+              return update(request, applicantId, programId, blockId, roApplicantProgramService);
             },
             httpExecutionContext.current())
         .exceptionally(
@@ -118,6 +121,9 @@ public final class ApplicantProgramBlocksController extends Controller {
                 Throwable cause = ex.getCause();
                 if (cause instanceof ProgramNotFoundException) {
                   return badRequest(cause.toString());
+                } else if (cause instanceof ProgramBlockNotFoundException) {
+                  logger.error("Exception while updating applicant data", cause);
+                  return badRequest("Unable to process this request");
                 }
                 throw new RuntimeException(cause);
               }
@@ -125,41 +131,71 @@ public final class ApplicantProgramBlocksController extends Controller {
             });
   }
 
-  private Result update(
+  private CompletionStage<Result> update(
       Request request,
       long applicantId,
       long programId,
       long blockId,
-      ReadOnlyApplicantProgramService roApplicantProgramService)
-      throws ProgramBlockNotFoundException {
-    Block thisBlockUpdated =
-        roApplicantProgramService
-            .getBlock(blockId)
-            .orElseThrow(() -> new ProgramBlockNotFoundException(programId, blockId));
+      ReadOnlyApplicantProgramService roApplicantProgramService) {
+    Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getBlock(blockId);
+    if (thisBlockUpdatedMaybe.isEmpty()) {
+      return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+    }
+    Block thisBlockUpdated = thisBlockUpdatedMaybe.get();
 
     // Validation errors: re-render this block with errors and previously entered data.
     if (thisBlockUpdated.hasErrors()) {
-      return ok(
-          editView.render(
-              ApplicantProgramBlockEditView.Params.builder()
-                  .setRequest(request)
-                  .setMessages(messagesApi.preferred(request))
-                  .setApplicantId(applicantId)
-                  .setProgramId(programId)
-                  .setBlock(thisBlockUpdated)
-                  .build()));
+      return supplyAsync(
+          () ->
+              ok(
+                  editView.render(
+                      ApplicantProgramBlockEditView.Params.builder()
+                          .setRequest(request)
+                          .setMessages(messagesApi.preferred(request))
+                          .setApplicantId(applicantId)
+                          .setProgramId(programId)
+                          .setBlock(thisBlockUpdated)
+                          .build())));
     }
 
     // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Redirect to
     //  review page when it is available.
-    Result reviewPageRedirect = redirect(routes.ApplicantProgramsController.index(applicantId));
+    CompletionStage<Result> reviewPageRedirect = previewPageRedirect(applicantId, programId);
     Optional<Long> nextBlockIdMaybe =
         roApplicantProgramService.getBlockAfter(blockId).map(Block::getId);
     return nextBlockIdMaybe.isEmpty()
         ? reviewPageRedirect
-        : redirect(
-            routes.ApplicantProgramBlocksController.edit(
-                applicantId, programId, nextBlockIdMaybe.get()));
+        : supplyAsync(
+            () ->
+                redirect(
+                    routes.ApplicantProgramBlocksController.edit(
+                        applicantId, programId, nextBlockIdMaybe.get())));
+  }
+
+  private CompletionStage<Result> previewPageRedirect(long applicantId, long programId) {
+    // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Replace
+    // with a redirect to the review page.
+    // For now, this just saves the application and redirects to program index page.
+    Call endOfProgramSubmission = routes.ApplicantProgramsController.index(applicantId);
+    logger.debug("redirecting to preview page with %d, %d", applicantId, programId);
+    return submit(applicantId, programId)
+        .thenApplyAsync(
+            applicationMaybe -> {
+              if (applicationMaybe.isEmpty()) {
+                return found(endOfProgramSubmission).flashing("banner", "Error saving program.");
+              }
+              Application application = applicationMaybe.get();
+              // Placeholder application ID display.
+              return found(endOfProgramSubmission)
+                  .flashing(
+                      "banner",
+                      String.format(
+                          "Successfully saved application: application ID %d", application.id));
+            });
+  }
+
+  private CompletionStage<Optional<Application>> submit(long applicantId, long programId) {
+    return applicationRepository.submitApplication(applicantId, programId);
   }
 
   private ImmutableMap<String, String> cleanForm(Map<String, String> formData) {

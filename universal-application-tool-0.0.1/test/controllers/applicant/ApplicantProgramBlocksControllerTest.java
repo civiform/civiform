@@ -3,6 +3,7 @@ package controllers.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
+import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
@@ -192,7 +193,7 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
     Result result =
         subject.update(request, applicant.id, program.id, 1L).toCompletableFuture().join();
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.status()).isEqualTo(FOUND);
 
     // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Change
     //  reviewRoute when review page is available.
