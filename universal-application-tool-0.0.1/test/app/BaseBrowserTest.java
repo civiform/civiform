@@ -97,7 +97,7 @@ public class BaseBrowserTest extends WithBrowser {
   protected void addProgram(String name) {
     // Go to admin program index and click "New Program".
     goTo(controllers.admin.routes.AdminProgramController.index());
-    browser.$("#new-program").click();
+    browser.$("#new-program-button").click();
 
     // Fill out name and description for program and submit.
     fillInput("name", name);
@@ -129,7 +129,7 @@ public class BaseBrowserTest extends WithBrowser {
   protected void addQuestion(String questionName, String path, QuestionType questionType) {
     // Go to admin question index and click "Create a new question".
     goTo(controllers.admin.routes.QuestionController.index());
-    browser.$("a", withId("createQuestion")).first().click();
+    browser.$("a", withId("create-question-button")).first().click();
 
     // Fill out the question form and click submit.
     fillInput("questionName", questionName);
@@ -153,7 +153,7 @@ public class BaseBrowserTest extends WithBrowser {
     goTo(controllers.admin.routes.AdminProgramController.index());
     browser.$("div", containingText(programName)).$("a", containingText("Edit")).first().click();
     assertThat(bodySource()).contains("Edit program: " + programName);
-    browser.$("a", withId("manageQuestions")).first().click();
+    browser.$("a", withId("manage-questions-link")).first().click();
   }
 
   /** Adds the questions with the given names to the first block in the given program. */
@@ -176,12 +176,12 @@ public class BaseBrowserTest extends WithBrowser {
   protected void addQuestionsToBlock(String... questionNames) {
     for (String questionName : questionNames) {
       // Add question to the block.
-      browser.$("#questionBankQuestions button", withText(questionName)).first().click();
+      browser.$("#question-bank-questions button", withText(questionName)).first().click();
 
       // Check that question is added.
-      assertThat(browser.$("#questionBankQuestions button").textContents())
+      assertThat(browser.$("#question-bank-questions button").textContents())
           .doesNotContain(questionName);
-      assertThat(browser.$("#blockQuestions button").textContents()).contains(questionName);
+      assertThat(browser.$("#block-questions-form button").textContents()).contains(questionName);
     }
   }
 
@@ -190,11 +190,15 @@ public class BaseBrowserTest extends WithBrowser {
 
     for (String question : questions) {
       // Remove question from the block.
-      browser.$("#blockQuestions button", withText(question)).click();
+      browser.$("#block-questions-form button", withText(question)).click();
       // Check that question is removed.
-      assertThat(browser.$("#blockQuestions button").textContents()).doesNotContain(question);
-      assertThat(browser.$("#questionBankQuestions button").textContents()).contains(question);
+      assertThat(browser.$("#block-questions-form button").textContents()).doesNotContain(question);
+      assertThat(browser.$("#question-bank-questions button").textContents()).contains(question);
     }
+  }
+  
+  protected String bodySource() {
+    return browser.$("body").first().html();
   }
 
   protected void fillInput(String name, String text) {
@@ -207,10 +211,6 @@ public class BaseBrowserTest extends WithBrowser {
 
   protected void fillTextArea(String name, String text) {
     browser.$("textarea", withName(name)).fill().with(text);
-  }
-
-  protected String bodySource() {
-    return browser.$("body").first().html();
   }
 
   protected String getTextAreaValue(String name) {

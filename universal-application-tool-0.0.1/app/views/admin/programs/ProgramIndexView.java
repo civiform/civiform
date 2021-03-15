@@ -41,7 +41,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   public Tag renderNewProgramButton() {
     String link = controllers.admin.routes.AdminProgramController.newOne().url();
     return new LinkElement()
-        .setId("new-program")
+        .setId("new-program-button")
         .setHref(link)
         .setText("Create new program")
         .asButton();
@@ -102,6 +102,8 @@ public final class ProgramIndexView extends BaseHtmlView {
   Tag renderEditLink(String text, long programId) {
     String editLink = controllers.admin.routes.AdminProgramController.edit(programId).url();
 
-    return new LinkElement().setHref(editLink).setText(text).setStyles(Styles.MR_2).asAnchorText();
+    return new LinkElement()
+      .setId("program-edit-link-" + programId).setHref(editLink).setText(text)
+      .setStyles(Styles.MR_2).asAnchorText();
   }
 }

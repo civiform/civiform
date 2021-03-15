@@ -32,8 +32,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
   private final AdminLayout layout;
 
-  private static final String CREATE_BLOCK_FORM_ID = "block-create";
-  private static final String DELETE_BLOCK_FORM_ID = "block-delete";
+  private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
+  private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
 
   @Inject
   public ProgramBlockEditView(AdminLayout layout) {
@@ -144,16 +144,18 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
     blockInfoForm.with(
         FieldWithLabel.input()
-            .setId("name")
+            .setId("block-name-input")
+            .setFieldName("name")
             .setLabelText("Block name")
             .setValue(block.name())
             .getContainer(),
         FieldWithLabel.textArea()
-            .setId("description")
+            .setId("block-description-textarea")
+            .setFieldName("description")
             .setLabelText("Block description")
             .setValue(block.description())
             .getContainer(),
-        submitButton("Update Block").withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
+        submitButton("Update Block").withId("update-block-button").withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
     if (program.blockDefinitions().size() > 1) {
       blockInfoForm.with(
           submitButton("Delete Block")
@@ -167,7 +169,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 program.id(), block.id())
             .url();
     ContainerTag questionDeleteForm =
-        form(csrfTag).withId("blockQuestions").withMethod(POST).withAction(deleteQuestionAction);
+        form(csrfTag).withId("block-questions-form").withMethod(POST).withAction(deleteQuestionAction);
     block
         .programQuestionDefinitions()
         .forEach(pqd -> questionDeleteForm.with(renderQuestion(pqd.getQuestionDefinition())));

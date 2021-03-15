@@ -4,6 +4,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.textarea;
 
+import com.google.common.base.Strings;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
@@ -33,11 +34,12 @@ public class FieldWithLabel {
   };
 
   protected Tag fieldTag;
+  protected String fieldName = "";
   protected String fieldValue = "";
   protected String formId = "";
+  protected String id = "";
   protected String labelText = "";
   protected String placeholderText = "";
-  protected String id = "";
 
   public FieldWithLabel(Tag fieldTag) {
     this.fieldTag = fieldTag.withClasses(FieldWithLabel.CORE_FIELD_CLASSES);
@@ -53,13 +55,18 @@ public class FieldWithLabel {
     return new FieldWithLabel(fieldTag);
   }
 
-  public FieldWithLabel setId(String inputId) {
-    this.id = inputId;
+  public FieldWithLabel setFieldName(String fieldName) {
+    this.fieldName = fieldName;
     return this;
   }
 
   public FieldWithLabel setFormId(String formId) {
     this.formId = formId;
+    return this;
+  }
+
+  public FieldWithLabel setId(String inputId) {
+    this.id = inputId;
     return this;
   }
 
@@ -90,7 +97,11 @@ public class FieldWithLabel {
     } else {
       fieldTag.withValue(this.fieldValue);
     }
-    fieldTag.withId(this.id).withName(id).withPlaceholder(this.placeholderText);
+    
+    fieldTag
+      .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
+      .withName(this.fieldName)
+      .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText);
 
     if (formId.length() > 0) {
       fieldTag.attr("form", formId);
@@ -98,7 +109,7 @@ public class FieldWithLabel {
 
     ContainerTag labelTag =
         label()
-            .attr(Attr.FOR, this.id)
+            .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FOR, this.formId)
             .withClasses(FieldWithLabel.CORE_LABEL_CLASSES)
             .withText(this.labelText);
     return div(labelTag, fieldTag).withClasses(Styles.MX_4, Styles.MB_6);

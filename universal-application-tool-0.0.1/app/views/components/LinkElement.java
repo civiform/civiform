@@ -2,6 +2,7 @@ package views.components;
 
 import static j2html.TagCreator.a;
 
+import com.google.common.base.Strings;
 import j2html.tags.Tag;
 import views.BaseStyles;
 import views.StyleUtils;
@@ -61,10 +62,6 @@ public class LinkElement {
   }
 
   public Tag asButton() {
-    Tag ret = a(text).withHref(href).withClasses(DEFAULT_LINK_BUTTON_STYLES, styles);
-    if (!this.id.isEmpty()) {
-      ret.withId(id);
-    }
-    return ret;
+    return a(text).withCondId(!Strings.isNullOrEmpty(id),id).withHref(href).withClasses(DEFAULT_LINK_BUTTON_STYLES, styles);    
   }
 }

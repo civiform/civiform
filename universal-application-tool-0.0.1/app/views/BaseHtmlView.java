@@ -52,7 +52,7 @@ public abstract class BaseHtmlView {
     return TagCreator.button(text(textContents)).withType("submit");
   }
 
-  protected Tag submitButton(String id, String textContents) {
+  protected Tag submitButton(String id, String textContents) {    
     return submitButton(textContents).withId(id);
   }
 
