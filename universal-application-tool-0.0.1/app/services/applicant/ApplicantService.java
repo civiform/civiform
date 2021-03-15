@@ -6,7 +6,13 @@ import java.util.concurrent.CompletionStage;
 import models.Applicant;
 import services.ErrorAnd;
 
-/** Defines the interface facade for Applicant service */
+/**
+ * The service responsible for accessing the Applicant resource. Applicants can view program
+ * applications defined by the {@link services.program.ProgramService} as a series of {@link
+ * Block}s, one per-page. When an applicant submits the form for a Block the ApplicantService is
+ * responsible for validating and persisting their answers and then providing the next Block for
+ * them to view, if any.
+ */
 public interface ApplicantService {
 
   /**

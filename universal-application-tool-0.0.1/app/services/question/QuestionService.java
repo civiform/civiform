@@ -6,6 +6,13 @@ import java.util.concurrent.CompletionStage;
 import services.ErrorAnd;
 import services.Path;
 
+/**
+ * The service responsible for accessing the Question resource. Admins create {@link
+ * QuestionDefinition}s which are consumed by {@link services.program.ProgramService} to define
+ * program-specific applications and {@link services.applicant.ApplicantService} for storing
+ * applicants' answers to questions. The full set of questions at a given version defines the data
+ * that can be collected for a given applicant across all programs.
+ */
 public interface QuestionService {
 
   /**
