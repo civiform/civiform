@@ -23,24 +23,24 @@ public class ApplicantQuestionTest {
           "question name",
           Path.create("applicant.my.path.name"),
           "description",
-          ImmutableMap.of(Locale.ENGLISH, "question?"),
-          ImmutableMap.of(Locale.ENGLISH, "help text"));
+          ImmutableMap.of(Locale.US, "question?"),
+          ImmutableMap.of(Locale.US, "help text"));
   private static final NameQuestionDefinition nameQuestionDefinition =
       new NameQuestionDefinition(
           1L,
           "question name",
           Path.create("applicant.my.path.name"),
           "description",
-          ImmutableMap.of(Locale.ENGLISH, "question?"),
-          ImmutableMap.of(Locale.ENGLISH, "help text"));
+          ImmutableMap.of(Locale.US, "question?"),
+          ImmutableMap.of(Locale.US, "help text"));
   private static final AddressQuestionDefinition addressQuestionDefinition =
       new AddressQuestionDefinition(
           1L,
           "question name",
           Path.create("applicant.my.path.name"),
           "description",
-          ImmutableMap.of(Locale.ENGLISH, "question?"),
-          ImmutableMap.of(Locale.ENGLISH, "help text"));
+          ImmutableMap.of(Locale.US, "question?"),
+          ImmutableMap.of(Locale.US, "help text"));
 
   private Applicant applicant;
   private ApplicantData applicantData;
@@ -83,8 +83,8 @@ public class ApplicantQuestionTest {
                 .setName("question name")
                 .setPath(Path.create("applicant.my.path.name"))
                 .setDescription("description")
-                .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "question?"))
-                .setQuestionHelpText(ImmutableMap.of(Locale.ENGLISH, "help text"))
+                .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
+                .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
                 .setValidationPredicates(TextValidationPredicates.create(0, 4))
                 .build();
     applicantData.putString(question.getPath(), "hello");

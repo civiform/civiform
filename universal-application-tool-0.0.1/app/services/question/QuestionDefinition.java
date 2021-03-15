@@ -152,7 +152,7 @@ public abstract class QuestionDefinition {
     return validationPredicates;
   }
 
-  /** Serialize validation predicates as a string This is used for persisting in database. */
+  /** Serialize validation predicates as a string. This is used for persisting in database. */
   public String getValidationPredicatesAsString() {
     return validationPredicates.serializeAsString();
   }

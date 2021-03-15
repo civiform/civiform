@@ -21,8 +21,8 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
           "question name",
           Path.create("applicant.my.path"),
           "description",
-          ImmutableMap.of(Locale.ENGLISH, "question?"),
-          ImmutableMap.of(Locale.ENGLISH, "help text"),
+          ImmutableMap.of(Locale.US, "question?"),
+          ImmutableMap.of(Locale.US, "help text"),
           TextValidationPredicates.create(1, 3));
 
   private final ApplicantData applicantData = new ApplicantData();

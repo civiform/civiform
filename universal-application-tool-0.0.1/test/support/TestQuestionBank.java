@@ -60,8 +60,8 @@ public class TestQuestionBank {
             "applicant name",
             Path.create("applicant.name"),
             "name of applicant",
-            ImmutableMap.of(Locale.ENGLISH, "what is your name?"),
-            ImmutableMap.of(Locale.ENGLISH, "help text"));
+            ImmutableMap.of(Locale.US, "what is your name?"),
+            ImmutableMap.of(Locale.US, "help text"));
     Question question = new Question(definition);
     question.save();
     return question;
@@ -74,8 +74,8 @@ public class TestQuestionBank {
             "applicant address",
             Path.create("applicant.address"),
             "address of applicant",
-            ImmutableMap.of(Locale.ENGLISH, "what is your address?"),
-            ImmutableMap.of(Locale.ENGLISH, "help text"));
+            ImmutableMap.of(Locale.US, "what is your address?"),
+            ImmutableMap.of(Locale.US, "help text"));
     Question question = new Question(definition);
     question.save();
     return question;
@@ -88,8 +88,8 @@ public class TestQuestionBank {
             "applicant favorite color",
             Path.create("applicant.color"),
             "favorite color of applicant",
-            ImmutableMap.of(Locale.ENGLISH, "what is your favorite color?"),
-            ImmutableMap.of(Locale.ENGLISH, "help text"));
+            ImmutableMap.of(Locale.US, "what is your favorite color?"),
+            ImmutableMap.of(Locale.US, "help text"));
     Question question = new Question(definition);
     question.save();
     return question;

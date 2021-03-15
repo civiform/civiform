@@ -50,8 +50,8 @@ public class QuestionTest extends WithPostgresContainer {
             "",
             Path.empty(),
             "",
-            ImmutableMap.of(Locale.ENGLISH, "hello"),
-            ImmutableMap.of(Locale.ENGLISH, "help"));
+            ImmutableMap.of(Locale.US, "hello"),
+            ImmutableMap.of(Locale.US, "help"));
     Question question = new Question(definition);
 
     question.save();
@@ -59,9 +59,9 @@ public class QuestionTest extends WithPostgresContainer {
     Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
     assertThat(found.getQuestionDefinition().getQuestionText())
-        .isEqualTo(ImmutableMap.of(Locale.ENGLISH, "hello"));
+        .isEqualTo(ImmutableMap.of(Locale.US, "hello"));
     assertThat(found.getQuestionDefinition().getQuestionHelpText())
-        .isEqualTo(ImmutableMap.of(Locale.ENGLISH, "help"));
+        .isEqualTo(ImmutableMap.of(Locale.US, "help"));
   }
 
   @Test

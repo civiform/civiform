@@ -25,7 +25,7 @@ public class ApplicantData {
   private static final Configuration CONFIGURATION =
       Configuration.defaultConfiguration().addOptions(Option.SUPPRESS_EXCEPTIONS);
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
-  private static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
+  private static final Locale DEFAULT_LOCALE = Locale.US;
 
   private Locale preferredLocale;
   private DocumentContext jsonData;

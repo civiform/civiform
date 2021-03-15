@@ -34,7 +34,9 @@ public class FieldWithLabel {
 
   protected Tag fieldTag;
   protected String fieldValue = "";
+  protected String formId = "";
   protected String labelText = "";
+  protected String placeholderText = "";
   protected String id = "";
 
   public FieldWithLabel(Tag fieldTag) {
@@ -56,13 +58,18 @@ public class FieldWithLabel {
     return this;
   }
 
+  public FieldWithLabel setFormId(String formId) {
+    this.formId = formId;
+    return this;
+  }
+
   public FieldWithLabel setLabelText(String labelText) {
     this.labelText = labelText;
     return this;
   }
 
   public FieldWithLabel setPlaceholderText(String placeholder) {
-    fieldTag.withPlaceholder(placeholder);
+    this.placeholderText = placeholder;
     return this;
   }
 
@@ -72,7 +79,23 @@ public class FieldWithLabel {
   }
 
   public ContainerTag getContainer() {
-    fieldTag.withId(this.id).withName(id).withValue(this.fieldValue);
+    if (fieldTag.getTagName().equals("textarea")) {
+      // Have to recreate the field here in case the value is modified.
+      ContainerTag textAreaTag =
+          textarea()
+              .withType("text")
+              .withClasses(FieldWithLabel.CORE_FIELD_CLASSES)
+              .withText(this.fieldValue);
+      fieldTag = textAreaTag;
+    } else {
+      fieldTag.withValue(this.fieldValue);
+    }
+    fieldTag.withId(this.id).withName(id).withPlaceholder(this.placeholderText);
+
+    if (formId.length() > 0) {
+      fieldTag.attr("form", formId);
+    }
+
     ContainerTag labelTag =
         label()
             .attr(Attr.FOR, this.id)

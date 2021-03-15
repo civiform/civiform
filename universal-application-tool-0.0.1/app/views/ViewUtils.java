@@ -12,6 +12,8 @@ import javax.inject.Inject;
 public final class ViewUtils {
   private final AssetsFinder assetsFinder;
 
+  public static final String POST = "post";
+
   @Inject
   ViewUtils(AssetsFinder assetsFinder) {
     this.assetsFinder = checkNotNull(assetsFinder);

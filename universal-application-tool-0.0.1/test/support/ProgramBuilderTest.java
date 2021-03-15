@@ -68,8 +68,8 @@ public class ProgramBuilderTest extends WithPostgresContainer {
             .setPath(Path.create("my.path.name"))
             .setDescription("description")
             .setQuestionType(QuestionType.NAME)
-            .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "question?"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.ENGLISH, "help text"))
+            .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
+            .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
             .build();
     ProgramDefinition programDefinition =
         ProgramBuilder.newProgram("name", "description")
