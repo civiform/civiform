@@ -2,6 +2,7 @@ package app;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fluentlenium.core.filter.FilterConstructor.containingText;
+import static org.fluentlenium.core.filter.FilterConstructor.withClass;
 import static org.fluentlenium.core.filter.FilterConstructor.withId;
 import static org.fluentlenium.core.filter.FilterConstructor.withName;
 import static org.fluentlenium.core.filter.FilterConstructor.withText;
@@ -15,6 +16,7 @@ import models.Account;
 import models.Applicant;
 import models.Program;
 import models.Question;
+import org.fluentlenium.core.domain.FluentList;
 import org.fluentlenium.core.domain.FluentWebElement;
 import org.junit.Before;
 import org.openqa.selenium.By;
@@ -177,25 +179,48 @@ public class BaseBrowserTest extends WithBrowser {
    */
   protected void addQuestionsToBlock(String... questionNames) {
     for (String questionName : questionNames) {
-      // Add question to the block.
-      browser.$("#question-bank-questions", withClass(ReferenceClasses.QUESTION_BUTTON), withText(questionName)).first().click();
+      // Verify initial state
+      FluentList<FluentWebElement> questionBank =
+          browser.$(withClass(ReferenceClasses.ADD_QUESTION_BUTTON));
+      FluentList<FluentWebElement> blockQuestions =
+          browser.$(withClass(ReferenceClasses.REMOVE_QUESTION_BUTTON));
+      assertThat(questionBank.textContents()).contains(questionName);
+      assertThat(blockQuestions.textContents()).doesNotContain(questionName);
 
-      // Check that question is added.
-      assertThat(browser.$("#question-bank-questions", withClass(ReferenceClasses.QUESTION_BUTTON)).textContents())
-          .doesNotContain(questionName);
-      assertThat(browser.$("#block-questions-form", withClass(ReferenceClasses.QUESTION_BUTTON)).textContents()).contains(questionName);
+      // Add question.
+      questionBank.$(withText(questionName)).first().click();
+
+      // Verify end state.
+      questionBank = browser.$(withClass(ReferenceClasses.ADD_QUESTION_BUTTON));
+      blockQuestions = browser.$(withClass(ReferenceClasses.REMOVE_QUESTION_BUTTON));
+      assertThat(questionBank.textContents()).doesNotContain(questionName);
+      assertThat(blockQuestions.textContents()).contains(questionName);
     }
   }
 
   protected void removeQuestionsFromProgram(String programName, String... questions) {
     manageExistingProgramQuestions(programName);
+    removeQuesitonsFromBlock(questions);
+  }
 
-    for (String question : questions) {
-      // Remove question from the block.
-      browser.$("#block-questions-form", withClass(ReferenceClasses.QUESTION_BUTTON), withText(question)).click();
-      // Check that question is removed.
-      assertThat(browser.$("#block-questions-form", withClass(ReferenceClasses.QUESTION_BUTTON)).textContents()).doesNotContain(question);
-      assertThat(browser.$("#question-bank-questions", withClass(ReferenceClasses.QUESTION_BUTTON)).textContents()).contains(question);
+  protected void removeQuesitonsFromBlock(String... questionNames) {
+    for (String questionName : questionNames) {
+      // Verify initial state
+      FluentList<FluentWebElement> questionBank =
+          browser.$(withClass(ReferenceClasses.ADD_QUESTION_BUTTON));
+      FluentList<FluentWebElement> blockQuestions =
+          browser.$(withClass(ReferenceClasses.REMOVE_QUESTION_BUTTON));
+      assertThat(questionBank.textContents()).doesNotContain(questionName);
+      assertThat(blockQuestions.textContents()).contains(questionName);
+
+      // Remove question.
+      blockQuestions.$(withText(questionName)).first().click();
+
+      // Verify end state.
+      questionBank = browser.$(withClass(ReferenceClasses.ADD_QUESTION_BUTTON));
+      blockQuestions = browser.$(withClass(ReferenceClasses.REMOVE_QUESTION_BUTTON));
+      assertThat(questionBank.textContents()).contains(questionName);
+      assertThat(blockQuestions.textContents()).doesNotContain(questionName);
     }
   }
 

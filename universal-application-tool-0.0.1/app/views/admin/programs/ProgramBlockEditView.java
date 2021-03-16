@@ -25,6 +25,8 @@ import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.QuestionBank;
+import views.style.BaseStyles;
+import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
