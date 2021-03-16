@@ -1,11 +1,13 @@
 package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
+import java.util.concurrent.CompletionException;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
@@ -109,14 +111,16 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     ImmutableSet<Update> updates = ImmutableSet.of();
     long badProgramId = programDefinition.id() + 1000L;
 
-    ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
-        subject
-            .stageAndUpdateIfValid(applicant.id, badProgramId, 1L, updates)
-            .toCompletableFuture()
-            .join();
-    assertThat(errorAnd.hasResult()).isFalse();
-    assertThat(errorAnd.getErrors()).hasSize(1);
-    assertThat(errorAnd.getErrors().asList().get(0)).isInstanceOf(ProgramNotFoundException.class);
+    Throwable thrown =
+        catchThrowable(
+            () ->
+                subject
+                    .stageAndUpdateIfValid(applicant.id, badProgramId, 1L, updates)
+                    .toCompletableFuture()
+                    .join());
+
+    assertThat(thrown).isInstanceOf(CompletionException.class);
+    assertThat(thrown).hasCauseInstanceOf(ProgramNotFoundException.class);
   }
 
   @Test
@@ -185,8 +189,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
                     "my name",
                     Path.create("applicant.name"),
                     "description",
-                    ImmutableMap.of(Locale.ENGLISH, "question?"),
-                    ImmutableMap.of(Locale.ENGLISH, "help text")))
+                    ImmutableMap.of(Locale.US, "question?"),
+                    ImmutableMap.of(Locale.US, "help text")))
             .getResult();
   }
 

@@ -68,5 +68,11 @@ public class ApplicantProgramBrowserTest extends BaseBrowserTest {
     // All blocks complete. Back to list of programs.
     assertThat(browser.$("h1", withText("Programs")).present()).isTrue();
     assertThat(browser.$("h2", withText("Mock program")).present()).isTrue();
+
+    // Check that applicant data was saved to the database.
+    browser.$("a", withText("Apply")).click();
+    assertThat(getInputValue("applicant.name.first")).isEqualTo("Finn");
+    assertThat(getInputValue("applicant.name.last")).isEqualTo("the Human");
+    assertThat(getInputValue("applicant.color")).isEqualTo("baby blue");
   }
 }

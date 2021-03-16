@@ -27,16 +27,18 @@ public final class ProgramNewOneView extends BaseHtmlView {
                 form(
                         makeCsrfTokenInputTag(request),
                         FieldWithLabel.input()
-                            .setId("name")
+                            .setId("program-name-input")
+                            .setFieldName("name")
                             .setLabelText("Program name")
                             .setPlaceholderText("The name of the program")
                             .getContainer(),
                         FieldWithLabel.textArea()
-                            .setId("description")
+                            .setId("program-description-textarea")
+                            .setFieldName("description")
                             .setLabelText("Program description")
                             .setPlaceholderText("The description of the program")
                             .getContainer(),
-                        submitButton("Create"))
+                        submitButton("Create").withId("program-create-button"))
                     .withMethod("post")
                     .withAction(controllers.admin.routes.AdminProgramController.index().url()))));
   }

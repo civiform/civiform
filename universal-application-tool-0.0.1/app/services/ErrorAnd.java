@@ -26,19 +26,19 @@ public class ErrorAnd<T, E> {
   private final T result;
 
   /** Constructor for the error case. */
-  public ErrorAnd(ImmutableSet<E> errors) {
+  private ErrorAnd(ImmutableSet<E> errors) {
     this.errors = checkNotNull(errors);
     this.result = null;
   }
 
   /** Constructor for the error case but when result is also useful. */
-  public ErrorAnd(ImmutableSet<E> errors, T result) {
+  private ErrorAnd(ImmutableSet<E> errors, T result) {
     this.errors = checkNotNull(errors);
     this.result = checkNotNull(result);
   }
 
   /** Constructor for the success case. */
-  public ErrorAnd(T result) {
+  private ErrorAnd(T result) {
     this.result = checkNotNull(result);
     this.errors = ImmutableSet.of();
   }

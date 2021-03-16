@@ -20,7 +20,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.WithPostgresContainer;
 import support.ProgramBuilder;
-import support.Questions;
+import support.TestQuestionBank;
 
 public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer {
 
@@ -32,8 +32,21 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
   public void setUp() {
     subject = instanceOf(ApplicantProgramBlocksController.class);
     program =
-        ProgramBuilder.newProgram().withBlock().withQuestion(Questions.applicantName()).build();
+        ProgramBuilder.newProgram()
+            .withBlock()
+            .withQuestion(TestQuestionBank.applicantName())
+            .build();
     applicant = resourceCreator().insertApplicant();
+  }
+
+  @Test
+  public void edit_toAProgramThatDoesNotExist_returns404() {
+    Request request =
+        fakeRequest(routes.ApplicantProgramBlocksController.edit(applicant.id, 2L, 1L)).build();
+
+    Result result = subject.edit(request, applicant.id, 2L, 1L).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
@@ -141,9 +154,9 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
     program =
         ProgramBuilder.newProgram()
             .withBlock("block 1")
-            .withQuestion(Questions.applicantName())
+            .withQuestion(TestQuestionBank.applicantName())
             .withBlock("block 2")
-            .withQuestion(Questions.applicantAddress())
+            .withQuestion(TestQuestionBank.applicantAddress())
             .build();
     Request request =
         fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, 1L))
@@ -166,7 +179,7 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
     program =
         ProgramBuilder.newProgram()
             .withBlock("block 1")
-            .withQuestion(Questions.applicantName())
+            .withQuestion(TestQuestionBank.applicantName())
             .build();
 
     Request request =

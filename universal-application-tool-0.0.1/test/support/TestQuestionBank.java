@@ -14,11 +14,16 @@ import services.question.TextQuestionDefinition;
 /**
  * A cached {@link Question} bank for testing.
  *
+ * <p>The {@link Question}s in this question bank should be treated as constants, but they need to
+ * be persisted in the database for some tests so they are persisted and cached. The properties of
+ * these questions (e.g. question path) are not canonical and may not be representative of the
+ * properties defined by CiviForm administrators.
+ *
  * <p>To add a new {@link Question} to the question bank: create a {@link QuestionEnum} for it,
  * create a private static method to construct the question, and create a public static method to
  * retrieve the cached question.
  */
-public class Questions {
+public class TestQuestionBank {
   private static final long VERSION = 1L;
 
   private enum QuestionEnum {
@@ -34,17 +39,18 @@ public class Questions {
   }
 
   public static Question applicantName() {
-    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_NAME, Questions::applicantName);
+    return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_NAME, TestQuestionBank::applicantName);
   }
 
   public static Question applicantAddress() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_ADDRESS, Questions::applicantAddress);
+        QuestionEnum.APPLICANT_ADDRESS, TestQuestionBank::applicantAddress);
   }
 
   public static Question applicantFavoriteColor() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_FAVORITE_COLOR, Questions::applicantFavoriteColor);
+        QuestionEnum.APPLICANT_FAVORITE_COLOR, TestQuestionBank::applicantFavoriteColor);
   }
 
   private static Question applicantName(QuestionEnum ignore) {
@@ -54,8 +60,8 @@ public class Questions {
             "applicant name",
             Path.create("applicant.name"),
             "name of applicant",
-            ImmutableMap.of(Locale.ENGLISH, "what is your name?"),
-            ImmutableMap.of(Locale.ENGLISH, "help text"));
+            ImmutableMap.of(Locale.US, "what is your name?"),
+            ImmutableMap.of(Locale.US, "help text"));
     Question question = new Question(definition);
     question.save();
     return question;
@@ -68,8 +74,8 @@ public class Questions {
             "applicant address",
             Path.create("applicant.address"),
             "address of applicant",
-            ImmutableMap.of(Locale.ENGLISH, "what is your address?"),
-            ImmutableMap.of(Locale.ENGLISH, "help text"));
+            ImmutableMap.of(Locale.US, "what is your address?"),
+            ImmutableMap.of(Locale.US, "help text"));
     Question question = new Question(definition);
     question.save();
     return question;
@@ -82,8 +88,8 @@ public class Questions {
             "applicant favorite color",
             Path.create("applicant.color"),
             "favorite color of applicant",
-            ImmutableMap.of(Locale.ENGLISH, "what is your favorite color?"),
-            ImmutableMap.of(Locale.ENGLISH, "help text"));
+            ImmutableMap.of(Locale.US, "what is your favorite color?"),
+            ImmutableMap.of(Locale.US, "help text"));
     Question question = new Question(definition);
     question.save();
     return question;

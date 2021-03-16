@@ -77,6 +77,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
     assertThat(pathConflicts(path, "other.applicant.address")).isFalse();
     assertThat(pathConflicts(path, "other.applicant.address.street")).isFalse();
     assertThat(pathConflicts(path, "other.applicant.address.some.other.field")).isFalse();
+    assertThat(pathConflicts(path, "applicant.addressSome")).isFalse();
   }
 
   private boolean pathConflicts(String path, String otherPath) {
@@ -139,7 +140,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
     assertThatThrownBy(() -> repo.lookupQuestionByPath("path.one").toCompletableFuture().join())
         .isInstanceOf(java.util.concurrent.CompletionException.class)
-        .hasMessageContaining("NonUniqueResultException")
+        .hasCauseInstanceOf(javax.persistence.NonUniqueResultException.class)
         .hasMessageContaining("expecting 0 or 1 results but got [2]");
   }
 

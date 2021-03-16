@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.ProgramBlockNotFoundException;
+import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramBlockEditView;
 
 public final class ApplicantProgramBlocksController extends Controller {
@@ -70,7 +72,18 @@ public final class ApplicantProgramBlocksController extends Controller {
                 return notFound();
               }
             },
-            httpExecutionContext.current());
+            httpExecutionContext.current())
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                Throwable cause = ex.getCause();
+                if (cause instanceof ProgramNotFoundException) {
+                  return notFound(cause.toString());
+                }
+                throw new RuntimeException(cause);
+              }
+              throw new RuntimeException(ex);
+            });
   }
 
   public CompletionStage<Result> update(
@@ -86,7 +99,7 @@ public final class ApplicantProgramBlocksController extends Controller {
                 errorAndROApplicantProgramService
                     .getErrors()
                     .forEach(e -> logger.error("Exception while updating applicant data", e));
-                return badRequest();
+                return badRequest("Unable to process this request");
               }
               ReadOnlyApplicantProgramService roApplicantProgramService =
                   errorAndROApplicantProgramService.getResult();
@@ -95,10 +108,21 @@ public final class ApplicantProgramBlocksController extends Controller {
                 return update(request, applicantId, programId, blockId, roApplicantProgramService);
               } catch (ProgramBlockNotFoundException e) {
                 logger.error("Exception while updating applicant data", e);
-                return badRequest();
+                return badRequest("Unable to process this request");
               }
             },
-            httpExecutionContext.current());
+            httpExecutionContext.current())
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                Throwable cause = ex.getCause();
+                if (cause instanceof ProgramNotFoundException) {
+                  return badRequest(cause.toString());
+                }
+                throw new RuntimeException(cause);
+              }
+              throw new RuntimeException(ex);
+            });
   }
 
   private Result update(

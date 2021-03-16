@@ -100,8 +100,8 @@ public class DatabaseSeedController extends Controller {
                 "name",
                 Path.create("applicant.name"),
                 "description",
-                ImmutableMap.of(Locale.ENGLISH, "What is your name?"),
-                ImmutableMap.of(Locale.ENGLISH, "help text")))
+                ImmutableMap.of(Locale.US, "What is your name?"),
+                ImmutableMap.of(Locale.US, "help text")))
         .getResult();
   }
 
@@ -113,8 +113,8 @@ public class DatabaseSeedController extends Controller {
                 "color",
                 Path.create("applicant.color"),
                 "description",
-                ImmutableMap.of(Locale.ENGLISH, "What is your favorite color?"),
-                ImmutableMap.of(Locale.ENGLISH, "help text")))
+                ImmutableMap.of(Locale.US, "What is your favorite color?"),
+                ImmutableMap.of(Locale.US, "help text")))
         .getResult();
   }
 
@@ -126,8 +126,8 @@ public class DatabaseSeedController extends Controller {
                 "address",
                 Path.create("applicant.address"),
                 "description",
-                ImmutableMap.of(Locale.ENGLISH, "What is your address?"),
-                ImmutableMap.of(Locale.ENGLISH, "help text")))
+                ImmutableMap.of(Locale.US, "What is your address?"),
+                ImmutableMap.of(Locale.US, "help text")))
         .getResult();
   }
 

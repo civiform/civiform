@@ -43,7 +43,7 @@ public class ApplicantTest extends WithPostgresContainer {
   public void storesAndRetrievesPreferredLocale() {
     // Default to English
     Applicant applicant = new Applicant();
-    assertThat(applicant.getApplicantData().preferredLocale()).isEqualTo(Locale.ENGLISH);
+    assertThat(applicant.getApplicantData().preferredLocale()).isEqualTo(Locale.US);
 
     // Set locale
     applicant.getApplicantData().setPreferredLocale(Locale.FRANCE);
