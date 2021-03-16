@@ -17,7 +17,7 @@ import java.util.Comparator;
 import services.program.ProgramDefinition;
 import services.question.QuestionDefinition;
 import views.style.BaseStyles;
-import views.style.ReferenceStyles;
+import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
@@ -64,7 +64,7 @@ public class QuestionBank {
 
     ContainerTag headerDiv =
         h1("Question bank").withClasses(
-          ReferenceStyles.QUESTION_BANK, Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
+          ReferenceClasses.QUESTION_BANK, Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
     contentDiv.withId("question-bank-questions").with(headerDiv);
 
     Tag filterInput =
@@ -127,7 +127,7 @@ public class QuestionBank {
             .withId("question-" + definition.getId())
             .withName("question-" + definition.getId())
             .withValue(definition.getId() + "")
-            .withClasses(ReferenceStyles.QUESTION_BUTTON, BaseStyles.CLICK_TARGET_BUTTON);
+            .withClasses(ReferenceClasses.ADD_QUESTION_BUTTON, BaseStyles.CLICK_TARGET_BUTTON);
 
     ContainerTag icon =
         Icons.questionTypeSvg(definition.getQuestionType(), 24)

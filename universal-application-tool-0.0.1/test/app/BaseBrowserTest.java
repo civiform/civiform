@@ -24,6 +24,7 @@ import play.db.ebean.EbeanConfig;
 import play.test.WithBrowser;
 import services.question.QuestionType;
 import support.TestConstants;
+import views.style.ReferenceClasses;
 
 public class BaseBrowserTest extends WithBrowser {
 
@@ -177,12 +178,12 @@ public class BaseBrowserTest extends WithBrowser {
   protected void addQuestionsToBlock(String... questionNames) {
     for (String questionName : questionNames) {
       // Add question to the block.
-      browser.$("#question-bank-questions", withClass(ReferenceStyles.QUESTION_BUTTON), withText(questionName)).first().click();
+      browser.$("#question-bank-questions", withClass(ReferenceClasses.QUESTION_BUTTON), withText(questionName)).first().click();
 
       // Check that question is added.
-      assertThat(browser.$("#question-bank-questions", withClass(ReferenceStyles.QUESTION_BUTTON)).textContents())
+      assertThat(browser.$("#question-bank-questions", withClass(ReferenceClasses.QUESTION_BUTTON)).textContents())
           .doesNotContain(questionName);
-      assertThat(browser.$("#block-questions-form", withClass(ReferenceStyles.QUESTION_BUTTON)).textContents()).contains(questionName);
+      assertThat(browser.$("#block-questions-form", withClass(ReferenceClasses.QUESTION_BUTTON)).textContents()).contains(questionName);
     }
   }
 
@@ -191,10 +192,10 @@ public class BaseBrowserTest extends WithBrowser {
 
     for (String question : questions) {
       // Remove question from the block.
-      browser.$("#block-questions-form", withClass(ReferenceStyles.QUESTION_BUTTON), withText(question)).click();
+      browser.$("#block-questions-form", withClass(ReferenceClasses.QUESTION_BUTTON), withText(question)).click();
       // Check that question is removed.
-      assertThat(browser.$("#block-questions-form", withClass(ReferenceStyles.QUESTION_BUTTON)).textContents()).doesNotContain(question);
-      assertThat(browser.$("#question-bank-questions", withClass(ReferenceStyles.QUESTION_BUTTON)).textContents()).contains(question);
+      assertThat(browser.$("#block-questions-form", withClass(ReferenceClasses.QUESTION_BUTTON)).textContents()).doesNotContain(question);
+      assertThat(browser.$("#question-bank-questions", withClass(ReferenceClasses.QUESTION_BUTTON)).textContents()).contains(question);
     }
   }
 

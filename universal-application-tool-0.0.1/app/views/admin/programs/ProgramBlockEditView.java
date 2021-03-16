@@ -203,13 +203,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withId("block-question-" + definition.getId())
             .withName("block-question-" + definition.getId())
             .withValue(definition.getId() + "")
-            .withClasses(
-                Styles.OPACITY_0,
-                Styles.ABSOLUTE,
-                Styles.LEFT_0,
-                Styles.TOP_0,
-                Styles.W_FULL,
-                Styles.H_FULL);
+            .withClasses(ReferenceClasses.REMOVE_QUESTION_BUTTON, BaseStyles.CLICK_TARGET_BUTTON);
 
     ContainerTag icon =
         Icons.questionTypeSvg(definition.getQuestionType(), 24)
