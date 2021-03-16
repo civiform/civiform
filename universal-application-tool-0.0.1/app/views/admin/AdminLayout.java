@@ -33,19 +33,25 @@ public class AdminLayout extends BaseHtmlLayout {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
 
     ContainerTag headerIcon =
-        div(span("C"), span("F"))
+        div(span("C"), span("F").withClasses(Styles.FONT_THIN))
             .withClasses(
                 Styles.ABSOLUTE,
-                Styles.H_7,
-                Styles.W_7,
-                Styles.TOP_3,
-                Styles.LEFT_5,
                 Styles.BG_CONTAIN,
-                Styles.OPACITY_75);
+                Styles.BG_GRAY_700,
+                Styles.H_7,
+                Styles.LEFT_5,
+                Styles.M_1,
+                Styles.OPACITY_75,
+                Styles.TEXT_CENTER,
+                Styles.TEXT_LG,
+                Styles.TEXT_WHITE,
+                Styles.TOP_2,
+                Styles.W_7,
+                Styles.ROUNDED);
     ContainerTag headerTitle =
         div()
-            .withClasses(Styles.INLINE, Styles.TEXT_XL, Styles.PL_10, Styles.PY_0, Styles.FONT_THIN)
-            .with(span("Civi").withClasses(Styles.FONT_NORMAL), text("Form"));
+            .withClasses(Styles.FONT_NORMAL, Styles.INLINE, Styles.PL_10, Styles.PY_0, Styles.TEXT_XL)
+            .with(span("Civi"), span("Form").withClasses(Styles.FONT_THIN));
 
     ContainerTag adminHeader =
         nav()
