@@ -54,8 +54,8 @@ public class ProgramAdministrationBrowserTest extends BaseBrowserTest {
 
     // Remove question from block 1.
     removeQuestionsFromProgram(programName, questionRemovedName);
-    assertThat(browser.$("#blockQuestions button").textContents()).contains(questionName);
-    assertThat(browser.$("#questionBankQuestions button").textContents())
+    assertThat(browser.$("#block-questions-form button").textContents()).contains(questionName);
+    assertThat(browser.$("#question-bank-questions button").textContents())
         .doesNotContain(questionName);
 
     // add block to program
@@ -71,8 +71,8 @@ public class ProgramAdministrationBrowserTest extends BaseBrowserTest {
     assertThat(getInputValue("name")).isEqualTo(nameValue);
     assertThat(getTextAreaValue("description")).isEqualTo(descriptionValue);
 
-    assertThat(browser.$("#blockQuestions button").textContents()).contains(questionName);
-    assertThat(browser.$("#questionBankQuestions button").textContents())
+    assertThat(browser.$("#block-questions-form button").textContents()).contains(questionName);
+    assertThat(browser.$("#question-bank-questions button").textContents())
         .contains(questionRemovedName);
   }
 }
