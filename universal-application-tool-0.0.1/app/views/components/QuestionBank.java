@@ -62,10 +62,11 @@ public class QuestionBank {
 
     ContainerTag headerDiv =
         h1("Question bank").withClasses(Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
-    contentDiv.withId("questionBankQuestions").with(headerDiv);
+    contentDiv.withId("question-bank-questions").with(headerDiv);
 
     Tag filterInput =
         input()
+            .withId("question-bank-filter")
             .withType("text")
             .withName("questionFilter")
             .attr(Attr.PLACEHOLDER, "Filter questions")

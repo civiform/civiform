@@ -28,20 +28,22 @@ public class ProgramEditView extends BaseHtmlView {
         form(
                 makeCsrfTokenInputTag(request),
                 FieldWithLabel.input()
-                    .setId("name")
+                    .setId("program-name-input")
+                    .setFieldName("name")
                     .setLabelText("Program name")
                     .setPlaceholderText("The name of the program")
                     .setValue(program.name())
                     .getContainer(),
                 FieldWithLabel.textArea()
-                    .setId("description")
+                    .setId("program-description-textarea")
+                    .setFieldName("description")
                     .setLabelText("Program description")
                     .setPlaceholderText("The description of the program")
                     .setValue(program.description())
                     .getContainer(),
-                submitButton("Save"),
+                submitButton("Save").withId("program-update-button"),
                 new LinkElement()
-                    .setId("manageQuestions")
+                    .setId("manage-questions-link")
                     .setHref(manageQuestionLink)
                     .setText("Manage Questions →")
                     .setStyles(Styles.MX_4, Styles.FLOAT_RIGHT)

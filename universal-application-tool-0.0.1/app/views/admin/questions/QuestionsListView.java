@@ -45,7 +45,7 @@ public final class QuestionsListView extends BaseHtmlView {
   private Tag renderAddQuestionLink() {
     String link = controllers.admin.routes.QuestionController.newOne().url();
     return new LinkElement()
-        .setId("createQuestion")
+        .setId("create-question-button")
         .setHref(link)
         .setText("Create new question")
         .asButton();
@@ -119,6 +119,7 @@ public final class QuestionsListView extends BaseHtmlView {
     return td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT)
         .with(
             new LinkElement()
+                .setId("edit-question-link-" + definition.getId())
                 .setHref(link)
                 .setText(linkText)
                 .setStyles(Styles.MR_2)

@@ -23,14 +23,32 @@ public class SelectWithLabel extends FieldWithLabel {
   }
 
   @Override
-  public SelectWithLabel setId(String inputId) {
-    super.setId(inputId);
+  public SelectWithLabel setFieldName(String fieldName) {
+    super.setFieldName(fieldName);
+    return this;
+  }
+
+  @Override
+  public SelectWithLabel setFormId(String formId) {
+    super.setFormId(formId);
+    return this;
+  }
+
+  @Override
+  public SelectWithLabel setId(String fieldId) {
+    super.setId(fieldId);
     return this;
   }
 
   @Override
   public SelectWithLabel setLabelText(String labelText) {
     super.setLabelText(labelText);
+    return this;
+  }
+
+  @Override
+  public SelectWithLabel setPlaceholderText(String placeholder) {
+    super.setPlaceholderText(placeholder);
     return this;
   }
 
