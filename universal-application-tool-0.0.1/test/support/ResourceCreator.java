@@ -41,8 +41,8 @@ public class ResourceCreator {
                 "question name",
                 Path.create("applicant.my.path.name"),
                 "description",
-                ImmutableMap.of(Locale.ENGLISH, "question?"),
-                ImmutableMap.of(Locale.ENGLISH, "help text")))
+                ImmutableMap.of(Locale.US, "question?"),
+                ImmutableMap.of(Locale.US, "help text")))
         .getResult();
   }
 

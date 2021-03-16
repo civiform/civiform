@@ -83,31 +83,36 @@ public final class QuestionEditView extends BaseHtmlView {
     formTag
         .with(
             FieldWithLabel.input()
-                .setId("questionName")
+                .setId("question-name-input")
+                .setFieldName("questionName")
                 .setLabelText("Name")
                 .setPlaceholderText("The name displayed in the question builder")
                 .setValue(questionForm.getQuestionName())
                 .getContainer(),
             FieldWithLabel.textArea()
-                .setId("questionDescription")
+                .setId("question-description-textarea")
+                .setFieldName("questionDescription")
                 .setLabelText("Description")
                 .setPlaceholderText("The description displayed in the question builder")
                 .setValue(questionForm.getQuestionDescription())
                 .getContainer(),
             FieldWithLabel.input()
-                .setId("questionPath")
+                .setId("question-path-input")
+                .setFieldName("questionPath")
                 .setLabelText("Path")
                 .setPlaceholderText("The path used to store question data")
                 .setValue(questionForm.getQuestionPath().path())
                 .getContainer(),
             FieldWithLabel.textArea()
-                .setId("questionText")
+                .setId("question-text-textarea")
+                .setFieldName("questionText")
                 .setLabelText("Question text")
                 .setPlaceholderText("The question text displayed to the applicant")
                 .setValue(questionForm.getQuestionText())
                 .getContainer(),
             FieldWithLabel.textArea()
-                .setId("questionHelpText")
+                .setId("question-help-text-textarea")
+                .setFieldName("questionHelpText")
                 .setLabelText("Question help text")
                 .setPlaceholderText("The question help text displayed to the applicant")
                 .setValue(questionForm.getQuestionText())
@@ -124,7 +129,8 @@ public final class QuestionEditView extends BaseHtmlView {
             .collect(ImmutableList.toImmutableList());
 
     return new SelectWithLabel()
-        .setId("questionType")
+        .setId("question-type-select")
+        .setFieldName("questionType")
         .setLabelText("Question type")
         .setOptions(options)
         .setValue(selectedType.name())

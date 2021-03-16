@@ -69,8 +69,8 @@ public class ProgramDefinitionTest {
             .setPath(Path.create("my.path.name"))
             .setDescription("description")
             .setQuestionType(QuestionType.TEXT)
-            .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "question?"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.ENGLISH, "help text"))
+            .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
+            .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
             .build();
     QuestionDefinition questionB =
         new QuestionDefinitionBuilder()
@@ -80,8 +80,8 @@ public class ProgramDefinitionTest {
             .setPath(Path.create("my.path.name"))
             .setDescription("description")
             .setQuestionType(QuestionType.TEXT)
-            .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "question?"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.ENGLISH, "help text"))
+            .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
+            .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
             .build();
     QuestionDefinition questionC =
         new QuestionDefinitionBuilder()
@@ -91,8 +91,8 @@ public class ProgramDefinitionTest {
             .setPath(Path.create("my.path.name"))
             .setDescription("description")
             .setQuestionType(QuestionType.TEXT)
-            .setQuestionText(ImmutableMap.of(Locale.ENGLISH, "question?"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.ENGLISH, "help text"))
+            .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
+            .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
             .build();
 
     BlockDefinition blockA =

@@ -25,7 +25,7 @@ public class ApplicantData {
   private static final Configuration CONFIGURATION =
       Configuration.defaultConfiguration().addOptions(Option.SUPPRESS_EXCEPTIONS);
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
-  private static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
+  private static final Locale DEFAULT_LOCALE = Locale.US;
 
   private Locale preferredLocale;
   private DocumentContext jsonData;
@@ -95,6 +95,18 @@ public class ApplicantData {
   public Optional<String> readString(Path path) {
     try {
       return this.read(path, String.class);
+    } catch (JsonPathTypeMismatchException e) {
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * Attempt to read a integer at the given path. Returns {@code Optional#empty} if the path does
+   * not exist or a value other than Integer is found.
+   */
+  public Optional<Integer> readInteger(Path path) {
+    try {
+      return this.read(path, Integer.class);
     } catch (JsonPathTypeMismatchException e) {
       return Optional.empty();
     }

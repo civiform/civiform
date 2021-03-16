@@ -4,6 +4,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.textarea;
 
+import com.google.common.base.Strings;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
@@ -33,9 +34,12 @@ public class FieldWithLabel {
   };
 
   protected Tag fieldTag;
+  protected String fieldName = "";
   protected String fieldValue = "";
-  protected String labelText = "";
+  protected String formId = "";
   protected String id = "";
+  protected String labelText = "";
+  protected String placeholderText = "";
 
   public FieldWithLabel(Tag fieldTag) {
     this.fieldTag = fieldTag.withClasses(FieldWithLabel.CORE_FIELD_CLASSES);
@@ -51,6 +55,16 @@ public class FieldWithLabel {
     return new FieldWithLabel(fieldTag);
   }
 
+  public FieldWithLabel setFieldName(String fieldName) {
+    this.fieldName = fieldName;
+    return this;
+  }
+
+  public FieldWithLabel setFormId(String formId) {
+    this.formId = formId;
+    return this;
+  }
+
   public FieldWithLabel setId(String inputId) {
     this.id = inputId;
     return this;
@@ -62,7 +76,7 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setPlaceholderText(String placeholder) {
-    fieldTag.withPlaceholder(placeholder);
+    this.placeholderText = placeholder;
     return this;
   }
 
@@ -72,12 +86,30 @@ public class FieldWithLabel {
   }
 
   public ContainerTag getContainer() {
-    fieldTag.withId(this.id).withName(id).withValue(this.fieldValue);
+    if (fieldTag.getTagName().equals("textarea")) {
+      // Have to recreate the field here in case the value is modified.
+      ContainerTag textAreaTag =
+          textarea()
+              .withType("text")
+              .withClasses(FieldWithLabel.CORE_FIELD_CLASSES)
+              .withText(this.fieldValue);
+      fieldTag = textAreaTag;
+    } else {
+      fieldTag.withValue(this.fieldValue);
+    }
+
+    fieldTag
+        .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
+        .withName(this.fieldName)
+        .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
+        .condAttr(!Strings.isNullOrEmpty(this.placeholderText), "form", formId);
+
     ContainerTag labelTag =
         label()
-            .attr(Attr.FOR, this.id)
+            .condAttr(!Strings.isNullOrEmpty(this.id), Attr.FOR, this.id)
             .withClasses(FieldWithLabel.CORE_LABEL_CLASSES)
             .withText(this.labelText);
+
     return div(labelTag, fieldTag).withClasses(Styles.MX_4, Styles.MB_6);
   }
 }

@@ -238,7 +238,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
             .setDescription("This is the first question.")
             .setPath(Path.create("the.ultimate.question"))
             .setQuestionText(
-                ImmutableMap.of(Locale.ENGLISH, "What is the answer to the ultimate question?"))
+                ImmutableMap.of(Locale.US, "What is the answer to the ultimate question?"))
             .setQuestionHelpText(ImmutableMap.of())
             .setQuestionType(QuestionType.TEXT);
     Question question = new Question(builder.build());
