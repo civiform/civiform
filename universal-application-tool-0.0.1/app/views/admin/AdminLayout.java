@@ -50,7 +50,8 @@ public class AdminLayout extends BaseHtmlLayout {
                 Styles.ROUNDED);
     ContainerTag headerTitle =
         div()
-            .withClasses(Styles.FONT_NORMAL, Styles.INLINE, Styles.PL_10, Styles.PY_0, Styles.TEXT_XL)
+            .withClasses(
+                Styles.FONT_NORMAL, Styles.INLINE, Styles.PL_10, Styles.PY_0, Styles.TEXT_XL)
             .with(span("Civi"), span("Form").withClasses(Styles.FONT_THIN));
 
     ContainerTag adminHeader =
