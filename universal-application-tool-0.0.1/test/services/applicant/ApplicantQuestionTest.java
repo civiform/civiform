@@ -13,6 +13,7 @@ import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
 import services.question.TextQuestionDefinition;
+import services.question.TextQuestionDefinition.TextValidationPredicates;
 
 public class ApplicantQuestionTest {
 
@@ -84,9 +85,8 @@ public class ApplicantQuestionTest {
                 .setDescription("description")
                 .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
                 .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
+                .setValidationPredicates(TextValidationPredicates.create(0, 4))
                 .build();
-    question.setMinLength(0);
-    question.setMaxLength(4);
     applicantData.putString(question.getPath(), "hello");
     ApplicantQuestion applicantQuestion = new ApplicantQuestion(question, applicantData);
     ApplicantQuestion.TextQuestion textQuestion = applicantQuestion.getTextQuestion();
