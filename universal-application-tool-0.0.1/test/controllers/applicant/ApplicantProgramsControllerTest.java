@@ -19,7 +19,7 @@ import play.mvc.Result;
 import repository.WithPostgresContainer;
 import services.question.QuestionDefinition;
 import support.ProgramBuilder;
-import support.Questions;
+import support.TestQuestionBank;
 
 public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
@@ -88,7 +88,10 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
   public void edit_withNewProgram_redirectsToFirstBlock() {
     Applicant applicant = resourceCreator().insertApplicant();
     Program program =
-        ProgramBuilder.newProgram().withBlock().withQuestion(Questions.applicantName()).build();
+        ProgramBuilder.newProgram()
+            .withBlock()
+            .withQuestion(TestQuestionBank.applicantName())
+            .build();
 
     Result result = controller.edit(applicant.id, program.id).toCompletableFuture().join();
 
@@ -99,14 +102,15 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
   @Test
   public void edit_redirectsToFirstIncompleteBlock() {
-    QuestionDefinition colorQuestion = Questions.applicantFavoriteColor().getQuestionDefinition();
+    QuestionDefinition colorQuestion =
+        TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
     Applicant applicant = resourceCreator().insertApplicant();
     Program program =
         ProgramBuilder.newProgram()
             .withBlock()
             .withQuestionDefinition(colorQuestion)
             .withBlock()
-            .withQuestion(Questions.applicantAddress())
+            .withQuestion(TestQuestionBank.applicantAddress())
             .build();
     applicant.getApplicantData().putString(colorQuestion.getPath(), "forest green");
     applicant.save();
