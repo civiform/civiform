@@ -29,7 +29,6 @@ public class ApplicantData {
       Configuration.defaultConfiguration().addOptions(Option.SUPPRESS_EXCEPTIONS);
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
 
-  private static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
   private static final Logger LOG = LoggerFactory.getLogger(ApplicantData.class);
   private static final Locale DEFAULT_LOCALE = Locale.US;
 
