@@ -13,10 +13,10 @@ import j2html.tags.Tag;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
-import views.StyleUtils;
-import views.Styles;
 import views.admin.AdminLayout;
 import views.components.LinkElement;
+import views.style.StyleUtils;
+import views.style.Styles;
 
 public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;

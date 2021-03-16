@@ -21,12 +21,12 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.QuestionDefinition;
 import views.BaseHtmlView;
-import views.StyleUtils;
-import views.Styles;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.QuestionBank;
+import views.style.StyleUtils;
+import views.style.Styles;
 
 public class ProgramBlockEditView extends BaseHtmlView {
 

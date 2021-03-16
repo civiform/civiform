@@ -16,8 +16,10 @@ import j2html.tags.Tag;
 import java.util.Comparator;
 import services.program.ProgramDefinition;
 import services.question.QuestionDefinition;
-import views.StyleUtils;
-import views.Styles;
+import views.style.BaseStyles;
+import views.style.ReferenceStyles;
+import views.style.StyleUtils;
+import views.style.Styles;
 
 public class QuestionBank {
   private ProgramDefinition program;
@@ -61,7 +63,8 @@ public class QuestionBank {
     innerDiv.with(contentDiv);
 
     ContainerTag headerDiv =
-        h1("Question bank").withClasses(Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
+        h1("Question bank").withClasses(
+          ReferenceStyles.QUESTION_BANK, Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
     contentDiv.withId("question-bank-questions").with(headerDiv);
 
     Tag filterInput =
@@ -124,13 +127,8 @@ public class QuestionBank {
             .withId("question-" + definition.getId())
             .withName("question-" + definition.getId())
             .withValue(definition.getId() + "")
-            .withClasses(
-                Styles.OPACITY_0,
-                Styles.ABSOLUTE,
-                Styles.LEFT_0,
-                Styles.TOP_0,
-                Styles.W_FULL,
-                Styles.H_FULL);
+            .withClasses(ReferenceStyles.QUESTION_BUTTON, BaseStyles.CLICK_TARGET_BUTTON);
+
     ContainerTag icon =
         Icons.questionTypeSvg(definition.getQuestionType(), 24)
             .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);

@@ -18,11 +18,11 @@ import play.twirl.api.Content;
 import services.question.QuestionDefinition;
 import services.question.TranslationNotFoundException;
 import views.BaseHtmlView;
-import views.BaseStyles;
-import views.StyleUtils;
-import views.Styles;
 import views.admin.AdminLayout;
 import views.components.LinkElement;
+import views.style.BaseStyles;
+import views.style.StyleUtils;
+import views.style.Styles;
 
 public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
