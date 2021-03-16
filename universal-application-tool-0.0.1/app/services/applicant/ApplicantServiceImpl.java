@@ -60,9 +60,10 @@ public class ApplicantServiceImpl implements ApplicantService {
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
 
               ReadOnlyApplicantProgramService roApplicantProgramService =
-                      new ReadOnlyApplicantProgramServiceImpl(
-                              applicant.getApplicantData(), programDefinition);
-              // Force this call here before updating, so the current block is in the list of current blocks. It will
+                  new ReadOnlyApplicantProgramServiceImpl(
+                      applicant.getApplicantData(), programDefinition);
+              // Force this call here before updating, so the current block is in the list of
+              // current blocks. It will
               // be removed (not included) in that list otherwise.
               roApplicantProgramService.getCurrentBlockList();
 

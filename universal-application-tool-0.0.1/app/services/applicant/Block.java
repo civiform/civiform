@@ -69,7 +69,7 @@ public final class Block {
    */
   public boolean isCompleteWithoutErrors() {
     return blockDefinition.scalarPaths().stream()
-            .filter(path -> !applicantData.hasPath(path))
+            .filter(path -> !applicantData.hasValueAtPath(path))
             .findAny()
             .isEmpty()
         && !hasErrors();

@@ -5,8 +5,6 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
 import services.program.ProgramDefinition;
 
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
@@ -22,7 +20,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   public ImmutableList<Block> getAllBlocksForThisProgram() {
-    return programDefinition.blockDefinitions().stream().map(blockDefinition -> new Block(blockDefinition.id(), blockDefinition, applicantData)).collect(toImmutableList());
+    return programDefinition.blockDefinitions().stream()
+        .map(blockDefinition -> new Block(blockDefinition.id(), blockDefinition, applicantData))
+        .collect(toImmutableList());
   }
 
   @Override
@@ -44,7 +44,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public Optional<Block> getBlock(long blockId) {
-    return getAllBlocksForThisProgram().stream().filter((block) -> block.getId() == blockId).findFirst();
+    return getAllBlocksForThisProgram().stream()
+        .filter((block) -> block.getId() == blockId)
+        .findFirst();
   }
 
   @Override

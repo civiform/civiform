@@ -51,7 +51,7 @@ public class ApplicantData {
     this.preferredLocale = locale;
   }
 
-  public boolean hasPath(Path path) {
+  public boolean hasValueAtPath(Path path) {
     return this.jsonData.read(path.path()) != null;
   }
 
@@ -79,7 +79,7 @@ public class ApplicantData {
     path.parentPaths()
         .forEach(
             segmentPath -> {
-              if (!hasPath(segmentPath)) {
+              if (!hasValueAtPath(segmentPath)) {
                 this.jsonData.put(
                     segmentPath.parentPath().path(), segmentPath.keyName(), new HashMap<>());
               }
@@ -161,7 +161,7 @@ public class ApplicantData {
     for (Map.Entry<?, ?> entry : other.entrySet()) {
       String key = entry.getKey().toString();
       Path path = rootKey.toBuilder().append(key).build();
-      if (hasPath(path)) {
+      if (hasValueAtPath(path)) {
         if (entry.getValue() instanceof Map) {
           // Recurse into maps.
           pathsRemoved.addAll(mergeFrom(path, (Map) entry.getValue()));

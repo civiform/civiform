@@ -39,17 +39,17 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void hasPath_pathNotFound_returnsFalse() {
+  public void hasValueAtPath_pathNotFound_returnsFalse() {
     ApplicantData data = new ApplicantData();
-    assertThat(data.hasPath(Path.create("nonexistent"))).isFalse();
+    assertThat(data.hasValueAtPath(Path.create("nonexistent"))).isFalse();
   }
 
   @Test
-  public void hasPath_pathExists_returnsTrue() {
+  public void hasValueAtPath_pathExists_returnsTrue() {
     ApplicantData data = new ApplicantData();
     Path path = Path.create("applicant.text");
     data.putString(path, "hello");
-    assertThat(data.hasPath(path)).isTrue();
+    assertThat(data.hasValueAtPath(path)).isTrue();
   }
 
   @Test
