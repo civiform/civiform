@@ -63,8 +63,7 @@ public class QuestionBank {
     innerDiv.with(contentDiv);
 
     ContainerTag headerDiv =
-        h1("Question bank")
-            .withClasses(Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
+        h1("Question bank").withClasses(Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
     contentDiv.withId("question-bank-questions").with(headerDiv);
 
     Tag filterInput =

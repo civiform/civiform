@@ -2,7 +2,6 @@ package app;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fluentlenium.core.filter.FilterConstructor.containingText;
-import static org.fluentlenium.core.filter.FilterConstructor.withClass;
 import static org.fluentlenium.core.filter.FilterConstructor.withId;
 import static org.fluentlenium.core.filter.FilterConstructor.withName;
 import static org.fluentlenium.core.filter.FilterConstructor.withText;
@@ -181,20 +180,24 @@ public class BaseBrowserTest extends WithBrowser {
     for (String questionName : questionNames) {
       // Verify initial state
       FluentList<FluentWebElement> questionBank =
-          browser.$(withClass(ReferenceClasses.ADD_QUESTION_BUTTON));
+          browser.$(By.className(ReferenceClasses.ADD_QUESTION_BUTTON));
       FluentList<FluentWebElement> blockQuestions =
-          browser.$(withClass(ReferenceClasses.REMOVE_QUESTION_BUTTON));
-      assertThat(questionBank.textContents()).contains(questionName);
-      assertThat(blockQuestions.textContents()).doesNotContain(questionName);
+          browser.$(By.className(ReferenceClasses.REMOVE_QUESTION_BUTTON));
+
+      assertThat(questionBank.texts()).contains(questionName);
+      assertThat(blockQuestions.texts()).doesNotContain(questionName);
 
       // Add question.
-      questionBank.$(withText(questionName)).first().click();
+      browser
+          .$(By.className(ReferenceClasses.ADD_QUESTION_BUTTON), withText(questionName))
+          .first()
+          .click();
 
       // Verify end state.
-      questionBank = browser.$(withClass(ReferenceClasses.ADD_QUESTION_BUTTON));
-      blockQuestions = browser.$(withClass(ReferenceClasses.REMOVE_QUESTION_BUTTON));
-      assertThat(questionBank.textContents()).doesNotContain(questionName);
-      assertThat(blockQuestions.textContents()).contains(questionName);
+      questionBank = browser.$(By.className(ReferenceClasses.ADD_QUESTION_BUTTON));
+      blockQuestions = browser.$(By.className(ReferenceClasses.REMOVE_QUESTION_BUTTON));
+      assertThat(questionBank.texts()).doesNotContain(questionName);
+      assertThat(blockQuestions.texts()).contains(questionName);
     }
   }
 
@@ -207,18 +210,21 @@ public class BaseBrowserTest extends WithBrowser {
     for (String questionName : questionNames) {
       // Verify initial state
       FluentList<FluentWebElement> questionBank =
-          browser.$(withClass(ReferenceClasses.ADD_QUESTION_BUTTON));
+          browser.$(By.className(ReferenceClasses.ADD_QUESTION_BUTTON));
       FluentList<FluentWebElement> blockQuestions =
-          browser.$(withClass(ReferenceClasses.REMOVE_QUESTION_BUTTON));
+          browser.$(By.className(ReferenceClasses.REMOVE_QUESTION_BUTTON));
       assertThat(questionBank.textContents()).doesNotContain(questionName);
       assertThat(blockQuestions.textContents()).contains(questionName);
 
       // Remove question.
-      blockQuestions.$(withText(questionName)).first().click();
+      browser
+          .$(By.className(ReferenceClasses.REMOVE_QUESTION_BUTTON), withText(questionName))
+          .first()
+          .click();
 
       // Verify end state.
-      questionBank = browser.$(withClass(ReferenceClasses.ADD_QUESTION_BUTTON));
-      blockQuestions = browser.$(withClass(ReferenceClasses.REMOVE_QUESTION_BUTTON));
+      questionBank = browser.$(By.className(ReferenceClasses.ADD_QUESTION_BUTTON));
+      blockQuestions = browser.$(By.className(ReferenceClasses.REMOVE_QUESTION_BUTTON));
       assertThat(questionBank.textContents()).contains(questionName);
       assertThat(blockQuestions.textContents()).doesNotContain(questionName);
     }
