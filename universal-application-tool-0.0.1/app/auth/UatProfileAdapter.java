@@ -42,7 +42,7 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
 
   protected abstract String emailAttributeName();
 
-  /** Create a totally new UAT profile from the provided OidcProfile. */
+  /** Merge the two provided profiles into a new UatProfileData. */
   public UatProfileData mergeUatProfile(UatProfile uatProfile, OidcProfile oidcProfile) {
     String emailAddress = oidcProfile.getAttribute(emailAttributeName(), String.class);
     uatProfile.setEmailAddress(emailAddress).join();
@@ -50,7 +50,7 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
     return uatProfile.getProfileData();
   }
 
-  /** Merge the two provided profiles into a new UatProfileData. */
+  /** Create a totally new UAT profile from the provided OidcProfile. */
   public abstract UatProfileData uatProfileFromOidcProfile(OidcProfile oidcProfile);
 
   @Override

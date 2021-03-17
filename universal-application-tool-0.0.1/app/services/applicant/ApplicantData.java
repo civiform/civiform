@@ -2,6 +2,7 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.Configuration;
@@ -17,6 +18,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.Path;
 
 public class ApplicantData {
@@ -25,6 +28,8 @@ public class ApplicantData {
   private static final Configuration CONFIGURATION =
       Configuration.defaultConfiguration().addOptions(Option.SUPPRESS_EXCEPTIONS);
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
+
+  private static final Logger LOG = LoggerFactory.getLogger(ApplicantData.class);
   private static final Locale DEFAULT_LOCALE = Locale.US;
 
   private Locale preferredLocale;
@@ -203,5 +208,37 @@ public class ApplicantData {
       }
     }
     return pathsRemoved.build();
+  }
+
+  public void setUserName(String displayName) {
+    String firstName;
+    String lastName = null;
+    String middleName = null;
+    List<String> listSplit = Splitter.on(' ').splitToList(displayName);
+    switch (listSplit.size()) {
+      case 2:
+        firstName = listSplit.get(0);
+        lastName = listSplit.get(1);
+        break;
+      case 3:
+        firstName = listSplit.get(0);
+        middleName = listSplit.get(1);
+        lastName = listSplit.get(2);
+        break;
+      case 1:
+        // fallthrough
+      default:
+        // Too many names - put them all in first name.
+        firstName = displayName;
+    }
+    setUserName(firstName, middleName, lastName);
+  }
+
+  private void setUserName(
+      String firstName, @Nullable String middleName, @Nullable String lastName) {
+    // We don't have a question for this yet, so this is unimplemented right now.
+    LOG.warn(
+        "Have not implemented setUserName yet - %s, %s, %s are our first, middle, last.",
+        firstName, middleName, lastName);
   }
 }
