@@ -44,5 +44,12 @@ public class ApplicationReviewBrowserTest extends BaseBrowserTest {
 
     browser.$("a", containingText("Applications")).click();
     assertThat(bodySource()).contains("the Builder, Bob");
+
+    browser.$("a", containingText("View")).click();
+    assertThat(bodySource()).contains("Block 1");
+    assertThat(bodySource()).contains("Question 1");
+    assertThat(bodySource()).contains("name");
+    assertThat(bodySource()).contains("Bob");
+    assertThat(bodySource()).contains("the Builder");
   }
 }
