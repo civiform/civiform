@@ -29,7 +29,11 @@ public final class QuestionEditView extends BaseHtmlView {
     this.layout = layout;
   }
 
-  public Content renderNewQuestionForm(Request request) {
+  public Content renderNewQuestionForm(Request request, String type) {
+    // Get questionType from string.
+    System.out.println(String.format("Question Type: '%s' is currently unused.", type));
+
+    // pass to render...
     return layout.render(
         body(
             renderHeader("New Question"),

@@ -1,7 +1,9 @@
 package views.admin.questions;
 
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
 import static j2html.TagCreator.td;
@@ -11,15 +13,18 @@ import static j2html.TagCreator.tr;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
 import play.twirl.api.Content;
 import services.question.QuestionDefinition;
+import services.question.QuestionType;
 import services.question.TranslationNotFoundException;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.LinkElement;
+import views.components.Icons;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -43,12 +48,23 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private Tag renderAddQuestionLink() {
-    String link = controllers.admin.routes.QuestionController.newOne().url();
-    return new LinkElement()
-        .setId("create-question-button")
+    String link = controllers.admin.routes.QuestionController.newOne("").url();
+    String parentId = "create-question-button";
+    ContainerTag linkButton = new LinkElement()
+        .setId(parentId)
         .setHref(link)
         .setText("Create new question")
         .asButton();
+    // for (QuestionType type : questionTypes)
+    ContainerTag addressLink = a().withHref("#").withClasses("p-4 pr-12 hover:bg-gray-100")
+      .with(Icons.questionTypeSvg(QuestionType.ADDRESS, 24).withClasses("inline flex-shrink-0 h-6 w-6 mr-1 text-sm"))
+      .with(p("Address").withClasses("inline text-sm"));
+    ContainerTag nameLink = a().withHref("#").withClasses("p-4 pr-12 hover:bg-gray-100")
+      .with(Icons.questionTypeSvg(QuestionType.NAME, 24).withClasses("inline flex-shrink-0 h-6 w-6 mr-1 text-sm"))
+      .with(p("Name").withClasses("inline text-sm"));
+
+    ContainerTag dropdown = div(addressLink, nameLink).withId(parentId + "-dropdown").withClasses("border bg-white w-max text-gray-600 shadow-lg hidden absolute mt-3 transition-all scale-0");
+    return linkButton.with(dropdown);
   }
 
   private Tag renderSummary(ImmutableList<QuestionDefinition> questions) {

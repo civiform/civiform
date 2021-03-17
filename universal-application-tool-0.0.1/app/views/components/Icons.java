@@ -18,11 +18,13 @@ public class Icons {
           + "  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z"
           + " M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17 "
           + " s-17-7.626-17-17S14.61,6,23.984,6z";
+  public static final String REPEATER_SVG_PATH = "M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z";
   public static final String TEXT_SVG_PATH =
       "M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0"
           + " 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4"
           + " 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5"
           + " 0-2.21-1.79-4-4-4z";
+
 
   public static ContainerTag questionTypeSvg(QuestionType type, int size) {
     return questionTypeSvg(type, size, size);
@@ -37,6 +39,11 @@ public class Icons {
       case NAME:
         iconPath = Icons.NAME_SVG_PATH;
         break;
+      case REPEATER:
+          iconPath = Icons.REPEATER_SVG_PATH;
+          return svg(iconPath, width, height)
+            .attr("fill", "transparent")
+            .attr("stroke-width", "2");
       case TEXT:
       default:
         iconPath = Icons.TEXT_SVG_PATH;

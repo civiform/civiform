@@ -1,9 +1,10 @@
 package views.components;
 
 import static j2html.TagCreator.a;
+import static j2html.TagCreator.div;
 
 import com.google.common.base.Strings;
-import j2html.tags.Tag;
+import j2html.tags.ContainerTag;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -53,18 +54,18 @@ public class LinkElement {
     return this;
   }
 
-  public Tag asAnchorText() {
-    Tag ret = a(text).withHref(href).withClasses(DEFAULT_LINK_STYLES, styles);
-    if (!this.id.isEmpty()) {
-      ret.withId(id);
-    }
-    return ret;
+  public ContainerTag asAnchorText() {
+    ContainerTag tag = Strings.isNullOrEmpty(href) ? div(text) : a(text).withHref(href);
+    return tag
+      .withCondId(!Strings.isNullOrEmpty(id), id)
+      .withCondHref(!Strings.isNullOrEmpty(href), href)
+      .withClasses(DEFAULT_LINK_STYLES, styles);    
   }
 
-  public Tag asButton() {
-    return a(text)
+  public ContainerTag asButton() {
+    ContainerTag tag = Strings.isNullOrEmpty(href) ? div(text) : a(text).withHref(href);
+    return tag
         .withCondId(!Strings.isNullOrEmpty(id), id)
-        .withHref(href)
         .withClasses(DEFAULT_LINK_BUTTON_STYLES, styles);
   }
 }

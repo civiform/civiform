@@ -103,8 +103,8 @@ public class QuestionController extends Controller {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public Result newOne(Request request) {
-    return ok(editView.renderNewQuestionForm(request));
+  public Result newOne(Request request, String type) {
+    return ok(editView.renderNewQuestionForm(request, type));
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
