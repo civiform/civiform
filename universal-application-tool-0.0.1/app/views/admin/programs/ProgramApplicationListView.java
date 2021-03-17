@@ -57,13 +57,21 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   public Tag renderApplicationListItem(Application application) {
     String downloadLinkText = "Download (PDF)";
     long applicationId = application.id;
-    String applicantName = "applicant's name here"; // We have to implement "well known answers".
+    String applicantName;
+    try {
+      String firstName = application.getApplicantData().readString(WellKnownPaths.APPLICANT_FIRST_NAME).get();
+      String lastName = application.getApplicantData().readString(WellKnownPaths.APPLICANT_LAST_NAME).get();
+      applicantName = String.format("%s, %s", lastName, firstName);
+    } catch (NoSuchElementException e) {
+      log.error("Application {} does not include an applicant name.");
+      applicantName = "<Anonymous Applicant>";
+    }
     String lastEditText;
     try {
       lastEditText = application.getApplicantData().readString(WellKnownPaths.APPLICATION_SUBMITTED_TIME).get();
     } catch (NoSuchElementException e) {
       log.error("Application {} submitted without submission time marked.", applicationId);
-      lastEditText = "ERROR";
+      lastEditText = "<ERROR>";
     }
     lastEditText = "Last edited " + lastEditText;
 
