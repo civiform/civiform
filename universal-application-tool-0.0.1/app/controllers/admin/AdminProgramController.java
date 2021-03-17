@@ -3,8 +3,10 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
+import com.google.common.collect.ImmutableList;
 import forms.ProgramForm;
 import javax.inject.Inject;
+import models.Application;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -14,6 +16,7 @@ import play.mvc.Result;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramEditView;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramNewOneView;

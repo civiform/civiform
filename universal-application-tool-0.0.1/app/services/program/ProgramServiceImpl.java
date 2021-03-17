@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import models.Application;
 import models.Program;
 import play.db.ebean.Transactional;
 import play.libs.concurrent.HttpExecutionContext;
@@ -320,6 +321,15 @@ public class ProgramServiceImpl implements ProgramService {
             programRepository.updateProgramSync(program).getProgramDefinition())
         .toCompletableFuture()
         .join();
+  }
+
+  @Override
+  public ImmutableList<Application> getProgramApplications(long programId) throws ProgramNotFoundException {
+    Optional<Program> programMaybe = programRepository.lookupProgram(programId).toCompletableFuture().join();
+    if (programMaybe.isEmpty()) {
+      throw new ProgramNotFoundException(programId);
+    }
+    return programMaybe.get().getApplications();
   }
 
   private int getBlockDefinitionIndex(ProgramDefinition programDefinition, Long blockDefinitionId)
