@@ -119,10 +119,5 @@ public abstract class Path {
       segmentsBuilder().add(segment.trim());
       return this;
     }
-
-    public Builder append(Path path) {
-      segmentsBuilder().addAll(path.segments());
-      return this;
-    }
   }
 }
