@@ -12,6 +12,8 @@ import models.Application;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ApplicantRepository;
+import services.Path;
+import services.applicant.ApplicantData;
 
 public class ApplicantProgramBrowserTest extends BaseBrowserTest {
 
@@ -91,5 +93,9 @@ public class ApplicantProgramBrowserTest extends BaseBrowserTest {
     Applicant applicant = applicantMaybe.get();
     List<Application> applicationList = applicant.getApplications();
     assertThat(applicationList.size()).isEqualTo(1);
+    ApplicantData resultData = applicationList.get(0).getApplicantData();
+    Optional<String> savedName = resultData.readString(Path.create("applicant.name.first"));
+    assertThat(savedName).isPresent();
+    assertThat(savedName.get()).isEqualTo("Finn");
   }
 }

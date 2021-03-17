@@ -1,10 +1,15 @@
 package models;
 
 import io.ebean.annotation.DbJson;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
+import services.Path;
+import services.applicant.ApplicantData;
 
 @Entity
 @Table(name = "applications")
@@ -19,9 +24,11 @@ public class Application extends BaseModel {
   @DbJson
   private String object;
 
-  public Application(Applicant applicant, Program program) {
+  public Application(Applicant applicant, Program program, Instant submitTime) {
     this.applicant = applicant;
-    this.object = applicant.getApplicantData().asJsonString();
+    ApplicantData data = applicant.getApplicantData();
+    data.putString(Path.create("metadata.submitted_time"), submitTime.toString());
+    this.object = data.asJsonString();
     this.program = program;
   }
 
@@ -31,5 +38,9 @@ public class Application extends BaseModel {
 
   public Program getProgram() {
     return this.program;
+  }
+
+  public ApplicantData getApplicantData() {
+    return new ApplicantData(this.object);
   }
 }

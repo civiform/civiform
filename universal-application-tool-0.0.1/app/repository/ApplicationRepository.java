@@ -2,6 +2,7 @@ package repository;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -12,18 +13,20 @@ import models.Program;
 public class ApplicationRepository {
   private final ProgramRepository programRepository;
   private final ApplicantRepository applicantRepository;
+  private final Clock clock;
 
   @Inject
   public ApplicationRepository(
-      ProgramRepository programRepository, ApplicantRepository applicantRepository) {
+      ProgramRepository programRepository, ApplicantRepository applicantRepository, Clock clock) {
     this.programRepository = programRepository;
     this.applicantRepository = applicantRepository;
+    this.clock = clock;
   }
 
   public CompletionStage<Application> submitApplication(Applicant applicant, Program program) {
     return supplyAsync(
         () -> {
-          Application application = new Application(applicant, program);
+          Application application = new Application(applicant, program, clock.instant());
           application.save();
           return application;
         });
@@ -42,7 +45,7 @@ public class ApplicationRepository {
           }
           Applicant applicant = applicantMaybe.get();
           Program program = programMaybe.get();
-          Application application = new Application(applicant, program);
+          Application application = new Application(applicant, program, clock.instant());
           application.save();
           return Optional.of(application);
         });

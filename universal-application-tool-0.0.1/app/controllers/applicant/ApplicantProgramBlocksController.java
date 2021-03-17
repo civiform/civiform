@@ -160,11 +160,10 @@ public final class ApplicantProgramBlocksController extends Controller {
 
     // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Redirect to
     //  review page when it is available.
-    CompletionStage<Result> reviewPageRedirect = previewPageRedirect(applicantId, programId);
     Optional<Long> nextBlockIdMaybe =
         roApplicantProgramService.getBlockAfter(blockId).map(Block::getId);
     return nextBlockIdMaybe.isEmpty()
-        ? reviewPageRedirect
+        ? previewPageRedirect(applicantId, programId)
         : supplyAsync(
             () ->
                 redirect(
