@@ -6,7 +6,6 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
-import services.Path;
 import services.WellKnownPaths;
 import services.applicant.ApplicantData;
 

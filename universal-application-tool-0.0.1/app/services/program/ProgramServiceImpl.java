@@ -324,8 +324,10 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  public ImmutableList<Application> getProgramApplications(long programId) throws ProgramNotFoundException {
-    Optional<Program> programMaybe = programRepository.lookupProgram(programId).toCompletableFuture().join();
+  public ImmutableList<Application> getProgramApplications(long programId)
+      throws ProgramNotFoundException {
+    Optional<Program> programMaybe =
+        programRepository.lookupProgram(programId).toCompletableFuture().join();
     if (programMaybe.isEmpty()) {
       throw new ProgramNotFoundException(programId);
     }

@@ -10,18 +10,15 @@ import static j2html.TagCreator.p;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import j2html.tags.Tag;
-import java.time.Clock;
 import java.util.NoSuchElementException;
 import models.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.twirl.api.Content;
 import services.WellKnownPaths;
-import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.LinkElement;
-import views.style.StyleUtils;
 import views.style.Styles;
 
 public final class ProgramApplicationListView extends BaseHtmlView {
@@ -59,8 +56,10 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     long applicationId = application.id;
     String applicantName;
     try {
-      String firstName = application.getApplicantData().readString(WellKnownPaths.APPLICANT_FIRST_NAME).get();
-      String lastName = application.getApplicantData().readString(WellKnownPaths.APPLICANT_LAST_NAME).get();
+      String firstName =
+          application.getApplicantData().readString(WellKnownPaths.APPLICANT_FIRST_NAME).get();
+      String lastName =
+          application.getApplicantData().readString(WellKnownPaths.APPLICANT_LAST_NAME).get();
       applicantName = String.format("%s, %s", lastName, firstName);
     } catch (NoSuchElementException e) {
       log.error("Application {} does not include an applicant name.");
@@ -68,7 +67,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     }
     String lastEditText;
     try {
-      lastEditText = application.getApplicantData().readString(WellKnownPaths.APPLICATION_SUBMITTED_TIME).get();
+      lastEditText =
+          application
+              .getApplicantData()
+              .readString(WellKnownPaths.APPLICATION_SUBMITTED_TIME)
+              .get();
     } catch (NoSuchElementException e) {
       log.error("Application {} submitted without submission time marked.", applicationId);
       lastEditText = "<ERROR>";
@@ -100,7 +103,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   }
 
   Tag renderDownloadLink(String text, long applicationId) {
-    String downloadLink = controllers.admin.routes.AdminApplicationController.download(applicationId).url();
+    String downloadLink =
+        controllers.admin.routes.AdminApplicationController.download(applicationId).url();
 
     return new LinkElement()
         .setId("application-download-link-" + applicationId)

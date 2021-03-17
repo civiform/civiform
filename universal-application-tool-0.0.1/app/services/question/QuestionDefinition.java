@@ -121,6 +121,15 @@ public abstract class QuestionDefinition {
     if (this.questionText.containsKey(locale)) {
       return this.questionText.get(locale);
     }
+    // If we don't have the user's preferred locale, check if we have one which
+    // contains their preferred language.  e.g. return "en_US" for "en_CA", or
+    // "es_US" for "es_MX".  This is needed since some of our locale sources
+    // provide only the language (e.g. "en").
+    for (Locale hasLocale : this.questionText.keySet()) {
+      if (hasLocale.getLanguage().equals(locale.getLanguage())) {
+        return this.questionText.get(hasLocale);
+      }
+    }
     throw new TranslationNotFoundException(this.getPath().path(), locale);
   }
 

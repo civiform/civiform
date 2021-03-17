@@ -117,10 +117,10 @@ public final class ProgramIndexView extends BaseHtmlView {
     String editLink = routes.AdminApplicationController.answerList(programId).url();
 
     return new LinkElement()
-            .setId("program-view-apps-link-" + programId)
-            .setHref(editLink)
-            .setText(text)
-            .setStyles(Styles.MR_2)
-            .asAnchorText();
+        .setId("program-view-apps-link-" + programId)
+        .setHref(editLink)
+        .setText(text)
+        .setStyles(Styles.MR_2)
+        .asAnchorText();
   }
 }
