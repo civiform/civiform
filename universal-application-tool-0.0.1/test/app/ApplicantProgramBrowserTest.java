@@ -88,7 +88,8 @@ public class ApplicantProgramBrowserTest extends BaseBrowserTest {
     assertThat(getInputValue("applicant.color")).isEqualTo("baby blue");
 
     long applicantId = getApplicantId();
-    Optional<Applicant> applicantMaybe = applicantRepository.lookupApplicant(applicantId).toCompletableFuture().join();
+    Optional<Applicant> applicantMaybe =
+        applicantRepository.lookupApplicant(applicantId).toCompletableFuture().join();
     assertThat(applicantMaybe).isPresent();
     Applicant applicant = applicantMaybe.get();
     List<Application> applicationList = applicant.getApplications();

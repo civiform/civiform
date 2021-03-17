@@ -1,9 +1,7 @@
 package models;
 
 import io.ebean.annotation.DbJson;
-import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneId;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
