@@ -117,7 +117,7 @@ public class TextQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getTextPath() {
-    return getPath();
+    return getPath().toBuilder().append("text").build();
   }
 
   public ScalarType getTextType() {

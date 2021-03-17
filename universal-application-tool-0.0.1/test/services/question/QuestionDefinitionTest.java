@@ -213,10 +213,10 @@ public class QuestionDefinitionTest {
             ImmutableMap.of(),
             ImmutableMap.of());
     assertThat(question.getScalars())
-        .containsOnly(entry(Path.create("path.to.question"), ScalarType.STRING));
-    assertThat(question.getScalarType(Path.create("path.to.question")).get())
+        .containsOnly(entry(Path.create("path.to.question.text"), ScalarType.STRING));
+    assertThat(question.getScalarType(Path.create("path.to.question.text")).get())
         .isEqualTo(ScalarType.STRING);
-    assertThat(question.getScalarType(Path.create("path.to.question")).get().getClassFor().get())
+    assertThat(question.getScalarType(Path.create("path.to.question.text")).get().getClassFor().get())
         .isEqualTo(String.class);
   }
 
