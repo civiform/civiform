@@ -49,6 +49,11 @@ public abstract class Path {
     return JSON_JOINER.join(segments());
   }
 
+  @Memoized
+  public String alternateDelimiterPath() {
+    return path().replaceAll("\\.", "#");
+  }
+
   /**
    * The {@link Path} of the parent. For example, a path {@code applicant.favorites.color} would
    * return {@code applicant.favorites}.
@@ -112,6 +117,11 @@ public abstract class Path {
 
     public Builder append(String segment) {
       segmentsBuilder().add(segment.trim());
+      return this;
+    }
+
+    public Builder append(Path path) {
+      segmentsBuilder().addAll(path.segments());
       return this;
     }
   }

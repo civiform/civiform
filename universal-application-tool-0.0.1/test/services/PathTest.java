@@ -21,6 +21,12 @@ public class PathTest {
   }
 
   @Test
+  public void alternateDelimiterPath_returnsCorrectlyDelimitedString() {
+    assertThat(Path.create("applicant.some.path").alternateDelimiterPath())
+        .isEqualTo("applicant#some#path");
+  }
+
+  @Test
   public void segments_emptyPath() {
     assertThat(Path.empty().segments()).isEmpty();
   }
@@ -101,6 +107,9 @@ public class PathTest {
 
     path = path.toBuilder().append("part").build();
     assertThat(path.path()).isEqualTo("applicant.my.path.another.part");
+
+    path = path.toBuilder().append(Path.create("I'm.a.path")).build();
+    assertThat(path.path()).isEqualTo("applicant.my.path.another.part.I'm.a.path");
 
     path = path.toBuilder().setPath("something.new").build();
     assertThat(path.path()).isEqualTo("something.new");

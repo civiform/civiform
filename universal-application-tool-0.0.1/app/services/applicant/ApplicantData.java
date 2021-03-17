@@ -26,6 +26,12 @@ public class ApplicantData {
       Configuration.defaultConfiguration().addOptions(Option.SUPPRESS_EXCEPTIONS);
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
   private static final Locale DEFAULT_LOCALE = Locale.US;
+  private static final String METADATA_PREFIX = "metadata";
+  private static final String METADATA_UPDATES_KEY = "updates";
+  private static final String METADATA_LAST_UPDATED_KEY = "last_updated";
+  private static final String METADATA_PROGRAM_ID_KEY = "program_id";
+  private static final Path.Builder METADATA_UPDATES_BASE =
+      Path.builder().append(METADATA_PREFIX).append(METADATA_UPDATES_KEY);
 
   private Locale preferredLocale;
   private DocumentContext jsonData;
@@ -59,6 +65,10 @@ public class ApplicantData {
     put(path, value);
   }
 
+  public void putLong(Path path, long value) {
+    putString(path, Long.toString(value));
+  }
+
   public <K, V> void putObject(Path path, ImmutableMap<K, V> value) {
     put(path, value);
   }
@@ -82,6 +92,33 @@ public class ApplicantData {
             });
 
     this.jsonData.put(path.parentPath().path(), path.keyName(), value);
+  }
+
+  public void putUpdateMetadata(Path applicantDataPath, long programId, long timestamp) {
+    Path updatesBase =
+        METADATA_UPDATES_BASE.append(applicantDataPath.alternateDelimiterPath()).build();
+    putLong(updatesBase.toBuilder().append(METADATA_PROGRAM_ID_KEY).build(), programId);
+    putLong(updatesBase.toBuilder().append(METADATA_LAST_UPDATED_KEY).build(), timestamp);
+  }
+
+  public Optional<Long> readProgramIdMetadataForQuestionPath(Path applicantDataPath) {
+    Path metadataPath =
+        METADATA_UPDATES_BASE
+            .append(applicantDataPath.alternateDelimiterPath())
+            .append(METADATA_PROGRAM_ID_KEY)
+            .build();
+    return readLong(metadataPath);
+  }
+
+  public Optional<Long> readUpdateTimestampForQuestionPath(Path applicantDataPath) {
+    Path metadataPath =
+        Path.builder()
+            .append(METADATA_PREFIX)
+            .append(METADATA_UPDATES_KEY)
+            .append(applicantDataPath.alternateDelimiterPath())
+            .append(METADATA_LAST_UPDATED_KEY)
+            .build();
+    return readLong(metadataPath);
   }
 
   /**
@@ -109,6 +146,18 @@ public class ApplicantData {
   }
 
   /**
+   * Attempt to read a integer at the given path. Returns {@code Optional#empty} if the path does
+   * not exist or a value other than Integer is found.
+   */
+  public Optional<Long> readLong(Path path) {
+    try {
+      return this.read(path, Long.class);
+    } catch (JsonPathTypeMismatchException e) {
+      return Optional.empty();
+    }
+  }
+
+  /**
    * Returns the value at the given path, if it exists; otherwise returns {@link Optional#empty}.
    *
    * @param path the {@link Path} for the desired scalar
@@ -126,11 +175,16 @@ public class ApplicantData {
   }
 
   public Instant getCreatedTime() {
-    return Instant.parse(this.jsonData.read("$.metadata.created_time"));
+    Optional<String> createdTime = readString(Path.create("$.metadata.created_time"));
+    if (createdTime.isPresent()) {
+      return Instant.parse(createdTime.get());
+    }
+
+    return Instant.EPOCH;
   }
 
   public void setCreatedTime(Instant i) {
-    this.jsonData.put("$.metadata", "created_time", i.toString());
+    putString(Path.create("$.metadata.created_time"), i.toString());
   }
 
   public String asJsonString() {

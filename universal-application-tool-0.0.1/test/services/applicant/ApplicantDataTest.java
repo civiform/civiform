@@ -71,6 +71,54 @@ public class ApplicantDataTest {
   }
 
   @Test
+  public void putLong_convertsToString() {
+    ApplicantData data = new ApplicantData();
+
+    data.putLong(Path.create("applicant.snap_id"), 14628L);
+
+    String expected = "{\"applicant\":{\"snap_id\":\"14628\"},\"metadata\":{}}";
+    assertThat(data.asJsonString()).isEqualTo(expected);
+  }
+
+  @Test
+  public void putUpdateMetadata_writesCorrectFormat() {
+    ApplicantData data = new ApplicantData();
+
+    data.putUpdateMetadata(Path.create("applicant.name"), 123L, 12345L);
+
+    // The order of fields in JSON object is sometimes swapped; assert on containment instead of
+    // equality.
+    String expectedStart = "{\"applicant\":{},\"metadata\":{\"updates\":{\"applicant#name\":{";
+    assertThat(data.asJsonString()).startsWith(expectedStart);
+    assertThat(data.asJsonString()).contains("\"program_id\":\"123\"");
+    assertThat(data.asJsonString()).contains("\"last_updated\":\"12345\"");
+  }
+
+  @Test
+  public void readUpdateTimestamp() {
+    Path questionPath = Path.create("applicant.name");
+    String applicantJson =
+        "{\"applicant\":{},\"metadata\":{\"updates\":{\"applicant#name\":{\"program_id\":\"123\",\"last_updated\":\"12345\"}}}}";
+    ApplicantData data = new ApplicantData(applicantJson);
+
+    Optional<Long> read = data.readUpdateTimestampForQuestionPath(questionPath);
+
+    assertThat(read).hasValue(12345L);
+  }
+
+  @Test
+  public void readUpdateProgramId() {
+    Path questionPath = Path.create("applicant.name");
+    String applicantJson =
+        "{\"applicant\":{},\"metadata\":{\"updates\":{\"applicant#name\":{\"program_id\":\"123\",\"last_updated\":\"12345\"}}}}";
+    ApplicantData data = new ApplicantData(applicantJson);
+
+    Optional<Long> read = data.readProgramIdMetadataForQuestionPath(questionPath);
+
+    assertThat(read).hasValue(123L);
+  }
+
+  @Test
   public void readString_findsCorrectValue() throws Exception {
     String testData = "{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} } }";
     ApplicantData data = new ApplicantData(testData);
@@ -88,6 +136,16 @@ public class ApplicantDataTest {
     Optional<Integer> found = data.readInteger(Path.create("applicant.age"));
 
     assertThat(found).hasValue(30);
+  }
+
+  @Test
+  public void readLong_findsCorrectValue() {
+    String testData = "{ \"applicant\": { \"snap_id\": \"12345\" } }";
+    ApplicantData data = new ApplicantData(testData);
+
+    Optional<Long> found = data.readLong(Path.create("applicant.snap_id"));
+
+    assertThat(found).hasValue(12345L);
   }
 
   @Test
@@ -109,6 +167,15 @@ public class ApplicantDataTest {
   }
 
   @Test
+  public void readLong_pathNotPresent_returnsEmptyOptional() throws Exception {
+    ApplicantData data = new ApplicantData();
+
+    Optional<Long> found = data.readLong(Path.create("my.fake.path"));
+
+    assertThat(found).isEmpty();
+  }
+
+  @Test
   public void readString_returnsEmptyWhenTypeMismatch() {
     String testData = "{ \"applicant\": { \"object\": { \"number\": 27 } } }";
     ApplicantData data = new ApplicantData(testData);
@@ -124,6 +191,16 @@ public class ApplicantDataTest {
     ApplicantData data = new ApplicantData(testData);
 
     Optional<Integer> found = data.readInteger(Path.create("applicant.object.name"));
+
+    assertThat(found).isEmpty();
+  }
+
+  @Test
+  public void readLong_returnsEmptyWhenTypeMismatch() {
+    String testData = "{ \"applicant\": { \"object\": { \"name\": \"John\" } } }";
+    ApplicantData data = new ApplicantData(testData);
+
+    Optional<Long> found = data.readLong(Path.create("applicant.object.name"));
 
     assertThat(found).isEmpty();
   }
