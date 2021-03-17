@@ -64,7 +64,7 @@ public class ApplicantQuestionTest {
 
   @Test
   public void textQuestion_withPresentApplicantData() {
-    applicantData.putString(textQuestionDefinition.getPath(), "hello");
+    applicantData.putString(textQuestionDefinition.getTextPath(), "hello");
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(textQuestionDefinition, applicantData);
     ApplicantQuestion.TextQuestion textQuestion = applicantQuestion.getTextQuestion();
@@ -87,7 +87,7 @@ public class ApplicantQuestionTest {
                 .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
                 .setValidationPredicates(TextValidationPredicates.create(0, 4))
                 .build();
-    applicantData.putString(question.getPath(), "hello");
+    applicantData.putString(question.getTextPath(), "hello");
     ApplicantQuestion applicantQuestion = new ApplicantQuestion(question, applicantData);
     ApplicantQuestion.TextQuestion textQuestion = applicantQuestion.getTextQuestion();
 
