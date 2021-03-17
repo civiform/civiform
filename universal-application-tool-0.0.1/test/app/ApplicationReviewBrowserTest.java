@@ -40,9 +40,9 @@ public class ApplicationReviewBrowserTest extends BaseBrowserTest {
   public void examineApplication() {
     loginAsAdmin();
     goTo(routes.AdminProgramController.index());
-    assertThat(browser.pageSource()).contains("Applications");
+    assertThat(bodySource()).contains("Applications");
 
     browser.$("a", containingText("Applications")).click();
-    assertThat(browser.pageSource()).contains("the Builder, Bob");
+    assertThat(bodySource()).contains("the Builder, Bob");
   }
 }
