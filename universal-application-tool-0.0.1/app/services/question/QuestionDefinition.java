@@ -27,6 +27,9 @@ public abstract class QuestionDefinition {
   private final ImmutableMap<Locale, String> questionHelpText;
   private final ValidationPredicates validationPredicates;
 
+  protected final String METADATA_UPDATE_TIME_KEY = "updated_at";
+  protected final String METADATA_UPDATE_PROGRAM_ID_KEY = "updated_in_program";
+
   public QuestionDefinition(
       OptionalLong id,
       long version,
@@ -159,6 +162,22 @@ public abstract class QuestionDefinition {
 
   /** Get the type of this question. */
   public abstract QuestionType getQuestionType();
+
+  public Path getLastUpdatedTimePath() {
+    return getPath().toBuilder().append(METADATA_UPDATE_TIME_KEY).build();
+  }
+
+  public ScalarType getLastUpdatedTimeType() {
+    return ScalarType.LONG;
+  }
+
+  public Path getProgramIdPath() {
+    return getPath().toBuilder().append(METADATA_UPDATE_PROGRAM_ID_KEY).build();
+  }
+
+  public ScalarType getProgramIdType() {
+    return ScalarType.LONG;
+  }
 
   /** Get a map of scalars stored by this question definition. */
   public abstract ImmutableMap<Path, ScalarType> getScalars();

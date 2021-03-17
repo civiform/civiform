@@ -2,7 +2,6 @@ package services.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.assertj.core.api.Assertions.entry;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
@@ -212,8 +211,15 @@ public class QuestionDefinitionTest {
             "description",
             ImmutableMap.of(),
             ImmutableMap.of());
-    assertThat(question.getScalars())
-        .containsOnly(entry(Path.create("path.to.question.text"), ScalarType.STRING));
+    ImmutableMap<Path, ScalarType> expectedScalars =
+        ImmutableMap.of(
+            Path.create("path.to.question.text"),
+            ScalarType.STRING,
+            Path.create("path.to.question.updated_at"),
+            ScalarType.LONG,
+            Path.create("path.to.question.updated_in_program"),
+            ScalarType.LONG);
+    assertThat(question.getScalars()).containsAllEntriesOf(expectedScalars);
     assertThat(question.getScalarType(Path.create("path.to.question.text")).get())
         .isEqualTo(ScalarType.STRING);
     assertThat(

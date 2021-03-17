@@ -10,6 +10,7 @@ import java.util.Optional;
  */
 public enum ScalarType {
   INT(int.class),
+  LONG(long.class),
   STRING(String.class);
 
   private final Class classOf;
