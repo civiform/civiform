@@ -309,7 +309,7 @@ public class ApplicantQuestion {
         return textValue;
       }
 
-      textValue = applicantData.readString(questionDefinition.getPath());
+      textValue = applicantData.readString(getTextPath());
 
       return textValue;
     }

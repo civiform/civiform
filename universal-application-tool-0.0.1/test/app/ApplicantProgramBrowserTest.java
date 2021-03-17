@@ -60,7 +60,7 @@ public class ApplicantProgramBrowserTest extends BaseBrowserTest {
     // Fill in first block correctly.
     fillInput("applicant.name.first", "Finn");
     fillInput("applicant.name.last", "the Human");
-    fillInput("applicant.color", "baby blue");
+    fillInput("applicant.color.text", "baby blue");
 
     browser.$("button", withText("Save and continue")).click();
 
@@ -85,7 +85,7 @@ public class ApplicantProgramBrowserTest extends BaseBrowserTest {
     browser.$("a", withText("Apply")).click();
     assertThat(getInputValue("applicant.name.first")).isEqualTo("Finn");
     assertThat(getInputValue("applicant.name.last")).isEqualTo("the Human");
-    assertThat(getInputValue("applicant.color")).isEqualTo("baby blue");
+    assertThat(getInputValue("applicant.color.text")).isEqualTo("baby blue");
 
     long applicantId = getApplicantId();
     Optional<Applicant> applicantMaybe =

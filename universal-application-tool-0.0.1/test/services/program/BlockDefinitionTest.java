@@ -40,7 +40,8 @@ public class BlockDefinitionTest {
         .hasValue(ScalarType.STRING);
     assertThat(block.getScalarType(Path.create("applicant.address.zip")))
         .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.color"))).hasValue(ScalarType.STRING);
+    assertThat(block.getScalarType(Path.create("applicant.color.text")))
+        .hasValue(ScalarType.STRING);
     assertThat(block.getScalarType(Path.create("fake.path"))).isEmpty();
   }
 
@@ -56,7 +57,7 @@ public class BlockDefinitionTest {
             Path.create("applicant.address.city"),
             Path.create("applicant.address.state"),
             Path.create("applicant.address.zip"),
-            Path.create("applicant.color"));
+            Path.create("applicant.color.text"));
 
     assertThat(block.hasPaths(paths)).isTrue();
 
