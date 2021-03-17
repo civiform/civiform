@@ -30,8 +30,8 @@ public class ApplicantData {
   private static final String METADATA_UPDATES_KEY = "updates";
   private static final String METADATA_LAST_UPDATED_KEY = "last_updated";
   private static final String METADATA_PROGRAM_ID_KEY = "program_id";
-  private static final Path.Builder METADATA_UPDATES_BASE =
-      Path.builder().append(METADATA_PREFIX).append(METADATA_UPDATES_KEY);
+  private static final Path METADATA_UPDATES_BASE =
+      Path.builder().append(METADATA_PREFIX).append(METADATA_UPDATES_KEY).build();
 
   private Locale preferredLocale;
   private DocumentContext jsonData;
@@ -105,7 +105,8 @@ public class ApplicantData {
    * @param timestamp the time, in milliseconds, that the applicant answered this question
    */
   public void putUpdateMetadata(Path questionPath, long programId, long timestamp) {
-    Path updatesBase = METADATA_UPDATES_BASE.append(questionPath.alternateDelimiterPath()).build();
+    Path updatesBase =
+        METADATA_UPDATES_BASE.toBuilder().append(questionPath.alternateDelimiterPath()).build();
     putLong(updatesBase.toBuilder().append(METADATA_PROGRAM_ID_KEY).build(), programId);
     putLong(updatesBase.toBuilder().append(METADATA_LAST_UPDATED_KEY).build(), timestamp);
   }
@@ -116,7 +117,7 @@ public class ApplicantData {
    */
   public Optional<Long> readProgramIdMetadataForQuestionPath(Path questionPath) {
     Path metadataPath =
-        METADATA_UPDATES_BASE
+        METADATA_UPDATES_BASE.toBuilder()
             .append(questionPath.alternateDelimiterPath())
             .append(METADATA_PROGRAM_ID_KEY)
             .build();
@@ -129,10 +130,11 @@ public class ApplicantData {
    */
   public Optional<Long> readUpdateTimestampForQuestionPath(Path questionPath) {
     Path metadataPath =
-        METADATA_UPDATES_BASE
+        METADATA_UPDATES_BASE.toBuilder()
             .append(questionPath.alternateDelimiterPath())
             .append(METADATA_LAST_UPDATED_KEY)
             .build();
+    System.out.println(metadataPath.path());
     return readLong(metadataPath);
   }
 
