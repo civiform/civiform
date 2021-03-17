@@ -17,6 +17,8 @@ public abstract class Path {
   private static final String JSON_PATH_START = "$" + JSON_PATH_DIVIDER;
   private static final Splitter JSON_SPLITTER = Splitter.on(JSON_PATH_DIVIDER);
   private static final Joiner JSON_JOINER = Joiner.on(JSON_PATH_DIVIDER);
+  // Use a character that is not part of the JsonPath language.
+  private static final Joiner ALTERNATE_JOINER = Joiner.on('#');
 
   public static Path empty() {
     return create(ImmutableList.of());
@@ -49,9 +51,10 @@ public abstract class Path {
     return JSON_JOINER.join(segments());
   }
 
+  /** A path delimited by a character not in the JsonPath language. */
   @Memoized
   public String alternateDelimiterPath() {
-    return path().replaceAll("\\.", "#");
+    return ALTERNATE_JOINER.join(segments());
   }
 
   /**

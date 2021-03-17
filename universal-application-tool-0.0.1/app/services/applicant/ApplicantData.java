@@ -94,28 +94,43 @@ public class ApplicantData {
     this.jsonData.put(path.parentPath().path(), path.keyName(), value);
   }
 
-  public void putUpdateMetadata(Path applicantDataPath, long programId, long timestamp) {
-    Path updatesBase =
-        METADATA_UPDATES_BASE.append(applicantDataPath.alternateDelimiterPath()).build();
+  /**
+   * Update the metadata for an applicant's answer to the given question path. This includes the
+   * timestamp of the update and the ID of the program the applicant was filling out when they
+   * answered this question.
+   *
+   * @param questionPath the {@link Path} to the question the applicant answered
+   * @param programId the ID of the program the applicant was filling out when they answered this
+   *     question
+   * @param timestamp the time, in milliseconds, that the applicant answered this question
+   */
+  public void putUpdateMetadata(Path questionPath, long programId, long timestamp) {
+    Path updatesBase = METADATA_UPDATES_BASE.append(questionPath.alternateDelimiterPath()).build();
     putLong(updatesBase.toBuilder().append(METADATA_PROGRAM_ID_KEY).build(), programId);
     putLong(updatesBase.toBuilder().append(METADATA_LAST_UPDATED_KEY).build(), timestamp);
   }
 
-  public Optional<Long> readProgramIdMetadataForQuestionPath(Path applicantDataPath) {
+  /**
+   * If the applicant has answered the question at the given {@link Path}, will return the ID of the
+   * program in which they answered this question.
+   */
+  public Optional<Long> readProgramIdMetadataForQuestionPath(Path questionPath) {
     Path metadataPath =
         METADATA_UPDATES_BASE
-            .append(applicantDataPath.alternateDelimiterPath())
+            .append(questionPath.alternateDelimiterPath())
             .append(METADATA_PROGRAM_ID_KEY)
             .build();
     return readLong(metadataPath);
   }
 
-  public Optional<Long> readUpdateTimestampForQuestionPath(Path applicantDataPath) {
+  /**
+   * If the applicant has answered the question at the given {@link Path}, will return the timestamp
+   * for when they last updated their answer.
+   */
+  public Optional<Long> readUpdateTimestampForQuestionPath(Path questionPath) {
     Path metadataPath =
-        Path.builder()
-            .append(METADATA_PREFIX)
-            .append(METADATA_UPDATES_KEY)
-            .append(applicantDataPath.alternateDelimiterPath())
+        METADATA_UPDATES_BASE
+            .append(questionPath.alternateDelimiterPath())
             .append(METADATA_LAST_UPDATED_KEY)
             .build();
     return readLong(metadataPath);
@@ -146,8 +161,8 @@ public class ApplicantData {
   }
 
   /**
-   * Attempt to read a integer at the given path. Returns {@code Optional#empty} if the path does
-   * not exist or a value other than Integer is found.
+   * Attempt to read a long at the given path. Returns {@code Optional#empty} if the path does not
+   * exist or a value other than Long is found.
    */
   public Optional<Long> readLong(Path path) {
     try {
