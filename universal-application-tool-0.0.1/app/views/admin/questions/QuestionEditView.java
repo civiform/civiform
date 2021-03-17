@@ -16,10 +16,10 @@ import play.twirl.api.Content;
 import services.question.QuestionDefinition;
 import services.question.QuestionType;
 import views.BaseHtmlView;
-import views.Styles;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
+import views.style.Styles;
 
 public final class QuestionEditView extends BaseHtmlView {
   private final AdminLayout layout;

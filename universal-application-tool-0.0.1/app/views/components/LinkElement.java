@@ -4,9 +4,9 @@ import static j2html.TagCreator.a;
 
 import com.google.common.base.Strings;
 import j2html.tags.Tag;
-import views.BaseStyles;
-import views.StyleUtils;
-import views.Styles;
+import views.style.BaseStyles;
+import views.style.StyleUtils;
+import views.style.Styles;
 
 public class LinkElement {
 
