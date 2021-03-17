@@ -28,6 +28,7 @@ Resources:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
       DBSubnetGroupDescription: two subnets for the database
+      DBSubnetGroupName: prod-civiform-dbsubnetgroup
       SubnetIds:
         - !Ref 'PrivateSubnet1'
         - !Ref 'PrivateSubnet2'
@@ -36,7 +37,7 @@ Resources:
     # If you accidentally delete the database, we store a snapshot of the database.
     DeletionPolicy: Snapshot
     Properties:
-      DBInstanceIdentifier: database
+      DBInstanceIdentifier: prod.postgres.database
       DBName: postgres
       DBInstanceClass: db.t3.small # update to db.m5.large for prod - t3.small is cheap and slow for dev/test.
       AllocatedStorage: 50

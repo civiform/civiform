@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'The main stack for the UAT.'
+Description: 'The main stack for CiviForm.'
 Parameters:
   Timestamp:
     Description: Current timestamp in seconds.
@@ -7,7 +7,7 @@ Parameters:
   DBUsername:
     Description: The name of the database user.
     Type: String
-    Default: uat
+    Default: civiform
 Resources:
   VPC:
     Type: AWS::CloudFormation::Stack

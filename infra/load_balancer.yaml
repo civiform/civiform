@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'The public load balancer for the UAT, plus a dummy target that drops traffic while the tool starts up.'
+Description: 'The public load balancer for Civiform, plus a dummy target that drops traffic while the tool starts up.'
 Parameters:
   VPCId:
     Description: The id of the VPC to add our LB to.
@@ -19,7 +19,7 @@ Resources:
     Properties:
       Scheme: internet-facing
       IpAddressType: ipv4
-      Name: uat-lb
+      Name: prod.civiform-public.lb
       SecurityGroups:
         - !Ref 'LBSecurityGroup'
       Subnets:
@@ -51,7 +51,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       Protocol: HTTP
-      Name: uat
+      Name: prod.civiform.lbtarget
       Port: 9000
       VpcId: !Ref 'VPCId'
       TargetType: ip

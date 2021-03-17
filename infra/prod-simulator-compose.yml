@@ -10,7 +10,7 @@ services:
     environment:
       POSTGRES_PASSWORD: example
 
-  uat:
+  civiform:
     image: uat:prod
     restart: always
     container_name: play
