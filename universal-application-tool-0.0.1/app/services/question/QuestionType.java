@@ -3,6 +3,7 @@ package services.question;
 public enum QuestionType {
   ADDRESS,
   NAME,
+  REPEATER,
   TEXT;
 
   public static QuestionType of(String name) throws InvalidQuestionTypeException {

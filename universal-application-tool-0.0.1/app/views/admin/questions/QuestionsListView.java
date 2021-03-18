@@ -1,7 +1,9 @@
 package views.admin.questions;
 
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
 import static j2html.TagCreator.td;
@@ -11,14 +13,17 @@ import static j2html.TagCreator.tr;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
 import play.twirl.api.Content;
 import services.question.QuestionDefinition;
+import services.question.QuestionType;
 import services.question.TranslationNotFoundException;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
+import views.components.Icons;
 import views.components.LinkElement;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
@@ -43,12 +48,49 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private Tag renderAddQuestionLink() {
-    String link = controllers.admin.routes.QuestionController.newOne().url();
-    return new LinkElement()
-        .setId("create-question-button")
-        .setHref(link)
-        .setText("Create new question")
-        .asButton();
+    String parentId = "create-question-button";
+    String dropdownId = parentId + "-dropdown";
+    ContainerTag linkButton =
+        new LinkElement().setId(parentId).setText("Create new question").asButton();
+    ContainerTag dropdown =
+        div()
+            .withId(dropdownId)
+            .withClasses(
+                Styles.BORDER,
+                Styles.BG_WHITE,
+                Styles.TEXT_GRAY_600,
+                Styles.SHADOW_LG,
+                Styles.ABSOLUTE,
+                Styles.MT_3,
+                Styles.HIDDEN);
+
+    for (QuestionType type : QuestionType.values()) {
+      String typeString = type.toString().toLowerCase();
+      String link = controllers.admin.routes.QuestionController.newOne(typeString).url();
+      ContainerTag linkTag =
+          a().withHref(link)
+              .withId(String.format("create-%s-question", typeString))
+              .withClasses(
+                  Styles.BLOCK,
+                  Styles.P_4,
+                  Styles.BG_WHITE,
+                  Styles.TEXT_GRAY_600,
+                  StyleUtils.hover(Styles.BG_GRAY_100, Styles.TEXT_GRAY_800))
+              .with(
+                  Icons.questionTypeSvg(type, 24)
+                      .withClasses(
+                          Styles.INLINE_BLOCK, Styles.H_6, Styles.W_6, Styles.MR_1, Styles.TEXT_SM))
+              .with(
+                  p(typeString)
+                      .withClasses(
+                          Styles.ML_2,
+                          Styles.MR_4,
+                          Styles.INLINE,
+                          Styles.TEXT_SM,
+                          Styles.UPPERCASE));
+      dropdown.with(linkTag);
+    }
+    return linkButton.with(dropdown);
   }
 
   private Tag renderSummary(ImmutableList<QuestionDefinition> questions) {
