@@ -9,6 +9,7 @@ import static j2html.TagCreator.p;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.admin.routes;
 import j2html.tags.Tag;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
@@ -52,6 +53,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     String programStatusText = "Draft";
     String lastEditText = "Last updated 2 hours ago."; // TODO: Need to generate this.
     String editLinkText = "Edit →";
+    String viewApplicationsLinkText = "Applications →";
 
     String programTitleText = program.name();
     String programDescriptionText = program.description();
@@ -88,7 +90,8 @@ public final class ProgramIndexView extends BaseHtmlView {
         div(
                 p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                 p().withClasses(Styles.FLEX_GROW),
-                renderEditLink(editLinkText, programId))
+                renderEditLink(editLinkText, programId),
+                renderViewApplicationsLink(viewApplicationsLinkText, programId))
             .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
 
     Tag innerDiv =
@@ -104,6 +107,17 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     return new LinkElement()
         .setId("program-edit-link-" + programId)
+        .setHref(editLink)
+        .setText(text)
+        .setStyles(Styles.MR_2)
+        .asAnchorText();
+  }
+
+  Tag renderViewApplicationsLink(String text, long programId) {
+    String editLink = routes.AdminApplicationController.answerList(programId).url();
+
+    return new LinkElement()
+        .setId("program-view-apps-link-" + programId)
         .setHref(editLink)
         .setText(text)
         .setStyles(Styles.MR_2)
