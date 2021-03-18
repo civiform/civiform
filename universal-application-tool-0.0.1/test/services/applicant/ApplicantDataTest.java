@@ -38,6 +38,47 @@ public class ApplicantDataTest {
   }
 
   @Test
+  public void hasPath_returnsTrueForExistingPath() {
+    ApplicantData data = new ApplicantData();
+    Path path = Path.create("applicant.school");
+    data.putString(path, "Elementary School");
+
+    assertThat(data.hasPath(path)).isTrue();
+  }
+
+  @Test
+  public void hasPath_returnsFalseForMissingPath() {
+    ApplicantData data = new ApplicantData();
+
+    assertThat(data.hasPath(Path.create("I_don't_exist!"))).isFalse();
+  }
+
+  @Test
+  public void hasValueAtPath_returnsTrueIfValuePresent() {
+    ApplicantData data = new ApplicantData();
+    Path path = Path.create("applicant.horses");
+    data.putLong(path, 278);
+
+    assertThat(data.hasValueAtPath(path)).isTrue();
+  }
+
+  @Test
+  public void hasValueAtPath_returnsFalseForNull() {
+    ApplicantData data = new ApplicantData();
+    Path path = Path.create("applicant.horses");
+    data.putLong(path, "");
+
+    assertThat(data.hasValueAtPath(path)).isFalse();
+  }
+
+  @Test
+  public void hasValueAtPath_returnsFalseForMissingPath() {
+    ApplicantData data = new ApplicantData();
+
+    assertThat(data.hasValueAtPath(Path.create("not_here!"))).isFalse();
+  }
+
+  @Test
   public void putLong_addsAScalar() {
     ApplicantData data = new ApplicantData();
 

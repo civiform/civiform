@@ -130,7 +130,7 @@ public class ApplicantQuestion {
     }
 
     public ImmutableSet<ValidationErrorMessage> getStreetErrors() {
-      if (hasStreetValue() && getStreetValue().isEmpty()) {
+      if (streetAnswered() && getStreetValue().isEmpty()) {
         return ImmutableSet.of(ValidationErrorMessage.create("Street is required."));
       }
 
@@ -138,7 +138,7 @@ public class ApplicantQuestion {
     }
 
     public ImmutableSet<ValidationErrorMessage> getCityErrors() {
-      if (hasCityValue() && getCityValue().isEmpty()) {
+      if (cityAnswered() && getCityValue().isEmpty()) {
         return ImmutableSet.of(ValidationErrorMessage.create("City is required."));
       }
 
@@ -147,7 +147,7 @@ public class ApplicantQuestion {
 
     public ImmutableSet<ValidationErrorMessage> getStateErrors() {
       // TODO: Validate state further.
-      if (hasStateValue() && getStateValue().isEmpty()) {
+      if (stateAnswered() && getStateValue().isEmpty()) {
         return ImmutableSet.of(ValidationErrorMessage.create("State is required."));
       }
 
@@ -155,7 +155,7 @@ public class ApplicantQuestion {
     }
 
     public ImmutableSet<ValidationErrorMessage> getZipErrors() {
-      if (hasZipValue()) {
+      if (zipAnswered()) {
         Optional<String> zipValue = getZipValue();
         if (zipValue.isEmpty()) {
           return ImmutableSet.of(ValidationErrorMessage.create("Zip code is required."));
@@ -251,6 +251,22 @@ public class ApplicantQuestion {
 
     public Path getZipPath() {
       return getQuestionDefinition().getZipPath();
+    }
+
+    private boolean streetAnswered() {
+      return applicantData.hasPath(getStreetPath());
+    }
+
+    private boolean cityAnswered() {
+      return applicantData.hasPath(getCityPath());
+    }
+
+    private boolean stateAnswered() {
+      return applicantData.hasPath(getStatePath());
+    }
+
+    private boolean zipAnswered() {
+      return applicantData.hasPath(getZipPath());
     }
   }
 
@@ -366,7 +382,7 @@ public class ApplicantQuestion {
     }
 
     public ImmutableSet<ValidationErrorMessage> getFirstNameErrors() {
-      if (hasFirstNameValue() && getFirstNameValue().isEmpty()) {
+      if (firstNameAnswered() && getFirstNameValue().isEmpty()) {
         return ImmutableSet.of(ValidationErrorMessage.create("First name is required."));
       }
 
@@ -374,7 +390,7 @@ public class ApplicantQuestion {
     }
 
     public ImmutableSet<ValidationErrorMessage> getLastNameErrors() {
-      if (hasLastNameValue() && getLastNameValue().isEmpty()) {
+      if (lastNameAnswered() && getLastNameValue().isEmpty()) {
         return ImmutableSet.of(ValidationErrorMessage.create("Last name is required."));
       }
 
@@ -447,6 +463,14 @@ public class ApplicantQuestion {
 
     public Path getLastNamePath() {
       return getQuestionDefinition().getLastNamePath();
+    }
+
+    private boolean firstNameAnswered() {
+      return applicantData.hasPath(getFirstNamePath());
+    }
+
+    private boolean lastNameAnswered() {
+      return applicantData.hasPath(getLastNamePath());
     }
   }
 }
