@@ -32,6 +32,11 @@ GET     /admin/questions/:id/edit    controllers.admin.QuestionController.edit(r
 POST    /admin/questions/:id         controllers.admin.QuestionController.update(request: Request, id: Long)
 POST    /admin/questions             controllers.admin.QuestionController.create(request: Request)
 
+# Controller for admins only, related to applications
+GET     /admin/programs/:programId/applications                 controllers.admin.AdminApplicationController.answerList(programId: Long)
+GET     /admin/programs/:programId/applications/all             controllers.admin.AdminApplicationController.downloadAll(programId: Long)
+GET     /admin/applications/:applicationId                      controllers.admin.AdminApplicationController.download(applicationId: Long)
+
 GET     /demo/new                   controllers.J2HtmlDemoController.newOne(request: Request)
 POST    /demo                       controllers.J2HtmlDemoController.create(request: Request)
 

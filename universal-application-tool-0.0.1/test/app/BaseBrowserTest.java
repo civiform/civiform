@@ -41,7 +41,8 @@ public class BaseBrowserTest extends WithBrowser {
   public void truncateTables() {
     EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
     EbeanServer server = Ebean.getServer(config.defaultServer());
-    server.truncate(Applicant.class, Program.class, Question.class, Account.class);
+    server.truncate(
+        Applicant.class, Program.class, Question.class, Account.class, models.Application.class);
   }
 
   /**
