@@ -9,6 +9,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Allow traffic from load balancer
+      GroupName: prod.civiform-container.sg
       VpcId: !Ref 'VPCId'
       SecurityGroupIngress:
         - IpProtocol: -1
@@ -17,6 +18,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Ingress for DB
+      GroupName: prod.civiform-db.sg
       VpcId: !Ref 'VPCId'
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -27,6 +29,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Allow all traffic to load balancer
+      GroupName: prod.civiform-publiclb.sg
       VpcId: !Ref 'VPCId'
       SecurityGroupIngress:
         - IpProtocol: -1

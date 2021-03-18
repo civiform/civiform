@@ -10,7 +10,7 @@ docker build -f prod.Dockerfile -t universal-application-tool --cache-from publi
 docker tag universal-application-tool:latest public.ecr.aws/t1q6b4h2/universal-application-tool:latest
 docker push public.ecr.aws/t1q6b4h2/universal-application-tool:latest
 
-ECSSERVICE=$(aws cloudformation describe-stacks --region ${REGION} --stack-name uat | jq -r '.Stacks[0].Outputs[] | select(.OutputKey == "ECSService") | .OutputValue')
-ECSCLUSTER=$(aws cloudformation describe-stacks --region ${REGION} --stack-name uat | jq -r '.Stacks[0].Outputs[] | select(.OutputKey == "ECSCluster") | .OutputValue')
+ECSSERVICE=$(aws cloudformation describe-stacks --region ${REGION} --stack-name civiform | jq -r '.Stacks[0].Outputs[] | select(.OutputKey == "ECSService") | .OutputValue')
+ECSCLUSTER=$(aws cloudformation describe-stacks --region ${REGION} --stack-name civiform | jq -r '.Stacks[0].Outputs[] | select(.OutputKey == "ECSCluster") | .OutputValue')
 
 aws ecs update-service --region=${REGION} --cluster "$ECSCLUSTER" --service "$ECSSERVICE" --force-new-deployment
