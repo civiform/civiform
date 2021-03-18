@@ -65,7 +65,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
         .thenAccept(
             result -> {
               assertThat(result.status()).isEqualTo(OK);
-              assertThat(contentAsString(result)).contains("New Question");
+              assertThat(contentAsString(result)).contains("New text question");
               assertThat(contentAsString(result))
                   .contains(CSRF.getToken(request.asScala()).value());
               assertThat(contentAsString(result)).contains("name");
@@ -114,7 +114,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
         .thenAccept(
             result -> {
               assertThat(result.status()).isEqualTo(OK);
-              assertThat(contentAsString(result)).contains("Edit Question");
+              assertThat(contentAsString(result)).contains("Edit text question");
               assertThat(contentAsString(result))
                   .contains(CSRF.getToken(request.asScala()).value());
             })
@@ -176,11 +176,18 @@ public class QuestionControllerTest extends WithPostgresContainer {
   @Test
   public void newOne_returnsExpectedForm() {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    Result result = controller.newOne(request);
+    Result result = controller.newOne(request, "text");
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("New Question");
+    assertThat(contentAsString(result)).contains("New text question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
+  }
+
+  @Test
+  public void newOne_returnsFailureForInvalidQuestionType() {
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Result result = controller.newOne(request, "nope");
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
   @Test
@@ -212,7 +219,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
     Result result = controller.update(request, question.id);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Edit Question");
+    assertThat(contentAsString(result)).contains("Edit text question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("invalid.path");
     assertThat(contentAsString(result)).contains("question text updated!");

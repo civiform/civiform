@@ -8,7 +8,6 @@
  *  - TBD
  */
 
-
 function attachDropdown(elementId) {
     const dropdownId = elementId + "-dropdown";
     const element = document.getElementById(elementId);
@@ -30,7 +29,7 @@ function toggleElementVisibility(id) {
 function maybeHideElement(e, id, parentId) {
     const parent = document.getElementById(parentId);
     if (parent && !parent.contains(e.target)) {     
-        document.getElementById(id)?.classList.add("hidden");
+        document.getElementById(id).classList.add("hidden");
     }
 }
 

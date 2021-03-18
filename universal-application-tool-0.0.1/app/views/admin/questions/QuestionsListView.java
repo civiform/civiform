@@ -55,20 +55,39 @@ public final class QuestionsListView extends BaseHtmlView {
     ContainerTag dropdown =
         div()
             .withId(dropdownId)
-            .withClasses(Styles.BORDER, Styles.BG_WHITE, Styles.TEXT_GRAY_600, Styles.SHADOW_LG,
-            Styles.ABSOLUTE, Styles.MT_3, Styles.HIDDEN);
+            .withClasses(
+                Styles.BORDER,
+                Styles.BG_WHITE,
+                Styles.TEXT_GRAY_600,
+                Styles.SHADOW_LG,
+                Styles.ABSOLUTE,
+                Styles.MT_3,
+                Styles.HIDDEN);
 
     for (QuestionType type : QuestionType.values()) {
       String typeString = type.toString().toLowerCase();
       String link = controllers.admin.routes.QuestionController.newOne(typeString).url();
       ContainerTag linkTag =
           a().withHref(link)
-              .withClasses(Styles.BLOCK, Styles.P_4, Styles.BG_WHITE, Styles.TEXT_GRAY_600,
-                StyleUtils.hover(Styles.BG_GRAY_100, Styles.TEXT_GRAY_800))
+              .withId(String.format("create-%s-question", typeString))
+              .withClasses(
+                  Styles.BLOCK,
+                  Styles.P_4,
+                  Styles.BG_WHITE,
+                  Styles.TEXT_GRAY_600,
+                  StyleUtils.hover(Styles.BG_GRAY_100, Styles.TEXT_GRAY_800))
               .with(
                   Icons.questionTypeSvg(type, 24)
-                      .withClasses(Styles.INLINE_BLOCK, Styles.H_6, Styles.W_6, Styles.MR_1, Styles.TEXT_SM))
-              .with(p(typeString).withClasses(Styles.ML_2, Styles.MR_4, Styles.INLINE, Styles.TEXT_SM, Styles.UPPERCASE));
+                      .withClasses(
+                          Styles.INLINE_BLOCK, Styles.H_6, Styles.W_6, Styles.MR_1, Styles.TEXT_SM))
+              .with(
+                  p(typeString)
+                      .withClasses(
+                          Styles.ML_2,
+                          Styles.MR_4,
+                          Styles.INLINE,
+                          Styles.TEXT_SM,
+                          Styles.UPPERCASE));
       dropdown.with(linkTag);
     }
     return linkButton.with(dropdown);

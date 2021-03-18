@@ -35,7 +35,7 @@ public final class QuestionEditView extends BaseHtmlView {
     form.setQuestionType(type.toUpperCase());
     return layout.render(
         body(
-            renderHeader(String.format("New %s Question", type.toLowerCase()), Styles.CAPITALIZE),
+            renderHeader(String.format("New %s question", type.toLowerCase()), Styles.CAPITALIZE),
             buildNewQuestionForm(form).with(makeCsrfTokenInputTag(request))));
   }
 
@@ -43,7 +43,7 @@ public final class QuestionEditView extends BaseHtmlView {
     return layout.render(
         body(
             div(message),
-            renderHeader("New Text Question"),
+            renderHeader("New text question"),
             buildNewQuestionForm(questionForm).with(makeCsrfTokenInputTag(request))));
   }
 
@@ -51,7 +51,7 @@ public final class QuestionEditView extends BaseHtmlView {
     String type = question.getQuestionType().toString();
     return layout.render(
         body(
-            renderHeader(String.format("New %s Question", type.toLowerCase())),
+            renderHeader(String.format("Edit %s question", type.toLowerCase())),
             buildEditQuestionForm(question.getId(), new QuestionForm(question))
                 .with(makeCsrfTokenInputTag(request))));
   }
@@ -62,7 +62,7 @@ public final class QuestionEditView extends BaseHtmlView {
     return layout.render(
         body(
             div(message),
-            renderHeader(String.format("New %s Question", type.toLowerCase())),
+            renderHeader(String.format("Edit %s question", type.toLowerCase())),
             buildEditQuestionForm(id, questionForm).with(makeCsrfTokenInputTag(request))));
   }
 
