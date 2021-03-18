@@ -1,4 +1,4 @@
-package views;
+package views.style;
 
 import com.google.common.collect.ImmutableList;
 import java.util.stream.Collectors;

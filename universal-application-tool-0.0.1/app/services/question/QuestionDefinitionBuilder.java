@@ -4,6 +4,10 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.OptionalLong;
 import services.Path;
+import services.question.AddressQuestionDefinition.AddressValidationPredicates;
+import services.question.NameQuestionDefinition.NameValidationPredicates;
+import services.question.QuestionDefinition.ValidationPredicates;
+import services.question.TextQuestionDefinition.TextValidationPredicates;
 
 public class QuestionDefinitionBuilder {
 
@@ -13,8 +17,9 @@ public class QuestionDefinitionBuilder {
   private Path path;
   private String description;
   private ImmutableMap<Locale, String> questionText;
-  private ImmutableMap<Locale, String> questionHelpText;
+  private ImmutableMap<Locale, String> questionHelpText = ImmutableMap.of();
   private QuestionType questionType = QuestionType.TEXT;
+  private String validationPredicatesString = "";
 
   public QuestionDefinitionBuilder() {}
 
@@ -30,6 +35,7 @@ public class QuestionDefinitionBuilder {
     questionText = definition.getQuestionText();
     questionHelpText = definition.getQuestionHelpText();
     questionType = definition.getQuestionType();
+    validationPredicatesString = definition.getValidationPredicatesAsString();
   }
 
   public QuestionDefinitionBuilder clearId() {
@@ -78,17 +84,64 @@ public class QuestionDefinitionBuilder {
     return this;
   }
 
+  public QuestionDefinitionBuilder setValidationPredicatesString(
+      String validationPredicatesString) {
+    this.validationPredicatesString = validationPredicatesString;
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setValidationPredicates(
+      ValidationPredicates validationPredicates) {
+    this.validationPredicatesString = validationPredicates.serializeAsString();
+    return this;
+  }
+
   public QuestionDefinition build() throws UnsupportedQuestionTypeException {
     switch (this.questionType) {
       case ADDRESS:
+        AddressValidationPredicates addressValidationPredicates =
+            AddressValidationPredicates.create();
+        if (!validationPredicatesString.isEmpty()) {
+          addressValidationPredicates =
+              AddressValidationPredicates.parse(validationPredicatesString);
+        }
         return new AddressQuestionDefinition(
-            id, version, name, path, description, questionText, questionHelpText);
+            id,
+            version,
+            name,
+            path,
+            description,
+            questionText,
+            questionHelpText,
+            addressValidationPredicates);
       case NAME:
+        NameValidationPredicates nameValidationPredicates = NameValidationPredicates.create();
+        if (!validationPredicatesString.isEmpty()) {
+          nameValidationPredicates = NameValidationPredicates.parse(validationPredicatesString);
+        }
         return new NameQuestionDefinition(
-            id, version, name, path, description, questionText, questionHelpText);
+            id,
+            version,
+            name,
+            path,
+            description,
+            questionText,
+            questionHelpText,
+            nameValidationPredicates);
       case TEXT:
+        TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();
+        if (!validationPredicatesString.isEmpty()) {
+          textValidationPredicates = TextValidationPredicates.parse(validationPredicatesString);
+        }
         return new TextQuestionDefinition(
-            id, version, name, path, description, questionText, questionHelpText);
+            id,
+            version,
+            name,
+            path,
+            description,
+            questionText,
+            questionHelpText,
+            textValidationPredicates);
       default:
         throw new UnsupportedQuestionTypeException(this.questionType);
     }

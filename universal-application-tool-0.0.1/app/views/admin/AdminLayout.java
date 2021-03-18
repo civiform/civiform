@@ -15,10 +15,10 @@ import j2html.tags.Tag;
 import javax.inject.Inject;
 import play.twirl.api.Content;
 import views.BaseHtmlLayout;
-import views.BaseStyles;
-import views.StyleUtils;
-import views.Styles;
 import views.ViewUtils;
+import views.style.BaseStyles;
+import views.style.StyleUtils;
+import views.style.Styles;
 
 public class AdminLayout extends BaseHtmlLayout {
 

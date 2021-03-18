@@ -1,5 +1,7 @@
 package services.question;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.OptionalLong;
@@ -14,8 +16,21 @@ public class NameQuestionDefinition extends QuestionDefinition {
       Path path,
       String description,
       ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText) {
-    super(id, version, name, path, description, questionText, questionHelpText);
+      ImmutableMap<Locale, String> questionHelpText,
+      NameValidationPredicates validationPredicates) {
+    super(
+        id, version, name, path, description, questionText, questionHelpText, validationPredicates);
+  }
+
+  public NameQuestionDefinition(
+      long version,
+      String name,
+      Path path,
+      String description,
+      ImmutableMap<Locale, String> questionText,
+      ImmutableMap<Locale, String> questionHelpText,
+      NameValidationPredicates validationPredicates) {
+    super(version, name, path, description, questionText, questionHelpText, validationPredicates);
   }
 
   public NameQuestionDefinition(
@@ -25,7 +40,35 @@ public class NameQuestionDefinition extends QuestionDefinition {
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
-    super(version, name, path, description, questionText, questionHelpText);
+    super(
+        version,
+        name,
+        path,
+        description,
+        questionText,
+        questionHelpText,
+        NameValidationPredicates.create());
+  }
+
+  @AutoValue
+  public abstract static class NameValidationPredicates extends ValidationPredicates {
+
+    public static NameValidationPredicates parse(String jsonString) {
+      try {
+        return mapper.readValue(
+            jsonString, AutoValue_NameQuestionDefinition_NameValidationPredicates.class);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    public static NameValidationPredicates create() {
+      return new AutoValue_NameQuestionDefinition_NameValidationPredicates();
+    }
+  }
+
+  public NameValidationPredicates getNameValidationPredicates() {
+    return (NameValidationPredicates) getValidationPredicates();
   }
 
   @Override

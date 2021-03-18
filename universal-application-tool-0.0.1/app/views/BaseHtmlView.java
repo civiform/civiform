@@ -15,6 +15,7 @@ import j2html.tags.Tag;
 import play.mvc.Http;
 import services.applicant.ValidationErrorMessage;
 import views.html.helper.CSRF;
+import views.style.Styles;
 
 /**
  * Base class for all HTML views. Provides stateless convenience methods for generating HTML.

@@ -1,4 +1,4 @@
-package views;
+package views.style;
 
 import static org.junit.Assert.assertEquals;
 

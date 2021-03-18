@@ -8,10 +8,10 @@ import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
-import views.Styles;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
+import views.style.Styles;
 
 public class ProgramEditView extends BaseHtmlView {
   private final AdminLayout layout;

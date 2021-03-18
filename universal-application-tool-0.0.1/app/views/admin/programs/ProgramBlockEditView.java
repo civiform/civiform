@@ -21,12 +21,14 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.QuestionDefinition;
 import views.BaseHtmlView;
-import views.StyleUtils;
-import views.Styles;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.QuestionBank;
+import views.style.BaseStyles;
+import views.style.ReferenceClasses;
+import views.style.StyleUtils;
+import views.style.Styles;
 
 public class ProgramBlockEditView extends BaseHtmlView {
 
@@ -203,13 +205,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withId("block-question-" + definition.getId())
             .withName("block-question-" + definition.getId())
             .withValue(definition.getId() + "")
-            .withClasses(
-                Styles.OPACITY_0,
-                Styles.ABSOLUTE,
-                Styles.LEFT_0,
-                Styles.TOP_0,
-                Styles.W_FULL,
-                Styles.H_FULL);
+            .withClasses(ReferenceClasses.REMOVE_QUESTION_BUTTON, BaseStyles.CLICK_TARGET_BUTTON);
 
     ContainerTag icon =
         Icons.questionTypeSvg(definition.getQuestionType(), 24)

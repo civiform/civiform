@@ -1,9 +1,12 @@
 package models;
 
+import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbJson;
+import java.util.List;
 import java.util.Locale;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -21,6 +24,9 @@ public class Applicant extends BaseModel {
 
   @Constraints.Required @DbJson private String object;
   @ManyToOne private Account account;
+
+  @OneToMany(mappedBy = "applicant")
+  private List<Application> applications;
 
   public Applicant() {
     super();
@@ -62,5 +68,9 @@ public class Applicant extends BaseModel {
 
   public void setAccount(Account account) {
     this.account = account;
+  }
+
+  public ImmutableList<Application> getApplications() {
+    return ImmutableList.copyOf(this.applications);
   }
 }

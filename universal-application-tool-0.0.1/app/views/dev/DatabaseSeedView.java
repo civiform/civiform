@@ -22,7 +22,7 @@ import services.program.ProgramDefinition;
 import services.question.QuestionDefinition;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
-import views.Styles;
+import views.style.Styles;
 
 public class DatabaseSeedView extends BaseHtmlView {
   private final BaseHtmlLayout layout;

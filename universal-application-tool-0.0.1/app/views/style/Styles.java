@@ -1,4 +1,4 @@
-package views;
+package views.style;
 
 /**
  * Class to hold constants for Tailwind CSS class names. see https://tailwindcss.com/docs for more
