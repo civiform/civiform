@@ -90,7 +90,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void stageAndUpdateIfValid_updatesMetadataForEachQuestionOnce() {
+  public void stageAndUpdateIfValid_updatesMetadataForQuestionOnce() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
 
     ImmutableSet<Update> updates =
@@ -110,7 +110,12 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     ApplicantData applicantDataAfter =
         applicantRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
-    assertThat(applicantDataAfter.asJsonString()).contains("" + programDefinition.id());
+    Path programIdPath =
+        Path.create("applicant.name." + QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY);
+    Path timestampPath =
+        Path.create("applicant.name." + QuestionDefinition.METADATA_UPDATE_TIME_KEY);
+    assertThat(applicantDataAfter.readLong(programIdPath)).hasValue(programDefinition.id());
+    assertThat(applicantDataAfter.readLong(timestampPath)).isPresent();
   }
 
   @Test
