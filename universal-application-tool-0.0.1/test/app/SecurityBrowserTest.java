@@ -10,7 +10,6 @@ import controllers.routes;
 import java.util.Optional;
 import models.Applicant;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.GenericContainer;
@@ -45,7 +44,6 @@ public class SecurityBrowserTest extends BaseBrowserTest {
   public void getApplicantRepository() {
     applicantRepository = app.injector().instanceOf(ApplicantRepository.class);
   }
-
 
   protected void loginWithSimulatedIdcs() {
     goTo(routes.LoginController.idcsLogin());
@@ -112,8 +110,10 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     assertThat(browser.pageSource()).contains("OidcClient");
     assertThat(browser.pageSource()).contains("username@example.com");
 
-    Applicant applicant = applicantRepository.lookupApplicant(getApplicantId()).toCompletableFuture().join().get();
-    Optional<String> applicantName = applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_FIRST_NAME);
+    Applicant applicant =
+        applicantRepository.lookupApplicant(getApplicantId()).toCompletableFuture().join().get();
+    Optional<String> applicantName =
+        applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_FIRST_NAME);
     assertThat(applicantName).isPresent();
     assertThat(applicantName.get()).isEqualTo("first");
 
