@@ -47,9 +47,6 @@ public class SecurityBrowserTest extends BaseBrowserTest {
       // Bypass consent screen.
       browser.$(".login-submit").click();
     } else {
-      // If we *are* cookied, we have to click this button twice.  Best way to
-      // find out is if we still have a login-submit button to hit.
-      browser.$(".login-submit").click();
       browser.$(".login-submit").click();
     }
   }

@@ -3,6 +3,7 @@ package services.program;
 import com.google.common.collect.ImmutableList;
 import forms.BlockForm;
 import java.util.concurrent.CompletionStage;
+import models.Application;
 import services.question.QuestionNotFoundException;
 
 /**
@@ -197,4 +198,13 @@ public interface ProgramService {
    */
   ProgramDefinition deleteBlock(long programId, long blockDefinitionId)
       throws ProgramNotFoundException, ProgramNeedsABlockException;
+
+  /**
+   * Get all the program's applications.
+   *
+   * @param programId the program id.
+   * @return A list of Application objects for the specified program.
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   */
+  ImmutableList<Application> getProgramApplications(long programId) throws ProgramNotFoundException;
 }
