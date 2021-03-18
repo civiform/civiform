@@ -102,7 +102,7 @@ public class FieldWithLabel {
         .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
         .withName(this.fieldName)
         .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
-        .condAttr(!Strings.isNullOrEmpty(this.placeholderText), "form", formId);
+        .condAttr(!Strings.isNullOrEmpty(this.formId), "form", formId);
 
     ContainerTag labelTag =
         label()
