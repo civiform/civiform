@@ -173,20 +173,22 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   public void createProgram_setsId() {
     assertThat(ps.listProgramDefinitions()).isEmpty();
 
-    ProgramDefinition programDefinition =
-        ps.createProgramDefinition("ProgramService", "description").getResult();
+    ErrorAnd<ProgramDefinition, ProgramServiceError> result =
+        ps.createProgramDefinition("ProgramService", "description");
 
-    assertThat(programDefinition.id()).isNotNull();
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.getResult().id()).isNotNull();
   }
 
   @Test
   public void createProgram_hasEmptyBlock() {
-    ProgramDefinition programDefinition =
-        ps.createProgramDefinition("ProgramService", "description").getResult();
+    ErrorAnd<ProgramDefinition, ProgramServiceError> result =
+        ps.createProgramDefinition("ProgramService", "description");
 
-    assertThat(programDefinition.blockDefinitions()).hasSize(1);
-    assertThat(programDefinition.getBlockDefinition(0).get().id()).isEqualTo(1L);
-    assertThat(programDefinition.getBlockDefinition(0).get().name()).isEqualTo("Block 1");
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.getResult().blockDefinitions()).hasSize(1);
+    assertThat(result.getResult().getBlockDefinition(0).get().id()).isEqualTo(1L);
+    assertThat(result.getResult().getBlockDefinition(0).get().name()).isEqualTo("Block 1");
   }
 
   @Test
@@ -212,8 +214,11 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   public void updateProgram_updatesProgram() throws Exception {
     ProgramDefinition originalProgram =
         ProgramBuilder.newProgram("original", "original description").buildDefinition();
-    ProgramDefinition updatedProgram =
-        ps.updateProgramDefinition(originalProgram.id(), "new", "new description").getResult();
+    ErrorAnd<ProgramDefinition, ProgramServiceError> result =
+        ps.updateProgramDefinition(originalProgram.id(), "new", "new description");
+
+    assertThat(result.hasResult()).isTrue();
+    ProgramDefinition updatedProgram = result.getResult();
 
     ProgramDefinition found = ps.getProgramDefinition(updatedProgram.id());
 
