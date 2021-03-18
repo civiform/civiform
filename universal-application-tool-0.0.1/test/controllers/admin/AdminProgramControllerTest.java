@@ -145,6 +145,22 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
   }
 
   @Test
+  public void update_invalidInput_returnsFormWithErrors() {
+    Program program = ProgramBuilder.newProgram("Existing One").build();
+    Request request =
+        addCSRFToken(Helpers.fakeRequest())
+            .bodyForm(ImmutableMap.of("name", "", "description", ""))
+            .build();
+
+    Result result = controller.update(request, program.id);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Edit program");
+    assertThat(contentAsString(result)).contains("program name cannot be blank");
+    assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
+  }
+
+  @Test
   public void update_overwritesExistingProgram() {
     Program program = ProgramBuilder.newProgram("Existing One").build();
     RequestBuilder requestBuilder =

@@ -86,7 +86,16 @@ public class AdminProgramController extends Controller {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm program = programForm.bindFromRequest(request).get();
     try {
-      service.updateProgramDefinition(id, program.getName(), program.getDescription());
+      ErrorAnd<ProgramDefinition, ProgramServiceError> result =
+          service.updateProgramDefinition(id, program.getName(), program.getDescription());
+      if (result.isError()) {
+        StringJoiner messageJoiner = new StringJoiner(". ", "", ".");
+        for (ProgramServiceError e : result.getErrors()) {
+          messageJoiner.add(e.message());
+        }
+        String errorMessage = messageJoiner.toString();
+        return ok(editView.render(request, id, program, errorMessage));
+      }
       return redirect(routes.AdminProgramController.index().url());
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", id));
