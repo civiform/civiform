@@ -29,39 +29,40 @@ public final class QuestionEditView extends BaseHtmlView {
     this.layout = layout;
   }
 
-  public Content renderNewQuestionForm(Request request, String type) {
-    // Get questionType from string.
-    System.out.println(String.format("Question Type: '%s' is currently unused.", type));
-
-    // pass to render...
+  public Content renderNewQuestionForm(Request request, QuestionType questionType) {
+    String type = questionType.toString();
+    QuestionForm form = new QuestionForm();
+    form.setQuestionType(type.toUpperCase());
     return layout.render(
         body(
-            renderHeader("New Question"),
-            buildNewQuestionForm(new QuestionForm()).with(makeCsrfTokenInputTag(request))));
+            renderHeader(String.format("New %s Question", type.toLowerCase()), Styles.CAPITALIZE),
+            buildNewQuestionForm(form).with(makeCsrfTokenInputTag(request))));
   }
 
   public Content renderNewQuestionForm(Request request, QuestionForm questionForm, String message) {
     return layout.render(
         body(
             div(message),
-            renderHeader("New Question"),
+            renderHeader("New Text Question"),
             buildNewQuestionForm(questionForm).with(makeCsrfTokenInputTag(request))));
   }
 
   public Content renderEditQuestionForm(Request request, QuestionDefinition question) {
+    String type = question.getQuestionType().toString();
     return layout.render(
         body(
-            renderHeader("Edit Question"),
+            renderHeader(String.format("New %s Question", type.toLowerCase())),
             buildEditQuestionForm(question.getId(), new QuestionForm(question))
                 .with(makeCsrfTokenInputTag(request))));
   }
 
   public Content renderEditQuestionForm(
       Request request, long id, QuestionForm questionForm, String message) {
+    String type = questionForm.getQuestionType();
     return layout.render(
         body(
             div(message),
-            renderHeader("Edit Question"),
+            renderHeader(String.format("New %s Question", type.toLowerCase())),
             buildEditQuestionForm(id, questionForm).with(makeCsrfTokenInputTag(request))));
   }
 
@@ -127,6 +128,7 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private DomContent formQuestionTypeSelect(QuestionType selectedType) {
+
     ImmutableList<SimpleEntry<String, String>> options =
         Arrays.stream(QuestionType.values())
             .map(item -> new SimpleEntry<String, String>(item.toString(), item.name()))
@@ -138,6 +140,7 @@ public final class QuestionEditView extends BaseHtmlView {
         .setLabelText("Question type")
         .setOptions(options)
         .setValue(selectedType.name())
-        .getContainer();
+        .getContainer()
+        .withClasses(Styles.HIDDEN);
   }
 }

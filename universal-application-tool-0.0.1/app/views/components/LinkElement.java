@@ -56,16 +56,14 @@ public class LinkElement {
 
   public ContainerTag asAnchorText() {
     ContainerTag tag = Strings.isNullOrEmpty(href) ? div(text) : a(text).withHref(href);
-    return tag
-      .withCondId(!Strings.isNullOrEmpty(id), id)
-      .withCondHref(!Strings.isNullOrEmpty(href), href)
-      .withClasses(DEFAULT_LINK_STYLES, styles);    
+    return tag.withCondId(!Strings.isNullOrEmpty(id), id)
+        .withCondHref(!Strings.isNullOrEmpty(href), href)
+        .withClasses(DEFAULT_LINK_STYLES, styles);
   }
 
   public ContainerTag asButton() {
     ContainerTag tag = Strings.isNullOrEmpty(href) ? div(text) : a(text).withHref(href);
-    return tag
-        .withCondId(!Strings.isNullOrEmpty(id), id)
+    return tag.withCondId(!Strings.isNullOrEmpty(id), id)
         .withClasses(DEFAULT_LINK_BUTTON_STYLES, styles);
   }
 }

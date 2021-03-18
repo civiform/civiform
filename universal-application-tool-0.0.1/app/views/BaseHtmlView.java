@@ -15,6 +15,7 @@ import j2html.tags.Tag;
 import play.mvc.Http;
 import services.applicant.ValidationErrorMessage;
 import views.html.helper.CSRF;
+import views.style.StyleUtils;
 import views.style.Styles;
 
 /**
@@ -25,8 +26,8 @@ import views.style.Styles;
  */
 public abstract class BaseHtmlView {
 
-  public Tag renderHeader(String headerText) {
-    return h1(headerText).withClasses(Styles.M_2);
+  public Tag renderHeader(String headerText, String... additionalClasses) {
+    return h1(headerText).withClasses(Styles.M_2, StyleUtils.joinStyles(additionalClasses));
   }
 
   protected ContainerTag fieldErrors(ImmutableSet<ValidationErrorMessage> errors) {

@@ -23,8 +23,8 @@ import services.question.QuestionType;
 import services.question.TranslationNotFoundException;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
-import views.components.LinkElement;
 import views.components.Icons;
+import views.components.LinkElement;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -48,22 +48,29 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private Tag renderAddQuestionLink() {
-    String link = controllers.admin.routes.QuestionController.newOne("").url();
     String parentId = "create-question-button";
-    ContainerTag linkButton = new LinkElement()
-        .setId(parentId)
-        .setHref(link)
-        .setText("Create new question")
-        .asButton();
-    // for (QuestionType type : questionTypes)
-    ContainerTag addressLink = a().withHref("#").withClasses("p-4 pr-12 hover:bg-gray-100")
-      .with(Icons.questionTypeSvg(QuestionType.ADDRESS, 24).withClasses("inline flex-shrink-0 h-6 w-6 mr-1 text-sm"))
-      .with(p("Address").withClasses("inline text-sm"));
-    ContainerTag nameLink = a().withHref("#").withClasses("p-4 pr-12 hover:bg-gray-100")
-      .with(Icons.questionTypeSvg(QuestionType.NAME, 24).withClasses("inline flex-shrink-0 h-6 w-6 mr-1 text-sm"))
-      .with(p("Name").withClasses("inline text-sm"));
+    String dropdownId = parentId + "-dropdown";
+    ContainerTag linkButton =
+        new LinkElement().setId(parentId).setText("Create new question").asButton();
+    ContainerTag dropdown =
+        div()
+            .withId(dropdownId)
+            .withClasses(Styles.BORDER, Styles.BG_WHITE, Styles.TEXT_GRAY_600, Styles.SHADOW_LG,
+            Styles.ABSOLUTE, Styles.MT_3, Styles.HIDDEN);
 
-    ContainerTag dropdown = div(addressLink, nameLink).withId(parentId + "-dropdown").withClasses("border bg-white w-max text-gray-600 shadow-lg hidden absolute mt-3 transition-all scale-0");
+    for (QuestionType type : QuestionType.values()) {
+      String typeString = type.toString().toLowerCase();
+      String link = controllers.admin.routes.QuestionController.newOne(typeString).url();
+      ContainerTag linkTag =
+          a().withHref(link)
+              .withClasses(Styles.BLOCK, Styles.P_4, Styles.BG_WHITE, Styles.TEXT_GRAY_600,
+                StyleUtils.hover(Styles.BG_GRAY_100, Styles.TEXT_GRAY_800))
+              .with(
+                  Icons.questionTypeSvg(type, 24)
+                      .withClasses(Styles.INLINE_BLOCK, Styles.H_6, Styles.W_6, Styles.MR_1, Styles.TEXT_SM))
+              .with(p(typeString).withClasses(Styles.ML_2, Styles.MR_4, Styles.INLINE, Styles.TEXT_SM, Styles.UPPERCASE));
+      dropdown.with(linkTag);
+    }
     return linkButton.with(dropdown);
   }
 
