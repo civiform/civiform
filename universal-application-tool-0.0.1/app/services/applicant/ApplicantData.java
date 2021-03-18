@@ -18,9 +18,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import services.Path;
+import services.WellKnownPaths;
 
 public class ApplicantData {
   // Suppress errors thrown by JsonPath and instead return null if a path does not exist in a JSON
@@ -29,7 +28,6 @@ public class ApplicantData {
       Configuration.defaultConfiguration().addOptions(Option.SUPPRESS_EXCEPTIONS);
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
 
-  private static final Logger LOG = LoggerFactory.getLogger(ApplicantData.class);
   private static final Locale DEFAULT_LOCALE = Locale.US;
 
   private Locale preferredLocale;
@@ -236,9 +234,14 @@ public class ApplicantData {
 
   private void setUserName(
       String firstName, @Nullable String middleName, @Nullable String lastName) {
-    // We don't have a question for this yet, so this is unimplemented right now.
-    LOG.warn(
-        "Have not implemented setUserName yet - %s, %s, %s are our first, middle, last.",
-        firstName, middleName, lastName);
+    if (!hasPath(WellKnownPaths.APPLICANT_FIRST_NAME)) {
+      putString(WellKnownPaths.APPLICANT_FIRST_NAME, firstName);
+    }
+    if (middleName != null && !hasPath(WellKnownPaths.APPLICANT_MIDDLE_NAME)) {
+      putString(WellKnownPaths.APPLICANT_MIDDLE_NAME, middleName);
+    }
+    if (lastName != null && !hasPath(WellKnownPaths.APPLICANT_LAST_NAME)) {
+      putString(WellKnownPaths.APPLICANT_LAST_NAME, lastName);
+    }
   }
 }
