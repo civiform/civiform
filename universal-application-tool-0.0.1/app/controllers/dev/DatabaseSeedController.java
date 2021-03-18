@@ -133,7 +133,8 @@ public class DatabaseSeedController extends Controller {
 
   private ProgramDefinition insertProgramWithBlocks(String name) {
     try {
-      ProgramDefinition programDefinition = programService.createProgramDefinition(name, "desc");
+      ProgramDefinition programDefinition =
+          programService.createProgramDefinition(name, "desc").getResult();
 
       BlockForm firstBlockForm = new BlockForm();
       firstBlockForm.setName("Block 1");
