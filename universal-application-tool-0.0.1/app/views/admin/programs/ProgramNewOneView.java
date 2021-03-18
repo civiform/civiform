@@ -40,6 +40,6 @@ public final class ProgramNewOneView extends BaseHtmlView {
                             .getContainer(),
                         submitButton("Create").withId("program-create-button"))
                     .withMethod("post")
-                    .withAction(controllers.admin.routes.AdminProgramController.index().url()))));
+                    .withAction(controllers.admin.routes.AdminProgramController.create().url()))));
   }
 }
