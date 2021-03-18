@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import forms.ProgramForm;
+import java.util.StringJoiner;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -11,9 +12,11 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.ErrorAnd;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.program.ProgramServiceError;
 import views.admin.programs.ProgramEditView;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramNewOneView;
@@ -55,7 +58,16 @@ public class AdminProgramController extends Controller {
   public Result create(Request request) {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm program = programForm.bindFromRequest(request).get();
-    service.createProgramDefinition(program.getName(), program.getDescription());
+    ErrorAnd<ProgramDefinition, ProgramServiceError> result =
+        service.createProgramDefinition(program.getName(), program.getDescription());
+    if (result.isError()) {
+      StringJoiner messageJoiner = new StringJoiner(". ", "", ".");
+      for (ProgramServiceError e : result.getErrors()) {
+        messageJoiner.add(e.message());
+      }
+      String errorMessage = messageJoiner.toString();
+      return ok(newOneView.render(request, program, errorMessage));
+    }
     return redirect(routes.AdminProgramController.index().url());
   }
 

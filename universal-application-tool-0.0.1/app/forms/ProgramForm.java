@@ -4,6 +4,11 @@ public class ProgramForm {
   private String name;
   private String description;
 
+  public ProgramForm() {
+    name = "";
+    description = "";
+  }
+
   public String getName() {
     return name;
   }
