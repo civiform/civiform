@@ -11,16 +11,16 @@ jobs:
       - name: check out pr branch
         uses: actions/checkout@v2
       - name: Build test container
-        run: docker build -t uat ./
+        run: docker build -t civiform ./
       - name: Run tests
-        run: docker run -v /var/run/docker.sock:/var/run/docker.sock uat test
+        run: docker run -v /var/run/docker.sock:/var/run/docker.sock civiform test
   test_prod:
     runs-on: ubuntu-latest
     steps:
       - name: check out pr branch
         uses: actions/checkout@v2
       - name: Build prod container
-        run: docker build -f prod.Dockerfile -t uat:prod ./
+        run: docker build -f prod.Dockerfile -t civiform:prod ./
       - name: Build the stack
         run: docker-compose -f infra/prod-simulator-compose.yml up -d
         env:
