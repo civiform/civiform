@@ -19,7 +19,7 @@ Resources:
     Properties:
       Scheme: internet-facing
       IpAddressType: ipv4
-      Name: prod.civiform-public.lb
+      Name: prod-civiform-publiclb
       SecurityGroups:
         - !Ref 'LBSecurityGroup'
       Subnets:
@@ -51,7 +51,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       Protocol: HTTP
-      Name: prod.civiform.lbtarget
+      Name: prod-civiform-lbtarget
       Port: 9000
       VpcId: !Ref 'VPCId'
       TargetType: ip

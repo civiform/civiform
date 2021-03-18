@@ -18,9 +18,9 @@ if aws cloudformation describe-change-set --region ${REGION}  --change-set-name 
 	sleep 5
 fi
 
-aws s3 sync ./infra s3://seattle-uat-cftmpl/${TIMESTAMP}
+aws s3 sync ./infra s3://seattle-civiform-cftmpl/${TIMESTAMP}
 
-aws cloudformation create-change-set --region ${REGION} --include-nested-stacks --stack-name civiform --change-set-name auto-changeset-pr-$PR_NUMBER --template-url  https://seattle-uat-cftmpl.s3-${REGION}.amazonaws.com/$TIMESTAMP/stack.yaml --parameters "[{\"ParameterKey\": \"Timestamp\", \"ParameterValue\": \"$TIMESTAMP\"}]"
+aws cloudformation create-change-set --region ${REGION} --include-nested-stacks --stack-name civiform --change-set-name auto-changeset-pr-$PR_NUMBER --template-url  https://seattle-civiform-cftmpl.s3-${REGION}.amazonaws.com/$TIMESTAMP/stack.yaml --parameters "[{\"ParameterKey\": \"Timestamp\", \"ParameterValue\": \"$TIMESTAMP\"}]"
 
 sleep 5
 

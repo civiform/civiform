@@ -44,8 +44,8 @@ Resources:
           Value: prod.civiform-s3.kms-key
   bucket:
     Type: 'AWS::S3::Bucket'
-    BucketName: prod.filestore.s3
     Properties:
+      BucketName: prod.filestore.s3
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:

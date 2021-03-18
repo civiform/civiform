@@ -65,12 +65,18 @@ Resources:
       - attachgateway
     Properties:
       Domain: !Ref 'vpc'
+      Tags:
+        - Key: Name
+          Value: prod.public-gateway1.eip
   natgateway2ip:
     Type: AWS::EC2::EIP
     DependsOn:
       - attachgateway
     Properties:
       Domain: !Ref 'vpc'
+      Tags:
+        - Key: Name
+          Value: prod.public-gateway2.eip
   natgateway1:
     Type: AWS::EC2::NatGateway
     Properties:

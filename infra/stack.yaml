@@ -12,27 +12,27 @@ Resources:
   VPC:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/network.yaml'
+      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-civiform-cftmpl/${Timestamp}/network.yaml'
   Filestore:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/filestorage.yaml'
+      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-civiform-cftmpl/${Timestamp}/filestorage.yaml'
       Parameters:
         S3VPCEndpoint: !GetAtt 'VPC.Outputs.S3Endpoint'
   Secrets:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/secrets.yaml'
+      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-civiform-cftmpl/${Timestamp}/secrets.yaml'
   SecurityGroups:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/security_groups.yaml'
+      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-civiform-cftmpl/${Timestamp}/security_groups.yaml'
       Parameters:
         VPCId: !GetAtt 'VPC.Outputs.VPCId'
   LB:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/load_balancer.yaml'
+      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-civiform-cftmpl/${Timestamp}/load_balancer.yaml'
       Parameters:
         VPCId: !GetAtt 'VPC.Outputs.VPCId'
         PublicSubnet1: !GetAtt 'VPC.Outputs.PublicSubnet1'
@@ -41,7 +41,7 @@ Resources:
   DB:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/database.yaml'
+      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-civiform-cftmpl/${Timestamp}/database.yaml'
       Parameters:
         DBUsername: !Ref DBUsername
         DBPassword: !GetAtt 'Secrets.Outputs.Password'
@@ -51,7 +51,7 @@ Resources:
   Container:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/containers.yaml'
+      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-civiform-cftmpl/${Timestamp}/containers.yaml'
       Parameters:
         DBUsername: !Ref DBUsername
         DBPassword: !GetAtt 'Secrets.Outputs.Password'
@@ -66,7 +66,7 @@ Resources:
   Monitoring:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-uat-cftmpl/${Timestamp}/monitoring.yaml'
+      TemplateURL: !Sub 'https://s3.amazonaws.com/seattle-civiform-cftmpl/${Timestamp}/monitoring.yaml'
       Parameters:
         DBName: !GetAtt 'DB.Outputs.DBName'
         LBName: !GetAtt 'LB.Outputs.LBFullName'

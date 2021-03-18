@@ -4,7 +4,7 @@ Parameters:
   ContainerName:
     Description: The name of the container.
     Type: String
-    Default: prod.civiform.container
+    Default: prod-civiform-container
   DBAddress:
     Description: The address at which the database can be reached.
     Type: String
@@ -47,7 +47,7 @@ Resources:
   ecscluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: prod.civiform-fargate.ecscluster
+      ClusterName: prod-civiform-fargate-cluster
       CapacityProviders:
         - FARGATE
       DefaultCapacityProviderStrategy:
