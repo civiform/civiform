@@ -13,6 +13,7 @@ import models.Program;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
+import services.ErrorAnd;
 import services.Path;
 import services.question.AddressQuestionDefinition;
 import services.question.NameQuestionDefinition;
@@ -189,6 +190,18 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
+  public void createProgram_returnsErrors() {
+    ErrorAnd<ProgramDefinition, ProgramServiceError> result = ps.createProgramDefinition("", "");
+
+    assertThat(result.hasResult()).isFalse();
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsOnly(
+            ProgramServiceError.of("program name cannot be blank"),
+            ProgramServiceError.of("program description cannot be blank"));
+  }
+
+  @Test
   public void updateProgram_withNoProgram_throwsProgramNotFoundException() {
     assertThatThrownBy(() -> ps.updateProgramDefinition(1L, "new", "new description"))
         .isInstanceOf(ProgramNotFoundException.class)
@@ -220,6 +233,21 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     QuestionDefinition foundQuestion =
         found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
     assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
+  }
+
+  @Test
+  public void updateProgram_returnsErrors() throws Exception {
+    ProgramDefinition program = ProgramBuilder.newProgram().buildDefinition();
+
+    ErrorAnd<ProgramDefinition, ProgramServiceError> result =
+        ps.updateProgramDefinition(program.id(), "", "");
+
+    assertThat(result.hasResult()).isFalse();
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsOnly(
+            ProgramServiceError.of("program name cannot be blank"),
+            ProgramServiceError.of("program description cannot be blank"));
   }
 
   @Test
