@@ -8,7 +8,7 @@
  *  - TBD
  */
 
-function attachDropdown(elementId) {
+ function attachDropdown(elementId: string) {
     const dropdownId = elementId + "-dropdown";
     const element = document.getElementById(elementId);
     const dropdown = document.getElementById(dropdownId);
@@ -21,15 +21,22 @@ function attachDropdown(elementId) {
     }
 }
 
-function toggleElementVisibility(id) {
+function toggleElementVisibility(id: string) {
     const element = document.getElementById(id);
-    element.classList.toggle("hidden");
+    if (element) {
+       element.classList.toggle("hidden");
+    }
 }
 
-function maybeHideElement(e, id, parentId) {
-    const parent = document.getElementById(parentId);
-    if (parent && !parent.contains(e.target)) {     
-        document.getElementById(id).classList.add("hidden");
+function maybeHideElement(e: Event, id: string, parentId: string) {
+    if (e.target instanceof Element) {
+        const parent = document.getElementById(parentId);
+        if (parent && !parent.contains(e.target)) {     
+            const elementToHide = document.getElementById(id);
+            if (elementToHide) {
+                elementToHide.classList.add("hidden");
+            }
+        }
     }
 }
 
