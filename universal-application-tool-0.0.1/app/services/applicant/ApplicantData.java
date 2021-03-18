@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
@@ -57,15 +56,27 @@ public class ApplicantData {
   }
 
   public void putString(Path path, String value) {
+    if (value.isEmpty()) {
+      putNull(path);
+    } else {
+      put(path, value);
+    }
+  }
+
+  public void putLong(Path path, long value) {
     put(path, value);
   }
 
-  public void putInteger(Path path, int value) {
-    put(path, value);
+  public void putLong(Path path, String value) {
+    if (value.isEmpty()) {
+      putNull(path);
+    } else {
+      put(path, Long.parseLong(value));
+    }
   }
 
-  public <K, V> void putObject(Path path, ImmutableMap<K, V> value) {
-    put(path, value);
+  private void putNull(Path path) {
+    put(path, null);
   }
 
   /**
@@ -105,9 +116,9 @@ public class ApplicantData {
    * Attempt to read a integer at the given path. Returns {@code Optional#empty} if the path does
    * not exist or a value other than Integer is found.
    */
-  public Optional<Integer> readInteger(Path path) {
+  public Optional<Long> readLong(Path path) {
     try {
-      return this.read(path, Integer.class);
+      return this.read(path, Long.class);
     } catch (JsonPathTypeMismatchException e) {
       return Optional.empty();
     }

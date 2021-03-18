@@ -27,8 +27,8 @@ public abstract class QuestionDefinition {
   private final ImmutableMap<Locale, String> questionHelpText;
   private final ValidationPredicates validationPredicates;
 
-  protected final String METADATA_UPDATE_TIME_KEY = "updated_at";
-  protected final String METADATA_UPDATE_PROGRAM_ID_KEY = "updated_in_program";
+  public static final String METADATA_UPDATE_TIME_KEY = "updated_at";
+  public static final String METADATA_UPDATE_PROGRAM_ID_KEY = "updated_in_program";
 
   public QuestionDefinition(
       OptionalLong id,

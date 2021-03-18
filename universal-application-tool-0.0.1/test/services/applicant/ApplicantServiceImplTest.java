@@ -90,6 +90,30 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
+  public void stageAndUpdateIfValid_updatesMetadataForEachQuestionOnce() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+
+    ImmutableSet<Update> updates =
+        ImmutableSet.of(
+            Update.create(Path.create("applicant.name.first"), "Alice"),
+            Update.create(Path.create("applicant.name.last"), "Doe"));
+
+    ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
+        subject
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 1L, updates)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(errorAnd.isError()).isFalse();
+    assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
+
+    ApplicantData applicantDataAfter =
+        applicantRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    assertThat(applicantDataAfter.asJsonString()).contains("" + programDefinition.id());
+  }
+
+  @Test
   public void stageAndUpdateIfValid_hasApplicantNotFoundException() {
     ImmutableSet<Update> updates = ImmutableSet.of();
     long badApplicantId = 1L;
@@ -158,6 +182,23 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     assertThat(errorAnd.hasResult()).isFalse();
     assertThat(errorAnd.getErrors()).hasSize(1);
     assertThat(errorAnd.getErrors().asList().get(0)).isInstanceOf(PathNotInBlockException.class);
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_hasIllegalArgumentExceptionForReservedScalarKeys() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    String reservedScalar = "applicant.name." + QuestionDefinition.METADATA_UPDATE_TIME_KEY;
+    ImmutableMap<String, String> updates = ImmutableMap.of(reservedScalar, "12345");
+
+    ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
+        subject
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 1L, updates)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(errorAnd.hasResult()).isFalse();
+    assertThat(errorAnd.getErrors()).hasSize(1);
+    assertThat(errorAnd.getErrors().asList().get(0)).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

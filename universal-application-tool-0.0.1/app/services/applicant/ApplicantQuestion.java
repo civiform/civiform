@@ -130,7 +130,7 @@ public class ApplicantQuestion {
     }
 
     public ImmutableSet<ValidationErrorMessage> getStreetErrors() {
-      if (hasStreetValue() && getStreetValue().get().isEmpty()) {
+      if (hasStreetValue() && getStreetValue().isEmpty()) {
         return ImmutableSet.of(ValidationErrorMessage.create("Street is required."));
       }
 
@@ -138,7 +138,7 @@ public class ApplicantQuestion {
     }
 
     public ImmutableSet<ValidationErrorMessage> getCityErrors() {
-      if (hasCityValue() && getCityValue().get().isEmpty()) {
+      if (hasCityValue() && getCityValue().isEmpty()) {
         return ImmutableSet.of(ValidationErrorMessage.create("City is required."));
       }
 
@@ -147,7 +147,7 @@ public class ApplicantQuestion {
 
     public ImmutableSet<ValidationErrorMessage> getStateErrors() {
       // TODO: Validate state further.
-      if (hasStateValue() && getStateValue().get().isEmpty()) {
+      if (hasStateValue() && getStateValue().isEmpty()) {
         return ImmutableSet.of(ValidationErrorMessage.create("State is required."));
       }
 
@@ -156,13 +156,13 @@ public class ApplicantQuestion {
 
     public ImmutableSet<ValidationErrorMessage> getZipErrors() {
       if (hasZipValue()) {
-        String zipValue = getZipValue().get();
+        Optional<String> zipValue = getZipValue();
         if (zipValue.isEmpty()) {
           return ImmutableSet.of(ValidationErrorMessage.create("Zip code is required."));
         }
 
         Pattern pattern = Pattern.compile("^[0-9]{5}(?:-[0-9]{4})?$");
-        Matcher matcher = pattern.matcher(zipValue);
+        Matcher matcher = pattern.matcher(zipValue.get());
         if (!matcher.matches()) {
           return ImmutableSet.of(ValidationErrorMessage.create("Invalid zip code."));
         }
@@ -366,7 +366,7 @@ public class ApplicantQuestion {
     }
 
     public ImmutableSet<ValidationErrorMessage> getFirstNameErrors() {
-      if (hasFirstNameValue() && getFirstNameValue().get().isEmpty()) {
+      if (hasFirstNameValue() && getFirstNameValue().isEmpty()) {
         return ImmutableSet.of(ValidationErrorMessage.create("First name is required."));
       }
 
@@ -374,7 +374,7 @@ public class ApplicantQuestion {
     }
 
     public ImmutableSet<ValidationErrorMessage> getLastNameErrors() {
-      if (hasLastNameValue() && getLastNameValue().get().isEmpty()) {
+      if (hasLastNameValue() && getLastNameValue().isEmpty()) {
         return ImmutableSet.of(ValidationErrorMessage.create("Last name is required."));
       }
 

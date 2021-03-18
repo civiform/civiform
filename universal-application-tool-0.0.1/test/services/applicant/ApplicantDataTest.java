@@ -2,7 +2,6 @@ package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
 import java.time.Instant;
 import java.util.Locale;
@@ -39,16 +38,16 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void put_addsAScalar() {
+  public void putLong_addsAScalar() {
     ApplicantData data = new ApplicantData();
 
-    data.putInteger(Path.create("applicant.age"), 99);
+    data.putLong(Path.create("applicant.age"), 99);
 
     assertThat(data.asJsonString()).isEqualTo("{\"applicant\":{\"age\":99},\"metadata\":{}}");
   }
 
   @Test
-  public void put_addsANestedScalar() {
+  public void putString_addsANestedScalar() {
     ApplicantData data = new ApplicantData();
     String expected =
         "{\"applicant\":{\"favorites\":{\"food\":{\"apple\":\"Granny Smith\"}}},\"metadata\":{}}";
@@ -59,15 +58,27 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void put_addsAMap() {
+  public void putString_writesNullIfStringIsEmpty() {
     ApplicantData data = new ApplicantData();
-    ImmutableMap<String, String> map = ImmutableMap.of("sandwich", "PB&J", "color", "blue");
-    String expected =
-        "{\"applicant\":{\"favorites\":{\"sandwich\":\"PB&J\",\"color\":\"blue\"}},\"metadata\":{}}";
+    Path path = Path.create("applicant.name");
+    String expected = "{\"applicant\":{\"name\":null},\"metadata\":{}}";
 
-    data.putObject(Path.create("applicant.favorites"), map);
+    data.putString(path, "");
 
     assertThat(data.asJsonString()).isEqualTo(expected);
+    assertThat(data.readString(path)).isEmpty();
+  }
+
+  @Test
+  public void putLong_writesNullIfStringIsEmpty() {
+    ApplicantData data = new ApplicantData();
+    Path path = Path.create("applicant.age");
+    String expected = "{\"applicant\":{\"age\":null},\"metadata\":{}}";
+
+    data.putLong(path, "");
+
+    assertThat(data.asJsonString()).isEqualTo(expected);
+    assertThat(data.readLong(path)).isEmpty();
   }
 
   @Test
@@ -81,13 +92,13 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void readInteger_findsCorrectValue() throws Exception {
+  public void readLong_findsCorrectValue() throws Exception {
     String testData = "{ \"applicant\": { \"age\": 30 } }";
     ApplicantData data = new ApplicantData(testData);
 
-    Optional<Integer> found = data.readInteger(Path.create("applicant.age"));
+    Optional<Long> found = data.readLong(Path.create("applicant.age"));
 
-    assertThat(found).hasValue(30);
+    assertThat(found).hasValue(30L);
   }
 
   @Test
@@ -100,10 +111,10 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void readInteger_pathNotPresent_returnsEmptyOptional() throws Exception {
+  public void readLong_pathNotPresent_returnsEmptyOptional() throws Exception {
     ApplicantData data = new ApplicantData();
 
-    Optional<Integer> found = data.readInteger(Path.create("my.fake.path"));
+    Optional<Long> found = data.readLong(Path.create("my.fake.path"));
 
     assertThat(found).isEmpty();
   }
@@ -119,11 +130,11 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void readInteger_returnsEmptyWhenTypeMismatch() {
+  public void readLong_returnsEmptyWhenTypeMismatch() {
     String testData = "{ \"applicant\": { \"object\": { \"name\": \"John\" } } }";
     ApplicantData data = new ApplicantData(testData);
 
-    Optional<Integer> found = data.readInteger(Path.create("applicant.object.name"));
+    Optional<Long> found = data.readLong(Path.create("applicant.object.name"));
 
     assertThat(found).isEmpty();
   }

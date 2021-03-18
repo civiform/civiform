@@ -1,7 +1,6 @@
 package services.applicant;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import java.util.concurrent.CompletionStage;
 import models.Applicant;
 import services.ErrorAnd;
@@ -26,13 +25,6 @@ public interface ApplicantService {
    *     {@link ErrorAnd} is returned in the error state.
    *     <p>A ProgramNotFoundException may be thrown when the future completes if the programId does
    *     not correspond to a real Program.
-   */
-  CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>> stageAndUpdateIfValid(
-      long applicantId, long programId, long blockId, ImmutableSet<Update> updates);
-
-  /**
-   * Equivalent to the other {@link ApplicantService#stageAndUpdateIfValid(long, long, long,
-   * ImmutableSet<Update>)}, but takes a map representing the {@link Update}s.
    */
   CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>> stageAndUpdateIfValid(
       long applicantId, long programId, long blockId, ImmutableMap<String, String> updateMap);
