@@ -6,7 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
-import services.Path;
+import services.WellKnownPaths;
 import services.applicant.ApplicantData;
 
 @Entity
@@ -25,7 +25,7 @@ public class Application extends BaseModel {
   public Application(Applicant applicant, Program program, Instant submitTime) {
     this.applicant = applicant;
     ApplicantData data = applicant.getApplicantData();
-    data.putString(Path.create("metadata.submitted_time"), submitTime.toString());
+    data.putString(WellKnownPaths.APPLICATION_SUBMITTED_TIME, submitTime.toString());
     this.object = data.asJsonString();
     this.program = program;
   }

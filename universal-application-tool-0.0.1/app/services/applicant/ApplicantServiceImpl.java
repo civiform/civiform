@@ -5,15 +5,20 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.time.Clock;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Applicant;
+import models.Application;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicantRepository;
 import services.ErrorAnd;
 import services.Path;
+import services.WellKnownPaths;
 import services.program.BlockDefinition;
 import services.program.PathNotInBlockException;
 import services.program.ProgramBlockNotFoundException;
@@ -33,6 +38,7 @@ public class ApplicantServiceImpl implements ApplicantService {
       ImmutableSet.of(
           QuestionDefinition.METADATA_UPDATE_TIME_KEY,
           QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY);
+  private final Logger log = LoggerFactory.getLogger(ApplicantService.class);
 
   @Inject
   public ApplicantServiceImpl(
@@ -137,6 +143,20 @@ public class ApplicantServiceImpl implements ApplicantService {
               return CompletableFuture.completedFuture(ErrorAnd.of(roApplicantProgramService));
             },
             httpExecutionContext.current());
+  }
+
+  @Override
+  public String applicantName(Application application) {
+    try {
+      String firstName =
+          application.getApplicantData().readString(WellKnownPaths.APPLICANT_FIRST_NAME).get();
+      String lastName =
+          application.getApplicantData().readString(WellKnownPaths.APPLICANT_LAST_NAME).get();
+      return String.format("%s, %s", lastName, firstName);
+    } catch (NoSuchElementException e) {
+      log.error("Application {} does not include an applicant name.");
+      return "<Anonymous Applicant>";
+    }
   }
 
   /** In-place update of {@link Applicant}'s data. */

@@ -2,14 +2,14 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'We have a S3 bucket encrypted with "Customer master keys" (CMKs). The bucket is limited access to from within our VPC. This means the console does not have access to it, either.'
 Parameters:
   S3VPCEndpoint:
-    Description: The vpc endpoint from which UAT connects to S3.
+    Description: The vpc endpoint from which CiviForm connects to S3.
     Type: String
 Resources:
   key:
     Type: AWS::KMS::Key
     Properties:
       EnableKeyRotation: true
-      Description: The key used to encrypt/decrypt secure uploads to the UAT.
+      Description: The key used to encrypt/decrypt secure uploads to CiviForm.
       KeySpec: SYMMETRIC_DEFAULT
       KeyPolicy:
         Version: '2012-10-17'
@@ -26,7 +26,7 @@ Resources:
                 - :root
           Action: kms:*
           Resource: '*'
-        - Sid: Enable UAT Server Permissions
+        - Sid: Enable CiviForm Server Permissions
           Effect: Allow
           Principal:
             AWS: arn:aws:iam::405662711265:role/AmazonECSTaskS3BucketRole
@@ -39,9 +39,13 @@ Resources:
             - kms:GenerateDataKeyWithoutPlaintext
             - kms:DescribeKey
           Resource: '*'
+      Tags:
+        - Key: Name
+          Value: prod.civiform-s3.kms-key
   bucket:
     Type: 'AWS::S3::Bucket'
     Properties:
+      BucketName: prod.filestore.s3
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:

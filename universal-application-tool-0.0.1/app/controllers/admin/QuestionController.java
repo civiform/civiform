@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import forms.QuestionForm;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.concurrent.CompletionStage;
@@ -24,6 +25,7 @@ import services.question.QuestionDefinition;
 import services.question.QuestionNotFoundException;
 import services.question.QuestionService;
 import services.question.QuestionServiceError;
+import services.question.QuestionType;
 import services.question.UnsupportedQuestionTypeException;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
@@ -103,8 +105,17 @@ public class QuestionController extends Controller {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public Result newOne(Request request) {
-    return ok(editView.renderNewQuestionForm(request));
+  public Result newOne(Request request, String type) {
+    String upperType = type.toUpperCase();
+    try {
+      QuestionType questionType = QuestionType.valueOf(upperType.toUpperCase());
+      return ok(editView.renderNewQuestionForm(request, questionType));
+    } catch (IllegalArgumentException e) {
+      return badRequest(
+          String.format(
+              "unrecognized question type: '%s', accepted values include: %s",
+              upperType, Arrays.toString(QuestionType.values())));
+    }
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)

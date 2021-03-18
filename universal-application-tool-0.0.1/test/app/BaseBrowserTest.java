@@ -41,7 +41,8 @@ public class BaseBrowserTest extends WithBrowser {
   public void truncateTables() {
     EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
     EbeanServer server = Ebean.getServer(config.defaultServer());
-    server.truncate(Applicant.class, Program.class, Question.class, Account.class);
+    server.truncate(
+        Applicant.class, Program.class, Question.class, Account.class, models.Application.class);
   }
 
   /**
@@ -131,14 +132,16 @@ public class BaseBrowserTest extends WithBrowser {
   protected void addQuestion(String questionName, String path, QuestionType questionType) {
     // Go to admin question index and click "Create a new question".
     goTo(controllers.admin.routes.QuestionController.index());
-    browser.$("a", withId("create-question-button")).first().click();
+    browser.$(By.id("create-question-button")).first().click();
+
+    String questionTypeButton = String.format("create-%s-question", questionType).toLowerCase();
+    browser.$(By.id(questionTypeButton)).first().click();
 
     // Fill out the question form and click submit.
     fillInput("questionName", questionName);
     fillTextArea("questionDescription", "question description");
     fillInput("questionPath", path);
     fillTextArea("questionText", "question text");
-    selectAnOption("questionType", questionType.toString());
 
     browser.$("button", withText("Create")).first().click();
 

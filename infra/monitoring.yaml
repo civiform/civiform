@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Monitoring for the UAT - see comments in monitoring.yaml for description of which alerts we have.'
+Description: 'Monitoring for CiviForm - see comments in monitoring.yaml for description of which alerts we have.'
 Parameters:
   DBName:
     Type: String
@@ -16,15 +16,15 @@ Resources:
   ticketalerts:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: UATTicketAlerts
-      DisplayName: UATTicketAlerts
+      TopicName: CiviFormTicketAlerts
+      DisplayName: CiviFormTicketAlerts
   # Alerts that require immediate action and may indicate that the site is down.
   # We want to get someone out of bed for this.
   pagingalerts:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: UATPagingAlerts
-      DisplayName: UATPagingAlerts
+      TopicName: CiviFormPagingAlerts
+      DisplayName: CiviFormPagingAlerts
 
   # Send a page if more than 5% of requests are 500-range errors.
   # This probably means that the website is seriously broken for a large percentage

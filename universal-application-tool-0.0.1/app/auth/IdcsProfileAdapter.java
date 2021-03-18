@@ -1,6 +1,6 @@
 package auth;
 
-import java.util.List;
+import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Provider;
@@ -31,7 +31,8 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
   @Override
   public UatProfileData mergeUatProfile(UatProfile uatProfile, OidcProfile oidcProfile) {
     String locale = oidcProfile.getAttribute("user_locale", String.class);
-    List<CompletionStage<Void>> dbOperations = List.of();
+    ImmutableList.Builder<CompletionStage<Void>> dbOperations =
+        new ImmutableList.Builder<CompletionStage<Void>>();
     if (locale != null && !locale.isEmpty()) {
       dbOperations.add(
           uatProfile
@@ -55,7 +56,7 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
                     return null;
                   }));
     }
-    for (CompletionStage<Void> dbOp : dbOperations) {
+    for (CompletionStage<Void> dbOp : dbOperations.build()) {
       dbOp.toCompletableFuture().join();
     }
 

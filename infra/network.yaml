@@ -1,13 +1,19 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'The "virtual private cloud" (VPC) for the UAT.  One region, to save costs, but two Availability Zones (AZs) for reliability.  We will go down if the whole region goes down, but not if only one building goes down.  Built with parallel stacks - two public and two private subnets, one per AZ.'
+Description: 'The "virtual private cloud" (VPC) for Civiform.  One region, to save costs, but two Availability Zones (AZs) for reliability.  We will go down if the whole region goes down, but not if only one building goes down.  Built with parallel stacks - two public and two private subnets, one per AZ.'
 Resources:
   vpc:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: 10.192.0.0/16
+      Tags:
+        - Key: Name
+          Value: prod.civiform.vpc
   ig:
     Type: AWS::EC2::InternetGateway
-    Properties: {}
+    Properties:
+      Tags:
+        - Key: Name
+          Value: prod.civiform.internetgateway
   pubsubnet1:
     Type: AWS::EC2::Subnet
     Properties:
@@ -15,6 +21,9 @@ Resources:
       VpcId: !Ref 'vpc'
       AvailabilityZone: !Sub '${AWS::Region}a'
       MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: prod.public-az1.subnet
   pubsubnet2:
     Type: AWS::EC2::Subnet
     Properties:
@@ -22,6 +31,9 @@ Resources:
       VpcId: !Ref 'vpc'
       AvailabilityZone: !Sub '${AWS::Region}b'
       MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: prod.public-az2.subnet
   privsubnet1:
     Type: AWS::EC2::Subnet
     Properties:
@@ -29,6 +41,9 @@ Resources:
       VpcId: !Ref 'vpc'
       AvailabilityZone: !Sub '${AWS::Region}a'
       MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: prod.private-az1.subnet
   privsubnet2:
     Type: AWS::EC2::Subnet
     Properties:
@@ -36,6 +51,9 @@ Resources:
       VpcId: !Ref 'vpc'
       AvailabilityZone: !Sub '${AWS::Region}b'
       MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: prod.private-az2.subnet
   attachgateway:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
@@ -47,26 +65,41 @@ Resources:
       - attachgateway
     Properties:
       Domain: !Ref 'vpc'
+      Tags:
+        - Key: Name
+          Value: prod.public-gateway1.eip
   natgateway2ip:
     Type: AWS::EC2::EIP
     DependsOn:
       - attachgateway
     Properties:
       Domain: !Ref 'vpc'
+      Tags:
+        - Key: Name
+          Value: prod.public-gateway2.eip
   natgateway1:
     Type: AWS::EC2::NatGateway
     Properties:
       AllocationId: !GetAtt 'natgateway1ip.AllocationId'
       SubnetId: !Ref 'pubsubnet1'
+      Tags:
+        - Key: Name
+          Value: prod.public-az1.natgateway
   natgateway2:
     Type: AWS::EC2::NatGateway
     Properties:
       AllocationId: !GetAtt 'natgateway2ip.AllocationId'
       SubnetId: !Ref 'pubsubnet2'
+      Tags:
+        - Key: Name
+          Value: prod.public-az2.natgateway
   routetable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref 'vpc'
+      Tags:
+        - Key: Name
+          Value: prod.public.routetable
   internetroute:
     Type: AWS::EC2::Route
     DependsOn:
@@ -89,10 +122,16 @@ Resources:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref 'vpc'
+      Tags:
+        - Key: Name
+          Value: prod.private-az1.routetable
   privroutetable2:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref 'vpc'
+      Tags:
+        - Key: Name
+          Value: prod.private-az2.routetable
   natroute1:
     Type: AWS::EC2::Route
     DependsOn:
