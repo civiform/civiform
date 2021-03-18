@@ -23,7 +23,7 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
           "description",
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
-          TextValidationPredicates.create(2, 3));
+          TextValidationPredicates.create(1, 3));
 
   private final ApplicantData applicantData = new ApplicantData();
 
@@ -44,12 +44,11 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
 
   @Test
   public void render_withMinLengthError() {
-
-    applicantData.putString(TEXT_QUESTION_DEFINITION.getTextPath(), "a");
+    applicantData.putString(TEXT_QUESTION_DEFINITION.getTextPath(), "");
 
     Tag result = renderer.render();
 
-    assertThat(result.render()).contains("This answer must be at least 2 characters long.");
+    assertThat(result.render()).contains("This answer must be at least 1 characters long.");
   }
 
   @Test

@@ -47,6 +47,14 @@ public class ApplicantData {
     this.preferredLocale = locale;
   }
 
+  /**
+   * Checks whether the given path exists in the JSON data. Returns true if the path is present;
+   * false otherwise. Semantically, this checks whether the applicant has answered this question
+   * before.
+   *
+   * @param path the {@link Path} to check
+   * @return true if path is present for this applicant; false otherwise
+   */
   public boolean hasPath(Path path) {
     try {
       this.jsonData.read(path.path());
@@ -70,6 +78,10 @@ public class ApplicantData {
     }
   }
 
+  /**
+   * Write the given string at the given {@link Path}. If the string is empty, it will write a null
+   * value instead.
+   */
   public void putString(Path path, String value) {
     if (value.isEmpty()) {
       putNull(path);
@@ -82,6 +94,10 @@ public class ApplicantData {
     put(path, value);
   }
 
+  /**
+   * Parses and writes a long value, given as a string. If the string is empty, a null value is
+   * written.
+   */
   public void putLong(Path path, String value) {
     if (value.isEmpty()) {
       putNull(path);
