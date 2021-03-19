@@ -1,10 +1,20 @@
-package views;
+package views.style;
 
 public final class BaseStyles {
 
   public static final String BODY_GRADIENT_STYLE =
       StyleUtils.joinStyles(
           Styles.BG_GRADIENT_TO_R, Styles.FROM_GRAY_100, Styles.VIA_WHITE, Styles.TO_GRAY_100);
+
+  /** Invisible buttons covering an area that are used for form submit. */
+  public static final String CLICK_TARGET_BUTTON =
+      StyleUtils.joinStyles(
+          Styles.ABSOLUTE,
+          Styles.H_FULL,
+          Styles.LEFT_0,
+          Styles.OPACITY_0,
+          Styles.TOP_0,
+          Styles.W_FULL);
 
   public static final String FIELD_BACKGROUND_COLOR = Styles.BG_GRAY_50;
   public static final String FIELD_BORDER_COLOR = Styles.BORDER_GRAY_500;

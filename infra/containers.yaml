@@ -1,6 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'The containers and service configuration for the UAT.'
+Description: 'The containers and service configuration for CiviForm.'
 Parameters:
+  ContainerName:
+    Description: The name of the container.
+    Type: String
+    Default: prod-civiform-container
   DBAddress:
     Description: The address at which the database can be reached.
     Type: String
@@ -43,7 +47,7 @@ Resources:
   ecscluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: UATFargateCluster
+      ClusterName: prod-civiform-fargate-cluster
       CapacityProviders:
         - FARGATE
       DefaultCapacityProviderStrategy:
@@ -56,7 +60,7 @@ Resources:
       DesiredCount: 2
       TaskDefinition: !Ref 'ecstaskdef'
       LoadBalancers:
-        - ContainerName: uat
+        - ContainerName: !Ref 'ContainerName'
           ContainerPort: 9000
           TargetGroupArn: !Ref 'LBTargetName'
       LaunchType: FARGATE
@@ -71,7 +75,7 @@ Resources:
   loggroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: uat
+      LogGroupName: prod.civiform.lg
       RetentionInDays: 90
   ecstaskdef:
     Type: AWS::ECS::TaskDefinition
@@ -84,7 +88,7 @@ Resources:
       Cpu: 1024
       Memory: 8192
       ContainerDefinitions:
-        - Name: uat
+        - Name: !Ref 'ContainerName'
           Image: public.ecr.aws/t1q6b4h2/universal-application-tool:latest
           Environment:
             - Name: DB_JDBC_STRING
@@ -115,7 +119,7 @@ Resources:
             Options:
               awslogs-group: !Ref 'loggroup'
               awslogs-region: !Sub '${AWS::Region}'
-              awslogs-stream-prefix: uatsrv
+              awslogs-stream-prefix: civiformsrv
           Essential: true
   autoscalingtarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
@@ -129,7 +133,7 @@ Resources:
   autoscalingpolicy:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
     Properties:
-      PolicyName: UATAutoScalingPolicy
+      PolicyName: CiviFormAutoScalingPolicy
       PolicyType: TargetTrackingScaling
       ScalingTargetId: !Ref autoscalingtarget
       TargetTrackingScalingPolicyConfiguration:

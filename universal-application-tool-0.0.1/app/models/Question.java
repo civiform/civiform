@@ -39,6 +39,8 @@ public class Question extends BaseModel {
 
   private @Constraints.Required String questionType;
 
+  private @Constraints.Required @DbJsonB String validationPredicates;
+
   public String getPath() {
     return path;
   }
@@ -55,6 +57,7 @@ public class Question extends BaseModel {
     questionText = questionDefinition.getQuestionText();
     questionHelpText = questionDefinition.getQuestionHelpText();
     questionType = questionDefinition.getQuestionType().toString();
+    validationPredicates = questionDefinition.getValidationPredicatesAsString();
   }
 
   /** Populates column values from {@link QuestionDefinition}. */
@@ -71,6 +74,7 @@ public class Question extends BaseModel {
     questionText = questionDefinition.getQuestionText();
     questionHelpText = questionDefinition.getQuestionHelpText();
     questionType = questionDefinition.getQuestionType().toString();
+    validationPredicates = questionDefinition.getValidationPredicatesAsString();
   }
 
   /** Populates {@link QuestionDefinition} from column values. */
@@ -88,6 +92,7 @@ public class Question extends BaseModel {
             .setQuestionText(questionText)
             .setQuestionHelpText(questionHelpText)
             .setQuestionType(QuestionType.valueOf(questionType))
+            .setValidationPredicatesString(validationPredicates)
             .build();
   }
 

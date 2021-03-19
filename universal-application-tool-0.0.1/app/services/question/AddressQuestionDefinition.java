@@ -1,5 +1,7 @@
 package services.question;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.OptionalLong;
@@ -14,8 +16,21 @@ public class AddressQuestionDefinition extends QuestionDefinition {
       Path path,
       String description,
       ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText) {
-    super(id, version, name, path, description, questionText, questionHelpText);
+      ImmutableMap<Locale, String> questionHelpText,
+      AddressValidationPredicates validationPredicates) {
+    super(
+        id, version, name, path, description, questionText, questionHelpText, validationPredicates);
+  }
+
+  public AddressQuestionDefinition(
+      long version,
+      String name,
+      Path path,
+      String description,
+      ImmutableMap<Locale, String> questionText,
+      ImmutableMap<Locale, String> questionHelpText,
+      AddressValidationPredicates validationPredicates) {
+    super(version, name, path, description, questionText, questionHelpText, validationPredicates);
   }
 
   public AddressQuestionDefinition(
@@ -25,7 +40,35 @@ public class AddressQuestionDefinition extends QuestionDefinition {
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
-    super(version, name, path, description, questionText, questionHelpText);
+    super(
+        version,
+        name,
+        path,
+        description,
+        questionText,
+        questionHelpText,
+        AddressValidationPredicates.create());
+  }
+
+  @AutoValue
+  public abstract static class AddressValidationPredicates extends ValidationPredicates {
+
+    public static AddressValidationPredicates parse(String jsonString) {
+      try {
+        return mapper.readValue(
+            jsonString, AutoValue_AddressQuestionDefinition_AddressValidationPredicates.class);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    public static AddressValidationPredicates create() {
+      return new AutoValue_AddressQuestionDefinition_AddressValidationPredicates();
+    }
+  }
+
+  public AddressValidationPredicates getAddressValidationPredicates() {
+    return (AddressValidationPredicates) getValidationPredicates();
   }
 
   @Override
@@ -35,15 +78,14 @@ public class AddressQuestionDefinition extends QuestionDefinition {
 
   @Override
   public ImmutableMap<Path, ScalarType> getScalars() {
-    return ImmutableMap.of(
-        getStreetPath(),
-        getStreetType(),
-        getCityPath(),
-        getCityType(),
-        getStatePath(),
-        getStateType(),
-        getZipPath(),
-        getZipType());
+    return ImmutableMap.<Path, ScalarType>builder()
+        .put(getStreetPath(), getStreetType())
+        .put(getCityPath(), getCityType())
+        .put(getStatePath(), getStateType())
+        .put(getZipPath(), getZipType())
+        .put(getLastUpdatedTimePath(), getLastUpdatedTimeType())
+        .put(getProgramIdPath(), getProgramIdType())
+        .build();
   }
 
   public Path getStreetPath() {

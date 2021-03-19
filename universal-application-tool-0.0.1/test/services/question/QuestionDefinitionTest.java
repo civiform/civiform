@@ -2,15 +2,16 @@ package services.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.assertj.core.api.Assertions.entry;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.OptionalLong;
 import org.junit.Before;
 import org.junit.Test;
+import services.CiviFormError;
 import services.Path;
+import services.question.AddressQuestionDefinition.AddressValidationPredicates;
+import services.question.TextQuestionDefinition.TextValidationPredicates;
 
 public class QuestionDefinitionTest {
   QuestionDefinitionBuilder builder;
@@ -25,7 +26,8 @@ public class QuestionDefinitionTest {
             .setDescription("description")
             .setQuestionType(QuestionType.TEXT)
             .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"));
+            .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
+            .setValidationPredicates(TextValidationPredicates.builder().setMaxLength(128).build());
   }
 
   @Test
@@ -40,6 +42,18 @@ public class QuestionDefinitionTest {
   public void testEquality_nullReturnsFalse() throws UnsupportedQuestionTypeException {
     QuestionDefinition question = builder.setId(123L).build();
     assertThat(question.equals(null)).isFalse();
+  }
+
+  @Test
+  public void testEquality_differentPredicatesReturnsFalse()
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinition question = builder.setId(123L).build();
+
+    QuestionDefinition differentQuestionPredicates =
+        new QuestionDefinitionBuilder(question)
+            .setValidationPredicates(TextValidationPredicates.builder().setMaxLength(1).build())
+            .build();
+    assertThat(question.equals(differentQuestionPredicates)).isFalse();
   }
 
   @Test
@@ -70,7 +84,10 @@ public class QuestionDefinitionTest {
     QuestionDefinition question = builder.setId(123L).build();
 
     QuestionDefinition differentQuestionType =
-        new QuestionDefinitionBuilder(question).setQuestionType(QuestionType.ADDRESS).build();
+        new QuestionDefinitionBuilder(question)
+            .setQuestionType(QuestionType.ADDRESS)
+            .setValidationPredicates(AddressValidationPredicates.create())
+            .build();
     assertThat(question.equals(differentQuestionType)).isFalse();
   }
 
@@ -110,16 +127,19 @@ public class QuestionDefinitionTest {
   }
 
   @Test
-  public void newQuestionHasCorrectFields() throws TranslationNotFoundException {
+  public void newQuestionHasCorrectFields() throws Exception {
     QuestionDefinition question =
-        new TextQuestionDefinition(
-            OptionalLong.of(123L),
-            1L,
-            "my name",
-            Path.create("my.path.name"),
-            "description",
-            ImmutableMap.of(Locale.US, "question?"),
-            ImmutableMap.of(Locale.US, "help text"));
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.TEXT)
+            .setId(123L)
+            .setVersion(1L)
+            .setName("my name")
+            .setPath(Path.create("my.path.name"))
+            .setDescription("description")
+            .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
+            .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
+            .setValidationPredicates(TextValidationPredicates.builder().setMinLength(0).build())
+            .build();
 
     assertThat(question.getId()).isEqualTo(123L);
     assertThat(question.getVersion()).isEqualTo(1L);
@@ -128,6 +148,8 @@ public class QuestionDefinitionTest {
     assertThat(question.getDescription()).isEqualTo("description");
     assertThat(question.getQuestionText(Locale.US)).isEqualTo("question?");
     assertThat(question.getQuestionHelpText(Locale.US)).isEqualTo("help text");
+    assertThat(question.getValidationPredicates())
+        .isEqualTo(TextValidationPredicates.builder().setMinLength(0).build());
   }
 
   @Test
@@ -190,11 +212,19 @@ public class QuestionDefinitionTest {
             "description",
             ImmutableMap.of(),
             ImmutableMap.of());
-    assertThat(question.getScalars())
-        .containsOnly(entry(Path.create("path.to.question"), ScalarType.STRING));
-    assertThat(question.getScalarType(Path.create("path.to.question")).get())
+    ImmutableMap<Path, ScalarType> expectedScalars =
+        ImmutableMap.of(
+            Path.create("path.to.question.text"),
+            ScalarType.STRING,
+            Path.create("path.to.question.updated_at"),
+            ScalarType.LONG,
+            Path.create("path.to.question.updated_in_program"),
+            ScalarType.LONG);
+    assertThat(question.getScalars()).containsAllEntriesOf(expectedScalars);
+    assertThat(question.getScalarType(Path.create("path.to.question.text")).get())
         .isEqualTo(ScalarType.STRING);
-    assertThat(question.getScalarType(Path.create("path.to.question")).get().getClassFor().get())
+    assertThat(
+            question.getScalarType(Path.create("path.to.question.text")).get().getClassFor().get())
         .isEqualTo(String.class);
   }
 
@@ -224,10 +254,10 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(-1L, "", Path.empty(), "", ImmutableMap.of(), ImmutableMap.of());
     assertThat(question.validate())
         .containsOnly(
-            QuestionServiceError.of("invalid version: -1"),
-            QuestionServiceError.of("blank name"),
-            QuestionServiceError.of("invalid path pattern: ''"),
-            QuestionServiceError.of("blank description"),
-            QuestionServiceError.of("no question text"));
+            CiviFormError.of("invalid version: -1"),
+            CiviFormError.of("blank name"),
+            CiviFormError.of("invalid path pattern: ''"),
+            CiviFormError.of("blank description"),
+            CiviFormError.of("no question text"));
   }
 }

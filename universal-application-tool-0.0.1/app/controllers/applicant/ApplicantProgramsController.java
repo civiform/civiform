@@ -1,6 +1,7 @@
 package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
@@ -8,6 +9,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
+import play.mvc.Call;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
@@ -41,12 +43,14 @@ public class ApplicantProgramsController extends Controller {
   }
 
   public CompletionStage<Result> index(Request request, long applicantId) {
+    Optional<String> banner = request.flash().get("banner");
     return programService
         .listProgramDefinitionsAsync()
         .thenApplyAsync(
             programs -> {
               return ok(
-                  programIndexView.render(messagesApi.preferred(request), applicantId, programs));
+                  programIndexView.render(
+                      messagesApi.preferred(request), applicantId, programs, banner));
             },
             httpContext.current());
   }
@@ -57,16 +61,21 @@ public class ApplicantProgramsController extends Controller {
         .getReadOnlyApplicantProgramService(applicantId, programId)
         .thenApplyAsync(
             roApplicantService -> {
-              Optional<Block> block = roApplicantService.getFirstIncompleteBlock();
-              if (block.isPresent()) {
-                return found(
-                    routes.ApplicantProgramBlocksController.edit(
-                        applicantId, programId, block.get().getId()));
-              } else {
-                // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): All
-                // blocks are filled in, so redirect to end of program submission.
-                return found(routes.ApplicantProgramsController.index(applicantId));
+              Optional<Block> blockMaybe = roApplicantService.getFirstIncompleteBlock();
+              return blockMaybe.flatMap(
+                  block ->
+                      Optional.of(
+                          found(
+                              routes.ApplicantProgramBlocksController.edit(
+                                  applicantId, programId, block.getId()))));
+            },
+            httpContext.current())
+        .thenComposeAsync(
+            resultMaybe -> {
+              if (resultMaybe.isEmpty()) {
+                return previewPageRedirect(applicantId);
               }
+              return supplyAsync(resultMaybe::get);
             },
             httpContext.current())
         .exceptionally(
@@ -80,5 +89,16 @@ public class ApplicantProgramsController extends Controller {
               }
               throw new RuntimeException(ex);
             });
+  }
+
+  private CompletionStage<Result> previewPageRedirect(long applicantId) {
+    // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Replace
+    // with a redirect to the review page.
+    // For now, this just redirects to program index page.
+    Call endOfProgramSubmission = routes.ApplicantProgramsController.index(applicantId);
+    return supplyAsync(
+        () ->
+            found(endOfProgramSubmission)
+                .flashing("banner", String.format("Application was already completed.")));
   }
 }

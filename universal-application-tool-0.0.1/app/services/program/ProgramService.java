@@ -3,6 +3,9 @@ package services.program;
 import com.google.common.collect.ImmutableList;
 import forms.BlockForm;
 import java.util.concurrent.CompletionStage;
+import models.Application;
+import services.CiviFormError;
+import services.ErrorAnd;
 import services.question.QuestionNotFoundException;
 
 /**
@@ -52,9 +55,11 @@ public interface ProgramService {
    *
    * @param name a name for this program
    * @param description the description of what the program provides
-   * @return the {@link ProgramDefinition} that was created
+   * @return the {@link ProgramDefinition} that was created if succeeded, or a set of errors if
+   *     failed
    */
-  ProgramDefinition createProgramDefinition(String name, String description);
+  ErrorAnd<ProgramDefinition, CiviFormError> createProgramDefinition(
+      String name, String description);
 
   /**
    * Update a program's name and description.
@@ -62,10 +67,12 @@ public interface ProgramService {
    * @param programId the ID of the program to update
    * @param name a name for this program
    * @param description the description of what the program provides
-   * @return the {@link ProgramDefinition} that was updated
+   * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
+   *     failed
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
-  ProgramDefinition updateProgramDefinition(long programId, String name, String description)
-      throws ProgramNotFoundException;
+  ErrorAnd<ProgramDefinition, CiviFormError> updateProgramDefinition(
+      long programId, String name, String description) throws ProgramNotFoundException;
 
   /**
    * Adds a {@link BlockDefinition} to the given program.
@@ -197,4 +204,13 @@ public interface ProgramService {
    */
   ProgramDefinition deleteBlock(long programId, long blockDefinitionId)
       throws ProgramNotFoundException, ProgramNeedsABlockException;
+
+  /**
+   * Get all the program's applications.
+   *
+   * @param programId the program id.
+   * @return A list of Application objects for the specified program.
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   */
+  ImmutableList<Application> getProgramApplications(long programId) throws ProgramNotFoundException;
 }

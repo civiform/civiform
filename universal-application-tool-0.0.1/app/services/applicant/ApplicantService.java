@@ -1,9 +1,9 @@
 package services.applicant;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import java.util.concurrent.CompletionStage;
 import models.Applicant;
+import models.Application;
 import services.ErrorAnd;
 
 /**
@@ -28,13 +28,6 @@ public interface ApplicantService {
    *     not correspond to a real Program.
    */
   CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>> stageAndUpdateIfValid(
-      long applicantId, long programId, long blockId, ImmutableSet<Update> updates);
-
-  /**
-   * Equivalent to the other {@link ApplicantService#stageAndUpdateIfValid(long, long, long,
-   * ImmutableSet<Update>)}, but takes a map representing the {@link Update}s.
-   */
-  CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>> stageAndUpdateIfValid(
       long applicantId, long programId, long blockId, ImmutableMap<String, String> updateMap);
 
   /** Creates a new {@link models.Applicant} at for latest application version for a given user. */
@@ -49,4 +42,6 @@ public interface ApplicantService {
    */
   CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
       long applicantId, long programId);
+
+  String applicantName(Application application);
 }

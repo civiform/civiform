@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import java.util.OptionalLong;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ProgramRepository;
@@ -17,7 +16,9 @@ import services.program.ProgramQuestionDefinition;
 import services.question.AddressQuestionDefinition;
 import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
-import services.question.TextQuestionDefinition;
+import services.question.QuestionDefinitionBuilder;
+import services.question.QuestionType;
+import services.question.UnsupportedQuestionTypeException;
 
 public class ProgramTest extends WithPostgresContainer {
 
@@ -29,16 +30,17 @@ public class ProgramTest extends WithPostgresContainer {
   }
 
   @Test
-  public void canSaveProgram() {
+  public void canSaveProgram() throws UnsupportedQuestionTypeException {
     QuestionDefinition questionDefinition =
-        new TextQuestionDefinition(
-            OptionalLong.of(123L),
-            2L,
-            "question",
-            Path.create("applicant.name"),
-            "applicant's name",
-            ImmutableMap.of(Locale.US, "What is your name?"),
-            ImmutableMap.of());
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.TEXT)
+            .setId(123L)
+            .setVersion(2L)
+            .setName("question")
+            .setPath(Path.create("applicant.name"))
+            .setDescription("applicant's name")
+            .setQuestionText(ImmutableMap.of(Locale.US, "What is your name?"))
+            .build();
 
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
@@ -78,25 +80,29 @@ public class ProgramTest extends WithPostgresContainer {
   }
 
   @Test
-  public void correctlySerializesDifferentQuestionTypes() {
+  public void correctlySerializesDifferentQuestionTypes() throws UnsupportedQuestionTypeException {
     AddressQuestionDefinition addressQuestionDefinition =
-        new AddressQuestionDefinition(
-            OptionalLong.of(456L),
-            2L,
-            "address question",
-            Path.create("applicant.address"),
-            "applicant's address",
-            ImmutableMap.of(Locale.US, "What is your address?"),
-            ImmutableMap.of());
+        (AddressQuestionDefinition)
+            new QuestionDefinitionBuilder()
+                .setQuestionType(QuestionType.ADDRESS)
+                .setId(456L)
+                .setVersion(2L)
+                .setName("address question")
+                .setPath(Path.create("applicant.address"))
+                .setDescription("applicant's address")
+                .setQuestionText(ImmutableMap.of(Locale.US, "What is your address?"))
+                .build();
     NameQuestionDefinition nameQuestionDefinition =
-        new NameQuestionDefinition(
-            OptionalLong.of(789L),
-            2L,
-            "name question",
-            Path.create("applicant.name"),
-            "applicant's name",
-            ImmutableMap.of(Locale.US, "What is your name?"),
-            ImmutableMap.of());
+        (NameQuestionDefinition)
+            new QuestionDefinitionBuilder()
+                .setQuestionType(QuestionType.NAME)
+                .setId(789L)
+                .setVersion(2L)
+                .setName("name question")
+                .setPath(Path.create("applicant.name"))
+                .setDescription("applicant's name")
+                .setQuestionText(ImmutableMap.of(Locale.US, "What is your name?"))
+                .build();
 
     BlockDefinition blockDefinition =
         BlockDefinition.builder()

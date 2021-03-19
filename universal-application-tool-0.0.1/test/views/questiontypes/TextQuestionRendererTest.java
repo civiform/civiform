@@ -12,6 +12,7 @@ import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantQuestion;
 import services.question.TextQuestionDefinition;
+import services.question.TextQuestionDefinition.TextValidationPredicates;
 
 public class TextQuestionRendererTest extends WithPostgresContainer {
   private static final TextQuestionDefinition TEXT_QUESTION_DEFINITION =
@@ -21,7 +22,8 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
           Path.create("applicant.my.path"),
           "description",
           ImmutableMap.of(Locale.US, "question?"),
-          ImmutableMap.of(Locale.US, "help text"));
+          ImmutableMap.of(Locale.US, "help text"),
+          TextValidationPredicates.create(2, 3));
 
   private final ApplicantData applicantData = new ApplicantData();
 
@@ -42,17 +44,15 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
 
   @Test
   public void render_withMinLengthError() {
-    TEXT_QUESTION_DEFINITION.setMinLength(1);
-    applicantData.putString(TEXT_QUESTION_DEFINITION.getTextPath(), "");
+    applicantData.putString(TEXT_QUESTION_DEFINITION.getTextPath(), "a");
 
     Tag result = renderer.render();
 
-    assertThat(result.render()).contains("This answer must be at least 1 characters long.");
+    assertThat(result.render()).contains("This answer must be at least 2 characters long.");
   }
 
   @Test
   public void render_withMaxLengthError() {
-    TEXT_QUESTION_DEFINITION.setMaxLength(3);
     applicantData.putString(TEXT_QUESTION_DEFINITION.getTextPath(), "abcd");
 
     Tag result = renderer.render();

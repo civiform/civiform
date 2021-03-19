@@ -9,7 +9,7 @@ import java.util.Optional;
  * models.Applicant} JSON column and serialized using {@link services.applicant.ApplicantData}.
  */
 public enum ScalarType {
-  INT(int.class),
+  LONG(long.class),
   STRING(String.class);
 
   private final Class classOf;

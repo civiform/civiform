@@ -5,6 +5,8 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 
 import com.google.inject.Inject;
+import forms.ProgramForm;
+import j2html.tags.ContainerTag;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
@@ -24,22 +26,40 @@ public final class ProgramNewOneView extends BaseHtmlView {
         body(
             renderHeader("New program"),
             div(
-                form(
-                        makeCsrfTokenInputTag(request),
-                        FieldWithLabel.input()
-                            .setId("program-name-input")
-                            .setFieldName("name")
-                            .setLabelText("Program name")
-                            .setPlaceholderText("The name of the program")
-                            .getContainer(),
-                        FieldWithLabel.textArea()
-                            .setId("program-description-textarea")
-                            .setFieldName("description")
-                            .setLabelText("Program description")
-                            .setPlaceholderText("The description of the program")
-                            .getContainer(),
-                        submitButton("Create").withId("program-create-button"))
-                    .withMethod("post")
-                    .withAction(controllers.admin.routes.AdminProgramController.index().url()))));
+                buildProgramForm(new ProgramForm())
+                    .with(makeCsrfTokenInputTag(request))
+                    .withAction(controllers.admin.routes.AdminProgramController.create().url()))));
+  }
+
+  public Content render(Request request, ProgramForm programForm, String message) {
+    return layout.render(
+        body(
+            div(message),
+            renderHeader("New program"),
+            div(
+                buildProgramForm(programForm)
+                    .with(makeCsrfTokenInputTag(request))
+                    .withAction(controllers.admin.routes.AdminProgramController.create().url()))));
+  }
+
+  private ContainerTag buildProgramForm(ProgramForm programForm) {
+    ContainerTag formTag = form().withMethod("POST");
+    formTag.with(
+        FieldWithLabel.input()
+            .setId("program-name-input")
+            .setFieldName("name")
+            .setLabelText("Program name")
+            .setPlaceholderText("The name of the program")
+            .setValue(programForm.getName())
+            .getContainer(),
+        FieldWithLabel.textArea()
+            .setId("program-description-textarea")
+            .setFieldName("description")
+            .setLabelText("Program description")
+            .setPlaceholderText("The description of the program")
+            .setValue(programForm.getDescription())
+            .getContainer(),
+        submitButton("Create").withId("program-create-button"));
+    return formTag;
   }
 }

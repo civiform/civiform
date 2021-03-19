@@ -6,10 +6,13 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.p;
 import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
+import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.twirl.api.Content;
@@ -37,11 +40,18 @@ public class ProgramIndexView extends BaseHtmlView {
    * @return HTML content for rendering the list of available programs
    */
   public Content render(
-      Messages messages, long applicantId, ImmutableList<ProgramDefinition> programs) {
+      Messages messages,
+      long applicantId,
+      ImmutableList<ProgramDefinition> programs,
+      Optional<String> banner) {
     String applyMessage = messages.at("button.apply");
+    ContainerTag body = body();
+    if (banner.isPresent()) {
+      // TODO: make this a styled toast.
+      body.with(p(banner.get()));
+    }
     return layout.render(
-        body()
-            .with(h1(messages.at("title.programs")))
+        body.with(h1(messages.at("title.programs")))
             .with(each(programs, program -> shortProgram(applicantId, applyMessage, program))));
   }
 

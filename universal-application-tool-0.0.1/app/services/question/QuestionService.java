@@ -3,6 +3,7 @@ package services.question;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import services.CiviFormError;
 import services.ErrorAnd;
 import services.Path;
 
@@ -29,7 +30,7 @@ public interface QuestionService {
    *
    * <p>NOTE: This does not update the version.
    */
-  ErrorAnd<QuestionDefinition, QuestionServiceError> create(QuestionDefinition definition);
+  ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition definition);
 
   /**
    * Adds a new translation to an existing question definition. Returns true if the write is
@@ -58,6 +59,6 @@ public interface QuestionService {
    *
    * <p>NOTE: This does not update the version.
    */
-  ErrorAnd<QuestionDefinition, QuestionServiceError> update(QuestionDefinition definition)
+  ErrorAnd<QuestionDefinition, CiviFormError> update(QuestionDefinition definition)
       throws InvalidUpdateException;
 }

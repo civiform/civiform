@@ -9,8 +9,8 @@ import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import views.BaseStyles;
-import views.Styles;
+import views.style.BaseStyles;
+import views.style.Styles;
 
 public class FieldWithLabel {
   private static final String[] CORE_FIELD_CLASSES = {
@@ -102,7 +102,7 @@ public class FieldWithLabel {
         .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
         .withName(this.fieldName)
         .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
-        .condAttr(!Strings.isNullOrEmpty(this.placeholderText), "form", formId);
+        .condAttr(!Strings.isNullOrEmpty(this.formId), "form", formId);
 
     ContainerTag labelTag =
         label()

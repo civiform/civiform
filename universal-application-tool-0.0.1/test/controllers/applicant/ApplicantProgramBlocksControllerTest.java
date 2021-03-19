@@ -3,6 +3,7 @@ package controllers.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
+import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
@@ -19,6 +20,7 @@ import org.junit.Test;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.WithPostgresContainer;
+import services.question.QuestionDefinition;
 import support.ProgramBuilder;
 import support.TestQuestionBank;
 
@@ -130,6 +132,20 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
   }
 
   @Test
+  public void update_reservedPathsInRequest_returnsBadRequest() {
+    String reservedPath = "metadata." + QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY;
+    Request request =
+        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, 1L))
+            .bodyForm(ImmutableMap.of(reservedPath, "value"))
+            .build();
+
+    Result result =
+        subject.update(request, applicant.id, program.id, 1L).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
   public void update_withValidationErrors_isOK() {
     Request request =
         addCSRFToken(
@@ -192,7 +208,7 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
     Result result =
         subject.update(request, applicant.id, program.id, 1L).toCompletableFuture().join();
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.status()).isEqualTo(FOUND);
 
     // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Change
     //  reviewRoute when review page is available.

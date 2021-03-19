@@ -15,6 +15,7 @@ import models.Account;
 import models.Applicant;
 import models.Program;
 import models.Question;
+import org.fluentlenium.core.domain.FluentList;
 import org.fluentlenium.core.domain.FluentWebElement;
 import org.junit.Before;
 import org.openqa.selenium.By;
@@ -24,6 +25,7 @@ import play.db.ebean.EbeanConfig;
 import play.test.WithBrowser;
 import services.question.QuestionType;
 import support.TestConstants;
+import views.style.ReferenceClasses;
 
 public class BaseBrowserTest extends WithBrowser {
 
@@ -39,7 +41,8 @@ public class BaseBrowserTest extends WithBrowser {
   public void truncateTables() {
     EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
     EbeanServer server = Ebean.getServer(config.defaultServer());
-    server.truncate(Applicant.class, Program.class, Question.class, Account.class);
+    server.truncate(
+        Applicant.class, Program.class, Question.class, Account.class, models.Application.class);
   }
 
   /**
@@ -129,14 +132,16 @@ public class BaseBrowserTest extends WithBrowser {
   protected void addQuestion(String questionName, String path, QuestionType questionType) {
     // Go to admin question index and click "Create a new question".
     goTo(controllers.admin.routes.QuestionController.index());
-    browser.$("a", withId("create-question-button")).first().click();
+    browser.$(By.id("create-question-button")).first().click();
+
+    String questionTypeButton = String.format("create-%s-question", questionType).toLowerCase();
+    browser.$(By.id(questionTypeButton)).first().click();
 
     // Fill out the question form and click submit.
     fillInput("questionName", questionName);
     fillTextArea("questionDescription", "question description");
     fillInput("questionPath", path);
     fillTextArea("questionText", "question text");
-    selectAnOption("questionType", questionType.toString());
 
     browser.$("button", withText("Create")).first().click();
 
@@ -176,25 +181,55 @@ public class BaseBrowserTest extends WithBrowser {
    */
   protected void addQuestionsToBlock(String... questionNames) {
     for (String questionName : questionNames) {
-      // Add question to the block.
-      browser.$("#question-bank-questions button", withText(questionName)).first().click();
+      // Verify initial state
+      FluentList<FluentWebElement> questionBank =
+          browser.$(By.className(ReferenceClasses.ADD_QUESTION_BUTTON));
+      FluentList<FluentWebElement> blockQuestions =
+          browser.$(By.className(ReferenceClasses.REMOVE_QUESTION_BUTTON));
 
-      // Check that question is added.
-      assertThat(browser.$("#question-bank-questions button").textContents())
-          .doesNotContain(questionName);
-      assertThat(browser.$("#block-questions-form button").textContents()).contains(questionName);
+      assertThat(questionBank.texts()).contains(questionName);
+      assertThat(blockQuestions.texts()).doesNotContain(questionName);
+
+      // Add question.
+      browser
+          .$(By.className(ReferenceClasses.ADD_QUESTION_BUTTON), withText(questionName))
+          .first()
+          .click();
+
+      // Verify end state.
+      questionBank = browser.$(By.className(ReferenceClasses.ADD_QUESTION_BUTTON));
+      blockQuestions = browser.$(By.className(ReferenceClasses.REMOVE_QUESTION_BUTTON));
+      assertThat(questionBank.texts()).doesNotContain(questionName);
+      assertThat(blockQuestions.texts()).contains(questionName);
     }
   }
 
   protected void removeQuestionsFromProgram(String programName, String... questions) {
     manageExistingProgramQuestions(programName);
+    removeQuesitonsFromBlock(questions);
+  }
 
-    for (String question : questions) {
-      // Remove question from the block.
-      browser.$("#block-questions-form button", withText(question)).click();
-      // Check that question is removed.
-      assertThat(browser.$("#block-questions-form button").textContents()).doesNotContain(question);
-      assertThat(browser.$("#question-bank-questions button").textContents()).contains(question);
+  protected void removeQuesitonsFromBlock(String... questionNames) {
+    for (String questionName : questionNames) {
+      // Verify initial state
+      FluentList<FluentWebElement> questionBank =
+          browser.$(By.className(ReferenceClasses.ADD_QUESTION_BUTTON));
+      FluentList<FluentWebElement> blockQuestions =
+          browser.$(By.className(ReferenceClasses.REMOVE_QUESTION_BUTTON));
+      assertThat(questionBank.textContents()).doesNotContain(questionName);
+      assertThat(blockQuestions.textContents()).contains(questionName);
+
+      // Remove question.
+      browser
+          .$(By.className(ReferenceClasses.REMOVE_QUESTION_BUTTON), withText(questionName))
+          .first()
+          .click();
+
+      // Verify end state.
+      questionBank = browser.$(By.className(ReferenceClasses.ADD_QUESTION_BUTTON));
+      blockQuestions = browser.$(By.className(ReferenceClasses.REMOVE_QUESTION_BUTTON));
+      assertThat(questionBank.textContents()).contains(questionName);
+      assertThat(blockQuestions.textContents()).doesNotContain(questionName);
     }
   }
 

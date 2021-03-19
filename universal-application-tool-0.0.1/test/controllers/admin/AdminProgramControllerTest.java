@@ -61,6 +61,20 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
   }
 
   @Test
+  public void create_returnsFormWithErrorMessage() {
+    RequestBuilder requestBuilder =
+        Helpers.fakeRequest().bodyForm(ImmutableMap.of("name", "", "description", ""));
+    Request request = addCSRFToken(requestBuilder).build();
+
+    Result result = controller.create(request);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("program name cannot be blank");
+    assertThat(contentAsString(result)).contains("New program");
+    assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
+  }
+
+  @Test
   public void create_returnsNewProgramInList() {
     RequestBuilder requestBuilder =
         Helpers.fakeRequest()
@@ -128,6 +142,22 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
     Result result = controller.update(request, 1L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void update_invalidInput_returnsFormWithErrors() {
+    Program program = ProgramBuilder.newProgram("Existing One").build();
+    Request request =
+        addCSRFToken(Helpers.fakeRequest())
+            .bodyForm(ImmutableMap.of("name", "", "description", ""))
+            .build();
+
+    Result result = controller.update(request, program.id);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Edit program");
+    assertThat(contentAsString(result)).contains("program name cannot be blank");
+    assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }
 
   @Test
