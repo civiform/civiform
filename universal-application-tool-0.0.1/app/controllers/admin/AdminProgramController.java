@@ -3,6 +3,7 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
+import com.google.common.collect.ImmutableSet;
 import forms.ProgramForm;
 import java.util.StringJoiner;
 import javax.inject.Inject;
@@ -61,11 +62,7 @@ public class AdminProgramController extends Controller {
     ErrorAnd<ProgramDefinition, ProgramServiceError> result =
         service.createProgramDefinition(program.getName(), program.getDescription());
     if (result.isError()) {
-      StringJoiner messageJoiner = new StringJoiner(". ", "", ".");
-      for (ProgramServiceError e : result.getErrors()) {
-        messageJoiner.add(e.message());
-      }
-      String errorMessage = messageJoiner.toString();
+      String errorMessage = joinErrors(result.getErrors());
       return ok(newOneView.render(request, program, errorMessage));
     }
     return redirect(routes.AdminProgramController.index().url());
@@ -89,16 +86,20 @@ public class AdminProgramController extends Controller {
       ErrorAnd<ProgramDefinition, ProgramServiceError> result =
           service.updateProgramDefinition(id, program.getName(), program.getDescription());
       if (result.isError()) {
-        StringJoiner messageJoiner = new StringJoiner(". ", "", ".");
-        for (ProgramServiceError e : result.getErrors()) {
-          messageJoiner.add(e.message());
-        }
-        String errorMessage = messageJoiner.toString();
+        String errorMessage = joinErrors(result.getErrors());
         return ok(editView.render(request, id, program, errorMessage));
       }
       return redirect(routes.AdminProgramController.index().url());
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", id));
     }
+  }
+
+  private String joinErrors(ImmutableSet<ProgramServiceError> errors) {
+    StringJoiner messageJoiner = new StringJoiner(". ", "", ".");
+    for (ProgramServiceError e : errors) {
+      messageJoiner.add(e.message());
+    }
+    return messageJoiner.toString();
   }
 }
