@@ -78,15 +78,14 @@ public class AddressQuestionDefinition extends QuestionDefinition {
 
   @Override
   public ImmutableMap<Path, ScalarType> getScalars() {
-    return ImmutableMap.of(
-        getStreetPath(),
-        getStreetType(),
-        getCityPath(),
-        getCityType(),
-        getStatePath(),
-        getStateType(),
-        getZipPath(),
-        getZipType());
+    return ImmutableMap.<Path, ScalarType>builder()
+        .put(getStreetPath(), getStreetType())
+        .put(getCityPath(), getCityType())
+        .put(getStatePath(), getStateType())
+        .put(getZipPath(), getZipType())
+        .put(getLastUpdatedTimePath(), getLastUpdatedTimeType())
+        .put(getProgramIdPath(), getProgramIdType())
+        .build();
   }
 
   public Path getStreetPath() {

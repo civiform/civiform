@@ -84,7 +84,11 @@ public class NameQuestionDefinition extends QuestionDefinition {
         getMiddleNamePath(),
         getMiddleNameType(),
         getLastNamePath(),
-        getLastNameType());
+        getLastNameType(),
+        getLastUpdatedTimePath(),
+        getLastUpdatedTimeType(),
+        getProgramIdPath(),
+        getProgramIdType());
   }
 
   public Path getFirstNamePath() {
