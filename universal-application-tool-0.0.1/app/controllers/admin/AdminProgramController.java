@@ -3,14 +3,12 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
-import com.google.common.collect.ImmutableSet;
+import controllers.CiviFormController;
 import forms.ProgramForm;
-import java.util.StringJoiner;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
-import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.CiviFormError;
@@ -23,7 +21,7 @@ import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramNewOneView;
 
 /** Controller for handling methods for admins managing program definitions. */
-public class AdminProgramController extends Controller {
+public class AdminProgramController extends CiviFormController {
 
   private final ProgramService service;
   private final ProgramIndexView listView;
@@ -93,13 +91,5 @@ public class AdminProgramController extends Controller {
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", id));
     }
-  }
-
-  private String joinErrors(ImmutableSet<CiviFormError> errors) {
-    StringJoiner messageJoiner = new StringJoiner(". ", "", ".");
-    for (CiviFormError e : errors) {
-      messageJoiner.add(e.message());
-    }
-    return messageJoiner.toString();
   }
 }
