@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Question;
 import repository.QuestionRepository;
+import services.CiviFormError;
 import services.ErrorAnd;
 import services.Path;
 
@@ -30,8 +31,8 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   @Override
-  public ErrorAnd<QuestionDefinition, QuestionServiceError> create(QuestionDefinition definition) {
-    ImmutableSet<QuestionServiceError> errors = validate(definition);
+  public ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition definition) {
+    ImmutableSet<CiviFormError> errors = validate(definition);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -46,7 +47,7 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   @Override
-  public ErrorAnd<QuestionDefinition, QuestionServiceError> update(QuestionDefinition definition)
+  public ErrorAnd<QuestionDefinition, CiviFormError> update(QuestionDefinition definition)
       throws InvalidUpdateException {
     if (!definition.isPersisted()) {
       throw new InvalidUpdateException("question definition is not persisted");
@@ -58,7 +59,7 @@ public final class QuestionServiceImpl implements QuestionService {
           String.format("question with id %d does not exist", definition.getId()));
     }
     Question question = maybeQuestion.get();
-    ImmutableSet<QuestionServiceError> errors =
+    ImmutableSet<CiviFormError> errors =
         validateQuestionInvariants(question.getQuestionDefinition(), definition);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
@@ -77,8 +78,8 @@ public final class QuestionServiceImpl implements QuestionService {
                     .collect(ImmutableList.toImmutableList()));
   }
 
-  private ImmutableSet<QuestionServiceError> validate(QuestionDefinition newDefinition) {
-    ImmutableSet<QuestionServiceError> errors = newDefinition.validate();
+  private ImmutableSet<CiviFormError> validate(QuestionDefinition newDefinition) {
+    ImmutableSet<CiviFormError> errors = newDefinition.validate();
     if (!errors.isEmpty()) {
       return errors;
     }
@@ -88,27 +89,26 @@ public final class QuestionServiceImpl implements QuestionService {
     if (maybeConflict.isPresent()) {
       Question question = maybeConflict.get();
       return ImmutableSet.of(
-          QuestionServiceError.of(
+          CiviFormError.of(
               String.format(
                   "path '%s' conflicts with question: %s", newPath.path(), question.getPath())));
     }
     return ImmutableSet.of();
   }
 
-  private ImmutableSet<QuestionServiceError> validateQuestionInvariants(
+  private ImmutableSet<CiviFormError> validateQuestionInvariants(
       QuestionDefinition definition, QuestionDefinition toUpdate) {
-    ImmutableSet.Builder<QuestionServiceError> errors =
-        new ImmutableSet.Builder<QuestionServiceError>();
+    ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<CiviFormError>();
     if (!definition.getPath().equals(toUpdate.getPath())) {
       errors.add(
-          QuestionServiceError.of(
+          CiviFormError.of(
               String.format(
                   "question paths mismatch: %s does not match %s",
                   definition.getPath().path(), toUpdate.getPath().path())));
     }
     if (!definition.getQuestionType().equals(toUpdate.getQuestionType())) {
       errors.add(
-          QuestionServiceError.of(
+          CiviFormError.of(
               String.format(
                   "question types mismatch: %s does not match %s",
                   definition.getQuestionType().toString(), toUpdate.getQuestionType().toString())));

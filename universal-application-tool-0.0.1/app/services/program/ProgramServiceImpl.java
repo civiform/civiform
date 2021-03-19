@@ -3,6 +3,7 @@ package services.program;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import forms.BlockForm;
 import java.util.ArrayList;
@@ -16,6 +17,8 @@ import models.Program;
 import play.db.ebean.Transactional;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ProgramRepository;
+import services.CiviFormError;
+import services.ErrorAnd;
 import services.question.QuestionDefinition;
 import services.question.QuestionNotFoundException;
 import services.question.QuestionService;
@@ -93,21 +96,42 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  public ProgramDefinition createProgramDefinition(String name, String description) {
+  public ErrorAnd<ProgramDefinition, CiviFormError> createProgramDefinition(
+      String name, String description) {
+    ImmutableSet<CiviFormError> errors = validateProgramDefinition(name, description);
+    if (!errors.isEmpty()) {
+      return ErrorAnd.error(errors);
+    }
     Program program = new Program(name, description);
-    return programRepository.insertProgramSync(program).getProgramDefinition();
+    return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
 
   @Override
-  public ProgramDefinition updateProgramDefinition(long programId, String name, String description)
-      throws ProgramNotFoundException {
+  public ErrorAnd<ProgramDefinition, CiviFormError> updateProgramDefinition(
+      long programId, String name, String description) throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ImmutableSet<CiviFormError> errors = validateProgramDefinition(name, description);
+    if (!errors.isEmpty()) {
+      return ErrorAnd.error(errors);
+    }
     Program program =
         programDefinition.toBuilder().setName(name).setDescription(description).build().toProgram();
-    return syncProgramDefinitionQuestions(
-            programRepository.updateProgramSync(program).getProgramDefinition())
-        .toCompletableFuture()
-        .join();
+    return ErrorAnd.of(
+        syncProgramDefinitionQuestions(
+                programRepository.updateProgramSync(program).getProgramDefinition())
+            .toCompletableFuture()
+            .join());
+  }
+
+  private ImmutableSet<CiviFormError> validateProgramDefinition(String name, String description) {
+    ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.<CiviFormError>builder();
+    if (name.isBlank()) {
+      errors.add(CiviFormError.of("program name cannot be blank"));
+    }
+    if (description.isBlank()) {
+      errors.add(CiviFormError.of("program description cannot be blank"));
+    }
+    return errors.build();
   }
 
   @Override

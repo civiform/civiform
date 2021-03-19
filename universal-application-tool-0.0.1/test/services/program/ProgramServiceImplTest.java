@@ -13,6 +13,8 @@ import models.Program;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
+import services.CiviFormError;
+import services.ErrorAnd;
 import services.Path;
 import services.question.AddressQuestionDefinition;
 import services.question.NameQuestionDefinition;
@@ -172,20 +174,34 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   public void createProgram_setsId() {
     assertThat(ps.listProgramDefinitions()).isEmpty();
 
-    ProgramDefinition programDefinition =
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition("ProgramService", "description");
 
-    assertThat(programDefinition.id()).isNotNull();
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.getResult().id()).isNotNull();
   }
 
   @Test
   public void createProgram_hasEmptyBlock() {
-    ProgramDefinition programDefinition =
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition("ProgramService", "description");
 
-    assertThat(programDefinition.blockDefinitions()).hasSize(1);
-    assertThat(programDefinition.getBlockDefinition(0).get().id()).isEqualTo(1L);
-    assertThat(programDefinition.getBlockDefinition(0).get().name()).isEqualTo("Block 1");
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.getResult().blockDefinitions()).hasSize(1);
+    assertThat(result.getResult().getBlockDefinition(0).get().id()).isEqualTo(1L);
+    assertThat(result.getResult().getBlockDefinition(0).get().name()).isEqualTo("Block 1");
+  }
+
+  @Test
+  public void createProgram_returnsErrors() {
+    ErrorAnd<ProgramDefinition, CiviFormError> result = ps.createProgramDefinition("", "");
+
+    assertThat(result.hasResult()).isFalse();
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsOnly(
+            CiviFormError.of("program name cannot be blank"),
+            CiviFormError.of("program description cannot be blank"));
   }
 
   @Test
@@ -199,8 +215,11 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   public void updateProgram_updatesProgram() throws Exception {
     ProgramDefinition originalProgram =
         ProgramBuilder.newProgram("original", "original description").buildDefinition();
-    ProgramDefinition updatedProgram =
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateProgramDefinition(originalProgram.id(), "new", "new description");
+
+    assertThat(result.hasResult()).isTrue();
+    ProgramDefinition updatedProgram = result.getResult();
 
     ProgramDefinition found = ps.getProgramDefinition(updatedProgram.id());
 
@@ -215,11 +234,26 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     ps.addQuestionsToBlock(program.id(), 1L, ImmutableList.of(question.getId()));
 
     ProgramDefinition found =
-        ps.updateProgramDefinition(program.id(), "new name", "new description");
+        ps.updateProgramDefinition(program.id(), "new name", "new description").getResult();
 
     QuestionDefinition foundQuestion =
         found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
     assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
+  }
+
+  @Test
+  public void updateProgram_returnsErrors() throws Exception {
+    ProgramDefinition program = ProgramBuilder.newProgram().buildDefinition();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateProgramDefinition(program.id(), "", "");
+
+    assertThat(result.hasResult()).isFalse();
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsOnly(
+            CiviFormError.of("program name cannot be blank"),
+            CiviFormError.of("program description cannot be blank"));
   }
 
   @Test
@@ -384,7 +418,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   @Test
   public void addBlockToProgram_constructsQuestionDefinitions() throws Exception {
     QuestionDefinition question = qs.create(SIMPLE_QUESTION).getResult();
-    ProgramDefinition program = ps.createProgramDefinition("Program Name", "Program Description");
+    ProgramDefinition program =
+        ps.createProgramDefinition("Program Name", "Program Description").getResult();
 
     program =
         ps.addBlockToProgram(
@@ -460,7 +495,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void setBlockQuestions_withBogusBlockId_throwsProgramBlockNotFoundException() {
-    ProgramDefinition p = ps.createProgramDefinition("name", "description");
+    ProgramDefinition p = ps.createProgramDefinition("name", "description").getResult();
     assertThatThrownBy(() -> ps.setBlockQuestions(p.id(), 100L, ImmutableList.of()))
         .isInstanceOf(ProgramBlockNotFoundException.class)
         .hasMessage(String.format("Block not found in Program (ID %d) for block ID 100", p.id()));
