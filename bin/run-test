@@ -1,4 +1,7 @@
 #! /bin/bash
 
+# run bin/pull-image
+$( dirname ${BASH_SOURCE[0]})/pull-image
+
 # allocate a tty for better test output even though not strictly needed.
 docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock -v $PWD/universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1 civiform reload test
