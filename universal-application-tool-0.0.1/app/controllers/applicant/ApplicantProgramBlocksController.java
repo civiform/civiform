@@ -124,6 +124,9 @@ public final class ApplicantProgramBlocksController extends Controller {
                 } else if (cause instanceof ProgramBlockNotFoundException) {
                   logger.error("Exception while updating applicant data", cause);
                   return badRequest("Unable to process this request");
+                } else if (cause instanceof IllegalArgumentException) {
+                  logger.error(cause.getMessage());
+                  return badRequest();
                 }
                 throw new RuntimeException(cause);
               }
