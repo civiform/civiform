@@ -18,6 +18,9 @@ import services.Path;
 
 /** Defines a single question. */
 public abstract class QuestionDefinition {
+  public static final String METADATA_UPDATE_TIME_KEY = "updated_at";
+  public static final String METADATA_UPDATE_PROGRAM_ID_KEY = "updated_in_program";
+
   private final OptionalLong id;
   private final long version;
   private final String name;
@@ -26,9 +29,6 @@ public abstract class QuestionDefinition {
   private final ImmutableMap<Locale, String> questionText;
   private final ImmutableMap<Locale, String> questionHelpText;
   private final ValidationPredicates validationPredicates;
-
-  public static final String METADATA_UPDATE_TIME_KEY = "updated_at";
-  public static final String METADATA_UPDATE_PROGRAM_ID_KEY = "updated_in_program";
 
   public QuestionDefinition(
       OptionalLong id,

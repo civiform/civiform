@@ -29,15 +29,15 @@ import services.question.ScalarType;
 import services.question.UnsupportedScalarTypeException;
 
 public class ApplicantServiceImpl implements ApplicantService {
+  private static final ImmutableSet<String> RESERVED_SCALAR_KEYS =
+      ImmutableSet.of(
+          QuestionDefinition.METADATA_UPDATE_TIME_KEY,
+          QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY);
 
   private final ApplicantRepository applicantRepository;
   private final ProgramService programService;
   private final Clock clock;
   private final HttpExecutionContext httpExecutionContext;
-  private static final ImmutableSet<String> RESERVED_SCALAR_KEYS =
-      ImmutableSet.of(
-          QuestionDefinition.METADATA_UPDATE_TIME_KEY,
-          QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY);
   private final Logger log = LoggerFactory.getLogger(ApplicantService.class);
 
   @Inject
