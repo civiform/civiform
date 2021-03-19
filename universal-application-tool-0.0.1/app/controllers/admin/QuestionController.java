@@ -24,7 +24,6 @@ import services.question.InvalidUpdateException;
 import services.question.QuestionDefinition;
 import services.question.QuestionNotFoundException;
 import services.question.QuestionService;
-import services.question.QuestionServiceError;
 import services.question.QuestionType;
 import services.question.UnsupportedQuestionTypeException;
 import views.admin.questions.QuestionEditView;
