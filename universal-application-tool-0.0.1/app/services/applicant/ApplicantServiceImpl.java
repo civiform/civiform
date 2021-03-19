@@ -90,9 +90,8 @@ public class ApplicantServiceImpl implements ApplicantService {
     boolean updatePathsContainReservedKeys =
         updates.stream().anyMatch(u -> RESERVED_SCALAR_KEYS.contains(u.path().keyName()));
     if (updatePathsContainReservedKeys) {
-      return CompletableFuture.completedFuture(
-          ErrorAnd.error(
-              ImmutableSet.of(new IllegalArgumentException("Path contained reserved scalar key"))));
+      return CompletableFuture.failedFuture(
+          new IllegalArgumentException("Path contained reserved scalar key"));
     }
 
     return stageAndUpdateIfValid(applicantId, programId, blockId, updates);

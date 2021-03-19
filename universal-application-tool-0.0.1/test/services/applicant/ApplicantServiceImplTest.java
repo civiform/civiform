@@ -1,6 +1,7 @@
 package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.google.common.collect.ImmutableList;
@@ -195,15 +196,15 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     String reservedScalar = "applicant.name." + QuestionDefinition.METADATA_UPDATE_TIME_KEY;
     ImmutableMap<String, String> updates = ImmutableMap.of(reservedScalar, "12345");
 
-    ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
-        subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 1L, updates)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(errorAnd.hasResult()).isFalse();
-    assertThat(errorAnd.getErrors()).hasSize(1);
-    assertThat(errorAnd.getErrors().asList().get(0)).isInstanceOf(IllegalArgumentException.class);
+    assertThatExceptionOfType(CompletionException.class)
+        .isThrownBy(
+            () ->
+                subject
+                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 1L, updates)
+                    .toCompletableFuture()
+                    .join())
+        .withCauseInstanceOf(IllegalArgumentException.class)
+        .withMessageContaining("Path contained reserved scalar key");
   }
 
   @Test
