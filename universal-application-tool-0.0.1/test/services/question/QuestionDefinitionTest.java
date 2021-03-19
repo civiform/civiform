@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import services.CiviFormError;
 import services.Path;
 import services.question.AddressQuestionDefinition.AddressValidationPredicates;
 import services.question.TextQuestionDefinition.TextValidationPredicates;
@@ -247,10 +248,10 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(-1L, "", Path.empty(), "", ImmutableMap.of(), ImmutableMap.of());
     assertThat(question.validate())
         .containsOnly(
-            QuestionServiceError.of("invalid version: -1"),
-            QuestionServiceError.of("blank name"),
-            QuestionServiceError.of("invalid path pattern: ''"),
-            QuestionServiceError.of("blank description"),
-            QuestionServiceError.of("no question text"));
+            CiviFormError.of("invalid version: -1"),
+            CiviFormError.of("blank name"),
+            CiviFormError.of("invalid path pattern: ''"),
+            CiviFormError.of("blank description"),
+            CiviFormError.of("no question text"));
   }
 }

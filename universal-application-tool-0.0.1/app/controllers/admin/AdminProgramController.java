@@ -13,11 +13,11 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.CiviFormError;
 import services.ErrorAnd;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.program.ProgramServiceError;
 import views.admin.programs.ProgramEditView;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramNewOneView;
@@ -59,7 +59,7 @@ public class AdminProgramController extends Controller {
   public Result create(Request request) {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm program = programForm.bindFromRequest(request).get();
-    ErrorAnd<ProgramDefinition, ProgramServiceError> result =
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
         service.createProgramDefinition(program.getName(), program.getDescription());
     if (result.isError()) {
       String errorMessage = joinErrors(result.getErrors());
@@ -83,7 +83,7 @@ public class AdminProgramController extends Controller {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm program = programForm.bindFromRequest(request).get();
     try {
-      ErrorAnd<ProgramDefinition, ProgramServiceError> result =
+      ErrorAnd<ProgramDefinition, CiviFormError> result =
           service.updateProgramDefinition(id, program.getName(), program.getDescription());
       if (result.isError()) {
         String errorMessage = joinErrors(result.getErrors());
@@ -95,9 +95,9 @@ public class AdminProgramController extends Controller {
     }
   }
 
-  private String joinErrors(ImmutableSet<ProgramServiceError> errors) {
+  private String joinErrors(ImmutableSet<CiviFormError> errors) {
     StringJoiner messageJoiner = new StringJoiner(". ", "", ".");
-    for (ProgramServiceError e : errors) {
+    for (CiviFormError e : errors) {
       messageJoiner.add(e.message());
     }
     return messageJoiner.toString();

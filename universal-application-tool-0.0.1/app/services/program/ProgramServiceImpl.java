@@ -17,6 +17,7 @@ import models.Program;
 import play.db.ebean.Transactional;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ProgramRepository;
+import services.CiviFormError;
 import services.ErrorAnd;
 import services.question.QuestionDefinition;
 import services.question.QuestionNotFoundException;
@@ -95,9 +96,9 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  public ErrorAnd<ProgramDefinition, ProgramServiceError> createProgramDefinition(
+  public ErrorAnd<ProgramDefinition, CiviFormError> createProgramDefinition(
       String name, String description) {
-    ImmutableSet<ProgramServiceError> errors = validateProgramDefinition(name, description);
+    ImmutableSet<CiviFormError> errors = validateProgramDefinition(name, description);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -106,10 +107,10 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  public ErrorAnd<ProgramDefinition, ProgramServiceError> updateProgramDefinition(
+  public ErrorAnd<ProgramDefinition, CiviFormError> updateProgramDefinition(
       long programId, String name, String description) throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
-    ImmutableSet<ProgramServiceError> errors = validateProgramDefinition(name, description);
+    ImmutableSet<CiviFormError> errors = validateProgramDefinition(name, description);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -122,14 +123,13 @@ public class ProgramServiceImpl implements ProgramService {
             .join());
   }
 
-  private ImmutableSet<ProgramServiceError> validateProgramDefinition(
-      String name, String description) {
-    ImmutableSet.Builder<ProgramServiceError> errors = ImmutableSet.<ProgramServiceError>builder();
+  private ImmutableSet<CiviFormError> validateProgramDefinition(String name, String description) {
+    ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.<CiviFormError>builder();
     if (name.isBlank()) {
-      errors.add(ProgramServiceError.of("program name cannot be blank"));
+      errors.add(CiviFormError.of("program name cannot be blank"));
     }
     if (description.isBlank()) {
-      errors.add(ProgramServiceError.of("program description cannot be blank"));
+      errors.add(CiviFormError.of("program description cannot be blank"));
     }
     return errors.build();
   }

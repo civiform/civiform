@@ -13,6 +13,7 @@ import models.Program;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
+import services.CiviFormError;
 import services.ErrorAnd;
 import services.Path;
 import services.question.AddressQuestionDefinition;
@@ -173,7 +174,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   public void createProgram_setsId() {
     assertThat(ps.listProgramDefinitions()).isEmpty();
 
-    ErrorAnd<ProgramDefinition, ProgramServiceError> result =
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition("ProgramService", "description");
 
     assertThat(result.hasResult()).isTrue();
@@ -182,7 +183,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void createProgram_hasEmptyBlock() {
-    ErrorAnd<ProgramDefinition, ProgramServiceError> result =
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition("ProgramService", "description");
 
     assertThat(result.hasResult()).isTrue();
@@ -193,14 +194,14 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void createProgram_returnsErrors() {
-    ErrorAnd<ProgramDefinition, ProgramServiceError> result = ps.createProgramDefinition("", "");
+    ErrorAnd<ProgramDefinition, CiviFormError> result = ps.createProgramDefinition("", "");
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
         .containsOnly(
-            ProgramServiceError.of("program name cannot be blank"),
-            ProgramServiceError.of("program description cannot be blank"));
+            CiviFormError.of("program name cannot be blank"),
+            CiviFormError.of("program description cannot be blank"));
   }
 
   @Test
@@ -214,7 +215,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   public void updateProgram_updatesProgram() throws Exception {
     ProgramDefinition originalProgram =
         ProgramBuilder.newProgram("original", "original description").buildDefinition();
-    ErrorAnd<ProgramDefinition, ProgramServiceError> result =
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateProgramDefinition(originalProgram.id(), "new", "new description");
 
     assertThat(result.hasResult()).isTrue();
@@ -244,15 +245,15 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   public void updateProgram_returnsErrors() throws Exception {
     ProgramDefinition program = ProgramBuilder.newProgram().buildDefinition();
 
-    ErrorAnd<ProgramDefinition, ProgramServiceError> result =
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateProgramDefinition(program.id(), "", "");
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
         .containsOnly(
-            ProgramServiceError.of("program name cannot be blank"),
-            ProgramServiceError.of("program description cannot be blank"));
+            CiviFormError.of("program name cannot be blank"),
+            CiviFormError.of("program description cannot be blank"));
   }
 
   @Test

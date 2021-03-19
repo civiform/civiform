@@ -10,6 +10,7 @@ import java.util.concurrent.CompletionStage;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
+import services.CiviFormError;
 import services.ErrorAnd;
 import services.Path;
 import services.question.AddressQuestionDefinition.AddressValidationPredicates;
@@ -45,14 +46,14 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   public void create_failsWhenPathConflicts() {
     questionService.create(questionDefinition);
 
-    ErrorAnd<QuestionDefinition, QuestionServiceError> errorAndResult =
+    ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult =
         questionService.create(questionDefinition);
 
     assertThat(errorAndResult.hasResult()).isFalse();
     assertThat(errorAndResult.isError()).isTrue();
     assertThat(errorAndResult.getErrors())
         .containsOnly(
-            QuestionServiceError.of(
+            CiviFormError.of(
                 String.format(
                     "path '%s' conflicts with question: %s",
                     questionDefinition.getPath().path(), questionDefinition.getPath().path())));
@@ -69,20 +70,19 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
             ImmutableMap.of(Locale.US, "question?"),
             ImmutableMap.of());
 
-    ErrorAnd<QuestionDefinition, QuestionServiceError> errorAndResult =
-        questionService.create(question);
+    ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult = questionService.create(question);
 
     assertThat(errorAndResult.hasResult()).isFalse();
     assertThat(errorAndResult.isError()).isTrue();
     assertThat(errorAndResult.getErrors())
         .containsOnly(
-            QuestionServiceError.of(
+            CiviFormError.of(
                 String.format("invalid path pattern: '%s'", question.getPath().path())));
   }
 
   @Test
   public void create_returnsQuestionDefinitionWhenSucceeds() {
-    ErrorAnd<QuestionDefinition, QuestionServiceError> errorAndResult =
+    ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult =
         questionService.create(questionDefinition);
 
     assertThat(errorAndResult.isError()).isFalse();
@@ -119,8 +119,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
     QuestionDefinition question = questionService.create(questionDefinition).getResult();
     QuestionDefinition toUpdate =
         new QuestionDefinitionBuilder(question).setName("updated name").build();
-    ErrorAnd<QuestionDefinition, QuestionServiceError> errorAndResult =
-        questionService.update(toUpdate);
+    ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult = questionService.update(toUpdate);
 
     assertThat(errorAndResult.isError()).isFalse();
     assertThat(errorAndResult.hasResult()).isTrue();
@@ -153,18 +152,17 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
             .setValidationPredicates(AddressValidationPredicates.create())
             .build();
 
-    ErrorAnd<QuestionDefinition, QuestionServiceError> errorAndResult =
-        questionService.update(toUpdate);
+    ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult = questionService.update(toUpdate);
 
     assertThat(errorAndResult.hasResult()).isFalse();
     assertThat(errorAndResult.isError()).isTrue();
     assertThat(errorAndResult.getErrors())
         .containsOnly(
-            QuestionServiceError.of(
+            CiviFormError.of(
                 String.format(
                     "question paths mismatch: %s does not match %s",
                     question.getPath().path(), toUpdate.getPath().path())),
-            QuestionServiceError.of(
+            CiviFormError.of(
                 String.format(
                     "question types mismatch: %s does not match %s",
                     question.getQuestionType().toString(), toUpdate.getQuestionType().toString())));

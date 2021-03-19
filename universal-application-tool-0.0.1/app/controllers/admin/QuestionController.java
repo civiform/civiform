@@ -18,13 +18,13 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.CiviFormError;
 import services.ErrorAnd;
 import services.question.InvalidQuestionTypeException;
 import services.question.InvalidUpdateException;
 import services.question.QuestionDefinition;
 import services.question.QuestionNotFoundException;
 import services.question.QuestionService;
-import services.question.QuestionServiceError;
 import services.question.QuestionType;
 import services.question.UnsupportedQuestionTypeException;
 import views.admin.questions.QuestionEditView;
@@ -63,11 +63,10 @@ public class QuestionController extends Controller {
             readOnlyService -> {
               try {
                 QuestionDefinition definition = questionForm.getBuilder().setVersion(1L).build();
-                ErrorAnd<QuestionDefinition, QuestionServiceError> result =
-                    service.create(definition);
+                ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(definition);
                 if (result.isError()) {
                   StringJoiner messageJoiner = new StringJoiner(". ", "", ".");
-                  for (QuestionServiceError e : result.getErrors()) {
+                  for (CiviFormError e : result.getErrors()) {
                     messageJoiner.add(e.message());
                   }
                   String errorMessage = messageJoiner.toString();
@@ -136,10 +135,10 @@ public class QuestionController extends Controller {
     QuestionForm questionForm = form.bindFromRequest(request).get();
     try {
       QuestionDefinition definition = questionForm.getBuilder().setId(id).setVersion(1L).build();
-      ErrorAnd<QuestionDefinition, QuestionServiceError> result = service.update(definition);
+      ErrorAnd<QuestionDefinition, CiviFormError> result = service.update(definition);
       if (result.isError()) {
         StringJoiner messageJoiner = new StringJoiner(". ", "", ".");
-        for (QuestionServiceError e : result.getErrors()) {
+        for (CiviFormError e : result.getErrors()) {
           messageJoiner.add(e.message());
         }
         String errorMessage = messageJoiner.toString();

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import forms.BlockForm;
 import java.util.concurrent.CompletionStage;
 import models.Application;
+import services.CiviFormError;
 import services.ErrorAnd;
 import services.question.QuestionNotFoundException;
 
@@ -57,7 +58,7 @@ public interface ProgramService {
    * @return the {@link ProgramDefinition} that was created if succeeded, or a set of errors if
    *     failed
    */
-  ErrorAnd<ProgramDefinition, ProgramServiceError> createProgramDefinition(
+  ErrorAnd<ProgramDefinition, CiviFormError> createProgramDefinition(
       String name, String description);
 
   /**
@@ -70,7 +71,7 @@ public interface ProgramService {
    *     failed
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
-  ErrorAnd<ProgramDefinition, ProgramServiceError> updateProgramDefinition(
+  ErrorAnd<ProgramDefinition, CiviFormError> updateProgramDefinition(
       long programId, String name, String description) throws ProgramNotFoundException;
 
   /**
