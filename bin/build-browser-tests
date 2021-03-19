@@ -1,0 +1,6 @@
+#! /bin/bash
+
+set -e
+set +x
+
+docker build -t civiform-browser-test browser-test -f browser-test/playwright.Dockerfile
