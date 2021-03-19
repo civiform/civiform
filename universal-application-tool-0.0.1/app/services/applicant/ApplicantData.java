@@ -65,7 +65,8 @@ public class ApplicantData {
   }
 
   /**
-   * Returns true if there is any value at the given {@link Path}; false otherwise.
+   * Returns true if there is a non-null value at the given {@link Path}; false otherwise. Will
+   * return false if there is a null value at the path.
    *
    * @param path the {@link Path} to check
    * @return true if there is a non-null value at the given path; false otherwise
