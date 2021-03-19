@@ -1,13 +1,13 @@
 #! /bin/bash
 echo "Making sure we're up to date with the latest formatter..."
-if ! docker pull public.ecr.aws/t1q6b4h2/uat-formatter:latest; then
+if ! docker pull public.ecr.aws/t1q6b4h2/civiform-formatter:latest; then
 	echo "Failed to pull - possibly some stuck credentials.  De-authenticating then retrying..."
-	docker logout https://public.ecr.aws/t1q6b4h2/uat-formatter
-	docker pull public.ecr.aws/t1q6b4h2/uat-formatter:latest
+	docker logout https://public.ecr.aws/t1q6b4h2/civiform-formatter
+	docker pull public.ecr.aws/t1q6b4h2/civiform-formatter:latest
 fi
 
 if [ $(basename "$PWD") == "universal-application-tool-0.0.1" ]; then
-	docker run --rm -it -v "${PWD}/:/code" public.ecr.aws/t1q6b4h2/uat-formatter:latest
+	docker run --rm -it -v "${PWD}/:/code" public.ecr.aws/t1q6b4h2/civiform-formatter:latest
 else
-	docker run --rm -it -v "${PWD}/universal-application-tool-0.0.1/:/code" public.ecr.aws/t1q6b4h2/uat-formatter:latest
+	docker run --rm -it -v "${PWD}/universal-application-tool-0.0.1/:/code" public.ecr.aws/t1q6b4h2/civiform-formatter:latest
 fi

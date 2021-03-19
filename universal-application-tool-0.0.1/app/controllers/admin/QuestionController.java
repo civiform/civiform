@@ -3,10 +3,10 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
+import controllers.CiviFormController;
 import forms.QuestionForm;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.StringJoiner;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -15,9 +15,9 @@ import org.slf4j.LoggerFactory;
 import play.data.Form;
 import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
-import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.CiviFormError;
 import services.ErrorAnd;
 import services.question.InvalidQuestionTypeException;
 import services.question.InvalidUpdateException;
@@ -30,7 +30,7 @@ import services.question.UnsupportedQuestionTypeException;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
 
-public class QuestionController extends Controller {
+public class QuestionController extends CiviFormController {
   final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
   private final QuestionService service;
@@ -63,14 +63,9 @@ public class QuestionController extends Controller {
             readOnlyService -> {
               try {
                 QuestionDefinition definition = questionForm.getBuilder().setVersion(1L).build();
-                ErrorAnd<QuestionDefinition, QuestionServiceError> result =
-                    service.create(definition);
+                ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(definition);
                 if (result.isError()) {
-                  StringJoiner messageJoiner = new StringJoiner(". ", "", ".");
-                  for (QuestionServiceError e : result.getErrors()) {
-                    messageJoiner.add(e.message());
-                  }
-                  String errorMessage = messageJoiner.toString();
+                  String errorMessage = joinErrors(result.getErrors());
                   return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
                 }
               } catch (UnsupportedQuestionTypeException e) {
@@ -136,13 +131,9 @@ public class QuestionController extends Controller {
     QuestionForm questionForm = form.bindFromRequest(request).get();
     try {
       QuestionDefinition definition = questionForm.getBuilder().setId(id).setVersion(1L).build();
-      ErrorAnd<QuestionDefinition, QuestionServiceError> result = service.update(definition);
+      ErrorAnd<QuestionDefinition, CiviFormError> result = service.update(definition);
       if (result.isError()) {
-        StringJoiner messageJoiner = new StringJoiner(". ", "", ".");
-        for (QuestionServiceError e : result.getErrors()) {
-          messageJoiner.add(e.message());
-        }
-        String errorMessage = messageJoiner.toString();
+        String errorMessage = joinErrors(result.getErrors());
         return ok(editView.renderEditQuestionForm(request, id, questionForm, errorMessage));
       }
     } catch (UnsupportedQuestionTypeException e) {

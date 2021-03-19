@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalLong;
+import services.CiviFormError;
 import services.Path;
 
 /** Defines a single question. */
@@ -177,23 +178,22 @@ public abstract class QuestionDefinition {
   }
 
   /** Validate that all required fields are present and valid for the question. */
-  public ImmutableSet<QuestionServiceError> validate() {
-    ImmutableSet.Builder<QuestionServiceError> errors =
-        new ImmutableSet.Builder<QuestionServiceError>();
+  public ImmutableSet<CiviFormError> validate() {
+    ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<CiviFormError>();
     if (version < 1) {
-      errors.add(QuestionServiceError.of(String.format("invalid version: %d", version)));
+      errors.add(CiviFormError.of(String.format("invalid version: %d", version)));
     }
     if (name.isBlank()) {
-      errors.add(QuestionServiceError.of("blank name"));
+      errors.add(CiviFormError.of("blank name"));
     }
     if (!hasValidPathPattern()) {
-      errors.add(QuestionServiceError.of(String.format("invalid path pattern: '%s'", path.path())));
+      errors.add(CiviFormError.of(String.format("invalid path pattern: '%s'", path.path())));
     }
     if (description.isBlank()) {
-      errors.add(QuestionServiceError.of("blank description"));
+      errors.add(CiviFormError.of("blank description"));
     }
     if (questionText.isEmpty()) {
-      errors.add(QuestionServiceError.of("no question text"));
+      errors.add(CiviFormError.of("no question text"));
     }
     return errors.build();
   }
