@@ -22,6 +22,14 @@ public class FieldWithLabel {
     Styles.W_FULL
   };
 
+  private static final String[] CORE_CHECKBOX_FIELD_CLASSES = {
+    Styles.H_4, Styles.W_4, Styles.MR_3, Styles.MB_2
+  };
+
+  private static final String[] CORE_CHECKBOX_LABEL_CLASSES = {
+    Styles.TEXT_GRAY_600, Styles.ALIGN_TEXT_TOP, Styles.FONT_BOLD, Styles.TEXT_XS, Styles.UPPERCASE
+  };
+
   private static final String[] CORE_LABEL_CLASSES = {
     BaseStyles.LABEL_BACKGROUND_COLOR,
     BaseStyles.LABEL_TEXT_COLOR,
@@ -35,28 +43,51 @@ public class FieldWithLabel {
 
   protected Tag fieldTag;
   protected String fieldName = "";
+  protected String fieldType = "text";
   protected String fieldValue = "";
   protected String formId = "";
   protected String id = "";
   protected String labelText = "";
   protected String placeholderText = "";
+  protected boolean checked = false;
 
   public FieldWithLabel(Tag fieldTag) {
     this.fieldTag = fieldTag.withClasses(FieldWithLabel.CORE_FIELD_CLASSES);
   }
 
+  public static FieldWithLabel checkbox() {
+    Tag fieldTag = TagCreator.input();
+    return new FieldWithLabel(fieldTag).setFieldType("checkbox");
+  }
+
   public static FieldWithLabel input() {
-    Tag fieldTag = TagCreator.input().withType("text");
-    return new FieldWithLabel(fieldTag);
+    Tag fieldTag = TagCreator.input();
+    return new FieldWithLabel(fieldTag).setFieldType("text");
+  }
+
+  public static FieldWithLabel number() {
+    Tag fieldTag = TagCreator.input();
+    return new FieldWithLabel(fieldTag).setFieldType("number");
   }
 
   public static FieldWithLabel textArea() {
-    Tag fieldTag = textarea().withType("text");
-    return new FieldWithLabel(fieldTag);
+    Tag fieldTag = textarea();
+    return new FieldWithLabel(fieldTag).setFieldType("text");
+  }
+
+  public FieldWithLabel setChecked(boolean checked) {
+    this.checked = checked;
+    return this;
   }
 
   public FieldWithLabel setFieldName(String fieldName) {
     this.fieldName = fieldName;
+    return this;
+  }
+
+  public FieldWithLabel setFieldType(String fieldType) {
+    this.fieldTag.withType(fieldType);
+    this.fieldType = fieldType;
     return this;
   }
 
@@ -90,7 +121,7 @@ public class FieldWithLabel {
       // Have to recreate the field here in case the value is modified.
       ContainerTag textAreaTag =
           textarea()
-              .withType("text")
+              .withType(fieldType)
               .withClasses(FieldWithLabel.CORE_FIELD_CLASSES)
               .withText(this.fieldValue);
       fieldTag = textAreaTag;
@@ -102,7 +133,11 @@ public class FieldWithLabel {
         .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
         .withName(this.fieldName)
         .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
-        .condAttr(!Strings.isNullOrEmpty(this.placeholderText), "form", formId);
+        .condAttr(!Strings.isNullOrEmpty(this.formId), "form", formId);
+
+    if (this.fieldType.equals("checkbox")) {
+      return getCheckboxContainer();
+    }
 
     ContainerTag labelTag =
         label()
@@ -111,5 +146,21 @@ public class FieldWithLabel {
             .withText(this.labelText);
 
     return div(labelTag, fieldTag).withClasses(Styles.MX_4, Styles.MB_6);
+  }
+
+  /** Swaps the order of the label and field, possibly adds, and adds different styles. */
+  private ContainerTag getCheckboxContainer() {
+    fieldTag.withClasses(CORE_CHECKBOX_FIELD_CLASSES);
+    if (this.checked) {
+      fieldTag.attr("checked");
+    }
+
+    ContainerTag labelTag =
+        label()
+            .withClasses(CORE_CHECKBOX_LABEL_CLASSES)
+            .condAttr(!Strings.isNullOrEmpty(this.id), Attr.FOR, this.id)
+            .withText(this.labelText);
+
+    return div(fieldTag, labelTag).withClasses(Styles.MX_4, Styles.MB_1);
   }
 }
