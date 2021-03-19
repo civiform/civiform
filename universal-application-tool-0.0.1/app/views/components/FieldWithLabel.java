@@ -121,7 +121,7 @@ public class FieldWithLabel {
       // Have to recreate the field here in case the value is modified.
       ContainerTag textAreaTag =
           textarea()
-              .withType(fieldType)
+              .withType("text")
               .withClasses(FieldWithLabel.CORE_FIELD_CLASSES)
               .withText(this.fieldValue);
       fieldTag = textAreaTag;
