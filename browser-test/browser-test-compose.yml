@@ -29,11 +29,11 @@ services:
     environment:
       - IDCS_CLIENT_ID=foo
       - IDCS_SECRET=bar
-      - IDCS_DISCOVERY_URI=localhost:3380/.well-known/openid-configuration
+      - IDCS_DISCOVERY_URI=http://fake-idcs:3380/.well-known/openid-configuration
       - ADFS_CLIENT_ID
       - ADFS_SECRET
       - BASE_URL=http://localhost:9999
-      - DB_JDBC_STRING=jdbc:postgresql://localhost:2345/postgres
+      - DB_JDBC_STRING=jdbc:postgresql://database:5432/postgres
     command: run
 
   playwright:
