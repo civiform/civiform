@@ -29,6 +29,8 @@ public class Program extends BaseModel {
 
   private @Constraints.Required @DbJson ImmutableList<BlockDefinition> blockDefinitions;
 
+  @Constraints.Required private LifecycleStage lifecycleStage;
+
   @OneToMany(mappedBy = "program")
   private List<Application> applications;
 
@@ -42,6 +44,11 @@ public class Program extends BaseModel {
     this.name = definition.name();
     this.description = definition.description();
     this.blockDefinitions = definition.blockDefinitions();
+  }
+
+  public Program(ProgramDefinition definition, LifecycleStage lifecycleStage) {
+    this(definition);
+    this.lifecycleStage = lifecycleStage;
   }
 
   /**
@@ -86,5 +93,13 @@ public class Program extends BaseModel {
 
   public ImmutableList<Application> getApplications() {
     return ImmutableList.copyOf(applications);
+  }
+
+  public LifecycleStage getLifecycleStage() {
+    return this.lifecycleStage;
+  }
+
+  public void setLifecycleStage(LifecycleStage lifecycleStage) {
+    this.lifecycleStage = lifecycleStage;
   }
 }

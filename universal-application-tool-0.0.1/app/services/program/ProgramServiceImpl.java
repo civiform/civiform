@@ -13,6 +13,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import models.Application;
+import models.LifecycleStage;
 import models.Program;
 import play.db.ebean.Transactional;
 import play.libs.concurrent.HttpExecutionContext;
@@ -115,7 +116,7 @@ public class ProgramServiceImpl implements ProgramService {
       return ErrorAnd.error(errors);
     }
     Program program =
-        programDefinition.toBuilder().setName(name).setDescription(description).build().toProgram();
+        programDefinition.toBuilder().setName(name).setDescription(description).build().toProgram(LifecycleStage.DRAFT);
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
                 programRepository.updateProgramSync(program).getProgramDefinition())
@@ -170,7 +171,10 @@ public class ProgramServiceImpl implements ProgramService {
             .build();
 
     Program program =
-        programDefinition.toBuilder().addBlockDefinition(blockDefinition).build().toProgram();
+        programDefinition.toBuilder()
+            .addBlockDefinition(blockDefinition)
+            .build()
+            .toProgram(LifecycleStage.DRAFT);
     return syncProgramDefinitionQuestions(
             programRepository.updateProgramSync(program).getProgramDefinition())
         .toCompletableFuture()
@@ -340,7 +344,10 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     Program program =
-        programDefinition.toBuilder().setBlockDefinitions(newBlocks).build().toProgram();
+        programDefinition.toBuilder()
+            .setBlockDefinitions(newBlocks)
+            .build()
+            .toProgram(LifecycleStage.DRAFT);
     return syncProgramDefinitionQuestions(
             programRepository.updateProgramSync(program).getProgramDefinition())
         .toCompletableFuture()
@@ -384,11 +391,12 @@ public class ProgramServiceImpl implements ProgramService {
     ImmutableList<BlockDefinition> updatedBlockDefinitions =
         ImmutableList.copyOf(mutableBlockDefinitions);
 
+    // Implicitly "draft" since we are editing.
     Program program =
         programDefinition.toBuilder()
             .setBlockDefinitions(updatedBlockDefinitions)
             .build()
-            .toProgram();
+            .toProgram(LifecycleStage.DRAFT);
     return syncProgramDefinitionQuestions(
             programRepository.updateProgramSync(program).getProgramDefinition())
         .toCompletableFuture()

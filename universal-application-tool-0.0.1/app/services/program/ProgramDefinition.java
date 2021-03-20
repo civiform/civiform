@@ -4,6 +4,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import models.LifecycleStage;
 import models.Program;
 import services.question.QuestionDefinition;
 
@@ -80,6 +81,10 @@ public abstract class ProgramDefinition {
 
   public Program toProgram() {
     return new Program(this);
+  }
+
+  public Program toProgram(LifecycleStage lifecycleStage) {
+    return new Program(this, lifecycleStage);
   }
 
   public abstract Builder toBuilder();

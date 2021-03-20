@@ -2,6 +2,7 @@ package support;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.UUID;
 import models.Applicant;
 import models.Program;
 import models.Question;
@@ -25,9 +26,14 @@ public class ResourceCreator {
   }
 
   public Question insertQuestion(String pathString, long version) {
+    String name = UUID.randomUUID().toString();
+    return insertQuestion(pathString, version, name);
+  }
+
+  public Question insertQuestion(String pathString, long version, String name) {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            version, "", Path.create(pathString), "", ImmutableMap.of(), ImmutableMap.of());
+            version, name, Path.create(pathString), "", ImmutableMap.of(), ImmutableMap.of());
     Question question = new Question(definition);
     question.save();
     return question;
