@@ -112,7 +112,12 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
             .withBlock()
             .withQuestion(TestQuestionBank.applicantAddress())
             .build();
-    applicant.getApplicantData().putString(colorQuestion.getPath(), "forest green");
+    // Answer the color question
+    applicant
+        .getApplicantData()
+        .putString(colorQuestion.getPath().toBuilder().append("text").build(), "forest green");
+    applicant.getApplicantData().putLong(colorQuestion.getLastUpdatedTimePath(), 12345L);
+    applicant.getApplicantData().putLong(colorQuestion.getProgramIdPath(), 456L);
     applicant.save();
 
     Result result = controller.edit(applicant.id, program.id).toCompletableFuture().join();
