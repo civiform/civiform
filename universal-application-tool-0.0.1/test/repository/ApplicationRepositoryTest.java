@@ -1,0 +1,65 @@
+package repository;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import models.Applicant;
+import models.Application;
+import models.LifecycleStage;
+import models.Program;
+import org.junit.Before;
+import org.junit.Test;
+import services.Path;
+
+public class ApplicationRepositoryTest extends WithPostgresContainer {
+  private ApplicationRepository repo;
+
+  @Before
+  public void setupApplicantRepository() {
+    repo = instanceOf(ApplicationRepository.class);
+  }
+
+  @Test
+  public void submitApplication_updatesOtherApplications() {
+    Applicant one = saveApplicant("Alice");
+    Applicant two = saveApplicant("Bob");
+
+    Program pOne = saveProgram("Program");
+    Program pTwo = saveProgram("OtherProgram");
+
+    Application appOne = repo.submitApplication(one, pOne).toCompletableFuture().join();
+    Application appTwo = repo.createOrUpdateDraft(one, pOne).toCompletableFuture().join();
+    Application appThree = repo.submitApplication(two, pTwo).toCompletableFuture().join();
+
+    assertThat(repo.getApplication(appOne.id).toCompletableFuture().join()).contains(appOne);
+    assertThat(repo.getApplication(appTwo.id).toCompletableFuture().join()).contains(appTwo);
+    assertThat(
+            repo.getApplication(appTwo.id).toCompletableFuture().join().get().getLifecycleStage())
+        .isEqualTo(LifecycleStage.DRAFT);
+    assertThat(repo.getApplication(appThree.id).toCompletableFuture().join()).contains(appThree);
+
+    // Submit another application that matches appOne.
+    repo.submitApplication(one, pOne).toCompletableFuture().join();
+
+    // Ensure that the old one is now "obsolete".
+    assertThat(
+            repo.getApplication(appOne.id).toCompletableFuture().join().get().getLifecycleStage())
+        .isEqualTo(LifecycleStage.OBSOLETE);
+    // And that the DRAFT is DELETED.
+    assertThat(
+            repo.getApplication(appTwo.id).toCompletableFuture().join().get().getLifecycleStage())
+        .isEqualTo(LifecycleStage.DELETED);
+  }
+
+  private Applicant saveApplicant(String name) {
+    Applicant applicant = new Applicant();
+    applicant.getApplicantData().putString(Path.create("$.applicant.name"), name);
+    applicant.save();
+    return applicant;
+  }
+
+  private Program saveProgram(String name) {
+    Program program = new Program(name, "desc");
+    program.save();
+    return program;
+  }
+}

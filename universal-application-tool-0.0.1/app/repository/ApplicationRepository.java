@@ -73,11 +73,12 @@ public class ApplicationRepository {
               .findList();
       for (Application application : oldApplications) {
         // Delete any in-progress drafts, and mark obsolete any old applications.
-        if (application.getLifecycleStage() == LifecycleStage.DRAFT) {
+        if (application.getLifecycleStage().equals(LifecycleStage.DRAFT)) {
           application.setLifecycleStage(LifecycleStage.DELETED);
         } else {
           application.setLifecycleStage(LifecycleStage.OBSOLETE);
         }
+        application.save();
       }
       Application application = new Application(applicant, program, LifecycleStage.ACTIVE);
       application.save();
