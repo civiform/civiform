@@ -1,5 +1,6 @@
 /project/
 logs/
+.log/
 target/
 RUNNING_PID
 .Dockerfile.swp

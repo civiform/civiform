@@ -1,0 +1,47 @@
+# Use postgres/example user/passwordcredentials
+version: '3.1'
+
+services:
+
+  db:
+    image: postgres:12.5
+    restart: always
+    ports:
+      - 2345:5432
+    environment:
+      POSTGRES_PASSWORD: example
+
+  fake-idcs:
+    image: public.ecr.aws/t1q6b4h2/oidc-provider:latest
+    restart: always
+    ports:
+      - 3380:3380
+
+  civiform:
+    image: civiform
+    restart: always
+    container_name: civiform-test
+    links:
+      - "db:database"
+      - "fake-idcs"
+    ports:
+      - 9999:9000
+    environment:
+      - IDCS_CLIENT_ID=foo
+      - IDCS_SECRET=bar
+      - IDCS_DISCOVERY_URI=localhost:3380/.well-known/openid-configuration
+      - ADFS_CLIENT_ID
+      - ADFS_SECRET
+      - BASE_URL=http://localhost:9999
+      - DB_JDBC_STRING=jdbc:postgresql://localhost:2345/postgres
+    command: run
+
+  playwright:
+    image: civiform-browser-test:latest
+    links:
+      - "civiform"
+    environment:
+      - APP_PORT=9999
+    volumes:
+      - ./src:/usr/src/civiform-browser-tests/src
+    command: "yarn test"

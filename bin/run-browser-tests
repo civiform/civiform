@@ -3,4 +3,6 @@
 set -e
 set +x
 
-docker run -it --rm --ipc=host -v "$PWD/browser-test/src:/usr/src/civiform-browser-tests/src" civiform-browser-test:latest yarn test
+docker run -it --rm --ipc=host \
+    -v "$PWD/browser-test/src:/usr/src/civiform-browser-tests/src" \
+    civiform-browser-test:latest yarn test
