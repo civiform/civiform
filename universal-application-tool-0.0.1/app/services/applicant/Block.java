@@ -68,11 +68,30 @@ public final class Block {
    * memoized, since we need to reflect internal changes to ApplicantData.
    */
   public boolean isCompleteWithoutErrors() {
+    // TODO(https://github.com/seattle-uat/civiform/issues/551): Stream only required scalar paths
+    // instead of all scalar paths.
     return blockDefinition.scalarPaths().stream()
             .filter(path -> !applicantData.hasValueAtPath(path))
             .findAny()
             .isEmpty()
         && !hasErrors();
+  }
+
+  /**
+   * Checks whether all questions in this block were completed while applying to the given program.
+   *
+   * @param programId the program ID to check
+   * @return true if all questions were last updated while filling out the program with the given
+   *     ID; false otherwise
+   */
+  public boolean wasCompletedInProgram(long programId) {
+    return getQuestions().stream()
+        .allMatch(
+            q -> {
+              Optional<Long> lastUpdatedInProgram = q.getUpdatedInProgramMetadata();
+              return lastUpdatedInProgram.isPresent()
+                  && lastUpdatedInProgram.get().equals(programId);
+            });
   }
 
   @Override

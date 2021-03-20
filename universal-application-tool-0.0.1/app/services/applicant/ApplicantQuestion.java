@@ -55,6 +55,14 @@ public class ApplicantQuestion {
     return errorsPresenter().hasTypeSpecificErrors();
   }
 
+  public Optional<Long> getUpdatedInProgramMetadata() {
+    return applicantData.readLong(questionDefinition.getProgramIdPath());
+  }
+
+  public Optional<Long> getLastUpdatedTimeMetadata() {
+    return applicantData.readLong(questionDefinition.getLastUpdatedTimePath());
+  }
+
   public AddressQuestion getAddressQuestion() {
     return new AddressQuestion();
   }

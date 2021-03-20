@@ -118,14 +118,6 @@ public class ApplicantServiceImpl implements ApplicantService {
 
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
 
-              ReadOnlyApplicantProgramService roApplicantProgramService =
-                  new ReadOnlyApplicantProgramServiceImpl(
-                      applicant.getApplicantData(), programDefinition);
-              // Force this call here before updating, so the current block is in the list of
-              // current blocks. It will
-              // be removed (not included) in that list otherwise.
-              roApplicantProgramService.getCurrentBlockList();
-
               try {
                 stageUpdates(applicant, programDefinition, blockId, updates);
               } catch (ProgramBlockNotFoundException
@@ -133,6 +125,10 @@ public class ApplicantServiceImpl implements ApplicantService {
                   | PathNotInBlockException e) {
                 return CompletableFuture.completedFuture(ErrorAnd.error(ImmutableSet.of(e)));
               }
+
+              ReadOnlyApplicantProgramService roApplicantProgramService =
+                  new ReadOnlyApplicantProgramServiceImpl(
+                      applicant.getApplicantData(), programDefinition);
 
               Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
               if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
