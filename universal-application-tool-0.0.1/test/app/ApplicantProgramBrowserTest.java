@@ -59,6 +59,7 @@ public class ApplicantProgramBrowserTest extends BaseBrowserTest {
 
     // Fill in first block correctly.
     fillInput("applicant.name.first", "Finn");
+    fillInput("applicant.name.middle", "M");
     fillInput("applicant.name.last", "the Human");
     fillInput("applicant.color.text", "baby blue");
 
@@ -84,6 +85,7 @@ public class ApplicantProgramBrowserTest extends BaseBrowserTest {
     // Check that applicant data was saved to the database.
     browser.$("a", withText("Apply")).click();
     assertThat(getInputValue("applicant.name.first")).isEqualTo("Finn");
+    assertThat(getInputValue("applicant.name.middle")).isEqualTo("M");
     assertThat(getInputValue("applicant.name.last")).isEqualTo("the Human");
     assertThat(getInputValue("applicant.color.text")).isEqualTo("baby blue");
 
