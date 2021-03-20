@@ -116,7 +116,11 @@ public class ProgramServiceImpl implements ProgramService {
       return ErrorAnd.error(errors);
     }
     Program program =
-        programDefinition.toBuilder().setName(name).setDescription(description).build().toProgram(LifecycleStage.DRAFT);
+        programDefinition.toBuilder()
+            .setName(name)
+            .setDescription(description)
+            .build()
+            .toProgram(LifecycleStage.DRAFT);
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
                 programRepository.updateProgramSync(program).getProgramDefinition())
