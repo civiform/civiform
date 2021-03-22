@@ -33,8 +33,8 @@ public class ApplicationRepository {
       ApplicantRepository applicantRepository,
       EbeanConfig ebeanConfig,
       DatabaseExecutionContext executionContext) {
-    this.programRepository = programRepository;
-    this.applicantRepository = applicantRepository;
+    this.programRepository = checkNotNull(programRepository);
+    this.applicantRepository = checkNotNull(applicantRepository);
     this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
     this.executionContext = checkNotNull(executionContext);
   }

@@ -29,6 +29,8 @@ public class Program extends BaseModel {
 
   private @Constraints.Required @DbJson ImmutableList<BlockDefinition> blockDefinitions;
 
+  private @Constraints.Required Long version;
+
   @Constraints.Required private LifecycleStage lifecycleStage;
 
   @OneToMany(mappedBy = "program")
@@ -101,5 +103,13 @@ public class Program extends BaseModel {
 
   public void setLifecycleStage(LifecycleStage lifecycleStage) {
     this.lifecycleStage = lifecycleStage;
+  }
+
+  public Long getVersion() {
+    return version;
+  }
+
+  public void setVersion(Long version) {
+    this.version = version;
   }
 }
