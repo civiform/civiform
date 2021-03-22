@@ -1,9 +1,8 @@
 FROM mcr.microsoft.com/playwright:focal
 
-ENV PROJECT_HOME /usr/src
-ENV PROJECT_NAME civiform-browser-tests
+ENV PROJECT_DIR /usr/src/civiform-browser-tests
 
-COPY . ${PROJECT_HOME}/${PROJECT_NAME}
-RUN cd $PROJECT_HOME/$PROJECT_NAME && yarn install
+COPY . ${PROJECT_DIR}
+RUN cd ${PROJECT_DIR} && yarn install
 
-WORKDIR $PROJECT_HOME/$PROJECT_NAME
+WORKDIR $PROJECT_DIR

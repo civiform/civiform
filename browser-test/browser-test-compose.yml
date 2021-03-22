@@ -32,7 +32,6 @@ services:
       - IDCS_DISCOVERY_URI=http://fake-idcs:3380/.well-known/openid-configuration
       - ADFS_CLIENT_ID
       - ADFS_SECRET
-      - BASE_URL=http://localhost:9999
       - DB_JDBC_STRING=jdbc:postgresql://database:5432/postgres
     command: run
 
@@ -41,7 +40,8 @@ services:
     links:
       - "civiform"
     environment:
-      - APP_PORT=9999
+      - APP_PORT=9000
     volumes:
       - ./src:/usr/src/civiform-browser-tests/src
-    command: "yarn test"
+      - ./bin:/usr/src/civiform-browser-tests/bin
+    command: ./bin/wait_for_server_start.sh
