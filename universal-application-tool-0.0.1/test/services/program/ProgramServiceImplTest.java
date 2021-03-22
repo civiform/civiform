@@ -336,11 +336,30 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
+  public void addBlockToProgram_invalidBlock_returnsErrors() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newProgram().withBlock("Block 1").buildDefinition();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.addBlockToProgram(programDefinition.id(), "", "");
+
+    assertThat(result.hasResult()).isFalse();
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsOnly(
+            CiviFormError.of("block name cannot be blank"),
+            CiviFormError.of("block description cannot be blank"));
+  }
+
+  @Test
   public void addBlockToProgram_emptyBlock_returnsProgramDefinitionWithBlock() throws Exception {
     ProgramDefinition programDefinition =
         ProgramBuilder.newProgram().withBlock("Block 1").buildDefinition();
-    ProgramDefinition updatedProgramDefinition =
-        ps.addBlockToProgram(programDefinition.id()).getResult();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.addBlockToProgram(programDefinition.id());
+
+    assertThat(result.isError()).isFalse();
+    assertThat(result.hasResult()).isTrue();
+    ProgramDefinition updatedProgramDefinition = result.getResult();
 
     ProgramDefinition found = ps.getProgramDefinition(programDefinition.id());
 
@@ -364,9 +383,13 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     ProgramDefinition programDefinition =
         ProgramBuilder.newProgram().withBlock("Block 1").buildDefinition();
     Long programId = programDefinition.id();
-    ProgramDefinition updatedProgramDefinition =
-        ps.addBlockToProgram(programDefinition.id(), "the block", "the block for the program")
-            .getResult();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.addBlockToProgram(programDefinition.id(), "the block", "the block for the program");
+
+    assertThat(result.isError()).isFalse();
+    assertThat(result.hasResult()).isTrue();
+    ProgramDefinition updatedProgramDefinition = result.getResult();
 
     ProgramDefinition found = ps.getProgramDefinition(programId);
 
@@ -394,10 +417,12 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     ProgramQuestionDefinition programQuestionDefinition =
         ProgramQuestionDefinition.create(question);
 
-    ProgramDefinition updated =
-        ps.addBlockToProgram(id, "block", "desc", ImmutableList.of(programQuestionDefinition))
-            .getResult();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.addBlockToProgram(id, "block", "desc", ImmutableList.of(programQuestionDefinition));
 
+    assertThat(result.isError()).isFalse();
+    assertThat(result.hasResult()).isTrue();
+    ProgramDefinition updated = result.getResult();
     assertThat(updated.blockDefinitions()).hasSize(2);
 
     BlockDefinition emptyBlock = updated.blockDefinitions().get(0);
@@ -463,13 +488,30 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
+  public void updateBlock_invalidBlock_returnsErrors() throws Exception {
+    ProgramDefinition program = ProgramBuilder.newProgram().buildDefinition();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateBlock(program.id(), 1L, new BlockForm());
+
+    assertThat(result.hasResult()).isFalse();
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsOnly(
+            CiviFormError.of("block name cannot be blank"),
+            CiviFormError.of("block description cannot be blank"));
+  }
+
+  @Test
   public void updateBlock() throws Exception {
     ProgramDefinition program = ProgramBuilder.newProgram().buildDefinition();
     BlockForm blockForm = new BlockForm();
     blockForm.setName("new block name");
     blockForm.setDescription("new description");
 
-    ps.updateBlock(program.id(), 1L, blockForm);
+    ErrorAnd<ProgramDefinition, CiviFormError> result = ps.updateBlock(program.id(), 1L, blockForm);
+    assertThat(result.isError()).isFalse();
+    assertThat(result.hasResult()).isTrue();
+
     ProgramDefinition found = ps.getProgramDefinition(program.id());
 
     assertThat(found.blockDefinitions()).hasSize(1);
