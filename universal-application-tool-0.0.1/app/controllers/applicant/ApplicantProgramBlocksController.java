@@ -184,7 +184,8 @@ public final class ApplicantProgramBlocksController extends Controller {
         .thenApplyAsync(
             applicationMaybe -> {
               if (applicationMaybe.isEmpty()) {
-                return found(endOfProgramSubmission).flashing("banner", "Error saving program.");
+                return found(endOfProgramSubmission)
+                    .flashing("banner", "Error saving application.");
               }
               Application application = applicationMaybe.get();
               // Placeholder application ID display.

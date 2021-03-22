@@ -10,12 +10,10 @@ import static j2html.TagCreator.p;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import j2html.tags.Tag;
-import java.util.NoSuchElementException;
 import models.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.twirl.api.Content;
-import services.WellKnownPaths;
 import services.applicant.ApplicantService;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
@@ -64,12 +62,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     String applicantName = applicantService.applicantName(application);
     String lastEditText;
     try {
-      lastEditText =
-          application
-              .getApplicantData()
-              .readString(WellKnownPaths.APPLICATION_SUBMITTED_TIME)
-              .get();
-    } catch (NoSuchElementException e) {
+      lastEditText = application.getSubmitTime().toString();
+    } catch (NullPointerException e) {
       log.error("Application {} submitted without submission time marked.", applicationId);
       lastEditText = "<ERROR>";
     }
