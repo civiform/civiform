@@ -8,8 +8,8 @@ import static j2html.TagCreator.label;
 import j2html.tags.Tag;
 import services.applicant.ApplicantQuestion;
 import views.BaseHtmlView;
-import views.style.Styles;
 import views.style.ReferenceClasses;
+import views.style.Styles;
 
 public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQuestionRenderer {
 
