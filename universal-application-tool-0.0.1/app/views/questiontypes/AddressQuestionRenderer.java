@@ -9,6 +9,7 @@ import j2html.tags.Tag;
 import services.applicant.ApplicantQuestion;
 import views.BaseHtmlView;
 import views.style.Styles;
+import views.style.ReferenceClasses;
 
 public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQuestionRenderer {
 
@@ -26,10 +27,15 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
         .withId(question.getPath().path())
         .withClasses(Styles.MX_AUTO, Styles.W_MAX)
         .with(
-            div().withClasses("applicant-question-text").withText(question.getQuestionText()),
+            div()
+                .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT)
+                .withText(question.getQuestionText()),
             div()
                 .withClasses(
-                    "applicant-question-help-text", Styles.TEXT_BASE, Styles.FONT_THIN, Styles.MB_2)
+                    ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
+                    Styles.TEXT_BASE,
+                    Styles.FONT_THIN,
+                    Styles.MB_2)
                 .withText(question.getQuestionHelpText()),
             label(
                 input()
