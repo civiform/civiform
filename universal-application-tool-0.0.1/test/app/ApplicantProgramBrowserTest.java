@@ -83,12 +83,6 @@ public class ApplicantProgramBrowserTest extends BaseBrowserTest {
     assertThat(browser.$("h2", withText("Mock program")).present()).isTrue();
 
     // Check that applicant data was saved to the database.
-    browser.$("a", withText("Apply")).click();
-    assertThat(getInputValue("applicant.name.first")).isEqualTo("Finn");
-    assertThat(getInputValue("applicant.name.middle")).isEqualTo("M");
-    assertThat(getInputValue("applicant.name.last")).isEqualTo("the Human");
-    assertThat(getInputValue("applicant.color.text")).isEqualTo("baby blue");
-
     long applicantId = getApplicantId();
     Optional<Applicant> applicantMaybe =
         applicantRepository.lookupApplicant(applicantId).toCompletableFuture().join();
