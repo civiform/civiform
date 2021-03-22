@@ -2,6 +2,7 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Instant;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
@@ -48,6 +49,20 @@ public class ApplicationRepositoryTest extends WithPostgresContainer {
     assertThat(
             repo.getApplication(appTwo.id).toCompletableFuture().join().get().getLifecycleStage())
         .isEqualTo(LifecycleStage.DELETED);
+  }
+
+  @Test
+  public void createOrUpdateDraftApplication_updatesExistingDraft() {
+    Applicant applicant = saveApplicant("Alice");
+    Program program = saveProgram("Program");
+    Application application =
+        repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
+    Instant initialSubmitTime = application.getSubmitTime();
+    Application applicationTwo =
+        repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
+
+    assertThat(application.id).isEqualTo(applicationTwo.id);
+    assertThat(applicationTwo.getSubmitTime()).isAfter(initialSubmitTime);
   }
 
   private Applicant saveApplicant(String name) {
