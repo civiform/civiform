@@ -16,6 +16,11 @@ public class ApplicantQuestionRendererFactory {
           return new NameQuestionRenderer(question);
         }
 
+      case NUMBER:
+        {
+          return new NumberQuestionRenderer(question);
+        }
+
       case ADDRESS:
         {
           return new AddressQuestionRenderer(question);
