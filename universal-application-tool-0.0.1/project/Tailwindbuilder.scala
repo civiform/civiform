@@ -5,7 +5,7 @@ import scala.sys.process.Process
 
 object TailwindBuilder {
   def apply(base: File): PlayRunHook = {
-    object TailwindbuilderHook extends PlayRunHook {
+    object TailwindBuilderHook extends PlayRunHook {
       var process: Option[Process] = None
 
       override def beforeStarted() = {
