@@ -15,7 +15,7 @@ services:
     image: public.ecr.aws/t1q6b4h2/oidc-provider:latest
     restart: always
     ports:
-      - 3380:3380
+      - 8033:3380
 
   civiform:
     image: civiform
@@ -33,15 +33,8 @@ services:
       - ADFS_CLIENT_ID
       - ADFS_SECRET
       - DB_JDBC_STRING=jdbc:postgresql://database:5432/postgres
-    command: run
-
-  playwright:
-    image: civiform-browser-test:latest
-    links:
-      - "civiform"
-    environment:
-      - APP_PORT=9000
+      - BASE_URL=http://civiform:9000
+    build: ..
     volumes:
-      - ./src:/usr/src/civiform-browser-tests/src
-      - ./bin:/usr/src/civiform-browser-tests/bin
-    command: ./bin/wait_for_server_start.sh
+      - ../universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1
+    command: ~run

@@ -3,6 +3,9 @@
 set -e
 set +x
 
-docker run -it --rm --ipc=host \
-    -v "$PWD/browser-test/src:/usr/src/civiform-browser-tests/src" \
-    civiform-browser-test:latest yarn test
+docker run --ipc=host --rm -it \
+  -v "$(pwd)/browser-test/src:/usr/src/civiform-browser-tests/src" \
+  -v "$(pwd)/browser-test/bin:/usr/src/civiform-browser-tests/bin" \
+  --network browser-test_default \
+  civiform-browser-test:latest \
+  ./bin/wait_for_server_start_and_run_tests.sh

@@ -6,5 +6,5 @@ it('should work', async () => {
 
   await page.goto('http://civiform:9000')
 
-  console.log(await page.textContent('html'))
+  expect(await page.textContent('html')).toContain('continue as guest')
 })
