@@ -3,7 +3,7 @@ import sbt.File
 
 import scala.sys.process.Process
 
-object Tailwindbuilder {
+object TailwindBuilder {
   def apply(base: File): PlayRunHook = {
     object TailwindbuilderHook extends PlayRunHook {
       var process: Option[Process] = None
