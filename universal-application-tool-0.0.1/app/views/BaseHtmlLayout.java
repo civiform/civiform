@@ -16,7 +16,7 @@ import play.twirl.api.Content;
  * should have a `render` method that takes the DOM contents for the main tag.
  */
 public class BaseHtmlLayout extends BaseHtmlView {
-  private static final String WEBPACK_OUTPUT_FILENAME = "bundle";
+  private static final String TAILWIND_COMPILED_FILENAME = "tailwind";
 
   protected final ViewUtils viewUtils;
 
@@ -40,7 +40,7 @@ public class BaseHtmlLayout extends BaseHtmlView {
    * <p>Adding this to a page allows Tailwindcss utility classes to be be usable on that page.
    */
   public Tag tailwindStyles() {
-    return viewUtils.makeLocalJsTag(WEBPACK_OUTPUT_FILENAME);
+    return viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILENAME);
   }
 
   protected static class HtmlResponseContent implements Content {

@@ -3,20 +3,14 @@ import sbt.File
 
 import scala.sys.process.Process
 
-object Webpack {
+object TailwindBuilder {
   def apply(base: File): PlayRunHook = {
-    object WebpackHook extends PlayRunHook {
+    object TailwindBuilderHook extends PlayRunHook {
       var process: Option[Process] = None
 
       override def beforeStarted() = {
         process = Option(
-          Process("npx webpack", base).run()
-        )
-      }
-
-      override def afterStarted() = {
-        process = Option(
-          Process("npx webpack --watch", base).run()
+          Process("npx tailwindcss-cli@latest build ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css", base).run()
         )
       }
 
@@ -26,6 +20,6 @@ object Webpack {
       }
     }
 
-    WebpackHook
+    TailwindBuilderHook
   }
 }
