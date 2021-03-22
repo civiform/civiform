@@ -20,14 +20,15 @@ const configuration = {
           // pretend to be IDCS which uses this key for user email.
           user_emailid: id + "@example.com",
           // lie about verification for tests.
-          email_verified: true
+          email_verified: true,
+          user_displayname: "first middle last"
         };
       },
     };
   },
   claims: {
     openid: ['sub'],
-    email: ['user_emailid', 'email_verified'],
+    email: ['user_emailid', 'email_verified', 'user_displayname'],
   }
 };
 

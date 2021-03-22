@@ -1,5 +1,8 @@
 #! /bin/bash
 
+# run bin/pull-image
+$( dirname ${BASH_SOURCE[0]})/pull-image
+
 # find the right dir to mount.  this is a silly trick based on finding the directory this file is in,
 # moving up one dir, and printing the name of that directory.
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd .. && pwd )"

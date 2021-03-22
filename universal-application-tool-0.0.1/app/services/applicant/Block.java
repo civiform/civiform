@@ -4,7 +4,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Objects;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import services.program.BlockDefinition;
 import services.program.ProgramQuestionDefinition;
 
@@ -19,9 +21,7 @@ public final class Block {
 
   private final BlockDefinition blockDefinition;
   private final ApplicantData applicantData;
-  // TODO: Make Block an AutoValue instead of implementing our own memoization.
   private Optional<ImmutableList<ApplicantQuestion>> questionsMemo = Optional.empty();
-  private Optional<Boolean> errorsMemo = Optional.empty();
 
   Block(long id, BlockDefinition blockDefinition, ApplicantData applicantData) {
     this.id = id;
@@ -56,11 +56,59 @@ public final class Block {
   }
 
   public boolean hasErrors() {
-    if (errorsMemo.isEmpty()) {
-      this.errorsMemo =
-          getQuestions().stream().map(ApplicantQuestion::hasErrors).reduce(Boolean::logicalOr);
+    return getQuestions().stream()
+        .map(ApplicantQuestion::hasErrors)
+        .reduce(Boolean::logicalOr)
+        .orElse(false);
+  }
+
+  /**
+   * Checks whether the block is complete - that is, {@link ApplicantData} has values at all the
+   * paths for all required questions in this block and there are no errors. Note: this cannot be
+   * memoized, since we need to reflect internal changes to ApplicantData.
+   */
+  public boolean isCompleteWithoutErrors() {
+    // TODO(https://github.com/seattle-uat/civiform/issues/551): Stream only required scalar paths
+    // instead of all scalar paths.
+    return blockDefinition.scalarPaths().stream()
+            .filter(path -> !applicantData.hasValueAtPath(path))
+            .findAny()
+            .isEmpty()
+        && !hasErrors();
+  }
+
+  /**
+   * Checks whether all questions in this block were completed while applying to the given program.
+   *
+   * @param programId the program ID to check
+   * @return true if all questions were last updated while filling out the program with the given
+   *     ID; false otherwise
+   */
+  public boolean wasCompletedInProgram(long programId) {
+    return isCompleteWithoutErrors()
+        && getQuestions().stream()
+            .anyMatch(
+                q -> {
+                  Optional<Long> lastUpdatedInProgram = q.getUpdatedInProgramMetadata();
+                  return lastUpdatedInProgram.isPresent()
+                      && lastUpdatedInProgram.get().equals(programId);
+                });
+  }
+
+  @Override
+  public boolean equals(@Nullable Object object) {
+    if (object instanceof Block) {
+      Block that = (Block) object;
+      return this.id == that.id
+          && this.blockDefinition.equals(that.blockDefinition)
+          && this.applicantData.equals(that.applicantData);
     }
-    return errorsMemo.get();
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, blockDefinition, applicantData);
   }
 
   @Override

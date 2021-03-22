@@ -3,9 +3,11 @@ package services.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import services.Path;
 import services.question.AddressQuestionDefinition;
 import services.question.NameQuestionDefinition;
@@ -63,6 +65,14 @@ public class ApplicantQuestion {
       return true;
     }
     return errorsPresenter().hasTypeSpecificErrors();
+  }
+
+  public Optional<Long> getUpdatedInProgramMetadata() {
+    return applicantData.readLong(questionDefinition.getProgramIdPath());
+  }
+
+  public Optional<Long> getLastUpdatedTimeMetadata() {
+    return applicantData.readLong(questionDefinition.getLastUpdatedTimePath());
   }
 
   public AddressQuestion getAddressQuestion() {
@@ -484,5 +494,20 @@ public class ApplicantQuestion {
     private boolean lastNameAnswered() {
       return applicantData.hasPath(getLastNamePath());
     }
+  }
+
+  @Override
+  public boolean equals(@Nullable Object object) {
+    if (object instanceof ApplicantQuestion) {
+      ApplicantQuestion that = (ApplicantQuestion) object;
+      return this.questionDefinition.equals(that.questionDefinition)
+          && this.applicantData.equals(that.applicantData);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(questionDefinition, applicantData);
   }
 }

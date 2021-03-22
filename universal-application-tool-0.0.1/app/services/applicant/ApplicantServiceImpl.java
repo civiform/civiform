@@ -131,7 +131,7 @@ public class ApplicantServiceImpl implements ApplicantService {
                       applicant.getApplicantData(), programDefinition);
 
               Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
-              if (!blockMaybe.get().hasErrors()) {
+              if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
                 return applicantRepository
                     .updateApplicant(applicant)
                     .thenApplyAsync(
