@@ -184,10 +184,11 @@ public class ProgramServiceImpl implements ProgramService {
             .addBlockDefinition(blockDefinition)
             .build()
             .toProgram(LifecycleStage.DRAFT);
-    return ErrorAnd.of(syncProgramDefinitionQuestions(
-            programRepository.updateProgramSync(program).getProgramDefinition())
-        .toCompletableFuture()
-        .join());
+    return ErrorAnd.of(
+        syncProgramDefinitionQuestions(
+                programRepository.updateProgramSync(program).getProgramDefinition())
+            .toCompletableFuture()
+            .join());
   }
 
   @Override
