@@ -60,11 +60,11 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   @Test
-  public void getCurrentBlockList_returnsEmptyListIfAllBlocksComplete() {
-    // Answer all questions
-    answerNameQuestion();
-    answerColorQuestion();
-    answerAddressQuestion();
+  public void getCurrentBlockList_returnsEmptyListIfAllBlocksCompletedInAnotherProgram() {
+    // Answer all questions for a different program.
+    answerNameQuestion(88L);
+    answerColorQuestion(88L);
+    answerAddressQuestion(88L);
 
     ImmutableList<Block> blockList = subject.getCurrentBlockList();
 
@@ -78,6 +78,24 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
     // Answer block 1 questions in this program session
     answerNameQuestion(programDefinition.id());
+    blockList = subject.getCurrentBlockList();
+
+    // Block 1 should still be there
+    assertThat(blockList).hasSize(2);
+    Block block = blockList.get(0);
+    assertThat(block.getName()).isEqualTo("Block one");
+  }
+
+  @Test
+  public void getCurrentBlockList_includesBlocksThatWerePartiallyCompletedInAnotherProgram() {
+    // Answer one of block 2 questions in another program
+    answerAddressQuestion(88L);
+    ImmutableList<Block> blockList = subject.getCurrentBlockList();
+    assertThat(blockList).hasSize(2);
+
+    // Answer the other block 2 questions in this program session
+    answerColorQuestion(programDefinition.id());
+    blockList = subject.getCurrentBlockList();
 
     // Block 1 should still be there
     assertThat(blockList).hasSize(2);
@@ -139,6 +157,18 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     assertThat(maybeBlock.get().getName()).isEqualTo("Block one");
   }
 
+  @Test
+  public void getFirstIncompleteBlock_returnsFirstIncompleteIfFirstBlockCompleted() {
+    // Answer the first block in this program - it will still be in getCurrentBlockList;
+    answerNameQuestion(programDefinition.id());
+    assertThat(subject.getCurrentBlockList().get(0).getName()).isEqualTo("Block one");
+
+    Optional<Block> maybeBlock = subject.getFirstIncompleteBlock();
+
+    assertThat(maybeBlock).isNotEmpty();
+    assertThat(maybeBlock.get().getName()).isEqualTo("Block two");
+  }
+
   private void answerNameQuestion() {
     answerNameQuestion(1L);
   }
@@ -151,20 +181,20 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     applicantData.putLong(nameQuestion.getLastUpdatedTimePath(), 12345L);
   }
 
-  private void answerColorQuestion() {
+  private void answerColorQuestion(long programId) {
     applicantData.putString(colorQuestion.getPath().toBuilder().append("text").build(), "mauve");
-    applicantData.putLong(colorQuestion.getProgramIdPath(), 1L);
+    applicantData.putLong(colorQuestion.getProgramIdPath(), programId);
     applicantData.putLong(colorQuestion.getLastUpdatedTimePath(), 12345L);
   }
 
-  private void answerAddressQuestion() {
+  private void answerAddressQuestion(long programId) {
     applicantData.putString(
         addressQuestion.getPath().toBuilder().append("street").build(), "123 Rhode St.");
     applicantData.putString(
         addressQuestion.getPath().toBuilder().append("city").build(), "Seattle");
     applicantData.putString(addressQuestion.getPath().toBuilder().append("state").build(), "WA");
     applicantData.putString(addressQuestion.getPath().toBuilder().append("zip").build(), "12345");
-    applicantData.putLong(addressQuestion.getProgramIdPath(), 1L);
+    applicantData.putLong(addressQuestion.getProgramIdPath(), programId);
     applicantData.putLong(addressQuestion.getLastUpdatedTimePath(), 12345L);
   }
 }

@@ -233,6 +233,18 @@ public class BlockTest {
     assertThat(block.wasCompletedInProgram(22L)).isTrue();
   }
 
+  @Test
+  public void wasCompletedInProgram_returnsTrueIfSomeQuestionsCompletedInGivenProgram() {
+    ApplicantData applicantData = new ApplicantData();
+    BlockDefinition definition = setUpBlockWithQuestions();
+
+    Block block = new Block(1L, definition, applicantData);
+    answerNameQuestion(applicantData, 100L);
+    answerColorQuestion(applicantData, 200L);
+
+    assertThat(block.wasCompletedInProgram(200L)).isTrue();
+  }
+
   private static BlockDefinition setUpBlockWithQuestions() {
     return BlockDefinition.builder()
         .setId(20L)

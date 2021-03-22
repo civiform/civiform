@@ -85,13 +85,14 @@ public final class Block {
    *     ID; false otherwise
    */
   public boolean wasCompletedInProgram(long programId) {
-    return getQuestions().stream()
-        .allMatch(
-            q -> {
-              Optional<Long> lastUpdatedInProgram = q.getUpdatedInProgramMetadata();
-              return lastUpdatedInProgram.isPresent()
-                  && lastUpdatedInProgram.get().equals(programId);
-            });
+    return isCompleteWithoutErrors()
+        && getQuestions().stream()
+            .anyMatch(
+                q -> {
+                  Optional<Long> lastUpdatedInProgram = q.getUpdatedInProgramMetadata();
+                  return lastUpdatedInProgram.isPresent()
+                      && lastUpdatedInProgram.get().equals(programId);
+                });
   }
 
   @Override
