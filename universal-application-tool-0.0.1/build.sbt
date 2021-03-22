@@ -98,4 +98,4 @@ dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.10.5",
 )
 resolveFromWebjarsNodeModulesDir := true
-playRunHooks += Tailwindbuilder(baseDirectory.value)
+playRunHooks += TailwindBuilder(baseDirectory.value)
