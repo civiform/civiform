@@ -20,6 +20,6 @@ object TailwindBuilder {
       }
     }
 
-    TailwindbuilderHook
+    TailwindBuilderHook
   }
 }
