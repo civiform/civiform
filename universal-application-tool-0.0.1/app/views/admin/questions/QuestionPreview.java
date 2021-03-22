@@ -5,15 +5,16 @@ import static j2html.TagCreator.span;
 
 import j2html.tags.ContainerTag;
 import services.question.QuestionType;
+import services.question.UnsupportedQuestionTypeException;
+import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.style.Styles;
 
 public class QuestionPreview {
 
-  private static ContainerTag buildQuestionRenderer(QuestionType type) {
-    return span().withText("Render question of type: " + type.toString());
-    // TODO [NOW]: Setup question renderer.
-    // ApplicantQuestionRendererFactory rf = new ApplicantQuestionRendererFactory();
-    // return rf.getSampleRenderer(type).render();
+  private static ContainerTag buildQuestionRenderer(QuestionType type)
+      throws UnsupportedQuestionTypeException {
+    ApplicantQuestionRendererFactory rf = new ApplicantQuestionRendererFactory();
+    return div(rf.getSampleRenderer(type).render());
   }
 
   public static ContainerTag renderQuestionPreview(QuestionType type) {
@@ -30,8 +31,14 @@ public class QuestionPreview {
             .withText("Sample Question of type: ")
             .with(span().withText(type.toString()).withClasses(Styles.FONT_SEMIBOLD));
 
+    ContainerTag renderedQuestion = div();
+    try {
+      renderedQuestion = buildQuestionRenderer(type);
+    } catch (UnsupportedQuestionTypeException e) {
+      renderedQuestion = div().withText(e.toString());
+    }
     ContainerTag innerContentContainer =
-        div(buildQuestionRenderer(type))
+        div(renderedQuestion)
             .withClasses(Styles.TEXT_3XL, Styles.PL_16, Styles.PT_20, Styles.W_FULL);
     ContainerTag contentContainer = div(innerContentContainer).withId("sample-question");
 

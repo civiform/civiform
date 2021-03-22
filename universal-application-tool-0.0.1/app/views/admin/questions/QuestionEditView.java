@@ -79,7 +79,7 @@ public final class QuestionEditView extends BaseHtmlView {
       Request request, long id, QuestionForm questionForm, String message)
       throws InvalidQuestionTypeException {
     QuestionType questionType = QuestionType.of(questionForm.getQuestionType());
-    String title = String.format("New %s question", questionType.toString().toLowerCase());
+    String title = String.format("Edit %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
         buildQuestionContainer(title)

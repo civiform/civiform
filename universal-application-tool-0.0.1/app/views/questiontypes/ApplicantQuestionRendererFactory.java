@@ -1,7 +1,5 @@
 package views.questiontypes;
 
-import com.google.common.collect.ImmutableMap;
-import java.util.Locale;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantQuestion;
 import services.question.QuestionDefinition;
@@ -13,14 +11,7 @@ public class ApplicantQuestionRendererFactory {
 
   public ApplicantQuestionRenderer getSampleRenderer(QuestionType questionType)
       throws UnsupportedQuestionTypeException, UnsupportedOperationException {
-    QuestionDefinition questionDefinition =
-        new QuestionDefinitionBuilder()
-            .setName("")
-            .setDescription("")
-            .setQuestionText(ImmutableMap.of(Locale.US, "Sample question text"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.US, "Sample question help text"))
-            .setQuestionType(questionType)
-            .build();
+    QuestionDefinition questionDefinition = QuestionDefinitionBuilder.sample(questionType).build();
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(questionDefinition, new ApplicantData());
     return getRenderer(applicantQuestion);
