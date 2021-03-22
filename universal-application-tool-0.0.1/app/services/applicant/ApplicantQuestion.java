@@ -86,6 +86,8 @@ public class ApplicantQuestion {
         return getAddressQuestion();
       case NAME:
         return getNameQuestion();
+      case NUMBER:
+        return getNumberQuestion();
       case TEXT:
         return getTextQuestion();
       default:
