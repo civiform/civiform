@@ -16,4 +16,4 @@ done
 
 echo detected server start
 
-yarn test --forceExit
+yarn test $@
