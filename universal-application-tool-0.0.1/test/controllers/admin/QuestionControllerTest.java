@@ -113,7 +113,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
         .edit(request, question.id)
         .thenAccept(
             result -> {
-              assertThat(result.status()).isEqualTo(OK);              
+              assertThat(result.status()).isEqualTo(OK);
               assertThat(contentAsString(result)).contains("Edit text question");
               assertThat(contentAsString(result))
                   .contains(CSRF.getToken(request.asScala()).value());
