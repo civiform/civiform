@@ -8,11 +8,15 @@ import auth.Roles;
 import com.google.common.collect.ImmutableMap;
 import controllers.routes;
 import java.util.Optional;
+import models.Applicant;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 import play.Application;
+import repository.ApplicantRepository;
+import services.WellKnownPaths;
 import support.TestConstants;
 
 public class SecurityBrowserTest extends BaseBrowserTest {
@@ -23,6 +27,8 @@ public class SecurityBrowserTest extends BaseBrowserTest {
   public static GenericContainer<?> oidcProvider =
       new GenericContainer<>(OIDC_IMAGE).withExposedPorts(3380);
 
+  private static ApplicantRepository applicantRepository;
+
   @Override
   protected Application provideApplication() {
     ImmutableMap<String, Object> config =
@@ -32,6 +38,11 @@ public class SecurityBrowserTest extends BaseBrowserTest {
                 TestConstants.oidcConfig(oidcProvider.getHost(), oidcProvider.getMappedPort(3380)))
             .build();
     return fakeApplication(config);
+  }
+
+  @Before
+  public void getApplicantRepository() {
+    applicantRepository = app.injector().instanceOf(ApplicantRepository.class);
   }
 
   protected void loginWithSimulatedIdcs() {
@@ -98,6 +109,21 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     goTo(routes.ProfileController.myProfile());
     assertThat(browser.pageSource()).contains("OidcClient");
     assertThat(browser.pageSource()).contains("username@example.com");
+
+    Applicant applicant =
+        applicantRepository.lookupApplicant(getApplicantId()).toCompletableFuture().join().get();
+    Optional<String> applicantName =
+        applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_FIRST_NAME);
+    assertThat(applicantName).isPresent();
+    assertThat(applicantName.get()).isEqualTo("first");
+
+    applicantName = applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_MIDDLE_NAME);
+    assertThat(applicantName).isPresent();
+    assertThat(applicantName.get()).isEqualTo("middle");
+
+    applicantName = applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_LAST_NAME);
+    assertThat(applicantName).isPresent();
+    assertThat(applicantName.get()).isEqualTo("last");
   }
 
   @Test
