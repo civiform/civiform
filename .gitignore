@@ -10,3 +10,4 @@ RUNNING_PID
 .secrets
 node_modules
 bundle.js
+tailwind.css
