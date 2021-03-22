@@ -5,63 +5,62 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
-import services.Path;
-
 import java.util.Locale;
 import java.util.OptionalLong;
+import services.Path;
 
 public class NumberQuestionDefinition extends QuestionDefinition {
 
   public NumberQuestionDefinition(
-          OptionalLong id,
-          long version,
-          String name,
-          Path path,
-          String description,
-          ImmutableMap<Locale, String> questionText,
-          ImmutableMap<Locale, String> questionHelpText,
-          NumberQuestionDefinition.NumberValidationPredicates validationPredicates) {
+      OptionalLong id,
+      long version,
+      String name,
+      Path path,
+      String description,
+      ImmutableMap<Locale, String> questionText,
+      ImmutableMap<Locale, String> questionHelpText,
+      NumberQuestionDefinition.NumberValidationPredicates validationPredicates) {
     super(
-            id, version, name, path, description, questionText, questionHelpText, validationPredicates);
+        id, version, name, path, description, questionText, questionHelpText, validationPredicates);
   }
 
   public NumberQuestionDefinition(
-          long version,
-          String name,
-          Path path,
-          String description,
-          ImmutableMap<Locale, String> questionText,
-          ImmutableMap<Locale, String> questionHelpText,
-          NumberQuestionDefinition.NumberValidationPredicates validationPredicates) {
+      long version,
+      String name,
+      Path path,
+      String description,
+      ImmutableMap<Locale, String> questionText,
+      ImmutableMap<Locale, String> questionHelpText,
+      NumberQuestionDefinition.NumberValidationPredicates validationPredicates) {
     super(version, name, path, description, questionText, questionHelpText, validationPredicates);
   }
 
   public NumberQuestionDefinition(
-          long version,
-          String name,
-          Path path,
-          String description,
-          ImmutableMap<Locale, String> questionText,
-          ImmutableMap<Locale, String> questionHelpText) {
+      long version,
+      String name,
+      Path path,
+      String description,
+      ImmutableMap<Locale, String> questionText,
+      ImmutableMap<Locale, String> questionHelpText) {
     super(
-            version,
-            name,
-            path,
-            description,
-            questionText,
-            questionHelpText,
-            NumberQuestionDefinition.NumberValidationPredicates.create());
+        version,
+        name,
+        path,
+        description,
+        questionText,
+        questionHelpText,
+        NumberQuestionDefinition.NumberValidationPredicates.create());
   }
 
   @JsonDeserialize(
-          builder = AutoValue_NumberQuestionDefinition_NumberValidationPredicates.Builder.class)
+      builder = AutoValue_NumberQuestionDefinition_NumberValidationPredicates.Builder.class)
   @AutoValue
   public abstract static class NumberValidationPredicates extends ValidationPredicates {
 
     public static NumberQuestionDefinition.NumberValidationPredicates parse(String jsonString) {
       try {
         return mapper.readValue(
-                jsonString, AutoValue_NumberQuestionDefinition_NumberValidationPredicates.class);
+            jsonString, AutoValue_NumberQuestionDefinition_NumberValidationPredicates.class);
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
       }
@@ -89,12 +88,14 @@ public class NumberQuestionDefinition extends QuestionDefinition {
     public abstract static class Builder {
 
       @JsonProperty("min")
-      public abstract NumberQuestionDefinition.NumberValidationPredicates.Builder setMin(OptionalLong min);
+      public abstract NumberQuestionDefinition.NumberValidationPredicates.Builder setMin(
+          OptionalLong min);
 
       public abstract NumberQuestionDefinition.NumberValidationPredicates.Builder setMin(int min);
 
       @JsonProperty("max")
-      public abstract NumberQuestionDefinition.NumberValidationPredicates.Builder setMax(OptionalLong max);
+      public abstract NumberQuestionDefinition.NumberValidationPredicates.Builder setMax(
+          OptionalLong max);
 
       public abstract NumberQuestionDefinition.NumberValidationPredicates.Builder setMax(int max);
 
@@ -121,7 +122,7 @@ public class NumberQuestionDefinition extends QuestionDefinition {
   }
 
   public ScalarType getNumberType() {
-    return ScalarType.INT;
+    return ScalarType.LONG;
   }
 
   public OptionalLong getMin() {
