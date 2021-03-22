@@ -55,8 +55,6 @@ public class ApplicantProgramsController extends Controller {
             httpContext.current());
   }
 
-  // TODO(https://github.com/seattle-uat/universal-application-tool/issues/224): Get next incomplete
-  // block instead of just first block.
   public CompletionStage<Result> edit(long applicantId, long programId) {
     // Determine first incomplete block, then redirect to other edit.
     return applicantService

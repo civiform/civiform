@@ -19,6 +19,14 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     this.programDefinition = checkNotNull(programDefinition);
   }
 
+  /**
+   * Get the list of {@link Block}s this applicant should fill out for this program. This list
+   * includes any block that is incomplete or has errors (which indicate the applicant needs to make
+   * a correction), or any block that was completed while filling out this program form.
+   *
+   * @return a list of {@link Block}s that were completed by the applicant in this session or still
+   *     need to be completed for this program
+   */
   @Override
   public ImmutableList<Block> getCurrentBlockList() {
     if (currentBlockList.isPresent()) {
@@ -28,6 +36,10 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     ImmutableList<Block> blocks =
         programDefinition.blockDefinitions().stream()
             .map(blockDefinition -> new Block(blockDefinition.id(), blockDefinition, applicantData))
+            .filter(
+                block ->
+                    !block.isCompleteWithoutErrors()
+                        || block.wasCompletedInProgram(programDefinition.id()))
             .collect(toImmutableList());
 
     currentBlockList = Optional.of(blocks);
@@ -37,7 +49,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public Optional<Block> getBlock(long blockId) {
-    return getCurrentBlockList().stream().filter((block) -> block.getId() == blockId).findFirst();
+    return getAllBlocksForThisProgram().stream()
+        .filter((block) -> block.getId() == blockId)
+        .findFirst();
   }
 
   @Override
@@ -60,11 +74,16 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return getBlockAfter(block.getId());
   }
 
-  // TODO(https://github.com/seattle-uat/universal-application-tool/issues/224): Implement checking
-  // blocks for completion
   @Override
   public Optional<Block> getFirstIncompleteBlock() {
-    ImmutableList<Block> currentBlockList = getCurrentBlockList();
-    return currentBlockList.isEmpty() ? Optional.empty() : Optional.of(currentBlockList.get(0));
+    return getCurrentBlockList().stream()
+        .filter(block -> !block.isCompleteWithoutErrors())
+        .findFirst();
+  }
+
+  private ImmutableList<Block> getAllBlocksForThisProgram() {
+    return programDefinition.blockDefinitions().stream()
+        .map(blockDefinition -> new Block(blockDefinition.id(), blockDefinition, applicantData))
+        .collect(toImmutableList());
   }
 }

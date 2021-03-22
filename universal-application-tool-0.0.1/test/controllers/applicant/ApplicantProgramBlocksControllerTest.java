@@ -20,6 +20,7 @@ import org.junit.Test;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.WithPostgresContainer;
+import services.question.QuestionDefinition;
 import support.ProgramBuilder;
 import support.TestQuestionBank;
 
@@ -122,6 +123,20 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
     Request request =
         fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, 1L))
             .bodyForm(ImmutableMap.of("fake.path", "value"))
+            .build();
+
+    Result result =
+        subject.update(request, applicant.id, program.id, 1L).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void update_reservedPathsInRequest_returnsBadRequest() {
+    String reservedPath = "metadata." + QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY;
+    Request request =
+        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, 1L))
+            .bodyForm(ImmutableMap.of(reservedPath, "value"))
             .build();
 
     Result result =

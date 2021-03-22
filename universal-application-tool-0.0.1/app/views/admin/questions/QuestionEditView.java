@@ -84,6 +84,7 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private ContainerTag buildQuestionForm(QuestionForm questionForm) {
+    QuestionType questionType = QuestionType.valueOf(questionForm.getQuestionType());
     ContainerTag formTag = form().withMethod("POST");
     formTag
         .with(
@@ -122,8 +123,9 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setPlaceholderText("The question help text displayed to the applicant")
                 .setValue(questionForm.getQuestionText())
                 .getContainer())
-        .with(formQuestionTypeSelect(QuestionType.valueOf(questionForm.getQuestionType())));
+        .with(formQuestionTypeSelect(questionType));
 
+    formTag.with(QuestionConfig.buildQuestionConfig(questionType));
     return formTag;
   }
 

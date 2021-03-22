@@ -1,6 +1,7 @@
 package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.google.common.collect.ImmutableList;
@@ -90,6 +91,35 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
+  public void stageAndUpdateIfValid_updatesMetadataForQuestionOnce() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+
+    ImmutableSet<Update> updates =
+        ImmutableSet.of(
+            Update.create(Path.create("applicant.name.first"), "Alice"),
+            Update.create(Path.create("applicant.name.last"), "Doe"));
+
+    ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
+        subject
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 1L, updates)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(errorAnd.isError()).isFalse();
+    assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
+
+    ApplicantData applicantDataAfter =
+        applicantRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    Path programIdPath =
+        Path.create("applicant.name." + QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY);
+    Path timestampPath =
+        Path.create("applicant.name." + QuestionDefinition.METADATA_UPDATE_TIME_KEY);
+    assertThat(applicantDataAfter.readLong(programIdPath)).hasValue(programDefinition.id());
+    assertThat(applicantDataAfter.readLong(timestampPath)).isPresent();
+  }
+
+  @Test
   public void stageAndUpdateIfValid_hasApplicantNotFoundException() {
     ImmutableSet<Update> updates = ImmutableSet.of();
     long badApplicantId = 1L;
@@ -158,6 +188,23 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     assertThat(errorAnd.hasResult()).isFalse();
     assertThat(errorAnd.getErrors()).hasSize(1);
     assertThat(errorAnd.getErrors().asList().get(0)).isInstanceOf(PathNotInBlockException.class);
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_hasIllegalArgumentExceptionForReservedScalarKeys() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    String reservedScalar = "applicant.name." + QuestionDefinition.METADATA_UPDATE_TIME_KEY;
+    ImmutableMap<String, String> updates = ImmutableMap.of(reservedScalar, "12345");
+
+    assertThatExceptionOfType(CompletionException.class)
+        .isThrownBy(
+            () ->
+                subject
+                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 1L, updates)
+                    .toCompletableFuture()
+                    .join())
+        .withCauseInstanceOf(IllegalArgumentException.class)
+        .withMessageContaining("Path contained reserved scalar key");
   }
 
   @Test

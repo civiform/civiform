@@ -4,11 +4,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.Option;
+import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.spi.mapper.MappingException;
 import java.time.Instant;
 import java.util.HashMap;
@@ -22,12 +20,7 @@ import services.Path;
 import services.WellKnownPaths;
 
 public class ApplicantData {
-  // Suppress errors thrown by JsonPath and instead return null if a path does not exist in a JSON
-  // blob.
-  private static final Configuration CONFIGURATION =
-      Configuration.defaultConfiguration().addOptions(Option.SUPPRESS_EXCEPTIONS);
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
-
   private static final Locale DEFAULT_LOCALE = Locale.US;
 
   private Locale preferredLocale;
@@ -43,7 +36,7 @@ public class ApplicantData {
 
   public ApplicantData(Locale preferredLocale, String jsonData) {
     this.preferredLocale = preferredLocale;
-    this.jsonData = JsonPath.using(CONFIGURATION).parse(checkNotNull(jsonData));
+    this.jsonData = JsonPath.parse(checkNotNull(jsonData));
   }
 
   public Locale preferredLocale() {
@@ -54,16 +47,68 @@ public class ApplicantData {
     this.preferredLocale = locale;
   }
 
+  /**
+   * Checks whether the given path exists in the JSON data. Returns true if the path is present;
+   * false otherwise. Semantically, this checks whether the applicant has answered this question
+   * before.
+   *
+   * @param path the {@link Path} to check
+   * @return true if path is present for this applicant; false otherwise
+   */
+  public boolean hasPath(Path path) {
+    try {
+      this.jsonData.read(path.path());
+    } catch (PathNotFoundException e) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Returns true if there is a non-null value at the given {@link Path}; false otherwise. Will
+   * return false if there is a null value at the path.
+   *
+   * @param path the {@link Path} to check
+   * @return true if there is a non-null value at the given path; false otherwise
+   */
+  public boolean hasValueAtPath(Path path) {
+    try {
+      return read(path, Object.class).isPresent();
+    } catch (JsonPathTypeMismatchException e) {
+      return false;
+    }
+  }
+
+  /**
+   * Write the given string at the given {@link Path}. If the string is empty, it will write a null
+   * value instead.
+   */
   public void putString(Path path, String value) {
+    if (value.isEmpty()) {
+      putNull(path);
+    } else {
+      put(path, value);
+    }
+  }
+
+  public void putLong(Path path, long value) {
     put(path, value);
   }
 
-  public void putInteger(Path path, int value) {
-    put(path, value);
+  /**
+   * Parses and writes a long value, given as a string. If the string is empty, a null value is
+   * written.
+   */
+  public void putLong(Path path, String value) {
+    if (value.isEmpty()) {
+      putNull(path);
+    } else {
+      put(path, Long.parseLong(value));
+    }
   }
 
-  public <K, V> void putObject(Path path, ImmutableMap<K, V> value) {
-    put(path, value);
+  private void putNull(Path path) {
+    put(path, null);
   }
 
   /**
@@ -78,7 +123,7 @@ public class ApplicantData {
     path.parentPaths()
         .forEach(
             segmentPath -> {
-              if (this.jsonData.read(segmentPath.path()) == null) {
+              if (!hasPath(segmentPath)) {
                 this.jsonData.put(
                     segmentPath.parentPath().path(), segmentPath.keyName(), new HashMap<>());
               }
@@ -103,9 +148,9 @@ public class ApplicantData {
    * Attempt to read a integer at the given path. Returns {@code Optional#empty} if the path does
    * not exist or a value other than Integer is found.
    */
-  public Optional<Integer> readInteger(Path path) {
+  public Optional<Long> readLong(Path path) {
     try {
-      return this.read(path, Integer.class);
+      return this.read(path, Long.class);
     } catch (JsonPathTypeMismatchException e) {
       return Optional.empty();
     }
@@ -123,6 +168,8 @@ public class ApplicantData {
   private <T> Optional<T> read(Path path, Class<T> type) throws JsonPathTypeMismatchException {
     try {
       return Optional.ofNullable(this.jsonData.read(path.path(), type));
+    } catch (PathNotFoundException e) {
+      return Optional.empty();
     } catch (MappingException e) {
       throw new JsonPathTypeMismatchException(path.path(), type, e);
     }
@@ -149,14 +196,6 @@ public class ApplicantData {
       return this.jsonData.jsonString().equals(that.jsonData.jsonString());
     }
     return false;
-  }
-
-  public boolean hasPath(Path path) {
-    try {
-      return read(path, Object.class).isPresent();
-    } catch (JsonPathTypeMismatchException e) {
-      return false;
-    }
   }
 
   @Override
