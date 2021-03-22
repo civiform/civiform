@@ -80,20 +80,23 @@ public interface ProgramService {
    * @param programId the ID of the program to update
    * @param blockName a name for the block to add
    * @param blockDescription a description of what the questions in the block address
-   * @return the updated {@link ProgramDefinition}
+   * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
+   *     failed
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
-  ProgramDefinition addBlockToProgram(long programId, String blockName, String blockDescription)
-      throws ProgramNotFoundException;
+  ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(
+      long programId, String blockName, String blockDescription) throws ProgramNotFoundException;
 
   /**
    * Adds an empty {@link BlockDefinition} to the given program.
    *
    * @param programId the ID of the program to update
-   * @return the updated {@link ProgramDefinition}
+   * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
+   *     failed
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
-  ProgramDefinition addBlockToProgram(long programId) throws ProgramNotFoundException;
+  ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(long programId)
+      throws ProgramNotFoundException;
 
   /**
    * Adds a {@link BlockDefinition} to the given program.
@@ -102,10 +105,11 @@ public interface ProgramService {
    * @param blockName a name for the block to add
    * @param blockDescription a description of what the questions in the block address
    * @param questionDefinitions an {@link ImmutableList} of questions for the block
-   * @return the updated {@link ProgramDefinition}
+   * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
+   *     failed
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
-  ProgramDefinition addBlockToProgram(
+  ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(
       long programId,
       String blockName,
       String blockDescription,
@@ -118,11 +122,14 @@ public interface ProgramService {
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
    * @param blockForm a {@link BlockForm} object containing the new attributes for the block
-   * @return the updated {@link ProgramDefinition}
+   * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
+   *     failed
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
-   * @throws ProgramBlockNotFoundException when blockID does not correspond to a real Block.
+   * @throws ProgramBlockNotFoundException when blockDefinitionId does not correspond to a real
+   *     Block.
    */
-  ProgramDefinition updateBlock(long programId, long blockDefinitionId, BlockForm blockForm)
+  ErrorAnd<ProgramDefinition, CiviFormError> updateBlock(
+      long programId, long blockDefinitionId, BlockForm blockForm)
       throws ProgramNotFoundException, ProgramBlockNotFoundException;
 
   /**

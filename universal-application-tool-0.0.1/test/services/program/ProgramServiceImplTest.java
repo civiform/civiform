@@ -339,7 +339,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   public void addBlockToProgram_emptyBlock_returnsProgramDefinitionWithBlock() throws Exception {
     ProgramDefinition programDefinition =
         ProgramBuilder.newProgram().withBlock("Block 1").buildDefinition();
-    ProgramDefinition updatedProgramDefinition = ps.addBlockToProgram(programDefinition.id());
+    ProgramDefinition updatedProgramDefinition =
+        ps.addBlockToProgram(programDefinition.id()).getResult();
 
     ProgramDefinition found = ps.getProgramDefinition(programDefinition.id());
 
@@ -354,7 +355,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
     BlockDefinition newBlock = found.blockDefinitions().get(1);
     assertThat(newBlock.name()).isEqualTo("Block 2");
-    assertThat(newBlock.description()).isEqualTo("");
+    assertThat(newBlock.description()).isEqualTo("no description");
     assertThat(newBlock.programQuestionDefinitions()).hasSize(0);
   }
 
@@ -364,7 +365,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
         ProgramBuilder.newProgram().withBlock("Block 1").buildDefinition();
     Long programId = programDefinition.id();
     ProgramDefinition updatedProgramDefinition =
-        ps.addBlockToProgram(programDefinition.id(), "the block", "the block for the program");
+        ps.addBlockToProgram(programDefinition.id(), "the block", "the block for the program")
+            .getResult();
 
     ProgramDefinition found = ps.getProgramDefinition(programId);
 
@@ -393,7 +395,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
         ProgramQuestionDefinition.create(question);
 
     ProgramDefinition updated =
-        ps.addBlockToProgram(id, "block", "desc", ImmutableList.of(programQuestionDefinition));
+        ps.addBlockToProgram(id, "block", "desc", ImmutableList.of(programQuestionDefinition))
+            .getResult();
 
     assertThat(updated.blockDefinitions()).hasSize(2);
 
@@ -423,10 +426,11 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
     program =
         ps.addBlockToProgram(
-            program.id(),
-            "Block",
-            "Block Description",
-            ImmutableList.of(ProgramQuestionDefinition.create(question)));
+                program.id(),
+                "Block",
+                "Block Description",
+                ImmutableList.of(ProgramQuestionDefinition.create(question)))
+            .getResult();
 
     QuestionDefinition foundQuestion =
         program
@@ -437,7 +441,9 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
             .getQuestionDefinition();
     assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
 
-    program = ps.addBlockToProgram(program.id(), "empty block", "this block has no questions");
+    program =
+        ps.addBlockToProgram(program.id(), "empty block", "this block has no questions")
+            .getResult();
 
     foundQuestion =
         program
@@ -451,7 +457,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void updateBlock_noProgram_throwsProgramNotFoundException() {
-    assertThatThrownBy(() -> ps.updateBlock(1L, 1L, new BlockForm()))
+    assertThatThrownBy(() -> ps.updateBlock(1L, 1L, new BlockForm("block", "description")))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessage("Program not found for ID: 1");
   }

@@ -1,10 +1,19 @@
 package forms;
 
-import play.data.validation.Constraints;
 
 public class BlockForm {
-  private @Constraints.Required String name;
-  private @Constraints.Required String description;
+  private String name;
+  private String description;
+
+  public BlockForm(String name, String description) {
+    this.name = name;
+    this.description = description;
+  }
+
+  public BlockForm() {
+    name = "";
+    description = "";
+  }
 
   public String getName() {
     return name;

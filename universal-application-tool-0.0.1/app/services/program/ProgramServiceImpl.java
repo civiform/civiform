@@ -141,28 +141,33 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
-  public ProgramDefinition addBlockToProgram(long programId) throws ProgramNotFoundException {
+  public ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(long programId)
+      throws ProgramNotFoundException {
     ProgramDefinition program = getProgramDefinition(programId);
     String blockName = String.format("Block %d", program.blockDefinitions().size() + 1);
 
-    return addBlockToProgram(programId, blockName, "", ImmutableList.of());
+    return addBlockToProgram(programId, blockName, "no description", ImmutableList.of());
   }
 
   @Override
   @Transactional
-  public ProgramDefinition addBlockToProgram(
+  public ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(
       long programId, String blockName, String blockDescription) throws ProgramNotFoundException {
     return addBlockToProgram(programId, blockName, blockDescription, ImmutableList.of());
   }
 
   @Override
   @Transactional
-  public ProgramDefinition addBlockToProgram(
+  public ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(
       long programId,
       String blockName,
       String blockDescription,
       ImmutableList<ProgramQuestionDefinition> questionDefinitions)
       throws ProgramNotFoundException {
+    ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockName, blockDescription);
+    if (!errors.isEmpty()) {
+      return ErrorAnd.error(errors);
+    }
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     long blockId = getNextBlockId(programDefinition);
 
@@ -179,16 +184,22 @@ public class ProgramServiceImpl implements ProgramService {
             .addBlockDefinition(blockDefinition)
             .build()
             .toProgram(LifecycleStage.DRAFT);
-    return syncProgramDefinitionQuestions(
+    return ErrorAnd.of(syncProgramDefinitionQuestions(
             programRepository.updateProgramSync(program).getProgramDefinition())
         .toCompletableFuture()
-        .join();
+        .join());
   }
 
   @Override
   @Transactional
-  public ProgramDefinition updateBlock(long programId, long blockDefinitionId, BlockForm blockForm)
+  public ErrorAnd<ProgramDefinition, CiviFormError> updateBlock(
+      long programId, long blockDefinitionId, BlockForm blockForm)
       throws ProgramNotFoundException, ProgramBlockNotFoundException {
+    ImmutableSet<CiviFormError> errors =
+        validateBlockDefinition(blockForm.getName(), blockForm.getDescription());
+    if (!errors.isEmpty()) {
+      return ErrorAnd.error(errors);
+    }
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     int blockDefinitionIndex = getBlockDefinitionIndex(programDefinition, blockDefinitionId);
 
@@ -198,8 +209,20 @@ public class ProgramServiceImpl implements ProgramService {
             .setDescription(blockForm.getDescription())
             .build();
 
-    return updateProgramDefinitionWithBlockDefinition(
-        programDefinition, blockDefinitionIndex, blockDefinition);
+    return ErrorAnd.of(
+        updateProgramDefinitionWithBlockDefinition(
+            programDefinition, blockDefinitionIndex, blockDefinition));
+  }
+
+  private ImmutableSet<CiviFormError> validateBlockDefinition(String name, String description) {
+    ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.<CiviFormError>builder();
+    if (name.isBlank()) {
+      errors.add(CiviFormError.of("block name cannot be blank"));
+    }
+    if (description.isBlank()) {
+      errors.add(CiviFormError.of("block description cannot be blank"));
+    }
+    return errors.build();
   }
 
   @Override

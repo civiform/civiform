@@ -61,7 +61,7 @@ public class ProgramAdministrationBrowserTest extends BaseBrowserTest {
     // add block to program
     browser.$("button", withId("add-block-button")).first().click();
     assertThat(getInputValue("name")).isEqualTo("Block 2");
-    assertThat(getTextAreaValue("description")).isEqualTo("");
+    assertThat(getTextAreaValue("description")).isEqualTo("no description");
 
     // add question to block 2
     addQuestionsToBlock(questionRemovedName);

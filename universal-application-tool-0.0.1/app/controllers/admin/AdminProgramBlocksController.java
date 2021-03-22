@@ -58,7 +58,7 @@ public class AdminProgramBlocksController extends Controller {
     ProgramDefinition program;
 
     try {
-      program = programService.addBlockToProgram(programId);
+      program = programService.addBlockToProgram(programId).getResult();
     } catch (ProgramNotFoundException e) {
       // This really shouldn't happen because the first if check should catch it
       return notFound(e.toString());
