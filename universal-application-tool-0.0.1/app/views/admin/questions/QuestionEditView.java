@@ -1,8 +1,8 @@
 package views.admin.questions;
 
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.main;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -13,6 +13,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.question.InvalidQuestionTypeException;
 import services.question.QuestionDefinition;
 import services.question.QuestionType;
 import views.BaseHtmlView;
@@ -30,40 +31,83 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   public Content renderNewQuestionForm(Request request, QuestionType questionType) {
-    String type = questionType.toString();
-    QuestionForm form = new QuestionForm();
-    form.setQuestionType(type.toUpperCase());
-    return layout.render(
-        body(
-            renderHeader(String.format("New %s question", type.toLowerCase()), Styles.CAPITALIZE),
-            buildNewQuestionForm(form).with(makeCsrfTokenInputTag(request))));
+    QuestionForm questionForm = new QuestionForm();
+    questionForm.setQuestionType(questionType.toString().toUpperCase());
+
+    String title = String.format("New %s question", questionType.toString().toLowerCase());
+
+    ContainerTag formContent =
+        buildQuestionContainer(title)
+            .with(buildNewQuestionForm(questionForm).with(makeCsrfTokenInputTag(request)));
+    ContainerTag previewContent = buildPreviewContent(questionType);
+    ContainerTag mainContent = main(formContent, previewContent);
+
+    return layout.renderFull(mainContent);
   }
 
-  public Content renderNewQuestionForm(Request request, QuestionForm questionForm, String message) {
-    return layout.render(
-        body(
-            div(message),
-            renderHeader("New text question"),
-            buildNewQuestionForm(questionForm).with(makeCsrfTokenInputTag(request))));
+  public Content renderNewQuestionForm(Request request, QuestionForm questionForm, String message)
+      throws InvalidQuestionTypeException {
+    QuestionType questionType = QuestionType.of(questionForm.getQuestionType());
+    String title = String.format("New %s question", questionType.toString().toLowerCase());
+
+    ContainerTag formContent =
+        buildQuestionContainer(title)
+            .with(buildNewQuestionForm(questionForm).with(makeCsrfTokenInputTag(request)));
+    ContainerTag previewContent = buildPreviewContent(questionType);
+    ContainerTag mainContent = main(div(message), formContent, previewContent);
+
+    return layout.renderFull(mainContent);
   }
 
   public Content renderEditQuestionForm(Request request, QuestionDefinition question) {
-    String type = question.getQuestionType().toString();
-    return layout.render(
-        body(
-            renderHeader(String.format("Edit %s question", type.toLowerCase())),
-            buildEditQuestionForm(question.getId(), new QuestionForm(question))
-                .with(makeCsrfTokenInputTag(request))));
+    QuestionForm questionForm = new QuestionForm(question);
+    QuestionType questionType = question.getQuestionType();
+    String title = String.format("Edit %s question", questionType.toString().toLowerCase());
+
+    ContainerTag formContent =
+        buildQuestionContainer(title)
+            .with(
+                buildEditQuestionForm(question.getId(), questionForm)
+                    .with(makeCsrfTokenInputTag(request)));
+    ContainerTag previewContent = buildPreviewContent(questionType);
+    ContainerTag mainContent = main(formContent, previewContent);
+
+    return layout.renderFull(mainContent);
   }
 
   public Content renderEditQuestionForm(
-      Request request, long id, QuestionForm questionForm, String message) {
-    String type = questionForm.getQuestionType();
-    return layout.render(
-        body(
-            div(message),
-            renderHeader(String.format("Edit %s question", type.toLowerCase())),
-            buildEditQuestionForm(id, questionForm).with(makeCsrfTokenInputTag(request))));
+      Request request, long id, QuestionForm questionForm, String message)
+      throws InvalidQuestionTypeException {
+    QuestionType questionType = QuestionType.of(questionForm.getQuestionType());
+    String title = String.format("New %s question", questionType.toString().toLowerCase());
+
+    ContainerTag formContent =
+        buildQuestionContainer(title)
+            .with(buildEditQuestionForm(id, questionForm).with(makeCsrfTokenInputTag(request)));
+    ContainerTag previewContent = buildPreviewContent(questionType);
+    ContainerTag mainContent = main(div(message), formContent, previewContent);
+
+    return layout.renderFull(mainContent);
+  }
+
+  private ContainerTag buildQuestionContainer(String title) {
+    return div()
+        .withId("question-form")
+        .withClasses(
+            Styles.BORDER_GRAY_400,
+            Styles.BORDER_R,
+            Styles.FLEX,
+            Styles.FLEX_COL,
+            Styles.H_FULL,
+            Styles.OVERFLOW_HIDDEN,
+            Styles.OVERFLOW_Y_AUTO,
+            Styles.RELATIVE,
+            Styles.W_2_5)
+        .with(renderHeader(title, Styles.CAPITALIZE));
+  }
+
+  private ContainerTag buildPreviewContent(QuestionType questionType) {
+    return QuestionPreview.renderQuestionPreview(questionType);
   }
 
   private ContainerTag buildNewQuestionForm(QuestionForm questionForm) {
@@ -130,7 +174,6 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private DomContent formQuestionTypeSelect(QuestionType selectedType) {
-
     ImmutableList<SimpleEntry<String, String>> options =
         Arrays.stream(QuestionType.values())
             .map(item -> new SimpleEntry<String, String>(item.toString(), item.name()))
