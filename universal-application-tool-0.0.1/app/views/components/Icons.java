@@ -51,8 +51,7 @@ public class Icons {
         iconPath = Icons.NAME_SVG_PATH;
         break;
       case NUMBER:
-        iconPath = Icons.NUMBER_SVG_PATH;
-        break;
+        return svg(Icons.NUMBER_SVG_PATH, width, height).attr("fill-rule", "evenodd");
       case REPEATER:
         iconPath = Icons.REPEATER_SVG_PATH;
         return svg(iconPath, width, height).attr("fill", "transparent").attr("stroke-width", "2");
