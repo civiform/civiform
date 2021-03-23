@@ -16,4 +16,6 @@ done
 
 echo detected server start
 
+./bin/truncate_tables.sh
+
 yarn test $@
