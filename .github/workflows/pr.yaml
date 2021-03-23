@@ -14,6 +14,7 @@ jobs:
         run: docker build -t civiform ./
       - name: Run tests
         run: docker run -v /var/run/docker.sock:/var/run/docker.sock civiform test
+
   run_browser_tests:
     runs-on: ubuntu-latest
     steps:
@@ -26,7 +27,7 @@ jobs:
       - name: Build and run the test stack
         run: docker-compose -f browser-test/browser-test-compose.yml up -d
       - name: Run browser tests
-        run: bin/run-browser-tests
+        run: bin/run-browser-tests-ci
 
   test_prod:
     runs-on: ubuntu-latest
