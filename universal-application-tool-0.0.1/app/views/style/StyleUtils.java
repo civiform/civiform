@@ -51,6 +51,30 @@ public class StyleUtils {
     return applyUtilityClass(HOVER, styles);
   }
 
+  public static String responsiveSmall(String... styles) {
+    return applyUtilityClass(RESPONSIVE_SM, styles);
+  }
+
+  public static String responsiveSmall(ImmutableList<String> styles) {
+    return applyUtilityClass(RESPONSIVE_SM, styles);
+  }
+
+  public static String responsiveMedium(String... styles) {
+    return applyUtilityClass(RESPONSIVE_MD, styles);
+  }
+
+  public static String responsiveMedium(ImmutableList<String> styles) {
+    return applyUtilityClass(RESPONSIVE_MD, styles);
+  }
+
+  public static String responsiveLarge(String... styles) {
+    return applyUtilityClass(RESPONSIVE_LG, styles);
+  }
+
+  public static String responsiveLarge(ImmutableList<String> styles) {
+    return applyUtilityClass(RESPONSIVE_LG, styles);
+  }
+
   public static String joinStyles(String... styles) {
     return String.join(" ", styles);
   }
