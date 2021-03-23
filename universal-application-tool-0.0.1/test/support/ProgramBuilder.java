@@ -22,18 +22,12 @@ public class ProgramBuilder {
    * Creates {@link ProgramBuilder} with a new {@link Program} with an empty name and description.
    */
   public static ProgramBuilder newProgram() {
-    Program program = new Program("", "");
-    program.save();
-    return new ProgramBuilder(
-        program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of()));
+    return newProgram("");
   }
 
   /** Creates a {@link ProgramBuilder} with a new {@link Program} with an empty description. */
   public static ProgramBuilder newProgram(String name) {
-    Program program = new Program(name, "");
-    program.save();
-    return new ProgramBuilder(
-        program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of()));
+    return newProgram(name, "");
   }
 
   /** Creates a {@link ProgramBuilder} with a new {@link Program}. */

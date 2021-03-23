@@ -3,8 +3,10 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
+import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import forms.ProgramForm;
+import java.util.Comparator;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -45,7 +47,11 @@ public class AdminProgramController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result index() {
-    return ok(listView.render(this.service.listProgramDefinitions()));
+    return ok(
+        listView.render(
+            this.service.listProgramDefinitions().stream()
+                .sorted(Comparator.comparing(program -> program.lifecycleStage()))
+                .collect(ImmutableList.toImmutableList())));
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
@@ -73,6 +79,29 @@ public class AdminProgramController extends CiviFormController {
       return ok(editView.render(request, program));
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
+    }
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public Result publish(Request request, long id) {
+    try {
+      service.publishProgram(id);
+      return redirect(routes.AdminProgramController.index());
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.toString());
+    } catch (Exception e) {
+      return badRequest(e.toString());
+    }
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public Result newVersionFrom(Request request, long id) {
+    try {
+      return redirect(routes.AdminProgramController.edit(service.newDraftFrom(id).id()));
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.toString());
+    } catch (Exception e) {
+      return badRequest(e.toString());
     }
   }
 

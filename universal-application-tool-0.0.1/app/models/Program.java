@@ -46,11 +46,7 @@ public class Program extends BaseModel {
     this.name = definition.name();
     this.description = definition.description();
     this.blockDefinitions = definition.blockDefinitions();
-  }
-
-  public Program(ProgramDefinition definition, LifecycleStage lifecycleStage) {
-    this(definition);
-    this.lifecycleStage = lifecycleStage;
+    this.lifecycleStage = definition.lifecycleStage();
   }
 
   /**
@@ -60,6 +56,7 @@ public class Program extends BaseModel {
   public Program(String name, String description) {
     this.name = name;
     this.description = description;
+    this.lifecycleStage = LifecycleStage.DRAFT;
     BlockDefinition emptyBlock =
         BlockDefinition.builder()
             .setId(1L)
@@ -77,6 +74,7 @@ public class Program extends BaseModel {
     this.name = this.programDefinition.name();
     this.description = this.programDefinition.description();
     this.blockDefinitions = this.programDefinition.blockDefinitions();
+    this.lifecycleStage = this.programDefinition.lifecycleStage();
   }
 
   /** Populates {@link ProgramDefinition} from column values. */
@@ -90,6 +88,7 @@ public class Program extends BaseModel {
             .setName(this.name)
             .setDescription(this.description)
             .setBlockDefinitions(this.blockDefinitions)
+            .setLifecycleStage(this.lifecycleStage)
             .build();
   }
 
@@ -103,6 +102,8 @@ public class Program extends BaseModel {
 
   public void setLifecycleStage(LifecycleStage lifecycleStage) {
     this.lifecycleStage = lifecycleStage;
+    this.programDefinition =
+        this.programDefinition.toBuilder().setLifecycleStage(lifecycleStage).build();
   }
 
   public Long getVersion() {
