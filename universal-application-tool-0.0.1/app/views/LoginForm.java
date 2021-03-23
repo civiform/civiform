@@ -96,33 +96,18 @@ public class LoginForm extends BaseHtmlView {
                                             Styles.ROUNDED_LG,
                                             Styles.BG_RED_800)
                                         .with(
-                                            new ContainerTag("svg")
+                                            Icons.svg(Icons.LOGIN_BANNER_PATH, 24)
                                                 .withClasses(
                                                     Styles.H_6, Styles.W_6, Styles.TEXT_WHITE)
-                                                .attr("xmlns", "http://www.w3.org/2000/svg")
                                                 .attr("fill", "none")
-                                                .attr("viewBox", "0 0 24 24")
-                                                .attr("stroke", "currentColor")
-                                                .attr("aria-hidden", "true")
-                                                .with(
-                                                    new ContainerTag("path")
-                                                        .attr("stroke-linecap", "round")
-                                                        .attr("stroke-linejoin", "round")
-                                                        .attr("stroke-width", "2")
-                                                        .attr("d", Icons.LOGIN_BANNER_PATH))),
+                                                .attr("stroke-linecap", "round")
+                                                .attr("stroke-linejoin", "round")
+                                                .attr("stroke-width", "2")),
                                     p().withClasses(
                                             Styles.ML_3,
                                             Styles.FONT_MEDIUM,
                                             Styles.TEXT_WHITE,
                                             Styles.TRUNCATE)
-                                        .with(
-                                            span(BANNER_TEXT)
-                                                .withClasses(
-                                                    StyleUtils.responsiveMedium(Styles.HIDDEN)),
-                                            span(BANNER_TEXT)
-                                                .withClasses(
-                                                    Styles.HIDDEN,
-                                                    StyleUtils.responsiveMedium(
-                                                        Styles.INLINE)))))));
+                                        .with(span(BANNER_TEXT))))));
   }
 }
