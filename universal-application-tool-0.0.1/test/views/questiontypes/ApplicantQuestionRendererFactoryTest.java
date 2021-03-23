@@ -3,15 +3,18 @@ package views.questiontypes;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import j2html.tags.Tag;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import services.question.QuestionType;
 import services.question.UnsupportedQuestionTypeException;
 
+@RunWith(JUnitParamsRunner.class)
 public class ApplicantQuestionRendererFactoryTest {
 
-  @ParameterizedTest
-  @EnumSource(QuestionType.class)
+  @Test
+  @Parameters(source = QuestionType.class)
   public void rendererExistsForAllTypes(QuestionType type) throws UnsupportedQuestionTypeException {
     ApplicantQuestionRendererFactory factory = new ApplicantQuestionRendererFactory();
 

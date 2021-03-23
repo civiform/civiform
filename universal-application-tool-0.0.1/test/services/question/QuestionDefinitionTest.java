@@ -4,17 +4,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Optional;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.runner.RunWith;
 import services.CiviFormError;
 import services.Path;
 import services.question.AddressQuestionDefinition.AddressValidationPredicates;
 import services.question.TextQuestionDefinition.TextValidationPredicates;
 
+@RunWith(JUnitParamsRunner.class)
 public class QuestionDefinitionTest {
   private QuestionDefinitionBuilder builder;
 
@@ -32,8 +35,8 @@ public class QuestionDefinitionTest {
             .setValidationPredicates(TextValidationPredicates.builder().setMaxLength(128).build());
   }
 
-  @ParameterizedTest
-  @EnumSource(QuestionType.class)
+  @Test
+  @Parameters(method = "questionTypeParameters")
   public void allTypesContainMetadataScalars(QuestionType type)
       throws UnsupportedQuestionTypeException {
     QuestionDefinitionBuilder builder = QuestionDefinitionBuilder.sample(type);
@@ -41,6 +44,10 @@ public class QuestionDefinitionTest {
 
     assertThat(definition.getScalars()).containsKey(definition.getLastUpdatedTimePath());
     assertThat(definition.getScalars()).containsKey(definition.getProgramIdPath());
+  }
+
+  private EnumSet<QuestionType> questionTypeParameters() {
+    return EnumSet.complementOf(EnumSet.of(QuestionType.REPEATER));
   }
 
   @Test

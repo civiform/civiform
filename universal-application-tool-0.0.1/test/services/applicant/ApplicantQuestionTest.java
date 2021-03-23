@@ -5,11 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
 import java.util.Locale;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.runner.RunWith;
 import services.Path;
 import services.question.AddressQuestionDefinition;
 import services.question.NameQuestionDefinition;
@@ -20,6 +21,7 @@ import services.question.TextQuestionDefinition;
 import services.question.TextQuestionDefinition.TextValidationPredicates;
 import services.question.UnsupportedQuestionTypeException;
 
+@RunWith(JUnitParamsRunner.class)
 public class ApplicantQuestionTest {
 
   private static final TextQuestionDefinition textQuestionDefinition =
@@ -64,8 +66,8 @@ public class ApplicantQuestionTest {
     applicantData = applicant.getApplicantData();
   }
 
-  @ParameterizedTest
-  @EnumSource(QuestionType.class)
+  @Test
+  @Parameters(source = QuestionType.class)
   public void errorsPresenterExtendedForAllTypes(QuestionType type)
       throws UnsupportedQuestionTypeException {
     QuestionDefinitionBuilder builder = QuestionDefinitionBuilder.sample(type);
