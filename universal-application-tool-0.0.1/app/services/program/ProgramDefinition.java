@@ -38,7 +38,7 @@ public abstract class ProgramDefinition {
   }
 
   /** Returns the {@link BlockDefinition} at the specified block index if available. */
-  public Optional<BlockDefinition> getBlockDefinition(int blockIndex) {
+  public Optional<BlockDefinition> getBlockDefinitionByIndex(int blockIndex) {
     if (blockIndex < 0 || blockIndex >= blockDefinitions().size()) {
       return Optional.empty();
     }

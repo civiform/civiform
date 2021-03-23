@@ -125,20 +125,20 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
             .build();
 
     Result result =
-        controller.update(request, program.id(), program.getBlockDefinition(0).get().id());
+        controller.update(request, program.id(), program.getBlockDefinitionByIndex(0).get().id());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .hasValue(
             routes.AdminProgramBlocksController.edit(
-                    program.id(), program.getBlockDefinition(0).get().id())
+                    program.id(), program.getBlockDefinitionByIndex(0).get().id())
                 .url());
 
     Result redirectResult =
         controller.edit(
             addCSRFToken(fakeRequest()).build(),
             program.id(),
-            program.getBlockDefinition(0).get().id());
+            program.getBlockDefinitionByIndex(0).get().id());
     assertThat(contentAsString(redirectResult)).contains("updated name");
   }
 
