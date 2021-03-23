@@ -48,7 +48,11 @@ public abstract class Path {
     return segments().isEmpty();
   }
 
-  /** A single path in JSON notation, without the $. JsonPath prefix. */
+  /**
+   * A single path in JSON notation, without the $. JsonPath prefix.
+   *
+   * <p>TODO: get rid of this method. Methods should use {@link Path} or {@link #toString()}.
+   */
   @Memoized
   public String path() {
     return JSON_JOINER.join(segments());
@@ -70,6 +74,14 @@ public abstract class Path {
       return Path.empty();
     }
     return Path.create(segments().subList(0, segments().size() - 1));
+  }
+
+  /** Append a segment to the path.
+   *
+   * TODO: refactor things that use toBuilder().append(seg).build() with with(seg);
+   */
+  public Path with(String segment) {
+    return toBuilder().append(segment.toLowerCase()).build();
   }
 
   /**
