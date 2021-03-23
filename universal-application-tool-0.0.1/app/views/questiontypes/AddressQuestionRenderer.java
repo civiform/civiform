@@ -84,7 +84,9 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                                 .setFloatLabel(true)
                                 .setValue(addressQuestion.getZipValue().orElse(""))
                                 .getContainer()
-                                .withClasses(SECONDARY_ADDRESS_STYLES, Styles.W_1_6))));
-    // TODO: Need to add field errors back.
+                                .withClasses(SECONDARY_ADDRESS_STYLES, Styles.W_1_6)),
+                    fieldErrors(addressQuestion.getQuestionErrors())
+                        .withClasses(
+                            Styles.ML_2, Styles.TEXT_XS, Styles.TEXT_RED_600, Styles.FONT_BOLD)));
   }
 }
