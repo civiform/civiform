@@ -49,7 +49,8 @@ public class FieldWithLabel {
     Styles.PY_2,
     Styles.W_FULL,
     Styles.TEXT_BASE,
-    StyleUtils.focus(Styles.OUTLINE_NONE)
+    "placeholder-transparent",
+    StyleUtils.focus(Styles.OUTLINE_NONE, "placeholder-gray-400")
   };
 
   private static final String[] FLOATED_LABEL_CLASSES = {
@@ -175,7 +176,7 @@ public class FieldWithLabel {
             .withText(this.labelText);
 
     if (this.floatLabel) {
-      fieldTag.withPlaceholder(" ").withClasses(FieldWithLabel.FLOATED_FIELD_CLASSES);
+      fieldTag.withClasses(FieldWithLabel.FLOATED_FIELD_CLASSES);
       labelTag.withClasses(FieldWithLabel.FLOATED_LABEL_CLASSES);
 
       return div()
