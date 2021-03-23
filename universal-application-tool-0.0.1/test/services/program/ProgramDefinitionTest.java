@@ -44,7 +44,7 @@ public class ProgramDefinitionTest {
             .addBlockDefinition(blockA)
             .build();
 
-    assertThat(program.getBlockDefinition(0)).hasValue(blockA);
+    assertThat(program.getBlockDefinitionByIndex(0)).hasValue(blockA);
   }
 
   @Test
@@ -56,7 +56,7 @@ public class ProgramDefinitionTest {
             .setDescription("This program is for testing.")
             .build();
 
-    assertThat(program.getBlockDefinition(0)).isEmpty();
+    assertThat(program.getBlockDefinitionByIndex(0)).isEmpty();
   }
 
   @Test
