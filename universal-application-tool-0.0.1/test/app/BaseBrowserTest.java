@@ -31,6 +31,7 @@ public class BaseBrowserTest extends WithBrowser {
 
   private static final String LOCALHOST = "http://localhost:";
   protected static final String BASE_URL = LOCALHOST + play.api.test.Helpers.testServerPort();
+  private static final String APPLICANT_ROOT = "applicant";
 
   @Override
   protected Application provideApplication() {
@@ -113,23 +114,23 @@ public class BaseBrowserTest extends WithBrowser {
 
   /** Adds a test question through the admin flow. This requires the admin to be logged in. */
   protected void addQuestion(String questionName) {
-    addQuestion(questionName, questionName.replace(" ", "."), QuestionType.TEXT);
+    addQuestion(questionName, APPLICANT_ROOT, QuestionType.TEXT);
   }
 
-  protected void addTextQuestion(String questionName, String path) {
-    addQuestion(questionName, path, QuestionType.TEXT);
+  protected void addTextQuestion(String questionName) {
+    addQuestion(questionName, APPLICANT_ROOT, QuestionType.TEXT);
   }
 
-  protected void addNameQuestion(String questionName, String path) {
-    addQuestion(questionName, path, QuestionType.NAME);
+  protected void addNameQuestion(String questionName) {
+    addQuestion(questionName, APPLICANT_ROOT, QuestionType.NAME);
   }
 
-  protected void addAddressQuestion(String questionName, String path) {
-    addQuestion(questionName, path, QuestionType.ADDRESS);
+  protected void addAddressQuestion(String questionName) {
+    addQuestion(questionName, APPLICANT_ROOT, QuestionType.ADDRESS);
   }
 
   /** Adds a question through the admin flow. This requires the admin to be logged in. */
-  protected void addQuestion(String questionName, String path, QuestionType questionType) {
+  protected void addQuestion(String questionName, String parentPath, QuestionType questionType) {
     // Go to admin question index and click "Create a new question".
     goTo(controllers.admin.routes.QuestionController.index());
     browser.$(By.id("create-question-button")).first().click();
@@ -140,7 +141,7 @@ public class BaseBrowserTest extends WithBrowser {
     // Fill out the question form and click submit.
     fillInput("questionName", questionName);
     fillTextArea("questionDescription", "question description");
-    fillInput("questionPath", path);
+    selectAnOption("questionParentPath", parentPath);
     fillTextArea("questionText", "question text");
 
     // Check that the question form contains a Question Settings section.

@@ -17,7 +17,7 @@ public class QuestionFormTest {
     QuestionForm form = new QuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
-    form.setQuestionPath("my.question.path");
+    form.setQuestionParentPath("my.question.path");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
     form.setQuestionType("TEXT");
@@ -31,7 +31,7 @@ public class QuestionFormTest {
         new TextQuestionDefinition(
             1L,
             "name",
-            Path.create("my.question.path"),
+            Path.create("my.question.path.name"),
             "description",
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of());

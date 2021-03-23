@@ -33,8 +33,9 @@ public abstract class Path {
     return create(ImmutableList.copyOf(JSON_SPLITTER.splitToList(path)));
   }
 
-  private static Path create(ImmutableList<String> pathSegments) {
-    return new AutoValue_Path(pathSegments);
+  private static Path create(ImmutableList<String> segments) {
+    return new AutoValue_Path(
+        segments.stream().map(String::toLowerCase).collect(ImmutableList.toImmutableList()));
   }
 
   /**

@@ -146,13 +146,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setPlaceholderText("The description displayed in the question builder")
                 .setValue(questionForm.getQuestionDescription())
                 .getContainer(),
-            FieldWithLabel.input()
-                .setId("question-path-input")
-                .setFieldName("questionPath")
-                .setLabelText("Path")
-                .setPlaceholderText("The path used to store question data")
-                .setValue(questionForm.getQuestionPath().path())
-                .getContainer(),
+            questionParentPathSelect(),
             FieldWithLabel.textArea()
                 .setId("question-text-textarea")
                 .setFieldName("questionText")
@@ -171,6 +165,20 @@ public final class QuestionEditView extends BaseHtmlView {
 
     formTag.with(QuestionConfig.buildQuestionConfig(questionType));
     return formTag;
+  }
+
+  private DomContent questionParentPathSelect() {
+    // TODO: add repeated element paths when they exist.
+    ImmutableList<SimpleEntry<String, String>> options =
+        ImmutableList.of(new SimpleEntry<>("Applicant", "applicant"));
+
+    return new SelectWithLabel()
+        .setId("question-parent-path-select")
+        .setFieldName("questionParentPath")
+        .setLabelText("Question parent path")
+        .setOptions(options)
+        .setValue("Applicant")
+        .getContainer();
   }
 
   private DomContent formQuestionTypeSelect(QuestionType selectedType) {
