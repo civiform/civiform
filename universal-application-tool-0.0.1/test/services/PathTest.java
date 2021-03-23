@@ -73,25 +73,6 @@ public class PathTest {
   }
 
   @Test
-  public void parentPaths_emptyPath() {
-    Path path = Path.empty();
-    assertThat(path.parentPaths()).isEmpty();
-  }
-
-  @Test
-  public void parentPaths_oneSegment() {
-    Path path = Path.create("applicant");
-    assertThat(path.parentPaths()).isEmpty();
-  }
-
-  @Test
-  public void parentPaths() {
-    Path path = Path.create("animals.favorites.dog");
-    assertThat(path.parentPaths())
-        .containsExactly(Path.create("animals"), Path.create("animals.favorites"));
-  }
-
-  @Test
   public void pathBuilder() {
     Path path = Path.builder().setPath("applicant.my.path").build();
     assertThat(path.path()).isEqualTo("applicant.my.path");

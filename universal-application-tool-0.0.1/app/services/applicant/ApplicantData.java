@@ -120,16 +120,10 @@ public class ApplicantData {
    * @param value the value to place; values of type Map will create the equivalent JSON structure
    */
   private void put(Path path, Object value) {
-    path.parentPaths()
-        .forEach(
-            segmentPath -> {
-              if (!hasPath(segmentPath)) {
-                this.jsonData.put(
-                    segmentPath.parentPath().path(), segmentPath.keyName(), new HashMap<>());
-              }
-            });
-
-    this.jsonData.put(path.parentPath().path(), path.keyName(), value);
+    if (!hasPath(path.parentPath())) {
+      put(path.parentPath(), new HashMap<>());
+    }
+    jsonData.put(path.parentPath().toString(), path.keyName(), value);
   }
 
   /**

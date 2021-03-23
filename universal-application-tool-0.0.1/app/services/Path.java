@@ -5,7 +5,6 @@ import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
 
 /**
  * Represents a path into the applicant JSON data. Stored as the path to data without the JsonPath
@@ -71,24 +70,6 @@ public abstract class Path {
       return "";
     }
     return segments().get(segments().size() - 1);
-  }
-
-  /**
-   * List of JSON annotation paths for each segment of the parent path. For example, a Path of
-   * personality.favorites.color.blue would return [personality, personality.favorites,
-   * personality.favorites.color].
-   */
-  @Memoized
-  public ImmutableList<Path> parentPaths() {
-    ArrayList<Path> parentPaths = new ArrayList<>();
-    Path currentPath = parentPath();
-
-    while (!currentPath.path().isEmpty()) {
-      parentPaths.add(0, currentPath);
-      currentPath = currentPath.parentPath();
-    }
-
-    return ImmutableList.copyOf(parentPaths);
   }
 
   public abstract Builder toBuilder();
