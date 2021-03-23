@@ -10,6 +10,7 @@ import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import views.style.BaseStyles;
+import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
@@ -49,8 +50,8 @@ public class FieldWithLabel {
     Styles.PY_2,
     Styles.W_FULL,
     Styles.TEXT_BASE,
-    "placeholder-transparent",
-    StyleUtils.focus(Styles.OUTLINE_NONE, "placeholder-gray-400")
+    Styles.PLACEHOLDER_TRANSPARENT,
+    StyleUtils.focus(Styles.OUTLINE_NONE, Styles.PLACEHOLDER_GRAY_400)
   };
 
   private static final String[] FLOATED_LABEL_CLASSES = {
@@ -60,7 +61,7 @@ public class FieldWithLabel {
     Styles.TOP_0,
     Styles.LEFT_0,
     Styles.TEXT_BASE,
-    Styles.PX_1,    
+    Styles.PX_1,
     Styles.PY_2,
     Styles.DURATION_300
   };
@@ -183,7 +184,11 @@ public class FieldWithLabel {
           .with(
               div(fieldTag, labelTag)
                   .withClasses(
-                      "floated", Styles.MY_2, Styles.RELATIVE, Styles.BORDER_B_2, Styles.BORDER_GRAY_600,
+                      ReferenceClasses.FLOATED_LABEL,
+                      Styles.MY_2,
+                      Styles.RELATIVE,
+                      Styles.BORDER_B_2,
+                      Styles.BORDER_GRAY_600,
                       StyleUtils.focusWithin(Styles.BORDER_BLUE_500)));
     }
     return div(labelTag, fieldTag).withClasses(Styles.MX_4, Styles.MB_6);

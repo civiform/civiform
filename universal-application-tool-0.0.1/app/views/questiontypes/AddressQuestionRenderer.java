@@ -41,7 +41,12 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                     Styles.MB_2)
                 .withText(question.getQuestionHelpText()),
             div()
-                .withClasses(Styles.ROUNDED, Styles.BG_OPACITY_50, Styles.BG_GRAY_100, Styles.PT_2, Styles.PB_4)
+                .withClasses(
+                    Styles.ROUNDED,
+                    Styles.BG_OPACITY_50,
+                    Styles.BG_GRAY_100,
+                    Styles.PT_2,
+                    Styles.PB_4)
                 .with(
                     /** First line of address entry: Street */
                     FieldWithLabel.input()
