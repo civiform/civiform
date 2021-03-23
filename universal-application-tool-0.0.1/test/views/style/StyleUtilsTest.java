@@ -46,4 +46,40 @@ public class StyleUtilsTest {
     result = StyleUtils.hover(Styles.OUTLINE_NONE);
     assertEquals(expected, result);
   }
+
+  @Test
+  public void responsiveSmall_returnsExpected() {
+    String expected = "sm:outline-none sm:ring-2";
+    String result =
+        StyleUtils.responsiveSmall(ImmutableList.of(Styles.OUTLINE_NONE, Styles.RING_2));
+    assertEquals(expected, result);
+
+    expected = "sm:outline-none";
+    result = StyleUtils.responsiveSmall(Styles.OUTLINE_NONE);
+    assertEquals(expected, result);
+  }
+
+  @Test
+  public void responsiveMedium_returnsExpected() {
+    String expected = "md:outline-none md:ring-2";
+    String result =
+        StyleUtils.responsiveMedium(ImmutableList.of(Styles.OUTLINE_NONE, Styles.RING_2));
+    assertEquals(expected, result);
+
+    expected = "md:outline-none";
+    result = StyleUtils.responsiveMedium(Styles.OUTLINE_NONE);
+    assertEquals(expected, result);
+  }
+
+  @Test
+  public void responsiveLarge_returnsExpected() {
+    String expected = "lg:outline-none lg:ring-2";
+    String result =
+        StyleUtils.responsiveLarge(ImmutableList.of(Styles.OUTLINE_NONE, Styles.RING_2));
+    assertEquals(expected, result);
+
+    expected = "lg:outline-none";
+    result = StyleUtils.responsiveLarge(Styles.OUTLINE_NONE);
+    assertEquals(expected, result);
+  }
 }

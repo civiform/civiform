@@ -17,6 +17,7 @@ import java.util.Optional;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import views.components.Icons;
+import views.style.StyleUtils;
 import views.style.Styles;
 
 public class LoginForm extends BaseHtmlView {
@@ -70,7 +71,12 @@ public class LoginForm extends BaseHtmlView {
         .with(
             div()
                 .withClasses(
-                    Styles.MAX_W_7XL, Styles.MX_AUTO, Styles.PY_3, Styles.PX_3, "sm:px-6 lg:px-8")
+                    Styles.MAX_W_7XL,
+                    Styles.MX_AUTO,
+                    Styles.PY_3,
+                    Styles.PX_3,
+                    StyleUtils.responsiveSmall(Styles.PX_6),
+                    StyleUtils.responsiveLarge(Styles.PX_8))
                 .with(
                     div()
                         .withClasses(
@@ -110,8 +116,13 @@ public class LoginForm extends BaseHtmlView {
                                             Styles.TEXT_WHITE,
                                             Styles.TRUNCATE)
                                         .with(
-                                            span(BANNER_TEXT).withClasses("md:hidden"),
                                             span(BANNER_TEXT)
-                                                .withClasses(Styles.HIDDEN, "md:inline"))))));
+                                                .withClasses(
+                                                    StyleUtils.responsiveMedium(Styles.HIDDEN)),
+                                            span(BANNER_TEXT)
+                                                .withClasses(
+                                                    Styles.HIDDEN,
+                                                    StyleUtils.responsiveMedium(
+                                                        Styles.INLINE)))))));
   }
 }
