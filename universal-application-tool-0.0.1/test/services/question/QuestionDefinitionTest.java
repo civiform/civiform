@@ -4,17 +4,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Optional;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import services.CiviFormError;
 import services.Path;
 import services.question.AddressQuestionDefinition.AddressValidationPredicates;
 import services.question.TextQuestionDefinition.TextValidationPredicates;
 
+@RunWith(JUnitParamsRunner.class)
 public class QuestionDefinitionTest {
-  QuestionDefinitionBuilder builder;
+  private QuestionDefinitionBuilder builder;
 
   @Before
   public void setup() {
@@ -28,6 +33,23 @@ public class QuestionDefinitionTest {
             .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
             .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
             .setValidationPredicates(TextValidationPredicates.builder().setMaxLength(128).build());
+  }
+
+  // TODO(https://github.com/seattle-uat/civiform/issues/405): Change this to just use
+  // @Parameters(source = QuestionType.class) once RepeatedQuestionDefinition exists.
+  @Test
+  @Parameters(method = "questionTypeParameters")
+  public void allTypesContainMetadataScalars(QuestionType type)
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinitionBuilder builder = QuestionDefinitionBuilder.sample(type);
+    QuestionDefinition definition = builder.build();
+
+    assertThat(definition.getScalars()).containsKey(definition.getLastUpdatedTimePath());
+    assertThat(definition.getScalars()).containsKey(definition.getProgramIdPath());
+  }
+
+  private EnumSet<QuestionType> questionTypeParameters() {
+    return EnumSet.complementOf(EnumSet.of(QuestionType.REPEATER));
   }
 
   @Test
