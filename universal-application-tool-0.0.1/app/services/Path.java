@@ -42,10 +42,20 @@ public abstract class Path {
    */
   public abstract ImmutableList<String> segments();
 
+  public boolean isEmpty() {
+    return segments().isEmpty();
+  }
+
   /** A single path in JSON notation, without the $. JsonPath prefix. */
   @Memoized
   public String path() {
     return JSON_JOINER.join(segments());
+  }
+
+  @Memoized
+  @Override
+  public String toString() {
+    return path();
   }
 
   /**
