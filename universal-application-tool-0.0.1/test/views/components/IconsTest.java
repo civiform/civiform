@@ -4,10 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import j2html.tags.ContainerTag;
 import java.util.EnumSet;
+import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import services.question.QuestionType;
 
+@RunWith(JUnitParamsRunner.class)
 public class IconsTest {
 
   private static final ContainerTag TEXT_ICON = Icons.questionTypeSvg(QuestionType.TEXT, 0);

@@ -5,12 +5,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import j2html.tags.ContainerTag;
 import java.util.EnumSet;
+import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import services.question.QuestionType;
 import views.admin.questions.QuestionConfig;
-import views.components.Icons;
 
+@RunWith(JUnitParamsRunner.class)
 public class QuestionConfigTest {
 
   private static final ContainerTag DEFAULT_CONFIG = div();
@@ -30,7 +32,7 @@ public class QuestionConfigTest {
   @Test
   @Parameters(method = "defaultTypes")
   public void unhandledQuestionTypesDefaultToDefaultConfig(QuestionType type) {
-    assertThat(Icons.questionTypeSvg(type, 0)).isEqualTo(DEFAULT_CONFIG);
+    assertThat(QuestionConfig.buildQuestionConfig(type)).isEqualTo(DEFAULT_CONFIG);
   }
 
   private EnumSet<QuestionType> defaultTypes() {

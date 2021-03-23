@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
+import java.util.EnumSet;
 import java.util.Locale;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -66,14 +67,20 @@ public class ApplicantQuestionTest {
     applicantData = applicant.getApplicantData();
   }
 
+  // TODO(https://github.com/seattle-uat/civiform/issues/405): Change this to just use
+  // @Parameters(source = QuestionType.class) once RepeatedQuestionDefinition exists.
   @Test
-  @Parameters(source = QuestionType.class)
+  @Parameters(method = "types")
   public void errorsPresenterExtendedForAllTypes(QuestionType type)
       throws UnsupportedQuestionTypeException {
     QuestionDefinitionBuilder builder = QuestionDefinitionBuilder.sample(type);
     ApplicantQuestion question = new ApplicantQuestion(builder.build(), new ApplicantData());
 
     assertThat(question.errorsPresenter().hasTypeSpecificErrors()).isFalse();
+  }
+
+  private EnumSet<QuestionType> types() {
+    return EnumSet.complementOf(EnumSet.of(QuestionType.REPEATER));
   }
 
   @Test

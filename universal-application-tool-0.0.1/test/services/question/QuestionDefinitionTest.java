@@ -35,6 +35,8 @@ public class QuestionDefinitionTest {
             .setValidationPredicates(TextValidationPredicates.builder().setMaxLength(128).build());
   }
 
+  // TODO(https://github.com/seattle-uat/civiform/issues/405): Change this to just use
+  // @Parameters(source = QuestionType.class) once RepeatedQuestionDefinition exists.
   @Test
   @Parameters(method = "questionTypeParameters")
   public void allTypesContainMetadataScalars(QuestionType type)
