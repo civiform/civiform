@@ -1,12 +1,12 @@
 package models;
 
 import io.ebean.annotation.DbJson;
+import io.ebean.annotation.UpdatedTimestamp;
 import java.time.Instant;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
-import services.WellKnownPaths;
 import services.applicant.ApplicantData;
 
 @Entity
@@ -16,18 +16,22 @@ public class Application extends BaseModel {
 
   @ManyToOne private Program program;
 
+  @Constraints.Required private LifecycleStage lifecycleStage;
+
+  @UpdatedTimestamp private Instant submitTime;
+
   // used by generated code
   @SuppressWarnings("UnusedVariable")
   @Constraints.Required
   @DbJson
   private String object;
 
-  public Application(Applicant applicant, Program program, Instant submitTime) {
+  public Application(Applicant applicant, Program program, LifecycleStage lifecycleStage) {
     this.applicant = applicant;
     ApplicantData data = applicant.getApplicantData();
-    data.putString(WellKnownPaths.APPLICATION_SUBMITTED_TIME, submitTime.toString());
     this.object = data.asJsonString();
     this.program = program;
+    this.lifecycleStage = lifecycleStage;
   }
 
   public Applicant getApplicant() {
@@ -40,5 +44,17 @@ public class Application extends BaseModel {
 
   public ApplicantData getApplicantData() {
     return new ApplicantData(this.object);
+  }
+
+  public LifecycleStage getLifecycleStage() {
+    return this.lifecycleStage;
+  }
+
+  public Instant getSubmitTime() {
+    return this.submitTime;
+  }
+
+  public void setLifecycleStage(LifecycleStage stage) {
+    this.lifecycleStage = stage;
   }
 }

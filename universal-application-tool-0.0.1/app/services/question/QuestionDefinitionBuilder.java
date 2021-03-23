@@ -48,6 +48,20 @@ public class QuestionDefinitionBuilder {
     return this;
   }
 
+  public static QuestionDefinitionBuilder sample() {
+    return sample(QuestionType.TEXT);
+  }
+
+  public static QuestionDefinitionBuilder sample(QuestionType questionType) {
+    return new QuestionDefinitionBuilder()
+        .setName("")
+        .setDescription("")
+        .setPath(Path.create("sample.question.path"))
+        .setQuestionText(ImmutableMap.of(Locale.US, "Sample question text"))
+        .setQuestionHelpText(ImmutableMap.of(Locale.US, "Sample question help text"))
+        .setQuestionType(questionType);
+  }
+
   public QuestionDefinitionBuilder setVersion(long version) {
     this.version = version;
     return this;

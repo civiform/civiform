@@ -45,6 +45,18 @@ public class ApplicantQuestion {
     }
   }
 
+  public String getQuestionHelpText() {
+    try {
+      return questionDefinition.getQuestionHelpText(applicantData.preferredLocale());
+    } catch (TranslationNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public Path getPath() {
+    return questionDefinition.getPath();
+  }
+
   public boolean hasQuestionErrors() {
     return errorsPresenter().hasQuestionErrors();
   }

@@ -41,6 +41,8 @@ public class Question extends BaseModel {
 
   private @Constraints.Required @DbJsonB String validationPredicates;
 
+  @Constraints.Required private LifecycleStage lifecycleStage;
+
   public String getPath() {
     return path;
   }
@@ -58,6 +60,11 @@ public class Question extends BaseModel {
     questionHelpText = questionDefinition.getQuestionHelpText();
     questionType = questionDefinition.getQuestionType().toString();
     validationPredicates = questionDefinition.getValidationPredicatesAsString();
+  }
+
+  public Question(QuestionDefinition questionDefinition, LifecycleStage lifecycleStage) {
+    this(questionDefinition);
+    this.lifecycleStage = lifecycleStage;
   }
 
   /** Populates column values from {@link QuestionDefinition}. */
@@ -98,5 +105,13 @@ public class Question extends BaseModel {
 
   public QuestionDefinition getQuestionDefinition() {
     return checkNotNull(questionDefinition);
+  }
+
+  public LifecycleStage getLifecycleStage() {
+    return this.lifecycleStage;
+  }
+
+  public void setLifecycleStage(LifecycleStage lifecycleStage) {
+    this.lifecycleStage = lifecycleStage;
   }
 }

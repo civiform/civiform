@@ -28,7 +28,14 @@ public class LoginForm extends BaseHtmlView {
             div(
                 h1("Error: You are not logged in")
                     .withCondHidden(!message.orElse("").equals("login")),
-                h1("TODO: IDCS integration")),
+                div(
+                    h1("Log In"),
+                    redirectButton(
+                        "idcs", "Login with IDCS (user)", routes.LoginController.idcsLogin().url()),
+                    redirectButton(
+                        "adfs",
+                        "Login with ADFS (admin)",
+                        routes.LoginController.adfsLogin().url()))),
             div(
                 h1("Or, continue as guest."),
                 redirectButton(

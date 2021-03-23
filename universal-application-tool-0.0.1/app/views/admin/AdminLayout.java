@@ -64,13 +64,28 @@ public class AdminLayout extends BaseHtmlLayout {
     return adminHeader;
   }
 
-  public Content renderMain(ContainerTag mainContent, String... mainStyles) {
+  public Content renderCentered(ContainerTag mainContent, String... mainStyles) {
+    String mainCenteredStyles =
+        StyleUtils.joinStyles(
+            Styles.PX_2, Styles.MAX_W_SCREEN_XL, Styles.MX_AUTO, StyleUtils.joinStyles(mainStyles));
+    return renderMain(mainContent, mainCenteredStyles);
+  }
+
+  public Content renderFull(ContainerTag mainDomContents, String... mainStyles) {
+    String mainFullStyles =
+        StyleUtils.joinStyles(Styles.FLEX, Styles.FLEX_ROW, StyleUtils.joinStyles(mainStyles));
+    return renderMain(mainDomContents, mainFullStyles);
+  }
+
+  private Content renderMain(ContainerTag mainContent, String... mainStyles) {
     mainContent.withClasses(
         Styles.BG_WHITE,
         Styles.BORDER,
         Styles.BORDER_GRAY_200,
-        Styles.PX_2,
+        Styles.MT_12,
+        Styles.OVERFLOW_Y_AUTO,
         Styles.SHADOW_LG,
+        Styles.W_SCREEN,
         StyleUtils.joinStyles(mainStyles));
 
     return htmlContent(
@@ -90,7 +105,7 @@ public class AdminLayout extends BaseHtmlLayout {
 
   /** Renders mainDomContents within the main tag, in the context of the admin layout. */
   public Content render(DomContent... mainDomContents) {
-    return renderMain(main(mainDomContents));
+    return renderCentered(main(mainDomContents));
   }
 
   public Tag headerLink(String text, String href, String... styles) {

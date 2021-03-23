@@ -117,6 +117,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
               assertThat(contentAsString(result)).contains("Edit text question");
               assertThat(contentAsString(result))
                   .contains(CSRF.getToken(request.asScala()).value());
+              assertThat(contentAsString(result)).contains("Sample Question of type:");
             })
         .toCompletableFuture()
         .join();
@@ -181,6 +182,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("New text question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
+    assertThat(contentAsString(result)).contains("Sample Question of type:");
   }
 
   @Test

@@ -188,8 +188,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.getResult().blockDefinitions()).hasSize(1);
-    assertThat(result.getResult().getBlockDefinition(0).get().id()).isEqualTo(1L);
-    assertThat(result.getResult().getBlockDefinition(0).get().name()).isEqualTo("Block 1");
+    assertThat(result.getResult().getBlockDefinitionByIndex(0).get().id()).isEqualTo(1L);
+    assertThat(result.getResult().getBlockDefinitionByIndex(0).get().name()).isEqualTo("Block 1");
   }
 
   @Test
