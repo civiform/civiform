@@ -76,9 +76,10 @@ public abstract class Path {
     return Path.create(segments().subList(0, segments().size() - 1));
   }
 
-  /** Append a segment to the path.
+  /**
+   * Append a segment to the path.
    *
-   * TODO: refactor things that use toBuilder().append(seg).build() with with(seg);
+   * <p>TODO: refactor things that use toBuilder().append(seg).build() with with(seg);
    */
   public Path with(String segment) {
     return toBuilder().append(segment.toLowerCase()).build();
