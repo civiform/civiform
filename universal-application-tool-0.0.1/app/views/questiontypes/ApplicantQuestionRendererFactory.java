@@ -10,7 +10,7 @@ import services.question.UnsupportedQuestionTypeException;
 public class ApplicantQuestionRendererFactory {
 
   public ApplicantQuestionRenderer getSampleRenderer(QuestionType questionType)
-      throws UnsupportedQuestionTypeException, UnsupportedOperationException {
+      throws UnsupportedQuestionTypeException {
     QuestionDefinition questionDefinition = QuestionDefinitionBuilder.sample(questionType).build();
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(questionDefinition, new ApplicantData());
