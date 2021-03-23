@@ -8,6 +8,8 @@ import java.util.Locale;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import services.Path;
 import services.question.AddressQuestionDefinition;
 import services.question.NameQuestionDefinition;
@@ -16,6 +18,7 @@ import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
 import services.question.TextQuestionDefinition;
 import services.question.TextQuestionDefinition.TextValidationPredicates;
+import services.question.UnsupportedQuestionTypeException;
 
 public class ApplicantQuestionTest {
 
@@ -59,6 +62,16 @@ public class ApplicantQuestionTest {
   public void setUp() {
     applicant = new Applicant();
     applicantData = applicant.getApplicantData();
+  }
+
+  @ParameterizedTest
+  @EnumSource(QuestionType.class)
+  public void errorsPresenterExtendedForAllTypes(QuestionType type)
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinitionBuilder builder = QuestionDefinitionBuilder.sample(type);
+    ApplicantQuestion question = new ApplicantQuestion(builder.build(), new ApplicantData());
+
+    assertThat(question.errorsPresenter().hasTypeSpecificErrors()).isFalse();
   }
 
   @Test

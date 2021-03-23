@@ -8,13 +8,15 @@ import java.util.Locale;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import services.CiviFormError;
 import services.Path;
 import services.question.AddressQuestionDefinition.AddressValidationPredicates;
 import services.question.TextQuestionDefinition.TextValidationPredicates;
 
 public class QuestionDefinitionTest {
-  QuestionDefinitionBuilder builder;
+  private QuestionDefinitionBuilder builder;
 
   @Before
   public void setup() {
@@ -28,6 +30,17 @@ public class QuestionDefinitionTest {
             .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
             .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
             .setValidationPredicates(TextValidationPredicates.builder().setMaxLength(128).build());
+  }
+
+  @ParameterizedTest
+  @EnumSource(QuestionType.class)
+  public void allTypesContainMetadataScalars(QuestionType type)
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinitionBuilder builder = QuestionDefinitionBuilder.sample(type);
+    QuestionDefinition definition = builder.build();
+
+    assertThat(definition.getScalars()).containsKey(definition.getLastUpdatedTimePath());
+    assertThat(definition.getScalars()).containsKey(definition.getProgramIdPath());
   }
 
   @Test
