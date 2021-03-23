@@ -703,7 +703,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     program.setLifecycleStage(LifecycleStage.ACTIVE);
     program.save();
 
-    ProgramDefinition newDraft = ps.newDraftFrom(program.id);
+    ProgramDefinition newDraft = ps.newDraftOf(program.id);
     assertThat(newDraft.lifecycleStage()).isEqualTo(LifecycleStage.DRAFT);
     assertThat(program.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     assertThat(newDraft.name()).isEqualTo(program.getProgramDefinition().name());

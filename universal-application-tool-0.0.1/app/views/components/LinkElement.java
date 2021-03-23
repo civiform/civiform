@@ -1,10 +1,17 @@
 package views.components;
 
 import static j2html.TagCreator.a;
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.form;
+import static j2html.TagCreator.input;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import j2html.TagCreator;
 import j2html.tags.ContainerTag;
+import play.filters.csrf.CSRF;
+import play.mvc.Http;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -65,5 +72,18 @@ public class LinkElement {
     ContainerTag tag = Strings.isNullOrEmpty(href) ? div(text) : a(text).withHref(href);
     return tag.withCondId(!Strings.isNullOrEmpty(id), id)
         .withClasses(DEFAULT_LINK_BUTTON_STYLES, styles);
+  }
+
+  public ContainerTag asHiddenForm(Http.Request request) {
+    Preconditions.checkNotNull(href);
+    return form(
+            input()
+                .isHidden()
+                .withValue(CSRF.getToken(request.asScala()).get().value())
+                .withName("csrfToken"),
+            button(TagCreator.text(text)).withType("submit"))
+        .withMethod("POST")
+        .withAction(href)
+        .withCondId(!Strings.isNullOrEmpty(id), id);
   }
 }

@@ -223,5 +223,5 @@ public interface ProgramService {
   CompletionStage<Void> publishProgramAsync(long id);
 
   /** Create a new draft starting from the program specified by `id`. */
-  ProgramDefinition newDraftFrom(long id) throws ProgramNotFoundException;
+  ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException;
 }

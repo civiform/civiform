@@ -6,7 +6,6 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -54,7 +53,7 @@ public class ProgramRepository {
           try {
             ebeanServer.beginTransaction();
             program.setLifecycleStage(LifecycleStage.ACTIVE);
-            List<Program> allOldPrograms =
+            Optional<Program> oldProgramMaybe =
                 ebeanServer
                     .find(Program.class)
                     .where()
@@ -62,8 +61,9 @@ public class ProgramRepository {
                     .eq("lifecycle_stage", LifecycleStage.ACTIVE)
                     .not()
                     .eq("id", program.id)
-                    .findList();
-            for (Program oldProgram : allOldPrograms) {
+                    .findOneOrEmpty();
+            if (oldProgramMaybe.isPresent()) {
+              Program oldProgram = oldProgramMaybe.get();
               oldProgram.setLifecycleStage(LifecycleStage.OBSOLETE);
               oldProgram.save();
             }
@@ -73,7 +73,8 @@ public class ProgramRepository {
           } finally {
             ebeanServer.endTransaction();
           }
-        });
+        },
+        executionContext);
   }
 
   public void publishProgram(Program program) {

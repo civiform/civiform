@@ -11,7 +11,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.Tag;
+import java.util.Comparator;
 import models.LifecycleStage;
+import play.mvc.Http;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
@@ -28,13 +30,17 @@ public final class ProgramIndexView extends BaseHtmlView {
     this.layout = layout;
   }
 
-  public Content render(ImmutableList<ProgramDefinition> programs) {
+  public Content render(ImmutableList<ProgramDefinition> programs, Http.Request request) {
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
             .with(
                 h1("All Programs").withClasses(Styles.MY_4),
-                each(programs, this::renderProgramListItem),
+                each(
+                    programs.stream()
+                        .sorted(Comparator.comparing(program -> program.lifecycleStage()))
+                        .collect(ImmutableList.toImmutableList()),
+                    e -> this.renderProgramListItem(e, request)),
                 renderNewProgramButton());
 
     return layout.render(head(layout.tailwindStyles()), body(contentDiv));
@@ -49,11 +55,11 @@ public final class ProgramIndexView extends BaseHtmlView {
         .asButton();
   }
 
-  public Tag renderProgramListItem(ProgramDefinition program) {
+  public Tag renderProgramListItem(ProgramDefinition program, Http.Request request) {
     // TODO: Move Strings out of here for i18n.
     String programStatusText = program.lifecycleStage().name();
     String lastEditText = "Last updated 2 hours ago."; // TODO: Need to generate this.
-    String publishLinkText = "Publish →";
+    String publishLinkText = "Publish";
     String viewApplicationsLinkText = "Applications →";
 
     String programTitleText = program.name();
@@ -91,9 +97,9 @@ public final class ProgramIndexView extends BaseHtmlView {
         div(
                 p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                 p().withClasses(Styles.FLEX_GROW),
-                maybeRenderPublishLink(publishLinkText, program),
-                renderEditLink(program),
-                renderViewApplicationsLink(viewApplicationsLinkText, programId))
+                renderViewApplicationsLink(viewApplicationsLinkText, programId),
+                renderEditLink(program, request),
+                maybeRenderPublishLink(publishLinkText, program, request))
             .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
 
     Tag innerDiv =
@@ -104,7 +110,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return div(innerDiv).withClasses(Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
   }
 
-  Tag maybeRenderPublishLink(String text, ProgramDefinition program) {
+  Tag maybeRenderPublishLink(String text, ProgramDefinition program, Http.Request request) {
     if (program.lifecycleStage().equals(LifecycleStage.DRAFT)) {
       String publishLink =
           controllers.admin.routes.AdminProgramController.publish(program.id()).url();
@@ -114,15 +120,15 @@ public final class ProgramIndexView extends BaseHtmlView {
           .setHref(publishLink)
           .setText(text)
           .setStyles(Styles.MR_2)
-          .asAnchorText();
+          .asHiddenForm(request);
     }
     // an empty div().
     return div();
   }
 
-  Tag renderEditLink(ProgramDefinition program) {
+  Tag renderEditLink(ProgramDefinition program, Http.Request request) {
     String editLinkText = "Edit →";
-    String newVersionText = "New Version →";
+    String newVersionText = "New Version";
 
     if (program.lifecycleStage().equals(LifecycleStage.DRAFT)) {
       String editLink = controllers.admin.routes.AdminProgramController.edit(program.id()).url();
@@ -142,7 +148,7 @@ public final class ProgramIndexView extends BaseHtmlView {
           .setHref(newVersionLink)
           .setText(newVersionText)
           .setStyles(Styles.MR_2)
-          .asAnchorText();
+          .asHiddenForm(request);
     } else {
       // obsolete or deleted, no edit link, empty div.
       return div();

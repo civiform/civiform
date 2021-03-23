@@ -28,9 +28,10 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
     controller = instanceOf(AdminProgramController.class);
   }
 
+
   @Test
   public void index_withNoPrograms() {
-    Result result = controller.index();
+    Result result = controller.index(Helpers.fakeRequest().build());
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
@@ -42,7 +43,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
     ProgramBuilder.newProgram("one").build();
     ProgramBuilder.newProgram("two").build();
 
-    Result result = controller.index();
+    Result result = controller.index(Helpers.fakeRequest().build());
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("one");
@@ -86,7 +87,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
 
-    Result redirectResult = controller.index();
+    Result redirectResult = controller.index(Helpers.fakeRequest().build());
     assertThat(contentAsString(redirectResult)).contains("New Program");
     assertThat(contentAsString(redirectResult)).contains("This is a new program");
   }
@@ -104,7 +105,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
 
-    Result redirectResult = controller.index();
+    Result redirectResult = controller.index(Helpers.fakeRequest().build());
     assertThat(contentAsString(redirectResult)).contains("Existing One");
     assertThat(contentAsString(redirectResult)).contains("New Program");
     assertThat(contentAsString(redirectResult)).contains("This is a new program");
@@ -173,7 +174,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
 
-    Result redirectResult = controller.index();
+    Result redirectResult = controller.index(Helpers.fakeRequest().build());
     assertThat(contentAsString(redirectResult)).contains("Create new program");
     assertThat(contentAsString(redirectResult)).doesNotContain("Existing One");
   }
