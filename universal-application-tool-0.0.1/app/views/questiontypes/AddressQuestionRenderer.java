@@ -41,7 +41,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                     Styles.MB_2)
                 .withText(question.getQuestionHelpText()),
             div()
-                .withClasses("rounded bg-opacity-50 bg-gray-100 pt-2 pb-4")
+                .withClasses(Styles.ROUNDED, Styles.BG_OPACITY_50, Styles.BG_GRAY_100, Styles.PT_2, Styles.PB_4)
                 .with(
                     /** First line of address entry: Street */
                     FieldWithLabel.input()
@@ -50,7 +50,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                         .setFloatLabel(true)
                         .setValue(addressQuestion.getStreetValue().orElse(""))
                         .getContainer()
-                        .withClasses("my-2 p-2 pb-0"),
+                        .withClasses(Styles.MY_2, Styles.P_2, Styles.PB_0),
                     /** Second line of address entry: City, State, Zip */
                     div()
                         .withClasses(Styles.FLEX, Styles.FLEX_ROW)

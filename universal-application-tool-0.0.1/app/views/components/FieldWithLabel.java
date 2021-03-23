@@ -59,9 +59,8 @@ public class FieldWithLabel {
     Styles.TOP_0,
     Styles.LEFT_0,
     Styles.TEXT_BASE,
-    Styles.PX_1,
+    Styles.PX_1,    
     Styles.PY_2,
-    "-z-1 origin-0",
     Styles.DURATION_300
   };
 
@@ -183,8 +182,8 @@ public class FieldWithLabel {
           .with(
               div(fieldTag, labelTag)
                   .withClasses(
-                      "floated my-2 outline relative border-b-2 border-gray-600"
-                          + " focus-within:border-blue-500"));
+                      "floated", Styles.MY_2, Styles.RELATIVE, Styles.BORDER_B_2, Styles.BORDER_GRAY_600,
+                      StyleUtils.focusWithin(Styles.BORDER_BLUE_500)));
     }
     return div(labelTag, fieldTag).withClasses(Styles.MX_4, Styles.MB_6);
   }
