@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 public class StyleUtils {
   public static String EVEN = "even";
   public static String FOCUS = "focus";
+  public static String FOCUS_WITHIN = "focus-within";
   public static String HOVER = "hover";
 
   public static String RESPONSIVE_SM = "sm";
@@ -41,6 +42,14 @@ public class StyleUtils {
 
   public static String focus(String... styles) {
     return applyUtilityClass(FOCUS, styles);
+  }
+
+  public static String focusWithin(ImmutableList<String> styles) {
+    return applyUtilityClass(FOCUS_WITHIN, styles);
+  }
+
+  public static String focusWithin(String... styles) {
+    return applyUtilityClass(FOCUS_WITHIN, styles);
   }
 
   public static String hover(String... styles) {
