@@ -11,6 +11,7 @@ import org.junit.Test;
 import services.Path;
 import services.question.AddressQuestionDefinition;
 import services.question.NameQuestionDefinition;
+import services.question.NumberQuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
 import services.question.TextQuestionDefinition;
@@ -28,6 +29,14 @@ public class ApplicantQuestionTest {
           ImmutableMap.of(Locale.US, "help text"));
   private static final NameQuestionDefinition nameQuestionDefinition =
       new NameQuestionDefinition(
+          1L,
+          "question name",
+          Path.create("applicant.my.path.name"),
+          "description",
+          ImmutableMap.of(Locale.US, "question?"),
+          ImmutableMap.of(Locale.US, "help text"));
+  private static final NumberQuestionDefinition numberQuestionDefinition =
+      new NumberQuestionDefinition(
           1L,
           "question name",
           Path.create("applicant.my.path.name"),
@@ -97,6 +106,54 @@ public class ApplicantQuestionTest {
     assertThat(textQuestion.getQuestionErrors())
         .containsOnly(ValidationErrorMessage.textTooLongError(4));
     assertThat(textQuestion.getTextValue().get()).isEqualTo("hello");
+  }
+
+  @Test
+  public void numberQuestion_withEmptyApplicantData() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(numberQuestionDefinition, applicantData);
+
+    assertThat(applicantQuestion.getNumberQuestion())
+        .isInstanceOf(ApplicantQuestion.NumberQuestion.class);
+    assertThat(applicantQuestion.getQuestionText()).isEqualTo("question?");
+    assertThat(applicantQuestion.hasErrors()).isFalse();
+  }
+
+  @Test
+  public void numberQuestion_withPresentApplicantData() {
+    applicantData.putLong(numberQuestionDefinition.getNumberPath(), 800);
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(numberQuestionDefinition, applicantData);
+    ApplicantQuestion.NumberQuestion numberQuestion = applicantQuestion.getNumberQuestion();
+
+    assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(numberQuestion.getNumberValue().get()).isEqualTo(800);
+  }
+
+  @Test
+  public void numberQuestion_withPresentApplicantData_failsValidation() throws Exception {
+    NumberQuestionDefinition question =
+        (NumberQuestionDefinition)
+            new QuestionDefinitionBuilder()
+                .setQuestionType(QuestionType.NUMBER)
+                .setVersion(1L)
+                .setName("question name")
+                .setPath(Path.create("applicant.my.path.name"))
+                .setDescription("description")
+                .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
+                .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
+                .setValidationPredicates(
+                    NumberQuestionDefinition.NumberValidationPredicates.create(0, 100))
+                .build();
+    applicantData.putLong(question.getNumberPath(), 1000000);
+    ApplicantQuestion applicantQuestion = new ApplicantQuestion(question, applicantData);
+    ApplicantQuestion.NumberQuestion numberQuestion = applicantQuestion.getNumberQuestion();
+
+    assertThat(applicantQuestion.hasErrors()).isTrue();
+    assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(numberQuestion.getQuestionErrors())
+        .containsOnly(ValidationErrorMessage.numberTooLargeError(100));
+    assertThat(numberQuestion.getNumberValue().get()).isEqualTo(1000000);
   }
 
   @Test
