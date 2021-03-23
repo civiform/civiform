@@ -42,6 +42,7 @@ public abstract class Path {
    */
   public abstract ImmutableList<String> segments();
 
+  @Memoized
   public boolean isEmpty() {
     return segments().isEmpty();
   }
