@@ -31,6 +31,7 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   public Content renderNewQuestionForm(Request request, QuestionType questionType) {
+    // TODO: Switch on the question type to determine which question form to use.
     QuestionForm questionForm = new QuestionForm();
     questionForm.setQuestionType(questionType.toString().toUpperCase());
 
@@ -176,7 +177,7 @@ public final class QuestionEditView extends BaseHtmlView {
   private DomContent formQuestionTypeSelect(QuestionType selectedType) {
     ImmutableList<SimpleEntry<String, String>> options =
         Arrays.stream(QuestionType.values())
-            .map(item -> new SimpleEntry<String, String>(item.toString(), item.name()))
+            .map(item -> new SimpleEntry<>(item.toString(), item.name()))
             .collect(ImmutableList.toImmutableList());
 
     return new SelectWithLabel()
