@@ -23,8 +23,4 @@
   button:hover {
     @apply bg-blue-700;
   }
-
-  main {
-    @apply w-screen max-w-screen-xl mx-auto overflow-y-auto mt-12;
-  }
 }

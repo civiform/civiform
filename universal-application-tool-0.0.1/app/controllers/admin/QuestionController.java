@@ -61,16 +61,18 @@ public class QuestionController extends CiviFormController {
         .thenApplyAsync(
             readOnlyService -> {
               try {
-                QuestionDefinition definition = questionForm.getBuilder().setVersion(1L).build();
-                ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(definition);
-                if (result.isError()) {
-                  String errorMessage = joinErrors(result.getErrors());
+                try {
+                  QuestionDefinition definition = questionForm.getBuilder().setVersion(1L).build();
+                  ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(definition);
+                  if (result.isError()) {
+                    String errorMessage = joinErrors(result.getErrors());
+                    return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
+                  }
+                } catch (UnsupportedQuestionTypeException e) {
+                  // These are valid question types, but are not fully supported yet.
+                  String errorMessage = e.toString();
                   return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
                 }
-              } catch (UnsupportedQuestionTypeException e) {
-                // These are valid question types, but are not fully supported yet.
-                String errorMessage = e.toString();
-                return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
               } catch (InvalidQuestionTypeException e) {
                 // These are unrecognized invalid question types.
                 return badRequest(e.toString());
@@ -129,21 +131,23 @@ public class QuestionController extends CiviFormController {
     Form<QuestionForm> form = formFactory.form(QuestionForm.class);
     QuestionForm questionForm = form.bindFromRequest(request).get();
     try {
-      QuestionDefinition definition = questionForm.getBuilder().setId(id).setVersion(1L).build();
-      ErrorAnd<QuestionDefinition, CiviFormError> result = service.update(definition);
-      if (result.isError()) {
-        String errorMessage = joinErrors(result.getErrors());
+      try {
+        QuestionDefinition definition = questionForm.getBuilder().setId(id).setVersion(1L).build();
+        ErrorAnd<QuestionDefinition, CiviFormError> result = service.update(definition);
+        if (result.isError()) {
+          String errorMessage = joinErrors(result.getErrors());
+          return ok(editView.renderEditQuestionForm(request, id, questionForm, errorMessage));
+        }
+      } catch (UnsupportedQuestionTypeException e) {
+        // These are valid question types, but are not fully supported yet.
+        String errorMessage = e.toString();
         return ok(editView.renderEditQuestionForm(request, id, questionForm, errorMessage));
+      } catch (InvalidUpdateException e) {
+        // Ill-formed update request
+        return badRequest(e.toString());
       }
-    } catch (UnsupportedQuestionTypeException e) {
-      // These are valid question types, but are not fully supported yet.
-      String errorMessage = e.toString();
-      return ok(editView.renderEditQuestionForm(request, id, questionForm, errorMessage));
     } catch (InvalidQuestionTypeException e) {
       // These are unrecognized invalid question types.
-      return badRequest(e.toString());
-    } catch (InvalidUpdateException e) {
-      // Ill-formed update request
       return badRequest(e.toString());
     }
     String successMessage =

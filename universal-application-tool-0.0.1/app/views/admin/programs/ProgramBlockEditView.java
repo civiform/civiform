@@ -60,7 +60,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 .with(blockEditPanel(program, block, csrfTag))
                 .with(questionBankPanel(questions, program, block, csrfTag)));
 
-    return layout.renderMain(mainContent, Styles.FLEX, Styles.FLEX_COL);
+    return layout.renderCentered(mainContent, Styles.FLEX, Styles.FLEX_COL);
   }
 
   private Tag addFormEndpoints(Tag csrfTag, long programId, long blockId) {
