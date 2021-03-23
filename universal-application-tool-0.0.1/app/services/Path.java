@@ -13,21 +13,21 @@ import com.google.common.collect.ImmutableList;
 @AutoValue
 public abstract class Path {
   private static final char JSON_PATH_DIVIDER = '.';
-  private static final String JSON_PATH_START = "$" + JSON_PATH_DIVIDER;
+  private static final String JSON_PATH_START = "$";
   private static final Splitter JSON_SPLITTER = Splitter.on(JSON_PATH_DIVIDER);
   private static final Joiner JSON_JOINER = Joiner.on(JSON_PATH_DIVIDER);
 
   public static Path empty() {
-    return create(ImmutableList.of());
+    return create(ImmutableList.of(JSON_PATH_START));
   }
 
   public static Path create(String path) {
     path = path.trim();
-    if (path.startsWith(JSON_PATH_START)) {
-      path = path.substring(JSON_PATH_START.length());
-    }
     if (path.isEmpty()) {
       return empty();
+    }
+    if (!path.startsWith(JSON_PATH_START)) {
+      path = JSON_PATH_START + JSON_PATH_DIVIDER + path;
     }
     return create(ImmutableList.copyOf(JSON_SPLITTER.splitToList(path)));
   }
@@ -43,7 +43,7 @@ public abstract class Path {
   public abstract ImmutableList<String> segments();
 
   public boolean isEmpty() {
-    return segments().isEmpty();
+    return segments().size() == 1 && segments().get(0).equals(JSON_PATH_START);
   }
 
   /** A single path in JSON notation, without the $. JsonPath prefix. */
@@ -64,7 +64,7 @@ public abstract class Path {
    */
   @Memoized
   public Path parentPath() {
-    if (segments().isEmpty()) {
+    if (isEmpty()) {
       return Path.empty();
     }
     return Path.create(segments().subList(0, segments().size() - 1));
@@ -98,7 +98,12 @@ public abstract class Path {
     public abstract Path build();
 
     public Builder setPath(String path) {
-      return setSegments(ImmutableList.copyOf(JSON_SPLITTER.splitToList(path)));
+      ImmutableList<String> newSegments =
+          ImmutableList.<String>builder()
+              .add(JSON_PATH_START)
+              .addAll(JSON_SPLITTER.splitToList(path))
+              .build();
+      return setSegments(newSegments);
     }
 
     public Builder append(String segment) {

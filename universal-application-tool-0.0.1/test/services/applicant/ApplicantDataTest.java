@@ -79,6 +79,16 @@ public class ApplicantDataTest {
   }
 
   @Test
+  public void putAtRoot() {
+    ApplicantData data = new ApplicantData();
+
+    data.putString(Path.create("root"), "tree");
+
+    assertThat(data.asJsonString())
+        .isEqualTo("{\"applicant\":{},\"metadata\":{},\"root\":\"tree\"}");
+  }
+
+  @Test
   public void putLong_addsAScalar() {
     ApplicantData data = new ApplicantData();
 
