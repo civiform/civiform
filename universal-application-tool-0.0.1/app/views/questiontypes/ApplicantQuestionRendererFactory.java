@@ -10,7 +10,7 @@ import services.question.UnsupportedQuestionTypeException;
 public class ApplicantQuestionRendererFactory {
 
   public ApplicantQuestionRenderer getSampleRenderer(QuestionType questionType)
-      throws UnsupportedQuestionTypeException, UnsupportedOperationException {
+      throws UnsupportedQuestionTypeException {
     QuestionDefinition questionDefinition = QuestionDefinitionBuilder.sample(questionType).build();
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(questionDefinition, new ApplicantData());
@@ -27,6 +27,11 @@ public class ApplicantQuestionRendererFactory {
       case NAME:
         {
           return new NameQuestionRenderer(question);
+        }
+
+      case NUMBER:
+        {
+          return new NumberQuestionRenderer(question);
         }
 
       case ADDRESS:

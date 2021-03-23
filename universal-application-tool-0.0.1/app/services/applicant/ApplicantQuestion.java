@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import services.Path;
 import services.question.AddressQuestionDefinition;
 import services.question.NameQuestionDefinition;
+import services.question.NumberQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionType;
 import services.question.TextQuestionDefinition;
@@ -87,12 +88,18 @@ public class ApplicantQuestion {
     return new NameQuestion();
   }
 
+  public NumberQuestion getNumberQuestion() {
+    return new NumberQuestion();
+  }
+
   public PresentsErrors errorsPresenter() {
     switch (getType()) {
       case ADDRESS:
         return getAddressQuestion();
       case NAME:
         return getNameQuestion();
+      case NUMBER:
+        return getNumberQuestion();
       case TEXT:
         return getTextQuestion();
       default:
@@ -493,6 +500,85 @@ public class ApplicantQuestion {
 
     private boolean lastNameAnswered() {
       return applicantData.hasPath(getLastNamePath());
+    }
+  }
+
+  public class NumberQuestion implements PresentsErrors {
+
+    private Optional<Long> numberValue;
+
+    public NumberQuestion() {
+      assertQuestionType();
+    }
+
+    @Override
+    public boolean hasQuestionErrors() {
+      return !getQuestionErrors().isEmpty();
+    }
+
+    public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+      if (!hasValue()) {
+        return ImmutableSet.of();
+      }
+
+      NumberQuestionDefinition definition = getQuestionDefinition();
+      long answer = getNumberValue().get();
+      ImmutableSet.Builder<ValidationErrorMessage> errors =
+          ImmutableSet.<ValidationErrorMessage>builder();
+
+      if (definition.getMin().isPresent()) {
+        long min = definition.getMin().getAsLong();
+        if (answer < min) {
+          errors.add(ValidationErrorMessage.numberTooSmallError(min));
+        }
+      }
+
+      if (definition.getMax().isPresent()) {
+        long max = definition.getMax().getAsLong();
+        if (answer > max) {
+          errors.add(ValidationErrorMessage.numberTooLargeError(max));
+        }
+      }
+
+      return errors.build();
+    }
+
+    @Override
+    public boolean hasTypeSpecificErrors() {
+      // There are no inherent requirements in a number question.
+      return false;
+    }
+
+    public boolean hasValue() {
+      return getNumberValue().isPresent();
+    }
+
+    public Optional<Long> getNumberValue() {
+      if (numberValue != null) {
+        return numberValue;
+      }
+
+      numberValue = applicantData.readLong(getNumberPath());
+
+      return numberValue;
+    }
+
+    public void assertQuestionType() {
+      if (!getType().equals(QuestionType.NUMBER)) {
+        throw new RuntimeException(
+            String.format(
+                "Question is not a NUMBER question: %s (type: %s)",
+                questionDefinition.getPath(), questionDefinition.getQuestionType()));
+      }
+    }
+
+    public NumberQuestionDefinition getQuestionDefinition() {
+      assertQuestionType();
+      return (NumberQuestionDefinition) questionDefinition;
+    }
+
+    public Path getNumberPath() {
+      return getQuestionDefinition().getNumberPath();
     }
   }
 

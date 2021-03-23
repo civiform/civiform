@@ -165,7 +165,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setFieldName("questionHelpText")
                 .setLabelText("Question help text")
                 .setPlaceholderText("The question help text displayed to the applicant")
-                .setValue(questionForm.getQuestionText())
+                .setValue(questionForm.getQuestionHelpText())
                 .getContainer())
         .with(formQuestionTypeSelect(questionType));
 

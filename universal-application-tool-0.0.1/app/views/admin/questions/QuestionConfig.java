@@ -59,6 +59,8 @@ public class QuestionConfig {
         return config.setId("address-question-config").addAddressQuestionConfig().getContainer();
       case TEXT:
         return config.setId("text-question-config").addTextQuestionConfig().getContainer();
+      case NUMBER:
+        return config.setId("number-question-config").addNumberQuestionConfig().getContainer();
       case REPEATER: // fallthrough intended
       case NAME: // fallthrough intended - no options
       default:
@@ -99,6 +101,21 @@ public class QuestionConfig {
             .setId("text-question-max-length-input")
             .setFieldName("maxLength")
             .setLabelText("Maximum length")
+            .getContainer());
+    return this;
+  }
+
+  private QuestionConfig addNumberQuestionConfig() {
+    content.with(
+        FieldWithLabel.number()
+            .setId("number-question-min-value-input")
+            .setFieldName("min")
+            .setLabelText("Minimum value")
+            .getContainer(),
+        FieldWithLabel.number()
+            .setId("number-question-max-value-input")
+            .setFieldName("max")
+            .setLabelText("Maximum value")
             .getContainer());
     return this;
   }

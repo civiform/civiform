@@ -142,6 +142,22 @@ public class QuestionDefinitionBuilder {
             questionText,
             questionHelpText,
             nameValidationPredicates);
+      case NUMBER:
+        NumberQuestionDefinition.NumberValidationPredicates numberValidationPredicates =
+            NumberQuestionDefinition.NumberValidationPredicates.create();
+        if (!validationPredicatesString.isEmpty()) {
+          numberValidationPredicates =
+              NumberQuestionDefinition.NumberValidationPredicates.parse(validationPredicatesString);
+        }
+        return new NumberQuestionDefinition(
+            id,
+            version,
+            name,
+            path,
+            description,
+            questionText,
+            questionHelpText,
+            numberValidationPredicates);
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {
