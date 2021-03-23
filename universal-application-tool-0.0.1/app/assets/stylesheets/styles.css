@@ -24,6 +24,10 @@
     @apply bg-blue-700;
   }
 
+  /** 
+   * Floating text inputs and text areas.
+   * REASON: We're using selectors not supported by tailwind.
+   */
   .floated input:focus-within ~ label,
   .floated input:not(:placeholder-shown) ~ label,
   .floated textarea:focus-within ~ label,

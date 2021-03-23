@@ -8,15 +8,15 @@ import services.applicant.ApplicantQuestion;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
-import views.style.Styles;
 import views.style.StyleUtils;
+import views.style.Styles;
 
 public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQuestionRenderer {
 
   private final ApplicantQuestion question;
 
-  private final static String SECONDARY_ADDRESS_STYLES = 
-    StyleUtils.joinStyles(Styles.MY_0, Styles.P_2, Styles.PB_1);
+  private static final String SECONDARY_ADDRESS_STYLES =
+      StyleUtils.joinStyles(Styles.MY_0, Styles.P_2, Styles.PB_1);
 
   public AddressQuestionRenderer(ApplicantQuestion question) {
     this.question = checkNotNull(question);
@@ -49,7 +49,8 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                         .setLabelText("Street address")
                         .setFloatLabel(true)
                         .setValue(addressQuestion.getStreetValue().orElse(""))
-                        .getContainer().withClasses("my-2 p-2 pb-0"),
+                        .getContainer()
+                        .withClasses("my-2 p-2 pb-0"),
                     /** Second line of address entry: City, State, Zip */
                     div()
                         .withClasses(Styles.FLEX, Styles.FLEX_ROW)
@@ -59,20 +60,22 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                                 .setLabelText("City")
                                 .setFloatLabel(true)
                                 .setValue(addressQuestion.getCityValue().orElse(""))
-                                .getContainer().withClasses(SECONDARY_ADDRESS_STYLES, Styles.W_1_2),
+                                .getContainer()
+                                .withClasses(SECONDARY_ADDRESS_STYLES, Styles.W_1_2),
                             FieldWithLabel.input()
                                 .setFieldName(addressQuestion.getStatePath().path())
                                 .setLabelText("State")
                                 .setFloatLabel(true)
                                 .setValue(addressQuestion.getStateValue().orElse(""))
-                                .getContainer().withClasses(SECONDARY_ADDRESS_STYLES, Styles.W_1_3),
+                                .getContainer()
+                                .withClasses(SECONDARY_ADDRESS_STYLES, Styles.W_1_3),
                             FieldWithLabel.input()
                                 .setFieldName(addressQuestion.getZipPath().path())
                                 .setLabelText("Zip")
                                 .setFloatLabel(true)
                                 .setValue(addressQuestion.getZipValue().orElse(""))
-                                .getContainer().withClasses(SECONDARY_ADDRESS_STYLES, Styles.W_1_6)
-                                )));
+                                .getContainer()
+                                .withClasses(SECONDARY_ADDRESS_STYLES, Styles.W_1_6))));
     // TODO: Need to add field errors back.
   }
 }

@@ -10,8 +10,8 @@ import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import views.style.BaseStyles;
-import views.style.Styles;
 import views.style.StyleUtils;
+import views.style.Styles;
 
 public class FieldWithLabel {
   private static final String[] CORE_FIELD_CLASSES = {
@@ -43,15 +43,28 @@ public class FieldWithLabel {
   };
 
   private static final String[] FLOATED_FIELD_CLASSES = {
-    Styles.BG_TRANSPARENT, Styles.BLOCK, Styles.PX_1, Styles.PY_2, Styles.W_FULL,
-    Styles.TEXT_BASE, StyleUtils.focus(Styles.OUTLINE_NONE) 
+    Styles.BG_TRANSPARENT,
+    Styles.BLOCK,
+    Styles.PX_1,
+    Styles.PY_2,
+    Styles.W_FULL,
+    Styles.TEXT_BASE,
+    StyleUtils.focus(Styles.OUTLINE_NONE)
   };
 
   private static final String[] FLOATED_LABEL_CLASSES = {
-    Styles.ABSOLUTE, Styles.POINTER_EVENTS_NONE, Styles.TEXT_GRAY_600, Styles.TOP_0, Styles.LEFT_0,
-    Styles.TEXT_BASE, Styles.PX_1, Styles.PY_2, "-z-1 origin-0", Styles.DURATION_300
+    Styles.ABSOLUTE,
+    Styles.POINTER_EVENTS_NONE,
+    Styles.TEXT_GRAY_600,
+    Styles.TOP_0,
+    Styles.LEFT_0,
+    Styles.TEXT_BASE,
+    Styles.PX_1,
+    Styles.PY_2,
+    "-z-1 origin-0",
+    Styles.DURATION_300
   };
-  
+
   protected Tag fieldTag;
   protected String fieldName = "";
   protected String fieldType = "text";
@@ -168,9 +181,10 @@ public class FieldWithLabel {
 
       return div()
           .with(
-            div(fieldTag, labelTag)
-              .withClasses("floated my-2 outline relative border-b-2 border-gray-600 focus-within:border-blue-500")
-          );
+              div(fieldTag, labelTag)
+                  .withClasses(
+                      "floated my-2 outline relative border-b-2 border-gray-600"
+                          + " focus-within:border-blue-500"));
     }
     return div(labelTag, fieldTag).withClasses(Styles.MX_4, Styles.MB_6);
   }
