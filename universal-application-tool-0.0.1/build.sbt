@@ -30,6 +30,9 @@ lazy val root = (project in file("."))
       "org.junit.jupiter" % "junit-jupiter-params" % "5.4.2" % Test,
       "com.h2database" % "h2" % "1.4.199" % Test,
 
+      // Parameterized testing
+      "pl.pragmatists" % "JUnitParams" % "1.1.0" % Test,
+
       // Testing libraries for dealing with CompletionStage...
       "org.assertj" % "assertj-core" % "3.14.0" % Test,
       "org.awaitility" % "awaitility" % "4.0.1" % Test,

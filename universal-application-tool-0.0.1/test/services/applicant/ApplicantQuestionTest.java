@@ -4,10 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
+import java.util.EnumSet;
 import java.util.Locale;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import services.Path;
 import services.question.AddressQuestionDefinition;
 import services.question.NameQuestionDefinition;
@@ -16,7 +20,9 @@ import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
 import services.question.TextQuestionDefinition;
 import services.question.TextQuestionDefinition.TextValidationPredicates;
+import services.question.UnsupportedQuestionTypeException;
 
+@RunWith(JUnitParamsRunner.class)
 public class ApplicantQuestionTest {
 
   private static final TextQuestionDefinition textQuestionDefinition =
@@ -59,6 +65,22 @@ public class ApplicantQuestionTest {
   public void setUp() {
     applicant = new Applicant();
     applicantData = applicant.getApplicantData();
+  }
+
+  // TODO(https://github.com/seattle-uat/civiform/issues/405): Change this to just use
+  // @Parameters(source = QuestionType.class) once RepeatedQuestionDefinition exists.
+  @Test
+  @Parameters(method = "types")
+  public void errorsPresenterExtendedForAllTypes(QuestionType type)
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinitionBuilder builder = QuestionDefinitionBuilder.sample(type);
+    ApplicantQuestion question = new ApplicantQuestion(builder.build(), new ApplicantData());
+
+    assertThat(question.errorsPresenter().hasTypeSpecificErrors()).isFalse();
+  }
+
+  private EnumSet<QuestionType> types() {
+    return EnumSet.complementOf(EnumSet.of(QuestionType.REPEATER));
   }
 
   @Test
