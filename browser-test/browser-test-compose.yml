@@ -33,7 +33,6 @@ services:
       - ADFS_CLIENT_ID
       - ADFS_SECRET
       - DB_JDBC_STRING=jdbc:postgresql://database:5432/postgres
-      - BASE_URL=http://civiform:9000
     build: ..
     volumes:
       - ../universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1
