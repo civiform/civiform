@@ -9,6 +9,7 @@ import io.ebean.EbeanServer;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.LifecycleStage;
 import models.Program;
 import play.db.ebean.EbeanConfig;
 
@@ -36,6 +37,7 @@ public class ProgramRepository {
   }
 
   public Program insertProgramSync(Program program) {
+    program.id = null;
     ebeanServer.insert(program);
     return program;
   }
@@ -43,5 +45,39 @@ public class ProgramRepository {
   public Program updateProgramSync(Program program) {
     ebeanServer.update(program);
     return program;
+  }
+
+  public CompletionStage<Void> publishProgramAsync(Program program) {
+    return supplyAsync(
+        () -> {
+          try {
+            ebeanServer.beginTransaction();
+            program.setLifecycleStage(LifecycleStage.ACTIVE);
+            Optional<Program> oldProgramMaybe =
+                ebeanServer
+                    .find(Program.class)
+                    .where()
+                    .eq("name", program.getProgramDefinition().name())
+                    .eq("lifecycle_stage", LifecycleStage.ACTIVE)
+                    .not()
+                    .eq("id", program.id)
+                    .findOneOrEmpty();
+            if (oldProgramMaybe.isPresent()) {
+              Program oldProgram = oldProgramMaybe.get();
+              oldProgram.setLifecycleStage(LifecycleStage.OBSOLETE);
+              oldProgram.save();
+            }
+            program.save();
+            ebeanServer.commitTransaction();
+            return null;
+          } finally {
+            ebeanServer.endTransaction();
+          }
+        },
+        executionContext);
+  }
+
+  public void publishProgram(Program program) {
+    this.publishProgramAsync(program).toCompletableFuture().join();
   }
 }
