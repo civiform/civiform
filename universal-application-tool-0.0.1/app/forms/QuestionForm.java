@@ -14,7 +14,7 @@ import services.question.TranslationNotFoundException;
 public class QuestionForm {
   private String questionName;
   private String questionDescription;
-  private Path questionPath;
+  private Path questionParentPath;
   private String questionType;
   private String questionText;
   private String questionHelpText;
@@ -22,7 +22,7 @@ public class QuestionForm {
   public QuestionForm() {
     questionName = "";
     questionDescription = "";
-    questionPath = Path.empty();
+    questionParentPath = Path.empty();
     questionType = "TEXT";
     questionText = "";
     questionHelpText = "";
@@ -31,7 +31,7 @@ public class QuestionForm {
   public QuestionForm(QuestionDefinition qd) {
     questionName = qd.getName();
     questionDescription = qd.getDescription();
-    questionPath = qd.getPath();
+    questionParentPath = qd.getPath().parentPath();
     questionType = qd.getQuestionType().name();
 
     try {
@@ -63,12 +63,18 @@ public class QuestionForm {
     this.questionDescription = checkNotNull(questionDescription);
   }
 
-  public Path getQuestionPath() {
-    return questionPath;
+  public Path getQuestionParentPath() {
+    return questionParentPath;
   }
 
-  public void setQuestionPath(String questionPath) {
-    this.questionPath = Path.create(checkNotNull(questionPath));
+  public void setQuestionParentPath(String questionParentPath) {
+    this.questionParentPath = Path.create(checkNotNull(questionParentPath));
+  }
+
+  public Path getQuestionPath() {
+    String questionNameFormattedForPath =
+        questionName.replaceAll("\\s", "_").replaceAll("[^a-zA-Z_]", "");
+    return questionParentPath.join(questionNameFormattedForPath);
   }
 
   public String getQuestionType() {
@@ -102,11 +108,12 @@ public class QuestionForm {
         questionHelpText.isEmpty()
             ? ImmutableMap.of()
             : ImmutableMap.of(Locale.US, questionHelpText);
+
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setQuestionType(QuestionType.of(questionType))
             .setName(questionName)
-            .setPath(questionPath)
+            .setPath(getQuestionPath())
             .setDescription(questionDescription)
             .setQuestionText(questionTextMap)
             .setQuestionHelpText(questionHelpTextMap);

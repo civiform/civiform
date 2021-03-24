@@ -7,7 +7,6 @@ import static org.fluentlenium.core.filter.FilterConstructor.withText;
 import controllers.admin.routes;
 import org.junit.Before;
 import org.junit.Test;
-import services.WellKnownPaths;
 
 public class ApplicationReviewBrowserTest extends BaseBrowserTest {
 
@@ -17,7 +16,7 @@ public class ApplicationReviewBrowserTest extends BaseBrowserTest {
 
     loginAsAdmin();
 
-    addNameQuestion("name", WellKnownPaths.APPLICANT_NAME.path());
+    addNameQuestion("name");
 
     String programName = "Mock program";
     addProgram(programName);
