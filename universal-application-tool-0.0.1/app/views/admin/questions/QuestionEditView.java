@@ -168,7 +168,7 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private DomContent questionParentPathSelect() {
-    // TODO: add repeated element paths when they exist.
+    // TODO: add repeated element paths when they exist (issue #405)
     ImmutableList<SimpleEntry<String, String>> options =
         ImmutableList.of(new SimpleEntry<>("Applicant", "applicant"));
 
