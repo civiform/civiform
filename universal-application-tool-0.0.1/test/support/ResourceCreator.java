@@ -54,7 +54,9 @@ public class ResourceCreator {
   }
 
   public Program insertProgram(String name, LifecycleStage lifecycleStage) {
-    return ProgramBuilder.newProgram(name, "description").withLifecycleStage(lifecycleStage).build();
+    return ProgramBuilder.newProgram(name, "description")
+        .withLifecycleStage(lifecycleStage)
+        .build();
   }
 
   public Program insertProgram(String name) {

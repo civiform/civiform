@@ -45,7 +45,8 @@ public class ApplicantRepository {
                 ebeanServer
                     .find(Program.class)
                     .alias("p")
-                    .where().or()
+                    .where()
+                    .or()
                     .eq("lifecycle_stage", LifecycleStage.ACTIVE)
                     .exists(
                         ebeanServer
@@ -54,7 +55,7 @@ public class ApplicantRepository {
                             .eq("applicant.id", id)
                             .raw("program.id = p.id")
                             .query())
-                        .endOr()
+                    .endOr()
                     .findList(),
             executionContext.current())
         .thenApplyAsync(

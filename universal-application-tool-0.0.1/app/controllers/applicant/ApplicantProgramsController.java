@@ -16,7 +16,6 @@ import play.mvc.Result;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.program.ProgramNotFoundException;
-import services.program.ProgramService;
 import views.applicant.ProgramIndexView;
 
 /** Controller for handling methods for an applicant applying to programs. */
