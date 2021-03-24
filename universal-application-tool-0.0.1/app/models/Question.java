@@ -47,7 +47,7 @@ public class Question extends BaseModel {
 
   private String singleSelectUiType;
 
-  private @DbJsonB ImmutableListMultimap<Locale, String> singleSelectOptions;
+  private @DbJsonB ImmutableListMultimap<Locale, String> questionOptions;
 
   public String getPath() {
     return path;
@@ -90,7 +90,7 @@ public class Question extends BaseModel {
     if (questionType.equals(QuestionType.SINGLE_SELECT.toString())) {
       builder.setSingleSelectUiType(
           SingleSelectQuestionDefinition.SingleSelectUiType.valueOf(singleSelectUiType));
-      builder.setSingleSelectOptions(singleSelectOptions);
+      builder.setSingleSelectOptions(questionOptions);
     }
 
     this.questionDefinition = builder.build();
@@ -125,7 +125,7 @@ public class Question extends BaseModel {
       SingleSelectQuestionDefinition singleSelect =
           (SingleSelectQuestionDefinition) questionDefinition;
       singleSelectUiType = singleSelect.getSingleSelectUiType().toString();
-      singleSelectOptions = singleSelect.getOptions();
+      questionOptions = singleSelect.getOptions();
     }
   }
 }

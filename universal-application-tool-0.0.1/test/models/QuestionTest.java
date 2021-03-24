@@ -3,6 +3,7 @@ package models;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import org.junit.Before;
@@ -13,8 +14,11 @@ import services.Path;
 import services.question.AddressQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
+import services.question.QuestionType;
+import services.question.SingleSelectQuestionDefinition;
 import services.question.TextQuestionDefinition;
 import services.question.TextQuestionDefinition.TextValidationPredicates;
+import services.question.TranslationNotFoundException;
 import services.question.UnsupportedQuestionTypeException;
 
 public class QuestionTest extends WithPostgresContainer {
@@ -97,5 +101,32 @@ public class QuestionTest extends WithPostgresContainer {
 
     assertThat(found.getQuestionDefinition().getValidationPredicates())
         .isEqualTo(TextValidationPredicates.create(0, 128));
+  }
+
+  @Test
+  public void canSerializeAndDeserializeSingleSelect() throws TranslationNotFoundException {
+    QuestionDefinition definition =
+        new SingleSelectQuestionDefinition(
+            1L,
+            "",
+            Path.empty(),
+            "",
+            ImmutableMap.of(),
+            ImmutableMap.of(),
+            SingleSelectQuestionDefinition.SingleSelectUiType.DROPDOWN,
+            ImmutableListMultimap.of(Locale.US, "option"));
+    Question question = new Question(definition);
+
+    question.save();
+
+    Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+
+    assertThat(found.getQuestionDefinition().getQuestionType())
+        .isEqualTo(QuestionType.SINGLE_SELECT);
+    SingleSelectQuestionDefinition singleSelect =
+        (SingleSelectQuestionDefinition) found.getQuestionDefinition();
+    assertThat(singleSelect.getSingleSelectUiType())
+        .isEqualTo(SingleSelectQuestionDefinition.SingleSelectUiType.DROPDOWN);
+    assertThat(singleSelect.getOptions()).isEqualTo(ImmutableListMultimap.of(Locale.US, "option"));
   }
 }

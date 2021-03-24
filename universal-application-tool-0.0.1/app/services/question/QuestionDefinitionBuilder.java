@@ -65,13 +65,21 @@ public class QuestionDefinitionBuilder {
   }
 
   public static QuestionDefinitionBuilder sample(QuestionType questionType) {
-    return new QuestionDefinitionBuilder()
-        .setName("")
-        .setDescription("")
-        .setPath(Path.create("sample.question.path"))
-        .setQuestionText(ImmutableMap.of(Locale.US, "Sample question text"))
-        .setQuestionHelpText(ImmutableMap.of(Locale.US, "Sample question help text"))
-        .setQuestionType(questionType);
+    QuestionDefinitionBuilder builder =
+        new QuestionDefinitionBuilder()
+            .setName("")
+            .setDescription("")
+            .setPath(Path.create("sample.question.path"))
+            .setQuestionText(ImmutableMap.of(Locale.US, "Sample question text"))
+            .setQuestionHelpText(ImmutableMap.of(Locale.US, "Sample question help text"))
+            .setQuestionType(questionType);
+
+    if (questionType == QuestionType.SINGLE_SELECT) {
+      builder.setSingleSelectUiType(SingleSelectQuestionDefinition.SingleSelectUiType.DROPDOWN);
+      builder.setSingleSelectOptions(ImmutableListMultimap.of(Locale.US, "Sample question option"));
+    }
+
+    return builder;
   }
 
   public QuestionDefinitionBuilder setVersion(long version) {
