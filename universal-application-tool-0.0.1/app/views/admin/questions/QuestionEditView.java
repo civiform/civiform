@@ -59,15 +59,15 @@ public final class QuestionEditView extends BaseHtmlView {
     return layout.renderFull(mainContent);
   }
 
-  public Content renderEditQuestionForm(Request request, QuestionDefinition question) {
-    QuestionForm questionForm = new QuestionForm(question);
-    QuestionType questionType = question.getQuestionType();
+  public Content renderEditQuestionForm(Request request, QuestionDefinition questionDefinition) {
+    QuestionForm questionForm = new QuestionForm(questionDefinition);
+    QuestionType questionType = questionDefinition.getQuestionType();
     String title = String.format("Edit %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
         buildQuestionContainer(title)
             .with(
-                buildEditQuestionForm(question.getId(), questionForm)
+                buildEditQuestionForm(questionDefinition.getId(), questionForm)
                     .with(makeCsrfTokenInputTag(request)));
     ContainerTag previewContent = buildPreviewContent(questionType);
     ContainerTag mainContent = main(formContent, previewContent);
