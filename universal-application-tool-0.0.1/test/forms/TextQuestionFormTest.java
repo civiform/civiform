@@ -46,14 +46,14 @@ public class TextQuestionFormTest {
   @Test
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
     TextQuestionDefinition originalQd =
-            new TextQuestionDefinition(
-                    1L,
-                    "name",
-                    Path.create("my.question.path"),
-                    "description",
-                    ImmutableMap.of(Locale.US, "What is the question text?"),
-                    ImmutableMap.of(),
-                    TextQuestionDefinition.TextValidationPredicates.create(4, 6));
+        new TextQuestionDefinition(
+            1L,
+            "name",
+            Path.create("my.question.path"),
+            "description",
+            ImmutableMap.of(Locale.US, "What is the question text?"),
+            ImmutableMap.of(),
+            TextQuestionDefinition.TextValidationPredicates.create(4, 6));
 
     TextQuestionForm form = new TextQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder();
