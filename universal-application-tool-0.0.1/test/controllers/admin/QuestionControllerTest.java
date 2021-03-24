@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
+import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 
 import com.google.common.collect.ImmutableMap;
@@ -58,7 +59,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
   public void create_failsWithErrorMessageAndPopulatedFields() throws Exception {
     buildQuestionsList();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
-    formData.put("questionName", "name").put("questionPath", "#invalid_path!");
+    formData.put("questionName", "name").put("questionParentPath", "#invalid_path!");
     Request request = addCSRFToken(Helpers.fakeRequest().bodyForm(formData.build())).build();
     controller
         .create(request, "text")
@@ -194,19 +195,20 @@ public class QuestionControllerTest extends WithPostgresContainer {
 
   @Test
   public void update_redirectsOnSuccess() {
-    Question question = resourceCreator().insertQuestion("my.path");
+    Question question = resourceCreator().insertQuestion("my.path.name");
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
         .put("questionName", "name")
         .put("questionDescription", "desc")
-        .put("questionPath", "my.path")
+        .put("questionParentPath", "my.path")
         .put("questionType", "TEXT")
         .put("questionText", "question text updated!")
         .put("questionHelpText", ":-)");
-    RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
+    RequestBuilder requestBuilder = addCSRFToken(Helpers.fakeRequest().bodyForm(formData.build()));
 
     Result result = controller.update(requestBuilder.build(), question.id);
 
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.QuestionController.index().url());
     assertThat(result.flash().get("message").get()).contains("updated");
   }
@@ -215,7 +217,9 @@ public class QuestionControllerTest extends WithPostgresContainer {
   public void update_failsWithErrorMessageAndPopulatedFields() {
     Question question = resourceCreator().insertQuestion("my.path");
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
-    formData.put("questionPath", "invalid.path").put("questionText", "question text updated!");
+    formData
+        .put("questionParentPath", "invalid.path")
+        .put("questionText", "question text updated!");
     Request request = addCSRFToken(Helpers.fakeRequest().bodyForm(formData.build())).build();
 
     Result result = controller.update(request, question.id);

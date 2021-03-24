@@ -10,6 +10,8 @@ import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import views.style.BaseStyles;
+import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 import views.style.Styles;
 
 public class FieldWithLabel {
@@ -41,6 +43,29 @@ public class FieldWithLabel {
     Styles.UPPERCASE
   };
 
+  private static final String[] FLOATED_FIELD_CLASSES = {
+    Styles.BG_TRANSPARENT,
+    Styles.BLOCK,
+    Styles.PX_1,
+    Styles.PY_2,
+    Styles.W_FULL,
+    Styles.TEXT_BASE,
+    Styles.PLACEHOLDER_TRANSPARENT,
+    StyleUtils.focus(Styles.OUTLINE_NONE, Styles.PLACEHOLDER_GRAY_400)
+  };
+
+  private static final String[] FLOATED_LABEL_CLASSES = {
+    Styles.ABSOLUTE,
+    Styles.POINTER_EVENTS_NONE,
+    Styles.TEXT_GRAY_600,
+    Styles.TOP_0,
+    Styles.LEFT_0,
+    Styles.TEXT_BASE,
+    Styles.PX_1,
+    Styles.PY_2,
+    Styles.DURATION_300
+  };
+
   protected Tag fieldTag;
   protected String fieldName = "";
   protected String fieldType = "text";
@@ -50,6 +75,7 @@ public class FieldWithLabel {
   protected String labelText = "";
   protected String placeholderText = "";
   protected boolean checked = false;
+  protected boolean floatLabel = false;
 
   public FieldWithLabel(Tag fieldTag) {
     this.fieldTag = fieldTag.withClasses(FieldWithLabel.CORE_FIELD_CLASSES);
@@ -88,6 +114,11 @@ public class FieldWithLabel {
   public FieldWithLabel setFieldType(String fieldType) {
     this.fieldTag.withType(fieldType);
     this.fieldType = fieldType;
+    return this;
+  }
+
+  public FieldWithLabel setFloatLabel(boolean floatLabel) {
+    this.floatLabel = floatLabel;
     return this;
   }
 
@@ -145,6 +176,21 @@ public class FieldWithLabel {
             .withClasses(FieldWithLabel.CORE_LABEL_CLASSES)
             .withText(this.labelText);
 
+    if (this.floatLabel) {
+      fieldTag.withClasses(FieldWithLabel.FLOATED_FIELD_CLASSES);
+      labelTag.withClasses(FieldWithLabel.FLOATED_LABEL_CLASSES);
+
+      return div()
+          .with(
+              div(fieldTag, labelTag)
+                  .withClasses(
+                      ReferenceClasses.FLOATED_LABEL,
+                      Styles.MY_2,
+                      Styles.RELATIVE,
+                      Styles.BORDER_B_2,
+                      Styles.BORDER_GRAY_600,
+                      StyleUtils.focusWithin(Styles.BORDER_BLUE_500)));
+    }
     return div(labelTag, fieldTag).withClasses(Styles.MX_4, Styles.MB_6);
   }
 

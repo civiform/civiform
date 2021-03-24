@@ -79,6 +79,27 @@ public class ApplicantDataTest {
   }
 
   @Test
+  public void putScalarAtRoot() {
+    ApplicantData data = new ApplicantData();
+
+    data.putString(Path.create("root"), "value");
+
+    assertThat(data.asJsonString())
+        .isEqualTo("{\"applicant\":{},\"metadata\":{},\"root\":\"value\"}");
+  }
+
+  @Test
+  public void putNestedPathAtRoot() {
+    ApplicantData data = new ApplicantData();
+
+    data.putString(Path.create("new.path.at.root"), "hooray");
+
+    assertThat(data.asJsonString())
+        .isEqualTo(
+            "{\"applicant\":{},\"metadata\":{},\"new\":{\"path\":{\"at\":{\"root\":\"hooray\"}}}}");
+  }
+
+  @Test
   public void putLong_addsAScalar() {
     ApplicantData data = new ApplicantData();
 

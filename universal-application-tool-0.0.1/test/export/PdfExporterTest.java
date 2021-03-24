@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import models.Applicant;
+import models.LifecycleStage;
 import models.Program;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.form.PDField;
@@ -35,6 +36,7 @@ public class PdfExporterTest {
             .setId(1L)
             .setName("fake program")
             .setDescription("fake program description")
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .addExportDefinition(
                 ExportDefinition.builder()
                     .setEngine(ExportEngine.PDF)

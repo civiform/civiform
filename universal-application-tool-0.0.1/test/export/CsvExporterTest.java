@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import models.Applicant;
+import models.LifecycleStage;
 import models.Program;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -41,6 +42,7 @@ public class CsvExporterTest {
             .setId(1L)
             .setName("fake program")
             .setDescription("fake program description")
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .addExportDefinition(
                 ExportDefinition.builder()
                     .setEngine(ExportEngine.CSV)

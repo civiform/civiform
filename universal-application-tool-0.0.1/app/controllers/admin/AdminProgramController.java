@@ -44,8 +44,8 @@ public class AdminProgramController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public Result index() {
-    return ok(listView.render(this.service.listProgramDefinitions()));
+  public Result index(Request request) {
+    return ok(listView.render(this.service.listProgramDefinitions(), request));
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
@@ -73,6 +73,29 @@ public class AdminProgramController extends CiviFormController {
       return ok(editView.render(request, program));
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
+    }
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public Result publish(Request request, long id) {
+    try {
+      service.publishProgram(id);
+      return redirect(routes.AdminProgramController.index());
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.toString());
+    } catch (Exception e) {
+      return badRequest(e.toString());
+    }
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public Result newVersionFrom(Request request, long id) {
+    try {
+      return redirect(routes.AdminProgramController.edit(service.newDraftOf(id).id()));
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.toString());
+    } catch (Exception e) {
+      return badRequest(e.toString());
     }
   }
 

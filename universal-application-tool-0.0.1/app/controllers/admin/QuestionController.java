@@ -88,8 +88,10 @@ public class QuestionController extends CiviFormController {
             readOnlyService -> {
               try {
                 try {
-                  QuestionDefinition definition = questionForm.getBuilder().setVersion(1L).build();
-                  ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(definition);
+                  QuestionDefinition questionDefinition =
+                      questionForm.getBuilder().setVersion(1L).build();
+                  ErrorAnd<QuestionDefinition, CiviFormError> result =
+                      service.create(questionDefinition);
                   if (result.isError()) {
                     String errorMessage = joinErrors(result.getErrors());
                     return ok(
@@ -121,8 +123,8 @@ public class QuestionController extends CiviFormController {
         .thenApplyAsync(
             readOnlyService -> {
               try {
-                QuestionDefinition definition = readOnlyService.getQuestionDefinition(id);
-                return ok(editView.renderEditQuestionForm(request, definition));
+                QuestionDefinition questionDefinition = readOnlyService.getQuestionDefinition(id);
+                return ok(editView.renderEditQuestionForm(request, questionDefinition));
               } catch (QuestionNotFoundException e) {
                 return badRequest(e.toString());
               }
@@ -163,8 +165,9 @@ public class QuestionController extends CiviFormController {
     QuestionForm questionForm = form.bindFromRequest(request).get();
     try {
       try {
-        QuestionDefinition definition = questionForm.getBuilder().setId(id).setVersion(1L).build();
-        ErrorAnd<QuestionDefinition, CiviFormError> result = service.update(definition);
+        QuestionDefinition questionDefinition =
+            questionForm.getBuilder().setId(id).setVersion(1L).build();
+        ErrorAnd<QuestionDefinition, CiviFormError> result = service.update(questionDefinition);
         if (result.isError()) {
           String errorMessage = joinErrors(result.getErrors());
           return ok(editView.renderEditQuestionForm(request, id, questionForm, errorMessage));

@@ -75,15 +75,15 @@ public final class QuestionEditView extends BaseHtmlView {
     return layout.renderFull(mainContent);
   }
 
-  public Content renderEditQuestionForm(Request request, QuestionDefinition question) {
-    QuestionForm questionForm = new QuestionForm(question);
-    QuestionType questionType = question.getQuestionType();
+  public Content renderEditQuestionForm(Request request, QuestionDefinition questionDefinition) {
+    QuestionForm questionForm = new QuestionForm(questionDefinition);
+    QuestionType questionType = questionDefinition.getQuestionType();
     String title = String.format("Edit %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
         buildQuestionContainer(title)
             .with(
-                buildEditQuestionForm(question.getId(), questionForm)
+                buildEditQuestionForm(questionDefinition.getId(), questionForm)
                     .with(makeCsrfTokenInputTag(request)));
     ContainerTag previewContent = buildPreviewContent(questionType);
     ContainerTag mainContent = main(formContent, previewContent);
@@ -167,13 +167,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setPlaceholderText("The description displayed in the question builder")
                 .setValue(questionForm.getQuestionDescription())
                 .getContainer(),
-            FieldWithLabel.input()
-                .setId("question-path-input")
-                .setFieldName("questionPath")
-                .setLabelText("Path")
-                .setPlaceholderText("The path used to store question data")
-                .setValue(questionForm.getQuestionPath().path())
-                .getContainer(),
+            questionParentPathSelect(),
             FieldWithLabel.textArea()
                 .setId("question-text-textarea")
                 .setFieldName("questionText")
@@ -192,6 +186,20 @@ public final class QuestionEditView extends BaseHtmlView {
 
     formTag.with(QuestionConfig.buildQuestionConfig(questionType));
     return formTag;
+  }
+
+  private DomContent questionParentPathSelect() {
+    // TODO: add repeated element paths when they exist (issue #405)
+    ImmutableList<SimpleEntry<String, String>> options =
+        ImmutableList.of(new SimpleEntry<>("Applicant", "applicant"));
+
+    return new SelectWithLabel()
+        .setId("question-parent-path-select")
+        .setFieldName("questionParentPath")
+        .setLabelText("Question parent path")
+        .setOptions(options)
+        .setValue("Applicant")
+        .getContainer();
   }
 
   private DomContent formQuestionTypeSelect(QuestionType selectedType) {
