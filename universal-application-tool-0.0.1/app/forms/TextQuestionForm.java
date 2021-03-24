@@ -43,7 +43,7 @@ public class TextQuestionForm extends QuestionForm {
   @Override
   public QuestionDefinitionBuilder getBuilder() throws InvalidQuestionTypeException {
     TextQuestionDefinition.TextValidationPredicates.Builder textValidationPredicatesBuilder =
-            TextQuestionDefinition.TextValidationPredicates.builder();
+        TextQuestionDefinition.TextValidationPredicates.builder();
 
     if (getTextMinLength().isPresent()) {
       textValidationPredicatesBuilder.setMinLength(getTextMinLength().getAsInt());

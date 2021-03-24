@@ -1,15 +1,14 @@
 package forms;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.ImmutableMap;
+import java.util.Locale;
 import org.junit.Test;
 import services.Path;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.TextQuestionDefinition;
-
-import java.util.Locale;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class TextQuestionFormTest {
 
@@ -30,14 +29,14 @@ public class TextQuestionFormTest {
     builder.setVersion(1L);
 
     TextQuestionDefinition expected =
-            new TextQuestionDefinition(
-                    1L,
-                    "name",
-                    Path.create("my.question.path"),
-                    "description",
-                    ImmutableMap.of(Locale.US, "What is the question text?"),
-                    ImmutableMap.of(),
-                    TextQuestionDefinition.TextValidationPredicates.create(4, 6));
+        new TextQuestionDefinition(
+            1L,
+            "name",
+            Path.create("my.question.path"),
+            "description",
+            ImmutableMap.of(Locale.US, "What is the question text?"),
+            ImmutableMap.of(),
+            TextQuestionDefinition.TextValidationPredicates.create(4, 6));
 
     QuestionDefinition actual = builder.build();
 
