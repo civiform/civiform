@@ -12,8 +12,9 @@ import com.google.common.collect.ImmutableList;
  */
 @AutoValue
 public abstract class Path {
+  public static final String JSON_PATH_START_TOKEN = "$";
   private static final char JSON_PATH_DIVIDER = '.';
-  private static final String JSON_PATH_START = "$" + JSON_PATH_DIVIDER;
+  private static final String JSON_PATH_START = JSON_PATH_START_TOKEN + JSON_PATH_DIVIDER;
   private static final Splitter JSON_SPLITTER = Splitter.on(JSON_PATH_DIVIDER);
   private static final Joiner JSON_JOINER = Joiner.on(JSON_PATH_DIVIDER);
 
