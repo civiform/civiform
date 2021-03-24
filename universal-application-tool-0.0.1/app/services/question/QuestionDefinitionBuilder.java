@@ -1,5 +1,6 @@
 package services.question;
 
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.OptionalLong;
@@ -21,6 +22,11 @@ public class QuestionDefinitionBuilder {
   private QuestionType questionType = QuestionType.TEXT;
   private String validationPredicatesString = "";
 
+  // Single select question type only.
+  private SingleSelectQuestionDefinition.SingleSelectUiType singleSelectUiType =
+      SingleSelectQuestionDefinition.SingleSelectUiType.DROPDOWN;
+  private ImmutableListMultimap<Locale, String> singleSelectOptions = ImmutableListMultimap.of();
+
   public QuestionDefinitionBuilder() {}
 
   public QuestionDefinitionBuilder(QuestionDefinition definition) {
@@ -36,6 +42,12 @@ public class QuestionDefinitionBuilder {
     questionHelpText = definition.getQuestionHelpText();
     questionType = definition.getQuestionType();
     validationPredicatesString = definition.getValidationPredicatesAsString();
+
+    if (definition.getQuestionType() == QuestionType.SINGLE_SELECT) {
+      SingleSelectQuestionDefinition singleSelect = (SingleSelectQuestionDefinition) definition;
+      singleSelectUiType = singleSelect.getSingleSelectUiType();
+      singleSelectOptions = singleSelect.getOptions();
+    }
   }
 
   public QuestionDefinitionBuilder clearId() {
@@ -110,6 +122,18 @@ public class QuestionDefinitionBuilder {
     return this;
   }
 
+  public QuestionDefinitionBuilder setSingleSelectUiType(
+      SingleSelectQuestionDefinition.SingleSelectUiType type) {
+    this.singleSelectUiType = type;
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setSingleSelectOptions(
+      ImmutableListMultimap<Locale, String> options) {
+    this.singleSelectOptions = options;
+    return this;
+  }
+
   public QuestionDefinition build() throws UnsupportedQuestionTypeException {
     switch (this.questionType) {
       case ADDRESS:
@@ -158,6 +182,17 @@ public class QuestionDefinitionBuilder {
             questionText,
             questionHelpText,
             numberValidationPredicates);
+      case SINGLE_SELECT:
+        return new SingleSelectQuestionDefinition(
+            id,
+            version,
+            name,
+            path,
+            description,
+            questionText,
+            questionHelpText,
+            singleSelectUiType,
+            singleSelectOptions);
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {

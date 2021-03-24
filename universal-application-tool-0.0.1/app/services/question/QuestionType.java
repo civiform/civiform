@@ -5,6 +5,7 @@ public enum QuestionType {
   NAME,
   NUMBER,
   REPEATER,
+  SINGLE_SELECT,
   TEXT;
 
   public static QuestionType of(String name) throws InvalidQuestionTypeException {

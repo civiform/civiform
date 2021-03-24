@@ -2,6 +2,7 @@ package models;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.annotation.DbJsonB;
 import java.util.Locale;
@@ -17,6 +18,7 @@ import services.Path;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
+import services.question.SingleSelectQuestionDefinition;
 import services.question.UnsupportedQuestionTypeException;
 
 @Entity
@@ -43,6 +45,10 @@ public class Question extends BaseModel {
 
   @Constraints.Required private LifecycleStage lifecycleStage;
 
+  private String singleSelectUiType;
+
+  private @DbJsonB ImmutableListMultimap<Locale, String> singleSelectOptions;
+
   public String getPath() {
     return path;
   }
@@ -60,6 +66,13 @@ public class Question extends BaseModel {
     questionHelpText = questionDefinition.getQuestionHelpText();
     questionType = questionDefinition.getQuestionType().toString();
     validationPredicates = questionDefinition.getValidationPredicatesAsString();
+
+    if (questionDefinition.getQuestionType() == QuestionType.SINGLE_SELECT) {
+      SingleSelectQuestionDefinition singleSelect =
+          (SingleSelectQuestionDefinition) questionDefinition;
+      singleSelectUiType = singleSelect.getSingleSelectUiType().toString();
+      singleSelectOptions = singleSelect.getOptions();
+    }
   }
 
   public Question(QuestionDefinition questionDefinition, LifecycleStage lifecycleStage) {
@@ -82,6 +95,13 @@ public class Question extends BaseModel {
     questionHelpText = questionDefinition.getQuestionHelpText();
     questionType = questionDefinition.getQuestionType().toString();
     validationPredicates = questionDefinition.getValidationPredicatesAsString();
+
+    if (questionDefinition.getQuestionType() == QuestionType.SINGLE_SELECT) {
+      SingleSelectQuestionDefinition singleSelect =
+          (SingleSelectQuestionDefinition) questionDefinition;
+      singleSelectUiType = singleSelect.getSingleSelectUiType().toString();
+      singleSelectOptions = singleSelect.getOptions();
+    }
   }
 
   /** Populates {@link QuestionDefinition} from column values. */
