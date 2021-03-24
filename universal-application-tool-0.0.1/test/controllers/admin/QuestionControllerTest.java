@@ -43,7 +43,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
         .put("questionHelpText", ":-)");
     RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
     controller
-        .create(requestBuilder.build())
+        .create(requestBuilder.build(), "text")
         .thenAccept(
             result -> {
               assertThat(result.redirectLocation())
@@ -61,7 +61,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
     formData.put("questionName", "name").put("questionPath", "#invalid_path!");
     Request request = addCSRFToken(Helpers.fakeRequest().bodyForm(formData.build())).build();
     controller
-        .create(request)
+        .create(request, "text")
         .thenAccept(
             result -> {
               assertThat(result.status()).isEqualTo(OK);
@@ -82,7 +82,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
     formData.put("questionName", "name").put("questionType", "INVALID_TYPE");
     RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
     controller
-        .create(requestBuilder.build())
+        .create(requestBuilder.build(), "invalid_type")
         .thenAccept(
             result -> {
               assertThat(result.status()).isEqualTo(BAD_REQUEST);
