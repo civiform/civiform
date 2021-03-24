@@ -22,6 +22,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
   protected Content render(DomContent... mainDomContents) {
     return htmlContent(
         head().with(title("Applicant layout title"), tailwindStyles()),
-        body().with(main(mainDomContents)));
+        body(mainDomContents));
   }
 }
