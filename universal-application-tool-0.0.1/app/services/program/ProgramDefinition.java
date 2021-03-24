@@ -53,6 +53,14 @@ public abstract class ProgramDefinition {
     return blockDefinitions().stream().filter(b -> b.id() == blockId).findAny();
   }
 
+  /** Returns the max blockId. */
+  public long getMaxBlockId() {
+    return blockDefinitions().stream()
+        .map(BlockDefinition::id)
+        .max(Long::compareTo)
+        .orElseGet(() -> 0L);
+  }
+
   public int getBlockCount() {
     return blockDefinitions().size();
   }

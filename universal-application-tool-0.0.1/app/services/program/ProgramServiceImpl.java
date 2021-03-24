@@ -138,8 +138,8 @@ public class ProgramServiceImpl implements ProgramService {
   @Override
   @Transactional
   public ProgramDefinition addBlockToProgram(long programId) throws ProgramNotFoundException {
-    ProgramDefinition program = getProgramDefinition(programId);
-    String blockName = String.format("Block %d", program.blockDefinitions().size() + 1);
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    String blockName = String.format("Block %d", getNextBlockId(programDefinition));
 
     return addBlockToProgram(programId, blockName, "", ImmutableList.of());
   }
@@ -428,11 +428,7 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   private long getNextBlockId(ProgramDefinition programDefinition) {
-    return programDefinition.blockDefinitions().stream()
-            .map(BlockDefinition::id)
-            .max(Long::compareTo)
-            .orElseGet(() -> 0L)
-        + 1;
+    return programDefinition.getMaxBlockId() + 1;
   }
 
   /**
