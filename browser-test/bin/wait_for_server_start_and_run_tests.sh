@@ -18,4 +18,19 @@ echo detected server start
 
 ./bin/truncate_tables.sh
 
-yarn test $@
+debug=0
+for arg in "$@"; do
+    case $arg in
+        -d|--debug)
+        debug=1
+        shift # Remove --debug from processing
+        ;;
+    esac
+done
+
+if (( $debug == 1 )); then
+    DEBUG=pw:api yarn test $@
+else
+    yarn test $@
+fi
+
