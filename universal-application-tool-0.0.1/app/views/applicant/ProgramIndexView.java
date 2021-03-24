@@ -4,21 +4,21 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
-import static j2html.TagCreator.h1;
-import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
+import views.style.ApplicantStyles;
+import views.style.Styles;
+import views.style.StylesUtils;
 
 /** Returns a list of programs that an applicant can browse, with buttons for applying. */
 public class ProgramIndexView extends BaseHtmlView {
@@ -45,86 +45,130 @@ public class ProgramIndexView extends BaseHtmlView {
       long applicantId,
       ImmutableList<ProgramDefinition> programs,
       Optional<String> banner) {
-    String applyMessage = messages.at("button.apply");
-    ContainerTag body = body().withClasses("h-full w-full bg-orange-100 bg-opacity-30 overflow-x-auto absolute");
+    ContainerTag body =
+        body()
+            .withClasses(Styles.ABSOLUTE, Styles.OVERFLOW_X_AUTO, ApplicantStyles.BODY_BACKGROUND);
     if (banner.isPresent()) {
       // TODO: make this a styled toast.
       body.with(p(banner.get()));
     }
-    body.with(branding(), status(), topContent(), mainContent(programs, applicantId));
-
-    ContainerTag junkDiv = div().withClasses("hidden")
-      .withText(applyMessage);
-    body.with(junkDiv);
+    body.with(
+        branding(),
+        status(),
+        topContent(messages.at("content.benefits"), messages.at("content.description")),
+        mainContent(programs, applicantId, messages.at("button.apply")));
 
     return layout.render(body);
   }
 
   private ContainerTag branding() {
     return div()
-      .withId("brand-id")
-      .withClasses("absolute text-2xl top-8 left-8 text-red-400")
-      .with(span("Civi"))
-      .with(span("Form").withClasses("font-thin"));
+        .withId("brand-id")
+        .withClasses(Styles.ABSOLUTE, Styles.TOP_8, Styles.LEFT_8, ApplicantStyles.LOGO_STYLE)
+        .with(span("Civi"))
+        .with(span("Form").withClasses(Styles.FONT_THIN));
   }
 
-  private ContainerTag mainContent(ImmutableList<ProgramDefinition> programs, long applicantId) {
-    return div().withId("main-content").withClasses("relative w-full px-8 flex flex-wrap pb-8").with(each(
-                    programs,
-                    program -> programCard(program, applicantId)));
-  }
-
-  private ContainerTag topContent() {
-    ContainerTag floatTitle = 
-      div().withId("float-title")
-        .withText("get benefits")
-        .withClasses("relative w-0 text-6xl font-serif font-thin");
-    ContainerTag floatText = 
-      div().withId("float-text")
-        .withText("Civiform lets you apply for many benefits at once by reusing"
-        + " information. You handle getting into it and we'll handle sending it"
-        + " to the right places. Select an application to get started.")
-        .withClasses("md:float-right md:absolute md:right-8 md:top-0 mt-4 md:ml-0 text-sm w-72 lg:w-96");
-        
+  private ContainerTag mainContent(ImmutableList<ProgramDefinition> programs, long applicantId, String applyText) {
     return div()
-      .withId("top-content")
-      .withClasses("relative w-full h-auto mt-32 mb-16 px-8")
-      .with(floatTitle, floatText);
+        .withId("main-content")
+        .withClasses(
+            Styles.RELATIVE, Styles.W_FULL, Styles.PX_8, Styles.FLEX, Styles.FLEX_WRAP, Styles.PB_8)
+        .with(each(programs, program -> programCard(program, applicantId, applyText)));
+  }
+
+  private ContainerTag topContent(String titleText, String infoText) {
+    ContainerTag floatTitle =
+        div()
+            .withId("float-title")
+            .withText(titleText)
+            .withClasses(
+                Styles.RELATIVE, Styles.W_0, Styles.TEXT_6XL, Styles.FONT_SERIF, Styles.FONT_THIN);
+    ContainerTag floatText =
+        div()
+            .withId("float-text")
+            .withText(infoText)
+            .withClasses(
+              Styles.MT_4, Styles.TEXT_SM, Styles.W_72,
+              StyleUtils.responsiveMedium(
+                Styles.FLOAT_RIGHT, Styles.ABSOLUTE, Styles.RIGHT_8, Styles.TOP_0,
+                Styles.ML_0)
+              StyleUtils.responsiveLarge(Styles.W_96));
+
+    return div()
+        .withId("top-content")
+        .withClasses(Styles.RELATIVE, Styles.W_FULL, STyles.H_AUTO, Styles.MT_32, Styles.MB_16, Styles.PX_8)
+        .with(floatTitle, floatText);
   }
 
   private ContainerTag status() {
     return div()
-      .withId("application-status")
-      .withClasses("absolute top-8 right-8 text-sm underline")
-      .with(span("view my applications"));
+        .withId("application-status")
+        .withClasses(Styles.ABSOLUTE, Styles.TOP_8, Styles.RIGHT_8, Styles.TEXT_SM, Styles.UNDERLINE)
+        .with(span("view my applications"));
   }
 
-  private ContainerTag programCard(ProgramDefinition program, Long applicantId) {
-    String baseId = "program-card-" + program.id();
-    ContainerTag category = div().withId(baseId + "-category").withClasses("text-xs pb-2").with(
-      div().withClasses("h-3 w-3 bg-teal-400 rounded-full inline-block align-middle align-text-middle"),
-      div("No Category").withClasses("ml-2 inline align-bottom align-text-bottom leading-3")
-    );
-    ContainerTag title = div().withId(baseId + "-title").withClasses("text-lg font-semibold").withText(program.name());
-    ContainerTag description = div().withId(baseId + "-description").withClasses("text-xs my-2").withText(program.description());
-    ContainerTag externalLink = div().withId(baseId + "-external-link").withClasses("text-xs underline").withText("Program details");
-    ContainerTag programData = 
-      div().withId(baseId + "-data").withClasses("px-4")
-      .with(category, title, description, externalLink);
+  private ContainerTag programCard(ProgramDefinition program, Long applicantId, String applyText) {
+    String baseId = ReferenceStyles.APPLICATION_CARD + "-" + program.id();
+    ContainerTag category =
+        div()
+            .withId(baseId + "-category")
+            .withClasses(Styles.TEXT_XS, Styles.PB_2)
+            .with(
+                div()
+                    .withClasses(
+                      "bg-teal-400"
+                      Styles.H_3, Styles.W_3, Styles.ROUNDED_FULL, Styles.INLINE_BLOCK,
+                      Styles.ALIGN_MIDDLE, Styles.ALIGN_TEXT_MIDDLE),
+                div("No Category")
+                    .withClasses(Styles.ML_2, Styles.INLINE, Styles.ALIGN_BOTTOM, Styles.ALIGN_TEXT_BOTTOM, Styles.LEADING_3));
+    ContainerTag title =
+        div()
+            .withId(baseId + "-title")
+            .withClasses(Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
+            .withText(program.name());
+    ContainerTag description =
+        div()
+            .withId(baseId + "-description")
+            .withClasses(Styles.TEXT_XS, Styles.MY_2)
+            .withText(program.description());
+    ContainerTag externalLink =
+        div()
+            .withId(baseId + "-external-link")
+            .withClasses(Styles.TEXT_XS, Styles.UNDERLINE)
+            .withText("Program details");
+    ContainerTag programData =
+        div()
+            .withId(baseId + "-data")
+            .withClasses(Styles.PX_4)
+            .with(category, title, description, externalLink);
 
-    String applyUrl = controllers.applicant.routes.ApplicantProgramsController.edit(applicantId, program.id()).url();     
-    ContainerTag applyButton = a()
-      .attr(HREF, applyUrl)
-      .withText("Apply")
-      .withId(baseId + "-apply")
-      .withClasses("block uppercase rounded-3xl py-2 px-6 w-min mx-auto bg-gray-200 hover:bg-gray-300");
+    String applyUrl =
+        controllers.applicant.routes.ApplicantProgramsController.edit(applicantId, program.id())
+            .url();
+    ContainerTag applyButton =
+        a().attr(HREF, applyUrl)
+            .withText(applyText)
+            .withId(baseId + "-apply")
+            .withClasses(
+                Styles.BLOCK,
+                Styles.UPPERCASE,
+                Styles.ROUNDED_3XL,
+                Styles.PY_2,
+                Styles.PX_6,
+                Styles.W_MIN,
+                Styles.MX_AUTO,
+                Styles.BG_GRAY_200,
+                StyleUtils.hover(Style.BG_GRAY_300));
 
-    ContainerTag applyDiv = div(applyButton).withClasses("absolute bottom-6 w-full");
+    ContainerTag applyDiv = div(applyButton).withClasses(Styles.ABSOLUTE, Styles.BOTTOM_6, Styles.W_FULL);
     return div()
-      .withId(baseId)
-      .withClasses("relative inline-block mr-4 mb-4 application-card w-64 h-72 bg-white rounded-xl shadow-sm")
-      .with(div().withClasses("h-3 rounded-t-xl bg-teal-400 bg-opacity-60 mb-4"))
-      .with(programData)
-      .with(applyDiv);
+        .withId(baseId)
+        .withClasses(ReferenceClasses.APPLICATION_CARD, Styles.RELATIVE, Styles.INLINE_BLOCK, Styles.MR_4, Styles.MB_4,
+            Styles.W_64, Styles.H_72, Styles.BG_WHITE, Styles.ROUNDED_XL, Styles.SHADOW_SM)
+        .with(div().withClasses("bg-teal-400",
+          Styles.H_3, Styles.ROUNDED_T_XL, Styles.BG_OPACITY_60, Styles.MB_4))
+        .with(programData)
+        .with(applyDiv);
   }
 }

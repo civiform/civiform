@@ -2,3 +2,5 @@ button.apply=Solicitar
 button.nextBlock=Guardar y continuar
 
 title.programs=Programas
+content.benefits=obtener beneficios
+content.description=CiviForm le permite solicitar muchos beneficios a la vez reutilizando información. Usted se encarga de entrar y nosotros nos encargaremos de enviarlo a los lugares correctos. Seleccione una aplicación para comenzar.

@@ -38,7 +38,7 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
-    assertThat(contentAsString(result)).contains("Programs");
+    assertThat(contentAsString(result)).doesNotContain("program-card");
   }
 
   @Test
