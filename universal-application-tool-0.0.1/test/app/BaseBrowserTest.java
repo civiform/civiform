@@ -168,6 +168,15 @@ public class BaseBrowserTest extends WithBrowser {
     browser.$("a", withId("manage-questions-link")).first().click();
   }
 
+  protected void publishExistingProgram(String programName) {
+    goTo(controllers.admin.routes.AdminProgramController.index());
+    browser
+        .$("div", containingText(programName))
+        .$("button", containingText("Publish"))
+        .first()
+        .click();
+  }
+
   /** Adds the questions with the given names to the first block in the given program. */
   protected void addQuestionsToProgramFirstBlock(String programName, String... questionNames) {
     manageExistingProgramQuestions(programName);

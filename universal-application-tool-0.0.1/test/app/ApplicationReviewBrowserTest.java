@@ -22,6 +22,7 @@ public class ApplicationReviewBrowserTest extends BaseBrowserTest {
     addProgram(programName);
 
     addQuestionsToProgramFirstBlock(programName, "name");
+    publishExistingProgram(programName);
 
     logout();
     loginAsGuest();

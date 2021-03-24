@@ -16,7 +16,6 @@ import play.mvc.Result;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.program.ProgramNotFoundException;
-import services.program.ProgramService;
 import views.applicant.ProgramIndexView;
 
 /** Controller for handling methods for an applicant applying to programs. */
@@ -25,7 +24,6 @@ public class ApplicantProgramsController extends Controller {
   private final HttpExecutionContext httpContext;
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
-  private final ProgramService programService;
   private final ProgramIndexView programIndexView;
 
   @Inject
@@ -33,19 +31,17 @@ public class ApplicantProgramsController extends Controller {
       HttpExecutionContext httpContext,
       ApplicantService applicantService,
       MessagesApi messagesApi,
-      ProgramService programService,
       ProgramIndexView programIndexView) {
     this.httpContext = httpContext;
     this.applicantService = applicantService;
     this.messagesApi = checkNotNull(messagesApi);
-    this.programService = checkNotNull(programService);
     this.programIndexView = checkNotNull(programIndexView);
   }
 
   public CompletionStage<Result> index(Request request, long applicantId) {
     Optional<String> banner = request.flash().get("banner");
-    return programService
-        .listProgramDefinitionsAsync()
+    return applicantService
+        .relevantPrograms(applicantId)
         .thenApplyAsync(
             programs -> {
               return ok(

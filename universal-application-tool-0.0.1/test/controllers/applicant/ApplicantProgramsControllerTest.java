@@ -10,6 +10,7 @@ import static play.test.Helpers.stubMessagesApi;
 
 import java.util.Locale;
 import models.Applicant;
+import models.LifecycleStage;
 import models.Program;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -41,20 +42,22 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void index_withPrograms_returnsAllPrograms() {
-    resourceCreator().insertProgram("one");
-    resourceCreator().insertProgram("two");
+  public void index_withPrograms_returnsOnlyRelevantPrograms() {
+    resourceCreator().insertProgram("one", LifecycleStage.ACTIVE);
+    resourceCreator().insertProgram("two", LifecycleStage.ACTIVE);
+    resourceCreator().insertProgram("three", LifecycleStage.DRAFT);
 
     Result result = controller.index(fakeRequest().build(), 1L).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("one");
     assertThat(contentAsString(result)).contains("two");
+    assertThat(contentAsString(result)).doesNotContain("three");
   }
 
   @Test
   public void index_withProgram_includesApplyButtonWithRedirect() {
-    Program program = resourceCreator().insertProgram("program");
+    Program program = resourceCreator().insertProgram("program", LifecycleStage.ACTIVE);
 
     Result result = controller.index(fakeRequest().build(), 1L).toCompletableFuture().join();
 

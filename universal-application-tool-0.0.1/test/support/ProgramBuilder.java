@@ -1,6 +1,7 @@
 package support;
 
 import com.google.common.collect.ImmutableList;
+import models.LifecycleStage;
 import models.Program;
 import models.Question;
 import services.program.BlockDefinition;
@@ -45,6 +46,11 @@ public class ProgramBuilder {
 
   public ProgramBuilder withDescription(String description) {
     builder.setDescription(description);
+    return this;
+  }
+
+  public ProgramBuilder withLifecycleStage(LifecycleStage lifecycleStage) {
+    builder.setLifecycleStage(lifecycleStage);
     return this;
   }
 
