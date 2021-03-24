@@ -710,5 +710,6 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThat(newDraft.blockDefinitions())
         .isEqualTo(program.getProgramDefinition().blockDefinitions());
     assertThat(newDraft.description()).isEqualTo(program.getProgramDefinition().description());
+    assertThat(newDraft.id()).isNotEqualTo(program.getProgramDefinition().id());
   }
 }
