@@ -39,7 +39,11 @@ public class ApplicantRepository {
         () -> ebeanServer.find(Applicant.class).setId(id).findOneOrEmpty(), executionContext);
   }
 
-  public CompletionStage<ImmutableList<ProgramDefinition>> programsForApplicant(long id) {
+  /**
+   * Returns all programs that are appropriate to serve to an applicant - which is any active
+   * program, plus any program where they have an application in the draft stage.
+   */
+  public CompletionStage<ImmutableList<ProgramDefinition>> programsForApplicant(long applicantId) {
     return supplyAsync(
             () ->
                 ebeanServer
@@ -52,7 +56,8 @@ public class ApplicantRepository {
                         ebeanServer
                             .find(Application.class)
                             .where()
-                            .eq("applicant.id", id)
+                            .eq("applicant.id", applicantId)
+                            .eq("lifecycle_stage", LifecycleStage.DRAFT)
                             .raw("program.id = p.id")
                             .query())
                     .endOr()

@@ -47,5 +47,9 @@ public interface ApplicantService {
 
   String applicantName(Application application);
 
+  /**
+   * Returns all programs that are appropriate to serve to an applicant - which is any active
+   * program, plus any program where they have an application in the draft stage.
+   */
   CompletionStage<ImmutableList<ProgramDefinition>> relevantPrograms(long applicantId);
 }

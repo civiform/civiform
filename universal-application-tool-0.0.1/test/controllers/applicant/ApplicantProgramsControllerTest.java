@@ -42,7 +42,7 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void index_withPrograms_returnsAllPrograms() {
+  public void index_withPrograms_returnsOnlyRelevantPrograms() {
     resourceCreator().insertProgram("one", LifecycleStage.ACTIVE);
     resourceCreator().insertProgram("two", LifecycleStage.ACTIVE);
     resourceCreator().insertProgram("three", LifecycleStage.DRAFT);
