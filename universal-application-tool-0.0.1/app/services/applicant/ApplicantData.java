@@ -120,6 +120,10 @@ public class ApplicantData {
    * @param value the value to place; values of type Map will create the equivalent JSON structure
    */
   private void put(Path path, Object value) {
+    if (path.parentPath().isEmpty()) {
+      jsonData.put(Path.JSON_PATH_START_TOKEN, path.keyName(), value);
+      return;
+    }
     if (!hasPath(path.parentPath())) {
       put(path.parentPath(), new HashMap<>());
     }
