@@ -19,7 +19,7 @@ public class TextQuestionForm extends QuestionForm {
   }
 
   public TextQuestionForm(TextQuestionDefinition qd) {
-    super();
+    super(qd);
     textMinLength = qd.getMinLength();
     textMaxLength = qd.getMaxLength();
   }
