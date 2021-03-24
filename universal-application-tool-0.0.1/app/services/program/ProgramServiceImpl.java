@@ -177,10 +177,11 @@ public class ProgramServiceImpl implements ProgramService {
 
     Program program =
         programDefinition.toBuilder().addBlockDefinition(blockDefinition).build().toProgram();
-    return ErrorAnd.of(syncProgramDefinitionQuestions(
-            programRepository.updateProgramSync(program).getProgramDefinition())
-        .toCompletableFuture()
-        .join());
+    return ErrorAnd.of(
+        syncProgramDefinitionQuestions(
+                programRepository.updateProgramSync(program).getProgramDefinition())
+            .toCompletableFuture()
+            .join());
   }
 
   @Override
