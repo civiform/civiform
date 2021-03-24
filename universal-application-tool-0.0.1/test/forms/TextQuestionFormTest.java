@@ -17,7 +17,7 @@ public class TextQuestionFormTest {
     TextQuestionForm form = new TextQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
-    form.setQuestionPath("my.question.path");
+    form.setQuestionParentPath("my.question.path");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
     form.setTextMinLength(4);
@@ -32,7 +32,7 @@ public class TextQuestionFormTest {
         new TextQuestionDefinition(
             1L,
             "name",
-            Path.create("my.question.path"),
+            Path.create("my.question.path.name"),
             "description",
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
@@ -49,7 +49,7 @@ public class TextQuestionFormTest {
         new TextQuestionDefinition(
             1L,
             "name",
-            Path.create("my.question.path"),
+            Path.create("my.question.path.name"),
             "description",
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
