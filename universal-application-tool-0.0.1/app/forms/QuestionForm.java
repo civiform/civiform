@@ -74,7 +74,7 @@ public class QuestionForm {
   public Path getQuestionPath() {
     String questionNameFormattedForPath =
         questionName.replaceAll("\\s", "_").replaceAll("[^a-zA-Z_]", "");
-    return questionParentPath.with(questionNameFormattedForPath);
+    return questionParentPath.join(questionNameFormattedForPath);
   }
 
   public String getQuestionType() {

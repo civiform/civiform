@@ -79,9 +79,9 @@ public abstract class Path {
   /**
    * Append a segment to the path.
    *
-   * <p>TODO: refactor things that use toBuilder().append(seg).build() with with(seg);
+   * <p>TODO: refactor things that use `toBuilder().append(seg).build()` with {@link #join(String)};
    */
-  public Path with(String segment) {
+  public Path join(String segment) {
     return toBuilder().append(segment.toLowerCase()).build();
   }
 
