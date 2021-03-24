@@ -28,7 +28,6 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
     controller = instanceOf(AdminProgramController.class);
   }
 
-
   @Test
   public void index_withNoPrograms() {
     Result result = controller.index(Helpers.fakeRequest().build());

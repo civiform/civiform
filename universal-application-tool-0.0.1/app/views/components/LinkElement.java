@@ -12,6 +12,7 @@ import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import play.filters.csrf.CSRF;
 import play.mvc.Http;
+import scala.Option;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -76,11 +77,14 @@ public class LinkElement {
 
   public ContainerTag asHiddenForm(Http.Request request) {
     Preconditions.checkNotNull(href);
+    Option<CSRF.Token> csrfTokenMaybe = CSRF.getToken(request.asScala());
+    String csrfToken = "";
+    if (csrfTokenMaybe.isDefined()) {
+      csrfToken = csrfTokenMaybe.get().value();
+    }
+
     return form(
-            input()
-                .isHidden()
-                .withValue(CSRF.getToken(request.asScala()).get().value())
-                .withName("csrfToken"),
+            input().isHidden().withValue(csrfToken).withName("csrfToken"),
             button(TagCreator.text(text)).withType("submit"))
         .withMethod("POST")
         .withAction(href)
