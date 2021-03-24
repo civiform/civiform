@@ -3,6 +3,7 @@ package services.question;
 public enum QuestionType {
   ADDRESS,
   NAME,
+  NUMBER,
   REPEATER,
   TEXT;
 

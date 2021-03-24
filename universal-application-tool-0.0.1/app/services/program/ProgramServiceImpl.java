@@ -116,11 +116,7 @@ public class ProgramServiceImpl implements ProgramService {
       return ErrorAnd.error(errors);
     }
     Program program =
-        programDefinition.toBuilder()
-            .setName(name)
-            .setDescription(description)
-            .build()
-            .toProgram(LifecycleStage.DRAFT);
+        programDefinition.toBuilder().setName(name).setDescription(description).build().toProgram();
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
                 programRepository.updateProgramSync(program).getProgramDefinition())
@@ -180,15 +176,11 @@ public class ProgramServiceImpl implements ProgramService {
             .build();
 
     Program program =
-        programDefinition.toBuilder()
-            .addBlockDefinition(blockDefinition)
-            .build()
-            .toProgram(LifecycleStage.DRAFT);
-    return ErrorAnd.of(
-        syncProgramDefinitionQuestions(
-                programRepository.updateProgramSync(program).getProgramDefinition())
-            .toCompletableFuture()
-            .join());
+        programDefinition.toBuilder().addBlockDefinition(blockDefinition).build().toProgram();
+    return ErrorAnd.of(syncProgramDefinitionQuestions(
+            programRepository.updateProgramSync(program).getProgramDefinition())
+        .toCompletableFuture()
+        .join());
   }
 
   @Override
@@ -372,10 +364,7 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     Program program =
-        programDefinition.toBuilder()
-            .setBlockDefinitions(newBlocks)
-            .build()
-            .toProgram(LifecycleStage.DRAFT);
+        programDefinition.toBuilder().setBlockDefinitions(newBlocks).build().toProgram();
     return syncProgramDefinitionQuestions(
             programRepository.updateProgramSync(program).getProgramDefinition())
         .toCompletableFuture()
@@ -391,6 +380,37 @@ public class ProgramServiceImpl implements ProgramService {
       throw new ProgramNotFoundException(programId);
     }
     return programMaybe.get().getApplications();
+  }
+
+  @Override
+  public void publishProgram(long id) throws ProgramNotFoundException {
+    try {
+      this.publishProgramAsync(id).toCompletableFuture().join();
+    } catch (CompletionException e) {
+      if (e.getCause() instanceof ProgramNotFoundException) {
+        throw new ProgramNotFoundException(id);
+      }
+      throw e;
+    }
+  }
+
+  @Override
+  public CompletionStage<Void> publishProgramAsync(long id) {
+    return programRepository
+        .lookupProgram(id)
+        .thenApplyAsync(
+            programMaybe ->
+                programMaybe.orElseThrow(
+                    () -> new RuntimeException(new ProgramNotFoundException(id))),
+            httpExecutionContext.current())
+        .thenComposeAsync(programRepository::publishProgramAsync);
+  }
+
+  @Override
+  public ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException {
+    ProgramDefinition program =
+        this.getProgramDefinition(id).toBuilder().setLifecycleStage(LifecycleStage.DRAFT).build();
+    return programRepository.insertProgramSync(program.toProgram()).getProgramDefinition();
   }
 
   private int getBlockDefinitionIndex(ProgramDefinition programDefinition, Long blockDefinitionId)
@@ -419,12 +439,11 @@ public class ProgramServiceImpl implements ProgramService {
     ImmutableList<BlockDefinition> updatedBlockDefinitions =
         ImmutableList.copyOf(mutableBlockDefinitions);
 
-    // Implicitly "draft" since we are editing.
     Program program =
         programDefinition.toBuilder()
             .setBlockDefinitions(updatedBlockDefinitions)
             .build()
-            .toProgram(LifecycleStage.DRAFT);
+            .toProgram();
     return syncProgramDefinitionQuestions(
             programRepository.updateProgramSync(program).getProgramDefinition())
         .toCompletableFuture()

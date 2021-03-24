@@ -32,7 +32,7 @@ public class BaseHtmlLayout extends BaseHtmlView {
 
   /**
    * Returns a script tag that loads Tailwindcss styles and configurations common to all pages in
-   * the UAT.
+   * the CiviForm.
    *
    * <p>This should be added to the end of the body of all layouts. Adding it to the end of the body
    * allows the page to begin rendering before the script is loaded.

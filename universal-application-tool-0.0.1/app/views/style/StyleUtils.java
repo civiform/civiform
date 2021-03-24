@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 public class StyleUtils {
   public static String EVEN = "even";
   public static String FOCUS = "focus";
+  public static String FOCUS_WITHIN = "focus-within";
   public static String HOVER = "hover";
 
   public static String RESPONSIVE_SM = "sm";
@@ -43,12 +44,44 @@ public class StyleUtils {
     return applyUtilityClass(FOCUS, styles);
   }
 
+  public static String focusWithin(ImmutableList<String> styles) {
+    return applyUtilityClass(FOCUS_WITHIN, styles);
+  }
+
+  public static String focusWithin(String... styles) {
+    return applyUtilityClass(FOCUS_WITHIN, styles);
+  }
+
   public static String hover(String... styles) {
     return applyUtilityClass(HOVER, styles);
   }
 
   public static String hover(ImmutableList<String> styles) {
     return applyUtilityClass(HOVER, styles);
+  }
+
+  public static String responsiveSmall(String... styles) {
+    return applyUtilityClass(RESPONSIVE_SM, styles);
+  }
+
+  public static String responsiveSmall(ImmutableList<String> styles) {
+    return applyUtilityClass(RESPONSIVE_SM, styles);
+  }
+
+  public static String responsiveMedium(String... styles) {
+    return applyUtilityClass(RESPONSIVE_MD, styles);
+  }
+
+  public static String responsiveMedium(ImmutableList<String> styles) {
+    return applyUtilityClass(RESPONSIVE_MD, styles);
+  }
+
+  public static String responsiveLarge(String... styles) {
+    return applyUtilityClass(RESPONSIVE_LG, styles);
+  }
+
+  public static String responsiveLarge(ImmutableList<String> styles) {
+    return applyUtilityClass(RESPONSIVE_LG, styles);
   }
 
   public static String joinStyles(String... styles) {

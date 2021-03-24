@@ -48,6 +48,20 @@ public class QuestionDefinitionBuilder {
     return this;
   }
 
+  public static QuestionDefinitionBuilder sample() {
+    return sample(QuestionType.TEXT);
+  }
+
+  public static QuestionDefinitionBuilder sample(QuestionType questionType) {
+    return new QuestionDefinitionBuilder()
+        .setName("")
+        .setDescription("")
+        .setPath(Path.create("sample.question.path"))
+        .setQuestionText(ImmutableMap.of(Locale.US, "Sample question text"))
+        .setQuestionHelpText(ImmutableMap.of(Locale.US, "Sample question help text"))
+        .setQuestionType(questionType);
+  }
+
   public QuestionDefinitionBuilder setVersion(long version) {
     this.version = version;
     return this;
@@ -128,6 +142,22 @@ public class QuestionDefinitionBuilder {
             questionText,
             questionHelpText,
             nameValidationPredicates);
+      case NUMBER:
+        NumberQuestionDefinition.NumberValidationPredicates numberValidationPredicates =
+            NumberQuestionDefinition.NumberValidationPredicates.create();
+        if (!validationPredicatesString.isEmpty()) {
+          numberValidationPredicates =
+              NumberQuestionDefinition.NumberValidationPredicates.parse(validationPredicatesString);
+        }
+        return new NumberQuestionDefinition(
+            id,
+            version,
+            name,
+            path,
+            description,
+            questionText,
+            questionHelpText,
+            numberValidationPredicates);
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {

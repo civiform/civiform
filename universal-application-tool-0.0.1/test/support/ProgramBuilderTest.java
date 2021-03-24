@@ -36,17 +36,17 @@ public class ProgramBuilderTest extends WithPostgresContainer {
     assertThat(programDefinition.description()).isEqualTo("a new description");
 
     assertThat(programDefinition.blockDefinitions()).hasSize(3);
-    assertThat(programDefinition.getBlockDefinition(0).get().id()).isEqualTo(1L);
-    assertThat(programDefinition.getBlockDefinition(0).get().name()).isEqualTo("block 1");
-    assertThat(programDefinition.getBlockDefinition(0).get().description())
+    assertThat(programDefinition.getBlockDefinitionByIndex(0).get().id()).isEqualTo(1L);
+    assertThat(programDefinition.getBlockDefinitionByIndex(0).get().name()).isEqualTo("block 1");
+    assertThat(programDefinition.getBlockDefinitionByIndex(0).get().description())
         .isEqualTo("block 1 description");
-    assertThat(programDefinition.getBlockDefinition(1).get().id()).isEqualTo(2L);
-    assertThat(programDefinition.getBlockDefinition(1).get().name()).isEqualTo("block 2");
-    assertThat(programDefinition.getBlockDefinition(1).get().description())
+    assertThat(programDefinition.getBlockDefinitionByIndex(1).get().id()).isEqualTo(2L);
+    assertThat(programDefinition.getBlockDefinitionByIndex(1).get().name()).isEqualTo("block 2");
+    assertThat(programDefinition.getBlockDefinitionByIndex(1).get().description())
         .isEqualTo("block 2 description");
-    assertThat(programDefinition.getBlockDefinition(2).get().id()).isEqualTo(3L);
-    assertThat(programDefinition.getBlockDefinition(2).get().name()).isEqualTo("block 3");
-    assertThat(programDefinition.getBlockDefinition(2).get().description())
+    assertThat(programDefinition.getBlockDefinitionByIndex(2).get().id()).isEqualTo(3L);
+    assertThat(programDefinition.getBlockDefinitionByIndex(2).get().name()).isEqualTo("block 3");
+    assertThat(programDefinition.getBlockDefinitionByIndex(2).get().description())
         .isEqualTo("block 3 description");
   }
 
@@ -54,8 +54,8 @@ public class ProgramBuilderTest extends WithPostgresContainer {
   public void createProgramWithEmptyBlock() {
     ProgramDefinition program = ProgramBuilder.newProgram("name", "desc").buildDefinition();
 
-    assertThat(program.getBlockDefinition(0).get().name()).isEqualTo("");
-    assertThat(program.getBlockDefinition(0).get().description()).isEqualTo("");
+    assertThat(program.getBlockDefinitionByIndex(0).get().name()).isEqualTo("");
+    assertThat(program.getBlockDefinitionByIndex(0).get().description()).isEqualTo("");
   }
 
   @Test

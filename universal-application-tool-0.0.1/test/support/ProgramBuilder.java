@@ -1,6 +1,7 @@
 package support;
 
 import com.google.common.collect.ImmutableList;
+import models.LifecycleStage;
 import models.Program;
 import models.Question;
 import services.program.BlockDefinition;
@@ -22,18 +23,12 @@ public class ProgramBuilder {
    * Creates {@link ProgramBuilder} with a new {@link Program} with an empty name and description.
    */
   public static ProgramBuilder newProgram() {
-    Program program = new Program("", "");
-    program.save();
-    return new ProgramBuilder(
-        program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of()));
+    return newProgram("");
   }
 
   /** Creates a {@link ProgramBuilder} with a new {@link Program} with an empty description. */
   public static ProgramBuilder newProgram(String name) {
-    Program program = new Program(name, "");
-    program.save();
-    return new ProgramBuilder(
-        program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of()));
+    return newProgram(name, "");
   }
 
   /** Creates a {@link ProgramBuilder} with a new {@link Program}. */
@@ -51,6 +46,11 @@ public class ProgramBuilder {
 
   public ProgramBuilder withDescription(String description) {
     builder.setDescription(description);
+    return this;
+  }
+
+  public ProgramBuilder withLifecycleStage(LifecycleStage lifecycleStage) {
+    builder.setLifecycleStage(lifecycleStage);
     return this;
   }
 

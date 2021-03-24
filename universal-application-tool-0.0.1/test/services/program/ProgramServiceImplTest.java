@@ -9,6 +9,7 @@ import forms.BlockForm;
 import java.util.Locale;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import models.LifecycleStage;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
@@ -188,8 +189,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.getResult().blockDefinitions()).hasSize(1);
-    assertThat(result.getResult().getBlockDefinition(0).get().id()).isEqualTo(1L);
-    assertThat(result.getResult().getBlockDefinition(0).get().name()).isEqualTo("Block 1");
+    assertThat(result.getResult().getBlockDefinitionByIndex(0).get().id()).isEqualTo(1L);
+    assertThat(result.getResult().getBlockDefinitionByIndex(0).get().name()).isEqualTo("Block 1");
   }
 
   @Test
@@ -742,5 +743,21 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     QuestionDefinition questionResult =
         blockResult.programQuestionDefinitions().get(0).getQuestionDefinition();
     assertThat(questionResult).isInstanceOf(NameQuestionDefinition.class);
+  }
+
+  @Test
+  public void newProgramFromExisting() throws Exception {
+    Program program = ProgramBuilder.newProgram().build();
+    program.setLifecycleStage(LifecycleStage.ACTIVE);
+    program.save();
+
+    ProgramDefinition newDraft = ps.newDraftOf(program.id);
+    assertThat(newDraft.lifecycleStage()).isEqualTo(LifecycleStage.DRAFT);
+    assertThat(program.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+    assertThat(newDraft.name()).isEqualTo(program.getProgramDefinition().name());
+    assertThat(newDraft.blockDefinitions())
+        .isEqualTo(program.getProgramDefinition().blockDefinitions());
+    assertThat(newDraft.description()).isEqualTo(program.getProgramDefinition().description());
+    assertThat(newDraft.id()).isNotEqualTo(program.getProgramDefinition().id());
   }
 }
