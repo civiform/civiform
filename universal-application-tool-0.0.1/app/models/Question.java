@@ -55,24 +55,7 @@ public class Question extends BaseModel {
 
   public Question(QuestionDefinition questionDefinition) {
     this.questionDefinition = checkNotNull(questionDefinition);
-    if (questionDefinition.isPersisted()) {
-      id = questionDefinition.getId();
-    }
-    version = questionDefinition.getVersion();
-    path = questionDefinition.getPath().path();
-    name = questionDefinition.getName();
-    description = questionDefinition.getDescription();
-    questionText = questionDefinition.getQuestionText();
-    questionHelpText = questionDefinition.getQuestionHelpText();
-    questionType = questionDefinition.getQuestionType().toString();
-    validationPredicates = questionDefinition.getValidationPredicatesAsString();
-
-    if (questionDefinition.getQuestionType() == QuestionType.SINGLE_SELECT) {
-      SingleSelectQuestionDefinition singleSelect =
-          (SingleSelectQuestionDefinition) questionDefinition;
-      singleSelectUiType = singleSelect.getSingleSelectUiType().toString();
-      singleSelectOptions = singleSelect.getOptions();
-    }
+    setFieldsFromQuestionDefinition(questionDefinition);
   }
 
   public Question(QuestionDefinition questionDefinition, LifecycleStage lifecycleStage) {
@@ -84,24 +67,7 @@ public class Question extends BaseModel {
   @PreUpdate
   @PrePersist
   public void persistChangesToQuestionDefinition() {
-    if (questionDefinition.isPersisted()) {
-      id = questionDefinition.getId();
-    }
-    version = questionDefinition.getVersion();
-    path = questionDefinition.getPath().path();
-    name = questionDefinition.getName();
-    description = questionDefinition.getDescription();
-    questionText = questionDefinition.getQuestionText();
-    questionHelpText = questionDefinition.getQuestionHelpText();
-    questionType = questionDefinition.getQuestionType().toString();
-    validationPredicates = questionDefinition.getValidationPredicatesAsString();
-
-    if (questionDefinition.getQuestionType() == QuestionType.SINGLE_SELECT) {
-      SingleSelectQuestionDefinition singleSelect =
-          (SingleSelectQuestionDefinition) questionDefinition;
-      singleSelectUiType = singleSelect.getSingleSelectUiType().toString();
-      singleSelectOptions = singleSelect.getOptions();
-    }
+    setFieldsFromQuestionDefinition(questionDefinition);
   }
 
   /** Populates {@link QuestionDefinition} from column values. */
@@ -109,7 +75,7 @@ public class Question extends BaseModel {
   @PostPersist
   @PostUpdate
   public void loadQuestionDefinition() throws UnsupportedQuestionTypeException {
-    this.questionDefinition =
+    QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setId(id)
             .setVersion(version)
@@ -119,8 +85,15 @@ public class Question extends BaseModel {
             .setQuestionText(questionText)
             .setQuestionHelpText(questionHelpText)
             .setQuestionType(QuestionType.valueOf(questionType))
-            .setValidationPredicatesString(validationPredicates)
-            .build();
+            .setValidationPredicatesString(validationPredicates);
+
+    if (questionType.equals(QuestionType.SINGLE_SELECT.toString())) {
+      builder.setSingleSelectUiType(
+          SingleSelectQuestionDefinition.SingleSelectUiType.valueOf(singleSelectUiType));
+      builder.setSingleSelectOptions(singleSelectOptions);
+    }
+
+    this.questionDefinition = builder.build();
   }
 
   public QuestionDefinition getQuestionDefinition() {
@@ -133,5 +106,26 @@ public class Question extends BaseModel {
 
   public void setLifecycleStage(LifecycleStage lifecycleStage) {
     this.lifecycleStage = lifecycleStage;
+  }
+
+  private void setFieldsFromQuestionDefinition(QuestionDefinition questionDefinition) {
+    if (questionDefinition.isPersisted()) {
+      id = questionDefinition.getId();
+    }
+    version = questionDefinition.getVersion();
+    path = questionDefinition.getPath().path();
+    name = questionDefinition.getName();
+    description = questionDefinition.getDescription();
+    questionText = questionDefinition.getQuestionText();
+    questionHelpText = questionDefinition.getQuestionHelpText();
+    questionType = questionDefinition.getQuestionType().toString();
+    validationPredicates = questionDefinition.getValidationPredicatesAsString();
+
+    if (questionDefinition.getQuestionType() == QuestionType.SINGLE_SELECT) {
+      SingleSelectQuestionDefinition singleSelect =
+          (SingleSelectQuestionDefinition) questionDefinition;
+      singleSelectUiType = singleSelect.getSingleSelectUiType().toString();
+      singleSelectOptions = singleSelect.getOptions();
+    }
   }
 }

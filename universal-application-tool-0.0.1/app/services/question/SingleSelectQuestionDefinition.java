@@ -64,7 +64,7 @@ public class SingleSelectQuestionDefinition extends QuestionDefinition {
       ImmutableListMultimap<Locale, String> options) {
     long numDistinctLists =
         options.asMap().values().stream().mapToInt(Collection::size).distinct().count();
-    if (numDistinctLists == 1) {
+    if (numDistinctLists <= 1) {
       return options;
     }
     throw new RuntimeException("The lists of options are not the same for all locales");
@@ -77,7 +77,13 @@ public class SingleSelectQuestionDefinition extends QuestionDefinition {
 
   @Override
   public ImmutableMap<Path, ScalarType> getScalars() {
-    return ImmutableMap.of(getSelectionPath(), getSelectionType());
+    return ImmutableMap.of(
+        getSelectionPath(),
+        getSelectionType(),
+        getLastUpdatedTimePath(),
+        getLastUpdatedTimeType(),
+        getProgramIdPath(),
+        getProgramIdType());
   }
 
   public Path getSelectionPath() {
