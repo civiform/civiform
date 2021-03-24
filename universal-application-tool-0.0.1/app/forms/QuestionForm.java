@@ -23,7 +23,7 @@ public class QuestionForm {
     questionName = "";
     questionDescription = "";
     questionPath = Path.empty();
-    questionType = "TEXT";
+    questionType = "";
     questionText = "";
     questionHelpText = "";
   }
@@ -75,6 +75,7 @@ public class QuestionForm {
     return questionType;
   }
 
+  // TODO: Make this protected and only set in the subclasses.
   public void setQuestionType(String questionType) {
     this.questionType = checkNotNull(questionType);
   }

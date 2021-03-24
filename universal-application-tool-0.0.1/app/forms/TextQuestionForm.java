@@ -1,6 +1,8 @@
 package forms;
 
 import java.util.OptionalInt;
+import services.question.InvalidQuestionTypeException;
+import services.question.QuestionDefinitionBuilder;
 import services.question.TextQuestionDefinition;
 
 public class TextQuestionForm extends QuestionForm {
@@ -11,6 +13,8 @@ public class TextQuestionForm extends QuestionForm {
     super();
     textMinLength = OptionalInt.empty();
     textMaxLength = OptionalInt.empty();
+    // TODO: Use QuestionType instead of string for this?
+    setQuestionType("TEXT");
   }
 
   public TextQuestionForm(TextQuestionDefinition qd) {
@@ -33,5 +37,21 @@ public class TextQuestionForm extends QuestionForm {
 
   public void setTextMaxLength(int textMaxLength) {
     this.textMaxLength = OptionalInt.of(textMaxLength);
+  }
+
+  @Override
+  public QuestionDefinitionBuilder getBuilder() throws InvalidQuestionTypeException {
+    TextQuestionDefinition.TextValidationPredicates.Builder textValidationPredicatesBuilder =
+        TextQuestionDefinition.TextValidationPredicates.builder();
+
+    if (getTextMinLength().isPresent()) {
+      textValidationPredicatesBuilder.setMinLength(getTextMinLength().getAsInt());
+    }
+
+    if (getTextMaxLength().isPresent()) {
+      textValidationPredicatesBuilder.setMaxLength(getTextMaxLength().getAsInt());
+    }
+
+    return super.getBuilder().setValidationPredicates(textValidationPredicatesBuilder.build());
   }
 }

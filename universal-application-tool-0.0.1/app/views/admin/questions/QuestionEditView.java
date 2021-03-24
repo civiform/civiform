@@ -7,6 +7,7 @@ import static j2html.TagCreator.main;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import forms.QuestionForm;
+import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import java.util.AbstractMap.SimpleEntry;
@@ -32,7 +33,21 @@ public final class QuestionEditView extends BaseHtmlView {
 
   public Content renderNewQuestionForm(Request request, QuestionType questionType) {
     // TODO: Switch on the question type to determine which question form to use.
-    QuestionForm questionForm = new QuestionForm();
+    QuestionForm questionForm;
+    switch (questionType) {
+      case TEXT:
+        {
+          questionForm = new TextQuestionForm();
+          break;
+        }
+      default:
+        {
+          questionForm = new QuestionForm();
+        }
+    }
+
+    // TODO: Remove this line once we have implemented all the QuestionForm subclasses that set
+    //  their own type.
     questionForm.setQuestionType(questionType.toString().toUpperCase());
 
     String title = String.format("New %s question", questionType.toString().toLowerCase());
@@ -46,9 +61,9 @@ public final class QuestionEditView extends BaseHtmlView {
     return layout.renderFull(mainContent);
   }
 
-  public Content renderNewQuestionForm(Request request, QuestionForm questionForm, String message)
+  public Content renderNewQuestionForm(
+      Request request, QuestionType questionType, QuestionForm questionForm, String message)
       throws InvalidQuestionTypeException {
-    QuestionType questionType = QuestionType.of(questionForm.getQuestionType());
     String title = String.format("New %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
@@ -79,6 +94,9 @@ public final class QuestionEditView extends BaseHtmlView {
   public Content renderEditQuestionForm(
       Request request, long id, QuestionForm questionForm, String message)
       throws InvalidQuestionTypeException {
+    // TODO: Get the question type based on the id or implicitly from the questionForm type.
+    //  Probably don't actually need to do this here. Can have it passed in instead. The controller
+    //  needs to know the type ahead of time in order to formulate the correct kind of QuestionForm.
     QuestionType questionType = QuestionType.of(questionForm.getQuestionType());
     String title = String.format("Edit %s question", questionType.toString().toLowerCase());
 
@@ -114,7 +132,9 @@ public final class QuestionEditView extends BaseHtmlView {
   private ContainerTag buildNewQuestionForm(QuestionForm questionForm) {
     ContainerTag formTag = buildQuestionForm(questionForm);
     formTag
-        .withAction(controllers.admin.routes.QuestionController.create().url())
+        .withAction(
+            controllers.admin.routes.QuestionController.create(questionForm.getQuestionType())
+                .url())
         .with(submitButton("Create").withClass(Styles.ML_2));
 
     return formTag;
