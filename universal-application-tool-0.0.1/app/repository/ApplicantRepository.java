@@ -3,6 +3,7 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Comparator;
@@ -12,7 +13,11 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Account;
 import models.Applicant;
+import models.Application;
+import models.LifecycleStage;
+import models.Program;
 import play.db.ebean.EbeanConfig;
+import services.program.ProgramDefinition;
 
 public class ApplicantRepository {
 
@@ -32,6 +37,31 @@ public class ApplicantRepository {
   public CompletionStage<Optional<Applicant>> lookupApplicant(long id) {
     return supplyAsync(
         () -> ebeanServer.find(Applicant.class).setId(id).findOneOrEmpty(), executionContext);
+  }
+
+  public CompletionStage<ImmutableList<ProgramDefinition>> programsForApplicant(long id) {
+    return supplyAsync(
+            () ->
+                ebeanServer
+                    .find(Program.class)
+                    .alias("p")
+                    .where().or()
+                    .eq("lifecycle_stage", LifecycleStage.ACTIVE)
+                    .exists(
+                        ebeanServer
+                            .find(Application.class)
+                            .where()
+                            .eq("applicant.id", id)
+                            .raw("program.id = p.id")
+                            .query())
+                        .endOr()
+                    .findList(),
+            executionContext.current())
+        .thenApplyAsync(
+            (programs) ->
+                programs.stream()
+                    .map(program -> program.getProgramDefinition())
+                    .collect(ImmutableList.toImmutableList()));
   }
 
   public CompletionStage<Optional<Applicant>> lookupApplicant(String emailAddress) {

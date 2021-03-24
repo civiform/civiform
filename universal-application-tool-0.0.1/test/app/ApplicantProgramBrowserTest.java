@@ -35,6 +35,7 @@ public class ApplicantProgramBrowserTest extends BaseBrowserTest {
 
     addQuestionsToProgramFirstBlock(programName, "name", "color");
     addQuestionsToProgramNewBlock(programName, "address");
+    publishExistingProgram(programName);
   }
 
   @Test

@@ -1,10 +1,12 @@
 package services.applicant;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.concurrent.CompletionStage;
 import models.Applicant;
 import models.Application;
 import services.ErrorAnd;
+import services.program.ProgramDefinition;
 
 /**
  * The service responsible for accessing the Applicant resource. Applicants can view program
@@ -44,4 +46,6 @@ public interface ApplicantService {
       long applicantId, long programId);
 
   String applicantName(Application application);
+
+  CompletionStage<ImmutableList<ProgramDefinition>> relevantPrograms(long applicantId);
 }
