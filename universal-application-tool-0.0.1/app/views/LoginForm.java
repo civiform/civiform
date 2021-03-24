@@ -52,7 +52,7 @@ public class LoginForm extends BaseHtmlView {
 
     // "defense in depth", sort of - this client won't be present in production, and this button
     // won't show up except when running locally.
-    if (request.host().startsWith("localhost:")) {
+    if (request.host().startsWith("localhost:") || request.host().startsWith("civiform:")) {
       bodyTag.with(
           div(
               h1("DEBUG MODE: BECOME ADMIN"),
