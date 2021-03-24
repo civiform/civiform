@@ -42,4 +42,28 @@ public class TextQuestionFormTest {
 
     assertThat(actual).isEqualTo(expected);
   }
+
+  @Test
+  public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
+    TextQuestionDefinition originalQd =
+            new TextQuestionDefinition(
+                    1L,
+                    "name",
+                    Path.create("my.question.path"),
+                    "description",
+                    ImmutableMap.of(Locale.US, "What is the question text?"),
+                    ImmutableMap.of(),
+                    TextQuestionDefinition.TextValidationPredicates.create(4, 6));
+
+    TextQuestionForm form = new TextQuestionForm(originalQd);
+    QuestionDefinitionBuilder builder = form.getBuilder();
+
+    // The QuestionForm does not set version, which is needed in order to build the
+    // QuestionDefinition. How we get this value hasn't been determined.
+    builder.setVersion(1L);
+
+    QuestionDefinition actual = builder.build();
+
+    assertThat(actual).isEqualTo(originalQd);
+  }
 }
