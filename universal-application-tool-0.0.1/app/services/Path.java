@@ -5,7 +5,6 @@ import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
 
 /**
  * Represents a path into the applicant JSON data. Stored as the path to data without the JsonPath
@@ -13,8 +12,9 @@ import java.util.ArrayList;
  */
 @AutoValue
 public abstract class Path {
+  public static final String JSON_PATH_START_TOKEN = "$";
   private static final char JSON_PATH_DIVIDER = '.';
-  private static final String JSON_PATH_START = "$" + JSON_PATH_DIVIDER;
+  private static final String JSON_PATH_START = JSON_PATH_START_TOKEN + JSON_PATH_DIVIDER;
   private static final Splitter JSON_SPLITTER = Splitter.on(JSON_PATH_DIVIDER);
   private static final Joiner JSON_JOINER = Joiner.on(JSON_PATH_DIVIDER);
 
@@ -33,8 +33,9 @@ public abstract class Path {
     return create(ImmutableList.copyOf(JSON_SPLITTER.splitToList(path)));
   }
 
-  private static Path create(ImmutableList<String> pathSegments) {
-    return new AutoValue_Path(pathSegments);
+  private static Path create(ImmutableList<String> segments) {
+    return new AutoValue_Path(
+        segments.stream().map(String::toLowerCase).collect(ImmutableList.toImmutableList()));
   }
 
   /**
@@ -43,10 +44,25 @@ public abstract class Path {
    */
   public abstract ImmutableList<String> segments();
 
-  /** A single path in JSON notation, without the $. JsonPath prefix. */
+  @Memoized
+  public boolean isEmpty() {
+    return segments().isEmpty();
+  }
+
+  /**
+   * A single path in JSON notation, without the $. JsonPath prefix.
+   *
+   * <p>TODO: get rid of this method. Methods should use {@link Path} or {@link #toString()}.
+   */
   @Memoized
   public String path() {
     return JSON_JOINER.join(segments());
+  }
+
+  @Memoized
+  @Override
+  public String toString() {
+    return path();
   }
 
   /**
@@ -62,6 +78,15 @@ public abstract class Path {
   }
 
   /**
+   * Append a segment to the path.
+   *
+   * <p>TODO: refactor things that use `toBuilder().append(seg).build()` with {@link #join(String)};
+   */
+  public Path join(String segment) {
+    return toBuilder().append(segment.toLowerCase()).build();
+  }
+
+  /**
    * The last segment in this path. For example, a path {@code applicant.favorites.color} would
    * return "color".
    */
@@ -71,24 +96,6 @@ public abstract class Path {
       return "";
     }
     return segments().get(segments().size() - 1);
-  }
-
-  /**
-   * List of JSON annotation paths for each segment of the parent path. For example, a Path of
-   * personality.favorites.color.blue would return [personality, personality.favorites,
-   * personality.favorites.color].
-   */
-  @Memoized
-  public ImmutableList<Path> parentPaths() {
-    ArrayList<Path> parentPaths = new ArrayList<>();
-    Path currentPath = parentPath();
-
-    while (!currentPath.path().isEmpty()) {
-      parentPaths.add(0, currentPath);
-      currentPath = currentPath.parentPath();
-    }
-
-    return ImmutableList.copyOf(parentPaths);
   }
 
   public abstract Builder toBuilder();

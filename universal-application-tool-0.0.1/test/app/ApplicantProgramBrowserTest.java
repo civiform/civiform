@@ -26,15 +26,16 @@ public class ApplicantProgramBrowserTest extends BaseBrowserTest {
 
     loginAsAdmin();
 
-    addNameQuestion("name", "applicant.name");
-    addTextQuestion("color", "applicant.color");
-    addAddressQuestion("address", "applicant.address");
+    addNameQuestion("name");
+    addTextQuestion("color");
+    addAddressQuestion("address");
 
     String programName = "Mock program";
     addProgram(programName);
 
     addQuestionsToProgramFirstBlock(programName, "name", "color");
     addQuestionsToProgramNewBlock(programName, "address");
+    publishExistingProgram(programName);
   }
 
   @Test

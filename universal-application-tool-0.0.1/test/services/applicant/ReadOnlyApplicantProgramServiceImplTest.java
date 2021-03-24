@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import models.Applicant;
+import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
@@ -142,6 +143,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 .setId(123L)
                 .setName("The Program")
                 .setDescription("This program is for testing.")
+                .setLifecycleStage(LifecycleStage.ACTIVE)
                 .build());
 
     Optional<Block> maybeBlock = subject.getBlockAfter(321L);

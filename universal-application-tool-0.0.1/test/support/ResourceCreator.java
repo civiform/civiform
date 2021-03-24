@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.UUID;
 import models.Applicant;
+import models.LifecycleStage;
 import models.Program;
 import models.Question;
 import play.inject.Injector;
@@ -50,6 +51,12 @@ public class ResourceCreator {
                 ImmutableMap.of(Locale.US, "question?"),
                 ImmutableMap.of(Locale.US, "help text")))
         .getResult();
+  }
+
+  public Program insertProgram(String name, LifecycleStage lifecycleStage) {
+    return ProgramBuilder.newProgram(name, "description")
+        .withLifecycleStage(lifecycleStage)
+        .build();
   }
 
   public Program insertProgram(String name) {
