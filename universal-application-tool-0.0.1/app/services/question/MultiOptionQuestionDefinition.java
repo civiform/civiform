@@ -91,7 +91,7 @@ public class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   public ScalarType getSelectionType() {
-    return ScalarType.STRING;
+    return ScalarType.LIST;
   }
 
   public MultiOptionUiType getMultiOptionUiType() {
@@ -125,6 +125,8 @@ public class MultiOptionQuestionDefinition extends QuestionDefinition {
     DROPDOWN
   }
 
+  // TODO(https://github.com/seattle-uat/civiform/issues/416): Add logic for validation predicates -
+  // this should have a min number of options and a max number of options.
   @AutoValue
   public abstract static class MultiOptionValidationPredicates extends ValidationPredicates {
     public static MultiOptionValidationPredicates create() {

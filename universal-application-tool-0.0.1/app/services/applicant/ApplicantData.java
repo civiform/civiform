@@ -107,6 +107,10 @@ public class ApplicantData {
     }
   }
 
+  public void putList(Path path, ImmutableList<String> value) {
+    put(path, value);
+  }
+
   private void putNull(Path path) {
     put(path, null);
   }

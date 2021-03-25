@@ -2,6 +2,7 @@ package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.testing.EqualsTester;
 import java.time.Instant;
 import java.util.Locale;
@@ -141,6 +142,17 @@ public class ApplicantDataTest {
 
     assertThat(data.asJsonString()).isEqualTo(expected);
     assertThat(data.readLong(path)).isEmpty();
+  }
+
+  @Test
+  public void putList_writesJsonArray() {
+    ApplicantData data = new ApplicantData();
+    Path path = Path.create("applicant.favorite_fruits");
+
+    data.putList(path, ImmutableList.of("apple", "orange"));
+
+    assertThat(data.asJsonString())
+        .isEqualTo("{\"applicant\":{\"favorite_fruits\":[\"apple\",\"orange\"]},\"metadata\":{}}");
   }
 
   @Test
