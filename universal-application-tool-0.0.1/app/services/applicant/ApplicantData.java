@@ -2,6 +2,7 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.DocumentContext;
@@ -22,6 +23,8 @@ import services.WellKnownPaths;
 public class ApplicantData {
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
   private static final Locale DEFAULT_LOCALE = Locale.US;
+  private static final Joiner COMMA_JOINER = Joiner.on(',');
+  private static final Splitter COMMA_SPLITTER = Splitter.on(',');
 
   private Locale preferredLocale;
   private DocumentContext jsonData;
@@ -108,7 +111,11 @@ public class ApplicantData {
   }
 
   public void putList(Path path, ImmutableList<String> value) {
-    put(path, value);
+    if (value.isEmpty()) {
+      putNull(path);
+    } else {
+      put(path, COMMA_JOINER.join(value));
+    }
   }
 
   private void putNull(Path path) {
@@ -156,6 +163,18 @@ public class ApplicantData {
     } catch (JsonPathTypeMismatchException e) {
       return Optional.empty();
     }
+  }
+
+  /**
+   * Attempt to read a list at the given {@link Path}. Returns {@code Optional#empty} if the path
+   * does not exist or a value other than an {@link ImmutableList} of strings is found.
+   */
+  public Optional<ImmutableList<String>> readList(Path path) {
+    Optional<String> listAsString = readString(path);
+    if (listAsString.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(ImmutableList.copyOf(COMMA_SPLITTER.splitToList(listAsString.get())));
   }
 
   /**

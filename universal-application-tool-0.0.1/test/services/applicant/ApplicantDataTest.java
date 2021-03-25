@@ -145,14 +145,25 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void putList_writesJsonArray() {
+  public void putList_writesCommaSeparatedList() {
     ApplicantData data = new ApplicantData();
     Path path = Path.create("applicant.favorite_fruits");
 
     data.putList(path, ImmutableList.of("apple", "orange"));
 
     assertThat(data.asJsonString())
-        .isEqualTo("{\"applicant\":{\"favorite_fruits\":[\"apple\",\"orange\"]},\"metadata\":{}}");
+        .isEqualTo("{\"applicant\":{\"favorite_fruits\":\"apple,orange\"},\"metadata\":{}}");
+  }
+
+  @Test
+  public void putList_writesNullIfListIsEmpty() {
+    ApplicantData data = new ApplicantData();
+    Path path = Path.create("applicant.favorite_fruits");
+
+    data.putList(path, ImmutableList.of());
+
+    assertThat(data.asJsonString())
+            .isEqualTo("{\"applicant\":{\"favorite_fruits\":null},\"metadata\":{}}");
   }
 
   @Test
@@ -173,6 +184,16 @@ public class ApplicantDataTest {
     Optional<Long> found = data.readLong(Path.create("applicant.age"));
 
     assertThat(found).hasValue(30L);
+  }
+
+  @Test
+  public void readList_findsCorrectValue() {
+    String testData = "{\"applicant\":{\"favorite_fruits\":\"apple,orange\"}}";
+    ApplicantData data = new ApplicantData(testData);
+
+    Optional<ImmutableList<String>> found = data.readList(Path.create("applicant.favorite_fruits"));
+
+    assertThat(found).hasValue(ImmutableList.of("apple", "orange"));
   }
 
   @Test
