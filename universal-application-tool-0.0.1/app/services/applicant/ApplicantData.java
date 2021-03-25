@@ -23,11 +23,11 @@ import services.WellKnownPaths;
 public class ApplicantData {
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
   private static final Locale DEFAULT_LOCALE = Locale.US;
-  private static final Joiner COMMA_JOINER = Joiner.on(',');
-  private static final Splitter COMMA_SPLITTER = Splitter.on(',');
+  private static final Joiner LIST_JOINER = Joiner.on('`');
+  private static final Splitter LIST_SPLITTER = Splitter.on('`');
 
   private Locale preferredLocale;
-  private DocumentContext jsonData;
+  private final DocumentContext jsonData;
 
   public ApplicantData() {
     this(EMPTY_APPLICANT_DATA_JSON);
@@ -114,7 +114,7 @@ public class ApplicantData {
     if (value.isEmpty()) {
       putNull(path);
     } else {
-      put(path, COMMA_JOINER.join(value));
+      put(path, LIST_JOINER.join(value));
     }
   }
 
@@ -174,7 +174,7 @@ public class ApplicantData {
     if (listAsString.isEmpty()) {
       return Optional.empty();
     }
-    return Optional.of(ImmutableList.copyOf(COMMA_SPLITTER.splitToList(listAsString.get())));
+    return Optional.of(ImmutableList.copyOf(LIST_SPLITTER.splitToList(listAsString.get())));
   }
 
   /**
