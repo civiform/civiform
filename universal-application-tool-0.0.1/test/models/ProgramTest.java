@@ -56,6 +56,7 @@ public class ProgramTest extends WithPostgresContainer {
             .setId(1L)
             .setName("ProgramTest")
             .setDescription("desc")
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .build();
     Program program = new Program(definition);
@@ -120,6 +121,7 @@ public class ProgramTest extends WithPostgresContainer {
             .setId(1L)
             .setName("ProgramTest")
             .setDescription("desc")
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .build();
     Program program = new Program(definition);

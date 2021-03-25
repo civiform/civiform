@@ -2,6 +2,7 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.time.Clock;
@@ -156,6 +157,11 @@ public class ApplicantServiceImpl implements ApplicantService {
       log.error("Application {} does not include an applicant name.");
       return "<Anonymous Applicant>";
     }
+  }
+
+  @Override
+  public CompletionStage<ImmutableList<ProgramDefinition>> relevantPrograms(long applicantId) {
+    return applicantRepository.programsForApplicant(applicantId);
   }
 
   /** In-place update of {@link Applicant}'s data. */

@@ -12,8 +12,9 @@ import com.google.common.collect.ImmutableList;
  */
 @AutoValue
 public abstract class Path {
+  public static final String JSON_PATH_START_TOKEN = "$";
   private static final char JSON_PATH_DIVIDER = '.';
-  private static final String JSON_PATH_START = "$" + JSON_PATH_DIVIDER;
+  private static final String JSON_PATH_START = JSON_PATH_START_TOKEN + JSON_PATH_DIVIDER;
   private static final Splitter JSON_SPLITTER = Splitter.on(JSON_PATH_DIVIDER);
   private static final Joiner JSON_JOINER = Joiner.on(JSON_PATH_DIVIDER);
 
@@ -32,8 +33,9 @@ public abstract class Path {
     return create(ImmutableList.copyOf(JSON_SPLITTER.splitToList(path)));
   }
 
-  private static Path create(ImmutableList<String> pathSegments) {
-    return new AutoValue_Path(pathSegments);
+  private static Path create(ImmutableList<String> segments) {
+    return new AutoValue_Path(
+        segments.stream().map(String::toLowerCase).collect(ImmutableList.toImmutableList()));
   }
 
   /**
@@ -42,11 +44,16 @@ public abstract class Path {
    */
   public abstract ImmutableList<String> segments();
 
+  @Memoized
   public boolean isEmpty() {
     return segments().isEmpty();
   }
 
-  /** A single path in JSON notation, without the $. JsonPath prefix. */
+  /**
+   * A single path in JSON notation, without the $. JsonPath prefix.
+   *
+   * <p>TODO: get rid of this method. Methods should use {@link Path} or {@link #toString()}.
+   */
   @Memoized
   public String path() {
     return JSON_JOINER.join(segments());
@@ -68,6 +75,15 @@ public abstract class Path {
       return Path.empty();
     }
     return Path.create(segments().subList(0, segments().size() - 1));
+  }
+
+  /**
+   * Append a segment to the path.
+   *
+   * <p>TODO: refactor things that use `toBuilder().append(seg).build()` with {@link #join(String)};
+   */
+  public Path join(String segment) {
+    return toBuilder().append(segment.toLowerCase()).build();
   }
 
   /**

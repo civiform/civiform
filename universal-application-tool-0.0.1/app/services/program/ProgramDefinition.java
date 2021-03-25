@@ -26,6 +26,9 @@ public abstract class ProgramDefinition {
   /** A human readable description of a Program. */
   public abstract String description();
 
+  /** The lifecycle stage of the Program. */
+  public abstract LifecycleStage lifecycleStage();
+
   /** The list of {@link BlockDefinition}s that make up the program. */
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
 
@@ -83,10 +86,6 @@ public abstract class ProgramDefinition {
     return new Program(this);
   }
 
-  public Program toProgram(LifecycleStage lifecycleStage) {
-    return new Program(this, lifecycleStage);
-  }
-
   public abstract Builder toBuilder();
 
   @AutoValue.Builder
@@ -101,6 +100,8 @@ public abstract class ProgramDefinition {
     public abstract Builder setBlockDefinitions(ImmutableList<BlockDefinition> blockDefinitions);
 
     public abstract Builder setExportDefinitions(ImmutableList<ExportDefinition> exportDefinitions);
+
+    public abstract Builder setLifecycleStage(LifecycleStage lifecycleStage);
 
     public abstract ImmutableList.Builder<BlockDefinition> blockDefinitionsBuilder();
 

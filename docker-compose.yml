@@ -3,6 +3,17 @@ version: '3.1'
 
 services:
 
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
   db:
     image: postgres:12.5
     restart: always
@@ -10,6 +21,8 @@ services:
       - 5432:5432
     environment:
       POSTGRES_PASSWORD: example
+
+    depends_on: [localstack]
 
   civiform:
     image: civiform
@@ -23,8 +36,8 @@ services:
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - AWS_SESSION_TOKEN
-      - AWS_S3_REGION
-      - AWS_S3_BUCKET_NAME
+      - AWS_S3_REGION=us-west-2
+      - AWS_S3_BUCKET_NAME=civiform-local-s3
       - IDCS_CLIENT_ID
       - IDCS_SECRET
       - ADFS_CLIENT_ID
@@ -35,5 +48,7 @@ services:
       - ~/.coursier:/root/.coursier
       - ~/.sbt:/root/.sbt
       - ~/.ivy:/root/.ivy2
+
+    depends_on: [localstack]
 
     command: ~run

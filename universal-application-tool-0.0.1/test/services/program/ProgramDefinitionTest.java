@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
 import services.question.QuestionDefinition;
@@ -24,6 +25,7 @@ public class ProgramDefinitionTest {
         .setId(123L)
         .setName("The Program")
         .setDescription("This program is for testing.")
+        .setLifecycleStage(LifecycleStage.ACTIVE)
         .addBlockDefinition(blockA)
         .build();
   }
@@ -41,6 +43,7 @@ public class ProgramDefinitionTest {
             .setId(123L)
             .setName("The Program")
             .setDescription("This program is for testing.")
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .addBlockDefinition(blockA)
             .build();
 
@@ -54,6 +57,7 @@ public class ProgramDefinitionTest {
             .setId(123L)
             .setName("The Program")
             .setDescription("This program is for testing.")
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).isEmpty();
@@ -116,6 +120,7 @@ public class ProgramDefinitionTest {
             .setId(123L)
             .setName("The Program")
             .setDescription("This program is for testing.")
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
             .build();

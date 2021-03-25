@@ -213,4 +213,15 @@ public interface ProgramService {
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   ImmutableList<Application> getProgramApplications(long programId) throws ProgramNotFoundException;
+
+  /**
+   * Publish the draft identified by `id`. Move any programs with the same name to the "obsolete"
+   * state.
+   */
+  void publishProgram(long id) throws ProgramNotFoundException;
+
+  CompletionStage<Void> publishProgramAsync(long id);
+
+  /** Create a new draft starting from the program specified by `id`. */
+  ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException;
 }
