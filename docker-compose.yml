@@ -3,9 +3,18 @@ version: '3.1'
 
 services:
 
+  localstack:
+    image: localstack/localstack
+    container_name: localstack
+    ports:
+      - 4566:4566
+    environment:
+      - SERVICES=s3
+
   db:
     image: postgres:12.5
     restart: always
+    container_name: postgres
     ports:
       - 5432:5432
     environment:
@@ -14,17 +23,18 @@ services:
   civiform:
     image: civiform
     restart: always
-    container_name: play
+    container_name: civiform
     links:
       - "db:database"
+      - "localstack"
     ports:
       - 9000:9000
     environment:
-      - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
-      - AWS_SESSION_TOKEN
-      - AWS_S3_REGION
-      - AWS_S3_BUCKET_NAME
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-test}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-test}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN:-test}
+      - AWS_S3_REGION=${AWS_S3_REGION:-us-west-2}
+      - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME:-civiform-local-s3}
       - IDCS_CLIENT_ID
       - IDCS_SECRET
       - ADFS_CLIENT_ID

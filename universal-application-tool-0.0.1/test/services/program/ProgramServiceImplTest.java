@@ -516,8 +516,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     ProgramDefinition found = ps.getProgramDefinition(program.id());
 
     assertThat(found.blockDefinitions()).hasSize(1);
-    assertThat(found.getBlockDefinition(1L).get().name()).isEqualTo("new block name");
-    assertThat(found.getBlockDefinition(1L).get().description()).isEqualTo("new description");
+    assertThat(found.getBlockDefinition(1L).name()).isEqualTo("new block name");
+    assertThat(found.getBlockDefinition(1L).description()).isEqualTo("new description");
   }
 
   @Test
