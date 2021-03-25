@@ -19,13 +19,11 @@ echo detected server start
 ./bin/truncate_tables.sh
 
 debug=0
-for arg in "$@"; do
-    case $arg in
-        -d|--debug)
-        debug=1
-        shift # Remove --debug from processing
-        ;;
-    esac
+for arg do
+    shift
+    # if debug flag, set the var and leave it out of the forwarded args list
+    [ "$arg" = "--debug" ] && debug=1 && continue
+    set -- "$@" "$arg"
 done
 
 if (( $debug == 1 )); then
