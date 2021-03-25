@@ -14,9 +14,11 @@ so many screens are rough).
 To get started please first read our
 [Contributing](https://github.com/seattle-uat/civiform/wiki/Contributing) wiki page.
 
-For technical contributors, please also see:
-* [Technical contributions guide](https://github.com/seattle-uat/civiform/wiki/Technical-contribution-guide)
-* [Getting started](https://github.com/seattle-uat/civiform/wiki/Getting-started).
-
-For UX contributors, please also see:
+And more specifically:
+* [Technical contribution guide](https://github.com/seattle-uat/civiform/wiki/Technical-contribution-guide)
 * [UX contribution guide](https://github.com/seattle-uat/civiform/wiki/UX-contribution-guide)
+
+If you're interested in just digging around and interacting with the code, see
+[Getting started](https://github.com/seattle-uat/civiform/wiki/Getting-started) for guidance on
+setting up your environment and running a local development server.
+
