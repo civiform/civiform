@@ -110,10 +110,18 @@ public class ApplicantData {
     }
   }
 
+  /**
+   * Writes a list of strings as a string - if the list is empty, a null value is written. Backticks
+   * (`) are not allowed in any of the strings within the list.
+   */
   public void putList(Path path, ImmutableList<String> value) {
     if (value.isEmpty()) {
       putNull(path);
     } else {
+      boolean containsBacktick = value.stream().anyMatch(s -> s.contains("`"));
+      if (containsBacktick) {
+        throw new RuntimeException("Tried to write a list that contained a disallowed character");
+      }
       put(path, LIST_JOINER.join(value));
     }
   }

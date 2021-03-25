@@ -1,6 +1,7 @@
 package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.testing.EqualsTester;
@@ -164,6 +165,15 @@ public class ApplicantDataTest {
 
     assertThat(data.asJsonString())
         .isEqualTo("{\"applicant\":{\"favorite_fruits\":null},\"metadata\":{}}");
+  }
+
+  @Test
+  public void putList_throwsExceptionIfStringContainsBacktick() {
+    ApplicantData data = new ApplicantData();
+    ImmutableList<String> list = ImmutableList.of("not`allowed");
+
+    assertThatThrownBy(() -> data.putList(Path.empty(), list))
+        .hasMessage("Tried to write a list that contained a disallowed character");
   }
 
   @Test
