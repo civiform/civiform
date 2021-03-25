@@ -112,14 +112,8 @@ public class TextQuestionDefinition extends QuestionDefinition {
   }
 
   @Override
-  public ImmutableMap<Path, ScalarType> getScalars() {
-    return ImmutableMap.of(
-        getTextPath(),
-        getTextType(),
-        getLastUpdatedTimePath(),
-        getLastUpdatedTimeType(),
-        getProgramIdPath(),
-        getProgramIdType());
+  ImmutableMap<Path, ScalarType> getScalarMap() {
+    return ImmutableMap.of(getTextPath(), getTextType());
   }
 
   public Path getTextPath() {
