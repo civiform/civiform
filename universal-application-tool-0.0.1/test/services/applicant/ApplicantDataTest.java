@@ -146,7 +146,7 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void putList_writesListAsString() {
+  public void putList_writesListAsString() throws IllegalDataException {
     ApplicantData data = new ApplicantData();
     Path path = Path.create("applicant.favorite_fruits");
 
@@ -157,7 +157,7 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void putList_writesNullIfListIsEmpty() {
+  public void putList_writesNullIfListIsEmpty() throws IllegalDataException {
     ApplicantData data = new ApplicantData();
     Path path = Path.create("applicant.favorite_fruits");
 
@@ -172,8 +172,9 @@ public class ApplicantDataTest {
     ApplicantData data = new ApplicantData();
     ImmutableList<String> list = ImmutableList.of("not`allowed");
 
-    assertThatThrownBy(() -> data.putList(Path.empty(), list))
-        .hasMessage("Tried to write a list that contained a disallowed character");
+    assertThatThrownBy(() -> data.putList(Path.create("applicant.bad"), list))
+        .isInstanceOf(IllegalDataException.class)
+        .hasMessage("Tried to write bad data at path: applicant.bad");
   }
 
   @Test
