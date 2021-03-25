@@ -13,6 +13,12 @@ Parameters:
   LBSecurityGroup:
     Description: The security group to use for our load balancer.
     Type: String
+  DomainName:
+    Description: The domain name (with or without trailing .).
+    Type: String
+  HostedZoneId:
+    Description: The ID of the (already existing) Route53 hosted zone.
+    Type: String
 Resources:
   publiclb:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
@@ -47,6 +53,17 @@ Resources:
       LoadBalancerArn: !Ref 'publiclb'
       Port: 80
       Protocol: HTTP
+  httpslistener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref 'droptraffic'
+          Type: forward
+      LoadBalancerArn: !Ref 'publiclb'
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn: arn:aws:acm:us-west-2:405662711265:certificate/f014a620-3d5b-4fbd-8d7a-055030599f1f
   lbtarget:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -61,6 +78,19 @@ Resources:
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
       UnhealthyThresholdCount: 2
+  httpslbrule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+        - TargetGroupArn: !Ref 'lbtarget'
+          Type: forward
+      Conditions:
+        - Field: path-pattern
+          PathPatternConfig:
+            Values:
+              - '*'
+      ListenerArn: !Ref 'httpslistener'
+      Priority: 1
   lbrule:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     Properties:
@@ -74,6 +104,17 @@ Resources:
               - '*'
       ListenerArn: !Ref 'listener'
       Priority: 1
+  dnsrecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Comment: DNS name for civiform.
+      Name: !Ref DomainName
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt 'publiclb.DNSName'
+        HostedZoneId: !GetAtt 'publiclb.CanonicalHostedZoneID'
+
 Outputs:
   LBTarget:
     Description: The target group of the output load balancer
