@@ -192,16 +192,16 @@ public abstract class QuestionDefinition {
   /** Get a map of all scalars stored by this question definition. */
   public ImmutableMap<Path, ScalarType> getScalars() {
     return ImmutableMap.<Path, ScalarType>builder()
-        .putAll(getScalarPaths())
-        .putAll(getMetadataPaths())
+        .putAll(getScalarMap())
+        .putAll(getMetadataMap())
         .build();
   }
 
   /** Get a map of question specific scalars stored by this question definition. */
-  abstract ImmutableMap<Path, ScalarType> getScalarPaths();
+  abstract ImmutableMap<Path, ScalarType> getScalarMap();
 
   /** Get a map of metadata stored by all question definitions. */
-  ImmutableMap<Path, ScalarType> getMetadataPaths() {
+  ImmutableMap<Path, ScalarType> getMetadataMap() {
     return ImmutableMap.of(
         getLastUpdatedTimePath(), getLastUpdatedTimeType(), getProgramIdPath(), getProgramIdType());
   }
