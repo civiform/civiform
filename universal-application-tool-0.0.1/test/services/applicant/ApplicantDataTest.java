@@ -1,7 +1,6 @@
 package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.testing.EqualsTester;
@@ -146,18 +145,18 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void putList_writesListAsString() throws IllegalDataException {
+  public void putList_writesJsonArray() {
     ApplicantData data = new ApplicantData();
     Path path = Path.create("applicant.favorite_fruits");
 
     data.putList(path, ImmutableList.of("apple", "orange"));
 
     assertThat(data.asJsonString())
-        .isEqualTo("{\"applicant\":{\"favorite_fruits\":\"apple`orange\"},\"metadata\":{}}");
+        .isEqualTo("{\"applicant\":{\"favorite_fruits\":[\"apple\",\"orange\"]},\"metadata\":{}}");
   }
 
   @Test
-  public void putList_writesNullIfListIsEmpty() throws IllegalDataException {
+  public void putList_writesNullIfListIsEmpty() {
     ApplicantData data = new ApplicantData();
     Path path = Path.create("applicant.favorite_fruits");
 
@@ -165,16 +164,6 @@ public class ApplicantDataTest {
 
     assertThat(data.asJsonString())
         .isEqualTo("{\"applicant\":{\"favorite_fruits\":null},\"metadata\":{}}");
-  }
-
-  @Test
-  public void putList_throwsExceptionIfStringContainsBacktick() {
-    ApplicantData data = new ApplicantData();
-    ImmutableList<String> list = ImmutableList.of("not`allowed");
-
-    assertThatThrownBy(() -> data.putList(Path.create("applicant.bad"), list))
-        .isInstanceOf(IllegalDataException.class)
-        .hasMessage("Tried to write bad data at path: applicant.bad");
   }
 
   @Test
@@ -237,7 +226,7 @@ public class ApplicantDataTest {
 
   @Test
   public void readList_findsCorrectValue() {
-    String testData = "{\"applicant\":{\"favorite_fruits\":\"apple`orange\"}}";
+    String testData = "{\"applicant\":{\"favorite_fruits\":[\"apple\",\"orange\"]}}";
     ApplicantData data = new ApplicantData(testData);
 
     Optional<ImmutableList<String>> found = data.readList(Path.create("applicant.favorite_fruits"));
@@ -247,7 +236,7 @@ public class ApplicantDataTest {
 
   @Test
   public void readListWithOneValue_findsCorrectValue() {
-    String testData = "{\"applicant\":{\"favorite_fruits\":\"apple\"}}";
+    String testData = "{\"applicant\":{\"favorite_fruits\":[\"apple\"]}}";
     ApplicantData data = new ApplicantData(testData);
 
     Optional<ImmutableList<String>> found = data.readList(Path.create("applicant.favorite_fruits"));
