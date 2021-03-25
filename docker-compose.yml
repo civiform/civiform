@@ -26,6 +26,7 @@ services:
     container_name: civiform
     links:
       - "db:database"
+      # comment below line and set environment variable DISABLE_LOCALSTACK=1 if you don't want localstack
       - "localstack"
     ports:
       - 9000:9000

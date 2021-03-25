@@ -7,6 +7,13 @@ if [ -f ".secrets" ]; then
     . .secrets
 fi
 
+if [ "$DISABLE_LOCALSTACK" ]; then
+  echo "localstack is disabled, only starting civiform and db..."
+  docker-compose up db civiform
+  exit $?
+fi
+echo "Starting localstack... set environment variable DISABLE_LOCALSTACK=1 to skip"
+
 # start localstack
 docker-compose up -d localstack
 
@@ -14,7 +21,7 @@ docker-compose up -d localstack
 # otherwise other services crash
 $( dirname ${BASH_SOURCE[0]})/localstack/wait
 
-# Ensure local s3 created
+# ensure local s3 created
 $( dirname ${BASH_SOURCE[0]})/localstack/mk-s3
 
 # start everything else
