@@ -21,7 +21,6 @@ export class AdminQuestions {
 
     await this.page.fill('text="Name"', questionName)
     await this.page.fill('text=Description', description)
-    await this.page.fill('text=Path', path)
     await this.page.fill('text=Question Text', questionText)
     await this.page.fill('text=Question help text', helpText)
 
