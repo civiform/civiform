@@ -4,6 +4,7 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.nav;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.attributes.Attr.HREF;
@@ -48,16 +49,18 @@ public class ProgramIndexView extends BaseHtmlView {
       Optional<String> banner) {
     ContainerTag body =
         body()
-            .withClasses(Styles.ABSOLUTE, Styles.OVERFLOW_X_AUTO, ApplicantStyles.BODY_BACKGROUND);
+            .withClasses(Styles.RELATIVE, Styles.PX_8, ApplicantStyles.BODY_BACKGROUND);
     if (banner.isPresent()) {
       // TODO: make this a styled toast.
       body.with(p(banner.get()));
     }
     body.with(
-        branding(),
-        status(),
-        topContent(messages.at("content.benefits"), messages.at("content.description")),
-        mainContent(programs, applicantId, messages.at("button.apply")));
+      nav()
+        .withClasses(Styles.PT_8, Styles.PB_4, Styles.MB_12, Styles.FLEX,
+        Styles.ALIGN_MIDDLE, Styles.BORDER_B_4, Styles.BORDER_WHITE)
+        .with(branding(), status()),
+      topContent(messages.at("content.benefits"), messages.at("content.description")),
+      mainContent(programs, applicantId, messages.at("button.apply")));
 
     return layout.render(body);
   }
@@ -65,18 +68,17 @@ public class ProgramIndexView extends BaseHtmlView {
   private ContainerTag branding() {
     return div()
         .withId("brand-id")
-        .withClasses(Styles.ABSOLUTE, Styles.TOP_8, Styles.LEFT_8, ApplicantStyles.LOGO_STYLE)
+        .withClasses(Styles.W_1_2, ApplicantStyles.LOGO_STYLE)
         .with(span("Civi"))
         .with(span("Form").withClasses(Styles.FONT_THIN));
   }
 
-  private ContainerTag mainContent(
-      ImmutableList<ProgramDefinition> programs, long applicantId, String applyText) {
+  private ContainerTag status() {
     return div()
-        .withId("main-content")
+        .withId("application-status")
         .withClasses(
-            Styles.RELATIVE, Styles.W_FULL, Styles.PX_8, Styles.FLEX, Styles.FLEX_WRAP, Styles.PB_8)
-        .with(each(programs, program -> programCard(program, applicantId, applyText)));
+            Styles.W_1_2, Styles.TEXT_RIGHT, Styles.TEXT_SM, Styles.UNDERLINE)
+        .with(span("view my applications"));
   }
 
   private ContainerTag topContent(String titleText, String infoText) {
@@ -91,26 +93,24 @@ public class ProgramIndexView extends BaseHtmlView {
             .withId("float-text")
             .withText(infoText)
             .withClasses(
-                Styles.MT_4,
+                Styles.MY_4,
                 Styles.TEXT_SM,
-                Styles.W_72,
-                StyleUtils.responsiveMedium(
-                    Styles.FLOAT_RIGHT, Styles.ABSOLUTE, Styles.RIGHT_8, Styles.TOP_0, Styles.ML_0),
-                StyleUtils.responsiveLarge(Styles.W_96));
+                Styles.W_FULL);
 
     return div()
         .withId("top-content")
         .withClasses(
-            Styles.RELATIVE, Styles.W_FULL, Styles.H_AUTO, Styles.MT_32, Styles.MB_16, Styles.PX_8)
+            Styles.RELATIVE, Styles.W_FULL, Styles.MB_10, StyleUtils.responsiveMedium(Styles.GRID, Styles.GRID_COLS_2))
         .with(floatTitle, floatText);
   }
 
-  private ContainerTag status() {
+  private ContainerTag mainContent(
+      ImmutableList<ProgramDefinition> programs, long applicantId, String applyText) {
     return div()
-        .withId("application-status")
+        .withId("main-content")
         .withClasses(
-            Styles.ABSOLUTE, Styles.TOP_8, Styles.RIGHT_8, Styles.TEXT_SM, Styles.UNDERLINE)
-        .with(span("view my applications"));
+            Styles.RELATIVE, Styles.W_FULL, Styles.FLEX, Styles.FLEX_WRAP, Styles.PB_8)
+        .with(each(programs, program -> programCard(program, applicantId, applyText)));
   }
 
   private ContainerTag programCard(ProgramDefinition program, Long applicantId, String applyText) {
@@ -193,9 +193,9 @@ public class ProgramIndexView extends BaseHtmlView {
             div()
                 .withClasses(
                     Styles.BG_TEAL_400,
+                    Styles.BG_OPACITY_60,
                     Styles.H_3,
                     Styles.ROUNDED_T_XL,
-                    Styles.BG_OPACITY_60,
                     Styles.MB_4))
         .with(programData)
         .with(applyDiv);
