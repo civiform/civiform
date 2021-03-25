@@ -75,7 +75,7 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
     Result result = controller.index(request, 1L).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Programas");
+    assertThat(contentAsString(result)).contains("obtener beneficios");
   }
 
   @Test
