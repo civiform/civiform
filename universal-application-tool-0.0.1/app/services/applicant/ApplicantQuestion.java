@@ -646,6 +646,10 @@ public class ApplicantQuestion {
       return getQuestionDefinition().getSelectionPath();
     }
 
+    public MultiOptionQuestionDefinition.MultiOptionUiType getMultiOptionUiType() {
+      return getQuestionDefinition().getMultiOptionUiType();
+    }
+
     public ImmutableList<String> getOptions() {
       try {
         return getQuestionDefinition().getOptionsForLocale(applicantData.preferredLocale());

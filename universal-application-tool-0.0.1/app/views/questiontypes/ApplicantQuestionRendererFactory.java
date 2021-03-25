@@ -2,6 +2,7 @@ package views.questiontypes;
 
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantQuestion;
+import services.question.MultiOptionQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
@@ -22,6 +23,14 @@ public class ApplicantQuestionRendererFactory {
       case TEXT:
         {
           return new TextQuestionRenderer(question);
+        }
+
+      case MULTI_OPTION:
+        {
+          if (question.getMultiOptionQuestion().getMultiOptionUiType()
+              == MultiOptionQuestionDefinition.MultiOptionUiType.DROPDOWN) {
+            return new DropdownQuestionRenderer(question);
+          }
         }
 
       case NAME:
