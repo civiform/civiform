@@ -19,6 +19,11 @@ Parameters:
   HostedZoneId:
     Description: The ID of the (already existing) Route53 hosted zone.
     Type: String
+  CertificateArn:
+    # Requires significant external setup - cannot easily be created in IAC.
+    Description: The ARN of the SSL certificate to use for the https route.
+    Type: String
+    Default: arn:aws:acm:us-west-2:405662711265:certificate/f014a620-3d5b-4fbd-8d7a-055030599f1f
 Resources:
   publiclb:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
@@ -63,7 +68,7 @@ Resources:
       Port: 443
       Protocol: HTTPS
       Certificates:
-        - CertificateArn: arn:aws:acm:us-west-2:405662711265:certificate/f014a620-3d5b-4fbd-8d7a-055030599f1f
+        - CertificateArn: !Ref 'CertificateArn'
   lbtarget:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
