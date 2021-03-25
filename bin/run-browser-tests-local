@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-pushd browser-test
+pushd $(dirname ${BASH_SOURCE[0]})/../browser-test
 
 BASE_URL=http://localhost:9999 yarn test $@
 

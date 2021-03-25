@@ -2,6 +2,16 @@
 
 set -euo pipefail
 
+if ! which psql; then
+    docker run --rm -it \
+        --network browser-test_default \
+        civiform-browser-test:latest \
+        -e BASE_URL=$BASE_URL \
+        /usr/src/civiform-browser-tests/bin/truncate_tables.sh
+
+    exit $?
+fi
+
 if [[ ${BASE_URL-not_set} == "http://localhost:9999" ]]; then
     host=localhost
     port=2345
