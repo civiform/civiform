@@ -19,6 +19,7 @@ import views.BaseHtmlView;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
+import views.style.StyleUtils;
 
 /** Returns a list of programs that an applicant can browse, with buttons for applying. */
 public class ProgramIndexView extends BaseHtmlView {
@@ -100,7 +101,7 @@ public class ProgramIndexView extends BaseHtmlView {
     return div()
         .withId("top-content")
         .withClasses(
-            Styles.RELATIVE, Styles.W_FULL, STyles.H_AUTO, Styles.MT_32, Styles.MB_16, Styles.PX_8)
+            Styles.RELATIVE, Styles.W_FULL, Styles.H_AUTO, Styles.MT_32, Styles.MB_16, Styles.PX_8)
         .with(floatTitle, floatText);
   }
 
@@ -172,7 +173,7 @@ public class ProgramIndexView extends BaseHtmlView {
                 Styles.W_MIN,
                 Styles.MX_AUTO,
                 Styles.BG_GRAY_200,
-                StyleUtils.hover(Style.BG_GRAY_300));
+                StyleUtils.hover(Styles.BG_GRAY_300));
 
     ContainerTag applyDiv =
         div(applyButton).withClasses(Styles.ABSOLUTE, Styles.BOTTOM_6, Styles.W_FULL);
