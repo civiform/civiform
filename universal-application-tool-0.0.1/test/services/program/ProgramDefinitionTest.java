@@ -73,6 +73,7 @@ public class ProgramDefinitionTest {
             .setPath(Path.create("my.path.name"))
             .setDescription("description")
             .setQuestionType(QuestionType.TEXT)
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
             .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
             .build();
@@ -84,6 +85,7 @@ public class ProgramDefinitionTest {
             .setPath(Path.create("my.path.name"))
             .setDescription("description")
             .setQuestionType(QuestionType.TEXT)
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
             .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
             .build();
@@ -95,6 +97,7 @@ public class ProgramDefinitionTest {
             .setPath(Path.create("my.path.name"))
             .setDescription("description")
             .setQuestionType(QuestionType.TEXT)
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
             .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
             .build();

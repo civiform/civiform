@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import models.LifecycleStage;
 import services.Path;
 
 public class TextQuestionDefinition extends QuestionDefinition {
@@ -18,11 +19,20 @@ public class TextQuestionDefinition extends QuestionDefinition {
       String name,
       Path path,
       String description,
+      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       TextValidationPredicates validationPredicates) {
     super(
-        id, version, name, path, description, questionText, questionHelpText, validationPredicates);
+        id,
+        version,
+        name,
+        path,
+        description,
+        lifecycleStage,
+        questionText,
+        questionHelpText,
+        validationPredicates);
   }
 
   public TextQuestionDefinition(
@@ -30,10 +40,19 @@ public class TextQuestionDefinition extends QuestionDefinition {
       String name,
       Path path,
       String description,
+      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       TextValidationPredicates validationPredicates) {
-    super(version, name, path, description, questionText, questionHelpText, validationPredicates);
+    super(
+        version,
+        name,
+        path,
+        description,
+        lifecycleStage,
+        questionText,
+        questionHelpText,
+        validationPredicates);
   }
 
   public TextQuestionDefinition(
@@ -41,6 +60,7 @@ public class TextQuestionDefinition extends QuestionDefinition {
       String name,
       Path path,
       String description,
+      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
     super(
@@ -48,6 +68,7 @@ public class TextQuestionDefinition extends QuestionDefinition {
         name,
         path,
         description,
+        lifecycleStage,
         questionText,
         questionHelpText,
         TextValidationPredicates.create());

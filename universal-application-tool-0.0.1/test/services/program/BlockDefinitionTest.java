@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
 import services.question.QuestionDefinition;
@@ -73,6 +74,7 @@ public class BlockDefinitionTest {
             .setPath(Path.create("applicant.name"))
             .setDescription("name question")
             .setQuestionType(QuestionType.NAME)
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setQuestionText(ImmutableMap.of(Locale.US, "What is your name?"))
             .setQuestionHelpText(ImmutableMap.of())
             .build();
@@ -83,6 +85,7 @@ public class BlockDefinitionTest {
             .setName("address")
             .setPath(Path.create("applicant.address"))
             .setDescription("address question")
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setQuestionType(QuestionType.ADDRESS)
             .setQuestionText(ImmutableMap.of(Locale.US, "What is your address?"))
             .setQuestionHelpText(ImmutableMap.of())
@@ -93,6 +96,7 @@ public class BlockDefinitionTest {
             .setVersion(1L)
             .setName("color")
             .setPath(Path.create("applicant.color"))
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setDescription("color")
             .setQuestionType(QuestionType.TEXT)
             .setQuestionText(ImmutableMap.of(Locale.US, "What is your favorite color?"))

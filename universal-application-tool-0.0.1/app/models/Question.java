@@ -82,6 +82,7 @@ public class Question extends BaseModel {
             .setName(name)
             .setPath(Path.create(path))
             .setDescription(description)
+            .setLifecycleStage(lifecycleStage)
             .setQuestionText(questionText)
             .setQuestionHelpText(questionHelpText)
             .setQuestionType(QuestionType.valueOf(questionType))
@@ -99,11 +100,20 @@ public class Question extends BaseModel {
   }
 
   public LifecycleStage getLifecycleStage() {
-    return this.lifecycleStage;
+    return this.getQuestionDefinition().getLifecycleStage();
   }
 
   public void setLifecycleStage(LifecycleStage lifecycleStage) {
-    this.lifecycleStage = lifecycleStage;
+    try {
+      this.questionDefinition =
+          new QuestionDefinitionBuilder(this.questionDefinition)
+              .setLifecycleStage(lifecycleStage)
+              .build();
+    } catch (UnsupportedQuestionTypeException e) {
+      // Throw as runtime exception because this should never happen - we are using an existing
+      // question definition type.
+      throw new RuntimeException(e);
+    }
   }
 
   private void setFieldsFromQuestionDefinition(QuestionDefinition questionDefinition) {
@@ -118,6 +128,7 @@ public class Question extends BaseModel {
     questionHelpText = questionDefinition.getQuestionHelpText();
     questionType = questionDefinition.getQuestionType().toString();
     validationPredicates = questionDefinition.getValidationPredicatesAsString();
+    lifecycleStage = questionDefinition.getLifecycleStage();
 
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition multiOption =

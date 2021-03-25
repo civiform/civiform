@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
 import java.util.OptionalLong;
+import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
 import services.program.BlockDefinition;
@@ -25,6 +26,7 @@ public class BlockTest {
           "",
           NAME_PATH,
           "",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(),
           ImmutableMap.of(),
           NameQuestionDefinition.NameValidationPredicates.create());
@@ -35,6 +37,7 @@ public class BlockTest {
           "",
           COLOR_PATH,
           "",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(),
           ImmutableMap.of(),
           TextQuestionDefinition.TextValidationPredicates.create());
@@ -63,6 +66,7 @@ public class BlockTest {
             "",
             Path.empty(),
             "",
+            LifecycleStage.ACTIVE,
             ImmutableMap.of(),
             ImmutableMap.of(),
             TextQuestionDefinition.TextValidationPredicates.create());

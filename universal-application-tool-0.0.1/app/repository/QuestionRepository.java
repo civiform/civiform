@@ -5,23 +5,34 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import io.ebean.Transaction;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.LifecycleStage;
+import models.Program;
 import models.Question;
 import play.db.ebean.EbeanConfig;
 import services.Path;
+import services.question.QuestionDefinition;
+import services.question.QuestionDefinitionBuilder;
+import services.question.UnsupportedQuestionTypeException;
 
 public class QuestionRepository {
 
   private final EbeanServer ebeanServer;
   private final DatabaseExecutionContext executionContext;
+  private final ProgramRepository programRepository;
 
   @Inject
-  public QuestionRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
+  public QuestionRepository(
+      EbeanConfig ebeanConfig,
+      DatabaseExecutionContext executionContext,
+      ProgramRepository programRepository) {
     this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
     this.executionContext = checkNotNull(executionContext);
+    this.programRepository = checkNotNull(programRepository);
   }
 
   public CompletionStage<Set<Question>> listQuestions() {
@@ -31,6 +42,70 @@ public class QuestionRepository {
   public CompletionStage<Optional<Question>> lookupQuestion(long id) {
     return supplyAsync(
         () -> ebeanServer.find(Question.class).setId(id).findOneOrEmpty(), executionContext);
+  }
+
+  /**
+   * Find and update the draft of the question with this name, if one already exists. Create a new
+   * draft if there isn't one.
+   */
+  public Question updateOrCreateDraft(QuestionDefinition definition) {
+    try {
+      Transaction transaction = ebeanServer.beginTransaction();
+      Optional<Question> draftMaybe =
+          ebeanServer
+              .find(Question.class)
+              .usingTransaction(transaction)
+              .where()
+              .eq("name", definition.getName())
+              .eq("lifecycle_stage", LifecycleStage.DRAFT.getValue())
+              .findOneOrEmpty();
+      if (draftMaybe.isPresent()) {
+        definition = new QuestionDefinitionBuilder(definition).setId(draftMaybe.get().id).build();
+        Question updatedDraft = new Question(definition);
+        updatedDraft.setLifecycleStage(LifecycleStage.DRAFT);
+        updatedDraft.save();
+        return updatedDraft;
+      }
+
+      // Next set the version of the new question.
+      int existingQuestionCount =
+          ebeanServer
+              .find(Question.class)
+              .usingTransaction(transaction)
+              .where()
+              .eq("name", definition.getName())
+              .findCount();
+      Question newDraft =
+          new Question(
+              new QuestionDefinitionBuilder(definition)
+                  .setId(null)
+                  .setVersion(existingQuestionCount + 1L)
+                  .build());
+      newDraft.setLifecycleStage(LifecycleStage.DRAFT);
+      newDraft.id = null;
+      ebeanServer.insert(newDraft, transaction);
+
+      // Next, update all existing draft programs so that they don't have old versions of the
+      // question anymore.  We have an invariant that draft programs always have the most up-to-date
+      // version of a question.
+      for (Program draftProgram :
+          ebeanServer
+              .find(Program.class)
+              .where()
+              .eq("lifecycle_stage", LifecycleStage.DRAFT.getValue())
+              .findList()) {
+        programRepository.updateQuestionVersions(draftProgram, transaction);
+      }
+      ebeanServer.commitTransaction();
+      newDraft.refresh();
+      return newDraft;
+    } catch (UnsupportedQuestionTypeException e) {
+      // The question already exists - it should not be unsupported.  Wrap with runtime exception
+      // so the crash is maintained but callers do not have to deal with this.
+      throw new RuntimeException(e);
+    } finally {
+      ebeanServer.endTransaction();
+    }
   }
 
   static class PathConflictDetector {

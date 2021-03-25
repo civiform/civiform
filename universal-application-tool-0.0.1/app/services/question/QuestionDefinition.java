@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalLong;
+import models.LifecycleStage;
 import services.CiviFormError;
 import services.Path;
 
@@ -27,6 +28,7 @@ public abstract class QuestionDefinition {
   private final String name;
   private final Path path;
   private final String description;
+  private final LifecycleStage lifecycleStage;
   private final ImmutableMap<Locale, String> questionText;
   private final ImmutableMap<Locale, String> questionHelpText;
   private final ValidationPredicates validationPredicates;
@@ -37,6 +39,7 @@ public abstract class QuestionDefinition {
       String name,
       Path path,
       String description,
+      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ValidationPredicates validationPredicates) {
@@ -45,6 +48,7 @@ public abstract class QuestionDefinition {
     this.name = checkNotNull(name);
     this.path = checkNotNull(path);
     this.description = checkNotNull(description);
+    this.lifecycleStage = checkNotNull(lifecycleStage);
     this.questionText = checkNotNull(questionText);
     this.questionHelpText = checkNotNull(questionHelpText);
     this.validationPredicates = checkNotNull(validationPredicates);
@@ -55,6 +59,7 @@ public abstract class QuestionDefinition {
       String name,
       Path path,
       String description,
+      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ValidationPredicates validationPredicates) {
@@ -64,6 +69,7 @@ public abstract class QuestionDefinition {
         name,
         path,
         description,
+        lifecycleStage,
         questionText,
         questionHelpText,
         validationPredicates);
@@ -95,6 +101,11 @@ public abstract class QuestionDefinition {
   /** Get the system version this question is pinned to. */
   public long getVersion() {
     return this.version;
+  }
+
+  /** Get the lifecycle stage this question is on. */
+  public LifecycleStage getLifecycleStage() {
+    return this.lifecycleStage;
   }
 
   /**
@@ -277,7 +288,8 @@ public abstract class QuestionDefinition {
           && this.description.equals(o.getDescription())
           && this.questionText.equals(o.getQuestionText())
           && this.questionHelpText.equals(o.getQuestionHelpText())
-          && this.validationPredicates.equals(o.getValidationPredicates());
+          && this.validationPredicates.equals(o.getValidationPredicates())
+          && this.lifecycleStage.equals(o.getLifecycleStage());
     }
     return false;
   }

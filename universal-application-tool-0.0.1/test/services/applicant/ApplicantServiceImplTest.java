@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.concurrent.CompletionException;
 import models.Applicant;
+import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ApplicantRepository;
@@ -236,6 +237,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
                     "my name",
                     Path.create("applicant.name"),
                     "description",
+                    LifecycleStage.ACTIVE,
                     ImmutableMap.of(Locale.US, "question?"),
                     ImmutableMap.of(Locale.US, "help text")))
             .getResult();
