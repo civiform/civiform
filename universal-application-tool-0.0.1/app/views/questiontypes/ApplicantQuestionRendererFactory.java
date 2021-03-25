@@ -2,7 +2,6 @@ package views.questiontypes;
 
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantQuestion;
-import services.question.MultiOptionQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
@@ -27,10 +26,7 @@ public class ApplicantQuestionRendererFactory {
 
       case MULTI_OPTION:
         {
-          if (question.getMultiOptionQuestion().getMultiOptionUiType()
-              == MultiOptionQuestionDefinition.MultiOptionUiType.DROPDOWN) {
-            return new DropdownQuestionRenderer(question);
-          }
+          return getRendererForMultiOptionQuestion(question);
         }
 
       case NAME:
@@ -51,6 +47,18 @@ public class ApplicantQuestionRendererFactory {
       default:
         throw new UnsupportedOperationException(
             "Unrecognized question type: " + question.getType());
+    }
+  }
+
+  private static ApplicantQuestionRenderer getRendererForMultiOptionQuestion(
+      ApplicantQuestion question) {
+    switch (question.getMultiOptionQuestion().getMultiOptionUiType()) {
+      case DROPDOWN:
+        return new DropdownQuestionRenderer(question);
+      default:
+        throw new UnsupportedOperationException(
+            "Unrecognized multi-option question UI type: "
+                + question.getMultiOptionQuestion().getMultiOptionUiType());
     }
   }
 }
