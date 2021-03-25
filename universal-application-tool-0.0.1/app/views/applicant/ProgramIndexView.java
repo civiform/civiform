@@ -127,8 +127,7 @@ public class ProgramIndexView extends BaseHtmlView {
                         Styles.W_3,
                         Styles.ROUNDED_FULL,
                         Styles.INLINE_BLOCK,
-                        Styles.ALIGN_MIDDLE,
-                        Styles.ALIGN_TEXT_MIDDLE),
+                        Styles.ALIGN_MIDDLE),
                 div("No Category")
                     .withClasses(
                         Styles.ML_2,
