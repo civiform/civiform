@@ -114,7 +114,7 @@ public class ProgramIndexView extends BaseHtmlView {
   }
 
   private ContainerTag programCard(ProgramDefinition program, Long applicantId, String applyText) {
-    String baseId = ReferenceStyles.APPLICATION_CARD + "-" + program.id();
+    String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
     ContainerTag category =
         div()
             .withId(baseId + "-category")
