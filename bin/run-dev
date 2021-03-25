@@ -4,7 +4,18 @@
 $( dirname ${BASH_SOURCE[0]})/pull-image
 
 if [ -f ".secrets" ]; then
-	. .secrets
+    . .secrets
 fi
 
+# start localstack
+docker-compose up -d localstack
+
+# wait till localstack running
+# otherwise other services crash
+$( dirname ${BASH_SOURCE[0]})/localstack/wait
+
+# Ensure local s3 created
+$( dirname ${BASH_SOURCE[0]})/localstack/mk-s3
+
+# start everything else
 docker-compose up
