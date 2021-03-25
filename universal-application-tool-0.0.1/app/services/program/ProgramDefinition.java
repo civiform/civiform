@@ -48,13 +48,33 @@ public abstract class ProgramDefinition {
     return Optional.of(blockDefinitions().get(blockIndex));
   }
 
-  /** Returns the {@link BlockDefinition} with the specified block id if available. */
-  public Optional<BlockDefinition> getBlockDefinition(long blockId) {
-    return blockDefinitions().stream().filter(b -> b.id() == blockId).findAny();
+  /**
+   * Get the {@link BlockDefinition} with the specified block id.
+   *
+   * @param blockId the id of the block definition
+   * @return the {@link BlockDefinition} with the specified block id
+   * @throws {@link ProgramBlockNotFoundException} if no block matched the block id
+   */
+  public BlockDefinition getBlockDefinition(long blockId) throws ProgramBlockNotFoundException {
+    return blockDefinitions().stream()
+        .filter(b -> b.id() == blockId)
+        .findAny()
+        .orElseThrow(new ProgramBlockNotFoundException(id(), blockId));
   }
 
-  /** Returns the max blockId. */
-  public long getMaxBlockId() {
+  /**
+   * Get the last {@link BlockDefinition} of the program.
+   *
+   * @return the last {@link BlockDefinition}
+   * @throws {@link ProgramNeedsABlockException} if the program has no blocks
+   */
+  public BlockDefinition getLastBlockDefinition() throws ProgramNeedsABlockException {
+    return getBlockDefinitionByIndex(blockDefinitions().size() - 1)
+        .orElseThrow(new ProgramNeedsABlockException(id()));
+  }
+
+  /** Returns the max block definition id. */
+  public long getMaxBlockDefinitionId() {
     return blockDefinitions().stream()
         .map(BlockDefinition::id)
         .max(Long::compareTo)

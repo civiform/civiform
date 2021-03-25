@@ -428,7 +428,7 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   private long getNextBlockId(ProgramDefinition programDefinition) {
-    return programDefinition.getMaxBlockId() + 1;
+    return programDefinition.getMaxBlockDefinitionId() + 1;
   }
 
   /**
