@@ -13,7 +13,7 @@ public class FakeAdminClient extends IndirectClient {
 
   public static final String CLIENT_NAME = "FakeAdminClient";
 
-  private static final ImmutableSet<String> ACCEPTED_LOCALHOSTS =
+  public static final ImmutableSet<String> ACCEPTED_LOCALHOSTS =
       ImmutableSet.of("localhost", "civiform");
 
   private ProfileFactory profileFactory;

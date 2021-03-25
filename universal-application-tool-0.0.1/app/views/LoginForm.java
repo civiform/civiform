@@ -21,6 +21,7 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 public class LoginForm extends BaseHtmlView {
+
   private final BaseHtmlLayout layout;
   private final String BANNER_TEXT = "DO NOT enter actual or personal data in this demo site";
 
@@ -52,7 +53,10 @@ public class LoginForm extends BaseHtmlView {
 
     // "defense in depth", sort of - this client won't be present in production, and this button
     // won't show up except when running locally.
-    if (request.host().startsWith("localhost:") || request.host().startsWith("civiform:")) {
+    boolean isLocalhost =
+        FakeAdminClient.ACCEPTED_LOCALHOSTS.stream()
+            .anyMatch(acceptedHost -> request.host().startsWith(acceptedHost + ":"));
+    if (isLocalhost) {
       bodyTag.with(
           div(
               h1("DEBUG MODE: BECOME ADMIN"),
