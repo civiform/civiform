@@ -1,19 +1,13 @@
 #!/bin/bash
 
-# Wait until localhost:4566 is responsive
-echo "Waiting for localstack to get set up. This may take a minute or two"
-wget -O /tmp/localstack_health_check_slkhdfsg.html -o /tmp/localstack_health_check_slkhdfsg.log http://localhost:4566/health
+start_time=$(date +%s)
+deadline=$(($start_time + 200))
 
-# Wait until all services change from 'starting' to 'running'
-HEALTHCHECK=$(</tmp/localstack_health_check_slkhdfsg.html)
-while [[ $HEALTHCHECK == *"starting"* ]]
-do
-    sleep 2
-    wget -O /tmp/localstack_health_check_slkhdfsg.html -o /tmp/localstack_health_check_slkhdfsg.log http://localhost:4566/health
-    HEALTHCHECK=$(</tmp/localstack_health_check_slkhdfsg.html)
+echo "Waiting for localstack to get set up. This may take a minute or two..."
+
+until HEALTHCHECK=$(curl --silent --fail --max-time 2 http://localhost:4566/health) && [[ $HEALTHCHECK == *'"s3": "running"'* ]]; do
+    if (( $(date +%s) > $deadline )); then
+        echo "deadline exceeded waiting for localstack start"
+        exit 1
+    fi
 done
-
-# Not needed anymore. Deletion here reduces (slight?) chance of wget write error on next 
-# startup causing false indication that status has changed from 'starting' to 'running'
-rm -f /tmp/localstack_health_check_slkhdfsg.html
-rm -f /tmp/localstack_health_check_slkhdfsg.log
