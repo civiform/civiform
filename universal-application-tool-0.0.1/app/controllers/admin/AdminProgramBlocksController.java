@@ -3,14 +3,16 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
+import controllers.CiviFormController;
 import forms.BlockForm;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
-import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.CiviFormError;
+import services.ErrorAnd;
 import services.program.BlockDefinition;
 import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
@@ -21,7 +23,7 @@ import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import views.admin.programs.ProgramBlockEditView;
 
-public class AdminProgramBlocksController extends Controller {
+public class AdminProgramBlocksController extends CiviFormController {
 
   private final ProgramService programService;
   private final ProgramBlockEditView editView;
@@ -52,9 +54,15 @@ public class AdminProgramBlocksController extends Controller {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public Result create(long programId) {
+  public Result create(Request request, long programId) {
     try {
-      ProgramDefinition program = programService.addBlockToProgram(programId).getResult();
+      ErrorAnd<ProgramDefinition, CiviFormError> result =
+          programService.addBlockToProgram(programId);
+      if (result.isError()) {
+        String errorMessage = joinErrors(result.getErrors());
+        return renderEditViewWithMessage(request, result.getResult(), errorMessage);
+      }
+      ProgramDefinition program = result.getResult();
       long blockId = program.getLastBlockDefinition().id();
       return redirect(routes.AdminProgramBlocksController.edit(programId, blockId).url());
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
@@ -66,13 +74,8 @@ public class AdminProgramBlocksController extends Controller {
   public Result edit(Request request, long programId, long blockId) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
-      BlockDefinition block = program.getBlockDefinition(blockId);
-
-      ReadOnlyQuestionService roQuestionService =
-          questionService.getReadOnlyQuestionService().toCompletableFuture().join();
-
-      return ok(editView.render(request, program, block, roQuestionService.getAllQuestions()));
-    } catch (ProgramNotFoundException | ProgramBlockNotFoundException e) {
+      return renderEditViewWithMessage(request, program, blockId, "");
+    } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     }
   }
@@ -83,7 +86,13 @@ public class AdminProgramBlocksController extends Controller {
     BlockForm blockForm = blockFormWrapper.bindFromRequest(request).get();
 
     try {
-      programService.updateBlock(programId, blockId, blockForm);
+      ErrorAnd<ProgramDefinition, CiviFormError> result =
+          programService.updateBlock(programId, blockId, blockForm);
+      if (result.isError()) {
+        String errorMessage = joinErrors(result.getErrors());
+        return renderEditViewWithMessage(
+            request, result.getResult(), blockId, blockForm, errorMessage);
+      }
     } catch (ProgramNotFoundException | ProgramBlockNotFoundException e) {
       return notFound(e.toString());
     }
@@ -99,5 +108,54 @@ public class AdminProgramBlocksController extends Controller {
       return notFound(e.toString());
     }
     return redirect(routes.AdminProgramBlocksController.index(programId));
+  }
+
+  private Result renderEditViewWithMessage(
+      Request request, ProgramDefinition program, String message) {
+    try {
+      long blockId = program.getLastBlockDefinition().id();
+      return renderEditViewWithMessage(request, program, blockId, message);
+    } catch (ProgramNeedsABlockException e) {
+      return notFound(e.toString());
+    }
+  }
+
+  private Result renderEditViewWithMessage(
+      Request request, ProgramDefinition program, long blockId, String message) {
+    try {
+      BlockDefinition block = program.getBlockDefinition(blockId);
+      ReadOnlyQuestionService roQuestionService =
+          questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+
+      return ok(
+          editView.render(request, program, block, message, roQuestionService.getAllQuestions()));
+    } catch (ProgramBlockNotFoundException e) {
+      return notFound(e.toString());
+    }
+  }
+
+  private Result renderEditViewWithMessage(
+      Request request,
+      ProgramDefinition program,
+      long blockId,
+      BlockForm blockForm,
+      String message) {
+    try {
+      BlockDefinition block = program.getBlockDefinition(blockId);
+      ReadOnlyQuestionService roQuestionService =
+          questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+
+      return ok(
+          editView.render(
+              request,
+              program,
+              blockId,
+              blockForm,
+              block.programQuestionDefinitions(),
+              message,
+              roQuestionService.getAllQuestions()));
+    } catch (ProgramBlockNotFoundException e) {
+      return notFound(e.toString());
+    }
   }
 }

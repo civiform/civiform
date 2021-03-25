@@ -158,11 +158,11 @@ public class ProgramServiceImpl implements ProgramService {
       String blockDescription,
       ImmutableList<ProgramQuestionDefinition> questionDefinitions)
       throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockName, blockDescription);
     if (!errors.isEmpty()) {
-      return ErrorAnd.error(errors);
+      return ErrorAnd.errorAnd(errors, programDefinition);
     }
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
     long blockId = getNextBlockId(programDefinition);
 
     BlockDefinition blockDefinition =
@@ -187,12 +187,12 @@ public class ProgramServiceImpl implements ProgramService {
   public ErrorAnd<ProgramDefinition, CiviFormError> updateBlock(
       long programId, long blockDefinitionId, BlockForm blockForm)
       throws ProgramNotFoundException, ProgramBlockNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet<CiviFormError> errors =
         validateBlockDefinition(blockForm.getName(), blockForm.getDescription());
     if (!errors.isEmpty()) {
-      return ErrorAnd.error(errors);
+      return ErrorAnd.errorAnd(errors, programDefinition);
     }
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
