@@ -1,6 +1,6 @@
 import { Page } from 'playwright'
 
-const INDEX_PATH = '/admin/questions'
+const {BASE_URL} = process.env
 
 export class AdminQuestions {
   public page!: Page
@@ -14,12 +14,12 @@ export class AdminQuestions {
                         description = 'test description',
                         questionText = 'test question text',
                         helpText = 'test question help text') {
-    await this.page.goto(INDEX_PATH)
+    await this.page.goto(BASE_URL + '/admin/questions')
     await this.page.click('#create-question-button')
 
     await this.page.click('#create-name-question')
 
-    await this.page.fill('text=Name', questionName)
+    await this.page.fill('text="Name"', questionName)
     await this.page.fill('text=Description', description)
     await this.page.fill('text=Path', path)
     await this.page.fill('text=Question Text', questionText)
