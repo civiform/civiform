@@ -2,6 +2,7 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.time.Clock;
@@ -158,6 +159,11 @@ public class ApplicantServiceImpl implements ApplicantService {
     }
   }
 
+  @Override
+  public CompletionStage<ImmutableList<ProgramDefinition>> relevantPrograms(long applicantId) {
+    return applicantRepository.programsForApplicant(applicantId);
+  }
+
   /** In-place update of {@link Applicant}'s data. */
   private void stageUpdates(
       Applicant applicant,
@@ -167,10 +173,7 @@ public class ApplicantServiceImpl implements ApplicantService {
       throws ProgramBlockNotFoundException, UnsupportedScalarTypeException,
           PathNotInBlockException {
 
-    BlockDefinition blockDefinition =
-        programDefinition
-            .getBlockDefinition(blockId)
-            .orElseThrow(() -> new ProgramBlockNotFoundException(programDefinition.id(), blockId));
+    BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockId);
     stageUpdates(applicant.getApplicantData(), blockDefinition, programDefinition.id(), updates);
   }
 

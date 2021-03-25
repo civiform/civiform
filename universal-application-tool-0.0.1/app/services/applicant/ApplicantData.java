@@ -6,8 +6,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
+import com.jayway.jsonpath.TypeRef;
 import com.jayway.jsonpath.spi.mapper.MappingException;
 import java.time.Instant;
 import java.util.HashMap;
@@ -23,11 +23,11 @@ import services.WellKnownPaths;
 public class ApplicantData {
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
   private static final Locale DEFAULT_LOCALE = Locale.US;
-  private static final Joiner COMMA_JOINER = Joiner.on(',');
-  private static final Splitter COMMA_SPLITTER = Splitter.on(',');
+  private static final TypeRef<ImmutableList<String>> IMMUTABLE_LIST_STRING_TYPE =
+      new TypeRef<>() {};
 
   private Locale preferredLocale;
-  private DocumentContext jsonData;
+  private final DocumentContext jsonData;
 
   public ApplicantData() {
     this(EMPTY_APPLICANT_DATA_JSON);
@@ -39,7 +39,7 @@ public class ApplicantData {
 
   public ApplicantData(Locale preferredLocale, String jsonData) {
     this.preferredLocale = preferredLocale;
-    this.jsonData = JsonPath.parse(checkNotNull(jsonData));
+    this.jsonData = JsonPathProvider.getJsonPath().parse(checkNotNull(jsonData));
   }
 
   public Locale preferredLocale() {
@@ -114,7 +114,7 @@ public class ApplicantData {
     if (value.isEmpty()) {
       putNull(path);
     } else {
-      put(path, COMMA_JOINER.join(value));
+      put(path, value);
     }
   }
 
@@ -170,11 +170,11 @@ public class ApplicantData {
    * does not exist or a value other than an {@link ImmutableList} of strings is found.
    */
   public Optional<ImmutableList<String>> readList(Path path) {
-    Optional<String> listAsString = readString(path);
-    if (listAsString.isEmpty()) {
+    try {
+      return this.read(path, IMMUTABLE_LIST_STRING_TYPE);
+    } catch (JsonPathTypeMismatchException e) {
       return Optional.empty();
     }
-    return Optional.of(ImmutableList.copyOf(COMMA_SPLITTER.splitToList(listAsString.get())));
   }
 
   /**
@@ -188,11 +188,30 @@ public class ApplicantData {
    */
   private <T> Optional<T> read(Path path, Class<T> type) throws JsonPathTypeMismatchException {
     try {
-      return Optional.ofNullable(this.jsonData.read(path.path(), type));
+      return Optional.ofNullable(this.jsonData.read(path.toString(), type));
     } catch (PathNotFoundException e) {
       return Optional.empty();
     } catch (MappingException e) {
       throw new JsonPathTypeMismatchException(path.path(), type, e);
+    }
+  }
+
+  /**
+   * Returns the value at the given path, if it exists; otherwise returns {@link Optional#empty}.
+   *
+   * @param path the {@link Path} for the desired value
+   * @param type the expected type of the value, represented as a {@link TypeRef}
+   * @param <T> the expected type of the value
+   * @return optionally returns the value at the path if it exists, or empty if not
+   * @throws JsonPathTypeMismatchException if the value at that path is not the expected type
+   */
+  private <T> Optional<T> read(Path path, TypeRef<T> type) throws JsonPathTypeMismatchException {
+    try {
+      return Optional.ofNullable(this.jsonData.read(path.path(), type));
+    } catch (PathNotFoundException e) {
+      return Optional.empty();
+    } catch (MappingException e) {
+      throw new JsonPathTypeMismatchException(path.path(), type.getClass(), e);
     }
   }
 

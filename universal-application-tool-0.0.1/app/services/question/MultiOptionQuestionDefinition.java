@@ -76,14 +76,8 @@ public class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   @Override
-  public ImmutableMap<Path, ScalarType> getScalars() {
-    return ImmutableMap.of(
-        getSelectionPath(),
-        getSelectionType(),
-        getLastUpdatedTimePath(),
-        getLastUpdatedTimeType(),
-        getProgramIdPath(),
-        getProgramIdType());
+  public ImmutableMap<Path, ScalarType> getScalarMap() {
+    return ImmutableMap.of(getSelectionPath(), getSelectionType());
   }
 
   public Path getSelectionPath() {

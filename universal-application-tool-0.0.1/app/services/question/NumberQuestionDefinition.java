@@ -113,14 +113,8 @@ public class NumberQuestionDefinition extends QuestionDefinition {
   }
 
   @Override
-  public ImmutableMap<Path, ScalarType> getScalars() {
-    return ImmutableMap.of(
-        getNumberPath(),
-        getNumberType(),
-        getLastUpdatedTimePath(),
-        getLastUpdatedTimeType(),
-        getProgramIdPath(),
-        getProgramIdType());
+  ImmutableMap<Path, ScalarType> getScalarMap() {
+    return ImmutableMap.of(getNumberPath(), getNumberType());
   }
 
   public Path getNumberPath() {
