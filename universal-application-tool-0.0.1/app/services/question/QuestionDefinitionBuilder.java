@@ -23,9 +23,9 @@ public class QuestionDefinitionBuilder {
   private String validationPredicatesString = "";
 
   // Single select question type only.
-  private SingleSelectQuestionDefinition.SingleSelectUiType singleSelectUiType =
-      SingleSelectQuestionDefinition.SingleSelectUiType.DROPDOWN;
-  private ImmutableListMultimap<Locale, String> singleSelectOptions = ImmutableListMultimap.of();
+  private MultiOptionQuestionDefinition.MultiOptionUiType multiOptionUiType =
+      MultiOptionQuestionDefinition.MultiOptionUiType.DROPDOWN;
+  private ImmutableListMultimap<Locale, String> questionOptions = ImmutableListMultimap.of();
 
   public QuestionDefinitionBuilder() {}
 
@@ -43,10 +43,10 @@ public class QuestionDefinitionBuilder {
     questionType = definition.getQuestionType();
     validationPredicatesString = definition.getValidationPredicatesAsString();
 
-    if (definition.getQuestionType() == QuestionType.SINGLE_SELECT) {
-      SingleSelectQuestionDefinition singleSelect = (SingleSelectQuestionDefinition) definition;
-      singleSelectUiType = singleSelect.getSingleSelectUiType();
-      singleSelectOptions = singleSelect.getOptions();
+    if (definition.getQuestionType() == QuestionType.MULTI_OPTION) {
+      MultiOptionQuestionDefinition singleSelect = (MultiOptionQuestionDefinition) definition;
+      multiOptionUiType = singleSelect.getMultiOptionUiType();
+      questionOptions = singleSelect.getOptions();
     }
   }
 
@@ -74,9 +74,9 @@ public class QuestionDefinitionBuilder {
             .setQuestionHelpText(ImmutableMap.of(Locale.US, "Sample question help text"))
             .setQuestionType(questionType);
 
-    if (questionType == QuestionType.SINGLE_SELECT) {
-      builder.setSingleSelectUiType(SingleSelectQuestionDefinition.SingleSelectUiType.DROPDOWN);
-      builder.setSingleSelectOptions(ImmutableListMultimap.of(Locale.US, "Sample question option"));
+    if (questionType == QuestionType.MULTI_OPTION) {
+      builder.getMultiOptionUiType(MultiOptionQuestionDefinition.MultiOptionUiType.DROPDOWN);
+      builder.setQuestionOptions(ImmutableListMultimap.of(Locale.US, "Sample question option"));
     }
 
     return builder;
@@ -130,15 +130,15 @@ public class QuestionDefinitionBuilder {
     return this;
   }
 
-  public QuestionDefinitionBuilder setSingleSelectUiType(
-      SingleSelectQuestionDefinition.SingleSelectUiType type) {
-    this.singleSelectUiType = type;
+  public QuestionDefinitionBuilder getMultiOptionUiType(
+      MultiOptionQuestionDefinition.MultiOptionUiType type) {
+    this.multiOptionUiType = type;
     return this;
   }
 
-  public QuestionDefinitionBuilder setSingleSelectOptions(
+  public QuestionDefinitionBuilder setQuestionOptions(
       ImmutableListMultimap<Locale, String> options) {
-    this.singleSelectOptions = options;
+    this.questionOptions = options;
     return this;
   }
 
@@ -190,8 +190,8 @@ public class QuestionDefinitionBuilder {
             questionText,
             questionHelpText,
             numberValidationPredicates);
-      case SINGLE_SELECT:
-        return new SingleSelectQuestionDefinition(
+      case MULTI_OPTION:
+        return new MultiOptionQuestionDefinition(
             id,
             version,
             name,
@@ -199,8 +199,8 @@ public class QuestionDefinitionBuilder {
             description,
             questionText,
             questionHelpText,
-            singleSelectUiType,
-            singleSelectOptions);
+            multiOptionUiType,
+            questionOptions);
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {

@@ -11,12 +11,12 @@ import java.util.Locale;
 import java.util.OptionalLong;
 import services.Path;
 
-public class SingleSelectQuestionDefinition extends QuestionDefinition {
+public class MultiOptionQuestionDefinition extends QuestionDefinition {
 
-  private final SingleSelectUiType singleSelectUiType;
+  private final MultiOptionUiType multiOptionUiType;
   private final ImmutableListMultimap<Locale, String> options;
 
-  public SingleSelectQuestionDefinition(
+  public MultiOptionQuestionDefinition(
       OptionalLong id,
       long version,
       String name,
@@ -24,7 +24,7 @@ public class SingleSelectQuestionDefinition extends QuestionDefinition {
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      SingleSelectUiType singleSelectUiType,
+      MultiOptionUiType multiOptionUiType,
       ImmutableListMultimap<Locale, String> options) {
     super(
         id,
@@ -34,19 +34,19 @@ public class SingleSelectQuestionDefinition extends QuestionDefinition {
         description,
         questionText,
         questionHelpText,
-        SingleSelectValidationPredicates.create());
-    this.singleSelectUiType = singleSelectUiType;
+        MultiOptionValidationPredicates.create());
+    this.multiOptionUiType = multiOptionUiType;
     this.options = assertSameNumberOfOptionsForEachLocale(checkNotNull(options));
   }
 
-  public SingleSelectQuestionDefinition(
+  public MultiOptionQuestionDefinition(
       long version,
       String name,
       Path path,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      SingleSelectUiType singleSelectUiType,
+      MultiOptionUiType multiOptionUiType,
       ImmutableListMultimap<Locale, String> options) {
     super(
         version,
@@ -55,8 +55,8 @@ public class SingleSelectQuestionDefinition extends QuestionDefinition {
         description,
         questionText,
         questionHelpText,
-        SingleSelectValidationPredicates.create());
-    this.singleSelectUiType = singleSelectUiType;
+        MultiOptionValidationPredicates.create());
+    this.multiOptionUiType = multiOptionUiType;
     this.options = assertSameNumberOfOptionsForEachLocale(checkNotNull(options));
   }
 
@@ -72,7 +72,7 @@ public class SingleSelectQuestionDefinition extends QuestionDefinition {
 
   @Override
   public QuestionType getQuestionType() {
-    return QuestionType.SINGLE_SELECT;
+    return QuestionType.MULTI_OPTION;
   }
 
   @Override
@@ -94,8 +94,8 @@ public class SingleSelectQuestionDefinition extends QuestionDefinition {
     return ScalarType.STRING;
   }
 
-  public SingleSelectUiType getSingleSelectUiType() {
-    return this.singleSelectUiType;
+  public MultiOptionUiType getMultiOptionUiType() {
+    return this.multiOptionUiType;
   }
 
   public ImmutableListMultimap<Locale, String> getOptions() {
@@ -121,15 +121,14 @@ public class SingleSelectQuestionDefinition extends QuestionDefinition {
   }
 
   /** The type of UI element that should be used to render this question. */
-  public enum SingleSelectUiType {
-    DROPDOWN,
-    RADIO_BUTTON
+  public enum MultiOptionUiType {
+    DROPDOWN
   }
 
   @AutoValue
-  public abstract static class SingleSelectValidationPredicates extends ValidationPredicates {
-    public static SingleSelectValidationPredicates create() {
-      return new AutoValue_SingleSelectQuestionDefinition_SingleSelectValidationPredicates();
+  public abstract static class MultiOptionValidationPredicates extends ValidationPredicates {
+    public static MultiOptionValidationPredicates create() {
+      return new AutoValue_MultiOptionQuestionDefinition_MultiOptionValidationPredicates();
     }
   }
 }

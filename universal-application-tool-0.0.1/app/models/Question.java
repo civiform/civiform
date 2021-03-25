@@ -15,10 +15,10 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.Path;
+import services.question.MultiOptionQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
-import services.question.SingleSelectQuestionDefinition;
 import services.question.UnsupportedQuestionTypeException;
 
 @Entity
@@ -45,7 +45,7 @@ public class Question extends BaseModel {
 
   @Constraints.Required private LifecycleStage lifecycleStage;
 
-  private String singleSelectUiType;
+  private String multiOptionUiType;
 
   private @DbJsonB ImmutableListMultimap<Locale, String> questionOptions;
 
@@ -87,10 +87,10 @@ public class Question extends BaseModel {
             .setQuestionType(QuestionType.valueOf(questionType))
             .setValidationPredicatesString(validationPredicates);
 
-    if (questionType.equals(QuestionType.SINGLE_SELECT.toString())) {
-      builder.setSingleSelectUiType(
-          SingleSelectQuestionDefinition.SingleSelectUiType.valueOf(singleSelectUiType));
-      builder.setSingleSelectOptions(questionOptions);
+    if (questionType.equals(QuestionType.MULTI_OPTION.toString())) {
+      builder.getMultiOptionUiType(
+          MultiOptionQuestionDefinition.MultiOptionUiType.valueOf(multiOptionUiType));
+      builder.setQuestionOptions(questionOptions);
     }
 
     this.questionDefinition = builder.build();
@@ -121,11 +121,11 @@ public class Question extends BaseModel {
     questionType = questionDefinition.getQuestionType().toString();
     validationPredicates = questionDefinition.getValidationPredicatesAsString();
 
-    if (questionDefinition.getQuestionType() == QuestionType.SINGLE_SELECT) {
-      SingleSelectQuestionDefinition singleSelect =
-          (SingleSelectQuestionDefinition) questionDefinition;
-      singleSelectUiType = singleSelect.getSingleSelectUiType().toString();
-      questionOptions = singleSelect.getOptions();
+    if (questionDefinition.getQuestionType() == QuestionType.MULTI_OPTION) {
+      MultiOptionQuestionDefinition multiOption =
+          (MultiOptionQuestionDefinition) questionDefinition;
+      multiOptionUiType = multiOption.getMultiOptionUiType().toString();
+      questionOptions = multiOption.getOptions();
     }
   }
 }

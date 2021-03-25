@@ -9,43 +9,43 @@ import java.util.Locale;
 import org.junit.Test;
 import services.Path;
 
-public class SingleSelectQuestionDefinitionTest {
+public class MultiOptionQuestionDefinitionTest {
 
   @Test
-  public void buildSingleSelectQuestion() throws UnsupportedQuestionTypeException {
+  public void buildMultiSelectQuestion() throws UnsupportedQuestionTypeException {
     ImmutableListMultimap<Locale, String> options =
         ImmutableListMultimap.of(Locale.US, "option 1", Locale.US, "option 2");
 
     QuestionDefinition definition =
         new QuestionDefinitionBuilder()
-            .setQuestionType(QuestionType.SINGLE_SELECT)
+            .setQuestionType(QuestionType.MULTI_OPTION)
             .setName("")
             .setDescription("")
             .setPath(Path.empty())
             .setQuestionText(ImmutableMap.of())
             .setQuestionHelpText(ImmutableMap.of())
-            .setSingleSelectUiType(SingleSelectQuestionDefinition.SingleSelectUiType.DROPDOWN)
-            .setSingleSelectOptions(options)
+            .getMultiOptionUiType(MultiOptionQuestionDefinition.MultiOptionUiType.DROPDOWN)
+            .setQuestionOptions(options)
             .build();
 
-    SingleSelectQuestionDefinition select = (SingleSelectQuestionDefinition) definition;
+    MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
 
-    assertThat(select.getSingleSelectUiType())
-        .isEqualTo(SingleSelectQuestionDefinition.SingleSelectUiType.DROPDOWN);
-    assertThat(select.getOptions()).isEqualTo(options);
+    assertThat(multiOption.getMultiOptionUiType())
+        .isEqualTo(MultiOptionQuestionDefinition.MultiOptionUiType.DROPDOWN);
+    assertThat(multiOption.getOptions()).isEqualTo(options);
   }
 
   @Test
-  public void getOptionsForLocale_failsForMissingLocale() throws TranslationNotFoundException {
-    SingleSelectQuestionDefinition definition =
-        new SingleSelectQuestionDefinition(
+  public void getOptionsForLocale_failsForMissingLocale() {
+    MultiOptionQuestionDefinition definition =
+        new MultiOptionQuestionDefinition(
             1L,
             "",
             Path.empty(),
             "",
             ImmutableMap.of(),
             ImmutableMap.of(),
-            SingleSelectQuestionDefinition.SingleSelectUiType.DROPDOWN,
+            MultiOptionQuestionDefinition.MultiOptionUiType.DROPDOWN,
             ImmutableListMultimap.of());
 
     Throwable thrown = catchThrowable(() -> definition.getOptionsForLocale(Locale.CANADA));
@@ -59,15 +59,15 @@ public class SingleSelectQuestionDefinitionTest {
     ImmutableListMultimap<Locale, String> options =
         ImmutableListMultimap.of(
             Locale.US, "one", Locale.US, "two", Locale.GERMAN, "eins", Locale.GERMAN, "zwei");
-    SingleSelectQuestionDefinition definition =
-        new SingleSelectQuestionDefinition(
+    MultiOptionQuestionDefinition definition =
+        new MultiOptionQuestionDefinition(
             1L,
             "",
             Path.empty(),
             "",
             ImmutableMap.of(),
             ImmutableMap.of(),
-            SingleSelectQuestionDefinition.SingleSelectUiType.DROPDOWN,
+            MultiOptionQuestionDefinition.MultiOptionUiType.DROPDOWN,
             options);
 
     assertThat(definition.getOptionsForLocale(Locale.US)).containsExactly("one", "two");
