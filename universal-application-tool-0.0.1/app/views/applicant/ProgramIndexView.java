@@ -18,7 +18,6 @@ import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.style.ApplicantStyles;
 import views.style.Styles;
-import views.style.StylesUtils;
 
 /** Returns a list of programs that an applicant can browse, with buttons for applying. */
 public class ProgramIndexView extends BaseHtmlView {
@@ -69,7 +68,8 @@ public class ProgramIndexView extends BaseHtmlView {
         .with(span("Form").withClasses(Styles.FONT_THIN));
   }
 
-  private ContainerTag mainContent(ImmutableList<ProgramDefinition> programs, long applicantId, String applyText) {
+  private ContainerTag mainContent(
+      ImmutableList<ProgramDefinition> programs, long applicantId, String applyText) {
     return div()
         .withId("main-content")
         .withClasses(
@@ -89,22 +89,25 @@ public class ProgramIndexView extends BaseHtmlView {
             .withId("float-text")
             .withText(infoText)
             .withClasses(
-              Styles.MT_4, Styles.TEXT_SM, Styles.W_72,
-              StyleUtils.responsiveMedium(
-                Styles.FLOAT_RIGHT, Styles.ABSOLUTE, Styles.RIGHT_8, Styles.TOP_0,
-                Styles.ML_0)
-              StyleUtils.responsiveLarge(Styles.W_96));
+                Styles.MT_4,
+                Styles.TEXT_SM,
+                Styles.W_72,
+                StyleUtils.responsiveMedium(
+                    Styles.FLOAT_RIGHT, Styles.ABSOLUTE, Styles.RIGHT_8, Styles.TOP_0, Styles.ML_0),
+                StyleUtils.responsiveLarge(Styles.W_96));
 
     return div()
         .withId("top-content")
-        .withClasses(Styles.RELATIVE, Styles.W_FULL, STyles.H_AUTO, Styles.MT_32, Styles.MB_16, Styles.PX_8)
+        .withClasses(
+            Styles.RELATIVE, Styles.W_FULL, STyles.H_AUTO, Styles.MT_32, Styles.MB_16, Styles.PX_8)
         .with(floatTitle, floatText);
   }
 
   private ContainerTag status() {
     return div()
         .withId("application-status")
-        .withClasses(Styles.ABSOLUTE, Styles.TOP_8, Styles.RIGHT_8, Styles.TEXT_SM, Styles.UNDERLINE)
+        .withClasses(
+            Styles.ABSOLUTE, Styles.TOP_8, Styles.RIGHT_8, Styles.TEXT_SM, Styles.UNDERLINE)
         .with(span("view my applications"));
   }
 
@@ -117,11 +120,20 @@ public class ProgramIndexView extends BaseHtmlView {
             .with(
                 div()
                     .withClasses(
-                      "bg-teal-400"
-                      Styles.H_3, Styles.W_3, Styles.ROUNDED_FULL, Styles.INLINE_BLOCK,
-                      Styles.ALIGN_MIDDLE, Styles.ALIGN_TEXT_MIDDLE),
+                        Styles.BG_TEAL_400,
+                        Styles.H_3,
+                        Styles.W_3,
+                        Styles.ROUNDED_FULL,
+                        Styles.INLINE_BLOCK,
+                        Styles.ALIGN_MIDDLE,
+                        Styles.ALIGN_TEXT_MIDDLE),
                 div("No Category")
-                    .withClasses(Styles.ML_2, Styles.INLINE, Styles.ALIGN_BOTTOM, Styles.ALIGN_TEXT_BOTTOM, Styles.LEADING_3));
+                    .withClasses(
+                        Styles.ML_2,
+                        Styles.INLINE,
+                        Styles.ALIGN_BOTTOM,
+                        Styles.ALIGN_TEXT_BOTTOM,
+                        Styles.LEADING_3));
     ContainerTag title =
         div()
             .withId(baseId + "-title")
@@ -161,13 +173,29 @@ public class ProgramIndexView extends BaseHtmlView {
                 Styles.BG_GRAY_200,
                 StyleUtils.hover(Style.BG_GRAY_300));
 
-    ContainerTag applyDiv = div(applyButton).withClasses(Styles.ABSOLUTE, Styles.BOTTOM_6, Styles.W_FULL);
+    ContainerTag applyDiv =
+        div(applyButton).withClasses(Styles.ABSOLUTE, Styles.BOTTOM_6, Styles.W_FULL);
     return div()
         .withId(baseId)
-        .withClasses(ReferenceClasses.APPLICATION_CARD, Styles.RELATIVE, Styles.INLINE_BLOCK, Styles.MR_4, Styles.MB_4,
-            Styles.W_64, Styles.H_72, Styles.BG_WHITE, Styles.ROUNDED_XL, Styles.SHADOW_SM)
-        .with(div().withClasses("bg-teal-400",
-          Styles.H_3, Styles.ROUNDED_T_XL, Styles.BG_OPACITY_60, Styles.MB_4))
+        .withClasses(
+            ReferenceClasses.APPLICATION_CARD,
+            Styles.RELATIVE,
+            Styles.INLINE_BLOCK,
+            Styles.MR_4,
+            Styles.MB_4,
+            Styles.W_64,
+            Styles.H_72,
+            Styles.BG_WHITE,
+            Styles.ROUNDED_XL,
+            Styles.SHADOW_SM)
+        .with(
+            div()
+                .withClasses(
+                    Styles.BG_TEAL_400,
+                    Styles.H_3,
+                    Styles.ROUNDED_T_XL,
+                    Styles.BG_OPACITY_60,
+                    Styles.MB_4))
         .with(programData)
         .with(applyDiv);
   }
