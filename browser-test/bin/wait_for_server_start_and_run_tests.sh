@@ -17,8 +17,6 @@ done
 
 echo detected server start
 
-./bin/truncate_tables.sh
-
 debug=0
 for arg do
     shift
