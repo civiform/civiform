@@ -44,39 +44,29 @@ public class AdminProgramBlocksController extends Controller {
   public Result index(long programId) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
-      return redirect(
-          routes.AdminProgramBlocksController.edit(
-              programId,
-              program.blockDefinitions().get(program.blockDefinitions().size() - 1).id()));
-    } catch (ProgramNotFoundException e) {
+      long blockId = program.getLastBlockDefinition().id();
+      return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
+    } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
       return notFound(e.toString());
     }
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result create(long programId) {
-    ProgramDefinition program;
-
     try {
-      program = programService.addBlockToProgram(programId);
-    } catch (ProgramNotFoundException e) {
-      // This really shouldn't happen because the first if check should catch it
+      ProgramDefinition program = programService.addBlockToProgram(programId);
+      long blockId = program.getLastBlockDefinition().id();
+      return redirect(routes.AdminProgramBlocksController.edit(programId, blockId).url());
+    } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
       return notFound(e.toString());
     }
-
-    long blockId = program.blockDefinitions().get(program.blockDefinitions().size() - 1).id();
-
-    return redirect(routes.AdminProgramBlocksController.edit(programId, blockId).url());
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result edit(Request request, long programId, long blockId) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
-      BlockDefinition block =
-          program
-              .getBlockDefinition(blockId)
-              .orElseThrow(() -> new ProgramBlockNotFoundException(programId, blockId));
+      BlockDefinition block = program.getBlockDefinition(blockId);
 
       ReadOnlyQuestionService roQuestionService =
           questionService.getReadOnlyQuestionService().toCompletableFuture().join();

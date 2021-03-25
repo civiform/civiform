@@ -173,10 +173,7 @@ public class ApplicantServiceImpl implements ApplicantService {
       throws ProgramBlockNotFoundException, UnsupportedScalarTypeException,
           PathNotInBlockException {
 
-    BlockDefinition blockDefinition =
-        programDefinition
-            .getBlockDefinition(blockId)
-            .orElseThrow(() -> new ProgramBlockNotFoundException(programDefinition.id(), blockId));
+    BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockId);
     stageUpdates(applicant.getApplicantData(), blockDefinition, programDefinition.id(), updates);
   }
 
