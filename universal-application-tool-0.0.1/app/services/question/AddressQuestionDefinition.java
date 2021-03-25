@@ -77,7 +77,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
   }
 
   @Override
-  public ImmutableMap<Path, ScalarType> getScalarPaths() {
+  ImmutableMap<Path, ScalarType> getScalarPaths() {
     return ImmutableMap.of(
         getStreetPath(), getStreetType(),
         getCityPath(), getCityType(),
