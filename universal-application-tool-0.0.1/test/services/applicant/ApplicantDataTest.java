@@ -163,7 +163,7 @@ public class ApplicantDataTest {
     data.putList(path, ImmutableList.of());
 
     assertThat(data.asJsonString())
-            .isEqualTo("{\"applicant\":{\"favorite_fruits\":null},\"metadata\":{}}");
+        .isEqualTo("{\"applicant\":{\"favorite_fruits\":null},\"metadata\":{}}");
   }
 
   @Test
