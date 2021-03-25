@@ -77,18 +77,14 @@ public class NameQuestionDefinition extends QuestionDefinition {
   }
 
   @Override
-  public ImmutableMap<Path, ScalarType> getScalars() {
+  public ImmutableMap<Path, ScalarType> getScalarPaths() {
     return ImmutableMap.of(
         getFirstNamePath(),
         getFirstNameType(),
         getMiddleNamePath(),
         getMiddleNameType(),
         getLastNamePath(),
-        getLastNameType(),
-        getLastUpdatedTimePath(),
-        getLastUpdatedTimeType(),
-        getProgramIdPath(),
-        getProgramIdType());
+        getLastNameType());
   }
 
   public Path getFirstNamePath() {

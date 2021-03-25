@@ -189,8 +189,22 @@ public abstract class QuestionDefinition {
     return ScalarType.LONG;
   }
 
-  /** Get a map of scalars stored by this question definition. */
-  public abstract ImmutableMap<Path, ScalarType> getScalars();
+  /** Get a map of all scalars stored by this question definition. */
+  public ImmutableMap<Path, ScalarType> getScalars() {
+    return ImmutableMap.<Path, ScalarType>builder()
+        .putAll(getScalarPaths())
+        .putAll(getMetadataPaths())
+        .build();
+  }
+
+  /** Get a map of question specific scalars stored by this question definition. */
+  abstract ImmutableMap<Path, ScalarType> getScalarPaths();
+
+  /** Get a map of metadata stored by all question definitions. */
+  ImmutableMap<Path, ScalarType> getMetadataPaths() {
+    return ImmutableMap.of(
+        getLastUpdatedTimePath(), getLastUpdatedTimeType(), getProgramIdPath(), getProgramIdType());
+  }
 
   public Optional<ScalarType> getScalarType(Path path) {
     return Optional.ofNullable(this.getScalars().get(path));
