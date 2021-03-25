@@ -17,6 +17,7 @@ import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.style.ApplicantStyles;
+import views.style.ReferenceClasses;
 import views.style.Styles;
 
 /** Returns a list of programs that an applicant can browse, with buttons for applying. */
