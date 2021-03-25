@@ -23,8 +23,9 @@ import services.WellKnownPaths;
 public class ApplicantData {
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
   private static final Locale DEFAULT_LOCALE = Locale.US;
-  private static final Joiner LIST_JOINER = Joiner.on('`');
-  private static final Splitter LIST_SPLITTER = Splitter.on('`');
+  private static final String LIST_DELIMITER = "`";
+  private static final Joiner LIST_JOINER = Joiner.on(LIST_DELIMITER);
+  private static final Splitter LIST_SPLITTER = Splitter.on(LIST_DELIMITER);
 
   private Locale preferredLocale;
   private final DocumentContext jsonData;
@@ -118,8 +119,8 @@ public class ApplicantData {
     if (value.isEmpty()) {
       putNull(path);
     } else {
-      boolean containsBacktick = value.stream().anyMatch(s -> s.contains("`"));
-      if (containsBacktick) {
+      boolean containsDelimiter = value.stream().anyMatch(s -> s.contains(LIST_DELIMITER));
+      if (containsDelimiter) {
         throw new RuntimeException("Tried to write a list that contained a disallowed character");
       }
       put(path, LIST_JOINER.join(value));
