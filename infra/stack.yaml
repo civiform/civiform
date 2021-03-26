@@ -8,6 +8,15 @@ Parameters:
     Description: The name of the database user.
     Type: String
     Default: civiform
+  DomainName:
+    Description: The domain name (with or without trailing .).
+    Type: String
+    Default: seattle.civiform.com
+  # Not in the stack because it requires external configuration.
+  HostedZoneId:
+    Description: The ID of the (already existing) Route53 hosted zone.
+    Type: String
+    Default: Z02860647AHUYUQTEAPO
 Resources:
   VPC:
     Type: AWS::CloudFormation::Stack
@@ -38,6 +47,8 @@ Resources:
         PublicSubnet1: !GetAtt 'VPC.Outputs.PublicSubnet1'
         PublicSubnet2: !GetAtt 'VPC.Outputs.PublicSubnet2'
         LBSecurityGroup: !GetAtt 'SecurityGroups.Outputs.LbGroup'
+        DomainName: !Ref DomainName
+        HostedZoneId: !Ref HostedZoneId
   DB:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -63,6 +74,7 @@ Resources:
         LBTargetName: !GetAtt 'LB.Outputs.LBTarget'
         ContainerSecurityGroup: !GetAtt 'SecurityGroups.Outputs.ContainerGroup'
         S3BucketName: !GetAtt 'Filestore.Outputs.bucketname'
+        DomainName: !Ref DomainName
   Monitoring:
     Type: AWS::CloudFormation::Stack
     Properties:
