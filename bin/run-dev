@@ -8,8 +8,9 @@ if [ -f ".secrets" ]; then
 fi
 
 if [ "$DISABLE_LOCALSTACK" ]; then
-  echo "localstack is disabled, only starting civiform and db..."
-  docker-compose up db civiform
+  services=$(docker-compose ps --services | grep -v localstack | xargs)
+  echo "localstack is disabled, only starting $services..."
+  docker-compose up $services
   exit $?
 fi
 echo "Starting localstack... set environment variable DISABLE_LOCALSTACK=1 to skip"
