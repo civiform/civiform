@@ -50,16 +50,11 @@ public class SecurityModule extends AbstractModule {
 
   private final com.typesafe.config.Config configuration;
   private final String baseUrl;
-  private static final String DEV_BASE_URL = "http://localhost:9000";
 
   public SecurityModule(Environment environment, com.typesafe.config.Config configuration) {
     checkNotNull(environment);
     this.configuration = checkNotNull(configuration);
-    if (configuration.hasPath("baseUrl")) {
-      this.baseUrl = configuration.getString("baseUrl");
-    } else {
-      this.baseUrl = DEV_BASE_URL;
-    }
+    this.baseUrl = configuration.getString("base_url");
   }
 
   @Override
