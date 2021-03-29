@@ -43,6 +43,9 @@ Parameters:
     NoEcho: 'true'
     Description: Secret key for Play application
     Type: String
+  DomainName:
+    Description: The domain name to use as the base URL.
+    Type: String
 Resources:
   ecscluster:
     Type: AWS::ECS::Cluster
@@ -117,6 +120,8 @@ Resources:
               Value: '{{resolve:secretsmanager:dev-oidc-secrets:SecretString:ADFS_CLIENT_ID}}'
             - Name: ADFS_SECRET
               Value: '{{resolve:secretsmanager:dev-oidc-secrets:SecretString:ADFS_SECRET}}'
+            - Name: BASE_URL
+              Value: !Sub "https://${DomainName}"
           Cpu: 1024
           Memory: 8192
           PortMappings:

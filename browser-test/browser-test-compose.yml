@@ -36,4 +36,8 @@ services:
     build: ..
     volumes:
       - ../universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1
+      - ~/.coursier:/root/.coursier
+      - ~/.sbt:/root/.sbt
+      - ~/.ivy:/root/.ivy2
+
     command: ~run

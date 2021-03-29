@@ -26,7 +26,6 @@ services:
     container_name: civiform
     links:
       - "db:database"
-      - "localstack"
     ports:
       - 9000:9000
     environment:
