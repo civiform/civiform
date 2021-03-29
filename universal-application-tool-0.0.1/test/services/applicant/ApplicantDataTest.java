@@ -2,6 +2,7 @@ package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.testing.EqualsTester;
 import java.time.Instant;
 import java.util.Locale;
@@ -144,6 +145,28 @@ public class ApplicantDataTest {
   }
 
   @Test
+  public void putList_writesJsonArray() {
+    ApplicantData data = new ApplicantData();
+    Path path = Path.create("applicant.favorite_fruits");
+
+    data.putList(path, ImmutableList.of("apple", "orange"));
+
+    assertThat(data.asJsonString())
+        .isEqualTo("{\"applicant\":{\"favorite_fruits\":[\"apple\",\"orange\"]},\"metadata\":{}}");
+  }
+
+  @Test
+  public void putList_writesNullIfListIsEmpty() {
+    ApplicantData data = new ApplicantData();
+    Path path = Path.create("applicant.favorite_fruits");
+
+    data.putList(path, ImmutableList.of());
+
+    assertThat(data.asJsonString())
+        .isEqualTo("{\"applicant\":{\"favorite_fruits\":null},\"metadata\":{}}");
+  }
+
+  @Test
   public void readString_findsCorrectValue() throws Exception {
     String testData = "{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} } }";
     ApplicantData data = new ApplicantData(testData);
@@ -154,29 +177,10 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void readLong_findsCorrectValue() throws Exception {
-    String testData = "{ \"applicant\": { \"age\": 30 } }";
-    ApplicantData data = new ApplicantData(testData);
-
-    Optional<Long> found = data.readLong(Path.create("applicant.age"));
-
-    assertThat(found).hasValue(30L);
-  }
-
-  @Test
   public void readString_pathNotPresent_returnsEmptyOptional() throws Exception {
     ApplicantData data = new ApplicantData();
 
     Optional<String> found = data.readString(Path.create("my.fake.path"));
-
-    assertThat(found).isEmpty();
-  }
-
-  @Test
-  public void readLong_pathNotPresent_returnsEmptyOptional() throws Exception {
-    ApplicantData data = new ApplicantData();
-
-    Optional<Long> found = data.readLong(Path.create("my.fake.path"));
 
     assertThat(found).isEmpty();
   }
@@ -192,11 +196,69 @@ public class ApplicantDataTest {
   }
 
   @Test
+  public void readLong_findsCorrectValue() throws Exception {
+    String testData = "{ \"applicant\": { \"age\": 30 } }";
+    ApplicantData data = new ApplicantData(testData);
+
+    Optional<Long> found = data.readLong(Path.create("applicant.age"));
+
+    assertThat(found).hasValue(30L);
+  }
+
+  @Test
+  public void readLong_pathNotPresent_returnsEmptyOptional() throws Exception {
+    ApplicantData data = new ApplicantData();
+
+    Optional<Long> found = data.readLong(Path.create("my.fake.path"));
+
+    assertThat(found).isEmpty();
+  }
+
+  @Test
   public void readLong_returnsEmptyWhenTypeMismatch() {
     String testData = "{ \"applicant\": { \"object\": { \"name\": \"John\" } } }";
     ApplicantData data = new ApplicantData(testData);
 
     Optional<Long> found = data.readLong(Path.create("applicant.object.name"));
+
+    assertThat(found).isEmpty();
+  }
+
+  @Test
+  public void readList_findsCorrectValue() {
+    String testData = "{\"applicant\":{\"favorite_fruits\":[\"apple\",\"orange\"]}}";
+    ApplicantData data = new ApplicantData(testData);
+
+    Optional<ImmutableList<String>> found = data.readList(Path.create("applicant.favorite_fruits"));
+
+    assertThat(found).hasValue(ImmutableList.of("apple", "orange"));
+  }
+
+  @Test
+  public void readListWithOneValue_findsCorrectValue() {
+    String testData = "{\"applicant\":{\"favorite_fruits\":[\"apple\"]}}";
+    ApplicantData data = new ApplicantData(testData);
+
+    Optional<ImmutableList<String>> found = data.readList(Path.create("applicant.favorite_fruits"));
+
+    assertThat(found).hasValue(ImmutableList.of("apple"));
+  }
+
+  @Test
+  public void readList_pathNotPresent_returnsEmptyOptional() {
+    ApplicantData data = new ApplicantData();
+
+    Optional<ImmutableList<String>> found = data.readList(Path.create("not.here"));
+
+    assertThat(found).isEmpty();
+  }
+
+  @Test
+  public void readList_returnsEmptyWhenTypeMismatch() {
+    String testData = "{ \"applicant\": { \"object\": { \"age\": 12 } } }";
+    ApplicantData data = new ApplicantData(testData);
+
+    Optional<ImmutableList<String>> found = data.readList(Path.create("applicant.object.name"));
 
     assertThat(found).isEmpty();
   }

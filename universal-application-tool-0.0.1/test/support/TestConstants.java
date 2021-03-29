@@ -30,7 +30,7 @@ public class TestConstants {
         "bar",
         "idcs.discovery_uri",
         String.format("http://%s:%d/.well-known/openid-configuration", host, port),
-        "baseUrl",
+        "base_url",
         String.format("http://localhost:%d", Helpers.testServerPort()));
   }
 }

@@ -25,9 +25,10 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @Singleton
 public class AmazonS3Client {
+  public static final String AWS_ENABLE = "aws.enable";
+  public static final String AWS_LOCAL_ENDPOINT = "aws.local.endpoint";
   public static final String AWS_S3_REGION = "aws.s3.region";
   public static final String AWS_S3_BUCKET = "aws.s3.bucket";
-  public static final String AWS_LOCAL_ENDPOINT = "aws.local.endpoint";
   private static final Logger log = LoggerFactory.getLogger("s3client");
 
   private final ApplicationLifecycle appLifecycle;
@@ -60,6 +61,9 @@ public class AmazonS3Client {
   }
 
   public boolean enabled() {
+    if (!config.hasPath(AWS_ENABLE) || !config.getBoolean(AWS_ENABLE)) {
+      return false;
+    }
     return (config.hasPath(AWS_S3_REGION) && config.hasPath(AWS_S3_BUCKET));
   }
 
@@ -110,18 +114,14 @@ public class AmazonS3Client {
 
   private void connect() {
     String regionName = config.getString(AWS_S3_REGION);
-    String endpoint;
     region = Region.of(regionName);
     bucket = config.getString(AWS_S3_BUCKET);
-    URI endpointOverride;
-    S3ClientBuilder s3ClientBuilder;
 
-    endpoint = config.getString(AWS_LOCAL_ENDPOINT);
-    s3ClientBuilder = S3Client.builder().region(region);
+    S3ClientBuilder s3ClientBuilder = S3Client.builder().region(region);
     if (environment.isDev()) {
       try {
-        endpointOverride = new URI(endpoint);
-        s3ClientBuilder = s3ClientBuilder.endpointOverride(endpointOverride);
+        URI localUri = new URI(config.getString(AWS_LOCAL_ENDPOINT));
+        s3ClientBuilder = s3ClientBuilder.endpointOverride(localUri);
       } catch (URISyntaxException e) {
         throw new RuntimeException(e);
       }

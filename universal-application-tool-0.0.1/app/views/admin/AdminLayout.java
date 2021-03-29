@@ -34,20 +34,7 @@ public class AdminLayout extends BaseHtmlLayout {
 
     ContainerTag headerIcon =
         div(span("C"), span("F").withClasses(Styles.FONT_THIN))
-            .withClasses(
-                Styles.ABSOLUTE,
-                Styles.BG_CONTAIN,
-                Styles.BG_GRAY_700,
-                Styles.H_7,
-                Styles.LEFT_5,
-                Styles.M_1,
-                Styles.OPACITY_75,
-                Styles.TEXT_CENTER,
-                Styles.TEXT_LG,
-                Styles.TEXT_WHITE,
-                Styles.TOP_2,
-                Styles.W_7,
-                Styles.ROUNDED);
+            .withClasses(BaseStyles.ADMIN_NAV_BAR);
     ContainerTag headerTitle =
         div()
             .withClasses(
