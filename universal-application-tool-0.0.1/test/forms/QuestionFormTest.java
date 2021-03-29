@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Test;
@@ -45,24 +44,27 @@ public class QuestionFormTest {
     assertThat(actual).isEqualTo(expected);
   }
 
-@Test
-public void getQuestionPath_repeaterQuestion_hasSquareBrackets() {
-QuestionForm form = new QuestionForm();
-form.setQuestionParentPath("the.first.part");
-form.setQuestionName("the other part");
-form.setQuestionType("REPEATER");
+  @Test
+  public void getQuestionPath_repeaterQuestion_hasSquareBrackets() {
+    QuestionForm form = new QuestionForm();
+    form.setQuestionParentPath("the.first.part");
+    form.setQuestionName("the other part");
+    form.setQuestionType("REPEATER");
 
-assertThat(form.getQuestionPath()).isEqualTo(Path.create("the.first.part.the_other_part[]"));
-}
+    assertThat(form.getQuestionPath()).isEqualTo(Path.create("the.first.part.the_other_part[]"));
+  }
 
-@Parameters({"the other part|the.first.part.the_other_part", "LOWER cAsE|the.first.part.lower_case", "ig--.][;n-or.e sy$mb#o*ls|the.first.part.ignore_symbols"})
-@Test
-public void getQuestionPath_formatsQuestionName(String name, String path) {
-QuestionForm form = new QuestionForm();
-form.setQuestionParentPath("the.first.part");
-form.setQuestionName(name);
+  @Parameters({
+    "the other part|the.first.part.the_other_part",
+    "LOWER cAsE|the.first.part.lower_case",
+    "ig--.][;n-or.e sy$mb#o*ls|the.first.part.ignore_symbols"
+  })
+  @Test
+  public void getQuestionPath_formatsQuestionName(String name, String path) {
+    QuestionForm form = new QuestionForm();
+    form.setQuestionParentPath("the.first.part");
+    form.setQuestionName(name);
 
-assertThat(form.getQuestionPath()).isEqualTo(Path.create(path));
-}
-
+    assertThat(form.getQuestionPath()).isEqualTo(Path.create(path));
+  }
 }

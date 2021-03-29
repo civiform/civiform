@@ -5,7 +5,7 @@ import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -14,9 +14,9 @@ import java.util.regex.Pattern;
  */
 @AutoValue
 public abstract class Path {
-  public static final String JSON_PATH_START_TOKEN = "$";
   public static final String ARRAY_SUFFIX = "[]";
-  private static final Pattern ARRAY_INDEX_REGEX = Pattern.compile("\\[\\d+\\]$");
+  private static final String JSON_PATH_START_TOKEN = "$";
+  private static final Pattern ARRAY_INDEX_REGEX = Pattern.compile(".*(\\[(\\d+)])$");
   private static final char JSON_PATH_DIVIDER = '.';
   private static final String JSON_PATH_START = JSON_PATH_START_TOKEN + JSON_PATH_DIVIDER;
   private static final Splitter JSON_SPLITTER = Splitter.on(JSON_PATH_DIVIDER);
@@ -60,7 +60,7 @@ public abstract class Path {
    */
   @Memoized
   public String path() {
-    return JSON_JOINER.join(segments());
+    return isEmpty() ? JSON_PATH_START_TOKEN : JSON_JOINER.join(segments());
   }
 
   @Memoized
@@ -106,17 +106,45 @@ public abstract class Path {
     return ARRAY_INDEX_REGEX.matcher(keyName()).find();
   }
 
+  // TODO: is this allowed when it doesn't represent a list?
   public Path withoutArrayIndex() {
-    if (isList()) {
-      return parentPath().join(keyNameWithoutArrayIndex());
-    }
-
-    // TODO: throw an exception if this does not represent a list
-    return this;
+    return parentPath().join(keyNameWithoutArrayIndex());
   }
 
-  private String keyNameWithoutArrayIndex() {
-    return keyName().replaceAll(ARRAY_INDEX_REGEX.pattern(), "");
+  // TODO: is this allowed when it doesn't represent a list?
+  public int arrayIndex() {
+    Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
+    if (matcher.matches()) {
+      return Integer.valueOf(matcher.group(2));
+    }
+    return -1;
+  }
+
+
+  // TODO: is this allowed when it doesn't represent a list?
+
+  public Path atIndex(int index) {
+    Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
+    String newKeyName = keyName();
+    if (matcher.matches()) {
+      newKeyName =
+          new StringBuilder(keyName())
+              .replace(matcher.start(2), matcher.end(2), String.valueOf(index))
+              .toString();
+    }
+    return parentPath().join(newKeyName);
+  }
+
+
+  // TODO: is this allowed when it doesn't represent a list?
+  public String keyNameWithoutArrayIndex() {
+    Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
+    String newKeyName = keyName();
+    if (matcher.matches()) {
+      newKeyName =
+          new StringBuilder(keyName()).replace(matcher.start(1), matcher.end(1), "").toString();
+    }
+    return newKeyName;
   }
 
   public abstract Builder toBuilder();

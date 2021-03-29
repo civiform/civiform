@@ -7,7 +7,6 @@ import com.google.common.testing.EqualsTester;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
-import org.junit.Ignore;
 import org.junit.Test;
 import services.Path;
 
@@ -46,8 +45,11 @@ public class ApplicantDataTest {
             "{\"applicant\":{\"children\":[{\"entity\":\"first child\", \"name\": { \"first\":"
                 + " \"first\", \"last\": \"last\"}}, {\"entity\": \"second"
                 + " child\"}]},\"metadata\":{}}");
-    Path path = Path.create("applicant.children[0].entity");
 
+    Path path = Path.create("applicant.children[0].entity");
+    assertThat(data.hasPath(path)).isTrue();
+
+    path = Path.create("applicant.children[1]");
     assertThat(data.hasPath(path)).isTrue();
   }
 
@@ -168,14 +170,16 @@ public class ApplicantDataTest {
     assertThat(data.asJsonString()).isEqualTo(expected);
   }
 
-  // TODO: this is not implemented yet.
-  @Ignore
-  public void putString_withNthRepeatedEntity_withoutFirstRepeatedEntity_throws() {
+  // TODO(#624): get rid of this recursion
+  @Test
+  public void putString_withNthRepeatedEntity_withoutFirstRepeatedEntity_isOK() {
     ApplicantData data = new ApplicantData();
 
-    data.putString(Path.create("applicant.children[1].favorite_color.text"), "Orange");
+    data.putString(Path.create("applicant.children[2].favorite_color.text"), "Orange");
 
-    assertThat(false).isTrue();
+    assertThat(data.asJsonString())
+        .isEqualTo(
+            "{\"applicant\":{\"children\":[{},{},{\"favorite_color\":{\"text\":\"Orange\"}}]},\"metadata\":{}}");
   }
 
   @Test

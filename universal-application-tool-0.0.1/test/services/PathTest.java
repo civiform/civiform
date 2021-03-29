@@ -85,6 +85,20 @@ public class PathTest {
   }
 
   @Test
+  public void arrayIndex() {
+    Path path = Path.create("one.two[3]");
+    assertThat(path.arrayIndex()).isEqualTo(3);
+  }
+
+  @Test
+  public void atIndex() {
+    Path path = Path.create("one.two[3]");
+
+    Path expected = Path.create("one.two[5]");
+    assertThat(path.atIndex(5)).isEqualTo(expected);
+  }
+
+  @Test
   public void pathBuilder() {
     Path path = Path.builder().setPath("applicant.my.path").build();
     assertThat(path.path()).isEqualTo("applicant.my.path");

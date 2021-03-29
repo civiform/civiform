@@ -60,7 +60,7 @@ public class ApplicantData {
    */
   public boolean hasPath(Path path) {
     try {
-      this.jsonData.read(path.path());
+      this.jsonData.read(path.toString());
     } catch (PathNotFoundException e) {
       return false;
     }
@@ -131,29 +131,58 @@ public class ApplicantData {
    * @param value the value to place; values of type Map will create the equivalent JSON structure
    */
   private void put(Path path, Object value) {
-    if (path.parentPath().isEmpty()) {
-      jsonData.put(Path.JSON_PATH_START_TOKEN, path.keyName(), value);
+    maybePutParent(path);
+    putAt(path, value);
+  }
+
+  private void putAt(Path path, Object value) {
+    jsonData.put(path.parentPath().toString(), path.keyName(), value);
+  }
+
+  private void addAt(Path path, Object value) {
+    jsonData.add(path.withoutArrayIndex().toString(), value);
+  }
+
+  /** Put parent of path if it doesn't exist. */
+  private void maybePutParent(Path path) {
+    Path parentPath = path.parentPath();
+
+    if (hasPath(parentPath)) {
       return;
     }
-    if (!hasPath(path.parentPath().withoutArrayIndex())) {
-      if (path.parentPath().isList()) {
-        // TODO: lists are only added for the parent, not recursively for all ancestors.
-        // TOOD: lists are only added for the zeroth element. you can't add applicant.children[1] if
-        // applicant.children[0] doesn't exist.
-        put(path.parentPath().withoutArrayIndex(), new ArrayList<>());
-        jsonData.add(path.parentPath().withoutArrayIndex().toString(), new HashMap<>());
-      } else {
-        // TODO: only add hashmap for the immediate parent. (e.g. applicant.name.first can add a
-        // hashmap for applicant.name.
-        put(path.parentPath(), new HashMap<>());
-      }
-    }
 
-    // TODO: you can't add applicant.children[n] if applicant.children[n-1] doesn't exist.
-    if (path.parentPath().isList() && !hasPath(path.parentPath())) {
-      jsonData.add(path.parentPath().withoutArrayIndex().toString(), new HashMap<>());
+    // TODO(#624): get rid of this recursion.
+    maybePutParent(parentPath);
+
+    if (parentPath.isList()) {
+      putParentList(path);
+    } else {
+      putAt(parentPath, new HashMap<>());
     }
-    jsonData.put(path.parentPath().toString(), path.keyName(), value);
+  }
+
+  /**
+   * Put parent of path if it doesn't already exist, for parents that are lists (e.g. something[n]).
+   */
+  private void putParentList(Path path) {
+    Path parentPath = path.parentPath();
+    int index = parentPath.arrayIndex();
+
+    // For n=0, put a new list in, and add the 0th element.
+    if (index == 0) {
+      putAt(parentPath.withoutArrayIndex(), new ArrayList<>());
+      addAt(parentPath, new HashMap<>());
+
+      // For n>0, only add the nth element if the n-1 element exists.
+    } else if (hasPath(parentPath.atIndex(index - 1))) {
+      addAt(parentPath, new HashMap<>());
+
+      // TODO(#624): remove this recursion.
+    } else {
+      Path fakePathForRecursion = path.parentPath().atIndex(index - 1).join("fake");
+      maybePutParent(fakePathForRecursion);
+      addAt(parentPath, new HashMap<>());
+    }
   }
 
   /**
