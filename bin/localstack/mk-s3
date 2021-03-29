@@ -1,3 +1,17 @@
 #!/bin/bash
 
-aws --endpoint-url=http://localhost:4566 s3api create-bucket --bucket civiform-local-s3 --region us-west-2
+create_s3_cmd="s3api create-bucket --bucket civiform-local-s3 --region us-west-2"
+
+if ! which aws; then
+    docker run --rm -it \
+    --network universal-application-tool_default \
+    -e AWS_ACCESS_KEY_ID=test \
+    -e AWS_SECRET_ACCESS_KEY=test \
+    amazon/aws-cli \
+        --endpoint-url=http://localstack:4566 \
+        $create_s3_cmd
+
+    exit $?
+fi
+
+aws --endpoint-url=http://localhost:4566 $create_s3_cmd
