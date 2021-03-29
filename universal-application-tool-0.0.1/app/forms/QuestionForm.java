@@ -18,11 +18,12 @@ public class QuestionForm {
   private String questionText;
   private String questionHelpText;
 
+  // TODO(natsid): Make QuestionForm an abstract class that is extended by form classes for specific
+  //  question types.
   public QuestionForm() {
     questionName = "";
     questionDescription = "";
     questionParentPath = Path.empty();
-    // TODO(natsid): This should be initialized in subclass constructor.
     questionType = QuestionType.TEXT;
     questionText = "";
     questionHelpText = "";
