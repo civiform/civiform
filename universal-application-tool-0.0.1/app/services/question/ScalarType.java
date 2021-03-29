@@ -1,5 +1,6 @@
 package services.question;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -9,6 +10,7 @@ import java.util.Optional;
  * models.Applicant} JSON column and serialized using {@link services.applicant.ApplicantData}.
  */
 public enum ScalarType {
+  LIST(List.class),
   LONG(long.class),
   STRING(String.class);
 

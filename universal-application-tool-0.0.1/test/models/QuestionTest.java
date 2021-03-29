@@ -3,6 +3,7 @@ package models;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import org.junit.Before;
@@ -11,10 +12,13 @@ import repository.QuestionRepository;
 import repository.WithPostgresContainer;
 import services.Path;
 import services.question.AddressQuestionDefinition;
+import services.question.MultiOptionQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
+import services.question.QuestionType;
 import services.question.TextQuestionDefinition;
 import services.question.TextQuestionDefinition.TextValidationPredicates;
+import services.question.TranslationNotFoundException;
 import services.question.UnsupportedQuestionTypeException;
 
 public class QuestionTest extends WithPostgresContainer {
@@ -97,5 +101,32 @@ public class QuestionTest extends WithPostgresContainer {
 
     assertThat(found.getQuestionDefinition().getValidationPredicates())
         .isEqualTo(TextValidationPredicates.create(0, 128));
+  }
+
+  @Test
+  public void canSerializeAndDeserializeSingleSelect() throws TranslationNotFoundException {
+    QuestionDefinition definition =
+        new MultiOptionQuestionDefinition(
+            1L,
+            "",
+            Path.empty(),
+            "",
+            ImmutableMap.of(),
+            ImmutableMap.of(),
+            MultiOptionQuestionDefinition.MultiOptionUiType.DROPDOWN,
+            ImmutableListMultimap.of(Locale.US, "option"));
+    Question question = new Question(definition);
+
+    question.save();
+
+    Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+
+    assertThat(found.getQuestionDefinition().getQuestionType())
+        .isEqualTo(QuestionType.MULTI_OPTION);
+    MultiOptionQuestionDefinition multiSelect =
+        (MultiOptionQuestionDefinition) found.getQuestionDefinition();
+    assertThat(multiSelect.getMultiOptionUiType())
+        .isEqualTo(MultiOptionQuestionDefinition.MultiOptionUiType.DROPDOWN);
+    assertThat(multiSelect.getOptions()).isEqualTo(ImmutableListMultimap.of(Locale.US, "option"));
   }
 }

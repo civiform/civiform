@@ -1,5 +1,6 @@
 package services.question;
 
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.OptionalLong;
@@ -21,6 +22,11 @@ public class QuestionDefinitionBuilder {
   private QuestionType questionType = QuestionType.TEXT;
   private String validationPredicatesString = "";
 
+  // Single select question type only.
+  private MultiOptionQuestionDefinition.MultiOptionUiType multiOptionUiType =
+      MultiOptionQuestionDefinition.MultiOptionUiType.DROPDOWN;
+  private ImmutableListMultimap<Locale, String> questionOptions = ImmutableListMultimap.of();
+
   public QuestionDefinitionBuilder() {}
 
   public QuestionDefinitionBuilder(QuestionDefinition definition) {
@@ -36,6 +42,12 @@ public class QuestionDefinitionBuilder {
     questionHelpText = definition.getQuestionHelpText();
     questionType = definition.getQuestionType();
     validationPredicatesString = definition.getValidationPredicatesAsString();
+
+    if (definition.getQuestionType() == QuestionType.MULTI_OPTION) {
+      MultiOptionQuestionDefinition singleSelect = (MultiOptionQuestionDefinition) definition;
+      multiOptionUiType = singleSelect.getMultiOptionUiType();
+      questionOptions = singleSelect.getOptions();
+    }
   }
 
   public QuestionDefinitionBuilder clearId() {
@@ -53,13 +65,21 @@ public class QuestionDefinitionBuilder {
   }
 
   public static QuestionDefinitionBuilder sample(QuestionType questionType) {
-    return new QuestionDefinitionBuilder()
-        .setName("")
-        .setDescription("")
-        .setPath(Path.create("sample.question.path"))
-        .setQuestionText(ImmutableMap.of(Locale.US, "Sample question text"))
-        .setQuestionHelpText(ImmutableMap.of(Locale.US, "Sample question help text"))
-        .setQuestionType(questionType);
+    QuestionDefinitionBuilder builder =
+        new QuestionDefinitionBuilder()
+            .setName("")
+            .setDescription("")
+            .setPath(Path.create("sample.question.path"))
+            .setQuestionText(ImmutableMap.of(Locale.US, "Sample question text"))
+            .setQuestionHelpText(ImmutableMap.of(Locale.US, "Sample question help text"))
+            .setQuestionType(questionType);
+
+    if (questionType == QuestionType.MULTI_OPTION) {
+      builder.getMultiOptionUiType(MultiOptionQuestionDefinition.MultiOptionUiType.DROPDOWN);
+      builder.setQuestionOptions(ImmutableListMultimap.of(Locale.US, "Sample question option"));
+    }
+
+    return builder;
   }
 
   public QuestionDefinitionBuilder setVersion(long version) {
@@ -107,6 +127,18 @@ public class QuestionDefinitionBuilder {
   public QuestionDefinitionBuilder setValidationPredicates(
       ValidationPredicates validationPredicates) {
     this.validationPredicatesString = validationPredicates.serializeAsString();
+    return this;
+  }
+
+  public QuestionDefinitionBuilder getMultiOptionUiType(
+      MultiOptionQuestionDefinition.MultiOptionUiType type) {
+    this.multiOptionUiType = type;
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setQuestionOptions(
+      ImmutableListMultimap<Locale, String> options) {
+    this.questionOptions = options;
     return this;
   }
 
@@ -158,6 +190,17 @@ public class QuestionDefinitionBuilder {
             questionText,
             questionHelpText,
             numberValidationPredicates);
+      case MULTI_OPTION:
+        return new MultiOptionQuestionDefinition(
+            id,
+            version,
+            name,
+            path,
+            description,
+            questionText,
+            questionHelpText,
+            multiOptionUiType,
+            questionOptions);
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {

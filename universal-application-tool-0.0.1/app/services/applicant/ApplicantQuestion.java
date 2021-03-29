@@ -2,6 +2,7 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -10,6 +11,7 @@ import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import services.Path;
 import services.question.AddressQuestionDefinition;
+import services.question.MultiOptionQuestionDefinition;
 import services.question.NameQuestionDefinition;
 import services.question.NumberQuestionDefinition;
 import services.question.QuestionDefinition;
@@ -80,6 +82,10 @@ public class ApplicantQuestion {
     return new AddressQuestion();
   }
 
+  public MultiOptionQuestion getMultiOptionQuestion() {
+    return new MultiOptionQuestion();
+  }
+
   public TextQuestion getTextQuestion() {
     return new TextQuestion();
   }
@@ -96,6 +102,8 @@ public class ApplicantQuestion {
     switch (getType()) {
       case ADDRESS:
         return getAddressQuestion();
+      case MULTI_OPTION:
+        return getMultiOptionQuestion();
       case NAME:
         return getNameQuestion();
       case NUMBER:
@@ -579,6 +587,75 @@ public class ApplicantQuestion {
 
     public Path getNumberPath() {
       return getQuestionDefinition().getNumberPath();
+    }
+  }
+
+  public class MultiOptionQuestion implements PresentsErrors {
+
+    private Optional<ImmutableList<String>> selectedOptionsValue;
+
+    public MultiOptionQuestion() {
+      assertQuestionType();
+    }
+
+    @Override
+    public boolean hasQuestionErrors() {
+      return !getQuestionErrors().isEmpty();
+    }
+
+    public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+      // TODO(https://github.com/seattle-uat/civiform/issues/416): Implement validation
+      return ImmutableSet.of();
+    }
+
+    @Override
+    public boolean hasTypeSpecificErrors() {
+      // There are no inherent requirements in a multi-option question.
+      return false;
+    }
+
+    public boolean hasValue() {
+      return getSelectedOptionsValue().isPresent();
+    }
+
+    public Optional<ImmutableList<String>> getSelectedOptionsValue() {
+      if (selectedOptionsValue != null) {
+        return selectedOptionsValue;
+      }
+
+      selectedOptionsValue = applicantData.readList(getSelectionPath());
+
+      return selectedOptionsValue;
+    }
+
+    public void assertQuestionType() {
+      if (!getType().equals(QuestionType.MULTI_OPTION)) {
+        throw new RuntimeException(
+            String.format(
+                "Question is not a MULTI_OPTION question: %s (type: %s)",
+                questionDefinition.getPath(), questionDefinition.getQuestionType()));
+      }
+    }
+
+    public MultiOptionQuestionDefinition getQuestionDefinition() {
+      assertQuestionType();
+      return (MultiOptionQuestionDefinition) questionDefinition;
+    }
+
+    public Path getSelectionPath() {
+      return getQuestionDefinition().getSelectionPath();
+    }
+
+    public MultiOptionQuestionDefinition.MultiOptionUiType getMultiOptionUiType() {
+      return getQuestionDefinition().getMultiOptionUiType();
+    }
+
+    public ImmutableList<String> getOptions() {
+      try {
+        return getQuestionDefinition().getOptionsForLocale(applicantData.preferredLocale());
+      } catch (TranslationNotFoundException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 
