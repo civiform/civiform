@@ -99,11 +99,13 @@ public class ApplicantQuestion {
   }
 
   public PresentsErrors errorsPresenter() {
+    if (getType().isMultiOptionType()) {
+      return getMultiOptionQuestion();
+    }
+
     switch (getType()) {
       case ADDRESS:
         return getAddressQuestion();
-      case MULTI_OPTION:
-        return getMultiOptionQuestion();
       case NAME:
         return getNameQuestion();
       case NUMBER:
@@ -629,10 +631,10 @@ public class ApplicantQuestion {
     }
 
     public void assertQuestionType() {
-      if (!getType().equals(QuestionType.MULTI_OPTION)) {
+      if (!getType().isMultiOptionType()) {
         throw new RuntimeException(
             String.format(
-                "Question is not a MULTI_OPTION question: %s (type: %s)",
+                "Question is not a multi-option question: %s (type: %s)",
                 questionDefinition.getPath(), questionDefinition.getQuestionType()));
       }
     }
@@ -644,10 +646,6 @@ public class ApplicantQuestion {
 
     public Path getSelectionPath() {
       return getQuestionDefinition().getSelectionPath();
-    }
-
-    public MultiOptionQuestionDefinition.MultiOptionUiType getMultiOptionUiType() {
-      return getQuestionDefinition().getMultiOptionUiType();
     }
 
     public ImmutableList<String> getOptions() {

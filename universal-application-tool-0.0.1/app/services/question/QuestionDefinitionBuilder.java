@@ -22,9 +22,7 @@ public class QuestionDefinitionBuilder {
   private QuestionType questionType = QuestionType.TEXT;
   private String validationPredicatesString = "";
 
-  // Single select question type only.
-  private MultiOptionQuestionDefinition.MultiOptionUiType multiOptionUiType =
-      MultiOptionQuestionDefinition.MultiOptionUiType.DROPDOWN;
+  // Multi-option question types only.
   private ImmutableListMultimap<Locale, String> questionOptions = ImmutableListMultimap.of();
 
   public QuestionDefinitionBuilder() {}
@@ -43,9 +41,8 @@ public class QuestionDefinitionBuilder {
     questionType = definition.getQuestionType();
     validationPredicatesString = definition.getValidationPredicatesAsString();
 
-    if (definition.getQuestionType() == QuestionType.MULTI_OPTION) {
+    if (definition.getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition singleSelect = (MultiOptionQuestionDefinition) definition;
-      multiOptionUiType = singleSelect.getMultiOptionUiType();
       questionOptions = singleSelect.getOptions();
     }
   }
@@ -74,8 +71,7 @@ public class QuestionDefinitionBuilder {
             .setQuestionHelpText(ImmutableMap.of(Locale.US, "Sample question help text"))
             .setQuestionType(questionType);
 
-    if (questionType == QuestionType.MULTI_OPTION) {
-      builder.getMultiOptionUiType(MultiOptionQuestionDefinition.MultiOptionUiType.DROPDOWN);
+    if (questionType.isMultiOptionType()) {
       builder.setQuestionOptions(ImmutableListMultimap.of(Locale.US, "Sample question option"));
     }
 
@@ -127,12 +123,6 @@ public class QuestionDefinitionBuilder {
   public QuestionDefinitionBuilder setValidationPredicates(
       ValidationPredicates validationPredicates) {
     this.validationPredicatesString = validationPredicates.serializeAsString();
-    return this;
-  }
-
-  public QuestionDefinitionBuilder getMultiOptionUiType(
-      MultiOptionQuestionDefinition.MultiOptionUiType type) {
-    this.multiOptionUiType = type;
     return this;
   }
 
@@ -190,17 +180,6 @@ public class QuestionDefinitionBuilder {
             questionText,
             questionHelpText,
             numberValidationPredicates);
-      case MULTI_OPTION:
-        return new MultiOptionQuestionDefinition(
-            id,
-            version,
-            name,
-            path,
-            description,
-            questionText,
-            questionHelpText,
-            multiOptionUiType,
-            questionOptions);
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {

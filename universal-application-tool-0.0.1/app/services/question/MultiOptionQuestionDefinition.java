@@ -11,9 +11,8 @@ import java.util.Locale;
 import java.util.OptionalLong;
 import services.Path;
 
-public class MultiOptionQuestionDefinition extends QuestionDefinition {
+public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
 
-  private final MultiOptionUiType multiOptionUiType;
   private final ImmutableListMultimap<Locale, String> options;
 
   public MultiOptionQuestionDefinition(
@@ -24,7 +23,6 @@ public class MultiOptionQuestionDefinition extends QuestionDefinition {
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      MultiOptionUiType multiOptionUiType,
       ImmutableListMultimap<Locale, String> options) {
     super(
         id,
@@ -35,7 +33,6 @@ public class MultiOptionQuestionDefinition extends QuestionDefinition {
         questionText,
         questionHelpText,
         MultiOptionValidationPredicates.create());
-    this.multiOptionUiType = multiOptionUiType;
     this.options = assertSameNumberOfOptionsForEachLocale(checkNotNull(options));
   }
 
@@ -46,7 +43,6 @@ public class MultiOptionQuestionDefinition extends QuestionDefinition {
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      MultiOptionUiType multiOptionUiType,
       ImmutableListMultimap<Locale, String> options) {
     super(
         version,
@@ -56,7 +52,6 @@ public class MultiOptionQuestionDefinition extends QuestionDefinition {
         questionText,
         questionHelpText,
         MultiOptionValidationPredicates.create());
-    this.multiOptionUiType = multiOptionUiType;
     this.options = assertSameNumberOfOptionsForEachLocale(checkNotNull(options));
   }
 
@@ -71,11 +66,6 @@ public class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   @Override
-  public QuestionType getQuestionType() {
-    return QuestionType.MULTI_OPTION;
-  }
-
-  @Override
   public ImmutableMap<Path, ScalarType> getScalarMap() {
     return ImmutableMap.of(getSelectionPath(), getSelectionType());
   }
@@ -86,10 +76,6 @@ public class MultiOptionQuestionDefinition extends QuestionDefinition {
 
   public ScalarType getSelectionType() {
     return ScalarType.LIST;
-  }
-
-  public MultiOptionUiType getMultiOptionUiType() {
-    return this.multiOptionUiType;
   }
 
   public ImmutableListMultimap<Locale, String> getOptions() {
@@ -112,11 +98,6 @@ public class MultiOptionQuestionDefinition extends QuestionDefinition {
     } else {
       throw new TranslationNotFoundException(getPath().toString(), locale);
     }
-  }
-
-  /** The type of UI element that should be used to render this question. */
-  public enum MultiOptionUiType {
-    DROPDOWN
   }
 
   // TODO(https://github.com/seattle-uat/civiform/issues/416): Add logic for validation predicates -
