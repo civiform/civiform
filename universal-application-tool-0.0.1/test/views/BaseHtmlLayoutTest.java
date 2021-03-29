@@ -22,6 +22,8 @@ public class BaseHtmlLayoutTest extends WithPostgresContainer {
     Content result = layout.htmlContent(div("hello"));
 
     assertThat(result).isInstanceOf(BaseHtmlLayout.HtmlResponseContent.class);
-    assertThat(result.body()).isEqualTo("<!DOCTYPE html><html><div>hello</div></html>");
+    assertThat(result.body()).startsWith("<!DOCTYPE html><html>");
+    assertThat(result.body()).contains("<div>hello</div>");
+    assertThat(result.body()).endsWith("</html>");
   }
 }
