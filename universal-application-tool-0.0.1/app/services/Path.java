@@ -120,7 +120,6 @@ public abstract class Path {
     return -1;
   }
 
-
   // TODO: is this allowed when it doesn't represent a list?
 
   public Path atIndex(int index) {
@@ -134,7 +133,6 @@ public abstract class Path {
     }
     return parentPath().join(newKeyName);
   }
-
 
   // TODO: is this allowed when it doesn't represent a list?
   public String keyNameWithoutArrayIndex() {
