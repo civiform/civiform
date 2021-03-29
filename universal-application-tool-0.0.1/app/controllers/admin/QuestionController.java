@@ -3,12 +3,17 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import controllers.CiviFormController;
 import forms.QuestionForm;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+
+import forms.TextQuestionForm;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +55,32 @@ public class QuestionController extends CiviFormController {
     this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public CompletionStage<Result> index(Request request) {
+    Optional<String> maybeFlash = request.flash().get("message");
+    return service
+        .getReadOnlyQuestionService()
+        .thenApplyAsync(
+            readOnlyService -> {
+              return ok(listView.render(readOnlyService.getAllQuestions(), maybeFlash));
+            },
+            httpExecutionContext.current());
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public Result newOne(Request request, String type) {
+    String upperType = type.toUpperCase();
+    try {
+      QuestionType questionType = QuestionType.valueOf(upperType.toUpperCase());
+      return ok(editView.renderNewQuestionForm(request, questionType));
+    } catch (IllegalArgumentException e) {
+      return badRequest(
+          String.format(
+              "unrecognized question type: '%s', accepted values include: %s",
+              upperType, Arrays.toString(QuestionType.values())));
+    }
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
@@ -103,35 +134,14 @@ public class QuestionController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public Result newOne(Request request, String type) {
-    String upperType = type.toUpperCase();
-    try {
-      QuestionType questionType = QuestionType.valueOf(upperType.toUpperCase());
-      return ok(editView.renderNewQuestionForm(request, questionType));
-    } catch (IllegalArgumentException e) {
-      return badRequest(
-          String.format(
-              "unrecognized question type: '%s', accepted values include: %s",
-              upperType, Arrays.toString(QuestionType.values())));
+  public Result update(Request request, Long id, String questionType) {
+    ErrorAnd<QuestionForm, String> errorAndQuestionForm = createQuestionForm(request, questionType);
+    if (errorAndQuestionForm.isError()) {
+      // invalid question type
+      return badRequest(Iterables.getOnlyElement(errorAndQuestionForm.getErrors()));
     }
-  }
+    QuestionForm questionForm = errorAndQuestionForm.getResult();
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public CompletionStage<Result> index(Request request) {
-    Optional<String> maybeFlash = request.flash().get("message");
-    return service
-        .getReadOnlyQuestionService()
-        .thenApplyAsync(
-            readOnlyService -> {
-              return ok(listView.render(readOnlyService.getAllQuestions(), maybeFlash));
-            },
-            httpExecutionContext.current());
-  }
-
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public Result update(Request request, Long id) {
-    Form<QuestionForm> form = formFactory.form(QuestionForm.class);
-    QuestionForm questionForm = form.bindFromRequest(request).get();
     try {
       try {
         QuestionDefinition questionDefinition =
@@ -163,5 +173,29 @@ public class QuestionController extends CiviFormController {
       return result.flashing("message", message);
     }
     return result;
+  }
+
+  private ErrorAnd<QuestionForm, String> createQuestionForm(Request request, String type) {
+    QuestionType questionType;
+    try {
+      questionType = QuestionType.valueOf(type.toUpperCase());
+    } catch (IllegalArgumentException e) {
+      return ErrorAnd.error(ImmutableSet.of(
+              String.format("unrecognized question type: '%s', accepted values include: %s",
+                      type.toUpperCase(), Arrays.toString(QuestionType.values()))));
+    }
+
+    switch (questionType) {
+      case TEXT:
+      {
+        Form<TextQuestionForm> form = formFactory.form(TextQuestionForm.class);
+        return ErrorAnd.of(form.bindFromRequest(request).get());
+      }
+      default:
+      {
+        Form<QuestionForm> form = formFactory.form(QuestionForm.class);
+        return ErrorAnd.of(form.bindFromRequest(request).get());
+      }
+    }
   }
 }

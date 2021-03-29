@@ -206,7 +206,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
         .put("questionHelpText", ":-)");
     RequestBuilder requestBuilder = addCSRFToken(Helpers.fakeRequest().bodyForm(formData.build()));
 
-    Result result = controller.update(requestBuilder.build(), question.id);
+    Result result = controller.update(requestBuilder.build(), question.id, "text");
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.QuestionController.index().url());
@@ -222,7 +222,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
         .put("questionText", "question text updated!");
     Request request = addCSRFToken(Helpers.fakeRequest().bodyForm(formData.build())).build();
 
-    Result result = controller.update(request, question.id);
+    Result result = controller.update(request, question.id, "text");
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit text question");
@@ -238,7 +238,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
     formData.put("questionType", "INVALID_TYPE").put("questionText", "question text updated!");
     RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
 
-    Result result = controller.update(requestBuilder.build(), question.id);
+    Result result = controller.update(requestBuilder.build(), question.id, "invalid_type");
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }

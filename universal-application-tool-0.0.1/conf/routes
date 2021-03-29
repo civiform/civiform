@@ -32,7 +32,8 @@ GET     /admin/questions             controllers.admin.QuestionController.index(
 # Should have a `type` query param, like: /admin/questions/new?type=name. Defaults to text.
 GET     /admin/questions/new         controllers.admin.QuestionController.newOne(request: Request, type: String ?= "text")
 GET     /admin/questions/:id/edit    controllers.admin.QuestionController.edit(request: Request, id: Long)
-POST    /admin/questions/:id         controllers.admin.QuestionController.update(request: Request, id: Long)
+# TODO: Add a type params to these posts
+POST    /admin/questions/:id         controllers.admin.QuestionController.update(request: Request, id: Long, type: String)
 POST    /admin/questions             controllers.admin.QuestionController.create(request: Request)
 
 # Controller for admins only, related to applications

@@ -7,6 +7,7 @@ import static j2html.TagCreator.main;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import forms.QuestionForm;
+import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import java.util.AbstractMap.SimpleEntry;
@@ -31,7 +32,8 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   public Content renderNewQuestionForm(Request request, QuestionType questionType) {
-    QuestionForm questionForm = new QuestionForm();
+    QuestionForm questionForm = getQuestionFormForType(questionType);
+    // TODO(natsid): Remove the following line once we have question forms for each question type.
     questionForm.setQuestionType(questionType.toString().toUpperCase());
 
     String title = String.format("New %s question", questionType.toString().toLowerCase());
@@ -60,8 +62,9 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   public Content renderEditQuestionForm(Request request, QuestionDefinition questionDefinition) {
-    QuestionForm questionForm = new QuestionForm(questionDefinition);
     QuestionType questionType = questionDefinition.getQuestionType();
+    QuestionForm questionForm = getQuestionFormForType(questionType);
+
     String title = String.format("Edit %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
@@ -122,7 +125,9 @@ public final class QuestionEditView extends BaseHtmlView {
   private ContainerTag buildEditQuestionForm(long id, QuestionForm questionForm) {
     ContainerTag formTag = buildQuestionForm(questionForm);
     formTag
-        .withAction(controllers.admin.routes.QuestionController.update(id).url())
+        .withAction(
+            controllers.admin.routes.QuestionController.update(id, questionForm.getQuestionType())
+                .url())
         .with(submitButton("Update").withClass(Styles.ML_2));
     return formTag;
   }
@@ -195,5 +200,18 @@ public final class QuestionEditView extends BaseHtmlView {
         .setValue(selectedType.name())
         .getContainer()
         .withClasses(Styles.HIDDEN);
+  }
+
+  private QuestionForm getQuestionFormForType(QuestionType questionType) {
+    switch (questionType) {
+      case TEXT:
+        {
+          return new TextQuestionForm();
+        }
+      default:
+        {
+          return new QuestionForm();
+        }
+    }
   }
 }
