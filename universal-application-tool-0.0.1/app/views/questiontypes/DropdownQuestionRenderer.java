@@ -5,6 +5,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.select;
 
 import j2html.TagCreator;
+import j2html.attributes.Attr;
 import j2html.tags.Tag;
 import services.applicant.ApplicantQuestion;
 import views.BaseHtmlView;
@@ -38,6 +39,7 @@ public class DropdownQuestionRenderer extends BaseHtmlView implements ApplicantQ
                     Styles.MB_2)
                 .withText(question.getQuestionHelpText()),
             select()
+                .attr(Attr.MULTIPLE)
                 .with(each(multiOptionQuestion.getOptions(), TagCreator::option))
                 .withName(multiOptionQuestion.getSelectionPath().toString()));
   }

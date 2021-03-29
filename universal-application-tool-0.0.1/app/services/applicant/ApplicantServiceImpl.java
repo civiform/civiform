@@ -83,6 +83,7 @@ public class ApplicantServiceImpl implements ApplicantService {
   public CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>>
       stageAndUpdateIfValid(
           long applicantId, long programId, long blockId, ImmutableMap<String, String> updateMap) {
+    System.out.println("*****" + updateMap);
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
