@@ -106,8 +106,6 @@ public class ApplicantQuestion {
     switch (getType()) {
       case ADDRESS:
         return getAddressQuestion();
-      case MULTI_OPTION:
-        return getMultiOptionQuestion();
       case NAME:
         return getNameQuestion();
       case NUMBER:

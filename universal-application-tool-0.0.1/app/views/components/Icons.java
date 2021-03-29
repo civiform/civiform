@@ -54,7 +54,7 @@ public class Icons {
       case ADDRESS:
         iconPath = Icons.ADDRESS_SVG_PATH;
         break;
-      case MULTI_OPTION:
+      case DROPDOWN:
         return svg(Icons.DROPDOWN_SVG_PATH, width, height)
             .attr("stroke-linecap", "round")
             .attr("stroke-linejoin", "round");

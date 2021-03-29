@@ -19,14 +19,14 @@ public class ApplicantQuestionRendererFactory {
 
   public ApplicantQuestionRenderer getRenderer(ApplicantQuestion question) {
     switch (question.getType()) {
+      case DROPDOWN:
+        {
+          return new DropdownQuestionRenderer(question);
+        }
+
       case TEXT:
         {
           return new TextQuestionRenderer(question);
-        }
-
-      case MULTI_OPTION:
-        {
-          return getRendererForMultiOptionQuestion(question);
         }
 
       case NAME:
@@ -47,18 +47,6 @@ public class ApplicantQuestionRendererFactory {
       default:
         throw new UnsupportedOperationException(
             "Unrecognized question type: " + question.getType());
-    }
-  }
-
-  private static ApplicantQuestionRenderer getRendererForMultiOptionQuestion(
-      ApplicantQuestion question) {
-    switch (question.getMultiOptionQuestion().getMultiOptionUiType()) {
-      case DROPDOWN:
-        return new DropdownQuestionRenderer(question);
-      default:
-        throw new UnsupportedOperationException(
-            "Unrecognized multi-option question UI type: "
-                + question.getMultiOptionQuestion().getMultiOptionUiType());
     }
   }
 }

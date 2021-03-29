@@ -61,8 +61,8 @@ public class QuestionConfig {
         return config.setId("text-question-config").addTextQuestionConfig().getContainer();
       case NUMBER:
         return config.setId("number-question-config").addNumberQuestionConfig().getContainer();
+      case DROPDOWN: // fallthrough intended
       case REPEATER: // fallthrough intended
-      case MULTI_OPTION: // fallthrough intended
       case NAME: // fallthrough intended - no options
       default:
         return div();
