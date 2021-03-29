@@ -18,58 +18,59 @@ public class MultiOptionQuestionDefinitionTest {
 
     QuestionDefinition definition =
         new QuestionDefinitionBuilder()
-            .setQuestionType(QuestionType.MULTI_OPTION)
+            .setQuestionType(QuestionType.DROPDOWN)
             .setName("")
             .setDescription("")
             .setPath(Path.empty())
             .setQuestionText(ImmutableMap.of())
             .setQuestionHelpText(ImmutableMap.of())
-            .getMultiOptionUiType(MultiOptionQuestionDefinition.MultiOptionUiType.DROPDOWN)
             .setQuestionOptions(options)
             .build();
 
     MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
 
-    assertThat(multiOption.getMultiOptionUiType())
-        .isEqualTo(MultiOptionQuestionDefinition.MultiOptionUiType.DROPDOWN);
     assertThat(multiOption.getOptions()).isEqualTo(options);
   }
 
   @Test
-  public void getOptionsForLocale_failsForMissingLocale() {
-    MultiOptionQuestionDefinition definition =
-        new MultiOptionQuestionDefinition(
-            1L,
-            "",
-            Path.empty(),
-            "",
-            ImmutableMap.of(),
-            ImmutableMap.of(),
-            MultiOptionQuestionDefinition.MultiOptionUiType.DROPDOWN,
-            ImmutableListMultimap.of());
+  public void getOptionsForLocale_failsForMissingLocale() throws UnsupportedQuestionTypeException {
+    QuestionDefinition definition =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.DROPDOWN)
+            .setName("")
+            .setDescription("")
+            .setPath(Path.empty())
+            .setQuestionText(ImmutableMap.of())
+            .setQuestionHelpText(ImmutableMap.of())
+            .setQuestionOptions(ImmutableListMultimap.of())
+            .build();
 
-    Throwable thrown = catchThrowable(() -> definition.getOptionsForLocale(Locale.CANADA));
+    MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
+    Throwable thrown = catchThrowable(() -> multiOption.getOptionsForLocale(Locale.CANADA));
 
     assertThat(thrown).isInstanceOf(TranslationNotFoundException.class);
     assertThat(thrown).hasMessageContaining("ca");
   }
 
   @Test
-  public void getOptionsForLocale_returnsAllTranslations() throws TranslationNotFoundException {
+  public void getOptionsForLocale_returnsAllTranslations()
+      throws TranslationNotFoundException, UnsupportedQuestionTypeException {
     ImmutableListMultimap<Locale, String> options =
         ImmutableListMultimap.of(
             Locale.US, "one", Locale.US, "two", Locale.GERMAN, "eins", Locale.GERMAN, "zwei");
-    MultiOptionQuestionDefinition definition =
-        new MultiOptionQuestionDefinition(
-            1L,
-            "",
-            Path.empty(),
-            "",
-            ImmutableMap.of(),
-            ImmutableMap.of(),
-            MultiOptionQuestionDefinition.MultiOptionUiType.DROPDOWN,
-            options);
+    QuestionDefinition definition =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.DROPDOWN)
+            .setName("")
+            .setDescription("")
+            .setPath(Path.empty())
+            .setQuestionText(ImmutableMap.of())
+            .setQuestionHelpText(ImmutableMap.of())
+            .setQuestionOptions(options)
+            .build();
 
-    assertThat(definition.getOptionsForLocale(Locale.US)).containsExactly("one", "two");
+    MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
+
+    assertThat(multiOption.getOptionsForLocale(Locale.US)).containsExactly("one", "two");
   }
 }

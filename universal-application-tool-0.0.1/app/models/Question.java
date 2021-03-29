@@ -45,8 +45,6 @@ public class Question extends BaseModel {
 
   @Constraints.Required private LifecycleStage lifecycleStage;
 
-  private String multiOptionUiType;
-
   private @DbJsonB ImmutableListMultimap<Locale, String> questionOptions;
 
   public String getPath() {
@@ -74,7 +72,8 @@ public class Question extends BaseModel {
   @PostLoad
   @PostPersist
   @PostUpdate
-  public void loadQuestionDefinition() throws UnsupportedQuestionTypeException {
+  public void loadQuestionDefinition()
+      throws UnsupportedQuestionTypeException, InvalidQuestionTypeException {
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setId(id)
@@ -87,9 +86,7 @@ public class Question extends BaseModel {
             .setQuestionType(QuestionType.valueOf(questionType))
             .setValidationPredicatesString(validationPredicates);
 
-    if (questionType.equals(QuestionType.MULTI_OPTION.toString())) {
-      builder.getMultiOptionUiType(
-          MultiOptionQuestionDefinition.MultiOptionUiType.valueOf(multiOptionUiType));
+    if (QuestionType.of(questionType).isMultiOptionType()) {
       builder.setQuestionOptions(questionOptions);
     }
 
@@ -121,10 +118,9 @@ public class Question extends BaseModel {
     questionType = questionDefinition.getQuestionType().toString();
     validationPredicates = questionDefinition.getValidationPredicatesAsString();
 
-    if (questionDefinition.getQuestionType() == QuestionType.MULTI_OPTION) {
+    if (questionDefinition.getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition multiOption =
           (MultiOptionQuestionDefinition) questionDefinition;
-      multiOptionUiType = multiOption.getMultiOptionUiType().toString();
       questionOptions = multiOption.getOptions();
     }
   }
