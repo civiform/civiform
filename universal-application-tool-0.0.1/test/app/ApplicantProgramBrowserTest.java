@@ -81,7 +81,6 @@ public class ApplicantProgramBrowserTest extends BaseBrowserTest {
     // All blocks complete. Back to list of programs.
     assertThat(bodySource()).contains("Successfully saved application");
     assertThat(browser.$("p", containingText("Successfully saved application")).present()).isTrue();
-    assertThat(browser.$(".cf-application-card", withText("Mock program")).present()).isTrue();
 
     // Check that applicant data was saved to the database.
     browser.$("a", withText("Apply")).click();
