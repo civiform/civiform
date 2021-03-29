@@ -15,7 +15,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
 
   private final ImmutableListMultimap<Locale, String> options;
 
-  public MultiOptionQuestionDefinition(
+  protected MultiOptionQuestionDefinition(
       OptionalLong id,
       long version,
       String name,
@@ -36,7 +36,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
     this.options = assertSameNumberOfOptionsForEachLocale(checkNotNull(options));
   }
 
-  public MultiOptionQuestionDefinition(
+  protected MultiOptionQuestionDefinition(
       long version,
       String name,
       Path path,
@@ -74,9 +74,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
     return getPath().toBuilder().append("selection").build();
   }
 
-  public ScalarType getSelectionType() {
-    return ScalarType.LIST;
-  }
+  public abstract ScalarType getSelectionType();
 
   public ImmutableListMultimap<Locale, String> getOptions() {
     return this.options;

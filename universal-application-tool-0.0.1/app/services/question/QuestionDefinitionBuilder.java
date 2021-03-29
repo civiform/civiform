@@ -150,6 +150,9 @@ public class QuestionDefinitionBuilder {
             questionText,
             questionHelpText,
             addressValidationPredicates);
+      case DROPDOWN:
+        return new DropdownQuestionDefinition(
+            id, version, name, path, description, questionText, questionHelpText, questionOptions);
       case NAME:
         NameValidationPredicates nameValidationPredicates = NameValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {

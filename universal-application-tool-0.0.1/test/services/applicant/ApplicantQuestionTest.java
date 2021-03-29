@@ -2,6 +2,8 @@ package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
 import java.util.EnumSet;
@@ -14,6 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.Path;
 import services.question.AddressQuestionDefinition;
+import services.question.DropdownQuestionDefinition;
 import services.question.NameQuestionDefinition;
 import services.question.NumberQuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
@@ -25,6 +28,23 @@ import services.question.UnsupportedQuestionTypeException;
 @RunWith(JUnitParamsRunner.class)
 public class ApplicantQuestionTest {
 
+  private static final DropdownQuestionDefinition dropdownQuestionDefinition =
+      new DropdownQuestionDefinition(
+          1L,
+          "question name",
+          Path.create("applicant.my.path.name"),
+          "description",
+          ImmutableMap.of(Locale.US, "question?"),
+          ImmutableMap.of(Locale.US, "help text"),
+          ImmutableListMultimap.of(
+              Locale.US,
+              "option 1",
+              Locale.US,
+              "option 2",
+              Locale.FRANCE,
+              "un",
+              Locale.FRANCE,
+              "deux"));
   private static final TextQuestionDefinition textQuestionDefinition =
       new TextQuestionDefinition(
           1L,
@@ -177,6 +197,34 @@ public class ApplicantQuestionTest {
         .containsOnly(ValidationErrorMessage.numberTooLargeError(100));
     assertThat(numberQuestion.getNumberValue().get()).isEqualTo(1000000);
   }
+
+  @Test
+  public void multiOptionQuestion_withEmptyApplicantData() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
+
+    assertThat(applicantQuestion.getMultiOptionQuestion())
+        .isInstanceOf(ApplicantQuestion.MultiOptionQuestion.class);
+    assertThat(applicantQuestion.getMultiOptionQuestion().getOptions())
+        .containsOnly("option 1", "option 2");
+    assertThat(applicantQuestion.hasErrors()).isFalse();
+  }
+
+  @Test
+  public void multiOptionQuestion_withPresentApplicantData() {
+    applicantData.putList(
+        dropdownQuestionDefinition.getSelectionPath(), ImmutableList.of("one", "two"));
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
+    ApplicantQuestion.MultiOptionQuestion multiOptionQuestion =
+        applicantQuestion.getMultiOptionQuestion();
+
+    assertThat(multiOptionQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(multiOptionQuestion.getSelectedOptionsValue())
+        .hasValue(ImmutableList.of("one", "two"));
+  }
+
+  // TODO(https://github.com/seattle-uat/civiform/issues/416): Add a test for validation failures.
 
   @Test
   public void nameQuestion_withEmptyApplicantData() {
