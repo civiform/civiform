@@ -7,13 +7,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import controllers.CiviFormController;
 import forms.QuestionForm;
+import forms.TextQuestionForm;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-
-import forms.TextQuestionForm;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,37 +82,43 @@ public class QuestionController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public CompletionStage<Result> create(Request request) {
-    Form<QuestionForm> form = formFactory.form(QuestionForm.class);
-    QuestionForm questionForm = form.bindFromRequest(request).get();
-    return service
-        .getReadOnlyQuestionService()
-        .thenApplyAsync(
-            readOnlyService -> {
-              try {
-                try {
-                  QuestionDefinition questionDefinition =
-                      questionForm.getBuilder().setVersion(1L).build();
-                  ErrorAnd<QuestionDefinition, CiviFormError> result =
-                      service.create(questionDefinition);
-                  if (result.isError()) {
-                    String errorMessage = joinErrors(result.getErrors());
-                    return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
-                  }
-                } catch (UnsupportedQuestionTypeException e) {
-                  // These are valid question types, but are not fully supported yet.
-                  String errorMessage = e.toString();
-                  return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
-                }
-              } catch (InvalidQuestionTypeException e) {
-                // These are unrecognized invalid question types.
-                return badRequest(e.toString());
-              }
-              String successMessage =
-                  String.format("question %s created", questionForm.getQuestionPath().path());
-              return withMessage(redirect(routes.QuestionController.index()), successMessage);
-            },
-            httpExecutionContext.current());
+  public Result create(Request request, String questionType) {
+    QuestionForm questionForm;
+
+    try {
+      ErrorAnd<QuestionForm, String> errorAndQuestionForm = createQuestionForm(request, questionType);
+
+      if (errorAndQuestionForm.isError()) {
+        // Invalid question type.
+        return badRequest(Iterables.getOnlyElement(errorAndQuestionForm.getErrors()));
+      }
+
+      questionForm = errorAndQuestionForm.getResult();
+
+      try {
+        QuestionDefinition questionDefinition = questionForm.getBuilder().setVersion(1L).build();
+
+        // Attempt to create the question.
+        ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(questionDefinition);
+
+        if (result.isError()) {
+          String errorMessage = joinErrors(result.getErrors());
+          return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
+        }
+
+      } catch (UnsupportedQuestionTypeException e) {
+        // These are valid question types, but are not fully supported yet.
+        String errorMessage = e.toString();
+        return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
+      }
+    } catch (InvalidQuestionTypeException e) {
+      // These are unrecognized invalid question types.
+      return badRequest(e.toString());
+    }
+
+    String successMessage =
+        String.format("question %s created", questionForm.getQuestionPath().path());
+    return withMessage(redirect(routes.QuestionController.index()), successMessage);
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
@@ -137,11 +141,12 @@ public class QuestionController extends CiviFormController {
   public Result update(Request request, Long id, String questionType) {
     ErrorAnd<QuestionForm, String> errorAndQuestionForm = createQuestionForm(request, questionType);
     if (errorAndQuestionForm.isError()) {
-      // invalid question type
+      // Invalid question type.
       return badRequest(Iterables.getOnlyElement(errorAndQuestionForm.getErrors()));
     }
     QuestionForm questionForm = errorAndQuestionForm.getResult();
 
+    // TODO: Clean up the try-catch blocks.
     try {
       try {
         QuestionDefinition questionDefinition =
@@ -178,24 +183,27 @@ public class QuestionController extends CiviFormController {
   private ErrorAnd<QuestionForm, String> createQuestionForm(Request request, String type) {
     QuestionType questionType;
     try {
-      questionType = QuestionType.valueOf(type.toUpperCase());
-    } catch (IllegalArgumentException e) {
-      return ErrorAnd.error(ImmutableSet.of(
-              String.format("unrecognized question type: '%s', accepted values include: %s",
-                      type.toUpperCase(), Arrays.toString(QuestionType.values()))));
+      questionType = QuestionType.of(type);
+    } catch (InvalidQuestionTypeException e) {
+      // TODO: Return ErrorAnd of InvalidQuestionTypeException instead of String.
+      return ErrorAnd.error(
+          ImmutableSet.of(
+              String.format(
+                  "unrecognized question type: '%s', accepted values include: %s",
+                  type.toUpperCase(), Arrays.toString(QuestionType.values()))));
     }
 
     switch (questionType) {
       case TEXT:
-      {
-        Form<TextQuestionForm> form = formFactory.form(TextQuestionForm.class);
-        return ErrorAnd.of(form.bindFromRequest(request).get());
-      }
+        {
+          Form<TextQuestionForm> form = formFactory.form(TextQuestionForm.class);
+          return ErrorAnd.of(form.bindFromRequest(request).get());
+        }
       default:
-      {
-        Form<QuestionForm> form = formFactory.form(QuestionForm.class);
-        return ErrorAnd.of(form.bindFromRequest(request).get());
-      }
+        {
+          Form<QuestionForm> form = formFactory.form(QuestionForm.class);
+          return ErrorAnd.of(form.bindFromRequest(request).get());
+        }
     }
   }
 }

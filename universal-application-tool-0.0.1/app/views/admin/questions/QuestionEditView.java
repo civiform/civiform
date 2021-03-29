@@ -116,7 +116,7 @@ public final class QuestionEditView extends BaseHtmlView {
   private ContainerTag buildNewQuestionForm(QuestionForm questionForm) {
     ContainerTag formTag = buildQuestionForm(questionForm);
     formTag
-        .withAction(controllers.admin.routes.QuestionController.create().url())
+        .withAction(controllers.admin.routes.QuestionController.create(questionForm.getQuestionType()).url())
         .with(submitButton("Create").withClass(Styles.ML_2));
 
     return formTag;
