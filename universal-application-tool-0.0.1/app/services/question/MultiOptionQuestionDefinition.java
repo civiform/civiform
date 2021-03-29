@@ -2,12 +2,16 @@ package services.question;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.OptionalInt;
 import java.util.OptionalLong;
 import services.Path;
 
@@ -23,16 +27,23 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      ImmutableListMultimap<Locale, String> options) {
+      ImmutableListMultimap<Locale, String> options,
+      MultiOptionValidationPredicates validationPredicates) {
     super(
-        id,
-        version,
-        name,
-        path,
-        description,
-        questionText,
-        questionHelpText,
-        MultiOptionValidationPredicates.create());
+        id, version, name, path, description, questionText, questionHelpText, validationPredicates);
+    this.options = assertSameNumberOfOptionsForEachLocale(checkNotNull(options));
+  }
+
+  protected MultiOptionQuestionDefinition(
+      long version,
+      String name,
+      Path path,
+      String description,
+      ImmutableMap<Locale, String> questionText,
+      ImmutableMap<Locale, String> questionHelpText,
+      ImmutableListMultimap<Locale, String> options,
+      MultiOptionValidationPredicates validationPredicates) {
+    super(version, name, path, description, questionText, questionHelpText, validationPredicates);
     this.options = assertSameNumberOfOptionsForEachLocale(checkNotNull(options));
   }
 
@@ -98,12 +109,61 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
     }
   }
 
-  // TODO(https://github.com/seattle-uat/civiform/issues/416): Add logic for validation predicates -
-  // this should have a min number of options and a max number of options.
+  public MultiOptionValidationPredicates getMultiOptionValidationPredicates() {
+    return (MultiOptionValidationPredicates) getValidationPredicates();
+  }
+
+  @JsonDeserialize(
+      builder =
+          AutoValue_MultiOptionQuestionDefinition_MultiOptionValidationPredicates.Builder.class)
   @AutoValue
   public abstract static class MultiOptionValidationPredicates extends ValidationPredicates {
     public static MultiOptionValidationPredicates create() {
-      return new AutoValue_MultiOptionQuestionDefinition_MultiOptionValidationPredicates();
+      return builder().build();
+    }
+
+    public static MultiOptionValidationPredicates create(
+        int minChoicesRequired, int maxChoicesAllowed) {
+      return builder()
+          .setMinChoicesRequired(minChoicesRequired)
+          .setMaxChoicesAllowed(maxChoicesAllowed)
+          .build();
+    }
+
+    public static MultiOptionValidationPredicates parse(String jsonString) {
+      try {
+        return mapper.readValue(
+            jsonString,
+            AutoValue_MultiOptionQuestionDefinition_MultiOptionValidationPredicates.class);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    @JsonProperty("minChoicesRequired")
+    public abstract OptionalInt minChoicesRequired();
+
+    @JsonProperty("maxChoicesAllowed")
+    public abstract OptionalInt maxChoicesAllowed();
+
+    public static Builder builder() {
+      return new AutoValue_MultiOptionQuestionDefinition_MultiOptionValidationPredicates.Builder();
+    }
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+
+      @JsonProperty("minChoicesRequired")
+      public abstract Builder setMinChoicesRequired(OptionalInt minChoicesRequired);
+
+      public abstract Builder setMinChoicesRequired(int minChoicesRequired);
+
+      @JsonProperty("maxChoicesAllowed")
+      public abstract Builder setMaxChoicesAllowed(OptionalInt maxChoicesAllowed);
+
+      public abstract Builder setMaxChoicesAllowed(int maxChoicesAllowed);
+
+      public abstract MultiOptionValidationPredicates build();
     }
   }
 }

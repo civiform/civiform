@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import services.Path;
 import services.question.AddressQuestionDefinition;
 import services.question.DropdownQuestionDefinition;
+import services.question.MultiOptionQuestionDefinition;
 import services.question.NameQuestionDefinition;
 import services.question.NumberQuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
@@ -224,7 +225,39 @@ public class ApplicantQuestionTest {
         .hasValue(ImmutableList.of("one", "two"));
   }
 
-  // TODO(https://github.com/seattle-uat/civiform/issues/416): Add a test for validation failures.
+  @Test
+  public void multiOptionQuestion_withPresentApplicantData_failsValidation() throws Exception {
+    MultiOptionQuestionDefinition question =
+        (MultiOptionQuestionDefinition)
+            new QuestionDefinitionBuilder()
+                .setQuestionType(QuestionType.DROPDOWN)
+                .setVersion(1L)
+                .setName("question name")
+                .setPath(Path.create("applicant.my.path.name"))
+                .setDescription("description")
+                .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
+                .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
+                .setValidationPredicates(
+                    MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(3, 4))
+                .build();
+    applicantData.putList(question.getSelectionPath(), ImmutableList.of("too", "few"));
+    ApplicantQuestion applicantQuestion = new ApplicantQuestion(question, applicantData);
+    ApplicantQuestion.MultiOptionQuestion multiOptionQuestion =
+        applicantQuestion.getMultiOptionQuestion();
+
+    assertThat(applicantQuestion.hasErrors()).isTrue();
+    assertThat(multiOptionQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(multiOptionQuestion.getQuestionErrors())
+        .containsOnly(ValidationErrorMessage.tooFewSelectionsError(3));
+    assertThat(multiOptionQuestion.getSelectedOptionsValue())
+        .hasValue(ImmutableList.of("too", "few"));
+
+    // Answer again, this time with too many answers selected.
+    applicantData.putList(
+        question.getSelectionPath(), ImmutableList.of("one", "too", "many", "answers", "selected"));
+    assertThat(multiOptionQuestion.getQuestionErrors())
+        .containsOnly(ValidationErrorMessage.tooManySelectionsError(4));
+  }
 
   @Test
   public void nameQuestion_withEmptyApplicantData() {

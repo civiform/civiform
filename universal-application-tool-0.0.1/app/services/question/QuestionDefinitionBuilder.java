@@ -151,8 +151,24 @@ public class QuestionDefinitionBuilder {
             questionHelpText,
             addressValidationPredicates);
       case DROPDOWN:
+        MultiOptionQuestionDefinition.MultiOptionValidationPredicates
+            multiOptionValidationPredicates =
+                MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create();
+        if (!validationPredicatesString.isEmpty()) {
+          multiOptionValidationPredicates =
+              MultiOptionQuestionDefinition.MultiOptionValidationPredicates.parse(
+                  validationPredicatesString);
+        }
         return new DropdownQuestionDefinition(
-            id, version, name, path, description, questionText, questionHelpText, questionOptions);
+            id,
+            version,
+            name,
+            path,
+            description,
+            questionText,
+            questionHelpText,
+            questionOptions,
+            multiOptionValidationPredicates);
       case NAME:
         NameValidationPredicates nameValidationPredicates = NameValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {

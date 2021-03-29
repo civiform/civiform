@@ -16,8 +16,38 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      ImmutableListMultimap<Locale, String> options) {
-    super(id, version, name, path, description, questionText, questionHelpText, options);
+      ImmutableListMultimap<Locale, String> options,
+      MultiOptionValidationPredicates validationPredicates) {
+    super(
+        id,
+        version,
+        name,
+        path,
+        description,
+        questionText,
+        questionHelpText,
+        options,
+        validationPredicates);
+  }
+
+  public DropdownQuestionDefinition(
+      long version,
+      String name,
+      Path path,
+      String description,
+      ImmutableMap<Locale, String> questionText,
+      ImmutableMap<Locale, String> questionHelpText,
+      ImmutableListMultimap<Locale, String> options,
+      MultiOptionValidationPredicates validationPredicates) {
+    super(
+        version,
+        name,
+        path,
+        description,
+        questionText,
+        questionHelpText,
+        options,
+        validationPredicates);
   }
 
   public DropdownQuestionDefinition(
