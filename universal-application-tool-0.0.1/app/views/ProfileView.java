@@ -2,6 +2,7 @@ package views;
 
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.head;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
@@ -28,6 +29,7 @@ public class ProfileView extends BaseHtmlView {
             .withData("applicant-id", String.valueOf(applicant.id));
 
     return layout.htmlContent(
+        head(layout.tailwindStyles()),
         body(
             h1(profile.getClientName()),
             h1(String.format("Profile ID: %s", profile.getId())).withId("profile-id"),
@@ -41,6 +43,6 @@ public class ProfileView extends BaseHtmlView {
   }
 
   public Content renderNoProfile() {
-    return layout.htmlContent(body(h1("no profile detected")));
+    return layout.htmlContent(head(layout.tailwindStyles()), body(h1("no profile detected")));
   }
 }
