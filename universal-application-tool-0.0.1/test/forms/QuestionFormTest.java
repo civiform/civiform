@@ -4,12 +4,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import services.Path;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.TextQuestionDefinition;
 
+@RunWith(JUnitParamsRunner.class)
 public class QuestionFormTest {
 
   @Test
@@ -39,4 +44,25 @@ public class QuestionFormTest {
 
     assertThat(actual).isEqualTo(expected);
   }
+
+@Test
+public void getQuestionPath_repeaterQuestion_hasSquareBrackets() {
+QuestionForm form = new QuestionForm();
+form.setQuestionParentPath("the.first.part");
+form.setQuestionName("the other part");
+form.setQuestionType("REPEATER");
+
+assertThat(form.getQuestionPath()).isEqualTo(Path.create("the.first.part.the_other_part[]"));
+}
+
+@Parameters({"the other part|the.first.part.the_other_part", "LOWER cAsE|the.first.part.lower_case", "ig--.][;n-or.e sy$mb#o*ls|the.first.part.ignore_symbols"})
+@Test
+public void getQuestionPath_formatsQuestionName(String name, String path) {
+QuestionForm form = new QuestionForm();
+form.setQuestionParentPath("the.first.part");
+form.setQuestionName(name);
+
+assertThat(form.getQuestionPath()).isEqualTo(Path.create(path));
+}
+
 }

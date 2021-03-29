@@ -7,6 +7,7 @@ import com.google.common.testing.EqualsTester;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
+import org.junit.Ignore;
 import org.junit.Test;
 import services.Path;
 
@@ -36,6 +37,18 @@ public class ApplicantDataTest {
   public void preferredLocale_defaultsToEnglish() {
     ApplicantData data = new ApplicantData();
     assertThat(data.preferredLocale()).isEqualTo(Locale.US);
+  }
+
+  @Test
+  public void hasPath_withRepeatedEntity() {
+    ApplicantData data =
+        new ApplicantData(
+            "{\"applicant\":{\"children\":[{\"entity\":\"first child\", \"name\": { \"first\":"
+                + " \"first\", \"last\": \"last\"}}, {\"entity\": \"second"
+                + " child\"}]},\"metadata\":{}}");
+    Path path = Path.create("applicant.children[0].entity");
+
+    assertThat(data.hasPath(path)).isTrue();
   }
 
   @Test
@@ -133,6 +146,39 @@ public class ApplicantDataTest {
   }
 
   @Test
+  public void putString_withFirstRepeatedEntity_putsParentLists() {
+    ApplicantData data = new ApplicantData();
+
+    data.putString(Path.create("applicant.children[0].favorite_color.text"), "Orange");
+
+    String expected =
+        "{\"applicant\":{\"children\":[{\"favorite_color\":{\"text\":\"Orange\"}}]},\"metadata\":{}}";
+    assertThat(data.asJsonString()).isEqualTo(expected);
+  }
+
+  @Test
+  public void putString_withSecondRepeatedEntity_addsIt() {
+    ApplicantData data = new ApplicantData();
+
+    data.putString(Path.create("applicant.children[0].favorite_color.text"), "Orange");
+    data.putString(Path.create("applicant.children[1].favorite_color.text"), "Brown");
+
+    String expected =
+        "{\"applicant\":{\"children\":[{\"favorite_color\":{\"text\":\"Orange\"}},{\"favorite_color\":{\"text\":\"Brown\"}}]},\"metadata\":{}}";
+    assertThat(data.asJsonString()).isEqualTo(expected);
+  }
+
+  // TODO: this is not implemented yet.
+  @Ignore
+  public void putString_withNthRepeatedEntity_withoutFirstRepeatedEntity_throws() {
+    ApplicantData data = new ApplicantData();
+
+    data.putString(Path.create("applicant.children[1].favorite_color.text"), "Orange");
+
+    assertThat(false).isTrue();
+  }
+
+  @Test
   public void putLong_writesNullIfStringIsEmpty() {
     ApplicantData data = new ApplicantData();
     Path path = Path.create("applicant.age");
@@ -174,6 +220,19 @@ public class ApplicantDataTest {
     Optional<String> found = data.readString(Path.create("applicant.favorites.color"));
 
     assertThat(found).hasValue("orange");
+  }
+
+  @Test
+  public void readString_withRepeatedEntity_findsCorrectValue() throws Exception {
+    ApplicantData data =
+        new ApplicantData(
+            "{\"applicant\":{\"children\":[{\"entity\":\"first child\", \"name\": { \"first\":"
+                + " \"Billy\", \"last\": \"Bob\"}}, {\"entity\": \"second"
+                + " child\"}]},\"metadata\":{}}");
+
+    Optional<String> found = data.readString(Path.create("applicant.children[0].name.first"));
+
+    assertThat(found).hasValue("Billy");
   }
 
   @Test

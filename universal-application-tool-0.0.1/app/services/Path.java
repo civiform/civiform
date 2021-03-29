@@ -6,6 +6,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 
+import java.util.regex.Pattern;
+
 /**
  * Represents a path into the applicant JSON data. Stored as the path to data without the JsonPath
  * prefix: $.
@@ -13,6 +15,8 @@ import com.google.common.collect.ImmutableList;
 @AutoValue
 public abstract class Path {
   public static final String JSON_PATH_START_TOKEN = "$";
+  public static final String ARRAY_SUFFIX = "[]";
+  private static final Pattern ARRAY_INDEX_REGEX = Pattern.compile("\\[\\d+\\]$");
   private static final char JSON_PATH_DIVIDER = '.';
   private static final String JSON_PATH_START = JSON_PATH_START_TOKEN + JSON_PATH_DIVIDER;
   private static final Splitter JSON_SPLITTER = Splitter.on(JSON_PATH_DIVIDER);
@@ -96,6 +100,23 @@ public abstract class Path {
       return "";
     }
     return segments().get(segments().size() - 1);
+  }
+
+  public boolean isList() {
+    return ARRAY_INDEX_REGEX.matcher(keyName()).find();
+  }
+
+  public Path withoutArrayIndex() {
+    if (isList()) {
+      return parentPath().join(keyNameWithoutArrayIndex());
+    }
+
+    // TODO: throw an exception if this does not represent a list
+    return this;
+  }
+
+  private String keyNameWithoutArrayIndex() {
+    return keyName().replaceAll(ARRAY_INDEX_REGEX.pattern(), "");
   }
 
   public abstract Builder toBuilder();

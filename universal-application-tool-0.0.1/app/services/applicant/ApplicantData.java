@@ -9,6 +9,7 @@ import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.TypeRef;
 import com.jayway.jsonpath.spi.mapper.MappingException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -134,8 +135,23 @@ public class ApplicantData {
       jsonData.put(Path.JSON_PATH_START_TOKEN, path.keyName(), value);
       return;
     }
-    if (!hasPath(path.parentPath())) {
-      put(path.parentPath(), new HashMap<>());
+    if (!hasPath(path.parentPath().withoutArrayIndex())) {
+      if (path.parentPath().isList()) {
+        // TODO: lists are only added for the parent, not recursively for all ancestors.
+        // TOOD: lists are only added for the zeroth element. you can't add applicant.children[1] if
+        // applicant.children[0] doesn't exist.
+        put(path.parentPath().withoutArrayIndex(), new ArrayList<>());
+        jsonData.add(path.parentPath().withoutArrayIndex().toString(), new HashMap<>());
+      } else {
+        // TODO: only add hashmap for the immediate parent. (e.g. applicant.name.first can add a
+        // hashmap for applicant.name.
+        put(path.parentPath(), new HashMap<>());
+      }
+    }
+
+    // TODO: you can't add applicant.children[n] if applicant.children[n-1] doesn't exist.
+    if (path.parentPath().isList() && !hasPath(path.parentPath())) {
+      jsonData.add(path.parentPath().withoutArrayIndex().toString(), new HashMap<>());
     }
     jsonData.put(path.parentPath().toString(), path.keyName(), value);
   }

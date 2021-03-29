@@ -73,6 +73,18 @@ public class PathTest {
   }
 
   @Test
+  public void isList() {
+    Path path = Path.create("one.two[3]");
+    assertThat(path.isList()).isTrue();
+  }
+
+  @Test
+  public void withoutArrayIndex() {
+    Path path = Path.create("one.two[3]");
+    assertThat(path.withoutArrayIndex()).isEqualTo(Path.create("one.two"));
+  }
+
+  @Test
   public void pathBuilder() {
     Path path = Path.builder().setPath("applicant.my.path").build();
     assertThat(path.path()).isEqualTo("applicant.my.path");
