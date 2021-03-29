@@ -1,8 +1,8 @@
 package forms;
 
 import java.util.OptionalInt;
-import services.question.InvalidQuestionTypeException;
 import services.question.QuestionDefinitionBuilder;
+import services.question.QuestionType;
 import services.question.TextQuestionDefinition;
 
 public class TextQuestionForm extends QuestionForm {
@@ -13,9 +13,7 @@ public class TextQuestionForm extends QuestionForm {
     super();
     textMinLength = OptionalInt.empty();
     textMaxLength = OptionalInt.empty();
-    // TODO(https://github.com/seattle-uat/civiform/issues/590): Use QuestionType instead of String
-    //  for this?
-    setQuestionType("TEXT");
+    setQuestionType(QuestionType.TEXT);
   }
 
   public TextQuestionForm(TextQuestionDefinition qd) {
@@ -41,7 +39,7 @@ public class TextQuestionForm extends QuestionForm {
   }
 
   @Override
-  public QuestionDefinitionBuilder getBuilder() throws InvalidQuestionTypeException {
+  public QuestionDefinitionBuilder getBuilder() {
     TextQuestionDefinition.TextValidationPredicates.Builder textValidationPredicatesBuilder =
         TextQuestionDefinition.TextValidationPredicates.builder();
 

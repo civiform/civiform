@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import services.Path;
-import services.question.InvalidQuestionTypeException;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
@@ -15,7 +14,7 @@ public class QuestionForm {
   private String questionName;
   private String questionDescription;
   private Path questionParentPath;
-  private String questionType;
+  private QuestionType questionType;
   private String questionText;
   private String questionHelpText;
 
@@ -23,7 +22,8 @@ public class QuestionForm {
     questionName = "";
     questionDescription = "";
     questionParentPath = Path.empty();
-    questionType = "TEXT";
+    // TODO(natsid): This should be initialized in subclass constructor.
+    questionType = QuestionType.TEXT;
     questionText = "";
     questionHelpText = "";
   }
@@ -32,7 +32,7 @@ public class QuestionForm {
     questionName = qd.getName();
     questionDescription = qd.getDescription();
     questionParentPath = qd.getPath().parentPath();
-    questionType = qd.getQuestionType().name();
+    questionType = qd.getQuestionType();
 
     try {
       questionText = qd.getQuestionText(Locale.US);
@@ -77,12 +77,12 @@ public class QuestionForm {
     return questionParentPath.join(questionNameFormattedForPath);
   }
 
-  public String getQuestionType() {
+  public QuestionType getQuestionType() {
     return questionType;
   }
 
-  // TODO: Make this protected and only set in the subclasses.
-  public void setQuestionType(String questionType) {
+  // TODO(natsid): Make this protected and only set in the subclasses.
+  public void setQuestionType(QuestionType questionType) {
     this.questionType = checkNotNull(questionType);
   }
 
@@ -102,7 +102,7 @@ public class QuestionForm {
     this.questionHelpText = checkNotNull(questionHelpText);
   }
 
-  public QuestionDefinitionBuilder getBuilder() throws InvalidQuestionTypeException {
+  public QuestionDefinitionBuilder getBuilder() {
     ImmutableMap<Locale, String> questionTextMap =
         questionText.isEmpty() ? ImmutableMap.of() : ImmutableMap.of(Locale.US, questionText);
     ImmutableMap<Locale, String> questionHelpTextMap =
@@ -112,7 +112,7 @@ public class QuestionForm {
 
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
-            .setQuestionType(QuestionType.of(questionType))
+            .setQuestionType(questionType)
             .setName(questionName)
             .setPath(getQuestionPath())
             .setDescription(questionDescription)

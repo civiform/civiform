@@ -33,8 +33,6 @@ import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
 
 public class QuestionController extends CiviFormController {
-  final Logger LOG = LoggerFactory.getLogger(this.getClass());
-
   private final QuestionService service;
   private final QuestionsListView listView;
   private final QuestionEditView editView;
@@ -61,9 +59,9 @@ public class QuestionController extends CiviFormController {
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
-            readOnlyService -> {
-              return ok(listView.render(readOnlyService.getAllQuestions(), maybeFlash));
-            },
+            readOnlyService ->
+              ok(listView.render(readOnlyService.getAllQuestions(), maybeFlash))
+            ,
             httpExecutionContext.current());
   }
 
@@ -83,37 +81,26 @@ public class QuestionController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result create(Request request, String questionType) {
-    QuestionForm questionForm;
+    ErrorAnd<QuestionForm, String> errorAndQuestionForm = createQuestionForm(request, questionType);
+    if (errorAndQuestionForm.isError()) {
+      // Invalid question type.
+      return badRequest(Iterables.getOnlyElement(errorAndQuestionForm.getErrors()));
+    }
 
+    QuestionForm questionForm = errorAndQuestionForm.getResult();
+
+    QuestionDefinition questionDefinition;
     try {
-      ErrorAnd<QuestionForm, String> errorAndQuestionForm = createQuestionForm(request, questionType);
-
-      if (errorAndQuestionForm.isError()) {
-        // Invalid question type.
-        return badRequest(Iterables.getOnlyElement(errorAndQuestionForm.getErrors()));
-      }
-
-      questionForm = errorAndQuestionForm.getResult();
-
-      try {
-        QuestionDefinition questionDefinition = questionForm.getBuilder().setVersion(1L).build();
-
-        // Attempt to create the question.
-        ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(questionDefinition);
-
-        if (result.isError()) {
-          String errorMessage = joinErrors(result.getErrors());
-          return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
-        }
-
-      } catch (UnsupportedQuestionTypeException e) {
-        // These are valid question types, but are not fully supported yet.
-        String errorMessage = e.toString();
-        return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
-      }
-    } catch (InvalidQuestionTypeException e) {
-      // These are unrecognized invalid question types.
+      questionDefinition = questionForm.getBuilder().setVersion(1L).build();
+    } catch (UnsupportedQuestionTypeException e) {
+      // Valid question type that is not yet fully supported.
       return badRequest(e.toString());
+    }
+
+    ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(questionDefinition);
+    if (result.isError()) {
+      String errorMessage = joinErrors(result.getErrors());
+      return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
     }
 
     String successMessage =
@@ -144,30 +131,31 @@ public class QuestionController extends CiviFormController {
       // Invalid question type.
       return badRequest(Iterables.getOnlyElement(errorAndQuestionForm.getErrors()));
     }
+
     QuestionForm questionForm = errorAndQuestionForm.getResult();
 
-    // TODO: Clean up the try-catch blocks.
+    QuestionDefinition questionDefinition;
     try {
-      try {
-        QuestionDefinition questionDefinition =
-            questionForm.getBuilder().setId(id).setVersion(1L).build();
-        ErrorAnd<QuestionDefinition, CiviFormError> result = service.update(questionDefinition);
-        if (result.isError()) {
-          String errorMessage = joinErrors(result.getErrors());
-          return ok(editView.renderEditQuestionForm(request, id, questionForm, errorMessage));
-        }
-      } catch (UnsupportedQuestionTypeException e) {
-        // These are valid question types, but are not fully supported yet.
-        String errorMessage = e.toString();
-        return ok(editView.renderEditQuestionForm(request, id, questionForm, errorMessage));
-      } catch (InvalidUpdateException e) {
-        // Ill-formed update request
-        return badRequest(e.toString());
-      }
-    } catch (InvalidQuestionTypeException e) {
-      // These are unrecognized invalid question types.
+      questionDefinition = questionForm.getBuilder().setId(id).setVersion(1L).build();
+    } catch (UnsupportedQuestionTypeException e) {
+      // Valid question type that is not yet fully supported.
+      String errorMessage = e.toString();
+      return ok(editView.renderEditQuestionForm(request, id, questionForm, errorMessage));
+    }
+
+    ErrorAnd<QuestionDefinition, CiviFormError> errorAndUpdatedQuestionDefinition;
+    try {
+      errorAndUpdatedQuestionDefinition = service.update(questionDefinition);
+    } catch (InvalidUpdateException e) {
+      // Ill-formed update request.
       return badRequest(e.toString());
     }
+
+    if (errorAndUpdatedQuestionDefinition.isError()) {
+      String errorMessage = joinErrors(errorAndUpdatedQuestionDefinition.getErrors());
+      return ok(editView.renderEditQuestionForm(request, id, questionForm, errorMessage));
+    }
+
     String successMessage =
         String.format("question %s updated", questionForm.getQuestionPath().path());
     return withMessage(redirect(routes.QuestionController.index()), successMessage);

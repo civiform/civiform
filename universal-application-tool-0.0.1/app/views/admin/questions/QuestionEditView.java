@@ -14,7 +14,6 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import services.question.InvalidQuestionTypeException;
 import services.question.QuestionDefinition;
 import services.question.QuestionType;
 import views.BaseHtmlView;
@@ -34,7 +33,7 @@ public final class QuestionEditView extends BaseHtmlView {
   public Content renderNewQuestionForm(Request request, QuestionType questionType) {
     QuestionForm questionForm = getQuestionFormForType(questionType);
     // TODO(natsid): Remove the following line once we have question forms for each question type.
-    questionForm.setQuestionType(questionType.toString().toUpperCase());
+    questionForm.setQuestionType(questionType);
 
     String title = String.format("New %s question", questionType.toString().toLowerCase());
 
@@ -47,9 +46,8 @@ public final class QuestionEditView extends BaseHtmlView {
     return layout.renderFull(mainContent);
   }
 
-  public Content renderNewQuestionForm(Request request, QuestionForm questionForm, String message)
-      throws InvalidQuestionTypeException {
-    QuestionType questionType = QuestionType.of(questionForm.getQuestionType());
+  public Content renderNewQuestionForm(Request request, QuestionForm questionForm, String message) {
+    QuestionType questionType = questionForm.getQuestionType();
     String title = String.format("New %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
@@ -79,9 +77,8 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   public Content renderEditQuestionForm(
-      Request request, long id, QuestionForm questionForm, String message)
-      throws InvalidQuestionTypeException {
-    QuestionType questionType = QuestionType.of(questionForm.getQuestionType());
+      Request request, long id, QuestionForm questionForm, String message) {
+    QuestionType questionType = questionForm.getQuestionType();
     String title = String.format("Edit %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
@@ -116,7 +113,10 @@ public final class QuestionEditView extends BaseHtmlView {
   private ContainerTag buildNewQuestionForm(QuestionForm questionForm) {
     ContainerTag formTag = buildQuestionForm(questionForm);
     formTag
-        .withAction(controllers.admin.routes.QuestionController.create(questionForm.getQuestionType()).url())
+        .withAction(
+            controllers.admin.routes.QuestionController.create(
+                    questionForm.getQuestionType().toString())
+                .url())
         .with(submitButton("Create").withClass(Styles.ML_2));
 
     return formTag;
@@ -126,14 +126,15 @@ public final class QuestionEditView extends BaseHtmlView {
     ContainerTag formTag = buildQuestionForm(questionForm);
     formTag
         .withAction(
-            controllers.admin.routes.QuestionController.update(id, questionForm.getQuestionType())
+            controllers.admin.routes.QuestionController.update(
+                    id, questionForm.getQuestionType().toString())
                 .url())
         .with(submitButton("Update").withClass(Styles.ML_2));
     return formTag;
   }
 
   private ContainerTag buildQuestionForm(QuestionForm questionForm) {
-    QuestionType questionType = QuestionType.valueOf(questionForm.getQuestionType());
+    QuestionType questionType = questionForm.getQuestionType();
     ContainerTag formTag = form().withMethod("POST");
     formTag
         .with(
