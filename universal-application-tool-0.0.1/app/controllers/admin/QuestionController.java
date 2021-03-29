@@ -3,8 +3,6 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import controllers.CiviFormController;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
@@ -13,8 +11,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.data.Form;
 import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
@@ -59,9 +55,7 @@ public class QuestionController extends CiviFormController {
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
-            readOnlyService ->
-              ok(listView.render(readOnlyService.getAllQuestions(), maybeFlash))
-            ,
+            readOnlyService -> ok(listView.render(readOnlyService.getAllQuestions(), maybeFlash)),
             httpExecutionContext.current());
   }
 
@@ -81,13 +75,13 @@ public class QuestionController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result create(Request request, String questionType) {
-    ErrorAnd<QuestionForm, String> errorAndQuestionForm = createQuestionForm(request, questionType);
-    if (errorAndQuestionForm.isError()) {
+    QuestionForm questionForm;
+    try {
+      questionForm = createQuestionForm(request, questionType);
+    } catch (InvalidQuestionTypeException e) {
       // Invalid question type.
-      return badRequest(Iterables.getOnlyElement(errorAndQuestionForm.getErrors()));
+      return badRequest(e.toString());
     }
-
-    QuestionForm questionForm = errorAndQuestionForm.getResult();
 
     QuestionDefinition questionDefinition;
     try {
@@ -126,13 +120,13 @@ public class QuestionController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result update(Request request, Long id, String questionType) {
-    ErrorAnd<QuestionForm, String> errorAndQuestionForm = createQuestionForm(request, questionType);
-    if (errorAndQuestionForm.isError()) {
+    QuestionForm questionForm;
+    try {
+      questionForm = createQuestionForm(request, questionType);
+    } catch (InvalidQuestionTypeException e) {
       // Invalid question type.
-      return badRequest(Iterables.getOnlyElement(errorAndQuestionForm.getErrors()));
+      return badRequest(e.toString());
     }
-
-    QuestionForm questionForm = errorAndQuestionForm.getResult();
 
     QuestionDefinition questionDefinition;
     try {
@@ -168,29 +162,28 @@ public class QuestionController extends CiviFormController {
     return result;
   }
 
-  private ErrorAnd<QuestionForm, String> createQuestionForm(Request request, String type) {
+  private QuestionForm createQuestionForm(Request request, String type)
+      throws InvalidQuestionTypeException {
     QuestionType questionType;
     try {
       questionType = QuestionType.of(type);
     } catch (InvalidQuestionTypeException e) {
-      // TODO: Return ErrorAnd of InvalidQuestionTypeException instead of String.
-      return ErrorAnd.error(
-          ImmutableSet.of(
-              String.format(
-                  "unrecognized question type: '%s', accepted values include: %s",
-                  type.toUpperCase(), Arrays.toString(QuestionType.values()))));
+      throw new InvalidQuestionTypeException(
+          String.format(
+              "unrecognized question type: '%s', accepted values include: %s",
+              type.toUpperCase(), Arrays.toString(QuestionType.values())));
     }
 
     switch (questionType) {
       case TEXT:
         {
           Form<TextQuestionForm> form = formFactory.form(TextQuestionForm.class);
-          return ErrorAnd.of(form.bindFromRequest(request).get());
+          return form.bindFromRequest(request).get();
         }
       default:
         {
           Form<QuestionForm> form = formFactory.form(QuestionForm.class);
-          return ErrorAnd.of(form.bindFromRequest(request).get());
+          return form.bindFromRequest(request).get();
         }
     }
   }
