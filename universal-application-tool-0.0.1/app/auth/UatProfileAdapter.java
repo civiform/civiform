@@ -3,7 +3,6 @@ package auth;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
-import java.util.Set;
 import javax.inject.Provider;
 import models.Applicant;
 import org.pac4j.core.context.WebContext;
@@ -43,6 +42,7 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
   }
 
   protected abstract String emailAttributeName();
+
   protected abstract ImmutableSet<Roles> roles();
 
   /** Merge the two provided profiles into a new UatProfileData. */
