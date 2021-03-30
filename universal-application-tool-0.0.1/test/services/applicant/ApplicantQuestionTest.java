@@ -212,8 +212,8 @@ public class ApplicantQuestionTest {
 
   @Test
   public void multiOptionQuestion_withPresentApplicantData() {
-    applicantData.putList(
-        dropdownQuestionDefinition.getSelectionPath(), ImmutableList.of("one", "two"));
+    applicantData.putString(
+        dropdownQuestionDefinition.getSelectionPath(), "answer");
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
     ApplicantQuestion.MultiOptionQuestion multiOptionQuestion =
@@ -221,7 +221,7 @@ public class ApplicantQuestionTest {
 
     assertThat(multiOptionQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(multiOptionQuestion.getSelectedOptionsValue())
-        .hasValue(ImmutableList.of("one", "two"));
+        .hasValue("answer");
   }
 
   // TODO(https://github.com/seattle-uat/civiform/issues/416): Add a test for validation failures.

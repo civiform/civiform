@@ -594,7 +594,7 @@ public class ApplicantQuestion {
 
   public class MultiOptionQuestion implements PresentsErrors {
 
-    private Optional<ImmutableList<String>> selectedOptionsValue;
+    private Optional<String> selectedOptionsValue;
 
     public MultiOptionQuestion() {
       assertQuestionType();
@@ -620,12 +620,12 @@ public class ApplicantQuestion {
       return getSelectedOptionsValue().isPresent();
     }
 
-    public Optional<ImmutableList<String>> getSelectedOptionsValue() {
+    public Optional<String> getSelectedOptionsValue() {
       if (selectedOptionsValue != null) {
         return selectedOptionsValue;
       }
 
-      selectedOptionsValue = applicantData.readList(getSelectionPath());
+      selectedOptionsValue = applicantData.readString(getSelectionPath());
 
       return selectedOptionsValue;
     }
