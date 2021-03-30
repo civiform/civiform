@@ -139,9 +139,9 @@ public class DatabaseSeedController extends Controller {
             new DropdownQuestionDefinition(
                 1L,
                 "dropdown",
-                Path.create("applicant.kitchen_gadgets"),
-                "select kitchen gadgets you own",
-                ImmutableMap.of(Locale.US, "Select all kitchen gadgets you own"),
+                Path.create("applicant.kitchen_gadget"),
+                "select your favorite kitchen gadget",
+                ImmutableMap.of(Locale.US, "Select your favorite kitchen gadget from the following"),
                 ImmutableMap.of(Locale.US, "this is sample help text"),
                 ImmutableListMultimap.of(
                     Locale.US,
