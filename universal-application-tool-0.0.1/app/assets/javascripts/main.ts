@@ -40,7 +40,33 @@ function maybeHideElement(e: Event, id: string, parentId: string) {
   }
 }
 
+/** Show the warning message if it hasn't been dismissed by the user. */
+function maybeShowWarning() {
+  if (!localStorage.getItem("hideWarning")) {
+    const warningDiv = document.getElementById("warning-message");
+    if (warningDiv) {
+      warningDiv.classList.remove("hidden");
+    }
+    const warningDismissButton = document.getElementById("warning-message-dismiss");
+    if (warningDismissButton) {
+      warningDismissButton.addEventListener("click", dismissWarning);
+    }
+  }
+}
+
+/** Hide warning message and throw an indicator in local storage to not show. */
+function dismissWarning() {
+  const warningDiv = document.getElementById("warning-message");
+  if (warningDiv) {
+    warningDiv.classList.add("hidden");
+  }
+  localStorage.setItem("hideWarning", "true");
+}
+
 function init() {
   attachDropdown("create-question-button");
+
+  /* REMOVE BEFORE FLIGHT - Demo only. */
+  maybeShowWarning();
 }
 init();
