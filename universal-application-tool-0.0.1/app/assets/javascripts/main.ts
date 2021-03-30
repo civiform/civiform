@@ -46,7 +46,7 @@ function maybeShowWarning() {
     const warningDiv = document.getElementById("warning-message");
     if (warningDiv) {
       warningDiv.classList.remove("hidden");
-    }    
+    }
     const warningDismissButton = document.getElementById("warning-message-dismiss");
     if (warningDismissButton) {
       warningDismissButton.addEventListener("click", dismissWarning);
