@@ -343,7 +343,9 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.addBlockToProgram(programDefinition.id(), "", "");
 
-    assertThat(result.hasResult()).isFalse();
+    // Returns the unmodified program definition.
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.getResult()).isEqualTo(programDefinition);
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
         .containsOnly(
@@ -494,7 +496,9 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateBlock(program.id(), 1L, new BlockForm());
 
-    assertThat(result.hasResult()).isFalse();
+    // Returns the unmodified program definition.
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.getResult()).isEqualTo(program);
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
         .containsOnly(
