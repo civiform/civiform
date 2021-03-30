@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
+import java.util.OptionalInt;
+
 public class FieldWithLabelTest {
 
   @Test
@@ -18,6 +20,26 @@ public class FieldWithLabelTest {
     String fieldHtml = fieldWithLabel.getContainer().render();
     assertThat(fieldHtml).contains("id=\"id\"");
     assertThat(fieldHtml).contains("<textarea");
+  }
+
+  @Test
+  public void createNumber_rendersNumberInput() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.number();
+    assertThat(fieldWithLabel.getContainer().render()).contains("<input");
+    assertThat(fieldWithLabel.getContainer().render()).contains("type=\"number\"");
+  }
+
+  @Test
+  public void number_setsNoValueByDefault() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.number();
+    assertThat(fieldWithLabel.getContainer().render()).doesNotContain("value");
+  }
+
+  @Test
+  public void number_setsGivenNumberValue() {
+//    FieldWithLabel fieldWithLabel = FieldWithLabel.number().setValue(OptionalInt.of(6));
+    FieldWithLabel fieldWithLabel = FieldWithLabel.number().setValue("6");
+    assertThat(fieldWithLabel.getContainer().render()).contains("value=\"6\"");
   }
 
   @Test

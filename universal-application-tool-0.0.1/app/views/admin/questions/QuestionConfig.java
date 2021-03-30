@@ -5,6 +5,8 @@ import static j2html.TagCreator.label;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import forms.QuestionForm;
+import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import java.util.AbstractMap.SimpleEntry;
 import services.question.QuestionType;
@@ -52,13 +54,20 @@ public class QuestionConfig {
     return this;
   }
 
-  public static ContainerTag buildQuestionConfig(QuestionType type) {
+  // TODO(natsid): Remove QuestionType parameter once we implement the other question forms since
+  //  that info will be within the question form.
+  public static ContainerTag buildQuestionConfig(QuestionType type, QuestionForm questionForm) {
     QuestionConfig config = new QuestionConfig();
+    // TODO(natsid): Switch on type of question form once we implement other question forms. This
+    //  may also help us avoid casting the question form.
     switch (type) {
+      case TEXT:
+        return config
+                .setId("text-question-config")
+                .addTextQuestionConfig((TextQuestionForm) questionForm)
+                .getContainer();
       case ADDRESS:
         return config.setId("address-question-config").addAddressQuestionConfig().getContainer();
-      case TEXT:
-        return config.setId("text-question-config").addTextQuestionConfig().getContainer();
       case NUMBER:
         return config.setId("number-question-config").addNumberQuestionConfig().getContainer();
       case REPEATER: // fallthrough intended
@@ -90,17 +99,19 @@ public class QuestionConfig {
     return this;
   }
 
-  private QuestionConfig addTextQuestionConfig() {
+  private QuestionConfig addTextQuestionConfig(TextQuestionForm textQuestionForm) {
     content.with(
         FieldWithLabel.number()
             .setId("text-question-min-length-input")
             .setFieldName("textMinLength")
             .setLabelText("Min length")
+            .setValue(textQuestionForm.getTextMinLength())
             .getContainer(),
         FieldWithLabel.number()
             .setId("text-question-max-length-input")
             .setFieldName("textMaxLength")
             .setLabelText("Maximum length")
+            .setValue(textQuestionForm.getTextMaxLength())
             .getContainer());
     return this;
   }
@@ -138,7 +149,6 @@ public class QuestionConfig {
    */
   private static ImmutableList<SimpleEntry<String, String>> stateOptions() {
     return ImmutableList.of(
-        new SimpleEntry<String, String>("-- Leave blank --", "-"),
-        new SimpleEntry<String, String>("Washington", "WA"));
+        new SimpleEntry<>("-- Leave blank --", "-"), new SimpleEntry<>("Washington", "WA"));
   }
 }

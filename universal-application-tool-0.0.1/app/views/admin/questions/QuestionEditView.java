@@ -16,6 +16,7 @@ import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.question.QuestionDefinition;
 import services.question.QuestionType;
+import services.question.TextQuestionDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
@@ -61,7 +62,7 @@ public final class QuestionEditView extends BaseHtmlView {
 
   public Content renderEditQuestionForm(Request request, QuestionDefinition questionDefinition) {
     QuestionType questionType = questionDefinition.getQuestionType();
-    QuestionForm questionForm = getQuestionFormForType(questionType);
+    QuestionForm questionForm = getQuestionFormForType(questionType, questionDefinition);
 
     String title = String.format("Edit %s question", questionType.toString().toLowerCase());
 
@@ -169,7 +170,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .getContainer())
         .with(formQuestionTypeSelect(questionType));
 
-    formTag.with(QuestionConfig.buildQuestionConfig(questionType));
+    formTag.with(QuestionConfig.buildQuestionConfig(questionType, questionForm));
     return formTag;
   }
 
@@ -190,7 +191,7 @@ public final class QuestionEditView extends BaseHtmlView {
   private DomContent formQuestionTypeSelect(QuestionType selectedType) {
     ImmutableList<SimpleEntry<String, String>> options =
         Arrays.stream(QuestionType.values())
-            .map(item -> new SimpleEntry<String, String>(item.toString(), item.name()))
+            .map(item -> new SimpleEntry<>(item.toString(), item.name()))
             .collect(ImmutableList.toImmutableList());
 
     return new SelectWithLabel()
@@ -212,6 +213,20 @@ public final class QuestionEditView extends BaseHtmlView {
       default:
         {
           return new QuestionForm();
+        }
+    }
+  }
+
+  private QuestionForm getQuestionFormForType(
+      QuestionType questionType, QuestionDefinition questionDefinition) {
+    switch (questionType) {
+      case TEXT:
+        {
+          return new TextQuestionForm((TextQuestionDefinition) questionDefinition);
+        }
+      default:
+        {
+          return new QuestionForm(questionDefinition);
         }
     }
   }

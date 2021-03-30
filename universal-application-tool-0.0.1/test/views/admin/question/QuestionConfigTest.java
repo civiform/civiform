@@ -3,6 +3,8 @@ package views.admin.question;
 import static j2html.TagCreator.div;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import forms.QuestionForm;
+import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import java.util.EnumSet;
 import junitparams.JUnitParamsRunner;
@@ -20,19 +22,22 @@ public class QuestionConfigTest {
       EnumSet.of(QuestionType.NAME, QuestionType.REPEATER);
 
   @Test
-  @Parameters(method = "handledTypes")
-  public void allHandledTypesHaveCustomConfig(QuestionType type) {
-    assertThat(QuestionConfig.buildQuestionConfig(type)).isNotEqualTo(DEFAULT_CONFIG);
-  }
+  public void allHandledTypesHaveCustomConfig() {
+    assertThat(QuestionConfig.buildQuestionConfig(QuestionType.TEXT, new TextQuestionForm())).toString()
+            .contains("text-question-min-length-input");
 
-  private EnumSet<QuestionType> handledTypes() {
-    return EnumSet.complementOf(TYPES_WITH_NO_CONFIG);
+    assertThat(QuestionConfig.buildQuestionConfig(QuestionType.ADDRESS, new QuestionForm())).toString()
+            .contains("address-question-default-state-select");
+
+    assertThat(QuestionConfig.buildQuestionConfig(QuestionType.NUMBER, new QuestionForm())).toString()
+            .contains("number-question-min-value-input");
   }
 
   @Test
   @Parameters(method = "defaultTypes")
   public void unhandledQuestionTypesDefaultToDefaultConfig(QuestionType type) {
-    assertThat(QuestionConfig.buildQuestionConfig(type)).isEqualTo(DEFAULT_CONFIG);
+    assertThat(QuestionConfig.buildQuestionConfig(type, new QuestionForm()))
+        .isEqualTo(DEFAULT_CONFIG);
   }
 
   private EnumSet<QuestionType> defaultTypes() {
