@@ -141,7 +141,8 @@ public class DatabaseSeedController extends Controller {
                 "dropdown",
                 Path.create("applicant.favorite_ice_cream"),
                 "select your favorite ice cream flavor",
-                ImmutableMap.of(Locale.US, "Select your favorite ice cream flavor from the following"),
+                ImmutableMap.of(
+                    Locale.US, "Select your favorite ice cream flavor from the following"),
                 ImmutableMap.of(Locale.US, "this is sample help text"),
                 ImmutableListMultimap.of(
                     Locale.US,
