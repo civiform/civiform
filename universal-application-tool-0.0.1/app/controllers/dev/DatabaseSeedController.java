@@ -3,6 +3,7 @@ package controllers.dev;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import forms.BlockForm;
@@ -21,6 +22,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
 import services.question.AddressQuestionDefinition;
+import services.question.CheckboxQuestionDefinition;
 import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionService;
@@ -131,6 +133,20 @@ public class DatabaseSeedController extends Controller {
         .getResult();
   }
 
+  private QuestionDefinition insertCheckboxQuestionDefinition() {
+    return questionService
+            .create(
+                    new CheckboxQuestionDefinition(
+                            1L,
+                            "kitchen",
+                            Path.create("applicant.kitchen"),
+                            "description",
+                            ImmutableMap.of(Locale.US, "What is your address?"),
+                            ImmutableMap.of(Locale.US, "help text"),
+                            ImmutableListMultimap.of(Locale.US, "toaster", Locale.US, "pepper grinder", Locale.US, "garlic press")))
+            .getResult();
+  }
+
   private ProgramDefinition insertProgramWithBlocks(String name) {
     try {
       ProgramDefinition programDefinition =
@@ -160,6 +176,14 @@ public class DatabaseSeedController extends Controller {
               "address",
               ImmutableList.of(
                   ProgramQuestionDefinition.create(insertAddressQuestionDefinition())));
+
+      programDefinition =
+              programService.addBlockToProgram(
+                      programDefinition.id(),
+                      "Block 3",
+                      "kitchen information",
+                      ImmutableList.of(
+                              ProgramQuestionDefinition.create(insertCheckboxQuestionDefinition())));
 
       return programDefinition;
     } catch (Exception e) {

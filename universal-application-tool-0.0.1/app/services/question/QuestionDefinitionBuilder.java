@@ -150,6 +150,8 @@ public class QuestionDefinitionBuilder {
             questionText,
             questionHelpText,
             addressValidationPredicates);
+      case CHECKBOX:
+        return new CheckboxQuestionDefinition(id, version, name, path, description, questionText, questionHelpText, questionOptions);
       case DROPDOWN:
         return new DropdownQuestionDefinition(
             id, version, name, path, description, questionText, questionHelpText, questionOptions);
