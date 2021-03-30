@@ -2,6 +2,7 @@ package models;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.annotation.DbJsonB;
 import java.util.Locale;
@@ -14,6 +15,8 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.Path;
+import services.question.InvalidQuestionTypeException;
+import services.question.MultiOptionQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
@@ -43,23 +46,15 @@ public class Question extends BaseModel {
 
   @Constraints.Required private LifecycleStage lifecycleStage;
 
+  private @DbJsonB ImmutableListMultimap<Locale, String> questionOptions;
+
   public String getPath() {
     return path;
   }
 
   public Question(QuestionDefinition questionDefinition) {
     this.questionDefinition = checkNotNull(questionDefinition);
-    if (questionDefinition.isPersisted()) {
-      id = questionDefinition.getId();
-    }
-    version = questionDefinition.getVersion();
-    path = questionDefinition.getPath().path();
-    name = questionDefinition.getName();
-    description = questionDefinition.getDescription();
-    questionText = questionDefinition.getQuestionText();
-    questionHelpText = questionDefinition.getQuestionHelpText();
-    questionType = questionDefinition.getQuestionType().toString();
-    validationPredicates = questionDefinition.getValidationPredicatesAsString();
+    setFieldsFromQuestionDefinition(questionDefinition);
   }
 
   public Question(QuestionDefinition questionDefinition, LifecycleStage lifecycleStage) {
@@ -71,25 +66,16 @@ public class Question extends BaseModel {
   @PreUpdate
   @PrePersist
   public void persistChangesToQuestionDefinition() {
-    if (questionDefinition.isPersisted()) {
-      id = questionDefinition.getId();
-    }
-    version = questionDefinition.getVersion();
-    path = questionDefinition.getPath().path();
-    name = questionDefinition.getName();
-    description = questionDefinition.getDescription();
-    questionText = questionDefinition.getQuestionText();
-    questionHelpText = questionDefinition.getQuestionHelpText();
-    questionType = questionDefinition.getQuestionType().toString();
-    validationPredicates = questionDefinition.getValidationPredicatesAsString();
+    setFieldsFromQuestionDefinition(questionDefinition);
   }
 
   /** Populates {@link QuestionDefinition} from column values. */
   @PostLoad
   @PostPersist
   @PostUpdate
-  public void loadQuestionDefinition() throws UnsupportedQuestionTypeException {
-    this.questionDefinition =
+  public void loadQuestionDefinition()
+      throws UnsupportedQuestionTypeException, InvalidQuestionTypeException {
+    QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setId(id)
             .setVersion(version)
@@ -99,8 +85,13 @@ public class Question extends BaseModel {
             .setQuestionText(questionText)
             .setQuestionHelpText(questionHelpText)
             .setQuestionType(QuestionType.valueOf(questionType))
-            .setValidationPredicatesString(validationPredicates)
-            .build();
+            .setValidationPredicatesString(validationPredicates);
+
+    if (QuestionType.of(questionType).isMultiOptionType()) {
+      builder.setQuestionOptions(questionOptions);
+    }
+
+    this.questionDefinition = builder.build();
   }
 
   public QuestionDefinition getQuestionDefinition() {
@@ -113,5 +104,25 @@ public class Question extends BaseModel {
 
   public void setLifecycleStage(LifecycleStage lifecycleStage) {
     this.lifecycleStage = lifecycleStage;
+  }
+
+  private void setFieldsFromQuestionDefinition(QuestionDefinition questionDefinition) {
+    if (questionDefinition.isPersisted()) {
+      id = questionDefinition.getId();
+    }
+    version = questionDefinition.getVersion();
+    path = questionDefinition.getPath().path();
+    name = questionDefinition.getName();
+    description = questionDefinition.getDescription();
+    questionText = questionDefinition.getQuestionText();
+    questionHelpText = questionDefinition.getQuestionHelpText();
+    questionType = questionDefinition.getQuestionType().toString();
+    validationPredicates = questionDefinition.getValidationPredicatesAsString();
+
+    if (questionDefinition.getQuestionType().isMultiOptionType()) {
+      MultiOptionQuestionDefinition multiOption =
+          (MultiOptionQuestionDefinition) questionDefinition;
+      questionOptions = multiOption.getOptions();
+    }
   }
 }

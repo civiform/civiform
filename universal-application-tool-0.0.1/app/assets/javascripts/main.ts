@@ -54,6 +54,7 @@ function maybeShowWarning() {
   }
 }
 
+/** If a toast message is present, make it visible for the specified duration. */
 function maybeShowToast() {
   const toastMessage = document.querySelector('.cf-toast');
   if (toastMessage) {
@@ -78,7 +79,6 @@ function dismissWarning() {
 
 function init() {
   attachDropdown("create-question-button");
-
   maybeShowToast();
 
   /* REMOVE BEFORE FLIGHT - Demo only. */
