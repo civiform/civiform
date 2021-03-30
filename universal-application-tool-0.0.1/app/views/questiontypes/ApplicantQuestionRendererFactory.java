@@ -19,9 +19,14 @@ public class ApplicantQuestionRendererFactory {
 
   public ApplicantQuestionRenderer getRenderer(ApplicantQuestion question) {
     switch (question.getType()) {
-      case TEXT:
+      case ADDRESS:
         {
-          return new TextQuestionRenderer(question);
+          return new AddressQuestionRenderer(question);
+        }
+
+      case CHECKBOX:
+        {
+          return new CheckboxQuestionRenderer(question);
         }
 
       case NAME:
@@ -34,9 +39,9 @@ public class ApplicantQuestionRendererFactory {
           return new NumberQuestionRenderer(question);
         }
 
-      case ADDRESS:
+      case TEXT:
         {
-          return new AddressQuestionRenderer(question);
+          return new TextQuestionRenderer(question);
         }
 
       default:

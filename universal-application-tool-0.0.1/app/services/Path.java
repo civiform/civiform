@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableList;
  */
 @AutoValue
 public abstract class Path {
+  private static final String ARRAY_SUFFIX = "[]";
   public static final String JSON_PATH_START_TOKEN = "$";
   private static final char JSON_PATH_DIVIDER = '.';
   private static final String JSON_PATH_START = JSON_PATH_START_TOKEN + JSON_PATH_DIVIDER;
@@ -57,6 +58,11 @@ public abstract class Path {
   @Memoized
   public String path() {
     return JSON_JOINER.join(segments());
+  }
+
+  @Memoized
+  public String asList() {
+    return toString() + ARRAY_SUFFIX;
   }
 
   @Memoized

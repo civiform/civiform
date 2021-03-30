@@ -195,6 +195,9 @@ public class ApplicantServiceImpl implements ApplicantService {
         case STRING:
           applicantData.putString(update.path(), update.value());
           break;
+        case LIST:
+          applicantData.putList(update.path(), ImmutableList.of(update.value()));
+          break;
         case LONG:
           applicantData.putLong(update.path(), update.value());
           break;

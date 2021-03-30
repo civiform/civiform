@@ -2,6 +2,7 @@ package services.question;
 
 public enum QuestionType {
   ADDRESS(false),
+  CHECKBOX(true),
   DROPDOWN(true),
   NAME(false),
   NUMBER(false),
