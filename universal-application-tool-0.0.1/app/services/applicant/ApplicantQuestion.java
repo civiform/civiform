@@ -82,8 +82,8 @@ public class ApplicantQuestion {
     return new AddressQuestion();
   }
 
-  public MultiOptionQuestion getMultiOptionQuestion() {
-    return new MultiOptionQuestion();
+  public SingleSelectQuestion getSingleSelectQuestion() {
+    return new SingleSelectQuestion();
   }
 
   public TextQuestion getTextQuestion() {
@@ -99,13 +99,11 @@ public class ApplicantQuestion {
   }
 
   public PresentsErrors errorsPresenter() {
-    if (getType().isMultiOptionType()) {
-      return getMultiOptionQuestion();
-    }
-
     switch (getType()) {
       case ADDRESS:
         return getAddressQuestion();
+      case DROPDOWN:
+        return getSingleSelectQuestion();
       case NAME:
         return getNameQuestion();
       case NUMBER:
@@ -592,11 +590,11 @@ public class ApplicantQuestion {
     }
   }
 
-  public class MultiOptionQuestion implements PresentsErrors {
+  public class MultiSelectQuestion implements PresentsErrors {
 
     private Optional<ImmutableList<String>> selectedOptionsValue;
 
-    public MultiOptionQuestion() {
+    public MultiSelectQuestion() {
       assertQuestionType();
     }
 
@@ -650,6 +648,71 @@ public class ApplicantQuestion {
       selectedOptionsValue = applicantData.readList(getSelectionPath());
 
       return selectedOptionsValue;
+    }
+
+    public void assertQuestionType() {
+      if (!getType().isMultiOptionType()) {
+        throw new RuntimeException(
+            String.format(
+                "Question is not a multi-option question: %s (type: %s)",
+                questionDefinition.getPath(), questionDefinition.getQuestionType()));
+      }
+    }
+
+    public MultiOptionQuestionDefinition getQuestionDefinition() {
+      assertQuestionType();
+      return (MultiOptionQuestionDefinition) questionDefinition;
+    }
+
+    public Path getSelectionPath() {
+      return getQuestionDefinition().getSelectionPath();
+    }
+
+    public ImmutableList<String> getOptions() {
+      try {
+        return getQuestionDefinition().getOptionsForLocale(applicantData.preferredLocale());
+      } catch (TranslationNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+
+  public class SingleSelectQuestion implements PresentsErrors {
+
+    private Optional<String> selectedOptionValue;
+
+    public SingleSelectQuestion() {
+      assertQuestionType();
+    }
+
+    @Override
+    public boolean hasQuestionErrors() {
+      return !getQuestionErrors().isEmpty();
+    }
+
+    public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+      // Only one selection is possible.
+      return ImmutableSet.of();
+    }
+
+    @Override
+    public boolean hasTypeSpecificErrors() {
+      // There are no inherent requirements in a multi-option question.
+      return false;
+    }
+
+    public boolean hasValue() {
+      return getSelectedOptionValue().isPresent();
+    }
+
+    public Optional<String> getSelectedOptionValue() {
+      if (selectedOptionValue != null) {
+        return selectedOptionValue;
+      }
+
+      selectedOptionValue = applicantData.readString(getSelectionPath());
+
+      return selectedOptionValue;
     }
 
     public void assertQuestionType() {

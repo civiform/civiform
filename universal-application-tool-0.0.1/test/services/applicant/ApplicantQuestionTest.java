@@ -200,29 +200,27 @@ public class ApplicantQuestionTest {
   }
 
   @Test
-  public void multiOptionQuestion_withEmptyApplicantData() {
+  public void singleSelectQuestion_withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
 
-    assertThat(applicantQuestion.getMultiOptionQuestion())
-        .isInstanceOf(ApplicantQuestion.MultiOptionQuestion.class);
-    assertThat(applicantQuestion.getMultiOptionQuestion().getOptions())
+    assertThat(applicantQuestion.getSingleSelectQuestion())
+        .isInstanceOf(ApplicantQuestion.SingleSelectQuestion.class);
+    assertThat(applicantQuestion.getSingleSelectQuestion().getOptions())
         .containsOnly("option 1", "option 2");
     assertThat(applicantQuestion.hasErrors()).isFalse();
   }
 
   @Test
-  public void multiOptionQuestion_withPresentApplicantData() {
-    applicantData.putList(
-        dropdownQuestionDefinition.getSelectionPath(), ImmutableList.of("one", "two"));
+  public void singleSelectQuestion_withPresentApplicantData() {
+    applicantData.putString(dropdownQuestionDefinition.getSelectionPath(), "answer");
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
-    ApplicantQuestion.MultiOptionQuestion multiOptionQuestion =
-        applicantQuestion.getMultiOptionQuestion();
+    ApplicantQuestion.SingleSelectQuestion singleSelectQuestion =
+        applicantQuestion.getSingleSelectQuestion();
 
-    assertThat(multiOptionQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(multiOptionQuestion.getSelectedOptionsValue())
-        .hasValue(ImmutableList.of("one", "two"));
+    assertThat(singleSelectQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(singleSelectQuestion.getSelectedOptionValue()).hasValue("answer");
   }
 
   @Test
@@ -238,12 +236,13 @@ public class ApplicantQuestionTest {
                 .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
                 .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
                 .build();
-    applicantData.putList(question.getSelectionPath(), ImmutableList.of("too", "many", "answers", "selected"));
+    applicantData.putList(
+        question.getSelectionPath(), ImmutableList.of("too", "many", "answers", "selected"));
     ApplicantQuestion applicantQuestion = new ApplicantQuestion(question, applicantData);
-    ApplicantQuestion.MultiOptionQuestion multiOptionQuestion =
-        applicantQuestion.getMultiOptionQuestion();
+    ApplicantQuestion.SingleSelectQuestion singleSelectQuestion =
+        applicantQuestion.getSingleSelectQuestion();
 
-    assertThat(multiOptionQuestion.getQuestionErrors())
+    assertThat(singleSelectQuestion.getQuestionErrors())
         .containsOnly(ValidationErrorMessage.tooManySelectionsError(1));
   }
 

@@ -2,6 +2,22 @@ package views.style;
 
 public final class BaseStyles {
 
+  public static final String ADMIN_NAV_BAR =
+      StyleUtils.joinStyles(
+          Styles.ABSOLUTE,
+          Styles.BG_CONTAIN,
+          Styles.BG_GRAY_700,
+          Styles.H_7,
+          Styles.LEFT_5,
+          Styles.M_1,
+          Styles.OPACITY_75,
+          Styles.TEXT_CENTER,
+          Styles.TEXT_LG,
+          Styles.TEXT_WHITE,
+          Styles.TOP_2,
+          Styles.W_7,
+          Styles.ROUNDED);
+
   public static final String BODY_GRADIENT_STYLE =
       StyleUtils.joinStyles(
           Styles.BG_GRADIENT_TO_R, Styles.FROM_GRAY_100, Styles.VIA_WHITE, Styles.TO_GRAY_100);
