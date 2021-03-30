@@ -139,19 +139,19 @@ public class DatabaseSeedController extends Controller {
             new DropdownQuestionDefinition(
                 1L,
                 "dropdown",
-                Path.create("applicant.kitchen_gadget"),
-                "select your favorite kitchen gadget",
-                ImmutableMap.of(Locale.US, "Select your favorite kitchen gadget from the following"),
+                Path.create("applicant.favorite_ice_cream"),
+                "select your favorite ice cream flavor",
+                ImmutableMap.of(Locale.US, "Select your favorite ice cream flavor from the following"),
                 ImmutableMap.of(Locale.US, "this is sample help text"),
                 ImmutableListMultimap.of(
                     Locale.US,
-                    "pepper grinder",
+                    "chocolate",
                     Locale.US,
-                    "toaster",
+                    "strawberry",
                     Locale.US,
-                    "garlic press",
+                    "vanilla",
                     Locale.US,
-                    "coffee maker")))
+                    "coffee")))
         .getResult();
   }
 
@@ -189,7 +189,7 @@ public class DatabaseSeedController extends Controller {
           programService.addBlockToProgram(
               programDefinition.id(),
               "Block 3",
-              "kitchen information",
+              "Ice Cream Information",
               ImmutableList.of(
                   ProgramQuestionDefinition.create(insertDropdownQuestionDefinition())));
 
