@@ -54,6 +54,19 @@ function maybeShowWarning() {
   }
 }
 
+function maybeShowToast() {
+  const toastMessage = document.querySelector('.cf-toast');
+  if (toastMessage) {
+    toastMessage.classList.remove('opacity-0');
+    if (toastMessage.hasAttribute('duration')) {
+      const showDuration = toastMessage.getAttribute('duration');
+      setTimeout(function() {
+        toastMessage.classList.add('opacity-0');
+      }, showDuration);
+    }
+  }
+}
+
 /** Hide warning message and throw an indicator in local storage to not show. */
 function dismissWarning() {
   const warningDiv = document.getElementById("warning-message");
@@ -65,6 +78,8 @@ function dismissWarning() {
 
 function init() {
   attachDropdown("create-question-button");
+
+  maybeShowToast();
 
   /* REMOVE BEFORE FLIGHT - Demo only. */
   maybeShowWarning();

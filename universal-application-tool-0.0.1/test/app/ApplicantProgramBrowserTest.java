@@ -80,11 +80,12 @@ public class ApplicantProgramBrowserTest extends BaseBrowserTest {
     //  page when it is implemented.
     // All blocks complete. Back to list of programs.
     assertThat(bodySource()).contains("Successfully saved application");
-    assertThat(browser.$("p", containingText("Successfully saved application")).present()).isTrue();
+    assertThat(browser.$("span", containingText("Successfully saved application")).present())
+        .isTrue();
 
     // Check that applicant data was saved to the database.
     browser.$("a", withText("Apply")).click();
-    assertThat(browser.$("p", containingText("Application was already completed.")).present())
+    assertThat(browser.$("span", containingText("Application was already completed.")).present())
         .isTrue();
 
     long applicantId = getApplicantId();
