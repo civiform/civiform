@@ -2,7 +2,6 @@ package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
@@ -199,29 +198,27 @@ public class ApplicantQuestionTest {
   }
 
   @Test
-  public void multiOptionQuestion_withEmptyApplicantData() {
+  public void singleSelectQuestion_withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
 
-    assertThat(applicantQuestion.getMultiOptionQuestion())
-        .isInstanceOf(ApplicantQuestion.MultiOptionQuestion.class);
-    assertThat(applicantQuestion.getMultiOptionQuestion().getOptions())
+    assertThat(applicantQuestion.getSingleSelectQuestion())
+        .isInstanceOf(ApplicantQuestion.SingleSelectQuestion.class);
+    assertThat(applicantQuestion.getSingleSelectQuestion().getOptions())
         .containsOnly("option 1", "option 2");
     assertThat(applicantQuestion.hasErrors()).isFalse();
   }
 
   @Test
-  public void multiOptionQuestion_withPresentApplicantData() {
-    applicantData.putList(
-        dropdownQuestionDefinition.getSelectionPath(), ImmutableList.of("one", "two"));
+  public void singleSelectQuestion_withPresentApplicantData() {
+    applicantData.putString(dropdownQuestionDefinition.getSelectionPath(), "answer");
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
-    ApplicantQuestion.MultiOptionQuestion multiOptionQuestion =
-        applicantQuestion.getMultiOptionQuestion();
+    ApplicantQuestion.SingleSelectQuestion singleSelectQuestion =
+        applicantQuestion.getSingleSelectQuestion();
 
-    assertThat(multiOptionQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(multiOptionQuestion.getSelectedOptionsValue())
-        .hasValue(ImmutableList.of("one", "two"));
+    assertThat(singleSelectQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(singleSelectQuestion.getSelectedOptionValue()).hasValue("answer");
   }
 
   // TODO(https://github.com/seattle-uat/civiform/issues/416): Add a test for validation failures.
