@@ -1,7 +1,9 @@
 package auth;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import java.util.Set;
 import javax.inject.Provider;
 import models.Applicant;
 import org.pac4j.core.context.WebContext;
@@ -41,12 +43,17 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
   }
 
   protected abstract String emailAttributeName();
+  protected abstract ImmutableSet<Roles> roles();
 
   /** Merge the two provided profiles into a new UatProfileData. */
   public UatProfileData mergeUatProfile(UatProfile uatProfile, OidcProfile oidcProfile) {
     String emailAddress = oidcProfile.getAttribute(emailAttributeName(), String.class);
     uatProfile.setEmailAddress(emailAddress).join();
     uatProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
+    // Meaning: whatever you signed in with most recently is the role you have.
+    for (Roles role : roles()) {
+      uatProfile.getProfileData().addRole(role.toString());
+    }
     return uatProfile.getProfileData();
   }
 

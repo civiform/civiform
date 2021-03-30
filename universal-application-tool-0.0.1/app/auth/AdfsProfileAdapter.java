@@ -1,5 +1,6 @@
 package auth;
 
+import com.google.common.collect.ImmutableSet;
 import javax.inject.Provider;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
@@ -24,6 +25,11 @@ public class AdfsProfileAdapter extends UatProfileAdapter {
   @Override
   protected String emailAttributeName() {
     return "email";
+  }
+
+  @Override
+  protected ImmutableSet<Roles> roles() {
+    return ImmutableSet.of(Roles.ROLE_UAT_ADMIN);
   }
 
   @Override

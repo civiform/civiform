@@ -1,6 +1,7 @@
 package auth;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Provider;
@@ -28,7 +29,12 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
     return "user_emailid";
   }
 
-  @Override
+    @Override
+    protected ImmutableSet<Roles> roles() {
+        return ImmutableSet.of(Roles.ROLE_APPLICANT);
+    }
+
+    @Override
   public UatProfileData mergeUatProfile(UatProfile uatProfile, OidcProfile oidcProfile) {
     String locale = oidcProfile.getAttribute("user_locale", String.class);
     ImmutableList.Builder<CompletionStage<Void>> dbOperations =
