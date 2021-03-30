@@ -94,12 +94,12 @@ public class QuestionConfig {
     content.with(
         FieldWithLabel.number()
             .setId("text-question-min-length-input")
-            .setFieldName("minLength")
+            .setFieldName("textMinLength")
             .setLabelText("Min length")
             .getContainer(),
         FieldWithLabel.number()
             .setId("text-question-max-length-input")
-            .setFieldName("maxLength")
+            .setFieldName("textMaxLength")
             .setLabelText("Maximum length")
             .getContainer());
     return this;
