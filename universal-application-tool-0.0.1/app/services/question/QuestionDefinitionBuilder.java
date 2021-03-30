@@ -42,8 +42,8 @@ public class QuestionDefinitionBuilder {
     validationPredicatesString = definition.getValidationPredicatesAsString();
 
     if (definition.getQuestionType().isMultiOptionType()) {
-      MultiOptionQuestionDefinition singleSelect = (MultiOptionQuestionDefinition) definition;
-      questionOptions = singleSelect.getOptions();
+      MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
+      questionOptions = multiOption.getOptions();
     }
   }
 
