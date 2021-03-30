@@ -58,13 +58,13 @@ public class AdminProgramBlocksController extends CiviFormController {
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> result =
           programService.addBlockToProgram(programId);
+      ProgramDefinition program = result.getResult();
+      BlockDefinition block = program.getLastBlockDefinition();
       if (result.isError()) {
         String errorMessage = joinErrors(result.getErrors());
-        return renderEditViewWithMessage(request, result.getResult(), errorMessage);
+        return renderEditViewWithMessage(request, program, block, errorMessage);
       }
-      ProgramDefinition program = result.getResult();
-      long blockId = program.getLastBlockDefinition().id();
-      return redirect(routes.AdminProgramBlocksController.edit(programId, blockId).url());
+      return redirect(routes.AdminProgramBlocksController.edit(programId, block.id()).url());
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
       return notFound(e.toString());
     }
@@ -74,8 +74,9 @@ public class AdminProgramBlocksController extends CiviFormController {
   public Result edit(Request request, long programId, long blockId) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
-      return renderEditViewWithMessage(request, program, blockId, "");
-    } catch (ProgramNotFoundException e) {
+      BlockDefinition block = program.getBlockDefinition(blockId);
+      return renderEditViewWithMessage(request, program, block, "");
+    } catch (ProgramNotFoundException | ProgramBlockNotFoundException e) {
       return notFound(e.toString());
     }
   }
@@ -111,27 +112,12 @@ public class AdminProgramBlocksController extends CiviFormController {
   }
 
   private Result renderEditViewWithMessage(
-      Request request, ProgramDefinition program, String message) {
-    try {
-      long blockId = program.getLastBlockDefinition().id();
-      return renderEditViewWithMessage(request, program, blockId, message);
-    } catch (ProgramNeedsABlockException e) {
-      return notFound(e.toString());
-    }
-  }
+      Request request, ProgramDefinition program, BlockDefinition block, String message) {
+    ReadOnlyQuestionService roQuestionService =
+        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
-  private Result renderEditViewWithMessage(
-      Request request, ProgramDefinition program, long blockId, String message) {
-    try {
-      BlockDefinition block = program.getBlockDefinition(blockId);
-      ReadOnlyQuestionService roQuestionService =
-          questionService.getReadOnlyQuestionService().toCompletableFuture().join();
-
-      return ok(
-          editView.render(request, program, block, message, roQuestionService.getAllQuestions()));
-    } catch (ProgramBlockNotFoundException e) {
-      return notFound(e.toString());
-    }
+    return ok(
+        editView.render(request, program, block, message, roQuestionService.getAllQuestions()));
   }
 
   private Result renderEditViewWithMessage(
