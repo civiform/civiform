@@ -17,6 +17,9 @@ import services.Path;
 
 public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
 
+  protected static final MultiOptionValidationPredicates SINGLE_SELECT_PREDICATE =
+      MultiOptionValidationPredicates.create(1, 1);
+
   private final ImmutableListMultimap<Locale, String> options;
 
   protected MultiOptionQuestionDefinition(

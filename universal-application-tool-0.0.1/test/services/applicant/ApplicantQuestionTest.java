@@ -237,26 +237,14 @@ public class ApplicantQuestionTest {
                 .setDescription("description")
                 .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
                 .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
-                .setValidationPredicates(
-                    MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(3, 4))
                 .build();
-    applicantData.putList(question.getSelectionPath(), ImmutableList.of("too", "few"));
+    applicantData.putList(question.getSelectionPath(), ImmutableList.of("too", "many", "answers", "selected"));
     ApplicantQuestion applicantQuestion = new ApplicantQuestion(question, applicantData);
     ApplicantQuestion.MultiOptionQuestion multiOptionQuestion =
         applicantQuestion.getMultiOptionQuestion();
 
-    assertThat(applicantQuestion.hasErrors()).isTrue();
-    assertThat(multiOptionQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(multiOptionQuestion.getQuestionErrors())
-        .containsOnly(ValidationErrorMessage.tooFewSelectionsError(3));
-    assertThat(multiOptionQuestion.getSelectedOptionsValue())
-        .hasValue(ImmutableList.of("too", "few"));
-
-    // Answer again, this time with too many answers selected.
-    applicantData.putList(
-        question.getSelectionPath(), ImmutableList.of("one", "too", "many", "answers", "selected"));
-    assertThat(multiOptionQuestion.getQuestionErrors())
-        .containsOnly(ValidationErrorMessage.tooManySelectionsError(4));
+        .containsOnly(ValidationErrorMessage.tooManySelectionsError(1));
   }
 
   @Test

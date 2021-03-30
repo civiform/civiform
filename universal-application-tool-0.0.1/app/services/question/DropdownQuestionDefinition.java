@@ -6,6 +6,10 @@ import java.util.Locale;
 import java.util.OptionalLong;
 import services.Path;
 
+/**
+ * Defines a dropdown question, which has a list of options, of which at most one and at least one
+ * must be selected.
+ */
 public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
 
   public DropdownQuestionDefinition(
@@ -16,8 +20,7 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      ImmutableListMultimap<Locale, String> options,
-      MultiOptionValidationPredicates validationPredicates) {
+      ImmutableListMultimap<Locale, String> options) {
     super(
         id,
         version,
@@ -27,27 +30,7 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
         questionText,
         questionHelpText,
         options,
-        validationPredicates);
-  }
-
-  public DropdownQuestionDefinition(
-      long version,
-      String name,
-      Path path,
-      String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText,
-      ImmutableListMultimap<Locale, String> options,
-      MultiOptionValidationPredicates validationPredicates) {
-    super(
-        version,
-        name,
-        path,
-        description,
-        questionText,
-        questionHelpText,
-        options,
-        validationPredicates);
+        SINGLE_SELECT_PREDICATE);
   }
 
   public DropdownQuestionDefinition(
@@ -58,7 +41,15 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ImmutableListMultimap<Locale, String> options) {
-    super(version, name, path, description, questionText, questionHelpText, options);
+    super(
+        version,
+        name,
+        path,
+        description,
+        questionText,
+        questionHelpText,
+        options,
+        SINGLE_SELECT_PREDICATE);
   }
 
   @Override
