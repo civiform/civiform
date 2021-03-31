@@ -191,12 +191,14 @@ public class DatabaseSeedController extends Controller {
               .getResult();
 
       programDefinition =
-          programService.addBlockToProgram(
-              programDefinition.id(),
-              "Block 3",
-              "Ice Cream Information",
-              ImmutableList.of(
-                  ProgramQuestionDefinition.create(insertDropdownQuestionDefinition())));
+          programService
+              .addBlockToProgram(
+                  programDefinition.id(),
+                  "Block 3",
+                  "Ice Cream Information",
+                  ImmutableList.of(
+                      ProgramQuestionDefinition.create(insertDropdownQuestionDefinition())))
+              .getResult();
 
       return programDefinition;
     } catch (Exception e) {
