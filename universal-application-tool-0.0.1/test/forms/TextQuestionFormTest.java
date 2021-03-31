@@ -20,8 +20,8 @@ public class TextQuestionFormTest {
     form.setQuestionParentPath("my.question.path");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
-    form.setTextMinLength("4");
-    form.setTextMaxLength("6");
+    form.setTextMinLength(4);
+    form.setTextMaxLength(6);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     // The QuestionForm does not set version, which is needed in order to build the

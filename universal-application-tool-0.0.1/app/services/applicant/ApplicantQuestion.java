@@ -313,6 +313,7 @@ public class ApplicantQuestion {
     }
 
     public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+      // TODO(https://github.com/seattle-uat/civiform/issues/634): Fix bug related to hasValue.
       if (!hasValue()) {
         return ImmutableSet.of();
       }

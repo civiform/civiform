@@ -72,7 +72,7 @@ public class FieldWithLabel {
   protected String fieldType = "text";
   protected String fieldValue = "";
   /** For use with fields of type `number`. */
-//  protected OptionalInt fieldNumberValue = OptionalInt.empty();
+  protected OptionalInt fieldNumberValue = OptionalInt.empty();
 
   protected String formId = "";
   protected String id = "";
@@ -147,24 +147,24 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setValue(String value) {
-//    if (this.fieldType.equals("number")) {
-//      throw new RuntimeException(
-//          "setting a String value is not available on fields of type `number`");
-//    }
+    if (this.fieldType.equals("number")) {
+      throw new RuntimeException(
+          "setting a String value is not available on fields of type `number`");
+    }
 
     this.fieldValue = value;
     return this;
   }
 
-//  public FieldWithLabel setValue(OptionalInt value) {
-//    if (!this.fieldType.equals("number")) {
-//      throw new RuntimeException(
-//          "setting an OptionalInt value is only available on fields of type `number`");
-//    }
-//
-//    this.fieldNumberValue = value;
-//    return this;
-//  }
+  public FieldWithLabel setValue(OptionalInt value) {
+    if (!this.fieldType.equals("number")) {
+      throw new RuntimeException(
+          "setting an OptionalInt value is only available on fields of type `number`");
+    }
+
+    this.fieldNumberValue = value;
+    return this;
+  }
 
   public ContainerTag getContainer() {
     if (fieldTag.getTagName().equals("textarea")) {
@@ -175,10 +175,12 @@ public class FieldWithLabel {
               .withClasses(FieldWithLabel.CORE_FIELD_CLASSES)
               .withText(this.fieldValue);
       fieldTag = textAreaTag;
-//    } else if (this.fieldType.equals("number")) {
-//      // For number types, only set the value if it's present since there is no empty string
-//      // equivalent for numbers.
-//      fieldTag.withCondValue(this.fieldNumberValue.isPresent(), String.valueOf(this.fieldNumberValue.getAsInt()));
+    } else if (this.fieldType.equals("number")) {
+      // For number types, only set the value if it's present since there is no empty string
+      // equivalent for numbers.
+      if (this.fieldNumberValue.isPresent()) {
+        fieldTag.withValue(String.valueOf(this.fieldNumberValue.getAsInt()));
+      }
     } else {
       fieldTag.withValue(this.fieldValue);
     }

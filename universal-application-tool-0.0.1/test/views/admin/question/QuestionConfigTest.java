@@ -23,14 +23,17 @@ public class QuestionConfigTest {
 
   @Test
   public void allHandledTypesHaveCustomConfig() {
-    assertThat(QuestionConfig.buildQuestionConfig(QuestionType.TEXT, new TextQuestionForm())).toString()
-            .contains("text-question-min-length-input");
+    assertThat(QuestionConfig.buildQuestionConfig(QuestionType.TEXT, new TextQuestionForm()))
+        .toString()
+        .contains("text-question-min-length-input");
 
-    assertThat(QuestionConfig.buildQuestionConfig(QuestionType.ADDRESS, new QuestionForm())).toString()
-            .contains("address-question-default-state-select");
+    assertThat(QuestionConfig.buildQuestionConfig(QuestionType.ADDRESS, new QuestionForm()))
+        .toString()
+        .contains("address-question-default-state-select");
 
-    assertThat(QuestionConfig.buildQuestionConfig(QuestionType.NUMBER, new QuestionForm())).toString()
-            .contains("number-question-min-value-input");
+    assertThat(QuestionConfig.buildQuestionConfig(QuestionType.NUMBER, new QuestionForm()))
+        .toString()
+        .contains("number-question-min-value-input");
   }
 
   @Test

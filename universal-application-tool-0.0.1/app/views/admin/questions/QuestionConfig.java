@@ -63,9 +63,9 @@ public class QuestionConfig {
     switch (type) {
       case TEXT:
         return config
-                .setId("text-question-config")
-                .addTextQuestionConfig((TextQuestionForm) questionForm)
-                .getContainer();
+            .setId("text-question-config")
+            .addTextQuestionConfig((TextQuestionForm) questionForm)
+            .getContainer();
       case ADDRESS:
         return config.setId("address-question-config").addAddressQuestionConfig().getContainer();
       case NUMBER:
