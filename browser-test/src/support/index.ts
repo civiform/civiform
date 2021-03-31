@@ -1,7 +1,7 @@
 import { chromium, Page } from 'playwright'
 export { AdminQuestions } from './admin_questions'
 
-const {BASE_URL} = process.env
+const { BASE_URL } = process.env
 
 export const startSession = async () => {
   const browser = await chromium.launch()

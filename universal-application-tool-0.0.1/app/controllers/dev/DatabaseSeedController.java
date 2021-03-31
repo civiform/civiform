@@ -166,10 +166,12 @@ public class DatabaseSeedController extends Controller {
       firstBlockForm.setDescription("name and favorite color");
 
       programDefinition =
-          programService.updateBlock(
-              programDefinition.id(),
-              programDefinition.blockDefinitions().get(0).id(),
-              firstBlockForm);
+          programService
+              .updateBlock(
+                  programDefinition.id(),
+                  programDefinition.blockDefinitions().get(0).id(),
+                  firstBlockForm)
+              .getResult();
       programDefinition =
           programService.setBlockQuestions(
               programDefinition.id(),
@@ -179,12 +181,14 @@ public class DatabaseSeedController extends Controller {
                   ProgramQuestionDefinition.create(insertColorQuestionDefinition())));
 
       programDefinition =
-          programService.addBlockToProgram(
-              programDefinition.id(),
-              "Block 2",
-              "address",
-              ImmutableList.of(
-                  ProgramQuestionDefinition.create(insertAddressQuestionDefinition())));
+          programService
+              .addBlockToProgram(
+                  programDefinition.id(),
+                  "Block 2",
+                  "address",
+                  ImmutableList.of(
+                      ProgramQuestionDefinition.create(insertAddressQuestionDefinition())))
+              .getResult();
 
       programDefinition =
           programService.addBlockToProgram(
