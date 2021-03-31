@@ -1,6 +1,6 @@
 import { Page } from 'playwright'
 
-const {BASE_URL} = process.env
+const { BASE_URL } = process.env
 
 export class AdminQuestions {
   public page!: Page
@@ -10,10 +10,10 @@ export class AdminQuestions {
   }
 
   async addNameQuestion(questionName: string,
-                        path: string,
-                        description = 'test description',
-                        questionText = 'test question text',
-                        helpText = 'test question help text') {
+    path: string,
+    description = 'test description',
+    questionText = 'test question text',
+    helpText = 'test question help text') {
     await this.page.goto(BASE_URL + '/admin/questions')
     await this.page.click('#create-question-button')
 
