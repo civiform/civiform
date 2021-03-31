@@ -126,8 +126,11 @@ public class ApplicantData {
    * Puts the given value at the given path in the underlying JSON data. Builds up the necessary
    * structure along the way, i.e., creates parent objects where necessary.
    *
-   * @param path the {@link Path} with the fully specified path, e.g., "applicant.favorites.color"
-   *     or the equivalent "$.applicant.favorite.colors".
+   * <p>For internal lists
+   *
+   * @param path the {@link Path} with the fully specified path, e.g.,
+   *     "applicant.children[3].favorite_color.text" or the equivalent
+   *     "$.applicant.children[3].favorite_color.text".
    * @param value the value to place; values of type Map will create the equivalent JSON structure
    */
   private void put(Path path, Object value) {
@@ -140,10 +143,20 @@ public class ApplicantData {
   }
 
   private void addAt(Path path, Object value) {
-    jsonData.add(path.withoutArrayIndex().toString(), value);
+    jsonData.add(path.withoutArrayReference().toString(), value);
   }
 
-  /** Put parent of path if it doesn't exist. */
+  /**
+   * Put parent of path if it doesn't exist. There are two types of parents: JSON objects and JSON
+   * arrays.
+   *
+   * <p>For JSON object parents, if it doesn't already exist an empty map is put in the right place.
+   *
+   * <p>For JSON array parents, if the array (e.g. applicant.children[]) doesn't already exist an
+   * empty array is put in the right place, and then if the array element (e.g.
+   * applicant.children[3]) doesn't already exist then empty maps are added until an empty map is
+   * available at the right index.
+   */
   private void maybePutParent(Path path) {
     Path parentPath = path.parentPath();
 
@@ -154,7 +167,7 @@ public class ApplicantData {
     // TODO(#624): get rid of this recursion.
     maybePutParent(parentPath);
 
-    if (parentPath.isList()) {
+    if (parentPath.isArrayElement()) {
       putParentList(path);
     } else {
       putAt(parentPath, new HashMap<>());
@@ -162,15 +175,16 @@ public class ApplicantData {
   }
 
   /**
-   * Put parent of path if it doesn't already exist, for parents that are lists (e.g. something[n]).
+   * Put parent of path if it doesn't already exist, for parents that are lists (e.g. something[n]),
+   * and add empty JSON objects until an element at the index specified by the path is available.
    */
   private void putParentList(Path path) {
     Path parentPath = path.parentPath();
-    int index = parentPath.arrayIndex();
+    int index = parentPath.arrayIndex().get();
 
     // For n=0, put a new list in, and add the 0th element.
     if (index == 0) {
-      putAt(parentPath.withoutArrayIndex(), new ArrayList<>());
+      putAt(parentPath.withoutArrayReference(), new ArrayList<>());
       addAt(parentPath, new HashMap<>());
 
       // For n>0, only add the nth element if the n-1 element exists.

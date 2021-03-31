@@ -5,6 +5,7 @@ import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,18 +61,23 @@ public abstract class Path {
    */
   @Memoized
   public String path() {
-    return isEmpty() ? JSON_PATH_START_TOKEN : JSON_JOINER.join(segments());
-  }
-
-  @Memoized
-  @Override
-  public String toString() {
-    return path();
+    return toString();
   }
 
   /**
-   * The {@link Path} of the parent. For example, a path {@code applicant.favorites.color} would
-   * return {@code applicant.favorites}.
+   * Returns the JSON path compatible string representation of this path.
+   *
+   * <p>Example: {@code "applicant.children[2].favorite_color.text"}
+   */
+  @Memoized
+  @Override
+  public String toString() {
+    return isEmpty() ? JSON_PATH_START_TOKEN : JSON_JOINER.join(segments());
+  }
+
+  /**
+   * The {@link Path} of the parent. For example, a path {@code applicant.favorite_color.text} would
+   * return {@code applicant.favorite_color}.
    */
   @Memoized
   public Path parentPath() {
@@ -84,10 +90,11 @@ public abstract class Path {
   /**
    * Append a segment to the path.
    *
-   * <p>TODO: refactor things that use `toBuilder().append(seg).build()` with {@link #join(String)};
+   * <p>TODO(#638): refactor things that use `toBuilder().append(seg).build()` with {@link
+   * #join(String)};
    */
   public Path join(String segment) {
-    return toBuilder().append(segment.toLowerCase()).build();
+    return Path.create(ImmutableList.<String>builder().addAll(segments()).add(segment).build());
   }
 
   /**
@@ -102,26 +109,41 @@ public abstract class Path {
     return segments().get(segments().size() - 1);
   }
 
-  public boolean isList() {
+  /**
+   * Checks whether this path is referring to an array element, e.g. {@code applicant.children[3]}.
+   */
+  public boolean isArrayElement() {
     return ARRAY_INDEX_REGEX.matcher(keyName()).find();
   }
 
-  // TODO: is this allowed when it doesn't represent a list?
-  public Path withoutArrayIndex() {
+  /**
+   * Returns a path with a trailing array element reference stripped away. For example, {@code
+   * applicant.children[2]} would return a path to {@code applicant.children}.
+   *
+   * <p>For paths to non-array elements, the path returned is the same as the original.
+   */
+  public Path withoutArrayReference() {
     return parentPath().join(keyNameWithoutArrayIndex());
   }
 
-  // TODO: is this allowed when it doesn't represent a list?
-  public int arrayIndex() {
+  /**
+   * Return the index of the array element this path is referencing. If this path is not referencing
+   * an array element, an empty optional is returned.
+   */
+  public Optional<Integer> arrayIndex() {
     Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
     if (matcher.matches()) {
-      return Integer.valueOf(matcher.group(2));
+      return Optional.of(Integer.valueOf(matcher.group(2)));
     }
-    return -1;
+    return Optional.empty();
   }
 
-  // TODO: is this allowed when it doesn't represent a list?
-
+  /**
+   * Return a new path referencing array element at the index.
+   *
+   * <p>If this path is not referencing an array element, then the path returned is the same as the
+   * original.
+   */
   public Path atIndex(int index) {
     Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
     String newKeyName = keyName();
@@ -134,7 +156,12 @@ public abstract class Path {
     return parentPath().join(newKeyName);
   }
 
-  // TODO: is this allowed when it doesn't represent a list?
+  /**
+   * Returns the path's key name without an array index suffix.
+   *
+   * <p>For paths to non-array elements, this is the same as {@link #keyName()}. For paths to array
+   * elements {@code a.b[1].c[3]}, the key without the array index suffix is returned: "c".
+   */
   public String keyNameWithoutArrayIndex() {
     Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
     String newKeyName = keyName();

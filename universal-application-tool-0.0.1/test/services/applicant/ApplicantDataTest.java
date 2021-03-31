@@ -42,9 +42,9 @@ public class ApplicantDataTest {
   public void hasPath_withRepeatedEntity() {
     ApplicantData data =
         new ApplicantData(
-            "{\"applicant\":{\"children\":[{\"entity\":\"first child\", \"name\": { \"first\":"
-                + " \"first\", \"last\": \"last\"}}, {\"entity\": \"second"
-                + " child\"}]},\"metadata\":{}}");
+            "{\"applicant\":{\"children\":[{\"entity\":\"first child\", \"name\": {"
+                + " \"first\":\"first\", \"last\": \"last\"}},{\"entity\": \"second child\"}]},"
+                + "\"metadata\":{}}");
 
     Path path = Path.create("applicant.children[0].entity");
     assertThat(data.hasPath(path)).isTrue();
@@ -230,9 +230,10 @@ public class ApplicantDataTest {
   public void readString_withRepeatedEntity_findsCorrectValue() throws Exception {
     ApplicantData data =
         new ApplicantData(
-            "{\"applicant\":{\"children\":[{\"entity\":\"first child\", \"name\": { \"first\":"
-                + " \"Billy\", \"last\": \"Bob\"}}, {\"entity\": \"second"
-                + " child\"}]},\"metadata\":{}}");
+            "{\"applicant\":{\"children\":["
+                + "{\"entity\":\"first child\",\"name\":{\"first\":\"Billy\", \"last\": \"Bob\"}},"
+                + "{\"entity\": \"second child\"}]},"
+                + "\"metadata\":{}}");
 
     Optional<String> found = data.readString(Path.create("applicant.children[0].name.first"));
 
