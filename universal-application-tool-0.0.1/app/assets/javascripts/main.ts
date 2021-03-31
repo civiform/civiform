@@ -63,10 +63,44 @@ function dismissWarning() {
   localStorage.setItem("hideWarning", "true");
 }
 
+/** In the admin question form - add a new option input for each new question answer option. */
+function addNewQuestionAnswerOptionForm(event: Event) {
+  // Prevent the default event, which is to submit the containing form.
+  event.preventDefault();
+
+  // Copy the answer template and remove ID and hidden properties.
+  const newField = document.getElementById("multi-option-question-answer-template").cloneNode(true) as HTMLElement;
+  newField.classList.remove("hidden");
+  newField.removeAttribute("id");
+
+  // Register the click event handler for the remove button.
+  newField.lastElementChild.addEventListener("click", removeQuestionOption);
+
+  // Find the add option button and insert the new option input field before it.
+  const button = document.getElementById("add-new-option");
+  document.getElementById("question-settings").insertBefore(newField, button);
+}
+
+/** In the admin question form - remove an answer option input for multi-option questions. */
+function removeQuestionOption(event: Event) {
+  // Prevent button default, which is to submit the form.
+  event.preventDefault();
+
+  // Get the parent div, which contains the input field and remove button, and remove it.
+  const optionDiv = (event.target as Element).parentNode;
+  optionDiv.parentNode.removeChild(optionDiv);
+}
+
 function init() {
   attachDropdown("create-question-button");
 
   /* REMOVE BEFORE FLIGHT - Demo only. */
   maybeShowWarning();
+
+  // Configure the button on the admin question form to add more answer options
+  const questionOptionButton = document.getElementById("add-new-option");
+  if (questionOptionButton) {
+    questionOptionButton.addEventListener("click", addNewQuestionAnswerOptionForm);
+  }
 }
 init();

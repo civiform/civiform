@@ -103,7 +103,21 @@ public final class QuestionEditView extends BaseHtmlView {
             Styles.OVERFLOW_Y_AUTO,
             Styles.RELATIVE,
             Styles.W_2_5)
-        .with(renderHeader(title, Styles.CAPITALIZE));
+        .with(renderHeader(title, Styles.CAPITALIZE))
+        .with(multiOptionQuestionField());
+  }
+
+  // A hidden template for multi-option questions.
+  private ContainerTag multiOptionQuestionField() {
+    return div()
+        .with(
+            FieldWithLabel.input()
+                .setFieldName("option")
+                .setLabelText("Question option")
+                .getContainer(),
+            button("Remove").withClass("remove-option-button"))
+        .withId("multi-option-question-answer-template")
+        .withClass(Styles.HIDDEN);
   }
 
   private ContainerTag buildPreviewContent(QuestionType questionType) {
