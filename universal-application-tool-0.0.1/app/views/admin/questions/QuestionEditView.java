@@ -114,10 +114,11 @@ public final class QuestionEditView extends BaseHtmlView {
             FieldWithLabel.input()
                 .setFieldName("option")
                 .setLabelText("Question option")
-                .getContainer(),
-            button("Remove").withClass("remove-option-button"))
+                .getContainer()
+                .withClasses(Styles.FLEX, Styles.ML_2),
+            button("Remove").withClasses(Styles.FLEX, Styles.ML_4))
         .withId("multi-option-question-answer-template")
-        .withClass(Styles.HIDDEN);
+        .withClasses(Styles.HIDDEN, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4);
   }
 
   private ContainerTag buildPreviewContent(QuestionType questionType) {
