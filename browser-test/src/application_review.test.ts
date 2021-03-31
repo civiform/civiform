@@ -8,5 +8,6 @@ describe('normal application flow', () => {
     const adminQuestions = new AdminQuestions(page)
 
     await adminQuestions.addNameQuestion('What is your name?', 'applicant.name')
+    await adminQuestions.addDropdownQuestion('ice cream', ['chocolate', 'banana', 'black raspberry'])
   })
 })
