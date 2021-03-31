@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
+import java.util.OptionalInt;
+
 public class FieldWithLabelTest {
 
   @Test
@@ -35,8 +37,7 @@ public class FieldWithLabelTest {
 
   @Test
   public void number_setsGivenNumberValue() {
-    //    FieldWithLabel fieldWithLabel = FieldWithLabel.number().setValue(OptionalInt.of(6));
-    FieldWithLabel fieldWithLabel = FieldWithLabel.number().setValue("6");
+    FieldWithLabel fieldWithLabel = FieldWithLabel.number().setValue(OptionalInt.of(6));
     assertThat(fieldWithLabel.getContainer().render()).contains("value=\"6\"");
   }
 
