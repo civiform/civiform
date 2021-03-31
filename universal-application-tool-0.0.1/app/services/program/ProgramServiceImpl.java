@@ -139,8 +139,11 @@ public class ProgramServiceImpl implements ProgramService {
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     String blockName = String.format("Block %d", getNextBlockId(programDefinition));
+    String description =
+        "What is the purpose of this block? Add a description that summarizes the information"
+            + " collected.";
 
-    return addBlockToProgram(programId, blockName, "no description", ImmutableList.of());
+    return addBlockToProgram(programId, blockName, description, ImmutableList.of());
   }
 
   @Override

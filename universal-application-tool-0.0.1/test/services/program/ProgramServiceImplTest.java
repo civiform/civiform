@@ -377,7 +377,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
     BlockDefinition newBlock = found.blockDefinitions().get(1);
     assertThat(newBlock.name()).isEqualTo("Block 2");
-    assertThat(newBlock.description()).isEqualTo("no description");
+    assertThat(newBlock.description()).isNotEmpty();
     assertThat(newBlock.programQuestionDefinitions()).hasSize(0);
   }
 
