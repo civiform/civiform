@@ -1,11 +1,9 @@
-import { chromium } from 'playwright'
+import { startSession } from './support'
 
 describe('the landing page', () => {
   it('it has login options', async () => {
-    let browser = await chromium.launch()
-    let page = await browser.newPage()
 
-    await page.goto(process.env.BASE_URL)
+    const { page } = await startSession()
 
     expect(await page.textContent('html')).toContain('continue as guest')
   })
