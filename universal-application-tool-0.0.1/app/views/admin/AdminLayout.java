@@ -80,6 +80,7 @@ public class AdminLayout extends BaseHtmlLayout {
         body()
             .with(renderNavBar())
             .with(mainContent)
+            .with(warningMessage())
             .with(viewUtils.makeLocalJsTag("main"))
             .withClasses(
                 BaseStyles.BODY_GRADIENT_STYLE,

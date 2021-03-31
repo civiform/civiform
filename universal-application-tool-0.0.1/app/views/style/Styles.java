@@ -2013,6 +2013,7 @@ public final class Styles {
   public static final String RIGHT_96 = "right-96";
   public static final String BOTTOM_96 = "bottom-96";
   public static final String LEFT_96 = "left-96";
+  public static final String LEFT_1_2 = "left-1/2";
   public static final String TOP_AUTO = "top-auto";
   public static final String RIGHT_AUTO = "right-auto";
   public static final String BOTTOM_AUTO = "bottom-auto";
@@ -2889,6 +2890,7 @@ public final class Styles {
   public static final String _TRANSLATE_X_80 = "-translate-x-80";
   public static final String _TRANSLATE_X_96 = "-translate-x-96";
   public static final String _TRANSLATE_X_PX = "-translate-x-px";
+  public static final String _TRANSLATE_X_1_2 = "-translate-x-1/2";
   public static final String TRANSLATE_X_FULL = "translate-x-full";
   public static final String _TRANSLATE_X_FULL = "-translate-x-full";
   public static final String TRANSLATE_Y_0 = "translate-y-0";

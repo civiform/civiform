@@ -1,5 +1,6 @@
 package services.question;
 
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.OptionalLong;
@@ -21,6 +22,9 @@ public class QuestionDefinitionBuilder {
   private QuestionType questionType = QuestionType.TEXT;
   private String validationPredicatesString = "";
 
+  // Multi-option question types only.
+  private ImmutableListMultimap<Locale, String> questionOptions = ImmutableListMultimap.of();
+
   public QuestionDefinitionBuilder() {}
 
   public QuestionDefinitionBuilder(QuestionDefinition definition) {
@@ -36,6 +40,11 @@ public class QuestionDefinitionBuilder {
     questionHelpText = definition.getQuestionHelpText();
     questionType = definition.getQuestionType();
     validationPredicatesString = definition.getValidationPredicatesAsString();
+
+    if (definition.getQuestionType().isMultiOptionType()) {
+      MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
+      questionOptions = multiOption.getOptions();
+    }
   }
 
   public QuestionDefinitionBuilder clearId() {
@@ -53,13 +62,20 @@ public class QuestionDefinitionBuilder {
   }
 
   public static QuestionDefinitionBuilder sample(QuestionType questionType) {
-    return new QuestionDefinitionBuilder()
-        .setName("")
-        .setDescription("")
-        .setPath(Path.create("sample.question.path"))
-        .setQuestionText(ImmutableMap.of(Locale.US, "Sample question text"))
-        .setQuestionHelpText(ImmutableMap.of(Locale.US, "Sample question help text"))
-        .setQuestionType(questionType);
+    QuestionDefinitionBuilder builder =
+        new QuestionDefinitionBuilder()
+            .setName("")
+            .setDescription("")
+            .setPath(Path.create("sample.question.path"))
+            .setQuestionText(ImmutableMap.of(Locale.US, "Sample question text"))
+            .setQuestionHelpText(ImmutableMap.of(Locale.US, "Sample question help text"))
+            .setQuestionType(questionType);
+
+    if (questionType.isMultiOptionType()) {
+      builder.setQuestionOptions(ImmutableListMultimap.of(Locale.US, "Sample question option"));
+    }
+
+    return builder;
   }
 
   public QuestionDefinitionBuilder setVersion(long version) {
@@ -110,6 +126,12 @@ public class QuestionDefinitionBuilder {
     return this;
   }
 
+  public QuestionDefinitionBuilder setQuestionOptions(
+      ImmutableListMultimap<Locale, String> options) {
+    this.questionOptions = options;
+    return this;
+  }
+
   public QuestionDefinition build() throws UnsupportedQuestionTypeException {
     switch (this.questionType) {
       case ADDRESS:
@@ -128,6 +150,9 @@ public class QuestionDefinitionBuilder {
             questionText,
             questionHelpText,
             addressValidationPredicates);
+      case DROPDOWN:
+        return new DropdownQuestionDefinition(
+            id, version, name, path, description, questionText, questionHelpText, questionOptions);
       case NAME:
         NameValidationPredicates nameValidationPredicates = NameValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {

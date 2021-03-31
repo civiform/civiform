@@ -47,15 +47,17 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
   @Test
   public void create_withInvalidProgram_notFound() {
-    Result result = controller.create(1L);
+    Request request = fakeRequest().build();
+    Result result = controller.create(request, 1L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
   public void create_withProgram_addsBlock() {
+    Request request = fakeRequest().build();
     Program program = ProgramBuilder.newProgram().build();
-    Result result = controller.create(program.id);
+    Result result = controller.create(request, program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
