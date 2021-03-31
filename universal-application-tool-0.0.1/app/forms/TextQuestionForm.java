@@ -6,36 +6,36 @@ import services.question.QuestionType;
 import services.question.TextQuestionDefinition;
 
 public class TextQuestionForm extends QuestionForm {
-  private OptionalInt textMinLength;
-  private OptionalInt textMaxLength;
+  private OptionalInt minLength;
+  private OptionalInt maxLength;
 
   public TextQuestionForm() {
     super();
-    textMinLength = OptionalInt.empty();
-    textMaxLength = OptionalInt.empty();
+    minLength = OptionalInt.empty();
+    maxLength = OptionalInt.empty();
     setQuestionType(QuestionType.TEXT);
   }
 
   public TextQuestionForm(TextQuestionDefinition qd) {
     super(qd);
-    textMinLength = qd.getMinLength();
-    textMaxLength = qd.getMaxLength();
+    minLength = qd.getMinLength();
+    maxLength = qd.getMaxLength();
   }
 
-  public OptionalInt getTextMinLength() {
-    return textMinLength;
+  public OptionalInt getMinLength() {
+    return minLength;
   }
 
-  public void setTextMinLength(int textMinLength) {
-    this.textMinLength = OptionalInt.of(textMinLength);
+  public void setMinLength(int minLength) {
+    this.minLength = OptionalInt.of(minLength);
   }
 
-  public OptionalInt getTextMaxLength() {
-    return textMaxLength;
+  public OptionalInt getMaxLength() {
+    return maxLength;
   }
 
-  public void setTextMaxLength(int textMaxLength) {
-    this.textMaxLength = OptionalInt.of(textMaxLength);
+  public void setMaxLength(int maxLength) {
+    this.maxLength = OptionalInt.of(maxLength);
   }
 
   @Override
@@ -43,12 +43,12 @@ public class TextQuestionForm extends QuestionForm {
     TextQuestionDefinition.TextValidationPredicates.Builder textValidationPredicatesBuilder =
         TextQuestionDefinition.TextValidationPredicates.builder();
 
-    if (getTextMinLength().isPresent()) {
-      textValidationPredicatesBuilder.setMinLength(getTextMinLength().getAsInt());
+    if (getMinLength().isPresent()) {
+      textValidationPredicatesBuilder.setMinLength(getMinLength().getAsInt());
     }
 
-    if (getTextMaxLength().isPresent()) {
-      textValidationPredicatesBuilder.setMaxLength(getTextMaxLength().getAsInt());
+    if (getMaxLength().isPresent()) {
+      textValidationPredicatesBuilder.setMaxLength(getMaxLength().getAsInt());
     }
 
     return super.getBuilder().setValidationPredicates(textValidationPredicatesBuilder.build());

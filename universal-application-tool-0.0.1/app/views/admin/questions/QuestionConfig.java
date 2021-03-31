@@ -103,15 +103,15 @@ public class QuestionConfig {
     content.with(
         FieldWithLabel.number()
             .setId("text-question-min-length-input")
-            .setFieldName("textMinLength")
+            .setFieldName("minLength")
             .setLabelText("Min length")
-            .setValue(textQuestionForm.getTextMinLength())
+            .setValue(textQuestionForm.getMinLength())
             .getContainer(),
         FieldWithLabel.number()
             .setId("text-question-max-length-input")
-            .setFieldName("textMaxLength")
+            .setFieldName("maxLength")
             .setLabelText("Maximum length")
-            .setValue(textQuestionForm.getTextMaxLength())
+            .setValue(textQuestionForm.getMaxLength())
             .getContainer());
     return this;
   }
