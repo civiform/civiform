@@ -1,4 +1,4 @@
-import { startSession, loginAsAdmin, AdminQuestions, endSession } from './support'
+import { startSession, loginAsAdmin, AdminPrograms, AdminQuestions, endSession } from './support'
 
 describe('normal application flow', () => {
   it('all major steps', async () => {
@@ -12,6 +12,10 @@ describe('normal application flow', () => {
     await adminQuestions.addNameQuestion('What is your name?')
     await adminQuestions.addNumberQuestion('Give me a number')
     await adminQuestions.addTextQuestion('What is your favorite color?')
+
+    const adminProgram = new AdminPrograms(page)
+
+    await adminProgram.addProgram('A shiny new program')
 
     await endSession(browser)
   })

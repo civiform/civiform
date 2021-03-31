@@ -1,4 +1,5 @@
 import { Browser, chromium, Page } from 'playwright'
+export { AdminPrograms } from './admin_programs'
 export { AdminQuestions } from './admin_questions'
 
 const { BASE_URL = 'http://civiform:9000' } = process.env
