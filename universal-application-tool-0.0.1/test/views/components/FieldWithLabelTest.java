@@ -2,9 +2,8 @@ package views.components;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
-
 import java.util.OptionalInt;
+import org.junit.Test;
 
 public class FieldWithLabelTest {
 
