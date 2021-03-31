@@ -55,16 +55,17 @@ public class QuestionFormTest {
   }
 
   @Parameters({
-    "the other part|the.first.part.the_other_part",
-    "LOWER cAsE|the.first.part.lower_case",
-    "ig--.][;n-or.e sy$mb#o*ls|the.first.part.ignore_symbols"
+    "the other part|the_other_part",
+    "LOWER cAsE|lower_case",
+    "ig--.][;n-or.e sy$mb#o*ls|ignore_symbols"
   })
   @Test
   public void getQuestionPath_formatsQuestionName(String name, String path) {
+    Path base = Path.create("the.first.part");
     QuestionForm form = new QuestionForm();
-    form.setQuestionParentPath("the.first.part");
+    form.setQuestionParentPath(base.toString());
     form.setQuestionName(name);
 
-    assertThat(form.getQuestionPath()).isEqualTo(Path.create(path));
+    assertThat(form.getQuestionPath()).isEqualTo(base.join(path));
   }
 }
