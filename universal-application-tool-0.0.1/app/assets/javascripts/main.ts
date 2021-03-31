@@ -54,7 +54,7 @@ function maybeShowWarning() {
   }
 }
 
-/** If a toast message is present, make it visible for the specified duration. */
+ /** If a toast message is present, make it visible for the specified duration. */
 function maybeShowToast() {
   const toastMessage = document.querySelector('.cf-toast');
   if (toastMessage) {
