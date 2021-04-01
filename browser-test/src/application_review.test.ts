@@ -11,6 +11,7 @@ describe('normal application flow', () => {
     await adminQuestions.addAddressQuestion('What is your address?')
     await adminQuestions.addNameQuestion('What is your name?')
     await adminQuestions.addNumberQuestion('Give me a number')
+    await adminQuestions.addRadioButtonQuestion('Favorite tree?', ['oak', 'pine', 'sycamore'])
     await adminQuestions.addTextQuestion('What is your favorite color?')
 
     await endSession(browser)
