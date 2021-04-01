@@ -11,6 +11,7 @@ import static views.ViewUtils.POST;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import forms.BlockForm;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
@@ -19,6 +20,7 @@ import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.program.ProgramQuestionDefinition;
 import services.question.QuestionDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
@@ -46,19 +48,38 @@ public class ProgramBlockEditView extends BaseHtmlView {
       Request request,
       ProgramDefinition program,
       BlockDefinition block,
+      String message,
+      ImmutableList<QuestionDefinition> questions) {
+    return render(
+        request,
+        program,
+        block.id(),
+        new BlockForm(block.name(), block.description()),
+        block.programQuestionDefinitions(),
+        message,
+        questions);
+  }
+
+  public Content render(
+      Request request,
+      ProgramDefinition program,
+      long blockId,
+      BlockForm blockForm,
+      ImmutableList<ProgramQuestionDefinition> blockQuestions,
+      String message,
       ImmutableList<QuestionDefinition> questions) {
     Tag csrfTag = makeCsrfTokenInputTag(request);
 
     ContainerTag mainContent =
         main(
-            addFormEndpoints(csrfTag, program.id(), block.id()),
+            addFormEndpoints(csrfTag, program.id(), blockId),
             programInfo(program),
             div()
                 .withId("program-block-info")
                 .withClasses(Styles.FLEX, Styles.FLEX_GROW, Styles._MX_2)
-                .with(blockOrderPanel(program, block))
-                .with(blockEditPanel(program, block, csrfTag))
-                .with(questionBankPanel(questions, program, block, csrfTag)));
+                .with(blockOrderPanel(program, blockId))
+                .with(blockEditPanel(program, blockId, blockForm, blockQuestions, message, csrfTag))
+                .with(questionBankPanel(questions, program, blockId, csrfTag)));
 
     return layout.renderCentered(mainContent, Styles.FLEX, Styles.FLEX_COL);
   }
@@ -98,7 +119,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
     return programInfo;
   }
 
-  public ContainerTag blockOrderPanel(ProgramDefinition program, BlockDefinition focusedBlock) {
+  public ContainerTag blockOrderPanel(ProgramDefinition program, long focusedBlockId) {
     ContainerTag ret =
         div()
             .withClasses(
@@ -124,7 +145,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
       ContainerTag blockTag =
           a().withHref(editBlockLink)
               .with(p(blockName), p(questionCountText).withClasses(Styles.TEXT_SM));
-      String selectedClasses = block.hasSameId(focusedBlock) ? Styles.BG_GRAY_100 : "";
+      String selectedClasses = block.id() == focusedBlockId ? Styles.BG_GRAY_100 : "";
       blockTag.withClasses(Styles.BLOCK, Styles.PY_2, Styles.PX_4, selectedClasses);
       ret.with(blockTag);
     }
@@ -138,10 +159,14 @@ public class ProgramBlockEditView extends BaseHtmlView {
   }
 
   private ContainerTag blockEditPanel(
-      ProgramDefinition program, BlockDefinition block, Tag csrfTag) {
+      ProgramDefinition program,
+      long blockId,
+      BlockForm blockForm,
+      ImmutableList<ProgramQuestionDefinition> blockQuestions,
+      String message,
+      Tag csrfTag) {
     String blockUpdateAction =
-        controllers.admin.routes.AdminProgramBlocksController.update(program.id(), block.id())
-            .url();
+        controllers.admin.routes.AdminProgramBlocksController.update(program.id(), blockId).url();
     ContainerTag blockInfoForm = form(csrfTag).withMethod(POST).withAction(blockUpdateAction);
 
     blockInfoForm.with(
@@ -149,13 +174,13 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .setId("block-name-input")
             .setFieldName("name")
             .setLabelText("Block name")
-            .setValue(block.name())
+            .setValue(blockForm.getName())
             .getContainer(),
         FieldWithLabel.textArea()
             .setId("block-description-textarea")
             .setFieldName("description")
             .setLabelText("Block description")
-            .setValue(block.description())
+            .setValue(blockForm.getDescription())
             .getContainer(),
         submitButton("Update Block")
             .withId("update-block-button")
@@ -169,19 +194,19 @@ public class ProgramBlockEditView extends BaseHtmlView {
     }
 
     String deleteQuestionAction =
-        controllers.admin.routes.AdminProgramBlockQuestionsController.destroy(
-                program.id(), block.id())
+        controllers.admin.routes.AdminProgramBlockQuestionsController.destroy(program.id(), blockId)
             .url();
     ContainerTag questionDeleteForm =
         form(csrfTag)
             .withId("block-questions-form")
             .withMethod(POST)
             .withAction(deleteQuestionAction);
-    block
-        .programQuestionDefinitions()
-        .forEach(pqd -> questionDeleteForm.with(renderQuestion(pqd.getQuestionDefinition())));
+    blockQuestions.forEach(
+        pqd -> questionDeleteForm.with(renderQuestion(pqd.getQuestionDefinition())));
 
-    return div().withClasses(Styles.FLEX_AUTO, Styles.PY_6).with(blockInfoForm, questionDeleteForm);
+    return div()
+        .withClasses(Styles.FLEX_AUTO, Styles.PY_6)
+        .with(div(message), blockInfoForm, questionDeleteForm);
   }
 
   public ContainerTag renderQuestion(QuestionDefinition definition) {
@@ -223,11 +248,10 @@ public class ProgramBlockEditView extends BaseHtmlView {
   private ContainerTag questionBankPanel(
       ImmutableList<QuestionDefinition> questionDefinitions,
       ProgramDefinition program,
-      BlockDefinition block,
+      long blockId,
       Tag csrfTag) {
     String addQuestionAction =
-        controllers.admin.routes.AdminProgramBlockQuestionsController.create(
-                program.id(), block.id())
+        controllers.admin.routes.AdminProgramBlockQuestionsController.create(program.id(), blockId)
             .url();
 
     QuestionBank qb =

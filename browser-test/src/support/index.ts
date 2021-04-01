@@ -1,7 +1,7 @@
-import { chromium, Page } from 'playwright'
+import { Browser, chromium, Page } from 'playwright'
 export { AdminQuestions } from './admin_questions'
 
-const {BASE_URL} = process.env
+const { BASE_URL = 'http://civiform:9000' } = process.env
 
 export const startSession = async () => {
   const browser = await chromium.launch()
@@ -12,10 +12,16 @@ export const startSession = async () => {
   return { browser, page }
 }
 
-export const logout = async (page: Page) => page.goto('/logout')
+export const endSession = async (browser: Browser) => {
+  browser.close()
+}
+
+export const logout = async (page: Page) => {
+  // TODO: add logout button to applicant page and use that
+  page.goto('/logout')
+}
 
 export const loginAsAdmin = async (page: Page) => {
-  await page.goto(BASE_URL + '/loginForm')
   await page.screenshot({ path: 'tmp/screenshot.png', fullPage: true });
   await page.click('#admin')
 }
