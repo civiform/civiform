@@ -102,14 +102,15 @@ public class ApplicantQuestion {
     switch (getType()) {
       case ADDRESS:
         return getAddressQuestion();
-      case DROPDOWN:
-        return getSingleSelectQuestion();
       case NAME:
         return getNameQuestion();
       case NUMBER:
         return getNumberQuestion();
       case TEXT:
         return getTextQuestion();
+      case DROPDOWN:
+      case RADIO_BUTTON:
+        return getSingleSelectQuestion();
       default:
         throw new RuntimeException("Unrecognized question type: " + getType());
     }

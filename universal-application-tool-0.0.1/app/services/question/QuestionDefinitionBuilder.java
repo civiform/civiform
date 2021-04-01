@@ -183,6 +183,9 @@ public class QuestionDefinitionBuilder {
             questionText,
             questionHelpText,
             numberValidationPredicates);
+      case RADIO_BUTTON:
+        return new RadioButtonQuestionDefinition(
+            id, version, name, path, description, questionText, questionHelpText, questionOptions);
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {
