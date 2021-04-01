@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import services.Path;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
+import services.question.QuestionType;
 import services.question.TextQuestionDefinition;
 
 @RunWith(JUnitParamsRunner.class)
@@ -24,7 +25,7 @@ public class QuestionFormTest {
     form.setQuestionParentPath("my.question.path");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
-    form.setQuestionType("TEXT");
+    form.setQuestionType(QuestionType.TEXT);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     // The QuestionForm does not set version, which is needed in order to build the

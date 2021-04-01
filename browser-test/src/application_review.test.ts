@@ -7,6 +7,7 @@ describe('normal application flow', () => {
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
 
+    await adminQuestions.addDropdownQuestion('ice cream', ['chocolate', 'banana', 'black raspberry'])
     await adminQuestions.addAddressQuestion('What is your address?')
     await adminQuestions.addNameQuestion('What is your name?')
     await adminQuestions.addNumberQuestion('Give me a number')

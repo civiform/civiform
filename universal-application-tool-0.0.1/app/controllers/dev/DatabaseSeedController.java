@@ -3,6 +3,7 @@ package controllers.dev;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import forms.BlockForm;
@@ -21,6 +22,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
 import services.question.AddressQuestionDefinition;
+import services.question.DropdownQuestionDefinition;
 import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionService;
@@ -131,6 +133,29 @@ public class DatabaseSeedController extends Controller {
         .getResult();
   }
 
+  private QuestionDefinition insertDropdownQuestionDefinition() {
+    return questionService
+        .create(
+            new DropdownQuestionDefinition(
+                1L,
+                "dropdown",
+                Path.create("applicant.favorite_ice_cream"),
+                "select your favorite ice cream flavor",
+                ImmutableMap.of(
+                    Locale.US, "Select your favorite ice cream flavor from the following"),
+                ImmutableMap.of(Locale.US, "this is sample help text"),
+                ImmutableListMultimap.of(
+                    Locale.US,
+                    "chocolate",
+                    Locale.US,
+                    "strawberry",
+                    Locale.US,
+                    "vanilla",
+                    Locale.US,
+                    "coffee")))
+        .getResult();
+  }
+
   private ProgramDefinition insertProgramWithBlocks(String name) {
     try {
       ProgramDefinition programDefinition =
@@ -163,6 +188,16 @@ public class DatabaseSeedController extends Controller {
                   "address",
                   ImmutableList.of(
                       ProgramQuestionDefinition.create(insertAddressQuestionDefinition())))
+              .getResult();
+
+      programDefinition =
+          programService
+              .addBlockToProgram(
+                  programDefinition.id(),
+                  "Block 3",
+                  "Ice Cream Information",
+                  ImmutableList.of(
+                      ProgramQuestionDefinition.create(insertDropdownQuestionDefinition())))
               .getResult();
 
       return programDefinition;
