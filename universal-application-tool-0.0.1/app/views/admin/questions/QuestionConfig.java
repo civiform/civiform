@@ -60,7 +60,7 @@ public class QuestionConfig {
         return config.setId("address-question-config").addAddressQuestionConfig().getContainer();
       case DROPDOWN:
         return config
-            .setId("multi-option-question-config")
+            .setId("single-select-question-config")
             .addMultiOptionQuestionConfig()
             .getContainer();
       case TEXT:
