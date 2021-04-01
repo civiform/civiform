@@ -50,7 +50,7 @@ public class QuestionFormTest {
     QuestionForm form = new QuestionForm();
     form.setQuestionParentPath("the.first.part");
     form.setQuestionName("the other part");
-    form.setQuestionType("REPEATER");
+    form.setQuestionType(QuestionType.REPEATER);
 
     assertThat(form.getQuestionPath()).isEqualTo(Path.create("the.first.part.the_other_part[]"));
   }
