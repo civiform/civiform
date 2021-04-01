@@ -3,8 +3,6 @@ package auth;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
-import java.time.Clock;
-import java.time.ZoneId;
 import models.Account;
 import models.Applicant;
 import org.pac4j.core.profile.CommonProfile;
@@ -18,19 +16,10 @@ import repository.DatabaseExecutionContext;
  * <p>It is wrapped by UatProfile, which is what we should use server-side.
  */
 public class UatProfileData extends CommonProfile {
-  private Clock clock;
 
-  public UatProfileData() {
-    this(Clock.system(ZoneId.of("America/Los_Angeles")));
-  }
+  public UatProfileData() {}
 
-  public UatProfileData(Clock clock) {
-    super();
-    this.clock = Preconditions.checkNotNull(clock);
-  }
-
-  public UatProfileData(Clock clock, Long accountId) {
-    this(clock);
+  public UatProfileData(Long accountId) {
     this.setId(accountId.toString());
   }
 
@@ -51,7 +40,6 @@ public class UatProfileData extends CommonProfile {
               Account acc = new Account();
               acc.save();
               Applicant newA = new Applicant();
-              newA.getApplicantData().setCreatedTime(clock.instant());
               newA.setAccount(acc);
               newA.save();
 

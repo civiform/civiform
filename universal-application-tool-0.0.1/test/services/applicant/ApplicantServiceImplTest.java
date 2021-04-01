@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
@@ -260,6 +261,30 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     Applicant applicant = subject.createApplicant(1l).toCompletableFuture().join();
 
     assertThat(applicant.id).isNotNull();
+  }
+
+  @Test
+  public void createApplicant_ApplicantTime() {
+    Instant a = Instant.now();
+
+    try {
+      Thread.sleep(5);
+    } catch (InterruptedException e) {
+
+    }
+
+    Applicant applicant = subject.createApplicant(1l).toCompletableFuture().join();
+
+    try {
+      Thread.sleep(5);
+    } catch (InterruptedException e) {
+
+    }
+
+    Instant b = Instant.now();
+
+    assertThat(applicant.when_created).isNotNull();
+    assertThat(applicant.when_created).isBetween(a, b);
   }
 
   @Test

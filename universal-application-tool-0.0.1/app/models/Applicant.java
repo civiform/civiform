@@ -2,6 +2,9 @@ package models;
 
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbJson;
+import io.ebean.annotation.History;
+import io.ebean.annotation.WhenCreated;
+import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import javax.persistence.Entity;
@@ -14,11 +17,14 @@ import play.data.validation.Constraints;
 import services.applicant.ApplicantData;
 
 /** The ebean mapped class that represents an individual applicant */
+@History
 @Entity
 @Table(name = "applicants")
 public class Applicant extends BaseModel {
   private static final long serialVersionUID = 1L;
   private ApplicantData applicantData;
+
+  @WhenCreated public Instant whenCreated;
 
   private String preferredLocale;
 
@@ -72,5 +78,9 @@ public class Applicant extends BaseModel {
 
   public ImmutableList<Application> getApplications() {
     return ImmutableList.copyOf(this.applications);
+  }
+
+  public Instant getCreatedTime() {
+    return this.whenCreated;
   }
 }

@@ -1,9 +1,9 @@
-# --- Add repeater id reference to questions
+# --- Add Program Export Definitions
 
 # --- !Ups
 
-alter table questions add repeater_id bigint;
+alter table programs add export_definitions jsonb;
 
 # --- !Downs
 
-alter table questions drop column if exists repeater_id;
+alter table programs drop column if exists export_definitions;
