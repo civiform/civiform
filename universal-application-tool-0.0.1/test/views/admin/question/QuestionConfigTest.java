@@ -18,7 +18,7 @@ public class QuestionConfigTest {
   private static final ContainerTag DEFAULT_CONFIG = div();
   // TODO(https://github.com/seattle-uat/civiform/issues/395): Implement dropdown rendering.
   private static final EnumSet<QuestionType> TYPES_WITH_NO_CONFIG =
-      EnumSet.of(QuestionType.DROPDOWN, QuestionType.NAME, QuestionType.REPEATER);
+      EnumSet.of(QuestionType.NAME, QuestionType.REPEATER);
 
   @Test
   @Parameters(method = "handledTypes")

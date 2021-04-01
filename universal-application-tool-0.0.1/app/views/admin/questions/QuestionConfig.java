@@ -1,5 +1,6 @@
 package views.admin.questions;
 
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.label;
 
@@ -57,6 +58,11 @@ public class QuestionConfig {
     switch (type) {
       case ADDRESS:
         return config.setId("address-question-config").addAddressQuestionConfig().getContainer();
+      case DROPDOWN:
+        return config
+            .setId("single-select-question-config")
+            .addMultiOptionQuestionConfig()
+            .getContainer();
       case TEXT:
         return config.setId("text-question-config").addTextQuestionConfig().getContainer();
       case NUMBER:
@@ -105,6 +111,15 @@ public class QuestionConfig {
     return this;
   }
 
+  private QuestionConfig addMultiOptionQuestionConfig() {
+    content.with(
+        button("Add answer option")
+            .withType("button")
+            .withId("add-new-option")
+            .withClasses(Styles.M_2));
+    return this;
+  }
+
   private QuestionConfig addNumberQuestionConfig() {
     content.with(
         FieldWithLabel.number()
@@ -125,7 +140,10 @@ public class QuestionConfig {
         .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
         .withClasses(ReferenceClasses.QUESTION_CONFIG)
         .with(headerLabel(this.headerText))
-        .with(div().withClasses(OUTER_DIV_CLASSES).with(content.withClasses(INNER_DIV_CLASSES)));
+        .with(
+            div()
+                .withClasses(OUTER_DIV_CLASSES)
+                .with(content.withId("question-settings").withClasses(INNER_DIV_CLASSES)));
   }
 
   private static ContainerTag headerLabel(String text) {
