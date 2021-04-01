@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# find civiform folder, also support any names for backward and forward compatibility
-BASE_DIR=$(pwd | awk -F / '{print $(NF-2)}')
+# find repo root name (currently civiform), also support any names for backward and forward compatibility
+CIVIFORM_DIR=$(pwd | awk -F / '{print $(NF-2)}')
 
 purge_s3_cmd="s3 rm s3://civiform-local-s3/ --recursive"
 
 if ! which aws; then
     docker run --rm -it \
-    --network ${BASE_DIR}_default \
+    --network ${CIVIFORM_DIR}_default \
     -e AWS_ACCESS_KEY_ID=test \
     -e AWS_SECRET_ACCESS_KEY=test \
     amazon/aws-cli \
