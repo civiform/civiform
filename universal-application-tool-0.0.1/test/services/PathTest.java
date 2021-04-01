@@ -110,12 +110,6 @@ public class PathTest {
   }
 
   @Test
-  public void withoutArrayReference_notArrayElement_noChange() {
-    Path path = Path.create("one.two");
-    assertThat(path.withoutArrayReference()).isEqualTo(Path.create("one.two"));
-  }
-
-  @Test
   public void arrayIndex() {
     Path path = Path.create("one.two[33]");
     assertThat(path.arrayIndex()).isEqualTo(33);
@@ -127,14 +121,6 @@ public class PathTest {
 
     Path expected = Path.create("one.two[55]");
     assertThat(path.atIndex(55)).isEqualTo(expected);
-  }
-
-  @Test
-  public void atIndex_notArrayElement_noChange() {
-    Path path = Path.create("one.two");
-
-    Path expected = Path.create("one.two");
-    assertThat(path.atIndex(5)).isEqualTo(expected);
   }
 
   @Test
