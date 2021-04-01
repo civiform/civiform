@@ -10,6 +10,7 @@ import forms.QuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.Tag;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import play.mvc.Http.Request;
@@ -104,7 +105,25 @@ public final class QuestionEditView extends BaseHtmlView {
             Styles.OVERFLOW_Y_AUTO,
             Styles.RELATIVE,
             Styles.W_2_5)
-        .with(renderHeader(title, Styles.CAPITALIZE));
+        .with(renderHeader(title, Styles.CAPITALIZE))
+        .with(multiOptionQuestionField());
+  }
+
+  // A hidden template for multi-option questions.
+  private ContainerTag multiOptionQuestionField() {
+    ContainerTag optionInput =
+        FieldWithLabel.input()
+            .setFieldName("option")
+            .setLabelText("Question option")
+            .getContainer()
+            .withClasses(Styles.FLEX, Styles.ML_2);
+    Tag removeOptionButton =
+        button("Remove").withType("button").withClasses(Styles.FLEX, Styles.ML_4);
+
+    return div()
+        .withId("multi-option-question-answer-template")
+        .withClasses(Styles.HIDDEN, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4)
+        .with(optionInput, removeOptionButton);
   }
 
   private ContainerTag buildPreviewContent(QuestionType questionType) {
