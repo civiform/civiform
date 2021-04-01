@@ -5,7 +5,6 @@ set -euo pipefail
 if ! which psql; then
     docker run --rm -it \
         --network browser-test_default \
-        -e BASE_URL=$BASE_URL \
         civiform-browser-test:latest \
         /usr/src/civiform-browser-tests/bin/truncate_tables.sh
 
