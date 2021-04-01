@@ -112,7 +112,11 @@ public class QuestionConfig {
   }
 
   private QuestionConfig addMultiOptionQuestionConfig() {
-    content.with(button("Add answer option").withId("add-new-option").withClasses(Styles.M_2));
+    content.with(
+        button("Add answer option")
+            .withType("button")
+            .withId("add-new-option")
+            .withClasses(Styles.M_2));
     return this;
   }
 

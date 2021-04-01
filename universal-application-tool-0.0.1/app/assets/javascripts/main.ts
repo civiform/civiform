@@ -65,9 +65,6 @@ function dismissWarning() {
 
 /** In the admin question form - add a new option input for each new question answer option. */
 function addNewQuestionAnswerOptionForm(event: Event) {
-  // Prevent the default event, which is to submit the containing form.
-  event.preventDefault();
-
   // Copy the answer template and remove ID and hidden properties.
   const newField = document.getElementById("multi-option-question-answer-template").cloneNode(true) as HTMLElement;
   newField.classList.remove("hidden");
@@ -83,9 +80,6 @@ function addNewQuestionAnswerOptionForm(event: Event) {
 
 /** In the admin question form - remove an answer option input for multi-option questions. */
 function removeQuestionOption(event: Event) {
-  // Prevent button default, which is to submit the form.
-  event.preventDefault();
-
   // Get the parent div, which contains the input field and remove button, and remove it.
   const optionDiv = (event.target as Element).parentNode;
   optionDiv.parentNode.removeChild(optionDiv);

@@ -116,7 +116,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setLabelText("Question option")
                 .getContainer()
                 .withClasses(Styles.FLEX, Styles.ML_2),
-            button("Remove").withClasses(Styles.FLEX, Styles.ML_4))
+            button("Remove").withType("button").withClasses(Styles.FLEX, Styles.ML_4))
         .withId("multi-option-question-answer-template")
         .withClasses(Styles.HIDDEN, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4);
   }
