@@ -7,6 +7,7 @@ import static j2html.TagCreator.main;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import forms.QuestionForm;
+import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.Tag;
@@ -14,9 +15,9 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import services.question.InvalidQuestionTypeException;
 import services.question.QuestionDefinition;
 import services.question.QuestionType;
+import services.question.TextQuestionDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
@@ -32,8 +33,9 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   public Content renderNewQuestionForm(Request request, QuestionType questionType) {
-    QuestionForm questionForm = new QuestionForm();
-    questionForm.setQuestionType(questionType.toString().toUpperCase());
+    QuestionForm questionForm = getQuestionFormForType(questionType);
+    // TODO(natsid): Remove the following line once we have question forms for each question type.
+    questionForm.setQuestionType(questionType);
 
     String title = String.format("New %s question", questionType.toString().toLowerCase());
 
@@ -46,9 +48,8 @@ public final class QuestionEditView extends BaseHtmlView {
     return layout.renderFull(mainContent);
   }
 
-  public Content renderNewQuestionForm(Request request, QuestionForm questionForm, String message)
-      throws InvalidQuestionTypeException {
-    QuestionType questionType = QuestionType.of(questionForm.getQuestionType());
+  public Content renderNewQuestionForm(Request request, QuestionForm questionForm, String message) {
+    QuestionType questionType = questionForm.getQuestionType();
     String title = String.format("New %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
@@ -61,8 +62,9 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   public Content renderEditQuestionForm(Request request, QuestionDefinition questionDefinition) {
-    QuestionForm questionForm = new QuestionForm(questionDefinition);
     QuestionType questionType = questionDefinition.getQuestionType();
+    QuestionForm questionForm = getQuestionFormForType(questionType, questionDefinition);
+
     String title = String.format("Edit %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
@@ -77,9 +79,8 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   public Content renderEditQuestionForm(
-      Request request, long id, QuestionForm questionForm, String message)
-      throws InvalidQuestionTypeException {
-    QuestionType questionType = QuestionType.of(questionForm.getQuestionType());
+      Request request, long id, QuestionForm questionForm, String message) {
+    QuestionType questionType = questionForm.getQuestionType();
     String title = String.format("Edit %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
@@ -132,7 +133,10 @@ public final class QuestionEditView extends BaseHtmlView {
   private ContainerTag buildNewQuestionForm(QuestionForm questionForm) {
     ContainerTag formTag = buildQuestionForm(questionForm);
     formTag
-        .withAction(controllers.admin.routes.QuestionController.create().url())
+        .withAction(
+            controllers.admin.routes.QuestionController.create(
+                    questionForm.getQuestionType().toString())
+                .url())
         .with(submitButton("Create").withClass(Styles.ML_2));
 
     return formTag;
@@ -141,13 +145,16 @@ public final class QuestionEditView extends BaseHtmlView {
   private ContainerTag buildEditQuestionForm(long id, QuestionForm questionForm) {
     ContainerTag formTag = buildQuestionForm(questionForm);
     formTag
-        .withAction(controllers.admin.routes.QuestionController.update(id).url())
+        .withAction(
+            controllers.admin.routes.QuestionController.update(
+                    id, questionForm.getQuestionType().toString())
+                .url())
         .with(submitButton("Update").withClass(Styles.ML_2));
     return formTag;
   }
 
   private ContainerTag buildQuestionForm(QuestionForm questionForm) {
-    QuestionType questionType = QuestionType.valueOf(questionForm.getQuestionType());
+    QuestionType questionType = questionForm.getQuestionType();
     ContainerTag formTag = form().withMethod("POST");
     formTag
         .with(
@@ -182,7 +189,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .getContainer())
         .with(formQuestionTypeSelect(questionType));
 
-    formTag.with(QuestionConfig.buildQuestionConfig(questionType));
+    formTag.with(QuestionConfig.buildQuestionConfig(questionType, questionForm));
     return formTag;
   }
 
@@ -203,7 +210,7 @@ public final class QuestionEditView extends BaseHtmlView {
   private DomContent formQuestionTypeSelect(QuestionType selectedType) {
     ImmutableList<SimpleEntry<String, String>> options =
         Arrays.stream(QuestionType.values())
-            .map(item -> new SimpleEntry<String, String>(item.toString(), item.name()))
+            .map(item -> new SimpleEntry<>(item.toString(), item.name()))
             .collect(ImmutableList.toImmutableList());
 
     return new SelectWithLabel()
@@ -214,5 +221,32 @@ public final class QuestionEditView extends BaseHtmlView {
         .setValue(selectedType.name())
         .getContainer()
         .withClasses(Styles.HIDDEN);
+  }
+
+  private QuestionForm getQuestionFormForType(QuestionType questionType) {
+    switch (questionType) {
+      case TEXT:
+        {
+          return new TextQuestionForm();
+        }
+      default:
+        {
+          return new QuestionForm();
+        }
+    }
+  }
+
+  private QuestionForm getQuestionFormForType(
+      QuestionType questionType, QuestionDefinition questionDefinition) {
+    switch (questionType) {
+      case TEXT:
+        {
+          return new TextQuestionForm((TextQuestionDefinition) questionDefinition);
+        }
+      default:
+        {
+          return new QuestionForm(questionDefinition);
+        }
+    }
   }
 }

@@ -1,0 +1,11 @@
+#! /usr/bin/env bash
+
+set -e
+set +x
+
+docker run -it \
+  -e PGPASSWORD=example \
+  --network universal-application-tool_default \
+  civiform-browser-test:latest \
+  /usr/bin/psql -h db -U postgres
+
