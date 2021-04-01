@@ -11,13 +11,14 @@ public class TextQuestionForm extends QuestionForm {
 
   public TextQuestionForm() {
     super();
+    setQuestionType(QuestionType.TEXT);
     minLength = OptionalInt.empty();
     maxLength = OptionalInt.empty();
-    setQuestionType(QuestionType.TEXT);
   }
 
   public TextQuestionForm(TextQuestionDefinition qd) {
     super(qd);
+    setQuestionType(QuestionType.TEXT);
     minLength = qd.getMinLength();
     maxLength = qd.getMaxLength();
   }
