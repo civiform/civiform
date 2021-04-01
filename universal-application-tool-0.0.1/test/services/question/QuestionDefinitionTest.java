@@ -278,7 +278,7 @@ public class QuestionDefinitionTest {
         .containsOnly(
             CiviFormError.of("invalid version: -1"),
             CiviFormError.of("blank name"),
-            CiviFormError.of("invalid path pattern: ''"),
+            CiviFormError.of("invalid path pattern: '$'"),
             CiviFormError.of("blank description"),
             CiviFormError.of("no question text"));
   }
