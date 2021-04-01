@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # find repo root name (currently civiform), also support any names for backward and forward compatibility
-CIVIFORM_DIR=$(pwd | awk -F / '{print $(NF-2)}')
+CIVIFORM_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd | awk -F / '{print $(NF-2)}')
 
 create_s3_cmd="s3api create-bucket --bucket civiform-local-s3 --region us-west-2"
 
