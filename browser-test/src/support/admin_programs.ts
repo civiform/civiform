@@ -8,7 +8,7 @@ export class AdminPrograms {
   }
 
   async gotoAdminProgramsPage() {
-    await this.page.click('nav :has-text("Programs")')
+    await this.page.click('nav :text("Programs")')
     await this.expectAdminProgramsPage()
   }
 
@@ -39,22 +39,37 @@ export class AdminPrograms {
     await this.expectProgramExist(programName, description)
   }
 
-  async addProgramBlock(programName: string) {
+  async gotoEditProgramPage(programName: string) {
     await this.gotoAdminProgramsPage()
-    // This only works when we have one program
-    await this.page.click('text=Edit')
-
-    await this.page.click('text="Manage Questions"')
-
-    await this.page.click('text=Add Block')
+    await this.page.click('div:has-text("' + programName + '") :text("Edit")')
+    await this.expectEditProgramPage(programName)
   }
 
-  async addQuestion(questionName: string) {
-    await this.gotoAdminProgramsPage()
-    // This only works when we have one program
-    await this.page.click('text=Edit')
+  async expectEditProgramPage(programName: string = '') {
+    expect(await this.page.innerText('h1')).toContain('Edit program: ' + programName)
+  }
+
+  async expectEditProgramBlockPage(programName: string = '') {
+    expect(await this.page.innerText('html')).toContain(programName)
+    expect(await this.page.innerText('label')).toEqual('BLOCK NAME')
+    expect(await this.page.innerText('h1')).toContain('Question bank')
+  }
+
+  async addProgramBlock(programName: string) {
+    await this.gotoEditProgramPage(programName)
 
     await this.page.click('text=Manage Questions')
+    await this.expectEditProgramBlockPage(programName)
+
+    await this.page.click('text=Add Block')
+    expect(await this.page.getAttribute('input#block-name-input', 'value')).toEqual('Block 2')
+  }
+
+  async addQuestion(programName: string, questionName: string) {
+    await this.gotoEditProgramPage(programName)
+
+    await this.page.click('text=Manage Questions')
+    await this.expectEditProgramBlockPage(programName)
 
     await this.page.click('text=Add Block')
   }

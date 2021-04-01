@@ -15,7 +15,9 @@ describe('normal application flow', () => {
 
     const adminProgram = new AdminPrograms(page)
 
-    await adminProgram.addProgram('A shiny new program')
+    const programName = 'A shiny new program'
+    await adminProgram.addProgram(programName)
+    await adminProgram.addProgramBlock(programName)
 
     await endSession(browser)
   })

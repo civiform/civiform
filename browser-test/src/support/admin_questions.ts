@@ -8,7 +8,7 @@ export class AdminQuestions {
   }
 
   async gotoAdminQuestionsPage() {
-    await this.page.click('nav :has-text("Questions")')
+    await this.page.click('nav :text("Questions")')
     await this.expectAdminQuestionsPage()
   }
 
