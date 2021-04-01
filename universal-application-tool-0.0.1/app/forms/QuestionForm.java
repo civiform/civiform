@@ -75,7 +75,7 @@ public class QuestionForm {
   public Path getQuestionPath() {
     String questionNameFormattedForPath =
         questionName.replaceAll("\\s", "_").replaceAll("[^a-zA-Z_]", "");
-    if (questionType.equals(QuestionType.REPEATER.toString())) {
+    if (questionType.equals(QuestionType.REPEATER)) {
       questionNameFormattedForPath += Path.ARRAY_SUFFIX;
     }
     return questionParentPath.join(questionNameFormattedForPath);
