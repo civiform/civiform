@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import controllers.CiviFormController;
+import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
 import java.util.Arrays;
@@ -175,6 +176,11 @@ public class QuestionController extends CiviFormController {
     }
 
     switch (questionType) {
+      case DROPDOWN:
+        {
+          Form<MultiOptionQuestionForm> form = formFactory.form(MultiOptionQuestionForm.class);
+          return form.bindFromRequest(request).get();
+        }
       case TEXT:
         {
           Form<TextQuestionForm> form = formFactory.form(TextQuestionForm.class);
