@@ -11,15 +11,16 @@ public class TextQuestionForm extends QuestionForm {
 
   public TextQuestionForm() {
     super();
-    textMinLength = OptionalInt.empty();
-    textMaxLength = OptionalInt.empty();
     // TODO(https://github.com/seattle-uat/civiform/issues/590): Use QuestionType instead of String
     //  for this?
     setQuestionType("TEXT");
+    textMinLength = OptionalInt.empty();
+    textMaxLength = OptionalInt.empty();
   }
 
   public TextQuestionForm(TextQuestionDefinition qd) {
     super(qd);
+    setQuestionType("TEXT");
     textMinLength = qd.getMinLength();
     textMaxLength = qd.getMaxLength();
   }
