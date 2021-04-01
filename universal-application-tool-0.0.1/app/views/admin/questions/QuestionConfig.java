@@ -59,8 +59,9 @@ public class QuestionConfig {
       case ADDRESS:
         return config.setId("address-question-config").addAddressQuestionConfig().getContainer();
       case DROPDOWN:
+      case RADIO_BUTTON:
         return config
-            .setId("multi-option-question-config")
+            .setId("single-select-question-config")
             .addMultiOptionQuestionConfig()
             .getContainer();
       case TEXT:

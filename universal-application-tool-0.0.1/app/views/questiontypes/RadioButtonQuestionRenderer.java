@@ -45,9 +45,10 @@ public class RadioButtonQuestionRenderer extends BaseHtmlView implements Applica
   }
 
   private Tag renderSingleRadioOption(String name, String optionName) {
+    String id = optionName.replaceAll("\\s+", "_");
     return div()
         .with(
-            input().withId(optionName).withType("radio").withName(name),
-            label(optionName).attr(Attr.FOR, optionName));
+            input().withId(id).withType("radio").withName(name),
+            label(optionName).attr(Attr.FOR, id));
   }
 }
