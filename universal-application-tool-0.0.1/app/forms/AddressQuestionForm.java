@@ -29,7 +29,8 @@ public class AddressQuestionForm extends QuestionForm {
 
   @Override
   public QuestionDefinitionBuilder getBuilder() {
-    AddressQuestionDefinition.AddressValidationPredicates.Builder addressValidationPredicatesBuilder =
+    AddressQuestionDefinition.AddressValidationPredicates.Builder
+        addressValidationPredicatesBuilder =
             AddressQuestionDefinition.AddressValidationPredicates.builder();
 
     addressValidationPredicatesBuilder.setDisallowPoBox(getDisallowPoBox());

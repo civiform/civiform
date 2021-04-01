@@ -6,6 +6,7 @@ import static j2html.TagCreator.main;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import forms.AddressQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
@@ -15,6 +16,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.question.AddressQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionType;
 import services.question.TextQuestionDefinition;
@@ -229,6 +231,10 @@ public final class QuestionEditView extends BaseHtmlView {
         {
           return new TextQuestionForm();
         }
+      case ADDRESS:
+        {
+          return new AddressQuestionForm();
+        }
       default:
         {
           return new QuestionForm();
@@ -242,6 +248,10 @@ public final class QuestionEditView extends BaseHtmlView {
       case TEXT:
         {
           return new TextQuestionForm((TextQuestionDefinition) questionDefinition);
+        }
+      case ADDRESS:
+        {
+          return new AddressQuestionForm((AddressQuestionDefinition) questionDefinition);
         }
       default:
         {

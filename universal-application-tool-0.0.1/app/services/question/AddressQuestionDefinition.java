@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.OptionalLong;
 import services.Path;
 
@@ -54,7 +53,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
   }
 
   @JsonDeserialize(
-          builder = AutoValue_AddressQuestionDefinition_AddressValidationPredicates.Builder.class)
+      builder = AutoValue_AddressQuestionDefinition_AddressValidationPredicates.Builder.class)
   @AutoValue
   public abstract static class AddressValidationPredicates extends ValidationPredicates {
 

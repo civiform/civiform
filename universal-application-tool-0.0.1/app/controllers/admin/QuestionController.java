@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import controllers.CiviFormController;
+import forms.AddressQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
 import java.util.Arrays;
@@ -183,6 +184,11 @@ public class QuestionController extends CiviFormController {
           // that. But since we don't rely on the spring form data binder system for validation, we
           // can "safely" ignore these errors.
           return form.bindFromRequest(request).discardingErrors().get();
+        }
+      case ADDRESS:
+        {
+          Form<AddressQuestionForm> form = formFactory.form(AddressQuestionForm.class);
+          return form.bindFromRequest(request).get();
         }
       default:
         {

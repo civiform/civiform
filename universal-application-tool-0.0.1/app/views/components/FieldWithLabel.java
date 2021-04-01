@@ -147,9 +147,10 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setValue(String value) {
-    if (this.fieldType.equals("number")) {
+    if (this.fieldType.equals("number") || this.fieldType.equals("checkbox")) {
       throw new RuntimeException(
-          "setting a String value is not available on fields of type `number`");
+          String.format(
+              "setting a String value is not available on fields of type `%s`", this.fieldType));
     }
 
     this.fieldValue = value;
@@ -181,7 +182,7 @@ public class FieldWithLabel {
       if (this.fieldNumberValue.isPresent()) {
         fieldTag.withValue(String.valueOf(this.fieldNumberValue.getAsInt()));
       }
-    } else {
+    } else if (!this.fieldType.equals("checked")) {
       fieldTag.withValue(this.fieldValue);
     }
 

@@ -6,6 +6,7 @@ import static j2html.TagCreator.label;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import forms.AddressQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
@@ -68,7 +69,10 @@ public class QuestionConfig {
             .addTextQuestionConfig((TextQuestionForm) questionForm)
             .getContainer();
       case ADDRESS:
-        return config.setId("address-question-config").addAddressQuestionConfig().getContainer();
+        return config
+            .setId("address-question-config")
+            .addAddressQuestionConfig((AddressQuestionForm) questionForm)
+            .getContainer();
       case DROPDOWN:
         return config
             .setId("single-select-question-config")
@@ -83,7 +87,7 @@ public class QuestionConfig {
     }
   }
 
-  private QuestionConfig addAddressQuestionConfig() {
+  private QuestionConfig addAddressQuestionConfig(AddressQuestionForm addressQuestionForm) {
     content.with(
         new SelectWithLabel()
             .setId("address-question-default-state-select")
@@ -96,6 +100,7 @@ public class QuestionConfig {
             .setId("address-question-disallow-po-box-checkbox")
             .setFieldName("disallowPoBox")
             .setLabelText("Disallow post office boxes")
+            .setChecked(addressQuestionForm.getDisallowPoBox())
             .getContainer(),
         FieldWithLabel.checkbox()
             .setId("address-question-include-none-checkbox")
