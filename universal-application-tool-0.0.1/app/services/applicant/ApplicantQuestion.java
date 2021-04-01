@@ -127,6 +127,9 @@ public class ApplicantQuestion {
 
   public class AddressQuestion implements PresentsErrors {
 
+    private static final String PO_BOX_REGEX =
+        "([\\w\\s*\\W]*(P(OST)?.?\\s*((O(FF(ICE)?)?)?.?\\s*(B(IN|OX|.?))|B(IN|OX))+))[\\w\\s*\\W]*";
+
     private Optional<String> streetValue;
     private Optional<String> cityValue;
     private Optional<String> stateValue;
@@ -142,8 +145,22 @@ public class ApplicantQuestion {
     }
 
     public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-      // TODO: Implement admin-defined validation.
-      return ImmutableSet.of();
+      if (!hasStreetValue() && !hasCityValue() && !hasStateValue() && !hasZipValue()) {
+        return ImmutableSet.of();
+      }
+
+      AddressQuestionDefinition definition = getQuestionDefinition();
+      ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
+
+      if (definition.getDisallowPoBox()) {
+        Pattern pattern = Pattern.compile(PO_BOX_REGEX);
+        Matcher matcher = pattern.matcher(getStreetValue().get());
+        if (matcher.matches()) {
+          return ImmutableSet.of(ValidationErrorMessage.create("Please enter a non P.O. Box."));
+        }
+      }
+
+      return errors.build();
     }
 
     @Override
@@ -328,8 +345,7 @@ public class ApplicantQuestion {
 
       TextQuestionDefinition definition = getQuestionDefinition();
       int textLength = getTextValue().map(s -> s.length()).orElse(0);
-      ImmutableSet.Builder<ValidationErrorMessage> errors =
-          ImmutableSet.<ValidationErrorMessage>builder();
+      ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
       if (definition.getMinLength().isPresent()) {
         int minLength = definition.getMinLength().getAsInt();
