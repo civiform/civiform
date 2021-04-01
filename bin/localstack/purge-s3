@@ -1,7 +1,8 @@
 #!/bin/bash
+pushd $(git rev-parse --show-toplevel)
 
 # find repo root name (currently civiform), also support any names for backward and forward compatibility
-CIVIFORM_DIR=$(pwd | awk -F / '{print $(NF-2)}')
+CIVIFORM_DIR=${PWD##*/}
 
 purge_s3_cmd="s3 rm s3://civiform-local-s3/ --recursive"
 
@@ -18,3 +19,5 @@ if ! which aws; then
 fi
 
 aws --endpoint-url=http://localhost:4566 $purge_s3_cmd
+
+popd

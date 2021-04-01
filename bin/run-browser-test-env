@@ -1,10 +1,13 @@
 #!/bin/bash
+pushd $(git rev-parse --show-toplevel)
 
 # run bin/pull-image
-$( dirname ${BASH_SOURCE[0]})/pull-image
+bin/pull-image
 
 if [ -f ".secrets" ]; then
   . .secrets
 fi
 
 docker-compose -f browser-test/browser-test-compose.yml up
+
+popd
