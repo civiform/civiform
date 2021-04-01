@@ -17,6 +17,8 @@ public abstract class Path {
   public static final String ARRAY_SUFFIX = "[]";
   private static final String JSON_PATH_START_TOKEN = "$";
   private static final Pattern ARRAY_INDEX_REGEX = Pattern.compile(".*(\\[(\\d+)])$");
+  private static final int ARRAY_SUFFIX_GROUP = 1;
+  private static final int ARRAY_INDEX_GROUP = 2;
   private static final char JSON_PATH_DIVIDER = '.';
   private static final String JSON_PATH_START = JSON_PATH_START_TOKEN + JSON_PATH_DIVIDER;
   private static final Splitter JSON_SPLITTER = Splitter.on(JSON_PATH_DIVIDER);
@@ -119,20 +121,21 @@ public abstract class Path {
    * Returns a path with a trailing array element reference stripped away. For example, {@code
    * applicant.children[2]} would return a path to {@code applicant.children}.
    *
-   * <p>For paths to non-array elements, the path returned is the same as the original.
+   * <p>For paths to non-array elements, {@code IllegalStateException is thrown}.
    */
   public Path withoutArrayReference() {
     return parentPath().join(keyNameWithoutArrayIndex());
   }
 
   /**
-   * Return the index of the array element this path is referencing. If this path is not referencing
-   * an array element, an empty optional is returned.
+   * Return the index of the array element this path is referencing.
+   *
+   * <p>For paths to non-array elements, {@code IllegalStateException is thrown}.
    */
   public int arrayIndex() {
     Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
     if (matcher.matches()) {
-      return Integer.valueOf(matcher.group(2));
+      return Integer.valueOf(matcher.group(ARRAY_INDEX_GROUP));
     }
     throw new IllegalStateException(
         String.format("This path %s does not reference an array element.", this));
@@ -141,8 +144,7 @@ public abstract class Path {
   /**
    * Return a new path referencing array element at the index.
    *
-   * <p>If this path is not referencing an array element, then the path returned is the same as the
-   * original.
+   * <p>For paths to non-array elements, {@code IllegalStateException is thrown}.
    */
   public Path atIndex(int index) {
     Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
@@ -150,7 +152,10 @@ public abstract class Path {
       return parentPath()
           .join(
               new StringBuilder(keyName())
-                  .replace(matcher.start(2), matcher.end(2), String.valueOf(index))
+                  .replace(
+                      matcher.start(ARRAY_INDEX_GROUP),
+                      matcher.end(ARRAY_INDEX_GROUP),
+                      String.valueOf(index))
                   .toString());
     }
     throw new IllegalStateException(
@@ -158,15 +163,17 @@ public abstract class Path {
   }
 
   /**
-   * Returns the path's key name without an array index suffix.
+   * Returns the path's key name without an array index suffix. e.g. {@code a.b[1].c[3]} returns
+   * "c".
    *
-   * <p>For paths to non-array elements, this is the same as {@link #keyName()}. For paths to array
-   * elements {@code a.b[1].c[3]}, the key without the array index suffix is returned: "c".
+   * <p>For paths to non-array elements, {@code IllegalStateException is thrown}.
    */
-  public String keyNameWithoutArrayIndex() {
+  private String keyNameWithoutArrayIndex() {
     Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
     if (matcher.matches()) {
-      return new StringBuilder(keyName()).replace(matcher.start(1), matcher.end(1), "").toString();
+      return new StringBuilder(keyName())
+          .replace(matcher.start(ARRAY_SUFFIX_GROUP), matcher.end(ARRAY_SUFFIX_GROUP), "")
+          .toString();
     }
     throw new IllegalStateException(
         String.format("This path %s does not reference an array element.", this));
