@@ -20,6 +20,7 @@ public class AddressQuestionFormTest {
     form.setQuestionParentPath("my.question.path");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
+    form.setDisallowPoBox(true);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     // The QuestionForm does not set version, which is needed in order to build the
@@ -34,7 +35,7 @@ public class AddressQuestionFormTest {
             "description",
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
-            AddressQuestionDefinition.AddressValidationPredicates.create());
+            AddressQuestionDefinition.AddressValidationPredicates.create(true));
 
     QuestionDefinition actual = builder.build();
 

@@ -93,9 +93,9 @@ public class QuestionConfig {
             .setValue("-")
             .getContainer(),
         FieldWithLabel.checkbox()
-            .setId("address-question-allow-po-box-checkbox")
-            .setFieldName("poBox")
-            .setLabelText("Allow post office boxes")
+            .setId("address-question-disallow-po-box-checkbox")
+            .setFieldName("disallowPoBox")
+            .setLabelText("Disallow post office boxes")
             .getContainer(),
         FieldWithLabel.checkbox()
             .setId("address-question-include-none-checkbox")

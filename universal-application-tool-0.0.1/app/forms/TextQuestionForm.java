@@ -12,15 +12,15 @@ public class TextQuestionForm extends QuestionForm {
   public TextQuestionForm() {
     super();
     setQuestionType(QuestionType.TEXT);
-    minLength = OptionalInt.empty();
-    maxLength = OptionalInt.empty();
+    this.minLength = OptionalInt.empty();
+    this.maxLength = OptionalInt.empty();
   }
 
   public TextQuestionForm(TextQuestionDefinition qd) {
     super(qd);
     setQuestionType(QuestionType.TEXT);
-    minLength = qd.getMinLength();
-    maxLength = qd.getMaxLength();
+    this.minLength = qd.getMinLength();
+    this.maxLength = qd.getMaxLength();
   }
 
   public OptionalInt getMinLength() {
@@ -44,13 +44,8 @@ public class TextQuestionForm extends QuestionForm {
     TextQuestionDefinition.TextValidationPredicates.Builder textValidationPredicatesBuilder =
         TextQuestionDefinition.TextValidationPredicates.builder();
 
-    if (getMinLength().isPresent()) {
-      textValidationPredicatesBuilder.setMinLength(getMinLength().getAsInt());
-    }
-
-    if (getMaxLength().isPresent()) {
-      textValidationPredicatesBuilder.setMaxLength(getMaxLength().getAsInt());
-    }
+    textValidationPredicatesBuilder.setMinLength(getMinLength());
+    textValidationPredicatesBuilder.setMaxLength(getMaxLength());
 
     return super.getBuilder().setValidationPredicates(textValidationPredicatesBuilder.build());
   }

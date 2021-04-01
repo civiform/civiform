@@ -1,9 +1,12 @@
 package services.question;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.OptionalLong;
 import services.Path;
 
@@ -50,6 +53,8 @@ public class AddressQuestionDefinition extends QuestionDefinition {
         AddressValidationPredicates.create());
   }
 
+  @JsonDeserialize(
+          builder = AutoValue_AddressQuestionDefinition_AddressValidationPredicates.Builder.class)
   @AutoValue
   public abstract static class AddressValidationPredicates extends ValidationPredicates {
 
@@ -63,7 +68,27 @@ public class AddressQuestionDefinition extends QuestionDefinition {
     }
 
     public static AddressValidationPredicates create() {
-      return new AutoValue_AddressQuestionDefinition_AddressValidationPredicates();
+      return builder().setDisallowPoBox(false).build();
+    }
+
+    public static AddressValidationPredicates create(boolean disallowPoBox) {
+      return builder().setDisallowPoBox(disallowPoBox).build();
+    }
+
+    @JsonProperty("disallowPoBox")
+    public abstract boolean disallowPoBox();
+
+    public static Builder builder() {
+      return new AutoValue_AddressQuestionDefinition_AddressValidationPredicates.Builder();
+    }
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+
+      @JsonProperty("disallowPoBox")
+      public abstract Builder setDisallowPoBox(boolean disallowPoBox);
+
+      public abstract AddressValidationPredicates build();
     }
   }
 
@@ -115,5 +140,9 @@ public class AddressQuestionDefinition extends QuestionDefinition {
 
   public ScalarType getZipType() {
     return ScalarType.STRING;
+  }
+
+  public boolean getDisallowPoBox() {
+    return getAddressValidationPredicates().disallowPoBox();
   }
 }
