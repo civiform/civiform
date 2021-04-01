@@ -26,6 +26,7 @@ import services.question.DropdownQuestionDefinition;
 import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionService;
+import services.question.RadioButtonQuestionDefinition;
 import services.question.TextQuestionDefinition;
 import views.dev.DatabaseSeedView;
 
@@ -156,6 +157,22 @@ public class DatabaseSeedController extends Controller {
         .getResult();
   }
 
+  private QuestionDefinition insertRadioButtonQuestionDefinition() {
+    return questionService
+        .create(
+            new RadioButtonQuestionDefinition(
+                1L,
+                "dropdown",
+                Path.create("applicant.favorite_season"),
+                "favorite season in the year",
+                ImmutableMap.of(Locale.US, "What is your favorite season?"),
+                ImmutableMap.of(Locale.US, "this is sample help text"),
+                ImmutableListMultimap.of(
+                    Locale.US, "winter", Locale.US, "spring", Locale.US, "summer", Locale.US,
+                    "fall")))
+        .getResult();
+  }
+
   private ProgramDefinition insertProgramWithBlocks(String name) {
     try {
       ProgramDefinition programDefinition =
@@ -198,6 +215,16 @@ public class DatabaseSeedController extends Controller {
                   "Ice Cream Information",
                   ImmutableList.of(
                       ProgramQuestionDefinition.create(insertDropdownQuestionDefinition())))
+              .getResult();
+
+      programDefinition =
+          programService
+              .addBlockToProgram(
+                  programDefinition.id(),
+                  "Block 4",
+                  "Season Information",
+                  ImmutableList.of(
+                      ProgramQuestionDefinition.create(insertRadioButtonQuestionDefinition())))
               .getResult();
 
       return programDefinition;
