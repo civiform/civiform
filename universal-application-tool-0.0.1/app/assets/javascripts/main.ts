@@ -9,6 +9,7 @@
  */
 
 function attachDropdown(elementId: string) {
+  // simple change.
   const dropdownId = elementId + "-dropdown";
   const element = document.getElementById(elementId);
   const dropdown = document.getElementById(dropdownId);
