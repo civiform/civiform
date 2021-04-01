@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# find civiform folder, also support any names for backward and forward compatibility
 BASE_DIR=$(pwd | awk -F / '{print $(NF-2)}')
 
 purge_s3_cmd="s3 rm s3://civiform-local-s3/ --recursive"
