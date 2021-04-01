@@ -145,8 +145,8 @@ public class ApplicantData {
   }
 
   /**
-   * Put parent of path if it doesn't already exist. There are two types of parents: JSON objects and JSON
-   * arrays.
+   * Put parent of path if it doesn't already exist. There are two types of parents: JSON objects
+   * and JSON arrays.
    *
    * <p>For JSON object parents, if it doesn't already exist an empty map is put in the right place.
    *
@@ -173,12 +173,13 @@ public class ApplicantData {
   }
 
   /**
-   * Put parent of path if it doesn't already exist, for parents that are arrays (e.g. something[n]),
-   * and add empty JSON objects until an element at the index specified by the path is available.
+   * Put parent of path if it doesn't already exist, for parents that are arrays (e.g.
+   * something[n]), and add empty JSON objects until an element at the index specified by the path
+   * is available.
    */
   private void putParentList(Path path) {
     Path parentPath = path.parentPath();
-    int index = parentPath.arrayIndex().get();
+    int index = parentPath.arrayIndex();
 
     // For n=0, put a new array in, and add the 0th element.
     if (index == 0) {

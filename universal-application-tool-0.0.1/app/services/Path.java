@@ -5,7 +5,6 @@ import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -130,12 +129,13 @@ public abstract class Path {
    * Return the index of the array element this path is referencing. If this path is not referencing
    * an array element, an empty optional is returned.
    */
-  public Optional<Integer> arrayIndex() {
+  public int arrayIndex() {
     Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
     if (matcher.matches()) {
-      return Optional.of(Integer.valueOf(matcher.group(2)));
+      return Integer.valueOf(matcher.group(2));
     }
-    return Optional.empty();
+    throw new IllegalStateException(
+        String.format("This path %s does not reference an array element.", this));
   }
 
   /**
@@ -146,14 +146,15 @@ public abstract class Path {
    */
   public Path atIndex(int index) {
     Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
-    String newKeyName = keyName();
     if (matcher.matches()) {
-      newKeyName =
-          new StringBuilder(keyName())
-              .replace(matcher.start(2), matcher.end(2), String.valueOf(index))
-              .toString();
+      return parentPath()
+          .join(
+              new StringBuilder(keyName())
+                  .replace(matcher.start(2), matcher.end(2), String.valueOf(index))
+                  .toString());
     }
-    return parentPath().join(newKeyName);
+    throw new IllegalStateException(
+        String.format("This path %s does not reference an array element.", this));
   }
 
   /**
@@ -164,12 +165,11 @@ public abstract class Path {
    */
   public String keyNameWithoutArrayIndex() {
     Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
-    String newKeyName = keyName();
     if (matcher.matches()) {
-      newKeyName =
-          new StringBuilder(keyName()).replace(matcher.start(1), matcher.end(1), "").toString();
+      return new StringBuilder(keyName()).replace(matcher.start(1), matcher.end(1), "").toString();
     }
-    return newKeyName;
+    throw new IllegalStateException(
+        String.format("This path %s does not reference an array element.", this));
   }
 
   public abstract Builder toBuilder();

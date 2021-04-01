@@ -118,13 +118,7 @@ public class PathTest {
   @Test
   public void arrayIndex() {
     Path path = Path.create("one.two[33]");
-    assertThat(path.arrayIndex()).hasValue(33);
-  }
-
-  @Test
-  public void arrayIndex_notArrayElement() {
-    Path path = Path.create("one.two");
-    assertThat(path.arrayIndex()).isEmpty();
+    assertThat(path.arrayIndex()).isEqualTo(33);
   }
 
   @Test
