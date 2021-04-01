@@ -1,10 +1,12 @@
 #!/bin/bash
 
+BASE_DIR=$(pwd | awk -F / '{print $(NF-2)}')
+
 purge_s3_cmd="s3 rm s3://civiform-local-s3/ --recursive"
 
 if ! which aws; then
     docker run --rm -it \
-    --network universal-application-tool_default \
+    --network ${BASE_DIR}_default \
     -e AWS_ACCESS_KEY_ID=test \
     -e AWS_SECRET_ACCESS_KEY=test \
     amazon/aws-cli \
