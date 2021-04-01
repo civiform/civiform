@@ -166,7 +166,7 @@ public class ApplicantData {
     putParentIfMissing(parentPath);
 
     if (parentPath.isArrayElement()) {
-      putParentList(path);
+      putParentArray(path);
     } else {
       putAt(parentPath, new HashMap<>());
     }
@@ -177,7 +177,7 @@ public class ApplicantData {
    * something[n]), and add empty JSON objects until an element at the index specified by the path
    * is available.
    */
-  private void putParentList(Path path) {
+  private void putParentArray(Path path) {
     Path parentPath = path.parentPath();
     int index = parentPath.arrayIndex();
 
