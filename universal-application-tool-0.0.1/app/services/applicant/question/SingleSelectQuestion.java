@@ -2,12 +2,11 @@ package services.applicant.question;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.MultiOptionQuestionDefinition;
 import services.question.TranslationNotFoundException;
-
-import java.util.Optional;
 
 // TODO(https://github.com/seattle-uat/civiform/issues/396): Implement a question that allows for
 // multiple answer selections (i.e. the value is a list)
@@ -46,7 +45,7 @@ public class SingleSelectQuestion implements PresentsErrors {
       return selectedOptionValue;
     }
 
-    selectedOptionValue = applicantQuestion.applicantData.readString(getSelectionPath());
+    selectedOptionValue = applicantQuestion.getApplicantData().readString(getSelectionPath());
 
     return selectedOptionValue;
   }
@@ -54,15 +53,16 @@ public class SingleSelectQuestion implements PresentsErrors {
   public void assertQuestionType() {
     if (!applicantQuestion.getType().isMultiOptionType()) {
       throw new RuntimeException(
-              String.format(
-                      "Question is not a multi-option question: %s (type: %s)",
-                      applicantQuestion.questionDefinition.getPath(), applicantQuestion.questionDefinition.getQuestionType()));
+          String.format(
+              "Question is not a multi-option question: %s (type: %s)",
+              applicantQuestion.getQuestionDefinition().getPath(),
+              applicantQuestion.getQuestionDefinition().getQuestionType()));
     }
   }
 
   public MultiOptionQuestionDefinition getQuestionDefinition() {
     assertQuestionType();
-    return (MultiOptionQuestionDefinition) applicantQuestion.questionDefinition;
+    return (MultiOptionQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 
   public Path getSelectionPath() {
@@ -71,7 +71,8 @@ public class SingleSelectQuestion implements PresentsErrors {
 
   public ImmutableList<String> getOptions() {
     try {
-      return getQuestionDefinition().getOptionsForLocale(applicantQuestion.applicantData.preferredLocale());
+      return getQuestionDefinition()
+          .getOptionsForLocale(applicantQuestion.getApplicantData().preferredLocale());
     } catch (TranslationNotFoundException e) {
       throw new RuntimeException(e);
     }

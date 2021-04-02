@@ -1,9 +1,7 @@
 package services.applicant.question;
 
 public interface PresentsErrors {
-  /**
-   * Returns true if values do not meet conditions defined by admins.
-   */
+  /** Returns true if values do not meet conditions defined by admins. */
   boolean hasQuestionErrors();
 
   /**

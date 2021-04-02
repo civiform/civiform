@@ -1,12 +1,11 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.NumberQuestionDefinition;
 import services.question.QuestionType;
-
-import java.util.Optional;
 
 public class NumberQuestion implements PresentsErrors {
 
@@ -30,8 +29,7 @@ public class NumberQuestion implements PresentsErrors {
 
     NumberQuestionDefinition definition = getQuestionDefinition();
     long answer = getNumberValue().get();
-    ImmutableSet.Builder<ValidationErrorMessage> errors =
-            ImmutableSet.<ValidationErrorMessage>builder();
+    ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
     if (definition.getMin().isPresent()) {
       long min = definition.getMin().getAsLong();
@@ -65,7 +63,7 @@ public class NumberQuestion implements PresentsErrors {
       return numberValue;
     }
 
-    numberValue = applicantQuestion.applicantData.readLong(getNumberPath());
+    numberValue = applicantQuestion.getApplicantData().readLong(getNumberPath());
 
     return numberValue;
   }
@@ -73,15 +71,16 @@ public class NumberQuestion implements PresentsErrors {
   public void assertQuestionType() {
     if (!applicantQuestion.getType().equals(QuestionType.NUMBER)) {
       throw new RuntimeException(
-              String.format(
-                      "Question is not a NUMBER question: %s (type: %s)",
-                      applicantQuestion.questionDefinition.getPath(), applicantQuestion.questionDefinition.getQuestionType()));
+          String.format(
+              "Question is not a NUMBER question: %s (type: %s)",
+              applicantQuestion.getQuestionDefinition().getPath(),
+              applicantQuestion.getQuestionDefinition().getQuestionType()));
     }
   }
 
   public NumberQuestionDefinition getQuestionDefinition() {
     assertQuestionType();
-    return (NumberQuestionDefinition) applicantQuestion.questionDefinition;
+    return (NumberQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 
   public Path getNumberPath() {

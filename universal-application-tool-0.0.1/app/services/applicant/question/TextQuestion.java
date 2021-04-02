@@ -1,12 +1,11 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.QuestionType;
 import services.question.TextQuestionDefinition;
-
-import java.util.Optional;
 
 public class TextQuestion implements PresentsErrors {
 
@@ -31,8 +30,7 @@ public class TextQuestion implements PresentsErrors {
 
     TextQuestionDefinition definition = getQuestionDefinition();
     int textLength = getTextValue().map(s -> s.length()).orElse(0);
-    ImmutableSet.Builder<ValidationErrorMessage> errors =
-            ImmutableSet.<ValidationErrorMessage>builder();
+    ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
     if (definition.getMinLength().isPresent()) {
       int minLength = definition.getMinLength().getAsInt();
@@ -66,7 +64,7 @@ public class TextQuestion implements PresentsErrors {
       return textValue;
     }
 
-    textValue = applicantQuestion.applicantData.readString(getTextPath());
+    textValue = applicantQuestion.getApplicantData().readString(getTextPath());
 
     return textValue;
   }
@@ -74,15 +72,16 @@ public class TextQuestion implements PresentsErrors {
   public void assertQuestionType() {
     if (!applicantQuestion.getType().equals(QuestionType.TEXT)) {
       throw new RuntimeException(
-              String.format(
-                      "Question is not a TEXT question: %s (type: %s)",
-                      applicantQuestion.questionDefinition.getPath(), applicantQuestion.questionDefinition.getQuestionType()));
+          String.format(
+              "Question is not a TEXT question: %s (type: %s)",
+              applicantQuestion.getQuestionDefinition().getPath(),
+              applicantQuestion.getQuestionDefinition().getQuestionType()));
     }
   }
 
   public TextQuestionDefinition getQuestionDefinition() {
     assertQuestionType();
-    return (TextQuestionDefinition) applicantQuestion.questionDefinition;
+    return (TextQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 
   public Path getTextPath() {

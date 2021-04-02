@@ -27,6 +27,14 @@ public class ApplicantQuestion {
     this.applicantData = checkNotNull(applicantData);
   }
 
+  protected ApplicantData getApplicantData() {
+    return this.applicantData;
+  }
+
+  protected QuestionDefinition getQuestionDefinition() {
+    return this.questionDefinition;
+  }
+
   public QuestionType getType() {
     return questionDefinition.getQuestionType();
   }

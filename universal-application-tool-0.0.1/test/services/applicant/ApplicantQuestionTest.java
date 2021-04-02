@@ -16,6 +16,7 @@ import org.junit.runner.RunWith;
 import services.Path;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.NameQuestion;
 import services.applicant.question.NumberQuestion;
 import services.applicant.question.SingleSelectQuestion;
 import services.applicant.question.TextQuestion;
@@ -112,8 +113,7 @@ public class ApplicantQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(textQuestionDefinition, applicantData);
 
-    assertThat(applicantQuestion.getTextQuestion())
-        .isInstanceOf(TextQuestion.class);
+    assertThat(applicantQuestion.getTextQuestion()).isInstanceOf(TextQuestion.class);
     assertThat(applicantQuestion.getQuestionText()).isEqualTo("question?");
     assertThat(applicantQuestion.hasErrors()).isFalse();
   }
@@ -159,8 +159,7 @@ public class ApplicantQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(numberQuestionDefinition, applicantData);
 
-    assertThat(applicantQuestion.getNumberQuestion())
-        .isInstanceOf(NumberQuestion.class);
+    assertThat(applicantQuestion.getNumberQuestion()).isInstanceOf(NumberQuestion.class);
     assertThat(applicantQuestion.getQuestionText()).isEqualTo("question?");
     assertThat(applicantQuestion.hasErrors()).isFalse();
   }
@@ -219,8 +218,7 @@ public class ApplicantQuestionTest {
     applicantData.putString(dropdownQuestionDefinition.getSelectionPath(), "answer");
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
-    SingleSelectQuestion singleSelectQuestion =
-        applicantQuestion.getSingleSelectQuestion();
+    SingleSelectQuestion singleSelectQuestion = applicantQuestion.getSingleSelectQuestion();
 
     assertThat(singleSelectQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(singleSelectQuestion.getSelectedOptionValue()).hasValue("answer");
@@ -233,8 +231,7 @@ public class ApplicantQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(nameQuestionDefinition, applicantData);
 
-    assertThat(applicantQuestion.getNameQuestion())
-        .isInstanceOf(ApplicantQuestion.NameQuestion.class);
+    assertThat(applicantQuestion.getNameQuestion()).isInstanceOf(NameQuestion.class);
     assertThat(applicantQuestion.getQuestionText()).isEqualTo("question?");
     assertThat(applicantQuestion.hasErrors()).isFalse();
   }
@@ -245,7 +242,7 @@ public class ApplicantQuestionTest {
     applicantData.putString(nameQuestionDefinition.getLastNamePath(), "");
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(nameQuestionDefinition, applicantData);
-    ApplicantQuestion.NameQuestion nameQuestion = applicantQuestion.getNameQuestion();
+    NameQuestion nameQuestion = applicantQuestion.getNameQuestion();
 
     assertThat(applicantQuestion.hasErrors()).isTrue();
     assertThat(nameQuestion.getFirstNameErrors())
@@ -260,7 +257,7 @@ public class ApplicantQuestionTest {
     applicantData.putString(nameQuestionDefinition.getLastNamePath(), "Patrick");
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(nameQuestionDefinition, applicantData);
-    ApplicantQuestion.NameQuestion nameQuestion = applicantQuestion.getNameQuestion();
+    NameQuestion nameQuestion = applicantQuestion.getNameQuestion();
 
     assertThat(applicantQuestion.hasErrors()).isFalse();
     assertThat(nameQuestion.getFirstNameValue().get()).isEqualTo("Wendel");
@@ -272,8 +269,7 @@ public class ApplicantQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(addressQuestionDefinition, applicantData);
 
-    assertThat(applicantQuestion.getAddressQuestion())
-        .isInstanceOf(AddressQuestion.class);
+    assertThat(applicantQuestion.getAddressQuestion()).isInstanceOf(AddressQuestion.class);
     assertThat(applicantQuestion.getQuestionText()).isEqualTo("question?");
     assertThat(applicantQuestion.hasErrors()).isFalse();
   }

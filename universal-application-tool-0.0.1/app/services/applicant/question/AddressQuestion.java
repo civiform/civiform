@@ -1,14 +1,13 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.AddressQuestionDefinition;
 import services.question.QuestionType;
-
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class AddressQuestion implements PresentsErrors {
 
@@ -40,12 +39,12 @@ public class AddressQuestion implements PresentsErrors {
 
   public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
     return ImmutableSet.<ValidationErrorMessage>builder()
-            .addAll(getAddressErrors())
-            .addAll(getStreetErrors())
-            .addAll(getCityErrors())
-            .addAll(getStateErrors())
-            .addAll(getZipErrors())
-            .build();
+        .addAll(getAddressErrors())
+        .addAll(getStreetErrors())
+        .addAll(getCityErrors())
+        .addAll(getStateErrors())
+        .addAll(getZipErrors())
+        .build();
   }
 
   public ImmutableSet<ValidationErrorMessage> getAddressErrors() {
@@ -116,7 +115,7 @@ public class AddressQuestion implements PresentsErrors {
       return streetValue;
     }
 
-    streetValue = applicantQuestion.applicantData.readString(getStreetPath());
+    streetValue = applicantQuestion.getApplicantData().readString(getStreetPath());
     return streetValue;
   }
 
@@ -125,7 +124,7 @@ public class AddressQuestion implements PresentsErrors {
       return cityValue;
     }
 
-    cityValue = applicantQuestion.applicantData.readString(getCityPath());
+    cityValue = applicantQuestion.getApplicantData().readString(getCityPath());
     return cityValue;
   }
 
@@ -134,7 +133,7 @@ public class AddressQuestion implements PresentsErrors {
       return stateValue;
     }
 
-    stateValue = applicantQuestion.applicantData.readString(getStatePath());
+    stateValue = applicantQuestion.getApplicantData().readString(getStatePath());
     return stateValue;
   }
 
@@ -143,22 +142,23 @@ public class AddressQuestion implements PresentsErrors {
       return zipValue;
     }
 
-    zipValue = applicantQuestion.applicantData.readString(getZipPath());
+    zipValue = applicantQuestion.getApplicantData().readString(getZipPath());
     return zipValue;
   }
 
   public void assertQuestionType() {
     if (!applicantQuestion.getType().equals(QuestionType.ADDRESS)) {
       throw new RuntimeException(
-              String.format(
-                      "Question is not an ADDRESS question: %s (type: %s)",
-                      applicantQuestion.questionDefinition.getPath(), applicantQuestion.questionDefinition.getQuestionType()));
+          String.format(
+              "Question is not an ADDRESS question: %s (type: %s)",
+              applicantQuestion.getQuestionDefinition().getPath(),
+              applicantQuestion.getQuestionDefinition().getQuestionType()));
     }
   }
 
   public AddressQuestionDefinition getQuestionDefinition() {
     assertQuestionType();
-    return (AddressQuestionDefinition) applicantQuestion.questionDefinition;
+    return (AddressQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 
   public Path getStreetPath() {
@@ -178,18 +178,18 @@ public class AddressQuestion implements PresentsErrors {
   }
 
   private boolean streetAnswered() {
-    return applicantQuestion.applicantData.hasPath(getStreetPath());
+    return applicantQuestion.getApplicantData().hasPath(getStreetPath());
   }
 
   private boolean cityAnswered() {
-    return applicantQuestion.applicantData.hasPath(getCityPath());
+    return applicantQuestion.getApplicantData().hasPath(getCityPath());
   }
 
   private boolean stateAnswered() {
-    return applicantQuestion.applicantData.hasPath(getStatePath());
+    return applicantQuestion.getApplicantData().hasPath(getStatePath());
   }
 
   private boolean zipAnswered() {
-    return applicantQuestion.applicantData.hasPath(getZipPath());
+    return applicantQuestion.getApplicantData().hasPath(getZipPath());
   }
 }

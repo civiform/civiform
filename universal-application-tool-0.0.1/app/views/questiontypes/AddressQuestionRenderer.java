@@ -4,8 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
 import j2html.tags.Tag;
-import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.AddressQuestion;
+import services.applicant.question.ApplicantQuestion;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
