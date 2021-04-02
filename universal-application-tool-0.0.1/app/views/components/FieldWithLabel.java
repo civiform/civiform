@@ -147,7 +147,7 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setValue(String value) {
-    if (this.fieldType.equals("number") || this.fieldType.equals("checkbox")) {
+    if (!this.fieldType.equals("text")) {
       throw new RuntimeException(
           String.format(
               "setting a String value is not available on fields of type `%s`", this.fieldType));
@@ -182,7 +182,7 @@ public class FieldWithLabel {
       if (this.fieldNumberValue.isPresent()) {
         fieldTag.withValue(String.valueOf(this.fieldNumberValue.getAsInt()));
       }
-      // Don't set value if it's a checkbox. Instead use the `checked attribute in
+      // Don't set value if it's a checkbox. Instead use the `checked` attribute in
       // getCheckboxContainer.
     } else if (!this.fieldType.equals("checkbox")) {
       fieldTag.withValue(this.fieldValue);

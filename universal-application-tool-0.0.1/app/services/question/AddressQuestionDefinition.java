@@ -143,8 +143,6 @@ public class AddressQuestionDefinition extends QuestionDefinition {
   }
 
   public boolean getDisallowPoBox() {
-    return getAddressValidationPredicates().disallowPoBox().isPresent()
-        ? getAddressValidationPredicates().disallowPoBox().get()
-        : false;
+    return getAddressValidationPredicates().disallowPoBox().orElse(false);
   }
 }

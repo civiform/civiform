@@ -128,8 +128,8 @@ public class ApplicantQuestion {
   // TODO(https://github.com/seattle-uat/civiform/issues/489): Pull subclasses out and test them.
   public class AddressQuestion implements PresentsErrors {
 
-    private static final String PO_BOX_REGEX =
-        "(?i)(.*(P(OST|.)?\\s*((O(FF(ICE)?)?)?.?\\s*(B(IN|OX|.?)))+)).*";
+    private final Pattern PO_BOX_PATTERN =
+        Pattern.compile("(?i)(.*(P(OST|.)?\\s*((O(FF(ICE)?)?)?.?\\s*(B(IN|OX|.?)))+)).*");
 
     private Optional<String> streetValue;
     private Optional<String> cityValue;
@@ -154,8 +154,7 @@ public class ApplicantQuestion {
       ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
       if (definition.getDisallowPoBox()) {
-        Pattern poBoxPattern = Pattern.compile(PO_BOX_REGEX);
-        Matcher poBoxMatcher = poBoxPattern.matcher(getStreetValue().get());
+        Matcher poBoxMatcher = PO_BOX_PATTERN.matcher(getStreetValue().get());
 
         if (poBoxMatcher.matches()) {
           return ImmutableSet.of(
