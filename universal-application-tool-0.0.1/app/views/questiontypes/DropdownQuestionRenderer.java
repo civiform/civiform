@@ -6,7 +6,8 @@ import static j2html.TagCreator.select;
 
 import j2html.TagCreator;
 import j2html.tags.Tag;
-import services.applicant.ApplicantQuestion;
+import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.SingleSelectQuestion;
 import views.BaseHtmlView;
 import views.style.ReferenceClasses;
 import views.style.Styles;
@@ -21,7 +22,7 @@ public class DropdownQuestionRenderer extends BaseHtmlView implements ApplicantQ
 
   @Override
   public Tag render() {
-    ApplicantQuestion.SingleSelectQuestion multiOptionQuestion = question.getSingleSelectQuestion();
+    SingleSelectQuestion multiOptionQuestion = question.getSingleSelectQuestion();
 
     return div()
         .withId(question.getPath().toString())

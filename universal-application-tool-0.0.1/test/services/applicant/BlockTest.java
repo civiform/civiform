@@ -8,6 +8,7 @@ import com.google.common.testing.EqualsTester;
 import java.util.OptionalLong;
 import org.junit.Test;
 import services.Path;
+import services.applicant.question.ApplicantQuestion;
 import services.program.BlockDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.question.NameQuestionDefinition;

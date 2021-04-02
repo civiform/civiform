@@ -14,6 +14,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.Path;
+import services.applicant.question.AddressQuestion;
+import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.NumberQuestion;
+import services.applicant.question.SingleSelectQuestion;
+import services.applicant.question.TextQuestion;
 import services.question.AddressQuestionDefinition;
 import services.question.DropdownQuestionDefinition;
 import services.question.NameQuestionDefinition;
@@ -108,7 +113,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(textQuestionDefinition, applicantData);
 
     assertThat(applicantQuestion.getTextQuestion())
-        .isInstanceOf(ApplicantQuestion.TextQuestion.class);
+        .isInstanceOf(TextQuestion.class);
     assertThat(applicantQuestion.getQuestionText()).isEqualTo("question?");
     assertThat(applicantQuestion.hasErrors()).isFalse();
   }
@@ -118,7 +123,7 @@ public class ApplicantQuestionTest {
     applicantData.putString(textQuestionDefinition.getTextPath(), "hello");
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(textQuestionDefinition, applicantData);
-    ApplicantQuestion.TextQuestion textQuestion = applicantQuestion.getTextQuestion();
+    TextQuestion textQuestion = applicantQuestion.getTextQuestion();
 
     assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(textQuestion.getTextValue().get()).isEqualTo("hello");
@@ -140,7 +145,7 @@ public class ApplicantQuestionTest {
                 .build();
     applicantData.putString(question.getTextPath(), "hello");
     ApplicantQuestion applicantQuestion = new ApplicantQuestion(question, applicantData);
-    ApplicantQuestion.TextQuestion textQuestion = applicantQuestion.getTextQuestion();
+    TextQuestion textQuestion = applicantQuestion.getTextQuestion();
 
     assertThat(applicantQuestion.hasErrors()).isTrue();
     assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
@@ -155,7 +160,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(numberQuestionDefinition, applicantData);
 
     assertThat(applicantQuestion.getNumberQuestion())
-        .isInstanceOf(ApplicantQuestion.NumberQuestion.class);
+        .isInstanceOf(NumberQuestion.class);
     assertThat(applicantQuestion.getQuestionText()).isEqualTo("question?");
     assertThat(applicantQuestion.hasErrors()).isFalse();
   }
@@ -165,7 +170,7 @@ public class ApplicantQuestionTest {
     applicantData.putLong(numberQuestionDefinition.getNumberPath(), 800);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(numberQuestionDefinition, applicantData);
-    ApplicantQuestion.NumberQuestion numberQuestion = applicantQuestion.getNumberQuestion();
+    NumberQuestion numberQuestion = applicantQuestion.getNumberQuestion();
 
     assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(numberQuestion.getNumberValue().get()).isEqualTo(800);
@@ -188,7 +193,7 @@ public class ApplicantQuestionTest {
                 .build();
     applicantData.putLong(question.getNumberPath(), 1000000);
     ApplicantQuestion applicantQuestion = new ApplicantQuestion(question, applicantData);
-    ApplicantQuestion.NumberQuestion numberQuestion = applicantQuestion.getNumberQuestion();
+    NumberQuestion numberQuestion = applicantQuestion.getNumberQuestion();
 
     assertThat(applicantQuestion.hasErrors()).isTrue();
     assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
@@ -203,7 +208,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
 
     assertThat(applicantQuestion.getSingleSelectQuestion())
-        .isInstanceOf(ApplicantQuestion.SingleSelectQuestion.class);
+        .isInstanceOf(SingleSelectQuestion.class);
     assertThat(applicantQuestion.getSingleSelectQuestion().getOptions())
         .containsOnly("option 1", "option 2");
     assertThat(applicantQuestion.hasErrors()).isFalse();
@@ -214,7 +219,7 @@ public class ApplicantQuestionTest {
     applicantData.putString(dropdownQuestionDefinition.getSelectionPath(), "answer");
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
-    ApplicantQuestion.SingleSelectQuestion singleSelectQuestion =
+    SingleSelectQuestion singleSelectQuestion =
         applicantQuestion.getSingleSelectQuestion();
 
     assertThat(singleSelectQuestion.hasTypeSpecificErrors()).isFalse();
@@ -268,7 +273,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(addressQuestionDefinition, applicantData);
 
     assertThat(applicantQuestion.getAddressQuestion())
-        .isInstanceOf(ApplicantQuestion.AddressQuestion.class);
+        .isInstanceOf(AddressQuestion.class);
     assertThat(applicantQuestion.getQuestionText()).isEqualTo("question?");
     assertThat(applicantQuestion.hasErrors()).isFalse();
   }
@@ -282,7 +287,7 @@ public class ApplicantQuestionTest {
 
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(addressQuestionDefinition, applicantData);
-    ApplicantQuestion.AddressQuestion addressQuestion = applicantQuestion.getAddressQuestion();
+    AddressQuestion addressQuestion = applicantQuestion.getAddressQuestion();
 
     assertThat(applicantQuestion.hasErrors()).isTrue();
     assertThat(addressQuestion.getStreetErrors())
@@ -311,7 +316,7 @@ public class ApplicantQuestionTest {
 
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(addressQuestionDefinition, applicantData);
-    ApplicantQuestion.AddressQuestion addressQuestion = applicantQuestion.getAddressQuestion();
+    AddressQuestion addressQuestion = applicantQuestion.getAddressQuestion();
 
     assertThat(applicantQuestion.hasErrors()).isFalse();
     assertThat(addressQuestion.getStreetValue().get()).isEqualTo("85 Pike St");
