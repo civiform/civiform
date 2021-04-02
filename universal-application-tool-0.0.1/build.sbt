@@ -67,7 +67,7 @@ lazy val root = (project in file("."))
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.5.1",
 
-      // Apache libraries for export
+      // Apache libraries for services.export
       "org.apache.pdfbox" % "pdfbox" % "2.0.22",
       "org.apache.commons" % "commons-csv" % "1.4",
     ),
