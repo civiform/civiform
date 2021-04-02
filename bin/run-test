@@ -1,7 +1,6 @@
 #! /bin/bash
 pushd $(git rev-parse --show-toplevel)
 
-# run bin/pull-image
 bin/pull-image
 
 # allocate a tty for better test output even though not strictly needed.

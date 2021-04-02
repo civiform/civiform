@@ -3,7 +3,6 @@ pushd $(git rev-parse --show-toplevel)
 
 set -e
 
-# run bin/pull-image
 bin/pull-image
 
 if [ -f ".secrets" ]; then
