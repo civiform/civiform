@@ -1,6 +1,8 @@
 import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession } from './support'
 
 describe('normal application flow', () => {
+  // If this times out, a likely cause is the .click() calls in
+  // support/admin_programs, which are called out as being asserts.
   jest.setTimeout(25000);
   it('all major steps', async () => {
     const { browser, page } = await startSession()

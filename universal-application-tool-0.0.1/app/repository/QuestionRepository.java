@@ -45,6 +45,34 @@ public class QuestionRepository {
   }
 
   /**
+   * Set this question to ACTIVE state, and set any existing ACTIVE question with the same name to
+   * the OBSOLETE state.
+   */
+  public void setQuestionLive(long questionId) {
+    Question published = ebeanServer.find(Question.class, questionId);
+    Optional<Question> existingMaybe =
+        findActiveVersionOfQuestion(questionId, published.getQuestionDefinition().getName());
+    if (existingMaybe.isPresent()) {
+      Question existing = existingMaybe.get();
+      existing.setLifecycleStage(LifecycleStage.OBSOLETE);
+      existing.save();
+    }
+    published.setLifecycleStage(LifecycleStage.ACTIVE);
+    published.save();
+  }
+
+  /** Find an ACTIVE version of the question specified, other than the given ID. */
+  public Optional<Question> findActiveVersionOfQuestion(long questionId, String questionName) {
+    return ebeanServer
+        .find(Question.class)
+        .where()
+        .eq("lifecycle_stage", LifecycleStage.ACTIVE.getValue())
+        .eq("name", questionName)
+        .ne("id", questionId)
+        .findOneOrEmpty();
+  }
+
+  /**
    * Find and update the draft of the question with this name, if one already exists. Create a new
    * draft if there isn't one.
    */

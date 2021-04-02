@@ -11,6 +11,7 @@ import io.ebean.Transaction;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import models.LifecycleStage;
 import models.Program;
 import models.Question;
@@ -23,11 +24,16 @@ public class ProgramRepository {
 
   private final EbeanServer ebeanServer;
   private final DatabaseExecutionContext executionContext;
+  private final Provider<QuestionRepository> questionRepositoryProvider;
 
   @Inject
-  public ProgramRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
+  public ProgramRepository(
+      EbeanConfig ebeanConfig,
+      DatabaseExecutionContext executionContext,
+      Provider<QuestionRepository> questionRepositoryProvider) {
     this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
     this.executionContext = checkNotNull(executionContext);
+    this.questionRepositoryProvider = checkNotNull(questionRepositoryProvider);
   }
 
   /** Return all programs in a list. */
@@ -151,15 +157,7 @@ public class ProgramRepository {
             latest version, and a new version of a question updates all draft programs. */
             for (BlockDefinition block : program.getProgramDefinition().blockDefinitions()) {
               for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
-                Question published = ebeanServer.find(Question.class, question.id());
-                Optional<Question> existingMaybe = findOlderVersionOfQuestion(question, published);
-                if (existingMaybe.isPresent()) {
-                  Question existing = existingMaybe.get();
-                  existing.setLifecycleStage(LifecycleStage.OBSOLETE);
-                  existing.save();
-                }
-                published.setLifecycleStage(LifecycleStage.ACTIVE);
-                published.save();
+                questionRepositoryProvider.get().setQuestionLive(question.id());
               }
             }
 
@@ -170,17 +168,6 @@ public class ProgramRepository {
           }
         },
         executionContext);
-  }
-
-  private Optional<Question> findOlderVersionOfQuestion(
-      ProgramQuestionDefinition question, Question published) {
-    return ebeanServer
-        .find(Question.class)
-        .where()
-        .eq("lifecycle_stage", LifecycleStage.ACTIVE.getValue())
-        .eq("name", published.getQuestionDefinition().getName())
-        .ne("id", question.id())
-        .findOneOrEmpty();
   }
 
   public void publishProgram(Program program) {
