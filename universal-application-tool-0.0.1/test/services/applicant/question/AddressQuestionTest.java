@@ -33,27 +33,47 @@ public class AddressQuestionTest {
   }
 
   @Test
-  public void addressQuestion_withEmptyApplicantData() {
+  public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(addressQuestionDefinition, applicantData);
 
-    assertThat(applicantQuestion.getAddressQuestion()).isInstanceOf(AddressQuestion.class);
-    assertThat(applicantQuestion.getQuestionText()).isEqualTo("question?");
-    assertThat(applicantQuestion.hasErrors()).isFalse();
+    AddressQuestion addressQuestion = new AddressQuestion(applicantQuestion);
+
+    assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(addressQuestion.hasQuestionErrors()).isFalse();
   }
 
   @Test
-  public void addressQuestion_withInvalidApplicantData() {
+  public void withValidApplicantData() {
+    applicantData.putString(addressQuestionDefinition.getStreetPath(), "85 Pike St");
+    applicantData.putString(addressQuestionDefinition.getCityPath(), "Seattle");
+    applicantData.putString(addressQuestionDefinition.getStatePath(), "WA");
+    applicantData.putString(addressQuestionDefinition.getZipPath(), "98101");
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(addressQuestionDefinition, applicantData);
+
+    AddressQuestion addressQuestion = applicantQuestion.getAddressQuestion();
+
+    assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(addressQuestion.hasQuestionErrors()).isFalse();
+    assertThat(addressQuestion.getStreetValue().get()).isEqualTo("85 Pike St");
+    assertThat(addressQuestion.getCityValue().get()).isEqualTo("Seattle");
+    assertThat(addressQuestion.getStateValue().get()).isEqualTo("WA");
+    assertThat(addressQuestion.getZipValue().get()).isEqualTo("98101");
+  }
+
+  @Test
+  public void withInvalidApplicantData_missingRequiredFields() {
     applicantData.putString(addressQuestionDefinition.getStreetPath(), "");
     applicantData.putString(addressQuestionDefinition.getCityPath(), "");
     applicantData.putString(addressQuestionDefinition.getStatePath(), "");
     applicantData.putString(addressQuestionDefinition.getZipPath(), "");
-
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(addressQuestionDefinition, applicantData);
+
     AddressQuestion addressQuestion = applicantQuestion.getAddressQuestion();
 
-    assertThat(applicantQuestion.hasErrors()).isTrue();
+    assertThat(addressQuestion.hasTypeSpecificErrors()).isTrue();
     assertThat(addressQuestion.getStreetErrors())
         .contains(ValidationErrorMessage.create("Street is required."));
     assertThat(addressQuestion.getCityErrors())
@@ -62,30 +82,24 @@ public class AddressQuestionTest {
         .contains(ValidationErrorMessage.create("State is required."));
     assertThat(addressQuestion.getZipErrors())
         .contains(ValidationErrorMessage.create("Zip code is required."));
-
-    applicantData.putString(addressQuestionDefinition.getZipPath(), "not a zip code");
-    addressQuestion =
-        new ApplicantQuestion(addressQuestionDefinition, applicantData).getAddressQuestion();
-
-    assertThat(addressQuestion.getZipErrors())
-        .contains(ValidationErrorMessage.create("Invalid zip code."));
   }
 
   @Test
-  public void addressQuestion_withValidApplicantData() {
-    applicantData.putString(addressQuestionDefinition.getStreetPath(), "85 Pike St");
+  public void withInvalidApplicantData_invalidZipCode() {
+    applicantData.putString(addressQuestionDefinition.getStreetPath(), "123 A St");
     applicantData.putString(addressQuestionDefinition.getCityPath(), "Seattle");
     applicantData.putString(addressQuestionDefinition.getStatePath(), "WA");
-    applicantData.putString(addressQuestionDefinition.getZipPath(), "98101");
-
+    applicantData.putString(addressQuestionDefinition.getZipPath(), "not a zip code");
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(addressQuestionDefinition, applicantData);
+
     AddressQuestion addressQuestion = applicantQuestion.getAddressQuestion();
 
-    assertThat(applicantQuestion.hasErrors()).isFalse();
-    assertThat(addressQuestion.getStreetValue().get()).isEqualTo("85 Pike St");
-    assertThat(addressQuestion.getCityValue().get()).isEqualTo("Seattle");
-    assertThat(addressQuestion.getStateValue().get()).isEqualTo("WA");
-    assertThat(addressQuestion.getZipValue().get()).isEqualTo("98101");
+    assertThat(addressQuestion.hasTypeSpecificErrors()).isTrue();
+    assertThat(addressQuestion.getZipErrors())
+        .contains(ValidationErrorMessage.create("Invalid zip code."));
+    assertThat(addressQuestion.getStreetErrors()).isEmpty();
+    assertThat(addressQuestion.getCityErrors()).isEmpty();
+    assertThat(addressQuestion.getStateErrors()).isEmpty();
   }
 }
