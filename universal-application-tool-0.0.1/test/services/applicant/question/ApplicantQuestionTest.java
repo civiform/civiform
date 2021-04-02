@@ -176,44 +176,6 @@ public class ApplicantQuestionTest {
   // TODO(https://github.com/seattle-uat/civiform/issues/416): Add a test for validation failures.
 
   @Test
-  public void nameQuestion_withEmptyApplicantData() {
-    ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(nameQuestionDefinition, applicantData);
-
-    assertThat(applicantQuestion.getNameQuestion()).isInstanceOf(NameQuestion.class);
-    assertThat(applicantQuestion.getQuestionText()).isEqualTo("question?");
-    assertThat(applicantQuestion.hasErrors()).isFalse();
-  }
-
-  @Test
-  public void nameQuestion_withInvalidApplicantData() {
-    applicantData.putString(nameQuestionDefinition.getFirstNamePath(), "");
-    applicantData.putString(nameQuestionDefinition.getLastNamePath(), "");
-    ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(nameQuestionDefinition, applicantData);
-    NameQuestion nameQuestion = applicantQuestion.getNameQuestion();
-
-    assertThat(applicantQuestion.hasErrors()).isTrue();
-    assertThat(nameQuestion.getFirstNameErrors())
-        .contains(ValidationErrorMessage.create("First name is required."));
-    assertThat(nameQuestion.getLastNameErrors())
-        .contains(ValidationErrorMessage.create("Last name is required."));
-  }
-
-  @Test
-  public void nameQuestion_withValidApplicantData() {
-    applicantData.putString(nameQuestionDefinition.getFirstNamePath(), "Wendel");
-    applicantData.putString(nameQuestionDefinition.getLastNamePath(), "Patrick");
-    ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(nameQuestionDefinition, applicantData);
-    NameQuestion nameQuestion = applicantQuestion.getNameQuestion();
-
-    assertThat(applicantQuestion.hasErrors()).isFalse();
-    assertThat(nameQuestion.getFirstNameValue().get()).isEqualTo("Wendel");
-    assertThat(nameQuestion.getLastNameValue().get()).isEqualTo("Patrick");
-  }
-
-  @Test
   public void addressQuestion_withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(addressQuestionDefinition, applicantData);
@@ -277,14 +239,23 @@ public class ApplicantQuestionTest {
 
     new EqualsTester()
         .addEqualityGroup(
+            new ApplicantQuestion(addressQuestionDefinition, new ApplicantData()),
+            new ApplicantQuestion(addressQuestionDefinition, new ApplicantData()))
+        .addEqualityGroup(
+            new ApplicantQuestion(dropdownQuestionDefinition, new ApplicantData()),
+            new ApplicantQuestion(dropdownQuestionDefinition, new ApplicantData()))
+        .addEqualityGroup(
+            new ApplicantQuestion(nameQuestionDefinition, new ApplicantData()),
+            new ApplicantQuestion(nameQuestionDefinition, new ApplicantData()))
+        .addEqualityGroup(
+            new ApplicantQuestion(numberQuestionDefinition, new ApplicantData()),
+            new ApplicantQuestion(numberQuestionDefinition, new ApplicantData()))
+        .addEqualityGroup(
             new ApplicantQuestion(textQuestionDefinition, new ApplicantData()),
             new ApplicantQuestion(textQuestionDefinition, new ApplicantData()))
         .addEqualityGroup(
             new ApplicantQuestion(textQuestionDefinition, dataWithAnswers),
             new ApplicantQuestion(textQuestionDefinition, dataWithAnswers))
-        .addEqualityGroup(
-            new ApplicantQuestion(addressQuestionDefinition, new ApplicantData()),
-            new ApplicantQuestion(addressQuestionDefinition, new ApplicantData()))
         .testEquals();
   }
 }
