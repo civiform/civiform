@@ -104,6 +104,10 @@ public class Question extends BaseModel {
   }
 
   public void setLifecycleStage(LifecycleStage lifecycleStage) {
+    // A Question object is entirely determined by a QuestionDefinition, so Question objects are usually
+    // immutable since QuestionDefinitions are immutable.  This is not a true setter - it creates an entirely
+    // new QuestionDefinition from the existing one - but it's present here as a convenience method, to save
+    // on verbosity due to us doing this many times throughout the application.
     try {
       this.questionDefinition =
           new QuestionDefinitionBuilder(this.questionDefinition)

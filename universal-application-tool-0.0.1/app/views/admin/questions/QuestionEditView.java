@@ -100,11 +100,19 @@ public final class QuestionEditView extends BaseHtmlView {
     String title = String.format("View %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
-        buildQuestionContainer(title).with(buildQuestionForm(questionForm, false));
+        buildQuestionContainer(title).with(buildViewOnlyQuestionForm(questionForm));
     ContainerTag previewContent = buildPreviewContent(questionType);
     ContainerTag mainContent = main(formContent, previewContent);
 
     return layout.renderFull(mainContent);
+  }
+
+  private ContainerTag buildSubmittableQuestionForm(QuestionForm questionForm) {
+    return buildQuestionForm(questionForm, true);
+  }
+
+  private ContainerTag buildViewOnlyQuestionForm(QuestionForm questionForm) {
+    return buildQuestionForm(questionForm, false);
   }
 
   private ContainerTag buildQuestionContainer(String title) {
@@ -146,7 +154,7 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private ContainerTag buildNewQuestionForm(QuestionForm questionForm) {
-    ContainerTag formTag = buildQuestionForm(questionForm, true);
+    ContainerTag formTag = buildSubmittableQuestionForm(questionForm);
     formTag
         .withAction(
             controllers.admin.routes.QuestionController.create(
@@ -158,7 +166,7 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private ContainerTag buildEditQuestionForm(long id, QuestionForm questionForm) {
-    ContainerTag formTag = buildQuestionForm(questionForm, true);
+    ContainerTag formTag = buildSubmittableQuestionForm(questionForm);
     formTag
         .withAction(
             controllers.admin.routes.QuestionController.update(
