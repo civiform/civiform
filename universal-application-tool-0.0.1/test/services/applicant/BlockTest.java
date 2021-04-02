@@ -47,7 +47,7 @@ public class BlockTest {
     BlockDefinition definition =
         BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
     Block block = new Block(1L, definition, new ApplicantData());
-    assertThat(block.getId()).isEqualTo(1L);
+    assertThat(block.getId()).isEqualTo("1");
     assertThat(block.getName()).isEqualTo("name");
     assertThat(block.getDescription()).isEqualTo("description");
     assertThat(block.getQuestions()).isEmpty();
