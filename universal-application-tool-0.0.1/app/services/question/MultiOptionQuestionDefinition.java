@@ -13,6 +13,8 @@ import services.Path;
 
 public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
 
+  public static final String SCALAR_NAME = "selection";
+
   private final ImmutableListMultimap<Locale, String> options;
 
   protected MultiOptionQuestionDefinition(
@@ -71,7 +73,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getSelectionPath() {
-    return getPath().toBuilder().append("selection").build();
+    return getPath().toBuilder().append(SCALAR_NAME).build();
   }
 
   public abstract ScalarType getSelectionType();

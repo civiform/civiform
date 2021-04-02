@@ -7,6 +7,7 @@ import static j2html.TagCreator.label;
 
 import j2html.attributes.Attr;
 import j2html.tags.Tag;
+import services.Path;
 import services.applicant.ApplicantQuestion;
 import views.BaseHtmlView;
 import views.style.ReferenceClasses;
@@ -25,10 +26,8 @@ public class RadioButtonQuestionRenderer extends BaseHtmlView implements Applica
     ApplicantQuestion.SingleSelectQuestion singleOptionQuestion =
         question.getSingleSelectQuestion();
 
-    String questionPath = question.getPath().toString();
-
     return div()
-        .withId(questionPath)
+        .withId(question.getPath().toString())
         .withClasses(Styles.MX_AUTO, Styles.W_MAX)
         .with(
             div()
@@ -45,14 +44,20 @@ public class RadioButtonQuestionRenderer extends BaseHtmlView implements Applica
                 singleOptionQuestion.getOptions(),
                 option ->
                     renderSingleRadioOption(
-                        questionPath, option, singleOptionQuestion.optionIsSelected(option))));
+                        singleOptionQuestion.getSelectionPath(),
+                        option,
+                        singleOptionQuestion.optionIsSelected(option))));
   }
 
-  private Tag renderSingleRadioOption(String name, String optionName, boolean checked) {
+  private Tag renderSingleRadioOption(Path selectionPath, String optionName, boolean checked) {
     String id = optionName.replaceAll("\\s+", "_");
     return div()
         .with(
-            input().withId(id).withType("radio").withName(name).condAttr(checked, Attr.CHECKED, ""),
+            input()
+                .withId(id)
+                .withType("radio")
+                .withName(selectionPath.join(optionName).toString())
+                .condAttr(checked, Attr.CHECKED, ""),
             label(optionName).attr(Attr.FOR, id));
   }
 }
