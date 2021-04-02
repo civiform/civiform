@@ -3,6 +3,7 @@ package views.admin.question;
 import static j2html.TagCreator.div;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import forms.DropdownQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
@@ -32,7 +33,8 @@ public class QuestionConfigTest {
         .toString()
         .contains("address-question-default-state-select");
 
-    assertThat(QuestionConfig.buildQuestionConfig(QuestionType.DROPDOWN, new QuestionForm()))
+    assertThat(
+            QuestionConfig.buildQuestionConfig(QuestionType.DROPDOWN, new DropdownQuestionForm()))
         .toString()
         .contains("single-select-question-config");
 
