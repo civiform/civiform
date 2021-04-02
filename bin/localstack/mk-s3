@@ -2,7 +2,7 @@
 pushd $(git rev-parse --show-toplevel)
 
 # find repo root name (currently civiform), also support any names for backward and forward compatibility
-CIVIFORM_DIR=${PWD##*/}
+CIVIFORM_DIR=$(basename $(pwd))
 
 create_s3_cmd="s3api create-bucket --bucket civiform-local-s3 --region us-west-2"
 
