@@ -25,8 +25,10 @@ public class RadioButtonQuestionRenderer extends BaseHtmlView implements Applica
     ApplicantQuestion.SingleSelectQuestion singleOptionQuestion =
         question.getSingleSelectQuestion();
 
+    String questionPath = question.getPath().toString();
+
     return div()
-        .withId(question.getPath().toString())
+        .withId(questionPath)
         .withClasses(Styles.MX_AUTO, Styles.W_MAX)
         .with(
             div()
@@ -41,14 +43,16 @@ public class RadioButtonQuestionRenderer extends BaseHtmlView implements Applica
                 .withText(question.getQuestionHelpText()),
             each(
                 singleOptionQuestion.getOptions(),
-                option -> renderSingleRadioOption(question.getPath().toString(), option)));
+                option ->
+                    renderSingleRadioOption(
+                        questionPath, option, singleOptionQuestion.optionIsSelected(option))));
   }
 
-  private Tag renderSingleRadioOption(String name, String optionName) {
+  private Tag renderSingleRadioOption(String name, String optionName, boolean checked) {
     String id = optionName.replaceAll("\\s+", "_");
     return div()
         .with(
-            input().withId(id).withType("radio").withName(name),
+            input().withId(id).withType("radio").withName(name).condAttr(checked, Attr.CHECKED, ""),
             label(optionName).attr(Attr.FOR, id));
   }
 }

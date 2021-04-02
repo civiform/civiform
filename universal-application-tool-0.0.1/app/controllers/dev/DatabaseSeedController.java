@@ -162,8 +162,8 @@ public class DatabaseSeedController extends Controller {
         .create(
             new RadioButtonQuestionDefinition(
                 1L,
-                "dropdown",
-                Path.create("applicant.favorite_season"),
+                "radio",
+                Path.create("applicant.radio"),
                 "favorite season in the year",
                 ImmutableMap.of(Locale.US, "What is your favorite season?"),
                 ImmutableMap.of(Locale.US, "this is sample help text"),

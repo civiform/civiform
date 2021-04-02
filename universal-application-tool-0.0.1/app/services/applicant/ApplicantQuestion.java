@@ -631,6 +631,14 @@ public class ApplicantQuestion {
       return selectedOptionValue;
     }
 
+    /**
+     * Returns true if the given option matches the applicant's previous answer, and false
+     * otherwise.
+     */
+    public boolean optionIsSelected(String option) {
+      return getSelectedOptionValue().isPresent() && getSelectedOptionValue().get().equals(option);
+    }
+
     public void assertQuestionType() {
       if (!getType().isMultiOptionType()) {
         throw new RuntimeException(
