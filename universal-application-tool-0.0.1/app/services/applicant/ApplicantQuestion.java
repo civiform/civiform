@@ -153,10 +153,10 @@ public class ApplicantQuestion {
       ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
       if (definition.getDisallowPoBox()) {
-        Pattern pattern = Pattern.compile(PO_BOX_REGEX);
-        Matcher matcher = pattern.matcher(getStreetValue().get());
+        Pattern poBoxPattern = Pattern.compile(PO_BOX_REGEX);
+        Matcher poBoxMatcher = poBoxPattern.matcher(getStreetValue().get());
 
-        if (matcher.matches()) {
+        if (poBoxMatcher.matches()) {
           return ImmutableSet.of(
               ValidationErrorMessage.create("Please enter a non-P.O. Box address."));
         }
