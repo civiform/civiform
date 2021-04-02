@@ -1,4 +1,4 @@
-package services.applicant;
+package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,12 +14,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.Path;
-import services.applicant.question.AddressQuestion;
-import services.applicant.question.ApplicantQuestion;
-import services.applicant.question.NameQuestion;
-import services.applicant.question.NumberQuestion;
-import services.applicant.question.SingleSelectQuestion;
-import services.applicant.question.TextQuestion;
+import services.applicant.ApplicantData;
+import services.applicant.ValidationErrorMessage;
 import services.question.AddressQuestionDefinition;
 import services.question.DropdownQuestionDefinition;
 import services.question.NameQuestionDefinition;
@@ -27,7 +23,6 @@ import services.question.NumberQuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
 import services.question.TextQuestionDefinition;
-import services.question.TextQuestionDefinition.TextValidationPredicates;
 import services.question.UnsupportedQuestionTypeException;
 
 @RunWith(JUnitParamsRunner.class)
@@ -106,52 +101,6 @@ public class ApplicantQuestionTest {
 
   private EnumSet<QuestionType> types() {
     return EnumSet.complementOf(EnumSet.of(QuestionType.REPEATER));
-  }
-
-  @Test
-  public void textQuestion_withEmptyApplicantData() {
-    ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(textQuestionDefinition, applicantData);
-
-    assertThat(applicantQuestion.getTextQuestion()).isInstanceOf(TextQuestion.class);
-    assertThat(applicantQuestion.getQuestionText()).isEqualTo("question?");
-    assertThat(applicantQuestion.hasErrors()).isFalse();
-  }
-
-  @Test
-  public void textQuestion_withPresentApplicantData() {
-    applicantData.putString(textQuestionDefinition.getTextPath(), "hello");
-    ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(textQuestionDefinition, applicantData);
-    TextQuestion textQuestion = applicantQuestion.getTextQuestion();
-
-    assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(textQuestion.getTextValue().get()).isEqualTo("hello");
-  }
-
-  @Test
-  public void textQuestion_withPresentApplicantData_failsValidation() throws Exception {
-    TextQuestionDefinition question =
-        (TextQuestionDefinition)
-            new QuestionDefinitionBuilder()
-                .setQuestionType(QuestionType.TEXT)
-                .setVersion(1L)
-                .setName("question name")
-                .setPath(Path.create("applicant.my.path.name"))
-                .setDescription("description")
-                .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
-                .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
-                .setValidationPredicates(TextValidationPredicates.create(0, 4))
-                .build();
-    applicantData.putString(question.getTextPath(), "hello");
-    ApplicantQuestion applicantQuestion = new ApplicantQuestion(question, applicantData);
-    TextQuestion textQuestion = applicantQuestion.getTextQuestion();
-
-    assertThat(applicantQuestion.hasErrors()).isTrue();
-    assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(textQuestion.getQuestionErrors())
-        .containsOnly(ValidationErrorMessage.textTooLongError(4));
-    assertThat(textQuestion.getTextValue().get()).isEqualTo("hello");
   }
 
   @Test
