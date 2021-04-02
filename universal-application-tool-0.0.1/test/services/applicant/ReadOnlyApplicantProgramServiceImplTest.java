@@ -109,7 +109,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     Optional<Block> maybeBlock = subject.getBlock("1");
 
     assertThat(maybeBlock).isPresent();
-    assertThat(maybeBlock.get().getId()).isEqualTo(1L);
+    assertThat(maybeBlock.get().getId()).isEqualTo("1");
   }
 
   @Test
