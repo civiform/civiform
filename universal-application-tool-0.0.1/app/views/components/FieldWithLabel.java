@@ -9,6 +9,7 @@ import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.Optional;
 import java.util.OptionalInt;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -153,6 +154,13 @@ public class FieldWithLabel {
     }
 
     this.fieldValue = value;
+    return this;
+  }
+
+  public FieldWithLabel setValue(Optional<String> value) {
+    if (value.isPresent()) {
+      this.fieldValue = value.get();
+    }
     return this;
   }
 

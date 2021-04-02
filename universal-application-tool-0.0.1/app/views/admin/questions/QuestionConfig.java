@@ -7,7 +7,6 @@ import static j2html.TagCreator.label;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import forms.DropdownQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
@@ -130,10 +129,10 @@ public class QuestionConfig {
   public static ContainerTag multiOptionQuestionField(Optional<String> existingOption) {
     ContainerTag optionInput =
         FieldWithLabel.input()
-            .setFieldName("options")
+            .setFieldName("options[]")
             .setLabelText("Question option")
+            .setValue(existingOption)
             .getContainer()
-            .withCondValue(existingOption.isPresent(), existingOption.orElse(""))
             .withClasses(Styles.FLEX, Styles.ML_2);
     Tag removeOptionButton =
         button("Remove").withType("button").withClasses(Styles.FLEX, Styles.ML_4);
