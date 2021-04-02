@@ -82,7 +82,10 @@ public class ApplicantServiceImpl implements ApplicantService {
   @Override
   public CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>>
       stageAndUpdateIfValid(
-          long applicantId, long programId, String blockId, ImmutableMap<String, String> updateMap) {
+          long applicantId,
+          long programId,
+          String blockId,
+          ImmutableMap<String, String> updateMap) {
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))

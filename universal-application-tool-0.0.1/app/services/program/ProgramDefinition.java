@@ -56,7 +56,8 @@ public abstract class ProgramDefinition {
    * @return the {@link BlockDefinition} with the specified block id
    * @throws ProgramBlockNotFoundException if no block matched the block id
    */
-  public BlockDefinition getBlockDefinition(long blockDefinitionId) throws ProgramBlockNotFoundException {
+  public BlockDefinition getBlockDefinition(long blockDefinitionId)
+      throws ProgramBlockNotFoundException {
     return blockDefinitions().stream()
         .filter(b -> b.id() == blockDefinitionId)
         .findAny()
@@ -66,7 +67,8 @@ public abstract class ProgramDefinition {
   public BlockDefinition getBlockDefinition(String blockId) throws ProgramBlockNotFoundException {
     // TODO: add a new exception for malformed blockId.
     // TODO: refactor this blockId parsing to a shared method somewhere with appropriate context.
-    long blockDefinitionId = Splitter.on("-").splitToStream(blockId).map(Long::valueOf).findFirst().orElseThrow();
+    long blockDefinitionId =
+        Splitter.on("-").splitToStream(blockId).map(Long::valueOf).findFirst().orElseThrow();
     return getBlockDefinition(blockDefinitionId);
   }
 
