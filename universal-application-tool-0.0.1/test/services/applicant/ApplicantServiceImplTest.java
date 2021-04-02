@@ -54,7 +54,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
             .stageAndUpdateIfValid(
-                applicant.id, programDefinition.id(), 1L, ImmutableSet.<Update>builder().build())
+                applicant.id, programDefinition.id(), "1", ImmutableSet.<Update>builder().build())
             .toCompletableFuture()
             .join();
 
@@ -77,7 +77,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 1L, updates)
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
             .toCompletableFuture()
             .join();
 
@@ -101,7 +101,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 1L, updates)
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
             .toCompletableFuture()
             .join();
 
@@ -126,7 +126,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
-            .stageAndUpdateIfValid(badApplicantId, programDefinition.id(), 1L, updates)
+            .stageAndUpdateIfValid(badApplicantId, programDefinition.id(), "1", updates)
             .toCompletableFuture()
             .join();
 
@@ -145,7 +145,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         catchThrowable(
             () ->
                 subject
-                    .stageAndUpdateIfValid(applicant.id, badProgramId, 1L, updates)
+                    .stageAndUpdateIfValid(applicant.id, badProgramId, "1", updates)
                     .toCompletableFuture()
                     .join());
 
@@ -157,7 +157,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   public void stageAndUpdateIfValid_hasProgramBlockNotFoundException() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     ImmutableSet<Update> updates = ImmutableSet.of();
-    long badBlockId = 100L;
+    String badBlockId = "100";
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
@@ -181,7 +181,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 1L, updates)
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
             .toCompletableFuture()
             .join();
 
@@ -200,7 +200,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         .isThrownBy(
             () ->
                 subject
-                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 1L, updates)
+                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)

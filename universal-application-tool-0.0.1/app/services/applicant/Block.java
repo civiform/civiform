@@ -114,7 +114,7 @@ public final class Block {
   public boolean equals(@Nullable Object object) {
     if (object instanceof Block) {
       Block that = (Block) object;
-      return this.id == that.id
+      return this.id.equals(that.id)
           && this.blockDefinition.equals(that.blockDefinition)
           && this.applicantData.equals(that.applicantData);
     }

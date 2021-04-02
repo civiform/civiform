@@ -100,7 +100,7 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
-        .hasValue(routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, 1).url());
+        .hasValue(routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1").url());
   }
 
   @Test
@@ -127,7 +127,7 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
-        .hasValue(routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, 2).url());
+        .hasValue(routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "2").url());
   }
 
   // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Should redirect to
