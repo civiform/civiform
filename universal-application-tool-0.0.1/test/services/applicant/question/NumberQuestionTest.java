@@ -4,16 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.NumberQuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.QuestionType;
 
+@RunWith(JUnitParamsRunner.class)
 public class NumberQuestionTest {
   private static final NumberQuestionDefinition numberQuestionDefinition =
       new NumberQuestionDefinition(
@@ -23,6 +25,16 @@ public class NumberQuestionTest {
           "description",
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
+
+  private static final NumberQuestionDefinition minAndMaxNumberQuestionDefinition =
+      new NumberQuestionDefinition(
+          1L,
+          "question name",
+          Path.create("applicant.my.path.name"),
+          "description",
+          ImmutableMap.of(Locale.US, "question?"),
+          ImmutableMap.of(Locale.US, "help text"),
+          NumberQuestionDefinition.NumberValidationPredicates.create(50, 100));
 
   private Applicant applicant;
   private ApplicantData applicantData;
@@ -34,20 +46,22 @@ public class NumberQuestionTest {
   }
 
   @Test
-  public void numberQuestion_withEmptyApplicantData() {
+  public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(numberQuestionDefinition, applicantData);
 
-    assertThat(applicantQuestion.getNumberQuestion()).isInstanceOf(NumberQuestion.class);
-    assertThat(applicantQuestion.getQuestionText()).isEqualTo("question?");
-    assertThat(applicantQuestion.hasErrors()).isFalse();
+    NumberQuestion numberQuestion = new NumberQuestion(applicantQuestion);
+
+    assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(numberQuestion.hasQuestionErrors()).isFalse();
   }
 
   @Test
-  public void numberQuestion_withPresentApplicantData() {
+  public void withValidApplicantData() {
     applicantData.putLong(numberQuestionDefinition.getNumberPath(), 800);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(numberQuestionDefinition, applicantData);
+
     NumberQuestion numberQuestion = applicantQuestion.getNumberQuestion();
 
     assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
@@ -55,28 +69,37 @@ public class NumberQuestionTest {
   }
 
   @Test
-  public void numberQuestion_withPresentApplicantData_failsValidation() throws Exception {
-    NumberQuestionDefinition question =
-        (NumberQuestionDefinition)
-            new QuestionDefinitionBuilder()
-                .setQuestionType(QuestionType.NUMBER)
-                .setVersion(1L)
-                .setName("question name")
-                .setPath(Path.create("applicant.my.path.name"))
-                .setDescription("description")
-                .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
-                .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
-                .setValidationPredicates(
-                    NumberQuestionDefinition.NumberValidationPredicates.create(0, 100))
-                .build();
-    applicantData.putLong(question.getNumberPath(), 1000000);
-    ApplicantQuestion applicantQuestion = new ApplicantQuestion(question, applicantData);
+  @Parameters({"50", "75", "100"})
+  public void withMinAndMaxValue_withValidApplicantData_passesValidation(long value) {
+    applicantData.putLong(minAndMaxNumberQuestionDefinition.getNumberPath(), value);
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData);
+
     NumberQuestion numberQuestion = applicantQuestion.getNumberQuestion();
 
-    assertThat(applicantQuestion.hasErrors()).isTrue();
+    assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(numberQuestion.hasQuestionErrors()).isFalse();
+    assertThat(numberQuestion.getNumberValue().get()).isEqualTo(value);
+  }
+
+  @Test
+  @Parameters({
+    "-1,This answer must be at least 50.",
+    "0,This answer must be at least 50.",
+    "49,This answer must be at least 50.",
+    "999,This answer cannot be larger than 100."
+  })
+  public void withMinAndMaxValue_withInvalidApplicantData_failsValidation(
+      long value, String expectedErrorMessage) {
+    applicantData.putLong(minAndMaxNumberQuestionDefinition.getNumberPath(), value);
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData);
+
+    NumberQuestion numberQuestion = applicantQuestion.getNumberQuestion();
+
     assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(numberQuestion.getQuestionErrors())
-        .containsOnly(ValidationErrorMessage.numberTooLargeError(100));
-    assertThat(numberQuestion.getNumberValue().get()).isEqualTo(1000000);
+        .containsOnly(ValidationErrorMessage.create(expectedErrorMessage));
+    assertThat(numberQuestion.getNumberValue().get()).isEqualTo(value);
   }
 }
