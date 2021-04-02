@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import services.Path;
@@ -38,6 +39,7 @@ public class ReadOnlyQuestionServiceImplTest {
                 .setName("applicant name")
                 .setPath(Path.create("applicant.name"))
                 .setDescription("The name of the applicant")
+                .setLifecycleStage(LifecycleStage.ACTIVE)
                 .setQuestionText(ImmutableMap.of(Locale.US, "What is your name?"))
                 .build();
     addressQuestion =
@@ -49,6 +51,7 @@ public class ReadOnlyQuestionServiceImplTest {
                 .setName("applicant addresss")
                 .setPath(Path.create("applicant.address"))
                 .setDescription("The address of the applicant")
+                .setLifecycleStage(LifecycleStage.ACTIVE)
                 .setQuestionText(ImmutableMap.of(Locale.US, "What is your address?"))
                 .build();
     basicQuestion =
@@ -59,6 +62,7 @@ public class ReadOnlyQuestionServiceImplTest {
             .setName("applicant's favorite color")
             .setPath(Path.create("applicant.favoriteColor"))
             .setDescription("The favorite color of the applicant")
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setQuestionText(ImmutableMap.of(Locale.US, "What is your favorite color?"))
             .build();
     questions = ImmutableList.of(nameQuestion, addressQuestion, basicQuestion);

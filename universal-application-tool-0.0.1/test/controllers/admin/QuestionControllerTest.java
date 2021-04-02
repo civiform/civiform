@@ -9,6 +9,7 @@ import static play.test.Helpers.contentAsString;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import models.LifecycleStage;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
@@ -239,6 +240,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
             .setQuestionText(
                 ImmutableMap.of(Locale.US, "What is the answer to the ultimate question?"))
             .setQuestionHelpText(ImmutableMap.of())
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setQuestionType(QuestionType.TEXT);
     Question question = new Question(builder.build());
     question.save();

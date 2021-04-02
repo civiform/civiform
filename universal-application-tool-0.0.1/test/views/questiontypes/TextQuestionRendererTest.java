@@ -5,6 +5,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import com.google.common.collect.ImmutableMap;
 import j2html.tags.Tag;
 import java.util.Locale;
+import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
@@ -21,6 +22,7 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
           "question name",
           Path.create("applicant.my.path"),
           "description",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
           TextValidationPredicates.create(2, 3));

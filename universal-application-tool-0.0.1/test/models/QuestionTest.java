@@ -33,7 +33,13 @@ public class QuestionTest extends WithPostgresContainer {
   public void canSaveQuestion() throws UnsupportedQuestionTypeException {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            1L, "test", Path.create("my.path"), "", ImmutableMap.of(), ImmutableMap.of());
+            1L,
+            "test",
+            Path.create("my.path"),
+            "",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(),
+            ImmutableMap.of());
     Question question = new Question(definition);
 
     question.save();
@@ -53,6 +59,7 @@ public class QuestionTest extends WithPostgresContainer {
             "",
             Path.empty(),
             "",
+            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "hello"),
             ImmutableMap.of(Locale.US, "help"));
     Question question = new Question(definition);
@@ -71,7 +78,13 @@ public class QuestionTest extends WithPostgresContainer {
   public void canSerializeDifferentQuestionTypes() {
     AddressQuestionDefinition address =
         new AddressQuestionDefinition(
-            1L, "address", Path.empty(), "", ImmutableMap.of(), ImmutableMap.of());
+            1L,
+            "address",
+            Path.empty(),
+            "",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(),
+            ImmutableMap.of());
     Question question = new Question(address);
 
     question.save();
@@ -89,6 +102,7 @@ public class QuestionTest extends WithPostgresContainer {
             "",
             Path.empty(),
             "",
+            LifecycleStage.ACTIVE,
             ImmutableMap.of(),
             ImmutableMap.of(),
             TextValidationPredicates.create(0, 128));
@@ -112,6 +126,7 @@ public class QuestionTest extends WithPostgresContainer {
             .setDescription("")
             .setPath(Path.empty())
             .setQuestionText(ImmutableMap.of())
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setQuestionHelpText(ImmutableMap.of())
             .setQuestionOptions(ImmutableListMultimap.of(Locale.US, "option"))
             .build();
