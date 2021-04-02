@@ -82,21 +82,24 @@ public class ProgramRepository {
     ProgramDefinition.Builder updatedDefinition =
         draftProgram.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
     for (BlockDefinition block : draftProgram.getProgramDefinition().blockDefinitions()) {
-      BlockDefinition.Builder updatedBlock =
-          block.toBuilder().setProgramQuestionDefinitions(ImmutableList.of());
-      for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
-        Optional<Question> updatedQuestion = getUpdatedQuestion(transaction, question.id());
-        updatedBlock.addQuestion(
-            ProgramQuestionDefinition.create(
-                updatedQuestion.orElseThrow().getQuestionDefinition()));
-      }
-      updatedDefinition.addBlockDefinition(updatedBlock.build());
+      updatedDefinition.addBlockDefinition(updateQuestionVersions(block, transaction));
     }
     draftProgram = new Program(updatedDefinition.build());
     ebeanServer.update(draftProgram, transaction);
   }
 
-  private Optional<Question> getUpdatedQuestion(Transaction transaction, long questionId) {
+  private BlockDefinition updateQuestionVersions(BlockDefinition block, Transaction transaction) {
+    BlockDefinition.Builder updatedBlock =
+        block.toBuilder().setProgramQuestionDefinitions(ImmutableList.of());
+    for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
+      Optional<Question> updatedQuestion = getLatestVersionOfQuestion(transaction, question.id());
+      updatedBlock.addQuestion(
+          ProgramQuestionDefinition.create(updatedQuestion.orElseThrow().getQuestionDefinition()));
+    }
+    return updatedBlock.build();
+  }
+
+  private Optional<Question> getLatestVersionOfQuestion(Transaction transaction, long questionId) {
     return ebeanServer
         .find(Question.class)
         .usingTransaction(transaction)
@@ -141,13 +144,11 @@ public class ProgramRepository {
             program.save();
 
             /* Each block contains a list of question ids.  For each question id, we will check
-            whether
-            a question with the same name but a different id is already ACTIVE.  If it is, we
-            will
-            mark it obsolete.  We will always mark the question being pointed to as ACTIVE.
+            whether a question with the same name but a different id is already ACTIVE.  If it is, we
+            will mark it obsolete.  We will always mark the question being pointed to as ACTIVE.
             This is safe because it is impossible to have a draft program which has a question
-            that
-            is not the most recent version. */
+            that is not the most recent version, since a new draft program always gets the
+            latest version, and a new version of a question updates all draft programs. */
             for (BlockDefinition block : program.getProgramDefinition().blockDefinitions()) {
               for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
                 Question published = ebeanServer.find(Question.class, question.id());
