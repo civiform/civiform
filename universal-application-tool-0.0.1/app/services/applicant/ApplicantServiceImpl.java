@@ -191,7 +191,7 @@ public class ApplicantServiceImpl implements ApplicantService {
     for (Update update : updates) {
       ScalarType type =
           blockDefinition
-              .getScalarType(update.path()) // applicant.children[3].name.first
+              .getScalarType(update.path())
               .orElseThrow(() -> new PathNotInBlockException(blockDefinition, update.path()));
       questionPaths.add(update.path().parentPath());
       switch (type) {
