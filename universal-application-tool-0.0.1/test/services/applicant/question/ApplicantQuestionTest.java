@@ -17,6 +17,7 @@ import services.question.AddressQuestionDefinition;
 import services.question.DropdownQuestionDefinition;
 import services.question.NameQuestionDefinition;
 import services.question.NumberQuestionDefinition;
+import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
 import services.question.TextQuestionDefinition;
@@ -89,6 +90,30 @@ public class ApplicantQuestionTest {
 
   private EnumSet<QuestionType> types() {
     return EnumSet.complementOf(EnumSet.of(QuestionType.REPEATER));
+  }
+
+  @Test
+  public void getsExpectedQuestionType() {
+    ApplicantQuestion addressApplicantQuestion =
+        new ApplicantQuestion(addressQuestionDefinition, new ApplicantData());
+    assertThat(addressApplicantQuestion.getAddressQuestion()).isInstanceOf(AddressQuestion.class);
+
+    ApplicantQuestion nameApplicantQuestion =
+        new ApplicantQuestion(nameQuestionDefinition, new ApplicantData());
+    assertThat(nameApplicantQuestion.getNameQuestion()).isInstanceOf(NameQuestion.class);
+
+    ApplicantQuestion numberApplicantQuestion =
+        new ApplicantQuestion(numberQuestionDefinition, new ApplicantData());
+    assertThat(numberApplicantQuestion.getNumberQuestion()).isInstanceOf(NumberQuestion.class);
+
+    ApplicantQuestion singleSelectApplicantQuestion =
+        new ApplicantQuestion(dropdownQuestionDefinition, new ApplicantData());
+    assertThat(singleSelectApplicantQuestion.getSingleSelectQuestion())
+        .isInstanceOf(SingleSelectQuestion.class);
+
+    ApplicantQuestion textApplicantQuestion =
+        new ApplicantQuestion(textQuestionDefinition, new ApplicantData());
+    assertThat(textApplicantQuestion.getTextQuestion()).isInstanceOf(TextQuestion.class);
   }
 
   @Test
