@@ -104,31 +104,6 @@ public class ApplicantQuestionTest {
   }
 
   @Test
-  public void singleSelectQuestion_withEmptyApplicantData() {
-    ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
-
-    assertThat(applicantQuestion.getSingleSelectQuestion())
-        .isInstanceOf(SingleSelectQuestion.class);
-    assertThat(applicantQuestion.getSingleSelectQuestion().getOptions())
-        .containsOnly("option 1", "option 2");
-    assertThat(applicantQuestion.hasErrors()).isFalse();
-  }
-
-  @Test
-  public void singleSelectQuestion_withPresentApplicantData() {
-    applicantData.putString(dropdownQuestionDefinition.getSelectionPath(), "answer");
-    ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
-    SingleSelectQuestion singleSelectQuestion = applicantQuestion.getSingleSelectQuestion();
-
-    assertThat(singleSelectQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(singleSelectQuestion.getSelectedOptionValue()).hasValue("answer");
-  }
-
-  // TODO(https://github.com/seattle-uat/civiform/issues/416): Add a test for validation failures.
-
-  @Test
   public void addressQuestion_withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(addressQuestionDefinition, applicantData);
