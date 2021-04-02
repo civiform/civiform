@@ -139,7 +139,7 @@ public class DatabaseSeedController extends Controller {
             new DropdownQuestionDefinition(
                 1L,
                 "dropdown",
-                Path.create("applicant.favorite_ice_cream"),
+                Path.create("applicant.dropdown"),
                 "select your favorite ice cream flavor",
                 ImmutableMap.of(
                     Locale.US, "Select your favorite ice cream flavor from the following"),
