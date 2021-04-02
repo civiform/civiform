@@ -43,16 +43,11 @@ public class QuestionControllerTest extends WithPostgresContainer {
         .put("questionText", "Hi mom!")
         .put("questionHelpText", ":-)");
     RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
-    controller
-        .create(requestBuilder.build())
-        .thenAccept(
-            result -> {
-              assertThat(result.redirectLocation())
-                  .hasValue(routes.QuestionController.index().url());
-              assertThat(result.flash().get("message").get()).contains("created");
-            })
-        .toCompletableFuture()
-        .join();
+
+    Result result = controller.create(requestBuilder.build(), "text");
+
+    assertThat(result.redirectLocation()).hasValue(routes.QuestionController.index().url());
+    assertThat(result.flash().get("message").get()).contains("created");
   }
 
   @Test
@@ -61,19 +56,14 @@ public class QuestionControllerTest extends WithPostgresContainer {
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData.put("questionName", "name").put("questionParentPath", "#invalid_path!");
     Request request = addCSRFToken(Helpers.fakeRequest().bodyForm(formData.build())).build();
-    controller
-        .create(request)
-        .thenAccept(
-            result -> {
-              assertThat(result.status()).isEqualTo(OK);
-              assertThat(contentAsString(result)).contains("New text question");
-              assertThat(contentAsString(result))
-                  .contains(CSRF.getToken(request.asScala()).value());
-              assertThat(contentAsString(result)).contains("name");
-              assertThat(contentAsString(result)).contains("#invalid_path!");
-            })
-        .toCompletableFuture()
-        .join();
+
+    Result result = controller.create(request, "text");
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("New text question");
+    assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
+    assertThat(contentAsString(result)).contains("name");
+    assertThat(contentAsString(result)).contains("#invalid_path!");
   }
 
   @Test
@@ -82,14 +72,10 @@ public class QuestionControllerTest extends WithPostgresContainer {
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData.put("questionName", "name").put("questionType", "INVALID_TYPE");
     RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
-    controller
-        .create(requestBuilder.build())
-        .thenAccept(
-            result -> {
-              assertThat(result.status()).isEqualTo(BAD_REQUEST);
-            })
-        .toCompletableFuture()
-        .join();
+
+    Result result = controller.create(requestBuilder.build(), "invalid_type");
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
   @Test
@@ -206,7 +192,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
         .put("questionHelpText", ":-)");
     RequestBuilder requestBuilder = addCSRFToken(Helpers.fakeRequest().bodyForm(formData.build()));
 
-    Result result = controller.update(requestBuilder.build(), question.id);
+    Result result = controller.update(requestBuilder.build(), question.id, "text");
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.QuestionController.index().url());
@@ -222,7 +208,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
         .put("questionText", "question text updated!");
     Request request = addCSRFToken(Helpers.fakeRequest().bodyForm(formData.build())).build();
 
-    Result result = controller.update(request, question.id);
+    Result result = controller.update(request, question.id, "text");
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit text question");
@@ -238,7 +224,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
     formData.put("questionType", "INVALID_TYPE").put("questionText", "question text updated!");
     RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
 
-    Result result = controller.update(requestBuilder.build(), question.id);
+    Result result = controller.update(requestBuilder.build(), question.id, "invalid_type");
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }

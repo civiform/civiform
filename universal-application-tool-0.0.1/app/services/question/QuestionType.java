@@ -24,10 +24,11 @@ public enum QuestionType {
   }
 
   public static QuestionType of(String name) throws InvalidQuestionTypeException {
+    String upperName = name.toUpperCase();
     try {
-      return valueOf(name);
+      return valueOf(upperName);
     } catch (IllegalArgumentException e) {
-      throw new InvalidQuestionTypeException(name);
+      throw new InvalidQuestionTypeException(upperName);
     }
   }
 }
