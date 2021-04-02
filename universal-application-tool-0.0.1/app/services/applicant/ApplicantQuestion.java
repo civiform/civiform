@@ -125,6 +125,7 @@ public class ApplicantQuestion {
     boolean hasTypeSpecificErrors();
   }
 
+  // TODO(https://github.com/seattle-uat/civiform/issues/489): Pull subclasses out and test them.
   public class AddressQuestion implements PresentsErrors {
 
     private static final String PO_BOX_REGEX =
