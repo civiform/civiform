@@ -42,25 +42,26 @@ public class SingleSelectQuestionTest {
   }
 
   @Test
-  public void singleSelectQuestion_withEmptyApplicantData() {
+  public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
 
-    assertThat(applicantQuestion.getSingleSelectQuestion())
-        .isInstanceOf(SingleSelectQuestion.class);
-    assertThat(applicantQuestion.getSingleSelectQuestion().getOptions())
-        .containsOnly("option 1", "option 2");
+    SingleSelectQuestion singleSelectQuestion = new SingleSelectQuestion(applicantQuestion);
+
+    assertThat(singleSelectQuestion.getOptions()).containsOnly("option 1", "option 2");
     assertThat(applicantQuestion.hasErrors()).isFalse();
   }
 
   @Test
-  public void singleSelectQuestion_withPresentApplicantData() {
+  public void withPresentApplicantData() {
     applicantData.putString(dropdownQuestionDefinition.getSelectionPath(), "answer");
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
+
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.getSingleSelectQuestion();
 
     assertThat(singleSelectQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(singleSelectQuestion.hasQuestionErrors()).isFalse();
     assertThat(singleSelectQuestion.getSelectedOptionValue()).hasValue("answer");
   }
 
