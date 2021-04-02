@@ -10,6 +10,13 @@ describe('create dropdown question with options', () => {
     await page.click('#create-question-button')
     await page.click('#create-dropdown-question')
 
+    // Fill in basic info
+    const questionName = 'Ice cream'
+    await page.fill('text="Name"', questionName)
+    await page.fill('text=Description', 'description')
+    await page.fill('text=Question Text', 'questionText')
+    await page.fill('text=Question help text', 'helpText')
+
     // Add three options
     await page.click('#add-new-option')
     await page.fill('input:above(#add-new-option)', 'chocolate')
@@ -29,8 +36,15 @@ describe('create dropdown question with options', () => {
     questionSettingsDiv = await page.innerHTML('#question-settings')
     expect(questionSettingsDiv.match(/<input/g).length).toBe(2)
 
-    // TODO(https://github.com/seattle-uat/civiform/issues/631):
-    // Assert options are written correctly and appear once form is submitted
+    // Submit the form, then edit that question again
+    await page.click('text=Create')
+    const tableInnerText = await page.innerText('table')
+    expect(tableInnerText).toContain(questionName)
+
+    // Edit the question
+    await page.click('text=Edit')
+    var questionSettingsDiv = await page.innerHTML('#question-settings')
+    expect(questionSettingsDiv.match(/<input/g).length).toBe(2)
   })
 })
 
