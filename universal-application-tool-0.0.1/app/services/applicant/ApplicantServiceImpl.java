@@ -82,7 +82,7 @@ public class ApplicantServiceImpl implements ApplicantService {
   @Override
   public CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>>
       stageAndUpdateIfValid(
-          long applicantId, long programId, long blockId, ImmutableMap<String, String> updateMap) {
+          long applicantId, long programId, String blockId, ImmutableMap<String, String> updateMap) {
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
@@ -100,7 +100,7 @@ public class ApplicantServiceImpl implements ApplicantService {
 
   protected CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>>
       stageAndUpdateIfValid(
-          long applicantId, long programId, long blockId, ImmutableSet<Update> updates) {
+          long applicantId, long programId, String blockId, ImmutableSet<Update> updates) {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
         applicantRepository.lookupApplicant(applicantId).toCompletableFuture();
 
@@ -168,7 +168,7 @@ public class ApplicantServiceImpl implements ApplicantService {
   private void stageUpdates(
       Applicant applicant,
       ProgramDefinition programDefinition,
-      long blockId,
+      String blockId,
       ImmutableSet<Update> updates)
       throws ProgramBlockNotFoundException, UnsupportedScalarTypeException,
           PathNotInBlockException {
@@ -188,7 +188,7 @@ public class ApplicantServiceImpl implements ApplicantService {
     for (Update update : updates) {
       ScalarType type =
           blockDefinition
-              .getScalarType(update.path())
+              .getScalarType(update.path()) // applicant.children[3].name.first
               .orElseThrow(() -> new PathNotInBlockException(blockDefinition, update.path()));
       questionPaths.add(update.path().parentPath());
       switch (type) {
