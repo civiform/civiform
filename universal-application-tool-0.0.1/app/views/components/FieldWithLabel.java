@@ -182,7 +182,9 @@ public class FieldWithLabel {
       if (this.fieldNumberValue.isPresent()) {
         fieldTag.withValue(String.valueOf(this.fieldNumberValue.getAsInt()));
       }
-    } else if (!this.fieldType.equals("checked")) {
+      // Don't set value if it's a checkbox. Instead use the `checked attribute in
+      // getCheckboxContainer.
+    } else if (!this.fieldType.equals("checkbox")) {
       fieldTag.withValue(this.fieldValue);
     }
 

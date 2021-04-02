@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.OptionalLong;
 import services.Path;
 
@@ -75,7 +76,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
     }
 
     @JsonProperty("disallowPoBox")
-    public abstract boolean disallowPoBox();
+    public abstract Optional<Boolean> disallowPoBox();
 
     public static Builder builder() {
       return new AutoValue_AddressQuestionDefinition_AddressValidationPredicates.Builder();
@@ -142,6 +143,8 @@ public class AddressQuestionDefinition extends QuestionDefinition {
   }
 
   public boolean getDisallowPoBox() {
-    return getAddressValidationPredicates().disallowPoBox();
+    return getAddressValidationPredicates().disallowPoBox().isPresent()
+        ? getAddressValidationPredicates().disallowPoBox().get()
+        : false;
   }
 }
