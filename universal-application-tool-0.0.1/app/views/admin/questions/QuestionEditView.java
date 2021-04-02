@@ -6,7 +6,7 @@ import static j2html.TagCreator.main;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import forms.MultiOptionQuestionForm;
+import forms.DropdownQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import services.question.MultiOptionQuestionDefinition;
+import services.question.DropdownQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionType;
 import services.question.TextQuestionDefinition;
@@ -115,7 +115,8 @@ public final class QuestionEditView extends BaseHtmlView {
   private ContainerTag multiOptionQuestionField() {
     return QuestionConfig.multiOptionQuestionField(Optional.empty())
         .withId("multi-option-question-answer-template")
-        .withClass(Styles.HIDDEN);
+        // Add "hidden" to other classes, so that the template is not shown
+        .withClasses(Styles.HIDDEN, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4);
   }
 
   private ContainerTag buildPreviewContent(QuestionType questionType) {
@@ -219,7 +220,7 @@ public final class QuestionEditView extends BaseHtmlView {
     switch (questionType) {
       case DROPDOWN:
         {
-          return new MultiOptionQuestionForm(questionType);
+          return new DropdownQuestionForm();
         }
       case TEXT:
         {
@@ -237,7 +238,7 @@ public final class QuestionEditView extends BaseHtmlView {
     switch (questionType) {
       case DROPDOWN:
         {
-          return new MultiOptionQuestionForm((MultiOptionQuestionDefinition) questionDefinition);
+          return new DropdownQuestionForm((DropdownQuestionDefinition) questionDefinition);
         }
       case TEXT:
         {
