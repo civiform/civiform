@@ -6,6 +6,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+
+import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
 import services.question.DropdownQuestionDefinition;
@@ -36,6 +38,7 @@ public class DropdownQuestionFormTest {
             "name",
             Path.create("my.question.path.name"),
             "description",
+            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
             ImmutableListMultimap.of(Locale.US, "cat", Locale.US, "dog", Locale.US, "rabbit"));
@@ -51,6 +54,7 @@ public class DropdownQuestionFormTest {
             "name",
             Path.create("my.question.path.name"),
             "description",
+            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
             ImmutableListMultimap.of(Locale.US, "hello", Locale.US, "world"));
