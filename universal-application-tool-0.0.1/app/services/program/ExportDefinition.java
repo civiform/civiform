@@ -8,15 +8,15 @@ import java.util.Optional;
 @AutoValue
 @JsonDeserialize(builder = AutoValue_ExportDefinition.Builder.class)
 public abstract class ExportDefinition {
-  /** Which services.export engine to use. */
+  /** Which export engine to use. */
   @JsonProperty("engine")
   public abstract ExportEngine engine();
 
-  /** The configuration of the PDF services.export - only if engine == "pdf". */
+  /** The configuration of the PDF export - only if engine == "pdf". */
   @JsonProperty("pdfConfig")
   public abstract Optional<PdfExportConfig> pdfConfig();
 
-  /** The configuration of the CSV services.export - only if engine == "csv". */
+  /** The configuration of the CSV export - only if engine == "csv". */
   @JsonProperty("csvConfig")
   public abstract Optional<CsvExportConfig> csvConfig();
 

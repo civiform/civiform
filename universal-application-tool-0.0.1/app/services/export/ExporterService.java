@@ -79,17 +79,21 @@ public class ExporterService {
       throw new RuntimeException(e);
     }
     ImmutableList.Builder<Column> columnBuilder = new ImmutableList.Builder<>();
+    // First add the ID and submit time columns.
     columnBuilder.add(Column.builder().setHeader("ID").setColumnType(ColumnType.ID).build());
     columnBuilder.add(
         Column.builder().setHeader("Submit time").setColumnType(ColumnType.SUBMIT_TIME).build());
+    // Next add one column for each scalar entry in every column.
     for (BlockDefinition block : programDefinition.blockDefinitions()) {
       for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
         for (Map.Entry<Path, ScalarType> entry :
             question.getQuestionDefinition().getScalars().entrySet()) {
           String finalSegment = entry.getKey().keyName();
+          // These are the two metadata fields in every answer - we don't need to report them.
           if (!finalSegment.equals("updated_in_program") && !finalSegment.equals("updated_at")) {
             columnBuilder.add(
                 Column.builder()
+                    // e.g. "name.first".
                     .setHeader(question.getQuestionDefinition().getName() + "." + finalSegment)
                     .setJsonPath(entry.getKey())
                     .setColumnType(ColumnType.APPLICANT)

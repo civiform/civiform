@@ -36,7 +36,7 @@ public class PdfMapAssistantTest {
   @Test
   public void testMapping() throws IOException, UnsupportedQuestionTypeException {
     // Check that the form is as expected.
-    File basePdf = new File("test/services.export/base.pdf");
+    File basePdf = new File("test/services/export/base.pdf");
     assertThat(basePdf.canRead()).isTrue();
     PDDocument doc = PDDocument.load(basePdf);
     PDField formfield = doc.getDocumentCatalog().getAcroForm().getField("formfield");
