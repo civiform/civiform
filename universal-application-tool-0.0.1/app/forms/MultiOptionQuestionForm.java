@@ -25,11 +25,10 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   protected MultiOptionQuestionForm(MultiOptionQuestionDefinition qd) {
     super(qd);
     setQuestionType(qd.getQuestionType());
+
+    this.options = new ArrayList<>();
     if (qd.getOptions().containsKey(Locale.US)) {
-      this.options = new ArrayList<>();
       this.options.addAll(qd.getOptions().get(Locale.US));
-    } else {
-      this.options = new ArrayList<>();
     }
   }
 
