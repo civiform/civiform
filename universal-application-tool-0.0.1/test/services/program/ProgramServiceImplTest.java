@@ -33,6 +33,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
           "Name Question",
           Path.create("applicant.name"),
           "The name of the applicant.",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "What is your name?"),
           ImmutableMap.of());
   private ProgramServiceImpl ps;
@@ -129,6 +130,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     "Applicant Address",
                     Path.create("applicant.address"),
                     "Applicant's address",
+                    LifecycleStage.ACTIVE,
                     ImmutableMap.of(Locale.US, "What is your addess?"),
                     ImmutableMap.of()))
             .getResult();
@@ -139,6 +141,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     "Favorite color",
                     Path.create("applicant.favcolor"),
                     "Applicant's favorite color",
+                    LifecycleStage.ACTIVE,
                     ImmutableMap.of(Locale.US, "Is orange your favorite color?"),
                     ImmutableMap.of()))
             .getResult();

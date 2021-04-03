@@ -11,9 +11,18 @@ import java.util.OptionalLong;
 import models.LifecycleStage;
 import services.Path;
 
-public class TextQuestionDefinition extends QuestionDefinition {
+/**
+ * Repeater questions provide a variable list of user-defined identifiers for some repeated entity.
+ * Examples of repeated entities could be household members, vehicles, jobs, etc.
+ *
+ * <p>A repeater question definition can be referenced by other question definitions that themselves
+ * repeat for each of the repeater-defined entities. For example, a repeater for vehicles may ask
+ * the user to identify each of their vehicles, with other questions referencing it that ask about
+ * each vehicle's make, model, and year.
+ */
+public class RepeaterQuestionDefinition extends QuestionDefinition {
 
-  public TextQuestionDefinition(
+  public RepeaterQuestionDefinition(
       OptionalLong id,
       long version,
       String name,
@@ -22,7 +31,7 @@ public class TextQuestionDefinition extends QuestionDefinition {
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      TextValidationPredicates validationPredicates) {
+      RepeaterValidationPredicates validationPredicates) {
     super(
         id,
         version,
@@ -35,7 +44,7 @@ public class TextQuestionDefinition extends QuestionDefinition {
         validationPredicates);
   }
 
-  public TextQuestionDefinition(
+  public RepeaterQuestionDefinition(
       long version,
       String name,
       Path path,
@@ -43,7 +52,7 @@ public class TextQuestionDefinition extends QuestionDefinition {
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      TextValidationPredicates validationPredicates) {
+      RepeaterValidationPredicates validationPredicates) {
     super(
         version,
         name,
@@ -55,7 +64,7 @@ public class TextQuestionDefinition extends QuestionDefinition {
         validationPredicates);
   }
 
-  public TextQuestionDefinition(
+  public RepeaterQuestionDefinition(
       long version,
       String name,
       Path path,
@@ -71,29 +80,63 @@ public class TextQuestionDefinition extends QuestionDefinition {
         lifecycleStage,
         questionText,
         questionHelpText,
-        TextValidationPredicates.create());
+        RepeaterValidationPredicates.create());
+  }
+
+  public RepeaterValidationPredicates getRepeaterValidationPredicates() {
+    return (RepeaterValidationPredicates) getValidationPredicates();
+  }
+
+  @Override
+  public QuestionType getQuestionType() {
+    return QuestionType.REPEATER;
+  }
+
+  @Override
+  public ImmutableMap<Path, ScalarType> getScalarMap() {
+    return ImmutableMap.of(getEntityPath(), getEntityType());
+  }
+
+  public Path getEntityPath() {
+    return getPath().join("entity_name");
+  }
+
+  public ScalarType getEntityType() {
+    return ScalarType.STRING;
+  }
+
+  public OptionalInt getMinLength() {
+    return getRepeaterValidationPredicates().minLength();
+  }
+
+  public OptionalInt getMaxLength() {
+    return getRepeaterValidationPredicates().maxLength();
   }
 
   @JsonDeserialize(
-      builder = AutoValue_TextQuestionDefinition_TextValidationPredicates.Builder.class)
+      builder = AutoValue_RepeaterQuestionDefinition_RepeaterValidationPredicates.Builder.class)
   @AutoValue
-  public abstract static class TextValidationPredicates extends ValidationPredicates {
+  public abstract static class RepeaterValidationPredicates extends ValidationPredicates {
 
-    public static TextValidationPredicates parse(String jsonString) {
+    public static RepeaterValidationPredicates parse(String jsonString) {
       try {
         return mapper.readValue(
-            jsonString, AutoValue_TextQuestionDefinition_TextValidationPredicates.class);
+            jsonString, AutoValue_RepeaterQuestionDefinition_RepeaterValidationPredicates.class);
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
       }
     }
 
-    public static TextValidationPredicates create() {
+    public static RepeaterValidationPredicates create() {
       return builder().build();
     }
 
-    public static TextValidationPredicates create(int minLength, int maxLength) {
+    public static RepeaterValidationPredicates create(int minLength, int maxLength) {
       return builder().setMinLength(minLength).setMaxLength(maxLength).build();
+    }
+
+    public static Builder builder() {
+      return new AutoValue_RepeaterQuestionDefinition_RepeaterValidationPredicates.Builder();
     }
 
     @JsonProperty("minLength")
@@ -101,10 +144,6 @@ public class TextQuestionDefinition extends QuestionDefinition {
 
     @JsonProperty("maxLength")
     public abstract OptionalInt maxLength();
-
-    public static Builder builder() {
-      return new AutoValue_TextQuestionDefinition_TextValidationPredicates.Builder();
-    }
 
     @AutoValue.Builder
     public abstract static class Builder {
@@ -119,37 +158,7 @@ public class TextQuestionDefinition extends QuestionDefinition {
 
       public abstract Builder setMaxLength(int maxLength);
 
-      public abstract TextValidationPredicates build();
+      public abstract RepeaterValidationPredicates build();
     }
-  }
-
-  public TextValidationPredicates getTextValidationPredicates() {
-    return (TextValidationPredicates) getValidationPredicates();
-  }
-
-  @Override
-  public QuestionType getQuestionType() {
-    return QuestionType.TEXT;
-  }
-
-  @Override
-  ImmutableMap<Path, ScalarType> getScalarMap() {
-    return ImmutableMap.of(getTextPath(), getTextType());
-  }
-
-  public Path getTextPath() {
-    return getPath().toBuilder().append("text").build();
-  }
-
-  public ScalarType getTextType() {
-    return ScalarType.STRING;
-  }
-
-  public OptionalInt getMinLength() {
-    return getTextValidationPredicates().minLength();
-  }
-
-  public OptionalInt getMaxLength() {
-    return getTextValidationPredicates().maxLength();
   }
 }

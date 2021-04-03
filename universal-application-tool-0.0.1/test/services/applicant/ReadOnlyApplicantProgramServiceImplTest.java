@@ -106,30 +106,30 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
   @Test
   public void getBlock_blockExists_returnsTheBlock() {
-    Optional<Block> maybeBlock = subject.getBlock(1L);
+    Optional<Block> maybeBlock = subject.getBlock("1");
 
     assertThat(maybeBlock).isPresent();
-    assertThat(maybeBlock.get().getId()).isEqualTo(1L);
+    assertThat(maybeBlock.get().getId()).isEqualTo("1");
   }
 
   @Test
   public void getBlock_blockNotInList_returnsEmpty() {
-    Optional<Block> maybeBlock = subject.getBlock(111L);
+    Optional<Block> maybeBlock = subject.getBlock("111");
 
     assertThat(maybeBlock).isEmpty();
   }
 
   @Test
   public void getBlockAfter_thereExistsABlockAfter_returnsTheBlockAfterTheGivenBlock() {
-    Optional<Block> maybeBlock = subject.getBlockAfter(1L);
+    Optional<Block> maybeBlock = subject.getBlockAfter("1");
 
     assertThat(maybeBlock).isPresent();
-    assertThat(maybeBlock.get().getId()).isEqualTo(2L);
+    assertThat(maybeBlock.get().getId()).isEqualTo("2");
   }
 
   @Test
   public void getBlockAfter_argIsLastBlock_returnsEmpty() {
-    Optional<Block> maybeBlock = subject.getBlockAfter(321L);
+    Optional<Block> maybeBlock = subject.getBlockAfter("321");
 
     assertThat(maybeBlock).isEmpty();
   }
@@ -146,7 +146,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 .setLifecycleStage(LifecycleStage.ACTIVE)
                 .build());
 
-    Optional<Block> maybeBlock = subject.getBlockAfter(321L);
+    Optional<Block> maybeBlock = subject.getBlockAfter("321");
 
     assertThat(maybeBlock).isEmpty();
   }

@@ -81,6 +81,7 @@ public class FieldWithLabel {
   protected String placeholderText = "";
   protected boolean checked = false;
   protected boolean floatLabel = false;
+  protected boolean disabled = false;
 
   public FieldWithLabel(Tag fieldTag) {
     this.fieldTag = fieldTag.withClasses(FieldWithLabel.CORE_FIELD_CLASSES);
@@ -176,6 +177,11 @@ public class FieldWithLabel {
     return this;
   }
 
+  public FieldWithLabel setDisabled(boolean disabled) {
+    this.disabled = disabled;
+    return this;
+  }
+
   public ContainerTag getContainer() {
     if (fieldTag.getTagName().equals("textarea")) {
       // Have to recreate the field here in case the value is modified.
@@ -198,6 +204,7 @@ public class FieldWithLabel {
     fieldTag
         .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
         .withName(this.fieldName)
+        .condAttr(this.disabled, "disabled", "true")
         .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
         .condAttr(!Strings.isNullOrEmpty(this.formId), "form", formId);
 

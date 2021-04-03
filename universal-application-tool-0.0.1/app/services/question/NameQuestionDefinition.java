@@ -5,6 +5,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.OptionalLong;
+import models.LifecycleStage;
 import services.Path;
 
 public class NameQuestionDefinition extends QuestionDefinition {
@@ -15,11 +16,20 @@ public class NameQuestionDefinition extends QuestionDefinition {
       String name,
       Path path,
       String description,
+      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       NameValidationPredicates validationPredicates) {
     super(
-        id, version, name, path, description, questionText, questionHelpText, validationPredicates);
+        id,
+        version,
+        name,
+        path,
+        description,
+        lifecycleStage,
+        questionText,
+        questionHelpText,
+        validationPredicates);
   }
 
   public NameQuestionDefinition(
@@ -27,10 +37,19 @@ public class NameQuestionDefinition extends QuestionDefinition {
       String name,
       Path path,
       String description,
+      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       NameValidationPredicates validationPredicates) {
-    super(version, name, path, description, questionText, questionHelpText, validationPredicates);
+    super(
+        version,
+        name,
+        path,
+        description,
+        lifecycleStage,
+        questionText,
+        questionHelpText,
+        validationPredicates);
   }
 
   public NameQuestionDefinition(
@@ -38,6 +57,7 @@ public class NameQuestionDefinition extends QuestionDefinition {
       String name,
       Path path,
       String description,
+      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
     super(
@@ -45,6 +65,7 @@ public class NameQuestionDefinition extends QuestionDefinition {
         name,
         path,
         description,
+        lifecycleStage,
         questionText,
         questionHelpText,
         NameValidationPredicates.create());
