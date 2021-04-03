@@ -9,6 +9,7 @@ import services.Path;
 import services.question.AddressQuestionDefinition.AddressValidationPredicates;
 import services.question.NameQuestionDefinition.NameValidationPredicates;
 import services.question.QuestionDefinition.ValidationPredicates;
+import services.question.RepeaterQuestionDefinition.RepeaterValidationPredicates;
 import services.question.TextQuestionDefinition.TextValidationPredicates;
 
 public class QuestionDefinitionBuilder {
@@ -208,6 +209,22 @@ public class QuestionDefinitionBuilder {
             questionText,
             questionHelpText,
             numberValidationPredicates);
+      case REPEATER:
+        RepeaterValidationPredicates repeaterValidationPredicates = RepeaterValidationPredicates.create();
+        if (!validationPredicatesString.isEmpty()) {
+          repeaterValidationPredicates = RepeaterValidationPredicates.parse(validationPredicatesString);
+        }
+
+        return new RepeaterQuestionDefinition(
+            id,
+            version,
+            name,
+            path,
+            description,
+            lifecycleStage,
+            questionText,
+            questionHelpText,
+            repeaterValidationPredicates);
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {
