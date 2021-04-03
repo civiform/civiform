@@ -159,7 +159,8 @@ public class FieldWithLabel {
 
   public FieldWithLabel setValue(Optional<String> value) {
     if (this.fieldType.equals("number")) {
-      throw new RuntimeException("setting a String value is not available on fields of type 'number'");
+      throw new RuntimeException(
+          "setting a String value is not available on fields of type 'number'");
     }
     value.ifPresent(s -> this.fieldValue = s);
     return this;
