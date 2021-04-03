@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import models.LifecycleStage;
 import models.Question;
 import services.Path;
 import services.question.AddressQuestionDefinition;
@@ -60,6 +61,7 @@ public class TestQuestionBank {
             "applicant name",
             Path.create("applicant.name"),
             "name of applicant",
+            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "what is your name?"),
             ImmutableMap.of(Locale.US, "help text"));
     Question question = new Question(definition);
@@ -74,6 +76,7 @@ public class TestQuestionBank {
             "applicant address",
             Path.create("applicant.address"),
             "address of applicant",
+            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "what is your address?"),
             ImmutableMap.of(Locale.US, "help text"));
     Question question = new Question(definition);
@@ -88,6 +91,7 @@ public class TestQuestionBank {
             "applicant favorite color",
             Path.create("applicant.color"),
             "favorite color of applicant",
+            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "what is your favorite color?"),
             ImmutableMap.of(Locale.US, "help text"));
     Question question = new Question(definition);

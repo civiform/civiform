@@ -10,10 +10,10 @@ public interface ReadOnlyApplicantProgramService {
   ImmutableList<Block> getCurrentBlockList();
 
   /** Get the block with the given block ID */
-  Optional<Block> getBlock(long blockId);
+  Optional<Block> getBlock(String blockId);
 
   /** Get the block that comes after the block with the given ID if there is one. */
-  Optional<Block> getBlockAfter(long blockId);
+  Optional<Block> getBlockAfter(String blockId);
 
   /** Get the block that comes after the given block if there is one. */
   Optional<Block> getBlockAfter(Block block);

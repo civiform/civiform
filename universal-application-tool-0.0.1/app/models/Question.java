@@ -82,6 +82,7 @@ public class Question extends BaseModel {
             .setName(name)
             .setPath(Path.create(path))
             .setDescription(description)
+            .setLifecycleStage(lifecycleStage)
             .setQuestionText(questionText)
             .setQuestionHelpText(questionHelpText)
             .setQuestionType(QuestionType.valueOf(questionType))
@@ -99,11 +100,27 @@ public class Question extends BaseModel {
   }
 
   public LifecycleStage getLifecycleStage() {
-    return this.lifecycleStage;
+    return this.getQuestionDefinition().getLifecycleStage();
   }
 
   public void setLifecycleStage(LifecycleStage lifecycleStage) {
-    this.lifecycleStage = lifecycleStage;
+    // A Question object is entirely determined by a QuestionDefinition, so Question objects are
+    // usually
+    // immutable since QuestionDefinitions are immutable.  This is not a true setter - it creates an
+    // entirely
+    // new QuestionDefinition from the existing one - but it's present here as a convenience method,
+    // to save
+    // on verbosity due to us doing this many times throughout the application.
+    try {
+      this.questionDefinition =
+          new QuestionDefinitionBuilder(this.questionDefinition)
+              .setLifecycleStage(lifecycleStage)
+              .build();
+    } catch (UnsupportedQuestionTypeException e) {
+      // Throw as runtime exception because this should never happen - we are using an existing
+      // question definition type.
+      throw new RuntimeException(e);
+    }
   }
 
   private void setFieldsFromQuestionDefinition(QuestionDefinition questionDefinition) {
@@ -118,6 +135,7 @@ public class Question extends BaseModel {
     questionHelpText = questionDefinition.getQuestionHelpText();
     questionType = questionDefinition.getQuestionType().toString();
     validationPredicates = questionDefinition.getValidationPredicatesAsString();
+    lifecycleStage = questionDefinition.getLifecycleStage();
 
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition multiOption =

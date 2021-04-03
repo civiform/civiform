@@ -30,7 +30,7 @@ public interface ApplicantService {
    *     not correspond to a real Program.
    */
   CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>> stageAndUpdateIfValid(
-      long applicantId, long programId, long blockId, ImmutableMap<String, String> updateMap);
+      long applicantId, long programId, String blockId, ImmutableMap<String, String> updateMap);
 
   /** Creates a new {@link models.Applicant} at for latest application version for a given user. */
   CompletionStage<Applicant> createApplicant(long userId);
