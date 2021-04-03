@@ -44,19 +44,20 @@ public class RadioButtonQuestionRenderer extends BaseHtmlView implements Applica
                 singleOptionQuestion.getOptions(),
                 option ->
                     renderSingleRadioOption(
-                        singleOptionQuestion.getSelectionPath(),
+                        singleOptionQuestion.getSelectionPath().toString(),
                         option,
                         singleOptionQuestion.optionIsSelected(option))));
   }
 
-  private Tag renderSingleRadioOption(Path selectionPath, String optionName, boolean checked) {
+  private Tag renderSingleRadioOption(String selectionPath, String optionName, boolean checked) {
     String id = optionName.replaceAll("\\s+", "_");
     return div()
         .with(
             input()
                 .withId(id)
                 .withType("radio")
-                .withName(selectionPath.join(optionName).toString())
+                .withName(selectionPath)
+                .withValue(optionName)
                 .condAttr(checked, Attr.CHECKED, ""),
             label(optionName).attr(Attr.FOR, id));
   }

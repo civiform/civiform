@@ -83,7 +83,10 @@ public class ApplicantServiceImpl implements ApplicantService {
   public CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>>
       stageAndUpdateIfValid(
           long applicantId, long programId, long blockId, ImmutableMap<String, String> updateMap) {
-    ImmutableSet<Update> updates = Updates.create(updateMap).updates();
+    ImmutableSet<Update> updates =
+        updateMap.entrySet().stream()
+            .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
+            .collect(ImmutableSet.toImmutableSet());
 
     boolean updatePathsContainReservedKeys =
         updates.stream().anyMatch(u -> RESERVED_SCALAR_KEYS.contains(u.path().keyName()));
