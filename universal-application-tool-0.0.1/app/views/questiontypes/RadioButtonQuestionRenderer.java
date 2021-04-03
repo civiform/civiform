@@ -7,7 +7,6 @@ import static j2html.TagCreator.label;
 
 import j2html.attributes.Attr;
 import j2html.tags.Tag;
-import services.Path;
 import services.applicant.ApplicantQuestion;
 import views.BaseHtmlView;
 import views.style.ReferenceClasses;
