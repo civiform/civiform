@@ -6,7 +6,6 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.util.AbstractMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
@@ -24,13 +23,11 @@ import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.ApplicationRepository;
-import services.Path;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramNotFoundException;
-import services.question.MultiOptionQuestionDefinition;
 import views.applicant.ApplicantProgramBlockEditView;
 
 public final class ApplicantProgramBlocksController extends Controller {
@@ -207,20 +204,6 @@ public final class ApplicantProgramBlocksController extends Controller {
   private ImmutableMap<String, String> cleanForm(Map<String, String> formData) {
     return formData.entrySet().stream()
         .filter(entry -> !STRIPPED_FORM_FIELDS.contains(entry.getKey()))
-        .map(this::convertIfCheckboxField)
         .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
-  }
-
-  /**
-   * If this is a checkbox field, the form data will be passed as {@code
-   * path.selection.option_label: on}. Instead, we want {@code path.selection: option_label}. We
-   * convert them here.
-   */
-  private Map.Entry<String, String> convertIfCheckboxField(Map.Entry<String, String> entry) {
-    Path key = Path.create(entry.getKey());
-    if (key.parentPath().keyName().equals(MultiOptionQuestionDefinition.SCALAR_NAME)) {
-      return new AbstractMap.SimpleImmutableEntry<>(key.parentPath().toString(), key.keyName());
-    }
-    return entry;
   }
 }
