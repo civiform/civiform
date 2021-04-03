@@ -11,6 +11,15 @@ import java.util.OptionalLong;
 import models.LifecycleStage;
 import services.Path;
 
+/**
+ * Repeater questions provide a variable list of user-defined identifiers for some repeated entity.
+ * Examples of repeated entities could be household members, vehicles, jobs, etc.
+ *
+ * <p>A repeater question definition can be referenced by other question definitions that themselves
+ * repeat for each of the repeater-defined entities. For example, a repeater for vehicles may ask
+ * the user to identify each of their vehicles, with other questions referencing it that ask about
+ * each vehicle's make, model, and year.
+ */
 public class RepeaterQuestionDefinition extends QuestionDefinition {
 
   public RepeaterQuestionDefinition(
@@ -74,55 +83,6 @@ public class RepeaterQuestionDefinition extends QuestionDefinition {
         RepeaterValidationPredicates.create());
   }
 
-  @JsonDeserialize(
-      builder = AutoValue_RepeaterQuestionDefinition_RepeaterValidationPredicates.Builder.class)
-  @AutoValue
-  public abstract static class RepeaterValidationPredicates extends ValidationPredicates {
-
-    public static RepeaterValidationPredicates parse(String jsonString) {
-      try {
-        return mapper.readValue(
-            jsonString, AutoValue_RepeaterQuestionDefinition_RepeaterValidationPredicates.class);
-      } catch (JsonProcessingException e) {
-        throw new RuntimeException(e);
-      }
-    }
-
-    public static RepeaterValidationPredicates create() {
-      return builder().build();
-    }
-
-    public static RepeaterValidationPredicates create(int minLength, int maxLength) {
-      return builder().setMinLength(minLength).setMaxLength(maxLength).build();
-    }
-
-    @JsonProperty("minLength")
-    public abstract OptionalInt minLength();
-
-    @JsonProperty("maxLength")
-    public abstract OptionalInt maxLength();
-
-    public static Builder builder() {
-      return new AutoValue_RepeaterQuestionDefinition_RepeaterValidationPredicates.Builder();
-    }
-
-    @AutoValue.Builder
-    public abstract static class Builder {
-
-      @JsonProperty("minLength")
-      public abstract Builder setMinLength(OptionalInt minLength);
-
-      public abstract Builder setMinLength(int minLength);
-
-      @JsonProperty("maxLength")
-      public abstract Builder setMaxLength(OptionalInt maxLength);
-
-      public abstract Builder setMaxLength(int maxLength);
-
-      public abstract RepeaterValidationPredicates build();
-    }
-  }
-
   public RepeaterValidationPredicates getRepeaterValidationPredicates() {
     return (RepeaterValidationPredicates) getValidationPredicates();
   }
@@ -151,5 +111,54 @@ public class RepeaterQuestionDefinition extends QuestionDefinition {
 
   public OptionalInt getMaxLength() {
     return getRepeaterValidationPredicates().maxLength();
+  }
+
+  @JsonDeserialize(
+      builder = AutoValue_RepeaterQuestionDefinition_RepeaterValidationPredicates.Builder.class)
+  @AutoValue
+  public abstract static class RepeaterValidationPredicates extends ValidationPredicates {
+
+    public static RepeaterValidationPredicates parse(String jsonString) {
+      try {
+        return mapper.readValue(
+            jsonString, AutoValue_RepeaterQuestionDefinition_RepeaterValidationPredicates.class);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    public static RepeaterValidationPredicates create() {
+      return builder().build();
+    }
+
+    public static RepeaterValidationPredicates create(int minLength, int maxLength) {
+      return builder().setMinLength(minLength).setMaxLength(maxLength).build();
+    }
+
+    public static Builder builder() {
+      return new AutoValue_RepeaterQuestionDefinition_RepeaterValidationPredicates.Builder();
+    }
+
+    @JsonProperty("minLength")
+    public abstract OptionalInt minLength();
+
+    @JsonProperty("maxLength")
+    public abstract OptionalInt maxLength();
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+
+      @JsonProperty("minLength")
+      public abstract Builder setMinLength(OptionalInt minLength);
+
+      public abstract Builder setMinLength(int minLength);
+
+      @JsonProperty("maxLength")
+      public abstract Builder setMaxLength(OptionalInt maxLength);
+
+      public abstract Builder setMaxLength(int maxLength);
+
+      public abstract RepeaterValidationPredicates build();
+    }
   }
 }

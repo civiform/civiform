@@ -53,7 +53,7 @@ public abstract class BlockDefinition {
 
   /**
    * A repeater block definition is a block definition that contains a {@link QuestionDefinition}
-   * that is of type {@code QuestionType.REPEATER}. Repeater questions present variable list of
+   * that is of type {@code QuestionType.REPEATER}. Repeater questions provide a variable list of
    * user-defined identifiers for some repeated entity. Examples of repeated entities could be
    * household members, vehicles, jobs, etc.
    *
