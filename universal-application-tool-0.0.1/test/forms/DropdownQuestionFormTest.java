@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-
 import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
@@ -31,6 +30,7 @@ public class DropdownQuestionFormTest {
     // The QuestionForm does not set version, which is needed in order to build the
     // QuestionDefinition. How we get this value hasn't been determined.
     builder.setVersion(1L);
+    builder.setLifecycleStage(LifecycleStage.ACTIVE);
 
     DropdownQuestionDefinition expected =
         new DropdownQuestionDefinition(
@@ -65,6 +65,7 @@ public class DropdownQuestionFormTest {
     // The QuestionForm does not set version, which is needed in order to build the
     // QuestionDefinition. How we get this value hasn't been determined.
     builder.setVersion(1L);
+    builder.setLifecycleStage(LifecycleStage.ACTIVE);
 
     assertThat(builder.build()).isEqualTo(originalQd);
   }
