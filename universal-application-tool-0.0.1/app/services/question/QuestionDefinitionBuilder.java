@@ -210,9 +210,11 @@ public class QuestionDefinitionBuilder {
             questionHelpText,
             numberValidationPredicates);
       case REPEATER:
-        RepeaterValidationPredicates repeaterValidationPredicates = RepeaterValidationPredicates.create();
+        RepeaterValidationPredicates repeaterValidationPredicates =
+            RepeaterValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {
-          repeaterValidationPredicates = RepeaterValidationPredicates.parse(validationPredicatesString);
+          repeaterValidationPredicates =
+              RepeaterValidationPredicates.parse(validationPredicatesString);
         }
 
         return new RepeaterQuestionDefinition(

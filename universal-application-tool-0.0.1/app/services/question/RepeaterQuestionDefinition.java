@@ -24,7 +24,15 @@ public class RepeaterQuestionDefinition extends QuestionDefinition {
       ImmutableMap<Locale, String> questionHelpText,
       RepeaterValidationPredicates validationPredicates) {
     super(
-        id, version, name, path, description, lifecycleStage, questionText, questionHelpText, validationPredicates);
+        id,
+        version,
+        name,
+        path,
+        description,
+        lifecycleStage,
+        questionText,
+        questionHelpText,
+        validationPredicates);
   }
 
   public RepeaterQuestionDefinition(
@@ -36,7 +44,15 @@ public class RepeaterQuestionDefinition extends QuestionDefinition {
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       RepeaterValidationPredicates validationPredicates) {
-    super(version, name, path, description, lifecycleStage, questionText, questionHelpText, validationPredicates);
+    super(
+        version,
+        name,
+        path,
+        description,
+        lifecycleStage,
+        questionText,
+        questionHelpText,
+        validationPredicates);
   }
 
   public RepeaterQuestionDefinition(

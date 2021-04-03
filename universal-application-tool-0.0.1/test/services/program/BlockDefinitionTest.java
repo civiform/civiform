@@ -89,20 +89,20 @@ public class BlockDefinitionTest {
             .setId(123L)
             .setName("Block Name")
             .setDescription("Block Description")
-            .addQuestion(ProgramQuestionDefinition.create(
-                new QuestionDefinitionBuilder()
-                    .setId(3L)
-                    .setVersion(1L)
-                    .setName("Household members")
-                    .setPath(Path.create("applicant.household_members"))
-                    .setLifecycleStage(LifecycleStage.ACTIVE)
-                    .setDescription("who are your household members")
-                    .setQuestionText(
-                        ImmutableMap.of(Locale.US, "Please list your household members."))
-                    .setQuestionHelpText(ImmutableMap.of())
-                    .setQuestionType(QuestionType.REPEATER)
-                    .build()
-            ))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    new QuestionDefinitionBuilder()
+                        .setId(3L)
+                        .setVersion(1L)
+                        .setName("Household members")
+                        .setPath(Path.create("applicant.household_members"))
+                        .setLifecycleStage(LifecycleStage.ACTIVE)
+                        .setDescription("who are your household members")
+                        .setQuestionText(
+                            ImmutableMap.of(Locale.US, "Please list your household members."))
+                        .setQuestionHelpText(ImmutableMap.of())
+                        .setQuestionType(QuestionType.REPEATER)
+                        .build()))
             .build();
 
     assertThat(blockDefinition.isRepeater()).isTrue();
@@ -110,9 +110,8 @@ public class BlockDefinitionTest {
 
   @Test
   public void isRepeated_isTrue() throws Exception {
-    BlockDefinition blockDefinition = makeBlockDefinitionWithQuestions()
-        .toBuilder()
-        .setRepeaterId(Optional.of(1L)).build();
+    BlockDefinition blockDefinition =
+        makeBlockDefinitionWithQuestions().toBuilder().setRepeaterId(Optional.of(1L)).build();
 
     assertThat(blockDefinition.isRepeated()).isTrue();
   }
