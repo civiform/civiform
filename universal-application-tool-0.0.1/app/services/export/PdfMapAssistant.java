@@ -1,4 +1,4 @@
-package export;
+package services.export;
 
 import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayOutputStream;
@@ -19,8 +19,8 @@ public class PdfMapAssistant {
    * Creates and returns a new document, which is a copy of the provided document, except that every
    * form field is converted to a list-selector, in which you can select one of the list of provided
    * questions. This maintains the names of the fields, so the resulting PDF, once filled in, is
-   * suitable for reading as a configuration method for PDF export. The method for submitting this
-   * configuration PDF is to-be-determined since, as noted in
+   * suitable for reading as a configuration method for PDF services.export. The method for
+   * submitting this configuration PDF is to-be-determined since, as noted in
    * https://bugs.chromium.org/p/chromium/issues/detail?id=719344, Chrome does not support PDF
    * submit-buttons.
    */

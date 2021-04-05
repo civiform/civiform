@@ -1,11 +1,10 @@
-package export;
+package services.export;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Optional;
 import models.Applicant;
 import models.LifecycleStage;
@@ -15,13 +14,14 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import repository.WithPostgresContainer;
 import services.Path;
 import services.program.ExportDefinition;
 import services.program.ExportEngine;
 import services.program.PdfExportConfig;
 import services.program.ProgramDefinition;
 
-public class PdfExporterTest {
+public class PdfExporterTest extends WithPostgresContainer {
   private static Program fakeProgramWithPdfExport;
   private Applicant fakeApplicant;
   private Writer writer;
@@ -30,7 +30,7 @@ public class PdfExporterTest {
 
   @BeforeClass
   public static void createFakeProgram() {
-    File basePdf = new File("test/export/base.pdf");
+    File basePdf = new File("test/services/export/base.pdf");
     ProgramDefinition definition =
         ProgramDefinition.builder()
             .setId(1L)
@@ -68,19 +68,17 @@ public class PdfExporterTest {
   @Test
   public void fillOneFormEntry() throws IOException {
     // Check that the form is as expected.
-    File basePdf = new File("test/export/base.pdf");
+    File basePdf = new File("test/services/export/base.pdf");
     assertThat(basePdf.canRead()).isTrue();
     PDDocument doc = PDDocument.load(basePdf);
     PDField formfield = doc.getDocumentCatalog().getAcroForm().getField("formfield");
     assertThat(formfield).isNotNull();
     assertThat(formfield.getValueAsString()).isEmpty();
 
-    // Create exporter and perform export.
-    ExporterFactory exporterFactory = new ExporterFactory();
-    List<Exporter> exporters = exporterFactory.createExporters(this.fakeProgramWithPdfExport);
-    assertThat(exporters).hasSize(1);
-    assertThat(exporters.get(0)).isInstanceOf(PdfExporter.class);
-    exporters.get(0).export(fakeApplicant, writer);
+    // Create exporter and perform services.export.
+    ExporterFactory exporterFactory = instanceOf(ExporterFactory.class);
+    PdfExporter exporters = exporterFactory.pdfExporter(this.fakeProgramWithPdfExport);
+    exporters.export(fakeApplicant, writer);
     writer.close();
 
     // Load output document and check value.
