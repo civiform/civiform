@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import forms.DropdownQuestionForm;
 import forms.QuestionForm;
+import forms.RadioButtonQuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
@@ -21,6 +22,7 @@ import play.twirl.api.Content;
 import services.question.DropdownQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionType;
+import services.question.RadioButtonQuestionDefinition;
 import services.question.TextQuestionDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
@@ -259,6 +261,10 @@ public final class QuestionEditView extends BaseHtmlView {
         {
           return new DropdownQuestionForm();
         }
+      case RADIO_BUTTON:
+        {
+          return new RadioButtonQuestionForm();
+        }
       case TEXT:
         {
           return new TextQuestionForm();
@@ -276,6 +282,10 @@ public final class QuestionEditView extends BaseHtmlView {
       case DROPDOWN:
         {
           return new DropdownQuestionForm((DropdownQuestionDefinition) questionDefinition);
+        }
+      case RADIO_BUTTON:
+        {
+          return new RadioButtonQuestionForm((RadioButtonQuestionDefinition) questionDefinition);
         }
       case TEXT:
         {

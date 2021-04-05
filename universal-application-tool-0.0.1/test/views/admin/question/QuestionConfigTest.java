@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import forms.DropdownQuestionForm;
 import forms.QuestionForm;
+import forms.RadioButtonQuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import java.util.EnumSet;
@@ -41,6 +42,12 @@ public class QuestionConfigTest {
     assertThat(QuestionConfig.buildQuestionConfig(QuestionType.NUMBER, new QuestionForm()))
         .toString()
         .contains("number-question-min-value-input");
+
+    assertThat(
+            QuestionConfig.buildQuestionConfig(
+                QuestionType.RADIO_BUTTON, new RadioButtonQuestionForm()))
+        .toString()
+        .contains("single-select-question-config");
   }
 
   @Test

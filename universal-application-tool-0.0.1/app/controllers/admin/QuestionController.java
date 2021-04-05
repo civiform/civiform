@@ -6,6 +6,7 @@ import auth.Authorizers;
 import controllers.CiviFormController;
 import forms.DropdownQuestionForm;
 import forms.QuestionForm;
+import forms.RadioButtonQuestionForm;
 import forms.TextQuestionForm;
 import java.util.Arrays;
 import java.util.Optional;
@@ -203,6 +204,11 @@ public class QuestionController extends CiviFormController {
       case DROPDOWN:
         {
           Form<DropdownQuestionForm> form = formFactory.form(DropdownQuestionForm.class);
+          return form.bindFromRequest(request).get();
+        }
+      case RADIO_BUTTON:
+        {
+          Form<RadioButtonQuestionForm> form = formFactory.form(RadioButtonQuestionForm.class);
           return form.bindFromRequest(request).get();
         }
       case TEXT:
