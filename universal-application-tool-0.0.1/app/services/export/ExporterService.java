@@ -21,6 +21,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
+import services.question.QuestionDefinition;
 import services.question.ScalarType;
 
 public class ExporterService {
@@ -90,7 +91,8 @@ public class ExporterService {
             question.getQuestionDefinition().getScalars().entrySet()) {
           String finalSegment = entry.getKey().keyName();
           // These are the two metadata fields in every answer - we don't need to report them.
-          if (!finalSegment.equals("updated_in_program") && !finalSegment.equals("updated_at")) {
+          if (!finalSegment.equals(QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY)
+              && !finalSegment.equals(QuestionDefinition.METADATA_UPDATE_TIME_KEY)) {
             columnBuilder.add(
                 Column.builder()
                     // e.g. "name.first".
