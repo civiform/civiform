@@ -11,7 +11,7 @@ describe('create dropdown question with options', () => {
     await page.click('#create-dropdown-question')
 
     // Fill in basic info
-    const questionName = 'Ice cream'
+    const questionName = 'favorite ice cream'
     await page.fill('text="Name"', questionName)
     await page.fill('text=Description', 'description')
     await page.fill('text=Question Text', 'questionText')
