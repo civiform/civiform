@@ -25,9 +25,9 @@ for arg do
     set -- "$@" "$arg"
 done
 
-#if (( $debug == 1 )); then
+if (( $debug == 1 )); then
     DEBUG=pw:api BASE_URL=$server_url yarn test $@
-#else
-#    BASE_URL=$server_url yarn test $@
-#fi
+else
+    BASE_URL=$server_url yarn test $@
+fi
 
