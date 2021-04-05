@@ -48,13 +48,8 @@ public class RadioButtonQuestionRendererTest {
   public void render_generatesCorrectInputNames() {
     Tag result = renderer.render();
 
-    assertThat(result.render())
-        .contains("name=\"applicant.favorite_ice_cream.selection.chocolate\"");
-    assertThat(result.render())
-        .contains("name=\"applicant.favorite_ice_cream.selection.peanut   butter\"");
-    assertThat(result.render()).contains("name=\"applicant.favorite_ice_cream.selection.vanilla\"");
-    assertThat(result.render())
-        .contains("name=\"applicant.favorite_ice_cream.selection.raspberry\"");
+    assertThat(result.render()).contains("name=\"applicant.favorite_ice_cream.selection\"");
+    assertThat(result.render()).contains("value=\"peanut   butter\"");
   }
 
   @Test
@@ -72,7 +67,7 @@ public class RadioButtonQuestionRendererTest {
     assertThat(result.render())
         .contains(
             "<input id=\"peanut_butter\" type=\"radio\""
-                + " name=\"applicant.favorite_ice_cream.selection.peanut   butter\""
-                + " checked=\"\">");
+                + " name=\"applicant.favorite_ice_cream.selection\""
+                + " value=\"peanut   butter\" checked=\"\">");
   }
 }
