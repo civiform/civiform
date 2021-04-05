@@ -34,7 +34,7 @@ public class ExporterService {
   }
 
   /**
-   * Return a string containing the CSV of all the applicants for a particular program.
+   * Return a string containing the CSV of all the applicantions for a particular program.
    *
    * @throws ProgramNotFoundException If the program ID refers to a program that does not exist.
    */

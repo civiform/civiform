@@ -31,7 +31,7 @@ public class CsvExporter {
 
   /**
    * The CSV exporter will write the headers on first call to services.export(). It does not store
-   * the writer between calls. Since it is intended for many applicants, this function is intended
+   * the writer between calls. Since it is intended for many applications, this function is intended
    * to be called several times.
    */
   public void export(Application application, Writer writer) throws IOException {
