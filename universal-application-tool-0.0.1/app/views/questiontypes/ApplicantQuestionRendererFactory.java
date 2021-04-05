@@ -24,6 +24,11 @@ public class ApplicantQuestionRendererFactory {
           return new AddressQuestionRenderer(question);
         }
 
+      case DROPDOWN:
+        {
+          return new DropdownQuestionRenderer(question);
+        }
+
       case CHECKBOX:
         {
           return new CheckboxQuestionRenderer(question);

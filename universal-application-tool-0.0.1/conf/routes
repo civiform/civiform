@@ -18,21 +18,23 @@ POST    /admin/programs/:programId            controllers.admin.AdminProgramCont
 
 # A controller for pages for an admin to create and maintain blocks for a program
 GET     /admin/programs/:programId/blocks                    controllers.admin.AdminProgramBlocksController.index(programId: Long)
-GET     /admin/programs/:programId/blocks/:blockId/edit      controllers.admin.AdminProgramBlocksController.edit(request: Request, programId: Long, blockId: Long)
-POST    /admin/programs/:programId/blocks/:blockId           controllers.admin.AdminProgramBlocksController.update(request: Request, programId: Long, blockId: Long)
-POST    /admin/programs/:programId/blocks                    controllers.admin.AdminProgramBlocksController.create(programId: Long)
-POST    /admin/programs/:programId/blocks/:blockId/delete    controllers.admin.AdminProgramBlocksController.destroy(programId: Long, blockId: Long)
+GET     /admin/programs/:programId/blocks/:blockDefinitionId/edit      controllers.admin.AdminProgramBlocksController.edit(request: Request, programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId           controllers.admin.AdminProgramBlocksController.update(request: Request, programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks                    controllers.admin.AdminProgramBlocksController.create(request: Request, programId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/delete    controllers.admin.AdminProgramBlocksController.destroy(programId: Long, blockDefinitionId: Long)
 
 # A controller for adding and removing questions from program blocks
-POST    /admin/programs/:programId/blocks/:blockId/questions               controllers.admin.AdminProgramBlockQuestionsController.create(request: Request, programId: Long, blockId: Long)
-POST    /admin/programs/:programId/blocks/:blockId/questions/delete        controllers.admin.AdminProgramBlockQuestionsController.destroy(request: Request, programId: Long, blockId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions               controllers.admin.AdminProgramBlockQuestionsController.create(request: Request, programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/delete        controllers.admin.AdminProgramBlockQuestionsController.destroy(request: Request, programId: Long, blockDefinitionId: Long)
 
 # A controller for a page for an admin to view, edit, and create questions
 GET     /admin/questions             controllers.admin.QuestionController.index(request: Request)
-GET     /admin/questions/new/:type   controllers.admin.QuestionController.newOne(request: Request, type: String)
+# Should have a `type` query param, like: /admin/questions/new?type=name. Defaults to text.
+GET     /admin/questions/new         controllers.admin.QuestionController.newOne(request: Request, type: String ?= "text")
 GET     /admin/questions/:id/edit    controllers.admin.QuestionController.edit(request: Request, id: Long)
-POST    /admin/questions/:id         controllers.admin.QuestionController.update(request: Request, id: Long)
-POST    /admin/questions             controllers.admin.QuestionController.create(request: Request)
+GET     /admin/questions/:id         controllers.admin.QuestionController.show(request: Request, id: Long)
+POST    /admin/questions/:id         controllers.admin.QuestionController.update(request: Request, id: Long, type: String)
+POST    /admin/questions             controllers.admin.QuestionController.create(request: Request, type: String)
 
 # Controller for admins only, related to applications
 GET     /admin/programs/:programId/applications                           controllers.admin.AdminApplicationController.answerList(programId: Long)
@@ -51,8 +53,8 @@ GET     /applicants/:applicantId/programs/:programId/edit   controllers.applican
 GET     /assets/*file               controllers.Assets.versioned(file)
 
 # Applicant program forms
-GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit   controllers.applicant.ApplicantProgramBlocksController.edit(request: Request, applicantId: Long, programId: Long, blockId: Long)
-POST    /applicants/:applicantId/programs/:programId/blocks/:blockId        controllers.applicant.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: Long)
+GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit   controllers.applicant.ApplicantProgramBlocksController.edit(request: Request, applicantId: Long, programId: Long, blockId: String)
+POST    /applicants/:applicantId/programs/:programId/blocks/:blockId        controllers.applicant.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: String)
 
 # User profile pages
 GET     /users/me                    controllers.ProfileController.myProfile(request: Request)

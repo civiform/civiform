@@ -5,7 +5,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
+import models.LifecycleStage;
 import services.Path;
+import views.admin.questions.GroupByKeyCollector;
 
 public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionService {
   private final ImmutableMap<Path, ScalarType> scalars;
@@ -21,16 +24,26 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     ImmutableMap.Builder<Path, QuestionDefinition> questionPathMap = ImmutableMap.builder();
     ImmutableMap.Builder<Path, ScalarType> scalarMap = ImmutableMap.builder();
     ImmutableMap.Builder<Path, QuestionDefinition> scalarParentsMap = ImmutableMap.builder();
+    for (ImmutableList<QuestionDefinition> qds :
+        questions.stream()
+            .collect(new GroupByKeyCollector<>(QuestionDefinition::getName))
+            .values()) {
+      Optional<QuestionDefinition> qdMaybe =
+          qds.stream().filter(qd -> qd.getLifecycleStage().equals(LifecycleStage.ACTIVE)).findAny();
+      if (qdMaybe.isPresent()) {
+        QuestionDefinition qd = qdMaybe.get();
+        questionPathMap.put(qd.getPath(), qd);
+        ImmutableMap<Path, ScalarType> questionScalars = qd.getScalars();
+        questionScalars.entrySet().stream()
+            .forEach(
+                entry -> {
+                  scalarMap.put(entry.getKey(), entry.getValue());
+                  scalarParentsMap.put(entry.getKey(), qd);
+                });
+      }
+    }
     for (QuestionDefinition qd : questions) {
       questionIdMap.put(qd.getId(), qd);
-      questionPathMap.put(qd.getPath(), qd);
-      ImmutableMap<Path, ScalarType> questionScalars = qd.getScalars();
-      questionScalars.entrySet().stream()
-          .forEach(
-              entry -> {
-                scalarMap.put(entry.getKey(), entry.getValue());
-                scalarParentsMap.put(entry.getKey(), qd);
-              });
     }
     questionsById = questionIdMap.build();
     questionsByPath = questionPathMap.build();
@@ -40,7 +53,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
 
   @Override
   public ImmutableList<QuestionDefinition> getAllQuestions() {
-    return questionsByPath.values().asList();
+    return questionsById.values().asList();
   }
 
   @Override

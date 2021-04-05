@@ -38,7 +38,7 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
-    assertThat(contentAsString(result)).contains("Programs");
+    assertThat(contentAsString(result)).doesNotContain("program-card");
   }
 
   @Test
@@ -75,7 +75,7 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
     Result result = controller.index(request, 1L).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Programas");
+    assertThat(contentAsString(result)).contains("obtener beneficios");
   }
 
   @Test
@@ -100,7 +100,8 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
-        .hasValue(routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, 1).url());
+        .hasValue(
+            routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1").url());
   }
 
   @Test
@@ -127,7 +128,8 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
-        .hasValue(routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, 2).url());
+        .hasValue(
+            routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "2").url());
   }
 
   // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Should redirect to

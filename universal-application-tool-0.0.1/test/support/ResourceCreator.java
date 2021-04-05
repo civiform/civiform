@@ -34,7 +34,13 @@ public class ResourceCreator {
   public Question insertQuestion(String pathString, long version, String name) {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            version, name, Path.create(pathString), "", ImmutableMap.of(), ImmutableMap.of());
+            version,
+            name,
+            Path.create(pathString),
+            "",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(),
+            ImmutableMap.of());
     Question question = new Question(definition);
     question.save();
     return question;
@@ -48,6 +54,7 @@ public class ResourceCreator {
                 "question name",
                 Path.create("applicant.my.path.name"),
                 "description",
+                LifecycleStage.ACTIVE,
                 ImmutableMap.of(Locale.US, "question?"),
                 ImmutableMap.of(Locale.US, "help text")))
         .getResult();

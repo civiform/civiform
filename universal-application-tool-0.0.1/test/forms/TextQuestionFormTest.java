@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
 import services.question.QuestionDefinition;
@@ -20,13 +21,12 @@ public class TextQuestionFormTest {
     form.setQuestionParentPath("my.question.path");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
-    form.setTextMinLength(4);
-    form.setTextMaxLength(6);
+    form.setMinLength(4);
+    form.setMaxLength(6);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
-    // The QuestionForm does not set version, which is needed in order to build the
-    // QuestionDefinition. How we get this value hasn't been determined.
     builder.setVersion(1L);
+    builder.setLifecycleStage(LifecycleStage.ACTIVE);
 
     TextQuestionDefinition expected =
         new TextQuestionDefinition(
@@ -34,6 +34,7 @@ public class TextQuestionFormTest {
             "name",
             Path.create("my.question.path.name"),
             "description",
+            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
             TextQuestionDefinition.TextValidationPredicates.create(4, 6));
@@ -51,6 +52,7 @@ public class TextQuestionFormTest {
             "name",
             Path.create("my.question.path.name"),
             "description",
+            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
             TextQuestionDefinition.TextValidationPredicates.create(4, 6));
@@ -58,9 +60,8 @@ public class TextQuestionFormTest {
     TextQuestionForm form = new TextQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
-    // The QuestionForm does not set version, which is needed in order to build the
-    // QuestionDefinition. How we get this value hasn't been determined.
     builder.setVersion(1L);
+    builder.setLifecycleStage(LifecycleStage.ACTIVE);
 
     QuestionDefinition actual = builder.build();
 

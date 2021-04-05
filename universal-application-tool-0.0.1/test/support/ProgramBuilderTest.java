@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import models.LifecycleStage;
 import models.Program;
 import org.junit.Test;
 import repository.WithPostgresContainer;
@@ -70,6 +71,7 @@ public class ProgramBuilderTest extends WithPostgresContainer {
             .setQuestionType(QuestionType.NAME)
             .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
             .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
+            .setLifecycleStage(LifecycleStage.DRAFT)
             .build();
     ProgramDefinition programDefinition =
         ProgramBuilder.newProgram("name", "description")

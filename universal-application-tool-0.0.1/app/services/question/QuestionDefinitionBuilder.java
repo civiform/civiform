@@ -4,10 +4,12 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.OptionalLong;
+import models.LifecycleStage;
 import services.Path;
 import services.question.AddressQuestionDefinition.AddressValidationPredicates;
 import services.question.NameQuestionDefinition.NameValidationPredicates;
 import services.question.QuestionDefinition.ValidationPredicates;
+import services.question.RepeaterQuestionDefinition.RepeaterValidationPredicates;
 import services.question.TextQuestionDefinition.TextValidationPredicates;
 
 public class QuestionDefinitionBuilder {
@@ -17,6 +19,7 @@ public class QuestionDefinitionBuilder {
   private String name;
   private Path path;
   private String description;
+  private LifecycleStage lifecycleStage;
   private ImmutableMap<Locale, String> questionText;
   private ImmutableMap<Locale, String> questionHelpText = ImmutableMap.of();
   private QuestionType questionType = QuestionType.TEXT;
@@ -36,6 +39,7 @@ public class QuestionDefinitionBuilder {
     name = definition.getName();
     path = definition.getPath();
     description = definition.getDescription();
+    lifecycleStage = definition.getLifecycleStage();
     questionText = definition.getQuestionText();
     questionHelpText = definition.getQuestionHelpText();
     questionType = definition.getQuestionType();
@@ -48,6 +52,11 @@ public class QuestionDefinitionBuilder {
   }
 
   public QuestionDefinitionBuilder clearId() {
+    this.id = OptionalLong.empty();
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setId(Void v) {
     this.id = OptionalLong.empty();
     return this;
   }
@@ -69,6 +78,10 @@ public class QuestionDefinitionBuilder {
             .setPath(Path.create("sample.question.path"))
             .setQuestionText(ImmutableMap.of(Locale.US, "Sample question text"))
             .setQuestionHelpText(ImmutableMap.of(Locale.US, "Sample question help text"))
+<<<<<<< HEAD
+=======
+            .setLifecycleStage(LifecycleStage.ACTIVE)
+>>>>>>> ca15f194833ba2faf29251ee0d7027f23d172b63
             .setQuestionType(questionType);
 
     if (questionType.isMultiOptionType()) {
@@ -120,6 +133,11 @@ public class QuestionDefinitionBuilder {
     return this;
   }
 
+  public QuestionDefinitionBuilder setLifecycleStage(LifecycleStage lifecycleStage) {
+    this.lifecycleStage = lifecycleStage;
+    return this;
+  }
+
   public QuestionDefinitionBuilder setValidationPredicates(
       ValidationPredicates validationPredicates) {
     this.validationPredicatesString = validationPredicates.serializeAsString();
@@ -147,6 +165,7 @@ public class QuestionDefinitionBuilder {
             name,
             path,
             description,
+            lifecycleStage,
             questionText,
             questionHelpText,
             addressValidationPredicates);
@@ -154,7 +173,15 @@ public class QuestionDefinitionBuilder {
         return new CheckboxQuestionDefinition(id, version, name, path, description, questionText, questionHelpText, questionOptions);
       case DROPDOWN:
         return new DropdownQuestionDefinition(
-            id, version, name, path, description, questionText, questionHelpText, questionOptions);
+            id,
+            version,
+            name,
+            path,
+            description,
+            lifecycleStage,
+            questionText,
+            questionHelpText,
+            questionOptions);
       case NAME:
         NameValidationPredicates nameValidationPredicates = NameValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {
@@ -166,6 +193,7 @@ public class QuestionDefinitionBuilder {
             name,
             path,
             description,
+            lifecycleStage,
             questionText,
             questionHelpText,
             nameValidationPredicates);
@@ -182,9 +210,28 @@ public class QuestionDefinitionBuilder {
             name,
             path,
             description,
+            lifecycleStage,
             questionText,
             questionHelpText,
             numberValidationPredicates);
+      case REPEATER:
+        RepeaterValidationPredicates repeaterValidationPredicates =
+            RepeaterValidationPredicates.create();
+        if (!validationPredicatesString.isEmpty()) {
+          repeaterValidationPredicates =
+              RepeaterValidationPredicates.parse(validationPredicatesString);
+        }
+
+        return new RepeaterQuestionDefinition(
+            id,
+            version,
+            name,
+            path,
+            description,
+            lifecycleStage,
+            questionText,
+            questionHelpText,
+            repeaterValidationPredicates);
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {
@@ -196,6 +243,7 @@ public class QuestionDefinitionBuilder {
             name,
             path,
             description,
+            lifecycleStage,
             questionText,
             questionHelpText,
             textValidationPredicates);

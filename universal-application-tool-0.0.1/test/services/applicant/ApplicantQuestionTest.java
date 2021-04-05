@@ -2,7 +2,6 @@ package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
@@ -11,6 +10,7 @@ import java.util.Locale;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Applicant;
+import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,6 +34,7 @@ public class ApplicantQuestionTest {
           "question name",
           Path.create("applicant.my.path.name"),
           "description",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
           ImmutableListMultimap.of(
@@ -51,6 +52,7 @@ public class ApplicantQuestionTest {
           "question name",
           Path.create("applicant.my.path.name"),
           "description",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
   private static final NameQuestionDefinition nameQuestionDefinition =
@@ -59,6 +61,7 @@ public class ApplicantQuestionTest {
           "question name",
           Path.create("applicant.my.path.name"),
           "description",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
   private static final NumberQuestionDefinition numberQuestionDefinition =
@@ -67,6 +70,7 @@ public class ApplicantQuestionTest {
           "question name",
           Path.create("applicant.my.path.name"),
           "description",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
   private static final AddressQuestionDefinition addressQuestionDefinition =
@@ -75,6 +79,7 @@ public class ApplicantQuestionTest {
           "question name",
           Path.create("applicant.my.path.name"),
           "description",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
 
@@ -138,6 +143,7 @@ public class ApplicantQuestionTest {
                 .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
                 .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
                 .setValidationPredicates(TextValidationPredicates.create(0, 4))
+                .setLifecycleStage(LifecycleStage.ACTIVE)
                 .build();
     applicantData.putString(question.getTextPath(), "hello");
     ApplicantQuestion applicantQuestion = new ApplicantQuestion(question, applicantData);
@@ -182,6 +188,7 @@ public class ApplicantQuestionTest {
                 .setName("question name")
                 .setPath(Path.create("applicant.my.path.name"))
                 .setDescription("description")
+                .setLifecycleStage(LifecycleStage.ACTIVE)
                 .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
                 .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
                 .setValidationPredicates(
@@ -199,29 +206,27 @@ public class ApplicantQuestionTest {
   }
 
   @Test
-  public void multiOptionQuestion_withEmptyApplicantData() {
+  public void singleSelectQuestion_withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
 
-    assertThat(applicantQuestion.getMultiOptionQuestion())
-        .isInstanceOf(ApplicantQuestion.MultiOptionQuestion.class);
-    assertThat(applicantQuestion.getMultiOptionQuestion().getOptions())
+    assertThat(applicantQuestion.getSingleSelectQuestion())
+        .isInstanceOf(ApplicantQuestion.SingleSelectQuestion.class);
+    assertThat(applicantQuestion.getSingleSelectQuestion().getOptions())
         .containsOnly("option 1", "option 2");
     assertThat(applicantQuestion.hasErrors()).isFalse();
   }
 
   @Test
-  public void multiOptionQuestion_withPresentApplicantData() {
-    applicantData.putList(
-        dropdownQuestionDefinition.getSelectionPath(), ImmutableList.of("one", "two"));
+  public void singleSelectQuestion_withPresentApplicantData() {
+    applicantData.putString(dropdownQuestionDefinition.getSelectionPath(), "answer");
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
-    ApplicantQuestion.MultiOptionQuestion multiOptionQuestion =
-        applicantQuestion.getMultiOptionQuestion();
+    ApplicantQuestion.SingleSelectQuestion singleSelectQuestion =
+        applicantQuestion.getSingleSelectQuestion();
 
-    assertThat(multiOptionQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(multiOptionQuestion.getSelectedOptionsValue())
-        .hasValue(ImmutableList.of("one", "two"));
+    assertThat(singleSelectQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(singleSelectQuestion.getSelectedOptionValue()).hasValue("answer");
   }
 
   // TODO(https://github.com/seattle-uat/civiform/issues/416): Add a test for validation failures.

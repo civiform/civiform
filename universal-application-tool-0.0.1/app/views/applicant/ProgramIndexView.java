@@ -4,20 +4,23 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
-import static j2html.TagCreator.h1;
-import static j2html.TagCreator.h2;
+import static j2html.TagCreator.nav;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
+import views.style.ApplicantStyles;
+import views.style.ReferenceClasses;
+import views.style.StyleUtils;
+import views.style.Styles;
 
 /** Returns a list of programs that an applicant can browse, with buttons for applying. */
 public class ProgramIndexView extends BaseHtmlView {
@@ -44,27 +47,160 @@ public class ProgramIndexView extends BaseHtmlView {
       long applicantId,
       ImmutableList<ProgramDefinition> programs,
       Optional<String> banner) {
-    String applyMessage = messages.at("button.apply");
-    ContainerTag body = body();
+    ContainerTag body =
+        body().withClasses(Styles.RELATIVE, Styles.PX_8, ApplicantStyles.BODY_BACKGROUND);
     if (banner.isPresent()) {
       // TODO: make this a styled toast.
       body.with(p(banner.get()));
     }
-    return layout.render(
-        body.with(h1(messages.at("title.programs")))
-            .with(each(programs, program -> shortProgram(applicantId, applyMessage, program))));
+    body.with(
+        nav()
+            .withClasses(
+                Styles.PT_8,
+                Styles.PB_4,
+                Styles.MB_12,
+                Styles.FLEX,
+                Styles.ALIGN_MIDDLE,
+                Styles.BORDER_B_4,
+                Styles.BORDER_WHITE)
+            .with(branding(), status()),
+        topContent(messages.at("content.benefits"), messages.at("content.description")),
+        mainContent(programs, applicantId, messages.at("button.apply")));
+
+    return layout.render(body);
   }
 
-  private Tag shortProgram(long applicantId, String applyMessage, ProgramDefinition program) {
+  private ContainerTag branding() {
     return div()
-        .with(h2(program.name()))
+        .withId("brand-id")
+        .withClasses(Styles.W_1_2, ApplicantStyles.LOGO_STYLE)
+        .with(span("Civi"))
+        .with(span("Form").withClasses(Styles.FONT_THIN));
+  }
+
+  private ContainerTag status() {
+    return div()
+        .withId("application-status")
+        .withClasses(Styles.W_1_2, Styles.TEXT_RIGHT, Styles.TEXT_SM, Styles.UNDERLINE)
+        .with(span("view my applications"));
+  }
+
+  private ContainerTag topContent(String titleText, String infoText) {
+    ContainerTag floatTitle =
+        div()
+            .withId("float-title")
+            .withText(titleText)
+            .withClasses(
+                Styles.RELATIVE, Styles.W_0, Styles.TEXT_6XL, Styles.FONT_SERIF, Styles.FONT_THIN);
+    ContainerTag floatText =
+        div()
+            .withId("float-text")
+            .withText(infoText)
+            .withClasses(Styles.MY_4, Styles.TEXT_SM, Styles.W_FULL);
+
+    return div()
+        .withId("top-content")
+        .withClasses(
+            Styles.RELATIVE,
+            Styles.W_FULL,
+            Styles.MB_10,
+            StyleUtils.responsiveMedium(Styles.GRID, Styles.GRID_COLS_2))
+        .with(floatTitle, floatText);
+  }
+
+  private ContainerTag mainContent(
+      ImmutableList<ProgramDefinition> programs, long applicantId, String applyText) {
+    return div()
+        .withId("main-content")
+        .withClasses(Styles.RELATIVE, Styles.W_FULL, Styles.FLEX, Styles.FLEX_WRAP, Styles.PB_8)
+        .with(each(programs, program -> programCard(program, applicantId, applyText)));
+  }
+
+  private ContainerTag programCard(ProgramDefinition program, Long applicantId, String applyText) {
+    String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
+    ContainerTag category =
+        div()
+            .withId(baseId + "-category")
+            .withClasses(Styles.TEXT_XS, Styles.PB_2)
+            .with(
+                div()
+                    .withClasses(
+                        Styles.BG_TEAL_400,
+                        Styles.H_3,
+                        Styles.W_3,
+                        Styles.ROUNDED_FULL,
+                        Styles.INLINE_BLOCK,
+                        Styles.ALIGN_MIDDLE),
+                div("No Category")
+                    .withClasses(
+                        Styles.ML_2,
+                        Styles.INLINE,
+                        Styles.ALIGN_BOTTOM,
+                        Styles.ALIGN_TEXT_BOTTOM,
+                        Styles.LEADING_3));
+    ContainerTag title =
+        div()
+            .withId(baseId + "-title")
+            .withClasses(Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
+            .withText(program.name());
+    ContainerTag description =
+        div()
+            .withId(baseId + "-description")
+            .withClasses(Styles.TEXT_XS, Styles.MY_2)
+            .withText(program.description());
+    ContainerTag externalLink =
+        div()
+            .withId(baseId + "-external-link")
+            .withClasses(Styles.TEXT_XS, Styles.UNDERLINE)
+            .withText("Program details");
+    ContainerTag programData =
+        div()
+            .withId(baseId + "-data")
+            .withClasses(Styles.PX_4)
+            .with(category, title, description, externalLink);
+
+    String applyUrl =
+        controllers.applicant.routes.ApplicantProgramsController.edit(applicantId, program.id())
+            .url();
+    ContainerTag applyButton =
+        a().attr(HREF, applyUrl)
+            .withText(applyText)
+            .withId(baseId + "-apply")
+            .withClasses(
+                Styles.BLOCK,
+                Styles.UPPERCASE,
+                Styles.ROUNDED_3XL,
+                Styles.PY_2,
+                Styles.PX_6,
+                Styles.W_MIN,
+                Styles.MX_AUTO,
+                Styles.BG_GRAY_200,
+                StyleUtils.hover(Styles.BG_GRAY_300));
+
+    ContainerTag applyDiv =
+        div(applyButton).withClasses(Styles.ABSOLUTE, Styles.BOTTOM_6, Styles.W_FULL);
+    return div()
+        .withId(baseId)
+        .withClasses(
+            ReferenceClasses.APPLICATION_CARD,
+            Styles.RELATIVE,
+            Styles.INLINE_BLOCK,
+            Styles.MR_4,
+            Styles.MB_4,
+            Styles.W_64,
+            Styles.H_72,
+            Styles.BG_WHITE,
+            Styles.ROUNDED_XL,
+            Styles.SHADOW_SM)
         .with(
-            a(applyMessage)
-                .withId(String.format("apply%d", program.id()))
-                .attr(
-                    HREF,
-                    controllers.applicant.routes.ApplicantProgramsController.edit(
-                            applicantId, program.id())
-                        .url()));
+            div()
+                .withClasses(
+                    Styles.BG_TEAL_400,
+                    Styles.BG_OPACITY_60,
+                    Styles.H_3,
+                    Styles.ROUNDED_T_XL,
+                    Styles.MB_4))
+        .with(programData)
+        .with(applyDiv);
   }
 }

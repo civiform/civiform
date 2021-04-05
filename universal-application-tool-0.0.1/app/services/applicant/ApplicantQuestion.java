@@ -82,8 +82,8 @@ public class ApplicantQuestion {
     return new AddressQuestion();
   }
 
-  public MultiOptionQuestion getMultiOptionQuestion() {
-    return new MultiOptionQuestion();
+  public SingleSelectQuestion getSingleSelectQuestion() {
+    return new SingleSelectQuestion();
   }
 
   public TextQuestion getTextQuestion() {
@@ -106,6 +106,8 @@ public class ApplicantQuestion {
     switch (getType()) {
       case ADDRESS:
         return getAddressQuestion();
+      case DROPDOWN:
+        return getSingleSelectQuestion();
       case NAME:
         return getNameQuestion();
       case NUMBER:
@@ -323,6 +325,7 @@ public class ApplicantQuestion {
     }
 
     public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+      // TODO(https://github.com/seattle-uat/civiform/issues/634): Fix bug related to hasValue.
       if (!hasValue()) {
         return ImmutableSet.of();
       }
@@ -592,11 +595,13 @@ public class ApplicantQuestion {
     }
   }
 
-  public class MultiOptionQuestion implements PresentsErrors {
+  // TODO(https://github.com/seattle-uat/civiform/issues/396): Implement a question that allows for
+  // multiple answer selections (i.e. the value is a list)
+  public class SingleSelectQuestion implements PresentsErrors {
 
-    private Optional<ImmutableList<String>> selectedOptionsValue;
+    private Optional<String> selectedOptionValue;
 
-    public MultiOptionQuestion() {
+    public SingleSelectQuestion() {
       assertQuestionType();
     }
 
@@ -617,17 +622,17 @@ public class ApplicantQuestion {
     }
 
     public boolean hasValue() {
-      return getSelectedOptionsValue().isPresent();
+      return getSelectedOptionValue().isPresent();
     }
 
-    public Optional<ImmutableList<String>> getSelectedOptionsValue() {
-      if (selectedOptionsValue != null) {
-        return selectedOptionsValue;
+    public Optional<String> getSelectedOptionValue() {
+      if (selectedOptionValue != null) {
+        return selectedOptionValue;
       }
 
-      selectedOptionsValue = applicantData.readList(getSelectionPath());
+      selectedOptionValue = applicantData.readString(getSelectionPath());
 
-      return selectedOptionsValue;
+      return selectedOptionValue;
     }
 
     public void assertQuestionType() {

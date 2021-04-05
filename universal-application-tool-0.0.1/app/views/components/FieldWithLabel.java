@@ -9,6 +9,7 @@ import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.OptionalInt;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -70,12 +71,16 @@ public class FieldWithLabel {
   protected String fieldName = "";
   protected String fieldType = "text";
   protected String fieldValue = "";
+  /** For use with fields of type `number`. */
+  protected OptionalInt fieldNumberValue = OptionalInt.empty();
+
   protected String formId = "";
   protected String id = "";
   protected String labelText = "";
   protected String placeholderText = "";
   protected boolean checked = false;
   protected boolean floatLabel = false;
+  protected boolean disabled = false;
 
   public FieldWithLabel(Tag fieldTag) {
     this.fieldTag = fieldTag.withClasses(FieldWithLabel.CORE_FIELD_CLASSES);
@@ -143,7 +148,27 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setValue(String value) {
+    if (this.fieldType.equals("number")) {
+      throw new RuntimeException(
+          "setting a String value is not available on fields of type `number`");
+    }
+
     this.fieldValue = value;
+    return this;
+  }
+
+  public FieldWithLabel setValue(OptionalInt value) {
+    if (!this.fieldType.equals("number")) {
+      throw new RuntimeException(
+          "setting an OptionalInt value is only available on fields of type `number`");
+    }
+
+    this.fieldNumberValue = value;
+    return this;
+  }
+
+  public FieldWithLabel setDisabled(boolean disabled) {
+    this.disabled = disabled;
     return this;
   }
 
@@ -156,6 +181,12 @@ public class FieldWithLabel {
               .withClasses(FieldWithLabel.CORE_FIELD_CLASSES)
               .withText(this.fieldValue);
       fieldTag = textAreaTag;
+    } else if (this.fieldType.equals("number")) {
+      // For number types, only set the value if it's present since there is no empty string
+      // equivalent for numbers.
+      if (this.fieldNumberValue.isPresent()) {
+        fieldTag.withValue(String.valueOf(this.fieldNumberValue.getAsInt()));
+      }
     } else {
       fieldTag.withValue(this.fieldValue);
     }
@@ -163,6 +194,7 @@ public class FieldWithLabel {
     fieldTag
         .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
         .withName(this.fieldName)
+        .condAttr(this.disabled, "disabled", "true")
         .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
         .condAttr(!Strings.isNullOrEmpty(this.formId), "form", formId);
 
