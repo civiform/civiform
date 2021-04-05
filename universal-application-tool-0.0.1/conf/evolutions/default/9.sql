@@ -9,9 +9,9 @@ alter table applications add column lifecycle_stage varchar;
 alter table applications add column submit_time timestamp;
 alter table programs add column version bigint;
 
-update table questions set lifecycle_stage = 'active' where lifecycle_stage = null;
-update table programs set lifecycle_stage = 'active' where lifecycle_stage = null;
-update table applications set lifecycle_stage = 'active' where lifecycle_stage = null;
+update table questions set lifecycle_stage = 'active' where lifecycle_stage is null;
+update table programs set lifecycle_stage = 'active' where lifecycle_stage is null;
+update table applications set lifecycle_stage = 'active' where lifecycle_stage is null;
 
 # --- !Downs
 alter table questions drop constraint if exists nameversion cascade;
