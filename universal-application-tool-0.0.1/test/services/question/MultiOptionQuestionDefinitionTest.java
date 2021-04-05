@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
 
@@ -25,6 +26,7 @@ public class MultiOptionQuestionDefinitionTest {
             .setQuestionText(ImmutableMap.of())
             .setQuestionHelpText(ImmutableMap.of())
             .setQuestionOptions(options)
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
     MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
@@ -43,6 +45,7 @@ public class MultiOptionQuestionDefinitionTest {
             .setQuestionText(ImmutableMap.of())
             .setQuestionHelpText(ImmutableMap.of())
             .setQuestionOptions(ImmutableListMultimap.of())
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
     MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
@@ -67,6 +70,7 @@ public class MultiOptionQuestionDefinitionTest {
             .setQuestionText(ImmutableMap.of())
             .setQuestionHelpText(ImmutableMap.of())
             .setQuestionOptions(options)
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
     MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;

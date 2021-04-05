@@ -396,7 +396,10 @@ public class ProgramServiceImpl implements ProgramService {
   public ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException {
     ProgramDefinition program =
         this.getProgramDefinition(id).toBuilder().setLifecycleStage(LifecycleStage.DRAFT).build();
-    return programRepository.insertProgramSync(program.toProgram()).getProgramDefinition();
+    Program programBean = program.toProgram();
+    programRepository.insertProgramSync(programBean);
+    programRepository.updateQuestionVersions(programBean);
+    return programBean.getProgramDefinition();
   }
 
   private ProgramDefinition updateProgramDefinitionWithBlockDefinition(

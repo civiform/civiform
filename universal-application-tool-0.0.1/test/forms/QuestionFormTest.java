@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import models.LifecycleStage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.Path;
@@ -28,9 +29,10 @@ public class QuestionFormTest {
     form.setQuestionType(QuestionType.TEXT);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
-    // The QuestionForm does not set version, which is needed in order to build the
-    // QuestionDefinition. How we get this value hasn't been determined.
+    // The QuestionForm does not set version or lifecycle stage.
+    // A first question is a draft in version 1 - set those here.
     builder.setVersion(1L);
+    builder.setLifecycleStage(LifecycleStage.DRAFT);
 
     TextQuestionDefinition expected =
         new TextQuestionDefinition(
@@ -38,6 +40,7 @@ public class QuestionFormTest {
             "name",
             Path.create("my.question.path.name"),
             "description",
+            LifecycleStage.DRAFT,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of());
     QuestionDefinition actual = builder.build();

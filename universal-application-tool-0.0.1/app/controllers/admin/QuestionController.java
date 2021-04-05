@@ -4,12 +4,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import controllers.CiviFormController;
+import forms.DropdownQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -60,6 +62,22 @@ public class QuestionController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public CompletionStage<Result> show(Request request, Long id) {
+    return service
+        .getReadOnlyQuestionService()
+        .thenApplyAsync(
+            readOnlyService -> {
+              try {
+                QuestionDefinition definition = readOnlyService.getQuestionDefinition(id);
+                return ok(editView.renderViewQuestionForm(request, definition));
+              } catch (QuestionNotFoundException e) {
+                return badRequest(e.toString());
+              }
+            },
+            httpExecutionContext.current());
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result newOne(Request request, String type) {
     String upperType = type.toUpperCase();
     try {
@@ -85,7 +103,8 @@ public class QuestionController extends CiviFormController {
 
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = questionForm.getBuilder().setVersion(1L).build();
+      questionDefinition =
+          questionForm.getBuilder().setVersion(1L).setLifecycleStage(LifecycleStage.DRAFT).build();
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
       return badRequest(e.toString());
@@ -130,7 +149,13 @@ public class QuestionController extends CiviFormController {
 
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = questionForm.getBuilder().setId(id).setVersion(1L).build();
+      questionDefinition =
+          questionForm
+              .getBuilder()
+              .setId(id)
+              .setVersion(1L)
+              .setLifecycleStage(LifecycleStage.DRAFT)
+              .build();
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
       String errorMessage = e.toString();
@@ -175,6 +200,11 @@ public class QuestionController extends CiviFormController {
     }
 
     switch (questionType) {
+      case DROPDOWN:
+        {
+          Form<DropdownQuestionForm> form = formFactory.form(DropdownQuestionForm.class);
+          return form.bindFromRequest(request).get();
+        }
       case TEXT:
         {
           Form<TextQuestionForm> form = formFactory.form(TextQuestionForm.class);
