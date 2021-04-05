@@ -23,6 +23,5 @@ export const logout = async (page: Page) => {
 }
 
 export const loginAsAdmin = async (page: Page) => {
-  await page.screenshot({ path: 'tmp/screenshot.png', fullPage: true });
   await page.click('#admin')
 }
