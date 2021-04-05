@@ -8,15 +8,17 @@ import static j2html.TagCreator.main;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import forms.DropdownQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
-import j2html.tags.Tag;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
+import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.question.DropdownQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionType;
 import services.question.TextQuestionDefinition;
@@ -134,19 +136,10 @@ public final class QuestionEditView extends BaseHtmlView {
 
   // A hidden template for multi-option questions.
   private ContainerTag multiOptionQuestionField() {
-    ContainerTag optionInput =
-        FieldWithLabel.input()
-            .setFieldName("option")
-            .setLabelText("Question option")
-            .getContainer()
-            .withClasses(Styles.FLEX, Styles.ML_2);
-    Tag removeOptionButton =
-        button("Remove").withType("button").withClasses(Styles.FLEX, Styles.ML_4);
-
-    return div()
+    return QuestionConfig.multiOptionQuestionField(Optional.empty())
         .withId("multi-option-question-answer-template")
-        .withClasses(Styles.HIDDEN, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4)
-        .with(optionInput, removeOptionButton);
+        // Add "hidden" to other classes, so that the template is not shown
+        .withClasses(Styles.HIDDEN, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4);
   }
 
   private ContainerTag buildPreviewContent(QuestionType questionType) {
@@ -262,6 +255,10 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private QuestionForm getQuestionFormForType(QuestionType questionType) {
     switch (questionType) {
+      case DROPDOWN:
+        {
+          return new DropdownQuestionForm();
+        }
       case TEXT:
         {
           return new TextQuestionForm();
@@ -276,6 +273,10 @@ public final class QuestionEditView extends BaseHtmlView {
   private QuestionForm getQuestionFormForType(
       QuestionType questionType, QuestionDefinition questionDefinition) {
     switch (questionType) {
+      case DROPDOWN:
+        {
+          return new DropdownQuestionForm((DropdownQuestionDefinition) questionDefinition);
+        }
       case TEXT:
         {
           return new TextQuestionForm((TextQuestionDefinition) questionDefinition);

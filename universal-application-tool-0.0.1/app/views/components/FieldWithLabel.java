@@ -9,6 +9,7 @@ import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.Optional;
 import java.util.OptionalInt;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -154,6 +155,15 @@ public class FieldWithLabel {
     }
 
     this.fieldValue = value;
+    return this;
+  }
+
+  public FieldWithLabel setValue(Optional<String> value) {
+    if (this.fieldType.equals("number")) {
+      throw new RuntimeException(
+          "setting a String value is not available on fields of type 'number'");
+    }
+    value.ifPresent(s -> this.fieldValue = s);
     return this;
   }
 
