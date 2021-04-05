@@ -4,7 +4,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static views.components.FieldWithLabel.checkbox;
 
-import com.google.common.collect.ImmutableList;
 import j2html.tags.Tag;
 import services.applicant.ApplicantQuestion;
 import views.BaseHtmlView;
@@ -21,7 +20,7 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
 
   @Override
   public Tag render() {
-    ApplicantQuestion.MultiOptionQuestion multiOptionQuestion = question.getMultiOptionQuestion();
+    ApplicantQuestion.MultiSelectQuestion multiOptionQuestion = question.getMultiSelectQuestion();
 
     return div()
         .withId(question.getPath().path())
@@ -43,12 +42,8 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
                     checkbox()
                         .setLabelText(option)
                         .setFieldName(question.getPath().asList())
-                        .setChecked(shouldBeChecked(multiOptionQuestion, option))
+                        .setValue(option)
+                        .setChecked(multiOptionQuestion.optionIsSelected(option))
                         .getContainer()));
-  }
-
-  private boolean shouldBeChecked(ApplicantQuestion.MultiOptionQuestion question, String option) {
-    return question.hasValue()
-        && question.getSelectedOptionsValue().orElse(ImmutableList.of()).contains(option);
   }
 }

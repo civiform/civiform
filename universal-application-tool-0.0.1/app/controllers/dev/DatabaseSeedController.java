@@ -226,7 +226,7 @@ public class DatabaseSeedController extends Controller {
           programService
               .addBlockToProgram(
                   programDefinition.id(),
-                  "Block 3",
+                  "Block 4",
                   "kitchen information",
                   ImmutableList.of(
                       ProgramQuestionDefinition.create(insertCheckboxQuestionDefinition())))

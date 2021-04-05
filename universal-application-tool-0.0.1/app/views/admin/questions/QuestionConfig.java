@@ -69,6 +69,9 @@ public class QuestionConfig {
             .getContainer();
       case ADDRESS:
         return config.setId("address-question-config").addAddressQuestionConfig().getContainer();
+        // TODO(https://github.com/seattle-uat/civiform/issues/416): Separate these into
+        // single-select (options only) and multi-select (options + validation) configs.
+      case CHECKBOX:
       case DROPDOWN:
         return config
             .setId("single-select-question-config")

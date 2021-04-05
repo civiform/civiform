@@ -90,6 +90,10 @@ public class ApplicantQuestion {
     return new TextQuestion();
   }
 
+  public MultiSelectQuestion getMultiSelectQuestion() {
+    return new MultiSelectQuestion();
+  }
+
   public NameQuestion getNameQuestion() {
     return new NameQuestion();
   }
@@ -102,6 +106,8 @@ public class ApplicantQuestion {
     switch (getType()) {
       case ADDRESS:
         return getAddressQuestion();
+      case CHECKBOX:
+        return getMultiSelectQuestion();
       case DROPDOWN:
         return getSingleSelectQuestion();
       case NAME:
@@ -591,8 +597,6 @@ public class ApplicantQuestion {
     }
   }
 
-  // TODO(https://github.com/seattle-uat/civiform/issues/396): Implement a question that allows for
-  // multiple answer selections (i.e. the value is a list)
   public class SingleSelectQuestion implements PresentsErrors {
 
     private Optional<String> selectedOptionValue;
@@ -629,6 +633,76 @@ public class ApplicantQuestion {
       selectedOptionValue = applicantData.readString(getSelectionPath());
 
       return selectedOptionValue;
+    }
+
+    public void assertQuestionType() {
+      if (!getType().isMultiOptionType()) {
+        throw new RuntimeException(
+            String.format(
+                "Question is not a multi-option question: %s (type: %s)",
+                questionDefinition.getPath(), questionDefinition.getQuestionType()));
+      }
+    }
+
+    public MultiOptionQuestionDefinition getQuestionDefinition() {
+      assertQuestionType();
+      return (MultiOptionQuestionDefinition) questionDefinition;
+    }
+
+    public Path getSelectionPath() {
+      return getQuestionDefinition().getSelectionPath();
+    }
+
+    public ImmutableList<String> getOptions() {
+      try {
+        return getQuestionDefinition().getOptionsForLocale(applicantData.preferredLocale());
+      } catch (TranslationNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+
+  public class MultiSelectQuestion implements PresentsErrors {
+
+    private Optional<ImmutableList<String>> selectedOptionsValue;
+
+    public MultiSelectQuestion() {
+      assertQuestionType();
+    }
+
+    @Override
+    public boolean hasQuestionErrors() {
+      return !getQuestionErrors().isEmpty();
+    }
+
+    public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+      // TODO(https://github.com/seattle-uat/civiform/issues/416): Implement validation
+      return ImmutableSet.of();
+    }
+
+    @Override
+    public boolean hasTypeSpecificErrors() {
+      // There are no inherent requirements in a multi-option question.
+      return false;
+    }
+
+    public boolean hasValue() {
+      return getSelectedOptionsValue().isPresent();
+    }
+
+    public Optional<ImmutableList<String>> getSelectedOptionsValue() {
+      if (selectedOptionsValue != null) {
+        return selectedOptionsValue;
+      }
+
+      selectedOptionsValue = applicantData.readList(getSelectionPath());
+
+      return selectedOptionsValue;
+    }
+
+    public boolean optionIsSelected(String option) {
+      return getSelectedOptionsValue().isPresent()
+          && getSelectedOptionsValue().get().contains(option);
     }
 
     public void assertQuestionType() {
