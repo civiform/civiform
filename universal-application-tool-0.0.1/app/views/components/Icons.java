@@ -14,13 +14,10 @@ public class Icons {
   public static final String ADDRESS_SVG_PATH =
       "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38"
           + " 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z";
-<<<<<<< HEAD
   // Check
   public static final String CHECKBOX_SVG_PATH = "M5 13l4 4L19 7";
-=======
   // Menu
   public static final String DROPDOWN_SVG_PATH = "M4 6h16M4 10h16M4 14h16M4 18h16";
->>>>>>> ca15f194833ba2faf29251ee0d7027f23d172b63
   public static final String NAME_SVG_PATH =
       "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34"
           + " 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99"

@@ -143,24 +143,4 @@ public class Question extends BaseModel {
       questionOptions = multiOption.getOptions();
     }
   }
-
-  private void setFieldsFromQuestionDefinition(QuestionDefinition questionDefinition) {
-    if (questionDefinition.isPersisted()) {
-      id = questionDefinition.getId();
-    }
-    version = questionDefinition.getVersion();
-    path = questionDefinition.getPath().path();
-    name = questionDefinition.getName();
-    description = questionDefinition.getDescription();
-    questionText = questionDefinition.getQuestionText();
-    questionHelpText = questionDefinition.getQuestionHelpText();
-    questionType = questionDefinition.getQuestionType().toString();
-    validationPredicates = questionDefinition.getValidationPredicatesAsString();
-
-    if (questionDefinition.getQuestionType().isMultiOptionType()) {
-      MultiOptionQuestionDefinition multiOption =
-          (MultiOptionQuestionDefinition) questionDefinition;
-      questionOptions = multiOption.getOptions();
-    }
-  }
 }

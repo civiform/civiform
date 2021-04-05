@@ -23,11 +23,8 @@ import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
 import services.question.AddressQuestionDefinition;
-<<<<<<< HEAD
 import services.question.CheckboxQuestionDefinition;
-=======
 import services.question.DropdownQuestionDefinition;
->>>>>>> ca15f194833ba2faf29251ee0d7027f23d172b63
 import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionService;
@@ -143,16 +140,18 @@ public class DatabaseSeedController extends Controller {
 
   private QuestionDefinition insertCheckboxQuestionDefinition() {
     return questionService
-            .create(
-                    new CheckboxQuestionDefinition(
-                            1L,
-                            "kitchen",
-                            Path.create("applicant.kitchen"),
-                            "description",
-                            ImmutableMap.of(Locale.US, "What is your address?"),
-                            ImmutableMap.of(Locale.US, "help text"),
-                            ImmutableListMultimap.of(Locale.US, "toaster", Locale.US, "pepper grinder", Locale.US, "garlic press")))
-            .getResult();
+        .create(
+            new CheckboxQuestionDefinition(
+                1L,
+                "kitchen",
+                Path.create("applicant.kitchen"),
+                "description",
+                LifecycleStage.ACTIVE,
+                ImmutableMap.of(Locale.US, "What is your address?"),
+                ImmutableMap.of(Locale.US, "help text"),
+                ImmutableListMultimap.of(
+                    Locale.US, "toaster", Locale.US, "pepper grinder", Locale.US, "garlic press")))
+        .getResult();
   }
 
   private QuestionDefinition insertDropdownQuestionDefinition() {
@@ -224,12 +223,14 @@ public class DatabaseSeedController extends Controller {
               .getResult();
 
       programDefinition =
-              programService.addBlockToProgram(
-                      programDefinition.id(),
-                      "Block 3",
-                      "kitchen information",
-                      ImmutableList.of(
-                              ProgramQuestionDefinition.create(insertCheckboxQuestionDefinition()))).getResult();
+          programService
+              .addBlockToProgram(
+                  programDefinition.id(),
+                  "Block 3",
+                  "kitchen information",
+                  ImmutableList.of(
+                      ProgramQuestionDefinition.create(insertCheckboxQuestionDefinition())))
+              .getResult();
 
       return programDefinition;
     } catch (Exception e) {

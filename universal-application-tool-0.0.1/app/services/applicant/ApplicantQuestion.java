@@ -99,10 +99,6 @@ public class ApplicantQuestion {
   }
 
   public PresentsErrors errorsPresenter() {
-    if (getType().isMultiOptionType()) {
-      return getMultiOptionQuestion();
-    }
-
     switch (getType()) {
       case ADDRESS:
         return getAddressQuestion();

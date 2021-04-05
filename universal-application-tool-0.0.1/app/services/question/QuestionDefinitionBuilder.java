@@ -78,10 +78,7 @@ public class QuestionDefinitionBuilder {
             .setPath(Path.create("sample.question.path"))
             .setQuestionText(ImmutableMap.of(Locale.US, "Sample question text"))
             .setQuestionHelpText(ImmutableMap.of(Locale.US, "Sample question help text"))
-<<<<<<< HEAD
-=======
             .setLifecycleStage(LifecycleStage.ACTIVE)
->>>>>>> ca15f194833ba2faf29251ee0d7027f23d172b63
             .setQuestionType(questionType);
 
     if (questionType.isMultiOptionType()) {
@@ -170,7 +167,16 @@ public class QuestionDefinitionBuilder {
             questionHelpText,
             addressValidationPredicates);
       case CHECKBOX:
-        return new CheckboxQuestionDefinition(id, version, name, path, description, questionText, questionHelpText, questionOptions);
+        return new CheckboxQuestionDefinition(
+            id,
+            version,
+            name,
+            path,
+            description,
+            lifecycleStage,
+            questionText,
+            questionHelpText,
+            questionOptions);
       case DROPDOWN:
         return new DropdownQuestionDefinition(
             id,
