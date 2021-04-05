@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import j2html.tags.Tag;
 import java.util.Locale;
+import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import services.Path;
@@ -21,6 +22,7 @@ public class RadioButtonQuestionRendererTest {
           "name",
           Path.create("applicant.favorite_ice_cream"),
           "description",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
           ImmutableListMultimap.of(

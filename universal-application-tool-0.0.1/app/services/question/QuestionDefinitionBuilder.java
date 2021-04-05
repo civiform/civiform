@@ -211,7 +211,15 @@ public class QuestionDefinitionBuilder {
             numberValidationPredicates);
       case RADIO_BUTTON:
         return new RadioButtonQuestionDefinition(
-            id, version, name, path, description, questionText, questionHelpText, questionOptions);
+            id,
+            version,
+            name,
+            path,
+            description,
+            lifecycleStage,
+            questionText,
+            questionHelpText,
+            questionOptions);
       case REPEATER:
         RepeaterValidationPredicates repeaterValidationPredicates =
             RepeaterValidationPredicates.create();
