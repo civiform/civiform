@@ -26,8 +26,6 @@ describe('normal application flow', () => {
     await applicantQuestions.answerQuestion('applicant.name.last', 'smith');
     await applicantQuestions.saveAndContinue();
 
-    await page.screenshot({path: "tmp/applicationSaved.png", fullPage: true});
-
     await logout(page);
     await loginAsAdmin(page)
 
