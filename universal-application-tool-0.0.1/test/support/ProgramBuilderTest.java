@@ -7,7 +7,6 @@ import java.util.Locale;
 import models.LifecycleStage;
 import models.Program;
 import org.junit.Test;
-import repository.WithPostgresContainer;
 import services.Path;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
@@ -16,7 +15,7 @@ import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
 
-public class ProgramBuilderTest extends WithPostgresContainer {
+public class ProgramBuilderTest {
   @Test
   public void fluentlyCreateProgramWithBlocks() {
     ProgramDefinition programDefinition =

@@ -18,6 +18,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import services.Path;
 import services.program.*;
+import support.ProgramBuilder;
 
 public class CsvExporterTest {
   private static Program fakeProgramWithCsvExport;
@@ -38,17 +39,14 @@ public class CsvExporterTest {
   @BeforeClass
   public static void createFakeProgram() {
     ProgramDefinition definition =
-        ProgramDefinition.builder()
-            .setId(1L)
-            .setName("fake program")
-            .setDescription("fake program description")
-            .setLifecycleStage(LifecycleStage.ACTIVE)
-            .addExportDefinition(
+        ProgramBuilder.newProgram()
+            .withLifecycleStage(LifecycleStage.ACTIVE)
+            .withExportDefinition(
                 ExportDefinition.builder()
                     .setEngine(ExportEngine.CSV)
                     .setCsvConfig(Optional.of(createFakeCsvConfig()))
                     .build())
-            .build();
+            .buildDefinition();
     fakeProgramWithCsvExport = new Program(definition);
   }
 
