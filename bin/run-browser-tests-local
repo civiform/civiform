@@ -1,6 +1,5 @@
 #! /usr/bin/env bash
-
-pushd $(dirname ${BASH_SOURCE[0]})/../browser-test
+pushd $(git rev-parse --show-toplevel)/browser-test
 
 BASE_URL=http://localhost:9999 yarn test $@
 
