@@ -28,6 +28,9 @@ jobs:
         run: docker-compose -f browser-test/browser-test-compose.yml up -d
       - name: Run browser tests
         run: bin/run-browser-tests-ci
+      - name: Print logs on failure
+        if: failure()
+        run: docker-compose logs civiform-test
 
   test_prod:
     runs-on: ubuntu-latest
