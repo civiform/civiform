@@ -124,21 +124,6 @@ public class PathTest {
   }
 
   @Test
-  public void pathBuilder() {
-    Path path = Path.builder().setPath("applicant.my.path").build();
-    assertThat(path.path()).isEqualTo("applicant.my.path");
-
-    path = path.toBuilder().append("another").build();
-    assertThat(path.path()).isEqualTo("applicant.my.path.another");
-
-    path = path.toBuilder().append("part").build();
-    assertThat(path.path()).isEqualTo("applicant.my.path.another.part");
-
-    path = path.toBuilder().setPath("something.new").build();
-    assertThat(path.path()).isEqualTo("something.new");
-  }
-
-  @Test
   public void pathJoin() {
     Path path = Path.create("applicant.my.path");
     assertThat(path.path()).isEqualTo("applicant.my.path");

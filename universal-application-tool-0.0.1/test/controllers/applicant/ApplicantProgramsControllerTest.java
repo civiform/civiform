@@ -117,9 +117,7 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
             .withQuestion(TestQuestionBank.applicantAddress())
             .build();
     // Answer the color question
-    applicant
-        .getApplicantData()
-        .putString(colorQuestion.getPath().toBuilder().append("text").build(), "forest green");
+    applicant.getApplicantData().putString(colorQuestion.getPath().join("text"), "forest green");
     applicant.getApplicantData().putLong(colorQuestion.getLastUpdatedTimePath(), 12345L);
     applicant.getApplicantData().putLong(colorQuestion.getProgramIdPath(), 456L);
     applicant.save();
