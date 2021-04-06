@@ -2,7 +2,7 @@
 
 # --- !Ups
 
-alter table questions add repeater_id jsonb;
+alter table questions add repeater_id bigserial;
 
 # --- !Downs
 

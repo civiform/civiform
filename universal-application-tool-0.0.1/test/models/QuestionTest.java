@@ -54,6 +54,46 @@ public class QuestionTest extends WithPostgresContainer {
   }
 
   @Test
+  public void canSerializeRepeaterId_EmptyOptionalLong() {
+    QuestionDefinition questionDefinition =
+        new TextQuestionDefinition(
+            1L,
+            "test",
+            Path.create("my.path"),
+            OptionalLong.empty(),
+            "",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(),
+            ImmutableMap.of());
+    Question question = new Question(questionDefinition);
+    question.save();
+
+    Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+
+    assertThat(found.getQuestionDefinition().getRepeaterId()).isEmpty();
+  }
+
+  @Test
+  public void canSerializeRepeaterId_NonEmptyOptionalLong() {
+    QuestionDefinition questionDefinition =
+        new TextQuestionDefinition(
+            1L,
+            "test",
+            Path.create("my.path"),
+            OptionalLong.of(10L),
+            "",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(),
+            ImmutableMap.of());
+    Question question = new Question(questionDefinition);
+    question.save();
+
+    Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+
+    assertThat(found.getQuestionDefinition().getRepeaterId()).hasValue(10L);
+  }
+
+  @Test
   public void canSerializeLocalizationMaps() {
     QuestionDefinition definition =
         new TextQuestionDefinition(

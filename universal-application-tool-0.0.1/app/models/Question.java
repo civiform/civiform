@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.annotation.DbJsonB;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.OptionalLong;
 import javax.persistence.Entity;
 import javax.persistence.PostLoad;
@@ -35,7 +36,7 @@ public class Question extends BaseModel {
 
   private @Constraints.Required String name;
 
-  private @Constraints.Required @DbJsonB OptionalLong repeaterId;
+  private Long repeaterId;
 
   private @Constraints.Required String description;
 
@@ -84,7 +85,10 @@ public class Question extends BaseModel {
             .setVersion(version)
             .setName(name)
             .setPath(Path.create(path))
-            .setRepeaterId(repeaterId)
+            .setRepeaterId(
+                Optional.ofNullable(repeaterId)
+                    .map(OptionalLong::of)
+                    .orElseGet(OptionalLong::empty))
             .setDescription(description)
             .setLifecycleStage(lifecycleStage)
             .setQuestionText(questionText)
@@ -133,7 +137,11 @@ public class Question extends BaseModel {
     }
     version = questionDefinition.getVersion();
     path = questionDefinition.getPath().path();
-    repeaterId = questionDefinition.getRepeaterId();
+    repeaterId =
+        Optional.of(questionDefinition.getRepeaterId())
+            .filter(OptionalLong::isPresent)
+            .map(OptionalLong::getAsLong)
+            .orElse(null);
     name = questionDefinition.getName();
     description = questionDefinition.getDescription();
     questionText = questionDefinition.getQuestionText();
