@@ -24,8 +24,7 @@ describe('normal application flow', () => {
 
     await applicantQuestions.applyProgram(programName);
 
-    await applicantQuestions.answerQuestion('applicant.name.first', 'sarah');
-    await applicantQuestions.answerQuestion('applicant.name.last', 'smith');
+    await applicantQuestions.answerNameQuestion('sarah', 'smith');
     await applicantQuestions.saveAndContinue();
 
     await logout(page);

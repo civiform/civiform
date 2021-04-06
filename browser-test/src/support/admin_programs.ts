@@ -72,12 +72,28 @@ export class AdminPrograms {
     await this.page.click('text=Manage Questions');
     await this.expectProgramBlockEditPage(programName);
 
-    await this.page.fill('text=Block Description', blockDescription);
+    await this.page.fill('textarea', blockDescription);
+    await this.page.click('#update-block-button');
 
     for (const questionName of questionNames) {
       await this.page.click(`text="${questionName}"`, { force: true });
     }
+  }
+
+  async addProgramBlock(programName: string, blockDescription = 'block description', questionNames: string[] = []) {
+    await this.gotoDraftProgramEditPage(programName);
+
+    await this.page.click('text=Manage Questions');
+    await this.expectProgramBlockEditPage(programName);
+
+    await this.page.click('#add-block-button');
+
+    await this.page.fill('textarea', blockDescription);
     await this.page.click('#update-block-button');
+
+    for (const questionName of questionNames) {
+      await this.page.click(`text="${questionName}"`, { force: true });
+    }
   }
 
   async publishProgram(programName: string) {
@@ -86,6 +102,15 @@ export class AdminPrograms {
 
   async viewApplications(programName: string) {
     await this.page.click(`div.border:has-text("${programName}") :text("Applications")`);
+  }
+
+  async viewApplicationForApplicant(applicantName: string) {
+    await this.page.click(`div.border:has-text("${applicantName}") :text("View")`);
+  }
+
+  async expectApplicationAnswers(blockName: string, questionName: string, answer: string) {
+    expect(await this.page.innerText(`div.border:has-text("${blockName}")`)).toContain(questionName);
+    expect(await this.page.innerText(`div.border:has-text("${blockName}")`)).toContain(answer);
   }
 
   async getCsv() {
