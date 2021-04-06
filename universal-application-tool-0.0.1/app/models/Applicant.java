@@ -17,7 +17,6 @@ import play.data.validation.Constraints;
 import services.applicant.ApplicantData;
 
 /** The ebean mapped class that represents an individual applicant */
-@History
 @Entity
 @Table(name = "applicants")
 public class Applicant extends BaseModel {

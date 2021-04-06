@@ -17,9 +17,12 @@ import repository.DatabaseExecutionContext;
  */
 public class UatProfileData extends CommonProfile {
 
-  public UatProfileData() {}
+  public UatProfileData() {
+    super();
+  }
 
   public UatProfileData(Long accountId) {
+    this();
     this.setId(accountId.toString());
   }
 
