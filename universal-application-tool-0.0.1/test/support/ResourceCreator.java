@@ -9,7 +9,6 @@ import models.Program;
 import models.Question;
 import play.inject.Injector;
 import services.Path;
-import services.program.ProgramDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionService;
 import services.question.TextQuestionDefinition;
@@ -68,13 +67,6 @@ public class ResourceCreator {
 
   public Program insertProgram(String name) {
     return ProgramBuilder.newProgram(name, "description").build();
-  }
-
-  public ProgramDefinition insertProgramWithOneBlock(String name) {
-    return ProgramBuilder.newProgram(name, "desc")
-        .withBlock("Block 1")
-        .withQuestionDefinition(insertQuestionDefinition())
-        .buildDefinition();
   }
 
   public Applicant insertApplicant() {
