@@ -146,6 +146,7 @@ public class ApplicantData {
 
   /**
    * Adds a JSON array at the given path, if it is not there already.
+   *
    * @param path the path to the new array - must end with the array suffix [] or [index]
    */
   private void addArrayIfMissing(Path path) {

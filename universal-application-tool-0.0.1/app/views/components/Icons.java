@@ -62,7 +62,8 @@ public class Icons {
         return svg(Icons.CHECKBOX_SVG_PATH, width, height)
             .attr("fill", "none")
             .attr("stroke-linecap", "round")
-            .attr("stroke-linejoin", "round");
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-width", "2");
       case DROPDOWN:
         return svg(Icons.DROPDOWN_SVG_PATH, width, height)
             .attr("stroke-linecap", "round")
