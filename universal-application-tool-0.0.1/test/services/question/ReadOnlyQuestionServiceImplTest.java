@@ -130,23 +130,6 @@ public class ReadOnlyQuestionServiceImplTest {
   }
 
   @Test
-  public void getQuestionDefinition_forInvalidPath() {
-    assertThatThrownBy(() -> service.getQuestionDefinition(invalidPath))
-        .isInstanceOf(InvalidPathException.class)
-        .hasMessage("Path not found: " + invalidPath);
-  }
-
-  @Test
-  public void getQuestionDefinition_forQuestion() throws InvalidPathException {
-    assertThat(service.getQuestionDefinition("applicant.address")).isEqualTo(addressQuestion);
-  }
-
-  @Test
-  public void getQuestionDefinition_forScalar() throws InvalidPathException {
-    assertThat(service.getQuestionDefinition("applicant.name.first")).isEqualTo(nameQuestion);
-  }
-
-  @Test
   public void getQuestionDefinition_byId() throws QuestionNotFoundException {
     assertThat(service.getQuestionDefinition(123L)).isEqualTo(nameQuestion);
   }
