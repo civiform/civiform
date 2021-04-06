@@ -117,7 +117,23 @@ public class AmazonS3Client {
     if (s3 != null) {
       return;
     }
-    connect();
+
+    int i = 0;
+    while (s3 == null && i < 3) {
+        connect();
+
+        if (s3 == null) {
+          log.warn("Failed to create S3 client on attempt "+i);
+          try {
+            Thread.sleep(50*(int) Math.pow(2, i));
+          } catch(InterruptedException e) {
+            log.info("Interrupt on Thread.sleep");
+          }
+        }
+
+        i++;
+    }
+
     if (s3 == null) {
       throw new RuntimeException("Failed to create S3 client");
     }
