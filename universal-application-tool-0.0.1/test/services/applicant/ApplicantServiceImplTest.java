@@ -265,26 +265,12 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void createApplicant_ApplicantTime() {
-    Instant a = Instant.now();
-
-    try {
-      Thread.sleep(5);
-    } catch (InterruptedException e) {
-
-    }
-
     Applicant applicant = subject.createApplicant(1l).toCompletableFuture().join();
 
-    try {
-      Thread.sleep(5);
-    } catch (InterruptedException e) {
+    Instant t = Instant.now();
 
-    }
-
-    Instant b = Instant.now();
-
-    assertThat(applicant.when_created).isNotNull();
-    assertThat(applicant.when_created).isBetween(a, b);
+    assertThat(applicant.whenCreated).isNotNull();
+    assertThat(applicant.whenCreated).isBefore(t);
   }
 
   @Test

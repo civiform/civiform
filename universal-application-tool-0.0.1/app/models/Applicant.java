@@ -2,7 +2,6 @@ package models;
 
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbJson;
-import io.ebean.annotation.History;
 import io.ebean.annotation.WhenCreated;
 import java.time.Instant;
 import java.util.List;
