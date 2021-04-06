@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.OptionalLong;
 import java.util.Set;
 import models.LifecycleStage;
 import models.Question;
@@ -153,7 +152,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
             2L,
             "question",
             Path.create("applicant.name"),
-            OptionalLong.empty(),
+            Optional.empty(),
             "applicant's name",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is your name?"),
@@ -174,7 +173,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
             2L,
             "question",
             Path.create("applicant.name"),
-            OptionalLong.empty(),
+            Optional.empty(),
             "applicant's name",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is your name?"),

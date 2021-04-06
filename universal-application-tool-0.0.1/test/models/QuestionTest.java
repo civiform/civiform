@@ -6,7 +6,7 @@ import static org.junit.Assert.assertEquals;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import java.util.OptionalLong;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import repository.QuestionRepository;
@@ -37,7 +37,7 @@ public class QuestionTest extends WithPostgresContainer {
             1L,
             "test",
             Path.create("my.path"),
-            OptionalLong.empty(),
+            Optional.empty(),
             "",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(),
@@ -60,7 +60,7 @@ public class QuestionTest extends WithPostgresContainer {
             1L,
             "test",
             Path.create("my.path"),
-            OptionalLong.empty(),
+            Optional.empty(),
             "",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(),
@@ -80,7 +80,7 @@ public class QuestionTest extends WithPostgresContainer {
             1L,
             "test",
             Path.create("my.path"),
-            OptionalLong.of(10L),
+            Optional.of(10L),
             "",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(),
@@ -100,7 +100,7 @@ public class QuestionTest extends WithPostgresContainer {
             1L,
             "",
             Path.empty(),
-            OptionalLong.empty(),
+            Optional.empty(),
             "",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "hello"),
@@ -124,7 +124,7 @@ public class QuestionTest extends WithPostgresContainer {
             1L,
             "address",
             Path.empty(),
-            OptionalLong.empty(),
+            Optional.empty(),
             "",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(),
@@ -145,7 +145,7 @@ public class QuestionTest extends WithPostgresContainer {
             1L,
             "",
             Path.empty(),
-            OptionalLong.empty(),
+            Optional.empty(),
             "",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(),
@@ -170,7 +170,7 @@ public class QuestionTest extends WithPostgresContainer {
             .setName("")
             .setDescription("")
             .setPath(Path.empty())
-            .setRepeaterId(OptionalLong.of(123L))
+            .setRepeaterId(Optional.of(123L))
             .setQuestionText(ImmutableMap.of())
             .setLifecycleStage(LifecycleStage.ACTIVE)
             .setQuestionHelpText(ImmutableMap.of())

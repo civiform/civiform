@@ -3,6 +3,7 @@ package services.question;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.OptionalLong;
 import models.LifecycleStage;
 import services.Path;
@@ -14,7 +15,7 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
       long version,
       String name,
       Path path,
-      OptionalLong repeaterId,
+      Optional<Long> repeaterId,
       String description,
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
@@ -37,7 +38,7 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
       long version,
       String name,
       Path path,
-      OptionalLong repeaterId,
+      Optional<Long> repeaterId,
       String description,
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,

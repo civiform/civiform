@@ -27,7 +27,7 @@ public abstract class QuestionDefinition {
   private final long version;
   private final String name;
   private final Path path;
-  private final OptionalLong repeaterId;
+  private final Optional<Long> repeaterId;
   private final String description;
   private final LifecycleStage lifecycleStage;
   private final ImmutableMap<Locale, String> questionText;
@@ -39,7 +39,7 @@ public abstract class QuestionDefinition {
       long version,
       String name,
       Path path,
-      OptionalLong repeaterId,
+      Optional<Long> repeaterId,
       String description,
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
@@ -61,7 +61,7 @@ public abstract class QuestionDefinition {
       long version,
       String name,
       Path path,
-      OptionalLong repeaterId,
+      Optional<Long> repeaterId,
       String description,
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
@@ -154,7 +154,7 @@ public abstract class QuestionDefinition {
    * @return the {@link QuestionDefinition#id} for this question definition's repeater, if it
    *     exists.
    */
-  public OptionalLong getRepeaterId() {
+  public Optional<Long> getRepeaterId() {
     return repeaterId;
   }
 

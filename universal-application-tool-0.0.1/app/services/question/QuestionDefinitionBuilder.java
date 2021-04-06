@@ -3,6 +3,7 @@ package services.question;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.OptionalLong;
 import models.LifecycleStage;
 import services.Path;
@@ -18,7 +19,7 @@ public class QuestionDefinitionBuilder {
   private long version;
   private String name;
   private Path path;
-  private OptionalLong repeaterId = OptionalLong.empty();
+  private Optional<Long> repeaterId = Optional.empty();
   private String description;
   private LifecycleStage lifecycleStage;
   private ImmutableMap<Locale, String> questionText;
@@ -105,7 +106,7 @@ public class QuestionDefinitionBuilder {
     return this;
   }
 
-  public QuestionDefinitionBuilder setRepeaterId(OptionalLong repeaterId) {
+  public QuestionDefinitionBuilder setRepeaterId(Optional<Long> repeaterId) {
     this.repeaterId = repeaterId;
     return this;
   }

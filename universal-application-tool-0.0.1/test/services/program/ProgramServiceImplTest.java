@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import forms.BlockForm;
 import java.util.Locale;
-import java.util.OptionalLong;
+import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import models.LifecycleStage;
@@ -33,7 +33,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
           2L,
           "Name Question",
           Path.create("applicant.name"),
-          OptionalLong.empty(),
+          Optional.empty(),
           "The name of the applicant.",
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "What is your name?"),
@@ -131,7 +131,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     3L,
                     "Applicant Address",
                     Path.create("applicant.address"),
-                    OptionalLong.empty(),
+                    Optional.empty(),
                     "Applicant's address",
                     LifecycleStage.ACTIVE,
                     ImmutableMap.of(Locale.US, "What is your addess?"),
@@ -143,7 +143,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     3L,
                     "Favorite color",
                     Path.create("applicant.favcolor"),
-                    OptionalLong.empty(),
+                    Optional.empty(),
                     "Applicant's favorite color",
                     LifecycleStage.ACTIVE,
                     ImmutableMap.of(Locale.US, "Is orange your favorite color?"),

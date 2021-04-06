@@ -8,7 +8,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
-import java.util.OptionalLong;
+import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import models.Applicant;
 import models.LifecycleStage;
@@ -237,7 +237,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
                     1L,
                     "my name",
                     Path.create("applicant.name"),
-                    OptionalLong.empty(),
+                    Optional.empty(),
                     "description",
                     LifecycleStage.ACTIVE,
                     ImmutableMap.of(Locale.US, "question?"),

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import models.LifecycleStage;
@@ -18,7 +19,7 @@ public class TextQuestionDefinition extends QuestionDefinition {
       long version,
       String name,
       Path path,
-      OptionalLong repeaterId,
+      Optional<Long> repeaterId,
       String description,
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
@@ -41,7 +42,7 @@ public class TextQuestionDefinition extends QuestionDefinition {
       long version,
       String name,
       Path path,
-      OptionalLong repeaterId,
+      Optional<Long> repeaterId,
       String description,
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
@@ -63,7 +64,7 @@ public class TextQuestionDefinition extends QuestionDefinition {
       long version,
       String name,
       Path path,
-      OptionalLong repeaterId,
+      Optional<Long> repeaterId,
       String description,
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
