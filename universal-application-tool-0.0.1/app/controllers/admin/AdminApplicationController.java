@@ -4,13 +4,17 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import com.google.common.collect.ImmutableList;
+import java.time.Clock;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
 import org.pac4j.play.java.Secure;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 import repository.ApplicationRepository;
+import services.export.ExporterService;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.admin.programs.ProgramApplicationListView;
@@ -23,22 +27,38 @@ public class AdminApplicationController extends Controller {
   private final ApplicationRepository applicationRepository;
   private final ProgramApplicationListView applicationListView;
   private final ProgramApplicationView applicationView;
+  private final ExporterService exporterService;
+  private final Clock clock;
 
   @Inject
   public AdminApplicationController(
       ProgramService service,
+      ExporterService exporterService,
       ProgramApplicationListView applicationListView,
       ProgramApplicationView applicationView,
-      ApplicationRepository applicationRepository) {
+      ApplicationRepository applicationRepository,
+      Clock clock) {
     this.service = checkNotNull(service);
     this.applicationListView = checkNotNull(applicationListView);
     this.applicationView = checkNotNull(applicationView);
     this.applicationRepository = checkNotNull(applicationRepository);
+    this.clock = clock;
+    this.exporterService = checkNotNull(exporterService);
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result downloadAll(long programId) {
-    throw new UnsupportedOperationException("Not yet implemented.");
+    try {
+      ProgramDefinition program = service.getProgramDefinition(programId);
+      String filename = String.format("%s-%s.csv", program.name(), clock.instant().toString());
+      String csv = exporterService.getProgramCsv(programId);
+      return ok(csv)
+          .as(Http.MimeTypes.BINARY)
+          .withHeader(
+              "Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.toString());
+    }
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)

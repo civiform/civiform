@@ -1,4 +1,4 @@
-package export;
+package services.export;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.ByteArrayOutputStream;
@@ -13,7 +13,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import services.Path;
 
-public class PdfExporter implements Exporter {
+public class PdfExporter {
   private PDDocument baseDocument;
   private ImmutableMap<String, String> fieldToValue;
 
@@ -28,7 +28,6 @@ public class PdfExporter implements Exporter {
    * This function marshals the output document in memory due to restrictions of the PDDocument
    * class.
    */
-  @Override
   public void export(Applicant applicant, Writer writer) throws IOException {
     PDAcroForm form = baseDocument.getDocumentCatalog().getAcroForm();
     for (Map.Entry<String, String> fToV : fieldToValue.entrySet()) {

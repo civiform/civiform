@@ -137,4 +137,23 @@ public class PathTest {
     path = path.toBuilder().setPath("something.new").build();
     assertThat(path.path()).isEqualTo("something.new");
   }
+
+  @Test
+  public void pathJoin() {
+    Path path = Path.create("applicant.my.path");
+    assertThat(path.path()).isEqualTo("applicant.my.path");
+
+    path = path.join("another");
+    assertThat(path.path()).isEqualTo("applicant.my.path.another");
+  }
+
+  @Test
+  public void pathJoin_withMultipleSegments_parentPathWorks() {
+    Path path = Path.create("one");
+    Path path2 = path.join("two.three.four");
+    Path actual = path2.parentPath();
+
+    Path expected = Path.create("one.two.three");
+    assertThat(actual).isEqualTo(expected);
+  }
 }
