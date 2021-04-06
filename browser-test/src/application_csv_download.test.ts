@@ -16,8 +16,8 @@ describe('normal application flow', () => {
     const applicantQuestions = new ApplicantQuestions(page);
 
     const programName = 'test program for csv export';
-    await adminQuestions.addNameQuestion('name');
-    await adminPrograms.addAndPublishProgramWithQuestions(['name'], programName);
+    await adminQuestions.addNameQuestion('name-csv');
+    await adminPrograms.addAndPublishProgramWithQuestions(['name-csv'], programName);
 
     await logout(page);
     await loginAsGuest(page);
