@@ -13,7 +13,7 @@ import org.junit.Test;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
-import services.question.CheckboxQuestionDefinition;
+import services.question.types.CheckboxQuestionDefinition;
 
 public class CheckboxQuestionRendererTest {
 

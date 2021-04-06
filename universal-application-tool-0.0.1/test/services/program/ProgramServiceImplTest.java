@@ -18,12 +18,12 @@ import repository.WithPostgresContainer;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.Path;
-import services.question.AddressQuestionDefinition;
-import services.question.NameQuestionDefinition;
-import services.question.QuestionDefinition;
-import services.question.QuestionNotFoundException;
 import services.question.QuestionService;
-import services.question.TextQuestionDefinition;
+import services.question.exceptions.QuestionNotFoundException;
+import services.question.types.AddressQuestionDefinition;
+import services.question.types.NameQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.TextQuestionDefinition;
 import support.ProgramBuilder;
 
 public class ProgramServiceImplTest extends WithPostgresContainer {

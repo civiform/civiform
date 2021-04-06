@@ -6,14 +6,15 @@ import java.util.concurrent.CompletionStage;
 import models.Application;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.question.QuestionNotFoundException;
+import services.question.exceptions.QuestionNotFoundException;
+import services.question.types.QuestionDefinition;
 
 /**
  * The service responsible for accessing the Program resource. Admins create programs to represent
  * specific benefits programs that applicants can apply for. Each program consists of a list of
  * sequential {@link BlockDefinition}s that are rendered one per-page for the applicant. A {@link
- * BlockDefinition} contains one or more {@link services.question.QuestionDefinition}s defined in
- * the {@link services.question.QuestionService}.
+ * BlockDefinition} contains one or more {@link QuestionDefinition}s defined in the {@link
+ * services.question.QuestionService}.
  */
 public interface ProgramService {
 

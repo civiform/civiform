@@ -15,9 +15,9 @@ import models.Program;
 import models.Question;
 import play.db.ebean.EbeanConfig;
 import services.Path;
-import services.question.QuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.UnsupportedQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
 
 public class QuestionRepository {
 

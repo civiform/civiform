@@ -18,10 +18,10 @@ import play.libs.concurrent.HttpExecutionContext;
 import repository.ProgramRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.question.QuestionDefinition;
-import services.question.QuestionNotFoundException;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
+import services.question.exceptions.QuestionNotFoundException;
+import services.question.types.QuestionDefinition;
 
 public class ProgramServiceImpl implements ProgramService {
 

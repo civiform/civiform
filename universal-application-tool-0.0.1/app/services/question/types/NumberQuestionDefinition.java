@@ -1,4 +1,4 @@
-package services.question;
+package services.question.types;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;

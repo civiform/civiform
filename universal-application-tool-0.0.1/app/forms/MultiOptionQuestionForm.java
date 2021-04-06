@@ -4,9 +4,9 @@ import com.google.common.collect.ImmutableListMultimap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import services.question.MultiOptionQuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.QuestionType;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
 
 public abstract class MultiOptionQuestionForm extends QuestionForm {
   // TODO(https://github.com/seattle-uat/civiform/issues/354): Handle other locales besides

@@ -10,9 +10,9 @@ import models.Program;
 import models.Question;
 import play.inject.Injector;
 import services.Path;
-import services.question.QuestionDefinition;
 import services.question.QuestionService;
-import services.question.TextQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.TextQuestionDefinition;
 
 public class ResourceCreator {
 
