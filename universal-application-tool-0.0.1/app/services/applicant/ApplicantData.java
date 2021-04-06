@@ -9,6 +9,7 @@ import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.TypeRef;
 import com.jayway.jsonpath.spi.mapper.MappingException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -59,7 +60,7 @@ public class ApplicantData {
    */
   public boolean hasPath(Path path) {
     try {
-      this.jsonData.read(path.path());
+      this.jsonData.read(path.toString());
     } catch (PathNotFoundException e) {
       return false;
     }
@@ -125,19 +126,76 @@ public class ApplicantData {
    * Puts the given value at the given path in the underlying JSON data. Builds up the necessary
    * structure along the way, i.e., creates parent objects where necessary.
    *
-   * @param path the {@link Path} with the fully specified path, e.g., "applicant.favorites.color"
-   *     or the equivalent "$.applicant.favorite.colors".
+   * @param path the {@link Path} with the fully specified path, e.g.,
+   *     "applicant.children[3].favorite_color.text" or the equivalent
+   *     "$.applicant.children[3].favorite_color.text".
    * @param value the value to place; values of type Map will create the equivalent JSON structure
    */
   private void put(Path path, Object value) {
-    if (path.parentPath().isEmpty()) {
-      jsonData.put(Path.JSON_PATH_START_TOKEN, path.keyName(), value);
+    putParentIfMissing(path);
+    putAt(path, value);
+  }
+
+  private void putAt(Path path, Object value) {
+    jsonData.put(path.parentPath().toString(), path.keyName(), value);
+  }
+
+  private void addAt(Path path, Object value) {
+    jsonData.add(path.withoutArrayReference().toString(), value);
+  }
+
+  /**
+   * Put parent of path if it doesn't already exist. There are two types of parents: JSON objects
+   * and JSON arrays.
+   *
+   * <p>For JSON object parents, if it doesn't already exist an empty map is put in the right place.
+   *
+   * <p>For JSON array parents, if the array (e.g. applicant.children[]) doesn't already exist an
+   * empty array is put in the right place, and then if the array element (e.g.
+   * applicant.children[3]) doesn't already exist then empty maps are added until an empty map is
+   * available at the right index.
+   */
+  private void putParentIfMissing(Path path) {
+    Path parentPath = path.parentPath();
+
+    if (hasPath(parentPath)) {
       return;
     }
-    if (!hasPath(path.parentPath())) {
-      put(path.parentPath(), new HashMap<>());
+
+    // TODO(#624): get rid of this recursion.
+    putParentIfMissing(parentPath);
+
+    if (parentPath.isArrayElement()) {
+      putParentArray(path);
+    } else {
+      putAt(parentPath, new HashMap<>());
     }
-    jsonData.put(path.parentPath().toString(), path.keyName(), value);
+  }
+
+  /**
+   * Put parent of path if it doesn't already exist, for parents that are arrays (e.g.
+   * something[n]), and add empty JSON objects until an element at the index specified by the path
+   * is available.
+   */
+  private void putParentArray(Path path) {
+    Path parentPath = path.parentPath();
+    int index = parentPath.arrayIndex();
+
+    // For n=0, put a new array in, and add the 0th element.
+    if (index == 0) {
+      putAt(parentPath.withoutArrayReference(), new ArrayList<>());
+      addAt(parentPath, new HashMap<>());
+
+      // For n>0, only add the nth element if the n-1 element exists.
+    } else if (hasPath(parentPath.atIndex(index - 1))) {
+      addAt(parentPath, new HashMap<>());
+
+      // TODO(#624): remove this recursion.
+    } else {
+      Path fakePathForRecursion = path.parentPath().atIndex(index - 1).join("fake");
+      putParentIfMissing(fakePathForRecursion);
+      addAt(parentPath, new HashMap<>());
+    }
   }
 
   /**
@@ -257,7 +315,7 @@ public class ApplicantData {
     ImmutableList.Builder<Path> pathsRemoved = new ImmutableList.Builder<>();
     for (Map.Entry<?, ?> entry : other.entrySet()) {
       String key = entry.getKey().toString();
-      Path path = rootKey.toBuilder().append(key).build();
+      Path path = rootKey.join(key);
       if (hasPath(path)) {
         if (entry.getValue() instanceof Map) {
           // Recurse into maps.

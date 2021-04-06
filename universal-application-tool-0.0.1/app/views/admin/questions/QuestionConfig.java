@@ -1,12 +1,19 @@
 package views.admin.questions;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.label;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import forms.MultiOptionQuestionForm;
+import forms.QuestionForm;
+import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.Optional;
 import services.question.QuestionType;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
@@ -52,13 +59,25 @@ public class QuestionConfig {
     return this;
   }
 
-  public static ContainerTag buildQuestionConfig(QuestionType type) {
+  // TODO(natsid): Remove QuestionType parameter once we implement the other question forms since
+  //  that info will be within the question form.
+  public static ContainerTag buildQuestionConfig(QuestionType type, QuestionForm questionForm) {
     QuestionConfig config = new QuestionConfig();
+    // TODO(natsid): Switch on type of question form once we implement other question forms. This
+    //  may also help us avoid casting the question form.
     switch (type) {
+      case TEXT:
+        return config
+            .setId("text-question-config")
+            .addTextQuestionConfig((TextQuestionForm) questionForm)
+            .getContainer();
       case ADDRESS:
         return config.setId("address-question-config").addAddressQuestionConfig().getContainer();
-      case TEXT:
-        return config.setId("text-question-config").addTextQuestionConfig().getContainer();
+      case DROPDOWN:
+        return config
+            .setId("single-select-question-config")
+            .addMultiOptionQuestionConfig((MultiOptionQuestionForm) questionForm)
+            .getContainer();
       case NUMBER:
         return config.setId("number-question-config").addNumberQuestionConfig().getContainer();
       case REPEATER: // fallthrough intended
@@ -90,18 +109,53 @@ public class QuestionConfig {
     return this;
   }
 
-  private QuestionConfig addTextQuestionConfig() {
+  private QuestionConfig addTextQuestionConfig(TextQuestionForm textQuestionForm) {
     content.with(
         FieldWithLabel.number()
             .setId("text-question-min-length-input")
             .setFieldName("minLength")
             .setLabelText("Min length")
+            .setValue(textQuestionForm.getMinLength())
             .getContainer(),
         FieldWithLabel.number()
             .setId("text-question-max-length-input")
             .setFieldName("maxLength")
             .setLabelText("Maximum length")
+            .setValue(textQuestionForm.getMaxLength())
             .getContainer());
+    return this;
+  }
+
+  public static ContainerTag multiOptionQuestionField(Optional<String> existingOption) {
+    ContainerTag optionInput =
+        FieldWithLabel.input()
+            .setFieldName("options[]")
+            .setLabelText("Question option")
+            .setValue(existingOption)
+            .getContainer()
+            .withClasses(Styles.FLEX, Styles.ML_2);
+    Tag removeOptionButton =
+        button("Remove").withType("button").withClasses(Styles.FLEX, Styles.ML_4);
+
+    return div()
+        .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4)
+        .with(optionInput, removeOptionButton);
+  }
+
+  private QuestionConfig addMultiOptionQuestionConfig(
+      MultiOptionQuestionForm multiOptionQuestionForm) {
+    ImmutableList<ContainerTag> existingOptions =
+        multiOptionQuestionForm.getOptions().stream()
+            .map(option -> multiOptionQuestionField(Optional.of(option)))
+            .collect(toImmutableList());
+
+    content
+        .with(existingOptions)
+        .with(
+            button("Add answer option")
+                .withType("button")
+                .withId("add-new-option")
+                .withClasses(Styles.M_2));
     return this;
   }
 
@@ -125,7 +179,10 @@ public class QuestionConfig {
         .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
         .withClasses(ReferenceClasses.QUESTION_CONFIG)
         .with(headerLabel(this.headerText))
-        .with(div().withClasses(OUTER_DIV_CLASSES).with(content.withClasses(INNER_DIV_CLASSES)));
+        .with(
+            div()
+                .withClasses(OUTER_DIV_CLASSES)
+                .with(content.withId("question-settings").withClasses(INNER_DIV_CLASSES)));
   }
 
   private static ContainerTag headerLabel(String text) {
@@ -138,7 +195,6 @@ public class QuestionConfig {
    */
   private static ImmutableList<SimpleEntry<String, String>> stateOptions() {
     return ImmutableList.of(
-        new SimpleEntry<String, String>("-- Leave blank --", "-"),
-        new SimpleEntry<String, String>("Washington", "WA"));
+        new SimpleEntry<>("-- Leave blank --", "-"), new SimpleEntry<>("Washington", "WA"));
   }
 }

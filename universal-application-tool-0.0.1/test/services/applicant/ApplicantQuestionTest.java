@@ -11,6 +11,7 @@ import java.util.Locale;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Applicant;
+import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,6 +36,7 @@ public class ApplicantQuestionTest {
           "question name",
           Path.create("applicant.my.path.name"),
           "description",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
           ImmutableListMultimap.of(
@@ -52,6 +54,7 @@ public class ApplicantQuestionTest {
           "question name",
           Path.create("applicant.my.path.name"),
           "description",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
   private static final NameQuestionDefinition nameQuestionDefinition =
@@ -60,6 +63,7 @@ public class ApplicantQuestionTest {
           "question name",
           Path.create("applicant.my.path.name"),
           "description",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
   private static final NumberQuestionDefinition numberQuestionDefinition =
@@ -68,6 +72,7 @@ public class ApplicantQuestionTest {
           "question name",
           Path.create("applicant.my.path.name"),
           "description",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
   private static final AddressQuestionDefinition addressQuestionDefinition =
@@ -76,6 +81,7 @@ public class ApplicantQuestionTest {
           "question name",
           Path.create("applicant.my.path.name"),
           "description",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
 
@@ -139,6 +145,7 @@ public class ApplicantQuestionTest {
                 .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
                 .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
                 .setValidationPredicates(TextValidationPredicates.create(0, 4))
+                .setLifecycleStage(LifecycleStage.ACTIVE)
                 .build();
     applicantData.putString(question.getTextPath(), "hello");
     ApplicantQuestion applicantQuestion = new ApplicantQuestion(question, applicantData);
@@ -183,6 +190,7 @@ public class ApplicantQuestionTest {
                 .setName("question name")
                 .setPath(Path.create("applicant.my.path.name"))
                 .setDescription("description")
+                .setLifecycleStage(LifecycleStage.ACTIVE)
                 .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
                 .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
                 .setValidationPredicates(

@@ -100,7 +100,8 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
-        .hasValue(routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, 1).url());
+        .hasValue(
+            routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1").url());
   }
 
   @Test
@@ -116,9 +117,7 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
             .withQuestion(TestQuestionBank.applicantAddress())
             .build();
     // Answer the color question
-    applicant
-        .getApplicantData()
-        .putString(colorQuestion.getPath().toBuilder().append("text").build(), "forest green");
+    applicant.getApplicantData().putString(colorQuestion.getPath().join("text"), "forest green");
     applicant.getApplicantData().putLong(colorQuestion.getLastUpdatedTimePath(), 12345L);
     applicant.getApplicantData().putLong(colorQuestion.getProgramIdPath(), 456L);
     applicant.save();
@@ -127,7 +126,8 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
-        .hasValue(routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, 2).url());
+        .hasValue(
+            routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "2").url());
   }
 
   // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Should redirect to

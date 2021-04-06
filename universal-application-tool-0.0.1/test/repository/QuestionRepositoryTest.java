@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import models.LifecycleStage;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
@@ -152,6 +153,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
             "question",
             Path.create("applicant.name"),
             "applicant's name",
+            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is your name?"),
             ImmutableMap.of());
     Question question = new Question(questionDefinition);
@@ -171,6 +173,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
             "question",
             Path.create("applicant.name"),
             "applicant's name",
+            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is your name?"),
             ImmutableMap.of());
     Question question = new Question(questionDefinition);

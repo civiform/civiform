@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import models.LifecycleStage;
 import services.Path;
 
 public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
@@ -28,12 +29,21 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       String name,
       Path path,
       String description,
+      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ImmutableListMultimap<Locale, String> options,
       MultiOptionValidationPredicates validationPredicates) {
     super(
-        id, version, name, path, description, questionText, questionHelpText, validationPredicates);
+        id,
+        version,
+        name,
+        path,
+        description,
+        lifecycleStage,
+        questionText,
+        questionHelpText,
+        validationPredicates);
     this.options = assertSameNumberOfOptionsForEachLocale(checkNotNull(options));
   }
 
@@ -42,11 +52,20 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       String name,
       Path path,
       String description,
+      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ImmutableListMultimap<Locale, String> options,
       MultiOptionValidationPredicates validationPredicates) {
-    super(version, name, path, description, questionText, questionHelpText, validationPredicates);
+    super(
+        version,
+        name,
+        path,
+        description,
+        lifecycleStage,
+        questionText,
+        questionHelpText,
+        validationPredicates);
     this.options = assertSameNumberOfOptionsForEachLocale(checkNotNull(options));
   }
 
@@ -55,6 +74,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       String name,
       Path path,
       String description,
+      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ImmutableListMultimap<Locale, String> options) {
@@ -63,6 +83,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
         name,
         path,
         description,
+        lifecycleStage,
         questionText,
         questionHelpText,
         MultiOptionValidationPredicates.create());
@@ -85,7 +106,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getSelectionPath() {
-    return getPath().toBuilder().append("selection").build();
+    return getPath().join("selection");
   }
 
   public abstract ScalarType getSelectionType();

@@ -16,20 +16,37 @@ public final class Block {
   /**
    * The block's ID. Note this is different from the {@code BlockDefinition}'s ID because
    * BlockDefinitions that repeat expand to multiple Blocks.
+   *
+   * <p>A top level block has a single number, e.g. "1". This could be a REPEATER question (e.g. who
+   * are your household members)
+   *
+   * <p>Repeated blocks, which ask questions about repeated entities, use dash separated integers
+   * which reference a block definition followed by repeated entity indices. For example, consider a
+   * question about the incomes for jobs for each household member. Each applicant has multiple
+   * household members, and each of those can have multiple jobs. Assume there is a {@link
+   * BlockDefinition} with ID 8 that is asking for the income for each job. For block id "8-1-2",
+   * the "8" refers to the {@link BlockDefinition} ID, and the "1-2" refers to the first household
+   * member's second job.
    */
-  private final long id;
+  private final String id;
 
   private final BlockDefinition blockDefinition;
   private final ApplicantData applicantData;
   private Optional<ImmutableList<ApplicantQuestion>> questionsMemo = Optional.empty();
 
   Block(long id, BlockDefinition blockDefinition, ApplicantData applicantData) {
+    this.id = String.valueOf(id);
+    this.blockDefinition = checkNotNull(blockDefinition);
+    this.applicantData = checkNotNull(applicantData);
+  }
+
+  Block(String id, BlockDefinition blockDefinition, ApplicantData applicantData) {
     this.id = id;
     this.blockDefinition = checkNotNull(blockDefinition);
     this.applicantData = checkNotNull(applicantData);
   }
 
-  public long getId() {
+  public String getId() {
     return id;
   }
 
@@ -70,6 +87,8 @@ public final class Block {
   public boolean isCompleteWithoutErrors() {
     // TODO(https://github.com/seattle-uat/civiform/issues/551): Stream only required scalar paths
     // instead of all scalar paths.
+    // TODO: needs to be able to figure out the indices used to reference repeated entities (e.g.
+    // applicant.children[3].name.first).
     return blockDefinition.scalarPaths().stream()
             .filter(path -> !applicantData.hasValueAtPath(path))
             .findAny()
@@ -99,7 +118,7 @@ public final class Block {
   public boolean equals(@Nullable Object object) {
     if (object instanceof Block) {
       Block that = (Block) object;
-      return this.id == that.id
+      return this.id.equals(that.id)
           && this.blockDefinition.equals(that.blockDefinition)
           && this.applicantData.equals(that.applicantData);
     }

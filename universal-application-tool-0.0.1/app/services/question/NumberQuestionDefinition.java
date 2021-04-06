@@ -7,6 +7,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.OptionalLong;
+import models.LifecycleStage;
 import services.Path;
 
 public class NumberQuestionDefinition extends QuestionDefinition {
@@ -17,11 +18,20 @@ public class NumberQuestionDefinition extends QuestionDefinition {
       String name,
       Path path,
       String description,
+      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       NumberQuestionDefinition.NumberValidationPredicates validationPredicates) {
     super(
-        id, version, name, path, description, questionText, questionHelpText, validationPredicates);
+        id,
+        version,
+        name,
+        path,
+        description,
+        lifecycleStage,
+        questionText,
+        questionHelpText,
+        validationPredicates);
   }
 
   public NumberQuestionDefinition(
@@ -29,10 +39,19 @@ public class NumberQuestionDefinition extends QuestionDefinition {
       String name,
       Path path,
       String description,
+      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       NumberQuestionDefinition.NumberValidationPredicates validationPredicates) {
-    super(version, name, path, description, questionText, questionHelpText, validationPredicates);
+    super(
+        version,
+        name,
+        path,
+        description,
+        lifecycleStage,
+        questionText,
+        questionHelpText,
+        validationPredicates);
   }
 
   public NumberQuestionDefinition(
@@ -40,6 +59,7 @@ public class NumberQuestionDefinition extends QuestionDefinition {
       String name,
       Path path,
       String description,
+      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
     super(
@@ -47,6 +67,7 @@ public class NumberQuestionDefinition extends QuestionDefinition {
         name,
         path,
         description,
+        lifecycleStage,
         questionText,
         questionHelpText,
         NumberQuestionDefinition.NumberValidationPredicates.create());
@@ -118,7 +139,7 @@ public class NumberQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getNumberPath() {
-    return getPath().toBuilder().append("number").build();
+    return getPath().join("number");
   }
 
   public ScalarType getNumberType() {

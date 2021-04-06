@@ -5,6 +5,8 @@ import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Represents a path into the applicant JSON data. Stored as the path to data without the JsonPath
@@ -12,7 +14,11 @@ import com.google.common.collect.ImmutableList;
  */
 @AutoValue
 public abstract class Path {
-  public static final String JSON_PATH_START_TOKEN = "$";
+  public static final String ARRAY_SUFFIX = "[]";
+  private static final String JSON_PATH_START_TOKEN = "$";
+  private static final Pattern ARRAY_INDEX_REGEX = Pattern.compile(".*(\\[(\\d+)])$");
+  private static final int ARRAY_SUFFIX_GROUP = 1;
+  private static final int ARRAY_INDEX_GROUP = 2;
   private static final char JSON_PATH_DIVIDER = '.';
   private static final String JSON_PATH_START = JSON_PATH_START_TOKEN + JSON_PATH_DIVIDER;
   private static final Splitter JSON_SPLITTER = Splitter.on(JSON_PATH_DIVIDER);
@@ -56,18 +62,23 @@ public abstract class Path {
    */
   @Memoized
   public String path() {
-    return JSON_JOINER.join(segments());
-  }
-
-  @Memoized
-  @Override
-  public String toString() {
-    return path();
+    return toString();
   }
 
   /**
-   * The {@link Path} of the parent. For example, a path {@code applicant.favorites.color} would
-   * return {@code applicant.favorites}.
+   * Returns the JSON path compatible string representation of this path.
+   *
+   * <p>Example: {@code "applicant.children[2].favorite_color.text"}
+   */
+  @Memoized
+  @Override
+  public String toString() {
+    return isEmpty() ? JSON_PATH_START_TOKEN : JSON_JOINER.join(segments());
+  }
+
+  /**
+   * The {@link Path} of the parent. For example, a path {@code applicant.favorite_color.text} would
+   * return {@code applicant.favorite_color}.
    */
   @Memoized
   public Path parentPath() {
@@ -77,13 +88,11 @@ public abstract class Path {
     return Path.create(segments().subList(0, segments().size() - 1));
   }
 
-  /**
-   * Append a segment to the path.
-   *
-   * <p>TODO: refactor things that use `toBuilder().append(seg).build()` with {@link #join(String)};
-   */
-  public Path join(String segment) {
-    return toBuilder().append(segment.toLowerCase()).build();
+  /** Append a path to the path. */
+  public Path join(String path) {
+    Path other = Path.create(path);
+    return Path.create(
+        ImmutableList.<String>builder().addAll(segments()).addAll(other.segments()).build());
   }
 
   /**
@@ -98,28 +107,72 @@ public abstract class Path {
     return segments().get(segments().size() - 1);
   }
 
-  public abstract Builder toBuilder();
-
-  public static Builder builder() {
-    return new AutoValue_Path.Builder();
+  /**
+   * Checks whether this path is referring to an array element, e.g. {@code applicant.children[3]}.
+   */
+  public boolean isArrayElement() {
+    return ARRAY_INDEX_REGEX.matcher(keyName()).find();
   }
 
-  @AutoValue.Builder
-  public abstract static class Builder {
+  /**
+   * Returns a path with a trailing array element reference stripped away. For example, {@code
+   * applicant.children[2]} would return a path to {@code applicant.children}.
+   *
+   * <p>For paths to non-array elements, {@code IllegalStateException is thrown}.
+   */
+  public Path withoutArrayReference() {
+    return parentPath().join(keyNameWithoutArrayIndex());
+  }
 
-    abstract Builder setSegments(ImmutableList<String> segments);
-
-    public abstract ImmutableList.Builder<String> segmentsBuilder();
-
-    public abstract Path build();
-
-    public Builder setPath(String path) {
-      return setSegments(ImmutableList.copyOf(JSON_SPLITTER.splitToList(path)));
+  /**
+   * Return the index of the array element this path is referencing.
+   *
+   * <p>For paths to non-array elements, {@code IllegalStateException is thrown}.
+   */
+  public int arrayIndex() {
+    Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
+    if (matcher.matches()) {
+      return Integer.valueOf(matcher.group(ARRAY_INDEX_GROUP));
     }
+    throw new IllegalStateException(
+        String.format("This path %s does not reference an array element.", this));
+  }
 
-    public Builder append(String segment) {
-      segmentsBuilder().add(segment.trim());
-      return this;
+  /**
+   * Return a new path referencing array element at the index.
+   *
+   * <p>For paths to non-array elements, {@code IllegalStateException is thrown}.
+   */
+  public Path atIndex(int index) {
+    Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
+    if (matcher.matches()) {
+      return parentPath()
+          .join(
+              new StringBuilder(keyName())
+                  .replace(
+                      matcher.start(ARRAY_INDEX_GROUP),
+                      matcher.end(ARRAY_INDEX_GROUP),
+                      String.valueOf(index))
+                  .toString());
     }
+    throw new IllegalStateException(
+        String.format("This path %s does not reference an array element.", this));
+  }
+
+  /**
+   * Returns the path's key name without an array index suffix. e.g. {@code a.b[1].c[3]} returns
+   * "c".
+   *
+   * <p>For paths to non-array elements, {@code IllegalStateException is thrown}.
+   */
+  private String keyNameWithoutArrayIndex() {
+    Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
+    if (matcher.matches()) {
+      return new StringBuilder(keyName())
+          .replace(matcher.start(ARRAY_SUFFIX_GROUP), matcher.end(ARRAY_SUFFIX_GROUP), "")
+          .toString();
+    }
+    throw new IllegalStateException(
+        String.format("This path %s does not reference an array element.", this));
   }
 }

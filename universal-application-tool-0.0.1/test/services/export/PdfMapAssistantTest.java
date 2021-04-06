@@ -1,4 +1,4 @@
-package export;
+package services.export;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
+import models.LifecycleStage;
 import models.Question;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.form.PDField;
@@ -26,6 +27,7 @@ public class PdfMapAssistantTest {
             .setQuestionText(ImmutableMap.of())
             .setQuestionHelpText(ImmutableMap.of())
             .setQuestionType(QuestionType.TEXT)
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setPath(Path.create("$.applicant.fake.path"))
             .build();
     return new Question(questionDefinition);
@@ -34,7 +36,7 @@ public class PdfMapAssistantTest {
   @Test
   public void testMapping() throws IOException, UnsupportedQuestionTypeException {
     // Check that the form is as expected.
-    File basePdf = new File("test/export/base.pdf");
+    File basePdf = new File("test/services/export/base.pdf");
     assertThat(basePdf.canRead()).isTrue();
     PDDocument doc = PDDocument.load(basePdf);
     PDField formfield = doc.getDocumentCatalog().getAcroForm().getField("formfield");

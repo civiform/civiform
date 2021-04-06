@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.concurrent.CompletionException;
 import models.Applicant;
+import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ApplicantRepository;
@@ -54,7 +55,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
             .stageAndUpdateIfValid(
-                applicant.id, programDefinition.id(), 1L, ImmutableSet.<Update>builder().build())
+                applicant.id, programDefinition.id(), "1", ImmutableSet.<Update>builder().build())
             .toCompletableFuture()
             .join();
 
@@ -77,7 +78,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 1L, updates)
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
             .toCompletableFuture()
             .join();
 
@@ -101,7 +102,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 1L, updates)
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
             .toCompletableFuture()
             .join();
 
@@ -126,7 +127,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
-            .stageAndUpdateIfValid(badApplicantId, programDefinition.id(), 1L, updates)
+            .stageAndUpdateIfValid(badApplicantId, programDefinition.id(), "1", updates)
             .toCompletableFuture()
             .join();
 
@@ -145,7 +146,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         catchThrowable(
             () ->
                 subject
-                    .stageAndUpdateIfValid(applicant.id, badProgramId, 1L, updates)
+                    .stageAndUpdateIfValid(applicant.id, badProgramId, "1", updates)
                     .toCompletableFuture()
                     .join());
 
@@ -157,7 +158,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   public void stageAndUpdateIfValid_hasProgramBlockNotFoundException() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     ImmutableSet<Update> updates = ImmutableSet.of();
-    long badBlockId = 100L;
+    String badBlockId = "100";
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
@@ -181,7 +182,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 1L, updates)
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
             .toCompletableFuture()
             .join();
 
@@ -200,7 +201,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         .isThrownBy(
             () ->
                 subject
-                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), 1L, updates)
+                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)
@@ -236,6 +237,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
                     "my name",
                     Path.create("applicant.name"),
                     "description",
+                    LifecycleStage.ACTIVE,
                     ImmutableMap.of(Locale.US, "question?"),
                     ImmutableMap.of(Locale.US, "help text")))
             .getResult();
@@ -244,8 +246,9 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   private void createProgram() throws Exception {
     programDefinition = programService.createProgramDefinition("test program", "desc").getResult();
     programDefinition =
-        programService.addBlockToProgram(
-            programDefinition.id(), "test block", "test block description");
+        programService
+            .addBlockToProgram(programDefinition.id(), "test block", "test block description")
+            .getResult();
     programDefinition =
         programService.setBlockQuestions(
             programDefinition.id(),
