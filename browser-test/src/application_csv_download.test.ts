@@ -20,7 +20,7 @@ describe('normal application flow', () => {
     await logout(page);
     await loginAsGuest(page);
 
-    await applicantQuestions.applyButton();
+    await applicantQuestions.applyProgram('test program');
 
     await applicantQuestions.answerQuestion('applicant.name.first', 'sarah');
     await applicantQuestions.answerQuestion('applicant.name.last', 'smith');
