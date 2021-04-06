@@ -633,8 +633,9 @@ public class ApplicantQuestion {
 
     @Override
     public boolean hasTypeSpecificErrors() {
-      // There are no inherent requirements in a multi-option question.
-      return false;
+      // Return true if the selected option is not a valid option.
+      return getSelectedOptionsValue().isPresent()
+          && !getOptions().contains(getSelectedOptionsValue().get());
     }
 
     public boolean hasValue() {
@@ -698,8 +699,9 @@ public class ApplicantQuestion {
 
     @Override
     public boolean hasTypeSpecificErrors() {
-      // There are no inherent requirements in a multi-option question.
-      return false;
+      // Return true if the selected option is not a valid option.
+      return getSelectedOptionValue().isPresent()
+          && !getOptions().contains(getSelectedOptionValue().get());
     }
 
     public boolean hasValue() {

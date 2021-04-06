@@ -16,8 +16,7 @@ create table if not exists questions (
   description varchar,
   question_type varchar,
   question_text jsonb,
-  question_help_text jsonb,
-  question_options jsonb
+  question_help_text jsonb
 );
 
 create table if not exists programs (

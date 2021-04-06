@@ -10,9 +10,8 @@ public abstract class ValidationErrorMessage {
   public static String TEXT_TOO_LONG = "This answer must be at most %d characters long.";
   public static String NUMBER_TOO_SMALL = "This answer must be at least %d";
   public static String NUMBER_TOO_BIG = "This answer cannot be larger than %d";
-  public static String TOO_FEW_SELECTIONS = "This answer requires at least %d choice(s)";
-  public static String TOO_MANY_SELECTIONS =
-      "This answer cannot have more than %d choice(s) selected";
+  public static String TOO_FEW_SELECTIONS = "Please select at least %d";
+  public static String TOO_MANY_SELECTIONS = "Please select fewer than %d";
 
   public abstract String message();
 
