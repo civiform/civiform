@@ -1,12 +1,6 @@
 import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession } from './support'
 
 describe('normal application flow', () => {
-  // Our browser tests could be long-running (as of 2021-04-06, the longest
-  // takes 27 seconds). However, if your seletor fails to locate the HTML
-  // element, the test hangs as well. If you find the tests take unnaturally
-  // long, you want to verify that your selectors are working as expected.
-  // Because all tests are run concurrently, it could be that your selector
-  // selects a different entity from another test.
   jest.setTimeout(200000);
   it('all major steps', async () => {
     const { browser, page } = await startSession()
