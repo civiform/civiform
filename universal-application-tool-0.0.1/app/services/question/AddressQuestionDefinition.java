@@ -107,7 +107,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getStreetPath() {
-    return getPath().toBuilder().append("street").build();
+    return getPath().join("street");
   }
 
   public ScalarType getStreetType() {
@@ -115,7 +115,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getCityPath() {
-    return getPath().toBuilder().append("city").build();
+    return getPath().join("city");
   }
 
   public ScalarType getCityType() {
@@ -123,7 +123,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getStatePath() {
-    return getPath().toBuilder().append("state").build();
+    return getPath().join("state");
   }
 
   public ScalarType getStateType() {
@@ -131,7 +131,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getZipPath() {
-    return getPath().toBuilder().append("zip").build();
+    return getPath().join("zip");
   }
 
   public ScalarType getZipType() {
