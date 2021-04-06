@@ -95,5 +95,6 @@ public class ProgramBuilderTest {
     assertThat(program.id).isGreaterThan(0);
     assertThat(program.getProgramDefinition().name()).isEqualTo("");
     assertThat(program.getProgramDefinition().description()).isEqualTo("");
+    assertThat(program.getProgramDefinition().getBlockCount()).isEqualTo(1);
   }
 }

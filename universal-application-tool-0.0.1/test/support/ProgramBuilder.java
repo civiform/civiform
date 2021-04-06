@@ -29,7 +29,7 @@ public class ProgramBuilder {
    * Creates {@link ProgramBuilder} with a new {@link Program} with an empty name and description.
    */
   public static ProgramBuilder newProgram() {
-    return newProgram("");
+    return newProgram("", "");
   }
 
   /** Creates a {@link ProgramBuilder} with a new {@link Program} with an empty description. */
@@ -44,7 +44,8 @@ public class ProgramBuilder {
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder()
             .setBlockDefinitions(ImmutableList.of())
-            .setLifecycleStage(LifecycleStage.ACTIVE);
+            .setLifecycleStage(LifecycleStage.ACTIVE)
+            .setExportDefinitions(ImmutableList.of());
     return new ProgramBuilder(builder);
   }
 
@@ -60,7 +61,7 @@ public class ProgramBuilder {
   private static void maybeUpdate(Program program) {
     try {
       program.update();
-    } catch (NoClassDefFoundError ignore) {
+    } catch (NoClassDefFoundError | PersistenceException ignore) {
       // This is ok not to update if there is no database available.
     }
   }
