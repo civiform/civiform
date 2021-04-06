@@ -76,7 +76,7 @@ public class QuestionConfig {
       case DROPDOWN:
         return config
             .setId("single-select-question-config")
-            .addMultiOptionQuestionConfig((MultiOptionQuestionForm) questionForm)
+            .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm)
             .getContainer();
       case NUMBER:
         return config.setId("number-question-config").addNumberQuestionConfig().getContainer();
@@ -142,7 +142,7 @@ public class QuestionConfig {
         .with(optionInput, removeOptionButton);
   }
 
-  private QuestionConfig addMultiOptionQuestionConfig(
+  private QuestionConfig addMultiOptionQuestionFields(
       MultiOptionQuestionForm multiOptionQuestionForm) {
     ImmutableList<ContainerTag> existingOptions =
         multiOptionQuestionForm.getOptions().stream()
@@ -156,6 +156,21 @@ public class QuestionConfig {
                 .withType("button")
                 .withId("add-new-option")
                 .withClasses(Styles.M_2));
+    return this;
+  }
+
+  private QuestionConfig addMultiSelectQuestionValidation() {
+    content.with(
+            FieldWithLabel.number()
+                    .setId("multi-select-min-choices-input")
+                    .setFieldName("min")
+                    .setLabelText("Minimum number of choices required")
+                    .getContainer(),
+            FieldWithLabel.number()
+                    .setId("multi-select-max-choices-input")
+                    .setFieldName("max")
+                    .setLabelText("Maximum number of choices allowed")
+                    .getContainer());
     return this;
   }
 
