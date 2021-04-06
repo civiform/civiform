@@ -7,12 +7,12 @@ export { ApplicantQuestions } from './applicant_questions'
 const { BASE_URL = 'http://civiform:9000' } = process.env
 
 export const startSession = async () => {
-  const browser = await chromium.launch()
-  const page = await browser.newPage({ acceptDownloads: true })
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ acceptDownloads: true });
 
   await page.goto(BASE_URL);
 
-  return { browser, page }
+  return { browser, page };
 }
 
 export const endSession = async (browser: Browser) => {

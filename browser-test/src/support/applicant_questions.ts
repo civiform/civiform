@@ -12,7 +12,7 @@ export class ApplicantQuestions {
   }
 
   async applyProgram(programName: string) {
-    await this.page.click('.cf-application-card:has-text("' + programName + '") :text("Apply")');
+    await this.page.click(`.cf-application-card:has-text("${programName}") :text("Apply")`);
   }
 
   async saveAndContinue() {
