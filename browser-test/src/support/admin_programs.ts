@@ -42,6 +42,8 @@ export class AdminPrograms {
   async gotoDraftProgramEditPage(programName: string) {
     await this.gotoAdminProgramsPage();
     await this.expectDraftProgram(programName);
+    // Get the admin program card enclosing the specified program. Once we settle on
+    // admin style, we should make a more identifiable class, e.g. ".cf-admin-program-card".
     await this.page.click(`div.border:has-text("${programName}") :text("Edit")`);
     await this.expectProgramEditPage(programName);
   }
