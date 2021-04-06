@@ -94,22 +94,6 @@ public class AddressQuestion implements PresentsErrors {
     return ImmutableSet.of();
   }
 
-  public boolean hasStreetValue() {
-    return getStreetValue().isPresent();
-  }
-
-  public boolean hasCityValue() {
-    return getCityValue().isPresent();
-  }
-
-  public boolean hasStateValue() {
-    return getStateValue().isPresent();
-  }
-
-  public boolean hasZipValue() {
-    return getZipValue().isPresent();
-  }
-
   public Optional<String> getStreetValue() {
     if (streetValue != null) {
       return streetValue;
