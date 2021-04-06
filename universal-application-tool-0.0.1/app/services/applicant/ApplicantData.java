@@ -133,7 +133,18 @@ public class ApplicantData {
    */
   private void put(Path path, Object value) {
     putParentIfMissing(path);
-    putAt(path, value);
+    if (path.isArrayElement()) {
+      addArrayIfMissing(path);
+      addAt(path, value);
+    } else {
+      putAt(path, value);
+    }
+  }
+
+  private void addArrayIfMissing(Path path) {
+    if (!hasPath(path.withoutArrayReference())) {
+      putAt(path.withoutArrayReference(), new ArrayList<>());
+    }
   }
 
   private void putAt(Path path, Object value) {

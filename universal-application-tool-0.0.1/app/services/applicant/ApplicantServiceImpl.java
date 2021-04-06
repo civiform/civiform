@@ -1,6 +1,7 @@
 package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -88,8 +89,8 @@ public class ApplicantServiceImpl implements ApplicantService {
           ImmutableMap<String, String> updateMap) {
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
-            .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
-            .collect(ImmutableSet.toImmutableSet());
+            .map(e -> Update.create(Path.create(e.getKey()), e.getValue()))
+            .collect(toImmutableSet());
 
     boolean updatePathsContainReservedKeys =
         updates.stream().anyMatch(u -> RESERVED_SCALAR_KEYS.contains(u.path().keyName()));
@@ -197,9 +198,6 @@ public class ApplicantServiceImpl implements ApplicantService {
       switch (type) {
         case STRING:
           applicantData.putString(update.path(), update.value());
-          break;
-        case LIST:
-          applicantData.putList(update.path(), ImmutableList.of(update.value()));
           break;
         case LONG:
           applicantData.putLong(update.path(), update.value());

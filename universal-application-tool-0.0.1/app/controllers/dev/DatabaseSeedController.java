@@ -147,7 +147,8 @@ public class DatabaseSeedController extends Controller {
                 Path.create("applicant.kitchen"),
                 "description",
                 LifecycleStage.ACTIVE,
-                ImmutableMap.of(Locale.US, "Which of the following kitchen instruments do you own?"),
+                ImmutableMap.of(
+                    Locale.US, "Which of the following kitchen instruments do you own?"),
                 ImmutableMap.of(Locale.US, "help text"),
                 ImmutableListMultimap.of(
                     Locale.US, "toaster", Locale.US, "pepper grinder", Locale.US, "garlic press")))

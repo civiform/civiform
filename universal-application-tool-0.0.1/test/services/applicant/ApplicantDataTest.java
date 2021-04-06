@@ -183,6 +183,29 @@ public class ApplicantDataTest {
   }
 
   @Test
+  public void putString_addsFirstElementToArray() {
+    ApplicantData data = new ApplicantData();
+
+    data.putString(Path.create("applicant.allergies[0]"), "peanut");
+
+    assertThat(data.asJsonString())
+        .isEqualTo("{\"applicant\":{\"allergies\":[\"peanut\"]},\"metadata\":{}}");
+  }
+
+  @Test
+  public void putString_addsSeveralElementsToArray() {
+    ApplicantData data = new ApplicantData();
+
+    data.putString(Path.create("applicant.allergies[0]"), "peanut");
+    data.putString(Path.create("applicant.allergies[1]"), "strawberry");
+    data.putString(Path.create("applicant.allergies[2]"), "shellfish");
+
+    assertThat(data.asJsonString())
+        .isEqualTo(
+            "{\"applicant\":{\"allergies\":[\"peanut\",\"strawberry\",\"shellfish\"]},\"metadata\":{}}");
+  }
+
+  @Test
   public void putLong_writesNullIfStringIsEmpty() {
     ApplicantData data = new ApplicantData();
     Path path = Path.create("applicant.age");
