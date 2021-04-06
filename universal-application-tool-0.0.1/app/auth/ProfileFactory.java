@@ -31,7 +31,6 @@ public class ProfileFactory {
   }
 
   private UatProfileData create(Roles role) {
-    // Not sure if this is bad to do
     UatProfileData p = new UatProfileData();
     p.init(dbContext);
     p.addRole(role.toString());
