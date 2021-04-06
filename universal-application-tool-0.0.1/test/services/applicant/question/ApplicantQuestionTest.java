@@ -9,6 +9,7 @@ import java.util.EnumSet;
 import java.util.Locale;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import models.LifecycleStage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.Path;
@@ -31,6 +32,7 @@ public class ApplicantQuestionTest {
           "question name",
           Path.create("applicant.my.path.name"),
           "description",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
           ImmutableListMultimap.of(
@@ -48,6 +50,7 @@ public class ApplicantQuestionTest {
           "question name",
           Path.create("applicant.my.path.name"),
           "description",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
   private static final NameQuestionDefinition nameQuestionDefinition =
@@ -56,6 +59,7 @@ public class ApplicantQuestionTest {
           "question name",
           Path.create("applicant.my.path.name"),
           "description",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
   private static final NumberQuestionDefinition numberQuestionDefinition =
@@ -64,6 +68,7 @@ public class ApplicantQuestionTest {
           "question name",
           Path.create("applicant.my.path.name"),
           "description",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
   private static final AddressQuestionDefinition addressQuestionDefinition =
@@ -72,6 +77,7 @@ public class ApplicantQuestionTest {
           "question name",
           Path.create("applicant.my.path.name"),
           "description",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
 

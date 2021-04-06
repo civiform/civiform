@@ -3,9 +3,7 @@ package services.applicant.question;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.EnumSet;
 import java.util.Locale;
-import junitparams.Parameters;
 import models.Applicant;
 import models.LifecycleStage;
 import org.junit.Before;
@@ -14,9 +12,6 @@ import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.AddressQuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.QuestionType;
-import services.question.UnsupportedQuestionTypeException;
 
 public class AddressQuestionTest {
 
@@ -37,22 +32,6 @@ public class AddressQuestionTest {
   public void setUp() {
     applicant = new Applicant();
     applicantData = applicant.getApplicantData();
-  }
-
-  // TODO(https://github.com/seattle-uat/civiform/issues/405): Change this to just use
-  // @Parameters(source = QuestionType.class) once RepeatedQuestionDefinition exists.
-  @Test
-  @Parameters(method = "types")
-  public void errorsPresenterExtendedForAllTypes(QuestionType type)
-      throws UnsupportedQuestionTypeException {
-    QuestionDefinitionBuilder builder = QuestionDefinitionBuilder.sample(type);
-    ApplicantQuestion question = new ApplicantQuestion(builder.build(), new ApplicantData());
-
-    assertThat(question.errorsPresenter().hasTypeSpecificErrors()).isFalse();
-  }
-
-  private EnumSet<QuestionType> types() {
-    return EnumSet.complementOf(EnumSet.of(QuestionType.REPEATER));
   }
 
   @Test

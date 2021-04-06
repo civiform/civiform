@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import models.Applicant;
+import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import services.Path;
@@ -20,6 +21,7 @@ public class SingleSelectQuestionTest {
           "question name",
           Path.create("applicant.my.path.name"),
           "description",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
           ImmutableListMultimap.of(

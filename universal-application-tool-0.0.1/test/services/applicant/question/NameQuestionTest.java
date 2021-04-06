@@ -7,6 +7,7 @@ import java.util.Locale;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Applicant;
+import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +23,7 @@ public class NameQuestionTest {
           "question name",
           Path.create("applicant.my.path.name"),
           "description",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
 
