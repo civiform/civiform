@@ -35,7 +35,7 @@ public class Question extends BaseModel {
 
   private @Constraints.Required String name;
 
-  private @Constraints.Required OptionalLong repeaterId;
+  private @Constraints.Required @DbJsonB OptionalLong repeaterId;
 
   private @Constraints.Required String description;
 
