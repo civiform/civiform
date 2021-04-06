@@ -1,5 +1,5 @@
 import { Page } from 'playwright'
-import { readFileSync } from  'fs'
+import { readFileSync } from 'fs'
 
 export class AdminPrograms {
   public page!: Page
@@ -25,8 +25,7 @@ export class AdminPrograms {
     expect(tableInnerText).toContain(description)
   }
 
-  async addProgram(programName: string,
-    description = 'program description') {
+  async addProgram(programName: string, description = 'program description') {
     await this.gotoAdminProgramsPage()
     await this.page.click('#new-program-button')
 
@@ -98,7 +97,7 @@ export class AdminPrograms {
     await this.page.click('text=Manage Questions');
     await this.page.fill('text=Block Description', "dummy description");
     for (const questionName of questionNames) {
-      await this.page.click(`text="${questionName}"`, {force: true});
+      await this.page.click(`text="${questionName}"`, { force: true });
     }
     await this.page.click('#update-block-button');
     await this.page.click('text=Programs');

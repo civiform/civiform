@@ -6,7 +6,7 @@ export class ApplicantQuestions {
   constructor(page: Page) {
     this.page = page
   }
-  
+
   async answerQuestion(questionName: string, answer: string) {
     await this.page.fill('[name="' + questionName + '"]', answer);
   }
