@@ -1,9 +1,6 @@
 import { startSession, logout, loginAsGuest, loginAsAdmin, ApplicantQuestions, AdminQuestions, AdminPrograms, endSession } from './support'
 
 describe('normal application flow', () => {
-  // Our browser tests could be long-running (as of 2021-04-06, the longest
-  // takes 27 seconds).
-  jest.setTimeout(200000);
   it('all major steps', async () => {
     const { browser, page } = await startSession();
     // Timeout for clicks and element fills. If your seletor fails to locate

@@ -1,7 +1,6 @@
 import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession } from './support'
 
 describe('normal application flow', () => {
-  jest.setTimeout(200000);
   it('all major steps', async () => {
     const { browser, page } = await startSession()
     page.setDefaultTimeout(1000);
