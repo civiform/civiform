@@ -2,6 +2,7 @@ package support;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.OptionalLong;
 import java.util.UUID;
 import models.Applicant;
 import models.LifecycleStage;
@@ -37,6 +38,7 @@ public class ResourceCreator {
             version,
             name,
             Path.create(pathString),
+            OptionalLong.empty(),
             "",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(),
@@ -53,6 +55,7 @@ public class ResourceCreator {
                 1L,
                 "question name",
                 Path.create("applicant.my.path.name"),
+                OptionalLong.empty(),
                 "description",
                 LifecycleStage.ACTIVE,
                 ImmutableMap.of(Locale.US, "question?"),

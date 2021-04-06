@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.concurrent.CompletionStage;
 import models.LifecycleStage;
 import org.junit.Before;
@@ -24,6 +25,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
           1L,
           "my name",
           Path.create("my.path.name"),
+          OptionalLong.empty(),
           "description",
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
@@ -68,6 +70,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
             1L,
             "name",
             Path.create("#invalid&path-pattern!"),
+            OptionalLong.empty(),
             "description",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "question?"),

@@ -14,6 +14,7 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
       long version,
       String name,
       Path path,
+      OptionalLong repeaterId,
       String description,
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
@@ -24,6 +25,7 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
         version,
         name,
         path,
+        repeaterId,
         description,
         lifecycleStage,
         questionText,
@@ -35,13 +37,22 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
       long version,
       String name,
       Path path,
+      OptionalLong repeaterId,
       String description,
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ImmutableListMultimap<Locale, String> options) {
     super(
-        version, name, path, description, lifecycleStage, questionText, questionHelpText, options);
+        version,
+        name,
+        path,
+        repeaterId,
+        description,
+        lifecycleStage,
+        questionText,
+        questionHelpText,
+        options);
   }
 
   @Override

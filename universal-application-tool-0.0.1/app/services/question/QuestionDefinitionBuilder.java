@@ -18,6 +18,7 @@ public class QuestionDefinitionBuilder {
   private long version;
   private String name;
   private Path path;
+  private OptionalLong repeaterId = OptionalLong.empty();
   private String description;
   private LifecycleStage lifecycleStage;
   private ImmutableMap<Locale, String> questionText;
@@ -38,6 +39,7 @@ public class QuestionDefinitionBuilder {
     version = definition.getVersion();
     name = definition.getName();
     path = definition.getPath();
+    repeaterId = definition.getRepeaterId();
     description = definition.getDescription();
     lifecycleStage = definition.getLifecycleStage();
     questionText = definition.getQuestionText();
@@ -103,6 +105,11 @@ public class QuestionDefinitionBuilder {
     return this;
   }
 
+  public QuestionDefinitionBuilder setRepeaterId(OptionalLong repeaterId) {
+    this.repeaterId = repeaterId;
+    return this;
+  }
+
   public QuestionDefinitionBuilder setDescription(String description) {
     this.description = description;
     return this;
@@ -161,6 +168,7 @@ public class QuestionDefinitionBuilder {
             version,
             name,
             path,
+            repeaterId,
             description,
             lifecycleStage,
             questionText,
@@ -172,6 +180,7 @@ public class QuestionDefinitionBuilder {
             version,
             name,
             path,
+            repeaterId,
             description,
             lifecycleStage,
             questionText,
@@ -187,6 +196,7 @@ public class QuestionDefinitionBuilder {
             version,
             name,
             path,
+            repeaterId,
             description,
             lifecycleStage,
             questionText,
@@ -204,6 +214,7 @@ public class QuestionDefinitionBuilder {
             version,
             name,
             path,
+            repeaterId,
             description,
             lifecycleStage,
             questionText,
@@ -222,6 +233,7 @@ public class QuestionDefinitionBuilder {
             version,
             name,
             path,
+            repeaterId,
             description,
             lifecycleStage,
             questionText,
@@ -237,6 +249,7 @@ public class QuestionDefinitionBuilder {
             version,
             name,
             path,
+            repeaterId,
             description,
             lifecycleStage,
             questionText,
