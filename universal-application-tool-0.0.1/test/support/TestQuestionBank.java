@@ -5,6 +5,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import javax.persistence.PersistenceException;
 import models.LifecycleStage;
 import models.Question;
 import services.Path;
@@ -106,7 +107,7 @@ public class TestQuestionBank {
     Question question = new Question(questionDefinition);
     try {
       question.save();
-    } catch (ExceptionInInitializerError | NoClassDefFoundError ignore) {
+    } catch (ExceptionInInitializerError | NoClassDefFoundError | PersistenceException ignore) {
       question.id = nextId.getAndIncrement();
       try {
         question.loadQuestionDefinition();

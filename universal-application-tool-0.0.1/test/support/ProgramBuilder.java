@@ -3,6 +3,7 @@ package support;
 import com.google.common.collect.ImmutableList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import javax.persistence.PersistenceException;
 import models.LifecycleStage;
 import models.Program;
 import models.Question;
@@ -50,7 +51,7 @@ public class ProgramBuilder {
   private static void maybeSave(Program program) {
     try {
       program.save();
-    } catch (ExceptionInInitializerError | NoClassDefFoundError ignore) {
+    } catch (ExceptionInInitializerError | NoClassDefFoundError | PersistenceException ignore) {
       program.id = nextId.getAndIncrement();
       program.loadProgramDefinition();
     }
