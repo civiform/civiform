@@ -126,6 +126,9 @@ public class ApplicantData {
    * Puts the given value at the given path in the underlying JSON data. Builds up the necessary
    * structure along the way, i.e., creates parent objects where necessary.
    *
+   * <p>If the path ends in an array (i.e. we are trying to add an element to a JSON array), this
+   * will check to make sure the array is there, then add the given element to the end of the array.
+   *
    * @param path the {@link Path} with the fully specified path, e.g.,
    *     "applicant.children[3].favorite_color.text" or the equivalent
    *     "$.applicant.children[3].favorite_color.text".
@@ -141,9 +144,17 @@ public class ApplicantData {
     }
   }
 
+  /**
+   * Adds a JSON array at the given path, if it is not there already.
+   * @param path the path to the new array - must end with the array suffix [] or [index]
+   */
   private void addArrayIfMissing(Path path) {
-    if (!hasPath(path.withoutArrayReference())) {
-      putAt(path.withoutArrayReference(), new ArrayList<>());
+    if (!path.isArrayElement()) {
+      throw new RuntimeException("Attempted to add an array when path is not an array: " + path);
+    }
+    Path withoutArray = path.withoutArrayReference();
+    if (!hasPath(withoutArray)) {
+      putAt(withoutArray, new ArrayList<>());
     }
   }
 

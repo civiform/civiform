@@ -31,7 +31,6 @@ import services.question.CheckboxQuestionDefinition;
 import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionService;
-import services.question.TextQuestionDefinition;
 
 public class ApplicantServiceImplTest extends WithPostgresContainer {
 
@@ -127,40 +126,27 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void stageAndUpdateIfValid_rawUpdatesContainMultiSelectAnswers_isOk() throws Exception {
-    QuestionDefinition questionOne =
+    QuestionDefinition multiSelectQuestion =
         questionService
             .create(
                 new CheckboxQuestionDefinition(
                     1L,
                     "checkbox",
-                    Path.create("applicant.options"),
+                    Path.create("applicant.checkbox"),
                     "description",
                     LifecycleStage.ACTIVE,
                     ImmutableMap.of(Locale.US, "question?"),
                     ImmutableMap.of(Locale.US, "help text"),
                     ImmutableListMultimap.of(Locale.US, "cat", Locale.US, "dog")))
             .getResult();
-    QuestionDefinition questionTwo =
-        questionService
-            .create(
-                new TextQuestionDefinition(
-                    1L,
-                    "text",
-                    Path.create("applicant.other"),
-                    "description",
-                    LifecycleStage.ACTIVE,
-                    ImmutableMap.of(Locale.US, "question?"),
-                    ImmutableMap.of(Locale.US, "help text")))
-            .getResult();
-    createProgram(questionOne, questionTwo);
+    createProgram(multiSelectQuestion);
 
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
 
     ImmutableMap<String, String> rawUpdates =
         ImmutableMap.<String, String>builder()
-            .put("applicant.options[0]", "cat")
-            .put("applicant.options[1]", "dog")
-            .put("applicant.other", "some other answer")
+            .put("applicant.checkbox.selection[0]", "cat")
+            .put("applicant.checkbox.selection[1]", "dog")
             .build();
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
@@ -169,16 +155,14 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             .toCompletableFuture()
             .join();
 
-    assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
     assertThat(errorAnd.isError()).isFalse();
+    assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
 
     ApplicantData applicantDataAfter =
         applicantRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
-    assertThat(applicantDataAfter.readList(Path.create("applicant.options")))
+    assertThat(applicantDataAfter.readList(Path.create("applicant.checkbox.selection")))
         .hasValue(ImmutableList.of("cat", "dog"));
-    assertThat(applicantDataAfter.readString(Path.create("applicant.other")))
-        .hasValue("some other answer");
   }
 
   @Test

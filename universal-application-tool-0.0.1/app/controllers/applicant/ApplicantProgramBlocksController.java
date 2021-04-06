@@ -201,7 +201,6 @@ public final class ApplicantProgramBlocksController extends Controller {
     return applicationRepository.submitApplication(applicantId, programId);
   }
 
-  // applicant.kitchen[0] - key for checkbox questions
   private ImmutableMap<String, String> cleanForm(Map<String, String> formData) {
     return formData.entrySet().stream()
         .filter(entry -> !STRIPPED_FORM_FIELDS.contains(entry.getKey()))

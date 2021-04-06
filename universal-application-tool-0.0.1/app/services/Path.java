@@ -66,15 +66,19 @@ public abstract class Path {
   }
 
   /**
-   * Returns the JSON path compatible string representation of this path.
-   *
-   * <p>Example: {@code "applicant.children[2].favorite_color.text"}
+   * Returns a string representation of this path, ending with the array suffix []. Example: {@code
+   * "applicant.children[]"}
    */
   @Memoized
   public String asList() {
     return toString() + ARRAY_SUFFIX;
   }
 
+  /**
+   * Returns the JSON path compatible string representation of this path.
+   *
+   * <p>Example: {@code "applicant.children[2].favorite_color.text"}
+   */
   @Memoized
   @Override
   public String toString() {
@@ -171,7 +175,7 @@ public abstract class Path {
    * Returns the path's key name without an array index suffix. e.g. {@code a.b[1].c[3]} returns
    * "c".
    *
-   * <p>For paths to non-array elements, {@code IllegalStateException is thrown}.
+   * <p>For paths to non-array elements, {@link Path#keyName} is returned.
    */
   private String keyNameWithoutArrayIndex() {
     Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
@@ -180,8 +184,7 @@ public abstract class Path {
           .replace(matcher.start(ARRAY_SUFFIX_GROUP), matcher.end(ARRAY_SUFFIX_GROUP), "")
           .toString();
     }
-    throw new IllegalStateException(
-        String.format("This path %s does not reference an array element.", this));
+    return keyName();
   }
 
   public abstract Builder toBuilder();

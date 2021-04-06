@@ -63,6 +63,15 @@ public class ApplicantDataTest {
   }
 
   @Test
+  public void hasPath_returnsTrueForArrayIndex() {
+    ApplicantData data = new ApplicantData();
+    Path path = Path.create("applicant.chores[0]");
+    data.putString(path, "wash dishes");
+
+    assertThat(data.hasPath(path)).isTrue();
+  }
+
+  @Test
   public void hasPath_returnsFalseForMissingPath() {
     ApplicantData data = new ApplicantData();
 
@@ -74,6 +83,15 @@ public class ApplicantDataTest {
     ApplicantData data = new ApplicantData();
     Path path = Path.create("applicant.horses");
     data.putLong(path, 278);
+
+    assertThat(data.hasValueAtPath(path)).isTrue();
+  }
+
+  @Test
+  public void hasValueAtPath_returnsTrueForArrayIndex() {
+    ApplicantData data = new ApplicantData();
+    Path path = Path.create("applicant.chores[0]");
+    data.putString(path, "wash dishes");
 
     assertThat(data.hasValueAtPath(path)).isTrue();
   }

@@ -1,7 +1,6 @@
 package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -89,8 +88,8 @@ public class ApplicantServiceImpl implements ApplicantService {
           ImmutableMap<String, String> updateMap) {
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
-            .map(e -> Update.create(Path.create(e.getKey()), e.getValue()))
-            .collect(toImmutableSet());
+            .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
+            .collect(ImmutableSet.toImmutableSet());
 
     boolean updatePathsContainReservedKeys =
         updates.stream().anyMatch(u -> RESERVED_SCALAR_KEYS.contains(u.path().keyName()));
@@ -190,10 +189,14 @@ public class ApplicantServiceImpl implements ApplicantService {
       throws UnsupportedScalarTypeException, PathNotInBlockException {
     ImmutableSet.Builder<Path> questionPaths = ImmutableSet.builder();
     for (Update update : updates) {
+      // Check existence of the non-array path, which is how scalars are indexed.
       ScalarType type =
           blockDefinition
-              .getScalarType(update.path())
-              .orElseThrow(() -> new PathNotInBlockException(blockDefinition, update.path()));
+              .getScalarType(update.path().withoutArrayReference())
+              .orElseThrow(
+                  () ->
+                      new PathNotInBlockException(
+                          blockDefinition, update.path().withoutArrayReference()));
       questionPaths.add(update.path().parentPath());
       switch (type) {
         case STRING:
