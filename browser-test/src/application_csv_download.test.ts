@@ -15,7 +15,7 @@ describe('normal application flow', () => {
     const applicantQuestions = new ApplicantQuestions(page);
 
     await adminQuestions.addNameQuestion('name');
-    await adminPrograms.addProgram(['name'], 'program');
+    await adminPrograms.addProgramWithQuestions(['name'], 'test program');
 
     await logout(page);
     await loginAsGuest(page);
@@ -29,7 +29,7 @@ describe('normal application flow', () => {
     await logout(page);
     await loginAsAdmin(page)
 
-    await adminPrograms.viewApplications();
+    await adminPrograms.viewApplications('test program');
     const csvContent = await adminPrograms.getCsv();
     expect(csvContent).toContain('sarah,COLUMN_EMPTY,smith');
     await endSession(browser);

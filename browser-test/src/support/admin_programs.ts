@@ -55,6 +55,16 @@ export class AdminPrograms {
     expect(await this.page.innerText('h1')).toContain('Question bank')
   }
 
+  async editProgramBlock(programName: string, blockDescription: string) {
+    await this.gotoEditProgramPage(programName)
+
+    await this.page.click('text=Manage Questions')
+    await this.expectEditProgramBlockPage(programName)
+
+    await this.page.fill('text=Block Description', blockDescription);
+    await this.page.click('#update-block-button');
+  }
+
   async addProgramBlock(programName: string) {
     await this.gotoEditProgramPage(programName)
 
@@ -65,17 +75,24 @@ export class AdminPrograms {
     expect(await this.page.getAttribute('input#block-name-input', 'value')).toEqual('Block 2')
   }
 
-  async addQuestion(programName: string, questionName: string) {
+  async addQuestion(programName: string, questionNames: string[]) {
     await this.gotoEditProgramPage(programName)
 
     await this.page.click('text=Manage Questions')
     await this.expectEditProgramBlockPage(programName)
 
-    await this.page.click('text=Add Block')
+    for (const questionName of questionNames) {
+      await this.page.click(`text="${questionName}"`, { force: true });
+    }
+    await this.page.click('#update-block-button');
   }
 
-  async viewApplications() {
-    await this.page.click('text="Applications →"');
+  async publishProgram(programName: string) {
+    await this.page.click('div.border:has-text("' + programName + '") :text("Publish")');
+  }
+
+  async viewApplications(programName: string) {
+    await this.page.click('div.border:has-text("' + programName + '") :text("Applications")');
   }
 
   async getCsv() {
@@ -87,27 +104,18 @@ export class AdminPrograms {
     return readFileSync(path, 'utf8');
   }
 
-  async addProgram(questionNames: string[], programName: string) {
-    await this.page.click('text=Programs');
-    await this.page.click('#new-program-button');
-    await this.page.fill('text=Program Name', programName);
-    await this.page.fill('text=Program Description', "dummy description");
-    await this.page.click('#program-create-button');
-    await this.page.click('text=Edit');
-    await this.page.click('text=Manage Questions');
-    await this.page.fill('text=Block Description', "dummy description");
-    for (const questionName of questionNames) {
-      await this.page.click(`text="${questionName}"`, { force: true });
-    }
-    await this.page.click('#update-block-button');
-    await this.page.click('text=Programs');
+  async addProgramWithQuestions(questionNames: string[], programName: string) {
+    await this.addProgram(programName, 'dummy description');
+    await this.editProgramBlock(programName, 'dummy description')
+    await this.addQuestion(programName, questionNames);
+    await this.gotoAdminProgramsPage();
 
     // This is an assert, actually - the click selectors allow us to more clearly express what we're looking for than
     // the other selectors (like $).  This isn't documented but appears to be true.
     await this.page.click('text=DRAFT');
 
     await this.page.click('text=Programs');
-    await this.page.click('text=Publish');
+    await this.publishProgram(programName)
 
     // Also an assert.
     await this.page.click('text=ACTIVE');

@@ -6,6 +6,7 @@ describe('create dropdown question with options', () => {
 
     await loginAsAdmin(page)
 
+    const adminQuestions = new AdminQuestions(page);
     await page.click('text=Questions')
     await page.click('#create-question-button')
     await page.click('#create-dropdown-question')
@@ -42,7 +43,7 @@ describe('create dropdown question with options', () => {
     expect(tableInnerText).toContain(questionName)
 
     // Edit the question
-    await page.click('text=Edit')
+    await adminQuestions.gotoQuestionEditPage(questionName);
     var questionSettingsDiv = await page.innerHTML('#question-settings')
     expect(questionSettingsDiv.match(/<input/g).length).toBe(2)
   })

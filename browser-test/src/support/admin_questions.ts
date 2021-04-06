@@ -18,18 +18,29 @@ export class AdminQuestions {
 
   async fillInQuestionBasics(questionName: string, description: string, questionText: string, helpText: string) {
     // This function should only be called on question create/edit page.
-    await this.page.fill('text="Name"', questionName)
-    await this.page.fill('text=Description', description)
-    await this.page.fill('text=Question Text', questionText)
-    await this.page.fill('text=Question help text', helpText)
+    await this.page.fill('text="Name"', questionName);
+    await this.page.fill('text=Description', description);
+    await this.page.fill('text=Question Text', questionText);
+    await this.page.fill('text=Question help text', helpText);
   }
 
   async expectQuestionExist(questionName: string, questionText: string) {
-    await this.gotoAdminQuestionsPage()
-    const tableInnerText = await this.page.innerText('table')
+    await this.gotoAdminQuestionsPage();
+    const tableInnerText = await this.page.innerText('table');
 
-    expect(tableInnerText).toContain(questionName)
-    expect(tableInnerText).toContain(questionText)
+    expect(tableInnerText).toContain(questionName);
+    expect(tableInnerText).toContain(questionText);
+  }
+
+  async gotoQuestionEditPage(questionName: string) {
+    await this.gotoAdminQuestionsPage();
+    await this.page.click('tr:has-text("' + questionName + '") :text("Edit")');
+    await this.expectQuestionEditPage(questionName);
+  }
+
+  async expectQuestionEditPage(questionName: string) {
+    expect(await this.page.innerText('h1')).toContain('Edit');
+    expect(await this.page.getAttribute('input#question-name-input', 'value')).toEqual(questionName);
   }
 
   async addAddressQuestion(questionName: string,
@@ -60,10 +71,7 @@ export class AdminQuestions {
     await this.page.click('#create-dropdown-question')
 
 
-    await this.page.fill('text="Name"', questionName)
-    await this.page.fill('text=Description', description)
-    await this.page.fill('text=Question Text', questionText)
-    await this.page.fill('text=Question help text', helpText)
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText)
 
     for (var index in options) {
       await this.page.click('#add-new-option')
@@ -72,12 +80,9 @@ export class AdminQuestions {
 
     await this.page.click('text=Create')
 
-    expect(await this.page.innerText('h1')).toEqual('All Questions')
+    await this.expectAdminQuestionsPage()
 
-    const tableInnerText = await this.page.innerText('table')
-
-    expect(tableInnerText).toContain(questionName)
-    expect(tableInnerText).toContain(questionText)
+    await this.expectQuestionExist(questionName, questionText)
   }
 
   async addNameQuestion(questionName: string,

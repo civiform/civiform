@@ -9,7 +9,7 @@ export { ApplicantQuestions } from './applicant_questions'
 const { BASE_URL = 'http://civiform:9000' } = process.env
 
 export const startSession = async () => {
-  await truncateTables()
+  // await truncateTables()
   const browser = await chromium.launch()
   const page = await browser.newPage({ acceptDownloads: true })
 

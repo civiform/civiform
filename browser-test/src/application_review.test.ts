@@ -27,7 +27,7 @@ describe('normal application flow', () => {
     var tableInnerText = await page.innerText('table');
     expect(tableInnerText).toContain('Edit Draft');
 
-    await adminPrograms.addProgram(['address-q', 'name-q'], 'program');
+    await adminPrograms.addProgramWithQuestions(['address-q', 'name-q'], 'new program');
 
     await page.click('text=Questions')
     tableInnerText = await page.innerText('table');
