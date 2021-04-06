@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableMap;
 import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.OptionalLong;
-
 import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
