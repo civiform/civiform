@@ -10,12 +10,12 @@ import javax.persistence.PersistenceException;
 import models.LifecycleStage;
 import models.Question;
 import services.Path;
-import services.question.AddressQuestionDefinition;
-import services.question.InvalidQuestionTypeException;
-import services.question.NameQuestionDefinition;
-import services.question.QuestionDefinition;
-import services.question.TextQuestionDefinition;
-import services.question.UnsupportedQuestionTypeException;
+import services.question.exceptions.InvalidQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.AddressQuestionDefinition;
+import services.question.types.NameQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.TextQuestionDefinition;
 
 /**
  * A cached {@link Question} bank for testing.

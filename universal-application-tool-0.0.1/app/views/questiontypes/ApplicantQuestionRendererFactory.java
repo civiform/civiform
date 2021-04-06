@@ -2,10 +2,10 @@ package views.questiontypes;
 
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantQuestion;
-import services.question.QuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.QuestionType;
-import services.question.UnsupportedQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
 
 public class ApplicantQuestionRendererFactory {
 

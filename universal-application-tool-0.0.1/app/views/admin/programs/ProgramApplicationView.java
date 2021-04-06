@@ -17,7 +17,7 @@ import services.program.BlockDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
-import services.question.QuestionDefinition;
+import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.LinkElement;

@@ -11,10 +11,10 @@ import models.LifecycleStage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.Path;
-import services.question.QuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.QuestionType;
-import services.question.TextQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
+import services.question.types.TextQuestionDefinition;
 
 @RunWith(JUnitParamsRunner.class)
 public class QuestionFormTest {

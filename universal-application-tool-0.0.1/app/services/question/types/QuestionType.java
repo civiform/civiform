@@ -1,4 +1,6 @@
-package services.question;
+package services.question.types;
+
+import services.question.exceptions.InvalidQuestionTypeException;
 
 public enum QuestionType {
   ADDRESS(false),

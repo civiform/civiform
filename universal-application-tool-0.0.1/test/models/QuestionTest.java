@@ -12,14 +12,14 @@ import org.junit.Test;
 import repository.QuestionRepository;
 import repository.WithPostgresContainer;
 import services.Path;
-import services.question.AddressQuestionDefinition;
-import services.question.MultiOptionQuestionDefinition;
-import services.question.QuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.QuestionType;
-import services.question.TextQuestionDefinition;
-import services.question.TextQuestionDefinition.TextValidationPredicates;
-import services.question.UnsupportedQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.AddressQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
+import services.question.types.TextQuestionDefinition;
+import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 
 public class QuestionTest extends WithPostgresContainer {
 

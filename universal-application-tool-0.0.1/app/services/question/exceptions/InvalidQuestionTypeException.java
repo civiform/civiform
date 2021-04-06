@@ -1,4 +1,4 @@
-package services.question;
+package services.question.exceptions;
 
 /**
  * This exception is thrown when an invalid question type is encountered.

@@ -1,4 +1,4 @@
-package services.question;
+package services.question.types;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -15,8 +15,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.CiviFormError;
 import services.Path;
-import services.question.AddressQuestionDefinition.AddressValidationPredicates;
-import services.question.TextQuestionDefinition.TextValidationPredicates;
+import services.question.exceptions.TranslationNotFoundException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
+import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 
 @RunWith(JUnitParamsRunner.class)
 public class QuestionDefinitionTest {

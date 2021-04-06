@@ -1,4 +1,4 @@
-package services.question;
+package services.question.types;
 
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;

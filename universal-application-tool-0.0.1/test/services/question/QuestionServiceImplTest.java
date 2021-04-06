@@ -14,7 +14,13 @@ import repository.WithPostgresContainer;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.Path;
-import services.question.AddressQuestionDefinition.AddressValidationPredicates;
+import services.question.exceptions.InvalidUpdateException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
+import services.question.types.TextQuestionDefinition;
 
 public class QuestionServiceImplTest extends WithPostgresContainer {
   QuestionServiceImpl questionService;

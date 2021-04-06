@@ -10,14 +10,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import services.Path;
-import services.question.AddressQuestionDefinition;
-import services.question.MultiOptionQuestionDefinition;
-import services.question.NameQuestionDefinition;
-import services.question.NumberQuestionDefinition;
-import services.question.QuestionDefinition;
-import services.question.QuestionType;
-import services.question.TextQuestionDefinition;
-import services.question.TranslationNotFoundException;
+import services.question.exceptions.TranslationNotFoundException;
+import services.question.types.AddressQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.NameQuestionDefinition;
+import services.question.types.NumberQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
+import services.question.types.TextQuestionDefinition;
 
 /**
  * Represents a question in the context of a specific applicant. Contains non-static inner classes

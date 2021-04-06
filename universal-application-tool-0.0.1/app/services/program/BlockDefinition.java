@@ -11,9 +11,9 @@ import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Optional;
 import services.Path;
-import services.question.QuestionDefinition;
-import services.question.QuestionType;
-import services.question.ScalarType;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
+import services.question.types.ScalarType;
 
 /**
  * Defines a single program block, which contains a list of questions and data about the block.

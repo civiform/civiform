@@ -1,4 +1,4 @@
-package services.question;
+package services.question.types;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import models.LifecycleStage;
 import services.Path;
+import services.question.exceptions.TranslationNotFoundException;
 
 public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
 

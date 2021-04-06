@@ -23,12 +23,12 @@ import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
-import services.question.AddressQuestionDefinition;
-import services.question.DropdownQuestionDefinition;
-import services.question.NameQuestionDefinition;
-import services.question.QuestionDefinition;
 import services.question.QuestionService;
-import services.question.TextQuestionDefinition;
+import services.question.types.AddressQuestionDefinition;
+import services.question.types.DropdownQuestionDefinition;
+import services.question.types.NameQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.TextQuestionDefinition;
 import views.dev.DatabaseSeedView;
 
 /** Controller for seeding the database with test content to develop against. */

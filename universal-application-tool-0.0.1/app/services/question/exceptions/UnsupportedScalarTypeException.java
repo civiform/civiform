@@ -1,4 +1,6 @@
-package services.question;
+package services.question.exceptions;
+
+import services.question.types.ScalarType;
 
 public class UnsupportedScalarTypeException extends Exception {
 

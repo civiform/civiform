@@ -10,9 +10,9 @@ import java.util.Optional;
 import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
-import services.question.DropdownQuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.UnsupportedQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.DropdownQuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
 
 public class DropdownQuestionFormTest {
 

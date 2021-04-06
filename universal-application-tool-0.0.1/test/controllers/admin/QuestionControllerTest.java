@@ -19,9 +19,9 @@ import play.mvc.Result;
 import play.test.Helpers;
 import repository.WithPostgresContainer;
 import services.Path;
-import services.question.QuestionDefinitionBuilder;
-import services.question.QuestionType;
-import services.question.UnsupportedQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
 import views.html.helper.CSRF;
 
 public class QuestionControllerTest extends WithPostgresContainer {

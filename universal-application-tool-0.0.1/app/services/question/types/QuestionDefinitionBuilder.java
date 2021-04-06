@@ -1,4 +1,4 @@
-package services.question;
+package services.question.types;
 
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
@@ -7,11 +7,12 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import models.LifecycleStage;
 import services.Path;
-import services.question.AddressQuestionDefinition.AddressValidationPredicates;
-import services.question.NameQuestionDefinition.NameValidationPredicates;
-import services.question.QuestionDefinition.ValidationPredicates;
-import services.question.RepeaterQuestionDefinition.RepeaterValidationPredicates;
-import services.question.TextQuestionDefinition.TextValidationPredicates;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
+import services.question.types.NameQuestionDefinition.NameValidationPredicates;
+import services.question.types.QuestionDefinition.ValidationPredicates;
+import services.question.types.RepeaterQuestionDefinition.RepeaterValidationPredicates;
+import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 
 public class QuestionDefinitionBuilder {
 

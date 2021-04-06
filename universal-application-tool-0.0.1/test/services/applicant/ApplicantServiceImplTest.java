@@ -25,9 +25,9 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
 import services.program.ProgramServiceImpl;
-import services.question.NameQuestionDefinition;
-import services.question.QuestionDefinition;
 import services.question.QuestionService;
+import services.question.types.NameQuestionDefinition;
+import services.question.types.QuestionDefinition;
 
 public class ApplicantServiceImplTest extends WithPostgresContainer {
 

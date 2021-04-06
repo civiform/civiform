@@ -1,4 +1,6 @@
-package services.question;
+package services.question.exceptions;
+
+import services.question.types.QuestionType;
 
 /**
  * This exception should be thrown in the `default` case of all `switch(QuestionType)` to ensure
