@@ -89,13 +89,15 @@ public abstract class Path {
   }
 
   /**
-   * Append a segment to the path.
+   * Append a path to the path.
    *
    * <p>TODO(#638): refactor things that use `toBuilder().append(seg).build()` with {@link
    * #join(String)};
    */
-  public Path join(String segment) {
-    return Path.create(ImmutableList.<String>builder().addAll(segments()).add(segment).build());
+  public Path join(String path) {
+    Path other = Path.create(path);
+    return Path.create(
+        ImmutableList.<String>builder().addAll(segments()).addAll(other.segments()).build());
   }
 
   /**
