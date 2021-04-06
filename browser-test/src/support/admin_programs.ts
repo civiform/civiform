@@ -1,4 +1,5 @@
 import { Page } from 'playwright'
+import { readFileSync } from  'fs'
 
 
 export class AdminPrograms {
@@ -6,6 +7,19 @@ export class AdminPrograms {
 
   constructor(page: Page) {
     this.page = page
+  }
+
+  async viewApplications() {
+    await this.page.click('text="Applications →"');
+  }
+
+  async getCsv() {
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.click('text="Download all (CSV)"')
+    ]);
+    const path = await downloadEvent.path();
+    return readFileSync(path, 'utf8');
   }
 
   async addProgram(questionNames: string[], programName: string) {
@@ -18,7 +32,7 @@ export class AdminPrograms {
     await this.page.click('text=Manage Questions');
     await this.page.fill('text=Block Description', "dummy description");
     for (const questionName of questionNames) {
-      await this.page.click(`text=${questionName}`, {force: true});
+      await this.page.click(`text="${questionName}"`, {force: true});
     }
     await this.page.click('#update-block-button');
     await this.page.click('text=Programs');
