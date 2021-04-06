@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
 import java.util.EnumSet;
 import java.util.Locale;
+import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Applicant;
@@ -33,6 +34,7 @@ public class ApplicantQuestionTest {
           1L,
           "question name",
           Path.create("applicant.my.path.name"),
+          Optional.empty(),
           "description",
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
@@ -51,6 +53,7 @@ public class ApplicantQuestionTest {
           1L,
           "question name",
           Path.create("applicant.my.path.name"),
+          Optional.empty(),
           "description",
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
@@ -60,6 +63,7 @@ public class ApplicantQuestionTest {
           1L,
           "question name",
           Path.create("applicant.my.path.name"),
+          Optional.empty(),
           "description",
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
@@ -69,6 +73,7 @@ public class ApplicantQuestionTest {
           1L,
           "question name",
           Path.create("applicant.my.path.name"),
+          Optional.empty(),
           "description",
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
@@ -78,6 +83,7 @@ public class ApplicantQuestionTest {
           1L,
           "question name",
           Path.create("applicant.my.path.name"),
+          Optional.empty(),
           "description",
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),

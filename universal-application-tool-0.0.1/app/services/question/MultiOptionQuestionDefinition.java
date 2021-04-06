@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.OptionalLong;
 import models.LifecycleStage;
 import services.Path;
@@ -21,6 +22,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       long version,
       String name,
       Path path,
+      Optional<Long> repeaterId,
       String description,
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
@@ -31,6 +33,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
         version,
         name,
         path,
+        repeaterId,
         description,
         lifecycleStage,
         questionText,
@@ -43,6 +46,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       long version,
       String name,
       Path path,
+      Optional<Long> repeaterId,
       String description,
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
@@ -52,6 +56,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
         version,
         name,
         path,
+        repeaterId,
         description,
         lifecycleStage,
         questionText,

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.LifecycleStage;
@@ -39,6 +40,7 @@ public class QuestionFormTest {
             1L,
             "name",
             Path.create("my.question.path.name"),
+            Optional.empty(),
             "description",
             LifecycleStage.DRAFT,
             ImmutableMap.of(Locale.US, "What is the question text?"),
