@@ -5,16 +5,16 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.util.Locale;
 import org.junit.Before;
 import org.junit.Test;
 import services.Path;
+import support.TestQuestionBank;
 
 public class ReadOnlyQuestionServiceImplTest {
 
   private NameQuestionDefinition nameQuestion;
   private AddressQuestionDefinition addressQuestion;
-  private QuestionDefinition basicQuestion;
+  private TextQuestionDefinition basicQuestion;
 
   private final Path invalidPath = Path.create("invalid.path");
 
@@ -30,37 +30,11 @@ public class ReadOnlyQuestionServiceImplTest {
     // The tests mimic that the persisted questions are read into ReadOnlyQuestionService.
     // Therefore, question ids cannot be empty.
     nameQuestion =
-        (NameQuestionDefinition)
-            new QuestionDefinitionBuilder()
-                .setQuestionType(QuestionType.NAME)
-                .setId(123L)
-                .setVersion(1L)
-                .setName("applicant name")
-                .setPath(Path.create("applicant.name"))
-                .setDescription("The name of the applicant")
-                .setQuestionText(ImmutableMap.of(Locale.US, "What is your name?"))
-                .build();
+        (NameQuestionDefinition) TestQuestionBank.applicantName().getQuestionDefinition();
     addressQuestion =
-        (AddressQuestionDefinition)
-            new QuestionDefinitionBuilder()
-                .setQuestionType(QuestionType.ADDRESS)
-                .setId(456L)
-                .setVersion(1L)
-                .setName("applicant addresss")
-                .setPath(Path.create("applicant.address"))
-                .setDescription("The address of the applicant")
-                .setQuestionText(ImmutableMap.of(Locale.US, "What is your address?"))
-                .build();
+        (AddressQuestionDefinition) TestQuestionBank.applicantAddress().getQuestionDefinition();
     basicQuestion =
-        new QuestionDefinitionBuilder()
-            .setQuestionType(QuestionType.TEXT)
-            .setId(789L)
-            .setVersion(1L)
-            .setName("applicant's favorite color")
-            .setPath(Path.create("applicant.favoriteColor"))
-            .setDescription("The favorite color of the applicant")
-            .setQuestionText(ImmutableMap.of(Locale.US, "What is your favorite color?"))
-            .build();
+        (TextQuestionDefinition) TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
     questions = ImmutableList.of(nameQuestion, addressQuestion, basicQuestion);
     service = new ReadOnlyQuestionServiceImpl(questions);
   }
@@ -116,8 +90,7 @@ public class ReadOnlyQuestionServiceImplTest {
 
   @Test
   public void getPathType_forQuestion() {
-    assertThat(service.getPathType(Path.create("applicant.favoriteColor")))
-        .isEqualTo(PathType.QUESTION);
+    assertThat(service.getPathType(Path.create("applicant.color"))).isEqualTo(PathType.QUESTION);
   }
 
   @Test
@@ -126,25 +99,9 @@ public class ReadOnlyQuestionServiceImplTest {
   }
 
   @Test
-  public void getQuestionDefinition_forInvalidPath() {
-    assertThatThrownBy(() -> service.getQuestionDefinition(invalidPath))
-        .isInstanceOf(InvalidPathException.class)
-        .hasMessage("Path not found: " + invalidPath);
-  }
-
-  @Test
-  public void getQuestionDefinition_forQuestion() throws InvalidPathException {
-    assertThat(service.getQuestionDefinition("applicant.address")).isEqualTo(addressQuestion);
-  }
-
-  @Test
-  public void getQuestionDefinition_forScalar() throws InvalidPathException {
-    assertThat(service.getQuestionDefinition("applicant.name.first")).isEqualTo(nameQuestion);
-  }
-
-  @Test
   public void getQuestionDefinition_byId() throws QuestionNotFoundException {
-    assertThat(service.getQuestionDefinition(123L)).isEqualTo(nameQuestion);
+    long questionId = nameQuestion.getId();
+    assertThat(service.getQuestionDefinition(questionId)).isEqualTo(nameQuestion);
   }
 
   @Test

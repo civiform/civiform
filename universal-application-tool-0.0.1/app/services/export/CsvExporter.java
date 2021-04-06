@@ -1,17 +1,16 @@
-package export;
+package services.export;
 
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 import java.util.Optional;
-import models.Applicant;
+import models.Application;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import services.Path;
 import services.program.Column;
 
-public class CsvExporter implements Exporter {
+public class CsvExporter {
   private boolean wroteHeaders;
   private ImmutableList<Column> columns;
 
@@ -31,18 +30,27 @@ public class CsvExporter implements Exporter {
   }
 
   /**
-   * The CSV exporter will write the headers on first call to export(). It does not store the writer
-   * between calls. Since it is intended for many applicants, this function is intended to be called
-   * several times.
+   * The CSV exporter will write the headers on first call to services.export(). It does not store
+   * the writer between calls. Since it is intended for many applications, this function is intended
+   * to be called several times.
    */
-  @Override
-  public void export(Applicant applicant, Writer writer) throws IOException {
+  public void export(Application application, Writer writer) throws IOException {
     CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT.withFirstRecordAsHeader());
     this.writeHeadersOnFirstExport(printer);
     for (Column column : this.columns) {
-      Optional<String> value =
-          applicant.getApplicantData().readString(Path.create(column.jsonPath()));
-      printer.print(value.orElse("COLUMN_EMPTY"));
+      switch (column.columnType()) {
+        case APPLICANT:
+          Optional<String> value =
+              application.getApplicantData().readString(column.jsonPath().orElseThrow());
+          printer.print(value.orElse("COLUMN_EMPTY"));
+          break;
+        case ID:
+          printer.print(application.id);
+          break;
+        case SUBMIT_TIME:
+          printer.print(application.getSubmitTime().toString());
+          break;
+      }
     }
     printer.println();
   }

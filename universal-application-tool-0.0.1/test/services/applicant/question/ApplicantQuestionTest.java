@@ -17,7 +17,6 @@ import services.question.AddressQuestionDefinition;
 import services.question.DropdownQuestionDefinition;
 import services.question.NameQuestionDefinition;
 import services.question.NumberQuestionDefinition;
-import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
 import services.question.TextQuestionDefinition;

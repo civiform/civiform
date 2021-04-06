@@ -12,8 +12,8 @@ import services.question.QuestionType;
 import services.question.TranslationNotFoundException;
 
 /**
- * Represents a question in the context of a specific applicant. Contains non-static inner classes
- * that represent the question as a specific question type (e.g. {@link NameQuestion}). These inner
+ * Represents a question in the context of a specific applicant. Other type-specific classes (e.g.
+ * {@link NameQuestion}) use this class's data to represent a specific question type. These other
  * classes provide access to the applicant's answer for the question. They can also implement
  * server-side validation logic.
  */

@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.OptionalLong;
+import models.LifecycleStage;
 import services.Path;
 
 public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
@@ -21,6 +22,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       String name,
       Path path,
       String description,
+      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ImmutableListMultimap<Locale, String> options) {
@@ -30,6 +32,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
         name,
         path,
         description,
+        lifecycleStage,
         questionText,
         questionHelpText,
         MultiOptionValidationPredicates.create());
@@ -41,6 +44,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       String name,
       Path path,
       String description,
+      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ImmutableListMultimap<Locale, String> options) {
@@ -49,6 +53,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
         name,
         path,
         description,
+        lifecycleStage,
         questionText,
         questionHelpText,
         MultiOptionValidationPredicates.create());
@@ -71,7 +76,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getSelectionPath() {
-    return getPath().toBuilder().append("selection").build();
+    return getPath().join("selection");
   }
 
   public abstract ScalarType getSelectionType();

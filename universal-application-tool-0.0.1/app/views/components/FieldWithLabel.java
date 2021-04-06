@@ -9,6 +9,7 @@ import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.Optional;
 import java.util.OptionalInt;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -80,6 +81,7 @@ public class FieldWithLabel {
   protected String placeholderText = "";
   protected boolean checked = false;
   protected boolean floatLabel = false;
+  protected boolean disabled = false;
 
   public FieldWithLabel(Tag fieldTag) {
     this.fieldTag = fieldTag.withClasses(FieldWithLabel.CORE_FIELD_CLASSES);
@@ -156,6 +158,15 @@ public class FieldWithLabel {
     return this;
   }
 
+  public FieldWithLabel setValue(Optional<String> value) {
+    if (this.fieldType.equals("number")) {
+      throw new RuntimeException(
+          "setting a String value is not available on fields of type 'number'");
+    }
+    value.ifPresent(s -> this.fieldValue = s);
+    return this;
+  }
+
   public FieldWithLabel setValue(OptionalInt value) {
     if (!this.fieldType.equals("number")) {
       throw new RuntimeException(
@@ -163,6 +174,11 @@ public class FieldWithLabel {
     }
 
     this.fieldNumberValue = value;
+    return this;
+  }
+
+  public FieldWithLabel setDisabled(boolean disabled) {
+    this.disabled = disabled;
     return this;
   }
 
@@ -188,6 +204,7 @@ public class FieldWithLabel {
     fieldTag
         .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
         .withName(this.fieldName)
+        .condAttr(this.disabled, "disabled", "true")
         .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
         .condAttr(!Strings.isNullOrEmpty(this.formId), "form", formId);
 

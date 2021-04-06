@@ -59,7 +59,7 @@ public final class ApplicantProgramBlocksController extends Controller {
   }
 
   public CompletionStage<Result> edit(
-      Request request, long applicantId, long programId, long blockId) {
+      Request request, long applicantId, long programId, String blockId) {
     return applicantService
         .getReadOnlyApplicantProgramService(applicantId, programId)
         .thenApplyAsync(
@@ -95,7 +95,7 @@ public final class ApplicantProgramBlocksController extends Controller {
   }
 
   public CompletionStage<Result> update(
-      Request request, long applicantId, long programId, long blockId) {
+      Request request, long applicantId, long programId, String blockId) {
     DynamicForm form = formFactory.form().bindFromRequest(request);
     ImmutableMap<String, String> formData = cleanForm(form.rawData());
 
@@ -138,7 +138,7 @@ public final class ApplicantProgramBlocksController extends Controller {
       Request request,
       long applicantId,
       long programId,
-      long blockId,
+      String blockId,
       ReadOnlyApplicantProgramService roApplicantProgramService) {
     Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getBlock(blockId);
     if (thisBlockUpdatedMaybe.isEmpty()) {
@@ -163,7 +163,7 @@ public final class ApplicantProgramBlocksController extends Controller {
 
     // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Redirect to
     //  review page when it is available.
-    Optional<Long> nextBlockIdMaybe =
+    Optional<String> nextBlockIdMaybe =
         roApplicantProgramService.getBlockAfter(blockId).map(Block::getId);
     return nextBlockIdMaybe.isEmpty()
         ? previewPageRedirect(applicantId, programId)

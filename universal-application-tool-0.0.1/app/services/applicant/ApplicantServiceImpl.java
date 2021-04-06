@@ -82,7 +82,10 @@ public class ApplicantServiceImpl implements ApplicantService {
   @Override
   public CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>>
       stageAndUpdateIfValid(
-          long applicantId, long programId, long blockId, ImmutableMap<String, String> updateMap) {
+          long applicantId,
+          long programId,
+          String blockId,
+          ImmutableMap<String, String> updateMap) {
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
@@ -100,7 +103,7 @@ public class ApplicantServiceImpl implements ApplicantService {
 
   protected CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>>
       stageAndUpdateIfValid(
-          long applicantId, long programId, long blockId, ImmutableSet<Update> updates) {
+          long applicantId, long programId, String blockId, ImmutableSet<Update> updates) {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
         applicantRepository.lookupApplicant(applicantId).toCompletableFuture();
 
@@ -168,7 +171,7 @@ public class ApplicantServiceImpl implements ApplicantService {
   private void stageUpdates(
       Applicant applicant,
       ProgramDefinition programDefinition,
-      long blockId,
+      String blockId,
       ImmutableSet<Update> updates)
       throws ProgramBlockNotFoundException, UnsupportedScalarTypeException,
           PathNotInBlockException {
@@ -207,11 +210,7 @@ public class ApplicantServiceImpl implements ApplicantService {
   }
 
   private void writeMetadataForPath(Path path, ApplicantData data, long programId) {
-    data.putLong(
-        path.toBuilder().append(QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY).build(),
-        programId);
-    data.putLong(
-        path.toBuilder().append(QuestionDefinition.METADATA_UPDATE_TIME_KEY).build(),
-        clock.millis());
+    data.putLong(path.join(QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY), programId);
+    data.putLong(path.join(QuestionDefinition.METADATA_UPDATE_TIME_KEY), clock.millis());
   }
 }
