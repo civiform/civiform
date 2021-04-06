@@ -1,12 +1,12 @@
 # --- Add answer options for multi-option questions
 # --- !Ups
 
-alter table applicants add whenCreated timestamp;
+alter table applicants add when_created timestamp;
 
-update applicants set whenCreated = current_timestamp where whenCreated is null;
+update applicants set when_created = current_timestamp where when_created is null;
 
 update programs set export_definitions = '[]' where export_definitions is null;
 
 # --- !Downs
 
-alter table applicants drop column whenCreated;
+alter table applicants drop column when_created;
