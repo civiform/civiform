@@ -28,6 +28,7 @@ services:
       - "db:database"
     ports:
       - 9000:9000
+      - 9999:9999
     environment:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-test}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-test}
@@ -45,4 +46,4 @@ services:
       - ~/.sbt:/root/.sbt
       - ~/.ivy:/root/.ivy2
 
-    command: ~run
+    command: -jvm-debug "*:9999" ~run
