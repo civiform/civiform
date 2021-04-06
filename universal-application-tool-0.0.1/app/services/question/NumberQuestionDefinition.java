@@ -139,7 +139,7 @@ public class NumberQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getNumberPath() {
-    return getPath().toBuilder().append("number").build();
+    return getPath().join("number");
   }
 
   public ScalarType getNumberType() {
