@@ -80,7 +80,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getSelectionPath() {
-    return getPath().toBuilder().append("selection").build();
+    return getPath().join("selection");
   }
 
   public abstract ScalarType getSelectionType();

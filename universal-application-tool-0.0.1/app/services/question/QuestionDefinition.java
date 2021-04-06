@@ -226,7 +226,7 @@ public abstract class QuestionDefinition {
   public abstract QuestionType getQuestionType();
 
   public Path getLastUpdatedTimePath() {
-    return getPath().toBuilder().append(METADATA_UPDATE_TIME_KEY).build();
+    return getPath().join(METADATA_UPDATE_TIME_KEY);
   }
 
   public ScalarType getLastUpdatedTimeType() {
@@ -234,7 +234,7 @@ public abstract class QuestionDefinition {
   }
 
   public Path getProgramIdPath() {
-    return getPath().toBuilder().append(METADATA_UPDATE_PROGRAM_ID_KEY).build();
+    return getPath().join(METADATA_UPDATE_PROGRAM_ID_KEY);
   }
 
   public ScalarType getProgramIdType() {

@@ -88,12 +88,7 @@ public abstract class Path {
     return Path.create(segments().subList(0, segments().size() - 1));
   }
 
-  /**
-   * Append a path to the path.
-   *
-   * <p>TODO(#638): refactor things that use `toBuilder().append(seg).build()` with {@link
-   * #join(String)};
-   */
+  /** Append a path to the path. */
   public Path join(String path) {
     Path other = Path.create(path);
     return Path.create(
@@ -179,30 +174,5 @@ public abstract class Path {
     }
     throw new IllegalStateException(
         String.format("This path %s does not reference an array element.", this));
-  }
-
-  public abstract Builder toBuilder();
-
-  public static Builder builder() {
-    return new AutoValue_Path.Builder();
-  }
-
-  @AutoValue.Builder
-  public abstract static class Builder {
-
-    abstract Builder setSegments(ImmutableList<String> segments);
-
-    public abstract ImmutableList.Builder<String> segmentsBuilder();
-
-    public abstract Path build();
-
-    public Builder setPath(String path) {
-      return setSegments(ImmutableList.copyOf(JSON_SPLITTER.splitToList(path)));
-    }
-
-    public Builder append(String segment) {
-      segmentsBuilder().add(segment.trim());
-      return this;
-    }
   }
 }
