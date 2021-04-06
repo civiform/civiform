@@ -14,7 +14,6 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
   private final ImmutableMap<Path, ScalarType> scalars;
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
   private final ImmutableMap<Path, QuestionDefinition> questionsByPath;
-  private final ImmutableMap<Path, QuestionDefinition> scalarParents;
 
   private Locale preferredLocale = Locale.US;
 
@@ -23,7 +22,6 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     ImmutableMap.Builder<Long, QuestionDefinition> questionIdMap = ImmutableMap.builder();
     ImmutableMap.Builder<Path, QuestionDefinition> questionPathMap = ImmutableMap.builder();
     ImmutableMap.Builder<Path, ScalarType> scalarMap = ImmutableMap.builder();
-    ImmutableMap.Builder<Path, QuestionDefinition> scalarParentsMap = ImmutableMap.builder();
     for (ImmutableList<QuestionDefinition> qds :
         questions.stream()
             .collect(new GroupByKeyCollector<>(QuestionDefinition::getName))
@@ -38,7 +36,6 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
             .forEach(
                 entry -> {
                   scalarMap.put(entry.getKey(), entry.getValue());
-                  scalarParentsMap.put(entry.getKey(), qd);
                 });
       }
     }
@@ -48,7 +45,6 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     questionsById = questionIdMap.build();
     questionsByPath = questionPathMap.build();
     scalars = scalarMap.build();
-    scalarParents = scalarParentsMap.build();
   }
 
   @Override
@@ -84,25 +80,6 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
       return PathType.SCALAR;
     }
     return PathType.NONE;
-  }
-
-  @Override
-  public QuestionDefinition getQuestionDefinition(String stringPath) throws InvalidPathException {
-    return getQuestionDefinition(Path.create(stringPath));
-  }
-
-  @Override
-  public QuestionDefinition getQuestionDefinition(Path path) throws InvalidPathException {
-    PathType pathType = this.getPathType(path);
-    switch (pathType) {
-      case QUESTION:
-        return questionsByPath.get(path);
-      case SCALAR:
-        return scalarParents.get(path);
-      case NONE:
-      default:
-        throw new InvalidPathException(path);
-    }
   }
 
   @Override
