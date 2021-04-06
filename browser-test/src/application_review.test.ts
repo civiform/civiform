@@ -1,9 +1,6 @@
 import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession } from './support'
 
 describe('normal application flow', () => {
-  // If this times out, a likely cause is the .click() calls in
-  // support/admin_programs, which are called out as being asserts.
-  jest.setTimeout(25000);
   it('all major steps', async () => {
     const { browser, page } = await startSession()
     page.setDefaultTimeout(1000);
@@ -12,20 +9,16 @@ describe('normal application flow', () => {
     const adminQuestions = new AdminQuestions(page);
     const adminPrograms = new AdminPrograms(page);
 
-    await adminQuestions.addDropdownQuestion('ice cream', ['chocolate', 'banana', 'black raspberry'])
+    await adminQuestions.addDropdownQuestion('ice cream flavor', ['chocolate', 'banana', 'black raspberry']);
     await adminQuestions.addAddressQuestion('address-q');
     await adminQuestions.addNameQuestion('name-q');
     await adminQuestions.addNumberQuestion('number-q');
     await adminQuestions.addTextQuestion('text-q');
 
-    var tableInnerText = await page.innerText('table');
-    expect(tableInnerText).toContain('Edit Draft');
+    await adminPrograms.addAndPublishProgramWithQuestions(['address-q', 'name-q'], 'new program');
 
-    await adminPrograms.addProgram(['address-q', 'name-q'], 'program');
-
-    await page.click('text=Questions')
-    tableInnerText = await page.innerText('table');
-    expect(tableInnerText).toContain('New Version');
+    await adminQuestions.expectActiveQuestionExist('address-q');
+    await adminQuestions.expectActiveQuestionExist('name-q');
 
     await endSession(browser);
   })

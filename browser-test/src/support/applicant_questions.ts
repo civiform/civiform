@@ -6,13 +6,13 @@ export class ApplicantQuestions {
   constructor(page: Page) {
     this.page = page
   }
-  
+
   async answerQuestion(questionName: string, answer: string) {
     await this.page.fill('[name="' + questionName + '"]', answer);
   }
 
-  async applyButton() {
-    await this.page.click('text="Apply"');
+  async applyProgram(programName: string) {
+    await this.page.click(`.cf-application-card:has-text("${programName}") :text("Apply")`);
   }
 
   async saveAndContinue() {
