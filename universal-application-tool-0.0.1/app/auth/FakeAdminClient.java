@@ -19,11 +19,11 @@ public class FakeAdminClient extends IndirectClient {
   private ProfileFactory profileFactory;
 
   public static boolean canEnable(String host) {
-      return FakeAdminClient.ACCEPTED_HOSTS.stream()
-              .anyMatch(acceptedHost -> host.equals(acceptedHost) || host.startsWith(acceptedHost + ":"));
+    return FakeAdminClient.ACCEPTED_HOSTS.stream()
+        .anyMatch(acceptedHost -> host.equals(acceptedHost) || host.startsWith(acceptedHost + ":"));
   }
 
-    @Inject
+  @Inject
   public FakeAdminClient(ProfileFactory profileFactory) {
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
   }
