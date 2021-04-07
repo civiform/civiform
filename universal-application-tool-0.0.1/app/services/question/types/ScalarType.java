@@ -1,6 +1,5 @@
 package services.question.types;
 
-
 import java.util.Optional;
 
 /**
