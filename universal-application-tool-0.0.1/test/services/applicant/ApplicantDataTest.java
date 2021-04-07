@@ -236,28 +236,6 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void putList_writesJsonArray() {
-    ApplicantData data = new ApplicantData();
-    Path path = Path.create("applicant.favorite_fruits");
-
-    data.putList(path, ImmutableList.of("apple", "orange"));
-
-    assertThat(data.asJsonString())
-        .isEqualTo("{\"applicant\":{\"favorite_fruits\":[\"apple\",\"orange\"]},\"metadata\":{}}");
-  }
-
-  @Test
-  public void putList_writesNullIfListIsEmpty() {
-    ApplicantData data = new ApplicantData();
-    Path path = Path.create("applicant.favorite_fruits");
-
-    data.putList(path, ImmutableList.of());
-
-    assertThat(data.asJsonString())
-        .isEqualTo("{\"applicant\":{\"favorite_fruits\":null},\"metadata\":{}}");
-  }
-
-  @Test
   public void readString_findsCorrectValue() throws Exception {
     String testData = "{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} } }";
     ApplicantData data = new ApplicantData(testData);

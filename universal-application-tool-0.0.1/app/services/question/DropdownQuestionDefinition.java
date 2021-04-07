@@ -60,9 +60,4 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
   public QuestionType getQuestionType() {
     return QuestionType.DROPDOWN;
   }
-
-  @Override
-  public ScalarType getSelectionType() {
-    return ScalarType.STRING;
-  }
 }

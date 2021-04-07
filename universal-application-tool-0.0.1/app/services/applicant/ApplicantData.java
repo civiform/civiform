@@ -110,14 +110,6 @@ public class ApplicantData {
     }
   }
 
-  public void putList(Path path, ImmutableList<String> value) {
-    if (value.isEmpty()) {
-      putNull(path);
-    } else {
-      put(path, value);
-    }
-  }
-
   private void putNull(Path path) {
     put(path, null);
   }

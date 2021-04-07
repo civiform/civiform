@@ -60,9 +60,4 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
   public QuestionType getQuestionType() {
     return QuestionType.CHECKBOX;
   }
-
-  @Override
-  public ScalarType getSelectionType() {
-    return ScalarType.STRING;
-  }
 }
