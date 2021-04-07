@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 public abstract class Path {
   public static final String ARRAY_SUFFIX = "[]";
   private static final String JSON_PATH_START_TOKEN = "$";
-  private static final Pattern ARRAY_INDEX_REGEX = Pattern.compile(".*(\\[(\\d+)])$");
+  private static final Pattern ARRAY_INDEX_REGEX = Pattern.compile(".*(\\[(\\d*)])$");
   private static final int ARRAY_SUFFIX_GROUP = 1;
   private static final int ARRAY_INDEX_GROUP = 2;
   private static final char JSON_PATH_DIVIDER = '.';
@@ -118,7 +118,7 @@ public abstract class Path {
    * Returns a path with a trailing array element reference stripped away. For example, {@code
    * applicant.children[2]} would return a path to {@code applicant.children}.
    *
-   * <p>For paths to non-array elements, {@code IllegalStateException is thrown}.
+   * <p>For paths to non repeated entity collections, {@code IllegalStateException} is thrown.
    */
   public Path withoutArrayReference() {
     return parentPath().join(keyNameWithoutArrayIndex());
@@ -127,21 +127,27 @@ public abstract class Path {
   /**
    * Return the index of the array element this path is referencing.
    *
-   * <p>For paths to non-array elements, {@code IllegalStateException is thrown}.
+   * <p>For paths to non repeated entity collections, or paths to an entire repeated entity
+   * collection without specifying an index, {@code IllegalStateException} is thrown.
    */
   public int arrayIndex() {
     Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
     if (matcher.matches()) {
-      return Integer.valueOf(matcher.group(ARRAY_INDEX_GROUP));
+      try {
+        return Integer.valueOf(matcher.group(ARRAY_INDEX_GROUP));
+      } catch (NumberFormatException e) {
+        throw new IllegalStateException(
+            String.format("This path %s does not reference a repeated entity element.", this), e);
+      }
     }
     throw new IllegalStateException(
-        String.format("This path %s does not reference an array element.", this));
+        String.format("This path %s does not reference a repeated entity collection.", this));
   }
 
   /**
    * Return a new path referencing array element at the index.
    *
-   * <p>For paths to non-array elements, {@code IllegalStateException is thrown}.
+   * <p>For paths to non repeated entity collections, {@code IllegalStateException} is thrown.
    */
   public Path atIndex(int index) {
     Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
@@ -156,14 +162,14 @@ public abstract class Path {
                   .toString());
     }
     throw new IllegalStateException(
-        String.format("This path %s does not reference an array element.", this));
+        String.format("This path %s does not reference a repeated entity collection.", this));
   }
 
   /**
    * Returns the path's key name without an array index suffix. e.g. {@code a.b[1].c[3]} returns
    * "c".
    *
-   * <p>For paths to non-array elements, {@code IllegalStateException is thrown}.
+   * <p>For paths to non repeated entity collections, {@code IllegalStateException} is thrown.
    */
   private String keyNameWithoutArrayIndex() {
     Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());

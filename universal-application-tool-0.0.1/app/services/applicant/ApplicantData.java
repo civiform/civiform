@@ -23,6 +23,7 @@ import services.WellKnownPaths;
 public class ApplicantData {
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
   private static final Locale DEFAULT_LOCALE = Locale.US;
+  static final String REPEATED_ENTITY_NAME_KEY = "entity_name";
   private static final TypeRef<ImmutableList<String>> IMMUTABLE_LIST_STRING_TYPE =
       new TypeRef<>() {};
 
@@ -116,6 +117,36 @@ public class ApplicantData {
     } else {
       put(path, value);
     }
+  }
+
+  /**
+   * Puts the names of the repeated entities at the path. Each element in the JSON array at the path
+   * is a JSON object with an "entity_name" scalar and possibly other nested answers to questions or
+   * repeated entities.
+   *
+   * <p>This should not affect any other data that may already exist for the repeated entities.
+   *
+   * @param path a path to repeated entities list
+   * @param entityNames the names of repeated entities
+   */
+  public void putRepeatedEntities(Path path, ImmutableList<String> entityNames) {
+    if (entityNames.isEmpty()) {
+      put(path, ImmutableList.of());
+    } else {
+      for (int i = 0; i < entityNames.size(); i++) {
+        putString(path.atIndex(i).join(REPEATED_ENTITY_NAME_KEY), entityNames.get(i));
+      }
+    }
+  }
+
+  /**
+   * Deletes the entire repeated entity at the index of the path provided.
+   *
+   * @param path a path to a repeated entities list
+   * @param index the index to delete
+   */
+  public void deleteRepeatedEntity(Path path, int index) {
+    this.jsonData.delete(path.atIndex(index).toString());
   }
 
   private void putNull(Path path) {
@@ -232,6 +263,23 @@ public class ApplicantData {
     } catch (JsonPathTypeMismatchException e) {
       return Optional.empty();
     }
+  }
+
+  /**
+   * Attempts to read the names of the repeated entities at the given {@link Path}.
+   *
+   * @param path the {@link Path} to the repeated entities list.
+   * @return a list of the names of the repeated entities. This is an empty list if there are no
+   *     repeated entities at path.
+   */
+  public ImmutableList<String> readRepeatedEntities(Path path) {
+    int index = 0;
+    ImmutableList.Builder<String> listBuilder = ImmutableList.builder();
+    while (hasPath(path.atIndex(index))) {
+      listBuilder.add(readString(path.atIndex(index).join(REPEATED_ENTITY_NAME_KEY)).get());
+      index++;
+    }
+    return listBuilder.build();
   }
 
   /**
