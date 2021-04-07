@@ -4,12 +4,16 @@ Parameters:
   VPCId:
     Description: The vpc to add the security groups to.
     Type: AWS::EC2::VPC::Id
+  Environment:
+    Type: String
+    AllowedValues: ["staging", "prod"]
+    Description: "Staging or prod environment"
 Resources:
   containersecgroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Allow traffic from load balancer
-      GroupName: prod.civiform-container.sg
+      GroupName: !Join [".", [!Ref Environment, "civiform-container.sg"]]
       VpcId: !Ref 'VPCId'
       SecurityGroupIngress:
         - IpProtocol: -1
@@ -18,7 +22,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Ingress for DB
-      GroupName: prod.civiform-db.sg
+      GroupName: !Join [".", [!Ref Environment, "civiform-db.sg"]]
       VpcId: !Ref 'VPCId'
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -29,7 +33,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Allow all traffic to load balancer
-      GroupName: prod.civiform-publiclb.sg
+      GroupName: !Join [".", [!Ref Environment, "civiform-publiclb.sg"]]
       VpcId: !Ref 'VPCId'
       SecurityGroupIngress:
         - IpProtocol: -1

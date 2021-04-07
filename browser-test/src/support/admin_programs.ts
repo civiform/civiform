@@ -62,7 +62,8 @@ export class AdminPrograms {
 
   async expectProgramBlockEditPage(programName: string = '') {
     expect(await this.page.innerText('html')).toContain(programName);
-    expect(await this.page.innerText('label')).toEqual('BLOCK NAME');
+    // Compare string case insensitively because style may not have been computed.
+    expect((await this.page.innerText('label')).toUpperCase()).toEqual('BLOCK NAME');
     expect(await this.page.innerText('h1')).toContain('Question bank');
   }
 
@@ -72,12 +73,28 @@ export class AdminPrograms {
     await this.page.click('text=Manage Questions');
     await this.expectProgramBlockEditPage(programName);
 
-    await this.page.fill('text=Block Description', blockDescription);
+    await this.page.fill('textarea', blockDescription);
+    await this.page.click('#update-block-button');
 
     for (const questionName of questionNames) {
-      await this.page.click(`text="${questionName}"`, { force: true });
+      await this.page.click(`button:text("${questionName}")`);
     }
+  }
+
+  async addProgramBlock(programName: string, blockDescription = 'block description', questionNames: string[] = []) {
+    await this.gotoDraftProgramEditPage(programName);
+
+    await this.page.click('text=Manage Questions');
+    await this.expectProgramBlockEditPage(programName);
+
+    await this.page.click('#add-block-button');
+
+    await this.page.fill('textarea', blockDescription);
     await this.page.click('#update-block-button');
+
+    for (const questionName of questionNames) {
+      await this.page.click(`button:text("${questionName}")`);
+    }
   }
 
   async publishProgram(programName: string) {
@@ -86,6 +103,15 @@ export class AdminPrograms {
 
   async viewApplications(programName: string) {
     await this.page.click(`div.border:has-text("${programName}") :text("Applications")`);
+  }
+
+  async viewApplicationForApplicant(applicantName: string) {
+    await this.page.click(`div.border:has-text("${applicantName}") :text("View")`);
+  }
+
+  async expectApplicationAnswers(blockName: string, questionName: string, answer: string) {
+    expect(await this.page.innerText(`div.border:has-text("${blockName}")`)).toContain(questionName);
+    expect(await this.page.innerText(`div.border:has-text("${blockName}")`)).toContain(answer);
   }
 
   async getCsv() {
