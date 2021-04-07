@@ -186,7 +186,7 @@ public class SecurityModule extends AbstractModule {
     if (adClient != null) {
       clientList.add(adClient);
     }
-    if (URI.create(this.baseUrl).getHost().equals("localhost")) {
+    if (FakeAdminClient.canEnable(URI.create(baseUrl).getHost())) {
       clientList.add(fakeAdminClient);
     }
     Clients clients = new Clients(baseUrl + "/callback");

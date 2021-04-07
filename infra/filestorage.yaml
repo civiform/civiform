@@ -4,6 +4,10 @@ Parameters:
   S3VPCEndpoint:
     Description: The vpc endpoint from which CiviForm connects to S3.
     Type: String
+  Environment:
+    Type: String
+    AllowedValues: ["staging", "prod"]
+    Description: "Staging or prod environment"
 Resources:
   key:
     Type: AWS::KMS::Key
@@ -41,11 +45,11 @@ Resources:
           Resource: '*'
       Tags:
         - Key: Name
-          Value: prod.civiform-s3.kms-key
+          Value: !Join [".", [!Ref Environment, "civiform-s3.kms-key"]]
   bucket:
     Type: 'AWS::S3::Bucket'
     Properties:
-      BucketName: prod.filestore.s3
+      BucketName: !Join [".", [!Ref Environment, "filestore.s3"]]
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:

@@ -111,14 +111,6 @@ public class ApplicantData {
     }
   }
 
-  public void putList(Path path, ImmutableList<String> value) {
-    if (value.isEmpty()) {
-      putNull(path);
-    } else {
-      put(path, value);
-    }
-  }
-
   /**
    * Puts the names of the repeated entities at the path. Each element in the JSON array at the path
    * is a JSON object that has at minimum a property {@link
@@ -150,6 +142,9 @@ public class ApplicantData {
    * Puts the given value at the given path in the underlying JSON data. Builds up the necessary
    * structure along the way, i.e., creates parent objects where necessary.
    *
+   * <p>If the path ends in an array (i.e. we are trying to add an element to a JSON array), this
+   * will check to make sure the array is there, then add the given element to the end of the array.
+   *
    * @param path the {@link Path} with the fully specified path, e.g.,
    *     "applicant.children[3].favorite_color.text" or the equivalent
    *     "$.applicant.children[3].favorite_color.text".
@@ -157,7 +152,23 @@ public class ApplicantData {
    */
   private void put(Path path, Object value) {
     putParentIfMissing(path);
-    putAt(path, value);
+    if (path.isArrayElement()) {
+      putArrayIfMissing(path.withoutArrayReference());
+      addAt(path, value);
+    } else {
+      putAt(path, value);
+    }
+  }
+
+  /**
+   * Adds a JSON array at the given path, if it is not there already.
+   *
+   * @param path the path to the new array - must not end with array suffix [] or [index]
+   */
+  private void putArrayIfMissing(Path path) {
+    if (!hasPath(path)) {
+      putAt(path, new ArrayList<>());
+    }
   }
 
   private void putAt(Path path, Object value) {

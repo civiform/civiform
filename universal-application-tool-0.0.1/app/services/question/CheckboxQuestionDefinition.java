@@ -8,9 +8,9 @@ import java.util.OptionalLong;
 import models.LifecycleStage;
 import services.Path;
 
-public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
+public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
 
-  public DropdownQuestionDefinition(
+  public CheckboxQuestionDefinition(
       OptionalLong id,
       long version,
       String name,
@@ -34,7 +34,7 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
         options);
   }
 
-  public DropdownQuestionDefinition(
+  public CheckboxQuestionDefinition(
       long version,
       String name,
       Path path,
@@ -58,6 +58,6 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
 
   @Override
   public QuestionType getQuestionType() {
-    return QuestionType.DROPDOWN;
+    return QuestionType.CHECKBOX;
   }
 }

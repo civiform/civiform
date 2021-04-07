@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import controllers.CiviFormController;
+import forms.CheckboxQuestionForm;
 import forms.DropdownQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
@@ -200,6 +201,11 @@ public class QuestionController extends CiviFormController {
     }
 
     switch (questionType) {
+      case CHECKBOX:
+        {
+          Form<CheckboxQuestionForm> form = formFactory.form(CheckboxQuestionForm.class);
+          return form.bindFromRequest(request).get();
+        }
       case DROPDOWN:
         {
           Form<DropdownQuestionForm> form = formFactory.form(DropdownQuestionForm.class);

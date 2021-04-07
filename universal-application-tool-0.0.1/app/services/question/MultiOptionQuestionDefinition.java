@@ -84,7 +84,13 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
     return getPath().join("selection");
   }
 
-  public abstract ScalarType getSelectionType();
+  /**
+   * Multi-option question type answers are strings. For questions that allow multiple answers (e.g.
+   * checkbox questions), the type is still string, though a list is stored in the applicant JSON.
+   */
+  public ScalarType getSelectionType() {
+    return ScalarType.STRING;
+  }
 
   public ImmutableListMultimap<Locale, String> getOptions() {
     return this.options;
