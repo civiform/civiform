@@ -142,16 +142,6 @@ public class ApplicantData {
     }
   }
 
-  /**
-   * Deletes the entire repeated entity at the index of the path provided.
-   *
-   * @param path a path to a repeated entities list
-   * @param index the index to delete
-   */
-  public void deleteRepeatedEntity(Path path, int index) {
-    this.jsonData.delete(path.atIndex(index).toString());
-  }
-
   private void putNull(Path path) {
     put(path, null);
   }

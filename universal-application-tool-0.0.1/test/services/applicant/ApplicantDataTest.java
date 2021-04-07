@@ -248,23 +248,6 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void deleteRepeatedEntity_canDeleteFromMiddleOfList() {
-    ApplicantData data =
-        new ApplicantData(
-            "{\"applicant\":{\"children\":[{\"entity_name\":\"first child\"},{\"entity_name\":\"an"
-                + " old name\",\"pets\":[{\"entity_name\":\"bubbles\"},{\"entity_name\":\"luna\"},{\"entity_name\":\"taco\"}]},{\"entity_name\":\"third"
-                + " child\"}]},\"metadata\":{}}");
-    Path path = Path.create("applicant.children[]");
-
-    data.deleteRepeatedEntity(path, 1);
-
-    assertThat(data.asJsonString())
-        .isEqualTo(
-            "{\"applicant\":{\"children\":[{\"entity_name\":\"first"
-                + " child\"},{\"entity_name\":\"third child\"}]},\"metadata\":{}}");
-  }
-
-  @Test
   public void readString_findsCorrectValue() throws Exception {
     String testData = "{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} } }";
     ApplicantData data = new ApplicantData(testData);
