@@ -13,12 +13,17 @@ public class FakeAdminClient extends IndirectClient {
 
   public static final String CLIENT_NAME = "FakeAdminClient";
 
-  public static final ImmutableSet<String> ACCEPTED_LOCALHOSTS =
-      ImmutableSet.of("localhost", "civiform");
+  public static final ImmutableSet<String> ACCEPTED_HOSTS =
+      ImmutableSet.of("localhost", "civiform", "staging.seattle.civiform.com");
 
   private ProfileFactory profileFactory;
 
-  @Inject
+  public static boolean canEnable(String host) {
+      return FakeAdminClient.ACCEPTED_HOSTS.stream()
+              .anyMatch(acceptedHost -> host.equals(acceptedHost) || host.startsWith(acceptedHost + ":"));
+  }
+
+    @Inject
   public FakeAdminClient(ProfileFactory profileFactory) {
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
   }
@@ -28,7 +33,7 @@ public class FakeAdminClient extends IndirectClient {
     defaultCredentialsExtractor(
         (ctx, store) -> {
           // Double check that we haven't been fooled into allowing this somehow.
-          if (!ACCEPTED_LOCALHOSTS.contains(ctx.getServerName())) {
+          if (!ACCEPTED_HOSTS.contains(ctx.getServerName())) {
             throw new UnsupportedOperationException(
                 "You cannot create a fake admin unless you are running locally.");
           }
