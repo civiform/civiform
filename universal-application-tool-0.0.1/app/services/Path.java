@@ -130,8 +130,7 @@ public abstract class Path {
    * <p>For example, a path of {@code "a.b[3].c[2].d[5]"} will return 5 because that is the array
    * index of the last array in the path.
    *
-   * <p>For paths to non repeated entity collections, or paths to an entire repeated entity
-   * collection without specifying an index, {@code IllegalStateException} is thrown.
+   * <p>For paths to non-array elements, {@code IllegalStateException} is thrown.
    */
   public int arrayIndex() {
     Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
@@ -149,7 +148,7 @@ public abstract class Path {
   /**
    * Return a new path referencing array element at the index.
    *
-   * <p>For paths to non repeated entity collections, {@code IllegalStateException} is thrown.
+   * <p>For paths to non-array elements, {@code IllegalStateException} is thrown.
    */
   public Path atIndex(int index) {
     Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
@@ -171,7 +170,7 @@ public abstract class Path {
    * Returns the path's key name without an array index suffix. e.g. {@code a.b[1].c[3]} returns
    * "c".
    *
-   * <p>For paths to non repeated entity collections, {@code IllegalStateException} is thrown.
+   * <p>For paths to non-array elements, {@code IllegalStateException} is thrown.
    */
   private String keyNameWithoutArrayIndex() {
     Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
