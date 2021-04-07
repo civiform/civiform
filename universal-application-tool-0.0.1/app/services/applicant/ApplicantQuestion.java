@@ -56,14 +56,6 @@ public class ApplicantQuestion {
     }
   }
 
-  /**
-   * Returns a well-defined a JSON path that can be used to reference anything in {@link
-   * ApplicantData}.
-   *
-   * <p>TODO: this path will need to be joined with index data for repeated entities. e.g a
-   * QuestionDefinition's path might be "applicant.children[].name.first" will need an index added
-   * so it is applicant.children[2].name.first.
-   */
   public Path getPath() {
     return questionDefinition.getPath();
   }
