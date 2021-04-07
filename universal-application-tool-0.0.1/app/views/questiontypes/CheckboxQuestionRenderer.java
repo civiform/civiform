@@ -20,7 +20,8 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
 
   @Override
   public Tag render() {
-    ApplicantQuestion.MultiSelectQuestion multiOptionQuestion = question.getMultiSelectQuestion();
+    ApplicantQuestion.MultiSelectQuestion multiOptionQuestion =
+        question.createMultiSelectQuestion();
 
     return div()
         .withId(question.getPath().path())

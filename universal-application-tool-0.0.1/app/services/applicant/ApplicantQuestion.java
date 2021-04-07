@@ -90,7 +90,7 @@ public class ApplicantQuestion {
     return new TextQuestion();
   }
 
-  public MultiSelectQuestion getMultiSelectQuestion() {
+  public MultiSelectQuestion createMultiSelectQuestion() {
     return new MultiSelectQuestion();
   }
 
@@ -107,7 +107,7 @@ public class ApplicantQuestion {
       case ADDRESS:
         return getAddressQuestion();
       case CHECKBOX:
-        return getMultiSelectQuestion();
+        return createMultiSelectQuestion();
       case DROPDOWN:
         return getSingleSelectQuestion();
       case NAME:
