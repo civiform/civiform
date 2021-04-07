@@ -720,10 +720,9 @@ public class ApplicantQuestion {
     }
 
     /**
-     * For multi-select questions, we must append {@code []} so that the Play framework allows
-     * multiple form keys with the same value. See
+     * For multi-select questions, we must append {@code []} to the field name so that the Play
+     * framework allows multiple form keys with the same value. For more information, see
      * https://www.playframework.com/documentation/2.8.x/JavaFormHelpers#Handling-repeated-values
-     * for more information.
      */
     public Path getSelectionPathAsArray() {
       return getSelectionPath().join(Path.ARRAY_SUFFIX);

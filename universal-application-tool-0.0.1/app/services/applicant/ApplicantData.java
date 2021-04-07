@@ -334,7 +334,7 @@ public class ApplicantData {
     ImmutableList.Builder<Path> pathsRemoved = new ImmutableList.Builder<>();
     for (Map.Entry<?, ?> entry : other.entrySet()) {
       String key = entry.getKey().toString();
-      Path path = rootKey.toBuilder().append(key).build();
+      Path path = rootKey.join(key);
       if (hasPath(path)) {
         if (entry.getValue() instanceof Map) {
           // Recurse into maps.

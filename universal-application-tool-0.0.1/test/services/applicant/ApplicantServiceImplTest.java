@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import models.Applicant;
 import models.LifecycleStage;
@@ -133,6 +134,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
                     1L,
                     "checkbox",
                     Path.create("applicant.checkbox"),
+                    Optional.empty(),
                     "description",
                     LifecycleStage.ACTIVE,
                     ImmutableMap.of(Locale.US, "question?"),
@@ -281,6 +283,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
                     1L,
                     "my name",
                     Path.create("applicant.name"),
+                    Optional.empty(),
                     "description",
                     LifecycleStage.ACTIVE,
                     ImmutableMap.of(Locale.US, "question?"),

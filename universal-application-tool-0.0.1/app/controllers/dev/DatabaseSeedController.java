@@ -10,6 +10,7 @@ import forms.BlockForm;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Locale;
+import java.util.Optional;
 import models.LifecycleStage;
 import models.Program;
 import models.Question;
@@ -103,6 +104,7 @@ public class DatabaseSeedController extends Controller {
                 1L,
                 "name",
                 Path.create("applicant.name"),
+                Optional.empty(),
                 "description",
                 LifecycleStage.ACTIVE,
                 ImmutableMap.of(Locale.US, "What is your name?"),
@@ -117,6 +119,7 @@ public class DatabaseSeedController extends Controller {
                 1L,
                 "color",
                 Path.create("applicant.color"),
+                Optional.empty(),
                 "description",
                 LifecycleStage.ACTIVE,
                 ImmutableMap.of(Locale.US, "What is your favorite color?"),
@@ -131,6 +134,7 @@ public class DatabaseSeedController extends Controller {
                 1L,
                 "address",
                 Path.create("applicant.address"),
+                Optional.empty(),
                 "description",
                 LifecycleStage.ACTIVE,
                 ImmutableMap.of(Locale.US, "What is your address?"),
@@ -145,6 +149,7 @@ public class DatabaseSeedController extends Controller {
                 1L,
                 "kitchen",
                 Path.create("applicant.kitchen"),
+                Optional.empty(),
                 "description",
                 LifecycleStage.ACTIVE,
                 ImmutableMap.of(
@@ -162,6 +167,7 @@ public class DatabaseSeedController extends Controller {
                 1L,
                 "dropdown",
                 Path.create("applicant.dropdown"),
+                Optional.empty(),
                 "select your favorite ice cream flavor",
                 LifecycleStage.ACTIVE,
                 ImmutableMap.of(

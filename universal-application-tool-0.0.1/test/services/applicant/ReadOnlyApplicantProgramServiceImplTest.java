@@ -176,26 +176,24 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   private void answerNameQuestion(long programId) {
-    applicantData.putString(nameQuestion.getPath().toBuilder().append("first").build(), "Alice");
-    applicantData.putString(nameQuestion.getPath().toBuilder().append("middle").build(), "Middle");
-    applicantData.putString(nameQuestion.getPath().toBuilder().append("last").build(), "Last");
+    applicantData.putString(nameQuestion.getPath().join("first"), "Alice");
+    applicantData.putString(nameQuestion.getPath().join("middle"), "Middle");
+    applicantData.putString(nameQuestion.getPath().join("last"), "Last");
     applicantData.putLong(nameQuestion.getProgramIdPath(), programId);
     applicantData.putLong(nameQuestion.getLastUpdatedTimePath(), 12345L);
   }
 
   private void answerColorQuestion(long programId) {
-    applicantData.putString(colorQuestion.getPath().toBuilder().append("text").build(), "mauve");
+    applicantData.putString(colorQuestion.getPath().join("text"), "mauve");
     applicantData.putLong(colorQuestion.getProgramIdPath(), programId);
     applicantData.putLong(colorQuestion.getLastUpdatedTimePath(), 12345L);
   }
 
   private void answerAddressQuestion(long programId) {
-    applicantData.putString(
-        addressQuestion.getPath().toBuilder().append("street").build(), "123 Rhode St.");
-    applicantData.putString(
-        addressQuestion.getPath().toBuilder().append("city").build(), "Seattle");
-    applicantData.putString(addressQuestion.getPath().toBuilder().append("state").build(), "WA");
-    applicantData.putString(addressQuestion.getPath().toBuilder().append("zip").build(), "12345");
+    applicantData.putString(addressQuestion.getPath().join("street"), "123 Rhode St.");
+    applicantData.putString(addressQuestion.getPath().join("city"), "Seattle");
+    applicantData.putString(addressQuestion.getPath().join("state"), "WA");
+    applicantData.putString(addressQuestion.getPath().join("zip"), "12345");
     applicantData.putLong(addressQuestion.getProgramIdPath(), programId);
     applicantData.putLong(addressQuestion.getLastUpdatedTimePath(), 12345L);
   }
