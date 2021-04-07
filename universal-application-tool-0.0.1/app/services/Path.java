@@ -132,16 +132,15 @@ public abstract class Path {
    */
   public int arrayIndex() {
     Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
-    if (matcher.matches()) {
-      try {
-        return Integer.valueOf(matcher.group(ARRAY_INDEX_GROUP));
-      } catch (NumberFormatException e) {
-        throw new IllegalStateException(
-            String.format("This path %s does not reference a repeated entity element.", this), e);
-      }
+    matcher.matches();
+
+    try {
+      return Integer.valueOf(matcher.group(ARRAY_INDEX_GROUP));
+
+    } catch (IllegalStateException | NumberFormatException e) {
+      throw new IllegalStateException(
+          String.format("This path %s does not reference a repeated entity element.", this), e);
     }
-    throw new IllegalStateException(
-        String.format("This path %s does not reference a repeated entity collection.", this));
   }
 
   /**
