@@ -125,7 +125,10 @@ public abstract class Path {
   }
 
   /**
-   * Return the index of the array element this path is referencing.
+   * Return the index of the last array element this path is referencing.
+   *
+   * <p>For example, a path of {@code "a.b[3].c[2].d[5]"} will return 5 because that is the array
+   * index of the last array in the path.
    *
    * <p>For paths to non repeated entity collections, or paths to an entire repeated entity
    * collection without specifying an index, {@code IllegalStateException} is thrown.
