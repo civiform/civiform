@@ -2,9 +2,8 @@ package views.questiontypes;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.input;
+import static j2html.TagCreator.p;
 
-import com.google.common.collect.ImmutableList;
 import j2html.tags.Tag;
 import services.applicant.ApplicantQuestion;
 import views.BaseHtmlView;
@@ -36,13 +35,8 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
                     Styles.TEXT_BASE,
                     Styles.FONT_THIN,
                     Styles.MB_2)
-                .withText(question.getQuestionHelpText()),
-            input()
-                .withType("text")
-                .withCondValue(
-                    repeaterQuestion.hasValue(),
-                    repeaterQuestion.getRepeatedEntities().map(ImmutableList::toString).orElse(""))
-                .withName(repeaterQuestion.getRepeatedEntitiesPath().path()),
+                .withText(question.getQuestionHelpText())
+                .with(p("TODO: implement the renderer for repeater questions")),
             fieldErrors(repeaterQuestion.getQuestionErrors()));
   }
 }

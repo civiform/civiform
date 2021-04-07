@@ -17,7 +17,8 @@ import services.Path;
  * Examples of repeated entities could be household members, vehicles, jobs, etc.
  *
  * <p>A repeater question definition can be referenced by other question definitions that themselves
- * repeat for each of the repeater-defined entities. For example, a repeater for vehicles may ask
+ * repeat for each of the repeater-defined
+ * entities. For example, a repeater for vehicles may ask
  * the user to identify each of their vehicles, with other questions referencing it that ask about
  * each vehicle's make, model, and year.
  */

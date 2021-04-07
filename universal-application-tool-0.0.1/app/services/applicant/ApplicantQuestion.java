@@ -724,10 +724,6 @@ public class ApplicantQuestion {
       assertQuestionType();
       return (RepeaterQuestionDefinition) questionDefinition;
     }
-
-    public Path getRepeatedEntitiesPath() {
-      return getQuestionDefinition().getRepeatedEntitiesPath();
-    }
   }
 
   @Override
