@@ -137,7 +137,7 @@ public class ApplicantData {
   private void put(Path path, Object value) {
     putParentIfMissing(path);
     if (path.isArrayElement()) {
-      addArrayIfMissing(path);
+      putArrayIfMissing(path.withoutArrayReference());
       addAt(path, value);
     } else {
       putAt(path, value);
@@ -147,15 +147,11 @@ public class ApplicantData {
   /**
    * Adds a JSON array at the given path, if it is not there already.
    *
-   * @param path the path to the new array - must end with the array suffix [] or [index]
+   * @param path the path to the new array - must not end with array suffix [] or [index]
    */
-  private void addArrayIfMissing(Path path) {
-    if (!path.isArrayElement()) {
-      throw new RuntimeException("Attempted to add an array when path is not an array: " + path);
-    }
-    Path withoutArray = path.withoutArrayReference();
-    if (!hasPath(withoutArray)) {
-      putAt(withoutArray, new ArrayList<>());
+  private void putArrayIfMissing(Path path) {
+    if (!hasPath(path)) {
+      putAt(path, new ArrayList<>());
     }
   }
 

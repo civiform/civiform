@@ -137,6 +137,9 @@ public abstract class BlockDefinition {
 
   @JsonIgnore
   public Optional<ScalarType> getScalarType(Path path) {
+    if (path.isArrayElement()) {
+      path = path.withoutArrayReference();
+    }
     return Optional.ofNullable(scalarTypes().get(path));
   }
 

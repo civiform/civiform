@@ -192,11 +192,8 @@ public class ApplicantServiceImpl implements ApplicantService {
       // Check existence of the non-array path, which is how scalars are indexed.
       ScalarType type =
           blockDefinition
-              .getScalarType(update.path().withoutArrayReference())
-              .orElseThrow(
-                  () ->
-                      new PathNotInBlockException(
-                          blockDefinition, update.path().withoutArrayReference()));
+              .getScalarType(update.path())
+              .orElseThrow(() -> new PathNotInBlockException(blockDefinition, update.path()));
       questionPaths.add(update.path().parentPath());
       switch (type) {
         case STRING:

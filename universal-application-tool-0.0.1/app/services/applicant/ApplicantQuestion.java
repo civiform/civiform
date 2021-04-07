@@ -719,6 +719,16 @@ public class ApplicantQuestion {
       return (MultiOptionQuestionDefinition) questionDefinition;
     }
 
+    /**
+     * For multi-select questions, we must append {@code []} so that the Play framework allows
+     * multiple form keys with the same value. See
+     * https://www.playframework.com/documentation/2.8.x/JavaFormHelpers#Handling-repeated-values
+     * for more information.
+     */
+    public Path getSelectionPathAsArray() {
+      return getSelectionPath().join(Path.ARRAY_SUFFIX);
+    }
+
     public Path getSelectionPath() {
       return getQuestionDefinition().getSelectionPath();
     }

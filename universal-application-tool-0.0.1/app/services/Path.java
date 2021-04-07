@@ -66,15 +66,6 @@ public abstract class Path {
   }
 
   /**
-   * Returns a string representation of this path, ending with the array suffix []. Example: {@code
-   * "applicant.children[]"}
-   */
-  @Memoized
-  public String asList() {
-    return toString() + ARRAY_SUFFIX;
-  }
-
-  /**
    * Returns the JSON path compatible string representation of this path.
    *
    * <p>Example: {@code "applicant.children[2].favorite_color.text"}
@@ -97,14 +88,11 @@ public abstract class Path {
     return Path.create(segments().subList(0, segments().size() - 1));
   }
 
-  /**
-   * Append a segment to the path.
-   *
-   * <p>TODO(#638): refactor things that use `toBuilder().append(seg).build()` with {@link
-   * #join(String)};
-   */
-  public Path join(String segment) {
-    return Path.create(ImmutableList.<String>builder().addAll(segments()).add(segment).build());
+  /** Append a path to the path. */
+  public Path join(String path) {
+    Path other = Path.create(path);
+    return Path.create(
+        ImmutableList.<String>builder().addAll(segments()).addAll(other.segments()).build());
   }
 
   /**
@@ -175,7 +163,7 @@ public abstract class Path {
    * Returns the path's key name without an array index suffix. e.g. {@code a.b[1].c[3]} returns
    * "c".
    *
-   * <p>For paths to non-array elements, {@link Path#keyName} is returned.
+   * <p>For paths to non-array elements, {@code IllegalStateException is thrown}.
    */
   private String keyNameWithoutArrayIndex() {
     Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
@@ -184,31 +172,7 @@ public abstract class Path {
           .replace(matcher.start(ARRAY_SUFFIX_GROUP), matcher.end(ARRAY_SUFFIX_GROUP), "")
           .toString();
     }
-    return keyName();
-  }
-
-  public abstract Builder toBuilder();
-
-  public static Builder builder() {
-    return new AutoValue_Path.Builder();
-  }
-
-  @AutoValue.Builder
-  public abstract static class Builder {
-
-    abstract Builder setSegments(ImmutableList<String> segments);
-
-    public abstract ImmutableList.Builder<String> segmentsBuilder();
-
-    public abstract Path build();
-
-    public Builder setPath(String path) {
-      return setSegments(ImmutableList.copyOf(JSON_SPLITTER.splitToList(path)));
-    }
-
-    public Builder append(String segment) {
-      segmentsBuilder().add(segment.trim());
-      return this;
-    }
+    throw new IllegalStateException(
+        String.format("This path %s does not reference an array element.", this));
   }
 }
