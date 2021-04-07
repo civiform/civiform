@@ -63,6 +63,15 @@ public class ApplicantDataTest {
   }
 
   @Test
+  public void hasPath_returnsTrueForArrayIndex() {
+    ApplicantData data = new ApplicantData();
+    Path path = Path.create("applicant.chores[0]");
+    data.putString(path, "wash dishes");
+
+    assertThat(data.hasPath(path)).isTrue();
+  }
+
+  @Test
   public void hasPath_returnsFalseForMissingPath() {
     ApplicantData data = new ApplicantData();
 
@@ -74,6 +83,15 @@ public class ApplicantDataTest {
     ApplicantData data = new ApplicantData();
     Path path = Path.create("applicant.horses");
     data.putLong(path, 278);
+
+    assertThat(data.hasValueAtPath(path)).isTrue();
+  }
+
+  @Test
+  public void hasValueAtPath_returnsTrueForArrayIndex() {
+    ApplicantData data = new ApplicantData();
+    Path path = Path.create("applicant.chores[0]");
+    data.putString(path, "wash dishes");
 
     assertThat(data.hasValueAtPath(path)).isTrue();
   }
@@ -183,6 +201,29 @@ public class ApplicantDataTest {
   }
 
   @Test
+  public void putString_addsFirstElementToArray() {
+    ApplicantData data = new ApplicantData();
+
+    data.putString(Path.create("applicant.allergies[0]"), "peanut");
+
+    assertThat(data.asJsonString())
+        .isEqualTo("{\"applicant\":{\"allergies\":[\"peanut\"]},\"metadata\":{}}");
+  }
+
+  @Test
+  public void putString_addsSeveralElementsToArray() {
+    ApplicantData data = new ApplicantData();
+
+    data.putString(Path.create("applicant.allergies[0]"), "peanut");
+    data.putString(Path.create("applicant.allergies[1]"), "strawberry");
+    data.putString(Path.create("applicant.allergies[2]"), "shellfish");
+
+    assertThat(data.asJsonString())
+        .isEqualTo(
+            "{\"applicant\":{\"allergies\":[\"peanut\",\"strawberry\",\"shellfish\"]},\"metadata\":{}}");
+  }
+
+  @Test
   public void putLong_writesNullIfStringIsEmpty() {
     ApplicantData data = new ApplicantData();
     Path path = Path.create("applicant.age");
@@ -192,28 +233,6 @@ public class ApplicantDataTest {
 
     assertThat(data.asJsonString()).isEqualTo(expected);
     assertThat(data.readLong(path)).isEmpty();
-  }
-
-  @Test
-  public void putList_writesJsonArray() {
-    ApplicantData data = new ApplicantData();
-    Path path = Path.create("applicant.favorite_fruits");
-
-    data.putList(path, ImmutableList.of("apple", "orange"));
-
-    assertThat(data.asJsonString())
-        .isEqualTo("{\"applicant\":{\"favorite_fruits\":[\"apple\",\"orange\"]},\"metadata\":{}}");
-  }
-
-  @Test
-  public void putList_writesNullIfListIsEmpty() {
-    ApplicantData data = new ApplicantData();
-    Path path = Path.create("applicant.favorite_fruits");
-
-    data.putList(path, ImmutableList.of());
-
-    assertThat(data.asJsonString())
-        .isEqualTo("{\"applicant\":{\"favorite_fruits\":null},\"metadata\":{}}");
   }
 
   @Test
