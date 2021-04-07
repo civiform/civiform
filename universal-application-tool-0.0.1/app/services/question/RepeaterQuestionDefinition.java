@@ -101,23 +101,7 @@ public class RepeaterQuestionDefinition extends QuestionDefinition {
 
   @Override
   public ImmutableMap<Path, ScalarType> getScalarMap() {
-    return ImmutableMap.of(getEntityPath(), getEntityType());
-  }
-
-  public Path getEntityPath() {
-    return getPath().join("entity_name");
-  }
-
-  public ScalarType getEntityType() {
-    return ScalarType.STRING;
-  }
-
-  public OptionalInt getMinLength() {
-    return getRepeaterValidationPredicates().minLength();
-  }
-
-  public OptionalInt getMaxLength() {
-    return getRepeaterValidationPredicates().maxLength();
+    return ImmutableMap.of(getPath(), ScalarType.STRING);
   }
 
   @JsonDeserialize(

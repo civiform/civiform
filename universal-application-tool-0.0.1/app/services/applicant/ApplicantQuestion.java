@@ -16,6 +16,7 @@ import services.question.NameQuestionDefinition;
 import services.question.NumberQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionType;
+import services.question.RepeaterQuestionDefinition;
 import services.question.TextQuestionDefinition;
 import services.question.TranslationNotFoundException;
 
@@ -55,6 +56,14 @@ public class ApplicantQuestion {
     }
   }
 
+  /**
+   * Returns a well-defined a JSON path that can be used to reference anything in {@link
+   * ApplicantData}.
+   *
+   * <p>TODO: this path will need to be joined with index data for repeated entities. e.g a
+   * QuestionDefinition's path might be "applicant.children[].name.first" will need an index added
+   * so it is applicant.children[2].name.first.
+   */
   public Path getPath() {
     return questionDefinition.getPath();
   }
@@ -82,20 +91,24 @@ public class ApplicantQuestion {
     return new AddressQuestion();
   }
 
-  public SingleSelectQuestion getSingleSelectQuestion() {
-    return new SingleSelectQuestion();
-  }
-
-  public TextQuestion getTextQuestion() {
-    return new TextQuestion();
-  }
-
   public NameQuestion getNameQuestion() {
     return new NameQuestion();
   }
 
   public NumberQuestion getNumberQuestion() {
     return new NumberQuestion();
+  }
+
+  public RepeaterQuestion getRepeaterQuestion() {
+    return new RepeaterQuestion();
+  }
+
+  public SingleSelectQuestion getSingleSelectQuestion() {
+    return new SingleSelectQuestion();
+  }
+
+  public TextQuestion getTextQuestion() {
+    return new TextQuestion();
   }
 
   public PresentsErrors errorsPresenter() {
@@ -108,6 +121,8 @@ public class ApplicantQuestion {
         return getNameQuestion();
       case NUMBER:
         return getNumberQuestion();
+      case REPEATER:
+        return getRepeaterQuestion();
       case TEXT:
         return getTextQuestion();
       default:
@@ -655,6 +670,63 @@ public class ApplicantQuestion {
       } catch (TranslationNotFoundException e) {
         throw new RuntimeException(e);
       }
+    }
+  }
+
+  public class RepeaterQuestion implements PresentsErrors {
+
+    private Optional<ImmutableList<String>> repeatedEntities;
+
+    public RepeaterQuestion() {
+      assertQuestionType();
+    }
+
+    @Override
+    public boolean hasQuestionErrors() {
+      return !getQuestionErrors().isEmpty();
+    }
+
+    public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+      return ImmutableSet.of();
+    }
+
+    @Override
+    public boolean hasTypeSpecificErrors() {
+      // There are no inherent requirements in a repeater question.
+      return false;
+    }
+
+    public boolean hasValue() {
+      return getRepeatedEntities().isPresent();
+    }
+
+    public Optional<ImmutableList<String>> getRepeatedEntities() {
+      if (repeatedEntities != null) {
+        return repeatedEntities;
+      }
+
+      // TODO: add applicantData.readRepeatedEntities(Path) and it here.
+      repeatedEntities = Optional.empty();
+
+      return repeatedEntities;
+    }
+
+    public void assertQuestionType() {
+      if (!getType().equals(QuestionType.REPEATER)) {
+        throw new RuntimeException(
+            String.format(
+                "Question is not a REPEATER question: %s (type: %s)",
+                questionDefinition.getPath(), questionDefinition.getQuestionType()));
+      }
+    }
+
+    public RepeaterQuestionDefinition getQuestionDefinition() {
+      assertQuestionType();
+      return (RepeaterQuestionDefinition) questionDefinition;
+    }
+
+    public Path getRepeatedEntitiesPath() {
+      return getQuestionDefinition().getRepeatedEntitiesPath();
     }
   }
 

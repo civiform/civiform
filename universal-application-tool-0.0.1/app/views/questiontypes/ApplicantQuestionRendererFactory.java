@@ -19,14 +19,14 @@ public class ApplicantQuestionRendererFactory {
 
   public ApplicantQuestionRenderer getRenderer(ApplicantQuestion question) {
     switch (question.getType()) {
+      case ADDRESS:
+        {
+          return new AddressQuestionRenderer(question);
+        }
+
       case DROPDOWN:
         {
           return new DropdownQuestionRenderer(question);
-        }
-
-      case TEXT:
-        {
-          return new TextQuestionRenderer(question);
         }
 
       case NAME:
@@ -39,9 +39,14 @@ public class ApplicantQuestionRendererFactory {
           return new NumberQuestionRenderer(question);
         }
 
-      case ADDRESS:
+      case TEXT:
         {
-          return new AddressQuestionRenderer(question);
+          return new TextQuestionRenderer(question);
+        }
+
+      case REPEATER:
+        {
+          return new RepeaterQuestionRenderer(question);
         }
 
       default:
