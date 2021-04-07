@@ -8,7 +8,7 @@ describe('normal application flow', () => {
     // want to verify that your selectors are working as expected first.
     // Because all tests are run concurrently, it could be that your selector
     // selects a different entity from another test.
-    page.setDefaultTimeout(1000);
+    page.setDefaultTimeout(2000);
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page);
