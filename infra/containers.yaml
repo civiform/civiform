@@ -113,13 +113,13 @@ Resources:
             - Name: AWS_S3_BUCKET_NAME
               Value: !Ref 'S3BucketName'
             - Name: IDCS_CLIENT_ID
-              Value: '{{resolve:secretsmanager:dev-oidc-secrets:SecretString:IDCS_CLIENT_ID}}'
+              Value: !Sub '{{resolve:secretsmanager:${Environment}-oidc-secrets:SecretString:IDCS_CLIENT_ID}}'
             - Name: IDCS_SECRET
-              Value: '{{resolve:secretsmanager:dev-oidc-secrets:SecretString:IDCS_SECRET}}'
+              Value: !Sub '{{resolve:secretsmanager:${Environment}-oidc-secrets:SecretString:IDCS_SECRET}}'
             - Name: ADFS_CLIENT_ID
-              Value: '{{resolve:secretsmanager:dev-oidc-secrets:SecretString:ADFS_CLIENT_ID}}'
+              Value: !Sub '{{resolve:secretsmanager:${Environment}-oidc-secrets:SecretString:ADFS_CLIENT_ID}}'
             - Name: ADFS_SECRET
-              Value: '{{resolve:secretsmanager:dev-oidc-secrets:SecretString:ADFS_SECRET}}'
+              Value: !Sub '{{resolve:secretsmanager:${Environment}-oidc-secrets:SecretString:ADFS_SECRET}}'
             - Name: BASE_URL
               Value: !Sub "https://${DomainName}"
           Cpu: 1024
