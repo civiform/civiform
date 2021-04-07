@@ -8,7 +8,7 @@ describe('normal application flow', () => {
     // want to verify that your selectors are working as expected first.
     // Because all tests are run concurrently, it could be that your selector
     // selects a different entity from another test.
-    page.setDefaultTimeout(1000);
+    page.setDefaultTimeout(2000);
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page);
@@ -16,16 +16,15 @@ describe('normal application flow', () => {
     const applicantQuestions = new ApplicantQuestions(page);
 
     const programName = 'test program for csv export';
-    await adminQuestions.addNameQuestion('name');
-    await adminPrograms.addAndPublishProgramWithQuestions(['name'], programName);
+    await adminQuestions.addNameQuestion('name-csv');
+    await adminPrograms.addAndPublishProgramWithQuestions(['name-csv'], programName);
 
     await logout(page);
     await loginAsGuest(page);
 
     await applicantQuestions.applyProgram(programName);
 
-    await applicantQuestions.answerQuestion('applicant.name.first', 'sarah');
-    await applicantQuestions.answerQuestion('applicant.name.last', 'smith');
+    await applicantQuestions.answerNameQuestion('sarah', 'smith');
     await applicantQuestions.saveAndContinue();
 
     await logout(page);
