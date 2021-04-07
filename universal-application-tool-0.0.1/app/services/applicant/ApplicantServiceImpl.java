@@ -189,7 +189,6 @@ public class ApplicantServiceImpl implements ApplicantService {
       throws UnsupportedScalarTypeException, PathNotInBlockException {
     ImmutableSet.Builder<Path> questionPaths = ImmutableSet.builder();
     for (Update update : updates) {
-      // Check existence of the non-array path, which is how scalars are indexed.
       ScalarType type =
           blockDefinition
               .getScalarType(update.path())

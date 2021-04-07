@@ -137,6 +137,7 @@ public abstract class BlockDefinition {
 
   @JsonIgnore
   public Optional<ScalarType> getScalarType(Path path) {
+    // Check existence of the non-array path, which is how scalars are indexed.
     if (path.isArrayElement()) {
       path = path.withoutArrayReference();
     }
