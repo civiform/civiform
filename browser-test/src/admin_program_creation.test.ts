@@ -1,8 +1,8 @@
-import { startSession, loginAsAdmin, AdminQuestions } from './support'
+import { startSession, loginAsAdmin, AdminQuestions, endSession } from './support'
 
 describe('create dropdown question with options', () => {
   it('add remove buttons work correctly', async () => {
-    const { page } = await startSession();
+    const { browser, page } = await startSession();
 
     await loginAsAdmin(page);
 
@@ -39,12 +39,14 @@ describe('create dropdown question with options', () => {
 
     // Submit the form, then edit that question again
     await page.click('text=Create');
-    adminQuestions.expectDraftQuestionExist(questionName);
+    await adminQuestions.expectDraftQuestionExist(questionName);
 
     // Edit the question
     await adminQuestions.gotoQuestionEditPage(questionName);
     var questionSettingsDiv = await page.innerHTML('#question-settings');
     expect(questionSettingsDiv.match(/<input/g)).toHaveLength(2);
+
+    await endSession(browser);
   })
 })
 
