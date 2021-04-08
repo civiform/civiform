@@ -10,7 +10,6 @@ import services.Path;
 import services.question.AddressQuestionDefinition.AddressValidationPredicates;
 import services.question.NameQuestionDefinition.NameValidationPredicates;
 import services.question.QuestionDefinition.ValidationPredicates;
-import services.question.RepeaterQuestionDefinition.RepeaterValidationPredicates;
 import services.question.TextQuestionDefinition.TextValidationPredicates;
 
 public class QuestionDefinitionBuilder {
