@@ -163,15 +163,12 @@ export class AdminQuestions {
     description = 'radio button description',
     questionText = 'radio button question text',
     helpText = 'radio button question help text') {
-    await this.page.click('text=Questions')
-    await this.page.click('#create-question-button')
-    await this.page.click('#create-radio_button-question')
+    await this.gotoAdminQuestionsPage();
+    await this.page.click('#create-question-button');
 
+    await this.page.click('#create-radio_button-question');
 
-    await this.page.fill('text="Name"', questionName)
-    await this.page.fill('text=Description', description)
-    await this.page.fill('text=Question Text', questionText)
-    await this.page.fill('text=Question help text', helpText)
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText);
 
     for (var index in options) {
       await this.page.click('#add-new-option')
@@ -180,12 +177,9 @@ export class AdminQuestions {
 
     await this.page.click('text=Create')
 
-    expect(await this.page.innerText('h1')).toEqual('All Questions')
+    await this.expectAdminQuestionsPage();
 
-    const tableInnerText = await this.page.innerText('table')
-
-    expect(tableInnerText).toContain(questionName)
-    expect(tableInnerText).toContain(questionText)
+    await this.expectDraftQuestionExist(questionName, questionText);
   }
 
   async addTextQuestion(questionName: string,
