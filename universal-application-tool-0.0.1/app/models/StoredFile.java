@@ -1,5 +1,6 @@
 package models;
 
+import java.net.URL;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -30,4 +31,14 @@ public class StoredFile extends BaseModel {
   }
 
   @Transient @Constraints.Required byte[] data;
+
+  public URL getPresignedURL() {
+    return presignedURL;
+  }
+
+  public void setPresignedURL(URL presignedURL) {
+    this.presignedURL = presignedURL;
+  }
+
+  @Transient URL presignedURL;
 }
