@@ -111,7 +111,7 @@ public class TestQuestionBank {
         new RepeaterQuestionDefinition(
             VERSION,
             "applicant household members",
-            Path.create("applicant.household_members"),
+            Path.create("applicant.household_members[]"),
             Optional.empty(),
             "The applicant's household members",
             LifecycleStage.ACTIVE,
