@@ -16,6 +16,7 @@ import services.question.NameQuestionDefinition;
 import services.question.NumberQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionType;
+import services.question.RepeaterQuestionDefinition;
 import services.question.TextQuestionDefinition;
 import services.question.TranslationNotFoundException;
 
@@ -82,14 +83,6 @@ public class ApplicantQuestion {
     return new AddressQuestion();
   }
 
-  public SingleSelectQuestion getSingleSelectQuestion() {
-    return new SingleSelectQuestion();
-  }
-
-  public TextQuestion getTextQuestion() {
-    return new TextQuestion();
-  }
-
   public MultiSelectQuestion createMultiSelectQuestion() {
     return new MultiSelectQuestion();
   }
@@ -100,6 +93,18 @@ public class ApplicantQuestion {
 
   public NumberQuestion getNumberQuestion() {
     return new NumberQuestion();
+  }
+
+  public RepeaterQuestion getRepeaterQuestion() {
+    return new RepeaterQuestion();
+  }
+
+  public SingleSelectQuestion getSingleSelectQuestion() {
+    return new SingleSelectQuestion();
+  }
+
+  public TextQuestion getTextQuestion() {
+    return new TextQuestion();
   }
 
   public PresentsErrors errorsPresenter() {
@@ -114,6 +119,8 @@ public class ApplicantQuestion {
         return getNameQuestion();
       case NUMBER:
         return getNumberQuestion();
+      case:
+        return getRepeaterQuestion();
       case TEXT:
         return getTextQuestion();
       default:
@@ -124,6 +131,7 @@ public class ApplicantQuestion {
   public interface PresentsErrors {
     /** Returns true if values do not meet conditions defined by admins. */
     boolean hasQuestionErrors();
+
     /**
      * Returns true if there is any type specific errors. The validation does not consider
      * admin-defined conditions.
@@ -313,11 +321,11 @@ public class ApplicantQuestion {
     }
   }
 
-  public class TextQuestion implements PresentsErrors {
+  public class MultiSelectQuestion implements PresentsErrors {
 
-    private Optional<String> textValue;
+    private Optional<ImmutableList<String>> selectedOptionsValue;
 
-    public TextQuestion() {
+    public MultiSelectQuestion() {
       assertQuestionType();
     }
 
@@ -327,72 +335,70 @@ public class ApplicantQuestion {
     }
 
     public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-      // TODO(https://github.com/seattle-uat/civiform/issues/634): Fix bug related to hasValue.
-      if (!hasValue()) {
-        return ImmutableSet.of();
-      }
-
-      TextQuestionDefinition definition = getQuestionDefinition();
-      int textLength = getTextValue().map(s -> s.length()).orElse(0);
-      ImmutableSet.Builder<ValidationErrorMessage> errors =
-          ImmutableSet.<ValidationErrorMessage>builder();
-
-      if (definition.getMinLength().isPresent()) {
-        int minLength = definition.getMinLength().getAsInt();
-        if (textLength < minLength) {
-          errors.add(ValidationErrorMessage.textTooShortError(minLength));
-        }
-      }
-
-      if (definition.getMaxLength().isPresent()) {
-        int maxLength = definition.getMaxLength().getAsInt();
-        if (textLength > maxLength) {
-          errors.add(ValidationErrorMessage.textTooLongError(maxLength));
-        }
-      }
-
-      return errors.build();
+      // TODO(https://github.com/seattle-uat/civiform/issues/416): Implement validation
+      return ImmutableSet.of();
     }
 
     @Override
     public boolean hasTypeSpecificErrors() {
-      // There are no inherent requirements in a text question.
+      // There are no inherent requirements in a multi-option question.
       return false;
     }
 
     public boolean hasValue() {
-      return getTextValue().isPresent();
+      return getSelectedOptionsValue().isPresent();
     }
 
-    public Optional<String> getTextValue() {
-      if (textValue != null) {
-        return textValue;
+    public Optional<ImmutableList<String>> getSelectedOptionsValue() {
+      if (selectedOptionsValue != null) {
+        return selectedOptionsValue;
       }
 
-      textValue = applicantData.readString(getTextPath());
+      selectedOptionsValue = applicantData.readList(getSelectionPath());
 
-      return textValue;
+      return selectedOptionsValue;
+    }
+
+    public boolean optionIsSelected(String option) {
+      return getSelectedOptionsValue().isPresent()
+              && getSelectedOptionsValue().get().contains(option);
     }
 
     public void assertQuestionType() {
-      if (!getType().equals(QuestionType.TEXT)) {
+      if (!getType().isMultiOptionType()) {
         throw new RuntimeException(
-            String.format(
-                "Question is not a TEXT question: %s (type: %s)",
-                questionDefinition.getPath(), questionDefinition.getQuestionType()));
+                String.format(
+                        "Question is not a multi-option question: %s (type: %s)",
+                        questionDefinition.getPath(), questionDefinition.getQuestionType()));
       }
     }
 
-    public TextQuestionDefinition getQuestionDefinition() {
+    public MultiOptionQuestionDefinition getQuestionDefinition() {
       assertQuestionType();
-      return (TextQuestionDefinition) questionDefinition;
+      return (MultiOptionQuestionDefinition) questionDefinition;
     }
 
-    public Path getTextPath() {
-      return getQuestionDefinition().getTextPath();
+    /**
+     * For multi-select questions, we must append {@code []} to the field name so that the Play
+     * framework allows multiple form keys with the same value. For more information, see
+     * https://www.playframework.com/documentation/2.8.x/JavaFormHelpers#Handling-repeated-values
+     */
+    public Path getSelectionPathAsArray() {
+      return getSelectionPath().join(Path.ARRAY_SUFFIX);
+    }
+
+    public Path getSelectionPath() {
+      return getQuestionDefinition().getSelectionPath();
+    }
+
+    public ImmutableList<String> getOptions() {
+      try {
+        return getQuestionDefinition().getOptionsForLocale(applicantData.preferredLocale());
+      } catch (TranslationNotFoundException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
-
   public class NameQuestion implements PresentsErrors {
 
     private Optional<String> firstNameValue;
@@ -597,6 +603,33 @@ public class ApplicantQuestion {
     }
   }
 
+  public class RepeaterQuestion implements PresentsErrors {
+
+    public RepeaterQuestion() {
+      assertQuestionType();
+    }
+
+    @Override
+    public boolean hasQuestionErrors() {
+      return false;
+    }
+
+    @Override
+    public boolean hasTypeSpecificErrors() {
+      // There are no inherent requirements in a text question.
+      return false;
+    }
+
+    public void assertQuestionType() {
+      if (!getType().equals(QuestionType.REPEATER)) {
+        throw new RuntimeException(
+                String.format(
+                        "Question is not a REPEATER question: %s (type: %s)",
+                        questionDefinition.getPath(), questionDefinition.getQuestionType()));
+      }
+    }
+  }
+
   public class SingleSelectQuestion implements PresentsErrors {
 
     private Optional<String> selectedOptionValue;
@@ -662,11 +695,12 @@ public class ApplicantQuestion {
     }
   }
 
-  public class MultiSelectQuestion implements PresentsErrors {
 
-    private Optional<ImmutableList<String>> selectedOptionsValue;
+  public class TextQuestion implements PresentsErrors {
 
-    public MultiSelectQuestion() {
+    private Optional<String> textValue;
+
+    public TextQuestion() {
       assertQuestionType();
     }
 
@@ -676,68 +710,69 @@ public class ApplicantQuestion {
     }
 
     public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-      // TODO(https://github.com/seattle-uat/civiform/issues/416): Implement validation
-      return ImmutableSet.of();
+      // TODO(https://github.com/seattle-uat/civiform/issues/634): Fix bug related to hasValue.
+      if (!hasValue()) {
+        return ImmutableSet.of();
+      }
+
+      TextQuestionDefinition definition = getQuestionDefinition();
+      int textLength = getTextValue().map(s -> s.length()).orElse(0);
+      ImmutableSet.Builder<ValidationErrorMessage> errors =
+              ImmutableSet.builder();
+
+      if (definition.getMinLength().isPresent()) {
+        int minLength = definition.getMinLength().getAsInt();
+        if (textLength < minLength) {
+          errors.add(ValidationErrorMessage.textTooShortError(minLength));
+        }
+      }
+
+      if (definition.getMaxLength().isPresent()) {
+        int maxLength = definition.getMaxLength().getAsInt();
+        if (textLength > maxLength) {
+          errors.add(ValidationErrorMessage.textTooLongError(maxLength));
+        }
+      }
+
+      return errors.build();
     }
 
     @Override
     public boolean hasTypeSpecificErrors() {
-      // There are no inherent requirements in a multi-option question.
+      // There are no inherent requirements in a text question.
       return false;
     }
 
     public boolean hasValue() {
-      return getSelectedOptionsValue().isPresent();
+      return getTextValue().isPresent();
     }
 
-    public Optional<ImmutableList<String>> getSelectedOptionsValue() {
-      if (selectedOptionsValue != null) {
-        return selectedOptionsValue;
+    public Optional<String> getTextValue() {
+      if (textValue != null) {
+        return textValue;
       }
 
-      selectedOptionsValue = applicantData.readList(getSelectionPath());
+      textValue = applicantData.readString(getTextPath());
 
-      return selectedOptionsValue;
-    }
-
-    public boolean optionIsSelected(String option) {
-      return getSelectedOptionsValue().isPresent()
-          && getSelectedOptionsValue().get().contains(option);
+      return textValue;
     }
 
     public void assertQuestionType() {
-      if (!getType().isMultiOptionType()) {
+      if (!getType().equals(QuestionType.TEXT)) {
         throw new RuntimeException(
-            String.format(
-                "Question is not a multi-option question: %s (type: %s)",
-                questionDefinition.getPath(), questionDefinition.getQuestionType()));
+                String.format(
+                        "Question is not a TEXT question: %s (type: %s)",
+                        questionDefinition.getPath(), questionDefinition.getQuestionType()));
       }
     }
 
-    public MultiOptionQuestionDefinition getQuestionDefinition() {
+    public TextQuestionDefinition getQuestionDefinition() {
       assertQuestionType();
-      return (MultiOptionQuestionDefinition) questionDefinition;
+      return (TextQuestionDefinition) questionDefinition;
     }
 
-    /**
-     * For multi-select questions, we must append {@code []} to the field name so that the Play
-     * framework allows multiple form keys with the same value. For more information, see
-     * https://www.playframework.com/documentation/2.8.x/JavaFormHelpers#Handling-repeated-values
-     */
-    public Path getSelectionPathAsArray() {
-      return getSelectionPath().join(Path.ARRAY_SUFFIX);
-    }
-
-    public Path getSelectionPath() {
-      return getQuestionDefinition().getSelectionPath();
-    }
-
-    public ImmutableList<String> getOptions() {
-      try {
-        return getQuestionDefinition().getOptionsForLocale(applicantData.preferredLocale());
-      } catch (TranslationNotFoundException e) {
-        throw new RuntimeException(e);
-      }
+    public Path getTextPath() {
+      return getQuestionDefinition().getTextPath();
     }
   }
 
