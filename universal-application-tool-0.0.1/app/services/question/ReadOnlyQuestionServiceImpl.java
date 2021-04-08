@@ -11,10 +11,12 @@ import services.Path;
 import services.question.exceptions.InvalidPathException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
+import services.question.types.RepeaterQuestionDefinition;
 import services.question.types.ScalarType;
 import views.admin.questions.GroupByKeyCollector;
 
 public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionService {
+
   private final ImmutableMap<Path, ScalarType> scalars;
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
   private final ImmutableMap<Path, QuestionDefinition> questionsByPath;
@@ -54,6 +56,14 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
   @Override
   public ImmutableList<QuestionDefinition> getAllQuestions() {
     return questionsById.values().asList();
+  }
+
+  @Override
+  public ImmutableList<RepeaterQuestionDefinition> getRepeaterQuestions() {
+    return getAllQuestions().stream()
+        .filter(QuestionDefinition::isRepeater)
+        .map(questionDefinition -> (RepeaterQuestionDefinition) questionDefinition)
+        .collect(ImmutableList.toImmutableList());
   }
 
   @Override
@@ -100,12 +110,12 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
   }
 
   @Override
-  public void setPreferredLocale(Locale locale) {
-    this.preferredLocale = locale;
+  public Locale getPreferredLocale() {
+    return this.preferredLocale;
   }
 
   @Override
-  public Locale getPreferredLocale() {
-    return this.preferredLocale;
+  public void setPreferredLocale(Locale locale) {
+    this.preferredLocale = locale;
   }
 }
