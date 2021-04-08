@@ -1,7 +1,7 @@
 package views.questiontypes;
 
 import services.applicant.ApplicantData;
-import services.applicant.ApplicantQuestion;
+import services.applicant.question.ApplicantQuestion;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;

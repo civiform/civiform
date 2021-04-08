@@ -5,7 +5,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
 
 import j2html.tags.Tag;
-import services.applicant.ApplicantQuestion;
+import services.applicant.question.ApplicantQuestion;
 import views.BaseHtmlView;
 import views.style.ReferenceClasses;
 import views.style.Styles;

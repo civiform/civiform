@@ -12,7 +12,7 @@ import org.junit.Test;
 import repository.WithPostgresContainer;
 import services.Path;
 import services.applicant.ApplicantData;
-import services.applicant.ApplicantQuestion;
+import services.applicant.question.ApplicantQuestion;
 import services.question.TextQuestionDefinition;
 import services.question.TextQuestionDefinition.TextValidationPredicates;
 

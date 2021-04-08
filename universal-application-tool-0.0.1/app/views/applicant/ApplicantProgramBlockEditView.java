@@ -14,8 +14,8 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
-import services.applicant.ApplicantQuestion;
 import services.applicant.Block;
+import services.applicant.question.ApplicantQuestion;
 import views.BaseHtmlView;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 
