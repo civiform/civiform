@@ -53,9 +53,12 @@ public class AmazonS3Client {
 
     log.info("aws s3 enabled: " + String.valueOf(enabled()));
     if (enabled()) {
-      connect();
-      putTestObject();
-      getTestObject();
+      ensureS3Client();
+
+      if (enabled()) {
+        putTestObject();
+        getTestObject();
+      } 
     }
 
     this.appLifecycle.addStopHook(
@@ -72,6 +75,10 @@ public class AmazonS3Client {
       return false;
     }
     return (config.hasPath(AWS_S3_REGION) && config.hasPath(AWS_S3_BUCKET));
+  }
+
+  public boolean connected() {
+    return s3 != null;
   }
 
   public void putObject(String key, byte[] data) {
@@ -119,16 +126,18 @@ public class AmazonS3Client {
     }
 
     int i = 0;
-    while (s3 == null && i < 3) {
+    while (i < 3) {
       connect();
 
       if (s3 == null) {
-        log.warn("Failed to create S3 client on attempt " + i);
         try {
           Thread.sleep(50 * (int) Math.pow(2, i));
         } catch (InterruptedException e) {
-          log.info("Interrupt on Thread.sleep");
+          log.warn("Interrupt on Thread.sleep: Aborting S3 bucket connection");
+          break;
         }
+      } else {
+        break;
       }
 
       i++;
@@ -167,5 +176,9 @@ public class AmazonS3Client {
     }
     s3 = s3ClientBuilder.build();
     presigner = s3PresignerBuilder.build();
+
+    if (connected() == false) {
+        throw new RuntimeException("S3 bucket not connected");
+    }
   }
 }
