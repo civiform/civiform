@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.util.Comparator;
@@ -11,7 +12,6 @@ import java.util.Set;
 import models.StoredFile;
 import play.Environment;
 import play.libs.Files.TemporaryFile;
-import play.mvc.Controller;
 import play.mvc.Http.MultipartFormData;
 import play.mvc.Http.Request;
 import play.mvc.Result;
@@ -19,21 +19,23 @@ import repository.StoredFileRepository;
 import views.dev.FileUploadView;
 
 /** Controller for interacting with S3 directly in dev mode. */
-public class FileUploadController extends Controller {
-  private final Environment environment;
+public class FileUploadController extends DevController {
   private final FileUploadView view;
   private final StoredFileRepository storedFileRepository;
 
   @Inject
   public FileUploadController(
-      FileUploadView view, StoredFileRepository storedFileRepository, Environment environment) {
+      FileUploadView view,
+      StoredFileRepository storedFileRepository,
+      Environment environment,
+      Config configuration) {
+    super(environment, configuration);
     this.view = checkNotNull(view);
     this.storedFileRepository = checkNotNull(storedFileRepository);
-    this.environment = checkNotNull(environment);
   }
 
   public Result index(Request request) {
-    if (!environment.isDev()) {
+    if (!isDevEnvironment()) {
       return notFound();
     }
     Set<StoredFile> files =
@@ -46,7 +48,7 @@ public class FileUploadController extends Controller {
   }
 
   public Result create(Request request) {
-    if (!environment.isDev()) {
+    if (!isDevEnvironment()) {
       return notFound();
     }
     MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
