@@ -1,6 +1,5 @@
 package services.question;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
