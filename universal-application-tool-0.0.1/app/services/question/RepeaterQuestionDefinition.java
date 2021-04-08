@@ -1,13 +1,10 @@
 package services.question;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.OptionalLong;
 import models.LifecycleStage;
 import services.Path;
@@ -24,6 +21,8 @@ import services.Path;
  */
 public class RepeaterQuestionDefinition extends QuestionDefinition {
 
+  public static final String REPEATED_ENTITY_NAME_KEY = "entity_name";
+
   public RepeaterQuestionDefinition(
       OptionalLong id,
       long version,
@@ -33,8 +32,7 @@ public class RepeaterQuestionDefinition extends QuestionDefinition {
       String description,
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText,
-      RepeaterValidationPredicates validationPredicates) {
+      ImmutableMap<Locale, String> questionHelpText) {
     super(
         id,
         version,
@@ -45,29 +43,7 @@ public class RepeaterQuestionDefinition extends QuestionDefinition {
         lifecycleStage,
         questionText,
         questionHelpText,
-        validationPredicates);
-  }
-
-  public RepeaterQuestionDefinition(
-      long version,
-      String name,
-      Path path,
-      Optional<Long> repeaterId,
-      String description,
-      LifecycleStage lifecycleStage,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText,
-      RepeaterValidationPredicates validationPredicates) {
-    super(
-        version,
-        name,
-        path,
-        repeaterId,
-        description,
-        lifecycleStage,
-        questionText,
-        questionHelpText,
-        validationPredicates);
+        RepeaterValidationPredicates.create());
   }
 
   public RepeaterQuestionDefinition(
@@ -102,55 +78,15 @@ public class RepeaterQuestionDefinition extends QuestionDefinition {
 
   @Override
   public ImmutableMap<Path, ScalarType> getScalarMap() {
-    return ImmutableMap.of(getPath(), ScalarType.STRING);
+    return ImmutableMap.of();
   }
 
   @JsonDeserialize(
       builder = AutoValue_RepeaterQuestionDefinition_RepeaterValidationPredicates.Builder.class)
   @AutoValue
   public abstract static class RepeaterValidationPredicates extends ValidationPredicates {
-
-    public static RepeaterValidationPredicates parse(String jsonString) {
-      try {
-        return mapper.readValue(
-            jsonString, AutoValue_RepeaterQuestionDefinition_RepeaterValidationPredicates.class);
-      } catch (JsonProcessingException e) {
-        throw new RuntimeException(e);
-      }
-    }
-
     public static RepeaterValidationPredicates create() {
-      return builder().build();
-    }
-
-    public static RepeaterValidationPredicates create(int minLength, int maxLength) {
-      return builder().setMinLength(minLength).setMaxLength(maxLength).build();
-    }
-
-    public static Builder builder() {
-      return new AutoValue_RepeaterQuestionDefinition_RepeaterValidationPredicates.Builder();
-    }
-
-    @JsonProperty("minLength")
-    public abstract OptionalInt minLength();
-
-    @JsonProperty("maxLength")
-    public abstract OptionalInt maxLength();
-
-    @AutoValue.Builder
-    public abstract static class Builder {
-
-      @JsonProperty("minLength")
-      public abstract Builder setMinLength(OptionalInt minLength);
-
-      public abstract Builder setMinLength(int minLength);
-
-      @JsonProperty("maxLength")
-      public abstract Builder setMaxLength(OptionalInt maxLength);
-
-      public abstract Builder setMaxLength(int maxLength);
-
-      public abstract RepeaterValidationPredicates build();
+      return new AutoValue_RepeaterQuestionDefinition_RepeaterValidationPredicates();
     }
   }
 }

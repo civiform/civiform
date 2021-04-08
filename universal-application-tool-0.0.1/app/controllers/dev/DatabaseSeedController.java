@@ -24,6 +24,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
 import services.question.AddressQuestionDefinition;
+import services.question.CheckboxQuestionDefinition;
 import services.question.DropdownQuestionDefinition;
 import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
@@ -141,6 +142,24 @@ public class DatabaseSeedController extends Controller {
         .getResult();
   }
 
+  private QuestionDefinition insertCheckboxQuestionDefinition() {
+    return questionService
+        .create(
+            new CheckboxQuestionDefinition(
+                1L,
+                "kitchen",
+                Path.create("applicant.kitchen"),
+                Optional.empty(),
+                "description",
+                LifecycleStage.ACTIVE,
+                ImmutableMap.of(
+                    Locale.US, "Which of the following kitchen instruments do you own?"),
+                ImmutableMap.of(Locale.US, "help text"),
+                ImmutableListMultimap.of(
+                    Locale.US, "toaster", Locale.US, "pepper grinder", Locale.US, "garlic press")))
+        .getResult();
+  }
+
   private QuestionDefinition insertDropdownQuestionDefinition() {
     return questionService
         .create(
@@ -208,6 +227,16 @@ public class DatabaseSeedController extends Controller {
                   "Ice Cream Information",
                   ImmutableList.of(
                       ProgramQuestionDefinition.create(insertDropdownQuestionDefinition())))
+              .getResult();
+
+      programDefinition =
+          programService
+              .addBlockToProgram(
+                  programDefinition.id(),
+                  "Block 4",
+                  "kitchen information",
+                  ImmutableList.of(
+                      ProgramQuestionDefinition.create(insertCheckboxQuestionDefinition())))
               .getResult();
 
       return programDefinition;

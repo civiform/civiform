@@ -16,7 +16,6 @@ import services.question.NameQuestionDefinition;
 import services.question.NumberQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionType;
-import services.question.RepeaterQuestionDefinition;
 import services.question.TextQuestionDefinition;
 import services.question.TranslationNotFoundException;
 
@@ -83,18 +82,6 @@ public class ApplicantQuestion {
     return new AddressQuestion();
   }
 
-  public NameQuestion getNameQuestion() {
-    return new NameQuestion();
-  }
-
-  public NumberQuestion getNumberQuestion() {
-    return new NumberQuestion();
-  }
-
-  public RepeaterQuestion getRepeaterQuestion() {
-    return new RepeaterQuestion();
-  }
-
   public SingleSelectQuestion getSingleSelectQuestion() {
     return new SingleSelectQuestion();
   }
@@ -103,18 +90,30 @@ public class ApplicantQuestion {
     return new TextQuestion();
   }
 
+  public MultiSelectQuestion createMultiSelectQuestion() {
+    return new MultiSelectQuestion();
+  }
+
+  public NameQuestion getNameQuestion() {
+    return new NameQuestion();
+  }
+
+  public NumberQuestion getNumberQuestion() {
+    return new NumberQuestion();
+  }
+
   public PresentsErrors errorsPresenter() {
     switch (getType()) {
       case ADDRESS:
         return getAddressQuestion();
+      case CHECKBOX:
+        return createMultiSelectQuestion();
       case DROPDOWN:
         return getSingleSelectQuestion();
       case NAME:
         return getNameQuestion();
       case NUMBER:
         return getNumberQuestion();
-      case REPEATER:
-        return getRepeaterQuestion();
       case TEXT:
         return getTextQuestion();
       default:
@@ -598,8 +597,6 @@ public class ApplicantQuestion {
     }
   }
 
-  // TODO(https://github.com/seattle-uat/civiform/issues/396): Implement a question that allows for
-  // multiple answer selections (i.e. the value is a list)
   public class SingleSelectQuestion implements PresentsErrors {
 
     private Optional<String> selectedOptionValue;
@@ -665,11 +662,11 @@ public class ApplicantQuestion {
     }
   }
 
-  public class RepeaterQuestion implements PresentsErrors {
+  public class MultiSelectQuestion implements PresentsErrors {
 
-    private Optional<ImmutableList<String>> repeatedEntities;
+    private Optional<ImmutableList<String>> selectedOptionsValue;
 
-    public RepeaterQuestion() {
+    public MultiSelectQuestion() {
       assertQuestionType();
     }
 
@@ -679,42 +676,68 @@ public class ApplicantQuestion {
     }
 
     public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+      // TODO(https://github.com/seattle-uat/civiform/issues/416): Implement validation
       return ImmutableSet.of();
     }
 
     @Override
     public boolean hasTypeSpecificErrors() {
-      // There are no inherent requirements in a repeater question.
+      // There are no inherent requirements in a multi-option question.
       return false;
     }
 
     public boolean hasValue() {
-      return getRepeatedEntities().isPresent();
+      return getSelectedOptionsValue().isPresent();
     }
 
-    public Optional<ImmutableList<String>> getRepeatedEntities() {
-      if (repeatedEntities != null) {
-        return repeatedEntities;
+    public Optional<ImmutableList<String>> getSelectedOptionsValue() {
+      if (selectedOptionsValue != null) {
+        return selectedOptionsValue;
       }
 
-      // TODO: add applicantData.readRepeatedEntities(Path) and it here.
-      repeatedEntities = Optional.empty();
+      selectedOptionsValue = applicantData.readList(getSelectionPath());
 
-      return repeatedEntities;
+      return selectedOptionsValue;
+    }
+
+    public boolean optionIsSelected(String option) {
+      return getSelectedOptionsValue().isPresent()
+          && getSelectedOptionsValue().get().contains(option);
     }
 
     public void assertQuestionType() {
-      if (!getType().equals(QuestionType.REPEATER)) {
+      if (!getType().isMultiOptionType()) {
         throw new RuntimeException(
             String.format(
-                "Question is not a REPEATER question: %s (type: %s)",
+                "Question is not a multi-option question: %s (type: %s)",
                 questionDefinition.getPath(), questionDefinition.getQuestionType()));
       }
     }
 
-    public RepeaterQuestionDefinition getQuestionDefinition() {
+    public MultiOptionQuestionDefinition getQuestionDefinition() {
       assertQuestionType();
-      return (RepeaterQuestionDefinition) questionDefinition;
+      return (MultiOptionQuestionDefinition) questionDefinition;
+    }
+
+    /**
+     * For multi-select questions, we must append {@code []} to the field name so that the Play
+     * framework allows multiple form keys with the same value. For more information, see
+     * https://www.playframework.com/documentation/2.8.x/JavaFormHelpers#Handling-repeated-values
+     */
+    public Path getSelectionPathAsArray() {
+      return getSelectionPath().join(Path.ARRAY_SUFFIX);
+    }
+
+    public Path getSelectionPath() {
+      return getQuestionDefinition().getSelectionPath();
+    }
+
+    public ImmutableList<String> getOptions() {
+      try {
+        return getQuestionDefinition().getOptionsForLocale(applicantData.preferredLocale());
+      } catch (TranslationNotFoundException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 
