@@ -10,8 +10,6 @@ jobs:
     steps:
       - name: check out pr branch
         uses: actions/checkout@v2
-      - name: Build test app container
-        run: docker build -t civiform ./
       - name: Build browser testing container
         run: bin/build-browser-tests
       - name: Run prober test
