@@ -1,9 +1,9 @@
 package forms;
 
 import java.util.OptionalInt;
-import services.question.QuestionDefinitionBuilder;
-import services.question.QuestionType;
-import services.question.TextQuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
+import services.question.types.TextQuestionDefinition;
 
 public class TextQuestionForm extends QuestionForm {
   private OptionalInt minLength;

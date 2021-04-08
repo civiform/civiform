@@ -1,4 +1,4 @@
-package services.question;
+package services.question.types;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -9,6 +9,8 @@ import java.util.Locale;
 import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
+import services.question.exceptions.TranslationNotFoundException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
 
 public class MultiOptionQuestionDefinitionTest {
 

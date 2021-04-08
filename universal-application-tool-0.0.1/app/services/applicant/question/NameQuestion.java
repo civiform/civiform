@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
-import services.question.NameQuestionDefinition;
-import services.question.QuestionType;
+import services.question.types.NameQuestionDefinition;
+import services.question.types.QuestionType;
 
 public class NameQuestion implements PresentsErrors {
 

@@ -12,7 +12,7 @@ import services.program.ExportDefinition;
 import services.program.Predicate;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
-import services.question.QuestionDefinition;
+import services.question.types.QuestionDefinition;
 
 public class ProgramBuilder {
 

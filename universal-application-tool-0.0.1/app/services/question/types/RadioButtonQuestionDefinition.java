@@ -1,4 +1,4 @@
-package services.question;
+package services.question.types;
 
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
@@ -8,9 +8,9 @@ import java.util.OptionalLong;
 import models.LifecycleStage;
 import services.Path;
 
-public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
+public class RadioButtonQuestionDefinition extends MultiOptionQuestionDefinition {
 
-  public CheckboxQuestionDefinition(
+  public RadioButtonQuestionDefinition(
       OptionalLong id,
       long version,
       String name,
@@ -34,7 +34,7 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
         options);
   }
 
-  public CheckboxQuestionDefinition(
+  public RadioButtonQuestionDefinition(
       long version,
       String name,
       Path path,
@@ -58,6 +58,11 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
 
   @Override
   public QuestionType getQuestionType() {
-    return QuestionType.CHECKBOX;
+    return QuestionType.RADIO_BUTTON;
+  }
+
+  @Override
+  public ScalarType getSelectionType() {
+    return ScalarType.STRING;
   }
 }

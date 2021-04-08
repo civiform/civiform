@@ -1,4 +1,4 @@
-package services.question;
+package services.question.exceptions;
 
 public class InvalidUpdateException extends Exception {
   public InvalidUpdateException(String reason) {

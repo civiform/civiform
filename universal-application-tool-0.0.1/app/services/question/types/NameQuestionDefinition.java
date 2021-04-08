@@ -1,4 +1,4 @@
-package services.question;
+package services.question.types;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;

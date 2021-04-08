@@ -23,7 +23,7 @@ import play.Application;
 import play.api.mvc.Call;
 import play.db.ebean.EbeanConfig;
 import play.test.WithBrowser;
-import services.question.QuestionType;
+import services.question.types.QuestionType;
 import support.TestConstants;
 import views.style.ReferenceClasses;
 

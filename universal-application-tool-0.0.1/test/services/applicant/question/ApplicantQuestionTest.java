@@ -15,14 +15,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.Path;
 import services.applicant.ApplicantData;
-import services.question.AddressQuestionDefinition;
-import services.question.DropdownQuestionDefinition;
-import services.question.NameQuestionDefinition;
-import services.question.NumberQuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.QuestionType;
-import services.question.TextQuestionDefinition;
-import services.question.UnsupportedQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.AddressQuestionDefinition;
+import services.question.types.DropdownQuestionDefinition;
+import services.question.types.NameQuestionDefinition;
+import services.question.types.NumberQuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
+import services.question.types.TextQuestionDefinition;
 
 @RunWith(JUnitParamsRunner.class)
 public class ApplicantQuestionTest {

@@ -6,12 +6,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
 import services.question.QuestionDefinitionBuilder;
-import services.question.RadioButtonQuestionDefinition;
 import services.question.UnsupportedQuestionTypeException;
+import services.question.types.RadioButtonQuestionDefinition;
 
 public class RadioButtonQuestionFormTest {
 
@@ -37,6 +38,7 @@ public class RadioButtonQuestionFormTest {
             1L,
             "name",
             Path.create("my.question.path.name"),
+            Optional.empty(),
             "description",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
@@ -53,6 +55,7 @@ public class RadioButtonQuestionFormTest {
             1L,
             "name",
             Path.create("my.question.path.name"),
+            Optional.empty(),
             "description",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),

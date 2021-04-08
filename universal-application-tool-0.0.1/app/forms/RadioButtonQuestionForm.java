@@ -1,7 +1,7 @@
 package forms;
 
 import services.question.QuestionType;
-import services.question.RadioButtonQuestionDefinition;
+import services.question.types.RadioButtonQuestionDefinition;
 
 public class RadioButtonQuestionForm extends MultiOptionQuestionForm {
 

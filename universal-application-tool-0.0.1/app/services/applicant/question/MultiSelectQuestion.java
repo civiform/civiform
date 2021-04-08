@@ -5,8 +5,8 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
-import services.question.MultiOptionQuestionDefinition;
-import services.question.TranslationNotFoundException;
+import services.question.exceptions.TranslationNotFoundException;
+import services.question.types.MultiOptionQuestionDefinition;
 
 public class MultiSelectQuestion implements PresentsErrors {
 
