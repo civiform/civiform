@@ -80,8 +80,6 @@ public class RepeaterQuestionDefinition extends QuestionDefinition {
     return ImmutableMap.of();
   }
 
-  @JsonDeserialize(
-      builder = AutoValue_RepeaterQuestionDefinition_RepeaterValidationPredicates.Builder.class)
   @AutoValue
   public abstract static class RepeaterValidationPredicates extends ValidationPredicates {
     public static RepeaterValidationPredicates create() {
