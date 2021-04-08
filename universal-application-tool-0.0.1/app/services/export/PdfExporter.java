@@ -32,7 +32,7 @@ public class PdfExporter {
     PDAcroForm form = baseDocument.getDocumentCatalog().getAcroForm();
     for (Map.Entry<String, String> fToV : fieldToValue.entrySet()) {
       Optional<String> applicantValue =
-          applicant.getApplicantData().readString(Path.create(fToV.getValue()));
+          applicant.getApplicantData().readAsString(Path.create(fToV.getValue()));
       if (applicantValue.isPresent()) {
         form.getField(fToV.getKey()).setValue(applicantValue.get());
       }

@@ -58,6 +58,12 @@ public class CsvExporterTest extends WithPostgresContainer {
                 .setJsonPath(Path.create("$.applicant.column"))
                 .setColumnType(ColumnType.APPLICANT)
                 .build())
+        .addColumn(
+            Column.builder()
+                .setHeader("multiselect")
+                .setJsonPath(Path.create("$.applicant.multiselect.selection"))
+                .setColumnType(ColumnType.APPLICANT)
+                .build())
         .build();
   }
 
@@ -83,6 +89,12 @@ public class CsvExporterTest extends WithPostgresContainer {
         .getApplicantData()
         .putString(
             Path.create("applicant.column"), "Some Value \" containing ,,, special characters");
+    fakeApplicantOne
+        .getApplicantData()
+        .putString(Path.create("applicant.multiselect.selection[0]"), "hello");
+    fakeApplicantOne
+        .getApplicantData()
+        .putString(Path.create("applicant.multiselect.selection[1]"), "world");
     fakeApplicantOne.getApplicantData().putString(Path.create("applicant.color.text"), "fuchsia");
     fakeApplicantOne.save();
 
@@ -90,6 +102,9 @@ public class CsvExporterTest extends WithPostgresContainer {
     fakeApplicantTwo.getApplicantData().putString(Path.create("applicant.name.first"), "Bob");
     fakeApplicantTwo.getApplicantData().putString(Path.create("applicant.name.last"), "Baker");
     fakeApplicantTwo.getApplicantData().putString(Path.create("applicant.column"), "");
+    fakeApplicantTwo
+        .getApplicantData()
+        .putString(Path.create("applicant.multiselect.selection[0]"), "hello");
     fakeApplicantTwo.getApplicantData().putString(Path.create("applicant.color.text"), "maroon");
     fakeApplicantTwo.save();
     this.fakeApplicants = ImmutableList.of(fakeApplicantOne, fakeApplicantTwo);
@@ -119,10 +134,13 @@ public class CsvExporterTest extends WithPostgresContainer {
     assertThat(parser.getHeaderMap()).containsEntry("first name", 0);
     assertThat(parser.getHeaderMap()).containsEntry("last name", 1);
     assertThat(parser.getHeaderMap()).containsEntry("column", 2);
+    assertThat(parser.getHeaderMap()).containsEntry("multiselect", 3);
     List<CSVRecord> records = parser.getRecords();
     assertThat(records).hasSize(2);
     assertThat(records.get(0).get("first name")).isEqualTo("Alice");
     assertThat(records.get(1).get("last name")).isEqualTo("Baker");
+    // Check list for multiselect
+    assertThat(records.get(0).get("multiselect")).isEqualTo("[hello, world]");
   }
 
   @Test
