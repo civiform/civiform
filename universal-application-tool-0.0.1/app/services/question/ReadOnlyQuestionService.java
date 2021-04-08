@@ -7,6 +7,7 @@ import services.Path;
 import services.question.exceptions.InvalidPathException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
+import services.question.types.RepeaterQuestionDefinition;
 import services.question.types.ScalarType;
 
 /**
@@ -17,6 +18,9 @@ public interface ReadOnlyQuestionService {
 
   /** Returns all question definitions for this version. */
   ImmutableList<QuestionDefinition> getAllQuestions();
+
+  /** Returns all repeater question definitions for this version. */
+  ImmutableList<RepeaterQuestionDefinition> getRepeaterQuestions();
 
   /** Returns all scalars for this version. */
   ImmutableMap<Path, ScalarType> getAllScalars();

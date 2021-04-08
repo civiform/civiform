@@ -15,6 +15,7 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.RepeaterQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
 /**
@@ -33,17 +34,10 @@ import services.question.types.TextQuestionDefinition;
  * retrieve the cached question.
  */
 public class TestQuestionBank {
+
   private static final long VERSION = 1L;
-
-  private static AtomicLong nextId = new AtomicLong(1L);
-
-  private enum QuestionEnum {
-    APPLICANT_NAME,
-    APPLICANT_ADDRESS,
-    APPLICANT_FAVORITE_COLOR
-  }
-
   private static final Map<QuestionEnum, Question> questionCache = new ConcurrentHashMap<>();
+  private static final AtomicLong nextId = new AtomicLong(1L);
 
   public static void reset() {
     questionCache.clear();
@@ -63,6 +57,11 @@ public class TestQuestionBank {
   public static Question applicantFavoriteColor() {
     return questionCache.computeIfAbsent(
         QuestionEnum.APPLICANT_FAVORITE_COLOR, TestQuestionBank::applicantFavoriteColor);
+  }
+
+  public static Question applicantHouseholdMembers() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBERS, TestQuestionBank::applicantHouseholdMembers);
   }
 
   private static Question applicantName(QuestionEnum ignore) {
@@ -107,6 +106,21 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  private static Question applicantHouseholdMembers(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new RepeaterQuestionDefinition(
+            VERSION,
+            "applicant household members",
+            Path.create("applicant.household_members"),
+            Optional.empty(),
+            "The applicant's household members",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "Who are your household members?"),
+            ImmutableMap.of(Locale.US, "help text"));
+
+    return maybeSave(definition);
+  }
+
   private static Question maybeSave(QuestionDefinition questionDefinition) {
     Question question = new Question(questionDefinition);
     try {
@@ -121,5 +135,12 @@ public class TestQuestionBank {
       }
     }
     return question;
+  }
+
+  private enum QuestionEnum {
+    APPLICANT_NAME,
+    APPLICANT_ADDRESS,
+    APPLICANT_FAVORITE_COLOR,
+    APPLICANT_HOUSEHOLD_MEMBERS
   }
 }

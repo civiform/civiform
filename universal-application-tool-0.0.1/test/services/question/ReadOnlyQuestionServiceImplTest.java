@@ -11,23 +11,23 @@ import services.Path;
 import services.question.exceptions.InvalidPathException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.*;
+import services.question.types.AddressQuestionDefinition;
+import services.question.types.NameQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.ScalarType;
+import services.question.types.TextQuestionDefinition;
 import support.TestQuestionBank;
 
 public class ReadOnlyQuestionServiceImplTest {
 
+  private final Path invalidPath = Path.create("invalid.path");
+  private final ReadOnlyQuestionService emptyService =
+      new ReadOnlyQuestionServiceImpl(ImmutableList.of());
   private NameQuestionDefinition nameQuestion;
   private AddressQuestionDefinition addressQuestion;
   private TextQuestionDefinition basicQuestion;
-
-  private final Path invalidPath = Path.create("invalid.path");
-
   private ImmutableList<QuestionDefinition> questions;
-
   private ReadOnlyQuestionService service;
-
-  private final ReadOnlyQuestionService emptyService =
-      new ReadOnlyQuestionServiceImpl(ImmutableList.of());
 
   @Before
   public void setupQuestions() throws UnsupportedQuestionTypeException {
@@ -52,6 +52,22 @@ public class ReadOnlyQuestionServiceImplTest {
   @Test
   public void getAllQuestions() {
     assertThat(service.getAllQuestions().size()).isEqualTo(3);
+  }
+
+  @Test
+  public void getRepeaterQuestions() {
+    QuestionDefinition repeaterQuestion =
+        TestQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+
+    ReadOnlyQuestionService repeaterService =
+        new ReadOnlyQuestionServiceImpl(
+            ImmutableList.<QuestionDefinition>builder()
+                .addAll(questions)
+                .add(repeaterQuestion)
+                .build());
+
+    assertThat(repeaterService.getRepeaterQuestions().size()).isEqualTo(1);
+    assertThat(repeaterService.getRepeaterQuestions().get(0)).isEqualTo(repeaterQuestion);
   }
 
   @Test
