@@ -89,4 +89,3 @@ public class MultiSelectQuestion implements PresentsErrors {
     }
   }
 }
-}
