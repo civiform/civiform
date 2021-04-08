@@ -20,6 +20,12 @@ export class ApplicantQuestions {
     await this.page.fill('[placeholder="Last name"]', lastName);
   }
 
+  async answerCheckboxQuestion(checked: Array<string>) {
+    for (var index in checked) {
+      await this.page.check('#' + checked[index]);
+    }
+  }
+
   async answerDropdownQuestion(selected: string) {
     await this.page.selectOption('select', selected);
   }

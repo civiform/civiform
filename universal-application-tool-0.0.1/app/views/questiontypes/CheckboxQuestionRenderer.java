@@ -4,6 +4,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static views.components.FieldWithLabel.checkbox;
 
+import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import services.applicant.ApplicantQuestion;
 import views.BaseHtmlView;
@@ -40,11 +41,21 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
             each(
                 multiOptionQuestion.getOptions(),
                 option ->
-                    checkbox()
-                        .setLabelText(option)
-                        .setFieldName(multiOptionQuestion.getSelectionPathAsArray().toString())
-                        .setValue(option)
-                        .setChecked(multiOptionQuestion.optionIsSelected(option))
-                        .getContainer()));
+                    renderSingleCheckboxOption(
+                        multiOptionQuestion.getSelectionPathAsArray().toString(),
+                        option,
+                        multiOptionQuestion.optionIsSelected(option))));
+  }
+
+  private ContainerTag renderSingleCheckboxOption(
+      String selectionPath, String optionName, boolean isChecked) {
+    String id = optionName.replaceAll("\\s+", "_");
+    return checkbox()
+        .setId(id)
+        .setLabelText(optionName)
+        .setFieldName(selectionPath)
+        .setValue(optionName)
+        .setChecked(isChecked)
+        .getContainer();
   }
 }
