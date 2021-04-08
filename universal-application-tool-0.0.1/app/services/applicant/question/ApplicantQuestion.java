@@ -109,6 +109,7 @@ public class ApplicantQuestion {
       case CHECKBOX:
         return createMultiSelectQuestion();
       case DROPDOWN:
+      case RADIO_BUTTON:
         return createSingleSelectQuestion();
       case NAME:
         return createNameQuestion();

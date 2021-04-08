@@ -10,8 +10,8 @@ import java.util.Optional;
 import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
-import services.question.QuestionDefinitionBuilder;
-import services.question.UnsupportedQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.RadioButtonQuestionDefinition;
 
 public class RadioButtonQuestionFormTest {
