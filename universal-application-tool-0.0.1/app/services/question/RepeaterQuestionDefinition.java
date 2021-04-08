@@ -23,6 +23,8 @@ import services.Path;
  */
 public class RepeaterQuestionDefinition extends QuestionDefinition {
 
+  public static final String REPEATED_ENTITY_NAME_KEY = "entity_name";
+
   public RepeaterQuestionDefinition(
       OptionalLong id,
       long version,
@@ -105,7 +107,7 @@ public class RepeaterQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getEntityPath() {
-    return getPath().join("entity_name");
+    return getPath().join(REPEATED_ENTITY_NAME_KEY);
   }
 
   public ScalarType getEntityType() {
