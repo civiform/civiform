@@ -1,9 +1,12 @@
-# --- Add Program Export Definitions
-
+# --- Add answer options for multi-option questions
 # --- !Ups
 
-alter table programs add export_definitions jsonb;
+alter table applicants add when_created timestamp;
+
+update applicants set when_created = current_timestamp where when_created is null;
+
+update programs set export_definitions = '[]' where export_definitions is null;
 
 # --- !Downs
 
-alter table programs drop column if exists export_definitions;
+alter table applicants drop column when_created;
