@@ -31,7 +31,7 @@ fi
 
 aws s3 sync ./infra s3://seattle-civiform-cftmpl/${TIMESTAMP}
 
-aws cloudformation create-change-set --region ${REGION} --include-nested-stacks --stack-name "$STACK" --change-set-name auto-changeset-pr-$PR_NUMBER --template-url  https://seattle-civiform-cftmpl.s3-${REGION}.amazonaws.com/$TIMESTAMP/stack.yaml --parameters "[{\"ParameterKey\": \"Timestamp\", \"ParameterValue\": \"$TIMESTAMP\"}, {\"ParameterKey\": \"Environment\", \"ParameterValue\": \"staging\"}]"
+aws cloudformation create-change-set --region ${REGION} --include-nested-stacks --stack-name "$STACK" --change-set-name auto-changeset-pr-$PR_NUMBER --template-url  https://seattle-civiform-cftmpl.s3-${REGION}.amazonaws.com/$TIMESTAMP/stack.yaml --parameters "[{\"ParameterKey\": \"Timestamp\", \"ParameterValue\": \"$TIMESTAMP\"}, {\"ParameterKey\": \"Environment\", \"ParameterValue\": \"$ENVIRONMENT\"}]"
 
 sleep 5
 
