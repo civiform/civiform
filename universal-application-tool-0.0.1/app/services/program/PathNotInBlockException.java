@@ -9,6 +9,6 @@ public class PathNotInBlockException extends Exception {
   public PathNotInBlockException(BlockDefinition block, Path path) {
     super(
         String.format(
-            "Block (ID %d) in program (ID ?) does not contain path %s", block.id(), path.path()));
+            "Block (ID %d) in program (ID ?) does not contain path %s", block.id(), path.toString()));
   }
 }

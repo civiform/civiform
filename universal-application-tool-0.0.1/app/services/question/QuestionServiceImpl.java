@@ -107,7 +107,7 @@ public final class QuestionServiceImpl implements QuestionService {
       return ImmutableSet.of(
           CiviFormError.of(
               String.format(
-                  "path '%s' conflicts with question: %s", newPath.path(), question.getPath())));
+                  "path '%s' conflicts with question: %s", path.toString(), question.getPath())));
     }
     return ImmutableSet.of();
   }

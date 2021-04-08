@@ -272,7 +272,7 @@ public abstract class QuestionDefinition {
       errors.add(CiviFormError.of("blank name"));
     }
     if (!hasValidPathPattern()) {
-      errors.add(CiviFormError.of(String.format("invalid path pattern: '%s'", path.path())));
+      errors.add(CiviFormError.of(String.format("invalid path pattern: '%s'", path.toString())));
     }
     if (description.isBlank()) {
       errors.add(CiviFormError.of("blank description"));
@@ -284,10 +284,10 @@ public abstract class QuestionDefinition {
   }
 
   private boolean hasValidPathPattern() {
-    if (path.path().isBlank()) {
+    if (path.toString().isBlank()) {
       return false;
     }
-    return URLEncoder.encode(path.path(), StandardCharsets.UTF_8).equals(path.path());
+    return URLEncoder.encode(path.toString(), StandardCharsets.UTF_8).equals(path.toString());
   }
 
   @Override

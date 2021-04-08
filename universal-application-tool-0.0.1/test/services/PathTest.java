@@ -2,6 +2,8 @@ package services;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.nio.file.Path;
+
 import org.junit.Test;
 
 public class PathTest {
@@ -140,10 +142,10 @@ public class PathTest {
   @Test
   public void pathJoin() {
     Path path = Path.create("applicant.my.path");
-    assertThat(path.path()).isEqualTo("applicant.my.path");
+    assertThat(path.toString()).isEqualTo("applicant.my.path");
 
     path = path.join("another");
-    assertThat(path.path()).isEqualTo("applicant.my.path.another");
+    assertThat(path.toString()).isEqualTo("applicant.my.path.another");
   }
 
   @Test

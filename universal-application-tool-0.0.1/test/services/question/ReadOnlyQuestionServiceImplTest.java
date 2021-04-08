@@ -80,7 +80,7 @@ public class ReadOnlyQuestionServiceImplTest {
   public void getPathScalars_forInvalidPath() {
     assertThatThrownBy(() -> service.getPathScalars(invalidPath))
         .isInstanceOf(InvalidPathException.class)
-        .hasMessage("Path not found: " + invalidPath.path());
+        .hasMessage("Path not found: " + invalidPath.toString());
   }
 
   @Test
