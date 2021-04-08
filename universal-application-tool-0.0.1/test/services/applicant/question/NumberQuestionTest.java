@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
-import services.question.NumberQuestionDefinition;
+import services.question.types.NumberQuestionDefinition;
 
 @RunWith(JUnitParamsRunner.class)
 public class NumberQuestionTest {

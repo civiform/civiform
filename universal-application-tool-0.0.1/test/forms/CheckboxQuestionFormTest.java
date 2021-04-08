@@ -10,9 +10,9 @@ import java.util.Optional;
 import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
+import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
-import services.question.exceptions.UnsupportedQuestionTypeException;
 
 public class CheckboxQuestionFormTest {
 

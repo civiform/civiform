@@ -12,7 +12,7 @@ import org.junit.Test;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
-import services.question.AddressQuestionDefinition;
+import services.question.types.AddressQuestionDefinition;
 
 public class AddressQuestionTest {
 

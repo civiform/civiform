@@ -6,8 +6,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
-import services.question.AddressQuestionDefinition;
-import services.question.QuestionType;
+import services.question.types.AddressQuestionDefinition;
+import services.question.types.QuestionType;
 
 public class AddressQuestion implements PresentsErrors {
 
