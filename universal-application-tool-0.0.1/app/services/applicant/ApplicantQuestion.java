@@ -724,8 +724,8 @@ public class ApplicantQuestion {
      * framework allows multiple form keys with the same value. For more information, see
      * https://www.playframework.com/documentation/2.8.x/JavaFormHelpers#Handling-repeated-values
      */
-    public Path getSelectionPathAsArray() {
-      return getSelectionPath().join(Path.ARRAY_SUFFIX);
+    public String getSelectionPathAsArray() {
+      return getSelectionPath().toString() + Path.ARRAY_SUFFIX;
     }
 
     public Path getSelectionPath() {
