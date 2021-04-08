@@ -60,9 +60,4 @@ public class RadioButtonQuestionDefinition extends MultiOptionQuestionDefinition
   public QuestionType getQuestionType() {
     return QuestionType.RADIO_BUTTON;
   }
-
-  @Override
-  public ScalarType getSelectionType() {
-    return ScalarType.STRING;
-  }
 }
