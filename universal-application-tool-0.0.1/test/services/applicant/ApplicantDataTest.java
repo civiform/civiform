@@ -236,6 +236,37 @@ public class ApplicantDataTest {
   }
 
   @Test
+  public void putRepeatedEntities() {
+    ApplicantData data = new ApplicantData();
+    Path path = Path.create("applicant.children[1].pets[]");
+    ImmutableList<String> petNames = ImmutableList.of("bubbles", "luna", "taco");
+
+    data.putRepeatedEntities(path, petNames);
+
+    assertThat(data.asJsonString())
+        .isEqualTo(
+            "{\"applicant\":{\"children\":[{},{\"pets\":[{\"entity_name\":\"bubbles\"},{\"entity_name\":\"luna\"},{\"entity_name\":\"taco\"}]}]},\"metadata\":{}}");
+  }
+
+  @Test
+  public void putRepeatedEntities_withPrexistingData() {
+    ApplicantData data =
+        new ApplicantData(
+            "{\"applicant\":{\"children\":[{},{\"entity_name\":\"an old name\",\"pets\":["
+                + "{\"entity_name\":\"bubbles\"},"
+                + "{\"entity_name\":\"luna\"},"
+                + "{\"entity_name\":\"taco\"}]}]},\"metadata\":{}}");
+    Path path = Path.create("applicant.children[]");
+    ImmutableList<String> childrenNames = ImmutableList.of("alice", "bob");
+
+    data.putRepeatedEntities(path, childrenNames);
+
+    assertThat(data.asJsonString())
+        .isEqualTo(
+            "{\"applicant\":{\"children\":[{\"entity_name\":\"alice\"},{\"entity_name\":\"bob\",\"pets\":[{\"entity_name\":\"bubbles\"},{\"entity_name\":\"luna\"},{\"entity_name\":\"taco\"}]}]},\"metadata\":{}}");
+  }
+
+  @Test
   public void readString_findsCorrectValue() throws Exception {
     String testData = "{ \"applicant\": { \"favorites\": { \"color\": \"orange\"} } }";
     ApplicantData data = new ApplicantData(testData);
@@ -344,5 +375,21 @@ public class ApplicantDataTest {
     Optional<ImmutableList<String>> found = data.readList(Path.create("applicant.object.name"));
 
     assertThat(found).isEmpty();
+  }
+
+  @Test
+  public void readRepeatedEntities() {
+    String testData =
+        "{\"applicant\":{\"children\":[{},{\"pets\":["
+            + "{\"entity_name\":\"bubbles\"},"
+            + "{\"entity_name\":\"luna\"},"
+            + "{\"entity_name\":\"taco\"}"
+            + "]}]},\"metadata\":{}}";
+    ApplicantData data = new ApplicantData(testData);
+    Path path = Path.create("applicant.children[1].pets[]");
+
+    ImmutableList<String> found = data.readRepeatedEntities(path);
+
+    assertThat(found).containsExactly("bubbles", "luna", "taco");
   }
 }
