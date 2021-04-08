@@ -1,4 +1,4 @@
-package services.question;
+package services.question.types;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -15,6 +15,7 @@ import java.util.OptionalLong;
 import models.LifecycleStage;
 import services.CiviFormError;
 import services.Path;
+import services.question.exceptions.TranslationNotFoundException;
 
 /** Defines a single question. */
 public abstract class QuestionDefinition {

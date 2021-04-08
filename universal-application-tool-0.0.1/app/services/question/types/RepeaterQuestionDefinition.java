@@ -1,4 +1,4 @@
-package services.question;
+package services.question.types;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;

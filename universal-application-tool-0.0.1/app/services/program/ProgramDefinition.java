@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import models.LifecycleStage;
 import models.Program;
-import services.question.QuestionDefinition;
+import services.question.types.QuestionDefinition;
 
 @AutoValue
 public abstract class ProgramDefinition {

@@ -25,9 +25,9 @@ import services.program.PathNotInBlockException;
 import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
-import services.question.QuestionDefinition;
-import services.question.ScalarType;
-import services.question.UnsupportedScalarTypeException;
+import services.question.exceptions.UnsupportedScalarTypeException;
+import services.question.types.QuestionDefinition;
+import services.question.types.ScalarType;
 
 public class ApplicantServiceImpl implements ApplicantService {
   private static final ImmutableSet<String> RESERVED_SCALAR_KEYS =

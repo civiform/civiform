@@ -1,7 +1,7 @@
 package forms;
 
-import services.question.CheckboxQuestionDefinition;
-import services.question.QuestionType;
+import services.question.types.CheckboxQuestionDefinition;
+import services.question.types.QuestionType;
 
 public class CheckboxQuestionForm extends MultiOptionQuestionForm {
 

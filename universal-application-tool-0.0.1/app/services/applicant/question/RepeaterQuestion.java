@@ -1,6 +1,6 @@
 package services.applicant.question;
 
-import services.question.QuestionType;
+import services.question.types.QuestionType;
 
 public class RepeaterQuestion implements PresentsErrors {
 

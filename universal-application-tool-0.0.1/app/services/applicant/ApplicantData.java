@@ -19,7 +19,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import services.Path;
 import services.WellKnownPaths;
-import services.question.RepeaterQuestionDefinition;
+import services.question.types.RepeaterQuestionDefinition;
 
 public class ApplicantData {
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";

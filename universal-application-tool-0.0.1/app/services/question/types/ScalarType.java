@@ -1,4 +1,4 @@
-package services.question;
+package services.question.types;
 
 import java.util.Optional;
 

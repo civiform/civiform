@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
-import services.question.NumberQuestionDefinition;
-import services.question.QuestionType;
+import services.question.types.NumberQuestionDefinition;
+import services.question.types.QuestionType;
 
 public class NumberQuestion implements PresentsErrors {
 

@@ -13,8 +13,8 @@ import repository.WithPostgresContainer;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
-import services.question.TextQuestionDefinition;
-import services.question.TextQuestionDefinition.TextValidationPredicates;
+import services.question.types.TextQuestionDefinition;
+import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 
 public class TextQuestionRendererTest extends WithPostgresContainer {
   private static final TextQuestionDefinition TEXT_QUESTION_DEFINITION =

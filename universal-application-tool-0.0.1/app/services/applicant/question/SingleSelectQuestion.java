@@ -5,8 +5,8 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
-import services.question.MultiOptionQuestionDefinition;
-import services.question.TranslationNotFoundException;
+import services.question.exceptions.TranslationNotFoundException;
+import services.question.types.MultiOptionQuestionDefinition;
 
 // TODO(https://github.com/seattle-uat/civiform/issues/396): Implement a question that allows for
 // multiple answer selections (i.e. the value is a list)

@@ -1,4 +1,4 @@
-package services.question;
+package services.question.exceptions;
 
 public class QuestionNotFoundException extends Exception {
   public QuestionNotFoundException(long questionId) {

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import java.util.Optional;
-import services.question.QuestionDefinition;
+import services.question.types.QuestionDefinition;
 
 /**
  * {@link QuestionDefinition}s will not be stored in the database as part of the {@link

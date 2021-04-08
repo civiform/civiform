@@ -21,8 +21,8 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
-import services.question.QuestionDefinition;
-import services.question.ScalarType;
+import services.question.types.QuestionDefinition;
+import services.question.types.ScalarType;
 
 public class ExporterService {
   private final ExporterFactory exporterFactory;
