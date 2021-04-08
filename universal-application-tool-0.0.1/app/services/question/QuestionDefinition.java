@@ -271,9 +271,6 @@ public abstract class QuestionDefinition {
     if (name.isBlank()) {
       errors.add(CiviFormError.of("blank name"));
     }
-    if (!hasValidPathPattern()) {
-      errors.add(CiviFormError.of(String.format("invalid path pattern: '%s'", path.path())));
-    }
     if (description.isBlank()) {
       errors.add(CiviFormError.of("blank description"));
     }
@@ -281,13 +278,6 @@ public abstract class QuestionDefinition {
       errors.add(CiviFormError.of("no question text"));
     }
     return errors.build();
-  }
-
-  private boolean hasValidPathPattern() {
-    if (path.path().isBlank()) {
-      return false;
-    }
-    return URLEncoder.encode(path.path(), StandardCharsets.UTF_8).equals(path.path());
   }
 
   @Override
