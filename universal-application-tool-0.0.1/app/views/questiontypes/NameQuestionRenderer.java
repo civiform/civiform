@@ -22,7 +22,7 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
 
   @Override
   public Tag render() {
-    NameQuestion nameQuestion = question.getNameQuestion();
+    NameQuestion nameQuestion = question.createNameQuestion();
 
     return div()
         .withId(question.getPath().path())

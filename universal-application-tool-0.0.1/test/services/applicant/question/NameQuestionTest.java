@@ -59,7 +59,7 @@ public class NameQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(nameQuestionDefinition, applicantData);
 
-    NameQuestion nameQuestion = applicantQuestion.getNameQuestion();
+    NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
 
     assertThat(nameQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(nameQuestion.hasQuestionErrors()).isFalse();
@@ -80,7 +80,7 @@ public class NameQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(nameQuestionDefinition, applicantData);
 
-    NameQuestion nameQuestion = applicantQuestion.getNameQuestion();
+    NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
 
     assertThat(nameQuestion.hasQuestionErrors()).isFalse();
     assertThat(nameQuestion.hasTypeSpecificErrors()).isTrue();

@@ -3,7 +3,6 @@ export { AdminQuestions } from './admin_questions'
 export { AdminPrograms } from './admin_programs'
 export { ApplicantQuestions } from './applicant_questions'
 
-
 const { BASE_URL = 'http://civiform:9000' } = process.env
 
 export const startSession = async () => {
@@ -16,7 +15,7 @@ export const startSession = async () => {
 }
 
 export const endSession = async (browser: Browser) => {
-  browser.close();
+  await browser.close();
 }
 
 export const logout = async (page: Page) => {

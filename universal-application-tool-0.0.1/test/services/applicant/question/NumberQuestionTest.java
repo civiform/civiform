@@ -65,7 +65,7 @@ public class NumberQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(numberQuestionDefinition, applicantData);
 
-    NumberQuestion numberQuestion = applicantQuestion.getNumberQuestion();
+    NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
     assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(numberQuestion.getNumberValue().get()).isEqualTo(800);
@@ -78,7 +78,7 @@ public class NumberQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData);
 
-    NumberQuestion numberQuestion = applicantQuestion.getNumberQuestion();
+    NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
     assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(numberQuestion.hasQuestionErrors()).isFalse();
@@ -98,7 +98,7 @@ public class NumberQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData);
 
-    NumberQuestion numberQuestion = applicantQuestion.getNumberQuestion();
+    NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
     assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(numberQuestion.getQuestionErrors())

@@ -78,38 +78,44 @@ public class ApplicantQuestion {
     return applicantData.readLong(questionDefinition.getLastUpdatedTimePath());
   }
 
-  public AddressQuestion getAddressQuestion() {
+  public AddressQuestion createAddressQuestion() {
     return new AddressQuestion(this);
   }
 
-  public SingleSelectQuestion getSingleSelectQuestion() {
+  public SingleSelectQuestion createSingleSelectQuestion() {
     return new SingleSelectQuestion(this);
   }
 
-  public TextQuestion getTextQuestion() {
+  public MultiSelectQuestion createMultiSelectQuestion() {
+    return new MultiSelectQuestion(this);
+  }
+
+  public TextQuestion createTextQuestion() {
     return new TextQuestion(this);
   }
 
-  public NameQuestion getNameQuestion() {
+  public NameQuestion createNameQuestion() {
     return new NameQuestion(this);
   }
 
-  public NumberQuestion getNumberQuestion() {
+  public NumberQuestion createNumberQuestion() {
     return new NumberQuestion(this);
   }
 
   public PresentsErrors errorsPresenter() {
     switch (getType()) {
       case ADDRESS:
-        return getAddressQuestion();
+        return createAddressQuestion();
+      case CHECKBOX:
+        return createMultiSelectQuestion();
       case DROPDOWN:
-        return getSingleSelectQuestion();
+        return createSingleSelectQuestion();
       case NAME:
-        return getNameQuestion();
+        return createNameQuestion();
       case NUMBER:
-        return getNumberQuestion();
+        return createNumberQuestion();
       case TEXT:
-        return getTextQuestion();
+        return createTextQuestion();
       default:
         throw new RuntimeException("Unrecognized question type: " + getType());
     }

@@ -54,7 +54,7 @@ public class AddressQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(addressQuestionDefinition, applicantData);
 
-    AddressQuestion addressQuestion = applicantQuestion.getAddressQuestion();
+    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(addressQuestion.hasQuestionErrors()).isFalse();
@@ -73,7 +73,7 @@ public class AddressQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(addressQuestionDefinition, applicantData);
 
-    AddressQuestion addressQuestion = applicantQuestion.getAddressQuestion();
+    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isTrue();
     assertThat(addressQuestion.getStreetErrors())
@@ -95,7 +95,7 @@ public class AddressQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(addressQuestionDefinition, applicantData);
 
-    AddressQuestion addressQuestion = applicantQuestion.getAddressQuestion();
+    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isTrue();
     assertThat(addressQuestion.getZipErrors())

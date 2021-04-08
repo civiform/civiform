@@ -3,9 +3,18 @@ version: '3.1'
 
 services:
 
+  localstack:
+    image: localstack/localstack
+    container_name: localstack
+    ports:
+      - 6645:4566
+    environment:
+      - SERVICES=s3
+
   db:
     image: postgres:12.5
     restart: always
+    container_name: postgres
     ports:
       - 2345:5432
     environment:
@@ -14,6 +23,7 @@ services:
   fake-idcs:
     image: public.ecr.aws/t1q6b4h2/oidc-provider:latest
     restart: always
+    container_name: fake-idcs
     ports:
       - 8033:3380
 
@@ -27,6 +37,10 @@ services:
     ports:
       - 9999:9000
     environment:
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_S3_REGION=us-west-2
+      - AWS_S3_BUCKET_NAME=civiform-local-s3
       - IDCS_CLIENT_ID=foo
       - IDCS_SECRET=bar
       - IDCS_DISCOVERY_URI=http://fake-idcs:3380/.well-known/openid-configuration

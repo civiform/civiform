@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
 import java.util.EnumSet;
 import java.util.Locale;
+import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.LifecycleStage;
@@ -31,6 +32,7 @@ public class ApplicantQuestionTest {
           1L,
           "question name",
           Path.create("applicant.my.path.name"),
+          Optional.empty(),
           "description",
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
@@ -49,6 +51,7 @@ public class ApplicantQuestionTest {
           1L,
           "question name",
           Path.create("applicant.my.path.name"),
+          Optional.empty(),
           "description",
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
@@ -58,6 +61,7 @@ public class ApplicantQuestionTest {
           1L,
           "question name",
           Path.create("applicant.my.path.name"),
+          Optional.empty(),
           "description",
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
@@ -67,6 +71,7 @@ public class ApplicantQuestionTest {
           1L,
           "question name",
           Path.create("applicant.my.path.name"),
+          Optional.empty(),
           "description",
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
@@ -76,6 +81,7 @@ public class ApplicantQuestionTest {
           1L,
           "question name",
           Path.create("applicant.my.path.name"),
+          Optional.empty(),
           "description",
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
@@ -101,24 +107,25 @@ public class ApplicantQuestionTest {
   public void getsExpectedQuestionType() {
     ApplicantQuestion addressApplicantQuestion =
         new ApplicantQuestion(addressQuestionDefinition, new ApplicantData());
-    assertThat(addressApplicantQuestion.getAddressQuestion()).isInstanceOf(AddressQuestion.class);
+    assertThat(addressApplicantQuestion.createAddressQuestion())
+        .isInstanceOf(AddressQuestion.class);
 
     ApplicantQuestion nameApplicantQuestion =
         new ApplicantQuestion(nameQuestionDefinition, new ApplicantData());
-    assertThat(nameApplicantQuestion.getNameQuestion()).isInstanceOf(NameQuestion.class);
+    assertThat(nameApplicantQuestion.createNameQuestion()).isInstanceOf(NameQuestion.class);
 
     ApplicantQuestion numberApplicantQuestion =
         new ApplicantQuestion(numberQuestionDefinition, new ApplicantData());
-    assertThat(numberApplicantQuestion.getNumberQuestion()).isInstanceOf(NumberQuestion.class);
+    assertThat(numberApplicantQuestion.createNumberQuestion()).isInstanceOf(NumberQuestion.class);
 
     ApplicantQuestion singleSelectApplicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, new ApplicantData());
-    assertThat(singleSelectApplicantQuestion.getSingleSelectQuestion())
+    assertThat(singleSelectApplicantQuestion.createSingleSelectQuestion())
         .isInstanceOf(SingleSelectQuestion.class);
 
     ApplicantQuestion textApplicantQuestion =
         new ApplicantQuestion(textQuestionDefinition, new ApplicantData());
-    assertThat(textApplicantQuestion.getTextQuestion()).isInstanceOf(TextQuestion.class);
+    assertThat(textApplicantQuestion.createTextQuestion()).isInstanceOf(TextQuestion.class);
   }
 
   @Test

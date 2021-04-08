@@ -19,31 +19,20 @@ public class ApplicantQuestionRendererFactory {
 
   public ApplicantQuestionRenderer getRenderer(ApplicantQuestion question) {
     switch (question.getType()) {
-      case DROPDOWN:
-        {
-          return new DropdownQuestionRenderer(question);
-        }
-
-      case TEXT:
-        {
-          return new TextQuestionRenderer(question);
-        }
-
-      case NAME:
-        {
-          return new NameQuestionRenderer(question);
-        }
-
-      case NUMBER:
-        {
-          return new NumberQuestionRenderer(question);
-        }
-
       case ADDRESS:
-        {
-          return new AddressQuestionRenderer(question);
-        }
-
+        return new AddressQuestionRenderer(question);
+      case CHECKBOX:
+        return new CheckboxQuestionRenderer(question);
+      case DROPDOWN:
+        return new DropdownQuestionRenderer(question);
+      case NAME:
+        return new NameQuestionRenderer(question);
+      case NUMBER:
+        return new NumberQuestionRenderer(question);
+      case REPEATER:
+        return new RepeaterQuestionRenderer(question);
+      case TEXT:
+        return new TextQuestionRenderer(question);
       default:
         throw new UnsupportedOperationException(
             "Unrecognized question type: " + question.getType());

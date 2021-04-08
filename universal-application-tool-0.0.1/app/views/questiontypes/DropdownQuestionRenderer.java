@@ -22,7 +22,7 @@ public class DropdownQuestionRenderer extends BaseHtmlView implements ApplicantQ
 
   @Override
   public Tag render() {
-    SingleSelectQuestion multiOptionQuestion = question.getSingleSelectQuestion();
+    SingleSelectQuestion multiOptionQuestion = question.createSingleSelectQuestion();
 
     return div()
         .withId(question.getPath().toString())

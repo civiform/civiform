@@ -63,6 +63,15 @@ public class ApplicantDataTest {
   }
 
   @Test
+  public void hasPath_returnsTrueForArrayIndex() {
+    ApplicantData data = new ApplicantData();
+    Path path = Path.create("applicant.chores[0]");
+    data.putString(path, "wash dishes");
+
+    assertThat(data.hasPath(path)).isTrue();
+  }
+
+  @Test
   public void hasPath_returnsFalseForMissingPath() {
     ApplicantData data = new ApplicantData();
 
@@ -74,6 +83,15 @@ public class ApplicantDataTest {
     ApplicantData data = new ApplicantData();
     Path path = Path.create("applicant.horses");
     data.putLong(path, 278);
+
+    assertThat(data.hasValueAtPath(path)).isTrue();
+  }
+
+  @Test
+  public void hasValueAtPath_returnsTrueForArrayIndex() {
+    ApplicantData data = new ApplicantData();
+    Path path = Path.create("applicant.chores[0]");
+    data.putString(path, "wash dishes");
 
     assertThat(data.hasValueAtPath(path)).isTrue();
   }
@@ -183,6 +201,29 @@ public class ApplicantDataTest {
   }
 
   @Test
+  public void putString_addsFirstElementToArray() {
+    ApplicantData data = new ApplicantData();
+
+    data.putString(Path.create("applicant.allergies[0]"), "peanut");
+
+    assertThat(data.asJsonString())
+        .isEqualTo("{\"applicant\":{\"allergies\":[\"peanut\"]},\"metadata\":{}}");
+  }
+
+  @Test
+  public void putString_addsSeveralElementsToArray() {
+    ApplicantData data = new ApplicantData();
+
+    data.putString(Path.create("applicant.allergies[0]"), "peanut");
+    data.putString(Path.create("applicant.allergies[1]"), "strawberry");
+    data.putString(Path.create("applicant.allergies[2]"), "shellfish");
+
+    assertThat(data.asJsonString())
+        .isEqualTo(
+            "{\"applicant\":{\"allergies\":[\"peanut\",\"strawberry\",\"shellfish\"]},\"metadata\":{}}");
+  }
+
+  @Test
   public void putLong_writesNullIfStringIsEmpty() {
     ApplicantData data = new ApplicantData();
     Path path = Path.create("applicant.age");
@@ -195,25 +236,34 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void putList_writesJsonArray() {
+  public void putRepeatedEntities() {
     ApplicantData data = new ApplicantData();
-    Path path = Path.create("applicant.favorite_fruits");
+    Path path = Path.create("applicant.children[1].pets[]");
+    ImmutableList<String> petNames = ImmutableList.of("bubbles", "luna", "taco");
 
-    data.putList(path, ImmutableList.of("apple", "orange"));
+    data.putRepeatedEntities(path, petNames);
 
     assertThat(data.asJsonString())
-        .isEqualTo("{\"applicant\":{\"favorite_fruits\":[\"apple\",\"orange\"]},\"metadata\":{}}");
+        .isEqualTo(
+            "{\"applicant\":{\"children\":[{},{\"pets\":[{\"entity_name\":\"bubbles\"},{\"entity_name\":\"luna\"},{\"entity_name\":\"taco\"}]}]},\"metadata\":{}}");
   }
 
   @Test
-  public void putList_writesNullIfListIsEmpty() {
-    ApplicantData data = new ApplicantData();
-    Path path = Path.create("applicant.favorite_fruits");
+  public void putRepeatedEntities_withPrexistingData() {
+    ApplicantData data =
+        new ApplicantData(
+            "{\"applicant\":{\"children\":[{},{\"entity_name\":\"an old name\",\"pets\":["
+                + "{\"entity_name\":\"bubbles\"},"
+                + "{\"entity_name\":\"luna\"},"
+                + "{\"entity_name\":\"taco\"}]}]},\"metadata\":{}}");
+    Path path = Path.create("applicant.children[]");
+    ImmutableList<String> childrenNames = ImmutableList.of("alice", "bob");
 
-    data.putList(path, ImmutableList.of());
+    data.putRepeatedEntities(path, childrenNames);
 
     assertThat(data.asJsonString())
-        .isEqualTo("{\"applicant\":{\"favorite_fruits\":null},\"metadata\":{}}");
+        .isEqualTo(
+            "{\"applicant\":{\"children\":[{\"entity_name\":\"alice\"},{\"entity_name\":\"bob\",\"pets\":[{\"entity_name\":\"bubbles\"},{\"entity_name\":\"luna\"},{\"entity_name\":\"taco\"}]}]},\"metadata\":{}}");
   }
 
   @Test
@@ -325,5 +375,21 @@ public class ApplicantDataTest {
     Optional<ImmutableList<String>> found = data.readList(Path.create("applicant.object.name"));
 
     assertThat(found).isEmpty();
+  }
+
+  @Test
+  public void readRepeatedEntities() {
+    String testData =
+        "{\"applicant\":{\"children\":[{},{\"pets\":["
+            + "{\"entity_name\":\"bubbles\"},"
+            + "{\"entity_name\":\"luna\"},"
+            + "{\"entity_name\":\"taco\"}"
+            + "]}]},\"metadata\":{}}";
+    ApplicantData data = new ApplicantData(testData);
+    Path path = Path.create("applicant.children[1].pets[]");
+
+    ImmutableList<String> found = data.readRepeatedEntities(path);
+
+    assertThat(found).containsExactly("bubbles", "luna", "taco");
   }
 }

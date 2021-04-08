@@ -3,13 +3,13 @@ package services.question;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.OptionalLong;
 import models.LifecycleStage;
 import services.Path;
 import services.question.AddressQuestionDefinition.AddressValidationPredicates;
 import services.question.NameQuestionDefinition.NameValidationPredicates;
 import services.question.QuestionDefinition.ValidationPredicates;
-import services.question.RepeaterQuestionDefinition.RepeaterValidationPredicates;
 import services.question.TextQuestionDefinition.TextValidationPredicates;
 
 public class QuestionDefinitionBuilder {
@@ -18,6 +18,7 @@ public class QuestionDefinitionBuilder {
   private long version;
   private String name;
   private Path path;
+  private Optional<Long> repeaterId = Optional.empty();
   private String description;
   private LifecycleStage lifecycleStage;
   private ImmutableMap<Locale, String> questionText;
@@ -38,6 +39,7 @@ public class QuestionDefinitionBuilder {
     version = definition.getVersion();
     name = definition.getName();
     path = definition.getPath();
+    repeaterId = definition.getRepeaterId();
     description = definition.getDescription();
     lifecycleStage = definition.getLifecycleStage();
     questionText = definition.getQuestionText();
@@ -103,6 +105,11 @@ public class QuestionDefinitionBuilder {
     return this;
   }
 
+  public QuestionDefinitionBuilder setRepeaterId(Optional<Long> repeaterId) {
+    this.repeaterId = repeaterId;
+    return this;
+  }
+
   public QuestionDefinitionBuilder setDescription(String description) {
     this.description = description;
     return this;
@@ -161,17 +168,31 @@ public class QuestionDefinitionBuilder {
             version,
             name,
             path,
+            repeaterId,
             description,
             lifecycleStage,
             questionText,
             questionHelpText,
             addressValidationPredicates);
+      case CHECKBOX:
+        return new CheckboxQuestionDefinition(
+            id,
+            version,
+            name,
+            path,
+            repeaterId,
+            description,
+            lifecycleStage,
+            questionText,
+            questionHelpText,
+            questionOptions);
       case DROPDOWN:
         return new DropdownQuestionDefinition(
             id,
             version,
             name,
             path,
+            repeaterId,
             description,
             lifecycleStage,
             questionText,
@@ -187,6 +208,7 @@ public class QuestionDefinitionBuilder {
             version,
             name,
             path,
+            repeaterId,
             description,
             lifecycleStage,
             questionText,
@@ -204,29 +226,23 @@ public class QuestionDefinitionBuilder {
             version,
             name,
             path,
+            repeaterId,
             description,
             lifecycleStage,
             questionText,
             questionHelpText,
             numberValidationPredicates);
       case REPEATER:
-        RepeaterValidationPredicates repeaterValidationPredicates =
-            RepeaterValidationPredicates.create();
-        if (!validationPredicatesString.isEmpty()) {
-          repeaterValidationPredicates =
-              RepeaterValidationPredicates.parse(validationPredicatesString);
-        }
-
         return new RepeaterQuestionDefinition(
             id,
             version,
             name,
             path,
+            repeaterId,
             description,
             lifecycleStage,
             questionText,
-            questionHelpText,
-            repeaterValidationPredicates);
+            questionHelpText);
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {
@@ -237,6 +253,7 @@ public class QuestionDefinitionBuilder {
             version,
             name,
             path,
+            repeaterId,
             description,
             lifecycleStage,
             questionText,

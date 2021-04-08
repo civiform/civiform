@@ -60,7 +60,7 @@ public class SingleSelectQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
 
-    SingleSelectQuestion singleSelectQuestion = applicantQuestion.getSingleSelectQuestion();
+    SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 
     assertThat(singleSelectQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(singleSelectQuestion.hasQuestionErrors()).isFalse();

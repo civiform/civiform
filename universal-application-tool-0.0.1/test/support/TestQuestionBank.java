@@ -3,6 +3,7 @@ package support;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.persistence.PersistenceException;
@@ -70,6 +71,7 @@ public class TestQuestionBank {
             VERSION,
             "applicant name",
             Path.create("applicant.name"),
+            Optional.empty(),
             "name of applicant",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "what is your name?"),
@@ -83,6 +85,7 @@ public class TestQuestionBank {
             VERSION,
             "applicant address",
             Path.create("applicant.address"),
+            Optional.empty(),
             "address of applicant",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "what is your address?"),
@@ -96,6 +99,7 @@ public class TestQuestionBank {
             VERSION,
             "applicant favorite color",
             Path.create("applicant.color"),
+            Optional.empty(),
             "favorite color of applicant",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "what is your favorite color?"),
