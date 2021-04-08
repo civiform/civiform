@@ -70,7 +70,7 @@ Resources:
       Bucket: !Ref bucket
       PolicyDocument:
         Statement:
-          - Sid: Restrict access to VPC endpoint
+          - Sid: Restrict access to VPC endpoint only
             Action:
               - 's3:*'
             Effect: Deny
@@ -79,10 +79,23 @@ Resources:
               - - 'arn:aws:s3:::'
                 - !Ref bucket
                 - /*
-            Principal: '*'
+            NotPrincipal:
+              AWS: 'arn:aws:iam::405662711265:role/AmazonECSTaskS3BucketRole'
             Condition:
               StringNotEquals:
                 'aws:sourceVpce': !Ref 'S3VPCEndpoint'
+        Statement:
+          - Sid: Allow presigned URL access from our task role
+            Action:
+              - 's3:GetObject'
+            Effect: Allow
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref bucket
+                - /*
+            Principal:
+              AWS: 'arn:aws:iam::405662711265:role/AmazonECSTaskS3BucketRole'
 Outputs:
   bucketname:
     Description: The location of the bucket for secure uploads.
