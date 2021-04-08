@@ -119,7 +119,7 @@ public class ApplicantQuestion {
         return getNameQuestion();
       case NUMBER:
         return getNumberQuestion();
-      case:
+      case REPEATER:
         return getRepeaterQuestion();
       case TEXT:
         return getTextQuestion();
