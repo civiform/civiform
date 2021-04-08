@@ -24,4 +24,7 @@ jobs:
       # is a disaster waiting to happen - but it's unlikely any
       # individual day, and we'll fix it soon.
       - name: Promote to prod.
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
         run: bin/deploy-prod
