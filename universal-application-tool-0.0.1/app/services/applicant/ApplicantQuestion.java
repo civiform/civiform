@@ -16,7 +16,6 @@ import services.question.NameQuestionDefinition;
 import services.question.NumberQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionType;
-import services.question.RepeaterQuestionDefinition;
 import services.question.TextQuestionDefinition;
 import services.question.TranslationNotFoundException;
 
@@ -361,15 +360,15 @@ public class ApplicantQuestion {
 
     public boolean optionIsSelected(String option) {
       return getSelectedOptionsValue().isPresent()
-              && getSelectedOptionsValue().get().contains(option);
+          && getSelectedOptionsValue().get().contains(option);
     }
 
     public void assertQuestionType() {
       if (!getType().isMultiOptionType()) {
         throw new RuntimeException(
-                String.format(
-                        "Question is not a multi-option question: %s (type: %s)",
-                        questionDefinition.getPath(), questionDefinition.getQuestionType()));
+            String.format(
+                "Question is not a multi-option question: %s (type: %s)",
+                questionDefinition.getPath(), questionDefinition.getQuestionType()));
       }
     }
 
@@ -399,6 +398,7 @@ public class ApplicantQuestion {
       }
     }
   }
+
   public class NameQuestion implements PresentsErrors {
 
     private Optional<String> firstNameValue;
@@ -623,9 +623,9 @@ public class ApplicantQuestion {
     public void assertQuestionType() {
       if (!getType().equals(QuestionType.REPEATER)) {
         throw new RuntimeException(
-                String.format(
-                        "Question is not a REPEATER question: %s (type: %s)",
-                        questionDefinition.getPath(), questionDefinition.getQuestionType()));
+            String.format(
+                "Question is not a REPEATER question: %s (type: %s)",
+                questionDefinition.getPath(), questionDefinition.getQuestionType()));
       }
     }
   }
@@ -695,7 +695,6 @@ public class ApplicantQuestion {
     }
   }
 
-
   public class TextQuestion implements PresentsErrors {
 
     private Optional<String> textValue;
@@ -717,8 +716,7 @@ public class ApplicantQuestion {
 
       TextQuestionDefinition definition = getQuestionDefinition();
       int textLength = getTextValue().map(s -> s.length()).orElse(0);
-      ImmutableSet.Builder<ValidationErrorMessage> errors =
-              ImmutableSet.builder();
+      ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
       if (definition.getMinLength().isPresent()) {
         int minLength = definition.getMinLength().getAsInt();
@@ -760,9 +758,9 @@ public class ApplicantQuestion {
     public void assertQuestionType() {
       if (!getType().equals(QuestionType.TEXT)) {
         throw new RuntimeException(
-                String.format(
-                        "Question is not a TEXT question: %s (type: %s)",
-                        questionDefinition.getPath(), questionDefinition.getQuestionType()));
+            String.format(
+                "Question is not a TEXT question: %s (type: %s)",
+                questionDefinition.getPath(), questionDefinition.getQuestionType()));
       }
     }
 
