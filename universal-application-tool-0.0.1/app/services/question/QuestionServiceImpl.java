@@ -32,7 +32,7 @@ public final class QuestionServiceImpl implements QuestionService {
 
   @Override
   public ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition definition) {
-    ImmutableSet<CiviFormError> errors = validate(definition);
+    ImmutableSet<CiviFormError> errors = validateNewQuestion(definition);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -103,7 +103,11 @@ public final class QuestionServiceImpl implements QuestionService {
                     .collect(ImmutableList.toImmutableList()));
   }
 
-  private ImmutableSet<CiviFormError> validate(QuestionDefinition newDefinition) {
+  /**
+   * Validates a new question and checks for path conflicts. This can't be used to validate udpates
+   * because paths will always conflict.
+   */
+  private ImmutableSet<CiviFormError> validateNewQuestion(QuestionDefinition newDefinition) {
     ImmutableSet<CiviFormError> errors = newDefinition.validate();
     if (!errors.isEmpty()) {
       return errors;
