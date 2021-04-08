@@ -1,8 +1,16 @@
 #!/bin/bash
 pushd $(git rev-parse --show-toplevel)
 
+localstack_local_endpoint=http://localhost:4566
+
 # find repo root name (currently civiform), also support any names for backward and forward compatibility
 CIVIFORM_DIR=$(basename $(pwd))
+
+if [ "$1" ]; then
+    localstack_local_endpoint=$1
+    # if we overwrite local endpoint, we intend to run browser tests
+    CIVIFORM_DIR=browser-test
+fi
 
 purge_s3_cmd="s3 rm s3://civiform-local-s3/ --recursive"
 
@@ -18,6 +26,6 @@ if ! which aws; then
     exit $?
 fi
 
-aws --endpoint-url=http://localhost:4566 $purge_s3_cmd
+aws --endpoint-url=$localstack_local_endpoint $purge_s3_cmd
 
 popd

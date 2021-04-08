@@ -21,6 +21,7 @@ import static j2html.attributes.Attr.ENCTYPE;
 import com.google.common.collect.ImmutableList;
 import controllers.dev.routes;
 import j2html.tags.Tag;
+import java.util.Optional;
 import javax.inject.Inject;
 import models.StoredFile;
 import play.mvc.Http.Request;
@@ -37,10 +38,12 @@ public class FileUploadView extends BaseHtmlView {
     this.layout = checkNotNull(layout);
   }
 
-  public Content render(Request request, ImmutableList<StoredFile> files) {
+  public Content render(
+      Request request, ImmutableList<StoredFile> files, Optional<String> maybeFlash) {
     return layout.htmlContent(
         head(title("Dev File Upload"), layout.tailwindStyles()),
         body()
+            .with(div(maybeFlash.orElse("")))
             .with(h1("Dev File Upload"))
             .with(
                 div()

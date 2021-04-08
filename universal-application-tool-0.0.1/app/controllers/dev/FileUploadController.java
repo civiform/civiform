@@ -42,7 +42,7 @@ public class FileUploadController extends Controller {
         files.stream()
             .sorted(Comparator.comparing(StoredFile::getName))
             .collect(ImmutableList.toImmutableList());
-    return ok(view.render(request, fileList));
+    return ok(view.render(request, fileList, request.flash().get("success")));
   }
 
   public Result create(Request request) {
@@ -51,18 +51,18 @@ public class FileUploadController extends Controller {
     }
     MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
     MultipartFormData.FilePart<TemporaryFile> data = body.getFile("filename");
-    if (data != null) {
-      String fileName = data.getFilename();
-      long fileSize = data.getFileSize();
-      String contentType = data.getContentType();
-      TemporaryFile file = data.getRef();
-      uploadToS3(fileName, file);
-      return ok(
-          String.format(
-              "File uploaded: name: %s, size: %d, type: %s.", fileName, fileSize, contentType));
-    } else {
+    if (data == null) {
       return badRequest("Missing file");
     }
+    String fileName = data.getFilename();
+    long fileSize = data.getFileSize();
+    String contentType = data.getContentType();
+    TemporaryFile file = data.getRef();
+    uploadToS3(fileName, file);
+    String successMessage =
+        String.format(
+            "File uploaded: name: %s, size: %d, type: %s.", fileName, fileSize, contentType);
+    return redirect(routes.FileUploadController.index().url()).flashing("success", successMessage);
   }
 
   private void uploadToS3(String name, TemporaryFile file) {
