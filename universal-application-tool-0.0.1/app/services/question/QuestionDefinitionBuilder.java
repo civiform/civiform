@@ -234,13 +234,6 @@ public class QuestionDefinitionBuilder {
             questionHelpText,
             numberValidationPredicates);
       case REPEATER:
-        RepeaterValidationPredicates repeaterValidationPredicates =
-            RepeaterValidationPredicates.create();
-        if (!validationPredicatesString.isEmpty()) {
-          repeaterValidationPredicates =
-              RepeaterValidationPredicates.parse(validationPredicatesString);
-        }
-
         return new RepeaterQuestionDefinition(
             id,
             version,
@@ -250,8 +243,7 @@ public class QuestionDefinitionBuilder {
             description,
             lifecycleStage,
             questionText,
-            questionHelpText,
-            repeaterValidationPredicates);
+            questionHelpText);
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {
