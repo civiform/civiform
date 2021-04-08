@@ -1,5 +1,11 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'The containers and service configuration for CiviForm.'
+Mappings:
+  Images:
+    prod:
+      image: public.ecr.aws/t1q6b4h2/universal-application-tool:prod
+    staging:
+      image: public.ecr.aws/t1q6b4h2/universal-application-tool:latest
 Parameters:
   Environment:
     Type: String
@@ -92,7 +98,7 @@ Resources:
       Memory: 8192
       ContainerDefinitions:
         - Name: !Join ["-", [!Ref Environment, "civiform-container"]]
-          Image: public.ecr.aws/t1q6b4h2/universal-application-tool:latest
+          Image: !FindInMap [Images, !Ref Environment, image]
           Environment:
             - Name: DB_JDBC_STRING
               Value: !Join

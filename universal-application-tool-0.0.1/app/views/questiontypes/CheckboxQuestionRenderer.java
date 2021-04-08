@@ -42,7 +42,7 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
                 option ->
                     checkbox()
                         .setLabelText(option)
-                        .setFieldName(multiOptionQuestion.getSelectionPathAsArray().toString())
+                        .setFieldName(multiOptionQuestion.getSelectionPathAsArray())
                         .setValue(option)
                         .setChecked(multiOptionQuestion.optionIsSelected(option))
                         .getContainer()));
