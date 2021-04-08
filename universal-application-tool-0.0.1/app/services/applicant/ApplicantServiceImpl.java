@@ -210,11 +210,7 @@ public class ApplicantServiceImpl implements ApplicantService {
   }
 
   private void writeMetadataForPath(Path path, ApplicantData data, long programId) {
-    data.putLong(
-        path.toBuilder().append(QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY).build(),
-        programId);
-    data.putLong(
-        path.toBuilder().append(QuestionDefinition.METADATA_UPDATE_TIME_KEY).build(),
-        clock.millis());
+    data.putLong(path.join(QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY), programId);
+    data.putLong(path.join(QuestionDefinition.METADATA_UPDATE_TIME_KEY), clock.millis());
   }
 }

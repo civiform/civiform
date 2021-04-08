@@ -3,44 +3,23 @@ package services.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
-import java.util.OptionalLong;
-import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
+import services.applicant.question.ApplicantQuestion;
 import services.program.BlockDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.question.NameQuestionDefinition;
 import services.question.QuestionDefinition;
 import services.question.TextQuestionDefinition;
+import support.TestQuestionBank;
 
 public class BlockTest {
 
-  private static final Path NAME_PATH = Path.create("applicant.name");
-  private static final Path COLOR_PATH = Path.create("applicant.color");
   private static final NameQuestionDefinition NAME_QUESTION =
-      new NameQuestionDefinition(
-          OptionalLong.of(1L),
-          1L,
-          "",
-          NAME_PATH,
-          "",
-          LifecycleStage.ACTIVE,
-          ImmutableMap.of(),
-          ImmutableMap.of(),
-          NameQuestionDefinition.NameValidationPredicates.create());
+      (NameQuestionDefinition) TestQuestionBank.applicantName().getQuestionDefinition();
   private static final TextQuestionDefinition COLOR_QUESTION =
-      new TextQuestionDefinition(
-          OptionalLong.of(1L),
-          1L,
-          "",
-          COLOR_PATH,
-          "",
-          LifecycleStage.ACTIVE,
-          ImmutableMap.of(),
-          ImmutableMap.of(),
-          TextQuestionDefinition.TextValidationPredicates.create());
+      (TextQuestionDefinition) TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
 
   @Test
   public void createNewBlock() {
@@ -59,17 +38,7 @@ public class BlockTest {
   public void equalsAndHashCode() {
     BlockDefinition definition =
         BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            OptionalLong.of(1L),
-            1L,
-            "",
-            Path.empty(),
-            "",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(),
-            ImmutableMap.of(),
-            TextQuestionDefinition.TextValidationPredicates.create());
+    QuestionDefinition question = NAME_QUESTION;
     ApplicantData applicant = new ApplicantData();
     applicant.putString(Path.create("applicant.hello"), "world");
 

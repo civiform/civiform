@@ -1,0 +1,15 @@
+#! /bin/bash
+pushd $(git rev-parse --show-toplevel)
+
+set -e
+set +x
+
+docker run \
+  -v "$(pwd)/browser-test/src:/usr/src/civiform-browser-tests/src" \
+  -v "$(pwd)/browser-test/bin:/usr/src/civiform-browser-tests/bin" \
+  -e BASE_URL=https://staging.seattle.civiform.com \
+  civiform-browser-test:latest \
+  yarn probe landing_page.test.ts other_page.test.ts
+  # This is where you'd add more tests that are prober-compatible!
+
+popd

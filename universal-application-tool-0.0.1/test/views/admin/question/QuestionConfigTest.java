@@ -35,6 +35,11 @@ public class QuestionConfigTest {
         .contains("address-question-default-state-select");
 
     assertThat(
+            QuestionConfig.buildQuestionConfig(QuestionType.CHECKBOX, new DropdownQuestionForm()))
+        .toString()
+        .contains("multi-select-question-config");
+
+    assertThat(
             QuestionConfig.buildQuestionConfig(QuestionType.DROPDOWN, new DropdownQuestionForm()))
         .toString()
         .contains("single-select-question-config");

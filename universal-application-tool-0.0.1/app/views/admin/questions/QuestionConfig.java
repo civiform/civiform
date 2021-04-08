@@ -73,6 +73,13 @@ public class QuestionConfig {
             .getContainer();
       case ADDRESS:
         return config.setId("address-question-config").addAddressQuestionConfig().getContainer();
+      case CHECKBOX:
+        // TODO(https://github.com/seattle-uat/civiform/issues/416): Add validation options for
+        // multi-select questions.
+        return config
+            .setId("multi-select-question-config")
+            .addMultiOptionQuestionConfig((MultiOptionQuestionForm) questionForm)
+            .getContainer();
       case DROPDOWN:
       case RADIO_BUTTON:
         return config

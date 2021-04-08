@@ -7,7 +7,8 @@ import static j2html.TagCreator.label;
 
 import j2html.attributes.Attr;
 import j2html.tags.Tag;
-import services.applicant.ApplicantQuestion;
+import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.SingleSelectQuestion;
 import views.BaseHtmlView;
 import views.style.ReferenceClasses;
 import views.style.Styles;
@@ -22,8 +23,7 @@ public class RadioButtonQuestionRenderer extends BaseHtmlView implements Applica
 
   @Override
   public Tag render() {
-    ApplicantQuestion.SingleSelectQuestion singleOptionQuestion =
-        question.getSingleSelectQuestion();
+    SingleSelectQuestion singleOptionQuestion = question.createSingleSelectQuestion();
 
     return div()
         .withId(question.getPath().toString())

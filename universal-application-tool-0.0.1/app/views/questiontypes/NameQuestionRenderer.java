@@ -6,7 +6,8 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 
 import j2html.tags.Tag;
-import services.applicant.ApplicantQuestion;
+import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.NameQuestion;
 import views.BaseHtmlView;
 import views.style.ReferenceClasses;
 import views.style.Styles;
@@ -21,7 +22,7 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
 
   @Override
   public Tag render() {
-    ApplicantQuestion.NameQuestion nameQuestion = question.getNameQuestion();
+    NameQuestion nameQuestion = question.createNameQuestion();
 
     return div()
         .withId(question.getPath().path())

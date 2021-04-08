@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.OptionalLong;
 import models.LifecycleStage;
 import services.Path;
@@ -15,6 +16,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
       long version,
       String name,
       Path path,
+      Optional<Long> repeaterId,
       String description,
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
@@ -25,6 +27,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
         version,
         name,
         path,
+        repeaterId,
         description,
         lifecycleStage,
         questionText,
@@ -36,6 +39,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
       long version,
       String name,
       Path path,
+      Optional<Long> repeaterId,
       String description,
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
@@ -45,6 +49,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
         version,
         name,
         path,
+        repeaterId,
         description,
         lifecycleStage,
         questionText,
@@ -56,6 +61,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
       long version,
       String name,
       Path path,
+      Optional<Long> repeaterId,
       String description,
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
@@ -64,6 +70,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
         version,
         name,
         path,
+        repeaterId,
         description,
         lifecycleStage,
         questionText,
@@ -107,7 +114,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getStreetPath() {
-    return getPath().toBuilder().append("street").build();
+    return getPath().join("street");
   }
 
   public ScalarType getStreetType() {
@@ -115,7 +122,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getCityPath() {
-    return getPath().toBuilder().append("city").build();
+    return getPath().join("city");
   }
 
   public ScalarType getCityType() {
@@ -123,7 +130,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getStatePath() {
-    return getPath().toBuilder().append("state").build();
+    return getPath().join("state");
   }
 
   public ScalarType getStateType() {
@@ -131,7 +138,7 @@ public class AddressQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getZipPath() {
-    return getPath().toBuilder().append("zip").build();
+    return getPath().join("zip");
   }
 
   public ScalarType getZipType() {

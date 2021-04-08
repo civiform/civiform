@@ -2,6 +2,7 @@ package support;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 import models.Applicant;
 import models.LifecycleStage;
@@ -9,7 +10,6 @@ import models.Program;
 import models.Question;
 import play.inject.Injector;
 import services.Path;
-import services.program.ProgramDefinition;
 import services.question.QuestionDefinition;
 import services.question.QuestionService;
 import services.question.TextQuestionDefinition;
@@ -37,6 +37,7 @@ public class ResourceCreator {
             version,
             name,
             Path.create(pathString),
+            Optional.empty(),
             "",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(),
@@ -53,6 +54,7 @@ public class ResourceCreator {
                 1L,
                 "question name",
                 Path.create("applicant.my.path.name"),
+                Optional.empty(),
                 "description",
                 LifecycleStage.ACTIVE,
                 ImmutableMap.of(Locale.US, "question?"),
@@ -68,13 +70,6 @@ public class ResourceCreator {
 
   public Program insertProgram(String name) {
     return ProgramBuilder.newProgram(name, "description").build();
-  }
-
-  public ProgramDefinition insertProgramWithOneBlock(String name) {
-    return ProgramBuilder.newProgram(name, "desc")
-        .withBlock("Block 1")
-        .withQuestionDefinition(insertQuestionDefinition())
-        .buildDefinition();
   }
 
   public Applicant insertApplicant() {

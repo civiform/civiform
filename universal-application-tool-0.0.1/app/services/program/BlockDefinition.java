@@ -135,8 +135,18 @@ public abstract class BlockDefinition {
     return scalarTypes().keySet();
   }
 
+  /**
+   * For multi-select questions (like checkbox), we must append {@code []} to the field name so that
+   * the Play framework allows multiple form keys with the same value. When updates are passed in
+   * the request, they are of the format {@code path.selection[index]}. However, the scalar path
+   * does not end in {@code []}, so we remove the array element information here before checking the
+   * type.
+   */
   @JsonIgnore
   public Optional<ScalarType> getScalarType(Path path) {
+    if (path.isArrayElement()) {
+      path = path.withoutArrayReference();
+    }
     return Optional.ofNullable(scalarTypes().get(path));
   }
 

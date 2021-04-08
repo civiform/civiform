@@ -1,7 +1,7 @@
 package views.questiontypes;
 
 import services.applicant.ApplicantData;
-import services.applicant.ApplicantQuestion;
+import services.applicant.question.ApplicantQuestion;
 import services.question.QuestionDefinition;
 import services.question.QuestionDefinitionBuilder;
 import services.question.QuestionType;
@@ -21,6 +21,8 @@ public class ApplicantQuestionRendererFactory {
     switch (question.getType()) {
       case ADDRESS:
         return new AddressQuestionRenderer(question);
+      case CHECKBOX:
+        return new CheckboxQuestionRenderer(question);
       case DROPDOWN:
         return new DropdownQuestionRenderer(question);
       case NAME:
@@ -29,6 +31,8 @@ public class ApplicantQuestionRendererFactory {
         return new NumberQuestionRenderer(question);
       case RADIO_BUTTON:
         return new RadioButtonQuestionRenderer(question);
+      case REPEATER:
+        return new RepeaterQuestionRenderer(question);
       case TEXT:
         return new TextQuestionRenderer(question);
       default:

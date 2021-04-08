@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import services.Path;
 import services.applicant.ApplicantData;
-import services.applicant.ApplicantQuestion;
+import services.applicant.question.ApplicantQuestion;
 import services.question.RadioButtonQuestionDefinition;
 
 public class RadioButtonQuestionRendererTest {

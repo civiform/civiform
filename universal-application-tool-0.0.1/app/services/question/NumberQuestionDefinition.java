@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.OptionalLong;
 import models.LifecycleStage;
 import services.Path;
@@ -17,6 +18,7 @@ public class NumberQuestionDefinition extends QuestionDefinition {
       long version,
       String name,
       Path path,
+      Optional<Long> repeaterId,
       String description,
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
@@ -27,6 +29,7 @@ public class NumberQuestionDefinition extends QuestionDefinition {
         version,
         name,
         path,
+        repeaterId,
         description,
         lifecycleStage,
         questionText,
@@ -38,6 +41,7 @@ public class NumberQuestionDefinition extends QuestionDefinition {
       long version,
       String name,
       Path path,
+      Optional<Long> repeaterId,
       String description,
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
@@ -47,6 +51,7 @@ public class NumberQuestionDefinition extends QuestionDefinition {
         version,
         name,
         path,
+        repeaterId,
         description,
         lifecycleStage,
         questionText,
@@ -58,6 +63,7 @@ public class NumberQuestionDefinition extends QuestionDefinition {
       long version,
       String name,
       Path path,
+      Optional<Long> repeaterId,
       String description,
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
@@ -66,6 +72,7 @@ public class NumberQuestionDefinition extends QuestionDefinition {
         version,
         name,
         path,
+        repeaterId,
         description,
         lifecycleStage,
         questionText,
@@ -139,7 +146,7 @@ public class NumberQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getNumberPath() {
-    return getPath().toBuilder().append("number").build();
+    return getPath().join("number");
   }
 
   public ScalarType getNumberType() {

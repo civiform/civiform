@@ -110,6 +110,12 @@ public class PathTest {
   }
 
   @Test
+  public void withoutArrayReference_forNonIndexedArrayPath() {
+    Path path = Path.create("one.two[]");
+    assertThat(path.withoutArrayReference()).isEqualTo(Path.create("one.two"));
+  }
+
+  @Test
   public void arrayIndex() {
     Path path = Path.create("one.two[33]");
     assertThat(path.arrayIndex()).isEqualTo(33);
@@ -124,17 +130,29 @@ public class PathTest {
   }
 
   @Test
-  public void pathBuilder() {
-    Path path = Path.builder().setPath("applicant.my.path").build();
+  public void atIndex_forNonIndexedArrayPath() {
+    Path path = Path.create("one.two[]");
+
+    Path expected = Path.create("one.two[55]");
+    assertThat(path.atIndex(55)).isEqualTo(expected);
+  }
+
+  @Test
+  public void pathJoin() {
+    Path path = Path.create("applicant.my.path");
     assertThat(path.path()).isEqualTo("applicant.my.path");
 
-    path = path.toBuilder().append("another").build();
+    path = path.join("another");
     assertThat(path.path()).isEqualTo("applicant.my.path.another");
+  }
 
-    path = path.toBuilder().append("part").build();
-    assertThat(path.path()).isEqualTo("applicant.my.path.another.part");
+  @Test
+  public void pathJoin_withMultipleSegments_parentPathWorks() {
+    Path path = Path.create("one");
+    Path path2 = path.join("two.three.four");
+    Path actual = path2.parentPath();
 
-    path = path.toBuilder().setPath("something.new").build();
-    assertThat(path.path()).isEqualTo("something.new");
+    Path expected = Path.create("one.two.three");
+    assertThat(actual).isEqualTo(expected);
   }
 }

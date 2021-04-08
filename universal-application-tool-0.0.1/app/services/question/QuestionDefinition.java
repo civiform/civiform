@@ -8,8 +8,6 @@ import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,6 +25,7 @@ public abstract class QuestionDefinition {
   private final long version;
   private final String name;
   private final Path path;
+  private final Optional<Long> repeaterId;
   private final String description;
   private final LifecycleStage lifecycleStage;
   private final ImmutableMap<Locale, String> questionText;
@@ -38,6 +37,7 @@ public abstract class QuestionDefinition {
       long version,
       String name,
       Path path,
+      Optional<Long> repeaterId,
       String description,
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
@@ -47,6 +47,7 @@ public abstract class QuestionDefinition {
     this.version = version;
     this.name = checkNotNull(name);
     this.path = checkNotNull(path);
+    this.repeaterId = checkNotNull(repeaterId);
     this.description = checkNotNull(description);
     this.lifecycleStage = checkNotNull(lifecycleStage);
     this.questionText = checkNotNull(questionText);
@@ -58,6 +59,7 @@ public abstract class QuestionDefinition {
       long version,
       String name,
       Path path,
+      Optional<Long> repeaterId,
       String description,
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
@@ -68,6 +70,7 @@ public abstract class QuestionDefinition {
         version,
         name,
         path,
+        repeaterId,
         description,
         lifecycleStage,
         questionText,
@@ -115,6 +118,42 @@ public abstract class QuestionDefinition {
    */
   public String getName() {
     return this.name;
+  }
+
+  /**
+   * A repeater question is used to enumerate a variable list of user-defined identifiers for a
+   * repeated entity (e.g. children, or household members).
+   *
+   * @return true if this is a repeater question.
+   */
+  public boolean isRepeater() {
+    return getQuestionType().equals(QuestionType.REPEATER);
+  }
+
+  /**
+   * See {@link #getRepeaterId()}.
+   *
+   * @return true if this is a repeated question.
+   */
+  public boolean isRepeated() {
+    return repeaterId.isPresent();
+  }
+
+  /**
+   * A repeated question definition references a repeater question definition that determines the
+   * entities the repeated question definition asks its question for.
+   *
+   * <p>For example, the repeater question "List your household members", may have a repeated
+   * question asking for the birthdate of each household member. The repeated birthdate question
+   * would have a reference to the household members repeater question.
+   *
+   * <p>If a question definition does not have a repeaterId, it is not repeated.
+   *
+   * @return the {@link QuestionDefinition#id} for this question definition's repeater, if it
+   *     exists.
+   */
+  public Optional<Long> getRepeaterId() {
+    return repeaterId;
   }
 
   /** Get the full path of this question, in JSON notation. */
@@ -185,7 +224,7 @@ public abstract class QuestionDefinition {
   public abstract QuestionType getQuestionType();
 
   public Path getLastUpdatedTimePath() {
-    return getPath().toBuilder().append(METADATA_UPDATE_TIME_KEY).build();
+    return getPath().join(METADATA_UPDATE_TIME_KEY);
   }
 
   public ScalarType getLastUpdatedTimeType() {
@@ -193,7 +232,7 @@ public abstract class QuestionDefinition {
   }
 
   public Path getProgramIdPath() {
-    return getPath().toBuilder().append(METADATA_UPDATE_PROGRAM_ID_KEY).build();
+    return getPath().join(METADATA_UPDATE_PROGRAM_ID_KEY);
   }
 
   public ScalarType getProgramIdType() {
@@ -223,15 +262,12 @@ public abstract class QuestionDefinition {
 
   /** Validate that all required fields are present and valid for the question. */
   public ImmutableSet<CiviFormError> validate() {
-    ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<CiviFormError>();
+    ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
     if (version < 1) {
       errors.add(CiviFormError.of(String.format("invalid version: %d", version)));
     }
     if (name.isBlank()) {
       errors.add(CiviFormError.of("blank name"));
-    }
-    if (!hasValidPathPattern()) {
-      errors.add(CiviFormError.of(String.format("invalid path pattern: '%s'", path.path())));
     }
     if (description.isBlank()) {
       errors.add(CiviFormError.of("blank description"));
@@ -240,13 +276,6 @@ public abstract class QuestionDefinition {
       errors.add(CiviFormError.of("no question text"));
     }
     return errors.build();
-  }
-
-  private boolean hasValidPathPattern() {
-    if (path.path().isBlank()) {
-      return false;
-    }
-    return URLEncoder.encode(path.path(), StandardCharsets.UTF_8).equals(path.path());
   }
 
   @Override
