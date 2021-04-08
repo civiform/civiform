@@ -7,8 +7,8 @@ REGION=us-west-2
 
 aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/t1q6b4h2
 docker build -f prod.Dockerfile -t universal-application-tool --cache-from public.ecr.aws/t1q6b4h2/universal-application-tool:latest .
-docker tag universal-application-tool:latest public.ecr.aws/t1q6b4h2/universal-application-tool:latest
-docker push public.ecr.aws/t1q6b4h2/universal-application-tool:latest
+docker tag universal-application-tool:latest public.ecr.aws/t1q6b4h2/universal-application-tool:prod
+docker push public.ecr.aws/t1q6b4h2/universal-application-tool:prod
 
 TIMESTAMP=$(date +%s)
 
