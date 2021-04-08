@@ -20,8 +20,6 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
 
   @Override
   public Tag render() {
-    ApplicantQuestion.RepeaterQuestion repeaterQuestion = question.getRepeaterQuestion();
-
     return div()
         .withId(question.getPath().path())
         .withClasses(Styles.MX_AUTO, Styles.W_MAX)
@@ -36,7 +34,6 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
                     Styles.FONT_THIN,
                     Styles.MB_2)
                 .withText(question.getQuestionHelpText())
-                .with(p("TODO: implement the renderer for repeater questions")),
-            fieldErrors(repeaterQuestion.getQuestionErrors()));
+                .with(p("TODO: implement the renderer for repeater questions")));
   }
 }
