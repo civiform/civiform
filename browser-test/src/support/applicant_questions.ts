@@ -22,7 +22,7 @@ export class ApplicantQuestions {
 
   async answerCheckboxQuestion(checked: Array<string>) {
     for (var index in checked) {
-      await this.page.check('#' + checked[index]);
+      await this.page.check('input[value="' + checked[index] + '"]');
     }
   }
 
