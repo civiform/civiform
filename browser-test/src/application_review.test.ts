@@ -10,6 +10,7 @@ describe('normal application flow', () => {
     const adminPrograms = new AdminPrograms(page);
 
     await adminQuestions.addDropdownQuestion('ice-cream-q', ['chocolate', 'banana', 'black raspberry']);
+    await adminQuestions.addCheckboxQuestion('favorite-trees-q', ['oak', 'maple', 'pine', 'cherry']);
     await adminQuestions.addAddressQuestion('address-q');
     await adminQuestions.addNameQuestion('name-q');
     await adminQuestions.addNumberQuestion('number-q');
@@ -18,7 +19,7 @@ describe('normal application flow', () => {
     const programName = 'a shiny new program';
     await adminPrograms.addProgram(programName);
     await adminPrograms.editProgramBlock(programName, 'block description', ['address-q', 'name-q']);
-    await adminPrograms.addProgramBlock(programName, 'another description', ['ice-cream-q', 'number-q', 'text-q']);
+    await adminPrograms.addProgramBlock(programName, 'another description', ['ice-cream-q', 'favorite-trees-q', 'number-q', 'text-q']);
 
     await adminPrograms.gotoAdminProgramsPage();
     await adminPrograms.expectDraftProgram(programName);
@@ -27,6 +28,7 @@ describe('normal application flow', () => {
     await adminPrograms.expectActiveProgram(programName);
 
     await adminQuestions.expectActiveQuestionExist('ice-cream-q');
+    await adminQuestions.expectActiveQuestionExist('favorite-trees-q');
     await adminQuestions.expectActiveQuestionExist('address-q');
     await adminQuestions.expectActiveQuestionExist('name-q');
     await adminQuestions.expectActiveQuestionExist('number-q');
@@ -43,6 +45,7 @@ describe('normal application flow', () => {
     await applicantQuestions.saveAndContinue();
 
     await applicantQuestions.answerDropdownQuestion('banana');
+    await applicantQuestions.answerCheckboxQuestion(['cherry', 'pine']);
     await applicantQuestions.answerNumberQuestion('42');
     await applicantQuestions.answerTextQuestion('some text');
     await applicantQuestions.saveAndContinue();
@@ -55,6 +58,7 @@ describe('normal application flow', () => {
     await adminPrograms.expectApplicationAnswers('Block 1', 'address-q', '1234 St');
     await adminPrograms.expectApplicationAnswers('Block 1', 'name-q', 'Queen');
     await adminPrograms.expectApplicationAnswers('Block 2', 'ice-cream-q', 'banana');
+    await adminPrograms.expectApplicationAnswers('Block 2', 'favorite-trees-q', '[pine, cherry]');
     await adminPrograms.expectApplicationAnswers('Block 2', 'number-q', '42');
     await adminPrograms.expectApplicationAnswers('Block 2', 'text-q', 'some text');
     await endSession(browser);

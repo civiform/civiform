@@ -326,6 +326,32 @@ public class ApplicantData {
     }
   }
 
+  /**
+   * Reads the value at the given path as a string. Returns {@link Optional#empty} if there is no
+   * value at the path. For JSON arrays of strings, this formats the array as a string according to
+   * {@link ImmutableList#toString}.
+   *
+   * @param path the {@link Path} to read
+   * @return optionally returns the value at the path as a string if it exists, or empty if not
+   */
+  public Optional<String> readAsString(Path path) {
+    if (isJsonArray(path)) {
+      return readList(path).map(ImmutableList::toString);
+    }
+
+    return readString(path);
+  }
+
+  /** Returns true if the value at the path is a JSON array of strings, and false otherwise. */
+  private boolean isJsonArray(Path path) {
+    try {
+      this.read(path, IMMUTABLE_LIST_STRING_TYPE);
+      return true;
+    } catch (JsonPathTypeMismatchException e) {
+      return false;
+    }
+  }
+
   public Instant getCreatedTime() {
     return Instant.parse(this.jsonData.read("$.metadata.created_time"));
   }

@@ -41,7 +41,7 @@ public class CsvExporter {
       switch (column.columnType()) {
         case APPLICANT:
           Optional<String> value =
-              application.getApplicantData().readString(column.jsonPath().orElseThrow());
+              application.getApplicantData().readAsString(column.jsonPath().orElseThrow());
           printer.print(value.orElse("COLUMN_EMPTY"));
           break;
         case ID:
