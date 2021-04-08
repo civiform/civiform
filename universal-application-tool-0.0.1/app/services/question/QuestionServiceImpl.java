@@ -13,6 +13,9 @@ import repository.QuestionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.Path;
+import services.question.exceptions.InvalidPathException;
+import services.question.exceptions.InvalidUpdateException;
+import services.question.types.QuestionDefinition;
 
 public final class QuestionServiceImpl implements QuestionService {
 
@@ -32,7 +35,7 @@ public final class QuestionServiceImpl implements QuestionService {
 
   @Override
   public ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition definition) {
-    ImmutableSet<CiviFormError> errors = validate(definition);
+    ImmutableSet<CiviFormError> errors = validateNewQuestion(definition);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -52,6 +55,9 @@ public final class QuestionServiceImpl implements QuestionService {
     if (!definition.isPersisted()) {
       throw new InvalidUpdateException("question definition is not persisted");
     }
+
+    ImmutableSet<CiviFormError> validateErrors = definition.validate();
+
     Optional<Question> maybeQuestion =
         questionRepository.lookupQuestion(definition.getId()).toCompletableFuture().join();
     if (!maybeQuestion.isPresent()) {
@@ -59,8 +65,14 @@ public final class QuestionServiceImpl implements QuestionService {
           String.format("question with id %d does not exist", definition.getId()));
     }
     Question question = maybeQuestion.get();
-    ImmutableSet<CiviFormError> errors =
+    ImmutableSet<CiviFormError> invariantErrors =
         validateQuestionInvariants(question.getQuestionDefinition(), definition);
+
+    ImmutableSet<CiviFormError> errors =
+        ImmutableSet.<CiviFormError>builder()
+            .addAll(validateErrors)
+            .addAll(invariantErrors)
+            .build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -94,7 +106,11 @@ public final class QuestionServiceImpl implements QuestionService {
                     .collect(ImmutableList.toImmutableList()));
   }
 
-  private ImmutableSet<CiviFormError> validate(QuestionDefinition newDefinition) {
+  /**
+   * Validates a new question and checks for path conflicts. This can't be used to validate udpates
+   * because paths will always conflict.
+   */
+  private ImmutableSet<CiviFormError> validateNewQuestion(QuestionDefinition newDefinition) {
     ImmutableSet<CiviFormError> errors = newDefinition.validate();
     if (!errors.isEmpty()) {
       return errors;

@@ -19,7 +19,7 @@ import javax.inject.Inject;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
-import services.question.QuestionDefinition;
+import services.question.types.QuestionDefinition;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.style.Styles;

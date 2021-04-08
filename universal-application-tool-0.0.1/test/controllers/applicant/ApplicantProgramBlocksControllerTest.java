@@ -20,7 +20,7 @@ import org.junit.Test;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.WithPostgresContainer;
-import services.question.QuestionDefinition;
+import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 import support.TestQuestionBank;
 

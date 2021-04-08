@@ -3,22 +3,30 @@ package support;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+import javax.persistence.PersistenceException;
 import models.LifecycleStage;
 import models.Question;
 import services.Path;
-import services.question.AddressQuestionDefinition;
-import services.question.NameQuestionDefinition;
-import services.question.QuestionDefinition;
-import services.question.TextQuestionDefinition;
+import services.question.exceptions.InvalidQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.AddressQuestionDefinition;
+import services.question.types.NameQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.TextQuestionDefinition;
 
 /**
  * A cached {@link Question} bank for testing.
  *
  * <p>The {@link Question}s in this question bank should be treated as constants, but they need to
- * be persisted in the database for some tests so they are persisted and cached. The properties of
- * these questions (e.g. question path) are not canonical and may not be representative of the
- * properties defined by CiviForm administrators.
+ * be persisted in the database for some tests so they are persisted and cached. When used with
+ * tests that do not have a database available (see {@link #maybeSave(QuestionDefinition)}), the
+ * question IDs may not be reliable since in production, the IDs are set by the database.
+ *
+ * <p>The properties of these questions (e.g. question path) are not canonical and may not be
+ * representative of the properties defined by CiviForm administrators.
  *
  * <p>To add a new {@link Question} to the question bank: create a {@link QuestionEnum} for it,
  * create a private static method to construct the question, and create a public static method to
@@ -26,6 +34,8 @@ import services.question.TextQuestionDefinition;
  */
 public class TestQuestionBank {
   private static final long VERSION = 1L;
+
+  private static AtomicLong nextId = new AtomicLong(1L);
 
   private enum QuestionEnum {
     APPLICANT_NAME,
@@ -37,6 +47,7 @@ public class TestQuestionBank {
 
   public static void reset() {
     questionCache.clear();
+    nextId.set(1L);
   }
 
   public static Question applicantName() {
@@ -60,13 +71,12 @@ public class TestQuestionBank {
             VERSION,
             "applicant name",
             Path.create("applicant.name"),
+            Optional.empty(),
             "name of applicant",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "what is your name?"),
             ImmutableMap.of(Locale.US, "help text"));
-    Question question = new Question(definition);
-    question.save();
-    return question;
+    return maybeSave(definition);
   }
 
   private static Question applicantAddress(QuestionEnum ignore) {
@@ -75,13 +85,12 @@ public class TestQuestionBank {
             VERSION,
             "applicant address",
             Path.create("applicant.address"),
+            Optional.empty(),
             "address of applicant",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "what is your address?"),
             ImmutableMap.of(Locale.US, "help text"));
-    Question question = new Question(definition);
-    question.save();
-    return question;
+    return maybeSave(definition);
   }
 
   private static Question applicantFavoriteColor(QuestionEnum ignore) {
@@ -90,12 +99,27 @@ public class TestQuestionBank {
             VERSION,
             "applicant favorite color",
             Path.create("applicant.color"),
+            Optional.empty(),
             "favorite color of applicant",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "what is your favorite color?"),
             ImmutableMap.of(Locale.US, "help text"));
-    Question question = new Question(definition);
-    question.save();
+    return maybeSave(definition);
+  }
+
+  private static Question maybeSave(QuestionDefinition questionDefinition) {
+    Question question = new Question(questionDefinition);
+    try {
+      question.save();
+    } catch (ExceptionInInitializerError | NoClassDefFoundError | PersistenceException ignore) {
+      question.id = nextId.getAndIncrement();
+      try {
+        question.loadQuestionDefinition();
+      } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
+        throw new IllegalArgumentException(
+            "Questions in the TestQuestionBank better be supported QuestionTypes.");
+      }
+    }
     return question;
   }
 }

@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import services.applicant.question.ApplicantQuestion;
 import services.program.BlockDefinition;
 import services.program.ProgramQuestionDefinition;
 

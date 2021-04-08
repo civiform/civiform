@@ -1,10 +1,20 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'The database - including the networking required to get it to interface with the private network.'
+Mappings:
+  DbSize:
+    prod:
+      Size: db.m5.large
+    staging:
+      Size: db.t3.small
 Parameters:
   DBPassword:
     NoEcho: 'true'
     Description: Password for database access
     Type: String
+  Environment:
+    Type: String
+    AllowedValues: ["staging", "prod"]
+    Description: "Staging or prod environment"
   DBUsername:
     NoEcho: 'true'
     Description: Username for database access
@@ -28,7 +38,7 @@ Resources:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
       DBSubnetGroupDescription: two subnets for the database
-      DBSubnetGroupName: prod-civiform-dbsubnetgroup
+      DBSubnetGroupName: !Join ["-", [!Ref Environment, "civiform-dbsubnetgroup"]]
       SubnetIds:
         - !Ref 'PrivateSubnet1'
         - !Ref 'PrivateSubnet2'
@@ -37,9 +47,9 @@ Resources:
     # If you accidentally delete the database, we store a snapshot of the database.
     DeletionPolicy: Snapshot
     Properties:
-      DBInstanceIdentifier: prod-postgres-database
+      DBInstanceIdentifier: !Join ["-", [!Ref Environment, "civiform-postgres-db"]]
       DBName: postgres
-      DBInstanceClass: db.t3.small # update to db.m5.large for prod - t3.small is cheap and slow for dev/test.
+      DBInstanceClass: !FindInMap [DbSize, !Ref Environment, Size]
       AllocatedStorage: 50
       Engine: postgres
       EngineVersion: '12.5'

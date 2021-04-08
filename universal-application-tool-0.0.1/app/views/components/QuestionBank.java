@@ -15,7 +15,7 @@ import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Comparator;
 import services.program.ProgramDefinition;
-import services.question.QuestionDefinition;
+import services.question.types.QuestionDefinition;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;

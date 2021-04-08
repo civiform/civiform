@@ -6,19 +6,20 @@ import static org.junit.Assert.assertEquals;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import repository.QuestionRepository;
 import repository.WithPostgresContainer;
 import services.Path;
-import services.question.AddressQuestionDefinition;
-import services.question.MultiOptionQuestionDefinition;
-import services.question.QuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.QuestionType;
-import services.question.TextQuestionDefinition;
-import services.question.TextQuestionDefinition.TextValidationPredicates;
-import services.question.UnsupportedQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.AddressQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
+import services.question.types.TextQuestionDefinition;
+import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 
 public class QuestionTest extends WithPostgresContainer {
 
@@ -36,6 +37,7 @@ public class QuestionTest extends WithPostgresContainer {
             1L,
             "test",
             Path.create("my.path"),
+            Optional.empty(),
             "",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(),
@@ -52,12 +54,53 @@ public class QuestionTest extends WithPostgresContainer {
   }
 
   @Test
+  public void canSerializeRepeaterId_EmptyOptionalLong() {
+    QuestionDefinition questionDefinition =
+        new TextQuestionDefinition(
+            1L,
+            "test",
+            Path.create("my.path"),
+            Optional.empty(),
+            "",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(),
+            ImmutableMap.of());
+    Question question = new Question(questionDefinition);
+    question.save();
+
+    Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+
+    assertThat(found.getQuestionDefinition().getRepeaterId()).isEmpty();
+  }
+
+  @Test
+  public void canSerializeRepeaterId_NonEmptyOptionalLong() {
+    QuestionDefinition questionDefinition =
+        new TextQuestionDefinition(
+            1L,
+            "test",
+            Path.create("my.path"),
+            Optional.of(10L),
+            "",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(),
+            ImmutableMap.of());
+    Question question = new Question(questionDefinition);
+    question.save();
+
+    Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+
+    assertThat(found.getQuestionDefinition().getRepeaterId()).hasValue(10L);
+  }
+
+  @Test
   public void canSerializeLocalizationMaps() {
     QuestionDefinition definition =
         new TextQuestionDefinition(
             1L,
             "",
             Path.empty(),
+            Optional.empty(),
             "",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "hello"),
@@ -81,6 +124,7 @@ public class QuestionTest extends WithPostgresContainer {
             1L,
             "address",
             Path.empty(),
+            Optional.empty(),
             "",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(),
@@ -101,6 +145,7 @@ public class QuestionTest extends WithPostgresContainer {
             1L,
             "",
             Path.empty(),
+            Optional.empty(),
             "",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(),
@@ -125,6 +170,7 @@ public class QuestionTest extends WithPostgresContainer {
             .setName("")
             .setDescription("")
             .setPath(Path.empty())
+            .setRepeaterId(Optional.of(123L))
             .setQuestionText(ImmutableMap.of())
             .setLifecycleStage(LifecycleStage.ACTIVE)
             .setQuestionHelpText(ImmutableMap.of())
@@ -140,5 +186,6 @@ public class QuestionTest extends WithPostgresContainer {
     MultiOptionQuestionDefinition multiOption =
         (MultiOptionQuestionDefinition) found.getQuestionDefinition();
     assertThat(multiOption.getOptions()).isEqualTo(ImmutableListMultimap.of(Locale.US, "option"));
+    assertThat(multiOption.getRepeaterId()).hasValue(123L);
   }
 }

@@ -1,10 +1,16 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'The containers and service configuration for CiviForm.'
+Mappings:
+  Images:
+    prod:
+      image: public.ecr.aws/t1q6b4h2/universal-application-tool:prod
+    staging:
+      image: public.ecr.aws/t1q6b4h2/universal-application-tool:latest
 Parameters:
-  ContainerName:
-    Description: The name of the container.
+  Environment:
     Type: String
-    Default: prod-civiform-container
+    AllowedValues: ["staging", "prod"]
+    Description: "Staging or prod environment"
   DBAddress:
     Description: The address at which the database can be reached.
     Type: String
@@ -50,7 +56,7 @@ Resources:
   ecscluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: prod-civiform-fargate-cluster
+      ClusterName: !Join ["-", [!Ref Environment, "civiform-fargate-cluster"]]
       CapacityProviders:
         - FARGATE
       DefaultCapacityProviderStrategy:
@@ -63,7 +69,7 @@ Resources:
       DesiredCount: 2
       TaskDefinition: !Ref 'ecstaskdef'
       LoadBalancers:
-        - ContainerName: !Ref 'ContainerName'
+        - ContainerName: !Join ["-", [!Ref Environment, "civiform-container"]]
           ContainerPort: 9000
           TargetGroupArn: !Ref 'LBTargetName'
       LaunchType: FARGATE
@@ -78,7 +84,7 @@ Resources:
   loggroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: prod.civiform.lg
+      LogGroupName: !Join [".", [!Ref Environment, "civiform.lg"]]
       RetentionInDays: 90
   ecstaskdef:
     Type: AWS::ECS::TaskDefinition
@@ -91,8 +97,8 @@ Resources:
       Cpu: 1024
       Memory: 8192
       ContainerDefinitions:
-        - Name: !Ref 'ContainerName'
-          Image: public.ecr.aws/t1q6b4h2/universal-application-tool:latest
+        - Name: !Join ["-", [!Ref Environment, "civiform-container"]]
+          Image: !FindInMap [Images, !Ref Environment, image]
           Environment:
             - Name: DB_JDBC_STRING
               Value: !Join
@@ -113,13 +119,13 @@ Resources:
             - Name: AWS_S3_BUCKET_NAME
               Value: !Ref 'S3BucketName'
             - Name: IDCS_CLIENT_ID
-              Value: '{{resolve:secretsmanager:dev-oidc-secrets:SecretString:IDCS_CLIENT_ID}}'
+              Value: !Sub '{{resolve:secretsmanager:${Environment}-oidc-secrets:SecretString:IDCS_CLIENT_ID}}'
             - Name: IDCS_SECRET
-              Value: '{{resolve:secretsmanager:dev-oidc-secrets:SecretString:IDCS_SECRET}}'
+              Value: !Sub '{{resolve:secretsmanager:${Environment}-oidc-secrets:SecretString:IDCS_SECRET}}'
             - Name: ADFS_CLIENT_ID
-              Value: '{{resolve:secretsmanager:dev-oidc-secrets:SecretString:ADFS_CLIENT_ID}}'
+              Value: !Sub '{{resolve:secretsmanager:${Environment}-oidc-secrets:SecretString:ADFS_CLIENT_ID}}'
             - Name: ADFS_SECRET
-              Value: '{{resolve:secretsmanager:dev-oidc-secrets:SecretString:ADFS_SECRET}}'
+              Value: !Sub '{{resolve:secretsmanager:${Environment}-oidc-secrets:SecretString:ADFS_SECRET}}'
             - Name: BASE_URL
               Value: !Sub "https://${DomainName}"
           Cpu: 1024

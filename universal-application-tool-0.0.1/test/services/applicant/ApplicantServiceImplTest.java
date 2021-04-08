@@ -1,13 +1,17 @@
 package services.applicant;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import models.Applicant;
 import models.LifecycleStage;
@@ -24,9 +28,10 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
 import services.program.ProgramServiceImpl;
-import services.question.NameQuestionDefinition;
-import services.question.QuestionDefinition;
 import services.question.QuestionService;
+import services.question.types.CheckboxQuestionDefinition;
+import services.question.types.NameQuestionDefinition;
+import services.question.types.QuestionDefinition;
 
 public class ApplicantServiceImplTest extends WithPostgresContainer {
 
@@ -118,6 +123,48 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         Path.create("applicant.name." + QuestionDefinition.METADATA_UPDATE_TIME_KEY);
     assertThat(applicantDataAfter.readLong(programIdPath)).hasValue(programDefinition.id());
     assertThat(applicantDataAfter.readLong(timestampPath)).isPresent();
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_rawUpdatesContainMultiSelectAnswers_isOk() throws Exception {
+    QuestionDefinition multiSelectQuestion =
+        questionService
+            .create(
+                new CheckboxQuestionDefinition(
+                    1L,
+                    "checkbox",
+                    Path.create("applicant.checkbox"),
+                    Optional.empty(),
+                    "description",
+                    LifecycleStage.ACTIVE,
+                    ImmutableMap.of(Locale.US, "question?"),
+                    ImmutableMap.of(Locale.US, "help text"),
+                    ImmutableListMultimap.of(Locale.US, "cat", Locale.US, "dog")))
+            .getResult();
+    createProgram(multiSelectQuestion);
+
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+
+    ImmutableMap<String, String> rawUpdates =
+        ImmutableMap.<String, String>builder()
+            .put("applicant.checkbox.selection[0]", "cat")
+            .put("applicant.checkbox.selection[1]", "dog")
+            .build();
+
+    ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
+        subject
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", rawUpdates)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(errorAnd.isError()).isFalse();
+    assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
+
+    ApplicantData applicantDataAfter =
+        applicantRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    assertThat(applicantDataAfter.readList(Path.create("applicant.checkbox.selection")))
+        .hasValue(ImmutableList.of("cat", "dog"));
   }
 
   @Test
@@ -236,6 +283,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
                     1L,
                     "my name",
                     Path.create("applicant.name"),
+                    Optional.empty(),
                     "description",
                     LifecycleStage.ACTIVE,
                     ImmutableMap.of(Locale.US, "question?"),
@@ -244,6 +292,10 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   private void createProgram() throws Exception {
+    createProgram(questionDefinition);
+  }
+
+  private void createProgram(QuestionDefinition... questions) throws Exception {
     programDefinition = programService.createProgramDefinition("test program", "desc").getResult();
     programDefinition =
         programService
@@ -253,6 +305,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         programService.setBlockQuestions(
             programDefinition.id(),
             programDefinition.blockDefinitions().get(0).id(),
-            ImmutableList.of(ProgramQuestionDefinition.create(questionDefinition)));
+            Arrays.stream(questions)
+                .map(ProgramQuestionDefinition::create)
+                .collect(toImmutableList()));
   }
 }

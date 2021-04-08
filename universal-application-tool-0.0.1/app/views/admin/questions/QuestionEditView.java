@@ -8,6 +8,7 @@ import static j2html.TagCreator.main;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import forms.CheckboxQuestionForm;
 import forms.DropdownQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
@@ -18,10 +19,11 @@ import java.util.Arrays;
 import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import services.question.DropdownQuestionDefinition;
-import services.question.QuestionDefinition;
-import services.question.QuestionType;
-import services.question.TextQuestionDefinition;
+import services.question.types.CheckboxQuestionDefinition;
+import services.question.types.DropdownQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
+import services.question.types.TextQuestionDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
@@ -255,6 +257,10 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private QuestionForm getQuestionFormForType(QuestionType questionType) {
     switch (questionType) {
+      case CHECKBOX:
+        {
+          return new CheckboxQuestionForm();
+        }
       case DROPDOWN:
         {
           return new DropdownQuestionForm();
@@ -273,6 +279,10 @@ public final class QuestionEditView extends BaseHtmlView {
   private QuestionForm getQuestionFormForType(
       QuestionType questionType, QuestionDefinition questionDefinition) {
     switch (questionType) {
+      case CHECKBOX:
+        {
+          return new CheckboxQuestionForm((CheckboxQuestionDefinition) questionDefinition);
+        }
       case DROPDOWN:
         {
           return new DropdownQuestionForm((DropdownQuestionDefinition) questionDefinition);

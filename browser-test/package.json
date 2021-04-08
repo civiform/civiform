@@ -3,7 +3,8 @@
   "main": "index.js",
   "license": "Apache-2.0",
   "scripts": {
-    "test": "jest --forceExit --maxWorkers=1 --maxConcurrency=1"
+    "test": "./bin/truncate_tables.sh && jest --testTimeout=60000 --forceExit --maxConcurrency=1",
+    "probe": "jest --testTimeout=60000 --forceExit --maxConcurrency=1"
   },
   "devDependencies": {
     "@types/jest": "^26.0.20",

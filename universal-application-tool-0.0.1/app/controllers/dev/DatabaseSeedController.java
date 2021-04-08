@@ -10,6 +10,7 @@ import forms.BlockForm;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Locale;
+import java.util.Optional;
 import models.LifecycleStage;
 import models.Program;
 import models.Question;
@@ -22,12 +23,13 @@ import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
-import services.question.AddressQuestionDefinition;
-import services.question.DropdownQuestionDefinition;
-import services.question.NameQuestionDefinition;
-import services.question.QuestionDefinition;
 import services.question.QuestionService;
-import services.question.TextQuestionDefinition;
+import services.question.types.AddressQuestionDefinition;
+import services.question.types.CheckboxQuestionDefinition;
+import services.question.types.DropdownQuestionDefinition;
+import services.question.types.NameQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.TextQuestionDefinition;
 import views.dev.DatabaseSeedView;
 
 /** Controller for seeding the database with test content to develop against. */
@@ -102,6 +104,7 @@ public class DatabaseSeedController extends Controller {
                 1L,
                 "name",
                 Path.create("applicant.name"),
+                Optional.empty(),
                 "description",
                 LifecycleStage.ACTIVE,
                 ImmutableMap.of(Locale.US, "What is your name?"),
@@ -116,6 +119,7 @@ public class DatabaseSeedController extends Controller {
                 1L,
                 "color",
                 Path.create("applicant.color"),
+                Optional.empty(),
                 "description",
                 LifecycleStage.ACTIVE,
                 ImmutableMap.of(Locale.US, "What is your favorite color?"),
@@ -130,10 +134,29 @@ public class DatabaseSeedController extends Controller {
                 1L,
                 "address",
                 Path.create("applicant.address"),
+                Optional.empty(),
                 "description",
                 LifecycleStage.ACTIVE,
                 ImmutableMap.of(Locale.US, "What is your address?"),
                 ImmutableMap.of(Locale.US, "help text")))
+        .getResult();
+  }
+
+  private QuestionDefinition insertCheckboxQuestionDefinition() {
+    return questionService
+        .create(
+            new CheckboxQuestionDefinition(
+                1L,
+                "kitchen",
+                Path.create("applicant.kitchen"),
+                Optional.empty(),
+                "description",
+                LifecycleStage.ACTIVE,
+                ImmutableMap.of(
+                    Locale.US, "Which of the following kitchen instruments do you own?"),
+                ImmutableMap.of(Locale.US, "help text"),
+                ImmutableListMultimap.of(
+                    Locale.US, "toaster", Locale.US, "pepper grinder", Locale.US, "garlic press")))
         .getResult();
   }
 
@@ -144,6 +167,7 @@ public class DatabaseSeedController extends Controller {
                 1L,
                 "dropdown",
                 Path.create("applicant.dropdown"),
+                Optional.empty(),
                 "select your favorite ice cream flavor",
                 LifecycleStage.ACTIVE,
                 ImmutableMap.of(
@@ -203,6 +227,16 @@ public class DatabaseSeedController extends Controller {
                   "Ice Cream Information",
                   ImmutableList.of(
                       ProgramQuestionDefinition.create(insertDropdownQuestionDefinition())))
+              .getResult();
+
+      programDefinition =
+          programService
+              .addBlockToProgram(
+                  programDefinition.id(),
+                  "Block 4",
+                  "kitchen information",
+                  ImmutableList.of(
+                      ProgramQuestionDefinition.create(insertCheckboxQuestionDefinition())))
               .getResult();
 
       return programDefinition;

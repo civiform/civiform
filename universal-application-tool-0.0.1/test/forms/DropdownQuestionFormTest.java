@@ -6,12 +6,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
-import services.question.DropdownQuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.UnsupportedQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.DropdownQuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
 
 public class DropdownQuestionFormTest {
 
@@ -37,6 +38,7 @@ public class DropdownQuestionFormTest {
             1L,
             "name",
             Path.create("my.question.path.name"),
+            Optional.empty(),
             "description",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
@@ -53,6 +55,7 @@ public class DropdownQuestionFormTest {
             1L,
             "name",
             Path.create("my.question.path.name"),
+            Optional.empty(),
             "description",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),

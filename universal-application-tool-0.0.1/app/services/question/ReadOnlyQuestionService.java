@@ -4,6 +4,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import services.Path;
+import services.question.exceptions.InvalidPathException;
+import services.question.exceptions.QuestionNotFoundException;
+import services.question.types.QuestionDefinition;
+import services.question.types.ScalarType;
 
 /**
  * The ReadOnlyQuestionService contains all synchronous, in-memory operations for

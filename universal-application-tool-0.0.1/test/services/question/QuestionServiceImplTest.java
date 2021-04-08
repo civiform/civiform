@@ -14,7 +14,13 @@ import repository.WithPostgresContainer;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.Path;
-import services.question.AddressQuestionDefinition.AddressValidationPredicates;
+import services.question.exceptions.InvalidUpdateException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
+import services.question.types.TextQuestionDefinition;
 
 public class QuestionServiceImplTest extends WithPostgresContainer {
   QuestionServiceImpl questionService;
@@ -24,6 +30,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
           1L,
           "my name",
           Path.create("my.path.name"),
+          Optional.empty(),
           "description",
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
@@ -59,28 +66,6 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
                 String.format(
                     "path '%s' conflicts with question: %s",
                     questionDefinition.getPath().path(), questionDefinition.getPath().path())));
-  }
-
-  @Test
-  public void create_failsWithInvalidPathPattern() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            1L,
-            "name",
-            Path.create("#invalid&path-pattern!"),
-            "description",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(Locale.US, "question?"),
-            ImmutableMap.of());
-
-    ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult = questionService.create(question);
-
-    assertThat(errorAndResult.hasResult()).isFalse();
-    assertThat(errorAndResult.isError()).isTrue();
-    assertThat(errorAndResult.getErrors())
-        .containsOnly(
-            CiviFormError.of(
-                String.format("invalid path pattern: '%s'", question.getPath().path())));
   }
 
   @Test

@@ -1,12 +1,24 @@
 #!/bin/bash
 pushd $(git rev-parse --show-toplevel)
 
+set -e
+
 bin/pull-image
 
 if [ -f ".secrets" ]; then
   . .secrets
 fi
 
+# start localstack
+docker-compose -f browser-test/browser-test-compose.yml up -d localstack
+
+# wait till localstack running
+bin/localstack/wait http://localhost:6645
+
+# ensure local s3 created
+bin/localstack/mk-s3 http://localhost:6645
+
+# start everything else
 docker-compose -f browser-test/browser-test-compose.yml up
 
 popd

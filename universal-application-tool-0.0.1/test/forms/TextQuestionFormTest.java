@@ -4,12 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
-import services.question.QuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.TextQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.TextQuestionDefinition;
 
 public class TextQuestionFormTest {
 
@@ -33,6 +34,7 @@ public class TextQuestionFormTest {
             1L,
             "name",
             Path.create("my.question.path.name"),
+            Optional.empty(),
             "description",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
@@ -51,6 +53,7 @@ public class TextQuestionFormTest {
             1L,
             "name",
             Path.create("my.question.path.name"),
+            Optional.empty(),
             "description",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),

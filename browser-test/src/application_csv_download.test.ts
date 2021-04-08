@@ -1,35 +1,36 @@
 import { startSession, logout, loginAsGuest, loginAsAdmin, ApplicantQuestions, AdminQuestions, AdminPrograms, endSession } from './support'
 
 describe('normal application flow', () => {
-  // If this times out, a likely cause is the .click() calls in
-  // support/admin_programs, which are called out as being asserts.
-  jest.setTimeout(25000);
   it('all major steps', async () => {
-    const { browser, page } = await startSession()
-    // timeout for clicks and element fills.
-    page.setDefaultTimeout(1000);
+    const { browser, page } = await startSession();
+    // Timeout for clicks and element fills. If your seletor fails to locate
+    // the HTML element, the test hangs. If you find the tests time out, you
+    // want to verify that your selectors are working as expected first.
+    // Because all tests are run concurrently, it could be that your selector
+    // selects a different entity from another test.
+    page.setDefaultTimeout(2000);
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page);
     const adminPrograms = new AdminPrograms(page);
     const applicantQuestions = new ApplicantQuestions(page);
 
-    await adminQuestions.addNameQuestion('name');
-    await adminPrograms.addProgram(['name'], 'program');
+    const programName = 'test program for csv export';
+    await adminQuestions.addNameQuestion('name-csv');
+    await adminPrograms.addAndPublishProgramWithQuestions(['name-csv'], programName);
 
     await logout(page);
     await loginAsGuest(page);
 
-    await applicantQuestions.applyButton();
+    await applicantQuestions.applyProgram(programName);
 
-    await applicantQuestions.answerQuestion('applicant.name.first', 'sarah');
-    await applicantQuestions.answerQuestion('applicant.name.last', 'smith');
+    await applicantQuestions.answerNameQuestion('sarah', 'smith');
     await applicantQuestions.saveAndContinue();
 
     await logout(page);
-    await loginAsAdmin(page)
+    await loginAsAdmin(page);
 
-    await adminPrograms.viewApplications();
+    await adminPrograms.viewApplications(programName);
     const csvContent = await adminPrograms.getCsv();
     expect(csvContent).toContain('sarah,COLUMN_EMPTY,smith');
     await endSession(browser);

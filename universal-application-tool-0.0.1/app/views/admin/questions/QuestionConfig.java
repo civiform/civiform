@@ -14,7 +14,7 @@ import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Optional;
-import services.question.QuestionType;
+import services.question.types.QuestionType;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.style.ReferenceClasses;
@@ -73,6 +73,13 @@ public class QuestionConfig {
             .getContainer();
       case ADDRESS:
         return config.setId("address-question-config").addAddressQuestionConfig().getContainer();
+      case CHECKBOX:
+        // TODO(https://github.com/seattle-uat/civiform/issues/416): Add validation options for
+        // multi-select questions.
+        return config
+            .setId("multi-select-question-config")
+            .addMultiOptionQuestionConfig((MultiOptionQuestionForm) questionForm)
+            .getContainer();
       case DROPDOWN:
         return config
             .setId("single-select-question-config")
@@ -161,16 +168,16 @@ public class QuestionConfig {
 
   private QuestionConfig addMultiSelectQuestionValidation() {
     content.with(
-            FieldWithLabel.number()
-                    .setId("multi-select-min-choices-input")
-                    .setFieldName("min")
-                    .setLabelText("Minimum number of choices required")
-                    .getContainer(),
-            FieldWithLabel.number()
-                    .setId("multi-select-max-choices-input")
-                    .setFieldName("max")
-                    .setLabelText("Maximum number of choices allowed")
-                    .getContainer());
+        FieldWithLabel.number()
+            .setId("multi-select-min-choices-input")
+            .setFieldName("min")
+            .setLabelText("Minimum number of choices required")
+            .getContainer(),
+        FieldWithLabel.number()
+            .setId("multi-select-max-choices-input")
+            .setFieldName("max")
+            .setLabelText("Maximum number of choices allowed")
+            .getContainer());
     return this;
   }
 

@@ -1,8 +1,10 @@
-import { startSession } from './support'
+import { startSession, endSession } from './support'
 
 it('this is the other page test', async () => {
 
-  const { page } = await startSession()
+  const { browser, page } = await startSession();
 
-  expect(await page.textContent('html')).toContain('continue as guest')
+  expect(await page.textContent('html')).toContain('continue as guest');
+
+  await endSession(browser);
 })

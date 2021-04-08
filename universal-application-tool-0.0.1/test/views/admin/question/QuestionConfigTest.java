@@ -12,7 +12,7 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import services.question.QuestionType;
+import services.question.types.QuestionType;
 import views.admin.questions.QuestionConfig;
 
 @RunWith(JUnitParamsRunner.class)
@@ -32,6 +32,11 @@ public class QuestionConfigTest {
     assertThat(QuestionConfig.buildQuestionConfig(QuestionType.ADDRESS, new QuestionForm()))
         .toString()
         .contains("address-question-default-state-select");
+
+    assertThat(
+            QuestionConfig.buildQuestionConfig(QuestionType.CHECKBOX, new DropdownQuestionForm()))
+        .toString()
+        .contains("multi-select-question-config");
 
     assertThat(
             QuestionConfig.buildQuestionConfig(QuestionType.DROPDOWN, new DropdownQuestionForm()))

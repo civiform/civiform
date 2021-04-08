@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import controllers.CiviFormController;
+import forms.CheckboxQuestionForm;
 import forms.DropdownQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
@@ -20,13 +21,13 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.question.InvalidQuestionTypeException;
-import services.question.InvalidUpdateException;
-import services.question.QuestionDefinition;
-import services.question.QuestionNotFoundException;
 import services.question.QuestionService;
-import services.question.QuestionType;
-import services.question.UnsupportedQuestionTypeException;
+import services.question.exceptions.InvalidQuestionTypeException;
+import services.question.exceptions.InvalidUpdateException;
+import services.question.exceptions.QuestionNotFoundException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
 
@@ -200,6 +201,11 @@ public class QuestionController extends CiviFormController {
     }
 
     switch (questionType) {
+      case CHECKBOX:
+        {
+          Form<CheckboxQuestionForm> form = formFactory.form(CheckboxQuestionForm.class);
+          return form.bindFromRequest(request).get();
+        }
       case DROPDOWN:
         {
           Form<DropdownQuestionForm> form = formFactory.form(DropdownQuestionForm.class);

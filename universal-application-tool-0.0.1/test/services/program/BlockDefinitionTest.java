@@ -9,10 +9,10 @@ import java.util.Optional;
 import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
-import services.question.QuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.QuestionType;
-import services.question.ScalarType;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
+import services.question.types.ScalarType;
 
 public class BlockDefinitionTest {
 
