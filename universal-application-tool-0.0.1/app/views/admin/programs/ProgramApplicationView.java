@@ -110,7 +110,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   }
 
   private Tag renderScalar(Path key, Application application) {
-    return div(application.getApplicantData().readString(key).orElse("<unanswered>"))
+    return div(application.getApplicantData().readAsString(key).orElse("<unanswered>"))
         .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_BASE, "line-clamp-3");
   }
 }

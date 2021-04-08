@@ -279,6 +279,16 @@ public class ApplicantDataTest {
   }
 
   @Test
+  public void readString_returnsEmptyForLists() {
+    String testData = "{ \"applicant\": { \"list\":[\"hello\", \"world\"] } }";
+    ApplicantData data = new ApplicantData(testData);
+
+    Optional<String> found = data.readString(Path.create("applicant.list"));
+
+    assertThat(found).isEmpty();
+  }
+
+  @Test
   public void readLong_findsCorrectValue() throws Exception {
     String testData = "{ \"applicant\": { \"age\": 30 } }";
     ApplicantData data = new ApplicantData(testData);
@@ -344,5 +354,19 @@ public class ApplicantDataTest {
     Optional<ImmutableList<String>> found = data.readList(Path.create("applicant.object.name"));
 
     assertThat(found).isEmpty();
+  }
+
+  @Test
+  public void readAsString_readsAListAsAString() {
+    ApplicantData data = new ApplicantData("{\"applicant\":{\"list\":[\"hello\",\"world\"]}}");
+
+    assertThat(data.readAsString(Path.create("applicant.list"))).hasValue("[hello, world]");
+  }
+
+  @Test
+  public void readAsString_readsNumberAsString() {
+    ApplicantData data = new ApplicantData("{\"applicant\":{\"classes\":2}}");
+
+    assertThat(data.readAsString(Path.create("applicant.classes"))).hasValue("2");
   }
 }
