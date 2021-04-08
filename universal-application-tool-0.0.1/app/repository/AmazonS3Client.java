@@ -5,7 +5,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.typesafe.config.Config;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -22,6 +24,9 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 @Singleton
 public class AmazonS3Client {
@@ -37,6 +42,7 @@ public class AmazonS3Client {
   private Region region;
   private String bucket;
   private S3Client s3;
+  private S3Presigner presigner;
 
   @Inject
   public AmazonS3Client(ApplicationLifecycle appLifecycle, Config config, Environment environment) {
@@ -92,6 +98,20 @@ public class AmazonS3Client {
     }
   }
 
+  public URL getPresignedUrl(String key) {
+    GetObjectRequest getObjectRequest = GetObjectRequest.builder().key(key).bucket(bucket).build();
+
+    GetObjectPresignRequest getObjectPresignRequest =
+        GetObjectPresignRequest.builder()
+            .signatureDuration(Duration.ofMinutes(10))
+            .getObjectRequest(getObjectRequest)
+            .build();
+
+    PresignedGetObjectRequest presignedGetObjectRequest =
+        presigner.presignGetObject(getObjectPresignRequest);
+    return presignedGetObjectRequest.url();
+  }
+
   private void ensureS3Client() {
     if (s3 != null) {
       return;
@@ -118,14 +138,17 @@ public class AmazonS3Client {
     bucket = config.getString(AWS_S3_BUCKET);
 
     S3ClientBuilder s3ClientBuilder = S3Client.builder().region(region);
+    S3Presigner.Builder s3PresignerBuilder = S3Presigner.builder().region(region);
     if (environment.isDev()) {
       try {
         URI localUri = new URI(config.getString(AWS_LOCAL_ENDPOINT));
         s3ClientBuilder = s3ClientBuilder.endpointOverride(localUri);
+        s3PresignerBuilder = s3PresignerBuilder.endpointOverride(localUri);
       } catch (URISyntaxException e) {
         throw new RuntimeException(e);
       }
     }
-    s3 = s3ClientBuilder.region(region).build();
+    s3 = s3ClientBuilder.build();
+    presigner = s3PresignerBuilder.build();
   }
 }

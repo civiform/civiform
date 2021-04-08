@@ -1,6 +1,7 @@
 package views.dev;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
@@ -59,6 +60,13 @@ public class FileUploadView extends BaseHtmlView {
 
   private Tag renderFiles(ImmutableList<StoredFile> files) {
     return table()
-        .with(tbody(each(files, file -> tr(td(String.valueOf(file.id)), td(file.getName())))));
+        .with(
+            tbody(
+                each(
+                    files,
+                    file ->
+                        tr(
+                            td(String.valueOf(file.id)),
+                            td(a(file.getName()).withHref(file.getPresignedURL().toString()))))));
   }
 }

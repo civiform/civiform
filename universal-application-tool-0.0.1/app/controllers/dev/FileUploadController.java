@@ -34,7 +34,8 @@ public class FileUploadController extends Controller {
 
   public Result index(Request request) {
     if (environment.isDev()) {
-      Set<StoredFile> files = storedFileRepository.list().toCompletableFuture().join();
+      Set<StoredFile> files =
+          storedFileRepository.listWithPresignedURL().toCompletableFuture().join();
       ImmutableList<StoredFile> fileList =
           files.stream()
               .sorted(Comparator.comparing(StoredFile::getName))
