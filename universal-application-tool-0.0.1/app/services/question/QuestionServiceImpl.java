@@ -52,6 +52,9 @@ public final class QuestionServiceImpl implements QuestionService {
     if (!definition.isPersisted()) {
       throw new InvalidUpdateException("question definition is not persisted");
     }
+
+    ImmutableSet<CiviFormError> validateErrors = definition.validate();
+
     Optional<Question> maybeQuestion =
         questionRepository.lookupQuestion(definition.getId()).toCompletableFuture().join();
     if (!maybeQuestion.isPresent()) {
@@ -59,8 +62,14 @@ public final class QuestionServiceImpl implements QuestionService {
           String.format("question with id %d does not exist", definition.getId()));
     }
     Question question = maybeQuestion.get();
-    ImmutableSet<CiviFormError> errors =
+    ImmutableSet<CiviFormError> invariantErrors =
         validateQuestionInvariants(question.getQuestionDefinition(), definition);
+
+    ImmutableSet<CiviFormError> errors =
+        ImmutableSet.<CiviFormError>builder()
+            .addAll(validateErrors)
+            .addAll(invariantErrors)
+            .build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
