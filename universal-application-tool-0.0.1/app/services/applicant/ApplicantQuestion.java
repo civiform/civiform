@@ -769,8 +769,6 @@ public class ApplicantQuestion {
       return (TextQuestionDefinition) questionDefinition;
     }
 
-
-
     public Path getTextPath() {
       return getQuestionDefinition().getTextPath();
     }
