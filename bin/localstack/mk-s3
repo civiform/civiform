@@ -26,6 +26,6 @@ if ! which aws; then
     exit $?
 fi
 
-aws --endpoint-url=$localstack_local_endpoint $create_s3_cmd
+AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test aws --endpoint-url=$localstack_local_endpoint $create_s3_cmd
 
 popd
