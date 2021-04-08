@@ -42,7 +42,7 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
                 multiOptionQuestion.getOptions(),
                 option ->
                     renderSingleCheckboxOption(
-                        multiOptionQuestion.getSelectionPathAsArray().toString(),
+                        multiOptionQuestion.getSelectionPathAsArray(),
                         option,
                         multiOptionQuestion.optionIsSelected(option))));
   }
