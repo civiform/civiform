@@ -63,29 +63,6 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void create_failsWithInvalidPathPattern() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            1L,
-            "name",
-            Path.create("#invalid&path-pattern!"),
-            Optional.empty(),
-            "description",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(Locale.US, "question?"),
-            ImmutableMap.of());
-
-    ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult = questionService.create(question);
-
-    assertThat(errorAndResult.hasResult()).isFalse();
-    assertThat(errorAndResult.isError()).isTrue();
-    assertThat(errorAndResult.getErrors())
-        .containsOnly(
-            CiviFormError.of(
-                String.format("invalid path pattern: '%s'", question.getPath().path())));
-  }
-
-  @Test
   public void create_returnsQuestionDefinitionWhenSucceeds() {
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult =
         questionService.create(questionDefinition);

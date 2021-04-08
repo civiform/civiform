@@ -64,10 +64,6 @@ public class QuestionForm {
     this.questionDescription = checkNotNull(questionDescription);
   }
 
-  public Path getQuestionParentPath() {
-    return questionParentPath;
-  }
-
   public void setQuestionParentPath(String questionParentPath) {
     this.questionParentPath = Path.create(checkNotNull(questionParentPath));
   }

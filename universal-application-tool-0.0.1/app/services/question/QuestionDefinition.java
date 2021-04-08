@@ -8,8 +8,6 @@ import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
@@ -271,9 +269,6 @@ public abstract class QuestionDefinition {
     if (name.isBlank()) {
       errors.add(CiviFormError.of("blank name"));
     }
-    if (!hasValidPathPattern()) {
-      errors.add(CiviFormError.of(String.format("invalid path pattern: '%s'", path.path())));
-    }
     if (description.isBlank()) {
       errors.add(CiviFormError.of("blank description"));
     }
@@ -281,13 +276,6 @@ public abstract class QuestionDefinition {
       errors.add(CiviFormError.of("no question text"));
     }
     return errors.build();
-  }
-
-  private boolean hasValidPathPattern() {
-    if (path.path().isBlank()) {
-      return false;
-    }
-    return URLEncoder.encode(path.path(), StandardCharsets.UTF_8).equals(path.path());
   }
 
   @Override
