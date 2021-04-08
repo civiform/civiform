@@ -88,4 +88,4 @@ POST    /dev/seed/clear              controllers.dev.DatabaseSeedController.clea
 
 # Methods for development: directly upload file to S3
 GET     /dev/fileUpload              controllers.dev.FileUploadController.index(request: Request)
-POST    /dev/fileUpload              controllers.dev.FileUploadController.upload(request: Request)
+POST    /dev/fileUpload              controllers.dev.FileUploadController.create(request: Request)

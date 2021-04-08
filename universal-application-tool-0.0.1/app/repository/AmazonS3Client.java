@@ -34,6 +34,7 @@ public class AmazonS3Client {
   public static final String AWS_LOCAL_ENDPOINT = "aws.local.endpoint";
   public static final String AWS_S3_REGION = "aws.s3.region";
   public static final String AWS_S3_BUCKET = "aws.s3.bucket";
+  public static final Duration AWS_PRESIGNED_URL_DURATION = Duration.ofMinutes(10);
   private static final Logger log = LoggerFactory.getLogger("s3client");
 
   private final ApplicationLifecycle appLifecycle;
@@ -103,7 +104,7 @@ public class AmazonS3Client {
 
     GetObjectPresignRequest getObjectPresignRequest =
         GetObjectPresignRequest.builder()
-            .signatureDuration(Duration.ofMinutes(10))
+            .signatureDuration(AWS_PRESIGNED_URL_DURATION)
             .getObjectRequest(getObjectRequest)
             .build();
 

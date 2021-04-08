@@ -51,7 +51,7 @@ public class FileUploadView extends BaseHtmlView {
                             .with(input().withType("file").withId("myFile").withName("filename"))
                             .with(submitButton("Upload file"))
                             .withMethod("post")
-                            .withAction(routes.FileUploadController.upload().url())))
+                            .withAction(routes.FileUploadController.create().url())))
             .with(
                 div()
                     .withClasses(Styles.GRID, Styles.GRID_COLS_2)

@@ -31,7 +31,7 @@ public class StoredFileRepository {
     return supplyAsync(() -> ebeanServer.find(StoredFile.class).findSet(), executionContext);
   }
 
-  public CompletionStage<Set<StoredFile>> listWithPresignedURL() {
+  public CompletionStage<Set<StoredFile>> listWithPresignedUrl() {
     return supplyAsync(
         () -> {
           Set<StoredFile> files = ebeanServer.find(StoredFile.class).findSet();

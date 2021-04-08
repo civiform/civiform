@@ -33,37 +33,35 @@ public class FileUploadController extends Controller {
   }
 
   public Result index(Request request) {
-    if (environment.isDev()) {
-      Set<StoredFile> files =
-          storedFileRepository.listWithPresignedURL().toCompletableFuture().join();
-      ImmutableList<StoredFile> fileList =
-          files.stream()
-              .sorted(Comparator.comparing(StoredFile::getName))
-              .collect(ImmutableList.toImmutableList());
-      return ok(view.render(request, fileList));
-    } else {
+    if (!environment.isDev()) {
       return notFound();
     }
+    Set<StoredFile> files =
+        storedFileRepository.listWithPresignedUrl().toCompletableFuture().join();
+    ImmutableList<StoredFile> fileList =
+        files.stream()
+            .sorted(Comparator.comparing(StoredFile::getName))
+            .collect(ImmutableList.toImmutableList());
+    return ok(view.render(request, fileList));
   }
 
-  public Result upload(Request request) {
-    if (environment.isDev()) {
-      MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
-      MultipartFormData.FilePart<TemporaryFile> data = body.getFile("filename");
-      if (data != null) {
-        String fileName = data.getFilename();
-        long fileSize = data.getFileSize();
-        String contentType = data.getContentType();
-        TemporaryFile file = data.getRef();
-        uploadToS3(fileName, file);
-        return ok(
-            String.format(
-                "File uploaded: name: %s, size: %d, type: %s.", fileName, fileSize, contentType));
-      } else {
-        return badRequest("Missing file");
-      }
-    } else {
+  public Result create(Request request) {
+    if (!environment.isDev()) {
       return notFound();
+    }
+    MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
+    MultipartFormData.FilePart<TemporaryFile> data = body.getFile("filename");
+    if (data != null) {
+      String fileName = data.getFilename();
+      long fileSize = data.getFileSize();
+      String contentType = data.getContentType();
+      TemporaryFile file = data.getRef();
+      uploadToS3(fileName, file);
+      return ok(
+          String.format(
+              "File uploaded: name: %s, size: %d, type: %s.", fileName, fileSize, contentType));
+    } else {
+      return badRequest("Missing file");
     }
   }
 
