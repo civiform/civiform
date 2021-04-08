@@ -2,12 +2,11 @@ package services.applicant.question;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.MultiOptionQuestionDefinition;
 import services.question.TranslationNotFoundException;
-
-import java.util.Optional;
 
 public class MultiSelectQuestion implements PresentsErrors {
 
@@ -51,15 +50,16 @@ public class MultiSelectQuestion implements PresentsErrors {
 
   public boolean optionIsSelected(String option) {
     return getSelectedOptionsValue().isPresent()
-            && getSelectedOptionsValue().get().contains(option);
+        && getSelectedOptionsValue().get().contains(option);
   }
 
   public void assertQuestionType() {
     if (!applicantQuestion.getType().isMultiOptionType()) {
       throw new RuntimeException(
-              String.format(
-                      "Question is not a multi-option question: %s (type: %s)",
-                      applicantQuestion.getQuestionDefinition().getPath(), applicantQuestion.getQuestionDefinition().getQuestionType()));
+          String.format(
+              "Question is not a multi-option question: %s (type: %s)",
+              applicantQuestion.getQuestionDefinition().getPath(),
+              applicantQuestion.getQuestionDefinition().getQuestionType()));
     }
   }
 
@@ -83,7 +83,8 @@ public class MultiSelectQuestion implements PresentsErrors {
 
   public ImmutableList<String> getOptions() {
     try {
-      return getQuestionDefinition().getOptionsForLocale(applicantQuestion.getApplicantData().preferredLocale());
+      return getQuestionDefinition()
+          .getOptionsForLocale(applicantQuestion.getApplicantData().preferredLocale());
     } catch (TranslationNotFoundException e) {
       throw new RuntimeException(e);
     }

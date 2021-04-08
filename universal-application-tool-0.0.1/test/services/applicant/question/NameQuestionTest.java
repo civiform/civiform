@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Applicant;
@@ -22,6 +23,7 @@ public class NameQuestionTest {
           1L,
           "question name",
           Path.create("applicant.my.path.name"),
+          Optional.empty(),
           "description",
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
