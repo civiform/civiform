@@ -1,6 +1,8 @@
+name: Probe and Deploy
 on:
   schedule:
     - cron: 0 */6 * * *
+  workflow_dispatch: {}
 
 jobs:
   run_prober:
