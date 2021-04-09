@@ -88,7 +88,8 @@ public class QuestionRepository {
               .eq("lifecycle_stage", LifecycleStage.DRAFT.getValue())
               .findOneOrEmpty();
       if (draftMaybe.isPresent()) {
-        definition = new QuestionDefinitionBuilder(definition).setId(draftMaybe.get().id).build();
+        Question draft = draftMaybe.get();
+        definition = new QuestionDefinitionBuilder(definition).setId(draft.id).setVersion(draft.getVersion()).build();
         Question updatedDraft = new Question(definition);
         updatedDraft.setLifecycleStage(LifecycleStage.DRAFT);
         updatedDraft.save();

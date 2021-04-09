@@ -81,14 +81,13 @@ public final class QuestionServiceImpl implements QuestionService {
     // it is applied directly.  To a deleted question, it is ignored.  To an active or
     // obsolete question, to the draft for that question.
     switch (question.getLifecycleStage()) {
-      case DRAFT:
-        question = questionRepository.updateQuestionSync(new Question(definition));
-        break;
       case DELETED:
         return ErrorAnd.error(
             ImmutableSet.of(
                 CiviFormError.of(String.format("Question %d was DELETED.", definition.getId()))));
-      case ACTIVE:
+      case DRAFT:
+        // fallthrough
+        case ACTIVE:
         // fallthrough
       case OBSOLETE:
         question = questionRepository.updateOrCreateDraft(definition);
