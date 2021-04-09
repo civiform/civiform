@@ -216,6 +216,7 @@ public final class QuestionsListView extends BaseHtmlView {
       QuestionDefinition definition) {
     ContainerTag td = td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT);
     if (active.isPresent() && draft.isEmpty()) {
+      td.with(renderQuestionViewLink(active.get(), "View →"));
       td.with(renderQuestionEditLink(active.get(), "New Version →"));
     } else if (active.isEmpty() && draft.isPresent()) {
       td.with(renderQuestionEditLink(draft.get(), "Edit Draft →"));
