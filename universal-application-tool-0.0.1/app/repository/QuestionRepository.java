@@ -89,7 +89,11 @@ public class QuestionRepository {
               .findOneOrEmpty();
       if (draftMaybe.isPresent()) {
         Question draft = draftMaybe.get();
-        definition = new QuestionDefinitionBuilder(definition).setId(draft.id).setVersion(draft.getVersion()).build();
+        definition =
+            new QuestionDefinitionBuilder(definition)
+                .setId(draft.id)
+                .setVersion(draft.getVersion())
+                .build();
         Question updatedDraft = new Question(definition);
         updatedDraft.setLifecycleStage(LifecycleStage.DRAFT);
         updatedDraft.save();

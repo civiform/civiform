@@ -87,7 +87,7 @@ public final class QuestionServiceImpl implements QuestionService {
                 CiviFormError.of(String.format("Question %d was DELETED.", definition.getId()))));
       case DRAFT:
         // fallthrough
-        case ACTIVE:
+      case ACTIVE:
         // fallthrough
       case OBSOLETE:
         question = questionRepository.updateOrCreateDraft(definition);
