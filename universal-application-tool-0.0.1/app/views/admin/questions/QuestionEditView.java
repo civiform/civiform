@@ -11,6 +11,7 @@ import com.google.inject.Inject;
 import forms.CheckboxQuestionForm;
 import forms.DropdownQuestionForm;
 import forms.QuestionForm;
+import forms.RadioButtonQuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
@@ -23,6 +24,7 @@ import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.question.types.RadioButtonQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
@@ -265,6 +267,10 @@ public final class QuestionEditView extends BaseHtmlView {
         {
           return new DropdownQuestionForm();
         }
+      case RADIO_BUTTON:
+        {
+          return new RadioButtonQuestionForm();
+        }
       case TEXT:
         {
           return new TextQuestionForm();
@@ -286,6 +292,10 @@ public final class QuestionEditView extends BaseHtmlView {
       case DROPDOWN:
         {
           return new DropdownQuestionForm((DropdownQuestionDefinition) questionDefinition);
+        }
+      case RADIO_BUTTON:
+        {
+          return new RadioButtonQuestionForm((RadioButtonQuestionDefinition) questionDefinition);
         }
       case TEXT:
         {

@@ -80,6 +80,7 @@ public class QuestionConfig {
             .addMultiSelectQuestionValidation()
             .getContainer();
       case DROPDOWN:
+      case RADIO_BUTTON:
         return config
             .setId("single-select-question-config")
             .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm)

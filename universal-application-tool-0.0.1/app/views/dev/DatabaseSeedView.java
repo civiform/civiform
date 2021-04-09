@@ -59,7 +59,7 @@ public class DatabaseSeedView extends BaseHtmlView {
                     .with(
                         form()
                             .with(makeCsrfTokenInputTag(request))
-                            .with(submitButton("Clear all programs and questions"))
+                            .with(submitButton("clear", "Clear entire database (irreversible!)"))
                             .withMethod("post")
                             .withAction(routes.DatabaseSeedController.clear().url())))
             .with(

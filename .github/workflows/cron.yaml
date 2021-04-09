@@ -1,7 +1,11 @@
 name: Probe and Deploy
 on:
   schedule:
-    - cron: 0 */6 * * *
+    # 14:00 UTC (07:00 PST) monday through friday
+    - cron: 0 14 * * 1-5
+    # 03:00 UTC (20:00 PST the previous day)
+    # tuesday(monday pst) through saturday (friday pst).
+    - cron: 0 3 * * 2-6
   workflow_dispatch: {}
 
 jobs:
@@ -10,8 +14,6 @@ jobs:
     steps:
       - name: check out pr branch
         uses: actions/checkout@v2
-      - name: Build test app container
-        run: docker build -t civiform ./
       - name: Build browser testing container
         run: bin/build-browser-tests
       - name: Run prober test

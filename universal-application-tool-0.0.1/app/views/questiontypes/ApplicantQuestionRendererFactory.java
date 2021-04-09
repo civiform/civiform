@@ -29,6 +29,8 @@ public class ApplicantQuestionRendererFactory {
         return new NameQuestionRenderer(question);
       case NUMBER:
         return new NumberQuestionRenderer(question);
+      case RADIO_BUTTON:
+        return new RadioButtonQuestionRenderer(question);
       case REPEATER:
         return new RepeaterQuestionRenderer(question);
       case TEXT:

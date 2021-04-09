@@ -15,10 +15,11 @@ describe('normal application flow', () => {
     await adminQuestions.addNameQuestion('name-q');
     await adminQuestions.addNumberQuestion('number-q');
     await adminQuestions.addTextQuestion('text-q');
+    await adminQuestions.addRadioButtonQuestion('radio-q', ['one', 'two', 'three']);
 
     const programName = 'a shiny new program';
     await adminPrograms.addProgram(programName);
-    await adminPrograms.editProgramBlock(programName, 'block description', ['address-q', 'name-q']);
+    await adminPrograms.editProgramBlock(programName, 'block description', ['address-q', 'name-q', 'radio-q']);
     await adminPrograms.addProgramBlock(programName, 'another description', ['ice-cream-q', 'favorite-trees-q', 'number-q', 'text-q']);
 
     await adminPrograms.gotoAdminProgramsPage();
@@ -33,6 +34,7 @@ describe('normal application flow', () => {
     await adminQuestions.expectActiveQuestionExist('name-q');
     await adminQuestions.expectActiveQuestionExist('number-q');
     await adminQuestions.expectActiveQuestionExist('text-q');
+    await adminQuestions.expectActiveQuestionExist('radio-q');
 
     await logout(page);
     await loginAsGuest(page);
@@ -42,6 +44,7 @@ describe('normal application flow', () => {
     await applicantQuestions.applyProgram(programName);
     await applicantQuestions.answerAddressQuestion('1234 St', 'Sim', 'Ames', '54321');
     await applicantQuestions.answerNameQuestion('Queen', 'Hearts', 'of');
+    await applicantQuestions.answerRadioButtonQuestion('two');
     await applicantQuestions.saveAndContinue();
 
     await applicantQuestions.answerDropdownQuestion('banana');
@@ -57,6 +60,7 @@ describe('normal application flow', () => {
     await adminPrograms.viewApplicationForApplicant('<Anonymous Applicant>');
     await adminPrograms.expectApplicationAnswers('Block 1', 'address-q', '1234 St');
     await adminPrograms.expectApplicationAnswers('Block 1', 'name-q', 'Queen');
+    await adminPrograms.expectApplicationAnswers('Block 1', 'radio-q', 'two');
     await adminPrograms.expectApplicationAnswers('Block 2', 'ice-cream-q', 'banana');
     await adminPrograms.expectApplicationAnswers('Block 2', 'favorite-trees-q', '[pine, cherry]');
     await adminPrograms.expectApplicationAnswers('Block 2', 'number-q', '42');

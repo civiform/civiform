@@ -17,16 +17,29 @@ import services.Path;
 import services.applicant.ApplicantData;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
+import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
+import services.question.types.RadioButtonQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
 @RunWith(JUnitParamsRunner.class)
 public class ApplicantQuestionTest {
 
+  private static final CheckboxQuestionDefinition checkboxQuestionDefinition =
+      new CheckboxQuestionDefinition(
+          1L,
+          "question name",
+          Path.create("applicant.my.path.name"),
+          Optional.empty(),
+          "description",
+          LifecycleStage.ACTIVE,
+          ImmutableMap.of(Locale.US, "question?"),
+          ImmutableMap.of(Locale.US, "help text"),
+          ImmutableListMultimap.of(Locale.US, "option 1", Locale.US, "option 2"));
   private static final DropdownQuestionDefinition dropdownQuestionDefinition =
       new DropdownQuestionDefinition(
           1L,
@@ -86,6 +99,17 @@ public class ApplicantQuestionTest {
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
+  private static final RadioButtonQuestionDefinition radioButtonQuestionDefinition =
+      new RadioButtonQuestionDefinition(
+          1L,
+          "question name",
+          Path.create("applicant.my.path.name"),
+          Optional.empty(),
+          "description",
+          LifecycleStage.ACTIVE,
+          ImmutableMap.of(Locale.US, "question?"),
+          ImmutableMap.of(Locale.US, "help text"),
+          ImmutableListMultimap.of(Locale.US, "option 1", Locale.US, "option 2"));
 
   // TODO(https://github.com/seattle-uat/civiform/issues/405): Change this to just use
   // @Parameters(source = QuestionType.class) once RepeatedQuestionDefinition exists.
@@ -126,6 +150,16 @@ public class ApplicantQuestionTest {
     ApplicantQuestion textApplicantQuestion =
         new ApplicantQuestion(textQuestionDefinition, new ApplicantData());
     assertThat(textApplicantQuestion.createTextQuestion()).isInstanceOf(TextQuestion.class);
+
+    ApplicantQuestion radioApplicantQuestion =
+        new ApplicantQuestion(radioButtonQuestionDefinition, new ApplicantData());
+    assertThat(radioApplicantQuestion.createSingleSelectQuestion())
+        .isInstanceOf(SingleSelectQuestion.class);
+
+    ApplicantQuestion checkboxApplicantQuestion =
+        new ApplicantQuestion(checkboxQuestionDefinition, new ApplicantData());
+    assertThat(checkboxApplicantQuestion.createMultiSelectQuestion())
+        .isInstanceOf(MultiSelectQuestion.class);
   }
 
   @Test
