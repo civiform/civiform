@@ -92,11 +92,12 @@ public class QuestionRepository {
         definition =
             new QuestionDefinitionBuilder(definition)
                 .setId(draft.id)
+                // Overwrite the version placeholder.
                 .setVersion(draft.getVersion())
                 .build();
         Question updatedDraft = new Question(definition);
         updatedDraft.setLifecycleStage(LifecycleStage.DRAFT);
-        updatedDraft.save();
+        ebeanServer.update(updatedDraft, transaction);
         return updatedDraft;
       }
 
