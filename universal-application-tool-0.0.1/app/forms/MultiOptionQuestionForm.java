@@ -25,6 +25,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.options = new ArrayList<>();
     this.minChoicesRequired = OptionalInt.empty();
     this.maxChoicesAllowed = OptionalInt.empty();
+    System.out.println("***** IN TYPE ONLY CONSTRUCTOR");
   }
 
   protected MultiOptionQuestionForm(MultiOptionQuestionDefinition qd) {
@@ -52,6 +53,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   }
 
   public void setMinChoicesRequired(int minChoicesRequired) {
+    System.out.println("***** Set min choices: " + minChoicesRequired);
     this.minChoicesRequired = OptionalInt.of(minChoicesRequired);
   }
 
@@ -60,6 +62,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   }
 
   public void setMaxChoicesAllowed(int maxChoicesAllowed) {
+    System.out.println("***** Set max choices: " + maxChoicesAllowed);
     this.maxChoicesAllowed = OptionalInt.of(maxChoicesAllowed);
   }
 

@@ -74,10 +74,11 @@ public class QuestionConfig {
       case ADDRESS:
         return config.setId("address-question-config").addAddressQuestionConfig().getContainer();
       case CHECKBOX:
+        MultiOptionQuestionForm form = (MultiOptionQuestionForm) questionForm;
         return config
             .setId("multi-select-question-config")
-            .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm)
-            .addMultiSelectQuestionValidation((MultiOptionQuestionForm) questionForm)
+            .addMultiOptionQuestionFields(form)
+            .addMultiSelectQuestionValidation(form)
             .getContainer();
       case DROPDOWN:
       case RADIO_BUTTON:
