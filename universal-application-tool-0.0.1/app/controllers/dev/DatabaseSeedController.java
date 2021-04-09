@@ -12,9 +12,13 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Locale;
 import java.util.Optional;
+import models.Account;
+import models.Applicant;
+import models.Application;
 import models.LifecycleStage;
 import models.Program;
 import models.Question;
+import models.StoredFile;
 import play.Environment;
 import play.db.ebean.EbeanConfig;
 import play.mvc.Http.Request;
@@ -239,6 +243,6 @@ public class DatabaseSeedController extends DevController {
   }
 
   private void truncateTables() {
-    ebeanServer.truncate(Program.class, Question.class);
+    ebeanServer.truncate(Program.class, Question.class, Account.class, Applicant.class, Application.class, StoredFile.class);
   }
 }
