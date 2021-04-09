@@ -17,6 +17,22 @@ import services.question.types.MultiOptionQuestionDefinition;
 
 public class MultiSelectQuestionTest {
 
+  private static final MultiOptionQuestionDefinition CHECKBOX_QUESTION =
+      new CheckboxQuestionDefinition(
+          1L,
+          "name",
+          Path.create("applicant.path"),
+          Optional.empty(),
+          "description",
+          LifecycleStage.ACTIVE,
+          ImmutableMap.of(Locale.US, "question?"),
+          ImmutableMap.of(Locale.US, "help text"),
+          ImmutableListMultimap.of(Locale.US, "valid", Locale.US, "ok"),
+          MultiOptionQuestionDefinition.MultiOptionValidationPredicates.builder()
+              .setMinChoicesRequired(2)
+              .setMaxChoicesAllowed(3)
+              .build());
+
   private ApplicantData applicantData;
 
   @Before
@@ -25,33 +41,63 @@ public class MultiSelectQuestionTest {
   }
 
   @Test
-  public void multiOptionQuestion_withPresentApplicantData_tooManySelected() throws Exception {
-    MultiOptionQuestionDefinition question =
-        new CheckboxQuestionDefinition(
-            1L,
-            "name",
-            Path.create("applicant.path"),
-            Optional.empty(),
-            "description",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(Locale.US, "question?"),
-            ImmutableMap.of(Locale.US, "help text"),
-            ImmutableListMultimap.of(Locale.US, "option 1"),
-            MultiOptionQuestionDefinition.MultiOptionValidationPredicates.builder()
-                .setMinChoicesRequired(2)
-                .setMaxChoicesAllowed(3)
-                .build());
+  public void withEmptyApplicantData() {
+    ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData);
 
+    MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
+
+    assertThat(multiSelectQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(multiSelectQuestion.hasQuestionErrors()).isFalse();
+  }
+
+  @Test
+  public void withPresentApplicantData_passesValidation() {
+    applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[0]"), "valid");
+    applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[1]"), "ok");
+    ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData);
+
+    MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
+
+    assertThat(multiSelectQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(multiSelectQuestion.hasQuestionErrors()).isFalse();
+  }
+
+  @Test
+  public void multiOptionQuestion_withPresentApplicantData_tooFewSelected() {
+    // Put too few selections.
+    applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[0]"), "one");
+
+    ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData);
+    MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
+
+    assertThat(multiSelectQuestion.getQuestionErrors())
+        .containsOnly(ValidationErrorMessage.tooFewSelectionsError(2));
+  }
+
+  @Test
+  public void multiOptionQuestion_withPresentApplicantData_tooManySelected() {
     // Put too many selections.
-    applicantData.putString(question.getPath().join("selection[0]"), "one");
-    applicantData.putString(question.getPath().join("selection[1]"), "two");
-    applicantData.putString(question.getPath().join("selection[2]"), "three");
-    applicantData.putString(question.getPath().join("selection[3]"), "four");
+    applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[0]"), "one");
+    applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[1]"), "two");
+    applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[2]"), "three");
+    applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[3]"), "four");
 
-    ApplicantQuestion applicantQuestion = new ApplicantQuestion(question, applicantData);
+    ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData);
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
     assertThat(multiSelectQuestion.getQuestionErrors())
         .containsOnly(ValidationErrorMessage.tooManySelectionsError(3));
+  }
+
+  @Test
+  public void withPresentApplicantData_selectedInvalidOptions_hasTypeErrors() {
+    applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[0]"), "invalid");
+    applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[1]"), "valid");
+    ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData);
+
+    MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
+
+    assertThat(multiSelectQuestion.hasTypeSpecificErrors()).isTrue();
+    assertThat(multiSelectQuestion.hasQuestionErrors()).isFalse();
   }
 }

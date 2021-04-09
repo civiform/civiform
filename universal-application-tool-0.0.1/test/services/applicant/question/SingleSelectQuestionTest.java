@@ -83,6 +83,4 @@ public class SingleSelectQuestionTest {
     assertThat(singleSelectQuestion.getSelectedOptionValue())
         .hasValue("this isn't a valid answer!");
   }
-
-  // TODO(https://github.com/seattle-uat/civiform/issues/416): Add a test for validation failures.
 }

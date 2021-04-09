@@ -133,6 +133,10 @@ public class QuestionConfig {
     return this;
   }
 
+  /**
+   * Creates an individual text field where an admin can enter a single multi-option question
+   * answer, along with a button to remove the option.
+   */
   public static ContainerTag multiOptionQuestionField(Optional<String> existingOption) {
     ContainerTag optionInput =
         FieldWithLabel.input()
@@ -166,6 +170,10 @@ public class QuestionConfig {
     return this;
   }
 
+  /**
+   * Creates two number input fields, where an admin can specify the min and max number of choices
+   * allowed for multi-select questions.
+   */
   private QuestionConfig addMultiSelectQuestionValidation() {
     content.with(
         FieldWithLabel.number()
