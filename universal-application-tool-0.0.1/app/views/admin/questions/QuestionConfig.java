@@ -77,7 +77,7 @@ public class QuestionConfig {
         return config
             .setId("multi-select-question-config")
             .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm)
-            .addMultiSelectQuestionValidation()
+            .addMultiSelectQuestionValidation((MultiOptionQuestionForm) questionForm)
             .getContainer();
       case DROPDOWN:
       case RADIO_BUTTON:
@@ -174,17 +174,19 @@ public class QuestionConfig {
    * Creates two number input fields, where an admin can specify the min and max number of choices
    * allowed for multi-select questions.
    */
-  private QuestionConfig addMultiSelectQuestionValidation() {
+  private QuestionConfig addMultiSelectQuestionValidation(MultiOptionQuestionForm multiOptionForm) {
     content.with(
         FieldWithLabel.number()
             .setId("multi-select-min-choices-input")
-            .setFieldName("min")
+            .setFieldName("minChoicesRequired")
             .setLabelText("Minimum number of choices required")
+            .setValue(multiOptionForm.getMinChoicesRequired())
             .getContainer(),
         FieldWithLabel.number()
             .setId("multi-select-max-choices-input")
-            .setFieldName("max")
+            .setFieldName("maxChoicesAllowed")
             .setLabelText("Maximum number of choices allowed")
+            .setValue(multiOptionForm.getMaxChoicesAllowed())
             .getContainer());
     return this;
   }
