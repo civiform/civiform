@@ -31,7 +31,8 @@ public class RadioButtonQuestionDefinition extends MultiOptionQuestionDefinition
         lifecycleStage,
         questionText,
         questionHelpText,
-        options);
+        options,
+        SINGLE_SELECT_PREDICATE);
   }
 
   public RadioButtonQuestionDefinition(
@@ -53,7 +54,8 @@ public class RadioButtonQuestionDefinition extends MultiOptionQuestionDefinition
         lifecycleStage,
         questionText,
         questionHelpText,
-        options);
+        options,
+        SINGLE_SELECT_PREDICATE);
   }
 
   @Override
