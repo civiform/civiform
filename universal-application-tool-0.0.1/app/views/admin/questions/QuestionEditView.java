@@ -101,8 +101,8 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   public Content renderViewQuestionForm(Request request, QuestionDefinition question) {
-    QuestionForm questionForm = new QuestionForm(question);
     QuestionType questionType = question.getQuestionType();
+    QuestionForm questionForm = getQuestionFormForType(questionType, question);
     String title = String.format("View %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
