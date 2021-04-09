@@ -3,10 +3,12 @@ package controllers.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import auth.Authorizers;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
@@ -38,6 +40,7 @@ public class ApplicantProgramsController extends Controller {
     this.programIndexView = checkNotNull(programIndexView);
   }
 
+  @Secure(authorizers = Authorizers.Labels.APPLICANT)
   public CompletionStage<Result> index(Request request, long applicantId) {
     Optional<String> banner = request.flash().get("banner");
     return applicantService
@@ -51,6 +54,7 @@ public class ApplicantProgramsController extends Controller {
             httpContext.current());
   }
 
+  @Secure(authorizers = Authorizers.Labels.APPLICANT)
   public CompletionStage<Result> edit(long applicantId, long programId) {
     // Determine first incomplete block, then redirect to other edit.
     return applicantService

@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import auth.Authorizers;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Map;
@@ -12,6 +13,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Application;
+import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
@@ -58,6 +60,7 @@ public final class ApplicantProgramBlocksController extends Controller {
     this.applicationRepository = checkNotNull(applicationRepository);
   }
 
+  @Secure(authorizers = Authorizers.Labels.APPLICANT)
   public CompletionStage<Result> edit(
       Request request, long applicantId, long programId, String blockId) {
     return applicantService
@@ -94,6 +97,7 @@ public final class ApplicantProgramBlocksController extends Controller {
             });
   }
 
+  @Secure(authorizers = Authorizers.Labels.APPLICANT)
   public CompletionStage<Result> update(
       Request request, long applicantId, long programId, String blockId) {
     DynamicForm form = formFactory.form().bindFromRequest(request);

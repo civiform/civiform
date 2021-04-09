@@ -6,6 +6,7 @@ import static play.mvc.Results.redirect;
 
 import auth.AdOidcClient;
 import auth.AdfsProfileAdapter;
+import auth.ApplicantAuthorizer;
 import auth.Authorizers;
 import auth.FakeAdminClient;
 import auth.GuestClient;
@@ -212,6 +213,7 @@ public class SecurityModule extends AbstractModule {
         new RequireAllRolesAuthorizer(Roles.ROLE_APPLICANT.toString()));
     config.addAuthorizer(
         Authorizers.TI.toString(), new RequireAllRolesAuthorizer(Roles.ROLE_TI.toString()));
+    config.addAuthorizer(Authorizers.APPLICANT_PROFILE.toString(), new ApplicantAuthorizer());
 
     config.setHttpActionAdapter(PlayHttpActionAdapter.INSTANCE);
     return config;
