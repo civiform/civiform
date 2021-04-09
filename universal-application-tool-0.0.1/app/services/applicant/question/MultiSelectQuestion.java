@@ -52,9 +52,9 @@ public class MultiSelectQuestion implements PresentsErrors {
 
   @Override
   public boolean hasTypeSpecificErrors() {
-    // Return true if the selected option is not a valid option.
+    // Return true if the selected options are not valid options.
     return getSelectedOptionsValue().isPresent()
-        && !getOptions().contains(getSelectedOptionsValue().get());
+        && !getOptions().containsAll(getSelectedOptionsValue().get());
   }
 
   public boolean hasValue() {
