@@ -9,7 +9,6 @@ docker run \
   -v "$(pwd)/browser-test/bin:/usr/src/civiform-browser-tests/bin" \
   -e BASE_URL=https://staging.seattle.civiform.com \
   civiform-browser-test:latest \
-  yarn probe landing_page.test.ts other_page.test.ts
-  # This is where you'd add more tests that are prober-compatible!
+  yarn probe
 
 popd
