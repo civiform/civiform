@@ -142,6 +142,9 @@ public final class ApplicantProgramBlocksController extends Controller {
             ex -> {
               if (ex instanceof CompletionException) {
                 Throwable cause = ex.getCause();
+                if (cause instanceof SecurityException) {
+                  return unauthorized();
+                }
                 if (cause instanceof ProgramNotFoundException) {
                   return badRequest(cause.toString());
                 } else if (cause instanceof ProgramBlockNotFoundException) {
