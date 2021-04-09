@@ -243,6 +243,12 @@ public class DatabaseSeedController extends DevController {
   }
 
   private void truncateTables() {
-    ebeanServer.truncate(Program.class, Question.class, Account.class, Applicant.class, Application.class, StoredFile.class);
+    ebeanServer.truncate(
+        Program.class,
+        Question.class,
+        Account.class,
+        Applicant.class,
+        Application.class,
+        StoredFile.class);
   }
 }
