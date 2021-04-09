@@ -82,7 +82,8 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
   public void edit_invalidProgram_returnsBadRequest() {
     Applicant applicant = resourceCreator().insertApplicant();
 
-    Result result = controller.edit(applicant.id, 9999L).toCompletableFuture().join();
+    Result result =
+        controller.edit(fakeRequest().build(), applicant.id, 9999L).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
@@ -96,7 +97,11 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
             .withQuestion(TestQuestionBank.applicantName())
             .build();
 
-    Result result = controller.edit(applicant.id, program.id).toCompletableFuture().join();
+    Result result =
+        controller
+            .edit(fakeRequest().build(), applicant.id, program.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
@@ -122,7 +127,11 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
     applicant.getApplicantData().putLong(colorQuestion.getProgramIdPath(), 456L);
     applicant.save();
 
-    Result result = controller.edit(applicant.id, program.id).toCompletableFuture().join();
+    Result result =
+        controller
+            .edit(fakeRequest().build(), applicant.id, program.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
@@ -137,7 +146,11 @@ public class ApplicantProgramsControllerTest extends WithPostgresContainer {
     Applicant applicant = resourceCreator().insertApplicant();
     Program program = resourceCreator().insertProgram("My Program");
 
-    Result result = controller.edit(applicant.id, program.id).toCompletableFuture().join();
+    Result result =
+        controller
+            .edit(fakeRequest().build(), applicant.id, program.id)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
