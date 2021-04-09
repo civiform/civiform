@@ -54,15 +54,6 @@ Resources:
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
       UnhealthyThresholdCount: 2
-  listener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      DefaultActions:
-        - TargetGroupArn: !Ref 'droptraffic'
-          Type: forward
-      LoadBalancerArn: !Ref 'publiclb'
-      Port: 80
-      Protocol: HTTP
   httpslistener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -100,19 +91,6 @@ Resources:
             Values:
               - '*'
       ListenerArn: !Ref 'httpslistener'
-      Priority: 1
-  lbrule:
-    Type: AWS::ElasticLoadBalancingV2::ListenerRule
-    Properties:
-      Actions:
-        - TargetGroupArn: !Ref 'lbtarget'
-          Type: forward
-      Conditions:
-        - Field: path-pattern
-          PathPatternConfig:
-            Values:
-              - '*'
-      ListenerArn: !Ref 'listener'
       Priority: 1
   dnsrecord:
     Type: AWS::Route53::RecordSet
