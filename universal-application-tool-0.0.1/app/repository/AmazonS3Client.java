@@ -58,7 +58,7 @@ public class AmazonS3Client {
       if (enabled()) {
         putTestObject();
         getTestObject();
-      } 
+      }
     }
 
     this.appLifecycle.addStopHook(
@@ -127,9 +127,10 @@ public class AmazonS3Client {
 
     int i = 0;
     while (i < 3) {
-      connect();
+      connectS3();
+      connectPresigner();
 
-      if (s3 == null) {
+      if (s3 == null || presigner == null) {
         try {
           Thread.sleep(50 * (int) Math.pow(2, i));
         } catch (InterruptedException e) {
@@ -146,6 +147,10 @@ public class AmazonS3Client {
     if (s3 == null) {
       throw new RuntimeException("Failed to create S3 client");
     }
+
+    if (presigner == null) {
+      throw new RuntimeException("Failed to create S3 client presigner");
+    }
   }
 
   private void putTestObject() {
@@ -158,27 +163,44 @@ public class AmazonS3Client {
     log.info("got data from s3: " + new String(data, StandardCharsets.UTF_8));
   }
 
-  private void connect() {
+  private void connectS3() {
+    if (s3 != null) {
+      return;
+    }
+
     String regionName = config.getString(AWS_S3_REGION);
     region = Region.of(regionName);
     bucket = config.getString(AWS_S3_BUCKET);
 
     S3ClientBuilder s3ClientBuilder = S3Client.builder().region(region);
-    S3Presigner.Builder s3PresignerBuilder = S3Presigner.builder().region(region);
     if (environment.isDev()) {
       try {
         URI localUri = new URI(config.getString(AWS_LOCAL_ENDPOINT));
         s3ClientBuilder = s3ClientBuilder.endpointOverride(localUri);
-        s3PresignerBuilder = s3PresignerBuilder.endpointOverride(localUri);
       } catch (URISyntaxException e) {
         throw new RuntimeException(e);
       }
     }
     s3 = s3ClientBuilder.build();
-    presigner = s3PresignerBuilder.build();
+  }
 
-    if (connected() == false) {
-        throw new RuntimeException("S3 bucket not connected");
+  private void connectPresigner() {
+    if (presigner != null) {
+      return;
     }
+
+    String regionName = config.getString(AWS_S3_REGION);
+    region = Region.of(regionName);
+    S3Presigner.Builder s3PresignerBuilder = S3Presigner.builder().region(region);
+
+    if (environment.isDev()) {
+      try {
+        URI localUri = new URI(config.getString(AWS_LOCAL_ENDPOINT));
+        s3PresignerBuilder = s3PresignerBuilder.endpointOverride(localUri);
+      } catch (URISyntaxException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    presigner = s3PresignerBuilder.build();
   }
 }
