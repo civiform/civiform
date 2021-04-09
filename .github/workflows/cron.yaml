@@ -18,13 +18,6 @@ jobs:
         run: bin/build-browser-tests
       - name: Run prober test
         run: bin/run-prober
-      # Note: this isn't quite right.  This doesn't promote
-      # to prod so much as deploy-current-head to prod.
-      # In the event that staging is running an out-of-date version,
-      # we might accidentally deploy the wrong thing.
-      # We need to fix this before going to real production - this
-      # is a disaster waiting to happen - but it's unlikely any
-      # individual day, and we'll fix it soon.
       - name: Promote to prod.
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
