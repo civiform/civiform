@@ -4,7 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
-import auth.Authorizers;
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Map;
@@ -41,6 +41,7 @@ public final class ApplicantProgramBlocksController extends Controller {
   private final ApplicantProgramBlockEditView editView;
   private final FormFactory formFactory;
   private final ApplicationRepository applicationRepository;
+  private final ProfileUtils profileUtils;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -51,20 +52,27 @@ public final class ApplicantProgramBlocksController extends Controller {
       HttpExecutionContext httpExecutionContext,
       ApplicantProgramBlockEditView editView,
       FormFactory formFactory,
-      ApplicationRepository applicationRepository) {
+      ApplicationRepository applicationRepository,
+      ProfileUtils profileUtils) {
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
     this.applicationRepository = checkNotNull(applicationRepository);
+    this.profileUtils = checkNotNull(profileUtils);
   }
 
-  @Secure(authorizers = Authorizers.Labels.APPLICANT)
+  @Secure
   public CompletionStage<Result> edit(
       Request request, long applicantId, long programId, String blockId) {
-    return applicantService
-        .getReadOnlyApplicantProgramService(applicantId, programId)
+    return profileUtils
+        .currentUserProfile(request)
+        .orElseThrow()
+        .checkAuthorization(applicantId)
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            httpExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
               Optional<Block> block = roApplicantProgramService.getBlock(blockId);
@@ -88,6 +96,9 @@ public final class ApplicantProgramBlocksController extends Controller {
             ex -> {
               if (ex instanceof CompletionException) {
                 Throwable cause = ex.getCause();
+                if (cause instanceof SecurityException) {
+                  return unauthorized();
+                }
                 if (cause instanceof ProgramNotFoundException) {
                   return notFound(cause.toString());
                 }
@@ -97,14 +108,22 @@ public final class ApplicantProgramBlocksController extends Controller {
             });
   }
 
-  @Secure(authorizers = Authorizers.Labels.APPLICANT)
+  @Secure
   public CompletionStage<Result> update(
       Request request, long applicantId, long programId, String blockId) {
-    DynamicForm form = formFactory.form().bindFromRequest(request);
-    ImmutableMap<String, String> formData = cleanForm(form.rawData());
+    return profileUtils
+        .currentUserProfile(request)
+        .orElseThrow()
+        .checkAuthorization(applicantId)
+        .thenComposeAsync(
+            v -> {
+              DynamicForm form = formFactory.form().bindFromRequest(request);
+              ImmutableMap<String, String> formData = cleanForm(form.rawData());
 
-    return applicantService
-        .stageAndUpdateIfValid(applicantId, programId, blockId, formData)
+              return applicantService.stageAndUpdateIfValid(
+                  applicantId, programId, blockId, formData);
+            },
+            httpExecutionContext.current())
         .thenComposeAsync(
             (errorAndROApplicantProgramService) -> {
               if (errorAndROApplicantProgramService.isError()) {

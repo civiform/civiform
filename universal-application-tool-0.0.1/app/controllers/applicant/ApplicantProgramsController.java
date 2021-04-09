@@ -71,11 +71,15 @@ public class ApplicantProgramsController extends Controller {
   }
 
   @Secure
-  public CompletionStage<Result> edit(long applicantId, long programId) {
+  public CompletionStage<Result> edit(Request request, long applicantId, long programId) {
 
     // Determine first incomplete block, then redirect to other edit.
-    return applicantService
-        .getReadOnlyApplicantProgramService(applicantId, programId)
+    return profileUtils
+        .currentUserProfile(request)
+        .orElseThrow()
+        .checkAuthorization(applicantId)
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId))
         .thenApplyAsync(
             roApplicantService -> {
               Optional<Block> blockMaybe = roApplicantService.getFirstIncompleteBlock();
@@ -99,6 +103,9 @@ public class ApplicantProgramsController extends Controller {
             ex -> {
               if (ex instanceof CompletionException) {
                 Throwable cause = ex.getCause();
+                if (cause instanceof SecurityException) {
+                  return unauthorized();
+                }
                 if (cause instanceof ProgramNotFoundException) {
                   return badRequest(cause.toString());
                 }
