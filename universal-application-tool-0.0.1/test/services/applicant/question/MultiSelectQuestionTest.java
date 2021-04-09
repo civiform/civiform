@@ -2,16 +2,18 @@ package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
+import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
-import services.question.types.QuestionDefinitionBuilder;
-import services.question.types.QuestionType;
 
 public class MultiSelectQuestionTest {
 
@@ -25,16 +27,20 @@ public class MultiSelectQuestionTest {
   @Test
   public void multiOptionQuestion_withPresentApplicantData_tooManySelected() throws Exception {
     MultiOptionQuestionDefinition question =
-        (MultiOptionQuestionDefinition)
-            new QuestionDefinitionBuilder()
-                .setQuestionType(QuestionType.CHECKBOX)
-                .setVersion(1L)
-                .setName("question name")
-                .setPath(Path.create("applicant.path"))
-                .setDescription("description")
-                .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
-                .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
-                .build();
+        new CheckboxQuestionDefinition(
+            1L,
+            "name",
+            Path.create("applicant.path"),
+            Optional.empty(),
+            "description",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "question?"),
+            ImmutableMap.of(Locale.US, "help text"),
+            ImmutableListMultimap.of(Locale.US, "option 1"),
+            MultiOptionQuestionDefinition.MultiOptionValidationPredicates.builder()
+                .setMinChoicesRequired(2)
+                .setMaxChoicesAllowed(3)
+                .build());
 
     // Put too many selections.
     applicantData.putString(question.getPath().join("selection[0]"), "one");
@@ -43,9 +49,9 @@ public class MultiSelectQuestionTest {
     applicantData.putString(question.getPath().join("selection[3]"), "four");
 
     ApplicantQuestion applicantQuestion = new ApplicantQuestion(question, applicantData);
-    SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
+    MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
-    assertThat(singleSelectQuestion.getQuestionErrors())
-        .containsOnly(ValidationErrorMessage.tooManySelectionsError(1));
+    assertThat(multiSelectQuestion.getQuestionErrors())
+        .containsOnly(ValidationErrorMessage.tooManySelectionsError(3));
   }
 }

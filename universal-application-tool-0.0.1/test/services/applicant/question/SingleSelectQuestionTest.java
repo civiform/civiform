@@ -58,7 +58,7 @@ public class SingleSelectQuestionTest {
 
   @Test
   public void withPresentApplicantData() {
-    applicantData.putString(dropdownQuestionDefinition.getSelectionPath(), "answer");
+    applicantData.putString(dropdownQuestionDefinition.getSelectionPath(), "option 1");
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
 
@@ -66,7 +66,22 @@ public class SingleSelectQuestionTest {
 
     assertThat(singleSelectQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(singleSelectQuestion.hasQuestionErrors()).isFalse();
-    assertThat(singleSelectQuestion.getSelectedOptionValue()).hasValue("answer");
+    assertThat(singleSelectQuestion.getSelectedOptionValue()).hasValue("option 1");
+  }
+
+  @Test
+  public void withPresentApplicantData_selectedNotInvalidOption_hasErrors() {
+    applicantData.putString(
+        dropdownQuestionDefinition.getSelectionPath(), "this isn't a valid answer!");
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
+
+    SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
+
+    assertThat(singleSelectQuestion.hasTypeSpecificErrors()).isTrue();
+    assertThat(singleSelectQuestion.hasQuestionErrors()).isFalse();
+    assertThat(singleSelectQuestion.getSelectedOptionValue())
+        .hasValue("this isn't a valid answer!");
   }
 
   // TODO(https://github.com/seattle-uat/civiform/issues/416): Add a test for validation failures.
