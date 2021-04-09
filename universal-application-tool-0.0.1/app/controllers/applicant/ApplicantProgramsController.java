@@ -3,7 +3,7 @@ package controllers.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
-import auth.Authorizers;
+import auth.ProfileUtils;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
@@ -27,35 +27,52 @@ public class ApplicantProgramsController extends Controller {
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
   private final ProgramIndexView programIndexView;
+  private final ProfileUtils profileUtils;
 
   @Inject
   public ApplicantProgramsController(
       HttpExecutionContext httpContext,
       ApplicantService applicantService,
       MessagesApi messagesApi,
-      ProgramIndexView programIndexView) {
+      ProgramIndexView programIndexView,
+      ProfileUtils profileUtils) {
     this.httpContext = httpContext;
     this.applicantService = applicantService;
     this.messagesApi = checkNotNull(messagesApi);
     this.programIndexView = checkNotNull(programIndexView);
+    this.profileUtils = checkNotNull(profileUtils);
   }
 
-  @Secure(authorizers = Authorizers.Labels.APPLICANT)
+  @Secure
   public CompletionStage<Result> index(Request request, long applicantId) {
     Optional<String> banner = request.flash().get("banner");
-    return applicantService
-        .relevantPrograms(applicantId)
+
+    return profileUtils
+        .currentUserProfile(request)
+        .orElseThrow()
+        .checkAuthorization(applicantId)
+        .thenComposeAsync(
+            v -> applicantService.relevantPrograms(applicantId), httpContext.current())
         .thenApplyAsync(
-            programs -> {
-              return ok(
-                  programIndexView.render(
-                      messagesApi.preferred(request), applicantId, programs, banner));
-            },
-            httpContext.current());
+            programs ->
+                ok(
+                    programIndexView.render(
+                        messagesApi.preferred(request), applicantId, programs, banner)),
+            httpContext.current())
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                if (ex.getCause() instanceof SecurityException) {
+                  return unauthorized();
+                }
+              }
+              throw new RuntimeException(ex);
+            });
   }
 
-  @Secure(authorizers = Authorizers.Labels.APPLICANT)
+  @Secure
   public CompletionStage<Result> edit(long applicantId, long programId) {
+
     // Determine first incomplete block, then redirect to other edit.
     return applicantService
         .getReadOnlyApplicantProgramService(applicantId, programId)

@@ -7,7 +7,6 @@ package auth;
  */
 public enum Authorizers {
   APPLICANT(Labels.APPLICANT),
-  APPLICANT_PROFILE(Labels.APPLICANT_PROFILE),
   UAT_ADMIN(Labels.UAT_ADMIN),
   TI(Labels.TI),
   PROGRAM_ADMIN(Labels.PROGRAM_ADMIN);
@@ -19,7 +18,6 @@ public enum Authorizers {
    */
   public static final class Labels {
     public static final String APPLICANT = "applicant";
-    public static final String APPLICANT_PROFILE = "applicant_profile";
     public static final String UAT_ADMIN = "uatadmin";
     public static final String TI = "trustedintermediary";
     public static final String PROGRAM_ADMIN = "programadmin";
