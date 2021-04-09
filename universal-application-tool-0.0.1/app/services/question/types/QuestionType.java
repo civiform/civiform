@@ -8,6 +8,7 @@ public enum QuestionType {
   DROPDOWN(true),
   NAME(false),
   NUMBER(false),
+  RADIO_BUTTON(true),
   REPEATER(false),
   TEXT(false);
 

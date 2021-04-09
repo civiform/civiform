@@ -69,6 +69,10 @@ public class SingleSelectQuestion implements PresentsErrors {
     return getQuestionDefinition().getSelectionPath();
   }
 
+  public boolean optionIsSelected(String option) {
+    return getSelectedOptionValue().isPresent() && getSelectedOptionValue().get().equals(option);
+  }
+
   public ImmutableList<String> getOptions() {
     try {
       return getQuestionDefinition()

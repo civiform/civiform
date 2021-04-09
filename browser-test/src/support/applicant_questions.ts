@@ -26,6 +26,10 @@ export class ApplicantQuestions {
     }
   }
 
+  async answerRadioButtonQuestion(checked: string) {
+    await this.page.check('input[value="' + checked + '"]');
+  }
+
   async answerDropdownQuestion(selected: string) {
     await this.page.selectOption('select', selected);
   }

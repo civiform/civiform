@@ -158,6 +158,30 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
+  async addRadioButtonQuestion(questionName: string,
+    options: Array<string>,
+    description = 'radio button description',
+    questionText = 'radio button question text',
+    helpText = 'radio button question help text') {
+    await this.gotoAdminQuestionsPage();
+    await this.page.click('#create-question-button');
+
+    await this.page.click('#create-radio_button-question');
+
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText);
+
+    for (var index in options) {
+      await this.page.click('#add-new-option')
+      await this.page.fill('input:above(#add-new-option)', options[index])
+    }
+
+    await this.page.click('text=Create')
+
+    await this.expectAdminQuestionsPage();
+
+    await this.expectDraftQuestionExist(questionName, questionText);
+  }
+
   async addTextQuestion(questionName: string,
     description = 'text description',
     questionText = 'text question text',

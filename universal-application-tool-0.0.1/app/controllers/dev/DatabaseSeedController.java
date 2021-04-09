@@ -29,6 +29,7 @@ import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.RadioButtonQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 import views.dev.DatabaseSeedView;
 
@@ -178,6 +179,24 @@ public class DatabaseSeedController extends DevController {
         .getResult();
   }
 
+  private QuestionDefinition insertRadioButtonQuestionDefinition() {
+    return questionService
+        .create(
+            new RadioButtonQuestionDefinition(
+                1L,
+                "radio",
+                Path.create("applicant.radio"),
+                Optional.empty(),
+                "favorite season in the year",
+                LifecycleStage.ACTIVE,
+                ImmutableMap.of(Locale.US, "What is your favorite season?"),
+                ImmutableMap.of(Locale.US, "this is sample help text"),
+                ImmutableListMultimap.of(
+                    Locale.US, "winter", Locale.US, "spring", Locale.US, "summer", Locale.US,
+                    "fall")))
+        .getResult();
+  }
+
   private ProgramDefinition insertProgramWithBlocks(String name) {
     try {
       ProgramDefinition programDefinition =
@@ -227,9 +246,10 @@ public class DatabaseSeedController extends DevController {
               .addBlockToProgram(
                   programDefinition.id(),
                   "Block 4",
-                  "kitchen information",
+                  "Random information",
                   ImmutableList.of(
-                      ProgramQuestionDefinition.create(insertCheckboxQuestionDefinition())))
+                      ProgramQuestionDefinition.create(insertCheckboxQuestionDefinition()),
+                      ProgramQuestionDefinition.create(insertRadioButtonQuestionDefinition())))
               .getResult();
 
       return programDefinition;

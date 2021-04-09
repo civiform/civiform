@@ -81,6 +81,7 @@ public class QuestionConfig {
             .addMultiOptionQuestionConfig((MultiOptionQuestionForm) questionForm)
             .getContainer();
       case DROPDOWN:
+      case RADIO_BUTTON:
         return config
             .setId("single-select-question-config")
             .addMultiOptionQuestionConfig((MultiOptionQuestionForm) questionForm)

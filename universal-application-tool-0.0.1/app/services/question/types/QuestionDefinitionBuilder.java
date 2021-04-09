@@ -233,6 +233,18 @@ public class QuestionDefinitionBuilder {
             questionText,
             questionHelpText,
             numberValidationPredicates);
+      case RADIO_BUTTON:
+        return new RadioButtonQuestionDefinition(
+            id,
+            version,
+            name,
+            path,
+            repeaterId,
+            description,
+            lifecycleStage,
+            questionText,
+            questionHelpText,
+            questionOptions);
       case REPEATER:
         return new RepeaterQuestionDefinition(
             id,
