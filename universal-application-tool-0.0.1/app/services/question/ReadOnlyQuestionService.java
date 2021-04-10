@@ -16,11 +16,17 @@ import services.question.types.ScalarType;
  */
 public interface ReadOnlyQuestionService {
 
-  /** Returns all question definitions for this version. */
+  /** Returns all question definitions. */
   ImmutableList<QuestionDefinition> getAllQuestions();
 
-  /** Returns all repeater question definitions for this version. */
-  ImmutableList<RepeaterQuestionDefinition> getRepeaterQuestions();
+  /** Returns all up-to-date question definitions for this version. */
+  ImmutableList<QuestionDefinition> getUpToDateQuestions();
+
+  /** Returns all repeater question definitions. */
+  ImmutableList<RepeaterQuestionDefinition> getAllRepeaterQuestions();
+
+  /** Returns all repeater question definitions. */
+  ImmutableList<RepeaterQuestionDefinition> getUpToDateRepeaterQuestions();
 
   /** Returns all scalars for this version. */
   ImmutableMap<Path, ScalarType> getAllScalars();

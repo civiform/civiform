@@ -10,21 +10,31 @@ import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableMap;
 import models.Program;
+import models.Question;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import play.test.Helpers;
 import repository.WithPostgresContainer;
 import services.program.ProgramDefinition;
+import services.question.QuestionService;
+import services.question.exceptions.InvalidUpdateException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
 import support.ProgramBuilder;
+import support.TestQuestionBank;
 
 public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
   private AdminProgramBlocksController controller;
+  private QuestionService questionService;
 
   @Before
   public void setup() {
     controller = instanceOf(AdminProgramBlocksController.class);
+    questionService = instanceOf(QuestionService.class);
   }
 
   @Test
@@ -85,12 +95,31 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void edit_withProgram_OK() {
+  public void edit_withProgram_OK()
+      throws UnsupportedQuestionTypeException, InvalidUpdateException {
     Program program = ProgramBuilder.newProgram().build();
+    Question appName = TestQuestionBank.applicantName();
+    appName.save();
     Request request = addCSRFToken(fakeRequest()).build();
     Result result = controller.edit(request, program.id, 1L);
 
     assertThat(result.status()).isEqualTo(OK);
+    assertThat(Helpers.contentAsString(result))
+        .contains(appName.getQuestionDefinition().getDescription());
+
+    QuestionDefinition questionDefinition =
+        new QuestionDefinitionBuilder(appName.getQuestionDefinition())
+            .setDescription("NEW DESCRIPTION")
+            .build();
+
+    questionService.update(questionDefinition);
+    request = addCSRFToken(fakeRequest()).build();
+    result = controller.edit(request, program.id, 1L);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(Helpers.contentAsString(result))
+        .doesNotContain(appName.getQuestionDefinition().getDescription());
+    assertThat(Helpers.contentAsString(result)).contains(questionDefinition.getDescription());
   }
 
   @Test

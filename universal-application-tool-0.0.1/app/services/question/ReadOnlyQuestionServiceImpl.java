@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
@@ -20,6 +22,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
   private final ImmutableMap<Path, ScalarType> scalars;
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
   private final ImmutableMap<Path, QuestionDefinition> questionsByPath;
+  private final ImmutableSet<QuestionDefinition> upToDateQuestions;
 
   private Locale preferredLocale = Locale.US;
 
@@ -28,6 +31,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     ImmutableMap.Builder<Long, QuestionDefinition> questionIdMap = ImmutableMap.builder();
     ImmutableMap.Builder<Path, QuestionDefinition> questionPathMap = ImmutableMap.builder();
     ImmutableMap.Builder<Path, ScalarType> scalarMap = ImmutableMap.builder();
+    ImmutableSet.Builder<QuestionDefinition> upToDateBuilder = ImmutableSet.builder();
     for (ImmutableList<QuestionDefinition> qds :
         questions.stream()
             .collect(new GroupByKeyCollector<>(QuestionDefinition::getName))
@@ -44,6 +48,8 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
                   scalarMap.put(entry.getKey(), entry.getValue());
                 });
       }
+      upToDateBuilder.add(
+          qds.stream().max(Comparator.comparing(QuestionDefinition::getVersion)).get());
     }
     for (QuestionDefinition qd : questions) {
       questionIdMap.put(qd.getId(), qd);
@@ -51,6 +57,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     questionsById = questionIdMap.build();
     questionsByPath = questionPathMap.build();
     scalars = scalarMap.build();
+    upToDateQuestions = upToDateBuilder.build();
   }
 
   @Override
@@ -59,7 +66,20 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
   }
 
   @Override
-  public ImmutableList<RepeaterQuestionDefinition> getRepeaterQuestions() {
+  public ImmutableList<QuestionDefinition> getUpToDateQuestions() {
+    return upToDateQuestions.asList();
+  }
+
+  @Override
+  public ImmutableList<RepeaterQuestionDefinition> getUpToDateRepeaterQuestions() {
+    return getUpToDateQuestions().stream()
+        .filter(QuestionDefinition::isRepeater)
+        .map(questionDefinition -> (RepeaterQuestionDefinition) questionDefinition)
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  @Override
+  public ImmutableList<RepeaterQuestionDefinition> getAllRepeaterQuestions() {
     return getAllQuestions().stream()
         .filter(QuestionDefinition::isRepeater)
         .map(questionDefinition -> (RepeaterQuestionDefinition) questionDefinition)
