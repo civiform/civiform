@@ -52,18 +52,36 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     return minChoicesRequired;
   }
 
-  public void setMinChoicesRequired(int minChoicesRequired) {
-    System.out.println("***** Set min choices: " + minChoicesRequired);
-    this.minChoicesRequired = OptionalInt.of(minChoicesRequired);
+  /**
+   * We use a string parameter here so that if the field is empty (i.e. unset), we can correctly set
+   * to an empty OptionalInt. Since the HTML input is type "number", we can be sure this string is
+   * in fact an integer when we parse it. If we instead used an int here, we see an "Invalid value"
+   * error when binding the empty value in the form.
+   */
+  public void setMinChoicesRequired(String minChoicesRequiredAsString) {
+    if (minChoicesRequiredAsString.isEmpty()) {
+      this.minChoicesRequired = OptionalInt.empty();
+    } else {
+      this.minChoicesRequired = OptionalInt.of(Integer.parseInt(minChoicesRequiredAsString));
+    }
   }
 
   public OptionalInt getMaxChoicesAllowed() {
     return maxChoicesAllowed;
   }
 
-  public void setMaxChoicesAllowed(int maxChoicesAllowed) {
-    System.out.println("***** Set max choices: " + maxChoicesAllowed);
-    this.maxChoicesAllowed = OptionalInt.of(maxChoicesAllowed);
+  /**
+   * We use a string parameter here so that if the field is empty (i.e. unset), we can correctly set
+   * to an empty OptionalInt. Since the HTML input is type "number", we can be sure this string is
+   * in fact an integer when we parse it. If we instead used an int here, we see an "Invalid value"
+   * error when binding the empty value in the form.
+   */
+  public void setMaxChoicesAllowed(String maxChoicesAllowedAsString) {
+    if (maxChoicesAllowedAsString.isEmpty()) {
+      this.maxChoicesAllowed = OptionalInt.empty();
+    } else {
+      this.maxChoicesAllowed = OptionalInt.of(Integer.parseInt(maxChoicesAllowedAsString));
+    }
   }
 
   @Override
