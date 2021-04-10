@@ -98,6 +98,8 @@ public class QuestionRepository {
         Question updatedDraft = new Question(definition);
         updatedDraft.setLifecycleStage(LifecycleStage.DRAFT);
         ebeanServer.update(updatedDraft, transaction);
+        ebeanServer.commitTransaction();
+        updatedDraft.refresh();
         return updatedDraft;
       }
 
