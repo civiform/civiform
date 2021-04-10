@@ -71,7 +71,15 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
   }
 
   @Override
-  public ImmutableList<RepeaterQuestionDefinition> getRepeaterQuestions() {
+  public ImmutableList<RepeaterQuestionDefinition> getUpToDateRepeaterQuestions() {
+    return getUpToDateQuestions().stream()
+        .filter(QuestionDefinition::isRepeater)
+        .map(questionDefinition -> (RepeaterQuestionDefinition) questionDefinition)
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  @Override
+  public ImmutableList<RepeaterQuestionDefinition> getAllRepeaterQuestions() {
     return getAllQuestions().stream()
         .filter(QuestionDefinition::isRepeater)
         .map(questionDefinition -> (RepeaterQuestionDefinition) questionDefinition)
