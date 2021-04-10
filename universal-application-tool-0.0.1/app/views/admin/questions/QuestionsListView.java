@@ -148,13 +148,13 @@ public final class QuestionsListView extends BaseHtmlView {
             .stream()
             .findAny();
     QuestionDefinition definition;
-    // Find the main definition to display information from.  Prefer the active one.  If there
-    // is no active one, choose a draft.  If there are no drafts, choose any.  There will
+    // Find the main definition to display information from.  Prefer the latest draft.  If there
+    // is no draft, choose an active one if exists.  If there are neither, choose any.  There will
     // be at least one or we wouldn't have gotten here!
-    if (activeDefinition.isPresent()) {
-      definition = activeDefinition.get();
-    } else if (draftDefinition.isPresent()) {
+    if (draftDefinition.isPresent()) {
       definition = draftDefinition.get();
+    } else if (activeDefinition.isPresent()) {
+      definition = activeDefinition.get();
     } else {
       definition = questionVersions.stream().findAny().get();
     }
