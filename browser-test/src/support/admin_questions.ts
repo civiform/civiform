@@ -50,7 +50,8 @@ export class AdminQuestions {
 
     expect(tableInnerText).toContain(questionName);
     expect(tableInnerText).toContain(questionText);
-    expect(await this.page.innerText(`tr:has-text("${questionName}") a`)).toContain('New Version');
+    expect(await this.page.innerText(`tr:has-text("${questionName}")`)).toContain('View');
+    expect(await this.page.innerText(`tr:has-text("${questionName}")`)).toContain('New Version');
   }
 
   async gotoQuestionEditPage(questionName: string) {
