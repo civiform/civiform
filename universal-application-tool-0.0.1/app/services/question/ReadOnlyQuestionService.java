@@ -16,8 +16,11 @@ import services.question.types.ScalarType;
  */
 public interface ReadOnlyQuestionService {
 
-  /** Returns all question definitions for this version. */
+  /** Returns all question definitions. */
   ImmutableList<QuestionDefinition> getAllQuestions();
+
+  /** Returns all up-to-date question definitions for this version. */
+  ImmutableList<QuestionDefinition> getUpToDateQuestions();
 
   /** Returns all repeater question definitions for this version. */
   ImmutableList<RepeaterQuestionDefinition> getRepeaterQuestions();
