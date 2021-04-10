@@ -11,7 +11,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import models.Application;
-import models.LifecycleStage;
 import models.Program;
 import play.db.ebean.Transactional;
 import play.libs.concurrent.HttpExecutionContext;
@@ -394,12 +393,9 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   public ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException {
-    ProgramDefinition program =
-        this.getProgramDefinition(id).toBuilder().setLifecycleStage(LifecycleStage.DRAFT).build();
-    Program programBean = program.toProgram();
-    programRepository.insertProgramSync(programBean);
-    programRepository.updateQuestionVersions(programBean);
-    return programBean.getProgramDefinition();
+    return programRepository
+        .updateOrCreateDraft(this.getProgramDefinition(id).toProgram())
+        .getProgramDefinition();
   }
 
   private ProgramDefinition updateProgramDefinitionWithBlockDefinition(
