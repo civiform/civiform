@@ -56,6 +56,10 @@ export class AdminPrograms {
     expect(await this.page.innerText(`div.border:has(:text("${programName}"), :text("ACTIVE"))`)).toContain('New Version');
   }
 
+  async expectObsoleteProgram(programName: string) {
+    expect(await this.page.innerText(`div.border:has(:text("${programName}"), :text("OBSOLETE"))`)).toContain('Applications');
+  }
+
   async expectProgramEditPage(programName: string = '') {
     expect(await this.page.innerText('h1')).toContain(`Edit program: ${programName}`);
   }
@@ -109,6 +113,7 @@ export class AdminPrograms {
     await this.expectActiveProgram(programName);
     await this.page.click(`div.border:has(:text("${programName}"), :text("ACTIVE")) :text("New Version")`);
     await this.page.click('#program-update-button');
+    await this.expectObsoleteProgram(programName);
     await this.expectDraftProgram(programName);
   }
 
