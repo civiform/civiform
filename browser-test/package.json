@@ -3,7 +3,7 @@
   "main": "index.js",
   "license": "Apache-2.0",
   "scripts": {
-    "test": "./bin/truncate_tables.sh && jest --testTimeout=60000 --forceExit --maxConcurrency=1 --runInBand",
+    "test": "jest --testTimeout=60000 --forceExit --maxConcurrency=1 --runInBand",
     "probe": "jest --testTimeout=60000 --forceExit --maxConcurrency=1 --runInBand"
   },
   "devDependencies": {
