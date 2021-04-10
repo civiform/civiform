@@ -25,7 +25,6 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.options = new ArrayList<>();
     this.minChoicesRequired = OptionalInt.empty();
     this.maxChoicesAllowed = OptionalInt.empty();
-    System.out.println("***** IN TYPE ONLY CONSTRUCTOR");
   }
 
   protected MultiOptionQuestionForm(MultiOptionQuestionDefinition qd) {
