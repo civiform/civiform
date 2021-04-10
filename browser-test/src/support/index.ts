@@ -31,7 +31,7 @@ export const loginAsGuest = async (page: Page) => {
   await page.click('#guest');
 }
 
-export const dropTables = async(page: Page) => {
+export const dropTables = async (page: Page) => {
   await page.goto(BASE_URL + '/dev/seed');
   await page.click("#clear");
 }
