@@ -8,7 +8,6 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.TypeRef;
 import com.jayway.jsonpath.spi.mapper.MappingException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -350,14 +349,6 @@ public class ApplicantData {
     } catch (JsonPathTypeMismatchException e) {
       return false;
     }
-  }
-
-  public Instant getCreatedTime() {
-    return Instant.parse(this.jsonData.read("$.metadata.created_time"));
-  }
-
-  public void setCreatedTime(Instant i) {
-    this.jsonData.put("$.metadata", "created_time", i.toString());
   }
 
   public String asJsonString() {
