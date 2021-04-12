@@ -1,11 +1,16 @@
 #! /usr/bin/env bash
+pushd $(git rev-parse --show-toplevel)
 
 set -e
 set +x
 
-docker run -it \
+# find repo root name (currently civiform), also support any names for backward and forward compatibility
+CIVIFORM_DIR=$(basename $(pwd))
+
+docker run --rm -it \
   -e PGPASSWORD=example \
-  --network universal-application-tool_default \
-  civiform-browser-test:latest \
+  --network ${CIVIFORM_DIR}_default \
+  postgres:12.5 \
   /usr/bin/psql -h db -U postgres
 
+popd
