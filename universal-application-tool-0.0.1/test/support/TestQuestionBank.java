@@ -66,6 +66,11 @@ public class TestQuestionBank {
         QuestionEnum.APPLICANT_PETS, TestQuestionBank::applicantPets);
   }
 
+  public static Question applicantPronouns() {
+    return questionCache.computeIfAbsent(
+            QuestionEnum.APPLICANT_PRONOUNS, TestQuestionBank::applicantPronouns);
+  }
+
   private static Question applicantName(QuestionEnum ignore) {
     QuestionDefinition definition =
         new NameQuestionDefinition(
@@ -108,6 +113,21 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  private static Question applicantHouseholdMembers(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new RepeaterQuestionDefinition(
+            VERSION,
+            "applicant household members",
+            Path.create("applicant.household_members[]"),
+            Optional.empty(),
+            "The applicant's household members",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "Who are your household members?"),
+            ImmutableMap.of(Locale.US, "help text"));
+
+    return maybeSave(definition);
+  }
+
   private static Question applicantPets(QuestionEnum ignore) {
     QuestionDefinition definition =
             new CheckboxQuestionDefinition(
@@ -124,18 +144,27 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
-  private static Question applicantHouseholdMembers(QuestionEnum ignore) {
+  private static Question applicantPronouns(QuestionEnum ignore) {
     QuestionDefinition definition =
-        new RepeaterQuestionDefinition(
-            VERSION,
-            "applicant household members",
-            Path.create("applicant.household_members[]"),
-            Optional.empty(),
-            "The applicant's household members",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(Locale.US, "Who are your household members?"),
-            ImmutableMap.of(Locale.US, "help text"));
-
+            new DropdownQuestionDefinition(
+                    VERSION,
+                    "applicant preferred pronouns",
+                    Path.create("applicant.preferred.pronouns"),
+                    Optional.empty(),
+                    "Allows the applicant to select a preferred pronoun",
+                    LifecycleStage.ACTIVE,
+                    ImmutableMap.of(Locale.US, "What is your preferred pronoun?"),
+                    ImmutableMap.of(Locale.US, "help text"),
+                    ImmutableListMultimap.of(
+                            Locale.US,
+                            "He / him",
+                            Locale.US,
+                            "She / her",
+                            Locale.FRANCE,
+                            "Il / lui",
+                            Locale.FRANCE,
+                            "Elle / elle")
+            );
     return maybeSave(definition);
   }
 
@@ -160,6 +189,7 @@ public class TestQuestionBank {
     APPLICANT_ADDRESS,
     APPLICANT_FAVORITE_COLOR,
     APPLICANT_HOUSEHOLD_MEMBERS,
-    APPLICANT_PETS
+    APPLICANT_PETS,
+    APPLICANT_PRONOUNS
   }
 }
