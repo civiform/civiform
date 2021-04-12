@@ -4,8 +4,8 @@ import { startSession, endSession } from './support'
 
 const { BASE_URL = 'http://civiform:9000' } = process.env
 
-describe('the landing page', () => {
-  it('it has login options', async () => {
+describe('the dev file upload page', () => {
+  it('it can upload and download a file', async () => {
 
     const { browser, page } = await startSession();
 

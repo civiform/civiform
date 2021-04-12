@@ -148,13 +148,13 @@ public final class QuestionsListView extends BaseHtmlView {
             .stream()
             .findAny();
     QuestionDefinition definition;
-    // Find the main definition to display information from.  Prefer the active one.  If there
-    // is no active one, choose a draft.  If there are no drafts, choose any.  There will
+    // Find the main definition to display information from.  Prefer the latest draft.  If there
+    // is no draft, choose an active one if exists.  If there are neither, choose any.  There will
     // be at least one or we wouldn't have gotten here!
-    if (activeDefinition.isPresent()) {
-      definition = activeDefinition.get();
-    } else if (draftDefinition.isPresent()) {
+    if (draftDefinition.isPresent()) {
       definition = draftDefinition.get();
+    } else if (activeDefinition.isPresent()) {
+      definition = activeDefinition.get();
     } else {
       definition = questionVersions.stream().findAny().get();
     }
@@ -216,11 +216,12 @@ public final class QuestionsListView extends BaseHtmlView {
       QuestionDefinition definition) {
     ContainerTag td = td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT);
     if (active.isPresent() && draft.isEmpty()) {
+      td.with(renderQuestionViewLink(active.get(), "View →"));
       td.with(renderQuestionEditLink(active.get(), "New Version →"));
     } else if (active.isEmpty() && draft.isPresent()) {
       td.with(renderQuestionEditLink(draft.get(), "Edit Draft →"));
     } else if (active.isPresent() && draft.isPresent()) {
-      td.with(renderQuestionViewLink(active.get(), "View →"));
+      td.with(renderQuestionViewLink(active.get(), "View Published →"));
       td.with(renderQuestionEditLink(draft.get(), "Edit Draft →"));
     } else if (active.isEmpty() && draft.isEmpty()) {
       td.with(renderQuestionViewLink(definition, "View →"));

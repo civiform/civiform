@@ -66,8 +66,10 @@ public class ReadOnlyQuestionServiceImplTest {
                 .add(repeaterQuestion)
                 .build());
 
-    assertThat(repeaterService.getRepeaterQuestions().size()).isEqualTo(1);
-    assertThat(repeaterService.getRepeaterQuestions().get(0)).isEqualTo(repeaterQuestion);
+    assertThat(repeaterService.getAllRepeaterQuestions().size()).isEqualTo(1);
+    assertThat(repeaterService.getAllRepeaterQuestions().get(0)).isEqualTo(repeaterQuestion);
+    assertThat(repeaterService.getUpToDateRepeaterQuestions().size()).isEqualTo(1);
+    assertThat(repeaterService.getUpToDateRepeaterQuestions().get(0)).isEqualTo(repeaterQuestion);
   }
 
   @Test

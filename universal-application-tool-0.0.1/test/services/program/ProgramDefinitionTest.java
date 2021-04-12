@@ -2,14 +2,10 @@ package services.program;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableMap;
-import java.util.Locale;
 import models.LifecycleStage;
 import org.junit.Test;
-import services.Path;
 import services.question.types.QuestionDefinition;
-import services.question.types.QuestionDefinitionBuilder;
-import services.question.types.QuestionType;
+import support.TestQuestionBank;
 
 public class ProgramDefinitionTest {
 
@@ -64,43 +60,11 @@ public class ProgramDefinitionTest {
   }
 
   @Test
-  public void hasQuestion_trueIfTheProgramUsesTheQuestion() throws Exception {
-    QuestionDefinition questionA =
-        new QuestionDefinitionBuilder()
-            .setId(1L)
-            .setVersion(1L)
-            .setName("my name")
-            .setPath(Path.create("my.path.name"))
-            .setDescription("description")
-            .setQuestionType(QuestionType.TEXT)
-            .setLifecycleStage(LifecycleStage.ACTIVE)
-            .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
-            .build();
-    QuestionDefinition questionB =
-        new QuestionDefinitionBuilder()
-            .setId(2L)
-            .setVersion(1L)
-            .setName("my name")
-            .setPath(Path.create("my.path.name"))
-            .setDescription("description")
-            .setQuestionType(QuestionType.TEXT)
-            .setLifecycleStage(LifecycleStage.ACTIVE)
-            .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
-            .build();
+  public void hasQuestion_trueIfTheProgramUsesTheQuestion() {
+    QuestionDefinition questionA = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition questionB = TestQuestionBank.applicantAddress().getQuestionDefinition();
     QuestionDefinition questionC =
-        new QuestionDefinitionBuilder()
-            .setId(3L)
-            .setVersion(1L)
-            .setName("my name")
-            .setPath(Path.create("my.path.name"))
-            .setDescription("description")
-            .setQuestionType(QuestionType.TEXT)
-            .setLifecycleStage(LifecycleStage.ACTIVE)
-            .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
-            .build();
+        TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
 
     BlockDefinition blockA =
         BlockDefinition.builder()

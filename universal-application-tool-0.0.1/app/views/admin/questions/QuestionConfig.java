@@ -7,6 +7,7 @@ import static j2html.TagCreator.label;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import forms.AddressQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
@@ -59,12 +60,12 @@ public class QuestionConfig {
     return this;
   }
 
-  // TODO(natsid): Remove QuestionType parameter once we implement the other question forms since
-  //  that info will be within the question form.
+  // TODO(https://github.com/seattle-uat/civiform/issues/589): Remove QuestionType parameter once we
+  //  implement the other question forms since that info will be within the question form.
   public static ContainerTag buildQuestionConfig(QuestionType type, QuestionForm questionForm) {
     QuestionConfig config = new QuestionConfig();
-    // TODO(natsid): Switch on type of question form once we implement other question forms. This
-    //  may also help us avoid casting the question form.
+    // TODO(https://github.com/seattle-uat/civiform/issues/589): Switch on type of question form
+    //  once we implement other question forms. May also help us avoid casting the question form.
     switch (type) {
       case TEXT:
         return config
@@ -72,7 +73,10 @@ public class QuestionConfig {
             .addTextQuestionConfig((TextQuestionForm) questionForm)
             .getContainer();
       case ADDRESS:
-        return config.setId("address-question-config").addAddressQuestionConfig().getContainer();
+        return config
+            .setId("address-question-config")
+            .addAddressQuestionConfig((AddressQuestionForm) questionForm)
+            .getContainer();
       case CHECKBOX:
         MultiOptionQuestionForm form = (MultiOptionQuestionForm) questionForm;
         return config
@@ -95,7 +99,7 @@ public class QuestionConfig {
     }
   }
 
-  private QuestionConfig addAddressQuestionConfig() {
+  private QuestionConfig addAddressQuestionConfig(AddressQuestionForm addressQuestionForm) {
     content.with(
         new SelectWithLabel()
             .setId("address-question-default-state-select")
@@ -105,9 +109,10 @@ public class QuestionConfig {
             .setValue("-")
             .getContainer(),
         FieldWithLabel.checkbox()
-            .setId("address-question-allow-po-box-checkbox")
-            .setFieldName("poBox")
-            .setLabelText("Allow post office boxes")
+            .setId("address-question-disallow-po-box-checkbox")
+            .setFieldName("disallowPoBox")
+            .setLabelText("Disallow post office boxes")
+            .setChecked(addressQuestionForm.getDisallowPoBox())
             .getContainer(),
         FieldWithLabel.checkbox()
             .setId("address-question-include-none-checkbox")

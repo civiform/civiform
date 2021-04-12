@@ -8,6 +8,7 @@ import com.google.inject.Inject;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import models.LifecycleStage;
 import models.Question;
 import repository.QuestionRepository;
 import services.CiviFormError;
@@ -77,22 +78,13 @@ public final class QuestionServiceImpl implements QuestionService {
       return ErrorAnd.error(errors);
     }
 
-    // This switch directs the update to the right place.  If an update is sent to a draft,
-    // it is applied directly.  To a deleted question, it is ignored.  To an active or
-    // obsolete question, to the draft for that question.
-    switch (question.getLifecycleStage()) {
-      case DRAFT:
-        question = questionRepository.updateQuestionSync(new Question(definition));
-        break;
-      case DELETED:
-        return ErrorAnd.error(
-            ImmutableSet.of(
-                CiviFormError.of(String.format("Question %d was DELETED.", definition.getId()))));
-      case ACTIVE:
-        // fallthrough
-      case OBSOLETE:
-        question = questionRepository.updateOrCreateDraft(definition);
+    if (question.getLifecycleStage() == LifecycleStage.DELETED) {
+      return ErrorAnd.error(
+          ImmutableSet.of(
+              CiviFormError.of(String.format("Question %d was DELETED.", definition.getId()))));
     }
+    // DRAFT, ACTIVE, or OBSOLETE question here.
+    question = questionRepository.updateOrCreateDraft(definition);
     return ErrorAnd.of(question.getQuestionDefinition());
   }
 

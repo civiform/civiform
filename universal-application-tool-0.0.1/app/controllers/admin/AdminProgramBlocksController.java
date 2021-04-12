@@ -117,7 +117,8 @@ public class AdminProgramBlocksController extends CiviFormController {
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
     return ok(
-        editView.render(request, program, block, message, roQuestionService.getAllQuestions()));
+        editView.render(
+            request, program, block, message, roQuestionService.getUpToDateQuestions()));
   }
 
   private Result renderEditViewWithMessage(
@@ -139,7 +140,7 @@ public class AdminProgramBlocksController extends CiviFormController {
               blockForm,
               block.programQuestionDefinitions(),
               message,
-              roQuestionService.getAllQuestions()));
+              roQuestionService.getUpToDateQuestions()));
     } catch (ProgramBlockNotFoundException e) {
       return notFound(e.toString());
     }

@@ -49,11 +49,15 @@ export class AdminPrograms {
   }
 
   async expectDraftProgram(programName: string) {
-    expect(await this.page.innerText(`div.border:has-text("${programName}") p`)).toContain('DRAFT');
+    expect(await this.page.innerText(`div.border:has(:text("${programName}"), :text("DRAFT"))`)).toContain('Publish');
   }
 
   async expectActiveProgram(programName: string) {
-    expect(await this.page.innerText(`div.border:has-text("${programName}") p`)).toContain('ACTIVE');
+    expect(await this.page.innerText(`div.border:has(:text("${programName}"), :text("ACTIVE"))`)).toContain('New Version');
+  }
+
+  async expectObsoleteProgram(programName: string) {
+    expect(await this.page.innerText(`div.border:has(:text("${programName}"), :text("OBSOLETE"))`)).toContain('Applications');
   }
 
   async expectProgramEditPage(programName: string = '') {
@@ -98,7 +102,19 @@ export class AdminPrograms {
   }
 
   async publishProgram(programName: string) {
-    await this.page.click(`div.border:has-text("${programName}") :text("Publish")`);
+    await this.gotoAdminProgramsPage();
+    await this.expectDraftProgram(programName);
+    await this.page.click(`div.border:has(:text("${programName}"), :text("DRAFT")) :text("Publish")`);
+    await this.expectActiveProgram(programName);
+  }
+
+  async createNewVersion(programName: string) {
+    await this.gotoAdminProgramsPage();
+    await this.expectActiveProgram(programName);
+    await this.page.click(`div.border:has(:text("${programName}"), :text("ACTIVE")) :text("New Version")`);
+    await this.page.click('#program-update-button');
+    await this.expectObsoleteProgram(programName);
+    await this.expectDraftProgram(programName);
   }
 
   async viewApplications(programName: string) {
@@ -130,10 +146,6 @@ export class AdminPrograms {
     await this.addProgram(programName);
     await this.editProgramBlock(programName, 'dummy description', questionNames);
 
-    await this.gotoAdminProgramsPage();
-    await this.expectDraftProgram(programName);
-
     await this.publishProgram(programName);
-    await this.expectActiveProgram(programName);
   }
 }

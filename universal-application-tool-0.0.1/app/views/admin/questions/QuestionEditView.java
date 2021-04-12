@@ -8,6 +8,7 @@ import static j2html.TagCreator.main;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import forms.AddressQuestionForm;
 import forms.CheckboxQuestionForm;
 import forms.DropdownQuestionForm;
 import forms.QuestionForm;
@@ -20,6 +21,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -101,8 +103,8 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   public Content renderViewQuestionForm(Request request, QuestionDefinition question) {
-    QuestionForm questionForm = new QuestionForm(question);
     QuestionType questionType = question.getQuestionType();
+    QuestionForm questionForm = getQuestionFormForType(questionType, question);
     String title = String.format("View %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
@@ -259,6 +261,10 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private QuestionForm getQuestionFormForType(QuestionType questionType) {
     switch (questionType) {
+      case ADDRESS:
+        {
+          return new AddressQuestionForm();
+        }
       case CHECKBOX:
         {
           return new CheckboxQuestionForm();
@@ -300,6 +306,10 @@ public final class QuestionEditView extends BaseHtmlView {
       case TEXT:
         {
           return new TextQuestionForm((TextQuestionDefinition) questionDefinition);
+        }
+      case ADDRESS:
+        {
+          return new AddressQuestionForm((AddressQuestionDefinition) questionDefinition);
         }
       default:
         {

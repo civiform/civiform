@@ -51,6 +51,10 @@ public class Question extends BaseModel {
 
   private @DbJsonB ImmutableListMultimap<Locale, String> questionOptions;
 
+  public long getVersion() {
+    return version;
+  }
+
   public String getPath() {
     return path;
   }

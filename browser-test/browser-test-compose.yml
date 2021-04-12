@@ -5,7 +5,7 @@ services:
 
   localstack:
     image: localstack/localstack
-    container_name: localstack
+    container_name: localstack-test
     ports:
       - 6645:4566
     environment:
@@ -14,7 +14,7 @@ services:
   db:
     image: postgres:12.5
     restart: always
-    container_name: postgres
+    container_name: postgres-test
     ports:
       - 2345:5432
     environment:

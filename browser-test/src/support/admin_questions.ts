@@ -27,13 +27,21 @@ export class AdminQuestions {
     await this.page.fill('text=Question help text', helpText);
   }
 
+  async updateQuestionText(updateText: string) {
+    // This function should only be called on question create/edit page.
+    const questionText = await this.page.textContent('#question-text-textarea');
+    const updatedText = questionText + updateText;
+    await this.page.fill('text=Question Text', updatedText);
+    return updatedText;
+  }
+
   async expectDraftQuestionExist(questionName: string, questionText = '') {
     await this.gotoAdminQuestionsPage();
     const tableInnerText = await this.page.innerText('table');
 
     expect(tableInnerText).toContain(questionName);
     expect(tableInnerText).toContain(questionText);
-    expect(await this.page.innerText(`tr:has-text("${questionName}") a`)).toContain('Edit Draft');
+    expect(await this.page.innerText(`tr:has-text("${questionName}")`)).toContain('Edit Draft');
   }
 
   async expectActiveQuestionExist(questionName: string, questionText = '') {
@@ -42,7 +50,8 @@ export class AdminQuestions {
 
     expect(tableInnerText).toContain(questionName);
     expect(tableInnerText).toContain(questionText);
-    expect(await this.page.innerText(`tr:has-text("${questionName}") a`)).toContain('New Version');
+    expect(await this.page.innerText(`tr:has-text("${questionName}")`)).toContain('View');
+    expect(await this.page.innerText(`tr:has-text("${questionName}")`)).toContain('New Version');
   }
 
   async gotoQuestionEditPage(questionName: string) {
@@ -54,6 +63,64 @@ export class AdminQuestions {
   async expectQuestionEditPage(questionName: string) {
     expect(await this.page.innerText('h1')).toContain('Edit');
     expect(await this.page.getAttribute('input#question-name-input', 'value')).toEqual(questionName);
+  }
+
+  async updateQuestion(questionName: string) {
+    await this.gotoQuestionEditPage(questionName);
+    const newQuestionText = await this.updateQuestionText(' updated');
+    await this.page.click('button:text("Update")');
+    await this.expectDraftQuestionExist(questionName, newQuestionText);
+  }
+
+  async createNewVersion(questionName: string) {
+    await this.gotoAdminQuestionsPage();
+    await this.page.click(`tr:has-text("${questionName}") :text("New Version")`);
+    await this.expectQuestionEditPage(questionName);
+    const newQuestionText = await this.updateQuestionText(' new version');
+    await this.page.click('button:text("Update")');
+    await this.expectDraftQuestionExist(questionName, newQuestionText);
+  }
+
+  async addAllQuestionTypes(questionNamePrefix: string) {
+    await this.addAddressQuestion(questionNamePrefix + 'address');
+    await this.addCheckboxQuestion(questionNamePrefix + 'checkbox', ['op1', 'op2', 'op3', 'op4']);
+    await this.addDropdownQuestion(questionNamePrefix + 'dropdown', ['op1', 'op2', 'op3']);
+    await this.addNameQuestion(questionNamePrefix + 'name');
+    await this.addNumberQuestion(questionNamePrefix + 'number');
+    await this.addRadioButtonQuestion(questionNamePrefix + 'radio', ['one', 'two', 'three']);
+    await this.addTextQuestion(questionNamePrefix + 'text');
+    return [questionNamePrefix + 'address',
+    questionNamePrefix + 'checkbox',
+    questionNamePrefix + 'dropdown',
+    questionNamePrefix + 'name',
+    questionNamePrefix + 'number',
+    questionNamePrefix + 'radio',
+    questionNamePrefix + 'text',
+    ];
+  }
+
+  async updateAllQuestions(questions: string[]) {
+    for (var i in questions) {
+      await this.updateQuestion(questions[i]);
+    }
+  }
+
+  async createNewVersionForQuestions(questions: string[]) {
+    for (var i in questions) {
+      await this.createNewVersion(questions[i]);
+    }
+  }
+
+  async expectDraftQuestions(questions: string[]) {
+    for (var i in questions) {
+      await this.expectDraftQuestionExist(questions[i]);
+    }
+  }
+
+  async expectActiveQuestions(questions: string[]) {
+    for (var i in questions) {
+      await this.expectActiveQuestionExist(questions[i]);
+    }
   }
 
   async addAddressQuestion(questionName: string,
