@@ -43,7 +43,8 @@ public class AddressQuestion implements PresentsErrors {
 
       if (poBoxMatcher.matches()) {
         return ImmutableSet.of(
-            ValidationErrorMessage.create("Please enter a non-P.O. Box address."));
+            ValidationErrorMessage.create(
+                "Please enter a valid address. We do not accept PO Boxes."));
       }
     }
 
@@ -105,7 +106,8 @@ public class AddressQuestion implements PresentsErrors {
       Pattern pattern = Pattern.compile("^[0-9]{5}(?:-[0-9]{4})?$");
       Matcher matcher = pattern.matcher(zipValue.get());
       if (!matcher.matches()) {
-        return ImmutableSet.of(ValidationErrorMessage.create("Invalid zip code."));
+        return ImmutableSet.of(
+            ValidationErrorMessage.create("Please enter valid 5-digit ZIP code."));
       }
     }
 
