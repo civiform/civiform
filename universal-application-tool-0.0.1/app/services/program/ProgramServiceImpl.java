@@ -394,7 +394,7 @@ public class ProgramServiceImpl implements ProgramService {
   @Override
   public ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException {
     return programRepository
-        .updateOrCreateDraft(this.getProgramDefinition(id).toProgram())
+        .createOrUpdateDraft(this.getProgramDefinition(id).toProgram())
         .getProgramDefinition();
   }
 

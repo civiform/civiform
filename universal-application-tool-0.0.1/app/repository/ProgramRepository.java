@@ -171,7 +171,7 @@ public class ProgramRepository {
         executionContext);
   }
 
-  public Program updateOrCreateDraft(Program existingProgram) throws ProgramNotFoundException {
+  public Program createOrUpdateDraft(Program existingProgram) throws ProgramNotFoundException {
     Optional<Program> existingDraft =
         ebeanServer
             .find(Program.class)
