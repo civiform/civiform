@@ -24,11 +24,21 @@ import support.TestQuestionBank;
 
 public class ProgramServiceImplTest extends WithPostgresContainer {
 
+  private QuestionDefinition addressQuestion;
+  private QuestionDefinition colorQuestion;
+  private QuestionDefinition nameQuestion;
   private ProgramServiceImpl ps;
 
   @Before
   public void setProgramServiceImpl() {
     ps = instanceOf(ProgramServiceImpl.class);
+  }
+
+  @Before
+  public void setUp() {
+    addressQuestion = TestQuestionBank.applicantAddress().getQuestionDefinition();
+    colorQuestion = TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+    nameQuestion = TestQuestionBank.applicantName().getQuestionDefinition();
   }
 
   @Test
@@ -50,7 +60,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void listProgramDefinitions_constructsQuestionDefinitions() throws Exception {
-    QuestionDefinition question = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition question = nameQuestion;
     Program program = ProgramBuilder.newProgram().build();
     ps.addQuestionsToBlock(program.id, 1L, ImmutableList.of(question.getId()));
 
@@ -88,7 +98,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void listProgramDefinitionsAsync_constructsQuestionDefinitions() throws Exception {
-    QuestionDefinition question = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition question = nameQuestion;
     ProgramDefinition program = ProgramBuilder.newProgram().buildDefinition();
     ps.addQuestionsToBlock(program.id(), 1L, ImmutableList.of(question.getId()));
 
@@ -108,10 +118,9 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void syncQuestions_constructsAllQuestionDefinitions() throws Exception {
-    QuestionDefinition questionOne = TestQuestionBank.applicantName().getQuestionDefinition();
-    QuestionDefinition questionTwo = TestQuestionBank.applicantAddress().getQuestionDefinition();
-    QuestionDefinition questionThree =
-        TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+    QuestionDefinition questionOne = nameQuestion;
+    QuestionDefinition questionTwo = addressQuestion;
+    QuestionDefinition questionThree = colorQuestion;
 
     ProgramBuilder.newProgram()
         .withBlock()
@@ -200,7 +209,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void updateProgram_constructsQuestionDefinitions() throws Exception {
-    QuestionDefinition question = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition question = nameQuestion;
     ProgramDefinition program = ProgramBuilder.newProgram().buildDefinition();
     ps.addQuestionsToBlock(program.id(), 1L, ImmutableList.of(question.getId()));
 
@@ -244,7 +253,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void getProgramDefinition_constructsQuestionDefinitions() throws Exception {
-    QuestionDefinition question = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition question = nameQuestion;
     ProgramDefinition program = ProgramBuilder.newProgram().buildDefinition();
     ps.addQuestionsToBlock(program.id(), 1L, ImmutableList.of(question.getId()));
 
@@ -279,7 +288,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void getProgramDefinitionAsync_constructsQuestionDefinitions() throws Exception {
-    QuestionDefinition question = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition question = nameQuestion;
     ProgramDefinition program =
         ProgramBuilder.newProgram().withBlock().withQuestionDefinition(question).buildDefinition();
 
@@ -383,7 +392,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void addBlockToProgram_WithQuestions_returnsProgramDefinitionWithBlock() throws Exception {
-    QuestionDefinition question = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition question = nameQuestion;
     ProgramDefinition programDefinition =
         ProgramBuilder.newProgram().withBlock("Block 1").buildDefinition();
     long id = programDefinition.id();
@@ -418,7 +427,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void addBlockToProgram_constructsQuestionDefinitions() throws Exception {
-    QuestionDefinition question = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition question = nameQuestion;
     ProgramDefinition program =
         ps.createProgramDefinition("Program Name", "Program Description").getResult();
 
@@ -496,7 +505,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void setBlockQuestions_updatesBlock() throws Exception {
-    QuestionDefinition question = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition question = nameQuestion;
     ProgramDefinition programDefinition = ProgramBuilder.newProgram().buildDefinition();
     Long programId = programDefinition.id();
 
@@ -526,7 +535,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void setBlockQuestions_constructsQuestionDefinitions() throws Exception {
-    QuestionDefinition question = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition question = nameQuestion;
     ProgramDefinition programDefinition = ProgramBuilder.newProgram().buildDefinition();
     Long programId = programDefinition.id();
 
@@ -541,7 +550,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   @Test
   public void
       addQuestionsToBlock_withDuplicatedQuestions_throwsDuplicateProgramQuestionException() {
-    QuestionDefinition questionA = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition questionA = nameQuestion;
 
     Program program =
         ProgramBuilder.newProgram().withBlock().withQuestionDefinition(questionA).build();
@@ -558,8 +567,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void addQuestionsToBlock_addsQuestionsToTheBlock() throws Exception {
-    QuestionDefinition questionA = TestQuestionBank.applicantName().getQuestionDefinition();
-    QuestionDefinition questionB = TestQuestionBank.applicantAddress().getQuestionDefinition();
+    QuestionDefinition questionA = nameQuestion;
+    QuestionDefinition questionB = addressQuestion;
 
     ProgramDefinition program =
         ProgramBuilder.newProgram().withBlock().withQuestionDefinition(questionA).buildDefinition();
@@ -573,7 +582,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   @Test
   public void removeQuestionsFromBlock_withoutQuestion_throwsQuestionNotFoundException()
       throws Exception {
-    QuestionDefinition questionA = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition questionA = nameQuestion;
     Program program = ProgramBuilder.newProgram().withBlock().build();
 
     assertThatThrownBy(
@@ -587,8 +596,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void removeQuestionsFromBlock_removesQuestionsFromTheBlock() throws Exception {
-    QuestionDefinition questionA = TestQuestionBank.applicantName().getQuestionDefinition();
-    QuestionDefinition questionB = TestQuestionBank.applicantAddress().getQuestionDefinition();
+    QuestionDefinition questionA = nameQuestion;
+    QuestionDefinition questionB = addressQuestion;
 
     ProgramDefinition program =
         ProgramBuilder.newProgram()
@@ -625,7 +634,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void setBlockHidePredicate_constructsQuestionDefinitions() throws Exception {
-    QuestionDefinition question = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition question = nameQuestion;
     ProgramDefinition programDefinition =
         ProgramBuilder.newProgram().withBlock().withQuestionDefinition(question).buildDefinition();
     Long programId = programDefinition.id();
@@ -661,7 +670,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void setBlockOptionalPredicate_constructsQuestionDefinitions() throws Exception {
-    QuestionDefinition question = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition question = nameQuestion;
     ProgramDefinition programDefinition =
         ProgramBuilder.newProgram().withBlock().withQuestionDefinition(question).buildDefinition();
     Long programId = programDefinition.id();
@@ -691,7 +700,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void deleteBlock_constructsQuestionDefinitions() throws Exception {
-    QuestionDefinition question = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition question = nameQuestion;
     ProgramDefinition programDefinition =
         ProgramBuilder.newProgram()
             .withBlock("block one")
