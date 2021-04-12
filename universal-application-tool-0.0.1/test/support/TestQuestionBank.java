@@ -76,6 +76,11 @@ public class TestQuestionBank {
             QuestionEnum.APPLICANT_SATISFACTION, TestQuestionBank::applicantSatisfaction);
   }
 
+  public static Question applicantAge() {
+    return questionCache.computeIfAbsent(
+            QuestionEnum.APPLICANT_AGE, TestQuestionBank::applicantAge);
+  }
+
   private static Question applicantName(QuestionEnum ignore) {
     QuestionDefinition definition =
         new NameQuestionDefinition(
@@ -189,6 +194,21 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  private static Question applicantAge(QuestionEnum ignore) {
+    QuestionDefinition definition =
+            new NumberQuestionDefinition(
+                    VERSION,
+                    "Applicant Age",
+                    Path.create("applicant.age"),
+                    Optional.empty(),
+                    "The age of the applicant",
+                    LifecycleStage.ACTIVE,
+                    ImmutableMap.of(Locale.US, "What is your age?"),
+                    ImmutableMap.of(Locale.US, "help text")
+            );
+    return maybeSave(definition);
+  }
+
   private static Question maybeSave(QuestionDefinition questionDefinition) {
     Question question = new Question(questionDefinition);
     try {
@@ -212,6 +232,7 @@ public class TestQuestionBank {
     APPLICANT_HOUSEHOLD_MEMBERS,
     APPLICANT_PETS,
     APPLICANT_PRONOUNS,
-    APPLICANT_SATISFACTION
+    APPLICANT_SATISFACTION,
+    APPLICANT_AGE
   }
 }
