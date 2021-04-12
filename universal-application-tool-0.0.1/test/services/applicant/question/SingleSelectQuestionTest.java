@@ -70,7 +70,7 @@ public class SingleSelectQuestionTest {
   }
 
   @Test
-  public void withPresentApplicantData_selectedNotInvalidOption_hasErrors() {
+  public void withPresentApplicantData_selectedInvalidOption_hasErrors() {
     applicantData.putString(
         dropdownQuestionDefinition.getSelectionPath(), "this isn't a valid answer!");
     ApplicantQuestion applicantQuestion =
