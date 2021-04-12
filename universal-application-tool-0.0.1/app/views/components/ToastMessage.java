@@ -13,6 +13,8 @@ public class ToastMessage {
 
   enum ToastType {
     ALERT,
+    ERROR,
+    SUCCESS,
     WARNING
   }
 
@@ -24,25 +26,28 @@ public class ToastMessage {
   private String CORE_TOAST_CLASSES =
       StyleUtils.joinStyles(
           ReferenceClasses.TOAST_MESSAGE,
-          Styles.ABSOLUTE,
           Styles.BG_OPACITY_90,
           Styles.DURATION_300,
           Styles.FLEX,
           Styles.FLEX_ROW,
-          Styles.LEFT_1_2,
           Styles.MAX_W_MD,
-          Styles.OPACITY_0,
+          // Styles.OPACITY_0,
           Styles.PX_2,
           Styles.PY_2,
+          Styles.MY_3,
+          Styles.RELATIVE,
           Styles.ROUNDED_SM,
           Styles.SHADOW_LG,
-          Styles._TRANSLATE_X_1_2,
           Styles.TEXT_GRAY_700,
-          Styles.TOP_2,
           Styles.TRANSITION_OPACITY,
           Styles.TRANSFORM);
 
   private String ALERT_CLASSES = StyleUtils.joinStyles(Styles.BG_GRAY_200, Styles.BORDER_GRAY_300);
+  
+  private String ERROR_CLASSES = StyleUtils.joinStyles(Styles.BG_RED_400, Styles.BORDER_RED_500);
+
+  private String SUCCESS_CLASSES =
+      StyleUtils.joinStyles(Styles.BG_GREEN_200, Styles.BORDER_GREEN_300);
 
   private String WARNING_CLASSES =
       StyleUtils.joinStyles(Styles.BG_YELLOW_200, Styles.BORDER_YELLOW_300);
@@ -52,12 +57,53 @@ public class ToastMessage {
 
   private boolean canDismiss = false;
 
+  /** If true this message will not be shown if a user has already seen and dismissed it. */
+  private boolean canIgnore = false;
+  
+  private static final String BANNER_TEXT = "Do not enter actual or personal data in this demo site";
+
+  public static ContainerTag toastContainer(String... toastMessages) {
+    ContainerTag toastContainer = div().withId("toast-container")
+      .withClasses("absolute transform -translate-x-1/2 left-1/2");
+
+    // Add privacy banner. (Remove before launch.)
+    ToastMessage privacyBanner = 
+        ToastMessage.error(ToastMessage.BANNER_TEXT)
+        .setDismissible(true).setIgnorable(true);
+    toastContainer.with(privacyBanner.getContainer());
+
+    for (String message: toastMessages) {
+      ToastMessage toast = ToastMessage.warning(message);
+      toastContainer.with(toast.getContainer());
+    }
+
+    return toastContainer;
+  }
+
   public static ToastMessage alert(String message) {
     return new ToastMessage().setType(ToastType.ALERT).setMessage(message);
   }
 
+  public static ToastMessage error(String message) {
+    return new ToastMessage().setType(ToastType.ERROR).setMessage(message);
+  }
+
+  public static ToastMessage success(String message) {
+    return new ToastMessage().setType(ToastType.SUCCESS).setMessage(message);
+  }
+
   public static ToastMessage warning(String message) {
     return new ToastMessage().setType(ToastType.WARNING).setMessage(message);
+  }
+
+  public ToastMessage setDismissible(boolean canDismiss) {
+    this.canDismiss = canDismiss;
+    return this;
+  }
+
+  public ToastMessage setIgnorable(boolean canIgnore) {
+    this.canIgnore = canIgnore;
+    return this;
   }
 
   public ToastMessage setDuration(int duration) {
@@ -88,10 +134,24 @@ public class ToastMessage {
     switch (this.type) {
       case ALERT:
         styles = StyleUtils.joinStyles(styles, ALERT_CLASSES);
-        // TODO: change alert svg.
         wrappedWarningSvg.with(
-            Icons.svg(Icons.WARNING_SVG_PATH, 20)
-                .attr("fill-rule", "evenodd")
+            Icons.svg(Icons.INFO_SVG_PATH, 20)
+                .attr("fill-rule", "evenodd")                
+                .withClasses(Styles.INLINE_BLOCK, Styles.H_6, Styles.W_6));
+        break;
+      case ERROR: 
+        styles = StyleUtils.joinStyles(styles, ERROR_CLASSES);
+        wrappedWarningSvg.with(
+            Icons.svg(Icons.ERROR_SVG_PATH, 20)
+            .attr("fill-rule", "evenodd")
+                .withClasses(Styles.INLINE_BLOCK, Styles.H_6, Styles.W_6));
+        break;
+      case SUCCESS: 
+        styles = StyleUtils.joinStyles(styles, SUCCESS_CLASSES);
+        wrappedWarningSvg.with(
+            Icons.svg(Icons.CHECK_SVG_PATH, 20)
+                .attr("fill", "none")
+                .attr("stroke-width", "2")
                 .withClasses(Styles.INLINE_BLOCK, Styles.H_6, Styles.W_6));
         break;
       case WARNING:
@@ -109,7 +169,7 @@ public class ToastMessage {
             .condAttr(this.duration != -1, "duration", this.duration + "")
             .withClasses(styles);
 
-    if (canDismiss) {
+    if (canDismiss || canIgnore) {
       ContainerTag dismissButton =
           div("x")
               .withCondId(Strings.isNullOrEmpty(this.id), this.id + "-dismiss")

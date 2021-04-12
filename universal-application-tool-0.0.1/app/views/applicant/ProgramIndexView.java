@@ -50,7 +50,8 @@ public class ProgramIndexView extends BaseHtmlView {
     ContainerTag body =
         body().withClasses(Styles.RELATIVE, Styles.PX_8, ApplicantStyles.BODY_BACKGROUND);
     if (banner.isPresent()) {
-      body.with(ToastMessage.warning(banner.get()).getContainer());
+      body.with(
+          ToastMessage.toastContainer(banner.get()));
     }
     body.with(
         nav()

@@ -8,6 +8,7 @@ import j2html.tags.DomContent;
 import javax.inject.Inject;
 import play.twirl.api.Content;
 import views.BaseHtmlLayout;
+import views.components.ToastMessage;
 import views.ViewUtils;
 
 public class ApplicantLayout extends BaseHtmlLayout {
@@ -20,7 +21,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
   /** Renders mainDomContents within the main tag, in the context of the applicant layout. */
   protected Content render(DomContent... mainDomContents) {
     return htmlContent(
-        head().with(title("Applicant layout title"), tailwindStyles()),
-        body(mainDomContents).with(warningMessage()).with(viewUtils.makeLocalJsTag("main")));
+        head()
+          .with(title("Applicant layout title"))
+          .with(tailwindStyles()),
+        body(mainDomContents)
+          .with(ToastMessage.toastContainer())
+          .with(viewUtils.makeLocalJsTag("main")));
   }
 }
