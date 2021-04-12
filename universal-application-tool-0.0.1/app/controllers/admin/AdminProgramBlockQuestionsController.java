@@ -15,7 +15,7 @@ import services.program.DuplicateProgramQuestionException;
 import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.question.QuestionNotFoundException;
+import services.question.exceptions.QuestionNotFoundException;
 
 public class AdminProgramBlockQuestionsController extends Controller {
 

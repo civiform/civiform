@@ -4,11 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
+
+import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
-import services.question.AddressQuestionDefinition;
-import services.question.QuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
+import services.question.types.AddressQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
 
 public class AddressQuestionFormTest {
 
@@ -32,7 +35,9 @@ public class AddressQuestionFormTest {
             1L,
             "name",
             Path.create("my.question.path.name"),
+            Optional.empty(),
             "description",
+                LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
             AddressQuestionDefinition.AddressValidationPredicates.create(true));
@@ -49,7 +54,9 @@ public class AddressQuestionFormTest {
             1L,
             "name",
             Path.create("my.question.path.name"),
+                Optional.empty(),
             "description",
+                LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
             AddressQuestionDefinition.AddressValidationPredicates.create());

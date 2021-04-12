@@ -1,7 +1,7 @@
 package views.components;
 
 import j2html.tags.ContainerTag;
-import services.question.QuestionType;
+import services.question.types.QuestionType;
 
 public class Icons {
 
@@ -14,6 +14,8 @@ public class Icons {
   public static final String ADDRESS_SVG_PATH =
       "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38"
           + " 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z";
+  // Check
+  public static final String CHECKBOX_SVG_PATH = "M5 13l4 4L19 7";
   // Menu
   public static final String DROPDOWN_SVG_PATH = "M4 6h16M4 10h16M4 14h16M4 18h16";
   public static final String NAME_SVG_PATH =
@@ -33,6 +35,9 @@ public class Icons {
           + "  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92"
           + "  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z"
           + " M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17 s-17-7.626-17-17S14.61,6,23.984,6z";
+  // Custom: the circle from Stop plus the little circle from Cog
+  public static final String RADIO_BUTTON_OUTER_SVG_PATH = "M21 12a9 9 0 11-18 0 9 9 0 0118 0z";
+  public static final String RADIO_BUTTON_INNER_SVG_PATH = "M15 12a3 3 0 11-6 0 3 3 0 016 0z";
   public static final String REPEATER_SVG_PATH =
       "M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2"
           + " 2 0 00-2 2v8a2 2 0 002 2z";
@@ -56,6 +61,12 @@ public class Icons {
       case ADDRESS:
         iconPath = Icons.ADDRESS_SVG_PATH;
         break;
+      case CHECKBOX:
+        return svg(Icons.CHECKBOX_SVG_PATH, width, height)
+            .attr("fill", "none")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-width", "2");
       case DROPDOWN:
         return svg(Icons.DROPDOWN_SVG_PATH, width, height)
             .attr("stroke-linecap", "round")
@@ -66,6 +77,13 @@ public class Icons {
         break;
       case NUMBER:
         return svg(Icons.NUMBER_SVG_PATH, width, height).attr("fill-rule", "evenodd");
+      case RADIO_BUTTON:
+        return svg(Icons.RADIO_BUTTON_OUTER_SVG_PATH, width, height)
+            .attr("fill", "none")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-width", "2")
+            .with(path(Icons.RADIO_BUTTON_INNER_SVG_PATH));
       case REPEATER:
         iconPath = Icons.REPEATER_SVG_PATH;
         return svg(iconPath, width, height).attr("fill", "transparent").attr("stroke-width", "2");
@@ -84,16 +102,20 @@ public class Icons {
     return svg(pathString).attr("viewBox", String.format("0 0 %1$d %2$d", width, height));
   }
 
-  public static ContainerTag svg(String pathString) {
+  private static ContainerTag svg(String pathString) {
+    return svg().with(path(pathString));
+  }
+
+  private static ContainerTag svg() {
     return new ContainerTag("svg")
         .attr("xmlns", "http://www.w3.org/2000/svg")
         .attr("fill", "currentColor")
         .attr("stroke", "currentColor")
         .attr("stroke-width", "1%")
-        .attr("aria-hidden", "true")
-        .with(
-            new ContainerTag("path")
-                .attr("xmlns", "http://www.w3.org/2000/svg")
-                .attr("d", pathString));
+        .attr("aria-hidden", "true");
+  }
+
+  private static ContainerTag path(String pathString) {
+    return new ContainerTag("path").attr("d", pathString);
   }
 }

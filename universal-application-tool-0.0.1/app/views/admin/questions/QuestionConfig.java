@@ -1,5 +1,6 @@
 package views.admin.questions;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.label;
@@ -7,11 +8,14 @@ import static j2html.TagCreator.label;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import forms.AddressQuestionForm;
+import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 import java.util.AbstractMap.SimpleEntry;
-import services.question.QuestionType;
+import java.util.Optional;
+import services.question.types.QuestionType;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.style.ReferenceClasses;
@@ -72,11 +76,18 @@ public class QuestionConfig {
         return config
             .setId("address-question-config")
             .addAddressQuestionConfig((AddressQuestionForm) questionForm)
-            .getContainer();
+                .getContainer();
+      case CHECKBOX:
+        // TODO(https://github.com/seattle-uat/civiform/issues/416): Add validation options for
+        // multi-select questions.
+        return config
+            .setId("multi-select-question-config")
+            .addMultiOptionQuestionConfig((MultiOptionQuestionForm) questionForm)
       case DROPDOWN:
+      case RADIO_BUTTON:
         return config
             .setId("single-select-question-config")
-            .addMultiOptionQuestionConfig()
+            .addMultiOptionQuestionConfig((MultiOptionQuestionForm) questionForm)
             .getContainer();
       case NUMBER:
         return config.setId("number-question-config").addNumberQuestionConfig().getContainer();
@@ -127,12 +138,36 @@ public class QuestionConfig {
     return this;
   }
 
-  private QuestionConfig addMultiOptionQuestionConfig() {
-    content.with(
-        button("Add answer option")
-            .withType("button")
-            .withId("add-new-option")
-            .withClasses(Styles.M_2));
+  public static ContainerTag multiOptionQuestionField(Optional<String> existingOption) {
+    ContainerTag optionInput =
+        FieldWithLabel.input()
+            .setFieldName("options[]")
+            .setLabelText("Question option")
+            .setValue(existingOption)
+            .getContainer()
+            .withClasses(Styles.FLEX, Styles.ML_2);
+    Tag removeOptionButton =
+        button("Remove").withType("button").withClasses(Styles.FLEX, Styles.ML_4);
+
+    return div()
+        .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4)
+        .with(optionInput, removeOptionButton);
+  }
+
+  private QuestionConfig addMultiOptionQuestionConfig(
+      MultiOptionQuestionForm multiOptionQuestionForm) {
+    ImmutableList<ContainerTag> existingOptions =
+        multiOptionQuestionForm.getOptions().stream()
+            .map(option -> multiOptionQuestionField(Optional.of(option)))
+            .collect(toImmutableList());
+
+    content
+        .with(existingOptions)
+        .with(
+            button("Add answer option")
+                .withType("button")
+                .withId("add-new-option")
+                .withClasses(Styles.M_2));
     return this;
   }
 

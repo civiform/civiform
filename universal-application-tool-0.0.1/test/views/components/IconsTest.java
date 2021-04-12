@@ -8,7 +8,7 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import services.question.QuestionType;
+import services.question.types.QuestionType;
 
 @RunWith(JUnitParamsRunner.class)
 public class IconsTest {

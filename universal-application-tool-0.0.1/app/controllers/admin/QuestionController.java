@@ -5,12 +5,16 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import controllers.CiviFormController;
 import forms.AddressQuestionForm;
+import forms.CheckboxQuestionForm;
+import forms.DropdownQuestionForm;
 import forms.QuestionForm;
+import forms.RadioButtonQuestionForm;
 import forms.TextQuestionForm;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -19,17 +23,20 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.question.InvalidQuestionTypeException;
-import services.question.InvalidUpdateException;
-import services.question.QuestionDefinition;
-import services.question.QuestionNotFoundException;
 import services.question.QuestionService;
-import services.question.QuestionType;
-import services.question.UnsupportedQuestionTypeException;
+import services.question.exceptions.InvalidQuestionTypeException;
+import services.question.exceptions.InvalidUpdateException;
+import services.question.exceptions.QuestionNotFoundException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
 
 public class QuestionController extends CiviFormController {
+  private static final long NEW_VERSION = 1L;
+  private static final long VERSION_PLACEHOLDER = 1L;
+
   private final QuestionService service;
   private final QuestionsListView listView;
   private final QuestionEditView editView;
@@ -61,6 +68,22 @@ public class QuestionController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public CompletionStage<Result> show(Request request, Long id) {
+    return service
+        .getReadOnlyQuestionService()
+        .thenApplyAsync(
+            readOnlyService -> {
+              try {
+                QuestionDefinition definition = readOnlyService.getQuestionDefinition(id);
+                return ok(editView.renderViewQuestionForm(request, definition));
+              } catch (QuestionNotFoundException e) {
+                return badRequest(e.toString());
+              }
+            },
+            httpExecutionContext.current());
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result newOne(Request request, String type) {
     String upperType = type.toUpperCase();
     try {
@@ -86,7 +109,12 @@ public class QuestionController extends CiviFormController {
 
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = questionForm.getBuilder().setVersion(1L).build();
+      questionDefinition =
+          questionForm
+              .getBuilder()
+              .setVersion(NEW_VERSION)
+              .setLifecycleStage(LifecycleStage.DRAFT)
+              .build();
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
       return badRequest(e.toString());
@@ -131,7 +159,15 @@ public class QuestionController extends CiviFormController {
 
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = questionForm.getBuilder().setId(id).setVersion(1L).build();
+      questionDefinition =
+          questionForm
+              .getBuilder()
+              .setId(id)
+              // Version is needed for building a question definition.
+              // This value is overwritten when updating the question.
+              .setVersion(VERSION_PLACEHOLDER)
+              .setLifecycleStage(LifecycleStage.DRAFT)
+              .build();
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
       String errorMessage = e.toString();
@@ -176,6 +212,26 @@ public class QuestionController extends CiviFormController {
     }
 
     switch (questionType) {
+      case ADDRESS:
+      {
+        Form<AddressQuestionForm> form = formFactory.form(AddressQuestionForm.class);
+        return form.bindFromRequest(request).get();
+      }
+      case CHECKBOX:
+        {
+          Form<CheckboxQuestionForm> form = formFactory.form(CheckboxQuestionForm.class);
+          return form.bindFromRequest(request).get();
+        }
+      case DROPDOWN:
+        {
+          Form<DropdownQuestionForm> form = formFactory.form(DropdownQuestionForm.class);
+          return form.bindFromRequest(request).get();
+        }
+      case RADIO_BUTTON:
+        {
+          Form<RadioButtonQuestionForm> form = formFactory.form(RadioButtonQuestionForm.class);
+          return form.bindFromRequest(request).get();
+        }
       case TEXT:
         {
           Form<TextQuestionForm> form = formFactory.form(TextQuestionForm.class);
@@ -184,11 +240,6 @@ public class QuestionController extends CiviFormController {
           // that. But since we don't rely on the spring form data binder system for validation, we
           // can "safely" ignore these errors.
           return form.bindFromRequest(request).discardingErrors().get();
-        }
-      case ADDRESS:
-        {
-          Form<AddressQuestionForm> form = formFactory.form(AddressQuestionForm.class);
-          return form.bindFromRequest(request).get();
         }
       default:
         {

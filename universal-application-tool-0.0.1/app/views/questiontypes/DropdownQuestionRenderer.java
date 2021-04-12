@@ -2,11 +2,13 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
 
-import j2html.TagCreator;
+import j2html.attributes.Attr;
 import j2html.tags.Tag;
-import services.applicant.ApplicantQuestion;
+import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.SingleSelectQuestion;
 import views.BaseHtmlView;
 import views.style.ReferenceClasses;
 import views.style.Styles;
@@ -21,7 +23,7 @@ public class DropdownQuestionRenderer extends BaseHtmlView implements ApplicantQ
 
   @Override
   public Tag render() {
-    ApplicantQuestion.SingleSelectQuestion multiOptionQuestion = question.getSingleSelectQuestion();
+    SingleSelectQuestion singleSelectQuestion = question.createSingleSelectQuestion();
 
     return div()
         .withId(question.getPath().toString())
@@ -38,7 +40,15 @@ public class DropdownQuestionRenderer extends BaseHtmlView implements ApplicantQ
                     Styles.MB_2)
                 .withText(question.getQuestionHelpText()),
             select()
-                .with(each(multiOptionQuestion.getOptions(), TagCreator::option))
-                .withName(multiOptionQuestion.getSelectionPath().toString()));
+                .withName(singleSelectQuestion.getSelectionPath().toString())
+                .with(
+                    each(
+                        singleSelectQuestion.getOptions(),
+                        option ->
+                            option(option)
+                                .condAttr(
+                                    singleSelectQuestion.optionIsSelected(option),
+                                    Attr.SELECTED,
+                                    "selected"))));
   }
 }

@@ -7,14 +7,15 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import models.LifecycleStage;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
 import services.Path;
-import services.question.QuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.TextQuestionDefinition;
-import services.question.UnsupportedQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.TextQuestionDefinition;
 
 public class QuestionRepositoryTest extends WithPostgresContainer {
 
@@ -151,7 +152,9 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
             2L,
             "question",
             Path.create("applicant.name"),
+            Optional.empty(),
             "applicant's name",
+            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is your name?"),
             ImmutableMap.of());
     Question question = new Question(questionDefinition);
@@ -170,7 +173,9 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
             2L,
             "question",
             Path.create("applicant.name"),
+            Optional.empty(),
             "applicant's name",
+            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is your name?"),
             ImmutableMap.of());
     Question question = new Question(questionDefinition);

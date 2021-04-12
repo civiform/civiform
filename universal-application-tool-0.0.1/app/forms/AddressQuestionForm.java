@@ -1,8 +1,8 @@
 package forms;
 
-import services.question.AddressQuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.QuestionType;
+import services.question.types.AddressQuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
 
 public class AddressQuestionForm extends QuestionForm {
   private boolean disallowPoBox;

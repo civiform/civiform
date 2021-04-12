@@ -20,7 +20,7 @@ import org.junit.Test;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.WithPostgresContainer;
-import services.question.QuestionDefinition;
+import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 import support.TestQuestionBank;
 
@@ -44,9 +44,9 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
   @Test
   public void edit_toAProgramThatDoesNotExist_returns404() {
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.edit(applicant.id, 2L, 1L)).build();
+        fakeRequest(routes.ApplicantProgramBlocksController.edit(applicant.id, 2L, "1")).build();
 
-    Result result = subject.edit(request, applicant.id, 2L, 1L).toCompletableFuture().join();
+    Result result = subject.edit(request, applicant.id, 2L, "1").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -56,11 +56,11 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
     Request request =
         addCSRFToken(
                 fakeRequest(
-                    routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, 1L)))
+                    routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1")))
             .build();
 
     Result result =
-        subject.edit(request, applicant.id, program.id, 1L).toCompletableFuture().join();
+        subject.edit(request, applicant.id, program.id, "1").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
   }
@@ -68,11 +68,11 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
   @Test
   public void edit_toABlockThatDoesNotExist_returns404() {
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, 2L))
+        fakeRequest(routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "2"))
             .build();
 
     Result result =
-        subject.edit(request, applicant.id, program.id, 2L).toCompletableFuture().join();
+        subject.edit(request, applicant.id, program.id, "2").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -81,11 +81,11 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
   public void update_invalidApplicant_returnsBadRequest() {
     long badApplicantId = applicant.id + 1000;
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.update(badApplicantId, program.id, 1L))
+        fakeRequest(routes.ApplicantProgramBlocksController.update(badApplicantId, program.id, "1"))
             .build();
 
     Result result =
-        subject.update(request, badApplicantId, program.id, 1L).toCompletableFuture().join();
+        subject.update(request, badApplicantId, program.id, "1").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
@@ -94,18 +94,18 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
   public void update_invalidProgram_returnsBadRequest() {
     long badProgramId = program.id + 1000;
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, badProgramId, 1L))
+        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, badProgramId, "1"))
             .build();
 
     Result result =
-        subject.update(request, applicant.id, badProgramId, 1L).toCompletableFuture().join();
+        subject.update(request, applicant.id, badProgramId, "1").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
   @Test
   public void update_invalidBlock_returnsBadRequest() {
-    long badBlockId = 1000;
+    String badBlockId = "1000";
     Request request =
         fakeRequest(
                 routes.ApplicantProgramBlocksController.update(
@@ -121,12 +121,12 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
   @Test
   public void update_invalidPathsInRequest_returnsBadRequest() {
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, 1L))
+        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
             .bodyForm(ImmutableMap.of("fake.path", "value"))
             .build();
 
     Result result =
-        subject.update(request, applicant.id, program.id, 1L).toCompletableFuture().join();
+        subject.update(request, applicant.id, program.id, "1").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
@@ -135,12 +135,12 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
   public void update_reservedPathsInRequest_returnsBadRequest() {
     String reservedPath = "metadata." + QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY;
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, 1L))
+        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
             .bodyForm(ImmutableMap.of(reservedPath, "value"))
             .build();
 
     Result result =
-        subject.update(request, applicant.id, program.id, 1L).toCompletableFuture().join();
+        subject.update(request, applicant.id, program.id, "1").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
@@ -151,14 +151,14 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
         addCSRFToken(
                 fakeRequest(
                         routes.ApplicantProgramBlocksController.update(
-                            applicant.id, program.id, 1L))
+                            applicant.id, program.id, "1"))
                     .bodyForm(
                         ImmutableMap.of(
                             "applicant.name.first", "FirstName", "applicant.name.last", "")))
             .build();
 
     Result result =
-        subject.update(request, applicant.id, program.id, 1L).toCompletableFuture().join();
+        subject.update(request, applicant.id, program.id, "1").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("FirstName");
@@ -175,18 +175,18 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
             .withQuestion(TestQuestionBank.applicantAddress())
             .build();
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, 1L))
+        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
             .bodyForm(
                 ImmutableMap.of(
                     "applicant.name.first", "FirstName", "applicant.name.last", "LastName"))
             .build();
 
     Result result =
-        subject.update(request, applicant.id, program.id, 1L).toCompletableFuture().join();
+        subject.update(request, applicant.id, program.id, "1").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
-        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, 2L).url();
+        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "2").url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
   }
 
@@ -199,14 +199,14 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
             .build();
 
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, 1L))
+        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
             .bodyForm(
                 ImmutableMap.of(
                     "applicant.name.first", "FirstName", "applicant.name.last", "LastName"))
             .build();
 
     Result result =
-        subject.update(request, applicant.id, program.id, 1L).toCompletableFuture().join();
+        subject.update(request, applicant.id, program.id, "1").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(FOUND);
 
@@ -222,12 +222,12 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
     Request request =
         addCSRFToken(
                 fakeRequest(
-                        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, 1L))
+                        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1"))
                     .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()))
             .build();
 
     Result result =
-        subject.edit(request, applicant.id, program.id, 1L).toCompletableFuture().join();
+        subject.edit(request, applicant.id, program.id, "1").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Guardar y continuar");

@@ -2,24 +2,32 @@ package views.admin.questions;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.main;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import forms.AddressQuestionForm;
+import forms.CheckboxQuestionForm;
+import forms.DropdownQuestionForm;
 import forms.QuestionForm;
+import forms.RadioButtonQuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
-import j2html.tags.Tag;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
+import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import services.question.AddressQuestionDefinition;
-import services.question.QuestionDefinition;
-import services.question.QuestionType;
-import services.question.TextQuestionDefinition;
+import services.question.types.AddressQuestionDefinition;
+import services.question.types.CheckboxQuestionDefinition;
+import services.question.types.DropdownQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
+import services.question.types.RadioButtonQuestionDefinition;
+import services.question.types.TextQuestionDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
@@ -94,6 +102,27 @@ public final class QuestionEditView extends BaseHtmlView {
     return layout.renderFull(mainContent);
   }
 
+  public Content renderViewQuestionForm(Request request, QuestionDefinition question) {
+    QuestionType questionType = question.getQuestionType();
+    QuestionForm questionForm = getQuestionFormForType(questionType, question);
+    String title = String.format("View %s question", questionType.toString().toLowerCase());
+
+    ContainerTag formContent =
+        buildQuestionContainer(title).with(buildViewOnlyQuestionForm(questionForm));
+    ContainerTag previewContent = buildPreviewContent(questionType);
+    ContainerTag mainContent = main(formContent, previewContent);
+
+    return layout.renderFull(mainContent);
+  }
+
+  private ContainerTag buildSubmittableQuestionForm(QuestionForm questionForm) {
+    return buildQuestionForm(questionForm, true);
+  }
+
+  private ContainerTag buildViewOnlyQuestionForm(QuestionForm questionForm) {
+    return buildQuestionForm(questionForm, false);
+  }
+
   private ContainerTag buildQuestionContainer(String title) {
     return div()
         .withId("question-form")
@@ -113,19 +142,10 @@ public final class QuestionEditView extends BaseHtmlView {
 
   // A hidden template for multi-option questions.
   private ContainerTag multiOptionQuestionField() {
-    ContainerTag optionInput =
-        FieldWithLabel.input()
-            .setFieldName("option")
-            .setLabelText("Question option")
-            .getContainer()
-            .withClasses(Styles.FLEX, Styles.ML_2);
-    Tag removeOptionButton =
-        button("Remove").withType("button").withClasses(Styles.FLEX, Styles.ML_4);
-
-    return div()
+    return QuestionConfig.multiOptionQuestionField(Optional.empty())
         .withId("multi-option-question-answer-template")
-        .withClasses(Styles.HIDDEN, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4)
-        .with(optionInput, removeOptionButton);
+        // Add "hidden" to other classes, so that the template is not shown
+        .withClasses(Styles.HIDDEN, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4);
   }
 
   private ContainerTag buildPreviewContent(QuestionType questionType) {
@@ -133,7 +153,7 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private ContainerTag buildNewQuestionForm(QuestionForm questionForm) {
-    ContainerTag formTag = buildQuestionForm(questionForm);
+    ContainerTag formTag = buildSubmittableQuestionForm(questionForm);
     formTag
         .withAction(
             controllers.admin.routes.QuestionController.create(
@@ -145,7 +165,7 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private ContainerTag buildEditQuestionForm(long id, QuestionForm questionForm) {
-    ContainerTag formTag = buildQuestionForm(questionForm);
+    ContainerTag formTag = buildSubmittableQuestionForm(questionForm);
     formTag
         .withAction(
             controllers.admin.routes.QuestionController.update(
@@ -155,23 +175,35 @@ public final class QuestionEditView extends BaseHtmlView {
     return formTag;
   }
 
-  private ContainerTag buildQuestionForm(QuestionForm questionForm) {
+  private ContainerTag buildQuestionForm(QuestionForm questionForm, boolean submittable) {
     QuestionType questionType = questionForm.getQuestionType();
     ContainerTag formTag = form().withMethod("POST");
+    FieldWithLabel nameField =
+        FieldWithLabel.input()
+            .setId("question-name-input")
+            .setFieldName("questionName")
+            .setLabelText("Name")
+            .setDisabled(!submittable)
+            .setPlaceholderText("The name displayed in the question builder")
+            .setValue(questionForm.getQuestionName());
+    if (Strings.isNullOrEmpty(questionForm.getQuestionName())) {
+      formTag.with(nameField.getContainer());
+    } else {
+      // If there is already a name, we need to disable the `name` field but we
+      // need to add a hidden input to send the same name as well.
+      formTag.with(
+          nameField.setDisabled(true).getContainer(),
+          input().isHidden().withValue(questionForm.getQuestionName()).withName("questionName"));
+    }
+
     formTag
         .with(
-            FieldWithLabel.input()
-                .setId("question-name-input")
-                .setFieldName("questionName")
-                .setLabelText("Name")
-                .setPlaceholderText("The name displayed in the question builder")
-                .setValue(questionForm.getQuestionName())
-                .getContainer(),
             FieldWithLabel.textArea()
                 .setId("question-description-textarea")
                 .setFieldName("questionDescription")
                 .setLabelText("Description")
                 .setPlaceholderText("The description displayed in the question builder")
+                .setDisabled(!submittable)
                 .setValue(questionForm.getQuestionDescription())
                 .getContainer(),
             questionParentPathSelect(),
@@ -180,6 +212,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setFieldName("questionText")
                 .setLabelText("Question text")
                 .setPlaceholderText("The question text displayed to the applicant")
+                .setDisabled(!submittable)
                 .setValue(questionForm.getQuestionText())
                 .getContainer(),
             FieldWithLabel.textArea()
@@ -187,6 +220,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setFieldName("questionHelpText")
                 .setLabelText("Question help text")
                 .setPlaceholderText("The question help text displayed to the applicant")
+                .setDisabled(!submittable)
                 .setValue(questionForm.getQuestionHelpText())
                 .getContainer())
         .with(formQuestionTypeSelect(questionType));
@@ -227,6 +261,18 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private QuestionForm getQuestionFormForType(QuestionType questionType) {
     switch (questionType) {
+      case CHECKBOX:
+        {
+          return new CheckboxQuestionForm();
+        }
+      case DROPDOWN:
+        {
+          return new DropdownQuestionForm();
+        }
+      case RADIO_BUTTON:
+        {
+          return new RadioButtonQuestionForm();
+        }
       case TEXT:
         {
           return new TextQuestionForm();
@@ -245,6 +291,18 @@ public final class QuestionEditView extends BaseHtmlView {
   private QuestionForm getQuestionFormForType(
       QuestionType questionType, QuestionDefinition questionDefinition) {
     switch (questionType) {
+      case CHECKBOX:
+        {
+          return new CheckboxQuestionForm((CheckboxQuestionDefinition) questionDefinition);
+        }
+      case DROPDOWN:
+        {
+          return new DropdownQuestionForm((DropdownQuestionDefinition) questionDefinition);
+        }
+      case RADIO_BUTTON:
+        {
+          return new RadioButtonQuestionForm((RadioButtonQuestionDefinition) questionDefinition);
+        }
       case TEXT:
         {
           return new TextQuestionForm((TextQuestionDefinition) questionDefinition);

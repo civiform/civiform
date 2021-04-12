@@ -9,6 +9,7 @@ import static play.test.Helpers.contentAsString;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import models.LifecycleStage;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,9 +19,9 @@ import play.mvc.Result;
 import play.test.Helpers;
 import repository.WithPostgresContainer;
 import services.Path;
-import services.question.QuestionDefinitionBuilder;
-import services.question.QuestionType;
-import services.question.UnsupportedQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
 import views.html.helper.CSRF;
 
 public class QuestionControllerTest extends WithPostgresContainer {
@@ -54,7 +55,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
   public void create_failsWithErrorMessageAndPopulatedFields() throws Exception {
     buildQuestionsList();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
-    formData.put("questionName", "name").put("questionParentPath", "#invalid_path!");
+    formData.put("questionName", "name").put("questionParentPath", "valid_path");
     Request request = addCSRFToken(Helpers.fakeRequest().bodyForm(formData.build())).build();
 
     Result result = controller.create(request, "text");
@@ -62,8 +63,9 @@ public class QuestionControllerTest extends WithPostgresContainer {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("New text question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
+    assertThat(contentAsString(result)).contains("blank description");
+    assertThat(contentAsString(result)).contains("no question text");
     assertThat(contentAsString(result)).contains("name");
-    assertThat(contentAsString(result)).contains("#invalid_path!");
   }
 
   @Test
@@ -201,10 +203,13 @@ public class QuestionControllerTest extends WithPostgresContainer {
 
   @Test
   public void update_failsWithErrorMessageAndPopulatedFields() {
-    Question question = resourceCreator().insertQuestion("my.path");
+    Question question =
+        resourceCreator().insertQuestion("applicant.favorite_color", 1, "favorite_color");
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
-        .put("questionParentPath", "invalid.path")
+        .put("questionName", "favorite_color")
+        .put("questionDescription", "")
+        .put("questionParentPath", "applicant")
         .put("questionText", "question text updated!");
     Request request = addCSRFToken(Helpers.fakeRequest().bodyForm(formData.build())).build();
 
@@ -213,7 +218,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit text question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
-    assertThat(contentAsString(result)).contains("invalid.path");
+    assertThat(contentAsString(result)).contains("blank description");
     assertThat(contentAsString(result)).contains("question text updated!");
   }
 
@@ -239,6 +244,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
             .setQuestionText(
                 ImmutableMap.of(Locale.US, "What is the answer to the ultimate question?"))
             .setQuestionHelpText(ImmutableMap.of())
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setQuestionType(QuestionType.TEXT);
     Question question = new Question(builder.build());
     question.save();

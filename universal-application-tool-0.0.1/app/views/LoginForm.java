@@ -52,11 +52,8 @@ public class LoginForm extends BaseHtmlView {
                     routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())));
 
     // "defense in depth", sort of - this client won't be present in production, and this button
-    // won't show up except when running locally.
-    boolean isLocalhost =
-        FakeAdminClient.ACCEPTED_LOCALHOSTS.stream()
-            .anyMatch(acceptedHost -> request.host().startsWith(acceptedHost + ":"));
-    if (isLocalhost) {
+    // won't show up except when running in an acceptable environment.
+    if (FakeAdminClient.canEnable(request.host())) {
       bodyTag.with(
           div(
               h1("DEBUG MODE: BECOME ADMIN"),

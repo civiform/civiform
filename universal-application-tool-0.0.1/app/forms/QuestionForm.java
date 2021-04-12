@@ -5,10 +5,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import services.Path;
-import services.question.QuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.QuestionType;
-import services.question.TranslationNotFoundException;
+import services.question.exceptions.TranslationNotFoundException;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
 
 public class QuestionForm {
   private String questionName;
@@ -62,10 +62,6 @@ public class QuestionForm {
 
   public void setQuestionDescription(String questionDescription) {
     this.questionDescription = checkNotNull(questionDescription);
-  }
-
-  public Path getQuestionParentPath() {
-    return questionParentPath;
   }
 
   public void setQuestionParentPath(String questionParentPath) {

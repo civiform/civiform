@@ -3,16 +3,15 @@ package services.program;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import java.util.Locale;
+import java.util.Optional;
 import org.junit.Test;
 import services.Path;
-import services.question.QuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.QuestionType;
-import services.question.ScalarType;
+import services.question.types.QuestionDefinition;
+import services.question.types.ScalarType;
+import support.TestQuestionBank;
 
 public class BlockDefinitionTest {
+
   @Test
   public void createBlockDefinition() {
     BlockDefinition block =
@@ -21,6 +20,7 @@ public class BlockDefinitionTest {
             .setName("Block Name")
             .setDescription("Block Description")
             .build();
+
     assertThat(block.id()).isEqualTo(123L);
   }
 
@@ -64,40 +64,49 @@ public class BlockDefinitionTest {
     assertThat(block.hasPaths(Path.create("fake.path"))).isFalse();
   }
 
+  @Test
+  public void isRepeater_isFalse() throws Exception {
+    BlockDefinition blockDefinition = makeBlockDefinitionWithQuestions();
+
+    assertThat(blockDefinition.isRepeater()).isFalse();
+  }
+
+  @Test
+  public void isRepeated_isFalse() throws Exception {
+    BlockDefinition blockDefinition = makeBlockDefinitionWithQuestions();
+
+    assertThat(blockDefinition.isRepeated()).isFalse();
+  }
+
+  @Test
+  public void isRepeater_isTrue() throws Exception {
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    TestQuestionBank.applicantHouseholdMembers().getQuestionDefinition()))
+            .build();
+
+    assertThat(blockDefinition.isRepeater()).isTrue();
+  }
+
+  @Test
+  public void isRepeated_isTrue() throws Exception {
+    BlockDefinition blockDefinition =
+        makeBlockDefinitionWithQuestions().toBuilder().setRepeaterId(Optional.of(1L)).build();
+
+    assertThat(blockDefinition.isRepeated()).isTrue();
+  }
+
   private BlockDefinition makeBlockDefinitionWithQuestions() throws Exception {
-    QuestionDefinition nameQuestion =
-        new QuestionDefinitionBuilder()
-            .setId(1L)
-            .setVersion(1L)
-            .setName("name")
-            .setPath(Path.create("applicant.name"))
-            .setDescription("name question")
-            .setQuestionType(QuestionType.NAME)
-            .setQuestionText(ImmutableMap.of(Locale.US, "What is your name?"))
-            .setQuestionHelpText(ImmutableMap.of())
-            .build();
+    QuestionDefinition nameQuestion = TestQuestionBank.applicantName().getQuestionDefinition();
     QuestionDefinition addressQuestion =
-        new QuestionDefinitionBuilder()
-            .setId(2L)
-            .setVersion(1L)
-            .setName("address")
-            .setPath(Path.create("applicant.address"))
-            .setDescription("address question")
-            .setQuestionType(QuestionType.ADDRESS)
-            .setQuestionText(ImmutableMap.of(Locale.US, "What is your address?"))
-            .setQuestionHelpText(ImmutableMap.of())
-            .build();
+        TestQuestionBank.applicantAddress().getQuestionDefinition();
     QuestionDefinition colorQuestion =
-        new QuestionDefinitionBuilder()
-            .setId(3L)
-            .setVersion(1L)
-            .setName("color")
-            .setPath(Path.create("applicant.color"))
-            .setDescription("color")
-            .setQuestionType(QuestionType.TEXT)
-            .setQuestionText(ImmutableMap.of(Locale.US, "What is your favorite color?"))
-            .setQuestionHelpText(ImmutableMap.of())
-            .build();
+        TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
 
     BlockDefinition block =
         BlockDefinition.builder()

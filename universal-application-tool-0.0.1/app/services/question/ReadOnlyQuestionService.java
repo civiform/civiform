@@ -4,6 +4,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import services.Path;
+import services.question.exceptions.InvalidPathException;
+import services.question.exceptions.QuestionNotFoundException;
+import services.question.types.QuestionDefinition;
+import services.question.types.RepeaterQuestionDefinition;
+import services.question.types.ScalarType;
 
 /**
  * The ReadOnlyQuestionService contains all synchronous, in-memory operations for
@@ -11,8 +16,17 @@ import services.Path;
  */
 public interface ReadOnlyQuestionService {
 
-  /** Returns all question definitions for this version. */
+  /** Returns all question definitions. */
   ImmutableList<QuestionDefinition> getAllQuestions();
+
+  /** Returns all up-to-date question definitions for this version. */
+  ImmutableList<QuestionDefinition> getUpToDateQuestions();
+
+  /** Returns all repeater question definitions. */
+  ImmutableList<RepeaterQuestionDefinition> getAllRepeaterQuestions();
+
+  /** Returns all repeater question definitions. */
+  ImmutableList<RepeaterQuestionDefinition> getUpToDateRepeaterQuestions();
 
   /** Returns all scalars for this version. */
   ImmutableMap<Path, ScalarType> getAllScalars();
@@ -34,28 +48,6 @@ public interface ReadOnlyQuestionService {
    * <p>If the path is invalid it will return PathType.NONE.
    */
   PathType getPathType(Path path);
-
-  /**
-   * Gets the question definition for a given String path.
-   *
-   * <p>If the path is to a QUESTION, it will return that.
-   *
-   * <p>If the path is to a SCALAR, it will return the parent QuestionDefinition for that Scalar.
-   *
-   * <p>If the path is invalid it will throw an InvalidPathException.
-   */
-  QuestionDefinition getQuestionDefinition(String path) throws InvalidPathException;
-
-  /**
-   * Gets the question definition for a given {@link Path}.
-   *
-   * <p>If the path is to a QUESTION, it will return that.
-   *
-   * <p>If the path is to a SCALAR, it will return the parent QuestionDefinition for that Scalar.
-   *
-   * <p>If the path is invalid it will throw an InvalidPathException.
-   */
-  QuestionDefinition getQuestionDefinition(Path path) throws InvalidPathException;
 
   /**
    * Gets the question definition for a ID.

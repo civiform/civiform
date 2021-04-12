@@ -4,11 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
+import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
-import services.question.QuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.TextQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.TextQuestionDefinition;
 
 public class TextQuestionFormTest {
 
@@ -24,16 +26,17 @@ public class TextQuestionFormTest {
     form.setMaxLength(6);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
-    // The QuestionForm does not set version, which is needed in order to build the
-    // QuestionDefinition. How we get this value hasn't been determined.
     builder.setVersion(1L);
+    builder.setLifecycleStage(LifecycleStage.ACTIVE);
 
     TextQuestionDefinition expected =
         new TextQuestionDefinition(
             1L,
             "name",
             Path.create("my.question.path.name"),
+            Optional.empty(),
             "description",
+            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
             TextQuestionDefinition.TextValidationPredicates.create(4, 6));
@@ -50,7 +53,9 @@ public class TextQuestionFormTest {
             1L,
             "name",
             Path.create("my.question.path.name"),
+            Optional.empty(),
             "description",
+            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
             TextQuestionDefinition.TextValidationPredicates.create(4, 6));
@@ -58,9 +63,8 @@ public class TextQuestionFormTest {
     TextQuestionForm form = new TextQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
-    // The QuestionForm does not set version, which is needed in order to build the
-    // QuestionDefinition. How we get this value hasn't been determined.
     builder.setVersion(1L);
+    builder.setLifecycleStage(LifecycleStage.ACTIVE);
 
     QuestionDefinition actual = builder.build();
 

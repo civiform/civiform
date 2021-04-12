@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.annotation.DbJsonB;
 import java.util.Locale;
+import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.PostLoad;
 import javax.persistence.PostPersist;
@@ -15,12 +16,12 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.Path;
-import services.question.InvalidQuestionTypeException;
-import services.question.MultiOptionQuestionDefinition;
-import services.question.QuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.QuestionType;
-import services.question.UnsupportedQuestionTypeException;
+import services.question.exceptions.InvalidQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
 
 @Entity
 @Table(name = "questions")
@@ -33,6 +34,8 @@ public class Question extends BaseModel {
   private @Constraints.Required String path;
 
   private @Constraints.Required String name;
+
+  private Long repeaterId;
 
   private @Constraints.Required String description;
 
@@ -47,6 +50,10 @@ public class Question extends BaseModel {
   @Constraints.Required private LifecycleStage lifecycleStage;
 
   private @DbJsonB ImmutableListMultimap<Locale, String> questionOptions;
+
+  public long getVersion() {
+    return version;
+  }
 
   public String getPath() {
     return path;
@@ -81,7 +88,9 @@ public class Question extends BaseModel {
             .setVersion(version)
             .setName(name)
             .setPath(Path.create(path))
+            .setRepeaterId(Optional.ofNullable(repeaterId))
             .setDescription(description)
+            .setLifecycleStage(lifecycleStage)
             .setQuestionText(questionText)
             .setQuestionHelpText(questionHelpText)
             .setQuestionType(QuestionType.valueOf(questionType))
@@ -99,11 +108,27 @@ public class Question extends BaseModel {
   }
 
   public LifecycleStage getLifecycleStage() {
-    return this.lifecycleStage;
+    return this.getQuestionDefinition().getLifecycleStage();
   }
 
   public void setLifecycleStage(LifecycleStage lifecycleStage) {
-    this.lifecycleStage = lifecycleStage;
+    // A Question object is entirely determined by a QuestionDefinition, so Question objects are
+    // usually
+    // immutable since QuestionDefinitions are immutable.  This is not a true setter - it creates an
+    // entirely
+    // new QuestionDefinition from the existing one - but it's present here as a convenience method,
+    // to save
+    // on verbosity due to us doing this many times throughout the application.
+    try {
+      this.questionDefinition =
+          new QuestionDefinitionBuilder(this.questionDefinition)
+              .setLifecycleStage(lifecycleStage)
+              .build();
+    } catch (UnsupportedQuestionTypeException e) {
+      // Throw as runtime exception because this should never happen - we are using an existing
+      // question definition type.
+      throw new RuntimeException(e);
+    }
   }
 
   private void setFieldsFromQuestionDefinition(QuestionDefinition questionDefinition) {
@@ -112,12 +137,14 @@ public class Question extends BaseModel {
     }
     version = questionDefinition.getVersion();
     path = questionDefinition.getPath().path();
+    repeaterId = questionDefinition.getRepeaterId().orElse(null);
     name = questionDefinition.getName();
     description = questionDefinition.getDescription();
     questionText = questionDefinition.getQuestionText();
     questionHelpText = questionDefinition.getQuestionHelpText();
     questionType = questionDefinition.getQuestionType().toString();
     validationPredicates = questionDefinition.getValidationPredicatesAsString();
+    lifecycleStage = questionDefinition.getLifecycleStage();
 
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition multiOption =

@@ -24,10 +24,19 @@ jobs:
         run: docker build -t civiform ./
       - name: Build browser testing container
         run: bin/build-browser-tests
-      - name: Build and run the test stack
-        run: docker-compose -f browser-test/browser-test-compose.yml up -d
+      - name: Start localstack
+        run: docker-compose -f browser-test/browser-test-compose.yml up -d localstack
+      - name: Wait for localstack ready
+        run: bin/localstack/wait http://localhost:6645
+      - name: Create test s3 bucket
+        run: bin/localstack/mk-s3 http://localhost:6645
+      - name: Build and run the rest of test stack
+        run: sh -c "docker-compose -f browser-test/browser-test-compose.yml up > .dockerlogs &"
       - name: Run browser tests
         run: bin/run-browser-tests-ci
+      - name: Print logs on failure
+        if: failure()
+        run: cat .dockerlogs
 
   test_prod:
     runs-on: ubuntu-latest

@@ -4,8 +4,8 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.span;
 
 import j2html.tags.ContainerTag;
-import services.question.QuestionType;
-import services.question.UnsupportedQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.QuestionType;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.style.Styles;
 

@@ -17,7 +17,7 @@ import services.program.BlockDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
-import services.question.QuestionDefinition;
+import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.LinkElement;
@@ -110,7 +110,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   }
 
   private Tag renderScalar(Path key, Application application) {
-    return div(application.getApplicantData().readString(key).orElse("<unanswered>"))
+    return div(application.getApplicantData().readAsString(key).orElse("<unanswered>"))
         .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_BASE, "line-clamp-3");
   }
 }
