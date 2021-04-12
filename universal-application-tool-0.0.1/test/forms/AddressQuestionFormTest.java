@@ -25,9 +25,8 @@ public class AddressQuestionFormTest {
     form.setDisallowPoBox(true);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
-    // The QuestionForm does not set version, which is needed in order to build the
-    // QuestionDefinition. How we get this value hasn't been determined.
     builder.setVersion(1L);
+    builder.setLifecycleStage(LifecycleStage.ACTIVE);
 
     AddressQuestionDefinition expected =
         new AddressQuestionDefinition(
@@ -63,9 +62,8 @@ public class AddressQuestionFormTest {
     AddressQuestionForm form = new AddressQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
-    // The QuestionForm does not set version, which is needed in order to build the
-    // QuestionDefinition. How we get this value hasn't been determined.
     builder.setVersion(1L);
+    builder.setLifecycleStage(LifecycleStage.ACTIVE);
 
     QuestionDefinition actual = builder.build();
 
