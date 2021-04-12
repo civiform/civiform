@@ -36,11 +36,11 @@ public class ToastMessage {
           Styles.PY_2,
           Styles.ROUNDED_SM,
           Styles.SHADOW_LG,
-          Styles.TEXT_GRAY_700,
-          Styles.TRANSITION_OPACITY,
           Styles._TRANSLATE_X_1_2,
-          Styles.TRANSFORM,
-          Styles.TOP_2);
+          Styles.TEXT_GRAY_700,,
+          Styles.TOP_2
+          Styles.TRANSITION_OPACITY,
+          Styles.TRANSFORM);
 
   private String ALERT_CLASSES = StyleUtils.joinStyles(Styles.BG_GRAY_200, Styles.BORDER_GRAY_300);
 

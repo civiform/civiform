@@ -9,7 +9,6 @@
  */
 
 function attachDropdown(elementId: string) {
-  // simple change.
   const dropdownId = elementId + "-dropdown";
   const element = document.getElementById(elementId);
   const dropdown = document.getElementById(dropdownId);
@@ -39,43 +38,6 @@ function maybeHideElement(e: Event, id: string, parentId: string) {
       }
     }
   }
-}
-
-/** Show the warning message if it hasn't been dismissed by the user. */
-function maybeShowWarning() {
-  if (!localStorage.getItem("hideWarning")) {
-    const warningDiv = document.getElementById("warning-message");
-    if (warningDiv) {
-      warningDiv.classList.remove("hidden");
-    }
-    const warningDismissButton = document.getElementById("warning-message-dismiss");
-    if (warningDismissButton) {
-      warningDismissButton.addEventListener("click", dismissWarning);
-    }
-  }
-}
-
- /** If a toast message is present, make it visible for the specified duration. */
-function maybeShowToast() {
-  const toastMessage = document.querySelector('.cf-toast');
-  if (toastMessage) {
-    toastMessage.classList.remove('opacity-0');
-    if (toastMessage.hasAttribute('duration')) {
-      const showDuration = toastMessage.getAttribute('duration');
-      setTimeout(function() {
-        toastMessage.classList.add('opacity-0');
-      }, showDuration);
-    }
-  }
-}
-
-/** Hide warning message and throw an indicator in local storage to not show. */
-function dismissWarning() {
-  const warningDiv = document.getElementById("warning-message");
-  if (warningDiv) {
-    warningDiv.classList.add("hidden");
-  }
-  localStorage.setItem("hideWarning", "true");
 }
 
 function init() {
