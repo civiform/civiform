@@ -1,5 +1,6 @@
 package support;
 
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Map;
@@ -12,11 +13,7 @@ import models.Question;
 import services.Path;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.AddressQuestionDefinition;
-import services.question.types.NameQuestionDefinition;
-import services.question.types.QuestionDefinition;
-import services.question.types.RepeaterQuestionDefinition;
-import services.question.types.TextQuestionDefinition;
+import services.question.types.*;
 
 /**
  * A cached {@link Question} bank for testing.
@@ -64,6 +61,11 @@ public class TestQuestionBank {
         QuestionEnum.APPLICANT_HOUSEHOLD_MEMBERS, TestQuestionBank::applicantHouseholdMembers);
   }
 
+  public static Question applicantPets() {
+      return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_PETS, TestQuestionBank::applicantPets);
+  }
+
   private static Question applicantName(QuestionEnum ignore) {
     QuestionDefinition definition =
         new NameQuestionDefinition(
@@ -106,6 +108,22 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  private static Question applicantPets(QuestionEnum ignore) {
+    QuestionDefinition definition =
+            new CheckboxQuestionDefinition(
+                    VERSION,
+                    "checkbox",
+                    Path.create("applicant.checkbox"),
+                    Optional.empty(),
+                    "description",
+                    LifecycleStage.ACTIVE,
+                    ImmutableMap.of(Locale.US, "question?"),
+                    ImmutableMap.of(Locale.US, "help text"),
+                    ImmutableListMultimap.of(Locale.US, "cat", Locale.US, "dog")
+            );
+    return maybeSave(definition);
+  }
+
   private static Question applicantHouseholdMembers(QuestionEnum ignore) {
     QuestionDefinition definition =
         new RepeaterQuestionDefinition(
@@ -141,6 +159,7 @@ public class TestQuestionBank {
     APPLICANT_NAME,
     APPLICANT_ADDRESS,
     APPLICANT_FAVORITE_COLOR,
-    APPLICANT_HOUSEHOLD_MEMBERS
+    APPLICANT_HOUSEHOLD_MEMBERS,
+    APPLICANT_PETS
   }
 }
