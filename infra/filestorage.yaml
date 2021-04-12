@@ -4,6 +4,10 @@ Parameters:
   S3VPCEndpoint:
     Description: The vpc endpoint from which CiviForm connects to S3.
     Type: String
+  Environment:
+    Type: String
+    AllowedValues: ["staging", "prod"]
+    Description: "Staging or prod environment"
 Resources:
   key:
     Type: AWS::KMS::Key
@@ -41,11 +45,11 @@ Resources:
           Resource: '*'
       Tags:
         - Key: Name
-          Value: prod.civiform-s3.kms-key
+          Value: !Join [".", [!Ref Environment, "civiform-s3.kms-key"]]
   bucket:
     Type: 'AWS::S3::Bucket'
     Properties:
-      BucketName: prod.filestore.s3
+      BucketName: !Join [".", [!Ref Environment, "filestore.s3"]]
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
@@ -66,7 +70,7 @@ Resources:
       Bucket: !Ref bucket
       PolicyDocument:
         Statement:
-          - Sid: Restrict access to VPC endpoint
+          - Sid: Restrict access to VPC endpoint only
             Action:
               - 's3:*'
             Effect: Deny
@@ -75,10 +79,23 @@ Resources:
               - - 'arn:aws:s3:::'
                 - !Ref bucket
                 - /*
-            Principal: '*'
+            NotPrincipal:
+              AWS: 'arn:aws:iam::405662711265:role/AmazonECSTaskS3BucketRole'
             Condition:
               StringNotEquals:
                 'aws:sourceVpce': !Ref 'S3VPCEndpoint'
+        Statement:
+          - Sid: Allow presigned URL access from our task role
+            Action:
+              - 's3:GetObject'
+            Effect: Allow
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref bucket
+                - /*
+            Principal:
+              AWS: 'arn:aws:iam::405662711265:role/AmazonECSTaskS3BucketRole'
 Outputs:
   bucketname:
     Description: The location of the bucket for secure uploads.

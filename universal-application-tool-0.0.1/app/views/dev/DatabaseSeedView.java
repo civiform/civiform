@@ -19,7 +19,7 @@ import javax.inject.Inject;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
-import services.question.QuestionDefinition;
+import services.question.types.QuestionDefinition;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.style.Styles;
@@ -59,7 +59,7 @@ public class DatabaseSeedView extends BaseHtmlView {
                     .with(
                         form()
                             .with(makeCsrfTokenInputTag(request))
-                            .with(submitButton("Clear all programs and questions"))
+                            .with(submitButton("clear", "Clear entire database (irreversible!)"))
                             .withMethod("post")
                             .withAction(routes.DatabaseSeedController.clear().url())))
             .with(

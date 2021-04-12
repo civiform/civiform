@@ -8,7 +8,7 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import services.question.QuestionType;
+import services.question.types.QuestionType;
 
 @RunWith(JUnitParamsRunner.class)
 public class IconsTest {
@@ -16,7 +16,7 @@ public class IconsTest {
   private static final ContainerTag TEXT_ICON = Icons.questionTypeSvg(QuestionType.TEXT, 0);
   // TODO(https://github.com/seattle-uat/civiform/issues/395): Implement dropdown rendering.
   private static final EnumSet<QuestionType> TYPES_WITH_DEFAULT_ICON =
-      EnumSet.of(QuestionType.DROPDOWN, QuestionType.TEXT);
+      EnumSet.of(QuestionType.TEXT);
 
   @Test
   @Parameters(method = "handledTypes")

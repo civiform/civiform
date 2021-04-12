@@ -29,10 +29,10 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
         run: bin/build-and-push
 
-      - name: Run deploy-prod.
+      - name: Run deploy-staging.
         if: "contains(toJSON(steps.file_changes.outputs.files), 'infra/')"
-        id: deploy_prod
+        id: deploy_staging
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
-        run: bin/deploy-prod
+        run: bin/deploy-staging

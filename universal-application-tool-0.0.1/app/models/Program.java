@@ -14,6 +14,7 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.program.BlockDefinition;
+import services.program.ExportDefinition;
 import services.program.ProgramDefinition;
 
 /** The ebeans mapped class for the program object. */
@@ -23,15 +24,17 @@ public class Program extends BaseModel {
 
   private ProgramDefinition programDefinition;
 
-  private @Constraints.Required String name;
+  @Constraints.Required private String name;
 
-  private @Constraints.Required String description;
+  @Constraints.Required private String description;
 
-  private @Constraints.Required @DbJson ImmutableList<BlockDefinition> blockDefinitions;
+  @Constraints.Required @DbJson private ImmutableList<BlockDefinition> blockDefinitions;
 
-  private @Constraints.Required Long version;
+  @Constraints.Required private Long version;
 
   @Constraints.Required private LifecycleStage lifecycleStage;
+
+  @Constraints.Required @DbJson private ImmutableList<ExportDefinition> exportDefinitions;
 
   @OneToMany(mappedBy = "program")
   private List<Application> applications;
@@ -47,6 +50,7 @@ public class Program extends BaseModel {
     this.description = definition.description();
     this.blockDefinitions = definition.blockDefinitions();
     this.lifecycleStage = definition.lifecycleStage();
+    this.exportDefinitions = definition.exportDefinitions();
   }
 
   /**
@@ -64,17 +68,19 @@ public class Program extends BaseModel {
             .setDescription("")
             .setProgramQuestionDefinitions(ImmutableList.of())
             .build();
+    this.exportDefinitions = ImmutableList.of();
     this.blockDefinitions = ImmutableList.of(emptyBlock);
   }
 
   /** Populates column values from {@link ProgramDefinition} */
   @PreUpdate
   public void persistChangesToProgramDefinition() {
-    this.id = this.programDefinition.id();
-    this.name = this.programDefinition.name();
-    this.description = this.programDefinition.description();
-    this.blockDefinitions = this.programDefinition.blockDefinitions();
-    this.lifecycleStage = this.programDefinition.lifecycleStage();
+    id = programDefinition.id();
+    name = programDefinition.name();
+    description = programDefinition.description();
+    blockDefinitions = programDefinition.blockDefinitions();
+    lifecycleStage = programDefinition.lifecycleStage();
+    exportDefinitions = programDefinition.exportDefinitions();
   }
 
   /** Populates {@link ProgramDefinition} from column values. */
@@ -84,11 +90,12 @@ public class Program extends BaseModel {
   public void loadProgramDefinition() {
     this.programDefinition =
         ProgramDefinition.builder()
-            .setId(this.id)
-            .setName(this.name)
-            .setDescription(this.description)
-            .setBlockDefinitions(this.blockDefinitions)
-            .setLifecycleStage(this.lifecycleStage)
+            .setId(id)
+            .setName(name)
+            .setDescription(description)
+            .setBlockDefinitions(blockDefinitions)
+            .setLifecycleStage(lifecycleStage)
+            .setExportDefinitions(exportDefinitions)
             .build();
   }
 
@@ -97,7 +104,7 @@ public class Program extends BaseModel {
   }
 
   public LifecycleStage getLifecycleStage() {
-    return this.lifecycleStage;
+    return lifecycleStage;
   }
 
   public void setLifecycleStage(LifecycleStage lifecycleStage) {

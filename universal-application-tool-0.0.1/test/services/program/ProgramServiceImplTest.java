@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import forms.BlockForm;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import models.LifecycleStage;
@@ -17,12 +18,12 @@ import repository.WithPostgresContainer;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.Path;
-import services.question.AddressQuestionDefinition;
-import services.question.NameQuestionDefinition;
-import services.question.QuestionDefinition;
-import services.question.QuestionNotFoundException;
 import services.question.QuestionService;
-import services.question.TextQuestionDefinition;
+import services.question.exceptions.QuestionNotFoundException;
+import services.question.types.AddressQuestionDefinition;
+import services.question.types.NameQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.TextQuestionDefinition;
 import support.ProgramBuilder;
 
 public class ProgramServiceImplTest extends WithPostgresContainer {
@@ -32,7 +33,9 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
           2L,
           "Name Question",
           Path.create("applicant.name"),
+          Optional.empty(),
           "The name of the applicant.",
+          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "What is your name?"),
           ImmutableMap.of());
   private ProgramServiceImpl ps;
@@ -128,7 +131,9 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     3L,
                     "Applicant Address",
                     Path.create("applicant.address"),
+                    Optional.empty(),
                     "Applicant's address",
+                    LifecycleStage.ACTIVE,
                     ImmutableMap.of(Locale.US, "What is your addess?"),
                     ImmutableMap.of()))
             .getResult();
@@ -138,7 +143,9 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     3L,
                     "Favorite color",
                     Path.create("applicant.favcolor"),
+                    Optional.empty(),
                     "Applicant's favorite color",
+                    LifecycleStage.ACTIVE,
                     ImmutableMap.of(Locale.US, "Is orange your favorite color?"),
                     ImmutableMap.of()))
             .getResult();

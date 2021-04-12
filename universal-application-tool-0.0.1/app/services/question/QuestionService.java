@@ -6,6 +6,9 @@ import java.util.concurrent.CompletionStage;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.Path;
+import services.question.exceptions.InvalidPathException;
+import services.question.exceptions.InvalidUpdateException;
+import services.question.types.QuestionDefinition;
 
 /**
  * The service responsible for accessing the Question resource. Admins create {@link

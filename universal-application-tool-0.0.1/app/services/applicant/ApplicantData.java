@@ -9,6 +9,7 @@ import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.TypeRef;
 import com.jayway.jsonpath.spi.mapper.MappingException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -18,6 +19,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import services.Path;
 import services.WellKnownPaths;
+import services.question.types.RepeaterQuestionDefinition;
 
 public class ApplicantData {
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
@@ -59,7 +61,7 @@ public class ApplicantData {
    */
   public boolean hasPath(Path path) {
     try {
-      this.jsonData.read(path.path());
+      this.jsonData.read(path.toString());
     } catch (PathNotFoundException e) {
       return false;
     }
@@ -109,11 +111,26 @@ public class ApplicantData {
     }
   }
 
-  public void putList(Path path, ImmutableList<String> value) {
-    if (value.isEmpty()) {
-      putNull(path);
+  /**
+   * Puts the names of the repeated entities at the path. Each element in the JSON array at the path
+   * is a JSON object that has at minimum a property {@link
+   * RepeaterQuestionDefinition#REPEATED_ENTITY_NAME_KEY} that contains a string value, along with
+   * possibly other nested answers to questions or repeated entities.
+   *
+   * <p>This should not affect any other data that may already exist for the repeated entities.
+   *
+   * @param path a path to repeated entities list
+   * @param entityNames the names of repeated entities
+   */
+  public void putRepeatedEntities(Path path, ImmutableList<String> entityNames) {
+    if (entityNames.isEmpty()) {
+      put(path, ImmutableList.of());
     } else {
-      put(path, value);
+      for (int i = 0; i < entityNames.size(); i++) {
+        putString(
+            path.atIndex(i).join(RepeaterQuestionDefinition.REPEATED_ENTITY_NAME_KEY),
+            entityNames.get(i));
+      }
     }
   }
 
@@ -125,19 +142,95 @@ public class ApplicantData {
    * Puts the given value at the given path in the underlying JSON data. Builds up the necessary
    * structure along the way, i.e., creates parent objects where necessary.
    *
-   * @param path the {@link Path} with the fully specified path, e.g., "applicant.favorites.color"
-   *     or the equivalent "$.applicant.favorite.colors".
+   * <p>If the path ends in an array (i.e. we are trying to add an element to a JSON array), this
+   * will check to make sure the array is there, then add the given element to the end of the array.
+   *
+   * @param path the {@link Path} with the fully specified path, e.g.,
+   *     "applicant.children[3].favorite_color.text" or the equivalent
+   *     "$.applicant.children[3].favorite_color.text".
    * @param value the value to place; values of type Map will create the equivalent JSON structure
    */
   private void put(Path path, Object value) {
-    if (path.parentPath().isEmpty()) {
-      jsonData.put(Path.JSON_PATH_START_TOKEN, path.keyName(), value);
+    putParentIfMissing(path);
+    if (path.isArrayElement()) {
+      putArrayIfMissing(path.withoutArrayReference());
+      addAt(path, value);
+    } else {
+      putAt(path, value);
+    }
+  }
+
+  /**
+   * Adds a JSON array at the given path, if it is not there already.
+   *
+   * @param path the path to the new array - must not end with array suffix [] or [index]
+   */
+  private void putArrayIfMissing(Path path) {
+    if (!hasPath(path)) {
+      putAt(path, new ArrayList<>());
+    }
+  }
+
+  private void putAt(Path path, Object value) {
+    jsonData.put(path.parentPath().toString(), path.keyName(), value);
+  }
+
+  private void addAt(Path path, Object value) {
+    jsonData.add(path.withoutArrayReference().toString(), value);
+  }
+
+  /**
+   * Put parent of path if it doesn't already exist. There are two types of parents: JSON objects
+   * and JSON arrays.
+   *
+   * <p>For JSON object parents, if it doesn't already exist an empty map is put in the right place.
+   *
+   * <p>For JSON array parents, if the array (e.g. applicant.children[]) doesn't already exist an
+   * empty array is put in the right place, and then if the array element (e.g.
+   * applicant.children[3]) doesn't already exist then empty maps are added until an empty map is
+   * available at the right index.
+   */
+  private void putParentIfMissing(Path path) {
+    Path parentPath = path.parentPath();
+
+    if (hasPath(parentPath)) {
       return;
     }
-    if (!hasPath(path.parentPath())) {
-      put(path.parentPath(), new HashMap<>());
+
+    // TODO(#624): get rid of this recursion.
+    putParentIfMissing(parentPath);
+
+    if (parentPath.isArrayElement()) {
+      putParentArray(path);
+    } else {
+      putAt(parentPath, new HashMap<>());
     }
-    jsonData.put(path.parentPath().toString(), path.keyName(), value);
+  }
+
+  /**
+   * Put parent of path if it doesn't already exist, for parents that are arrays (e.g.
+   * something[n]), and add empty JSON objects until an element at the index specified by the path
+   * is available.
+   */
+  private void putParentArray(Path path) {
+    Path parentPath = path.parentPath();
+    int index = parentPath.arrayIndex();
+
+    // For n=0, put a new array in, and add the 0th element.
+    if (index == 0) {
+      putAt(parentPath.withoutArrayReference(), new ArrayList<>());
+      addAt(parentPath, new HashMap<>());
+
+      // For n>0, only add the nth element if the n-1 element exists.
+    } else if (hasPath(parentPath.atIndex(index - 1))) {
+      addAt(parentPath, new HashMap<>());
+
+      // TODO(#624): remove this recursion.
+    } else {
+      Path fakePathForRecursion = path.parentPath().atIndex(index - 1).join("fake");
+      putParentIfMissing(fakePathForRecursion);
+      addAt(parentPath, new HashMap<>());
+    }
   }
 
   /**
@@ -177,6 +270,25 @@ public class ApplicantData {
   }
 
   /**
+   * Attempts to read the names of the repeated entities at the given {@link Path}.
+   *
+   * @param path the {@link Path} to the repeated entities list.
+   * @return a list of the names of the repeated entities. This is an empty list if there are no
+   *     repeated entities at path.
+   */
+  public ImmutableList<String> readRepeatedEntities(Path path) {
+    int index = 0;
+    ImmutableList.Builder<String> listBuilder = ImmutableList.builder();
+    while (hasPath(path.atIndex(index))) {
+      listBuilder.add(
+          readString(path.atIndex(index).join(RepeaterQuestionDefinition.REPEATED_ENTITY_NAME_KEY))
+              .get());
+      index++;
+    }
+    return listBuilder.build();
+  }
+
+  /**
    * Returns the value at the given path, if it exists; otherwise returns {@link Optional#empty}.
    *
    * @param path the {@link Path} for the desired scalar
@@ -211,6 +323,32 @@ public class ApplicantData {
       return Optional.empty();
     } catch (MappingException e) {
       throw new JsonPathTypeMismatchException(path.path(), type.getClass(), e);
+    }
+  }
+
+  /**
+   * Reads the value at the given path as a string. Returns {@link Optional#empty} if there is no
+   * value at the path. For JSON arrays of strings, this formats the array as a string according to
+   * {@link ImmutableList#toString}.
+   *
+   * @param path the {@link Path} to read
+   * @return optionally returns the value at the path as a string if it exists, or empty if not
+   */
+  public Optional<String> readAsString(Path path) {
+    if (isJsonArray(path)) {
+      return readList(path).map(ImmutableList::toString);
+    }
+
+    return readString(path);
+  }
+
+  /** Returns true if the value at the path is a JSON array of strings, and false otherwise. */
+  private boolean isJsonArray(Path path) {
+    try {
+      this.read(path, IMMUTABLE_LIST_STRING_TYPE);
+      return true;
+    } catch (JsonPathTypeMismatchException e) {
+      return false;
     }
   }
 
@@ -257,7 +395,7 @@ public class ApplicantData {
     ImmutableList.Builder<Path> pathsRemoved = new ImmutableList.Builder<>();
     for (Map.Entry<?, ?> entry : other.entrySet()) {
       String key = entry.getKey().toString();
-      Path path = rootKey.toBuilder().append(key).build();
+      Path path = rootKey.join(key);
       if (hasPath(path)) {
         if (entry.getValue() instanceof Map) {
           // Recurse into maps.

@@ -1,7 +1,9 @@
 #!/bin/bash
+pushd $(git rev-parse --show-toplevel)
 
-# run bin/pull-image
-$( dirname ${BASH_SOURCE[0]})/pull-image
+set -e
+
+bin/pull-image
 
 if [ -f ".secrets" ]; then
     . .secrets
@@ -20,10 +22,12 @@ docker-compose up -d localstack
 
 # wait till localstack running
 # otherwise other services crash
-$( dirname ${BASH_SOURCE[0]})/localstack/wait
+bin/localstack/wait
 
 # ensure local s3 created
-$( dirname ${BASH_SOURCE[0]})/localstack/mk-s3
+bin/localstack/mk-s3
 
 # start everything else
 docker-compose up
+
+popd

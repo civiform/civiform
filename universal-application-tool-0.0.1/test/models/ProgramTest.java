@@ -13,12 +13,12 @@ import services.Path;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
-import services.question.AddressQuestionDefinition;
-import services.question.NameQuestionDefinition;
-import services.question.QuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.QuestionType;
-import services.question.UnsupportedQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.AddressQuestionDefinition;
+import services.question.types.NameQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
 
 public class ProgramTest extends WithPostgresContainer {
 
@@ -37,6 +37,7 @@ public class ProgramTest extends WithPostgresContainer {
             .setId(123L)
             .setVersion(2L)
             .setName("question")
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setPath(Path.create("applicant.name"))
             .setDescription("applicant's name")
             .setQuestionText(ImmutableMap.of(Locale.US, "What is your name?"))
@@ -89,6 +90,7 @@ public class ProgramTest extends WithPostgresContainer {
                 .setId(456L)
                 .setVersion(2L)
                 .setName("address question")
+                .setLifecycleStage(LifecycleStage.ACTIVE)
                 .setPath(Path.create("applicant.address"))
                 .setDescription("applicant's address")
                 .setQuestionText(ImmutableMap.of(Locale.US, "What is your address?"))
@@ -100,6 +102,7 @@ public class ProgramTest extends WithPostgresContainer {
                 .setId(789L)
                 .setVersion(2L)
                 .setName("name question")
+                .setLifecycleStage(LifecycleStage.ACTIVE)
                 .setPath(Path.create("applicant.name"))
                 .setDescription("applicant's name")
                 .setQuestionText(ImmutableMap.of(Locale.US, "What is your name?"))

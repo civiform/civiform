@@ -48,18 +48,18 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-  public Optional<Block> getBlock(long blockId) {
+  public Optional<Block> getBlock(String blockId) {
     return getAllBlocksForThisProgram().stream()
-        .filter((block) -> block.getId() == blockId)
+        .filter((block) -> block.getId().equals(blockId))
         .findFirst();
   }
 
   @Override
-  public Optional<Block> getBlockAfter(long blockId) {
+  public Optional<Block> getBlockAfter(String blockId) {
     ImmutableList<Block> blocks = getCurrentBlockList();
 
     for (int i = 0; i < blocks.size() - 1; i++) {
-      if (blocks.get(i).getId() != blockId) {
+      if (!blocks.get(i).getId().equals(blockId)) {
         continue;
       }
 

@@ -1,56 +1,55 @@
 package forms;
 
 import java.util.OptionalInt;
-import services.question.InvalidQuestionTypeException;
-import services.question.QuestionDefinitionBuilder;
-import services.question.TextQuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
+import services.question.types.TextQuestionDefinition;
 
 public class TextQuestionForm extends QuestionForm {
-  private OptionalInt textMinLength;
-  private OptionalInt textMaxLength;
+  private OptionalInt minLength;
+  private OptionalInt maxLength;
 
   public TextQuestionForm() {
     super();
-    textMinLength = OptionalInt.empty();
-    textMaxLength = OptionalInt.empty();
-    // TODO(https://github.com/seattle-uat/civiform/issues/590): Use QuestionType instead of String
-    //  for this?
-    setQuestionType("TEXT");
+    setQuestionType(QuestionType.TEXT);
+    minLength = OptionalInt.empty();
+    maxLength = OptionalInt.empty();
   }
 
   public TextQuestionForm(TextQuestionDefinition qd) {
     super(qd);
-    textMinLength = qd.getMinLength();
-    textMaxLength = qd.getMaxLength();
+    setQuestionType(QuestionType.TEXT);
+    minLength = qd.getMinLength();
+    maxLength = qd.getMaxLength();
   }
 
-  public OptionalInt getTextMinLength() {
-    return textMinLength;
+  public OptionalInt getMinLength() {
+    return minLength;
   }
 
-  public void setTextMinLength(int textMinLength) {
-    this.textMinLength = OptionalInt.of(textMinLength);
+  public void setMinLength(int minLength) {
+    this.minLength = OptionalInt.of(minLength);
   }
 
-  public OptionalInt getTextMaxLength() {
-    return textMaxLength;
+  public OptionalInt getMaxLength() {
+    return maxLength;
   }
 
-  public void setTextMaxLength(int textMaxLength) {
-    this.textMaxLength = OptionalInt.of(textMaxLength);
+  public void setMaxLength(int maxLength) {
+    this.maxLength = OptionalInt.of(maxLength);
   }
 
   @Override
-  public QuestionDefinitionBuilder getBuilder() throws InvalidQuestionTypeException {
+  public QuestionDefinitionBuilder getBuilder() {
     TextQuestionDefinition.TextValidationPredicates.Builder textValidationPredicatesBuilder =
         TextQuestionDefinition.TextValidationPredicates.builder();
 
-    if (getTextMinLength().isPresent()) {
-      textValidationPredicatesBuilder.setMinLength(getTextMinLength().getAsInt());
+    if (getMinLength().isPresent()) {
+      textValidationPredicatesBuilder.setMinLength(getMinLength().getAsInt());
     }
 
-    if (getTextMaxLength().isPresent()) {
-      textValidationPredicatesBuilder.setMaxLength(getTextMaxLength().getAsInt());
+    if (getMaxLength().isPresent()) {
+      textValidationPredicatesBuilder.setMaxLength(getMaxLength().getAsInt());
     }
 
     return super.getBuilder().setValidationPredicates(textValidationPredicatesBuilder.build());

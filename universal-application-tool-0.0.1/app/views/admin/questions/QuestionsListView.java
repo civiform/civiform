@@ -12,15 +12,17 @@ import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
+import models.LifecycleStage;
 import play.twirl.api.Content;
-import services.question.QuestionDefinition;
-import services.question.QuestionType;
-import services.question.TranslationNotFoundException;
+import services.question.exceptions.TranslationNotFoundException;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.Icons;
@@ -42,7 +44,9 @@ public final class QuestionsListView extends BaseHtmlView {
     return layout.render(
         div(maybeFlash.orElse("")),
         renderHeader("All Questions"),
-        div(renderQuestionTable(questions)).withClasses(Styles.M_4),
+        div(renderQuestionTable(
+                questions.stream().collect(new GroupByKeyCollector<>(QuestionDefinition::getName))))
+            .withClasses(Styles.M_4),
         renderAddQuestionLink(),
         renderSummary(questions));
   }
@@ -99,11 +103,16 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   /** Renders the full table. */
-  private Tag renderQuestionTable(ImmutableList<QuestionDefinition> questions) {
+  private Tag renderQuestionTable(
+      ImmutableMap<String, ImmutableList<QuestionDefinition>> questions) {
     return table()
         .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
         .with(renderQuestionTableHeaderRow())
-        .with(tbody(each(questions, question -> renderQuestionTableRow(question))));
+        .with(
+            tbody(
+                each(
+                    questions,
+                    (questionName, questionList) -> renderQuestionTableRow(questionList))));
   }
 
   /** Render the question table header row. */
@@ -122,12 +131,38 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   /** Display this as a table row with all fields. */
-  private Tag renderQuestionTableRow(QuestionDefinition definition) {
+  private Tag renderQuestionTableRow(ImmutableList<QuestionDefinition> questionVersions) {
+    ImmutableMap<String, ImmutableList<QuestionDefinition>> questionsByLifecycle =
+        questionVersions.stream()
+            .collect(
+                new GroupByKeyCollector<QuestionDefinition>(
+                    questionDefinition -> questionDefinition.getLifecycleStage().getValue()));
+    Optional<QuestionDefinition> activeDefinition =
+        questionsByLifecycle
+            .getOrDefault(LifecycleStage.ACTIVE.getValue(), ImmutableList.of())
+            .stream()
+            .findAny();
+    Optional<QuestionDefinition> draftDefinition =
+        questionsByLifecycle
+            .getOrDefault(LifecycleStage.DRAFT.getValue(), ImmutableList.of())
+            .stream()
+            .findAny();
+    QuestionDefinition definition;
+    // Find the main definition to display information from.  Prefer the latest draft.  If there
+    // is no draft, choose an active one if exists.  If there are neither, choose any.  There will
+    // be at least one or we wouldn't have gotten here!
+    if (draftDefinition.isPresent()) {
+      definition = draftDefinition.get();
+    } else if (activeDefinition.isPresent()) {
+      definition = activeDefinition.get();
+    } else {
+      definition = questionVersions.stream().findAny().get();
+    }
     return tr().withClasses(
             Styles.BORDER_B, Styles.BORDER_GRAY_300, StyleUtils.even(Styles.BG_GRAY_100))
         .with(renderInfoCell(definition))
         .with(renderQuestionTextCell(definition))
-        .with(renderActionsCell(definition));
+        .with(renderActionsCell(activeDefinition, draftDefinition, definition));
   }
 
   private Tag renderInfoCell(QuestionDefinition definition) {
@@ -155,16 +190,42 @@ public final class QuestionsListView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
-  private Tag renderActionsCell(QuestionDefinition definition) {
-    String linkText = "Edit →";
+  private Tag renderQuestionEditLink(QuestionDefinition definition, String linkText) {
     String link = controllers.admin.routes.QuestionController.edit(definition.getId()).url();
-    return td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT)
-        .with(
-            new LinkElement()
-                .setId("edit-question-link-" + definition.getId())
-                .setHref(link)
-                .setText(linkText)
-                .setStyles(Styles.MR_2)
-                .asAnchorText());
+    return new LinkElement()
+        .setId("edit-question-link-" + definition.getId())
+        .setHref(link)
+        .setText(linkText)
+        .setStyles(Styles.MR_2)
+        .asAnchorText();
+  }
+
+  private Tag renderQuestionViewLink(QuestionDefinition definition, String linkText) {
+    String link = controllers.admin.routes.QuestionController.show(definition.getId()).url();
+    return new LinkElement()
+        .setId("view-question-link-" + definition.getId())
+        .setHref(link)
+        .setText(linkText)
+        .setStyles(Styles.MR_2)
+        .asAnchorText();
+  }
+
+  private Tag renderActionsCell(
+      Optional<QuestionDefinition> active,
+      Optional<QuestionDefinition> draft,
+      QuestionDefinition definition) {
+    ContainerTag td = td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT);
+    if (active.isPresent() && draft.isEmpty()) {
+      td.with(renderQuestionViewLink(active.get(), "View →"));
+      td.with(renderQuestionEditLink(active.get(), "New Version →"));
+    } else if (active.isEmpty() && draft.isPresent()) {
+      td.with(renderQuestionEditLink(draft.get(), "Edit Draft →"));
+    } else if (active.isPresent() && draft.isPresent()) {
+      td.with(renderQuestionViewLink(active.get(), "View Published →"));
+      td.with(renderQuestionEditLink(draft.get(), "Edit Draft →"));
+    } else if (active.isEmpty() && draft.isEmpty()) {
+      td.with(renderQuestionViewLink(definition, "View →"));
+    }
+    return td;
   }
 }

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-
-# find absolute path to local browser-test directory
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd .. && pwd )"
+pushd $(git rev-parse --show-toplevel)/browser-test
 
 # find relative path to typescript files
-FILES="$(cd $DIR; find src -name '*.ts' | xargs)"
+FILES="$(find src -name '*.ts' | xargs)"
 
 # build command to run within docker container
 CMD="cd code; tsfmt -r $FILES"
 
-docker run --rm -it -v "${DIR}/:/code" public.ecr.aws/t1q6b4h2/civiform-formatter:latest sh -c "$CMD"
+docker run --rm -it -v "$(pwd):/code" public.ecr.aws/t1q6b4h2/civiform-formatter:latest sh -c "$CMD"
+
+popd

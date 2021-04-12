@@ -4,14 +4,17 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import controllers.CiviFormController;
+import forms.CheckboxQuestionForm;
+import forms.DropdownQuestionForm;
 import forms.QuestionForm;
+import forms.RadioButtonQuestionForm;
+import forms.TextQuestionForm;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.data.Form;
 import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
@@ -19,18 +22,19 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.question.InvalidQuestionTypeException;
-import services.question.InvalidUpdateException;
-import services.question.QuestionDefinition;
-import services.question.QuestionNotFoundException;
 import services.question.QuestionService;
-import services.question.QuestionType;
-import services.question.UnsupportedQuestionTypeException;
+import services.question.exceptions.InvalidQuestionTypeException;
+import services.question.exceptions.InvalidUpdateException;
+import services.question.exceptions.QuestionNotFoundException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
 
 public class QuestionController extends CiviFormController {
-  final Logger LOG = LoggerFactory.getLogger(this.getClass());
+  private static final long NEW_VERSION = 1L;
+  private static final long VERSION_PLACEHOLDER = 1L;
 
   private final QuestionService service;
   private final QuestionsListView listView;
@@ -53,48 +57,24 @@ public class QuestionController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public CompletionStage<Result> create(Request request) {
-    Form<QuestionForm> form = formFactory.form(QuestionForm.class);
-    QuestionForm questionForm = form.bindFromRequest(request).get();
+  public CompletionStage<Result> index(Request request) {
+    Optional<String> maybeFlash = request.flash().get("message");
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
-            readOnlyService -> {
-              try {
-                try {
-                  QuestionDefinition questionDefinition =
-                      questionForm.getBuilder().setVersion(1L).build();
-                  ErrorAnd<QuestionDefinition, CiviFormError> result =
-                      service.create(questionDefinition);
-                  if (result.isError()) {
-                    String errorMessage = joinErrors(result.getErrors());
-                    return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
-                  }
-                } catch (UnsupportedQuestionTypeException e) {
-                  // These are valid question types, but are not fully supported yet.
-                  String errorMessage = e.toString();
-                  return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
-                }
-              } catch (InvalidQuestionTypeException e) {
-                // These are unrecognized invalid question types.
-                return badRequest(e.toString());
-              }
-              String successMessage =
-                  String.format("question %s created", questionForm.getQuestionPath().path());
-              return withMessage(redirect(routes.QuestionController.index()), successMessage);
-            },
+            readOnlyService -> ok(listView.render(readOnlyService.getAllQuestions(), maybeFlash)),
             httpExecutionContext.current());
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public CompletionStage<Result> edit(Request request, Long id) {
+  public CompletionStage<Result> show(Request request, Long id) {
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
               try {
-                QuestionDefinition questionDefinition = readOnlyService.getQuestionDefinition(id);
-                return ok(editView.renderEditQuestionForm(request, questionDefinition));
+                QuestionDefinition definition = readOnlyService.getQuestionDefinition(id);
+                return ok(editView.renderViewQuestionForm(request, definition));
               } catch (QuestionNotFoundException e) {
                 return badRequest(e.toString());
               }
@@ -117,42 +97,95 @@ public class QuestionController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public CompletionStage<Result> index(Request request) {
-    Optional<String> maybeFlash = request.flash().get("message");
+  public Result create(Request request, String questionType) {
+    QuestionForm questionForm;
+    try {
+      questionForm = createQuestionForm(request, questionType);
+    } catch (InvalidQuestionTypeException e) {
+      // Invalid question type.
+      return badRequest(e.toString());
+    }
+
+    QuestionDefinition questionDefinition;
+    try {
+      questionDefinition =
+          questionForm
+              .getBuilder()
+              .setVersion(NEW_VERSION)
+              .setLifecycleStage(LifecycleStage.DRAFT)
+              .build();
+    } catch (UnsupportedQuestionTypeException e) {
+      // Valid question type that is not yet fully supported.
+      return badRequest(e.toString());
+    }
+
+    ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(questionDefinition);
+    if (result.isError()) {
+      String errorMessage = joinErrors(result.getErrors());
+      return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
+    }
+
+    String successMessage =
+        String.format("question %s created", questionForm.getQuestionPath().path());
+    return withMessage(redirect(routes.QuestionController.index()), successMessage);
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public CompletionStage<Result> edit(Request request, Long id) {
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
-              return ok(listView.render(readOnlyService.getAllQuestions(), maybeFlash));
+              try {
+                QuestionDefinition questionDefinition = readOnlyService.getQuestionDefinition(id);
+                return ok(editView.renderEditQuestionForm(request, questionDefinition));
+              } catch (QuestionNotFoundException e) {
+                return badRequest(e.toString());
+              }
             },
             httpExecutionContext.current());
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public Result update(Request request, Long id) {
-    Form<QuestionForm> form = formFactory.form(QuestionForm.class);
-    QuestionForm questionForm = form.bindFromRequest(request).get();
+  public Result update(Request request, Long id, String questionType) {
+    QuestionForm questionForm;
     try {
-      try {
-        QuestionDefinition questionDefinition =
-            questionForm.getBuilder().setId(id).setVersion(1L).build();
-        ErrorAnd<QuestionDefinition, CiviFormError> result = service.update(questionDefinition);
-        if (result.isError()) {
-          String errorMessage = joinErrors(result.getErrors());
-          return ok(editView.renderEditQuestionForm(request, id, questionForm, errorMessage));
-        }
-      } catch (UnsupportedQuestionTypeException e) {
-        // These are valid question types, but are not fully supported yet.
-        String errorMessage = e.toString();
-        return ok(editView.renderEditQuestionForm(request, id, questionForm, errorMessage));
-      } catch (InvalidUpdateException e) {
-        // Ill-formed update request
-        return badRequest(e.toString());
-      }
+      questionForm = createQuestionForm(request, questionType);
     } catch (InvalidQuestionTypeException e) {
-      // These are unrecognized invalid question types.
+      // Invalid question type.
       return badRequest(e.toString());
     }
+
+    QuestionDefinition questionDefinition;
+    try {
+      questionDefinition =
+          questionForm
+              .getBuilder()
+              .setId(id)
+              // Version is needed for building a question definition.
+              // This value is overwritten when updating the question.
+              .setVersion(VERSION_PLACEHOLDER)
+              .setLifecycleStage(LifecycleStage.DRAFT)
+              .build();
+    } catch (UnsupportedQuestionTypeException e) {
+      // Valid question type that is not yet fully supported.
+      String errorMessage = e.toString();
+      return ok(editView.renderEditQuestionForm(request, id, questionForm, errorMessage));
+    }
+
+    ErrorAnd<QuestionDefinition, CiviFormError> errorAndUpdatedQuestionDefinition;
+    try {
+      errorAndUpdatedQuestionDefinition = service.update(questionDefinition);
+    } catch (InvalidUpdateException e) {
+      // Ill-formed update request.
+      return badRequest(e.toString());
+    }
+
+    if (errorAndUpdatedQuestionDefinition.isError()) {
+      String errorMessage = joinErrors(errorAndUpdatedQuestionDefinition.getErrors());
+      return ok(editView.renderEditQuestionForm(request, id, questionForm, errorMessage));
+    }
+
     String successMessage =
         String.format("question %s updated", questionForm.getQuestionPath().path());
     return withMessage(redirect(routes.QuestionController.index()), successMessage);
@@ -163,5 +196,51 @@ public class QuestionController extends CiviFormController {
       return result.flashing("message", message);
     }
     return result;
+  }
+
+  private QuestionForm createQuestionForm(Request request, String type)
+      throws InvalidQuestionTypeException {
+    QuestionType questionType;
+    try {
+      questionType = QuestionType.of(type);
+    } catch (InvalidQuestionTypeException e) {
+      throw new InvalidQuestionTypeException(
+          String.format(
+              "unrecognized question type: '%s', accepted values include: %s",
+              type.toUpperCase(), Arrays.toString(QuestionType.values())));
+    }
+
+    switch (questionType) {
+      case CHECKBOX:
+        {
+          Form<CheckboxQuestionForm> form = formFactory.form(CheckboxQuestionForm.class);
+          return form.bindFromRequest(request).get();
+        }
+      case DROPDOWN:
+        {
+          Form<DropdownQuestionForm> form = formFactory.form(DropdownQuestionForm.class);
+          return form.bindFromRequest(request).get();
+        }
+      case RADIO_BUTTON:
+        {
+          Form<RadioButtonQuestionForm> form = formFactory.form(RadioButtonQuestionForm.class);
+          return form.bindFromRequest(request).get();
+        }
+      case TEXT:
+        {
+          Form<TextQuestionForm> form = formFactory.form(TextQuestionForm.class);
+          // Note: We add discardingErrors() to get rid of unhelpful errors that are thrown on empty
+          // number inputs. If we find there is a better solution out there, we should update to use
+          // that. But since we don't rely on the spring form data binder system for validation, we
+          // can "safely" ignore these errors.
+          return form.bindFromRequest(request).discardingErrors().get();
+        }
+      default:
+        {
+          // TODO(#589): Once QuestionForm is abstract, the default case should throw.
+          Form<QuestionForm> form = formFactory.form(QuestionForm.class);
+          return form.bindFromRequest(request).get();
+        }
+    }
   }
 }

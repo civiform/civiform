@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 if [ -z "$GITHUB_EVENT_PATH" ]; then
 	PR_NUMBER=localrun-$USER
 else
@@ -10,29 +11,43 @@ set -e
 
 TIMESTAMP=$(date +%s)
 REGION=us-west-2
+STACK=civiform-staging
+if [ ! -z "$1" ]; then
+	STACK="$1"
+fi
+
+if [ "$STACK" == civiform ] ; then
+	ENVIRONMENT=prod
+else
+	ENVIRONMENT=staging
+fi
 
 echo "checking if a changeset exists already..."
-if aws cloudformation describe-change-set --region ${REGION}  --change-set-name auto-changeset-pr-$PR_NUMBER  --stack-name civiform > /dev/null; then
+if aws cloudformation describe-change-set --region ${REGION}  --change-set-name auto-changeset-pr-$PR_NUMBER  --stack-name "$STACK" > /dev/null; then
 	echo "deleting..."
-	aws cloudformation delete-change-set --region ${REGION}  --change-set-name auto-changeset-pr-$PR_NUMBER  --stack-name civiform
+	aws cloudformation delete-change-set --region ${REGION}  --change-set-name auto-changeset-pr-$PR_NUMBER  --stack-name "$STACK"
 	sleep 5
 fi
 
+while aws cloudformation describe-change-set --region ${REGION}  --change-set-name auto-changeset-pr-$PR_NUMBER  --stack-name "$STACK" > /dev/null; do
+	sleep 5
+done
+
 aws s3 sync ./infra s3://seattle-civiform-cftmpl/${TIMESTAMP}
 
-aws cloudformation create-change-set --region ${REGION} --include-nested-stacks --stack-name civiform --change-set-name auto-changeset-pr-$PR_NUMBER --template-url  https://seattle-civiform-cftmpl.s3-${REGION}.amazonaws.com/$TIMESTAMP/stack.yaml --parameters "[{\"ParameterKey\": \"Timestamp\", \"ParameterValue\": \"$TIMESTAMP\"}]"
+aws cloudformation create-change-set --region ${REGION} --include-nested-stacks --stack-name "$STACK" --change-set-name auto-changeset-pr-$PR_NUMBER --template-url  https://seattle-civiform-cftmpl.s3-${REGION}.amazonaws.com/$TIMESTAMP/stack.yaml --parameters "[{\"ParameterKey\": \"Timestamp\", \"ParameterValue\": \"$TIMESTAMP\"}, {\"ParameterKey\": \"Environment\", \"ParameterValue\": \"$ENVIRONMENT\"}]"
 
 sleep 5
 
-rootcs=$(aws cloudformation describe-change-set --region ${REGION} --change-set-name auto-changeset-pr-$PR_NUMBER --stack-name civiform)
+rootcs=$(aws cloudformation describe-change-set --region ${REGION} --change-set-name auto-changeset-pr-$PR_NUMBER --stack-name "$STACK")
 while [ "$(echo "$rootcs" | jq -r '.Status')" == "CREATE_IN_PROGRESS" ]; do
 	echo "Still creating, waiting..."
 	sleep 10
-	rootcs=$(aws cloudformation describe-change-set --region ${REGION} --change-set-name auto-changeset-pr-$PR_NUMBER --stack-name civiform)
+	rootcs=$(aws cloudformation describe-change-set --region ${REGION} --change-set-name auto-changeset-pr-$PR_NUMBER --stack-name "$STACK")
 done
 
 
-rootcs=$(aws cloudformation describe-change-set --region ${REGION} --change-set-name auto-changeset-pr-$PR_NUMBER --stack-name civiform)
+rootcs=$(aws cloudformation describe-change-set --region ${REGION} --change-set-name auto-changeset-pr-$PR_NUMBER --stack-name "$STACK")
 
 if [ "$(echo "$rootcs" | jq -r '.Status')" != "CREATE_COMPLETE" ]; then
 	echo "::set-output name=failure_msg::$(echo "$rootcs" | jq -r '.StatusReason')"

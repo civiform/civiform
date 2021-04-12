@@ -4,18 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import models.LifecycleStage;
 import models.Program;
 import org.junit.Test;
-import repository.WithPostgresContainer;
 import services.Path;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
-import services.question.NameQuestionDefinition;
-import services.question.QuestionDefinition;
-import services.question.QuestionDefinitionBuilder;
-import services.question.QuestionType;
+import services.question.types.NameQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
 
-public class ProgramBuilderTest extends WithPostgresContainer {
+public class ProgramBuilderTest {
   @Test
   public void fluentlyCreateProgramWithBlocks() {
     ProgramDefinition programDefinition =
@@ -70,6 +70,7 @@ public class ProgramBuilderTest extends WithPostgresContainer {
             .setQuestionType(QuestionType.NAME)
             .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
             .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
+            .setLifecycleStage(LifecycleStage.DRAFT)
             .build();
     ProgramDefinition programDefinition =
         ProgramBuilder.newProgram("name", "description")
@@ -94,5 +95,6 @@ public class ProgramBuilderTest extends WithPostgresContainer {
     assertThat(program.id).isGreaterThan(0);
     assertThat(program.getProgramDefinition().name()).isEqualTo("");
     assertThat(program.getProgramDefinition().description()).isEqualTo("");
+    assertThat(program.getProgramDefinition().getBlockCount()).isEqualTo(1);
   }
 }

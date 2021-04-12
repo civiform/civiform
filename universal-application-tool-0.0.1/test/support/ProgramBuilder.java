@@ -1,19 +1,25 @@
 package support;
 
 import com.google.common.collect.ImmutableList;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import javax.persistence.PersistenceException;
 import models.LifecycleStage;
 import models.Program;
 import models.Question;
 import services.program.BlockDefinition;
+import services.program.ExportDefinition;
 import services.program.Predicate;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
-import services.question.QuestionDefinition;
+import services.question.types.QuestionDefinition;
 
 public class ProgramBuilder {
 
+  private static AtomicLong nextId = new AtomicLong(1);
+
   ProgramDefinition.Builder builder;
-  int numBlocks = 0;
+  AtomicInteger numBlocks = new AtomicInteger(0);
 
   private ProgramBuilder(ProgramDefinition.Builder builder) {
     this.builder = builder;
@@ -23,7 +29,7 @@ public class ProgramBuilder {
    * Creates {@link ProgramBuilder} with a new {@link Program} with an empty name and description.
    */
   public static ProgramBuilder newProgram() {
-    return newProgram("");
+    return newProgram("", "");
   }
 
   /** Creates a {@link ProgramBuilder} with a new {@link Program} with an empty description. */
@@ -34,9 +40,30 @@ public class ProgramBuilder {
   /** Creates a {@link ProgramBuilder} with a new {@link Program}. */
   public static ProgramBuilder newProgram(String name, String description) {
     Program program = new Program(name, description);
-    program.save();
-    return new ProgramBuilder(
-        program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of()));
+    maybeSave(program);
+    ProgramDefinition.Builder builder =
+        program.getProgramDefinition().toBuilder()
+            .setBlockDefinitions(ImmutableList.of())
+            .setLifecycleStage(LifecycleStage.ACTIVE)
+            .setExportDefinitions(ImmutableList.of());
+    return new ProgramBuilder(builder);
+  }
+
+  private static void maybeSave(Program program) {
+    try {
+      program.save();
+    } catch (ExceptionInInitializerError | NoClassDefFoundError | PersistenceException ignore) {
+      program.id = nextId.getAndIncrement();
+      program.loadProgramDefinition();
+    }
+  }
+
+  private static void maybeUpdate(Program program) {
+    try {
+      program.update();
+    } catch (NoClassDefFoundError | PersistenceException ignore) {
+      // This is ok not to update if there is no database available.
+    }
   }
 
   public ProgramBuilder withName(String name) {
@@ -54,24 +81,29 @@ public class ProgramBuilder {
     return this;
   }
 
+  public ProgramBuilder withExportDefinition(ExportDefinition exportDefinition) {
+    builder.addExportDefinition(exportDefinition);
+    return this;
+  }
+
   /**
    * Creates a {@link BlockBuilder} with this {@link ProgramBuilder} with empty name and
    * description.
    */
   public BlockBuilder withBlock() {
-    long blockId = Long.valueOf(++numBlocks);
+    long blockId = Long.valueOf(numBlocks.incrementAndGet());
     return BlockBuilder.newBlock(this, blockId);
   }
 
   /** Creates a {@link BlockBuilder} with this {@link ProgramBuilder} with empty description. */
   public BlockBuilder withBlock(String name) {
-    long blockId = Long.valueOf(++numBlocks);
+    long blockId = Long.valueOf(numBlocks.incrementAndGet());
     return BlockBuilder.newBlock(this, blockId, name);
   }
 
   /** Creates a {@link BlockBuilder} with this {@link ProgramBuilder}. */
   public BlockBuilder withBlock(String name, String description) {
-    long blockId = Long.valueOf(++numBlocks);
+    long blockId = Long.valueOf(numBlocks.incrementAndGet());
     return BlockBuilder.newBlock(this, blockId, name, description);
   }
 
@@ -89,7 +121,7 @@ public class ProgramBuilder {
     }
 
     Program program = programDefinition.toProgram();
-    program.update();
+    maybeUpdate(program);
     return program;
   }
 

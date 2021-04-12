@@ -18,6 +18,7 @@ jobs:
           java-version: '11.0.10'
       - uses: axel-op/googlejavaformat-action@master
         with:
+          version: 1.9
           skipCommit: true
       - name: show diff
         run: git add .; git diff --exit-code HEAD

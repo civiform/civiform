@@ -16,11 +16,6 @@ public class PathTest {
   }
 
   @Test
-  public void createPathFromString_returnsEmptyPathIfStringIsEmpty() {
-    assertThat(Path.create("")).isEqualTo(Path.empty());
-  }
-
-  @Test
   public void segments_emptyPath() {
     assertThat(Path.empty().segments()).isEmpty();
   }
@@ -34,6 +29,26 @@ public class PathTest {
   public void segments() {
     Path path = Path.create("my.super.long.path");
     assertThat(path.segments()).containsExactly("my", "super", "long", "path");
+  }
+
+  @Test
+  public void createPathFromString_returnsEmptyPathIfStringIsEmpty() {
+    assertThat(Path.create("")).isEqualTo(Path.empty());
+  }
+
+  @Test
+  public void create_emptyPath_isEmpty() {
+    assertThat(Path.empty().isEmpty()).isTrue();
+  }
+
+  @Test
+  public void test_toString() {
+    assertThat(Path.create("a.b.c[3].d").toString()).isEqualTo("a.b.c[3].d");
+  }
+
+  @Test
+  public void toString_empty_hasSuffix() {
+    assertThat(Path.empty().toString()).isEqualTo("$");
   }
 
   @Test
@@ -67,23 +82,77 @@ public class PathTest {
   }
 
   @Test
+  public void keyName_arrayElement() {
+    Path path = Path.create("applicant.children[3]");
+    assertThat(path.keyName()).isEqualTo("children[3]");
+  }
+
+  @Test
   public void keyName() {
     Path path = Path.create("one.two.name");
     assertThat(path.keyName()).isEqualTo("name");
   }
 
   @Test
-  public void pathBuilder() {
-    Path path = Path.builder().setPath("applicant.my.path").build();
+  public void isArrayElement() {
+    assertThat(Path.create("one.two[3]").isArrayElement()).isTrue();
+  }
+
+  @Test
+  public void isArrayElement_notArrayElement() {
+    assertThat(Path.create("one.two").isArrayElement()).isFalse();
+  }
+
+  @Test
+  public void withoutArrayReference() {
+    Path path = Path.create("one.two[3]");
+    assertThat(path.withoutArrayReference()).isEqualTo(Path.create("one.two"));
+  }
+
+  @Test
+  public void withoutArrayReference_forNonIndexedArrayPath() {
+    Path path = Path.create("one.two[]");
+    assertThat(path.withoutArrayReference()).isEqualTo(Path.create("one.two"));
+  }
+
+  @Test
+  public void arrayIndex() {
+    Path path = Path.create("one.two[33]");
+    assertThat(path.arrayIndex()).isEqualTo(33);
+  }
+
+  @Test
+  public void atIndex() {
+    Path path = Path.create("one.two[33]");
+
+    Path expected = Path.create("one.two[55]");
+    assertThat(path.atIndex(55)).isEqualTo(expected);
+  }
+
+  @Test
+  public void atIndex_forNonIndexedArrayPath() {
+    Path path = Path.create("one.two[]");
+
+    Path expected = Path.create("one.two[55]");
+    assertThat(path.atIndex(55)).isEqualTo(expected);
+  }
+
+  @Test
+  public void pathJoin() {
+    Path path = Path.create("applicant.my.path");
     assertThat(path.path()).isEqualTo("applicant.my.path");
 
-    path = path.toBuilder().append("another").build();
+    path = path.join("another");
     assertThat(path.path()).isEqualTo("applicant.my.path.another");
+  }
 
-    path = path.toBuilder().append("part").build();
-    assertThat(path.path()).isEqualTo("applicant.my.path.another.part");
+  @Test
+  public void pathJoin_withMultipleSegments_parentPathWorks() {
+    Path path = Path.create("one");
+    Path path2 = path.join("two.three.four");
+    Path actual = path2.parentPath();
 
-    path = path.toBuilder().setPath("something.new").build();
-    assertThat(path.path()).isEqualTo("something.new");
+    Path expected = Path.create("one.two.three");
+    assertThat(actual).isEqualTo(expected);
   }
 }
