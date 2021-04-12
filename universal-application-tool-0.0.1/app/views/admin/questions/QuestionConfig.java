@@ -78,17 +78,17 @@ public class QuestionConfig {
             .addAddressQuestionConfig((AddressQuestionForm) questionForm)
             .getContainer();
       case CHECKBOX:
-        // TODO(https://github.com/seattle-uat/civiform/issues/416): Add validation options for
-        //  multi-select questions.
+        MultiOptionQuestionForm form = (MultiOptionQuestionForm) questionForm;
         return config
             .setId("multi-select-question-config")
-            .addMultiOptionQuestionConfig((MultiOptionQuestionForm) questionForm)
+            .addMultiOptionQuestionFields(form)
+            .addMultiSelectQuestionValidation(form)
             .getContainer();
       case DROPDOWN:
       case RADIO_BUTTON:
         return config
             .setId("single-select-question-config")
-            .addMultiOptionQuestionConfig((MultiOptionQuestionForm) questionForm)
+            .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm)
             .getContainer();
       case NUMBER:
         return config.setId("number-question-config").addNumberQuestionConfig().getContainer();
@@ -139,6 +139,10 @@ public class QuestionConfig {
     return this;
   }
 
+  /**
+   * Creates an individual text field where an admin can enter a single multi-option question
+   * answer, along with a button to remove the option.
+   */
   public static ContainerTag multiOptionQuestionField(Optional<String> existingOption) {
     ContainerTag optionInput =
         FieldWithLabel.input()
@@ -155,7 +159,7 @@ public class QuestionConfig {
         .with(optionInput, removeOptionButton);
   }
 
-  private QuestionConfig addMultiOptionQuestionConfig(
+  private QuestionConfig addMultiOptionQuestionFields(
       MultiOptionQuestionForm multiOptionQuestionForm) {
     ImmutableList<ContainerTag> existingOptions =
         multiOptionQuestionForm.getOptions().stream()
@@ -169,6 +173,27 @@ public class QuestionConfig {
                 .withType("button")
                 .withId("add-new-option")
                 .withClasses(Styles.M_2));
+    return this;
+  }
+
+  /**
+   * Creates two number input fields, where an admin can specify the min and max number of choices
+   * allowed for multi-select questions.
+   */
+  private QuestionConfig addMultiSelectQuestionValidation(MultiOptionQuestionForm multiOptionForm) {
+    content.with(
+        FieldWithLabel.number()
+            .setId("multi-select-min-choices-input")
+            .setFieldName("minChoicesRequired")
+            .setLabelText("Minimum number of choices required")
+            .setValue(multiOptionForm.getMinChoicesRequired())
+            .getContainer(),
+        FieldWithLabel.number()
+            .setId("multi-select-max-choices-input")
+            .setFieldName("maxChoicesAllowed")
+            .setLabelText("Maximum number of choices allowed")
+            .setValue(multiOptionForm.getMaxChoicesAllowed())
+            .getContainer());
     return this;
   }
 

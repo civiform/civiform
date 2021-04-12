@@ -2,35 +2,37 @@ package forms;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
+import services.question.types.CheckboxQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
-import services.question.types.TextQuestionDefinition;
 
-public class TextQuestionFormTest {
+public class MultiOptionQuestionFormTest {
 
   @Test
   public void getBuilder_returnsCompleteBuilder() throws Exception {
-    TextQuestionForm form = new TextQuestionForm();
+    MultiOptionQuestionForm form = new CheckboxQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionParentPath("my.question.path");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
-    form.setMinLength("4");
-    form.setMaxLength("6");
+    form.setMinChoicesRequired("1");
+    form.setMaxChoicesAllowed("10");
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     builder.setVersion(1L);
     builder.setLifecycleStage(LifecycleStage.ACTIVE);
 
-    TextQuestionDefinition expected =
-        new TextQuestionDefinition(
+    CheckboxQuestionDefinition expected =
+        new CheckboxQuestionDefinition(
             1L,
             "name",
             Path.create("my.question.path.name"),
@@ -39,7 +41,8 @@ public class TextQuestionFormTest {
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
-            TextQuestionDefinition.TextValidationPredicates.create(4, 6));
+            ImmutableListMultimap.of(Locale.US, "option one"),
+            MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(1, 10));
 
     QuestionDefinition actual = builder.build();
 
@@ -48,8 +51,8 @@ public class TextQuestionFormTest {
 
   @Test
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
-    TextQuestionDefinition originalQd =
-        new TextQuestionDefinition(
+    CheckboxQuestionDefinition originalQd =
+        new CheckboxQuestionDefinition(
             1L,
             "name",
             Path.create("my.question.path.name"),
@@ -58,9 +61,10 @@ public class TextQuestionFormTest {
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
-            TextQuestionDefinition.TextValidationPredicates.create(4, 6));
+            ImmutableListMultimap.of(Locale.US, "option 1"),
+            MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(1, 10));
 
-    TextQuestionForm form = new TextQuestionForm(originalQd);
+    MultiOptionQuestionForm form = new CheckboxQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     builder.setVersion(1L);
@@ -73,21 +77,21 @@ public class TextQuestionFormTest {
 
   @Test
   public void getBuilder_emptyStringMinMax_noPredicateSet() throws Exception {
-    TextQuestionForm form = new TextQuestionForm();
+    MultiOptionQuestionForm form = new CheckboxQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionParentPath("my.question.path");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
-    form.setMinLength("");
-    form.setMaxLength("");
+    form.setMinChoicesRequired("");
+    form.setMaxChoicesAllowed("");
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     builder.setVersion(1L);
     builder.setLifecycleStage(LifecycleStage.ACTIVE);
 
-    TextQuestionDefinition expected =
-        new TextQuestionDefinition(
+    CheckboxQuestionDefinition expected =
+        new CheckboxQuestionDefinition(
             1L,
             "name",
             Path.create("my.question.path.name"),
@@ -96,7 +100,8 @@ public class TextQuestionFormTest {
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
-            TextQuestionDefinition.TextValidationPredicates.create());
+            ImmutableListMultimap.of(Locale.US, "option one"),
+            MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create());
 
     QuestionDefinition actual = builder.build();
 

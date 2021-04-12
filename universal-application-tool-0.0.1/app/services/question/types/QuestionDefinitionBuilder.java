@@ -9,6 +9,7 @@ import models.LifecycleStage;
 import services.Path;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
 import services.question.types.NameQuestionDefinition.NameValidationPredicates;
 import services.question.types.QuestionDefinition.ValidationPredicates;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
@@ -176,6 +177,12 @@ public class QuestionDefinitionBuilder {
             questionHelpText,
             addressValidationPredicates);
       case CHECKBOX:
+        MultiOptionValidationPredicates multiOptionValidationPredicates =
+            MultiOptionValidationPredicates.create();
+        if (!validationPredicatesString.isEmpty()) {
+          multiOptionValidationPredicates =
+              MultiOptionValidationPredicates.parse(validationPredicatesString);
+        }
         return new CheckboxQuestionDefinition(
             id,
             version,
@@ -186,7 +193,8 @@ public class QuestionDefinitionBuilder {
             lifecycleStage,
             questionText,
             questionHelpText,
-            questionOptions);
+            questionOptions,
+            multiOptionValidationPredicates);
       case DROPDOWN:
         return new DropdownQuestionDefinition(
             id,

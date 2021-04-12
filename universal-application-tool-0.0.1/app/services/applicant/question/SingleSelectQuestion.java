@@ -26,14 +26,15 @@ public class SingleSelectQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    // TODO(https://github.com/seattle-uat/civiform/issues/416): Implement validation
+    // Only one selection is possible - there is no admin-configured validation.
     return ImmutableSet.of();
   }
 
   @Override
   public boolean hasTypeSpecificErrors() {
-    // There are no inherent requirements in a multi-option question.
-    return false;
+    // Return true if the selection option is not a valid option.
+    return getSelectedOptionValue().isPresent()
+        && !getOptions().contains(getSelectedOptionValue().get());
   }
 
   public boolean hasValue() {

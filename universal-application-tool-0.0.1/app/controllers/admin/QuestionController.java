@@ -235,11 +235,7 @@ public class QuestionController extends CiviFormController {
       case TEXT:
         {
           Form<TextQuestionForm> form = formFactory.form(TextQuestionForm.class);
-          // Note: We add discardingErrors() to get rid of unhelpful errors that are thrown on empty
-          // number inputs. If we find there is a better solution out there, we should update to use
-          // that. But since we don't rely on the spring form data binder system for validation, we
-          // can "safely" ignore these errors.
-          return form.bindFromRequest(request).discardingErrors().get();
+          return form.bindFromRequest(request).get();
         }
       default:
         {

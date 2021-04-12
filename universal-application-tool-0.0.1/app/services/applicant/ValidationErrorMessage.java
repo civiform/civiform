@@ -10,6 +10,8 @@ public abstract class ValidationErrorMessage {
   public static String TEXT_TOO_LONG = "This answer must be at most %d characters long.";
   public static String NUMBER_TOO_SMALL = "This answer must be at least %d.";
   public static String NUMBER_TOO_BIG = "This answer cannot be larger than %d.";
+  public static String TOO_FEW_SELECTIONS = "Please select at least %d.";
+  public static String TOO_MANY_SELECTIONS = "Please select fewer than %d.";
 
   public abstract String message();
 
@@ -33,5 +35,13 @@ public abstract class ValidationErrorMessage {
 
   public static ValidationErrorMessage numberTooLargeError(long max) {
     return create(String.format(NUMBER_TOO_BIG, max));
+  }
+
+  public static ValidationErrorMessage tooFewSelectionsError(int min) {
+    return create(String.format(TOO_FEW_SELECTIONS, min));
+  }
+
+  public static ValidationErrorMessage tooManySelectionsError(int max) {
+    return create(String.format(TOO_MANY_SELECTIONS, max));
   }
 }

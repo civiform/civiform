@@ -24,14 +24,37 @@ public class MultiSelectQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    // TODO(https://github.com/seattle-uat/civiform/issues/416): Implement validation
-    return ImmutableSet.of();
+    if (!hasValue()) {
+      return ImmutableSet.of();
+    }
+
+    MultiOptionQuestionDefinition definition = getQuestionDefinition();
+    int numberOfSelections = getSelectedOptionsValue().map(ImmutableList::size).orElse(0);
+    ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
+
+    if (definition.getMultiOptionValidationPredicates().minChoicesRequired().isPresent()) {
+      int minChoicesRequired =
+          definition.getMultiOptionValidationPredicates().minChoicesRequired().getAsInt();
+      if (numberOfSelections < minChoicesRequired) {
+        errors.add(ValidationErrorMessage.tooFewSelectionsError(minChoicesRequired));
+      }
+    }
+
+    if (definition.getMultiOptionValidationPredicates().maxChoicesAllowed().isPresent()) {
+      int maxChoicesAllowed =
+          definition.getMultiOptionValidationPredicates().maxChoicesAllowed().getAsInt();
+      if (numberOfSelections > maxChoicesAllowed) {
+        errors.add(ValidationErrorMessage.tooManySelectionsError(maxChoicesAllowed));
+      }
+    }
+    return errors.build();
   }
 
   @Override
   public boolean hasTypeSpecificErrors() {
-    // There are no inherent requirements in a multi-option question.
-    return false;
+    // Return true if the selected options are not valid options.
+    return getSelectedOptionsValue().isPresent()
+        && !getOptions().containsAll(getSelectedOptionsValue().get());
   }
 
   public boolean hasValue() {

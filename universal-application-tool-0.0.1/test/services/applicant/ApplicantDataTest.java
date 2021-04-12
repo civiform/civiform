@@ -28,6 +28,18 @@ public class ApplicantDataTest {
   }
 
   @Test
+  public void overwriteDataAtSamePath_succeeds() {
+    ApplicantData data = new ApplicantData();
+    Path path = Path.create("applicant.target");
+
+    data.putString(path, "hello");
+    assertThat(data.readString(path)).hasValue("hello");
+
+    data.putString(path, "world");
+    assertThat(data.readString(path)).hasValue("world");
+  }
+
+  @Test
   public void hasPath_withRepeatedEntity() {
     ApplicantData data =
         new ApplicantData(
