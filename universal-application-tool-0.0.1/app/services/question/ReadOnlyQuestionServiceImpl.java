@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
+import services.ErrorAnd;
 import services.Path;
 import services.question.exceptions.InvalidPathException;
 import services.question.exceptions.QuestionNotFoundException;
@@ -84,6 +85,34 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
         .filter(QuestionDefinition::isRepeater)
         .map(questionDefinition -> (RepeaterQuestionDefinition) questionDefinition)
         .collect(ImmutableList.toImmutableList());
+  }
+
+  @Override
+  public Path makePath(Optional<Long> maybeRepeaterId, String questionName, boolean isRepeater)
+      throws QuestionNotFoundException {
+    String questionNameFormattedForPath =
+        questionName.replaceAll("\\s", "_").replaceAll("[^a-zA-Z_]", "");
+    if (isRepeater) {
+      questionNameFormattedForPath += Path.ARRAY_SUFFIX;
+    }
+
+    ErrorAnd<Path, QuestionNotFoundException> maybeParentPath =
+        maybeRepeaterId
+            .map(
+                repeaterId -> {
+                  try {
+                    return ErrorAnd.<Path, QuestionNotFoundException>of(
+                        getQuestionDefinition(repeaterId).getPath());
+                  } catch (QuestionNotFoundException e) {
+                    return ErrorAnd.<Path, QuestionNotFoundException>error(ImmutableSet.of(e));
+                  }
+                })
+            .orElse(ErrorAnd.of(Path.create("applicant")));
+
+    if (maybeParentPath.isError()) {
+      throw maybeParentPath.getErrors().asList().get(0);
+    }
+    return maybeParentPath.getResult().join(questionNameFormattedForPath);
   }
 
   @Override

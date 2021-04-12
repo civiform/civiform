@@ -3,6 +3,7 @@ package services.question;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import services.Path;
 import services.question.exceptions.InvalidPathException;
 import services.question.exceptions.QuestionNotFoundException;
@@ -30,6 +31,10 @@ public interface ReadOnlyQuestionService {
 
   /** Returns all scalars for this version. */
   ImmutableMap<Path, ScalarType> getAllScalars();
+
+  /** Create the {@link Path} for a question with the repeater id and the question name. */
+  Path makePath(Optional<Long> repeaterId, String questionName, boolean isRepeater)
+      throws QuestionNotFoundException;
 
   /**
    * Returns all of the scalar properties for a given path.

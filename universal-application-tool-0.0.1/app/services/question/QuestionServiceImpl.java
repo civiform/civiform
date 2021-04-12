@@ -36,7 +36,7 @@ public final class QuestionServiceImpl implements QuestionService {
 
   @Override
   public ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition definition) {
-    ImmutableSet<CiviFormError> errors = validateNewQuestion(definition);
+    ImmutableSet<CiviFormError> errors = definition.validate();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -96,28 +96,6 @@ public final class QuestionServiceImpl implements QuestionService {
                 questions.stream()
                     .map(question -> question.getQuestionDefinition())
                     .collect(ImmutableList.toImmutableList()));
-  }
-
-  /**
-   * Validates a new question and checks for path conflicts. This can't be used to validate udpates
-   * because paths will always conflict.
-   */
-  private ImmutableSet<CiviFormError> validateNewQuestion(QuestionDefinition newDefinition) {
-    ImmutableSet<CiviFormError> errors = newDefinition.validate();
-    if (!errors.isEmpty()) {
-      return errors;
-    }
-    Path newPath = newDefinition.getPath();
-    Optional<Question> maybeConflict =
-        questionRepository.findConflictingQuestion(newPath).toCompletableFuture().join();
-    if (maybeConflict.isPresent()) {
-      Question question = maybeConflict.get();
-      return ImmutableSet.of(
-          CiviFormError.of(
-              String.format(
-                  "path '%s' conflicts with question: %s", newPath.path(), question.getPath())));
-    }
-    return ImmutableSet.of();
   }
 
   private ImmutableSet<CiviFormError> validateQuestionInvariants(
