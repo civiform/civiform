@@ -86,7 +86,7 @@ public class ApplicantRepository {
           return accountMaybe.flatMap(
               applicant ->
                   applicant.getApplicants().stream()
-                      .max(Comparator.comparing(compared -> compared.getCreatedTime())));
+                      .max(Comparator.comparing(compared -> compared.getWhenCreated())));
         },
         executionContext);
   }
@@ -118,7 +118,7 @@ public class ApplicantRepository {
    * both the older and newer, and
    */
   public Applicant mergeApplicants(Applicant left, Applicant right) {
-    if (left.getCreatedTime().isAfter(right.getCreatedTime())) {
+    if (left.getWhenCreated().isAfter(right.getWhenCreated())) {
       Applicant tmp = left;
       left = right;
       right = tmp;

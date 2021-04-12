@@ -269,8 +269,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     Instant t = Instant.now();
 
-    assertThat(applicant.whenCreated).isNotNull();
-    assertThat(applicant.whenCreated).isBefore(t);
+    assertThat(applicant.getWhenCreated()).isNotNull();
+    assertThat(applicant.getWhenCreated()).isBefore(t);
   }
 
   @Test

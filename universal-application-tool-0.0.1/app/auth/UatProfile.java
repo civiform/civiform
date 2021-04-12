@@ -37,7 +37,7 @@ public class UatProfile {
         .thenApplyAsync(
             (a) ->
                 a.getApplicants().stream()
-                    .sorted(Comparator.comparing((applicant) -> applicant.getCreatedTime()))
+                    .sorted(Comparator.comparing((applicant) -> applicant.getWhenCreated()))
                     .findFirst()
                     .orElseThrow(),
             httpContext.current());

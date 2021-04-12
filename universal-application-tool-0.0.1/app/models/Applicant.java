@@ -22,7 +22,7 @@ public class Applicant extends BaseModel {
   private static final long serialVersionUID = 1L;
   private ApplicantData applicantData;
 
-  @WhenCreated public Instant whenCreated;
+  @WhenCreated private Instant whenCreated;
 
   private String preferredLocale;
 
@@ -78,7 +78,7 @@ public class Applicant extends BaseModel {
     return ImmutableList.copyOf(this.applications);
   }
 
-  public Instant getCreatedTime() {
+  public Instant getWhenCreated() {
     return this.whenCreated;
   }
 }
