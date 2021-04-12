@@ -18,6 +18,7 @@ import models.Question;
 import play.db.ebean.EbeanConfig;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
 
 public class ProgramRepository {
@@ -168,6 +169,35 @@ public class ProgramRepository {
           }
         },
         executionContext);
+  }
+
+  public Program createOrUpdateDraft(Program existingProgram) throws ProgramNotFoundException {
+    Optional<Program> existingDraft =
+        ebeanServer
+            .find(Program.class)
+            .where()
+            .eq("lifecycle_stage", LifecycleStage.DRAFT.getValue())
+            .eq("name", existingProgram.getProgramDefinition().name())
+            .findOneOrEmpty();
+    if (existingDraft.isPresent()) {
+      Program updatedDraft =
+          existingProgram.getProgramDefinition().toBuilder()
+              .setId(existingDraft.get().id)
+              .setLifecycleStage(LifecycleStage.DRAFT)
+              .build()
+              .toProgram();
+      this.updateProgramSync(updatedDraft);
+      return updatedDraft;
+    } else {
+      Program newDraft =
+          existingProgram.getProgramDefinition().toBuilder()
+              .setLifecycleStage(LifecycleStage.DRAFT)
+              .build()
+              .toProgram();
+      insertProgramSync(newDraft);
+      updateQuestionVersions(newDraft);
+      return newDraft;
+    }
   }
 
   public void publishProgram(Program program) {
