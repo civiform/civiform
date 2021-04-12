@@ -71,6 +71,11 @@ public class TestQuestionBank {
             QuestionEnum.APPLICANT_PRONOUNS, TestQuestionBank::applicantPronouns);
   }
 
+  public static Question applicantSatisfaction() {
+    return questionCache.computeIfAbsent(
+            QuestionEnum.APPLICANT_SATISFACTION, TestQuestionBank::applicantSatisfaction);
+  }
+
   private static Question applicantName(QuestionEnum ignore) {
     QuestionDefinition definition =
         new NameQuestionDefinition(
@@ -168,6 +173,22 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  private static Question applicantSatisfaction(QuestionEnum ignore) {
+    QuestionDefinition definition =
+            new RadioButtonQuestionDefinition(
+                    VERSION,
+                    "Applicant Satisfaction",
+                    Path.create("applicant.satisfaction"),
+                    Optional.empty(),
+                    "The applicant's overall satisfaction with something",
+                    LifecycleStage.ACTIVE,
+                    ImmutableMap.of(Locale.US, "What is your satisfaction with enrollment?"),
+                    ImmutableMap.of(Locale.US, "help text"),
+                    ImmutableListMultimap.of(Locale.US, "dissatisfied", Locale.US, "neutral", Locale.US, "satisfied")
+            );
+    return maybeSave(definition);
+  }
+
   private static Question maybeSave(QuestionDefinition questionDefinition) {
     Question question = new Question(questionDefinition);
     try {
@@ -190,6 +211,7 @@ public class TestQuestionBank {
     APPLICANT_FAVORITE_COLOR,
     APPLICANT_HOUSEHOLD_MEMBERS,
     APPLICANT_PETS,
-    APPLICANT_PRONOUNS
+    APPLICANT_PRONOUNS,
+    APPLICANT_SATISFACTION
   }
 }
