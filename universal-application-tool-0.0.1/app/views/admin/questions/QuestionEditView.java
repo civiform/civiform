@@ -261,6 +261,10 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private QuestionForm getQuestionFormForType(QuestionType questionType) {
     switch (questionType) {
+      case ADDRESS:
+        {
+          return new AddressQuestionForm();
+        }
       case CHECKBOX:
         {
           return new CheckboxQuestionForm();
@@ -276,10 +280,6 @@ public final class QuestionEditView extends BaseHtmlView {
       case TEXT:
         {
           return new TextQuestionForm();
-        }
-      case ADDRESS:
-        {
-          return new AddressQuestionForm();
         }
       default:
         {

@@ -60,12 +60,12 @@ public class QuestionConfig {
     return this;
   }
 
-  // TODO(natsid): Remove QuestionType parameter once we implement the other question forms since
-  //  that info will be within the question form.
+  // TODO(https://github.com/seattle-uat/civiform/issues/589): Remove QuestionType parameter once we
+  //  implement the other question forms since that info will be within the question form.
   public static ContainerTag buildQuestionConfig(QuestionType type, QuestionForm questionForm) {
     QuestionConfig config = new QuestionConfig();
-    // TODO(natsid): Switch on type of question form once we implement other question forms. This
-    //  may also help us avoid casting the question form.
+    // TODO(https://github.com/seattle-uat/civiform/issues/589): Switch on type of question form
+    //  once we implement other question forms. May also help us avoid casting the question form.
     switch (type) {
       case TEXT:
         return config
@@ -76,13 +76,14 @@ public class QuestionConfig {
         return config
             .setId("address-question-config")
             .addAddressQuestionConfig((AddressQuestionForm) questionForm)
-                .getContainer();
+            .getContainer();
       case CHECKBOX:
         // TODO(https://github.com/seattle-uat/civiform/issues/416): Add validation options for
-        // multi-select questions.
+        //  multi-select questions.
         return config
             .setId("multi-select-question-config")
             .addMultiOptionQuestionConfig((MultiOptionQuestionForm) questionForm)
+            .getContainer();
       case DROPDOWN:
       case RADIO_BUTTON:
         return config
