@@ -144,8 +144,7 @@ public final class ApplicantProgramBlocksController extends Controller {
                 Throwable cause = ex.getCause();
                 if (cause instanceof SecurityException) {
                   return unauthorized();
-                }
-                if (cause instanceof ProgramNotFoundException) {
+                } else if (cause instanceof ProgramNotFoundException) {
                   return badRequest(cause.toString());
                 } else if (cause instanceof ProgramBlockNotFoundException) {
                   logger.error("Exception while updating applicant data", cause);
