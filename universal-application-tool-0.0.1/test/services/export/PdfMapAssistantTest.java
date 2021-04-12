@@ -17,19 +17,12 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
+import support.TestQuestionBank;
 
 public class PdfMapAssistantTest {
   public Question makeFakeQuestionWithName(String name) throws UnsupportedQuestionTypeException {
-    QuestionDefinition questionDefinition =
-        new QuestionDefinitionBuilder()
-            .setName(name)
-            .setDescription("fake question")
-            .setQuestionText(ImmutableMap.of())
-            .setQuestionHelpText(ImmutableMap.of())
-            .setQuestionType(QuestionType.TEXT)
-            .setLifecycleStage(LifecycleStage.ACTIVE)
-            .setPath(Path.create("$.applicant.fake.path"))
-            .build();
+    QuestionDefinition definition = TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+    QuestionDefinition questionDefinition = new QuestionDefinitionBuilder(definition).setName(name).build();
     return new Question(questionDefinition);
   }
 
