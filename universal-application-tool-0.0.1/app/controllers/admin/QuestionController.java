@@ -213,10 +213,10 @@ public class QuestionController extends CiviFormController {
 
     switch (questionType) {
       case ADDRESS:
-      {
-        Form<AddressQuestionForm> form = formFactory.form(AddressQuestionForm.class);
-        return form.bindFromRequest(request).get();
-      }
+        {
+          Form<AddressQuestionForm> form = formFactory.form(AddressQuestionForm.class);
+          return form.bindFromRequest(request).get();
+        }
       case CHECKBOX:
         {
           Form<CheckboxQuestionForm> form = formFactory.form(CheckboxQuestionForm.class);

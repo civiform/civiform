@@ -10,7 +10,8 @@ import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionType;
 
 public class AddressQuestion implements PresentsErrors {
-  private static final String PO_BOX_REGEX = "(?i)(.*(P(OST|.)?\\s*((O(FF(ICE)?)?)?.?\\s*(B(IN|OX|.?)))+)).*";
+  private static final String PO_BOX_REGEX =
+      "(?i)(.*(P(OST|.)?\\s*((O(FF(ICE)?)?)?.?\\s*(B(IN|OX|.?)))+)).*";
 
   private final ApplicantQuestion applicantQuestion;
   private Optional<String> streetValue;
@@ -42,7 +43,7 @@ public class AddressQuestion implements PresentsErrors {
 
       if (poBoxMatcher.matches()) {
         return ImmutableSet.of(
-                ValidationErrorMessage.create("Please enter a non-P.O. Box address."));
+            ValidationErrorMessage.create("Please enter a non-P.O. Box address."));
       }
     }
 
