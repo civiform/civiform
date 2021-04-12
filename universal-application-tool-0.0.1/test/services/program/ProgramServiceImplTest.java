@@ -110,7 +110,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   public void syncQuestions_constructsAllQuestionDefinitions() throws Exception {
     QuestionDefinition questionOne = TestQuestionBank.applicantName().getQuestionDefinition();
     QuestionDefinition questionTwo = TestQuestionBank.applicantAddress().getQuestionDefinition();
-    QuestionDefinition questionThree = TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+    QuestionDefinition questionThree =
+        TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
 
     ProgramBuilder.newProgram()
         .withBlock()

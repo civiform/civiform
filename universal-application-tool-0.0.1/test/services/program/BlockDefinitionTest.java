@@ -86,7 +86,8 @@ public class BlockDefinitionTest {
             .setName("Block Name")
             .setDescription("Block Description")
             .addQuestion(
-                ProgramQuestionDefinition.create(TestQuestionBank.applicantHouseholdMembers().getQuestionDefinition()))
+                ProgramQuestionDefinition.create(
+                    TestQuestionBank.applicantHouseholdMembers().getQuestionDefinition()))
             .build();
 
     assertThat(blockDefinition.isRepeater()).isTrue();
@@ -102,8 +103,10 @@ public class BlockDefinitionTest {
 
   private BlockDefinition makeBlockDefinitionWithQuestions() throws Exception {
     QuestionDefinition nameQuestion = TestQuestionBank.applicantName().getQuestionDefinition();
-    QuestionDefinition addressQuestion = TestQuestionBank.applicantAddress().getQuestionDefinition();
-    QuestionDefinition colorQuestion = TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+    QuestionDefinition addressQuestion =
+        TestQuestionBank.applicantAddress().getQuestionDefinition();
+    QuestionDefinition colorQuestion =
+        TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
 
     BlockDefinition block =
         BlockDefinition.builder()

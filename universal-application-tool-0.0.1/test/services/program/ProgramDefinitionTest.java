@@ -63,7 +63,8 @@ public class ProgramDefinitionTest {
   public void hasQuestion_trueIfTheProgramUsesTheQuestion() {
     QuestionDefinition questionA = TestQuestionBank.applicantName().getQuestionDefinition();
     QuestionDefinition questionB = TestQuestionBank.applicantAddress().getQuestionDefinition();
-    QuestionDefinition questionC = TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+    QuestionDefinition questionC =
+        TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
 
     BlockDefinition blockA =
         BlockDefinition.builder()
