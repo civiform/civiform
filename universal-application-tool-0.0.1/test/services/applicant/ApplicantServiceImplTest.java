@@ -6,16 +6,12 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Locale;
-import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import models.Applicant;
-import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ApplicantRepository;
@@ -29,16 +25,13 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
 import services.program.ProgramServiceImpl;
-import services.question.QuestionService;
-import services.question.types.CheckboxQuestionDefinition;
-import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import support.TestQuestionBank;
 
 public class ApplicantServiceImplTest extends WithPostgresContainer {
 
   private ApplicantServiceImpl subject;
   private ProgramService programService;
-  private QuestionService questionService;
   private QuestionDefinition questionDefinition;
   private ProgramDefinition programDefinition;
   private ApplicantRepository applicantRepository;
@@ -47,10 +40,9 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   public void setUp() throws Exception {
     subject = instanceOf(ApplicantServiceImpl.class);
     programService = instanceOf(ProgramServiceImpl.class);
-    questionService = instanceOf(QuestionService.class);
     applicantRepository = instanceOf(ApplicantRepository.class);
-    createQuestions();
-    createProgram();
+    questionDefinition = TestQuestionBank.applicantName().getQuestionDefinition();
+    createProgram(questionDefinition);
   }
 
   @Test
@@ -128,20 +120,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void stageAndUpdateIfValid_rawUpdatesContainMultiSelectAnswers_isOk() throws Exception {
-    QuestionDefinition multiSelectQuestion =
-        questionService
-            .create(
-                new CheckboxQuestionDefinition(
-                    1L,
-                    "checkbox",
-                    Path.create("applicant.checkbox"),
-                    Optional.empty(),
-                    "description",
-                    LifecycleStage.ACTIVE,
-                    ImmutableMap.of(Locale.US, "question?"),
-                    ImmutableMap.of(Locale.US, "help text"),
-                    ImmutableListMultimap.of(Locale.US, "cat", Locale.US, "dog")))
-            .getResult();
+    QuestionDefinition multiSelectQuestion = TestQuestionBank.applicantPets().getQuestionDefinition();
     createProgram(multiSelectQuestion);
 
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
@@ -284,26 +263,6 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             .join();
 
     assertThat(roApplicantProgramService).isInstanceOf(ReadOnlyApplicantProgramService.class);
-  }
-
-  private void createQuestions() {
-    questionDefinition =
-        questionService
-            .create(
-                new NameQuestionDefinition(
-                    1L,
-                    "my name",
-                    Path.create("applicant.name"),
-                    Optional.empty(),
-                    "description",
-                    LifecycleStage.ACTIVE,
-                    ImmutableMap.of(Locale.US, "question?"),
-                    ImmutableMap.of(Locale.US, "help text")))
-            .getResult();
-  }
-
-  private void createProgram() throws Exception {
-    createProgram(questionDefinition);
   }
 
   private void createProgram(QuestionDefinition... questions) throws Exception {
