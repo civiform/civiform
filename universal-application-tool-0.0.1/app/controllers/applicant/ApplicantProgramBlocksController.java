@@ -32,6 +32,10 @@ import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramBlockEditView;
 
+/**
+ * Controller for handling an applicant filling out a single program. CAUTION: you must explicitly
+ * check the current profile so that an unauthorized user cannot access another applicant's data!
+ */
 public final class ApplicantProgramBlocksController extends Controller {
   private static final ImmutableSet<String> STRIPPED_FORM_FIELDS = ImmutableSet.of("csrfToken");
 

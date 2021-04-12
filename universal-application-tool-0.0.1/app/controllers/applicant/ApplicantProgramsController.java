@@ -20,7 +20,11 @@ import services.applicant.Block;
 import services.program.ProgramNotFoundException;
 import views.applicant.ProgramIndexView;
 
-/** Controller for handling methods for an applicant applying to programs. */
+/**
+ * Controller for handling methods for an applicant applying to programs. CAUTION: you must
+ * explicitly check the current profile so that an unauthorized user cannot access another
+ * applicant's data!
+ */
 public class ApplicantProgramsController extends Controller {
 
   private final HttpExecutionContext httpContext;

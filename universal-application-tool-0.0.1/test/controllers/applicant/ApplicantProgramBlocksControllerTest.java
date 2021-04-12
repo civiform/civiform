@@ -79,11 +79,11 @@ public class ApplicantProgramBlocksControllerTest {
   public void edit_invalidApplicant_returnsUnauthorized() {
     long badApplicantId = applicant.id + 1000;
     Request request =
-            fakeRequest(routes.ApplicantProgramBlocksController.edit(badApplicantId, program.id, "1"))
-                    .build();
+        fakeRequest(routes.ApplicantProgramBlocksController.edit(badApplicantId, program.id, "1"))
+            .build();
 
     Result result =
-            subject.edit(request, badApplicantId, program.id, "1").toCompletableFuture().join();
+        subject.edit(request, badApplicantId, program.id, "1").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
