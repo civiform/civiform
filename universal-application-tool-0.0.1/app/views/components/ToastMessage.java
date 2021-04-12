@@ -37,8 +37,8 @@ public class ToastMessage {
           Styles.ROUNDED_SM,
           Styles.SHADOW_LG,
           Styles._TRANSLATE_X_1_2,
-          Styles.TEXT_GRAY_700,,
-          Styles.TOP_2
+          Styles.TEXT_GRAY_700,
+          Styles.TOP_2,
           Styles.TRANSITION_OPACITY,
           Styles.TRANSFORM);
 

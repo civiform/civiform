@@ -1,5 +1,4 @@
 
-
 /** Show the warning message if it hasn't been dismissed by the user. */
 function maybeShowWarning() {
     if (!localStorage.getItem("hideWarning")) {
@@ -9,7 +8,7 @@ function maybeShowWarning() {
       }
       const warningDismissButton = document.getElementById("warning-message-dismiss");
       if (warningDismissButton) {
-        warningDismissButton.addEventListener("click", dismissWarning);
+        warningDismissButton.addEventListener("click", dismissToast);
       }
     }
   }
@@ -75,3 +74,7 @@ function maybeShowWarning() {
       toastContainer.classList.add('hidden');
     }
   }
+
+  /* REMOVE BEFORE FLIGHT - Demo only. */
+  maybeShowWarning();
+  maybeShowToast();

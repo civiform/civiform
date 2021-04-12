@@ -40,29 +40,6 @@ function maybeHideElement(e: Event, id: string, parentId: string) {
   }
 }
 
-/** Show the warning message if it hasn't been dismissed by the user. */
-function maybeShowWarning() {
-  if (!localStorage.getItem("hideWarning")) {
-    const warningDiv = document.getElementById("warning-message");
-    if (warningDiv) {
-      warningDiv.classList.remove("hidden");
-    }
-    const warningDismissButton = document.getElementById("warning-message-dismiss");
-    if (warningDismissButton) {
-      warningDismissButton.addEventListener("click", dismissWarning);
-    }
-  }
-}
-
-/** Hide warning message and throw an indicator in local storage to not show. */
-function dismissWarning() {
-  const warningDiv = document.getElementById("warning-message");
-  if (warningDiv) {
-    warningDiv.classList.add("hidden");
-  }
-  localStorage.setItem("hideWarning", "true");
-}
-
 /** In the admin question form - add a new option input for each new question answer option. */
 function addNewQuestionAnswerOptionForm(event: Event) {
   // Copy the answer template and remove ID and hidden properties.
@@ -87,10 +64,6 @@ function removeQuestionOption(event: Event) {
 
 function init() {
   attachDropdown("create-question-button");
-  maybeShowToast();
-
-  /* REMOVE BEFORE FLIGHT - Demo only. */
-  maybeShowWarning();
 
   // Configure the button on the admin question form to add more answer options
   const questionOptionButton = document.getElementById("add-new-option");
