@@ -17,7 +17,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.RepeaterQuestionDefinition;
 import services.question.types.ScalarType;
-import views.admin.questions.GroupByKeyCollector;
+import views.admin.GroupByKeyCollector;
 
 public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionService {
 

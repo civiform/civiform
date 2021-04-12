@@ -7,17 +7,19 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.head;
 import static j2html.TagCreator.p;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.Tag;
-import java.util.Comparator;
+import java.util.Optional;
 import models.LifecycleStage;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
+import views.admin.GroupByKeyCollector;
 import views.components.LinkElement;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -39,9 +41,10 @@ public final class ProgramIndexView extends BaseHtmlView {
                 h1("All Programs").withClasses(Styles.MY_4),
                 each(
                     programs.stream()
-                        .sorted(Comparator.comparing(program -> program.lifecycleStage()))
-                        .collect(ImmutableList.toImmutableList()),
-                    e -> this.renderProgramListItem(e, request)),
+                        .collect(new GroupByKeyCollector<>(
+                                programDefinition -> programDefinition.name()
+                        )),
+                    e -> this.renderProgramListItem(e.getKey(), e.getValue(), request)),
                 renderNewProgramButton());
 
     return layout.render(head(layout.tailwindStyles()), body(contentDiv));
@@ -56,18 +59,32 @@ public final class ProgramIndexView extends BaseHtmlView {
         .asButton();
   }
 
-  private Tag renderProgramListItem(ProgramDefinition program, Http.Request request) {
+  public ProgramDefinition getDisplayProgram(ImmutableList<ProgramDefinition> programs) {
+    Preconditions.checkState(!programs.isEmpty());
+    Optional<ProgramDefinition> draftProgram = programs.stream().filter(p -> p.lifecycleStage().equals(LifecycleStage.DRAFT)).findAny();
+    if (draftProgram.isPresent()) {
+      return draftProgram.get();
+    }
+    Optional<ProgramDefinition> activeProgram = programs.stream().filter(p -> p.lifecycleStage().equals(LifecycleStage.ACTIVE)).findAny();
+    if (activeProgram.isPresent()) {
+      return activeProgram.get();
+    }
+    return programs.stream().findAny().get();
+  }
+
+  public Tag renderProgramListItem(String name, ImmutableList<ProgramDefinition> programs, Http.Request request) {
     // TODO: Move Strings out of here for i18n.
-    String programStatusText = program.lifecycleStage().name();
+    ProgramDefinition displayProgram = getDisplayProgram(programs);
+    Optional<ProgramDefinition> draftProgram = programs.stream().filter(p -> p.lifecycleStage().equals(LifecycleStage.DRAFT)).findAny();
+    Optional<ProgramDefinition> activeProgram = programs.stream().filter(p -> p.lifecycleStage().equals(LifecycleStage.ACTIVE)).findAny();
+    String programStatusText = extractProgramStatusText(draftProgram, activeProgram, programs);
     String lastEditText = "Last updated 2 hours ago."; // TODO: Need to generate this.
-    String publishLinkText = "Publish";
     String viewApplicationsLinkText = "Applications →";
 
-    String programTitleText = program.name();
-    String programDescriptionText = program.description();
-    long programId = program.id();
-    String blockCountText = "Blocks: " + program.getBlockCount();
-    String questionCountText = "Questions: " + program.getQuestionCount();
+    String programTitleText = displayProgram.name();
+    String programDescriptionText = displayProgram.description();
+    String blockCountText = "Blocks: " + displayProgram.getBlockCount();
+    String questionCountText = "Questions: " + displayProgram.getQuestionCount();
 
     Tag topContent =
         div(
@@ -98,9 +115,8 @@ public final class ProgramIndexView extends BaseHtmlView {
         div(
                 p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                 p().withClasses(Styles.FLEX_GROW),
-                renderViewApplicationsLink(viewApplicationsLinkText, programId),
-                renderEditLink(program, request),
-                maybeRenderPublishLink(publishLinkText, program, request))
+                maybeRenderViewApplicationsLink(viewApplicationsLinkText, activeProgram),
+                maybeRenderEditLink(draftProgram, activeProgram, request))
             .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
 
     Tag innerDiv =
@@ -113,41 +129,42 @@ public final class ProgramIndexView extends BaseHtmlView {
             ReferenceClasses.ADMIN_PROGRAM_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
   }
 
-  private Tag maybeRenderPublishLink(String text, ProgramDefinition program, Http.Request request) {
-    if (program.lifecycleStage().equals(LifecycleStage.DRAFT)) {
-      String publishLink =
-          controllers.admin.routes.AdminProgramController.publish(program.id()).url();
-
-      return new LinkElement()
-          .setId("program-publish-link-" + program.id())
-          .setHref(publishLink)
-          .setText(text)
-          .setStyles(Styles.MR_2)
-          .asHiddenForm(request);
+  private String extractProgramStatusText(Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram, ImmutableList<ProgramDefinition> programs) {
+    int countReferenced = 1;
+    String programStatusText = "Obsolete";
+    if (draftProgram.isPresent() && activeProgram.isPresent()) {
+      programStatusText = "Active, with draft";
+      countReferenced++;
+    } else if (draftProgram.isPresent()) {
+      programStatusText = "Draft";
+    } else if (activeProgram.isPresent()) {
+      programStatusText = "Active";
     }
-    // an empty div().
-    return div();
+    if (programs.size() > countReferenced) {
+      programStatusText = String.format("%s (+%d older)", programStatusText, programs.size()-countReferenced);
+    }
+    return programStatusText;
   }
 
-  private Tag renderEditLink(ProgramDefinition program, Http.Request request) {
+  Tag maybeRenderEditLink(Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram, Http.Request request) {
     String editLinkText = "Edit →";
     String newVersionText = "New Version";
 
-    if (program.lifecycleStage().equals(LifecycleStage.DRAFT)) {
-      String editLink = controllers.admin.routes.AdminProgramController.edit(program.id()).url();
+    if (draftProgram.isPresent()) {
+      String editLink = controllers.admin.routes.AdminProgramController.edit(draftProgram.get().id()).url();
 
       return new LinkElement()
-          .setId("program-edit-link-" + program.id())
+          .setId("program-edit-link-" + draftProgram.get().id())
           .setHref(editLink)
           .setText(editLinkText)
           .setStyles(Styles.MR_2)
           .asAnchorText();
-    } else if (program.lifecycleStage().equals(LifecycleStage.ACTIVE)) {
+    } else if (activeProgram.isPresent()) {
       String newVersionLink =
-          controllers.admin.routes.AdminProgramController.newVersionFrom(program.id()).url();
+          controllers.admin.routes.AdminProgramController.newVersionFrom(draftProgram.get().id()).url();
 
       return new LinkElement()
-          .setId("program-new-version-link-" + program.id())
+          .setId("program-new-version-link-" + draftProgram.get().id())
           .setHref(newVersionLink)
           .setText(newVersionText)
           .setStyles(Styles.MR_2)
@@ -158,14 +175,18 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
   }
 
-  private Tag renderViewApplicationsLink(String text, long programId) {
-    String editLink = routes.AdminApplicationController.answerList(programId).url();
+  Tag maybeRenderViewApplicationsLink(String text, Optional<ProgramDefinition> activeProgram) {
+    if (activeProgram.isPresent()) {
+      String editLink = routes.AdminApplicationController.answerList(activeProgram.get().id()).url();
 
-    return new LinkElement()
-        .setId("program-view-apps-link-" + programId)
-        .setHref(editLink)
-        .setText(text)
-        .setStyles(Styles.MR_2)
-        .asAnchorText();
+      return new LinkElement()
+              .setId("program-view-apps-link-" + activeProgram.get().id())
+              .setHref(editLink)
+              .setText(text)
+              .setStyles(Styles.MR_2)
+              .asAnchorText();
+    } else {
+      return div();
+    }
   }
 }
