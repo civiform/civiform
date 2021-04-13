@@ -42,7 +42,7 @@ public class NameQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getFirstNameErrors() {
-    if (firstNameAnswered() && getFirstNameValue().isEmpty()) {
+    if (isFirstNameAnswered() && getFirstNameValue().isEmpty()) {
       return ImmutableSet.of(ValidationErrorMessage.create("First name is required."));
     }
 
@@ -50,7 +50,7 @@ public class NameQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getLastNameErrors() {
-    if (lastNameAnswered() && getLastNameValue().isEmpty()) {
+    if (isLastNameAnswered() && getLastNameValue().isEmpty()) {
       return ImmutableSet.of(ValidationErrorMessage.create("Last name is required."));
     }
 
@@ -114,11 +114,23 @@ public class NameQuestion implements PresentsErrors {
     return getQuestionDefinition().getLastNamePath();
   }
 
-  private boolean firstNameAnswered() {
+  private boolean isFirstNameAnswered() {
     return applicantQuestion.getApplicantData().hasPath(getFirstNamePath());
   }
 
-  private boolean lastNameAnswered() {
+  private boolean isMiddleNameAnswered() {
+    return applicantQuestion.getApplicantData().hasPath(getMiddleNamePath());
+  }
+
+  private boolean isLastNameAnswered() {
     return applicantQuestion.getApplicantData().hasPath(getLastNamePath());
+  }
+
+  /**
+   * Returns true if any one of the name fields is answered. Returns false if all are not answered.
+   */
+  @Override
+  public boolean isAnswered() {
+    return isFirstNameAnswered() || isMiddleNameAnswered() || isLastNameAnswered();
   }
 }

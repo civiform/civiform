@@ -54,6 +54,7 @@ public class TextQuestion implements PresentsErrors {
     return false;
   }
 
+  @Override
   public boolean isAnswered() {
     return applicantQuestion.getApplicantData().hasPath(getTextPath());
   }

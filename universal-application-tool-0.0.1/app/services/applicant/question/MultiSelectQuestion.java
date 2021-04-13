@@ -61,6 +61,7 @@ public class MultiSelectQuestion implements PresentsErrors {
     return getSelectedOptionsValue().isPresent();
   }
 
+  @Override
   public boolean isAnswered() {
     return applicantQuestion.getApplicantData().hasPath(getSelectionPath());
   }

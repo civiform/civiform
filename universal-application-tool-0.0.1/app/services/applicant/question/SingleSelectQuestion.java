@@ -78,4 +78,9 @@ public class SingleSelectQuestion implements PresentsErrors {
       throw new RuntimeException(e);
     }
   }
+
+  @Override
+  public boolean isAnswered() {
+    return applicantQuestion.getApplicantData().hasPath(getSelectionPath());
+  }
 }

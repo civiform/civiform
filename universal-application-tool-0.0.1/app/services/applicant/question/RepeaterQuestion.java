@@ -1,6 +1,8 @@
 package services.applicant.question;
 
+import services.Path;
 import services.question.types.QuestionType;
+import services.question.types.RepeaterQuestionDefinition;
 
 public class RepeaterQuestion implements PresentsErrors {
 
@@ -30,5 +32,19 @@ public class RepeaterQuestion implements PresentsErrors {
               applicantQuestion.getQuestionDefinition().getPath(),
               applicantQuestion.getQuestionDefinition().getQuestionType()));
     }
+  }
+
+  public RepeaterQuestionDefinition getQuestionDefinition() {
+    assertQuestionType();
+    return (RepeaterQuestionDefinition) applicantQuestion.getQuestionDefinition();
+  }
+
+  public Path getRepeaterPath() {
+    return getQuestionDefinition().getPath();
+  }
+
+  @Override
+  public boolean isAnswered() {
+    return applicantQuestion.getApplicantData().hasPath(getRepeaterPath());
   }
 }
