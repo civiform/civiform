@@ -72,13 +72,13 @@ public final class QuestionServiceImpl implements QuestionService {
           String.format("question with id %d does not exist", questionDefinition.getId()));
     }
     Question question = maybeQuestion.get();
-    ImmutableSet<CiviFormError> invariantErrors =
-        validateQuestionInvariants(question.getQuestionDefinition(), questionDefinition);
+    ImmutableSet<CiviFormError> immutableMemberErrors =
+        validateQuestionImmutableMembers(question.getQuestionDefinition(), questionDefinition);
 
     ImmutableSet<CiviFormError> errors =
         ImmutableSet.<CiviFormError>builder()
             .addAll(validationErrors)
-            .addAll(invariantErrors)
+            .addAll(immutableMemberErrors)
             .build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
@@ -125,11 +125,11 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   /**
-   * Validates that a question's updates do not change its invariants.
+   * Validates that a question's updates do not change its immutable members.
    *
-   * <p>Question invariants are: name, repeater id, path, and type.
+   * <p>Question immutable members are: name, repeater id, path, and type.
    */
-  private ImmutableSet<CiviFormError> validateQuestionInvariants(
+  private ImmutableSet<CiviFormError> validateQuestionImmutableMembers(
       QuestionDefinition questionDefinition, QuestionDefinition toUpdate) {
     ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
 
