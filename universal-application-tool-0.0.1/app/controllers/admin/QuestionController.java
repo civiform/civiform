@@ -68,14 +68,14 @@ public class QuestionController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public CompletionStage<Result> show(Request request, Long id) {
+  public CompletionStage<Result> show(long id) {
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
               try {
                 QuestionDefinition definition = readOnlyService.getQuestionDefinition(id);
-                return ok(editView.renderViewQuestionForm(request, definition));
+                return ok(editView.renderViewQuestionForm(definition));
               } catch (QuestionNotFoundException e) {
                 return badRequest(e.toString());
               }
