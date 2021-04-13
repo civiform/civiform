@@ -10,7 +10,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
-public class QuestionForm {
+public abstract class QuestionForm {
   private String questionName;
   private String questionDescription;
   private Path questionParentPath;
