@@ -41,24 +41,29 @@ public class TestQuestionBank {
     nextId.set(1L);
   }
 
-  public static Question applicantName() {
-    return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_NAME, TestQuestionBank::applicantName);
-  }
-
   public static Question applicantAddress() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_ADDRESS, TestQuestionBank::applicantAddress);
+            QuestionEnum.APPLICANT_ADDRESS, TestQuestionBank::applicantAddress);
+  }
+
+  public static Question applicantAge() {
+    return questionCache.computeIfAbsent(
+            QuestionEnum.APPLICANT_AGE, TestQuestionBank::applicantAge);
   }
 
   public static Question applicantFavoriteColor() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_FAVORITE_COLOR, TestQuestionBank::applicantFavoriteColor);
+            QuestionEnum.APPLICANT_FAVORITE_COLOR, TestQuestionBank::applicantFavoriteColor);
   }
 
   public static Question applicantHouseholdMembers() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBERS, TestQuestionBank::applicantHouseholdMembers);
+            QuestionEnum.APPLICANT_HOUSEHOLD_MEMBERS, TestQuestionBank::applicantHouseholdMembers);
+  }
+
+  public static Question applicantName() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_NAME, TestQuestionBank::applicantName);
   }
 
   public static Question applicantPets() {
@@ -76,25 +81,6 @@ public class TestQuestionBank {
             QuestionEnum.APPLICANT_SATISFACTION, TestQuestionBank::applicantSatisfaction);
   }
 
-  public static Question applicantAge() {
-    return questionCache.computeIfAbsent(
-            QuestionEnum.APPLICANT_AGE, TestQuestionBank::applicantAge);
-  }
-
-  private static Question applicantName(QuestionEnum ignore) {
-    QuestionDefinition definition =
-        new NameQuestionDefinition(
-            VERSION,
-            "applicant name",
-            Path.create("applicant.name"),
-            Optional.empty(),
-            "name of applicant",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(Locale.US, "what is your name?"),
-            ImmutableMap.of(Locale.US, "help text"));
-    return maybeSave(definition);
-  }
-
   private static Question applicantAddress(QuestionEnum ignore) {
     QuestionDefinition definition =
         new AddressQuestionDefinition(
@@ -106,6 +92,21 @@ public class TestQuestionBank {
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "what is your address?"),
             ImmutableMap.of(Locale.US, "help text"));
+    return maybeSave(definition);
+  }
+
+  private static Question applicantAge(QuestionEnum ignore) {
+    QuestionDefinition definition =
+            new NumberQuestionDefinition(
+                    VERSION,
+                    "Applicant Age",
+                    Path.create("applicant.age"),
+                    Optional.empty(),
+                    "The age of the applicant",
+                    LifecycleStage.ACTIVE,
+                    ImmutableMap.of(Locale.US, "What is your age?"),
+                    ImmutableMap.of(Locale.US, "help text")
+            );
     return maybeSave(definition);
   }
 
@@ -135,6 +136,20 @@ public class TestQuestionBank {
             ImmutableMap.of(Locale.US, "Who are your household members?"),
             ImmutableMap.of(Locale.US, "help text"));
 
+    return maybeSave(definition);
+  }
+
+  private static Question applicantName(QuestionEnum ignore) {
+    QuestionDefinition definition =
+            new NameQuestionDefinition(
+                    VERSION,
+                    "applicant name",
+                    Path.create("applicant.name"),
+                    Optional.empty(),
+                    "name of applicant",
+                    LifecycleStage.ACTIVE,
+                    ImmutableMap.of(Locale.US, "what is your name?"),
+                    ImmutableMap.of(Locale.US, "help text"));
     return maybeSave(definition);
   }
 
@@ -194,21 +209,6 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
-  private static Question applicantAge(QuestionEnum ignore) {
-    QuestionDefinition definition =
-            new NumberQuestionDefinition(
-                    VERSION,
-                    "Applicant Age",
-                    Path.create("applicant.age"),
-                    Optional.empty(),
-                    "The age of the applicant",
-                    LifecycleStage.ACTIVE,
-                    ImmutableMap.of(Locale.US, "What is your age?"),
-                    ImmutableMap.of(Locale.US, "help text")
-            );
-    return maybeSave(definition);
-  }
-
   private static Question maybeSave(QuestionDefinition questionDefinition) {
     Question question = new Question(questionDefinition);
     try {
@@ -226,13 +226,13 @@ public class TestQuestionBank {
   }
 
   private enum QuestionEnum {
-    APPLICANT_NAME,
     APPLICANT_ADDRESS,
+    APPLICANT_AGE,
     APPLICANT_FAVORITE_COLOR,
     APPLICANT_HOUSEHOLD_MEMBERS,
+    APPLICANT_NAME,
     APPLICANT_PETS,
     APPLICANT_PRONOUNS,
-    APPLICANT_SATISFACTION,
-    APPLICANT_AGE
+    APPLICANT_SATISFACTION
   }
 }
