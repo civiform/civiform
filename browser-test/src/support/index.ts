@@ -18,6 +18,10 @@ export const endSession = async (browser: Browser) => {
   await browser.close();
 }
 
+export const gotoEndpoint = async (page: Page, endpoint: string) => {
+  return await page.goto(BASE_URL + endpoint);
+}
+
 export const logout = async (page: Page) => {
   // TODO: add logout button to applicant page and use that
   await page.goto(BASE_URL + '/logout');
@@ -31,7 +35,7 @@ export const loginAsGuest = async (page: Page) => {
   await page.click('#guest');
 }
 
-export const dropTables = async(page: Page) => {
+export const dropTables = async (page: Page) => {
   await page.goto(BASE_URL + '/dev/seed');
   await page.click("#clear");
 }
