@@ -144,17 +144,18 @@ public class QuestionRepository {
   }
 
   /**
-   * Maybe find a {@link Question} that conflicts with {@link QuestionDefinition}. A conflict exists
-   * if they are different questions (i.e. different IDs) in the same version representing the same
-   * path.
+   * Maybe find a {@link Question} whose path conflicts with {@link QuestionDefinition}.
+   *
+   * <p>This is intended to be used for new question definitions, since updates will collide with
+   * themselves and previous versions, and new versions of an old question will conflict with the
+   * old question.
    */
-  public Optional<Question> findPathConflictingQuestion(QuestionDefinition questionDefinition) {
+  public Optional<Question> findPathConflictingQuestion(QuestionDefinition newQuestionDefinition) {
     return ebeanServer
         .find(Question.class)
         .where()
-        .eq("path", questionDefinition.getPath().toString())
-        .eq("version", questionDefinition.getVersion())
-        .ne("id", questionDefinition.isPersisted() ? questionDefinition.getId() : 0L)
+        .eq("path", newQuestionDefinition.getPath().toString())
+        .setMaxRows(1)
         .findOneOrEmpty();
   }
 

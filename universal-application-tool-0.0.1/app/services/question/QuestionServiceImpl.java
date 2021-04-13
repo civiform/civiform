@@ -36,10 +36,17 @@ public final class QuestionServiceImpl implements QuestionService {
 
   @Override
   public ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition questionDefinition) {
-    ImmutableSet<CiviFormError> errors = validateQuestion(questionDefinition);
+    ImmutableSet<CiviFormError> validationErrors = questionDefinition.validate();
+    ImmutableSet<CiviFormError> pathConflictErrors = validateNewQuestionPath(questionDefinition);
+    ImmutableSet<CiviFormError> errors =
+        ImmutableSet.<CiviFormError>builder()
+            .addAll(validationErrors)
+            .addAll(pathConflictErrors)
+            .build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
+
     Question question = questionRepository.insertQuestionSync(new Question(questionDefinition));
     return ErrorAnd.of(question.getQuestionDefinition());
   }
@@ -56,8 +63,7 @@ public final class QuestionServiceImpl implements QuestionService {
     if (!questionDefinition.isPersisted()) {
       throw new InvalidUpdateException("question definition is not persisted");
     }
-
-    ImmutableSet<CiviFormError> validateErrors = validateQuestion(questionDefinition);
+    ImmutableSet<CiviFormError> validationErrors = questionDefinition.validate();
 
     Optional<Question> maybeQuestion =
         questionRepository.lookupQuestion(questionDefinition.getId()).toCompletableFuture().join();
@@ -71,7 +77,7 @@ public final class QuestionServiceImpl implements QuestionService {
 
     ImmutableSet<CiviFormError> errors =
         ImmutableSet.<CiviFormError>builder()
-            .addAll(validateErrors)
+            .addAll(validationErrors)
             .addAll(invariantErrors)
             .build();
     if (!errors.isEmpty()) {
@@ -99,12 +105,12 @@ public final class QuestionServiceImpl implements QuestionService {
                     .collect(ImmutableList.toImmutableList()));
   }
 
-  /** Validates a question and checks for path conflicts. */
-  private ImmutableSet<CiviFormError> validateQuestion(QuestionDefinition questionDefinition) {
-    ImmutableSet<CiviFormError> errors = questionDefinition.validate();
-    if (!errors.isEmpty()) {
-      return errors;
-    }
+  /**
+   * Check for path conflicts. This is to be only used with new questions because updated questions
+   * conflict with themselves, and new versions of questions conflict with previous versions.
+   */
+  private ImmutableSet<CiviFormError> validateNewQuestionPath(
+      QuestionDefinition questionDefinition) {
     Optional<Question> maybeConflict =
         questionRepository.findPathConflictingQuestion(questionDefinition);
     if (maybeConflict.isPresent()) {
