@@ -194,11 +194,11 @@ public class AddressQuestion implements PresentsErrors {
     return applicantQuestion.getApplicantData().hasPath(getZipPath());
   }
 
-  @Override
   /**
    * Returns true if any one of the address fields is answered. Returns false if all are not
    * answered.
    */
+  @Override
   public boolean isAnswered() {
     return isStreetAnswered() || isCityAnswered() || isStateAnswered() || isZipAnswered();
   }
