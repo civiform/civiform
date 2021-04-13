@@ -3,13 +3,11 @@ package views.components;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.span;
 
-import com.google.common.base.Strings;
 import j2html.tags.ContainerTag;
 import java.util.UUID;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
-
 
 /** ToastMessages are messages that appear on the screen to show information to the user. */
 public class ToastMessage {
@@ -25,6 +23,7 @@ public class ToastMessage {
 
   /** Toast messages are instantiated with a random id. */
   private String id = UUID.randomUUID();
+
   private String message = "";
 
   private String CORE_TOAST_CLASSES =
@@ -47,7 +46,7 @@ public class ToastMessage {
           Styles.TRANSFORM);
 
   private String ALERT_CLASSES = StyleUtils.joinStyles(Styles.BG_GRAY_200, Styles.BORDER_GRAY_300);
-  
+
   private String ERROR_CLASSES = StyleUtils.joinStyles(Styles.BG_RED_400, Styles.BORDER_RED_500);
 
   private String SUCCESS_CLASSES =
@@ -84,10 +83,10 @@ public class ToastMessage {
     this.canDismiss = canDismiss;
     return this;
   }
-  
+
   /**
-   * If true, dismissing the toast message will prevent other toast messages 
-   * with the same id from being displayed on subsequent pages.
+   * If true, dismissing the toast message will prevent other toast messages with the same id from
+   * being displayed on subsequent pages.
    */
   public ToastMessage setIgnorable(boolean canIgnore) {
     this.canIgnore = canIgnore;
@@ -95,8 +94,8 @@ public class ToastMessage {
   }
 
   /**
-   * How long the toast displays before auto-hiding. A duration <= 0 indicates
-   * that the toast is never automatically hidden.
+   * How long the toast displays before auto-hiding. A duration <= 0 indicates that the toast is
+   * never automatically hidden.
    */
   public ToastMessage setDuration(int duration) {
     this.duration = duration;
@@ -128,17 +127,17 @@ public class ToastMessage {
         styles = StyleUtils.joinStyles(styles, ALERT_CLASSES);
         wrappedWarningSvg.with(
             Icons.svg(Icons.INFO_SVG_PATH, 20)
-                .attr("fill-rule", "evenodd")                
+                .attr("fill-rule", "evenodd")
                 .withClasses(Styles.INLINE_BLOCK, Styles.H_6, Styles.W_6));
         break;
-      case ERROR: 
+      case ERROR:
         styles = StyleUtils.joinStyles(styles, ERROR_CLASSES);
         wrappedWarningSvg.with(
             Icons.svg(Icons.ERROR_SVG_PATH, 20)
-            .attr("fill-rule", "evenodd")
+                .attr("fill-rule", "evenodd")
                 .withClasses(Styles.INLINE_BLOCK, Styles.H_6, Styles.W_6));
         break;
-      case SUCCESS: 
+      case SUCCESS:
         styles = StyleUtils.joinStyles(styles, SUCCESS_CLASSES);
         wrappedWarningSvg.with(
             Icons.svg(Icons.CHECK_SVG_PATH, 20)

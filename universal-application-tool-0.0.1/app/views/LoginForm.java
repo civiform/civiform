@@ -5,8 +5,6 @@ import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.head;
-import static j2html.TagCreator.p;
-import static j2html.TagCreator.span;
 
 import auth.FakeAdminClient;
 import auth.GuestClient;
@@ -16,11 +14,8 @@ import j2html.tags.ContainerTag;
 import java.util.Optional;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import views.components.Icons;
 import views.components.ToastContainer;
 import views.components.ToastMessage;
-import views.style.StyleUtils;
-import views.style.Styles;
 
 public class LoginForm extends BaseHtmlView {
 
@@ -33,9 +28,9 @@ public class LoginForm extends BaseHtmlView {
 
   public Content render(Http.Request request, Optional<String> message) {
     if (message.isPresent()) {
-        String errorString = "Error: You are not logged in." + message.orElse("");
-        ToastMessage toast = ToastMessage.error(errorString);
-        ToastContainer.addMessage(toast);
+      String errorString = "Error: You are not logged in." + message.orElse("");
+      ToastMessage toast = ToastMessage.error(errorString);
+      ToastContainer.addMessage(toast);
     }
     ContainerTag bodyTag =
         body(

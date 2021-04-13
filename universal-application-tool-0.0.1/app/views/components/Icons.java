@@ -3,10 +3,14 @@ package views.components;
 import j2html.tags.ContainerTag;
 import services.question.types.QuestionType;
 
-public class Icons {  
-  public static final String INFO_SVG_PATH = "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z";
+public class Icons {
+  public static final String INFO_SVG_PATH =
+      "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0"
+          + " 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z";
   public static final String CHECK_SVG_PATH = "M5 13l4 4L19 7";
-  public static final String ERROR_SVG_PATH = "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z";
+  public static final String ERROR_SVG_PATH =
+      "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0"
+          + " 102 0V6a1 1 0 00-1-1z";
 
   public static final String ADDRESS_SVG_PATH =
       "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38"

@@ -1,21 +1,16 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.div;
 import static j2html.TagCreator.document;
-import static j2html.TagCreator.span;
 
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.Tag;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import javax.inject.Inject;
 import play.twirl.api.Content;
-import views.components.Icons;
 import views.components.ToastContainer;
-import views.style.StyleUtils;
-import views.style.Styles;
 
 /**
  * Base class for all layout classes.
@@ -39,7 +34,7 @@ public class BaseHtmlLayout extends BaseHtmlView {
     contents.add(ToastContainer.render());
     contents.add(viewUtils.makeLocalJsTag("toast"));
     return new HtmlResponseContent(contents.toArray(new DomContent[0]));
-  }  
+  }
 
   /**
    * Returns a script tag that loads Tailwindcss styles and configurations common to all pages in

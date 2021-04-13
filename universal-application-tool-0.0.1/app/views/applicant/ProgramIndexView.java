@@ -51,9 +51,8 @@ public class ProgramIndexView extends BaseHtmlView {
     ContainerTag body =
         body().withClasses(Styles.RELATIVE, Styles.PX_8, ApplicantStyles.BODY_BACKGROUND);
     if (banner.isPresent()) {
-        String errorString = "Error: You are not logged in." + banner.orElse("");
-        ToastMessage toast = ToastMessage.error(errorString);
-        ToastContainer.addMessage(toast);
+      ToastMessage toast = ToastMessage.error(banner.get());
+      ToastContainer.addMessage(toast);
     }
     body.with(
         nav()
