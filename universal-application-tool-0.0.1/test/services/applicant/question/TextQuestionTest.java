@@ -91,13 +91,11 @@ public class TextQuestionTest {
 
   @Test
   @Parameters({
-    // TODO(https://github.com/seattle-uat/civiform/issues/634): Uncomment the following line once
-    //  this bug is fixed.
-    // ",This answer must be at least 3 characters long.",
-    "a,This answer must be at least 3 characters long.",
-    "abcde,This answer must be at most 4 characters long."
+    ",Must contain at least 3 characters.",
+    "a,Must contain at least 3 characters.",
+    "abcde,Must contain at most 4 characters."
   })
-  public void withMinAndMaxLength_withInValidApplicantData_failsValidation(
+  public void withMinAndMaxLength_withInvalidApplicantData_failsValidation(
       String value, String expectedErrorMessage) {
     applicantData.putString(minAndMaxLengthTextQuestionDefinition.getTextPath(), value);
     ApplicantQuestion applicantQuestion =

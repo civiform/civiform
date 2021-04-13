@@ -90,10 +90,11 @@ public class NumberQuestionTest {
 
   @Test
   @Parameters({
-    "-1,This answer must be at least 50.",
-    "0,This answer must be at least 50.",
-    "49,This answer must be at least 50.",
-    "999,This answer cannot be larger than 100."
+    "-1,Must be at least 50.",
+    "0,Must be at least 50.",
+    "49,Must be at least 50.",
+    "101,Must be at most 100.",
+    "999,Must be at most 100."
   })
   public void withMinAndMaxValue_withInvalidApplicantData_failsValidation(
       long value, String expectedErrorMessage) {
