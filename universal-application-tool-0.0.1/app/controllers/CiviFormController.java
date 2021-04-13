@@ -1,8 +1,11 @@
 package controllers;
 
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableSet;
 import java.util.StringJoiner;
+import java.util.concurrent.CompletableFuture;
 import play.mvc.Controller;
+import play.mvc.Http;
 import services.CiviFormError;
 
 /**
@@ -17,5 +20,10 @@ public class CiviFormController extends Controller {
       messageJoiner.add(e.message());
     }
     return messageJoiner.toString();
+  }
+
+  protected CompletableFuture<Void> checkApplicantAuthorization(
+      ProfileUtils profileUtils, Http.Request request, long applicantId) {
+    return profileUtils.currentUserProfile(request).orElseThrow().checkAuthorization(applicantId);
   }
 }

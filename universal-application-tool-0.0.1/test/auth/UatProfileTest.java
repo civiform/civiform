@@ -1,0 +1,68 @@
+package auth;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import com.google.common.collect.ImmutableList;
+import models.Account;
+import models.Applicant;
+import org.junit.Before;
+import org.junit.Test;
+import repository.WithPostgresContainer;
+
+public class UatProfileTest extends WithPostgresContainer {
+
+  private ProfileFactory profileFactory;
+
+  @Before
+  public void setupProfileData() {
+    profileFactory = instanceOf(ProfileFactory.class);
+  }
+
+  @Test
+  public void checkAuthorization_admin_passesForAnyId() {
+    UatProfileData data = profileFactory.createNewAdmin();
+    UatProfile profile = profileFactory.wrapProfileData(data);
+
+    profile.checkAuthorization(1234L).join();
+  }
+
+  @Test
+  public void checkAuthorization_applicant_passesForOwnId() throws Exception {
+    UatProfileData data = profileFactory.createNewApplicant();
+    UatProfile profile = profileFactory.wrapProfileData(data);
+
+    profile.checkAuthorization(profile.getApplicant().get().id).join();
+  }
+
+  @Test
+  public void checkAuthorization_passesForOneOfSeveralIdsInAccount() {
+    // We need to save these first so that the IDs are populated.
+    Applicant one = resourceCreator.insertApplicant();
+    Applicant two = resourceCreator.insertApplicant();
+    Applicant three = resourceCreator.insertApplicant();
+    Account account = resourceCreator.insertAccount();
+
+    // Set the accounts on applicants and the applicants on the account. Saving required!
+    one.setAccount(account);
+    one.save();
+    two.setAccount(account);
+    two.save();
+    three.setAccount(account);
+    three.save();
+    account.setApplicants(ImmutableList.of(one, two, three));
+    account.save();
+
+    UatProfile profile = profileFactory.wrap(account);
+
+    profile.checkAuthorization(two.id).join();
+  }
+
+  @Test
+  public void checkAuthorization_fails() {
+    UatProfileData data = profileFactory.createNewApplicant();
+    UatProfile profile = profileFactory.wrapProfileData(data);
+
+    assertThatThrownBy(() -> profile.checkAuthorization(1234L).join())
+        .hasCauseInstanceOf(SecurityException.class);
+  }
+}

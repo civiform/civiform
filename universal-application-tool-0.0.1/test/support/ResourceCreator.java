@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import models.Account;
 import models.Applicant;
 import models.LifecycleStage;
 import models.Program;
@@ -76,5 +77,11 @@ public class ResourceCreator {
     Applicant applicant = new Applicant();
     applicant.save();
     return applicant;
+  }
+
+  public Account insertAccount() {
+    Account account = new Account();
+    account.save();
+    return account;
   }
 }
