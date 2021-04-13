@@ -130,13 +130,25 @@ export class AdminPrograms {
     await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', ':text("Applications")'));
   }
 
+  selectApplicationCardForApplicant(applicantName: string) {
+    return `.cf-admin-application-card:has-text("${applicantName}")`;
+  }
+
+  selectWithinApplicationForApplicant(applicantName: string, selector: string) {
+    return this.selectApplicationCardForApplicant(applicantName) + ' ' + selector;
+  }
+
+  selectApplicationBlock(blockName: string) {
+    return `.cf-admin-application-block-card:has-text("${blockName}")`;
+  }
+
   async viewApplicationForApplicant(applicantName: string) {
-    await this.page.click(`div.border:has-text("${applicantName}") :text("View")`);
+    await this.page.click(this.selectWithinApplicationForApplicant(applicantName, ':text("View")'));
   }
 
   async expectApplicationAnswers(blockName: string, questionName: string, answer: string) {
-    expect(await this.page.innerText(`div.border:has-text("${blockName}")`)).toContain(questionName);
-    expect(await this.page.innerText(`div.border:has-text("${blockName}")`)).toContain(answer);
+    expect(await this.page.innerText(this.selectApplicationBlock(blockName))).toContain(questionName);
+    expect(await this.page.innerText(this.selectApplicationBlock(blockName))).toContain(answer);
   }
 
   async getCsv() {
