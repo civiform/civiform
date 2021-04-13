@@ -20,7 +20,8 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      ImmutableListMultimap<Locale, String> options) {
+      ImmutableListMultimap<Locale, String> options,
+      MultiOptionValidationPredicates validationPredicates) {
     super(
         id,
         version,
@@ -31,7 +32,32 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
         lifecycleStage,
         questionText,
         questionHelpText,
-        options);
+        options,
+        validationPredicates);
+  }
+
+  public CheckboxQuestionDefinition(
+      long version,
+      String name,
+      Path path,
+      Optional<Long> repeaterId,
+      String description,
+      LifecycleStage lifecycleStage,
+      ImmutableMap<Locale, String> questionText,
+      ImmutableMap<Locale, String> questionHelpText,
+      ImmutableListMultimap<Locale, String> options,
+      MultiOptionValidationPredicates validationPredicates) {
+    super(
+        version,
+        name,
+        path,
+        repeaterId,
+        description,
+        lifecycleStage,
+        questionText,
+        questionHelpText,
+        options,
+        validationPredicates);
   }
 
   public CheckboxQuestionDefinition(
@@ -53,7 +79,8 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
         lifecycleStage,
         questionText,
         questionHelpText,
-        options);
+        options,
+        MultiOptionValidationPredicates.create());
   }
 
   @Override

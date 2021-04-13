@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
@@ -260,6 +261,16 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     Applicant applicant = subject.createApplicant(1l).toCompletableFuture().join();
 
     assertThat(applicant.id).isNotNull();
+  }
+
+  @Test
+  public void createApplicant_ApplicantTime() {
+    Applicant applicant = subject.createApplicant(1l).toCompletableFuture().join();
+
+    Instant t = Instant.now();
+
+    assertThat(applicant.getWhenCreated()).isNotNull();
+    assertThat(applicant.getWhenCreated()).isBefore(t);
   }
 
   @Test

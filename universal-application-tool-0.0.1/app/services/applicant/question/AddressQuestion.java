@@ -10,6 +10,8 @@ import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionType;
 
 public class AddressQuestion implements PresentsErrors {
+  private static final String PO_BOX_REGEX =
+      "(?i)(.*(P(OST|.)?\\s*((O(FF(ICE)?)?)?.?\\s*(B(IN|OX|.?)))+)).*";
 
   private final ApplicantQuestion applicantQuestion;
   private Optional<String> streetValue;
@@ -28,8 +30,25 @@ public class AddressQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    // TODO: Implement admin-defined validation.
-    return ImmutableSet.of();
+    if (!streetAnswered() && !cityAnswered() && !stateAnswered() && !zipAnswered()) {
+      return ImmutableSet.of();
+    }
+
+    AddressQuestionDefinition definition = getQuestionDefinition();
+    ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
+
+    if (definition.getDisallowPoBox()) {
+      Pattern poBoxPattern = Pattern.compile(PO_BOX_REGEX);
+      Matcher poBoxMatcher = poBoxPattern.matcher(getStreetValue().get());
+
+      if (poBoxMatcher.matches()) {
+        return ImmutableSet.of(
+            ValidationErrorMessage.create(
+                "Please enter a valid address. We do not accept PO Boxes."));
+      }
+    }
+
+    return errors.build();
   }
 
   @Override
@@ -88,7 +107,8 @@ public class AddressQuestion implements PresentsErrors {
       Pattern pattern = Pattern.compile("^[0-9]{5}(?:-[0-9]{4})?$");
       Matcher matcher = pattern.matcher(zipValue.get());
       if (!matcher.matches()) {
-        return ImmutableSet.of(ValidationErrorMessage.create("Please enter valid ZIP code."));
+        return ImmutableSet.of(
+            ValidationErrorMessage.create("Please enter valid 5-digit ZIP code."));
       }
     }
 

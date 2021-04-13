@@ -8,29 +8,28 @@ import java.util.Optional;
 import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
+import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
-import services.question.types.TextQuestionDefinition;
 
-public class TextQuestionFormTest {
+public class AddressQuestionFormTest {
 
   @Test
   public void getBuilder_returnsCompleteBuilder() throws Exception {
-    TextQuestionForm form = new TextQuestionForm();
+    AddressQuestionForm form = new AddressQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionParentPath("my.question.path");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
-    form.setMinLength("4");
-    form.setMaxLength("6");
+    form.setDisallowPoBox(true);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     builder.setVersion(1L);
     builder.setLifecycleStage(LifecycleStage.ACTIVE);
 
-    TextQuestionDefinition expected =
-        new TextQuestionDefinition(
+    AddressQuestionDefinition expected =
+        new AddressQuestionDefinition(
             1L,
             "name",
             Path.create("my.question.path.name"),
@@ -39,7 +38,7 @@ public class TextQuestionFormTest {
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
-            TextQuestionDefinition.TextValidationPredicates.create(4, 6));
+            AddressQuestionDefinition.AddressValidationPredicates.create(true));
 
     QuestionDefinition actual = builder.build();
 
@@ -48,8 +47,8 @@ public class TextQuestionFormTest {
 
   @Test
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
-    TextQuestionDefinition originalQd =
-        new TextQuestionDefinition(
+    AddressQuestionDefinition originalQd =
+        new AddressQuestionDefinition(
             1L,
             "name",
             Path.create("my.question.path.name"),
@@ -58,9 +57,9 @@ public class TextQuestionFormTest {
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
-            TextQuestionDefinition.TextValidationPredicates.create(4, 6));
+            AddressQuestionDefinition.AddressValidationPredicates.create());
 
-    TextQuestionForm form = new TextQuestionForm(originalQd);
+    AddressQuestionForm form = new AddressQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     builder.setVersion(1L);
@@ -69,37 +68,5 @@ public class TextQuestionFormTest {
     QuestionDefinition actual = builder.build();
 
     assertThat(actual).isEqualTo(originalQd);
-  }
-
-  @Test
-  public void getBuilder_emptyStringMinMax_noPredicateSet() throws Exception {
-    TextQuestionForm form = new TextQuestionForm();
-    form.setQuestionName("name");
-    form.setQuestionDescription("description");
-    form.setQuestionParentPath("my.question.path");
-    form.setQuestionText("What is the question text?");
-    form.setQuestionHelpText("");
-    form.setMinLength("");
-    form.setMaxLength("");
-    QuestionDefinitionBuilder builder = form.getBuilder();
-
-    builder.setVersion(1L);
-    builder.setLifecycleStage(LifecycleStage.ACTIVE);
-
-    TextQuestionDefinition expected =
-        new TextQuestionDefinition(
-            1L,
-            "name",
-            Path.create("my.question.path.name"),
-            Optional.empty(),
-            "description",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of(),
-            TextQuestionDefinition.TextValidationPredicates.create());
-
-    QuestionDefinition actual = builder.build();
-
-    assertThat(actual).isEqualTo(expected);
   }
 }

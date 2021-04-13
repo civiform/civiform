@@ -8,6 +8,10 @@ import java.util.OptionalLong;
 import models.LifecycleStage;
 import services.Path;
 
+/**
+ * Defines a dropdown question, which has a list of options, of which at most one and at least one
+ * must be selected.
+ */
 public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
 
   public DropdownQuestionDefinition(
@@ -31,7 +35,8 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
         lifecycleStage,
         questionText,
         questionHelpText,
-        options);
+        options,
+        SINGLE_SELECT_PREDICATE);
   }
 
   public DropdownQuestionDefinition(
@@ -53,7 +58,8 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
         lifecycleStage,
         questionText,
         questionHelpText,
-        options);
+        options,
+        SINGLE_SELECT_PREDICATE);
   }
 
   @Override
