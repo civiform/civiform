@@ -23,8 +23,7 @@ public class TextQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    // TODO(https://github.com/seattle-uat/civiform/issues/634): Fix bug related to hasValue.
-    if (!hasValue()) {
+    if (!isAnswered()) {
       return ImmutableSet.of();
     }
 
@@ -55,8 +54,8 @@ public class TextQuestion implements PresentsErrors {
     return false;
   }
 
-  public boolean hasValue() {
-    return getTextValue().isPresent();
+  public boolean isAnswered() {
+    return applicantQuestion.getApplicantData().hasPath(getTextPath());
   }
 
   public Optional<String> getTextValue() {
