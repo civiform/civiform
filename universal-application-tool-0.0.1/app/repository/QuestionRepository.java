@@ -14,9 +14,11 @@ import models.LifecycleStage;
 import models.Program;
 import models.Question;
 import play.db.ebean.EbeanConfig;
+import services.Path;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
 
 public class QuestionRepository {
 
@@ -149,14 +151,56 @@ public class QuestionRepository {
    * <p>This is intended to be used for new question definitions, since updates will collide with
    * themselves and previous versions, and new versions of an old question will conflict with the
    * old question.
+   *
+   * <p>A new question definition's path conflicts with a stored question if it is NOT a {@link
+   * QuestionType#REPEATER}, and starts with, or is started with, the stored question's path.
    */
   public Optional<Question> findPathConflictingQuestion(QuestionDefinition newQuestionDefinition) {
-    return ebeanServer
+    PathConflictDetector pathConflictDetector =
+        new PathConflictDetector(newQuestionDefinition.getPath());
+    ebeanServer
         .find(Question.class)
-        .where()
-        .eq("path", newQuestionDefinition.getPath().toString())
-        .setMaxRows(1)
-        .findOneOrEmpty();
+        .findEachWhile(question -> !pathConflictDetector.hasConflict(question));
+    return pathConflictDetector.getConflictedQuestion();
+  }
+
+  private static class PathConflictDetector {
+    private Optional<Question> conflictedQuestion = Optional.empty();
+    private final Path newPath;
+
+    private PathConflictDetector(Path newPath) {
+      this.newPath = checkNotNull(newPath);
+    }
+
+    private Optional<Question> getConflictedQuestion() {
+      return conflictedQuestion;
+    }
+
+    private boolean hasConflict(Question question) {
+      Path other = Path.create(question.getPath());
+
+      // Conflict exists if paths are exactly the same
+      if (newPath.equals(other)) {
+        conflictedQuestion = Optional.of(question);
+        return true;
+      }
+
+      // Conflict exists if an existing path starts with this new path
+      if (other.startsWith(newPath)) {
+        conflictedQuestion = Optional.of(question);
+        return true;
+      }
+
+      // Conflict exists if this new path starts with an existing path for a non-repeater question,
+      // but not for repeater questions, since that is a very common pattern.
+      QuestionType otherType = question.getQuestionDefinition().getQuestionType();
+      if (!otherType.equals(QuestionType.REPEATER) && newPath.startsWith(other)) {
+        conflictedQuestion = Optional.of(question);
+        return true;
+      }
+
+      return false;
+    }
   }
 
   public CompletionStage<Optional<Question>> lookupQuestionByPath(String path) {

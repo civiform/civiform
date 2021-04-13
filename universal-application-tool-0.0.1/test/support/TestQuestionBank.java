@@ -64,6 +64,12 @@ public class TestQuestionBank {
         QuestionEnum.APPLICANT_HOUSEHOLD_MEMBERS, TestQuestionBank::applicantHouseholdMembers);
   }
 
+  public static Question applicantHouseholdMemberName() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_NAME,
+        TestQuestionBank::applicantHouseholdMemberName);
+  }
+
   private static Question applicantName(QuestionEnum ignore) {
     QuestionDefinition definition =
         new NameQuestionDefinition(
@@ -121,6 +127,22 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  private static Question applicantHouseholdMemberName(QuestionEnum ignore) {
+    Question householdMembers = applicantHouseholdMembers();
+    QuestionDefinition definition =
+        new NameQuestionDefinition(
+            VERSION,
+            "household members name",
+            Path.create("applicant.applicant_household_members[].name"),
+            Optional.of(householdMembers.id),
+            "The applicant's household member's name",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "what is the household member's name?"),
+            ImmutableMap.of(Locale.US, "help text"));
+
+    return maybeSave(definition);
+  }
+
   private static Question maybeSave(QuestionDefinition questionDefinition) {
     Question question = new Question(questionDefinition);
     try {
@@ -141,6 +163,7 @@ public class TestQuestionBank {
     APPLICANT_NAME,
     APPLICANT_ADDRESS,
     APPLICANT_FAVORITE_COLOR,
-    APPLICANT_HOUSEHOLD_MEMBERS
+    APPLICANT_HOUSEHOLD_MEMBERS,
+    APPLICANT_HOUSEHOLD_MEMBER_NAME
   }
 }
