@@ -105,11 +105,12 @@ public class AddressQuestionTest {
   }
 
   @Test
-  public void withInvalidApplicantData_invalidZipCode() {
+  @Parameters({"not a zip code", "123456789", "123ab"})
+  public void withInvalidApplicantData_invalidZipCode(String zipValue) {
     applicantData.putString(addressQuestionDefinition.getStreetPath(), "123 A St");
     applicantData.putString(addressQuestionDefinition.getCityPath(), "Seattle");
     applicantData.putString(addressQuestionDefinition.getStatePath(), "WA");
-    applicantData.putString(addressQuestionDefinition.getZipPath(), "not a zip code");
+    applicantData.putString(addressQuestionDefinition.getZipPath(), zipValue);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(addressQuestionDefinition, applicantData);
 
