@@ -39,25 +39,31 @@ export class AdminPrograms {
     await this.expectProgramExist(programName, description);
   }
 
+  selectProgramCard(programName: string, lifecycle: string) {
+    return `.cf-admin-program-card:has(:text("${programName}")):has(:text("${lifecycle}"))`;
+  }
+
+  selectWithinProgramCard(programName: string, lifecycle: string, selector: string) {
+    return this.selectProgramCard(programName, lifecycle) + ' ' + selector;
+  }
+
   async gotoDraftProgramEditPage(programName: string) {
     await this.gotoAdminProgramsPage();
     await this.expectDraftProgram(programName);
-    // Get the admin program card enclosing the specified program. Once we settle on
-    // admin style, we should make a more identifiable class, e.g. ".cf-admin-program-card".
-    await this.page.click(`div.border:has-text("${programName}") :text("Edit")`);
+    await this.page.click(this.selectWithinProgramCard(programName, 'DRAFT', ':text("Edit")'));
     await this.expectProgramEditPage(programName);
   }
 
   async expectDraftProgram(programName: string) {
-    expect(await this.page.innerText(`div.border:has(:text("${programName}"), :text("DRAFT"))`)).toContain('Publish');
+    expect(await this.page.innerText(this.selectProgramCard(programName, 'DRAFT'))).toContain('Publish');
   }
 
   async expectActiveProgram(programName: string) {
-    expect(await this.page.innerText(`div.border:has(:text("${programName}"), :text("ACTIVE"))`)).toContain('New Version');
+    expect(await this.page.innerText(this.selectProgramCard(programName, 'ACTIVE'))).toContain('New Version');
   }
 
   async expectObsoleteProgram(programName: string) {
-    expect(await this.page.innerText(`div.border:has(:text("${programName}"), :text("OBSOLETE"))`)).toContain('Applications');
+    expect(await this.page.innerText(this.selectProgramCard(programName, 'OBSOLETE'))).toContain('Applications');
   }
 
   async expectProgramEditPage(programName: string = '') {
@@ -104,21 +110,24 @@ export class AdminPrograms {
   async publishProgram(programName: string) {
     await this.gotoAdminProgramsPage();
     await this.expectDraftProgram(programName);
-    await this.page.click(`div.border:has(:text("${programName}"), :text("DRAFT")) :text("Publish")`);
+    const hadActive = await this.page.$$eval(this.selectProgramCard(programName, 'ACTIVE'), p => p.length > 0);
+    await this.page.click(this.selectWithinProgramCard(programName, 'DRAFT', ':text("Publish")'));
     await this.expectActiveProgram(programName);
+    if (hadActive) {
+      await this.expectObsoleteProgram(programName);
+    }
   }
 
   async createNewVersion(programName: string) {
     await this.gotoAdminProgramsPage();
     await this.expectActiveProgram(programName);
-    await this.page.click(`div.border:has(:text("${programName}"), :text("ACTIVE")) :text("New Version")`);
+    await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', ':text("New Version")'));
     await this.page.click('#program-update-button');
-    await this.expectObsoleteProgram(programName);
     await this.expectDraftProgram(programName);
   }
 
   async viewApplications(programName: string) {
-    await this.page.click(`div.border:has-text("${programName}") :text("Applications")`);
+    await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', ':text("Applications")'));
   }
 
   async viewApplicationForApplicant(applicantName: string) {
