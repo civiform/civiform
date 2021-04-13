@@ -69,7 +69,7 @@ public class ApplicationRepository {
               .createQuery(Application.class)
               .where()
               .eq("applicant.id", applicant.id)
-              .eq("program.name", program.getProgramDefinition().getNameForDefaultLocale())
+              .eq("program.name", program.getProgramDefinition().name())
               .findList();
       for (Application application : oldApplications) {
         // Delete any in-progress drafts, and mark obsolete any old applications.

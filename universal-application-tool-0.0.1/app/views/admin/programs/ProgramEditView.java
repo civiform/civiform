@@ -25,8 +25,7 @@ public class ProgramEditView extends BaseHtmlView {
 
   public Content render(Request request, ProgramDefinition program) {
     ContainerTag formTag =
-        buildProgramForm(
-                program.getNameForDefaultLocale(), program.getDescriptionForDefaultLocale())
+        buildProgramForm(program.name(), program.getDescriptionForAdminLocale())
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(program.id()))
             .withAction(controllers.admin.routes.AdminProgramController.update(program.id()).url());

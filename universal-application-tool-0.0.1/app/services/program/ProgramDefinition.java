@@ -24,10 +24,16 @@ public abstract class ProgramDefinition {
   public abstract long id();
 
   /**
+   * Descriptive name of a Program, e.g. Car Tab Rebate Program. This is immutable and should only
+   * be used to help admins identify programs.
+   */
+  public abstract String name();
+
+  /**
    * Descriptive name of a Program, e.g. Car Tab Rebate Program, localized for each supported
    * locale.
    */
-  public abstract ImmutableMap<Locale, String> name();
+  public abstract ImmutableMap<Locale, String> localizedName();
 
   /** A human readable description of a Program, localized for each supported locale. */
   public abstract ImmutableMap<Locale, String> description();
@@ -41,35 +47,25 @@ public abstract class ProgramDefinition {
   /** The list of {@link ExportDefinition}s that make up the program. */
   public abstract ImmutableList<ExportDefinition> exportDefinitions();
 
-  /** The default locale for CiviForm is US English. */
-  public String getNameForDefaultLocale() {
-    try {
-      return getNameForLocale(Locale.US);
-    } catch (TranslationNotFoundException e) {
-      // This should never happen - US English should always be supported.
-      throw new RuntimeException(e);
-    }
-  }
-
-  public String getNameForLocale(Locale locale) throws TranslationNotFoundException {
-    if (name().containsKey(locale)) {
-      return name().get(locale);
+  public String getLocalizedName(Locale locale) throws TranslationNotFoundException {
+    if (localizedName().containsKey(locale)) {
+      return localizedName().get(locale);
     } else {
       throw new TranslationNotFoundException(id(), locale);
     }
   }
 
   /** The default locale for CiviForm is US English. */
-  public String getDescriptionForDefaultLocale() {
+  public String getDescriptionForAdminLocale() {
     try {
-      return getDescriptionForLocale(Locale.US);
+      return getDescription(Locale.US);
     } catch (TranslationNotFoundException e) {
       // This should never happen - US English should always be supported.
       throw new RuntimeException(e);
     }
   }
 
-  public String getDescriptionForLocale(Locale locale) throws TranslationNotFoundException {
+  public String getDescription(Locale locale) throws TranslationNotFoundException {
     if (description().containsKey(locale)) {
       return description().get(locale);
     } else {
@@ -172,9 +168,11 @@ public abstract class ProgramDefinition {
 
     public abstract Builder setId(long id);
 
-    public abstract Builder setName(ImmutableMap<Locale, String> name);
+    public abstract Builder setName(String name);
 
-    public abstract ImmutableMap.Builder<Locale, String> nameBuilder();
+    public abstract Builder setLocalizedName(ImmutableMap<Locale, String> name);
+
+    public abstract ImmutableMap.Builder<Locale, String> localizedNameBuilder();
 
     public abstract Builder setDescription(ImmutableMap<Locale, String> description);
 
@@ -193,7 +191,7 @@ public abstract class ProgramDefinition {
     public abstract ProgramDefinition build();
 
     public Builder addName(Locale locale, String name) {
-      nameBuilder().put(locale, name);
+      localizedNameBuilder().put(locale, name);
       return this;
     }
 

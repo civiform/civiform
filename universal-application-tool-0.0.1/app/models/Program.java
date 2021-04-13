@@ -27,6 +27,8 @@ public class Program extends BaseModel {
 
   private ProgramDefinition programDefinition;
 
+  @Constraints.Required private String name;
+
   @Constraints.Required @DbJsonB private ImmutableMap<Locale, String> localizedName;
 
   @Constraints.Required @DbJsonB private ImmutableMap<Locale, String> localizedDescription;
@@ -49,7 +51,8 @@ public class Program extends BaseModel {
   public Program(ProgramDefinition definition) {
     this.programDefinition = definition;
     this.id = definition.id();
-    this.localizedName = definition.name();
+    this.name = definition.name();
+    this.localizedName = definition.localizedName();
     this.localizedDescription = definition.description();
     this.blockDefinitions = definition.blockDefinitions();
     this.lifecycleStage = definition.lifecycleStage();
@@ -61,6 +64,7 @@ public class Program extends BaseModel {
    * block named Block 1.
    */
   public Program(String name, String description) {
+    this.name = name;
     this.localizedName = ImmutableMap.of(Locale.US, name);
     this.localizedDescription = ImmutableMap.of(Locale.US, description);
     this.lifecycleStage = LifecycleStage.DRAFT;
@@ -79,7 +83,8 @@ public class Program extends BaseModel {
   @PreUpdate
   public void persistChangesToProgramDefinition() {
     id = programDefinition.id();
-    localizedName = programDefinition.name();
+    name = programDefinition.name();
+    localizedName = programDefinition.localizedName();
     localizedDescription = programDefinition.description();
     blockDefinitions = programDefinition.blockDefinitions();
     lifecycleStage = programDefinition.lifecycleStage();
@@ -94,7 +99,8 @@ public class Program extends BaseModel {
     this.programDefinition =
         ProgramDefinition.builder()
             .setId(id)
-            .setName(localizedName)
+            .setName(name)
+            .setLocalizedName(localizedName)
             .setDescription(localizedDescription)
             .setBlockDefinitions(blockDefinitions)
             .setLifecycleStage(lifecycleStage)

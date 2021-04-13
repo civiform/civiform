@@ -155,12 +155,12 @@ public class ProgramIndexView extends BaseHtmlView {
           div()
               .withId(baseId + "-title")
               .withClasses(Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
-              .withText(program.getNameForLocale(preferredLocale));
+              .withText(program.getLocalizedName(preferredLocale));
       description =
           div()
               .withId(baseId + "-description")
               .withClasses(Styles.TEXT_XS, Styles.MY_2)
-              .withText(program.getDescriptionForLocale(preferredLocale));
+              .withText(program.getDescription(preferredLocale));
     } catch (TranslationNotFoundException e) {
       throw new RuntimeException(e);
     }

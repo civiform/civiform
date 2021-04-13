@@ -62,8 +62,8 @@ public final class ProgramIndexView extends BaseHtmlView {
     String publishLinkText = "Publish";
     String viewApplicationsLinkText = "Applications →";
 
-    String programTitleText = program.getNameForDefaultLocale();
-    String programDescriptionText = program.getDescriptionForDefaultLocale();
+    String programTitleText = program.name();
+    String programDescriptionText = program.getDescriptionForAdminLocale();
 
     long programId = program.id();
     String blockCountText = "Blocks: " + program.getBlockCount();

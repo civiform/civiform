@@ -116,7 +116,7 @@ public class ProgramServiceImpl implements ProgramService {
     }
     Program program =
         programDefinition.toBuilder()
-            .setName(ImmutableMap.of(Locale.US, name))
+            .setLocalizedName(ImmutableMap.of(Locale.US, name))
             .setDescription(ImmutableMap.of(Locale.US, description))
             .build()
             .toProgram();

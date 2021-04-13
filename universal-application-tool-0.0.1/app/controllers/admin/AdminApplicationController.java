@@ -50,8 +50,7 @@ public class AdminApplicationController extends Controller {
   public Result downloadAll(long programId) {
     try {
       ProgramDefinition program = service.getProgramDefinition(programId);
-      String filename =
-          String.format("%s-%s.csv", program.getNameForDefaultLocale(), clock.instant().toString());
+      String filename = String.format("%s-%s.csv", program.name(), clock.instant().toString());
       String csv = exporterService.getProgramCsv(programId);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)

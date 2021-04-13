@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.Transaction;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -19,6 +18,7 @@ import models.Question;
 import play.db.ebean.EbeanConfig;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
 
 public class ProgramRepository {
@@ -136,10 +136,7 @@ public class ProgramRepository {
                 ebeanServer
                     .find(Program.class)
                     .where()
-                    .jsonEqualTo(
-                        "localized_name",
-                        Locale.US.toString(),
-                        program.getProgramDefinition().getNameForDefaultLocale())
+                    .eq("name", program.getProgramDefinition().name())
                     .eq("lifecycle_stage", LifecycleStage.ACTIVE)
                     .not()
                     .eq("id", program.id)
@@ -174,18 +171,14 @@ public class ProgramRepository {
         executionContext);
   }
 
-  public Program createOrUpdateDraft(Program existingProgram) {
+  public Program createOrUpdateDraft(Program existingProgram) throws ProgramNotFoundException {
     Optional<Program> existingDraft =
         ebeanServer
             .find(Program.class)
             .where()
             .eq("lifecycle_stage", LifecycleStage.DRAFT.getValue())
-            .jsonEqualTo(
-                "localized_name",
-                Locale.US.toString(),
-                existingProgram.getProgramDefinition().getNameForDefaultLocale())
+            .eq("name", existingProgram.getProgramDefinition().name())
             .findOneOrEmpty();
-
     if (existingDraft.isPresent()) {
       Program updatedDraft =
           existingProgram.getProgramDefinition().toBuilder()
