@@ -7,7 +7,7 @@
  *  - dismiss a toast messages based on a user action or after a specified timeout.
  *  - permanently dismiss toast messags (using localStorage)
  */
-class Toast {
+class ToastController {
   containerId = 'toast-container';
   messageClass = '.cf-toast';
 
@@ -89,4 +89,4 @@ class Toast {
   }
 }
 
-new Toast();
+new ToastController();
