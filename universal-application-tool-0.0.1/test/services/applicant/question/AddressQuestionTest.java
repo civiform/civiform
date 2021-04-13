@@ -94,14 +94,10 @@ public class AddressQuestionTest {
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isTrue();
-    assertThat(addressQuestion.getStreetErrors())
-        .contains(ValidationErrorMessage.create("Please enter valid street name and number."));
-    assertThat(addressQuestion.getCityErrors())
-        .contains(ValidationErrorMessage.create("Please enter city."));
-    assertThat(addressQuestion.getStateErrors())
-        .contains(ValidationErrorMessage.create("Please enter state."));
-    assertThat(addressQuestion.getZipErrors())
-        .contains(ValidationErrorMessage.create("Please enter valid ZIP code."));
+    assertThat(addressQuestion.getStreetErrors()).contains(ValidationErrorMessage.streetRequired());
+    assertThat(addressQuestion.getCityErrors()).contains(ValidationErrorMessage.cityRequired());
+    assertThat(addressQuestion.getStateErrors()).contains(ValidationErrorMessage.stateRequired());
+    assertThat(addressQuestion.getZipErrors()).contains(ValidationErrorMessage.zipRequired());
   }
 
   @Test
@@ -117,8 +113,7 @@ public class AddressQuestionTest {
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isTrue();
-    assertThat(addressQuestion.getZipErrors())
-        .contains(ValidationErrorMessage.create("Please enter valid 5-digit ZIP code."));
+    assertThat(addressQuestion.getZipErrors()).contains(ValidationErrorMessage.invalidZip());
     assertThat(addressQuestion.getStreetErrors()).isEmpty();
     assertThat(addressQuestion.getCityErrors()).isEmpty();
     assertThat(addressQuestion.getStateErrors()).isEmpty();
@@ -162,9 +157,6 @@ public class AddressQuestionTest {
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(addressQuestion.getQuestionErrors())
-        .containsOnly(
-            ValidationErrorMessage.create(
-                "Please enter a valid address. We do not accept PO Boxes."));
+    assertThat(addressQuestion.getQuestionErrors()).containsOnly(ValidationErrorMessage.noPoBox());
   }
 }
