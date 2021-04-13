@@ -24,7 +24,7 @@ public class MultiSelectQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    if (!hasValue()) {
+    if (!isAnswered()) {
       return ImmutableSet.of();
     }
 
@@ -59,6 +59,10 @@ public class MultiSelectQuestion implements PresentsErrors {
 
   public boolean hasValue() {
     return getSelectedOptionsValue().isPresent();
+  }
+
+  public boolean isAnswered() {
+    return applicantQuestion.getApplicantData().hasPath(getSelectionPath());
   }
 
   public Optional<ImmutableList<String>> getSelectedOptionsValue() {

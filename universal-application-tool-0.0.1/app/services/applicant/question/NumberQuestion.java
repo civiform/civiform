@@ -23,7 +23,7 @@ public class NumberQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    if (!hasValue()) {
+    if (!isAnswered()) {
       return ImmutableSet.of();
     }
 
@@ -54,8 +54,8 @@ public class NumberQuestion implements PresentsErrors {
     return false;
   }
 
-  public boolean hasValue() {
-    return getNumberValue().isPresent();
+  public boolean isAnswered() {
+    return applicantQuestion.getApplicantData().hasPath(getNumberPath());
   }
 
   public Optional<Long> getNumberValue() {

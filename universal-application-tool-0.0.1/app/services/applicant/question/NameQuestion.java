@@ -57,18 +57,6 @@ public class NameQuestion implements PresentsErrors {
     return ImmutableSet.of();
   }
 
-  public boolean hasFirstNameValue() {
-    return getFirstNameValue().isPresent();
-  }
-
-  public boolean hasMiddleNameValue() {
-    return getMiddleNameValue().isPresent();
-  }
-
-  public boolean hasLastNameValue() {
-    return getLastNameValue().isPresent();
-  }
-
   public Optional<String> getFirstNameValue() {
     if (firstNameValue != null) {
       return firstNameValue;

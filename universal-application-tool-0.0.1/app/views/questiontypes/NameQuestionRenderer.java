@@ -45,7 +45,7 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                         .withType("text")
                         .withPlaceholder("First name")
                         .withCondValue(
-                            nameQuestion.hasFirstNameValue(),
+                            nameQuestion.getFirstNameValue().isPresent(),
                             nameQuestion.getFirstNameValue().orElse(""))
                         .withName(nameQuestion.getFirstNamePath().path()),
                     fieldErrors(nameQuestion.getFirstNameErrors())),
@@ -56,7 +56,7 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                         .withType("text")
                         .withPlaceholder("Middle name")
                         .withCondValue(
-                            nameQuestion.hasMiddleNameValue(),
+                            nameQuestion.getMiddleNameValue().isPresent(),
                             nameQuestion.getMiddleNameValue().orElse(""))
                         .withName(nameQuestion.getMiddleNamePath().path())),
             label()
@@ -66,7 +66,7 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                         .withType("text")
                         .withPlaceholder("Last name")
                         .withCondValue(
-                            nameQuestion.hasLastNameValue(),
+                            nameQuestion.getLastNameValue().isPresent(),
                             nameQuestion.getLastNameValue().orElse(""))
                         .withName(nameQuestion.getLastNamePath().path()),
                     fieldErrors(nameQuestion.getLastNameErrors())));

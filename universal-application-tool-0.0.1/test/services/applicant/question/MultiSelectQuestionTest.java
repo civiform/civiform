@@ -51,7 +51,7 @@ public class MultiSelectQuestionTest {
   }
 
   @Test
-  public void withPresentApplicantData_passesValidation() {
+  public void withValidApplicantData_passesValidation() {
     applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[0]"), "valid");
     applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[1]"), "ok");
     ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData);
@@ -63,7 +63,7 @@ public class MultiSelectQuestionTest {
   }
 
   @Test
-  public void multiOptionQuestion_withPresentApplicantData_tooFewSelected() {
+  public void tooFewSelected_failsValidation() {
     // Put too few selections.
     applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[0]"), "one");
 
@@ -75,7 +75,7 @@ public class MultiSelectQuestionTest {
   }
 
   @Test
-  public void multiOptionQuestion_withPresentApplicantData_tooManySelected() {
+  public void tooManySelected_failsValidation() {
     // Put too many selections.
     applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[0]"), "one");
     applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[1]"), "two");
@@ -90,7 +90,7 @@ public class MultiSelectQuestionTest {
   }
 
   @Test
-  public void withPresentApplicantData_selectedInvalidOptions_hasTypeErrors() {
+  public void selectedInvalidOptions_hasTypeErrors() {
     applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[0]"), "invalid");
     applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[1]"), "valid");
     ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData);

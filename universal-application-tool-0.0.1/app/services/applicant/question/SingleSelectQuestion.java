@@ -37,10 +37,6 @@ public class SingleSelectQuestion implements PresentsErrors {
         && !getOptions().contains(getSelectedOptionValue().get());
   }
 
-  public boolean hasValue() {
-    return getSelectedOptionValue().isPresent();
-  }
-
   public Optional<String> getSelectedOptionValue() {
     if (selectedOptionValue != null) {
       return selectedOptionValue;

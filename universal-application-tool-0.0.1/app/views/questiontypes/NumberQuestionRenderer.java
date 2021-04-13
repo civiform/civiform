@@ -40,7 +40,7 @@ public class NumberQuestionRenderer extends BaseHtmlView implements ApplicantQue
             input()
                 .withType("number")
                 .withCondValue(
-                    numberQuestion.hasValue(),
+                    numberQuestion.getNumberValue().isPresent(),
                     numberQuestion.getNumberValue().map(String::valueOf).orElse(""))
                 .withName(numberQuestion.getNumberPath().path()),
             fieldErrors(numberQuestion.getQuestionErrors()));
