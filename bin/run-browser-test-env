@@ -10,7 +10,7 @@ if [ -f ".secrets" ]; then
 fi
 
 # start localstack
-docker-compose -f browser-test/browser-test-compose.yml up -d localstack
+docker-compose -f browser-test/browser-test-compose.yml -f browser-test/browser-test-compose.dev.yml up -d localstack
 
 # wait till localstack running
 bin/localstack/wait http://localhost:6645
@@ -19,6 +19,6 @@ bin/localstack/wait http://localhost:6645
 bin/localstack/mk-s3 http://localhost:6645
 
 # start everything else
-docker-compose -f browser-test/browser-test-compose.yml up
+docker-compose -f browser-test/browser-test-compose.yml -f browser-test/browser-test-compose.dev.yml up
 
 popd

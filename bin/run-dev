@@ -18,7 +18,7 @@ fi
 echo "Starting localstack... set environment variable DISABLE_LOCALSTACK=1 to skip"
 
 # start localstack
-docker-compose up -d localstack
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d localstack
 
 # wait till localstack running
 # otherwise other services crash
@@ -28,6 +28,6 @@ bin/localstack/wait
 bin/localstack/mk-s3
 
 # start everything else
-docker-compose up
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
 
 popd
