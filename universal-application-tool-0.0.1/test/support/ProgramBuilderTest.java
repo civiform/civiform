@@ -32,8 +32,9 @@ public class ProgramBuilderTest {
             .buildDefinition();
 
     assertThat(programDefinition.id()).isGreaterThan(0);
-    assertThat(programDefinition.name()).isEqualTo("a new name");
-    assertThat(programDefinition.description()).isEqualTo("a new description");
+    assertThat(programDefinition.name()).isEqualTo(ImmutableMap.of(Locale.US, "a new name"));
+    assertThat(programDefinition.description())
+        .isEqualTo(ImmutableMap.of(Locale.US, "a new description"));
 
     assertThat(programDefinition.blockDefinitions()).hasSize(3);
     assertThat(programDefinition.getBlockDefinitionByIndex(0).get().id()).isEqualTo(1L);
@@ -93,8 +94,8 @@ public class ProgramBuilderTest {
     Program program = ProgramBuilder.newProgram().build();
 
     assertThat(program.id).isGreaterThan(0);
-    assertThat(program.getProgramDefinition().name()).isEqualTo("");
-    assertThat(program.getProgramDefinition().description()).isEqualTo("");
+    assertThat(program.getProgramDefinition().name()).isEmpty();
+    assertThat(program.getProgramDefinition().description()).isEmpty();
     assertThat(program.getProgramDefinition().getBlockCount()).isEqualTo(1);
   }
 }

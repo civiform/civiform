@@ -11,11 +11,13 @@ import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.ContainerTag;
+import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
+import services.program.TranslationNotFoundException;
 import views.BaseHtmlView;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
@@ -46,7 +48,8 @@ public class ProgramIndexView extends BaseHtmlView {
       Messages messages,
       long applicantId,
       ImmutableList<ProgramDefinition> programs,
-      Optional<String> banner) {
+      Optional<String> banner)
+      throws TranslationNotFoundException {
     ContainerTag body =
         body().withClasses(Styles.RELATIVE, Styles.PX_8, ApplicantStyles.BODY_BACKGROUND);
     if (banner.isPresent()) {
@@ -65,7 +68,8 @@ public class ProgramIndexView extends BaseHtmlView {
                 Styles.BORDER_WHITE)
             .with(branding(), status()),
         topContent(messages.at("content.benefits"), messages.at("content.description")),
-        mainContent(programs, applicantId, messages.at("button.apply")));
+        mainContent(
+            programs, applicantId, messages.lang().toLocale(), messages.at("button.apply")));
 
     return layout.render(body);
   }
@@ -109,14 +113,23 @@ public class ProgramIndexView extends BaseHtmlView {
   }
 
   private ContainerTag mainContent(
-      ImmutableList<ProgramDefinition> programs, long applicantId, String applyText) {
+      ImmutableList<ProgramDefinition> programs,
+      long applicantId,
+      Locale preferredLocale,
+      String applyText)
+      throws TranslationNotFoundException {
     return div()
         .withId("main-content")
         .withClasses(Styles.RELATIVE, Styles.W_FULL, Styles.FLEX, Styles.FLEX_WRAP, Styles.PB_8)
-        .with(each(programs, program -> programCard(program, applicantId, applyText)));
+        .with(
+            each(
+                programs,
+                program -> programCard(program, applicantId, preferredLocale, applyText)));
   }
 
-  private ContainerTag programCard(ProgramDefinition program, Long applicantId, String applyText) {
+  private ContainerTag programCard(
+      ProgramDefinition program, Long applicantId, Locale preferredLocale, String applyText)
+      throws TranslationNotFoundException {
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
     ContainerTag category =
         div()
@@ -142,12 +155,12 @@ public class ProgramIndexView extends BaseHtmlView {
         div()
             .withId(baseId + "-title")
             .withClasses(Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
-            .withText(program.name());
+            .withText(program.getNameForLocale(preferredLocale));
     ContainerTag description =
         div()
             .withId(baseId + "-description")
             .withClasses(Styles.TEXT_XS, Styles.MY_2)
-            .withText(program.description());
+            .withText(program.getDescriptionForLocale(preferredLocale));
     ContainerTag externalLink =
         div()
             .withId(baseId + "-external-link")

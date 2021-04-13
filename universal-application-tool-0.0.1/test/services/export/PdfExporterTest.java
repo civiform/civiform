@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.Optional;
 import models.Applicant;
 import models.LifecycleStage;
@@ -38,7 +39,7 @@ public class PdfExporterTest extends WithPostgresContainer {
     ProgramDefinition definition =
         ProgramDefinition.builder()
             .setId(1L)
-            .setName("fake program")
+            .addName(Locale.US, "fake program")
             .setDescription("fake program description")
             .setLifecycleStage(LifecycleStage.ACTIVE)
             .addExportDefinition(

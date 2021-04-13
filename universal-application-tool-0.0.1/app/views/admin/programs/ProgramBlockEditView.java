@@ -16,11 +16,13 @@ import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.Locale;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.program.TranslationNotFoundException;
 import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
@@ -99,11 +101,22 @@ public class ProgramBlockEditView extends BaseHtmlView {
   }
 
   private Tag programInfo(ProgramDefinition program) {
+    ContainerTag programTitle;
+    ContainerTag programDescription;
+    try {
+      programTitle =
+          div(program.getNameForLocale(Locale.US))
+              .withId("program-title")
+              .withClasses(Styles.TEXT_3XL, Styles.PB_3);
+      programDescription =
+          div(program.getDescriptionForLocale(Locale.US)).withClasses(Styles.TEXT_SM);
+    } catch (TranslationNotFoundException e) {
+      // We should always have a name and description for Locale.US.
+      throw new RuntimeException(e);
+    }
+
     ContainerTag programStatus =
         div("Draft").withId("program-status").withClasses(Styles.TEXT_XS, Styles.UPPERCASE);
-    ContainerTag programTitle =
-        div(program.name()).withId("program-title").withClasses(Styles.TEXT_3XL, Styles.PB_3);
-    ContainerTag programDescription = div(program.description()).withClasses(Styles.TEXT_SM);
 
     ContainerTag programInfo =
         div(programStatus, programTitle, programDescription)

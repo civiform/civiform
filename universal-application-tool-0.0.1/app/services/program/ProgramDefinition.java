@@ -1,9 +1,12 @@
 package services.program;
 
 import com.google.auto.value.AutoValue;
+import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
 import models.Program;
@@ -21,11 +24,16 @@ public abstract class ProgramDefinition {
   /** Unique identifier for a ProgramDefinition. */
   public abstract long id();
 
-  /** Descriptive name of a Program, e.g. Car Tab Rebate Program */
-  public abstract String name();
+  /**
+   * Descriptive name of a Program, e.g. Car Tab Rebate Program. Used only for internal reference.
+   */
+  public abstract ImmutableMap<Locale, String> name();
 
-  /** A human readable description of a Program. */
-  public abstract String description();
+  /** Localized, applicant-facing name for this Program. */
+  public abstract ImmutableMap<Locale, String> localizedName();
+
+  /** A human readable description of a Program, localized for each supported locale. */
+  public abstract ImmutableMap<Locale, String> description();
 
   /** The lifecycle stage of the Program. */
   public abstract LifecycleStage lifecycleStage();
@@ -35,6 +43,24 @@ public abstract class ProgramDefinition {
 
   /** The list of {@link ExportDefinition}s that make up the program. */
   public abstract ImmutableList<ExportDefinition> exportDefinitions();
+
+  @Memoized
+  public String getNameForLocale(Locale locale) throws TranslationNotFoundException {
+    if (name().containsKey(locale)) {
+      return name().get(locale);
+    } else {
+      throw new TranslationNotFoundException(id(), locale);
+    }
+  }
+
+  @Memoized
+  public String getDescriptionForLocale(Locale locale) throws TranslationNotFoundException {
+    if (description().containsKey(locale)) {
+      return description().get(locale);
+    } else {
+      throw new TranslationNotFoundException(id(), locale);
+    }
+  }
 
   /** Returns the {@link QuestionDefinition} at the specified block and question indices. */
   public QuestionDefinition getQuestionDefinition(int blockIndex, int questionIndex) {
@@ -131,9 +157,13 @@ public abstract class ProgramDefinition {
 
     public abstract Builder setId(long id);
 
-    public abstract Builder setName(String name);
+    public abstract Builder setName(ImmutableMap<Locale, String> name);
 
-    public abstract Builder setDescription(String description);
+    public abstract ImmutableMap.Builder<Locale, String> nameBuilder();
+
+    public abstract Builder setDescription(ImmutableMap<Locale, String> description);
+
+    public abstract ImmutableMap.Builder<Locale, String> descriptionBuilder();
 
     public abstract Builder setBlockDefinitions(ImmutableList<BlockDefinition> blockDefinitions);
 
@@ -146,6 +176,16 @@ public abstract class ProgramDefinition {
     public abstract ImmutableList.Builder<ExportDefinition> exportDefinitionsBuilder();
 
     public abstract ProgramDefinition build();
+
+    public Builder addName(Locale locale, String name) {
+      nameBuilder().put(locale, name);
+      return this;
+    }
+
+    public Builder addDescription(Locale locale, String name) {
+      descriptionBuilder().put(locale, name);
+      return this;
+    }
 
     public Builder addBlockDefinition(BlockDefinition blockDefinition) {
       blockDefinitionsBuilder().add(blockDefinition);

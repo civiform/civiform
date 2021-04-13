@@ -2,6 +2,7 @@ package services.program;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Locale;
 import models.LifecycleStage;
 import org.junit.Test;
 import services.question.types.QuestionDefinition;
@@ -19,8 +20,8 @@ public class ProgramDefinitionTest {
             .build();
     ProgramDefinition.builder()
         .setId(123L)
-        .setName("The Program")
-        .setDescription("This program is for testing.")
+        .addName(Locale.US, "The Program")
+        .addDescription(Locale.US, "This program is for testing.")
         .setLifecycleStage(LifecycleStage.ACTIVE)
         .addBlockDefinition(blockA)
         .build();
@@ -37,8 +38,8 @@ public class ProgramDefinitionTest {
     ProgramDefinition program =
         ProgramDefinition.builder()
             .setId(123L)
-            .setName("The Program")
-            .setDescription("This program is for testing.")
+            .addName(Locale.US, "The Program")
+            .addDescription(Locale.US, "This program is for testing.")
             .setLifecycleStage(LifecycleStage.ACTIVE)
             .addBlockDefinition(blockA)
             .build();
@@ -51,8 +52,8 @@ public class ProgramDefinitionTest {
     ProgramDefinition program =
         ProgramDefinition.builder()
             .setId(123L)
-            .setName("The Program")
-            .setDescription("This program is for testing.")
+            .addName(Locale.US, "The Program")
+            .addDescription(Locale.US, "This program is for testing.")
             .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
@@ -85,8 +86,8 @@ public class ProgramDefinitionTest {
     ProgramDefinition program =
         ProgramDefinition.builder()
             .setId(123L)
-            .setName("The Program")
-            .setDescription("This program is for testing.")
+            .addName(Locale.US, "The Program")
+            .addDescription(Locale.US, "This program is for testing.")
             .setLifecycleStage(LifecycleStage.ACTIVE)
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)

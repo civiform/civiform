@@ -3,6 +3,7 @@ package services.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Locale;
 import java.util.Optional;
 import models.Applicant;
 import models.LifecycleStage;
@@ -141,8 +142,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             new Applicant().getApplicantData(),
             ProgramDefinition.builder()
                 .setId(123L)
-                .setName("The Program")
-                .setDescription("This program is for testing.")
+                .addName(Locale.US, "The Program")
+                .addDescription(Locale.US, "This program is for testing.")
                 .setLifecycleStage(LifecycleStage.ACTIVE)
                 .build());
 

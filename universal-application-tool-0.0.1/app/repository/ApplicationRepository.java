@@ -6,6 +6,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import play.db.ebean.EbeanConfig;
 import services.applicant.ApplicantNotFoundException;
 import services.program.ProgramNotFoundException;
+import services.program.TranslationNotFoundException;
 
 public class ApplicationRepository {
   private final ProgramRepository programRepository;
@@ -69,7 +71,7 @@ public class ApplicationRepository {
               .createQuery(Application.class)
               .where()
               .eq("applicant.id", applicant.id)
-              .eq("program.name", program.getProgramDefinition().name())
+              .eq("program.name", program.getProgramDefinition().getNameForLocale(Locale.US))
               .findList();
       for (Application application : oldApplications) {
         // Delete any in-progress drafts, and mark obsolete any old applications.
@@ -84,6 +86,9 @@ public class ApplicationRepository {
       application.save();
       ebeanServer.commitTransaction();
       return application;
+    } catch (TranslationNotFoundException e) {
+      // This should never happen - we should always have a name for Locale.US.
+      throw new RuntimeException(e);
     } finally {
       ebeanServer.endTransaction();
     }

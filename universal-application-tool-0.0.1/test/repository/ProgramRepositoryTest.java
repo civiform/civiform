@@ -4,11 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
+import services.program.TranslationNotFoundException;
 
 public class ProgramRepositoryTest extends WithPostgresContainer {
 
@@ -54,20 +56,22 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
-  public void insertProgramSync() {
+  public void insertProgramSync() throws TranslationNotFoundException {
     Program program = new Program("ProgramRepository", "desc");
 
     Program withId = repo.insertProgramSync(program);
 
     Program found = repo.lookupProgram(withId.id).toCompletableFuture().join().get();
-    assertThat(found.getProgramDefinition().name()).isEqualTo("ProgramRepository");
+    assertThat(found.getProgramDefinition().getNameForLocale(Locale.US))
+        .isEqualTo("ProgramRepository");
   }
 
   @Test
   public void updateProgramSync() {
     Program existing = resourceCreator().insertProgram("old name");
     Program updates =
-        new Program(existing.getProgramDefinition().toBuilder().setName("new name").build());
+        new Program(
+            existing.getProgramDefinition().toBuilder().addName(Locale.US, "new name").build());
 
     Program updated = repo.updateProgramSync(updates);
 

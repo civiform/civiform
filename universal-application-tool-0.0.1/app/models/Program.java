@@ -3,8 +3,11 @@ package models;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.ebean.annotation.DbJson;
+import io.ebean.annotation.DbJsonB;
 import java.util.List;
+import java.util.Locale;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.PostLoad;
@@ -24,9 +27,15 @@ public class Program extends BaseModel {
 
   private ProgramDefinition programDefinition;
 
-  @Constraints.Required private String name;
+  // Use the localized name instead.
+  @Deprecated private String name;
 
-  @Constraints.Required private String description;
+  // Use the localized description instead.
+  @Deprecated private String description;
+
+  @Constraints.Required @DbJsonB private ImmutableMap<Locale, String> localizedName;
+
+  @Constraints.Required @DbJsonB private ImmutableMap<Locale, String> localizedDescription;
 
   @Constraints.Required @DbJson private ImmutableList<BlockDefinition> blockDefinitions;
 
@@ -46,8 +55,8 @@ public class Program extends BaseModel {
   public Program(ProgramDefinition definition) {
     this.programDefinition = definition;
     this.id = definition.id();
-    this.name = definition.name();
-    this.description = definition.description();
+    this.localizedName = definition.name();
+    this.localizedDescription = definition.description();
     this.blockDefinitions = definition.blockDefinitions();
     this.lifecycleStage = definition.lifecycleStage();
     this.exportDefinitions = definition.exportDefinitions();
@@ -58,8 +67,8 @@ public class Program extends BaseModel {
    * block named Block 1.
    */
   public Program(String name, String description) {
-    this.name = name;
-    this.description = description;
+    this.localizedName = ImmutableMap.of(Locale.US, name);
+    this.localizedDescription = ImmutableMap.of(Locale.US, description);
     this.lifecycleStage = LifecycleStage.DRAFT;
     BlockDefinition emptyBlock =
         BlockDefinition.builder()
@@ -76,8 +85,8 @@ public class Program extends BaseModel {
   @PreUpdate
   public void persistChangesToProgramDefinition() {
     id = programDefinition.id();
-    name = programDefinition.name();
-    description = programDefinition.description();
+    localizedName = programDefinition.name();
+    localizedDescription = programDefinition.description();
     blockDefinitions = programDefinition.blockDefinitions();
     lifecycleStage = programDefinition.lifecycleStage();
     exportDefinitions = programDefinition.exportDefinitions();
@@ -91,8 +100,8 @@ public class Program extends BaseModel {
     this.programDefinition =
         ProgramDefinition.builder()
             .setId(id)
-            .setName(name)
-            .setDescription(description)
+            .setName(localizedName)
+            .setDescription(localizedDescription)
             .setBlockDefinitions(blockDefinitions)
             .setLifecycleStage(lifecycleStage)
             .setExportDefinitions(exportDefinitions)

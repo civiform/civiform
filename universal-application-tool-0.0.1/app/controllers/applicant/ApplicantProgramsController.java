@@ -18,6 +18,7 @@ import play.mvc.Result;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.program.ProgramNotFoundException;
+import services.program.TranslationNotFoundException;
 import views.applicant.ProgramIndexView;
 
 /**
@@ -55,10 +56,15 @@ public class ApplicantProgramsController extends CiviFormController {
         .thenComposeAsync(
             v -> applicantService.relevantPrograms(applicantId), httpContext.current())
         .thenApplyAsync(
-            programs ->
-                ok(
+            programs -> {
+              try {
+                return ok(
                     programIndexView.render(
-                        messagesApi.preferred(request), applicantId, programs, banner)),
+                        messagesApi.preferred(request), applicantId, programs, banner));
+              } catch (TranslationNotFoundException e) {
+                return badRequest("Unsupported language");
+              }
+            },
             httpContext.current())
         .exceptionally(
             ex -> {

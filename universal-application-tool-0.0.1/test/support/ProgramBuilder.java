@@ -1,6 +1,7 @@
 package support;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.persistence.PersistenceException;
@@ -67,12 +68,12 @@ public class ProgramBuilder {
   }
 
   public ProgramBuilder withName(String name) {
-    builder.setName(name);
+    builder.addName(Locale.US, name);
     return this;
   }
 
   public ProgramBuilder withDescription(String description) {
-    builder.setDescription(description);
+    builder.addDescription(Locale.US, description);
     return this;
   }
 

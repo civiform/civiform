@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.Transaction;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -18,8 +19,8 @@ import models.Question;
 import play.db.ebean.EbeanConfig;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
-import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
+import services.program.TranslationNotFoundException;
 
 public class ProgramRepository {
 
@@ -136,7 +137,7 @@ public class ProgramRepository {
                 ebeanServer
                     .find(Program.class)
                     .where()
-                    .eq("name", program.getProgramDefinition().name())
+                    .eq("name", program.getProgramDefinition().getNameForLocale(Locale.US))
                     .eq("lifecycle_stage", LifecycleStage.ACTIVE)
                     .not()
                     .eq("id", program.id)
@@ -164,6 +165,9 @@ public class ProgramRepository {
 
             ebeanServer.commitTransaction();
             return null;
+          } catch (TranslationNotFoundException e) {
+            // We should always have a name for Locale.US.
+            throw new RuntimeException(e);
           } finally {
             ebeanServer.endTransaction();
           }
@@ -171,13 +175,13 @@ public class ProgramRepository {
         executionContext);
   }
 
-  public Program createOrUpdateDraft(Program existingProgram) throws ProgramNotFoundException {
+  public Program createOrUpdateDraft(Program existingProgram) throws TranslationNotFoundException {
     Optional<Program> existingDraft =
         ebeanServer
             .find(Program.class)
             .where()
             .eq("lifecycle_stage", LifecycleStage.DRAFT.getValue())
-            .eq("name", existingProgram.getProgramDefinition().name())
+            .eq("name", existingProgram.getProgramDefinition().getNameForLocale(Locale.US))
             .findOneOrEmpty();
     if (existingDraft.isPresent()) {
       Program updatedDraft =
