@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: check out pr branch
         uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Build test container
         run: docker build -t civiform --cache-from public.ecr.aws/t1q6b4h2/civiform-dev:latest ./
       - name: Run tests
@@ -20,6 +22,8 @@ jobs:
     steps:
       - name: check out pr branch
         uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Build test app container
         run: docker build -t civiform --cache-from public.ecr.aws/t1q6b4h2/civiform-dev:latest ./
       - name: Build browser testing container
@@ -43,6 +47,8 @@ jobs:
     steps:
       - name: check out pr branch
         uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Build prod container
         run: docker build -f prod.Dockerfile -t civiform:prod --cache-from public.ecr.aws/t1q6b4h2/universal-application-tool:latest ./
       - name: Build the stack
