@@ -6,11 +6,9 @@ import static j2html.TagCreator.form;
 import com.google.inject.Inject;
 import forms.ProgramForm;
 import j2html.tags.ContainerTag;
-import java.util.Locale;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
-import services.program.TranslationNotFoundException;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
@@ -26,19 +24,12 @@ public class ProgramEditView extends BaseHtmlView {
   }
 
   public Content render(Request request, ProgramDefinition program) {
-    ContainerTag formTag;
-    try {
-      formTag =
-          buildProgramForm(
-                  program.getNameForLocale(Locale.US), program.getDescriptionForLocale(Locale.US))
-              .with(makeCsrfTokenInputTag(request))
-              .with(buildManageQuestionLink(program.id()))
-              .withAction(
-                  controllers.admin.routes.AdminProgramController.update(program.id()).url());
-    } catch (TranslationNotFoundException e) {
-      // We should always have a name and description for Locale.US.
-      throw new RuntimeException(e);
-    }
+    ContainerTag formTag =
+        buildProgramForm(
+                program.getNameForDefaultLocale(), program.getDescriptionForDefaultLocale())
+            .with(makeCsrfTokenInputTag(request))
+            .with(buildManageQuestionLink(program.id()))
+            .withAction(controllers.admin.routes.AdminProgramController.update(program.id()).url());
     return layout.render(renderHeader(String.format("Edit program: %s", program.name())), formTag);
   }
 

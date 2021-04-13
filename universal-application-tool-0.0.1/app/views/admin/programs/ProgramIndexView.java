@@ -12,12 +12,10 @@ import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.Tag;
 import java.util.Comparator;
-import java.util.Locale;
 import models.LifecycleStage;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
-import services.program.TranslationNotFoundException;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.LinkElement;
@@ -64,15 +62,8 @@ public final class ProgramIndexView extends BaseHtmlView {
     String publishLinkText = "Publish";
     String viewApplicationsLinkText = "Applications →";
 
-    String programTitleText;
-    String programDescriptionText;
-    try {
-      programTitleText = program.getNameForLocale(Locale.US);
-      programDescriptionText = program.getDescriptionForLocale(Locale.US);
-    } catch (TranslationNotFoundException e) {
-      // We should always have a name and description for Locale.US.
-      throw new RuntimeException(e);
-    }
+    String programTitleText = program.getNameForDefaultLocale();
+    String programDescriptionText = program.getDescriptionForDefaultLocale();
 
     long programId = program.id();
     String blockCountText = "Blocks: " + program.getBlockCount();

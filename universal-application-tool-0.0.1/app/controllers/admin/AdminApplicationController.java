@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import com.google.common.collect.ImmutableList;
 import java.time.Clock;
-import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
@@ -18,7 +17,6 @@ import services.export.ExporterService;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.program.TranslationNotFoundException;
 import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationView;
 
@@ -53,8 +51,7 @@ public class AdminApplicationController extends Controller {
     try {
       ProgramDefinition program = service.getProgramDefinition(programId);
       String filename =
-          String.format(
-              "%s-%s.csv", program.getNameForLocale(Locale.US), clock.instant().toString());
+          String.format("%s-%s.csv", program.getNameForDefaultLocale(), clock.instant().toString());
       String csv = exporterService.getProgramCsv(programId);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
@@ -62,9 +59,6 @@ public class AdminApplicationController extends Controller {
               "Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
-    } catch (TranslationNotFoundException e) {
-      // We should always support Locale.US.
-      throw new RuntimeException(e);
     }
   }
 

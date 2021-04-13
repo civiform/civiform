@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.Transaction;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -20,7 +19,6 @@ import play.db.ebean.EbeanConfig;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
-import services.program.TranslationNotFoundException;
 
 public class ProgramRepository {
 
@@ -137,7 +135,7 @@ public class ProgramRepository {
                 ebeanServer
                     .find(Program.class)
                     .where()
-                    .eq("name", program.getProgramDefinition().getNameForLocale(Locale.US))
+                    .eq("name", program.getProgramDefinition().getNameForDefaultLocale())
                     .eq("lifecycle_stage", LifecycleStage.ACTIVE)
                     .not()
                     .eq("id", program.id)
@@ -165,9 +163,6 @@ public class ProgramRepository {
 
             ebeanServer.commitTransaction();
             return null;
-          } catch (TranslationNotFoundException e) {
-            // We should always have a name for Locale.US.
-            throw new RuntimeException(e);
           } finally {
             ebeanServer.endTransaction();
           }
@@ -176,19 +171,13 @@ public class ProgramRepository {
   }
 
   public Program createOrUpdateDraft(Program existingProgram) {
-    Optional<Program> existingDraft;
-    try {
-      existingDraft =
-          ebeanServer
-              .find(Program.class)
-              .where()
-              .eq("lifecycle_stage", LifecycleStage.DRAFT.getValue())
-              .eq("name", existingProgram.getProgramDefinition().getNameForLocale(Locale.US))
-              .findOneOrEmpty();
-    } catch (TranslationNotFoundException e) {
-      // We should always have a name for Locale.US.
-      throw new RuntimeException(e);
-    }
+    Optional<Program> existingDraft =
+        ebeanServer
+            .find(Program.class)
+            .where()
+            .eq("lifecycle_stage", LifecycleStage.DRAFT.getValue())
+            .eq("name", existingProgram.getProgramDefinition().getNameForDefaultLocale())
+            .findOneOrEmpty();
 
     if (existingDraft.isPresent()) {
       Program updatedDraft =

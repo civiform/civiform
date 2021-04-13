@@ -41,11 +41,31 @@ public abstract class ProgramDefinition {
   /** The list of {@link ExportDefinition}s that make up the program. */
   public abstract ImmutableList<ExportDefinition> exportDefinitions();
 
+  /** The default locale for CiviForm is US English. */
+  public String getNameForDefaultLocale() {
+    try {
+      return getNameForLocale(Locale.US);
+    } catch (TranslationNotFoundException e) {
+      // This should never happen - US English should always be supported.
+      throw new RuntimeException(e);
+    }
+  }
+
   public String getNameForLocale(Locale locale) throws TranslationNotFoundException {
     if (name().containsKey(locale)) {
       return name().get(locale);
     } else {
       throw new TranslationNotFoundException(id(), locale);
+    }
+  }
+
+  /** The default locale for CiviForm is US English. */
+  public String getDescriptionForDefaultLocale() {
+    try {
+      return getDescriptionForLocale(Locale.US);
+    } catch (TranslationNotFoundException e) {
+      // This should never happen - US English should always be supported.
+      throw new RuntimeException(e);
     }
   }
 

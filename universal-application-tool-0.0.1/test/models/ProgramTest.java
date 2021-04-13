@@ -66,7 +66,8 @@ public class ProgramTest extends WithPostgresContainer {
 
     Program found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
 
-    assertThat(found.getProgramDefinition().name()).isEqualTo("ProgramTest");
+    assertThat(found.getProgramDefinition().name())
+        .isEqualTo(ImmutableMap.of(Locale.US, "ProgramTest"));
     assertThat(found.getProgramDefinition().blockDefinitions().get(0).name())
         .isEqualTo("First Block");
 
