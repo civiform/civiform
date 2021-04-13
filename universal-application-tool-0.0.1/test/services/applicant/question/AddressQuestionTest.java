@@ -79,13 +79,13 @@ public class AddressQuestionTest {
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isTrue();
     assertThat(addressQuestion.getStreetErrors())
-        .contains(ValidationErrorMessage.create("Street is required."));
+        .contains(ValidationErrorMessage.create("Please enter valid street name and number."));
     assertThat(addressQuestion.getCityErrors())
-        .contains(ValidationErrorMessage.create("City is required."));
+        .contains(ValidationErrorMessage.create("Please enter city."));
     assertThat(addressQuestion.getStateErrors())
-        .contains(ValidationErrorMessage.create("State is required."));
+        .contains(ValidationErrorMessage.create("Please enter state."));
     assertThat(addressQuestion.getZipErrors())
-        .contains(ValidationErrorMessage.create("Zip code is required."));
+        .contains(ValidationErrorMessage.create("Please enter valid ZIP code."));
   }
 
   @Test
@@ -101,7 +101,7 @@ public class AddressQuestionTest {
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isTrue();
     assertThat(addressQuestion.getZipErrors())
-        .contains(ValidationErrorMessage.create("Invalid zip code."));
+        .contains(ValidationErrorMessage.create("Please enter valid ZIP code."));
     assertThat(addressQuestion.getStreetErrors()).isEmpty();
     assertThat(addressQuestion.getCityErrors()).isEmpty();
     assertThat(addressQuestion.getStateErrors()).isEmpty();

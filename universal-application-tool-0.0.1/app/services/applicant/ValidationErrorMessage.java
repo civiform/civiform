@@ -6,10 +6,10 @@ import com.google.auto.value.AutoValue;
 public abstract class ValidationErrorMessage {
 
   // TODO: move this to language specific files so we can support multiple locales.
-  public static String TEXT_TOO_SHORT = "This answer must be at least %d characters long.";
-  public static String TEXT_TOO_LONG = "This answer must be at most %d characters long.";
-  public static String NUMBER_TOO_SMALL = "This answer must be at least %d.";
-  public static String NUMBER_TOO_BIG = "This answer cannot be larger than %d.";
+  public static String TEXT_TOO_SHORT = "Must contain at least %d characters.";
+  public static String TEXT_TOO_LONG = "Must contain at most %d characters.";
+  public static String NUMBER_TOO_SMALL = "Must be at least %d.";
+  public static String NUMBER_TOO_BIG = "Must be at most %d.";
 
   public abstract String message();
 
