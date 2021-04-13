@@ -8,9 +8,12 @@ import static j2html.TagCreator.span;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.Tag;
+import java.util.Arrays;
+import java.util.ArrayList;
 import javax.inject.Inject;
 import play.twirl.api.Content;
 import views.components.Icons;
+import views.components.ToastContainer;
 import views.style.StyleUtils;
 import views.style.Styles;
 
@@ -32,7 +35,10 @@ public class BaseHtmlLayout extends BaseHtmlView {
 
   /** Returns HTTP content of type "text/html". */
   public Content htmlContent(DomContent... domContents) {
-    return new HtmlResponseContent(domContents);
+    ArrayList<DomContent> contents = new ArrayList<>(Arrays.asList(domContents));
+    contents.add(ToastContainer.render());
+    contents.add(viewUtils.makeLocalJsTag("toast"));
+    return new HtmlResponseContent(contents.toArray(new DomContent[0]));
   }  
 
   /**

@@ -17,6 +17,7 @@ import java.util.Optional;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import views.components.Icons;
+import views.components.ToastContainer;
 import views.components.ToastMessage;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -31,10 +32,14 @@ public class LoginForm extends BaseHtmlView {
   }
 
   public Content render(Http.Request request, Optional<String> message) {
+    if (message.isPresent()) {
+        String errorString = "Error: You are not logged in." + message.orElse("");
+        ToastMessage toast = ToastMessage.error(errorString);
+        ToastContainer.addMessage(toast);
+    }
     ContainerTag bodyTag =
         body(
             div(
-                ToastMessage.toastContainer("Error: You are not logged in." + message.orElse("")),
                 div(
                     h1("Log In"),
                     redirectButton(

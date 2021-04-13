@@ -5,10 +5,13 @@ import static j2html.TagCreator.span;
 
 import com.google.common.base.Strings;
 import j2html.tags.ContainerTag;
+import java.util.UUID;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+
+/** ToastMessages are messages that appear on the screen to show information to the user. */
 public class ToastMessage {
 
   enum ToastType {
@@ -20,7 +23,8 @@ public class ToastMessage {
 
   private ToastType type = ToastType.ALERT;
 
-  private String id = "";
+  /** Toast messages are instantiated with a random id. */
+  private String id = UUID.randomUUID();
   private String message = "";
 
   private String CORE_TOAST_CLASSES =
@@ -31,7 +35,7 @@ public class ToastMessage {
           Styles.FLEX,
           Styles.FLEX_ROW,
           Styles.MAX_W_MD,
-          // Styles.OPACITY_0,
+          Styles.OPACITY_0,
           Styles.PX_2,
           Styles.PY_2,
           Styles.MY_3,
@@ -59,26 +63,6 @@ public class ToastMessage {
 
   /** If true this message will not be shown if a user has already seen and dismissed it. */
   private boolean canIgnore = false;
-  
-  private static final String BANNER_TEXT = "Do not enter actual or personal data in this demo site";
-
-  public static ContainerTag toastContainer(String... toastMessages) {
-    ContainerTag toastContainer = div().withId("toast-container")
-      .withClasses("absolute transform -translate-x-1/2 left-1/2");
-
-    // Add privacy banner. (Remove before launch.)
-    ToastMessage privacyBanner = 
-        ToastMessage.error(ToastMessage.BANNER_TEXT)
-        .setDismissible(true).setIgnorable(true);
-    toastContainer.with(privacyBanner.getContainer());
-
-    for (String message: toastMessages) {
-      ToastMessage toast = ToastMessage.warning(message);
-      toastContainer.with(toast.getContainer());
-    }
-
-    return toastContainer;
-  }
 
   public static ToastMessage alert(String message) {
     return new ToastMessage().setType(ToastType.ALERT).setMessage(message);
@@ -100,12 +84,20 @@ public class ToastMessage {
     this.canDismiss = canDismiss;
     return this;
   }
-
+  
+  /**
+   * If true, dismissing the toast message will prevent other toast messages 
+   * with the same id from being displayed on subsequent pages.
+   */
   public ToastMessage setIgnorable(boolean canIgnore) {
     this.canIgnore = canIgnore;
     return this;
   }
 
+  /**
+   * How long the toast displays before auto-hiding. A duration <= 0 indicates
+   * that the toast is never automatically hidden.
+   */
   public ToastMessage setDuration(int duration) {
     this.duration = duration;
     return this;
@@ -165,14 +157,15 @@ public class ToastMessage {
 
     ContainerTag ret =
         div(wrappedWarningSvg, messageSpan)
-            .withCondId(Strings.isNullOrEmpty(this.id), this.id)
-            .condAttr(this.duration != -1, "duration", this.duration + "")
+            .withId(this.id)
+            .condAttr(this.duration > 0, "duration", this.duration + "")
+            .attr("ignorable", this.canIgnore)
             .withClasses(styles);
 
     if (canDismiss || canIgnore) {
       ContainerTag dismissButton =
           div("x")
-              .withCondId(Strings.isNullOrEmpty(this.id), this.id + "-dismiss")
+              .withId(this.id + "-dismiss")
               .withClasses(
                   Styles.FONT_BOLD,
                   Styles.PL_6,

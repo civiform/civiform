@@ -16,6 +16,7 @@ import play.i18n.Messages;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
+import views.components.ToastContainer;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
@@ -50,8 +51,9 @@ public class ProgramIndexView extends BaseHtmlView {
     ContainerTag body =
         body().withClasses(Styles.RELATIVE, Styles.PX_8, ApplicantStyles.BODY_BACKGROUND);
     if (banner.isPresent()) {
-      body.with(
-          ToastMessage.toastContainer(banner.get()));
+        String errorString = "Error: You are not logged in." + banner.orElse("");
+        ToastMessage toast = ToastMessage.error(errorString);
+        ToastContainer.addMessage(toast);
     }
     body.with(
         nav()

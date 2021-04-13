@@ -8,7 +8,6 @@ import j2html.tags.DomContent;
 import javax.inject.Inject;
 import play.twirl.api.Content;
 import views.BaseHtmlLayout;
-import views.components.ToastMessage;
 import views.ViewUtils;
 
 public class ApplicantLayout extends BaseHtmlLayout {
@@ -25,7 +24,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
           .with(title("Applicant layout title"))
           .with(tailwindStyles()),
         body(mainDomContents)
-          .with(ToastMessage.toastContainer())
           .with(viewUtils.makeLocalJsTag("main")));
   }
 }
