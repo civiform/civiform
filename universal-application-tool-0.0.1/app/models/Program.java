@@ -27,12 +27,6 @@ public class Program extends BaseModel {
 
   private ProgramDefinition programDefinition;
 
-  // Use the localized name instead.
-  @Deprecated private String name;
-
-  // Use the localized description instead.
-  @Deprecated private String description;
-
   @Constraints.Required @DbJsonB private ImmutableMap<Locale, String> localizedName;
 
   @Constraints.Required @DbJsonB private ImmutableMap<Locale, String> localizedDescription;

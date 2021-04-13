@@ -1,7 +1,6 @@
 package services.program;
 
 import com.google.auto.value.AutoValue;
-import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -25,12 +24,10 @@ public abstract class ProgramDefinition {
   public abstract long id();
 
   /**
-   * Descriptive name of a Program, e.g. Car Tab Rebate Program. Used only for internal reference.
+   * Descriptive name of a Program, e.g. Car Tab Rebate Program, localized for each supported
+   * locale.
    */
   public abstract ImmutableMap<Locale, String> name();
-
-  /** Localized, applicant-facing name for this Program. */
-  public abstract ImmutableMap<Locale, String> localizedName();
 
   /** A human readable description of a Program, localized for each supported locale. */
   public abstract ImmutableMap<Locale, String> description();
@@ -44,7 +41,6 @@ public abstract class ProgramDefinition {
   /** The list of {@link ExportDefinition}s that make up the program. */
   public abstract ImmutableList<ExportDefinition> exportDefinitions();
 
-  @Memoized
   public String getNameForLocale(Locale locale) throws TranslationNotFoundException {
     if (name().containsKey(locale)) {
       return name().get(locale);
@@ -53,7 +49,6 @@ public abstract class ProgramDefinition {
     }
   }
 
-  @Memoized
   public String getDescriptionForLocale(Locale locale) throws TranslationNotFoundException {
     if (description().containsKey(locale)) {
       return description().get(locale);

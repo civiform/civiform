@@ -48,8 +48,7 @@ public class ProgramIndexView extends BaseHtmlView {
       Messages messages,
       long applicantId,
       ImmutableList<ProgramDefinition> programs,
-      Optional<String> banner)
-      throws TranslationNotFoundException {
+      Optional<String> banner) {
     ContainerTag body =
         body().withClasses(Styles.RELATIVE, Styles.PX_8, ApplicantStyles.BODY_BACKGROUND);
     if (banner.isPresent()) {
@@ -116,8 +115,7 @@ public class ProgramIndexView extends BaseHtmlView {
       ImmutableList<ProgramDefinition> programs,
       long applicantId,
       Locale preferredLocale,
-      String applyText)
-      throws TranslationNotFoundException {
+      String applyText) {
     return div()
         .withId("main-content")
         .withClasses(Styles.RELATIVE, Styles.W_FULL, Styles.FLEX, Styles.FLEX_WRAP, Styles.PB_8)
@@ -128,8 +126,7 @@ public class ProgramIndexView extends BaseHtmlView {
   }
 
   private ContainerTag programCard(
-      ProgramDefinition program, Long applicantId, Locale preferredLocale, String applyText)
-      throws TranslationNotFoundException {
+      ProgramDefinition program, Long applicantId, Locale preferredLocale, String applyText) {
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
     ContainerTag category =
         div()
@@ -151,16 +148,22 @@ public class ProgramIndexView extends BaseHtmlView {
                         Styles.ALIGN_BOTTOM,
                         Styles.ALIGN_TEXT_BOTTOM,
                         Styles.LEADING_3));
-    ContainerTag title =
-        div()
-            .withId(baseId + "-title")
-            .withClasses(Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
-            .withText(program.getNameForLocale(preferredLocale));
-    ContainerTag description =
-        div()
-            .withId(baseId + "-description")
-            .withClasses(Styles.TEXT_XS, Styles.MY_2)
-            .withText(program.getDescriptionForLocale(preferredLocale));
+    ContainerTag title;
+    ContainerTag description;
+    try {
+      title =
+          div()
+              .withId(baseId + "-title")
+              .withClasses(Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
+              .withText(program.getNameForLocale(preferredLocale));
+      description =
+          div()
+              .withId(baseId + "-description")
+              .withClasses(Styles.TEXT_XS, Styles.MY_2)
+              .withText(program.getDescriptionForLocale(preferredLocale));
+    } catch (TranslationNotFoundException e) {
+      throw new RuntimeException(e);
+    }
     ContainerTag externalLink =
         div()
             .withId(baseId + "-external-link")

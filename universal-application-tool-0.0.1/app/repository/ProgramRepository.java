@@ -175,14 +175,21 @@ public class ProgramRepository {
         executionContext);
   }
 
-  public Program createOrUpdateDraft(Program existingProgram) throws TranslationNotFoundException {
-    Optional<Program> existingDraft =
-        ebeanServer
-            .find(Program.class)
-            .where()
-            .eq("lifecycle_stage", LifecycleStage.DRAFT.getValue())
-            .eq("name", existingProgram.getProgramDefinition().getNameForLocale(Locale.US))
-            .findOneOrEmpty();
+  public Program createOrUpdateDraft(Program existingProgram) {
+    Optional<Program> existingDraft;
+    try {
+      existingDraft =
+          ebeanServer
+              .find(Program.class)
+              .where()
+              .eq("lifecycle_stage", LifecycleStage.DRAFT.getValue())
+              .eq("name", existingProgram.getProgramDefinition().getNameForLocale(Locale.US))
+              .findOneOrEmpty();
+    } catch (TranslationNotFoundException e) {
+      // We should always have a name for Locale.US.
+      throw new RuntimeException(e);
+    }
+
     if (existingDraft.isPresent()) {
       Program updatedDraft =
           existingProgram.getProgramDefinition().toBuilder()

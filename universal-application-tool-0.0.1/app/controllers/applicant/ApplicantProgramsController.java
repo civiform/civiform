@@ -56,18 +56,18 @@ public class ApplicantProgramsController extends CiviFormController {
         .thenComposeAsync(
             v -> applicantService.relevantPrograms(applicantId), httpContext.current())
         .thenApplyAsync(
-            programs -> {
-              try {
-                return ok(
+            programs ->
+                ok(
                     programIndexView.render(
-                        messagesApi.preferred(request), applicantId, programs, banner));
-              } catch (TranslationNotFoundException e) {
-                return badRequest("Unsupported language");
-              }
-            },
+                        messagesApi.preferred(request), applicantId, programs, banner)),
             httpContext.current())
         .exceptionally(
             ex -> {
+              if (ex instanceof RuntimeException) {
+                if (ex.getCause() instanceof TranslationNotFoundException) {
+                  return badRequest(String.format(ex.getCause().getMessage()));
+                }
+              }
               if (ex instanceof CompletionException) {
                 if (ex.getCause() instanceof SecurityException) {
                   return unauthorized();
