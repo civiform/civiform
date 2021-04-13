@@ -20,8 +20,10 @@ import play.test.Helpers;
 import repository.WithPostgresContainer;
 import services.Path;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
+import support.TestQuestionBank;
 import views.html.helper.CSRF;
 
 public class QuestionControllerTest extends WithPostgresContainer {
@@ -183,18 +185,22 @@ public class QuestionControllerTest extends WithPostgresContainer {
 
   @Test
   public void update_redirectsOnSuccess() {
-    Question question = resourceCreator().insertQuestion("my.path.name");
+    QuestionDefinition nameQuestion = TestQuestionBank.applicantName().getQuestionDefinition();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
-        .put("questionName", "name")
-        .put("questionDescription", "desc")
-        .put("questionParentPath", "my.path")
-        .put("questionType", "TEXT")
-        .put("questionText", "question text updated!")
-        .put("questionHelpText", ":-)");
+        .put("questionName", nameQuestion.getName())
+        .put("questionDescription", "a new description")
+        .put("questionParentPath", nameQuestion.getPath().parentPath().toString())
+        .put("questionType", nameQuestion.getQuestionType().name())
+        .put("questionText", "question text updated")
+        .put("questionHelpText", "a new help text");
     RequestBuilder requestBuilder = addCSRFToken(Helpers.fakeRequest().bodyForm(formData.build()));
 
-    Result result = controller.update(requestBuilder.build(), question.id, "text");
+    Result result =
+        controller.update(
+            requestBuilder.build(),
+            nameQuestion.getId(),
+            nameQuestion.getQuestionType().toString());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.QuestionController.index().url());

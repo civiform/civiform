@@ -155,4 +155,32 @@ public class PathTest {
     Path expected = Path.create("one.two.three");
     assertThat(actual).isEqualTo(expected);
   }
+
+  @Test
+  public void startsWith_isTrue() {
+    assertThat(Path.create("a.b.c").startsWith(Path.create("a.b"))).isTrue();
+  }
+
+  @Test
+  public void startsWith_ignoresArrays_isTrue() {
+    assertThat(Path.create("a.b[].c[].d[]").startsWith(Path.create("a.b.c"))).isTrue();
+    assertThat(Path.create("a.b[].c[].d[]").startsWith(Path.create("a.b.c.d"))).isTrue();
+  }
+
+  @Test
+  public void startsWith_otherStartsWithThis_isFalse() {
+    Path path = Path.create("a.b.c");
+    Path other = Path.create("a.b.c.d");
+
+    assertThat(path.startsWith(other)).isFalse();
+    assertThat(other.startsWith(path)).isTrue();
+  }
+
+  @Test
+  public void startsWith_stringStartsWithButPathSegmentsDont_isFalse() {
+    Path path = Path.create("a.b.c_d");
+    Path other = Path.create("a.b.c");
+
+    assertThat(path.startsWith(other)).isFalse();
+  }
 }
