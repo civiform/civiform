@@ -51,22 +51,22 @@ public class TestQuestionBank {
 
   public static Question applicantAddress() {
     return questionCache.computeIfAbsent(
-            QuestionEnum.APPLICANT_ADDRESS, TestQuestionBank::applicantAddress);
+        QuestionEnum.APPLICANT_ADDRESS, TestQuestionBank::applicantAddress);
   }
 
   public static Question applicantAge() {
     return questionCache.computeIfAbsent(
-            QuestionEnum.APPLICANT_AGE, TestQuestionBank::applicantAge);
+        QuestionEnum.APPLICANT_AGE, TestQuestionBank::applicantAge);
   }
 
   public static Question applicantFavoriteColor() {
     return questionCache.computeIfAbsent(
-            QuestionEnum.APPLICANT_FAVORITE_COLOR, TestQuestionBank::applicantFavoriteColor);
+        QuestionEnum.APPLICANT_FAVORITE_COLOR, TestQuestionBank::applicantFavoriteColor);
   }
 
   public static Question applicantHouseholdMembers() {
     return questionCache.computeIfAbsent(
-            QuestionEnum.APPLICANT_HOUSEHOLD_MEMBERS, TestQuestionBank::applicantHouseholdMembers);
+        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBERS, TestQuestionBank::applicantHouseholdMembers);
   }
 
   public static Question applicantName() {
@@ -75,18 +75,18 @@ public class TestQuestionBank {
   }
 
   public static Question applicantPets() {
-      return questionCache.computeIfAbsent(
+    return questionCache.computeIfAbsent(
         QuestionEnum.APPLICANT_PETS, TestQuestionBank::applicantPets);
   }
 
   public static Question applicantPronouns() {
     return questionCache.computeIfAbsent(
-            QuestionEnum.APPLICANT_PRONOUNS, TestQuestionBank::applicantPronouns);
+        QuestionEnum.APPLICANT_PRONOUNS, TestQuestionBank::applicantPronouns);
   }
 
   public static Question applicantSatisfaction() {
     return questionCache.computeIfAbsent(
-            QuestionEnum.APPLICANT_SATISFACTION, TestQuestionBank::applicantSatisfaction);
+        QuestionEnum.APPLICANT_SATISFACTION, TestQuestionBank::applicantSatisfaction);
   }
 
   private static Question applicantAddress(QuestionEnum ignore) {
@@ -105,16 +105,15 @@ public class TestQuestionBank {
 
   private static Question applicantAge(QuestionEnum ignore) {
     QuestionDefinition definition =
-            new NumberQuestionDefinition(
-                    VERSION,
-                    "Applicant Age",
-                    Path.create("applicant.age"),
-                    Optional.empty(),
-                    "The age of the applicant",
-                    LifecycleStage.ACTIVE,
-                    ImmutableMap.of(Locale.US, "What is your age?"),
-                    ImmutableMap.of(Locale.US, "help text")
-            );
+        new NumberQuestionDefinition(
+            VERSION,
+            "Applicant Age",
+            Path.create("applicant.age"),
+            Optional.empty(),
+            "The age of the applicant",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "What is your age?"),
+            ImmutableMap.of(Locale.US, "help text"));
     return maybeSave(definition);
   }
 
@@ -149,71 +148,69 @@ public class TestQuestionBank {
 
   private static Question applicantName(QuestionEnum ignore) {
     QuestionDefinition definition =
-            new NameQuestionDefinition(
-                    VERSION,
-                    "applicant name",
-                    Path.create("applicant.name"),
-                    Optional.empty(),
-                    "name of applicant",
-                    LifecycleStage.ACTIVE,
-                    ImmutableMap.of(Locale.US, "what is your name?"),
-                    ImmutableMap.of(Locale.US, "help text"));
+        new NameQuestionDefinition(
+            VERSION,
+            "applicant name",
+            Path.create("applicant.name"),
+            Optional.empty(),
+            "name of applicant",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "what is your name?"),
+            ImmutableMap.of(Locale.US, "help text"));
     return maybeSave(definition);
   }
 
   private static Question applicantPets(QuestionEnum ignore) {
     QuestionDefinition definition =
-            new CheckboxQuestionDefinition(
-                    VERSION,
-                    "checkbox",
-                    Path.create("applicant.checkbox"),
-                    Optional.empty(),
-                    "description",
-                    LifecycleStage.ACTIVE,
-                    ImmutableMap.of(Locale.US, "question?"),
-                    ImmutableMap.of(Locale.US, "help text"),
-                    ImmutableListMultimap.of(Locale.US, "cat", Locale.US, "dog")
-            );
+        new CheckboxQuestionDefinition(
+            VERSION,
+            "checkbox",
+            Path.create("applicant.checkbox"),
+            Optional.empty(),
+            "description",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "question?"),
+            ImmutableMap.of(Locale.US, "help text"),
+            ImmutableListMultimap.of(Locale.US, "cat", Locale.US, "dog"));
     return maybeSave(definition);
   }
 
   private static Question applicantPronouns(QuestionEnum ignore) {
     QuestionDefinition definition =
-            new DropdownQuestionDefinition(
-                    VERSION,
-                    "applicant preferred pronouns",
-                    Path.create("applicant.preferred.pronouns"),
-                    Optional.empty(),
-                    "Allows the applicant to select a preferred pronoun",
-                    LifecycleStage.ACTIVE,
-                    ImmutableMap.of(Locale.US, "What is your preferred pronoun?"),
-                    ImmutableMap.of(Locale.US, "help text"),
-                    ImmutableListMultimap.of(
-                            Locale.US,
-                            "He / him",
-                            Locale.US,
-                            "She / her",
-                            Locale.FRANCE,
-                            "Il / lui",
-                            Locale.FRANCE,
-                            "Elle / elle")
-            );
+        new DropdownQuestionDefinition(
+            VERSION,
+            "applicant preferred pronouns",
+            Path.create("applicant.preferred.pronouns"),
+            Optional.empty(),
+            "Allows the applicant to select a preferred pronoun",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "What is your preferred pronoun?"),
+            ImmutableMap.of(Locale.US, "help text"),
+            ImmutableListMultimap.of(
+                Locale.US,
+                "He / him",
+                Locale.US,
+                "She / her",
+                Locale.FRANCE,
+                "Il / lui",
+                Locale.FRANCE,
+                "Elle / elle"));
     return maybeSave(definition);
   }
 
   private static Question applicantSatisfaction(QuestionEnum ignore) {
     QuestionDefinition definition =
-            new RadioButtonQuestionDefinition(
-                    VERSION,
-                    "Applicant Satisfaction",
-                    Path.create("applicant.satisfaction"),
-                    Optional.empty(),
-                    "The applicant's overall satisfaction with something",
-                    LifecycleStage.ACTIVE,
-                    ImmutableMap.of(Locale.US, "What is your satisfaction with enrollment?"),
-                    ImmutableMap.of(Locale.US, "help text"),
-                    ImmutableListMultimap.of(Locale.US, "dissatisfied", Locale.US, "neutral", Locale.US, "satisfied")
-            );
+        new RadioButtonQuestionDefinition(
+            VERSION,
+            "Applicant Satisfaction",
+            Path.create("applicant.satisfaction"),
+            Optional.empty(),
+            "The applicant's overall satisfaction with something",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "What is your satisfaction with enrollment?"),
+            ImmutableMap.of(Locale.US, "help text"),
+            ImmutableListMultimap.of(
+                Locale.US, "dissatisfied", Locale.US, "neutral", Locale.US, "satisfied"));
     return maybeSave(definition);
   }
 

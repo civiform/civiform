@@ -118,7 +118,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void stageAndUpdateIfValid_rawUpdatesContainMultiSelectAnswers_isOk() throws Exception {
-    QuestionDefinition multiSelectQuestion = TestQuestionBank.applicantPets().getQuestionDefinition();
+    QuestionDefinition multiSelectQuestion =
+        TestQuestionBank.applicantPets().getQuestionDefinition();
     createProgram(multiSelectQuestion);
 
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();

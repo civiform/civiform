@@ -17,8 +17,10 @@ import support.TestQuestionBank;
 
 public class PdfMapAssistantTest {
   public Question makeFakeQuestionWithName(String name) throws UnsupportedQuestionTypeException {
-    QuestionDefinition definition = TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
-    QuestionDefinition questionDefinition = new QuestionDefinitionBuilder(definition).setName(name).build();
+    QuestionDefinition definition =
+        TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+    QuestionDefinition questionDefinition =
+        new QuestionDefinitionBuilder(definition).setName(name).build();
     return new Question(questionDefinition);
   }
 
