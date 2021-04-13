@@ -107,15 +107,14 @@ public final class QuestionServiceImpl implements QuestionService {
     if (!errors.isEmpty()) {
       return errors;
     }
-    Path newPath = newDefinition.getPath();
     Optional<Question> maybeConflict =
-        questionRepository.findConflictingQuestion(newPath).toCompletableFuture().join();
+        questionRepository.findPathConflictingQuestion(newDefinition);
     if (maybeConflict.isPresent()) {
-      Question question = maybeConflict.get();
+      Question conflict = maybeConflict.get();
       return ImmutableSet.of(
           CiviFormError.of(
               String.format(
-                  "path '%s' conflicts with question: %s", newPath.path(), question.getPath())));
+                  "path '%s' conflicts with question: %s", newDefinition.getPath(), conflict.getPath())));
     }
     return ImmutableSet.of();
   }

@@ -144,42 +144,19 @@ public class QuestionRepository {
     }
   }
 
-  static class PathConflictDetector {
-    private Optional<Question> conflictedQuestion = Optional.empty();
-    private final String newPath;
-
-    PathConflictDetector(Path newPath) {
-      this.newPath = checkNotNull(newPath).path();
-    }
-
-    Optional<Question> getConflictedQuestion() {
-      return conflictedQuestion;
-    }
-
-    boolean checkConflict(Question question) {
-      boolean proceed = true;
-      if (pathConflicts(question.getPath(), newPath)) {
-        conflictedQuestion = Optional.of(question);
-        proceed = false;
-      }
-      return proceed;
-    }
-
-    static boolean pathConflicts(String path, String otherPath) {
-      path = path.toLowerCase() + ".";
-      otherPath = otherPath.toLowerCase() + ".";
-      return path.startsWith(otherPath) || otherPath.startsWith(path);
-    }
-  }
-
-  public CompletionStage<Optional<Question>> findConflictingQuestion(Path newPath) {
-    return supplyAsync(
-        () -> {
-          PathConflictDetector detector = new PathConflictDetector(newPath);
-          ebeanServer.find(Question.class).findEachWhile(detector::checkConflict);
-          return detector.getConflictedQuestion();
-        },
-        executionContext);
+  /**
+   * Maybe find a {@link Question} that conflicts with {@link QuestionDefinition}. A conflict exists
+   * if they are different questions (i.e. different IDs), represent the same path, but have
+   * different names.
+   */
+  public Optional<Question> findPathConflictingQuestion(QuestionDefinition questionDefinition) {
+    return ebeanServer
+            .find(Question.class)
+            .where()
+            .eq("path", questionDefinition.getPath().toString())
+            .ne("name", questionDefinition.getName())
+            .ne("id", questionDefinition.isPersisted() ? questionDefinition.getId() : 0L)
+            .findOneOrEmpty();
   }
 
   public CompletionStage<Optional<Question>> lookupQuestionByPath(String path) {
