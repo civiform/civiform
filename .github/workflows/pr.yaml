@@ -14,6 +14,8 @@ jobs:
         uses: docker/setup-buildx-action@v1
       - name: Build test container
         run: docker build -t civiform --cache-from public.ecr.aws/t1q6b4h2/civiform-dev:latest ./
+        env:
+          DOCKER_BUILDKIT: 1
       - name: Run tests
         run: docker run -v /var/run/docker.sock:/var/run/docker.sock civiform test
 
@@ -26,8 +28,12 @@ jobs:
         uses: docker/setup-buildx-action@v1
       - name: Build test app container
         run: docker build -t civiform --cache-from public.ecr.aws/t1q6b4h2/civiform-dev:latest ./
+        env:
+          DOCKER_BUILDKIT: 1
       - name: Build browser testing container
         run: bin/build-browser-tests
+        env:
+          DOCKER_BUILDKIT: 1
       - name: Start localstack
         run: docker-compose -f browser-test/browser-test-compose.yml up -d localstack
       - name: Wait for localstack ready
@@ -51,6 +57,8 @@ jobs:
         uses: docker/setup-buildx-action@v1
       - name: Build prod container
         run: docker build -f prod.Dockerfile -t civiform:prod --cache-from public.ecr.aws/t1q6b4h2/universal-application-tool:latest ./
+        env:
+          DOCKER_BUILDKIT: 1
       - name: Build the stack
         run: docker-compose -f infra/prod-simulator-compose.yml up -d
         env:
