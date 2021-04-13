@@ -14,7 +14,6 @@ import models.LifecycleStage;
 import models.Program;
 import models.Question;
 import play.db.ebean.EbeanConfig;
-import services.Path;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -146,17 +145,17 @@ public class QuestionRepository {
 
   /**
    * Maybe find a {@link Question} that conflicts with {@link QuestionDefinition}. A conflict exists
-   * if they are different questions (i.e. different IDs), represent the same path, but have
-   * different names.
+   * if they are different questions (i.e. different IDs) in the same version representing the same
+   * path.
    */
   public Optional<Question> findPathConflictingQuestion(QuestionDefinition questionDefinition) {
     return ebeanServer
-            .find(Question.class)
-            .where()
-            .eq("path", questionDefinition.getPath().toString())
-            .ne("name", questionDefinition.getName())
-            .ne("id", questionDefinition.isPersisted() ? questionDefinition.getId() : 0L)
-            .findOneOrEmpty();
+        .find(Question.class)
+        .where()
+        .eq("path", questionDefinition.getPath().toString())
+        .eq("version", questionDefinition.getVersion())
+        .ne("id", questionDefinition.isPersisted() ? questionDefinition.getId() : 0L)
+        .findOneOrEmpty();
   }
 
   public CompletionStage<Optional<Question>> lookupQuestionByPath(String path) {

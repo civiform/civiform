@@ -154,7 +154,10 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
                             applicant.id, program.id, "1"))
                     .bodyForm(
                         ImmutableMap.of(
-                            "applicant.name.first", "FirstName", "applicant.name.last", "")))
+                            "applicant.applicant_name.first",
+                            "FirstName",
+                            "applicant.applicant_name.last",
+                            "")))
             .build();
 
     Result result =
@@ -178,7 +181,10 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
         fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
             .bodyForm(
                 ImmutableMap.of(
-                    "applicant.name.first", "FirstName", "applicant.name.last", "LastName"))
+                    "applicant.applicant_name.first",
+                    "FirstName",
+                    "applicant.applicant_name.last",
+                    "LastName"))
             .build();
 
     Result result =
@@ -202,7 +208,10 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
         fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
             .bodyForm(
                 ImmutableMap.of(
-                    "applicant.name.first", "FirstName", "applicant.name.last", "LastName"))
+                    "applicant.applicant_name.first",
+                    "FirstName",
+                    "applicant.applicant_name.last",
+                    "LastName"))
             .build();
 
     Result result =

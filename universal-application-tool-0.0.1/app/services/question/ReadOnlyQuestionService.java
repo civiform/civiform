@@ -56,7 +56,10 @@ public interface ReadOnlyQuestionService {
    */
   QuestionDefinition getQuestionDefinition(long id) throws QuestionNotFoundException;
 
-  /** Checks whether a specific path is valid. */
+  /**
+   * Checks whether a specific path is valid. A path is valid in this context if it represents a
+   * real path to a value.
+   */
   boolean isValid(Path path);
 
   /**

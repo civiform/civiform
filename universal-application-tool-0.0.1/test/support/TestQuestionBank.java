@@ -69,7 +69,7 @@ public class TestQuestionBank {
         new NameQuestionDefinition(
             VERSION,
             "applicant name",
-            Path.create("applicant.name"),
+            Path.create("applicant.applicant_name"),
             Optional.empty(),
             "name of applicant",
             LifecycleStage.ACTIVE,
@@ -83,7 +83,7 @@ public class TestQuestionBank {
         new AddressQuestionDefinition(
             VERSION,
             "applicant address",
-            Path.create("applicant.address"),
+            Path.create("applicant.applicant_address"),
             Optional.empty(),
             "address of applicant",
             LifecycleStage.ACTIVE,
@@ -97,7 +97,7 @@ public class TestQuestionBank {
         new TextQuestionDefinition(
             VERSION,
             "applicant favorite color",
-            Path.create("applicant.color"),
+            Path.create("applicant.applicant_favorite_color"),
             Optional.empty(),
             "favorite color of applicant",
             LifecycleStage.ACTIVE,
@@ -111,7 +111,7 @@ public class TestQuestionBank {
         new RepeaterQuestionDefinition(
             VERSION,
             "applicant household members",
-            Path.create("applicant.household_members[]"),
+            Path.create("applicant.applicant_household_members[]"),
             Optional.empty(),
             "The applicant's household members",
             LifecycleStage.ACTIVE,

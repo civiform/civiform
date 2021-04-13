@@ -35,12 +35,12 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   @Override
-  public ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition definition) {
-    ImmutableSet<CiviFormError> errors = validateNewQuestion(definition);
+  public ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition questionDefinition) {
+    ImmutableSet<CiviFormError> errors = validateQuestion(questionDefinition);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
-    Question question = questionRepository.insertQuestionSync(new Question(definition));
+    Question question = questionRepository.insertQuestionSync(new Question(questionDefinition));
     return ErrorAnd.of(question.getQuestionDefinition());
   }
 
@@ -51,23 +51,23 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   @Override
-  public ErrorAnd<QuestionDefinition, CiviFormError> update(QuestionDefinition definition)
+  public ErrorAnd<QuestionDefinition, CiviFormError> update(QuestionDefinition questionDefinition)
       throws InvalidUpdateException {
-    if (!definition.isPersisted()) {
+    if (!questionDefinition.isPersisted()) {
       throw new InvalidUpdateException("question definition is not persisted");
     }
 
-    ImmutableSet<CiviFormError> validateErrors = definition.validate();
+    ImmutableSet<CiviFormError> validateErrors = validateQuestion(questionDefinition);
 
     Optional<Question> maybeQuestion =
-        questionRepository.lookupQuestion(definition.getId()).toCompletableFuture().join();
+        questionRepository.lookupQuestion(questionDefinition.getId()).toCompletableFuture().join();
     if (!maybeQuestion.isPresent()) {
       throw new InvalidUpdateException(
-          String.format("question with id %d does not exist", definition.getId()));
+          String.format("question with id %d does not exist", questionDefinition.getId()));
     }
     Question question = maybeQuestion.get();
     ImmutableSet<CiviFormError> invariantErrors =
-        validateQuestionInvariants(question.getQuestionDefinition(), definition);
+        validateQuestionInvariants(question.getQuestionDefinition(), questionDefinition);
 
     ImmutableSet<CiviFormError> errors =
         ImmutableSet.<CiviFormError>builder()
@@ -81,10 +81,11 @@ public final class QuestionServiceImpl implements QuestionService {
     if (question.getLifecycleStage() == LifecycleStage.DELETED) {
       return ErrorAnd.error(
           ImmutableSet.of(
-              CiviFormError.of(String.format("Question %d was DELETED.", definition.getId()))));
+              CiviFormError.of(
+                  String.format("Question %d was DELETED.", questionDefinition.getId()))));
     }
     // DRAFT, ACTIVE, or OBSOLETE question here.
-    question = questionRepository.updateOrCreateDraft(definition);
+    question = questionRepository.updateOrCreateDraft(questionDefinition);
     return ErrorAnd.of(question.getQuestionDefinition());
   }
 
@@ -98,43 +99,65 @@ public final class QuestionServiceImpl implements QuestionService {
                     .collect(ImmutableList.toImmutableList()));
   }
 
-  /**
-   * Validates a new question and checks for path conflicts. This can't be used to validate udpates
-   * because paths will always conflict.
-   */
-  private ImmutableSet<CiviFormError> validateNewQuestion(QuestionDefinition newDefinition) {
-    ImmutableSet<CiviFormError> errors = newDefinition.validate();
+  /** Validates a question and checks for path conflicts. */
+  private ImmutableSet<CiviFormError> validateQuestion(QuestionDefinition questionDefinition) {
+    ImmutableSet<CiviFormError> errors = questionDefinition.validate();
     if (!errors.isEmpty()) {
       return errors;
     }
     Optional<Question> maybeConflict =
-        questionRepository.findPathConflictingQuestion(newDefinition);
+        questionRepository.findPathConflictingQuestion(questionDefinition);
     if (maybeConflict.isPresent()) {
       Question conflict = maybeConflict.get();
       return ImmutableSet.of(
           CiviFormError.of(
               String.format(
-                  "path '%s' conflicts with question: %s", newDefinition.getPath(), conflict.getPath())));
+                  "path '%s' conflicts with question id: %s",
+                  questionDefinition.getPath(), conflict.id)));
     }
     return ImmutableSet.of();
   }
 
+  /**
+   * Validates that a question's updates do not change its invariants.
+   *
+   * <p>Question invariants are: name, repeater id, path, and type.
+   */
   private ImmutableSet<CiviFormError> validateQuestionInvariants(
-      QuestionDefinition definition, QuestionDefinition toUpdate) {
-    ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<CiviFormError>();
-    if (!definition.getPath().equals(toUpdate.getPath())) {
+      QuestionDefinition questionDefinition, QuestionDefinition toUpdate) {
+    ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
+
+    if (!questionDefinition.getName().equals(toUpdate.getName())) {
+      errors.add(
+          CiviFormError.of(
+              String.format(
+                  "question names mismatch: %s does not match %s",
+                  questionDefinition.getName(), toUpdate.getName())));
+    }
+
+    if (!questionDefinition.getRepeaterId().equals(toUpdate.getRepeaterId())) {
+      errors.add(
+          CiviFormError.of(
+              String.format(
+                  "question repeater ids mismatch: %s does not match %s",
+                  questionDefinition.getRepeaterId().map(String::valueOf).orElse("[no repeater]"),
+                  toUpdate.getRepeaterId().map(String::valueOf).orElse("[no repeater]"))));
+    }
+
+    if (!questionDefinition.getPath().equals(toUpdate.getPath())) {
       errors.add(
           CiviFormError.of(
               String.format(
                   "question paths mismatch: %s does not match %s",
-                  definition.getPath().path(), toUpdate.getPath().path())));
+                  questionDefinition.getPath(), toUpdate.getPath())));
     }
-    if (!definition.getQuestionType().equals(toUpdate.getQuestionType())) {
+
+    if (!questionDefinition.getQuestionType().equals(toUpdate.getQuestionType())) {
       errors.add(
           CiviFormError.of(
               String.format(
                   "question types mismatch: %s does not match %s",
-                  definition.getQuestionType().toString(), toUpdate.getQuestionType().toString())));
+                  questionDefinition.getQuestionType(), toUpdate.getQuestionType())));
     }
     return errors.build();
   }

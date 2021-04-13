@@ -16,6 +16,7 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.TextQuestionDefinition;
+import support.TestQuestionBank;
 
 public class QuestionRepositoryTest extends WithPostgresContainer {
 
@@ -59,60 +60,46 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
-  public void pathConflicts_returnsTrueForBadPaths() {
-    String path = "applicant.address";
+  public void findPathConflictingQuestion_noConflicts_ok() {
+    TestQuestionBank.applicantAddress();
+    Optional<Question> maybeConflict =
+        repo.findPathConflictingQuestion(TestQuestionBank.applicantName().getQuestionDefinition());
 
-    assertThat(pathConflicts(path, "applicant")).isTrue();
-    assertThat(pathConflicts(path, "Applicant.Address")).isTrue();
-    assertThat(pathConflicts(path, "applicant.address.street")).isTrue();
-    assertThat(pathConflicts(path, "applicant.address.some.other.field")).isTrue();
+    assertThat(maybeConflict).isEmpty();
   }
 
   @Test
-  public void pathConflicts_returnsFalseForValidPaths() {
-    String path = "applicant.address";
+  public void findPathConflictingQuestion_sameQuestion_ok() {
+    Question applicantAddress = TestQuestionBank.applicantAddress();
+    Optional<Question> maybeConflict =
+        repo.findPathConflictingQuestion(applicantAddress.getQuestionDefinition());
 
-    assertThat(pathConflicts(path, "applicant.employment")).isFalse();
-    assertThat(pathConflicts(path, "other.path")).isFalse();
-    assertThat(pathConflicts(path, "other.applicant")).isFalse();
-    assertThat(pathConflicts(path, "other.applicant.address")).isFalse();
-    assertThat(pathConflicts(path, "other.applicant.address.street")).isFalse();
-    assertThat(pathConflicts(path, "other.applicant.address.some.other.field")).isFalse();
-    assertThat(pathConflicts(path, "applicant.addressSome")).isFalse();
-  }
-
-  private boolean pathConflicts(String path, String otherPath) {
-    return QuestionRepository.PathConflictDetector.pathConflicts(path, otherPath);
+    assertThat(maybeConflict).isEmpty();
   }
 
   @Test
-  public void findConflictingQuestion_returnsEmptyWhenNoQuestions() {
-    Optional<Question> found =
-        repo.findConflictingQuestion(Path.create("path.one")).toCompletableFuture().join();
+  public void findPathConflictingQuestion_differentVersion_ok() throws Exception {
+    Question applicantName = TestQuestionBank.applicantName();
+    QuestionDefinition questionDefinition =
+        new QuestionDefinitionBuilder(applicantName.getQuestionDefinition())
+            .setId(123123L)
+            .setVersion(433L)
+            .build();
 
-    assertThat(found).isEmpty();
+    Optional<Question> maybeConflict = repo.findPathConflictingQuestion(questionDefinition);
+
+    assertThat(maybeConflict).isEmpty();
   }
 
   @Test
-  public void findConflictingQuestion_returnsEmptyWhenNoPathConflict() {
-    resourceCreator().insertQuestion("path.one");
-    resourceCreator().insertQuestion("path.two");
+  public void findPathConflictingQuestion_hasConflicts() throws Exception {
+    Question applicantName = TestQuestionBank.applicantName();
+    QuestionDefinition questionDefinition =
+        new QuestionDefinitionBuilder(applicantName.getQuestionDefinition()).clearId().build();
 
-    Optional<Question> found =
-        repo.findConflictingQuestion(Path.create("path.other")).toCompletableFuture().join();
+    Optional<Question> maybeConflict = repo.findPathConflictingQuestion(questionDefinition);
 
-    assertThat(found).isEmpty();
-  }
-
-  @Test
-  public void findConflictingQuestion_returnsQuestionWhenConflictingPath() {
-    Question questionOne = resourceCreator().insertQuestion("path.one");
-    resourceCreator().insertQuestion("path.two");
-
-    Optional<Question> found =
-        repo.findConflictingQuestion(Path.create("path.one")).toCompletableFuture().join();
-
-    assertThat(found).hasValue(questionOne);
+    assertThat(maybeConflict).hasValue(applicantName);
   }
 
   @Test
