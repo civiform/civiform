@@ -11,7 +11,7 @@ jobs:
       - name: check out pr branch
         uses: actions/checkout@v2
       - name: Build test container
-        run: docker build -t civiform ./
+        run: docker build -t civiform --cache-from public.ecr.aws/t1q6b4h2/civiform-dev:latest ./
       - name: Run tests
         run: docker run -v /var/run/docker.sock:/var/run/docker.sock civiform test
 
@@ -21,7 +21,7 @@ jobs:
       - name: check out pr branch
         uses: actions/checkout@v2
       - name: Build test app container
-        run: docker build -t civiform ./
+        run: docker build -t civiform --cache-from public.ecr.aws/t1q6b4h2/civiform-dev:latest ./
       - name: Build browser testing container
         run: bin/build-browser-tests
       - name: Start localstack
@@ -44,7 +44,7 @@ jobs:
       - name: check out pr branch
         uses: actions/checkout@v2
       - name: Build prod container
-        run: docker build -f prod.Dockerfile -t civiform:prod ./
+        run: docker build -f prod.Dockerfile -t civiform:prod --cache-from public.ecr.aws/t1q6b4h2/universal-application-tool:latest ./
       - name: Build the stack
         run: docker-compose -f infra/prod-simulator-compose.yml up -d
         env:
