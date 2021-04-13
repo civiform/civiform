@@ -16,7 +16,6 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
-import play.data.Form;
 import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
@@ -169,9 +168,9 @@ public class QuestionController extends CiviFormController {
               .setLifecycleStage(LifecycleStage.DRAFT)
               .build();
     } catch (UnsupportedQuestionTypeException e) {
-      // Valid question type that is not yet fully supported.
-      String errorMessage = e.toString();
-      return ok(editView.renderEditQuestionForm(request, id, questionForm, errorMessage));
+      throw new RuntimeException(
+          "Failed while trying to update a question that was already created for question type "
+              + questionForm.getQuestionType());
     }
 
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndUpdatedQuestionDefinition;
@@ -213,36 +212,18 @@ public class QuestionController extends CiviFormController {
 
     switch (questionType) {
       case ADDRESS:
-        {
-          Form<AddressQuestionForm> form = formFactory.form(AddressQuestionForm.class);
-          return form.bindFromRequest(request).get();
-        }
+        return formFactory.form(AddressQuestionForm.class).bindFromRequest(request).get();
       case CHECKBOX:
-        {
-          Form<CheckboxQuestionForm> form = formFactory.form(CheckboxQuestionForm.class);
-          return form.bindFromRequest(request).get();
-        }
+        return formFactory.form(CheckboxQuestionForm.class).bindFromRequest(request).get();
       case DROPDOWN:
-        {
-          Form<DropdownQuestionForm> form = formFactory.form(DropdownQuestionForm.class);
-          return form.bindFromRequest(request).get();
-        }
+        return formFactory.form(DropdownQuestionForm.class).bindFromRequest(request).get();
       case RADIO_BUTTON:
-        {
-          Form<RadioButtonQuestionForm> form = formFactory.form(RadioButtonQuestionForm.class);
-          return form.bindFromRequest(request).get();
-        }
+        return formFactory.form(RadioButtonQuestionForm.class).bindFromRequest(request).get();
       case TEXT:
-        {
-          Form<TextQuestionForm> form = formFactory.form(TextQuestionForm.class);
-          return form.bindFromRequest(request).get();
-        }
+        return formFactory.form(TextQuestionForm.class).bindFromRequest(request).get();
       default:
-        {
-          // TODO(#589): Once QuestionForm is abstract, the default case should throw.
-          Form<QuestionForm> form = formFactory.form(QuestionForm.class);
-          return form.bindFromRequest(request).get();
-        }
+        // TODO(#589): Once QuestionForm is abstract, the default case should throw.
+        return formFactory.form(QuestionForm.class).bindFromRequest(request).get();
     }
   }
 }
