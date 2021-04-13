@@ -6,6 +6,7 @@ set +x
 
 docker build -t civiform-browser-test \
   browser-test \
-  -f browser-test/playwright.Dockerfile
+  -f browser-test/playwright.Dockerfile \
+  --cache-from public.ecr.aws/t1q6b4h2/civiform-browser-test:latest
 
 popd
