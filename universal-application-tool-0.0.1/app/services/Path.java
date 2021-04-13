@@ -198,7 +198,7 @@ public abstract class Path {
    * <p>For paths to non-array elements, {@code IllegalStateException} is thrown.
    */
   private String keyNameWithoutArrayIndex() {
-    return stripArraySuffix(keyName(), true);
+    return stripArraySuffix(keyName(), /* strict= */ true);
   }
 
   /**
