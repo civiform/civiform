@@ -42,9 +42,7 @@ public class AddressQuestion implements PresentsErrors {
       Matcher poBoxMatcher = poBoxPattern.matcher(getStreetValue().get());
 
       if (poBoxMatcher.matches()) {
-        return ImmutableSet.of(
-            ValidationErrorMessage.create(
-                "Please enter a valid address. We do not accept PO Boxes."));
+        return ImmutableSet.of(ValidationErrorMessage.noPoBox());
       }
     }
 
@@ -73,7 +71,7 @@ public class AddressQuestion implements PresentsErrors {
 
   public ImmutableSet<ValidationErrorMessage> getStreetErrors() {
     if (streetAnswered() && getStreetValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.create("Street is required."));
+      return ImmutableSet.of(ValidationErrorMessage.streetRequired());
     }
 
     return ImmutableSet.of();
@@ -81,7 +79,7 @@ public class AddressQuestion implements PresentsErrors {
 
   public ImmutableSet<ValidationErrorMessage> getCityErrors() {
     if (cityAnswered() && getCityValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.create("City is required."));
+      return ImmutableSet.of(ValidationErrorMessage.cityRequired());
     }
 
     return ImmutableSet.of();
@@ -90,7 +88,7 @@ public class AddressQuestion implements PresentsErrors {
   public ImmutableSet<ValidationErrorMessage> getStateErrors() {
     // TODO: Validate state further.
     if (stateAnswered() && getStateValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.create("State is required."));
+      return ImmutableSet.of(ValidationErrorMessage.stateRequired());
     }
 
     return ImmutableSet.of();
@@ -100,14 +98,13 @@ public class AddressQuestion implements PresentsErrors {
     if (zipAnswered()) {
       Optional<String> zipValue = getZipValue();
       if (zipValue.isEmpty()) {
-        return ImmutableSet.of(ValidationErrorMessage.create("Zip code is required."));
+        return ImmutableSet.of(ValidationErrorMessage.zipRequired());
       }
 
       Pattern pattern = Pattern.compile("^[0-9]{5}(?:-[0-9]{4})?$");
       Matcher matcher = pattern.matcher(zipValue.get());
       if (!matcher.matches()) {
-        return ImmutableSet.of(
-            ValidationErrorMessage.create("Please enter valid 5-digit ZIP code."));
+        return ImmutableSet.of(ValidationErrorMessage.invalidZip());
       }
     }
 

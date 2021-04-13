@@ -94,30 +94,26 @@ public class AddressQuestionTest {
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isTrue();
-    assertThat(addressQuestion.getStreetErrors())
-        .contains(ValidationErrorMessage.create("Street is required."));
-    assertThat(addressQuestion.getCityErrors())
-        .contains(ValidationErrorMessage.create("City is required."));
-    assertThat(addressQuestion.getStateErrors())
-        .contains(ValidationErrorMessage.create("State is required."));
-    assertThat(addressQuestion.getZipErrors())
-        .contains(ValidationErrorMessage.create("Zip code is required."));
+    assertThat(addressQuestion.getStreetErrors()).contains(ValidationErrorMessage.streetRequired());
+    assertThat(addressQuestion.getCityErrors()).contains(ValidationErrorMessage.cityRequired());
+    assertThat(addressQuestion.getStateErrors()).contains(ValidationErrorMessage.stateRequired());
+    assertThat(addressQuestion.getZipErrors()).contains(ValidationErrorMessage.zipRequired());
   }
 
   @Test
-  public void withInvalidApplicantData_invalidZipCode() {
+  @Parameters({"not a zip code", "123456789", "123ab"})
+  public void withInvalidApplicantData_invalidZipCode(String zipValue) {
     applicantData.putString(addressQuestionDefinition.getStreetPath(), "123 A St");
     applicantData.putString(addressQuestionDefinition.getCityPath(), "Seattle");
     applicantData.putString(addressQuestionDefinition.getStatePath(), "WA");
-    applicantData.putString(addressQuestionDefinition.getZipPath(), "not a zip code");
+    applicantData.putString(addressQuestionDefinition.getZipPath(), zipValue);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(addressQuestionDefinition, applicantData);
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isTrue();
-    assertThat(addressQuestion.getZipErrors())
-        .contains(ValidationErrorMessage.create("Please enter valid 5-digit ZIP code."));
+    assertThat(addressQuestion.getZipErrors()).contains(ValidationErrorMessage.invalidZip());
     assertThat(addressQuestion.getStreetErrors()).isEmpty();
     assertThat(addressQuestion.getCityErrors()).isEmpty();
     assertThat(addressQuestion.getStateErrors()).isEmpty();
@@ -161,9 +157,6 @@ public class AddressQuestionTest {
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(addressQuestion.getQuestionErrors())
-        .containsOnly(
-            ValidationErrorMessage.create(
-                "Please enter a valid address. We do not accept PO Boxes."));
+    assertThat(addressQuestion.getQuestionErrors()).containsOnly(ValidationErrorMessage.noPoBox());
   }
 }

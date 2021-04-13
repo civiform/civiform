@@ -43,7 +43,7 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
   public void render_withoutQuestionErrors() {
     Tag result = renderer.render();
 
-    assertThat(result.render()).doesNotContain("This answer must be");
+    assertThat(result.render()).doesNotContain("Must contain at");
   }
 
   @Test
@@ -52,7 +52,7 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
 
     Tag result = renderer.render();
 
-    assertThat(result.render()).contains("This answer must be at least 2 characters long.");
+    assertThat(result.render()).contains("Must contain at least 2 characters.");
   }
 
   @Test
@@ -61,6 +61,6 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
 
     Tag result = renderer.render();
 
-    assertThat(result.render()).contains("This answer must be at most 3 characters long.");
+    assertThat(result.render()).contains("Must contain at most 3 characters.");
   }
 }
