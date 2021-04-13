@@ -32,7 +32,6 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
   private ApplicantServiceImpl subject;
   private ProgramService programService;
-  private QuestionDefinition questionDefinition;
   private ProgramDefinition programDefinition;
   private ApplicantRepository applicantRepository;
 
@@ -41,8 +40,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     subject = instanceOf(ApplicantServiceImpl.class);
     programService = instanceOf(ProgramServiceImpl.class);
     applicantRepository = instanceOf(ApplicantRepository.class);
-    questionDefinition = TestQuestionBank.applicantName().getQuestionDefinition();
-    createProgram(questionDefinition);
+    createProgram(TestQuestionBank.applicantName().getQuestionDefinition());
   }
 
   @Test
