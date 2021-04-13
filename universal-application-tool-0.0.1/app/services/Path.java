@@ -227,6 +227,6 @@ public abstract class Path {
 
   /** Non-strict version of {@link #stripArraySuffix(String, boolean)} */
   private String stripArraySuffix(String segment) {
-    return stripArraySuffix(segment, false);
+    return stripArraySuffix(segment, /* strict= */ false);
   }
 }
