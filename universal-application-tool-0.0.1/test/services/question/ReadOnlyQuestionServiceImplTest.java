@@ -5,10 +5,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import services.Path;
 import services.question.exceptions.InvalidPathException;
+import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
@@ -70,6 +72,41 @@ public class ReadOnlyQuestionServiceImplTest {
     assertThat(repeaterService.getAllRepeaterQuestions().get(0)).isEqualTo(repeaterQuestion);
     assertThat(repeaterService.getUpToDateRepeaterQuestions().size()).isEqualTo(1);
     assertThat(repeaterService.getUpToDateRepeaterQuestions().get(0)).isEqualTo(repeaterQuestion);
+  }
+
+  @Test
+  public void makePath() throws Exception {
+    Path path = service.makePath(Optional.empty(), "this is foRMA$$$tte34d_we_i!!rd", false);
+    assertThat(path).isEqualTo(Path.create("applicant.this_is_formattedweird"));
+  }
+
+  @Test
+  public void makePath_withRepeater() throws Exception {
+    QuestionDefinition householdMembers =
+        TestQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+    service = new ReadOnlyQuestionServiceImpl(ImmutableList.of(householdMembers));
+
+    Path path = service.makePath(Optional.of(householdMembers.getId()), "some question name", true);
+
+    assertThat(path)
+        .isEqualTo(Path.create("applicant.applicant_household_members[].some_question_name[]"));
+  }
+
+  @Test
+  public void makePath_withBadRepeater_throws() {
+    QuestionDefinition applicantName = TestQuestionBank.applicantName().getQuestionDefinition();
+    service = new ReadOnlyQuestionServiceImpl(ImmutableList.of(applicantName));
+
+    assertThatThrownBy(
+            () -> service.makePath(Optional.of(applicantName.getId()), "some question name", true))
+        .isInstanceOf(InvalidQuestionTypeException.class)
+        .hasMessage("NAME is not a valid question type.");
+  }
+
+  @Test
+  public void makePath_isRepeated() throws Exception {
+    Path path = service.makePath(Optional.empty(), "this is foRMA$$$tte34d_we_i!!rd", true);
+    assertThat(path).isEqualTo(Path.create("applicant.this_is_formattedweird[]"));
   }
 
   @Test
