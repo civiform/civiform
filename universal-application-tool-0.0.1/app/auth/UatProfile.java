@@ -111,7 +111,9 @@ public class UatProfile {
             idList -> {
               if (!idList.contains(applicantId)) {
                 throw new SecurityException(
-                    String.format("%s is not authorized to access %d", getId(), applicantId));
+                    String.format(
+                        "Account %s is not authorized to access applicant %d",
+                        getId(), applicantId));
               }
               return null;
             });

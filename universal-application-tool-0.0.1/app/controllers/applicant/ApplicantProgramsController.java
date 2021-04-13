@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.ProfileUtils;
+import controllers.CiviFormController;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
@@ -12,7 +13,6 @@ import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
-import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.applicant.ApplicantService;
@@ -25,7 +25,7 @@ import views.applicant.ProgramIndexView;
  * explicitly check the current profile so that an unauthorized user cannot access another
  * applicant's data!
  */
-public class ApplicantProgramsController extends Controller {
+public class ApplicantProgramsController extends CiviFormController {
 
   private final HttpExecutionContext httpContext;
   private final ApplicantService applicantService;
@@ -51,10 +51,7 @@ public class ApplicantProgramsController extends Controller {
   public CompletionStage<Result> index(Request request, long applicantId) {
     Optional<String> banner = request.flash().get("banner");
 
-    return profileUtils
-        .currentUserProfile(request)
-        .orElseThrow()
-        .checkAuthorization(applicantId)
+    return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
             v -> applicantService.relevantPrograms(applicantId), httpContext.current())
         .thenApplyAsync(
@@ -78,10 +75,7 @@ public class ApplicantProgramsController extends Controller {
   public CompletionStage<Result> edit(Request request, long applicantId, long programId) {
 
     // Determine first incomplete block, then redirect to other edit.
-    return profileUtils
-        .currentUserProfile(request)
-        .orElseThrow()
-        .checkAuthorization(applicantId)
+    return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId))
         .thenApplyAsync(

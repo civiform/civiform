@@ -19,11 +19,11 @@ public class UatProfileTest extends WithPostgresContainer {
   }
 
   @Test
-  public void checkAuthorization_admin_passes() {
+  public void checkAuthorization_admin_passesForAnyId() {
     UatProfileData data = profileFactory.createNewAdmin();
     UatProfile profile = profileFactory.wrapProfileData(data);
 
-    profile.checkAuthorization(1L).join();
+    profile.checkAuthorization(1234L).join();
   }
 
   @Test

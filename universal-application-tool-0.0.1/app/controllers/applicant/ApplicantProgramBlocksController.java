@@ -7,6 +7,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import controllers.CiviFormController;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
@@ -21,7 +22,6 @@ import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
-import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.ApplicationRepository;
@@ -36,7 +36,7 @@ import views.applicant.ApplicantProgramBlockEditView;
  * Controller for handling an applicant filling out a single program. CAUTION: you must explicitly
  * check the current profile so that an unauthorized user cannot access another applicant's data!
  */
-public final class ApplicantProgramBlocksController extends Controller {
+public final class ApplicantProgramBlocksController extends CiviFormController {
   private static final ImmutableSet<String> STRIPPED_FORM_FIELDS = ImmutableSet.of("csrfToken");
 
   private final ApplicantService applicantService;
@@ -70,10 +70,7 @@ public final class ApplicantProgramBlocksController extends Controller {
   @Secure
   public CompletionStage<Result> edit(
       Request request, long applicantId, long programId, String blockId) {
-    return profileUtils
-        .currentUserProfile(request)
-        .orElseThrow()
-        .checkAuthorization(applicantId)
+    return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             httpExecutionContext.current())
@@ -115,10 +112,7 @@ public final class ApplicantProgramBlocksController extends Controller {
   @Secure
   public CompletionStage<Result> update(
       Request request, long applicantId, long programId, String blockId) {
-    return profileUtils
-        .currentUserProfile(request)
-        .orElseThrow()
-        .checkAuthorization(applicantId)
+    return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
             v -> {
               DynamicForm form = formFactory.form().bindFromRequest(request);
