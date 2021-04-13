@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.Transaction;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -135,7 +136,10 @@ public class ProgramRepository {
                 ebeanServer
                     .find(Program.class)
                     .where()
-                    .eq("name", program.getProgramDefinition().getNameForDefaultLocale())
+                    .jsonEqualTo(
+                        "localized_name",
+                        Locale.US.toString(),
+                        program.getProgramDefinition().getNameForDefaultLocale())
                     .eq("lifecycle_stage", LifecycleStage.ACTIVE)
                     .not()
                     .eq("id", program.id)
@@ -176,7 +180,10 @@ public class ProgramRepository {
             .find(Program.class)
             .where()
             .eq("lifecycle_stage", LifecycleStage.DRAFT.getValue())
-            .eq("name", existingProgram.getProgramDefinition().getNameForDefaultLocale())
+            .jsonEqualTo(
+                "localized_name",
+                Locale.US.toString(),
+                existingProgram.getProgramDefinition().getNameForDefaultLocale())
             .findOneOrEmpty();
 
     if (existingDraft.isPresent()) {

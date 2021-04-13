@@ -3,6 +3,7 @@ package repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -71,12 +72,15 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
     Program existing = resourceCreator().insertProgram("old name");
     Program updates =
         new Program(
-            existing.getProgramDefinition().toBuilder().addName(Locale.US, "new name").build());
+            existing.getProgramDefinition().toBuilder()
+                .setName(ImmutableMap.of(Locale.US, "new name"))
+                .build());
 
     Program updated = repo.updateProgramSync(updates);
 
     assertThat(updated.getProgramDefinition().id()).isEqualTo(existing.id);
-    assertThat(updated.getProgramDefinition().name()).isEqualTo("new name");
+    assertThat(updated.getProgramDefinition().name())
+        .isEqualTo(ImmutableMap.of(Locale.US, "new name"));
   }
 
   @Test
