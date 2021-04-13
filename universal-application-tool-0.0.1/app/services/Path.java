@@ -212,7 +212,7 @@ public abstract class Path {
   private String stripArraySuffix(String segment, boolean strict) {
     Matcher matcher = ARRAY_INDEX_REGEX.matcher(segment);
     if (matcher.matches()) {
-      return new StringBuilder(keyName())
+      return new StringBuilder(segment)
           .replace(matcher.start(ARRAY_SUFFIX_GROUP), matcher.end(ARRAY_SUFFIX_GROUP), "")
           .toString();
     }
