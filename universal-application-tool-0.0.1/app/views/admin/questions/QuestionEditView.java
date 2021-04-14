@@ -102,7 +102,7 @@ public final class QuestionEditView extends BaseHtmlView {
     return layout.renderFull(mainContent);
   }
 
-  public Content renderViewQuestionForm(Request request, QuestionDefinition question) {
+  public Content renderViewQuestionForm(QuestionDefinition question) {
     QuestionType questionType = question.getQuestionType();
     QuestionForm questionForm = getQuestionFormFromQuestionDefinition(question);
     String title = String.format("View %s question", questionType.toString().toLowerCase());
@@ -206,7 +206,6 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setDisabled(!submittable)
                 .setValue(questionForm.getQuestionDescription())
                 .getContainer(),
-            questionParentPathSelect(),
             FieldWithLabel.textArea()
                 .setId("question-text-textarea")
                 .setFieldName("questionText")
@@ -227,20 +226,6 @@ public final class QuestionEditView extends BaseHtmlView {
 
     formTag.with(QuestionConfig.buildQuestionConfig(questionType, questionForm));
     return formTag;
-  }
-
-  private DomContent questionParentPathSelect() {
-    // TODO: add repeated element paths when they exist (issue #405)
-    ImmutableList<SimpleEntry<String, String>> options =
-        ImmutableList.of(new SimpleEntry<>("Applicant", "applicant"));
-
-    return new SelectWithLabel()
-        .setId("question-parent-path-select")
-        .setFieldName("questionParentPath")
-        .setLabelText("Question parent path")
-        .setOptions(options)
-        .setValue("Applicant")
-        .getContainer();
   }
 
   private DomContent formQuestionTypeSelect(QuestionType selectedType) {
