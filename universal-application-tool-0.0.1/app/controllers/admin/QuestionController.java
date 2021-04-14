@@ -3,6 +3,7 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
+import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import forms.AddressQuestionForm;
 import forms.CheckboxQuestionForm;
@@ -22,13 +23,17 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.Path;
 import services.question.QuestionService;
+import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
+import services.question.types.RepeaterQuestionDefinition;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
 
@@ -87,7 +92,13 @@ public class QuestionController extends CiviFormController {
     String upperType = type.toUpperCase();
     try {
       QuestionType questionType = QuestionType.valueOf(upperType.toUpperCase());
-      return ok(editView.renderNewQuestionForm(request, questionType));
+      ImmutableList<RepeaterQuestionDefinition> repeaterQuestionDefinitions =
+          service
+              .getReadOnlyQuestionService()
+              .toCompletableFuture()
+              .join()
+              .getUpToDateRepeaterQuestions();
+      return ok(editView.renderNewQuestionForm(request, questionType, repeaterQuestionDefinitions));
     } catch (IllegalArgumentException e) {
       return badRequest(
           String.format(
@@ -106,11 +117,13 @@ public class QuestionController extends CiviFormController {
       return badRequest(e.toString());
     }
 
+    ReadOnlyQuestionService roService =
+        service.getReadOnlyQuestionService().toCompletableFuture().join();
+
     QuestionDefinition questionDefinition;
     try {
       questionDefinition =
-          questionForm
-              .getBuilder(questionForm.getPath())
+          getBuilderWithQuestionPath(roService, questionForm)
               .setVersion(NEW_VERSION)
               .setLifecycleStage(LifecycleStage.DRAFT)
               .build();
@@ -122,7 +135,11 @@ public class QuestionController extends CiviFormController {
     ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(questionDefinition);
     if (result.isError()) {
       String errorMessage = joinErrors(result.getErrors());
-      return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
+      ImmutableList<RepeaterQuestionDefinition> repeaterQuestionDefinitions =
+          roService.getUpToDateRepeaterQuestions();
+      return ok(
+          editView.renderNewQuestionForm(
+              request, questionForm, repeaterQuestionDefinitions, errorMessage));
     }
 
     String successMessage = String.format("question %s created", questionForm.getQuestionName());
@@ -157,9 +174,10 @@ public class QuestionController extends CiviFormController {
 
     QuestionDefinition questionDefinition;
     try {
+      ReadOnlyQuestionService roService =
+          service.getReadOnlyQuestionService().toCompletableFuture().join();
       questionDefinition =
-          questionForm
-              .getBuilder(questionForm.getPath())
+          getBuilderWithQuestionPath(roService, questionForm)
               .setId(id)
               // Version is needed for building a question definition.
               // This value is overwritten when updating the question.
@@ -182,7 +200,9 @@ public class QuestionController extends CiviFormController {
 
     if (errorAndUpdatedQuestionDefinition.isError()) {
       String errorMessage = joinErrors(errorAndUpdatedQuestionDefinition.getErrors());
-      return ok(editView.renderEditQuestionForm(request, id, questionForm, errorMessage));
+      return ok(
+          editView.renderEditQuestionForm(
+              request, id, questionForm, questionDefinition, errorMessage));
     }
 
     String successMessage = String.format("question %s updated", questionForm.getQuestionName());
@@ -222,6 +242,23 @@ public class QuestionController extends CiviFormController {
       default:
         // TODO(#589): Once QuestionForm is abstract, the default case should throw.
         return formFactory.form(QuestionForm.class).bindFromRequest(request).get();
+    }
+  }
+
+  private QuestionDefinitionBuilder getBuilderWithQuestionPath(
+      ReadOnlyQuestionService roService, QuestionForm questionForm) {
+    try {
+      Path path = roService.makePath(
+              questionForm.getRepeaterId(),
+              questionForm.getQuestionName(),
+              questionForm.getQuestionType().equals(QuestionType.REPEATER));
+      return questionForm.getBuilder(path);
+    } catch (QuestionNotFoundException | InvalidQuestionTypeException e) {
+      throw new RuntimeException(
+          "Failed to created a question definition builder because of invalid repeater id"
+              + " reference: "
+              + questionForm,
+          e);
     }
   }
 }
