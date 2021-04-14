@@ -11,6 +11,7 @@ import com.google.inject.Inject;
 import forms.AddressQuestionForm;
 import forms.CheckboxQuestionForm;
 import forms.DropdownQuestionForm;
+import forms.NumberQuestionForm;
 import forms.QuestionForm;
 import forms.RadioButtonQuestionForm;
 import forms.TextQuestionForm;
@@ -269,6 +270,9 @@ public final class QuestionEditView extends BaseHtmlView {
         break;
       case DROPDOWN:
         questionForm = new DropdownQuestionForm();
+        break;
+      case NUMBER:
+        questionForm = new NumberQuestionForm();
         break;
       case RADIO_BUTTON:
         questionForm = new RadioButtonQuestionForm();

@@ -9,12 +9,15 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import forms.AddressQuestionForm;
 import forms.MultiOptionQuestionForm;
+import forms.NumberQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Optional;
+
+import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionType;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
@@ -197,12 +200,13 @@ public class QuestionConfig {
     return this;
   }
 
-  private QuestionConfig addNumberQuestionConfig() {
+  private QuestionConfig addNumberQuestionConfig(NumberQuestionForm numberQuestionForm) {
     content.with(
         FieldWithLabel.number()
             .setId("number-question-min-value-input")
             .setFieldName("min")
             .setLabelText("Minimum value")
+                // Set value, but need to create a new setValue
             .getContainer(),
         FieldWithLabel.number()
             .setId("number-question-max-value-input")
