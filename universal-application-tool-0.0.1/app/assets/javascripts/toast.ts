@@ -10,6 +10,7 @@
 class ToastController {
   static containerId = 'toast-container';
   static messageClass = 'cf-toast';
+  static messageDataClass = 'cf-toast-data';
 
   static infoSvgPath =
     "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0"
@@ -121,7 +122,7 @@ class ToastController {
 
   /** If a toast message is present, create it and add it to the container. */
   maybeShowToasts() {
-    const messages = document.querySelectorAll(".cf-toast-data");
+    const messages = Array.from(document.querySelectorAll("." + ToastController.messageDataClass));
     messages.forEach((element) => {
       const message: ToastMessage = {
         id: element.getAttribute("id")!,
