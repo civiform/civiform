@@ -66,12 +66,9 @@ public abstract class ProgramDefinition {
   }
 
   public String getLocalizedName(Locale locale) throws TranslationNotFoundException {
-    System.out.println("In getLocalizedName with Locale: " + locale);
     if (localizedName().containsKey(locale)) {
-      System.out.println("It has the key!");
       return localizedName().get(locale);
     } else {
-      System.out.println("It doesn't have the key");
       throw new TranslationNotFoundException(id(), locale);
     }
   }

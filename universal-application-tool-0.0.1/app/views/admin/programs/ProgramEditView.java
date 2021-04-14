@@ -49,7 +49,8 @@ public class ProgramEditView extends BaseHtmlView {
             .setId("program-name-input")
             .setFieldName("name")
             .setLabelText("Program name")
-            .setPlaceholderText("A name for internal identification purposes - this cannot be updated once set")
+            .setPlaceholderText(
+                "A name for internal identification purposes - this cannot be updated once set")
             .setValue(programName)
             .getContainer(),
         FieldWithLabel.textArea()
