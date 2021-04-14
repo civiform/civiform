@@ -27,7 +27,10 @@ public abstract class ProgramDefinition {
    * Descriptive name of a Program, e.g. Car Tab Rebate Program. This is immutable and should only
    * be used to help admins identify programs.
    */
-  public abstract String name();
+  public abstract String adminName();
+
+  /** A description of this program for the admin's reference. */
+  public abstract String adminDescription();
 
   /**
    * Descriptive name of a Program, e.g. Car Tab Rebate Program, localized for each supported
@@ -194,13 +197,16 @@ public abstract class ProgramDefinition {
 
     public abstract Builder setId(long id);
 
-    public abstract Builder setName(String name);
+    public abstract Builder setAdminName(String adminName);
 
-    public abstract Builder setLocalizedName(ImmutableMap<Locale, String> name);
+    public abstract Builder setAdminDescription(String adminDescription);
+
+    public abstract Builder setLocalizedName(ImmutableMap<Locale, String> localizedName);
 
     public abstract ImmutableMap.Builder<Locale, String> localizedNameBuilder();
 
-    public abstract Builder setLocalizedDescription(ImmutableMap<Locale, String> description);
+    public abstract Builder setLocalizedDescription(
+        ImmutableMap<Locale, String> localizedDescription);
 
     public abstract ImmutableMap.Builder<Locale, String> localizedDescriptionBuilder();
 

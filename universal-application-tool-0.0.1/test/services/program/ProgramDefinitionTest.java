@@ -22,7 +22,8 @@ public class ProgramDefinitionTest {
             .build();
     ProgramDefinition.builder()
         .setId(123L)
-        .setName("Admin name")
+        .setAdminName("Admin name")
+        .setAdminDescription("Admin description")
         .addLocalizedName(Locale.US, "The Program")
         .addLocalizedDescription(Locale.US, "This program is for testing.")
         .setLifecycleStage(LifecycleStage.ACTIVE)
@@ -41,7 +42,8 @@ public class ProgramDefinitionTest {
     ProgramDefinition program =
         ProgramDefinition.builder()
             .setId(123L)
-            .setName("Admin name")
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "The Program")
             .addLocalizedDescription(Locale.US, "This program is for testing.")
             .setLifecycleStage(LifecycleStage.ACTIVE)
@@ -56,7 +58,8 @@ public class ProgramDefinitionTest {
     ProgramDefinition program =
         ProgramDefinition.builder()
             .setId(123L)
-            .setName("Admin name")
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "The Program")
             .addLocalizedDescription(Locale.US, "This program is for testing.")
             .setLifecycleStage(LifecycleStage.ACTIVE)
@@ -91,7 +94,8 @@ public class ProgramDefinitionTest {
     ProgramDefinition program =
         ProgramDefinition.builder()
             .setId(123L)
-            .setName("Admin name")
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "The Program")
             .addLocalizedDescription(Locale.US, "This program is for testing.")
             .setLifecycleStage(LifecycleStage.ACTIVE)
@@ -109,13 +113,14 @@ public class ProgramDefinitionTest {
     ProgramDefinition program =
         ProgramDefinition.builder()
             .setId(123L)
-            .setName("Admin name")
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "Applicant friendly name")
             .addLocalizedDescription(Locale.US, "English description")
             .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
-    assertThat(program.name()).isEqualTo("Admin name");
+    assertThat(program.adminName()).isEqualTo("Admin name");
     assertThat(program.localizedName())
         .isEqualTo(ImmutableMap.of(Locale.US, "Applicant friendly name"));
     assertThat(program.localizedDescription())
@@ -136,7 +141,8 @@ public class ProgramDefinitionTest {
     ProgramDefinition program =
         ProgramDefinition.builder()
             .setId(123L)
-            .setName("Admin name")
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "Applicant friendly name")
             .addLocalizedDescription(Locale.US, "English description")
             .setLifecycleStage(LifecycleStage.ACTIVE)

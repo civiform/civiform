@@ -1,7 +1,6 @@
 package support;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -69,18 +68,17 @@ public class ProgramBuilder {
   }
 
   public ProgramBuilder withName(String name) {
-    builder.setName(name);
+    builder.setAdminName(name);
+    return this;
+  }
+
+  public ProgramBuilder withDescription(String description) {
+    builder.setAdminDescription(description);
     return this;
   }
 
   public ProgramBuilder withLocalizedName(Locale locale, String name) {
     builder.addLocalizedName(locale, name);
-    return this;
-  }
-
-  /** Overwrites the current localized descriptions with a new description for Locale.US. */
-  public ProgramBuilder withDescription(String description) {
-    builder.setLocalizedDescription(ImmutableMap.of(Locale.US, description));
     return this;
   }
 

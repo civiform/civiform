@@ -25,11 +25,12 @@ public class ProgramEditView extends BaseHtmlView {
 
   public Content render(Request request, ProgramDefinition program) {
     ContainerTag formTag =
-        buildProgramForm(program.name(), program.getDescriptionForDefaultLocale())
+        buildProgramForm(program.adminName(), program.getDescriptionForDefaultLocale())
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(program.id()))
             .withAction(controllers.admin.routes.AdminProgramController.update(program.id()).url());
-    return layout.render(renderHeader(String.format("Edit program: %s", program.name())), formTag);
+    return layout.render(
+        renderHeader(String.format("Edit program: %s", program.adminName())), formTag);
   }
 
   public Content render(Request request, long id, ProgramForm program, String message) {

@@ -29,6 +29,8 @@ public class Program extends BaseModel {
 
   @Constraints.Required private String name;
 
+  @Constraints.Required private String description;
+
   @Constraints.Required @DbJsonB private ImmutableMap<Locale, String> localizedName;
 
   @Constraints.Required @DbJsonB private ImmutableMap<Locale, String> localizedDescription;
@@ -51,7 +53,8 @@ public class Program extends BaseModel {
   public Program(ProgramDefinition definition) {
     this.programDefinition = definition;
     this.id = definition.id();
-    this.name = definition.name();
+    this.name = definition.adminName();
+    this.description = definition.adminDescription();
     this.localizedName = definition.localizedName();
     this.localizedDescription = definition.localizedDescription();
     this.blockDefinitions = definition.blockDefinitions();
@@ -65,6 +68,7 @@ public class Program extends BaseModel {
    */
   public Program(String name, String description) {
     this.name = name;
+    this.description = description;
     this.localizedName = ImmutableMap.of(Locale.US, name);
     this.localizedDescription = ImmutableMap.of(Locale.US, description);
     this.lifecycleStage = LifecycleStage.DRAFT;
@@ -83,7 +87,8 @@ public class Program extends BaseModel {
   @PreUpdate
   public void persistChangesToProgramDefinition() {
     id = programDefinition.id();
-    name = programDefinition.name();
+    name = programDefinition.adminName();
+    description = programDefinition.adminDescription();
     localizedName = programDefinition.localizedName();
     localizedDescription = programDefinition.localizedDescription();
     blockDefinitions = programDefinition.blockDefinitions();
@@ -99,7 +104,8 @@ public class Program extends BaseModel {
     this.programDefinition =
         ProgramDefinition.builder()
             .setId(id)
-            .setName(name)
+            .setAdminName(name)
+            .setAdminDescription(description)
             .setLocalizedName(localizedName)
             .setLocalizedDescription(localizedDescription)
             .setBlockDefinitions(blockDefinitions)

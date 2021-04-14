@@ -142,7 +142,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             new Applicant().getApplicantData(),
             ProgramDefinition.builder()
                 .setId(123L)
-                .setName("Admin program name")
+                .setAdminName("Admin program name")
+                .setAdminDescription("Admin description")
                 .addLocalizedName(Locale.US, "The Program")
                 .addLocalizedDescription(Locale.US, "This program is for testing.")
                 .setLifecycleStage(LifecycleStage.ACTIVE)

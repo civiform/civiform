@@ -136,7 +136,7 @@ public class ProgramRepository {
                 ebeanServer
                     .find(Program.class)
                     .where()
-                    .eq("name", program.getProgramDefinition().name())
+                    .eq("name", program.getProgramDefinition().adminName())
                     .eq("lifecycle_stage", LifecycleStage.ACTIVE)
                     .not()
                     .eq("id", program.id)
@@ -177,7 +177,7 @@ public class ProgramRepository {
             .find(Program.class)
             .where()
             .eq("lifecycle_stage", LifecycleStage.DRAFT.getValue())
-            .eq("name", existingProgram.getProgramDefinition().name())
+            .eq("name", existingProgram.getProgramDefinition().adminName())
             .findOneOrEmpty();
     if (existingDraft.isPresent()) {
       Program updatedDraft =

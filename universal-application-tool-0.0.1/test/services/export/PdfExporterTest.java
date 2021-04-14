@@ -39,7 +39,8 @@ public class PdfExporterTest extends WithPostgresContainer {
     ProgramDefinition definition =
         ProgramDefinition.builder()
             .setId(1L)
-            .setName("fake program")
+            .setAdminName("fake program")
+            .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "fake program")
             .addLocalizedDescription(Locale.US, "fake program description")
             .setLifecycleStage(LifecycleStage.ACTIVE)
