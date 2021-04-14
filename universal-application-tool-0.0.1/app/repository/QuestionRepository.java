@@ -10,8 +10,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import models.LifecycleStage;
-import models.Program;
 import models.Question;
 import play.db.ebean.EbeanConfig;
 import services.Path;
@@ -24,16 +24,17 @@ public class QuestionRepository {
 
   private final EbeanServer ebeanServer;
   private final DatabaseExecutionContext executionContext;
-  private final ProgramRepository programRepository;
+  private final Provider<VersionRepository> versionRepositoryProvider;
 
   @Inject
   public QuestionRepository(
       EbeanConfig ebeanConfig,
       DatabaseExecutionContext executionContext,
-      ProgramRepository programRepository) {
+      ProgramRepository programRepository,
+      Provider<VersionRepository> versionRepositoryProvider) {
     this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
     this.executionContext = checkNotNull(executionContext);
-    this.programRepository = checkNotNull(programRepository);
+    this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
   }
 
   public CompletionStage<Set<Question>> listQuestions() {
@@ -43,34 +44,6 @@ public class QuestionRepository {
   public CompletionStage<Optional<Question>> lookupQuestion(long id) {
     return supplyAsync(
         () -> ebeanServer.find(Question.class).setId(id).findOneOrEmpty(), executionContext);
-  }
-
-  /**
-   * Set this question to ACTIVE state, and set any existing ACTIVE question with the same name to
-   * the OBSOLETE state.
-   */
-  public void setQuestionLive(long questionId) {
-    Question published = ebeanServer.find(Question.class, questionId);
-    Optional<Question> existingMaybe =
-        findActiveVersionOfQuestion(questionId, published.getQuestionDefinition().getName());
-    if (existingMaybe.isPresent()) {
-      Question existing = existingMaybe.get();
-      existing.setLifecycleStage(LifecycleStage.OBSOLETE);
-      existing.save();
-    }
-    published.setLifecycleStage(LifecycleStage.ACTIVE);
-    published.save();
-  }
-
-  /** Find an ACTIVE version of the question specified, other than the given ID. */
-  public Optional<Question> findActiveVersionOfQuestion(long questionId, String questionName) {
-    return ebeanServer
-        .find(Question.class)
-        .where()
-        .eq("lifecycle_stage", LifecycleStage.ACTIVE.getValue())
-        .eq("name", questionName)
-        .ne("id", questionId)
-        .findOneOrEmpty();
   }
 
   /**
@@ -104,35 +77,20 @@ public class QuestionRepository {
         return updatedDraft;
       }
 
-      // Next set the version of the new question.
-      int existingQuestionCount =
-          ebeanServer
-              .find(Question.class)
-              .usingTransaction(transaction)
-              .where()
-              .eq("name", definition.getName())
-              .findCount();
       Question newDraft =
           new Question(
               new QuestionDefinitionBuilder(definition)
                   .setId(null)
-                  .setVersion(existingQuestionCount + 1L)
+                  .setVersion(versionRepositoryProvider.get().getNextVersion())
                   .build());
       newDraft.setLifecycleStage(LifecycleStage.DRAFT);
       newDraft.id = null;
       ebeanServer.insert(newDraft, transaction);
 
-      // Next, update all existing draft programs so that they don't have old versions of the
-      // question anymore.  We have an invariant that draft programs always have the most up-to-date
-      // version of a question.
-      for (Program draftProgram :
-          ebeanServer
-              .find(Program.class)
-              .where()
-              .eq("lifecycle_stage", LifecycleStage.DRAFT.getValue())
-              .findList()) {
-        programRepository.updateQuestionVersions(draftProgram, transaction);
-      }
+      versionRepositoryProvider
+          .get()
+          .updateProgramsForNewDraftQuestion(newDraft, definition.getId(), transaction);
+
       ebeanServer.commitTransaction();
       newDraft.refresh();
       return newDraft;

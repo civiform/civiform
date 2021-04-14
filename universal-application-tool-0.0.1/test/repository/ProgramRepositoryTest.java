@@ -13,10 +13,12 @@ import org.junit.Test;
 public class ProgramRepositoryTest extends WithPostgresContainer {
 
   private ProgramRepository repo;
+  private VersionRepository versionRepository;
 
   @Before
   public void setupProgramRepository() {
     repo = instanceOf(ProgramRepository.class);
+    versionRepository = instanceOf(VersionRepository.class);
   }
 
   @Test
@@ -84,7 +86,7 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
     draft.setLifecycleStage(LifecycleStage.DRAFT);
     draft.save();
 
-    repo.publishProgram(draft);
+    versionRepository.publishNewSynchronizedVersion();
 
     assertThat(draft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     active.refresh();
