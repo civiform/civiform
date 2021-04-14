@@ -57,7 +57,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
   public void create_failsWithErrorMessageAndPopulatedFields() throws Exception {
     buildQuestionsList();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
-    formData.put("questionName", "name").put("questionParentPath", "valid_path");
+    formData.put("questionName", "name");
     Request request = addCSRFToken(Helpers.fakeRequest().bodyForm(formData.build())).build();
 
     Result result = controller.create(request, "text");
@@ -190,7 +190,6 @@ public class QuestionControllerTest extends WithPostgresContainer {
     formData
         .put("questionName", nameQuestion.getName())
         .put("questionDescription", "a new description")
-        .put("questionParentPath", nameQuestion.getPath().parentPath().toString())
         .put("questionType", nameQuestion.getQuestionType().name())
         .put("questionText", "question text updated")
         .put("questionHelpText", "a new help text");
@@ -215,7 +214,6 @@ public class QuestionControllerTest extends WithPostgresContainer {
     formData
         .put("questionName", "favorite_color")
         .put("questionDescription", "")
-        .put("questionParentPath", "applicant")
         .put("questionText", "question text updated!");
     Request request = addCSRFToken(Helpers.fakeRequest().bodyForm(formData.build())).build();
 

@@ -110,7 +110,7 @@ public class QuestionController extends CiviFormController {
     try {
       questionDefinition =
           questionForm
-              .getBuilder()
+              .getBuilder(questionForm.getPath())
               .setVersion(NEW_VERSION)
               .setLifecycleStage(LifecycleStage.DRAFT)
               .build();
@@ -125,8 +125,7 @@ public class QuestionController extends CiviFormController {
       return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
     }
 
-    String successMessage =
-        String.format("question %s created", questionForm.getQuestionPath().path());
+    String successMessage = String.format("question %s created", questionForm.getQuestionName());
     return withMessage(redirect(routes.QuestionController.index()), successMessage);
   }
 
@@ -160,7 +159,7 @@ public class QuestionController extends CiviFormController {
     try {
       questionDefinition =
           questionForm
-              .getBuilder()
+              .getBuilder(questionForm.getPath())
               .setId(id)
               // Version is needed for building a question definition.
               // This value is overwritten when updating the question.
@@ -186,8 +185,7 @@ public class QuestionController extends CiviFormController {
       return ok(editView.renderEditQuestionForm(request, id, questionForm, errorMessage));
     }
 
-    String successMessage =
-        String.format("question %s updated", questionForm.getQuestionPath().path());
+    String successMessage = String.format("question %s updated", questionForm.getQuestionName());
     return withMessage(redirect(routes.QuestionController.index()), successMessage);
   }
 

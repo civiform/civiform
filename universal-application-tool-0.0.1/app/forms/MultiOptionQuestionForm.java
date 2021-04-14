@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.OptionalInt;
+import services.Path;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
@@ -84,7 +85,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   }
 
   @Override
-  public QuestionDefinitionBuilder getBuilder() {
+  public QuestionDefinitionBuilder getBuilder(Path path) {
     MultiOptionQuestionDefinition.MultiOptionValidationPredicates.Builder predicateBuilder =
         MultiOptionQuestionDefinition.MultiOptionValidationPredicates.builder();
 
@@ -96,7 +97,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
       predicateBuilder.setMaxChoicesAllowed(getMaxChoicesAllowed());
     }
 
-    return super.getBuilder()
+    return super.getBuilder(path)
         .setQuestionOptions(
             ImmutableListMultimap.<Locale, String>builder().putAll(Locale.US, getOptions()).build())
         .setValidationPredicates(predicateBuilder.build());
