@@ -37,10 +37,6 @@ public class SingleSelectQuestion implements PresentsErrors {
         && !getOptions().contains(getSelectedOptionValue().get());
   }
 
-  public boolean hasValue() {
-    return getSelectedOptionValue().isPresent();
-  }
-
   public Optional<String> getSelectedOptionValue() {
     if (selectedOptionValue != null) {
       return selectedOptionValue;
@@ -81,5 +77,11 @@ public class SingleSelectQuestion implements PresentsErrors {
     } catch (TranslationNotFoundException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public boolean isAnswered() {
+    // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
+    return applicantQuestion.getApplicantData().hasPath(getSelectionPath());
   }
 }
