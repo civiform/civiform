@@ -4,7 +4,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.main;
-import static j2html.TagCreator.sub;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -284,7 +283,8 @@ public final class QuestionEditView extends BaseHtmlView {
    * Generate a {@link SelectWithLabel} fixed repeater selector based on the question definition's
    * repeater.
    */
-  private SelectWithLabel repeaterOptionWithQuestionDefinition(QuestionDefinition questionDefinition) {
+  private SelectWithLabel repeaterOptionWithQuestionDefinition(
+      QuestionDefinition questionDefinition) {
     Path parentPath = questionDefinition.getPath().parentPath();
     SimpleEntry<String, String> repeaterPathAndId =
         new SimpleEntry<>(

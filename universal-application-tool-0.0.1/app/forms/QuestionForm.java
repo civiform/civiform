@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-
 import services.Path;
 import services.question.exceptions.TranslationNotFoundException;
 import services.question.types.QuestionDefinition;

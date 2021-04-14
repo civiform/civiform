@@ -248,7 +248,8 @@ public class QuestionController extends CiviFormController {
   private QuestionDefinitionBuilder getBuilderWithQuestionPath(
       ReadOnlyQuestionService roService, QuestionForm questionForm) {
     try {
-      Path path = roService.makePath(
+      Path path =
+          roService.makePath(
               questionForm.getRepeaterId(),
               questionForm.getQuestionName(),
               questionForm.getQuestionType().equals(QuestionType.REPEATER));
