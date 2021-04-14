@@ -47,8 +47,6 @@ public class LoginForm extends BaseHtmlView {
     if (!message.orElse("").equals("login")) {
       String errorString = "Error: You are not logged in.";
       bodyTag.with(ToastMessage.error(errorString).getContainerTag());
-    } else {
-      bodyTag.with(ToastMessage.alert("You are logged in.").setDuration(0).getContainerTag());
     }
 
     // "defense in depth", sort of - this client won't be present in production, and this button
