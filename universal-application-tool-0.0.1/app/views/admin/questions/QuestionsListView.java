@@ -28,6 +28,7 @@ import views.admin.AdminLayout;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.style.BaseStyles;
+import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
@@ -159,7 +160,10 @@ public final class QuestionsListView extends BaseHtmlView {
       definition = questionVersions.stream().findAny().get();
     }
     return tr().withClasses(
-            Styles.BORDER_B, Styles.BORDER_GRAY_300, StyleUtils.even(Styles.BG_GRAY_100))
+            ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
+            Styles.BORDER_B,
+            Styles.BORDER_GRAY_300,
+            StyleUtils.even(Styles.BG_GRAY_100))
         .with(renderInfoCell(definition))
         .with(renderQuestionTextCell(definition))
         .with(renderActionsCell(activeDefinition, draftDefinition, definition));

@@ -16,15 +16,16 @@ public class TextQuestionFormTest {
 
   @Test
   public void getBuilder_returnsCompleteBuilder() throws Exception {
+    Path path = Path.create("my.question.path.name");
+
     TextQuestionForm form = new TextQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
-    form.setQuestionParentPath("my.question.path");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
     form.setMinLength("4");
     form.setMaxLength("6");
-    QuestionDefinitionBuilder builder = form.getBuilder();
+    QuestionDefinitionBuilder builder = form.getBuilder(path);
 
     builder.setVersion(1L);
     builder.setLifecycleStage(LifecycleStage.ACTIVE);
@@ -33,7 +34,7 @@ public class TextQuestionFormTest {
         new TextQuestionDefinition(
             1L,
             "name",
-            Path.create("my.question.path.name"),
+            path,
             Optional.empty(),
             "description",
             LifecycleStage.ACTIVE,
@@ -48,11 +49,13 @@ public class TextQuestionFormTest {
 
   @Test
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
+    Path path = Path.create("my.question.path.name");
+
     TextQuestionDefinition originalQd =
         new TextQuestionDefinition(
             1L,
             "name",
-            Path.create("my.question.path.name"),
+            path,
             Optional.empty(),
             "description",
             LifecycleStage.ACTIVE,
@@ -61,7 +64,7 @@ public class TextQuestionFormTest {
             TextQuestionDefinition.TextValidationPredicates.create(4, 6));
 
     TextQuestionForm form = new TextQuestionForm(originalQd);
-    QuestionDefinitionBuilder builder = form.getBuilder();
+    QuestionDefinitionBuilder builder = form.getBuilder(path);
 
     builder.setVersion(1L);
     builder.setLifecycleStage(LifecycleStage.ACTIVE);
@@ -73,15 +76,16 @@ public class TextQuestionFormTest {
 
   @Test
   public void getBuilder_emptyStringMinMax_noPredicateSet() throws Exception {
+    Path path = Path.create("my.question.path.name");
+
     TextQuestionForm form = new TextQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
-    form.setQuestionParentPath("my.question.path");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
     form.setMinLength("");
     form.setMaxLength("");
-    QuestionDefinitionBuilder builder = form.getBuilder();
+    QuestionDefinitionBuilder builder = form.getBuilder(path);
 
     builder.setVersion(1L);
     builder.setLifecycleStage(LifecycleStage.ACTIVE);
@@ -90,7 +94,7 @@ public class TextQuestionFormTest {
         new TextQuestionDefinition(
             1L,
             "name",
-            Path.create("my.question.path.name"),
+            path,
             Optional.empty(),
             "description",
             LifecycleStage.ACTIVE,
