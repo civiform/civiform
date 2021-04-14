@@ -256,7 +256,7 @@ public class QuestionController extends CiviFormController {
       return questionForm.getBuilder(path);
     } catch (QuestionNotFoundException | InvalidQuestionTypeException e) {
       throw new RuntimeException(
-          "Failed to created a question definition builder because of invalid repeater id"
+          "Failed to create a question definition builder because of invalid repeater id"
               + " reference: "
               + questionForm,
           e);
