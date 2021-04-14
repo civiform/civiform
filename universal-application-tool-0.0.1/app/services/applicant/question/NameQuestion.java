@@ -115,14 +115,17 @@ public class NameQuestion implements PresentsErrors {
   }
 
   private boolean isFirstNameAnswered() {
+    // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
     return applicantQuestion.getApplicantData().hasPath(getFirstNamePath());
   }
 
   private boolean isMiddleNameAnswered() {
+    // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
     return applicantQuestion.getApplicantData().hasPath(getMiddleNamePath());
   }
 
   private boolean isLastNameAnswered() {
+    // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
     return applicantQuestion.getApplicantData().hasPath(getLastNamePath());
   }
 
