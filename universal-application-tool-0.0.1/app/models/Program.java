@@ -65,7 +65,7 @@ public class Program extends BaseModel {
         BlockDefinition.builder()
             .setId(1L)
             .setName("Block 1")
-            .setDescription("")
+            .setDescription("Block 1 Description")
             .setProgramQuestionDefinitions(ImmutableList.of())
             .build();
     this.exportDefinitions = ImmutableList.of();
