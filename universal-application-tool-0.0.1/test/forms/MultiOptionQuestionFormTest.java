@@ -18,15 +18,16 @@ public class MultiOptionQuestionFormTest {
 
   @Test
   public void getBuilder_returnsCompleteBuilder() throws Exception {
+    Path path = Path.create("my.question.path.name");
+
     MultiOptionQuestionForm form = new CheckboxQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
-    form.setQuestionParentPath("my.question.path");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
     form.setMinChoicesRequired("1");
     form.setMaxChoicesAllowed("10");
-    QuestionDefinitionBuilder builder = form.getBuilder();
+    QuestionDefinitionBuilder builder = form.getBuilder(path);
 
     builder.setVersion(1L);
     builder.setLifecycleStage(LifecycleStage.ACTIVE);
@@ -35,7 +36,7 @@ public class MultiOptionQuestionFormTest {
         new CheckboxQuestionDefinition(
             1L,
             "name",
-            Path.create("my.question.path.name"),
+            path,
             Optional.empty(),
             "description",
             LifecycleStage.ACTIVE,
@@ -51,11 +52,13 @@ public class MultiOptionQuestionFormTest {
 
   @Test
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
+    Path path = Path.create("my.question.path.name");
+
     CheckboxQuestionDefinition originalQd =
         new CheckboxQuestionDefinition(
             1L,
             "name",
-            Path.create("my.question.path.name"),
+            path,
             Optional.empty(),
             "description",
             LifecycleStage.ACTIVE,
@@ -65,7 +68,7 @@ public class MultiOptionQuestionFormTest {
             MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(1, 10));
 
     MultiOptionQuestionForm form = new CheckboxQuestionForm(originalQd);
-    QuestionDefinitionBuilder builder = form.getBuilder();
+    QuestionDefinitionBuilder builder = form.getBuilder(path);
 
     builder.setVersion(1L);
     builder.setLifecycleStage(LifecycleStage.ACTIVE);
@@ -77,15 +80,16 @@ public class MultiOptionQuestionFormTest {
 
   @Test
   public void getBuilder_emptyStringMinMax_noPredicateSet() throws Exception {
+    Path path = Path.create("my.question.path.name");
+
     MultiOptionQuestionForm form = new CheckboxQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
-    form.setQuestionParentPath("my.question.path");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
     form.setMinChoicesRequired("");
     form.setMaxChoicesAllowed("");
-    QuestionDefinitionBuilder builder = form.getBuilder();
+    QuestionDefinitionBuilder builder = form.getBuilder(path);
 
     builder.setVersion(1L);
     builder.setLifecycleStage(LifecycleStage.ACTIVE);
@@ -94,7 +98,7 @@ public class MultiOptionQuestionFormTest {
         new CheckboxQuestionDefinition(
             1L,
             "name",
-            Path.create("my.question.path.name"),
+            path,
             Optional.empty(),
             "description",
             LifecycleStage.ACTIVE,

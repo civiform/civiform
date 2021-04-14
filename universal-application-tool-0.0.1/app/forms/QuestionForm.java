@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import services.Path;
 import services.question.exceptions.TranslationNotFoundException;
 import services.question.types.QuestionDefinition;
@@ -13,7 +14,7 @@ import services.question.types.QuestionType;
 public class QuestionForm {
   private String questionName;
   private String questionDescription;
-  private Path questionParentPath;
+  private Optional<Long> repeaterId;
   private QuestionType questionType;
   private String questionText;
   private String questionHelpText;
@@ -23,7 +24,7 @@ public class QuestionForm {
   public QuestionForm() {
     questionName = "";
     questionDescription = "";
-    questionParentPath = Path.empty();
+    repeaterId = Optional.empty();
     questionType = QuestionType.TEXT;
     questionText = "";
     questionHelpText = "";
@@ -32,7 +33,7 @@ public class QuestionForm {
   public QuestionForm(QuestionDefinition qd) {
     questionName = qd.getName();
     questionDescription = qd.getDescription();
-    questionParentPath = qd.getPath().parentPath();
+    repeaterId = qd.getRepeaterId();
     questionType = qd.getQuestionType();
 
     try {
@@ -64,17 +65,13 @@ public class QuestionForm {
     this.questionDescription = checkNotNull(questionDescription);
   }
 
-  public void setQuestionParentPath(String questionParentPath) {
-    this.questionParentPath = Path.create(checkNotNull(questionParentPath));
+  public Optional<Long> getRepeaterId() {
+    return repeaterId;
   }
 
-  public Path getQuestionPath() {
-    String questionNameFormattedForPath =
-        questionName.replaceAll("\\s", "_").replaceAll("[^a-zA-Z_]", "");
-    if (questionType.equals(QuestionType.REPEATER)) {
-      questionNameFormattedForPath += Path.ARRAY_SUFFIX;
-    }
-    return questionParentPath.join(questionNameFormattedForPath);
+  public void setRepeaterId(String repeaterId) {
+    this.repeaterId =
+        repeaterId.isEmpty() ? Optional.empty() : Optional.of(Long.valueOf(repeaterId));
   }
 
   public QuestionType getQuestionType() {
@@ -102,7 +99,7 @@ public class QuestionForm {
     this.questionHelpText = checkNotNull(questionHelpText);
   }
 
-  public QuestionDefinitionBuilder getBuilder() {
+  public QuestionDefinitionBuilder getBuilder(Path path) {
     ImmutableMap<Locale, String> questionTextMap =
         questionText.isEmpty() ? ImmutableMap.of() : ImmutableMap.of(Locale.US, questionText);
     ImmutableMap<Locale, String> questionHelpTextMap =
@@ -114,10 +111,21 @@ public class QuestionForm {
         new QuestionDefinitionBuilder()
             .setQuestionType(questionType)
             .setName(questionName)
-            .setPath(getQuestionPath())
+            .setRepeaterId(repeaterId)
+            .setPath(path)
             .setDescription(questionDescription)
             .setQuestionText(questionTextMap)
             .setQuestionHelpText(questionHelpTextMap);
     return builder;
+  }
+
+  /** This is a temporary fix until Path is properly handled. */
+  public Path getPath() {
+    String questionNameFormattedForPath =
+        questionName.replaceAll("\\s", "_").replaceAll("[^a-zA-Z_]", "");
+    if (questionType.equals(QuestionType.REPEATER)) {
+      questionNameFormattedForPath += Path.ARRAY_SUFFIX;
+    }
+    return Path.create("applicant").join(questionNameFormattedForPath);
   }
 }
