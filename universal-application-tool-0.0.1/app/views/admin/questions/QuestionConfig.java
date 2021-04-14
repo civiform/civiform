@@ -85,16 +85,19 @@ public class QuestionConfig {
             .addMultiOptionQuestionFields(form)
             .addMultiSelectQuestionValidation(form)
             .getContainer();
-      case DROPDOWN:
+      case NUMBER:
+        return config
+                .setId("number-question-config")
+                .addNumberQuestionConfig((NumberQuestionForm) questionForm)
+                .getContainer();
       case RADIO_BUTTON:
         return config
             .setId("single-select-question-config")
             .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm)
             .getContainer();
-      case NUMBER:
-        return config.setId("number-question-config").addNumberQuestionConfig().getContainer();
-      case REPEATER: // fallthrough intended
+      case DROPDOWN: // fallthrough intended - no options
       case NAME: // fallthrough intended - no options
+      case REPEATER: // fallthrough intended
       default:
         return div();
     }

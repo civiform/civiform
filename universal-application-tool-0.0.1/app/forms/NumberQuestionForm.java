@@ -1,6 +1,7 @@
 package forms;
 
 import java.util.OptionalLong;
+import services.Path;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
@@ -60,13 +61,14 @@ public class NumberQuestionForm extends QuestionForm {
   }
 
   @Override
-  public QuestionDefinitionBuilder getBuilder() {
+  public QuestionDefinitionBuilder getBuilder(Path path) {
     NumberQuestionDefinition.NumberValidationPredicates.Builder numberValidationPredicatesBuilder =
         NumberQuestionDefinition.NumberValidationPredicates.builder();
 
     numberValidationPredicatesBuilder.setMin(getMin());
     numberValidationPredicatesBuilder.setMax(getMax());
 
-    return super.getBuilder().setValidationPredicates(numberValidationPredicatesBuilder.build());
+    return super.getBuilder(path)
+        .setValidationPredicates(numberValidationPredicatesBuilder.build());
   }
 }
