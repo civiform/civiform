@@ -79,7 +79,7 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
     Program updated = repo.updateProgramSync(updates);
 
     assertThat(updated.getProgramDefinition().id()).isEqualTo(existing.id);
-    assertThat(updated.getProgramDefinition().name())
+    assertThat(updated.getProgramDefinition().localizedName())
         .isEqualTo(ImmutableMap.of(Locale.US, "new name"));
   }
 

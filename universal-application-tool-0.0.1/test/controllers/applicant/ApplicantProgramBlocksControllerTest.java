@@ -66,6 +66,7 @@ public class ApplicantProgramBlocksControllerTest {
 
   @Before
   public void setUpWithFreshApplicant() {
+    resourceCreator.clearDatabase();
     subject = injector.instanceOf(ApplicantProgramBlocksController.class);
     program =
         ProgramBuilder.newProgram()

@@ -17,7 +17,6 @@ import javax.inject.Inject;
 import play.i18n.Messages;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
-import services.program.TranslationNotFoundException;
 import views.BaseHtmlView;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
@@ -148,22 +147,18 @@ public class ProgramIndexView extends BaseHtmlView {
                         Styles.ALIGN_BOTTOM,
                         Styles.ALIGN_TEXT_BOTTOM,
                         Styles.LEADING_3));
-    ContainerTag title;
-    ContainerTag description;
-    try {
-      title =
-          div()
-              .withId(baseId + "-title")
-              .withClasses(Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
-              .withText(program.getLocalizedName(preferredLocale));
-      description =
-          div()
-              .withId(baseId + "-description")
-              .withClasses(Styles.TEXT_XS, Styles.MY_2)
-              .withText(program.getDescription(preferredLocale));
-    } catch (TranslationNotFoundException e) {
-      throw new RuntimeException(e);
-    }
+
+    ContainerTag title =
+        div()
+            .withId(baseId + "-title")
+            .withClasses(Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
+            .withText(program.getLocalizedNameOrDefault(preferredLocale));
+    ContainerTag description =
+        div()
+            .withId(baseId + "-description")
+            .withClasses(Styles.TEXT_XS, Styles.MY_2)
+            .withText(program.getLocalizedDescriptionOrDefault(preferredLocale));
+
     ContainerTag externalLink =
         div()
             .withId(baseId + "-external-link")

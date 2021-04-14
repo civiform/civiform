@@ -734,7 +734,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThat(newDraft.name()).isEqualTo(program.getProgramDefinition().name());
     assertThat(newDraft.blockDefinitions())
         .isEqualTo(program.getProgramDefinition().blockDefinitions());
-    assertThat(newDraft.description()).isEqualTo(program.getProgramDefinition().description());
+    assertThat(newDraft.localizedDescription())
+        .isEqualTo(program.getProgramDefinition().localizedDescription());
     assertThat(newDraft.id()).isNotEqualTo(program.getProgramDefinition().id());
 
     ProgramDefinition secondNewDraft = ps.newDraftOf(program.id);

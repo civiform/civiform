@@ -61,7 +61,8 @@ public class ApplicantProgramsControllerTest {
   }
 
   @Before
-  public void setupControllerAndCreateFreshApplicant() {
+  public void setUp() {
+    resourceCreator.clearDatabase();
     controller = injector.instanceOf(ApplicantProgramsController.class);
     currentApplicant = createApplicantWithMockedProfile();
   }
@@ -124,6 +125,23 @@ public class ApplicantProgramsControllerTest {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("obtener beneficios");
+  }
+
+  @Test
+  public void index_missingTranslationForProgram_defaultsToEnglish() {
+    resourceCreator.insertProgram(
+        Locale.forLanguageTag("es-US"), "Programa en español", LifecycleStage.ACTIVE);
+    resourceCreator.insertProgram("English program", LifecycleStage.ACTIVE); // Missing translation
+
+    // Set the PLAY_LANG cookie
+    Http.Request request =
+        fakeRequest().langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()).build();
+
+    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Programa en español");
+    assertThat(contentAsString(result)).contains("English program");
   }
 
   @Test

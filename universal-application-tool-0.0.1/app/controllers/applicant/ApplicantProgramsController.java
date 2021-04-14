@@ -18,7 +18,6 @@ import play.mvc.Result;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.program.ProgramNotFoundException;
-import services.program.TranslationNotFoundException;
 import views.applicant.ProgramIndexView;
 
 /**
@@ -63,11 +62,6 @@ public class ApplicantProgramsController extends CiviFormController {
             httpContext.current())
         .exceptionally(
             ex -> {
-              if (ex instanceof RuntimeException) {
-                if (ex.getCause() instanceof TranslationNotFoundException) {
-                  return badRequest(String.format(ex.getCause().getMessage()));
-                }
-              }
               if (ex instanceof CompletionException) {
                 if (ex.getCause() instanceof SecurityException) {
                   return unauthorized();

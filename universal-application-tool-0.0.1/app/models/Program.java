@@ -53,7 +53,7 @@ public class Program extends BaseModel {
     this.id = definition.id();
     this.name = definition.name();
     this.localizedName = definition.localizedName();
-    this.localizedDescription = definition.description();
+    this.localizedDescription = definition.localizedDescription();
     this.blockDefinitions = definition.blockDefinitions();
     this.lifecycleStage = definition.lifecycleStage();
     this.exportDefinitions = definition.exportDefinitions();
@@ -85,7 +85,7 @@ public class Program extends BaseModel {
     id = programDefinition.id();
     name = programDefinition.name();
     localizedName = programDefinition.localizedName();
-    localizedDescription = programDefinition.description();
+    localizedDescription = programDefinition.localizedDescription();
     blockDefinitions = programDefinition.blockDefinitions();
     lifecycleStage = programDefinition.lifecycleStage();
     exportDefinitions = programDefinition.exportDefinitions();
@@ -101,7 +101,7 @@ public class Program extends BaseModel {
             .setId(id)
             .setName(name)
             .setLocalizedName(localizedName)
-            .setDescription(localizedDescription)
+            .setLocalizedDescription(localizedDescription)
             .setBlockDefinitions(blockDefinitions)
             .setLifecycleStage(lifecycleStage)
             .setExportDefinitions(exportDefinitions)

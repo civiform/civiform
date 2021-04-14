@@ -20,8 +20,9 @@ public class ProgramDefinitionTest {
             .build();
     ProgramDefinition.builder()
         .setId(123L)
-        .addName(Locale.US, "The Program")
-        .addDescription(Locale.US, "This program is for testing.")
+        .setName("Admin name")
+        .addLocalizedName(Locale.US, "The Program")
+        .addLocalizedDescription(Locale.US, "This program is for testing.")
         .setLifecycleStage(LifecycleStage.ACTIVE)
         .addBlockDefinition(blockA)
         .build();
@@ -38,8 +39,9 @@ public class ProgramDefinitionTest {
     ProgramDefinition program =
         ProgramDefinition.builder()
             .setId(123L)
-            .addName(Locale.US, "The Program")
-            .addDescription(Locale.US, "This program is for testing.")
+            .setName("Admin name")
+            .addLocalizedName(Locale.US, "The Program")
+            .addLocalizedDescription(Locale.US, "This program is for testing.")
             .setLifecycleStage(LifecycleStage.ACTIVE)
             .addBlockDefinition(blockA)
             .build();
@@ -52,8 +54,9 @@ public class ProgramDefinitionTest {
     ProgramDefinition program =
         ProgramDefinition.builder()
             .setId(123L)
-            .addName(Locale.US, "The Program")
-            .addDescription(Locale.US, "This program is for testing.")
+            .setName("Admin name")
+            .addLocalizedName(Locale.US, "The Program")
+            .addLocalizedDescription(Locale.US, "This program is for testing.")
             .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
@@ -86,8 +89,9 @@ public class ProgramDefinitionTest {
     ProgramDefinition program =
         ProgramDefinition.builder()
             .setId(123L)
-            .addName(Locale.US, "The Program")
-            .addDescription(Locale.US, "This program is for testing.")
+            .setName("Admin name")
+            .addLocalizedName(Locale.US, "The Program")
+            .addLocalizedDescription(Locale.US, "This program is for testing.")
             .setLifecycleStage(LifecycleStage.ACTIVE)
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)

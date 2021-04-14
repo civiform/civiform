@@ -162,7 +162,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
 
   @Test
   public void update_overwritesExistingProgram() {
-    Program program = ProgramBuilder.newProgram("Existing One").build();
+    Program program = ProgramBuilder.newProgram("Existing One", "old description").build();
     RequestBuilder requestBuilder =
         Helpers.fakeRequest()
             .bodyForm(
@@ -175,6 +175,6 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
 
     Result redirectResult = controller.index(Helpers.fakeRequest().build());
     assertThat(contentAsString(redirectResult)).contains("Create new program");
-    assertThat(contentAsString(redirectResult)).doesNotContain("Existing One");
+    assertThat(contentAsString(redirectResult)).doesNotContain("old description");
   }
 }

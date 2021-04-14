@@ -36,7 +36,7 @@ public abstract class ProgramDefinition {
   public abstract ImmutableMap<Locale, String> localizedName();
 
   /** A human readable description of a Program, localized for each supported locale. */
-  public abstract ImmutableMap<Locale, String> description();
+  public abstract ImmutableMap<Locale, String> localizedDescription();
 
   /** The lifecycle stage of the Program. */
   public abstract LifecycleStage lifecycleStage();
@@ -47,27 +47,56 @@ public abstract class ProgramDefinition {
   /** The list of {@link ExportDefinition}s that make up the program. */
   public abstract ImmutableList<ExportDefinition> exportDefinitions();
 
-  public String getLocalizedName(Locale locale) throws TranslationNotFoundException {
-    if (localizedName().containsKey(locale)) {
-      return localizedName().get(locale);
-    } else {
-      throw new TranslationNotFoundException(id(), locale);
+  public String getLocalizedNameOrDefault(Locale locale) {
+    try {
+      return getLocalizedName(locale);
+    } catch (TranslationNotFoundException e) {
+      return getNameForDefaultLocale();
     }
   }
 
   /** The default locale for CiviForm is US English. */
-  public String getDescriptionForAdminLocale() {
+  public String getNameForDefaultLocale() {
     try {
-      return getDescription(Locale.US);
+      return getLocalizedName(Locale.US);
     } catch (TranslationNotFoundException e) {
       // This should never happen - US English should always be supported.
       throw new RuntimeException(e);
     }
   }
 
-  public String getDescription(Locale locale) throws TranslationNotFoundException {
-    if (description().containsKey(locale)) {
-      return description().get(locale);
+  public String getLocalizedName(Locale locale) throws TranslationNotFoundException {
+    System.out.println("In getLocalizedName with Locale: " + locale);
+    if (localizedName().containsKey(locale)) {
+      System.out.println("It has the key!");
+      return localizedName().get(locale);
+    } else {
+      System.out.println("It doesn't have the key");
+      throw new TranslationNotFoundException(id(), locale);
+    }
+  }
+
+  public String getLocalizedDescriptionOrDefault(Locale locale) {
+    try {
+      return getLocalizedDescription(locale);
+    } catch (TranslationNotFoundException e) {
+      return getDescriptionForDefaultLocale();
+    }
+  }
+
+  /** The default locale for CiviForm is US English. */
+  public String getDescriptionForDefaultLocale() {
+    try {
+      return getLocalizedDescription(Locale.US);
+    } catch (TranslationNotFoundException e) {
+      // This should never happen - US English should always be supported.
+      throw new RuntimeException(e);
+    }
+  }
+
+  public String getLocalizedDescription(Locale locale) throws TranslationNotFoundException {
+    if (localizedDescription().containsKey(locale)) {
+      return localizedDescription().get(locale);
     } else {
       throw new TranslationNotFoundException(id(), locale);
     }
@@ -174,9 +203,9 @@ public abstract class ProgramDefinition {
 
     public abstract ImmutableMap.Builder<Locale, String> localizedNameBuilder();
 
-    public abstract Builder setDescription(ImmutableMap<Locale, String> description);
+    public abstract Builder setLocalizedDescription(ImmutableMap<Locale, String> description);
 
-    public abstract ImmutableMap.Builder<Locale, String> descriptionBuilder();
+    public abstract ImmutableMap.Builder<Locale, String> localizedDescriptionBuilder();
 
     public abstract Builder setBlockDefinitions(ImmutableList<BlockDefinition> blockDefinitions);
 
@@ -190,13 +219,13 @@ public abstract class ProgramDefinition {
 
     public abstract ProgramDefinition build();
 
-    public Builder addName(Locale locale, String name) {
+    public Builder addLocalizedName(Locale locale, String name) {
       localizedNameBuilder().put(locale, name);
       return this;
     }
 
-    public Builder addDescription(Locale locale, String name) {
-      descriptionBuilder().put(locale, name);
+    public Builder addLocalizedDescription(Locale locale, String name) {
+      localizedDescriptionBuilder().put(locale, name);
       return this;
     }
 
