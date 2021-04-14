@@ -87,9 +87,9 @@ public class QuestionConfig {
             .getContainer();
       case NUMBER:
         return config
-                .setId("number-question-config")
-                .addNumberQuestionConfig((NumberQuestionForm) questionForm)
-                .getContainer();
+            .setId("number-question-config")
+            .addNumberQuestionConfig((NumberQuestionForm) questionForm)
+            .getContainer();
       case RADIO_BUTTON:
         return config
             .setId("single-select-question-config")
