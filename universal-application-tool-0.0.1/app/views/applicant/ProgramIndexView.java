@@ -16,7 +16,6 @@ import play.i18n.Messages;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
-import views.components.ToastContainer;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
@@ -51,8 +50,7 @@ public class ProgramIndexView extends BaseHtmlView {
     ContainerTag body =
         body().withClasses(Styles.RELATIVE, Styles.PX_8, ApplicantStyles.BODY_BACKGROUND);
     if (banner.isPresent()) {
-      ToastMessage toast = ToastMessage.error(banner.get());
-      ToastContainer.addMessage(toast);
+      body.with(ToastMessage.alert(banner.get()).getContainerTag());
     }
     body.with(
         nav()

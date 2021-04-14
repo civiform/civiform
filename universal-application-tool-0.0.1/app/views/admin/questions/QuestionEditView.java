@@ -30,6 +30,7 @@ import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
+import views.components.ToastMessage;
 import views.style.Styles;
 
 public final class QuestionEditView extends BaseHtmlView {
@@ -64,7 +65,11 @@ public final class QuestionEditView extends BaseHtmlView {
         buildQuestionContainer(title)
             .with(buildNewQuestionForm(questionForm).with(makeCsrfTokenInputTag(request)));
     ContainerTag previewContent = buildPreviewContent(questionType);
-    ContainerTag mainContent = main(div(message), formContent, previewContent);
+    ContainerTag mainContent = main(formContent, previewContent);
+
+    if (message.length() > 0) {
+      mainContent.with(ToastMessage.error(message).setDismissible(false).getContainerTag());
+    }
 
     return layout.renderFull(mainContent);
   }
@@ -95,7 +100,11 @@ public final class QuestionEditView extends BaseHtmlView {
         buildQuestionContainer(title)
             .with(buildEditQuestionForm(id, questionForm).with(makeCsrfTokenInputTag(request)));
     ContainerTag previewContent = buildPreviewContent(questionType);
-    ContainerTag mainContent = main(div(message), formContent, previewContent);
+    ContainerTag mainContent = main(formContent, previewContent);
+
+    if (message.length() > 0) {
+      mainContent.with(ToastMessage.error(message).setDismissible(false).getContainerTag());
+    }
 
     return layout.renderFull(mainContent);
   }

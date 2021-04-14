@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import javax.inject.Inject;
 import play.twirl.api.Content;
-import views.components.ToastContainer;
+import views.components.ToastMessage;
 
 /**
  * Base class for all layout classes.
@@ -20,6 +20,9 @@ import views.components.ToastContainer;
  */
 public class BaseHtmlLayout extends BaseHtmlView {
   private static final String TAILWIND_COMPILED_FILENAME = "tailwind";
+
+  private static final String BANNER_TEXT =
+      "Do not enter actual or personal data in this demo site";
 
   protected final ViewUtils viewUtils;
 
@@ -31,7 +34,9 @@ public class BaseHtmlLayout extends BaseHtmlView {
   /** Returns HTTP content of type "text/html". */
   public Content htmlContent(DomContent... domContents) {
     ArrayList<DomContent> contents = new ArrayList<>(Arrays.asList(domContents));
-    contents.add(ToastContainer.render());
+    ToastMessage privacyBanner =
+        ToastMessage.error(BANNER_TEXT).setId("warning-message").setIgnorable(true).setDuration(0);
+    contents.add(0, privacyBanner.getContainerTag());
     contents.add(viewUtils.makeLocalJsTag("toast"));
     return new HtmlResponseContent(contents.toArray(new DomContent[0]));
   }

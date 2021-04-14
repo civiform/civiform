@@ -50,7 +50,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     return layout.render(head(layout.tailwindStyles()), body(contentDiv));
   }
 
-  public Tag renderDownloadButton(long programId, long applicationId) {
+  private Tag renderDownloadButton(long programId, long applicationId) {
     String link =
         controllers.admin.routes.AdminApplicationController.download(programId, applicationId)
             .url();
@@ -61,7 +61,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .asButton();
   }
 
-  public Tag renderApplicationBlock(Application application, BlockDefinition block) {
+  private Tag renderApplicationBlock(Application application, BlockDefinition block) {
     Tag topContent =
         div(
                 div(
@@ -88,7 +88,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     return div(innerDiv).withClasses(Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
   }
 
-  Tag renderQuestion(Application application, ProgramQuestionDefinition question) {
+  private Tag renderQuestion(Application application, ProgramQuestionDefinition question) {
     QuestionDefinition definition = question.getQuestionDefinition();
     return div(div()
             .withClasses(Styles.FLEX)

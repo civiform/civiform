@@ -14,7 +14,6 @@ import j2html.tags.ContainerTag;
 import java.util.Optional;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import views.components.ToastContainer;
 import views.components.ToastMessage;
 
 public class LoginForm extends BaseHtmlView {
@@ -27,11 +26,6 @@ public class LoginForm extends BaseHtmlView {
   }
 
   public Content render(Http.Request request, Optional<String> message) {
-    if (message.isPresent()) {
-      String errorString = "Error: You are not logged in." + message.orElse("");
-      ToastMessage toast = ToastMessage.error(errorString);
-      ToastContainer.addMessage(toast);
-    }
     ContainerTag bodyTag =
         body(
             div(
@@ -49,6 +43,13 @@ public class LoginForm extends BaseHtmlView {
                     "guest",
                     "Continue",
                     routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())));
+
+    if (!message.orElse("").equals("login")) {
+      String errorString = "Error: You are not logged in.";
+      bodyTag.with(ToastMessage.error(errorString).getContainerTag());
+    } else {
+      bodyTag.with(ToastMessage.alert("You are logged in.").setDuration(0).getContainerTag());
+    }
 
     // "defense in depth", sort of - this client won't be present in production, and this button
     // won't show up except when running in an acceptable environment.
