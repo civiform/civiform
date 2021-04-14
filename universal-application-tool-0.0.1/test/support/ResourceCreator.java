@@ -30,6 +30,7 @@ public class ResourceCreator {
   }
 
   public void clearDatabase() {
+    TestQuestionBank.reset();
     ebeanServer.truncate(
         Account.class, Applicant.class, Application.class, Program.class, Question.class);
   }

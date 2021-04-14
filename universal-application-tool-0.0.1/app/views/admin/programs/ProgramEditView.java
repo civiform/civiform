@@ -48,10 +48,8 @@ public class ProgramEditView extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("program-name-input")
             .setFieldName("name")
-            .setLabelText(
-                "Program name - this is used as an internal identifier and cannot be updated once"
-                    + " set")
-            .setPlaceholderText("The name of the program")
+            .setLabelText("Program name")
+            .setPlaceholderText("A name for internal identification purposes - this cannot be updated once set")
             .setValue(programName)
             .getContainer(),
         FieldWithLabel.textArea()
