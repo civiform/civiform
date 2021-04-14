@@ -125,7 +125,7 @@ public class QuestionController extends CiviFormController {
       return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
     }
 
-    String successMessage = String.format("question %s created", questionForm.getRepeaterId());
+    String successMessage = String.format("question %s created", questionForm.getQuestionName());
     return withMessage(redirect(routes.QuestionController.index()), successMessage);
   }
 

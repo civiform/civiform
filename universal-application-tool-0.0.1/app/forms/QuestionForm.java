@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import java.util.Optional;
 import services.Path;
 import services.question.exceptions.TranslationNotFoundException;
 import services.question.types.QuestionDefinition;
@@ -14,7 +13,6 @@ import services.question.types.QuestionType;
 public class QuestionForm {
   private String questionName;
   private String questionDescription;
-  private Optional<Long> repeaterId;
   private QuestionType questionType;
   private String questionText;
   private String questionHelpText;
@@ -24,7 +22,6 @@ public class QuestionForm {
   public QuestionForm() {
     questionName = "";
     questionDescription = "";
-    repeaterId = Optional.empty();
     questionType = QuestionType.TEXT;
     questionText = "";
     questionHelpText = "";
@@ -33,7 +30,6 @@ public class QuestionForm {
   public QuestionForm(QuestionDefinition qd) {
     questionName = qd.getName();
     questionDescription = qd.getDescription();
-    repeaterId = qd.getRepeaterId();
     questionType = qd.getQuestionType();
 
     try {
@@ -63,15 +59,6 @@ public class QuestionForm {
 
   public void setQuestionDescription(String questionDescription) {
     this.questionDescription = checkNotNull(questionDescription);
-  }
-
-  public Optional<Long> getRepeaterId() {
-    return repeaterId;
-  }
-
-  public void setRepeaterId(String repeaterId) {
-    this.repeaterId =
-        repeaterId.isEmpty() ? Optional.empty() : Optional.of(Long.valueOf(repeaterId));
   }
 
   public QuestionType getQuestionType() {
@@ -111,7 +98,6 @@ public class QuestionForm {
         new QuestionDefinitionBuilder()
             .setQuestionType(questionType)
             .setName(questionName)
-            .setRepeaterId(repeaterId)
             .setPath(path)
             .setDescription(questionDescription)
             .setQuestionText(questionTextMap)
