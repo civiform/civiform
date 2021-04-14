@@ -40,7 +40,7 @@ import views.style.Styles;
 public final class QuestionEditView extends BaseHtmlView {
   private final AdminLayout layout;
 
-  private static final String NO_REPEATER_DISPLAY_STRING = "applicant";
+  private static final String NO_REPEATER_DISPLAY_STRING = "does not repeat";
   private static final String NO_REPEATER_ID_STRING = "";
 
   @Inject
