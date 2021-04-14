@@ -3,6 +3,7 @@ package views.admin.question;
 import static j2html.TagCreator.div;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import forms.AddressQuestionForm;
 import forms.DropdownQuestionForm;
 import forms.QuestionForm;
 import forms.RadioButtonQuestionForm;
@@ -30,7 +31,7 @@ public class QuestionConfigTest {
         .toString()
         .contains("text-question-min-length-input");
 
-    assertThat(QuestionConfig.buildQuestionConfig(QuestionType.ADDRESS, new QuestionForm()))
+    assertThat(QuestionConfig.buildQuestionConfig(QuestionType.ADDRESS, new AddressQuestionForm()))
         .toString()
         .contains("address-question-default-state-select");
 

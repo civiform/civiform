@@ -5,15 +5,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import models.Applicant;
 import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.AddressQuestionDefinition;
 
+@RunWith(JUnitParamsRunner.class)
 public class AddressQuestionTest {
 
   private static final AddressQuestionDefinition addressQuestionDefinition =
@@ -26,6 +30,18 @@ public class AddressQuestionTest {
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
+
+  private static final AddressQuestionDefinition noPoBoxAddressQuestionDefinition =
+      new AddressQuestionDefinition(
+          1L,
+          "question name",
+          Path.create("applicant.my.path.name"),
+          Optional.empty(),
+          "description",
+          LifecycleStage.ACTIVE,
+          ImmutableMap.of(Locale.US, "question?"),
+          ImmutableMap.of(Locale.US, "help text"),
+          AddressQuestionDefinition.AddressValidationPredicates.create(true));
 
   private Applicant applicant;
   private ApplicantData applicantData;
@@ -78,32 +94,69 @@ public class AddressQuestionTest {
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isTrue();
-    assertThat(addressQuestion.getStreetErrors())
-        .contains(ValidationErrorMessage.create("Street is required."));
-    assertThat(addressQuestion.getCityErrors())
-        .contains(ValidationErrorMessage.create("City is required."));
-    assertThat(addressQuestion.getStateErrors())
-        .contains(ValidationErrorMessage.create("State is required."));
-    assertThat(addressQuestion.getZipErrors())
-        .contains(ValidationErrorMessage.create("Zip code is required."));
+    assertThat(addressQuestion.getStreetErrors()).contains(ValidationErrorMessage.streetRequired());
+    assertThat(addressQuestion.getCityErrors()).contains(ValidationErrorMessage.cityRequired());
+    assertThat(addressQuestion.getStateErrors()).contains(ValidationErrorMessage.stateRequired());
+    assertThat(addressQuestion.getZipErrors()).contains(ValidationErrorMessage.zipRequired());
   }
 
   @Test
-  public void withInvalidApplicantData_invalidZipCode() {
+  @Parameters({"not a zip code", "123456789", "123ab"})
+  public void withInvalidApplicantData_invalidZipCode(String zipValue) {
     applicantData.putString(addressQuestionDefinition.getStreetPath(), "123 A St");
     applicantData.putString(addressQuestionDefinition.getCityPath(), "Seattle");
     applicantData.putString(addressQuestionDefinition.getStatePath(), "WA");
-    applicantData.putString(addressQuestionDefinition.getZipPath(), "not a zip code");
+    applicantData.putString(addressQuestionDefinition.getZipPath(), zipValue);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(addressQuestionDefinition, applicantData);
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isTrue();
-    assertThat(addressQuestion.getZipErrors())
-        .contains(ValidationErrorMessage.create("Invalid zip code."));
+    assertThat(addressQuestion.getZipErrors()).contains(ValidationErrorMessage.invalidZip());
     assertThat(addressQuestion.getStreetErrors()).isEmpty();
     assertThat(addressQuestion.getCityErrors()).isEmpty();
     assertThat(addressQuestion.getStateErrors()).isEmpty();
+  }
+
+  @Test
+  @Parameters({"123 A St", "123 Boxpo Ave", "12345", "1 Box Blvd"})
+  public void withNoPoBoxAllowed_withValidApplicantData_passesValidation(String streetValue) {
+    applicantData.putString(noPoBoxAddressQuestionDefinition.getStreetPath(), streetValue);
+    applicantData.putString(noPoBoxAddressQuestionDefinition.getCityPath(), "Seattle");
+    applicantData.putString(noPoBoxAddressQuestionDefinition.getStatePath(), "WA");
+    applicantData.putString(noPoBoxAddressQuestionDefinition.getZipPath(), "98107");
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(noPoBoxAddressQuestionDefinition, applicantData);
+
+    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+
+    assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(addressQuestion.hasQuestionErrors()).isFalse();
+  }
+
+  @Test
+  @Parameters({
+    "PO Box 123",
+    "PO box 123",
+    "pO Box 123",
+    "po box 123",
+    "P.O. Box 123",
+    "p.o. box 123",
+    "My P.O. Box ABC",
+    "po-box 555"
+  })
+  public void withNoPoBoxAllowed_withInvalidApplicantData_failsValidation(String streetValue) {
+    applicantData.putString(noPoBoxAddressQuestionDefinition.getStreetPath(), streetValue);
+    applicantData.putString(noPoBoxAddressQuestionDefinition.getCityPath(), "Seattle");
+    applicantData.putString(noPoBoxAddressQuestionDefinition.getStatePath(), "WA");
+    applicantData.putString(noPoBoxAddressQuestionDefinition.getZipPath(), "98107");
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(noPoBoxAddressQuestionDefinition, applicantData);
+
+    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+
+    assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(addressQuestion.getQuestionErrors()).containsOnly(ValidationErrorMessage.noPoBox());
   }
 }

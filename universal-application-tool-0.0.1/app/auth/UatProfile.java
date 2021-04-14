@@ -3,6 +3,7 @@ package auth;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -37,9 +38,7 @@ public class UatProfile {
         .thenApplyAsync(
             (a) ->
                 a.getApplicants().stream()
-                    .sorted(
-                        Comparator.comparing(
-                            (applicant) -> applicant.getApplicantData().getCreatedTime()))
+                    .sorted(Comparator.comparing((applicant) -> applicant.getWhenCreated()))
                     .findFirst()
                     .orElseThrow(),
             httpContext.current());
@@ -98,5 +97,27 @@ public class UatProfile {
 
   public UatProfileData getProfileData() {
     return this.profileData;
+  }
+
+  public CompletableFuture<Void> checkAuthorization(long applicantId) {
+    if (isUatAdmin()) {
+      return CompletableFuture.completedFuture(null);
+    }
+
+    return getOwnedApplicantIds()
+        .thenApplyAsync(
+            idList -> {
+              if (!idList.contains(applicantId)) {
+                throw new SecurityException(
+                    String.format(
+                        "Account %s is not authorized to access applicant %d",
+                        getId(), applicantId));
+              }
+              return null;
+            });
+  }
+
+  private CompletableFuture<ImmutableList<Long>> getOwnedApplicantIds() {
+    return getAccount().thenApplyAsync(Account::ownedApplicantIds);
   }
 }

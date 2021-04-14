@@ -21,6 +21,7 @@ import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.LinkElement;
+import views.style.ReferenceClasses;
 import views.style.Styles;
 
 public final class ProgramApplicationView extends BaseHtmlView {
@@ -85,7 +86,12 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withClasses(
                 Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4);
 
-    return div(innerDiv).withClasses(Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
+    return div(innerDiv)
+        .withClasses(
+            ReferenceClasses.ADMIN_APPLICATION_BLOCK_CARD,
+            Styles.W_FULL,
+            Styles.SHADOW_LG,
+            Styles.MB_4);
   }
 
   private Tag renderQuestion(Application application, ProgramQuestionDefinition question) {

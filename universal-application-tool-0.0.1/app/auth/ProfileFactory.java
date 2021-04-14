@@ -1,7 +1,6 @@
 package auth;
 
 import com.google.common.base.Preconditions;
-import java.time.Clock;
 import javax.inject.Inject;
 import models.Account;
 import models.Applicant;
@@ -10,14 +9,11 @@ import repository.DatabaseExecutionContext;
 
 public class ProfileFactory {
 
-  private Clock clock;
   private DatabaseExecutionContext dbContext;
   private HttpExecutionContext httpContext;
 
   @Inject
-  public ProfileFactory(
-      Clock clock, DatabaseExecutionContext dbContext, HttpExecutionContext httpContext) {
-    this.clock = Preconditions.checkNotNull(clock);
+  public ProfileFactory(DatabaseExecutionContext dbContext, HttpExecutionContext httpContext) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
     this.httpContext = Preconditions.checkNotNull(httpContext);
   }
@@ -35,17 +31,17 @@ public class ProfileFactory {
   }
 
   private UatProfileData create(Roles role) {
-    UatProfileData p = new UatProfileData(clock);
+    UatProfileData p = new UatProfileData();
     p.init(dbContext);
     p.addRole(role.toString());
     return p;
   }
 
   public UatProfile wrap(Account account) {
-    return wrapProfileData(new UatProfileData(clock, account.id));
+    return wrapProfileData(new UatProfileData(account.id));
   }
 
   public UatProfile wrap(Applicant applicant) {
-    return wrapProfileData(new UatProfileData(clock, applicant.getAccount().id));
+    return wrapProfileData(new UatProfileData(applicant.getAccount().id));
   }
 }

@@ -2,40 +2,35 @@ package forms;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
-import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.DropdownQuestionDefinition;
+import services.question.types.AddressQuestionDefinition;
+import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
-public class DropdownQuestionFormTest {
+public class AddressQuestionFormTest {
 
   @Test
-  public void getBuilder_returnsCompleteBuilder() throws UnsupportedQuestionTypeException {
+  public void getBuilder_returnsCompleteBuilder() throws Exception {
     Path path = Path.create("my.question.path.name");
 
-    DropdownQuestionForm form = new DropdownQuestionForm();
+    AddressQuestionForm form = new AddressQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
-    // Unique field
-    form.setOptions(ImmutableList.of("cat", "dog", "rabbit"));
+    form.setDisallowPoBox(true);
     QuestionDefinitionBuilder builder = form.getBuilder(path);
 
-    // The QuestionForm does not set version, which is needed in order to build the
-    // QuestionDefinition. How we get this value hasn't been determined.
     builder.setVersion(1L);
     builder.setLifecycleStage(LifecycleStage.ACTIVE);
 
-    DropdownQuestionDefinition expected =
-        new DropdownQuestionDefinition(
+    AddressQuestionDefinition expected =
+        new AddressQuestionDefinition(
             1L,
             "name",
             path,
@@ -44,17 +39,19 @@ public class DropdownQuestionFormTest {
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
-            ImmutableListMultimap.of(Locale.US, "cat", Locale.US, "dog", Locale.US, "rabbit"));
+            AddressQuestionDefinition.AddressValidationPredicates.create(true));
 
-    assertThat(builder.build()).isEqualTo(expected);
+    QuestionDefinition actual = builder.build();
+
+    assertThat(actual).isEqualTo(expected);
   }
 
   @Test
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
     Path path = Path.create("my.question.path.name");
 
-    DropdownQuestionDefinition originalQd =
-        new DropdownQuestionDefinition(
+    AddressQuestionDefinition originalQd =
+        new AddressQuestionDefinition(
             1L,
             "name",
             path,
@@ -63,16 +60,16 @@ public class DropdownQuestionFormTest {
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
-            ImmutableListMultimap.of(Locale.US, "hello", Locale.US, "world"));
+            AddressQuestionDefinition.AddressValidationPredicates.create());
 
-    DropdownQuestionForm form = new DropdownQuestionForm(originalQd);
+    AddressQuestionForm form = new AddressQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder(path);
 
-    // The QuestionForm does not set version, which is needed in order to build the
-    // QuestionDefinition. How we get this value hasn't been determined.
     builder.setVersion(1L);
     builder.setLifecycleStage(LifecycleStage.ACTIVE);
 
-    assertThat(builder.build()).isEqualTo(originalQd);
+    QuestionDefinition actual = builder.build();
+
+    assertThat(actual).isEqualTo(originalQd);
   }
 }

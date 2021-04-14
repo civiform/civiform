@@ -92,7 +92,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .withClasses(
                 Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4);
 
-    return div(innerDiv).withClasses(Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
+    return div(innerDiv)
+        .withClasses(
+            ReferenceClasses.ADMIN_APPLICATION_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
   }
 
   private Tag renderDownloadLink(String text, long programId, long applicationId) {

@@ -1,5 +1,8 @@
 package models;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
@@ -14,6 +17,10 @@ public class Account extends BaseModel {
   private List<Applicant> applicants;
 
   private String emailAddress;
+
+  public ImmutableList<Long> ownedApplicantIds() {
+    return getApplicants().stream().map(applicant -> applicant.id).collect(toImmutableList());
+  }
 
   public List<Applicant> getApplicants() {
     return applicants;

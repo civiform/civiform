@@ -32,7 +32,7 @@ GET     /admin/questions             controllers.admin.QuestionController.index(
 # Should have a `type` query param, like: /admin/questions/new?type=name. Defaults to text.
 GET     /admin/questions/new         controllers.admin.QuestionController.newOne(request: Request, type: String ?= "text")
 GET     /admin/questions/:id/edit    controllers.admin.QuestionController.edit(request: Request, id: Long)
-GET     /admin/questions/:id         controllers.admin.QuestionController.show(request: Request, id: Long)
+GET     /admin/questions/:id         controllers.admin.QuestionController.show(id: Long)
 POST    /admin/questions/:id         controllers.admin.QuestionController.update(request: Request, id: Long, type: String)
 POST    /admin/questions             controllers.admin.QuestionController.create(request: Request, type: String)
 
@@ -45,14 +45,12 @@ GET     /admin/programs/:programId/applications/:applicationId/download   contro
 GET     /demo/new                   controllers.J2HtmlDemoController.newOne(request: Request)
 POST    /demo                       controllers.J2HtmlDemoController.create(request: Request)
 
-# Methods for applicants
-GET     /applicants/:applicantId/programs                   controllers.applicant.ApplicantProgramsController.index(request: Request, applicantId: Long)
-GET     /applicants/:applicantId/programs/:programId/edit   controllers.applicant.ApplicantProgramsController.edit(applicantId: Long, programId: Long)
-
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(file)
 
-# Applicant program forms
+# Methods for applicants
+GET     /applicants/:applicantId/programs                                   controllers.applicant.ApplicantProgramsController.index(request: Request, applicantId: Long)
+GET     /applicants/:applicantId/programs/:programId/edit                   controllers.applicant.ApplicantProgramsController.edit(request: Request, applicantId: Long, programId: Long)
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit   controllers.applicant.ApplicantProgramBlocksController.edit(request: Request, applicantId: Long, programId: Long, blockId: String)
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId        controllers.applicant.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: String)
 

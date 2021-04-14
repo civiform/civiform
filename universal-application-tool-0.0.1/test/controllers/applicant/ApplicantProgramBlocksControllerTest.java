@@ -1,52 +1,104 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
+import static play.inject.Bindings.bind;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
+import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.stubMessagesApi;
 
+import auth.ProfileFactory;
+import auth.ProfileUtils;
+import auth.UatProfile;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
+import models.Account;
 import models.Applicant;
 import models.Program;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
+import play.inject.Injector;
+import play.inject.guice.GuiceApplicationBuilder;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import repository.WithPostgresContainer;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
+import support.ResourceCreator;
+import support.TestConstants;
 import support.TestQuestionBank;
 
-public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer {
+public class ApplicantProgramBlocksControllerTest {
+
+  private static final ProfileUtils MOCK_UTILS = Mockito.mock(ProfileUtils.class);
+
+  private static Injector injector;
+  private static ResourceCreator resourceCreator;
+  private static ProfileFactory profileFactory;
 
   private ApplicantProgramBlocksController subject;
   private Program program;
   private Applicant applicant;
 
+  @BeforeClass
+  public static void setupInjector() {
+    injector =
+        new GuiceApplicationBuilder()
+            .configure(TestConstants.TEST_DATABASE_CONFIG)
+            .overrides(bind(ProfileUtils.class).toInstance(MOCK_UTILS))
+            .build()
+            .injector();
+    resourceCreator = new ResourceCreator(injector);
+    profileFactory = injector.instanceOf(ProfileFactory.class);
+  }
+
   @Before
-  public void setUp() {
-    subject = instanceOf(ApplicantProgramBlocksController.class);
+  public void setUpWithFreshApplicant() {
+    subject = injector.instanceOf(ApplicantProgramBlocksController.class);
     program =
         ProgramBuilder.newProgram()
             .withBlock()
             .withQuestion(TestQuestionBank.applicantName())
             .build();
-    applicant = resourceCreator().insertApplicant();
+    applicant = createApplicantWithMockedProfile();
+  }
+
+  @Test
+  public void edit_invalidApplicant_returnsUnauthorized() {
+    long badApplicantId = applicant.id + 1000;
+    Request request =
+        fakeRequest(routes.ApplicantProgramBlocksController.edit(badApplicantId, program.id, "1"))
+            .build();
+
+    Result result =
+        subject.edit(request, badApplicantId, program.id, "1").toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
   @Test
   public void edit_toAProgramThatDoesNotExist_returns404() {
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.edit(applicant.id, 2L, "1")).build();
+        addCSRFToken(
+                fakeRequest(
+                    routes.ApplicantProgramBlocksController.edit(
+                        applicant.id, program.id + 1000, "1")))
+            .build();
 
-    Result result = subject.edit(request, applicant.id, 2L, "1").toCompletableFuture().join();
+    Result result =
+        subject.edit(request, applicant.id, program.id + 1000, "1").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -78,7 +130,7 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
   }
 
   @Test
-  public void update_invalidApplicant_returnsBadRequest() {
+  public void update_invalidApplicant_returnsUnauthorized() {
     long badApplicantId = applicant.id + 1000;
     Request request =
         fakeRequest(routes.ApplicantProgramBlocksController.update(badApplicantId, program.id, "1"))
@@ -87,7 +139,7 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
     Result result =
         subject.update(request, badApplicantId, program.id, "1").toCompletableFuture().join();
 
-    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
   @Test
@@ -154,7 +206,10 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
                             applicant.id, program.id, "1"))
                     .bodyForm(
                         ImmutableMap.of(
-                            "applicant.name.first", "FirstName", "applicant.name.last", "")))
+                            "applicant.applicant_name.first",
+                            "FirstName",
+                            "applicant.applicant_name.last",
+                            "")))
             .build();
 
     Result result =
@@ -178,7 +233,10 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
         fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
             .bodyForm(
                 ImmutableMap.of(
-                    "applicant.name.first", "FirstName", "applicant.name.last", "LastName"))
+                    "applicant.applicant_name.first",
+                    "FirstName",
+                    "applicant.applicant_name.last",
+                    "LastName"))
             .build();
 
     Result result =
@@ -202,7 +260,10 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
         fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
             .bodyForm(
                 ImmutableMap.of(
-                    "applicant.name.first", "FirstName", "applicant.name.last", "LastName"))
+                    "applicant.applicant_name.first",
+                    "FirstName",
+                    "applicant.applicant_name.last",
+                    "LastName"))
             .build();
 
     Result result =
@@ -231,5 +292,23 @@ public class ApplicantProgramBlocksControllerTest extends WithPostgresContainer 
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Guardar y continuar");
+  }
+
+  private Applicant createApplicantWithMockedProfile() {
+    Applicant applicant = resourceCreator.insertApplicant();
+    Account account = resourceCreator.insertAccount();
+
+    account.setApplicants(ImmutableList.of(applicant));
+    account.save();
+    applicant.setAccount(account);
+    applicant.save();
+
+    UatProfile profile = profileFactory.wrap(applicant);
+    mockProfile(profile);
+    return applicant;
+  }
+
+  private void mockProfile(UatProfile profile) {
+    when(MOCK_UTILS.currentUserProfile(any(Http.Request.class))).thenReturn(Optional.of(profile));
   }
 }

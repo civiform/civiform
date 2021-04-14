@@ -18,6 +18,10 @@ export const endSession = async (browser: Browser) => {
   await browser.close();
 }
 
+export const gotoEndpoint = async (page: Page, endpoint: string) => {
+  return await page.goto(BASE_URL + endpoint);
+}
+
 export const logout = async (page: Page) => {
   // TODO: add logout button to applicant page and use that
   await page.goto(BASE_URL + '/logout');

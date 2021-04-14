@@ -8,11 +8,13 @@ import static j2html.TagCreator.main;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import forms.AddressQuestionForm;
 import forms.CheckboxQuestionForm;
 import forms.DropdownQuestionForm;
 import forms.QuestionForm;
 import forms.RadioButtonQuestionForm;
 import forms.TextQuestionForm;
+import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import java.util.AbstractMap.SimpleEntry;
@@ -20,6 +22,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -41,23 +44,20 @@ public final class QuestionEditView extends BaseHtmlView {
     this.layout = layout;
   }
 
+  /** Render a fresh New Question Form. */
   public Content renderNewQuestionForm(Request request, QuestionType questionType) {
-    QuestionForm questionForm = getQuestionFormForType(questionType);
-    // TODO(natsid): Remove the following line once we have question forms for each question type.
-    questionForm.setQuestionType(questionType);
-
-    String title = String.format("New %s question", questionType.toString().toLowerCase());
-
-    ContainerTag formContent =
-        buildQuestionContainer(title)
-            .with(buildNewQuestionForm(questionForm).with(makeCsrfTokenInputTag(request)));
-    ContainerTag previewContent = buildPreviewContent(questionType);
-    ContainerTag mainContent = main(formContent, previewContent);
-
-    return layout.renderFull(mainContent);
+    QuestionForm questionForm = getFreshQuestionForm(questionType);
+    return renderNewQuestionForm(request, questionForm, Optional.empty());
   }
 
-  public Content renderNewQuestionForm(Request request, QuestionForm questionForm, String message) {
+  /** Render a New Question Form with a partially filled form and an error message. */
+  public Content renderNewQuestionForm(
+      Request request, QuestionForm questionForm, String errorMessage) {
+    return renderNewQuestionForm(request, questionForm, Optional.of(errorMessage));
+  }
+
+  private Content renderNewQuestionForm(
+      Request request, QuestionForm questionForm, Optional<String> message) {
     QuestionType questionType = questionForm.getQuestionType();
     String title = String.format("New %s question", questionType.toString().toLowerCase());
 
@@ -76,7 +76,7 @@ public final class QuestionEditView extends BaseHtmlView {
 
   public Content renderEditQuestionForm(Request request, QuestionDefinition questionDefinition) {
     QuestionType questionType = questionDefinition.getQuestionType();
-    QuestionForm questionForm = getQuestionFormForType(questionType, questionDefinition);
+    QuestionForm questionForm = getQuestionFormFromQuestionDefinition(questionDefinition);
 
     String title = String.format("Edit %s question", questionType.toString().toLowerCase());
 
@@ -109,9 +109,9 @@ public final class QuestionEditView extends BaseHtmlView {
     return layout.renderFull(mainContent);
   }
 
-  public Content renderViewQuestionForm(Request request, QuestionDefinition question) {
+  public Content renderViewQuestionForm(QuestionDefinition question) {
     QuestionType questionType = question.getQuestionType();
-    QuestionForm questionForm = getQuestionFormForType(questionType, question);
+    QuestionForm questionForm = getQuestionFormFromQuestionDefinition(question);
     String title = String.format("View %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
@@ -213,7 +213,6 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setDisabled(!submittable)
                 .setValue(questionForm.getQuestionDescription())
                 .getContainer(),
-            questionParentPathSelect(),
             FieldWithLabel.textArea()
                 .setId("question-text-textarea")
                 .setFieldName("questionText")
@@ -236,20 +235,6 @@ public final class QuestionEditView extends BaseHtmlView {
     return formTag;
   }
 
-  private DomContent questionParentPathSelect() {
-    // TODO: add repeated element paths when they exist (issue #405)
-    ImmutableList<SimpleEntry<String, String>> options =
-        ImmutableList.of(new SimpleEntry<>("Applicant", "applicant"));
-
-    return new SelectWithLabel()
-        .setId("question-parent-path-select")
-        .setFieldName("questionParentPath")
-        .setLabelText("Question parent path")
-        .setOptions(options)
-        .setValue("Applicant")
-        .getContainer();
-  }
-
   private DomContent formQuestionTypeSelect(QuestionType selectedType) {
     ImmutableList<SimpleEntry<String, String>> options =
         Arrays.stream(QuestionType.values())
@@ -266,54 +251,48 @@ public final class QuestionEditView extends BaseHtmlView {
         .withClasses(Styles.HIDDEN);
   }
 
-  private QuestionForm getQuestionFormForType(QuestionType questionType) {
+  private QuestionForm getFreshQuestionForm(QuestionType questionType) {
+    QuestionForm questionForm;
     switch (questionType) {
+      case ADDRESS:
+        questionForm = new AddressQuestionForm();
+        break;
       case CHECKBOX:
-        {
-          return new CheckboxQuestionForm();
-        }
+        questionForm = new CheckboxQuestionForm();
+        break;
       case DROPDOWN:
-        {
-          return new DropdownQuestionForm();
-        }
+        questionForm = new DropdownQuestionForm();
+        break;
       case RADIO_BUTTON:
-        {
-          return new RadioButtonQuestionForm();
-        }
+        questionForm = new RadioButtonQuestionForm();
+        break;
       case TEXT:
-        {
-          return new TextQuestionForm();
-        }
+        questionForm = new TextQuestionForm();
+        break;
       default:
-        {
-          return new QuestionForm();
-        }
+        questionForm = new QuestionForm();
     }
+    // TODO(natsid): Remove the following line once we have question forms for each question type.
+    questionForm.setQuestionType(questionType);
+    return questionForm;
   }
 
-  private QuestionForm getQuestionFormForType(
-      QuestionType questionType, QuestionDefinition questionDefinition) {
+  private QuestionForm getQuestionFormFromQuestionDefinition(
+      QuestionDefinition questionDefinition) {
+    QuestionType questionType = questionDefinition.getQuestionType();
     switch (questionType) {
+      case ADDRESS:
+        return new AddressQuestionForm((AddressQuestionDefinition) questionDefinition);
       case CHECKBOX:
-        {
-          return new CheckboxQuestionForm((CheckboxQuestionDefinition) questionDefinition);
-        }
+        return new CheckboxQuestionForm((CheckboxQuestionDefinition) questionDefinition);
       case DROPDOWN:
-        {
-          return new DropdownQuestionForm((DropdownQuestionDefinition) questionDefinition);
-        }
+        return new DropdownQuestionForm((DropdownQuestionDefinition) questionDefinition);
       case RADIO_BUTTON:
-        {
-          return new RadioButtonQuestionForm((RadioButtonQuestionDefinition) questionDefinition);
-        }
+        return new RadioButtonQuestionForm((RadioButtonQuestionDefinition) questionDefinition);
       case TEXT:
-        {
-          return new TextQuestionForm((TextQuestionDefinition) questionDefinition);
-        }
+        return new TextQuestionForm((TextQuestionDefinition) questionDefinition);
       default:
-        {
-          return new QuestionForm(questionDefinition);
-        }
+        return new QuestionForm(questionDefinition);
     }
   }
 }

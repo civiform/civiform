@@ -4,23 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.testing.EqualsTester;
-import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
 import services.Path;
 
 public class ApplicantDataTest {
-  @Test
-  public void createdTime() {
-    ApplicantData applicantData = new ApplicantData();
-    // Just an arbitrary time.
-    Instant i = Instant.ofEpochMilli(10000000L);
-
-    applicantData.setCreatedTime(i);
-
-    assertThat(applicantData.getCreatedTime()).isEqualTo(i);
-  }
 
   @Test
   public void equality() {
@@ -36,6 +25,18 @@ public class ApplicantDataTest {
   public void preferredLocale_defaultsToEnglish() {
     ApplicantData data = new ApplicantData();
     assertThat(data.preferredLocale()).isEqualTo(Locale.US);
+  }
+
+  @Test
+  public void overwriteDataAtSamePath_succeeds() {
+    ApplicantData data = new ApplicantData();
+    Path path = Path.create("applicant.target");
+
+    data.putString(path, "hello");
+    assertThat(data.readString(path)).hasValue("hello");
+
+    data.putString(path, "world");
+    assertThat(data.readString(path)).hasValue("world");
   }
 
   @Test

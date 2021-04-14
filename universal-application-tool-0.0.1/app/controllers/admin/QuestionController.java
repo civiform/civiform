@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import controllers.CiviFormController;
+import forms.AddressQuestionForm;
 import forms.CheckboxQuestionForm;
 import forms.DropdownQuestionForm;
 import forms.QuestionForm;
@@ -15,7 +16,6 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
-import play.data.Form;
 import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
@@ -67,14 +67,14 @@ public class QuestionController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public CompletionStage<Result> show(Request request, Long id) {
+  public CompletionStage<Result> show(long id) {
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
               try {
                 QuestionDefinition definition = readOnlyService.getQuestionDefinition(id);
-                return ok(editView.renderViewQuestionForm(request, definition));
+                return ok(editView.renderViewQuestionForm(definition));
               } catch (QuestionNotFoundException e) {
                 return badRequest(e.toString());
               }
@@ -110,7 +110,7 @@ public class QuestionController extends CiviFormController {
     try {
       questionDefinition =
           questionForm
-              .getBuilder()
+              .getBuilder(questionForm.getPath())
               .setVersion(NEW_VERSION)
               .setLifecycleStage(LifecycleStage.DRAFT)
               .build();
@@ -125,8 +125,7 @@ public class QuestionController extends CiviFormController {
       return ok(editView.renderNewQuestionForm(request, questionForm, errorMessage));
     }
 
-    String successMessage =
-        String.format("question %s created", questionForm.getQuestionPath().path());
+    String successMessage = String.format("question %s created", questionForm.getQuestionName());
     return withMessage(redirect(routes.QuestionController.index()), successMessage);
   }
 
@@ -160,7 +159,7 @@ public class QuestionController extends CiviFormController {
     try {
       questionDefinition =
           questionForm
-              .getBuilder()
+              .getBuilder(questionForm.getPath())
               .setId(id)
               // Version is needed for building a question definition.
               // This value is overwritten when updating the question.
@@ -168,9 +167,9 @@ public class QuestionController extends CiviFormController {
               .setLifecycleStage(LifecycleStage.DRAFT)
               .build();
     } catch (UnsupportedQuestionTypeException e) {
-      // Valid question type that is not yet fully supported.
-      String errorMessage = e.toString();
-      return ok(editView.renderEditQuestionForm(request, id, questionForm, errorMessage));
+      throw new RuntimeException(
+          "Failed while trying to update a question that was already created for question type "
+              + questionForm.getQuestionType());
     }
 
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndUpdatedQuestionDefinition;
@@ -186,8 +185,7 @@ public class QuestionController extends CiviFormController {
       return ok(editView.renderEditQuestionForm(request, id, questionForm, errorMessage));
     }
 
-    String successMessage =
-        String.format("question %s updated", questionForm.getQuestionPath().path());
+    String successMessage = String.format("question %s updated", questionForm.getQuestionName());
     return withMessage(redirect(routes.QuestionController.index()), successMessage);
   }
 
@@ -211,36 +209,19 @@ public class QuestionController extends CiviFormController {
     }
 
     switch (questionType) {
+      case ADDRESS:
+        return formFactory.form(AddressQuestionForm.class).bindFromRequest(request).get();
       case CHECKBOX:
-        {
-          Form<CheckboxQuestionForm> form = formFactory.form(CheckboxQuestionForm.class);
-          return form.bindFromRequest(request).get();
-        }
+        return formFactory.form(CheckboxQuestionForm.class).bindFromRequest(request).get();
       case DROPDOWN:
-        {
-          Form<DropdownQuestionForm> form = formFactory.form(DropdownQuestionForm.class);
-          return form.bindFromRequest(request).get();
-        }
+        return formFactory.form(DropdownQuestionForm.class).bindFromRequest(request).get();
       case RADIO_BUTTON:
-        {
-          Form<RadioButtonQuestionForm> form = formFactory.form(RadioButtonQuestionForm.class);
-          return form.bindFromRequest(request).get();
-        }
+        return formFactory.form(RadioButtonQuestionForm.class).bindFromRequest(request).get();
       case TEXT:
-        {
-          Form<TextQuestionForm> form = formFactory.form(TextQuestionForm.class);
-          // Note: We add discardingErrors() to get rid of unhelpful errors that are thrown on empty
-          // number inputs. If we find there is a better solution out there, we should update to use
-          // that. But since we don't rely on the spring form data binder system for validation, we
-          // can "safely" ignore these errors.
-          return form.bindFromRequest(request).discardingErrors().get();
-        }
+        return formFactory.form(TextQuestionForm.class).bindFromRequest(request).get();
       default:
-        {
-          // TODO(#589): Once QuestionForm is abstract, the default case should throw.
-          Form<QuestionForm> form = formFactory.form(QuestionForm.class);
-          return form.bindFromRequest(request).get();
-        }
+        // TODO(#589): Once QuestionForm is abstract, the default case should throw.
+        return formFactory.form(QuestionForm.class).bindFromRequest(request).get();
     }
   }
 }

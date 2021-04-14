@@ -20,7 +20,6 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import controllers.routes;
 import java.net.URI;
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -108,8 +107,8 @@ public class SecurityModule extends AbstractModule {
   @Provides
   @Singleton
   protected ProfileFactory provideProfileFactory(
-      Clock clock, DatabaseExecutionContext dbContext, HttpExecutionContext httpContext) {
-    return new ProfileFactory(clock, dbContext, httpContext);
+      DatabaseExecutionContext dbContext, HttpExecutionContext httpContext) {
+    return new ProfileFactory(dbContext, httpContext);
   }
 
   @Provides

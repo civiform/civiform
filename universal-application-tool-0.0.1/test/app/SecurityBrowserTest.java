@@ -94,7 +94,6 @@ public class SecurityBrowserTest extends BaseBrowserTest {
 
     goTo(routes.ProfileController.myProfile());
     assertThat(browser.pageSource()).contains("GuestClient");
-    assertThat(browser.pageSource()).contains("{\"created_time\":");
     assertThat(browser.pageSource()).contains(Roles.ROLE_APPLICANT.toString());
 
     goTo(controllers.admin.routes.AdminProgramController.index());
@@ -158,7 +157,6 @@ public class SecurityBrowserTest extends BaseBrowserTest {
 
     goTo(routes.ProfileController.myProfile());
     assertThat(browser.pageSource()).contains("FakeAdminClient");
-    assertThat(browser.pageSource()).contains("{\"created_time\":");
     assertThat(browser.pageSource()).contains(Roles.ROLE_UAT_ADMIN.toString());
 
     goTo(controllers.admin.routes.AdminProgramController.index());

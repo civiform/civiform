@@ -3,16 +3,12 @@ package services.program;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import java.util.Locale;
 import java.util.Optional;
-import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
 import services.question.types.QuestionDefinition;
-import services.question.types.QuestionDefinitionBuilder;
-import services.question.types.QuestionType;
 import services.question.types.ScalarType;
+import support.TestQuestionBank;
 
 public class BlockDefinitionTest {
 
@@ -31,20 +27,21 @@ public class BlockDefinitionTest {
   @Test
   public void getScalarType() throws Exception {
     BlockDefinition block = makeBlockDefinitionWithQuestions();
-    assertThat(block.getScalarType(Path.create("applicant.name.first")))
+    assertThat(block.getScalarType(Path.create("applicant.applicant_name.first")))
         .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.name.middle")))
+    assertThat(block.getScalarType(Path.create("applicant.applicant_name.middle")))
         .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.name.last"))).hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.address.street")))
+    assertThat(block.getScalarType(Path.create("applicant.applicant_name.last")))
         .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.address.city")))
+    assertThat(block.getScalarType(Path.create("applicant.applicant_address.street")))
         .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.address.state")))
+    assertThat(block.getScalarType(Path.create("applicant.applicant_address.city")))
         .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.address.zip")))
+    assertThat(block.getScalarType(Path.create("applicant.applicant_address.state")))
         .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.color.text")))
+    assertThat(block.getScalarType(Path.create("applicant.applicant_address.zip")))
+        .hasValue(ScalarType.STRING);
+    assertThat(block.getScalarType(Path.create("applicant.applicant_favorite_color.text")))
         .hasValue(ScalarType.STRING);
     assertThat(block.getScalarType(Path.create("fake.path"))).isEmpty();
   }
@@ -54,14 +51,14 @@ public class BlockDefinitionTest {
     BlockDefinition block = makeBlockDefinitionWithQuestions();
     ImmutableList<Path> paths =
         ImmutableList.of(
-            Path.create("applicant.name.first"),
-            Path.create("applicant.name.middle"),
-            Path.create("applicant.name.last"),
-            Path.create("applicant.address.street"),
-            Path.create("applicant.address.city"),
-            Path.create("applicant.address.state"),
-            Path.create("applicant.address.zip"),
-            Path.create("applicant.color.text"));
+            Path.create("applicant.applicant_name.first"),
+            Path.create("applicant.applicant_name.middle"),
+            Path.create("applicant.applicant_name.last"),
+            Path.create("applicant.applicant_address.street"),
+            Path.create("applicant.applicant_address.city"),
+            Path.create("applicant.applicant_address.state"),
+            Path.create("applicant.applicant_address.zip"),
+            Path.create("applicant.applicant_favorite_color.text"));
 
     assertThat(block.hasPaths(paths)).isTrue();
 
@@ -91,18 +88,7 @@ public class BlockDefinitionTest {
             .setDescription("Block Description")
             .addQuestion(
                 ProgramQuestionDefinition.create(
-                    new QuestionDefinitionBuilder()
-                        .setId(3L)
-                        .setVersion(1L)
-                        .setName("Household members")
-                        .setPath(Path.create("applicant.household_members"))
-                        .setLifecycleStage(LifecycleStage.ACTIVE)
-                        .setDescription("who are your household members")
-                        .setQuestionText(
-                            ImmutableMap.of(Locale.US, "Please list your household members."))
-                        .setQuestionHelpText(ImmutableMap.of())
-                        .setQuestionType(QuestionType.REPEATER)
-                        .build()))
+                    TestQuestionBank.applicantHouseholdMembers().getQuestionDefinition()))
             .build();
 
     assertThat(blockDefinition.isRepeater()).isTrue();
@@ -117,42 +103,11 @@ public class BlockDefinitionTest {
   }
 
   private BlockDefinition makeBlockDefinitionWithQuestions() throws Exception {
-    QuestionDefinition nameQuestion =
-        new QuestionDefinitionBuilder()
-            .setId(1L)
-            .setVersion(1L)
-            .setName("name")
-            .setPath(Path.create("applicant.name"))
-            .setDescription("name question")
-            .setQuestionType(QuestionType.NAME)
-            .setLifecycleStage(LifecycleStage.ACTIVE)
-            .setQuestionText(ImmutableMap.of(Locale.US, "What is your name?"))
-            .setQuestionHelpText(ImmutableMap.of())
-            .build();
+    QuestionDefinition nameQuestion = TestQuestionBank.applicantName().getQuestionDefinition();
     QuestionDefinition addressQuestion =
-        new QuestionDefinitionBuilder()
-            .setId(2L)
-            .setVersion(1L)
-            .setName("address")
-            .setPath(Path.create("applicant.address"))
-            .setDescription("address question")
-            .setLifecycleStage(LifecycleStage.ACTIVE)
-            .setQuestionType(QuestionType.ADDRESS)
-            .setQuestionText(ImmutableMap.of(Locale.US, "What is your address?"))
-            .setQuestionHelpText(ImmutableMap.of())
-            .build();
+        TestQuestionBank.applicantAddress().getQuestionDefinition();
     QuestionDefinition colorQuestion =
-        new QuestionDefinitionBuilder()
-            .setId(3L)
-            .setVersion(1L)
-            .setName("color")
-            .setPath(Path.create("applicant.color"))
-            .setLifecycleStage(LifecycleStage.ACTIVE)
-            .setDescription("color")
-            .setQuestionType(QuestionType.TEXT)
-            .setQuestionText(ImmutableMap.of(Locale.US, "What is your favorite color?"))
-            .setQuestionHelpText(ImmutableMap.of())
-            .build();
+        TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
 
     BlockDefinition block =
         BlockDefinition.builder()

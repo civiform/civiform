@@ -11,8 +11,10 @@ import java.util.Optional;
 import models.LifecycleStage;
 import services.Path;
 import services.question.exceptions.InvalidPathException;
+import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import services.question.types.RepeaterQuestionDefinition;
 import services.question.types.ScalarType;
 import views.admin.questions.GroupByKeyCollector;
@@ -84,6 +86,28 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
         .filter(QuestionDefinition::isRepeater)
         .map(questionDefinition -> (RepeaterQuestionDefinition) questionDefinition)
         .collect(ImmutableList.toImmutableList());
+  }
+
+  @Override
+  public Path makePath(Optional<Long> maybeRepeaterId, String questionName, boolean isRepeater)
+      throws QuestionNotFoundException, InvalidQuestionTypeException {
+    String questionNameFormattedForPath =
+        questionName.replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
+    if (isRepeater) {
+      questionNameFormattedForPath += Path.ARRAY_SUFFIX;
+    }
+
+    // No repeater, then use "applicant" as root.
+    if (maybeRepeaterId.isEmpty()) {
+      return Path.create("applicant").join(questionNameFormattedForPath);
+    }
+
+    QuestionDefinition repeaterQuestionDefinition = getQuestionDefinition(maybeRepeaterId.get());
+    if (!repeaterQuestionDefinition.getQuestionType().equals(QuestionType.REPEATER)) {
+      throw new InvalidQuestionTypeException(repeaterQuestionDefinition.getQuestionType().name());
+    }
+
+    return repeaterQuestionDefinition.getPath().join(questionNameFormattedForPath);
   }
 
   @Override
