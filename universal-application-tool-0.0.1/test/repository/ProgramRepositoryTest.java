@@ -1,8 +1,10 @@
 package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import models.LifecycleStage;
@@ -78,18 +80,64 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
-  public void publishProgram() {
+  public void publishProgram_simple() {
     Program active = resourceCreator().insertProgram("name");
     active.setLifecycleStage(LifecycleStage.ACTIVE);
+    active.setVersion(1L);
     active.save();
     Program draft = resourceCreator().insertProgram("name");
     draft.setLifecycleStage(LifecycleStage.DRAFT);
+    draft.setVersion(2L);
     draft.save();
 
     versionRepository.publishNewSynchronizedVersion();
 
+    draft.refresh();
     assertThat(draft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     active.refresh();
     assertThat(active.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
+  }
+
+  @Test
+  public void publishProgram_passthrough() {
+    Program active = resourceCreator().insertProgram("name");
+    active.setLifecycleStage(LifecycleStage.ACTIVE);
+    active.setVersion(1L);
+    active.save();
+
+    versionRepository.publishNewSynchronizedVersion();
+
+    active.refresh();
+    assertThat(active.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
+
+    repo
+        .listPrograms()
+        .thenApplyAsync(
+            programs -> {
+              List<Program> programsWithName = new ArrayList<>();
+              for (Program program : programs) {
+                if (program.getProgramDefinition().name().equals("name")) {
+                  programsWithName.add(program);
+                }
+              }
+              assertThat(programsWithName).hasSize(2);
+              return programsWithName;
+            })
+        .toCompletableFuture()
+        .join()
+        .stream()
+        .forEach(
+            program -> {
+              switch (program.getVersion().intValue()) {
+                case 1:
+                  assertThat(program.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
+                  break;
+                case 2:
+                  assertThat(program.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+                  break;
+                default:
+                  fail("Found unexpected version: %s", program.getVersion());
+              }
+            });
   }
 }

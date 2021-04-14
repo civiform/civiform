@@ -174,11 +174,11 @@ public final class ProgramIndexView extends BaseHtmlView {
           .asAnchorText();
     } else if (activeProgram.isPresent()) {
       String newVersionLink =
-          controllers.admin.routes.AdminProgramController.newVersionFrom(draftProgram.get().id())
+          controllers.admin.routes.AdminProgramController.newVersionFrom(activeProgram.get().id())
               .url();
 
       return new LinkElement()
-          .setId("program-new-version-link-" + draftProgram.get().id())
+          .setId("program-new-version-link-" + activeProgram.get().id())
           .setHref(newVersionLink)
           .setText(newVersionText)
           .setStyles(Styles.MR_2)

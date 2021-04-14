@@ -9,7 +9,6 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.Transaction;
 import java.util.Optional;
-import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import models.LifecycleStage;
@@ -51,19 +50,26 @@ public class VersionRepository {
                       .eq("lifecycle_stage", LifecycleStage.DRAFT)
                       .query())
               .findList()) {
-        uneditedActive.setVersion(version);
-        this.programRepository.insertProgramSync(uneditedActive);
+        uneditedActive.setLifecycleStage(LifecycleStage.OBSOLETE);
+        uneditedActive.save();
+        Program newVersion = new Program(uneditedActive.getProgramDefinition());
+        newVersion.setVersion(version);
+        newVersion.setLifecycleStage(LifecycleStage.ACTIVE);
+        this.programRepository.insertProgramSync(newVersion);
       }
+
       // Then, for each program, if a draft exists, publish the draft.
-      for (Program draft :
-          ebeanServer
-              .find(Program.class)
-              .where()
-              .eq("lifecycle_stage", LifecycleStage.DRAFT)
-              .findList()) {
-        draft.setVersion(version);
-        this.publishProgramAsync(draft, transaction);
-      }
+      ebeanServer
+          .find(Program.class)
+          .where()
+          .eq("lifecycle_stage", LifecycleStage.DRAFT)
+          .findList()
+          .stream()
+          .forEach(
+              draft -> {
+                draft.setVersion(version);
+                this.publishProgram(draft, transaction);
+              });
       ebeanServer.commitTransaction();
     } finally {
       ebeanServer.endTransaction();
@@ -76,6 +82,8 @@ public class VersionRepository {
             .find(Program.class)
             .where()
             .eq("lifecycle_stage", LifecycleStage.DRAFT)
+            .isNotNull("version")
+            .setMaxRows(1)
             .findOneOrEmpty();
     if (draft.isPresent()) {
       return draft.get().getVersion();
@@ -86,10 +94,39 @@ public class VersionRepository {
             .find(Program.class)
             .where()
             .eq("lifecycle_stage", LifecycleStage.ACTIVE)
+            .isNotNull("version")
+            .setMaxRows(1)
             .findOneOrEmpty();
     if (active.isPresent()) {
       return active.get().getVersion() + 1;
     }
+
+    // If there are no programs, we are pretty sure the correct version is 1, but
+    // we might also be in a questions-only test.  Search questions just in case.
+    Optional<Question> draftQuestion =
+        ebeanServer
+            .find(Question.class)
+            .where()
+            .eq("lifecycle_stage", LifecycleStage.DRAFT)
+            .isNotNull("version")
+            .setMaxRows(1)
+            .findOneOrEmpty();
+    if (draftQuestion.isPresent()) {
+      return draftQuestion.get().getVersion();
+    }
+    // If there are no drafts, add one to any active program
+    Optional<Question> activeQuestion =
+        ebeanServer
+            .find(Question.class)
+            .where()
+            .eq("lifecycle_stage", LifecycleStage.ACTIVE)
+            .isNotNull("version")
+            .setMaxRows(1)
+            .findOneOrEmpty();
+    if (activeQuestion.isPresent()) {
+      return activeQuestion.get().getVersion() + 1;
+    }
+
     return 1L;
   }
 
@@ -158,7 +195,7 @@ public class VersionRepository {
     return updatedBlock.build();
   }
 
-  private CompletionStage<Void> publishProgramAsync(Program program, Transaction transaction) {
+  private void publishProgram(Program program, Transaction transaction) {
     // First, set this program to ACTIVE and set the existing ACTIVE program (if it exists)
     // to OBSOLETE.
     Optional<Program> oldProgramMaybe =
@@ -191,8 +228,6 @@ public class VersionRepository {
         setQuestionLive(question.id());
       }
     }
-
-    return null;
   }
 
   /**
