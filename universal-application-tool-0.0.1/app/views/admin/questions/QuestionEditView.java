@@ -14,7 +14,6 @@ import forms.DropdownQuestionForm;
 import forms.QuestionForm;
 import forms.RadioButtonQuestionForm;
 import forms.TextQuestionForm;
-import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import java.util.AbstractMap.SimpleEntry;
@@ -67,8 +66,8 @@ public final class QuestionEditView extends BaseHtmlView {
     ContainerTag previewContent = buildPreviewContent(questionType);
     ContainerTag mainContent = main(formContent, previewContent);
 
-    if (message.length() > 0) {
-      mainContent.with(ToastMessage.error(message).setDismissible(false).getContainerTag());
+    if (message.isPresent()) {
+      mainContent.with(ToastMessage.error(message.get()).setDismissible(false).getContainerTag());
     }
 
     return layout.renderFull(mainContent);
