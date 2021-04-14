@@ -4,6 +4,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.main;
+import static j2html.TagCreator.sub;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -131,7 +132,7 @@ public final class QuestionEditView extends BaseHtmlView {
     QuestionForm questionForm = getQuestionFormFromQuestionDefinition(question);
     String title = String.format("View %s question", questionType.toString().toLowerCase());
 
-    ContainerTag repeaterOption = repeaterOptionWithQuestionDefinition(question);
+    SelectWithLabel repeaterOption = repeaterOptionWithQuestionDefinition(question);
     ContainerTag formContent =
         buildQuestionContainer(title).with(buildViewOnlyQuestionForm(questionForm, repeaterOption));
     ContainerTag previewContent = buildPreviewContent(questionType);
@@ -141,12 +142,12 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private ContainerTag buildSubmittableQuestionForm(
-      QuestionForm questionForm, ContainerTag repeaterOptions) {
+      QuestionForm questionForm, SelectWithLabel repeaterOptions) {
     return buildQuestionForm(questionForm, repeaterOptions, true);
   }
 
   private ContainerTag buildViewOnlyQuestionForm(
-      QuestionForm questionForm, ContainerTag repeaterOptions) {
+      QuestionForm questionForm, SelectWithLabel repeaterOptions) {
     return buildQuestionForm(questionForm, repeaterOptions, false);
   }
 
@@ -182,7 +183,7 @@ public final class QuestionEditView extends BaseHtmlView {
   private ContainerTag buildNewQuestionForm(
       QuestionForm questionForm,
       ImmutableList<RepeaterQuestionDefinition> repeaterQuestionDefinitions) {
-    ContainerTag repeaterOptions =
+    SelectWithLabel repeaterOptions =
         repeaterOptionsWithRepeaterQuestions(questionForm, repeaterQuestionDefinitions);
     ContainerTag formTag = buildSubmittableQuestionForm(questionForm, repeaterOptions);
     formTag
@@ -197,7 +198,7 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private ContainerTag buildEditQuestionForm(
       long id, QuestionForm questionForm, QuestionDefinition questionDefinition) {
-    ContainerTag repeaterOption = repeaterOptionWithQuestionDefinition(questionDefinition);
+    SelectWithLabel repeaterOption = repeaterOptionWithQuestionDefinition(questionDefinition);
     ContainerTag formTag = buildSubmittableQuestionForm(questionForm, repeaterOption);
     formTag
         .withAction(
@@ -209,7 +210,7 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private ContainerTag buildQuestionForm(
-      QuestionForm questionForm, ContainerTag repeaterOptions, boolean submittable) {
+      QuestionForm questionForm, SelectWithLabel repeaterOptions, boolean submittable) {
     QuestionType questionType = questionForm.getQuestionType();
     ContainerTag formTag = form().withMethod("POST");
     FieldWithLabel nameField =
@@ -240,7 +241,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setDisabled(!submittable)
                 .setValue(questionForm.getQuestionDescription())
                 .getContainer(),
-            repeaterOptions,
+            repeaterOptions.setDisabled(!submittable).getContainer(),
             FieldWithLabel.textArea()
                 .setId("question-text-textarea")
                 .setFieldName("questionText")
@@ -283,7 +284,7 @@ public final class QuestionEditView extends BaseHtmlView {
    * Generate a {@link SelectWithLabel} fixed repeater selector based on the question definition's
    * repeater.
    */
-  private ContainerTag repeaterOptionWithQuestionDefinition(QuestionDefinition questionDefinition) {
+  private SelectWithLabel repeaterOptionWithQuestionDefinition(QuestionDefinition questionDefinition) {
     Path parentPath = questionDefinition.getPath().parentPath();
     SimpleEntry<String, String> repeaterPathAndId =
         new SimpleEntry<>(
@@ -296,7 +297,7 @@ public final class QuestionEditView extends BaseHtmlView {
    * Generate a {@link SelectWithLabel} repeater selector of the available repeater question
    * definitions.
    */
-  private ContainerTag repeaterOptionsWithRepeaterQuestions(
+  private SelectWithLabel repeaterOptionsWithRepeaterQuestions(
       QuestionForm questionForm,
       ImmutableList<RepeaterQuestionDefinition> repeaterQuestionDefinitions) {
     ImmutableList.Builder<SimpleEntry<String, String>> optionsBuilder = ImmutableList.builder();
@@ -314,15 +315,14 @@ public final class QuestionEditView extends BaseHtmlView {
         questionForm.getRepeaterId().map(String::valueOf).orElse(NO_REPEATER_ID_STRING));
   }
 
-  private ContainerTag repeaterOptions(
+  private SelectWithLabel repeaterOptions(
       ImmutableList<SimpleEntry<String, String>> options, String selected) {
     return new SelectWithLabel()
         .setId("question-repeater-select")
         .setFieldName("repeaterId")
         .setLabelText("Question repeater")
         .setOptions(options)
-        .setValue(selected)
-        .getContainer();
+        .setValue(selected);
   }
 
   private QuestionForm getFreshQuestionForm(QuestionType questionType) {
