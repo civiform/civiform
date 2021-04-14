@@ -1,15 +1,13 @@
 package forms;
 
+import java.util.OptionalLong;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
-import java.util.OptionalLong;
-
 public class NumberQuestionForm extends QuestionForm {
   private OptionalLong min;
   private OptionalLong max;
-
 
   public NumberQuestionForm() {
     super();
@@ -64,12 +62,11 @@ public class NumberQuestionForm extends QuestionForm {
   @Override
   public QuestionDefinitionBuilder getBuilder() {
     NumberQuestionDefinition.NumberValidationPredicates.Builder numberValidationPredicatesBuilder =
-            NumberQuestionDefinition.NumberValidationPredicates.builder();
+        NumberQuestionDefinition.NumberValidationPredicates.builder();
 
     numberValidationPredicatesBuilder.setMin(getMin());
     numberValidationPredicatesBuilder.setMax(getMax());
 
     return super.getBuilder().setValidationPredicates(numberValidationPredicatesBuilder.build());
   }
-
 }

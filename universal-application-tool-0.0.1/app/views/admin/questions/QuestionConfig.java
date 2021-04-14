@@ -16,8 +16,6 @@ import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Optional;
-
-import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionType;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
@@ -206,12 +204,13 @@ public class QuestionConfig {
             .setId("number-question-min-value-input")
             .setFieldName("min")
             .setLabelText("Minimum value")
-                // Set value, but need to create a new setValue
+            .setValue(numberQuestionForm.getMin())
             .getContainer(),
         FieldWithLabel.number()
             .setId("number-question-max-value-input")
             .setFieldName("max")
             .setLabelText("Maximum value")
+            .setValue(numberQuestionForm.getMax())
             .getContainer());
     return this;
   }
