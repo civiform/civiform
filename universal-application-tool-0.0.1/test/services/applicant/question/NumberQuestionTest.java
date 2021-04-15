@@ -132,7 +132,6 @@ public class NumberQuestionTest {
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
     assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(numberQuestion.getQuestionErrors())
-        .containsOnly(ValidationErrorMessage.numberTooSmallError(1));
+    assertThat(numberQuestion.hasQuestionErrors()).isFalse();
   }
 }
