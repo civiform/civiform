@@ -71,7 +71,7 @@ export class AdminPrograms {
   }
 
   async expectProgramBlockEditPage(programName: string = '') {
-    expect(await this.page.innerText('html')).toContain(programName);
+    expect(await this.page.innerText('id=program-title')).toContain(programName);
     // Compare string case insensitively because style may not have been computed.
     expect((await this.page.innerText('label')).toUpperCase()).toEqual('BLOCK NAME');
     expect(await this.page.innerText('h1')).toContain('Question bank');
