@@ -73,10 +73,16 @@ public class QuestionController extends CiviFormController {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
+              QuestionDefinition questionDefinition;
               try {
-                QuestionDefinition definition = readOnlyService.getQuestionDefinition(id);
-                return ok(editView.renderViewQuestionForm(definition));
+                questionDefinition = readOnlyService.getQuestionDefinition(id);
               } catch (QuestionNotFoundException e) {
+                return badRequest(e.toString());
+              }
+
+              try {
+                return ok(editView.renderViewQuestionForm(questionDefinition));
+              } catch (InvalidQuestionTypeException e) {
                 return badRequest(e.toString());
               }
             },
@@ -89,7 +95,7 @@ public class QuestionController extends CiviFormController {
     try {
       QuestionType questionType = QuestionType.valueOf(upperType.toUpperCase());
       return ok(editView.renderNewQuestionForm(request, questionType));
-    } catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException | InvalidQuestionTypeException e) {
       return badRequest(
           String.format(
               "unrecognized question type: '%s', accepted values include: %s",
@@ -136,10 +142,16 @@ public class QuestionController extends CiviFormController {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
+              QuestionDefinition questionDefinition;
               try {
-                QuestionDefinition questionDefinition = readOnlyService.getQuestionDefinition(id);
-                return ok(editView.renderEditQuestionForm(request, questionDefinition));
+                questionDefinition = readOnlyService.getQuestionDefinition(id);
               } catch (QuestionNotFoundException e) {
+                return badRequest(e.toString());
+              }
+
+              try {
+                return ok(editView.renderEditQuestionForm(request, questionDefinition));
+              } catch (InvalidQuestionTypeException e) {
                 return badRequest(e.toString());
               }
             },

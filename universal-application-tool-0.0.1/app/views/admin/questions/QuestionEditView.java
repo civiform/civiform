@@ -47,7 +47,8 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   /** Render a fresh New Question Form. */
-  public Content renderNewQuestionForm(Request request, QuestionType questionType) {
+  public Content renderNewQuestionForm(Request request, QuestionType questionType)
+      throws InvalidQuestionTypeException {
     QuestionForm questionForm = getFreshQuestionForm(questionType);
     return renderNewQuestionForm(request, questionForm, Optional.empty());
   }
@@ -76,7 +77,8 @@ public final class QuestionEditView extends BaseHtmlView {
     return layout.renderFull(mainContent);
   }
 
-  public Content renderEditQuestionForm(Request request, QuestionDefinition questionDefinition) {
+  public Content renderEditQuestionForm(Request request, QuestionDefinition questionDefinition)
+      throws InvalidQuestionTypeException {
     QuestionType questionType = questionDefinition.getQuestionType();
     QuestionForm questionForm = getQuestionFormFromQuestionDefinition(questionDefinition);
 
@@ -111,7 +113,8 @@ public final class QuestionEditView extends BaseHtmlView {
     return layout.renderFull(mainContent);
   }
 
-  public Content renderViewQuestionForm(QuestionDefinition question) {
+  public Content renderViewQuestionForm(QuestionDefinition question)
+      throws InvalidQuestionTypeException {
     QuestionType questionType = question.getQuestionType();
     QuestionForm questionForm = getQuestionFormFromQuestionDefinition(question);
     String title = String.format("View %s question", questionType.toString().toLowerCase());
@@ -253,7 +256,8 @@ public final class QuestionEditView extends BaseHtmlView {
         .withClasses(Styles.HIDDEN);
   }
 
-  private QuestionForm getFreshQuestionForm(QuestionType questionType) throws InvalidQuestionTypeException {
+  private QuestionForm getFreshQuestionForm(QuestionType questionType)
+      throws InvalidQuestionTypeException {
     QuestionForm questionForm;
     switch (questionType) {
       case ADDRESS:
@@ -280,8 +284,8 @@ public final class QuestionEditView extends BaseHtmlView {
     return questionForm;
   }
 
-  private QuestionForm getQuestionFormFromQuestionDefinition(
-      QuestionDefinition questionDefinition) {
+  private QuestionForm getQuestionFormFromQuestionDefinition(QuestionDefinition questionDefinition)
+      throws InvalidQuestionTypeException {
     QuestionType questionType = questionDefinition.getQuestionType();
     switch (questionType) {
       case ADDRESS:
@@ -297,7 +301,7 @@ public final class QuestionEditView extends BaseHtmlView {
       case TEXT:
         return new TextQuestionForm((TextQuestionDefinition) questionDefinition);
       default:
-        return new QuestionForm(questionDefinition);
+        throw new InvalidQuestionTypeException(questionType.toString());
     }
   }
 }

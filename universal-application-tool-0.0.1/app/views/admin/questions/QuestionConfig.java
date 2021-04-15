@@ -87,9 +87,9 @@ public class QuestionConfig {
             .getContainer();
       case TEXT:
         return config
-                .setId("text-question-config")
-                .addTextQuestionConfig((TextQuestionForm) questionForm)
-                .getContainer();
+            .setId("text-question-config")
+            .addTextQuestionConfig((TextQuestionForm) questionForm)
+            .getContainer();
       case DROPDOWN: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
         return config
