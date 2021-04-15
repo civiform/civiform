@@ -90,12 +90,12 @@ public class QuestionConfig {
             .setId("number-question-config")
             .addNumberQuestionConfig((NumberQuestionForm) questionForm)
             .getContainer();
+      case DROPDOWN: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
         return config
             .setId("single-select-question-config")
             .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm)
             .getContainer();
-      case DROPDOWN: // fallthrough intended - no options
       case NAME: // fallthrough intended - no options
       case REPEATER: // fallthrough intended
       default:

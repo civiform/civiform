@@ -20,8 +20,8 @@ public class NumberQuestionForm extends QuestionForm {
   public NumberQuestionForm(NumberQuestionDefinition qd) {
     super(qd);
     setQuestionType(QuestionType.NUMBER);
-    this.min = OptionalLong.empty();
-    this.max = OptionalLong.empty();
+    this.min = qd.getMin();
+    this.max = qd.getMax();
   }
 
   public OptionalLong getMin() {
