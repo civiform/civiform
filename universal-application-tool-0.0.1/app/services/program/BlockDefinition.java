@@ -57,20 +57,27 @@ public abstract class BlockDefinition {
    * user-defined identifiers for some repeated entity. Examples of repeated entities could be
    * household members, vehicles, jobs, etc.
    *
+   * A repeater block can only have one question, and it must be {@link QuestionType#REPEATER}.
+   *
    * @return true if this block definition is a repeater.
    */
   @JsonIgnore
+  @Memoized
   public boolean isRepeater() {
     // Though `anyMatch` is used here, repeater block definitions should only ever have a single
     // question, which is a repeater question.
     return programQuestionDefinitions().stream()
-        .anyMatch(
-            programQuestionDefinition ->
-                programQuestionDefinition
-                    .getQuestionDefinition()
-                    .getQuestionType()
-                    .equals(QuestionType.REPEATER));
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .map(QuestionDefinition::getQuestionType)
+        .anyMatch(questionType -> questionType.equals(QuestionType.REPEATER));
   }
+
+  /**
+   * A repeated block definition has a reference to the {@link
+   * services.question.types.RepeaterQuestionDefinition} whose repeated questions it can contain.
+   */
+  @JsonProperty("repeaterQuestionId")
+  public abstract Optional<Long> repeaterQuestionId();
 
   /**
    * A repeated block definition references a repeater block definition that determines the entities
@@ -89,7 +96,7 @@ public abstract class BlockDefinition {
    */
   @JsonIgnore
   public boolean isRepeated() {
-    return repeaterId().isPresent();
+    return repeaterId().isPresent() && repeaterQuestionId().isPresent();
   }
 
   /** A {@link Predicate} that determines whether this is hidden or shown. */
@@ -113,6 +120,7 @@ public abstract class BlockDefinition {
   }
 
   @JsonIgnore
+  @Memoized
   public int getQuestionCount() {
     return programQuestionDefinitions().size();
   }
@@ -179,6 +187,9 @@ public abstract class BlockDefinition {
 
     @JsonProperty("repeaterId")
     public abstract Builder setRepeaterId(Optional<Long> repeaterId);
+
+    @JsonProperty("repeaterQuestionId")
+    public abstract Builder setRepeaterQuestionId(Optional<Long> repeaterQuestionId);
 
     @JsonProperty("hidePredicate")
     public abstract Builder setHidePredicate(Optional<Predicate> hide);

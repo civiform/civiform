@@ -128,7 +128,7 @@ public class AdminProgramBlocksController extends CiviFormController {
       BlockForm blockForm,
       String message) {
     try {
-      BlockDefinition block = program.getBlockDefinition(blockId);
+      BlockDefinition blockDefinition = program.getBlockDefinition(blockId);
       ReadOnlyQuestionService roQuestionService =
           questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
@@ -138,7 +138,8 @@ public class AdminProgramBlocksController extends CiviFormController {
               program,
               blockId,
               blockForm,
-              block.programQuestionDefinitions(),
+              blockDefinition,
+              blockDefinition.programQuestionDefinitions(),
               message,
               roQuestionService.getUpToDateQuestions()));
     } catch (ProgramBlockNotFoundException e) {
