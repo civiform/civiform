@@ -66,12 +66,12 @@ public class NumberQuestionTest {
   public void withEmptyValueAtPath_passesValidation() {
     applicantData.putLong(numberQuestionDefinition.getNumberPath(), "");
     ApplicantQuestion applicantQuestion =
-            new ApplicantQuestion(numberQuestionDefinition, applicantData);
+        new ApplicantQuestion(numberQuestionDefinition, applicantData);
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
     assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(numberQuestion.getNumberValue().get()).isEqualTo(800);
+    assertThat(numberQuestion.getNumberValue()).isEmpty();
   }
 
   @Test
@@ -120,5 +120,33 @@ public class NumberQuestionTest {
     assertThat(numberQuestion.getQuestionErrors())
         .containsOnly(ValidationErrorMessage.create(expectedErrorMessage));
     assertThat(numberQuestion.getNumberValue().get()).isEqualTo(value);
+  }
+
+  @Test
+  public void withMinValue_withEmptyValueAtPath_failsValidation() {
+    NumberQuestionDefinition.NumberValidationPredicates.Builder numberValidationPredicatesBuilder =
+            NumberQuestionDefinition.NumberValidationPredicates.builder();
+    numberValidationPredicatesBuilder.setMin(1);
+    NumberQuestionDefinition minNumberQuestionDefinition =
+            new NumberQuestionDefinition(
+                    1L,
+                    "question name",
+                    Path.create("applicant.my.path.name"),
+                    Optional.empty(),
+                    "description",
+                    LifecycleStage.ACTIVE,
+                    ImmutableMap.of(Locale.US, "question?"),
+                    ImmutableMap.of(Locale.US, "help text"),
+                    numberValidationPredicatesBuilder.build());
+
+    applicantData.putLong(minNumberQuestionDefinition.getNumberPath(), "");
+    ApplicantQuestion applicantQuestion =
+            new ApplicantQuestion(minNumberQuestionDefinition, applicantData);
+
+    NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
+
+    assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(numberQuestion.getQuestionErrors())
+            .containsOnly(ValidationErrorMessage.numberTooSmallError(1));
   }
 }
