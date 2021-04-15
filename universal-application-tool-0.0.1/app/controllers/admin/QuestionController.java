@@ -7,6 +7,7 @@ import controllers.CiviFormController;
 import forms.AddressQuestionForm;
 import forms.CheckboxQuestionForm;
 import forms.DropdownQuestionForm;
+import forms.NumberQuestionForm;
 import forms.QuestionForm;
 import forms.RadioButtonQuestionForm;
 import forms.TextQuestionForm;
@@ -215,6 +216,8 @@ public class QuestionController extends CiviFormController {
         return formFactory.form(CheckboxQuestionForm.class).bindFromRequest(request).get();
       case DROPDOWN:
         return formFactory.form(DropdownQuestionForm.class).bindFromRequest(request).get();
+      case NUMBER:
+        return formFactory.form(NumberQuestionForm.class).bindFromRequest(request).get();
       case RADIO_BUTTON:
         return formFactory.form(RadioButtonQuestionForm.class).bindFromRequest(request).get();
       case TEXT:

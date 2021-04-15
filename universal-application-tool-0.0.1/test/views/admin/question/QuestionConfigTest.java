@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import forms.AddressQuestionForm;
 import forms.DropdownQuestionForm;
+import forms.NumberQuestionForm;
 import forms.QuestionForm;
 import forms.RadioButtonQuestionForm;
 import forms.TextQuestionForm;
@@ -45,7 +46,7 @@ public class QuestionConfigTest {
         .toString()
         .contains("single-select-question-config");
 
-    assertThat(QuestionConfig.buildQuestionConfig(QuestionType.NUMBER, new QuestionForm()))
+    assertThat(QuestionConfig.buildQuestionConfig(QuestionType.NUMBER, new NumberQuestionForm()))
         .toString()
         .contains("number-question-min-value-input");
 
