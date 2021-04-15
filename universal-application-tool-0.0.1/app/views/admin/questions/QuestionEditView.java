@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
@@ -250,7 +251,7 @@ public final class QuestionEditView extends BaseHtmlView {
         .withClasses(Styles.HIDDEN);
   }
 
-  private QuestionForm getFreshQuestionForm(QuestionType questionType) {
+  private QuestionForm getFreshQuestionForm(QuestionType questionType) throws InvalidQuestionTypeException {
     QuestionForm questionForm;
     switch (questionType) {
       case ADDRESS:
@@ -269,10 +270,8 @@ public final class QuestionEditView extends BaseHtmlView {
         questionForm = new TextQuestionForm();
         break;
       default:
-        questionForm = new QuestionForm();
+        throw new InvalidQuestionTypeException(questionType.toString());
     }
-    // TODO(natsid): Remove the following line once we have question forms for each question type.
-    questionForm.setQuestionType(questionType);
     return questionForm;
   }
 
