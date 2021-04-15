@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
+import services.Path;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
 import services.question.exceptions.TranslationNotFoundException;
-import services.Path;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
