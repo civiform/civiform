@@ -24,7 +24,7 @@ public class BaseHtmlLayout extends BaseHtmlView {
   private static final String BANNER_TEXT =
       "Do not enter actual or personal data in this demo site";
 
-  protected final ViewUtils viewUtils;
+  public final ViewUtils viewUtils;
 
   @Inject
   public BaseHtmlLayout(ViewUtils viewUtils) {

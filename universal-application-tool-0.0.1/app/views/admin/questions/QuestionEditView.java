@@ -71,14 +71,12 @@ public final class QuestionEditView extends BaseHtmlView {
     ContainerTag formContent =
         buildQuestionContainer(title)
             .with(buildNewQuestionForm(questionForm).with(makeCsrfTokenInputTag(request)));
-    ContainerTag previewContent = buildPreviewContent(questionType);
-    ContainerTag mainContent = main(formContent, previewContent);
 
     if (message.isPresent()) {
-      mainContent.with(ToastMessage.error(message.get()).setDismissible(false).getContainerTag());
+      formContent.with(ToastMessage.error(message.get()).setDismissible(false).getContainerTag());
     }
 
-    return layout.renderFull(mainContent);
+    return renderWithPreview(formContent, questionType);
   }
 
   public Content renderEditQuestionForm(Request request, QuestionDefinition questionDefinition)
@@ -93,10 +91,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .with(
                 buildEditQuestionForm(questionDefinition.getId(), questionForm)
                     .with(makeCsrfTokenInputTag(request)));
-    ContainerTag previewContent = buildPreviewContent(questionType);
-    ContainerTag mainContent = main(formContent, previewContent);
-
-    return layout.renderFull(mainContent);
+    return renderWithPreview(formContent, questionType);
   }
 
   public Content renderEditQuestionForm(
@@ -107,14 +102,12 @@ public final class QuestionEditView extends BaseHtmlView {
     ContainerTag formContent =
         buildQuestionContainer(title)
             .with(buildEditQuestionForm(id, questionForm).with(makeCsrfTokenInputTag(request)));
-    ContainerTag previewContent = buildPreviewContent(questionType);
-    ContainerTag mainContent = main(formContent, previewContent);
 
     if (message.length() > 0) {
-      mainContent.with(ToastMessage.error(message).setDismissible(false).getContainerTag());
+      formContent.with(ToastMessage.error(message).setDismissible(false).getContainerTag());
     }
 
-    return layout.renderFull(mainContent);
+    return renderWithPreview(formContent, questionType);
   }
 
   public Content renderViewQuestionForm(QuestionDefinition questionDefinition)
@@ -125,10 +118,14 @@ public final class QuestionEditView extends BaseHtmlView {
 
     ContainerTag formContent =
         buildQuestionContainer(title).with(buildViewOnlyQuestionForm(questionForm));
-    ContainerTag previewContent = buildPreviewContent(questionType);
-    ContainerTag mainContent = main(formContent, previewContent);
 
-    return layout.renderFull(mainContent);
+    return renderWithPreview(formContent, questionType);
+  }
+
+  private Content renderWithPreview(ContainerTag formContent, QuestionType type) {
+    ContainerTag previewContent = QuestionPreview.renderQuestionPreview(type);
+    previewContent.with(layout.viewUtils.makeLocalJsTag("preview"));
+    return layout.renderFull(main(formContent, previewContent));
   }
 
   private ContainerTag buildSubmittableQuestionForm(QuestionForm questionForm) {
@@ -162,10 +159,6 @@ public final class QuestionEditView extends BaseHtmlView {
         .withId("multi-option-question-answer-template")
         // Add "hidden" to other classes, so that the template is not shown
         .withClasses(Styles.HIDDEN, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4);
-  }
-
-  private ContainerTag buildPreviewContent(QuestionType questionType) {
-    return QuestionPreview.renderQuestionPreview(questionType);
   }
 
   private ContainerTag buildNewQuestionForm(QuestionForm questionForm) {
