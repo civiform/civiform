@@ -6,7 +6,7 @@ import services.question.types.QuestionType;
 public class CheckboxQuestionForm extends MultiOptionQuestionForm {
 
   public CheckboxQuestionForm() {
-    super(QuestionType.CHECKBOX);
+    super();
   }
 
   public CheckboxQuestionForm(CheckboxQuestionDefinition qd) {

@@ -6,7 +6,7 @@ import services.question.types.QuestionType;
 public class DropdownQuestionForm extends MultiOptionQuestionForm {
 
   public DropdownQuestionForm() {
-    super(QuestionType.DROPDOWN);
+    super();
   }
 
   public DropdownQuestionForm(DropdownQuestionDefinition qd) {

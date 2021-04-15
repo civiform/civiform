@@ -6,7 +6,7 @@ import services.question.types.RadioButtonQuestionDefinition;
 public class RadioButtonQuestionForm extends MultiOptionQuestionForm {
 
   public RadioButtonQuestionForm() {
-    super(QuestionType.RADIO_BUTTON);
+    super();
   }
 
   public RadioButtonQuestionForm(RadioButtonQuestionDefinition qd) {

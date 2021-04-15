@@ -10,13 +10,11 @@ public class AddressQuestionForm extends QuestionForm {
 
   public AddressQuestionForm() {
     super();
-    setQuestionType(QuestionType.ADDRESS);
     this.disallowPoBox = false;
   }
 
   public AddressQuestionForm(AddressQuestionDefinition qd) {
     super(qd);
-    setQuestionType(QuestionType.ADDRESS);
     this.disallowPoBox = qd.getDisallowPoBox();
   }
 

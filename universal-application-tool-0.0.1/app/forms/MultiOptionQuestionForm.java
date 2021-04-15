@@ -8,7 +8,6 @@ import java.util.OptionalInt;
 import services.Path;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
-import services.question.types.QuestionType;
 
 // TODO(natsid): Get rid of setting question type in here.
 public abstract class MultiOptionQuestionForm extends QuestionForm {
@@ -21,9 +20,8 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   private OptionalInt minChoicesRequired;
   private OptionalInt maxChoicesAllowed;
 
-  protected MultiOptionQuestionForm(QuestionType type) {
+  protected MultiOptionQuestionForm() {
     super();
-    setQuestionType(type);
     this.options = new ArrayList<>();
     this.minChoicesRequired = OptionalInt.empty();
     this.maxChoicesAllowed = OptionalInt.empty();
@@ -31,7 +29,6 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
   protected MultiOptionQuestionForm(MultiOptionQuestionDefinition qd) {
     super(qd);
-    setQuestionType(qd.getQuestionType());
     this.minChoicesRequired = qd.getMultiOptionValidationPredicates().minChoicesRequired();
     this.maxChoicesAllowed = qd.getMultiOptionValidationPredicates().maxChoicesAllowed();
 

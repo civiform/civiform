@@ -13,7 +13,6 @@ import services.question.types.QuestionType;
 public abstract class QuestionForm {
   private String questionName;
   private String questionDescription;
-  private QuestionType questionType;
   private String questionText;
   private String questionHelpText;
 
@@ -27,7 +26,6 @@ public abstract class QuestionForm {
   public QuestionForm(QuestionDefinition qd) {
     questionName = qd.getName();
     questionDescription = qd.getDescription();
-    questionType = qd.getQuestionType();
 
     try {
       questionText = qd.getQuestionText(Locale.US);
@@ -60,12 +58,6 @@ public abstract class QuestionForm {
 
   public abstract QuestionType getQuestionType();
 
-  // TODO(natsid): Make this protected and only set in the subclasses.
-  //  But how to guarantee it's always set in subclasses - make the getter abstract?
-  protected void setQuestionType(QuestionType questionType) {
-    this.questionType = checkNotNull(questionType);
-  }
-
   public String getQuestionText() {
     return questionText;
   }
@@ -92,7 +84,7 @@ public abstract class QuestionForm {
 
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
-            .setQuestionType(questionType)
+            .setQuestionType(getQuestionType())
             .setName(questionName)
             .setPath(path)
             .setDescription(questionDescription)
@@ -105,7 +97,7 @@ public abstract class QuestionForm {
   public Path getPath() {
     String questionNameFormattedForPath =
         questionName.replaceAll("\\s", "_").replaceAll("[^a-zA-Z_]", "");
-    if (questionType.equals(QuestionType.REPEATER)) {
+    if (getQuestionType().equals(QuestionType.REPEATER)) {
       questionNameFormattedForPath += Path.ARRAY_SUFFIX;
     }
     return Path.create("applicant").join(questionNameFormattedForPath);
