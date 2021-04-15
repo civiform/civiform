@@ -2,7 +2,7 @@ package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
@@ -12,6 +12,7 @@ import org.junit.Test;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.QuestionOption;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 
@@ -27,7 +28,9 @@ public class MultiSelectQuestionTest {
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
-          ImmutableListMultimap.of(Locale.US, "valid", Locale.US, "ok"),
+          ImmutableList.of(
+              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "valid")),
+              QuestionOption.create(2L, ImmutableMap.of(Locale.US, "ok"))),
           MultiOptionQuestionDefinition.MultiOptionValidationPredicates.builder()
               .setMinChoicesRequired(2)
               .setMaxChoicesAllowed(3)

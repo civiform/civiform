@@ -2,13 +2,14 @@ package forms;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
+import services.question.QuestionOption;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -41,7 +42,7 @@ public class MultiOptionQuestionFormTest {
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
-            ImmutableListMultimap.of(Locale.US, "option one"),
+            ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option one"))),
             MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(1, 10));
 
     QuestionDefinition actual = builder.build();
@@ -61,7 +62,7 @@ public class MultiOptionQuestionFormTest {
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
-            ImmutableListMultimap.of(Locale.US, "option 1"),
+            ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1"))),
             MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(1, 10));
 
     MultiOptionQuestionForm form = new CheckboxQuestionForm(originalQd);
@@ -100,7 +101,7 @@ public class MultiOptionQuestionFormTest {
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
-            ImmutableListMultimap.of(Locale.US, "option one"),
+            ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option one"))),
             MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create());
 
     QuestionDefinition actual = builder.build();

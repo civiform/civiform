@@ -2,7 +2,7 @@ package views.questiontypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import j2html.tags.Tag;
 import java.util.Locale;
@@ -13,6 +13,7 @@ import org.junit.Test;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
+import services.question.QuestionOption;
 import services.question.types.RadioButtonQuestionDefinition;
 
 public class RadioButtonQuestionRendererTest {
@@ -27,15 +28,11 @@ public class RadioButtonQuestionRendererTest {
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
-          ImmutableListMultimap.of(
-              Locale.US,
-              "chocolate",
-              Locale.US,
-              "peanut   butter",
-              Locale.US,
-              "vanilla",
-              Locale.US,
-              "raspberry"));
+          ImmutableList.of(
+              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "chocolate")),
+              QuestionOption.create(2L, ImmutableMap.of(Locale.US, "peanut   butter")),
+              QuestionOption.create(2L, ImmutableMap.of(Locale.US, "vanilla")),
+              QuestionOption.create(3L, ImmutableMap.of(Locale.US, "raspberry"))));
 
   private ApplicantData applicantData;
   private RadioButtonQuestionRenderer renderer;

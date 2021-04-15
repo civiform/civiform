@@ -3,7 +3,7 @@ package models;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
@@ -12,6 +12,7 @@ import org.junit.Test;
 import repository.QuestionRepository;
 import repository.WithPostgresContainer;
 import services.Path;
+import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -174,7 +175,8 @@ public class QuestionTest extends WithPostgresContainer {
             .setQuestionText(ImmutableMap.of())
             .setLifecycleStage(LifecycleStage.ACTIVE)
             .setQuestionHelpText(ImmutableMap.of())
-            .setQuestionOptions(ImmutableListMultimap.of(Locale.US, "option"))
+            .setQuestionOptions(
+                ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option"))))
             .build();
     Question question = new Question(definition);
 
@@ -185,7 +187,10 @@ public class QuestionTest extends WithPostgresContainer {
     assertThat(found.getQuestionDefinition().getQuestionType().isMultiOptionType()).isTrue();
     MultiOptionQuestionDefinition multiOption =
         (MultiOptionQuestionDefinition) found.getQuestionDefinition();
-    assertThat(multiOption.getOptions()).isEqualTo(ImmutableListMultimap.of(Locale.US, "option"));
+
+    assertThat(multiOption.getOptions())
+        .isEqualTo(
+            ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option"))));
     assertThat(multiOption.getRepeaterId()).hasValue(123L);
   }
 }

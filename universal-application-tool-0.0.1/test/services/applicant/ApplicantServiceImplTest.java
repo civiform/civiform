@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
@@ -29,6 +28,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
 import services.program.ProgramServiceImpl;
+import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
@@ -140,7 +140,9 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
                     LifecycleStage.ACTIVE,
                     ImmutableMap.of(Locale.US, "question?"),
                     ImmutableMap.of(Locale.US, "help text"),
-                    ImmutableListMultimap.of(Locale.US, "cat", Locale.US, "dog")))
+                    ImmutableList.of(
+                        QuestionOption.create(1L, ImmutableMap.of(Locale.US, "cat")),
+                        QuestionOption.create(1L, ImmutableMap.of(Locale.US, "dog")))))
             .getResult();
     createProgram(multiSelectQuestion);
 
@@ -165,7 +167,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         applicantRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(applicantDataAfter.readList(Path.create("applicant.checkbox.selection")))
-        .hasValue(ImmutableList.of("cat", "dog"));
+        .hasValue(ImmutableList.of(1L, 2L));
   }
 
   @Test

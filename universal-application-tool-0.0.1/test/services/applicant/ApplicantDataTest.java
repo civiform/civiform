@@ -351,29 +351,29 @@ public class ApplicantDataTest {
 
   @Test
   public void readList_findsCorrectValue() {
-    String testData = "{\"applicant\":{\"favorite_fruits\":[\"apple\",\"orange\"]}}";
+    String testData = "{\"applicant\":{\"favorite_fruits\":[1, 2]}}";
     ApplicantData data = new ApplicantData(testData);
 
-    Optional<ImmutableList<String>> found = data.readList(Path.create("applicant.favorite_fruits"));
+    Optional<ImmutableList<Long>> found = data.readList(Path.create("applicant.favorite_fruits"));
 
-    assertThat(found).hasValue(ImmutableList.of("apple", "orange"));
+    assertThat(found).hasValue(ImmutableList.of(1L, 2L));
   }
 
   @Test
   public void readListWithOneValue_findsCorrectValue() {
-    String testData = "{\"applicant\":{\"favorite_fruits\":[\"apple\"]}}";
+    String testData = "{\"applicant\":{\"favorite_fruits\":[1]}}";
     ApplicantData data = new ApplicantData(testData);
 
-    Optional<ImmutableList<String>> found = data.readList(Path.create("applicant.favorite_fruits"));
+    Optional<ImmutableList<Long>> found = data.readList(Path.create("applicant.favorite_fruits"));
 
-    assertThat(found).hasValue(ImmutableList.of("apple"));
+    assertThat(found).hasValue(ImmutableList.of(1L));
   }
 
   @Test
   public void readList_pathNotPresent_returnsEmptyOptional() {
     ApplicantData data = new ApplicantData();
 
-    Optional<ImmutableList<String>> found = data.readList(Path.create("not.here"));
+    Optional<ImmutableList<Long>> found = data.readList(Path.create("not.here"));
 
     assertThat(found).isEmpty();
   }
@@ -383,7 +383,7 @@ public class ApplicantDataTest {
     String testData = "{ \"applicant\": { \"object\": { \"age\": 12 } } }";
     ApplicantData data = new ApplicantData(testData);
 
-    Optional<ImmutableList<String>> found = data.readList(Path.create("applicant.object.name"));
+    Optional<ImmutableList<Long>> found = data.readList(Path.create("applicant.object.name"));
 
     assertThat(found).isEmpty();
   }
