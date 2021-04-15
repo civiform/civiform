@@ -2,7 +2,7 @@ package models;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.annotation.DbJsonB;
 import java.util.Locale;
@@ -16,6 +16,7 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.Path;
+import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -49,7 +50,7 @@ public class Question extends BaseModel {
 
   @Constraints.Required private LifecycleStage lifecycleStage;
 
-  private @DbJsonB ImmutableListMultimap<Locale, String> questionOptions;
+  private @DbJsonB ImmutableList<QuestionOption> questionOptions;
 
   public long getVersion() {
     return version;

@@ -9,6 +9,7 @@ import j2html.attributes.Attr;
 import j2html.tags.Tag;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.SingleSelectQuestion;
+import services.question.LocalizedQuestionOption;
 import views.BaseHtmlView;
 import views.style.ReferenceClasses;
 import views.style.Styles;
@@ -48,16 +49,18 @@ public class RadioButtonQuestionRenderer extends BaseHtmlView implements Applica
                         singleOptionQuestion.optionIsSelected(option))));
   }
 
-  private Tag renderSingleRadioOption(String selectionPath, String optionName, boolean checked) {
-    String id = optionName.replaceAll("\\s+", "_");
+  private Tag renderSingleRadioOption(
+      String selectionPath, LocalizedQuestionOption option, boolean checked) {
+    String id = option.optionText().replaceAll("\\s+", "_");
+
     return div()
         .with(
             input()
                 .withId(id)
                 .withType("radio")
                 .withName(selectionPath)
-                .withValue(optionName)
+                .withValue(String.valueOf(option.id()))
                 .condAttr(checked, Attr.CHECKED, ""),
-            label(optionName).attr(Attr.FOR, id));
+            label(option.optionText()).attr(Attr.FOR, id));
   }
 }

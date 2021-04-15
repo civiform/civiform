@@ -1,17 +1,20 @@
 package services.applicant.question;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
+import services.question.LocalizedQuestionOption;
 import services.question.exceptions.TranslationNotFoundException;
 import services.question.types.MultiOptionQuestionDefinition;
 
 public class MultiSelectQuestion implements PresentsErrors {
 
   private final ApplicantQuestion applicantQuestion;
-  private Optional<ImmutableList<String>> selectedOptionsValue;
+  private Optional<ImmutableList<LocalizedQuestionOption>> selectedOptionsValue;
 
   public MultiSelectQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
@@ -61,17 +64,31 @@ public class MultiSelectQuestion implements PresentsErrors {
     return getSelectedOptionsValue().isPresent();
   }
 
-  public Optional<ImmutableList<String>> getSelectedOptionsValue() {
+  public Optional<ImmutableList<LocalizedQuestionOption>> getSelectedOptionsValue() {
     if (selectedOptionsValue != null) {
       return selectedOptionsValue;
     }
 
-    selectedOptionsValue = applicantQuestion.getApplicantData().readList(getSelectionPath());
+    Optional<ImmutableList<Long>> maybeOptionIds =
+        applicantQuestion.getApplicantData().readList(getSelectionPath());
+
+    if (maybeOptionIds.isEmpty()) {
+      selectedOptionsValue = Optional.empty();
+      return selectedOptionsValue;
+    }
+
+    ImmutableList<Long> optionIds = maybeOptionIds.get();
+
+    selectedOptionsValue =
+        Optional.of(
+            getOptions().stream()
+                .filter(option -> optionIds.contains(option.id()))
+                .collect(toImmutableList()));
 
     return selectedOptionsValue;
   }
 
-  public boolean optionIsSelected(String option) {
+  public boolean optionIsSelected(LocalizedQuestionOption option) {
     return getSelectedOptionsValue().isPresent()
         && getSelectedOptionsValue().get().contains(option);
   }
@@ -104,7 +121,7 @@ public class MultiSelectQuestion implements PresentsErrors {
     return getQuestionDefinition().getSelectionPath();
   }
 
-  public ImmutableList<String> getOptions() {
+  public ImmutableList<LocalizedQuestionOption> getOptions() {
     try {
       return getQuestionDefinition()
           .getOptionsForLocale(applicantQuestion.getApplicantData().preferredLocale());

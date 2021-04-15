@@ -23,8 +23,7 @@ import services.question.types.RepeaterQuestionDefinition;
 public class ApplicantData {
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
   private static final Locale DEFAULT_LOCALE = Locale.US;
-  private static final TypeRef<ImmutableList<String>> IMMUTABLE_LIST_STRING_TYPE =
-      new TypeRef<>() {};
+  private static final TypeRef<ImmutableList<Long>> IMMUTABLE_LIST_LONG_TYPE = new TypeRef<>() {};
 
   private Locale preferredLocale;
   private final DocumentContext jsonData;
@@ -260,9 +259,9 @@ public class ApplicantData {
    * Attempt to read a list at the given {@link Path}. Returns {@code Optional#empty} if the path
    * does not exist or a value other than an {@link ImmutableList} of strings is found.
    */
-  public Optional<ImmutableList<String>> readList(Path path) {
+  public Optional<ImmutableList<Long>> readList(Path path) {
     try {
-      return this.read(path, IMMUTABLE_LIST_STRING_TYPE);
+      return this.read(path, IMMUTABLE_LIST_LONG_TYPE);
     } catch (JsonPathTypeMismatchException e) {
       return Optional.empty();
     }
@@ -344,7 +343,7 @@ public class ApplicantData {
   /** Returns true if the value at the path is a JSON array of strings, and false otherwise. */
   private boolean isJsonArray(Path path) {
     try {
-      this.read(path, IMMUTABLE_LIST_STRING_TYPE);
+      this.read(path, IMMUTABLE_LIST_LONG_TYPE);
       return true;
     } catch (JsonPathTypeMismatchException e) {
       return false;
