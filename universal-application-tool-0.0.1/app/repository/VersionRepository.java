@@ -117,7 +117,7 @@ public class VersionRepository {
     if (draftQuestion.isPresent()) {
       return draftQuestion.get().getVersion();
     }
-    // If there are no drafts, add one to any active program
+    // If there are no drafts, add one to any active question
     Optional<Question> activeQuestion =
         ebeanServer
             .find(Question.class)
