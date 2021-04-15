@@ -44,8 +44,8 @@ public class LoginForm extends BaseHtmlView {
                     "Continue",
                     routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())));
 
-    if (!message.orElse("").equals("login")) {
-      String errorString = "Error: You are not logged in.";
+    if (message.isPresent()) {
+      String errorString = "Error: You are not logged in. " + message.get();
       bodyTag.with(ToastMessage.error(errorString).getContainerTag());
     }
 
