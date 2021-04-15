@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import forms.BlockForm;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -16,7 +15,6 @@ import models.Program;
 import play.db.ebean.Transactional;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ProgramRepository;
-import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.question.QuestionService;
@@ -27,7 +25,6 @@ import services.question.types.QuestionDefinition;
 public class ProgramServiceImpl implements ProgramService {
 
   private final ProgramRepository programRepository;
-  private final Provider<VersionRepository> versionRepository;
   private final QuestionService questionService;
   private final HttpExecutionContext httpExecutionContext;
 
@@ -35,11 +32,9 @@ public class ProgramServiceImpl implements ProgramService {
   public ProgramServiceImpl(
       ProgramRepository programRepository,
       QuestionService questionService,
-      Provider<VersionRepository> versionRepository,
       HttpExecutionContext ec) {
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
-    this.versionRepository = checkNotNull(versionRepository);
     this.httpExecutionContext = checkNotNull(ec);
   }
 
@@ -374,12 +369,9 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   public ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException {
-    Program program =
-        programRepository.createOrUpdateDraft(this.getProgramDefinition(id).toProgram());
-    program.setVersion(versionRepository.get().getNextVersion());
-    programRepository.insertProgramSync(program);
-    versionRepository.get().updateQuestionVersions(program);
-    return program.getProgramDefinition();
+    return programRepository
+        .createOrUpdateDraft(this.getProgramDefinition(id).toProgram())
+        .getProgramDefinition();
   }
 
   private ProgramDefinition updateProgramDefinitionWithBlockDefinition(
