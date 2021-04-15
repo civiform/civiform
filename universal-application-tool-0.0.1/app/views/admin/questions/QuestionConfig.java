@@ -68,11 +68,6 @@ public class QuestionConfig {
     // TODO(https://github.com/seattle-uat/civiform/issues/589): Switch on type of question form
     //  once we implement other question forms. May also help us avoid casting the question form.
     switch (type) {
-      case TEXT:
-        return config
-            .setId("text-question-config")
-            .addTextQuestionConfig((TextQuestionForm) questionForm)
-            .getContainer();
       case ADDRESS:
         return config
             .setId("address-question-config")
@@ -90,6 +85,11 @@ public class QuestionConfig {
             .setId("number-question-config")
             .addNumberQuestionConfig((NumberQuestionForm) questionForm)
             .getContainer();
+      case TEXT:
+        return config
+                .setId("text-question-config")
+                .addTextQuestionConfig((TextQuestionForm) questionForm)
+                .getContainer();
       case DROPDOWN: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
         return config
