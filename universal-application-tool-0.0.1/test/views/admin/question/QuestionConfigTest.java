@@ -11,13 +11,9 @@ import forms.RadioButtonQuestionForm;
 import forms.RepeaterQuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
-import junitparams.JUnitParamsRunner;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import services.question.types.QuestionType;
 import views.admin.questions.QuestionConfig;
 
-@RunWith(JUnitParamsRunner.class)
 public class QuestionConfigTest {
 
   private static final ContainerTag DEFAULT_CONFIG = div();
@@ -50,7 +46,7 @@ public class QuestionConfigTest {
   }
 
   @Test
-  public void unhandledQuestionTypes_defaultsToDefaultConfig(QuestionType type) {
+  public void unhandledQuestionTypes_defaultsToDefaultConfig() {
     assertThat(QuestionConfig.buildQuestionConfig(new NameQuestionForm()))
         .isEqualTo(DEFAULT_CONFIG);
 
