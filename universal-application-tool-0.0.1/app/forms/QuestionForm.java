@@ -17,12 +17,9 @@ public abstract class QuestionForm {
   private String questionText;
   private String questionHelpText;
 
-  // TODO(#589): Make QuestionForm an abstract class that is extended by form classes for specific
-  //  question types.
   public QuestionForm() {
     questionName = "";
     questionDescription = "";
-    questionType = QuestionType.TEXT;
     questionText = "";
     questionHelpText = "";
   }
@@ -61,12 +58,11 @@ public abstract class QuestionForm {
     this.questionDescription = checkNotNull(questionDescription);
   }
 
-  public QuestionType getQuestionType() {
-    return questionType;
-  }
+  public abstract QuestionType getQuestionType();
 
   // TODO(natsid): Make this protected and only set in the subclasses.
-  public void setQuestionType(QuestionType questionType) {
+  //  But how to guarantee it's always set in subclasses - make the getter abstract?
+  protected void setQuestionType(QuestionType questionType) {
     this.questionType = checkNotNull(questionType);
   }
 
