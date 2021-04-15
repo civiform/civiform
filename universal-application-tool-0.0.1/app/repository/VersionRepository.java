@@ -21,7 +21,7 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 
-/** A repository object for dealing with versioning of questions or programs. */
+/** A repository object for dealing with versioning of questions and programs. */
 public class VersionRepository {
 
   private final EbeanServer ebeanServer;
