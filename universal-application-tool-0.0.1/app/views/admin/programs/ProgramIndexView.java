@@ -11,7 +11,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.routes;
-import j2html.tags.DomContent;
 import j2html.tags.Tag;
 import java.util.Optional;
 import models.LifecycleStage;
@@ -46,19 +45,22 @@ public final class ProgramIndexView extends BaseHtmlView {
                             new GroupByKeyCollector<>(
                                 programDefinition -> programDefinition.name())),
                     e -> this.renderProgramListItem(e.getKey(), e.getValue(), request)),
-                renderNewProgramButton(), maybeRenderPublishButton(programs, request));
+                renderNewProgramButton(),
+                maybeRenderPublishButton(programs, request));
 
     return layout.render(head(layout.tailwindStyles()), body(contentDiv));
   }
 
-  private Tag maybeRenderPublishButton(ImmutableList<ProgramDefinition> programs, Http.Request request) {
-    if (programs.stream().anyMatch(program -> program.lifecycleStage().equals(LifecycleStage.DRAFT))) {
+  private Tag maybeRenderPublishButton(
+      ImmutableList<ProgramDefinition> programs, Http.Request request) {
+    if (programs.stream()
+        .anyMatch(program -> program.lifecycleStage().equals(LifecycleStage.DRAFT))) {
       String link = routes.AdminProgramController.publish().url();
       return new LinkElement()
-              .setId("publish-programs-button")
-              .setHref(link)
-              .setText("Publish all drafts")
-              .asHiddenForm(request);
+          .setId("publish-programs-button")
+          .setHref(link)
+          .setText("Publish all drafts")
+          .asHiddenForm(request);
     } else {
       return div();
     }
