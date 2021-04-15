@@ -8,8 +8,6 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Locale;
-import models.LifecycleStage;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,11 +16,7 @@ import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.WithPostgresContainer;
-import services.Path;
-import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
-import services.question.types.QuestionDefinitionBuilder;
-import services.question.types.QuestionType;
 import support.TestQuestionBank;
 import views.html.helper.CSRF;
 
@@ -38,11 +32,11 @@ public class QuestionControllerTest extends WithPostgresContainer {
   public void create_redirectsOnSuccess() {
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
-            .put("questionName", "name")
-            .put("questionDescription", "desc")
-            .put("questionType", "TEXT")
-            .put("questionText", "Hi mom!")
-            .put("questionHelpText", ":-)");
+        .put("questionName", "name")
+        .put("questionDescription", "desc")
+        .put("questionType", "TEXT")
+        .put("questionText", "Hi mom!")
+        .put("questionHelpText", ":-)");
     RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
 
     Result result = controller.create(requestBuilder.build(), "text");
@@ -56,12 +50,12 @@ public class QuestionControllerTest extends WithPostgresContainer {
     Question repeaterQuestion = TestQuestionBank.applicantHouseholdMembers();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
-            .put("questionName", "name")
-            .put("questionDescription", "desc")
-            .put("repeaterId", String.valueOf(repeaterQuestion.id))
-            .put("questionType", "TEXT")
-            .put("questionText", "Hi mom!")
-            .put("questionHelpText", ":-)");
+        .put("questionName", "name")
+        .put("questionDescription", "desc")
+        .put("repeaterId", String.valueOf(repeaterQuestion.id))
+        .put("questionType", "TEXT")
+        .put("questionText", "Hi mom!")
+        .put("questionHelpText", ":-)");
     RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
 
     Result result = controller.create(requestBuilder.build(), "text");
@@ -115,17 +109,17 @@ public class QuestionControllerTest extends WithPostgresContainer {
     Question question = TestQuestionBank.applicantName();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     controller
-            .edit(request, question.id)
-            .thenAccept(
-                    result -> {
-                      assertThat(result.status()).isEqualTo(OK);
-                      assertThat(contentAsString(result)).contains("Edit name question");
-                      assertThat(contentAsString(result))
-                              .contains(CSRF.getToken(request.asScala()).value());
-                      assertThat(contentAsString(result)).contains("Sample Question of type:");
-                    })
-            .toCompletableFuture()
-            .join();
+        .edit(request, question.id)
+        .thenAccept(
+            result -> {
+              assertThat(result.status()).isEqualTo(OK);
+              assertThat(contentAsString(result)).contains("Edit name question");
+              assertThat(contentAsString(result))
+                  .contains(CSRF.getToken(request.asScala()).value());
+              assertThat(contentAsString(result)).contains("Sample Question of type:");
+            })
+        .toCompletableFuture()
+        .join();
   }
 
   @Test
@@ -133,18 +127,18 @@ public class QuestionControllerTest extends WithPostgresContainer {
     Question repeatedQuestion = TestQuestionBank.applicantHouseholdMemberName();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     controller
-            .edit(request, repeatedQuestion.id)
-            .thenAccept(
-                    result -> {
-                      assertThat(result.status()).isEqualTo(OK);
-                      assertThat(contentAsString(result)).contains("Edit name question");
-                      assertThat(contentAsString(result)).contains("applicant_household_members");
-                      assertThat(contentAsString(result))
-                              .contains(CSRF.getToken(request.asScala()).value());
-                      assertThat(contentAsString(result)).contains("Sample Question of type:");
-                    })
-            .toCompletableFuture()
-            .join();
+        .edit(request, repeatedQuestion.id)
+        .thenAccept(
+            result -> {
+              assertThat(result.status()).isEqualTo(OK);
+              assertThat(contentAsString(result)).contains("Edit name question");
+              assertThat(contentAsString(result)).contains("applicant_household_members");
+              assertThat(contentAsString(result))
+                  .contains(CSRF.getToken(request.asScala()).value());
+              assertThat(contentAsString(result)).contains("Sample Question of type:");
+            })
+        .toCompletableFuture()
+        .join();
   }
 
   @Test

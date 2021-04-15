@@ -45,16 +45,17 @@ public class NameQuestionTest {
 
     NameQuestion nameQuestion = new NameQuestion(applicantQuestion);
 
-    assertThat(nameQuestion.hasFirstNameValue()).isFalse();
-    assertThat(nameQuestion.hasMiddleNameValue()).isFalse();
-    assertThat(nameQuestion.hasLastNameValue()).isFalse();
+    assertThat(nameQuestion.getFirstNameValue()).isEmpty();
+    assertThat(nameQuestion.getMiddleNameValue()).isEmpty();
+    assertThat(nameQuestion.getLastNameValue()).isEmpty();
     assertThat(nameQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(nameQuestion.hasQuestionErrors()).isFalse();
   }
 
   @Test
   @Parameters({"Wendel,Middle Name,Patric", "Wendel,,Patrick"})
-  public void withValidApplicantData(String firstName, String middleName, String lastName) {
+  public void withValidApplicantData_passesValidation(
+      String firstName, String middleName, String lastName) {
     applicantData.putString(nameQuestionDefinition.getFirstNamePath(), firstName);
     applicantData.putString(nameQuestionDefinition.getMiddleNamePath(), middleName);
     applicantData.putString(nameQuestionDefinition.getLastNamePath(), lastName);
@@ -74,7 +75,7 @@ public class NameQuestionTest {
 
   @Test
   @Parameters({",,", ",Middle Name,", "Wendel,,", ",,Patrick"})
-  public void nameQuestion_withInvalidApplicantData(
+  public void withInvalidApplicantData_failsValidation(
       String firstName, String middleName, String lastName) {
     applicantData.putString(nameQuestionDefinition.getFirstNamePath(), firstName);
     applicantData.putString(nameQuestionDefinition.getMiddleNamePath(), middleName);

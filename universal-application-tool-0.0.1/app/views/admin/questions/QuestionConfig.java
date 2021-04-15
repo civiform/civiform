@@ -9,13 +9,13 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import forms.AddressQuestionForm;
 import forms.MultiOptionQuestionForm;
+import forms.NumberQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Optional;
-import services.question.types.QuestionType;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.style.ReferenceClasses;
@@ -60,18 +60,9 @@ public class QuestionConfig {
     return this;
   }
 
-  // TODO(https://github.com/seattle-uat/civiform/issues/589): Remove QuestionType parameter once we
-  //  implement the other question forms since that info will be within the question form.
-  public static ContainerTag buildQuestionConfig(QuestionType type, QuestionForm questionForm) {
+  public static ContainerTag buildQuestionConfig(QuestionForm questionForm) {
     QuestionConfig config = new QuestionConfig();
-    // TODO(https://github.com/seattle-uat/civiform/issues/589): Switch on type of question form
-    //  once we implement other question forms. May also help us avoid casting the question form.
-    switch (type) {
-      case TEXT:
-        return config
-            .setId("text-question-config")
-            .addTextQuestionConfig((TextQuestionForm) questionForm)
-            .getContainer();
+    switch (questionForm.getQuestionType()) {
       case ADDRESS:
         return config
             .setId("address-question-config")
@@ -84,16 +75,24 @@ public class QuestionConfig {
             .addMultiOptionQuestionFields(form)
             .addMultiSelectQuestionValidation(form)
             .getContainer();
-      case DROPDOWN:
+      case NUMBER:
+        return config
+            .setId("number-question-config")
+            .addNumberQuestionConfig((NumberQuestionForm) questionForm)
+            .getContainer();
+      case TEXT:
+        return config
+            .setId("text-question-config")
+            .addTextQuestionConfig((TextQuestionForm) questionForm)
+            .getContainer();
+      case DROPDOWN: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
         return config
             .setId("single-select-question-config")
             .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm)
             .getContainer();
-      case NUMBER:
-        return config.setId("number-question-config").addNumberQuestionConfig().getContainer();
-      case REPEATER: // fallthrough intended
       case NAME: // fallthrough intended - no options
+      case REPEATER: // fallthrough intended
       default:
         return div();
     }
@@ -197,17 +196,19 @@ public class QuestionConfig {
     return this;
   }
 
-  private QuestionConfig addNumberQuestionConfig() {
+  private QuestionConfig addNumberQuestionConfig(NumberQuestionForm numberQuestionForm) {
     content.with(
         FieldWithLabel.number()
             .setId("number-question-min-value-input")
             .setFieldName("min")
             .setLabelText("Minimum value")
+            .setValue(numberQuestionForm.getMin())
             .getContainer(),
         FieldWithLabel.number()
             .setId("number-question-max-value-input")
             .setFieldName("max")
             .setLabelText("Maximum value")
+            .setValue(numberQuestionForm.getMax())
             .getContainer());
     return this;
   }

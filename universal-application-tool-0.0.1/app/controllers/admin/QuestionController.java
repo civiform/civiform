@@ -8,8 +8,11 @@ import controllers.CiviFormController;
 import forms.AddressQuestionForm;
 import forms.CheckboxQuestionForm;
 import forms.DropdownQuestionForm;
+import forms.NameQuestionForm;
+import forms.NumberQuestionForm;
 import forms.QuestionForm;
 import forms.RadioButtonQuestionForm;
+import forms.RepeaterQuestionForm;
 import forms.TextQuestionForm;
 import java.util.Arrays;
 import java.util.Optional;
@@ -77,10 +80,16 @@ public class QuestionController extends CiviFormController {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
+              QuestionDefinition questionDefinition;
               try {
-                QuestionDefinition definition = readOnlyService.getQuestionDefinition(id);
-                return ok(editView.renderViewQuestionForm(definition));
+                questionDefinition = readOnlyService.getQuestionDefinition(id);
               } catch (QuestionNotFoundException e) {
+                return badRequest(e.toString());
+              }
+
+              try {
+                return ok(editView.renderViewQuestionForm(questionDefinition));
+              } catch (InvalidQuestionTypeException e) {
                 return badRequest(e.toString());
               }
             },
@@ -89,9 +98,8 @@ public class QuestionController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result newOne(Request request, String type) {
-    String upperType = type.toUpperCase();
     try {
-      QuestionType questionType = QuestionType.valueOf(upperType.toUpperCase());
+      QuestionType questionType = QuestionType.valueOf(type.toUpperCase());
       ImmutableList<RepeaterQuestionDefinition> repeaterQuestionDefinitions =
           service
               .getReadOnlyQuestionService()
@@ -99,11 +107,13 @@ public class QuestionController extends CiviFormController {
               .join()
               .getUpToDateRepeaterQuestions();
       return ok(editView.renderNewQuestionForm(request, questionType, repeaterQuestionDefinitions));
+    } catch (UnsupportedQuestionTypeException e) {
+      return badRequest(e.getMessage());
     } catch (IllegalArgumentException e) {
       return badRequest(
           String.format(
               "unrecognized question type: '%s', accepted values include: %s",
-              upperType, Arrays.toString(QuestionType.values())));
+              type.toUpperCase(), Arrays.toString(QuestionType.values())));
     }
   }
 
@@ -152,10 +162,16 @@ public class QuestionController extends CiviFormController {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
+              QuestionDefinition questionDefinition;
               try {
-                QuestionDefinition questionDefinition = readOnlyService.getQuestionDefinition(id);
-                return ok(editView.renderEditQuestionForm(request, questionDefinition));
+                questionDefinition = readOnlyService.getQuestionDefinition(id);
               } catch (QuestionNotFoundException e) {
+                return badRequest(e.toString());
+              }
+
+              try {
+                return ok(editView.renderEditQuestionForm(request, questionDefinition));
+              } catch (InvalidQuestionTypeException e) {
                 return badRequest(e.toString());
               }
             },
@@ -235,13 +251,18 @@ public class QuestionController extends CiviFormController {
         return formFactory.form(CheckboxQuestionForm.class).bindFromRequest(request).get();
       case DROPDOWN:
         return formFactory.form(DropdownQuestionForm.class).bindFromRequest(request).get();
+      case NAME:
+        return formFactory.form(NameQuestionForm.class).bindFromRequest(request).get();
+      case NUMBER:
+        return formFactory.form(NumberQuestionForm.class).bindFromRequest(request).get();
       case RADIO_BUTTON:
         return formFactory.form(RadioButtonQuestionForm.class).bindFromRequest(request).get();
+      case REPEATER:
+        return formFactory.form(RepeaterQuestionForm.class).bindFromRequest(request).get();
       case TEXT:
         return formFactory.form(TextQuestionForm.class).bindFromRequest(request).get();
       default:
-        // TODO(#589): Once QuestionForm is abstract, the default case should throw.
-        return formFactory.form(QuestionForm.class).bindFromRequest(request).get();
+        throw new InvalidQuestionTypeException(questionType.toString());
     }
   }
 

@@ -12,16 +12,19 @@ public class TextQuestionForm extends QuestionForm {
 
   public TextQuestionForm() {
     super();
-    setQuestionType(QuestionType.TEXT);
     this.minLength = OptionalInt.empty();
     this.maxLength = OptionalInt.empty();
   }
 
   public TextQuestionForm(TextQuestionDefinition qd) {
     super(qd);
-    setQuestionType(QuestionType.TEXT);
     this.minLength = qd.getMinLength();
     this.maxLength = qd.getMaxLength();
+  }
+
+  @Override
+  public QuestionType getQuestionType() {
+    return QuestionType.TEXT;
   }
 
   public OptionalInt getMinLength() {

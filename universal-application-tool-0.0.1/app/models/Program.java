@@ -24,6 +24,7 @@ public class Program extends BaseModel {
 
   private ProgramDefinition programDefinition;
 
+  /** Different versions of the same program are linked by their immutable name. */
   @Constraints.Required private String name;
 
   @Constraints.Required private String description;
@@ -65,7 +66,7 @@ public class Program extends BaseModel {
         BlockDefinition.builder()
             .setId(1L)
             .setName("Block 1")
-            .setDescription("")
+            .setDescription("Block 1 Description")
             .setProgramQuestionDefinitions(ImmutableList.of())
             .build();
     this.exportDefinitions = ImmutableList.of();

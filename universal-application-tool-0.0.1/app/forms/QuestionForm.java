@@ -11,30 +11,25 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
-public class QuestionForm {
+public abstract class QuestionForm {
   private String questionName;
   private String questionDescription;
   private Optional<Long> repeaterId;
-  private QuestionType questionType;
   private String questionText;
   private String questionHelpText;
 
-  // TODO(#589): Make QuestionForm an abstract class that is extended by form classes for specific
-  //  question types.
-  public QuestionForm() {
+  protected QuestionForm() {
     questionName = "";
     questionDescription = "";
     repeaterId = Optional.empty();
-    questionType = QuestionType.TEXT;
     questionText = "";
     questionHelpText = "";
   }
 
-  public QuestionForm(QuestionDefinition qd) {
+  protected QuestionForm(QuestionDefinition qd) {
     questionName = qd.getName();
     questionDescription = qd.getDescription();
     repeaterId = qd.getRepeaterId();
-    questionType = qd.getQuestionType();
 
     try {
       questionText = qd.getQuestionText(Locale.US);
@@ -74,14 +69,7 @@ public class QuestionForm {
         repeaterId.isEmpty() ? Optional.empty() : Optional.of(Long.valueOf(repeaterId));
   }
 
-  public QuestionType getQuestionType() {
-    return questionType;
-  }
-
-  // TODO(natsid): Make this protected and only set in the subclasses.
-  public void setQuestionType(QuestionType questionType) {
-    this.questionType = checkNotNull(questionType);
-  }
+  public abstract QuestionType getQuestionType();
 
   public String getQuestionText() {
     return questionText;
@@ -109,7 +97,7 @@ public class QuestionForm {
 
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
-            .setQuestionType(questionType)
+            .setQuestionType(getQuestionType())
             .setName(questionName)
             .setPath(path)
             .setDescription(questionDescription)

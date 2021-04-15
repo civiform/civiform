@@ -1,5 +1,6 @@
 package support;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
@@ -11,16 +12,24 @@ import models.Program;
 import models.Question;
 import play.inject.Injector;
 import services.Path;
+import services.program.DuplicateProgramQuestionException;
+import services.program.ProgramBlockNotFoundException;
+import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
+import services.program.ProgramServiceImpl;
 import services.question.QuestionService;
+import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
 public class ResourceCreator {
 
   private final QuestionService questionService;
+  private final ProgramService programService;
 
   public ResourceCreator(Injector injector) {
     this.questionService = injector.instanceOf(QuestionService.class);
+    this.programService = injector.instanceOf(ProgramServiceImpl.class);
   }
 
   public Question insertQuestion(String pathString) {
@@ -71,6 +80,12 @@ public class ResourceCreator {
 
   public Program insertProgram(String name) {
     return ProgramBuilder.newProgram(name, "description").build();
+  }
+
+  public void addQuestionToProgram(Program program, Question question)
+      throws DuplicateProgramQuestionException, QuestionNotFoundException,
+          ProgramBlockNotFoundException, ProgramNotFoundException {
+    programService.addQuestionsToBlock(program.id, 1L, ImmutableList.of(question.id));
   }
 
   public Applicant insertApplicant() {

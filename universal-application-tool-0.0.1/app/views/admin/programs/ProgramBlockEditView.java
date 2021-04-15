@@ -27,6 +27,7 @@ import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.QuestionBank;
+import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -78,8 +79,12 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 .withId("program-block-info")
                 .withClasses(Styles.FLEX, Styles.FLEX_GROW, Styles._MX_2)
                 .with(blockOrderPanel(program, blockId))
-                .with(blockEditPanel(program, blockId, blockForm, blockQuestions, message, csrfTag))
+                .with(blockEditPanel(program, blockId, blockForm, blockQuestions, csrfTag))
                 .with(questionBankPanel(questions, program, blockId, csrfTag)));
+
+    if (message.length() > 0) {
+      mainContent.with(ToastMessage.error(message).setDismissible(false).getContainerTag());
+    }
 
     return layout.renderCentered(mainContent, Styles.FLEX, Styles.FLEX_COL);
   }
@@ -163,7 +168,6 @@ public class ProgramBlockEditView extends BaseHtmlView {
       long blockId,
       BlockForm blockForm,
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
-      String message,
       Tag csrfTag) {
     String blockUpdateAction =
         controllers.admin.routes.AdminProgramBlocksController.update(program.id(), blockId).url();
@@ -204,9 +208,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
     blockQuestions.forEach(
         pqd -> questionDeleteForm.with(renderQuestion(pqd.getQuestionDefinition())));
 
-    return div()
-        .withClasses(Styles.FLEX_AUTO, Styles.PY_6)
-        .with(div(message), blockInfoForm, questionDeleteForm);
+    return div().withClasses(Styles.FLEX_AUTO, Styles.PY_6).with(blockInfoForm, questionDeleteForm);
   }
 
   public ContainerTag renderQuestion(QuestionDefinition definition) {
