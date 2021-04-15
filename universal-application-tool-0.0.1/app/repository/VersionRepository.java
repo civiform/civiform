@@ -14,6 +14,8 @@ import javax.inject.Inject;
 import models.LifecycleStage;
 import models.Program;
 import models.Question;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.db.ebean.EbeanConfig;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
@@ -23,6 +25,7 @@ public class VersionRepository {
 
   private final EbeanServer ebeanServer;
   private final ProgramRepository programRepository;
+  private final Logger LOG = LoggerFactory.getLogger(VersionRepository.class);
 
   @Inject
   public VersionRepository(EbeanConfig ebeanConfig, ProgramRepository programRepository) {
@@ -162,6 +165,7 @@ public class VersionRepository {
       ebeanServer.commitTransaction();
     } finally {
       ebeanServer.endTransaction();
+      draftProgram.refresh();
     }
   }
 
@@ -178,9 +182,11 @@ public class VersionRepository {
     ProgramDefinition.Builder updatedDefinition =
         draftProgram.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
     for (BlockDefinition block : draftProgram.getProgramDefinition().blockDefinitions()) {
+      LOG.trace("Updating block {}.", block.id());
       updatedDefinition.addBlockDefinition(updateQuestionVersions(block, transaction));
     }
     draftProgram = new Program(updatedDefinition.build());
+    LOG.trace("Submitting update.");
     ebeanServer.update(draftProgram, transaction);
   }
 
@@ -189,6 +195,8 @@ public class VersionRepository {
         block.toBuilder().setProgramQuestionDefinitions(ImmutableList.of());
     for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
       Optional<Question> updatedQuestion = getLatestVersionOfQuestion(transaction, question.id());
+      LOG.trace(
+          "Updating question ID {} to new ID {}.", question.id(), updatedQuestion.orElseThrow().id);
       updatedBlock.addQuestion(
           ProgramQuestionDefinition.create(updatedQuestion.orElseThrow().getQuestionDefinition()));
     }
