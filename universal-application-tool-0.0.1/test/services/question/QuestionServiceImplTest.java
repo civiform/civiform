@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.LifecycleStage;
+import models.Question;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
@@ -16,11 +17,11 @@ import services.ErrorAnd;
 import services.Path;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
+import support.TestQuestionBank;
 
 public class QuestionServiceImplTest extends WithPostgresContainer {
   QuestionServiceImpl questionService;
@@ -52,8 +53,10 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void create_failsWhenPathConflicts() {
-    questionService.create(questionDefinition);
+  public void create_failsWhenPathConflicts() throws Exception {
+    Question applicantName = TestQuestionBank.applicantName();
+    QuestionDefinition questionDefinition =
+        new QuestionDefinitionBuilder(applicantName.getQuestionDefinition()).clearId().build();
 
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult =
         questionService.create(questionDefinition);
@@ -64,8 +67,8 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
         .containsOnly(
             CiviFormError.of(
                 String.format(
-                    "path '%s' conflicts with question: %s",
-                    questionDefinition.getPath().path(), questionDefinition.getPath().path())));
+                    "path '%s' conflicts with question id: %d",
+                    questionDefinition.getPath(), applicantName.id)));
   }
 
   @Test
@@ -102,16 +105,16 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void update_returnsQuestionDefinitionWhenSucceeds()
-      throws InvalidUpdateException, UnsupportedQuestionTypeException {
-    QuestionDefinition question = questionService.create(questionDefinition).getResult();
+  public void update_returnsQuestionDefinitionWhenSucceeds() throws Exception {
+    QuestionDefinition nameQuestion = TestQuestionBank.applicantName().getQuestionDefinition();
     QuestionDefinition toUpdate =
-        new QuestionDefinitionBuilder(question).setName("updated name").build();
+        new QuestionDefinitionBuilder(nameQuestion).setDescription("updated description").build();
+
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult = questionService.update(toUpdate);
 
     assertThat(errorAndResult.isError()).isFalse();
     assertThat(errorAndResult.hasResult()).isTrue();
-    assertThat(errorAndResult.getResult().getName()).isEqualTo("updated name");
+    assertThat(errorAndResult.getResult().getDescription()).isEqualTo("updated description");
   }
 
   @Test
@@ -132,12 +135,14 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void update_failsWhenQuestionInvariantsChange() throws Exception {
-    QuestionDefinition question = questionService.create(questionDefinition).getResult();
+    QuestionDefinition nameQuestion = TestQuestionBank.applicantName().getQuestionDefinition();
+
     QuestionDefinition toUpdate =
-        new QuestionDefinitionBuilder(question)
-            .setPath(Path.create("new.path"))
+        new QuestionDefinitionBuilder(nameQuestion)
+            .setName("this is a new name")
+            .setPath(Path.create("this is a new path"))
+            .setRepeaterId(Optional.of(100L))
             .setQuestionType(QuestionType.ADDRESS)
-            .setValidationPredicates(AddressValidationPredicates.create())
             .build();
 
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult = questionService.update(toUpdate);
@@ -148,11 +153,19 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
         .containsOnly(
             CiviFormError.of(
                 String.format(
+                    "question names mismatch: %s does not match %s",
+                    nameQuestion.getName(), toUpdate.getName())),
+            CiviFormError.of(
+                String.format(
                     "question paths mismatch: %s does not match %s",
-                    question.getPath().path(), toUpdate.getPath().path())),
+                    nameQuestion.getPath(), toUpdate.getPath())),
+            CiviFormError.of(
+                String.format(
+                    "question repeater ids mismatch: [no repeater] does not match %s",
+                    toUpdate.getRepeaterId().get())),
             CiviFormError.of(
                 String.format(
                     "question types mismatch: %s does not match %s",
-                    question.getQuestionType().toString(), toUpdate.getQuestionType().toString())));
+                    nameQuestion.getQuestionType(), toUpdate.getQuestionType())));
   }
 }

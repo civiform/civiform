@@ -13,7 +13,6 @@ import services.question.types.QuestionType;
 public abstract class QuestionForm {
   private String questionName;
   private String questionDescription;
-  private Path questionParentPath;
   private QuestionType questionType;
   private String questionText;
   private String questionHelpText;
@@ -23,7 +22,6 @@ public abstract class QuestionForm {
   public QuestionForm() {
     questionName = "";
     questionDescription = "";
-    questionParentPath = Path.empty();
     questionType = QuestionType.TEXT;
     questionText = "";
     questionHelpText = "";
@@ -32,7 +30,6 @@ public abstract class QuestionForm {
   public QuestionForm(QuestionDefinition qd) {
     questionName = qd.getName();
     questionDescription = qd.getDescription();
-    questionParentPath = qd.getPath().parentPath();
     questionType = qd.getQuestionType();
 
     try {
@@ -64,19 +61,6 @@ public abstract class QuestionForm {
     this.questionDescription = checkNotNull(questionDescription);
   }
 
-  public void setQuestionParentPath(String questionParentPath) {
-    this.questionParentPath = Path.create(checkNotNull(questionParentPath));
-  }
-
-  public Path getQuestionPath() {
-    String questionNameFormattedForPath =
-        questionName.replaceAll("\\s", "_").replaceAll("[^a-zA-Z_]", "");
-    if (questionType.equals(QuestionType.REPEATER)) {
-      questionNameFormattedForPath += Path.ARRAY_SUFFIX;
-    }
-    return questionParentPath.join(questionNameFormattedForPath);
-  }
-
   public QuestionType getQuestionType() {
     return questionType;
   }
@@ -102,7 +86,7 @@ public abstract class QuestionForm {
     this.questionHelpText = checkNotNull(questionHelpText);
   }
 
-  public QuestionDefinitionBuilder getBuilder() {
+  public QuestionDefinitionBuilder getBuilder(Path path) {
     ImmutableMap<Locale, String> questionTextMap =
         questionText.isEmpty() ? ImmutableMap.of() : ImmutableMap.of(Locale.US, questionText);
     ImmutableMap<Locale, String> questionHelpTextMap =
@@ -114,10 +98,20 @@ public abstract class QuestionForm {
         new QuestionDefinitionBuilder()
             .setQuestionType(questionType)
             .setName(questionName)
-            .setPath(getQuestionPath())
+            .setPath(path)
             .setDescription(questionDescription)
             .setQuestionText(questionTextMap)
             .setQuestionHelpText(questionHelpTextMap);
     return builder;
+  }
+
+  /** This is a temporary fix until Path is properly handled. */
+  public Path getPath() {
+    String questionNameFormattedForPath =
+        questionName.replaceAll("\\s", "_").replaceAll("[^a-zA-Z_]", "");
+    if (questionType.equals(QuestionType.REPEATER)) {
+      questionNameFormattedForPath += Path.ARRAY_SUFFIX;
+    }
+    return Path.create("applicant").join(questionNameFormattedForPath);
   }
 }

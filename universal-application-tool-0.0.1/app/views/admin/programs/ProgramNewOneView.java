@@ -12,6 +12,7 @@ import play.twirl.api.Content;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
+import views.components.ToastMessage;
 
 public final class ProgramNewOneView extends BaseHtmlView {
   private final AdminLayout layout;
@@ -32,14 +33,17 @@ public final class ProgramNewOneView extends BaseHtmlView {
   }
 
   public Content render(Request request, ProgramForm programForm, String message) {
-    return layout.render(
+    ContainerTag bodyContent =
         body(
-            div(message),
             renderHeader("New program"),
             div(
                 buildProgramForm(programForm)
                     .with(makeCsrfTokenInputTag(request))
-                    .withAction(controllers.admin.routes.AdminProgramController.create().url()))));
+                    .withAction(controllers.admin.routes.AdminProgramController.create().url())));
+    if (message.length() > 0) {
+      bodyContent.with(ToastMessage.error(message).setDismissible(false).getContainerTag());
+    }
+    return layout.render(bodyContent);
   }
 
   private ContainerTag buildProgramForm(ProgramForm programForm) {

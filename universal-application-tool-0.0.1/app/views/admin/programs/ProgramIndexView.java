@@ -19,6 +19,7 @@ import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.LinkElement;
+import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
@@ -46,7 +47,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return layout.render(head(layout.tailwindStyles()), body(contentDiv));
   }
 
-  public Tag renderNewProgramButton() {
+  private Tag renderNewProgramButton() {
     String link = controllers.admin.routes.AdminProgramController.newOne().url();
     return new LinkElement()
         .setId("new-program-button")
@@ -55,7 +56,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         .asButton();
   }
 
-  public Tag renderProgramListItem(ProgramDefinition program, Http.Request request) {
+  private Tag renderProgramListItem(ProgramDefinition program, Http.Request request) {
     // TODO: Move Strings out of here for i18n.
     String programStatusText = program.lifecycleStage().name();
     String lastEditText = "Last updated 2 hours ago."; // TODO: Need to generate this.
@@ -107,10 +108,12 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withClasses(
                 Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4);
 
-    return div(innerDiv).withClasses(Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
+    return div(innerDiv)
+        .withClasses(
+            ReferenceClasses.ADMIN_PROGRAM_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
   }
 
-  Tag maybeRenderPublishLink(String text, ProgramDefinition program, Http.Request request) {
+  private Tag maybeRenderPublishLink(String text, ProgramDefinition program, Http.Request request) {
     if (program.lifecycleStage().equals(LifecycleStage.DRAFT)) {
       String publishLink =
           controllers.admin.routes.AdminProgramController.publish(program.id()).url();
@@ -126,7 +129,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return div();
   }
 
-  Tag renderEditLink(ProgramDefinition program, Http.Request request) {
+  private Tag renderEditLink(ProgramDefinition program, Http.Request request) {
     String editLinkText = "Edit →";
     String newVersionText = "New Version";
 
@@ -155,7 +158,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
   }
 
-  Tag renderViewApplicationsLink(String text, long programId) {
+  private Tag renderViewApplicationsLink(String text, long programId) {
     String editLink = routes.AdminApplicationController.answerList(programId).url();
 
     return new LinkElement()

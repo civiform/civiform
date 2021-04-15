@@ -1,6 +1,7 @@
 package views.admin.questions;
 
 import static j2html.TagCreator.a;
+import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.p;
@@ -27,7 +28,9 @@ import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.components.ToastMessage;
 import views.style.BaseStyles;
+import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
@@ -41,14 +44,23 @@ public final class QuestionsListView extends BaseHtmlView {
 
   /** Renders a page with a table view of all questions. */
   public Content render(ImmutableList<QuestionDefinition> questions, Optional<String> maybeFlash) {
-    return layout.render(
-        div(maybeFlash.orElse("")),
-        renderHeader("All Questions"),
-        div(renderQuestionTable(
-                questions.stream().collect(new GroupByKeyCollector<>(QuestionDefinition::getName))))
-            .withClasses(Styles.M_4),
-        renderAddQuestionLink(),
-        renderSummary(questions));
+
+    ContainerTag bodyContent =
+        body(
+            renderHeader("All Questions"),
+            div(renderQuestionTable(
+                    questions.stream()
+                        .collect(new GroupByKeyCollector<>(QuestionDefinition::getName))))
+                .withClasses(Styles.M_4),
+            renderAddQuestionLink(),
+            renderSummary(questions));
+
+    if (maybeFlash.isPresent()) {
+      bodyContent.with(
+          ToastMessage.alert(maybeFlash.get()).setDismissible(false).getContainerTag());
+    }
+
+    return layout.render(bodyContent);
   }
 
   private Tag renderAddQuestionLink() {
@@ -159,7 +171,10 @@ public final class QuestionsListView extends BaseHtmlView {
       definition = questionVersions.stream().findAny().get();
     }
     return tr().withClasses(
-            Styles.BORDER_B, Styles.BORDER_GRAY_300, StyleUtils.even(Styles.BG_GRAY_100))
+            ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
+            Styles.BORDER_B,
+            Styles.BORDER_GRAY_300,
+            StyleUtils.even(Styles.BG_GRAY_100))
         .with(renderInfoCell(definition))
         .with(renderQuestionTextCell(definition))
         .with(renderActionsCell(activeDefinition, draftDefinition, definition));

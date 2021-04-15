@@ -18,15 +18,16 @@ public class DropdownQuestionFormTest {
 
   @Test
   public void getBuilder_returnsCompleteBuilder() throws UnsupportedQuestionTypeException {
+    Path path = Path.create("my.question.path.name");
+
     DropdownQuestionForm form = new DropdownQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
-    form.setQuestionParentPath("my.question.path");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
     // Unique field
     form.setOptions(ImmutableList.of("cat", "dog", "rabbit"));
-    QuestionDefinitionBuilder builder = form.getBuilder();
+    QuestionDefinitionBuilder builder = form.getBuilder(path);
 
     // The QuestionForm does not set version, which is needed in order to build the
     // QuestionDefinition. How we get this value hasn't been determined.
@@ -37,7 +38,7 @@ public class DropdownQuestionFormTest {
         new DropdownQuestionDefinition(
             1L,
             "name",
-            Path.create("my.question.path.name"),
+            path,
             Optional.empty(),
             "description",
             LifecycleStage.ACTIVE,
@@ -50,11 +51,13 @@ public class DropdownQuestionFormTest {
 
   @Test
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
+    Path path = Path.create("my.question.path.name");
+
     DropdownQuestionDefinition originalQd =
         new DropdownQuestionDefinition(
             1L,
             "name",
-            Path.create("my.question.path.name"),
+            path,
             Optional.empty(),
             "description",
             LifecycleStage.ACTIVE,
@@ -63,7 +66,7 @@ public class DropdownQuestionFormTest {
             ImmutableListMultimap.of(Locale.US, "hello", Locale.US, "world"));
 
     DropdownQuestionForm form = new DropdownQuestionForm(originalQd);
-    QuestionDefinitionBuilder builder = form.getBuilder();
+    QuestionDefinitionBuilder builder = form.getBuilder(path);
 
     // The QuestionForm does not set version, which is needed in order to build the
     // QuestionDefinition. How we get this value hasn't been determined.
