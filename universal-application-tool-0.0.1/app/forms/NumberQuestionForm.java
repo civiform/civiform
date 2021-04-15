@@ -12,16 +12,19 @@ public class NumberQuestionForm extends QuestionForm {
 
   public NumberQuestionForm() {
     super();
-    setQuestionType(QuestionType.NUMBER);
     this.min = OptionalLong.empty();
     this.max = OptionalLong.empty();
   }
 
   public NumberQuestionForm(NumberQuestionDefinition qd) {
     super(qd);
-    setQuestionType(QuestionType.NUMBER);
     this.min = qd.getMin();
     this.max = qd.getMax();
+  }
+
+  @Override
+  public QuestionType getQuestionType() {
+    return QuestionType.NUMBER;
   }
 
   public OptionalLong getMin() {

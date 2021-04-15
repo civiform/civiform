@@ -16,7 +16,6 @@ import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Optional;
-import services.question.types.QuestionType;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.style.ReferenceClasses;
@@ -61,18 +60,9 @@ public class QuestionConfig {
     return this;
   }
 
-  // TODO(https://github.com/seattle-uat/civiform/issues/589): Remove QuestionType parameter once we
-  //  implement the other question forms since that info will be within the question form.
-  public static ContainerTag buildQuestionConfig(QuestionType type, QuestionForm questionForm) {
+  public static ContainerTag buildQuestionConfig(QuestionForm questionForm) {
     QuestionConfig config = new QuestionConfig();
-    // TODO(https://github.com/seattle-uat/civiform/issues/589): Switch on type of question form
-    //  once we implement other question forms. May also help us avoid casting the question form.
-    switch (type) {
-      case TEXT:
-        return config
-            .setId("text-question-config")
-            .addTextQuestionConfig((TextQuestionForm) questionForm)
-            .getContainer();
+    switch (questionForm.getQuestionType()) {
       case ADDRESS:
         return config
             .setId("address-question-config")
@@ -89,6 +79,11 @@ public class QuestionConfig {
         return config
             .setId("number-question-config")
             .addNumberQuestionConfig((NumberQuestionForm) questionForm)
+            .getContainer();
+      case TEXT:
+        return config
+            .setId("text-question-config")
+            .addTextQuestionConfig((TextQuestionForm) questionForm)
             .getContainer();
       case DROPDOWN: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:

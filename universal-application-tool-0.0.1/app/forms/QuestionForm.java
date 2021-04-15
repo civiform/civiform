@@ -10,27 +10,22 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
-public class QuestionForm {
+public abstract class QuestionForm {
   private String questionName;
   private String questionDescription;
-  private QuestionType questionType;
   private String questionText;
   private String questionHelpText;
 
-  // TODO(#589): Make QuestionForm an abstract class that is extended by form classes for specific
-  //  question types.
-  public QuestionForm() {
+  protected QuestionForm() {
     questionName = "";
     questionDescription = "";
-    questionType = QuestionType.TEXT;
     questionText = "";
     questionHelpText = "";
   }
 
-  public QuestionForm(QuestionDefinition qd) {
+  protected QuestionForm(QuestionDefinition qd) {
     questionName = qd.getName();
     questionDescription = qd.getDescription();
-    questionType = qd.getQuestionType();
 
     try {
       questionText = qd.getQuestionText(Locale.US);
@@ -61,14 +56,7 @@ public class QuestionForm {
     this.questionDescription = checkNotNull(questionDescription);
   }
 
-  public QuestionType getQuestionType() {
-    return questionType;
-  }
-
-  // TODO(natsid): Make this protected and only set in the subclasses.
-  public void setQuestionType(QuestionType questionType) {
-    this.questionType = checkNotNull(questionType);
-  }
+  public abstract QuestionType getQuestionType();
 
   public String getQuestionText() {
     return questionText;
@@ -96,7 +84,7 @@ public class QuestionForm {
 
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
-            .setQuestionType(questionType)
+            .setQuestionType(getQuestionType())
             .setName(questionName)
             .setPath(path)
             .setDescription(questionDescription)
@@ -109,7 +97,7 @@ public class QuestionForm {
   public Path getPath() {
     String questionNameFormattedForPath =
         questionName.replaceAll("\\s", "_").replaceAll("[^a-zA-Z_]", "");
-    if (questionType.equals(QuestionType.REPEATER)) {
+    if (getQuestionType().equals(QuestionType.REPEATER)) {
       questionNameFormattedForPath += Path.ARRAY_SUFFIX;
     }
     return Path.create("applicant").join(questionNameFormattedForPath);
