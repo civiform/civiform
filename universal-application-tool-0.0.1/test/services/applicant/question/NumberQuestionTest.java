@@ -15,10 +15,14 @@ import org.junit.runner.RunWith;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.NumberQuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
 
 @RunWith(JUnitParamsRunner.class)
 public class NumberQuestionTest {
+
   private static final NumberQuestionDefinition numberQuestionDefinition =
       new NumberQuestionDefinition(
           1L,
