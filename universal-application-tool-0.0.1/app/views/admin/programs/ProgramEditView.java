@@ -25,7 +25,7 @@ public class ProgramEditView extends BaseHtmlView {
 
   public Content render(Request request, ProgramDefinition program) {
     ContainerTag formTag =
-        buildProgramForm(program.adminName(), program.getDescriptionForDefaultLocale())
+        buildProgramForm(program.adminName(), program.adminDescription())
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(program.id()))
             .withAction(controllers.admin.routes.AdminProgramController.update(program.id()).url());
@@ -49,16 +49,17 @@ public class ProgramEditView extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("program-name-input")
             .setFieldName("name")
-            .setLabelText("Program name")
+            .setLabelText("What do you want to call this program?")
             .setPlaceholderText(
-                "A name for internal identification purposes - this cannot be updated once set")
+                "Give a name for internal identification purposes - this cannot be updated once"
+                    + " set")
             .setValue(programName)
             .getContainer(),
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
             .setFieldName("description")
             .setLabelText("Program description")
-            .setPlaceholderText("The description of the program")
+            .setPlaceholderText("This description is visible only to system admins")
             .setValue(programDescription)
             .getContainer(),
         submitButton("Save").withId("program-update-button"));

@@ -69,6 +69,9 @@ public class Program extends BaseModel {
   public Program(String name, String description) {
     this.name = name;
     this.description = description;
+    // TODO(https://github.com/seattle-uat/civiform/issues/777): Allow the admin to
+    // set localized strings for applicant-visible name and description. Default to
+    // using the adming name and description for now.
     this.localizedName = ImmutableMap.of(Locale.US, name);
     this.localizedDescription = ImmutableMap.of(Locale.US, description);
     this.lifecycleStage = LifecycleStage.DRAFT;

@@ -103,8 +103,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
         div("Draft").withId("program-status").withClasses(Styles.TEXT_XS, Styles.UPPERCASE);
     ContainerTag programTitle =
         div(program.adminName()).withId("program-title").withClasses(Styles.TEXT_3XL, Styles.PB_3);
-    ContainerTag programDescription =
-        div(program.getDescriptionForDefaultLocale()).withClasses(Styles.TEXT_SM);
+    ContainerTag programDescription = div(program.adminDescription()).withClasses(Styles.TEXT_SM);
 
     ContainerTag programInfo =
         div(programStatus, programTitle, programDescription)
