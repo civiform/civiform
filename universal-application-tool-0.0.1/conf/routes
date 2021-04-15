@@ -13,13 +13,14 @@ GET     /admin/programs/new                   controllers.admin.AdminProgramCont
 GET     /admin/programs/:programId/edit       controllers.admin.AdminProgramController.edit(request: Request, programId: Long)
 POST    /admin/programs/:programId/newVersion controllers.admin.AdminProgramController.newVersionFrom(request: Request, programId: Long)
 POST    /admin/programs                       controllers.admin.AdminProgramController.create(request: Request)
+POST    /admin/programs/publish               controllers.admin.AdminProgramController.publish()
 POST    /admin/programs/:programId            controllers.admin.AdminProgramController.update(request: Request, programId: Long)
 
 # A controller for pages for an admin to create and maintain blocks for a program
-GET     /admin/programs/:programId/blocks                    controllers.admin.AdminProgramBlocksController.index(programId: Long)
+GET     /admin/programs/:programId/blocks                              controllers.admin.AdminProgramBlocksController.index(programId: Long)
 GET     /admin/programs/:programId/blocks/:blockDefinitionId/edit      controllers.admin.AdminProgramBlocksController.edit(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId           controllers.admin.AdminProgramBlocksController.update(request: Request, programId: Long, blockDefinitionId: Long)
-POST    /admin/programs/:programId/blocks                    controllers.admin.AdminProgramBlocksController.create(request: Request, programId: Long)
+POST    /admin/programs/:programId/blocks                              controllers.admin.AdminProgramBlocksController.create(request: Request, programId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/delete    controllers.admin.AdminProgramBlocksController.destroy(programId: Long, blockDefinitionId: Long)
 
 # A controller for adding and removing questions from program blocks
