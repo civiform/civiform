@@ -11,9 +11,11 @@ import com.google.inject.Inject;
 import forms.AddressQuestionForm;
 import forms.CheckboxQuestionForm;
 import forms.DropdownQuestionForm;
+import forms.NameQuestionForm;
 import forms.NumberQuestionForm;
 import forms.QuestionForm;
 import forms.RadioButtonQuestionForm;
+import forms.RepeaterQuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
@@ -26,10 +28,12 @@ import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
+import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.RadioButtonQuestionDefinition;
+import services.question.types.RepeaterQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
@@ -269,11 +273,17 @@ public final class QuestionEditView extends BaseHtmlView {
       case DROPDOWN:
         questionForm = new DropdownQuestionForm();
         break;
+      case NAME:
+        questionForm = new NameQuestionForm();
+        break;
       case NUMBER:
         questionForm = new NumberQuestionForm();
         break;
       case RADIO_BUTTON:
         questionForm = new RadioButtonQuestionForm();
+        break;
+      case REPEATER:
+        questionForm = new RepeaterQuestionForm();
         break;
       case TEXT:
         questionForm = new TextQuestionForm();
@@ -294,10 +304,14 @@ public final class QuestionEditView extends BaseHtmlView {
         return new CheckboxQuestionForm((CheckboxQuestionDefinition) questionDefinition);
       case DROPDOWN:
         return new DropdownQuestionForm((DropdownQuestionDefinition) questionDefinition);
+      case NAME:
+        return new NameQuestionForm((NameQuestionDefinition) questionDefinition);
       case NUMBER:
         return new NumberQuestionForm((NumberQuestionDefinition) questionDefinition);
       case RADIO_BUTTON:
         return new RadioButtonQuestionForm((RadioButtonQuestionDefinition) questionDefinition);
+      case REPEATER:
+        return new RepeaterQuestionForm((RepeaterQuestionDefinition) questionDefinition);
       case TEXT:
         return new TextQuestionForm((TextQuestionDefinition) questionDefinition);
       default:
