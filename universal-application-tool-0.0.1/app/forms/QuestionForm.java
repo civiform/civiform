@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import services.Path;
 import services.question.exceptions.TranslationNotFoundException;
 import services.question.types.QuestionDefinition;
@@ -13,12 +14,14 @@ import services.question.types.QuestionType;
 public abstract class QuestionForm {
   private String questionName;
   private String questionDescription;
+  private Optional<Long> repeaterId;
   private String questionText;
   private String questionHelpText;
 
   protected QuestionForm() {
     questionName = "";
     questionDescription = "";
+    repeaterId = Optional.empty();
     questionText = "";
     questionHelpText = "";
   }
@@ -26,6 +29,7 @@ public abstract class QuestionForm {
   protected QuestionForm(QuestionDefinition qd) {
     questionName = qd.getName();
     questionDescription = qd.getDescription();
+    repeaterId = qd.getRepeaterId();
 
     try {
       questionText = qd.getQuestionText(Locale.US);
@@ -54,6 +58,15 @@ public abstract class QuestionForm {
 
   public void setQuestionDescription(String questionDescription) {
     this.questionDescription = checkNotNull(questionDescription);
+  }
+
+  public Optional<Long> getRepeaterId() {
+    return repeaterId;
+  }
+
+  public void setRepeaterId(String repeaterId) {
+    this.repeaterId =
+        repeaterId.isEmpty() ? Optional.empty() : Optional.of(Long.valueOf(repeaterId));
   }
 
   public abstract QuestionType getQuestionType();
@@ -88,18 +101,9 @@ public abstract class QuestionForm {
             .setName(questionName)
             .setPath(path)
             .setDescription(questionDescription)
+            .setRepeaterId(repeaterId)
             .setQuestionText(questionTextMap)
             .setQuestionHelpText(questionHelpTextMap);
     return builder;
-  }
-
-  /** This is a temporary fix until Path is properly handled. */
-  public Path getPath() {
-    String questionNameFormattedForPath =
-        questionName.replaceAll("\\s", "_").replaceAll("[^a-zA-Z_]", "");
-    if (getQuestionType().equals(QuestionType.REPEATER)) {
-      questionNameFormattedForPath += Path.ARRAY_SUFFIX;
-    }
-    return Path.create("applicant").join(questionNameFormattedForPath);
   }
 }

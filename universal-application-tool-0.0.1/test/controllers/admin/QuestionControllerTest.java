@@ -8,8 +8,6 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Locale;
-import models.LifecycleStage;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,11 +16,7 @@ import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.WithPostgresContainer;
-import services.Path;
-import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
-import services.question.types.QuestionDefinitionBuilder;
-import services.question.types.QuestionType;
 import support.TestQuestionBank;
 import views.html.helper.CSRF;
 
@@ -35,13 +29,11 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void create_redirectsOnSuccess() throws Exception {
-    buildQuestionsList();
+  public void create_redirectsOnSuccess() {
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
         .put("questionName", "name")
         .put("questionDescription", "desc")
-        .put("questionPath", "my.question.path")
         .put("questionType", "TEXT")
         .put("questionText", "Hi mom!")
         .put("questionHelpText", ":-)");
@@ -54,8 +46,26 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void create_failsWithErrorMessageAndPopulatedFields() throws Exception {
-    buildQuestionsList();
+  public void create_repeatedQuestion_redirectsOnSuccess() {
+    Question repeaterQuestion = TestQuestionBank.applicantHouseholdMembers();
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    formData
+        .put("questionName", "name")
+        .put("questionDescription", "desc")
+        .put("repeaterId", String.valueOf(repeaterQuestion.id))
+        .put("questionType", "TEXT")
+        .put("questionText", "Hi mom!")
+        .put("questionHelpText", ":-)");
+    RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
+
+    Result result = controller.create(requestBuilder.build(), "text");
+
+    assertThat(result.redirectLocation()).hasValue(routes.QuestionController.index().url());
+    assertThat(result.flash().get("message").get()).contains("created");
+  }
+
+  @Test
+  public void create_failsWithErrorMessageAndPopulatedFields() {
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData.put("questionName", "name");
     Request request = addCSRFToken(Helpers.fakeRequest().bodyForm(formData.build())).build();
@@ -71,8 +81,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void create_failsWithInvalidQuestionType() throws Exception {
-    buildQuestionsList();
+  public void create_failsWithInvalidQuestionType() {
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData.put("questionName", "name").put("questionType", "INVALID_TYPE");
     RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
@@ -83,8 +92,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void edit_invalidIDReturnsBadRequest() throws Exception {
-    buildQuestionsList();
+  public void edit_invalidIDReturnsBadRequest() {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     controller
         .edit(request, 9999L)
@@ -97,15 +105,15 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void edit_returnsPopulatedForm() throws Exception {
-    Question question = buildQuestionsList();
+  public void edit_returnsPopulatedForm() {
+    Question question = TestQuestionBank.applicantName();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     controller
         .edit(request, question.id)
         .thenAccept(
             result -> {
               assertThat(result.status()).isEqualTo(OK);
-              assertThat(contentAsString(result)).contains("Edit text question");
+              assertThat(contentAsString(result)).contains("Edit name question");
               assertThat(contentAsString(result))
                   .contains(CSRF.getToken(request.asScala()).value());
               assertThat(contentAsString(result)).contains("Sample Question of type:");
@@ -115,8 +123,28 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void index_returnsQuestions() throws Exception {
-    buildQuestionsList();
+  public void edit_repeatedQuestion_hasFormattedRepeaterName() {
+    Question repeatedQuestion = TestQuestionBank.applicantHouseholdMemberName();
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    controller
+        .edit(request, repeatedQuestion.id)
+        .thenAccept(
+            result -> {
+              assertThat(result.status()).isEqualTo(OK);
+              assertThat(contentAsString(result)).contains("Edit name question");
+              assertThat(contentAsString(result)).contains("applicant_household_members");
+              assertThat(contentAsString(result))
+                  .contains(CSRF.getToken(request.asScala()).value());
+              assertThat(contentAsString(result)).contains("Sample Question of type:");
+            })
+        .toCompletableFuture()
+        .join();
+  }
+
+  @Test
+  public void index_returnsQuestions() {
+    TestQuestionBank.applicantAddress();
+    TestQuestionBank.applicantName();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     controller
         .index(request)
@@ -125,7 +153,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
               assertThat(result.status()).isEqualTo(OK);
               assertThat(result.contentType()).hasValue("text/html");
               assertThat(result.charset()).hasValue("utf-8");
-              assertThat(contentAsString(result)).contains("Total Questions: 1");
+              assertThat(contentAsString(result)).contains("Total Questions: 2");
               assertThat(contentAsString(result)).contains("All Questions");
             })
         .toCompletableFuture()
@@ -208,8 +236,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
 
   @Test
   public void update_failsWithErrorMessageAndPopulatedFields() {
-    Question question =
-        resourceCreator().insertQuestion("applicant.favorite_color", 1, "favorite_color");
+    Question question = TestQuestionBank.applicantFavoriteColor();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
         .put("questionName", "favorite_color")
@@ -228,7 +255,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
 
   @Test
   public void update_failsWithInvalidQuestionType() {
-    Question question = resourceCreator().insertQuestion("my.path");
+    Question question = TestQuestionBank.applicantHouseholdMembers();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData.put("questionType", "INVALID_TYPE").put("questionText", "question text updated!");
     RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
@@ -236,22 +263,5 @@ public class QuestionControllerTest extends WithPostgresContainer {
     Result result = controller.update(requestBuilder.build(), question.id, "invalid_type");
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
-  }
-
-  private Question buildQuestionsList() throws UnsupportedQuestionTypeException {
-    QuestionDefinitionBuilder builder =
-        new QuestionDefinitionBuilder()
-            .setVersion(1L)
-            .setName("First Question")
-            .setDescription("This is the first question.")
-            .setPath(Path.create("the.ultimate.question"))
-            .setQuestionText(
-                ImmutableMap.of(Locale.US, "What is the answer to the ultimate question?"))
-            .setQuestionHelpText(ImmutableMap.of())
-            .setLifecycleStage(LifecycleStage.ACTIVE)
-            .setQuestionType(QuestionType.TEXT);
-    Question question = new Question(builder.build());
-    question.save();
-    return question;
   }
 }
