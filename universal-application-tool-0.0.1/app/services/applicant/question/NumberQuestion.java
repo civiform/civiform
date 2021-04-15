@@ -40,16 +40,16 @@ public class NumberQuestion implements PresentsErrors {
 
     if (questionDefinition.getMin().isPresent()) {
       long min = questionDefinition.getMin().getAsLong();
-      // If the value is empty, consider it to be "less than the minimum".
-      if (getNumberValue().isEmpty() || getNumberValue().get() < min) {
+      // If value is empty, don't test against min.
+      if (getNumberValue().isPresent() && getNumberValue().get() < min) {
         errors.add(ValidationErrorMessage.numberTooSmallError(min));
       }
     }
 
     if (questionDefinition.getMax().isPresent()) {
       long max = questionDefinition.getMax().getAsLong();
-      // If the value is empty, consider it to be "greater than the maximum".
-      if (getNumberValue().isEmpty() || getNumberValue().get() > max) {
+      // If value is empty, don't test against max.
+      if (getNumberValue().isPresent() && getNumberValue().get() > max) {
         errors.add(ValidationErrorMessage.numberTooLargeError(max));
       }
     }
