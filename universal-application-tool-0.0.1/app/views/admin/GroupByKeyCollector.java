@@ -1,4 +1,4 @@
-package views.admin.questions;
+package views.admin;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
