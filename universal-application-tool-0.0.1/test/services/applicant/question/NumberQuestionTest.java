@@ -124,58 +124,14 @@ public class NumberQuestionTest {
   }
 
   @Test
-  public void withMinValue_withEmptyValueAtPath_failsValidation() {
-    NumberQuestionDefinition.NumberValidationPredicates.Builder numberValidationPredicatesBuilder =
-        NumberQuestionDefinition.NumberValidationPredicates.builder();
-    numberValidationPredicatesBuilder.setMin(1);
-    NumberQuestionDefinition minNumberQuestionDefinition =
-        new NumberQuestionDefinition(
-            1L,
-            "question name",
-            Path.create("applicant.my.path.name"),
-            Optional.empty(),
-            "description",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(Locale.US, "question?"),
-            ImmutableMap.of(Locale.US, "help text"),
-            numberValidationPredicatesBuilder.build());
-
-    applicantData.putLong(minNumberQuestionDefinition.getNumberPath(), "");
+  public void withMinAndMaxValue_withEmptyValueAtPath_passesValidation() {
+    applicantData.putLong(minAndMaxNumberQuestionDefinition.getNumberPath(), "");
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(minNumberQuestionDefinition, applicantData);
+        new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData);
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
     assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(numberQuestion.getQuestionErrors())
-        .containsOnly(ValidationErrorMessage.numberTooSmallError(1));
-  }
-
-  @Test
-  public void withMaxValue_withEmptyValueAtPath_failsValidation() {
-    NumberQuestionDefinition.NumberValidationPredicates.Builder numberValidationPredicatesBuilder =
-        NumberQuestionDefinition.NumberValidationPredicates.builder();
-    numberValidationPredicatesBuilder.setMax(1);
-    NumberQuestionDefinition minNumberQuestionDefinition =
-        new NumberQuestionDefinition(
-            1L,
-            "question name",
-            Path.create("applicant.my.path.name"),
-            Optional.empty(),
-            "description",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(Locale.US, "question?"),
-            ImmutableMap.of(Locale.US, "help text"),
-            numberValidationPredicatesBuilder.build());
-
-    applicantData.putLong(minNumberQuestionDefinition.getNumberPath(), "");
-    ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(minNumberQuestionDefinition, applicantData);
-
-    NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
-
-    assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(numberQuestion.getQuestionErrors())
-        .containsOnly(ValidationErrorMessage.numberTooLargeError(1));
+    assertThat(numberQuestion.hasQuestionErrors()).isFalse();
   }
 }
