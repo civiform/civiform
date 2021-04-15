@@ -83,8 +83,8 @@ public final class QuestionEditView extends BaseHtmlView {
 
   public Content renderEditQuestionForm(Request request, QuestionDefinition questionDefinition)
       throws InvalidQuestionTypeException {
-    QuestionType questionType = questionDefinition.getQuestionType();
     QuestionForm questionForm = getQuestionFormFromQuestionDefinition(questionDefinition);
+    QuestionType questionType = questionForm.getQuestionType();
 
     String title = String.format("Edit %s question", questionType.toString().toLowerCase());
 
@@ -117,10 +117,10 @@ public final class QuestionEditView extends BaseHtmlView {
     return layout.renderFull(mainContent);
   }
 
-  public Content renderViewQuestionForm(QuestionDefinition question)
+  public Content renderViewQuestionForm(QuestionDefinition questionDefinition)
       throws InvalidQuestionTypeException {
-    QuestionType questionType = question.getQuestionType();
-    QuestionForm questionForm = getQuestionFormFromQuestionDefinition(question);
+    QuestionForm questionForm = getQuestionFormFromQuestionDefinition(questionDefinition);
+    QuestionType questionType = questionForm.getQuestionType();
     String title = String.format("View %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
@@ -240,7 +240,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .getContainer())
         .with(formQuestionTypeSelect(questionType));
 
-    formTag.with(QuestionConfig.buildQuestionConfig(questionType, questionForm));
+    formTag.with(QuestionConfig.buildQuestionConfig(questionForm));
     return formTag;
   }
 

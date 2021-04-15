@@ -10,7 +10,6 @@ import forms.TextQuestionForm;
 import junitparams.JUnitParamsRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import services.question.types.QuestionType;
 import views.admin.questions.QuestionConfig;
 
 @RunWith(JUnitParamsRunner.class)
@@ -22,31 +21,27 @@ public class QuestionConfigTest {
 
   @Test
   public void allHandledTypesHaveCustomConfig() {
-    assertThat(QuestionConfig.buildQuestionConfig(QuestionType.TEXT, new TextQuestionForm()))
+    assertThat(QuestionConfig.buildQuestionConfig(new TextQuestionForm()))
         .toString()
         .contains("text-question-min-length-input");
 
-    assertThat(QuestionConfig.buildQuestionConfig(QuestionType.ADDRESS, new AddressQuestionForm()))
+    assertThat(QuestionConfig.buildQuestionConfig(new AddressQuestionForm()))
         .toString()
         .contains("address-question-default-state-select");
 
-    assertThat(
-            QuestionConfig.buildQuestionConfig(QuestionType.CHECKBOX, new DropdownQuestionForm()))
+    assertThat(QuestionConfig.buildQuestionConfig(new DropdownQuestionForm()))
         .toString()
         .contains("multi-select-question-config");
 
-    assertThat(
-            QuestionConfig.buildQuestionConfig(QuestionType.DROPDOWN, new DropdownQuestionForm()))
+    assertThat(QuestionConfig.buildQuestionConfig(new DropdownQuestionForm()))
         .toString()
         .contains("single-select-question-config");
 
-    assertThat(QuestionConfig.buildQuestionConfig(QuestionType.NUMBER, new NumberQuestionForm()))
+    assertThat(QuestionConfig.buildQuestionConfig(new NumberQuestionForm()))
         .toString()
         .contains("number-question-min-value-input");
 
-    assertThat(
-            QuestionConfig.buildQuestionConfig(
-                QuestionType.RADIO_BUTTON, new RadioButtonQuestionForm()))
+    assertThat(QuestionConfig.buildQuestionConfig(new RadioButtonQuestionForm()))
         .toString()
         .contains("single-select-question-config");
   }
