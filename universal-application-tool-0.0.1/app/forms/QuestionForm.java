@@ -4,36 +4,32 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import services.Path;
 import services.question.exceptions.TranslationNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
-public class QuestionForm {
+public abstract class QuestionForm {
   private String questionName;
   private String questionDescription;
-  private Path questionParentPath;
-  private QuestionType questionType;
+  private Optional<Long> repeaterId;
   private String questionText;
   private String questionHelpText;
 
-  // TODO(#589): Make QuestionForm an abstract class that is extended by form classes for specific
-  //  question types.
-  public QuestionForm() {
+  protected QuestionForm() {
     questionName = "";
     questionDescription = "";
-    questionParentPath = Path.empty();
-    questionType = QuestionType.TEXT;
+    repeaterId = Optional.empty();
     questionText = "";
     questionHelpText = "";
   }
 
-  public QuestionForm(QuestionDefinition qd) {
+  protected QuestionForm(QuestionDefinition qd) {
     questionName = qd.getName();
     questionDescription = qd.getDescription();
-    questionParentPath = qd.getPath().parentPath();
-    questionType = qd.getQuestionType();
+    repeaterId = qd.getRepeaterId();
 
     try {
       questionText = qd.getQuestionText(Locale.US);
@@ -64,27 +60,16 @@ public class QuestionForm {
     this.questionDescription = checkNotNull(questionDescription);
   }
 
-  public void setQuestionParentPath(String questionParentPath) {
-    this.questionParentPath = Path.create(checkNotNull(questionParentPath));
+  public Optional<Long> getRepeaterId() {
+    return repeaterId;
   }
 
-  public Path getQuestionPath() {
-    String questionNameFormattedForPath =
-        questionName.replaceAll("\\s", "_").replaceAll("[^a-zA-Z_]", "");
-    if (questionType.equals(QuestionType.REPEATER)) {
-      questionNameFormattedForPath += Path.ARRAY_SUFFIX;
-    }
-    return questionParentPath.join(questionNameFormattedForPath);
+  public void setRepeaterId(String repeaterId) {
+    this.repeaterId =
+        repeaterId.isEmpty() ? Optional.empty() : Optional.of(Long.valueOf(repeaterId));
   }
 
-  public QuestionType getQuestionType() {
-    return questionType;
-  }
-
-  // TODO(natsid): Make this protected and only set in the subclasses.
-  public void setQuestionType(QuestionType questionType) {
-    this.questionType = checkNotNull(questionType);
-  }
+  public abstract QuestionType getQuestionType();
 
   public String getQuestionText() {
     return questionText;
@@ -102,7 +87,7 @@ public class QuestionForm {
     this.questionHelpText = checkNotNull(questionHelpText);
   }
 
-  public QuestionDefinitionBuilder getBuilder() {
+  public QuestionDefinitionBuilder getBuilder(Path path) {
     ImmutableMap<Locale, String> questionTextMap =
         questionText.isEmpty() ? ImmutableMap.of() : ImmutableMap.of(Locale.US, questionText);
     ImmutableMap<Locale, String> questionHelpTextMap =
@@ -112,10 +97,11 @@ public class QuestionForm {
 
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
-            .setQuestionType(questionType)
+            .setQuestionType(getQuestionType())
             .setName(questionName)
-            .setPath(getQuestionPath())
+            .setPath(path)
             .setDescription(questionDescription)
+            .setRepeaterId(repeaterId)
             .setQuestionText(questionTextMap)
             .setQuestionHelpText(questionHelpTextMap);
     return builder;

@@ -23,24 +23,33 @@ public class NumberQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    if (!hasValue()) {
+    if (!isAnswered()) {
       return ImmutableSet.of();
     }
 
-    NumberQuestionDefinition definition = getQuestionDefinition();
-    long answer = getNumberValue().get();
+    NumberQuestionDefinition questionDefinition = getQuestionDefinition();
+
+    // If there is no minimum or maximum value configured, accept a blank answer.
+    if (getNumberValue().isEmpty()
+        && questionDefinition.getMin().isEmpty()
+        && questionDefinition.getMax().isEmpty()) {
+      return ImmutableSet.of();
+    }
+
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
-    if (definition.getMin().isPresent()) {
-      long min = definition.getMin().getAsLong();
-      if (answer < min) {
+    if (questionDefinition.getMin().isPresent()) {
+      long min = questionDefinition.getMin().getAsLong();
+      // If the value is empty, consider it to be "less than the minimum".
+      if (getNumberValue().isEmpty() || getNumberValue().get() < min) {
         errors.add(ValidationErrorMessage.numberTooSmallError(min));
       }
     }
 
-    if (definition.getMax().isPresent()) {
-      long max = definition.getMax().getAsLong();
-      if (answer > max) {
+    if (questionDefinition.getMax().isPresent()) {
+      long max = questionDefinition.getMax().getAsLong();
+      // If the value is empty, consider it to be "greater than the maximum".
+      if (getNumberValue().isEmpty() || getNumberValue().get() > max) {
         errors.add(ValidationErrorMessage.numberTooLargeError(max));
       }
     }
@@ -54,8 +63,10 @@ public class NumberQuestion implements PresentsErrors {
     return false;
   }
 
-  public boolean hasValue() {
-    return getNumberValue().isPresent();
+  @Override
+  public boolean isAnswered() {
+    // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
+    return applicantQuestion.getApplicantData().hasPath(getNumberPath());
   }
 
   public Optional<Long> getNumberValue() {

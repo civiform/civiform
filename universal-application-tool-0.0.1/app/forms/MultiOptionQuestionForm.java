@@ -10,13 +10,13 @@ import java.util.stream.Collectors;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
 import services.question.exceptions.TranslationNotFoundException;
+import services.Path;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
-import services.question.types.QuestionType;
 
 public abstract class MultiOptionQuestionForm extends QuestionForm {
   // TODO(https://github.com/seattle-uat/civiform/issues/354): Handle other locales besides
-  // Locale.US
+  //  Locale.US
   // Caution: This must be a mutable list type, or else Play's form binding cannot add elements to
   // the list. This means the constructors MUST set this field to a mutable List type, NOT
   // ImmutableList.
@@ -24,9 +24,8 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   private OptionalInt minChoicesRequired;
   private OptionalInt maxChoicesAllowed;
 
-  protected MultiOptionQuestionForm(QuestionType type) {
+  protected MultiOptionQuestionForm() {
     super();
-    setQuestionType(type);
     this.options = new ArrayList<>();
     this.minChoicesRequired = OptionalInt.empty();
     this.maxChoicesAllowed = OptionalInt.empty();
@@ -34,7 +33,6 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
   protected MultiOptionQuestionForm(MultiOptionQuestionDefinition qd) {
     super(qd);
-    setQuestionType(qd.getQuestionType());
     this.minChoicesRequired = qd.getMultiOptionValidationPredicates().minChoicesRequired();
     this.maxChoicesAllowed = qd.getMultiOptionValidationPredicates().maxChoicesAllowed();
 
@@ -99,7 +97,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   }
 
   @Override
-  public QuestionDefinitionBuilder getBuilder() {
+  public QuestionDefinitionBuilder getBuilder(Path path) {
     MultiOptionQuestionDefinition.MultiOptionValidationPredicates.Builder predicateBuilder =
         MultiOptionQuestionDefinition.MultiOptionValidationPredicates.builder();
 

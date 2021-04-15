@@ -46,7 +46,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     return layout.render(head(layout.tailwindStyles()), body(contentDiv));
   }
 
-  public Tag renderDownloadButton(long programId) {
+  private Tag renderDownloadButton(long programId) {
     String link = controllers.admin.routes.AdminApplicationController.downloadAll(programId).url();
     return new LinkElement()
         .setId("download-all-button")
@@ -56,7 +56,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .asButton();
   }
 
-  public Tag renderApplicationListItem(long programId, Application application) {
+  private Tag renderApplicationListItem(long programId, Application application) {
     String downloadLinkText = "Download (PDF)";
     long applicationId = application.id;
     String applicantName = applicantService.applicantName(application);
@@ -92,10 +92,12 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .withClasses(
                 Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4);
 
-    return div(innerDiv).withClasses(Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
+    return div(innerDiv)
+        .withClasses(
+            ReferenceClasses.ADMIN_APPLICATION_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
   }
 
-  Tag renderDownloadLink(String text, long programId, long applicationId) {
+  private Tag renderDownloadLink(String text, long programId, long applicationId) {
     String downloadLink =
         controllers.admin.routes.AdminApplicationController.download(programId, applicationId)
             .url();
@@ -108,7 +110,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .asAnchorText();
   }
 
-  Tag renderViewLink(String text, long programId, long applicationId) {
+  private Tag renderViewLink(String text, long programId, long applicationId) {
     String viewLink =
         controllers.admin.routes.AdminApplicationController.view(programId, applicationId).url();
 

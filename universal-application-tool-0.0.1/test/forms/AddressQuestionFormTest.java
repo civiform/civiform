@@ -16,14 +16,15 @@ public class AddressQuestionFormTest {
 
   @Test
   public void getBuilder_returnsCompleteBuilder() throws Exception {
+    Path path = Path.create("my.question.path.name");
+
     AddressQuestionForm form = new AddressQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
-    form.setQuestionParentPath("my.question.path");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
     form.setDisallowPoBox(true);
-    QuestionDefinitionBuilder builder = form.getBuilder();
+    QuestionDefinitionBuilder builder = form.getBuilder(path);
 
     builder.setVersion(1L);
     builder.setLifecycleStage(LifecycleStage.ACTIVE);
@@ -32,7 +33,7 @@ public class AddressQuestionFormTest {
         new AddressQuestionDefinition(
             1L,
             "name",
-            Path.create("my.question.path.name"),
+            path,
             Optional.empty(),
             "description",
             LifecycleStage.ACTIVE,
@@ -47,11 +48,13 @@ public class AddressQuestionFormTest {
 
   @Test
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
+    Path path = Path.create("my.question.path.name");
+
     AddressQuestionDefinition originalQd =
         new AddressQuestionDefinition(
             1L,
             "name",
-            Path.create("my.question.path.name"),
+            path,
             Optional.empty(),
             "description",
             LifecycleStage.ACTIVE,
@@ -60,7 +63,7 @@ public class AddressQuestionFormTest {
             AddressQuestionDefinition.AddressValidationPredicates.create());
 
     AddressQuestionForm form = new AddressQuestionForm(originalQd);
-    QuestionDefinitionBuilder builder = form.getBuilder();
+    QuestionDefinitionBuilder builder = form.getBuilder(path);
 
     builder.setVersion(1L);
     builder.setLifecycleStage(LifecycleStage.ACTIVE);

@@ -115,6 +115,8 @@ public abstract class QuestionDefinition {
   /**
    * Get the name of this question.
    *
+   * <p>Different versions of the same program are linked by their immutable name.
+   *
    * <p>NOTE: This field will not be localized as it is for admin use only.
    */
   public String getName() {

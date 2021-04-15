@@ -98,7 +98,7 @@ public class NumberQuestionDefinition extends QuestionDefinition {
       return builder().build();
     }
 
-    public static NumberQuestionDefinition.NumberValidationPredicates create(int min, int max) {
+    public static NumberQuestionDefinition.NumberValidationPredicates create(long min, long max) {
       return builder().setMin(min).setMax(max).build();
     }
 
@@ -119,13 +119,13 @@ public class NumberQuestionDefinition extends QuestionDefinition {
       public abstract NumberQuestionDefinition.NumberValidationPredicates.Builder setMin(
           OptionalLong min);
 
-      public abstract NumberQuestionDefinition.NumberValidationPredicates.Builder setMin(int min);
+      public abstract NumberQuestionDefinition.NumberValidationPredicates.Builder setMin(long min);
 
       @JsonProperty("max")
       public abstract NumberQuestionDefinition.NumberValidationPredicates.Builder setMax(
           OptionalLong max);
 
-      public abstract NumberQuestionDefinition.NumberValidationPredicates.Builder setMax(int max);
+      public abstract NumberQuestionDefinition.NumberValidationPredicates.Builder setMax(long max);
 
       public abstract NumberQuestionDefinition.NumberValidationPredicates build();
     }

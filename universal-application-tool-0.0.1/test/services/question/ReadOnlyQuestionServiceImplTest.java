@@ -121,7 +121,7 @@ public class ReadOnlyQuestionServiceImplTest {
   @Test
   public void getPathScalars_forQuestion() throws InvalidPathException {
     ImmutableMap<Path, ScalarType> result =
-        service.getPathScalars(Path.create("applicant.address"));
+        service.getPathScalars(Path.create("applicant.applicant_address"));
     ImmutableMap<Path, ScalarType> expected = addressQuestion.getScalars();
     assertThat(result).isEqualTo(expected);
   }
@@ -129,9 +129,9 @@ public class ReadOnlyQuestionServiceImplTest {
   @Test
   public void getPathScalars_forScalar() throws InvalidPathException {
     ImmutableMap<Path, ScalarType> result =
-        service.getPathScalars(Path.create("applicant.address.city"));
+        service.getPathScalars(Path.create("applicant.applicant_address.city"));
     ImmutableMap<Path, ScalarType> expected =
-        ImmutableMap.of(Path.create("applicant.address.city"), ScalarType.STRING);
+        ImmutableMap.of(Path.create("applicant.applicant_address.city"), ScalarType.STRING);
     assertThat(result).isEqualTo(expected);
   }
 
@@ -149,12 +149,14 @@ public class ReadOnlyQuestionServiceImplTest {
 
   @Test
   public void getPathType_forQuestion() {
-    assertThat(service.getPathType(Path.create("applicant.color"))).isEqualTo(PathType.QUESTION);
+    assertThat(service.getPathType(Path.create("applicant.applicant_favorite_color")))
+        .isEqualTo(PathType.QUESTION);
   }
 
   @Test
   public void getPathType_forScalar() {
-    assertThat(service.getPathType(Path.create("applicant.name.first"))).isEqualTo(PathType.SCALAR);
+    assertThat(service.getPathType(Path.create("applicant.applicant_name.first")))
+        .isEqualTo(PathType.SCALAR);
   }
 
   @Test
@@ -170,16 +172,16 @@ public class ReadOnlyQuestionServiceImplTest {
 
   @Test
   public void isValid_returnsFalseWhenEmpty() {
-    assertThat(emptyService.isValid(Path.create("invalidPath"))).isFalse();
+    assertThat(emptyService.isValid(Path.empty())).isFalse();
   }
 
   @Test
   public void isValid_returnsTrueForQuestion() {
-    assertThat(service.isValid(Path.create("applicant.name"))).isTrue();
+    assertThat(service.isValid(Path.create("applicant.applicant_name"))).isTrue();
   }
 
   @Test
   public void isValid_returnsTrueForScalar() {
-    assertThat(service.isValid(Path.create("applicant.name.first"))).isTrue();
+    assertThat(service.isValid(Path.create("applicant.applicant_name.first"))).isTrue();
   }
 }

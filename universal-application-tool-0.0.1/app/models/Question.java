@@ -34,6 +34,7 @@ public class Question extends BaseModel {
 
   private @Constraints.Required String path;
 
+  /** Different versions of the same question are linked by their immutable name. */
   private @Constraints.Required String name;
 
   private Long repeaterId;

@@ -10,29 +10,31 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import models.LifecycleStage;
-import models.Program;
 import models.Question;
 import play.db.ebean.EbeanConfig;
 import services.Path;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
 
 public class QuestionRepository {
 
   private final EbeanServer ebeanServer;
   private final DatabaseExecutionContext executionContext;
-  private final ProgramRepository programRepository;
+  private final Provider<VersionRepository> versionRepositoryProvider;
 
   @Inject
   public QuestionRepository(
       EbeanConfig ebeanConfig,
       DatabaseExecutionContext executionContext,
-      ProgramRepository programRepository) {
+      ProgramRepository programRepository,
+      Provider<VersionRepository> versionRepositoryProvider) {
     this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
     this.executionContext = checkNotNull(executionContext);
-    this.programRepository = checkNotNull(programRepository);
+    this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
   }
 
   public CompletionStage<Set<Question>> listQuestions() {
@@ -42,34 +44,6 @@ public class QuestionRepository {
   public CompletionStage<Optional<Question>> lookupQuestion(long id) {
     return supplyAsync(
         () -> ebeanServer.find(Question.class).setId(id).findOneOrEmpty(), executionContext);
-  }
-
-  /**
-   * Set this question to ACTIVE state, and set any existing ACTIVE question with the same name to
-   * the OBSOLETE state.
-   */
-  public void setQuestionLive(long questionId) {
-    Question published = ebeanServer.find(Question.class, questionId);
-    Optional<Question> existingMaybe =
-        findActiveVersionOfQuestion(questionId, published.getQuestionDefinition().getName());
-    if (existingMaybe.isPresent()) {
-      Question existing = existingMaybe.get();
-      existing.setLifecycleStage(LifecycleStage.OBSOLETE);
-      existing.save();
-    }
-    published.setLifecycleStage(LifecycleStage.ACTIVE);
-    published.save();
-  }
-
-  /** Find an ACTIVE version of the question specified, other than the given ID. */
-  public Optional<Question> findActiveVersionOfQuestion(long questionId, String questionName) {
-    return ebeanServer
-        .find(Question.class)
-        .where()
-        .eq("lifecycle_stage", LifecycleStage.ACTIVE.getValue())
-        .eq("name", questionName)
-        .ne("id", questionId)
-        .findOneOrEmpty();
   }
 
   /**
@@ -103,35 +77,20 @@ public class QuestionRepository {
         return updatedDraft;
       }
 
-      // Next set the version of the new question.
-      int existingQuestionCount =
-          ebeanServer
-              .find(Question.class)
-              .usingTransaction(transaction)
-              .where()
-              .eq("name", definition.getName())
-              .findCount();
       Question newDraft =
           new Question(
               new QuestionDefinitionBuilder(definition)
                   .setId(null)
-                  .setVersion(existingQuestionCount + 1L)
+                  .setVersion(versionRepositoryProvider.get().getNextVersion())
                   .build());
       newDraft.setLifecycleStage(LifecycleStage.DRAFT);
       newDraft.id = null;
       ebeanServer.insert(newDraft, transaction);
 
-      // Next, update all existing draft programs so that they don't have old versions of the
-      // question anymore.  We have an invariant that draft programs always have the most up-to-date
-      // version of a question.
-      for (Program draftProgram :
-          ebeanServer
-              .find(Program.class)
-              .where()
-              .eq("lifecycle_stage", LifecycleStage.DRAFT.getValue())
-              .findList()) {
-        programRepository.updateQuestionVersions(draftProgram, transaction);
-      }
+      versionRepositoryProvider
+          .get()
+          .updateProgramsForNewDraftQuestion(newDraft, definition.getId(), transaction);
+
       ebeanServer.commitTransaction();
       newDraft.refresh();
       return newDraft;
@@ -144,42 +103,62 @@ public class QuestionRepository {
     }
   }
 
-  static class PathConflictDetector {
-    private Optional<Question> conflictedQuestion = Optional.empty();
-    private final String newPath;
+  /**
+   * Maybe find a {@link Question} whose path conflicts with {@link QuestionDefinition}.
+   *
+   * <p>This is intended to be used for new question definitions, since updates will collide with
+   * themselves and previous versions, and new versions of an old question will conflict with the
+   * old question.
+   *
+   * <p>A new question definition's path conflicts with a stored question if it is NOT a {@link
+   * QuestionType#REPEATER}, and starts with, or is started with, the stored question's path.
+   */
+  public Optional<Question> findPathConflictingQuestion(QuestionDefinition newQuestionDefinition) {
+    PathConflictDetector pathConflictDetector =
+        new PathConflictDetector(newQuestionDefinition.getPath());
+    ebeanServer
+        .find(Question.class)
+        .findEachWhile(question -> !pathConflictDetector.hasConflict(question));
+    return pathConflictDetector.getConflictedQuestion();
+  }
 
-    PathConflictDetector(Path newPath) {
-      this.newPath = checkNotNull(newPath).path();
+  private static class PathConflictDetector {
+    private Optional<Question> conflictedQuestion = Optional.empty();
+    private final Path newPath;
+
+    private PathConflictDetector(Path newPath) {
+      this.newPath = checkNotNull(newPath);
     }
 
-    Optional<Question> getConflictedQuestion() {
+    private Optional<Question> getConflictedQuestion() {
       return conflictedQuestion;
     }
 
-    boolean checkConflict(Question question) {
-      boolean proceed = true;
-      if (pathConflicts(question.getPath(), newPath)) {
+    private boolean hasConflict(Question question) {
+      Path other = Path.create(question.getPath());
+
+      // Conflict exists if paths are exactly the same
+      if (newPath.equals(other)) {
         conflictedQuestion = Optional.of(question);
-        proceed = false;
+        return true;
       }
-      return proceed;
-    }
 
-    static boolean pathConflicts(String path, String otherPath) {
-      path = path.toLowerCase() + ".";
-      otherPath = otherPath.toLowerCase() + ".";
-      return path.startsWith(otherPath) || otherPath.startsWith(path);
-    }
-  }
+      // Conflict exists if an existing path starts with this new path
+      if (other.startsWith(newPath)) {
+        conflictedQuestion = Optional.of(question);
+        return true;
+      }
 
-  public CompletionStage<Optional<Question>> findConflictingQuestion(Path newPath) {
-    return supplyAsync(
-        () -> {
-          PathConflictDetector detector = new PathConflictDetector(newPath);
-          ebeanServer.find(Question.class).findEachWhile(detector::checkConflict);
-          return detector.getConflictedQuestion();
-        },
-        executionContext);
+      // Conflict exists if this new path starts with an existing path for a non-repeater question,
+      // but not for repeater questions, since that is a very common pattern.
+      QuestionType otherType = question.getQuestionDefinition().getQuestionType();
+      if (!otherType.equals(QuestionType.REPEATER) && newPath.startsWith(other)) {
+        conflictedQuestion = Optional.of(question);
+        return true;
+      }
+
+      return false;
+    }
   }
 
   public CompletionStage<Optional<Question>> lookupQuestionByPath(String path) {

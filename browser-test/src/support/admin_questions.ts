@@ -35,13 +35,21 @@ export class AdminQuestions {
     return updatedText;
   }
 
+  selectQuestionTableRow(questionName: string) {
+    return `.cf-admin-question-table-row:has-text("${questionName}")`;
+  }
+
+  selectWithinQuestionTableRow(questionName: string, selector: string) {
+    return this.selectQuestionTableRow(questionName) + ' ' + selector;
+  }
+
   async expectDraftQuestionExist(questionName: string, questionText = '') {
     await this.gotoAdminQuestionsPage();
     const tableInnerText = await this.page.innerText('table');
 
     expect(tableInnerText).toContain(questionName);
     expect(tableInnerText).toContain(questionText);
-    expect(await this.page.innerText(`tr:has-text("${questionName}")`)).toContain('Edit Draft');
+    expect(await this.page.innerText(this.selectQuestionTableRow(questionName))).toContain('Edit Draft');
   }
 
   async expectActiveQuestionExist(questionName: string, questionText = '') {
@@ -50,13 +58,13 @@ export class AdminQuestions {
 
     expect(tableInnerText).toContain(questionName);
     expect(tableInnerText).toContain(questionText);
-    expect(await this.page.innerText(`tr:has-text("${questionName}")`)).toContain('View');
-    expect(await this.page.innerText(`tr:has-text("${questionName}")`)).toContain('New Version');
+    expect(await this.page.innerText(this.selectQuestionTableRow(questionName))).toContain('View');
+    expect(await this.page.innerText(this.selectQuestionTableRow(questionName))).toContain('New Version');
   }
 
   async gotoQuestionEditPage(questionName: string) {
     await this.gotoAdminQuestionsPage();
-    await this.page.click(`tr:has-text("${questionName}") :text("Edit")`);
+    await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("Edit")'));
     await this.expectQuestionEditPage(questionName);
   }
 
@@ -74,7 +82,7 @@ export class AdminQuestions {
 
   async createNewVersion(questionName: string) {
     await this.gotoAdminQuestionsPage();
-    await this.page.click(`tr:has-text("${questionName}") :text("New Version")`);
+    await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("New Version")'));
     await this.expectQuestionEditPage(questionName);
     const newQuestionText = await this.updateQuestionText(' new version');
     await this.page.click('button:text("Update")');
@@ -89,6 +97,8 @@ export class AdminQuestions {
     await this.addNumberQuestion(questionNamePrefix + 'number');
     await this.addRadioButtonQuestion(questionNamePrefix + 'radio', ['one', 'two', 'three']);
     await this.addTextQuestion(questionNamePrefix + 'text');
+    await this.addRepeaterQuestion(questionNamePrefix + 'repeater');
+    await this.addRepeatedQuestion(questionNamePrefix + 'repeated', questionNamePrefix + 'repeater');
     return [questionNamePrefix + 'address',
     questionNamePrefix + 'checkbox',
     questionNamePrefix + 'dropdown',
@@ -96,6 +106,8 @@ export class AdminQuestions {
     questionNamePrefix + 'number',
     questionNamePrefix + 'radio',
     questionNamePrefix + 'text',
+    questionNamePrefix + 'repeater',
+    questionNamePrefix + 'repeated',
     ];
   }
 
@@ -259,6 +271,45 @@ export class AdminQuestions {
     await this.page.click('#create-text-question');
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText);
+
+    await this.page.click('text=Create');
+
+    await this.expectAdminQuestionsPage();
+
+    await this.expectDraftQuestionExist(questionName, questionText);
+  }
+
+  async addRepeaterQuestion(questionName: string,
+    description = 'repeater description',
+    questionText = 'repeater question text',
+    helpText = 'repeater question help text') {
+    await this.gotoAdminQuestionsPage();
+    await this.page.click('#create-question-button');
+
+    await this.page.click('#create-repeater-question');
+
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText);
+
+    await this.page.click('text=Create');
+
+    await this.expectAdminQuestionsPage();
+
+    await this.expectDraftQuestionExist(questionName, questionText);
+  }
+
+  async addRepeatedQuestion(questionName: string,
+    repeaterName: string,
+    description = 'repeated description',
+    questionText = 'repeated question text',
+    helpText = 'repeated question help text') {
+    await this.gotoAdminQuestionsPage();
+    await this.page.click('#create-question-button');
+
+    await this.page.click('#create-text-question');
+
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText);
+
+    await this.page.selectOption('#question-repeater-select', { label: repeaterName });
 
     await this.page.click('text=Create');
 

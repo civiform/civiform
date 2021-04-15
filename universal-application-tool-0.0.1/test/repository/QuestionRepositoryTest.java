@@ -15,7 +15,9 @@ import services.Path;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
+import support.TestQuestionBank;
 
 public class QuestionRepositoryTest extends WithPostgresContainer {
 
@@ -59,60 +61,113 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
-  public void pathConflicts_returnsTrueForBadPaths() {
-    String path = "applicant.address";
+  public void findPathConflictingQuestion_noConflicts_ok() throws Exception {
+    QuestionDefinition applicantAddress =
+        TestQuestionBank.applicantAddress().getQuestionDefinition();
+    QuestionDefinition newQuestionDefinition =
+        new QuestionDefinitionBuilder(applicantAddress)
+            .clearId()
+            .setName("a brand new question")
+            .setPath(Path.create("applicant.a_brand_new_question"))
+            .build();
 
-    assertThat(pathConflicts(path, "applicant")).isTrue();
-    assertThat(pathConflicts(path, "Applicant.Address")).isTrue();
-    assertThat(pathConflicts(path, "applicant.address.street")).isTrue();
-    assertThat(pathConflicts(path, "applicant.address.some.other.field")).isTrue();
+    Optional<Question> maybeConflict = repo.findPathConflictingQuestion(newQuestionDefinition);
+
+    assertThat(maybeConflict).isEmpty();
   }
 
   @Test
-  public void pathConflicts_returnsFalseForValidPaths() {
-    String path = "applicant.address";
+  public void findPathConflictingQuestion_sameQuestion_hasConflict() {
+    Question applicantAddress = TestQuestionBank.applicantAddress();
+    Optional<Question> maybeConflict =
+        repo.findPathConflictingQuestion(applicantAddress.getQuestionDefinition());
 
-    assertThat(pathConflicts(path, "applicant.employment")).isFalse();
-    assertThat(pathConflicts(path, "other.path")).isFalse();
-    assertThat(pathConflicts(path, "other.applicant")).isFalse();
-    assertThat(pathConflicts(path, "other.applicant.address")).isFalse();
-    assertThat(pathConflicts(path, "other.applicant.address.street")).isFalse();
-    assertThat(pathConflicts(path, "other.applicant.address.some.other.field")).isFalse();
-    assertThat(pathConflicts(path, "applicant.addressSome")).isFalse();
-  }
-
-  private boolean pathConflicts(String path, String otherPath) {
-    return QuestionRepository.PathConflictDetector.pathConflicts(path, otherPath);
+    assertThat(maybeConflict).contains(applicantAddress);
   }
 
   @Test
-  public void findConflictingQuestion_returnsEmptyWhenNoQuestions() {
-    Optional<Question> found =
-        repo.findConflictingQuestion(Path.create("path.one")).toCompletableFuture().join();
+  public void findPathConflictingQuestion_differentVersion_hasConflict() throws Exception {
+    Question applicantName = TestQuestionBank.applicantName();
+    QuestionDefinition questionDefinition =
+        new QuestionDefinitionBuilder(applicantName.getQuestionDefinition())
+            .setId(123123L)
+            .setVersion(433L)
+            .build();
 
-    assertThat(found).isEmpty();
+    Optional<Question> maybeConflict = repo.findPathConflictingQuestion(questionDefinition);
+
+    assertThat(maybeConflict).contains(applicantName);
   }
 
   @Test
-  public void findConflictingQuestion_returnsEmptyWhenNoPathConflict() {
-    resourceCreator().insertQuestion("path.one");
-    resourceCreator().insertQuestion("path.two");
+  public void findPathConflictingQuestion_samePath_hasConflict() throws Exception {
+    Question applicantName = TestQuestionBank.applicantName();
+    QuestionDefinition questionDefinition =
+        new QuestionDefinitionBuilder(applicantName.getQuestionDefinition()).clearId().build();
 
-    Optional<Question> found =
-        repo.findConflictingQuestion(Path.create("path.other")).toCompletableFuture().join();
+    Optional<Question> maybeConflict = repo.findPathConflictingQuestion(questionDefinition);
 
-    assertThat(found).isEmpty();
+    assertThat(maybeConflict).hasValue(applicantName);
   }
 
   @Test
-  public void findConflictingQuestion_returnsQuestionWhenConflictingPath() {
-    Question questionOne = resourceCreator().insertQuestion("path.one");
-    resourceCreator().insertQuestion("path.two");
+  public void findPathConflictingQuestion_repeaterConflictsWithNonRepeater_hasConflict()
+      throws Exception {
+    Question householdMembers = TestQuestionBank.applicantHouseholdMembers();
+    QuestionDefinition newQuestionDefinition =
+        new QuestionDefinitionBuilder(householdMembers.getQuestionDefinition())
+            .clearId()
+            .setPath(householdMembers.getQuestionDefinition().getPath().withoutArrayReference())
+            .setQuestionType(QuestionType.TEXT)
+            .build();
 
-    Optional<Question> found =
-        repo.findConflictingQuestion(Path.create("path.one")).toCompletableFuture().join();
+    Optional<Question> maybeConflict = repo.findPathConflictingQuestion(newQuestionDefinition);
 
-    assertThat(found).hasValue(questionOne);
+    assertThat(maybeConflict).contains(householdMembers);
+  }
+
+  @Test
+  public void findPathConflictingQuestion_startsWithNewPath_hasConflict() throws Exception {
+    Question applicantName = TestQuestionBank.applicantName();
+    QuestionDefinition newQuestionDefinition =
+        new QuestionDefinitionBuilder(applicantName.getQuestionDefinition())
+            .clearId()
+            .setPath(applicantName.getQuestionDefinition().getPath().parentPath())
+            .build();
+
+    Optional<Question> maybeConflict = repo.findPathConflictingQuestion(newQuestionDefinition);
+
+    assertThat(maybeConflict).contains(applicantName);
+  }
+
+  @Test
+  public void findPathConflictingQuestion_newPathStartsWithNonRepeater_hasConflict()
+      throws Exception {
+    Question applicantName = TestQuestionBank.applicantName();
+    QuestionDefinition newQuestionDefinition =
+        new QuestionDefinitionBuilder(applicantName.getQuestionDefinition())
+            .clearId()
+            .setPath(applicantName.getQuestionDefinition().getPath().join("another segment"))
+            .build();
+
+    Optional<Question> maybeConflict = repo.findPathConflictingQuestion(newQuestionDefinition);
+
+    assertThat(maybeConflict).contains(applicantName);
+  }
+
+  @Test
+  public void findPathConflictingQuestion_newPathStartsWithRepeater_hasNoConflict()
+      throws Exception {
+    Question householdMembers = TestQuestionBank.applicantHouseholdMembers();
+    QuestionDefinition newQuestionDefinition =
+        new QuestionDefinitionBuilder(householdMembers.getQuestionDefinition())
+            .clearId()
+            .setPath(householdMembers.getQuestionDefinition().getPath().join("another segment"))
+            .build();
+
+    Optional<Question> maybeConflict = repo.findPathConflictingQuestion(newQuestionDefinition);
+
+    assertThat(maybeConflict).isEmpty();
   }
 
   @Test
