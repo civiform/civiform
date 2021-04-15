@@ -55,7 +55,7 @@ export class AdminPrograms {
   }
 
   async expectDraftProgram(programName: string) {
-    expect(await this.page.innerText(this.selectProgramCard(programName, 'DRAFT'))).toContain('Publish');
+    expect(await this.page.innerText(`div.border:has(:text("${programName}"), :text("DRAFT"))`)).not.toContain('New Version');
   }
 
   async expectActiveProgram(programName: string) {
@@ -110,12 +110,12 @@ export class AdminPrograms {
   async publishProgram(programName: string) {
     await this.gotoAdminProgramsPage();
     await this.expectDraftProgram(programName);
-    const hadActive = await this.page.$$eval(this.selectProgramCard(programName, 'ACTIVE'), p => p.length > 0);
-    await this.page.click(this.selectWithinProgramCard(programName, 'DRAFT', ':text("Publish")'));
+    await this.publishAllPrograms();
     await this.expectActiveProgram(programName);
-    if (hadActive) {
-      await this.expectObsoleteProgram(programName);
-    }
+  }
+
+  async publishAllPrograms() {
+    await this.page.click(`#publish-programs-button > button`);
   }
 
   async createNewVersion(programName: string) {

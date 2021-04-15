@@ -24,6 +24,7 @@ public class Program extends BaseModel {
 
   private ProgramDefinition programDefinition;
 
+  /** Different versions of the same program are linked by their immutable name. */
   @Constraints.Required private String name;
 
   @Constraints.Required private String description;
