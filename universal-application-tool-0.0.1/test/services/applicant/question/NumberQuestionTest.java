@@ -52,7 +52,7 @@ public class NumberQuestionTest {
   }
 
   @Test
-  public void withEmptyApplicantData() {
+  public void withEmptyApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(numberQuestionDefinition, applicantData);
 
@@ -63,7 +63,19 @@ public class NumberQuestionTest {
   }
 
   @Test
-  public void withValidApplicantData() {
+  public void withEmptyValueAtPath_passesValidation() {
+    applicantData.putLong(numberQuestionDefinition.getNumberPath(), "");
+    ApplicantQuestion applicantQuestion =
+            new ApplicantQuestion(numberQuestionDefinition, applicantData);
+
+    NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
+
+    assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(numberQuestion.getNumberValue().get()).isEqualTo(800);
+  }
+
+  @Test
+  public void withValidValue_passesValidation() {
     applicantData.putLong(numberQuestionDefinition.getNumberPath(), 800);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(numberQuestionDefinition, applicantData);
@@ -76,7 +88,7 @@ public class NumberQuestionTest {
 
   @Test
   @Parameters({"50", "75", "100"})
-  public void withMinAndMaxValue_withValidApplicantData_passesValidation(long value) {
+  public void withMinAndMaxValue_withValidValue_passesValidation(long value) {
     applicantData.putLong(minAndMaxNumberQuestionDefinition.getNumberPath(), value);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData);
@@ -96,7 +108,7 @@ public class NumberQuestionTest {
     "101,Must be at most 100.",
     "999,Must be at most 100."
   })
-  public void withMinAndMaxValue_withInvalidApplicantData_failsValidation(
+  public void withMinAndMaxValue_withInvalidValue_failsValidation(
       long value, String expectedErrorMessage) {
     applicantData.putLong(minAndMaxNumberQuestionDefinition.getNumberPath(), value);
     ApplicantQuestion applicantQuestion =
