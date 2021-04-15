@@ -29,8 +29,10 @@ public class NumberQuestion implements PresentsErrors {
 
     NumberQuestionDefinition questionDefinition = getQuestionDefinition();
 
-    // If there is no minimum value set, accept a blank answer.
-    if (getNumberValue().isEmpty() && questionDefinition.getMin().isEmpty()) {
+    // If there is no minimum or maximum value configured, accept a blank answer.
+    if (getNumberValue().isEmpty()
+        && questionDefinition.getMin().isEmpty()
+        && questionDefinition.getMax().isEmpty()) {
       return ImmutableSet.of();
     }
 
@@ -46,8 +48,8 @@ public class NumberQuestion implements PresentsErrors {
 
     if (questionDefinition.getMax().isPresent()) {
       long max = questionDefinition.getMax().getAsLong();
-      // If the value is empty, do not consider it to be "greater than the maximum".
-      if (getNumberValue().isPresent() && getNumberValue().get() > max) {
+      // If the value is empty, consider it to be "greater than the maximum".
+      if (getNumberValue().isEmpty() || getNumberValue().get() > max) {
         errors.add(ValidationErrorMessage.numberTooLargeError(max));
       }
     }

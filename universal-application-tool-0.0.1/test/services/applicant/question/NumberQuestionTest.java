@@ -15,10 +15,7 @@ import org.junit.runner.RunWith;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
-import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.NumberQuestionDefinition;
-import services.question.types.QuestionDefinitionBuilder;
-import services.question.types.QuestionType;
 
 @RunWith(JUnitParamsRunner.class)
 public class NumberQuestionTest {
@@ -129,28 +126,56 @@ public class NumberQuestionTest {
   @Test
   public void withMinValue_withEmptyValueAtPath_failsValidation() {
     NumberQuestionDefinition.NumberValidationPredicates.Builder numberValidationPredicatesBuilder =
-            NumberQuestionDefinition.NumberValidationPredicates.builder();
+        NumberQuestionDefinition.NumberValidationPredicates.builder();
     numberValidationPredicatesBuilder.setMin(1);
     NumberQuestionDefinition minNumberQuestionDefinition =
-            new NumberQuestionDefinition(
-                    1L,
-                    "question name",
-                    Path.create("applicant.my.path.name"),
-                    Optional.empty(),
-                    "description",
-                    LifecycleStage.ACTIVE,
-                    ImmutableMap.of(Locale.US, "question?"),
-                    ImmutableMap.of(Locale.US, "help text"),
-                    numberValidationPredicatesBuilder.build());
+        new NumberQuestionDefinition(
+            1L,
+            "question name",
+            Path.create("applicant.my.path.name"),
+            Optional.empty(),
+            "description",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "question?"),
+            ImmutableMap.of(Locale.US, "help text"),
+            numberValidationPredicatesBuilder.build());
 
     applicantData.putLong(minNumberQuestionDefinition.getNumberPath(), "");
     ApplicantQuestion applicantQuestion =
-            new ApplicantQuestion(minNumberQuestionDefinition, applicantData);
+        new ApplicantQuestion(minNumberQuestionDefinition, applicantData);
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
     assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(numberQuestion.getQuestionErrors())
-            .containsOnly(ValidationErrorMessage.numberTooSmallError(1));
+        .containsOnly(ValidationErrorMessage.numberTooSmallError(1));
+  }
+
+  @Test
+  public void withMaxValue_withEmptyValueAtPath_failsValidation() {
+    NumberQuestionDefinition.NumberValidationPredicates.Builder numberValidationPredicatesBuilder =
+        NumberQuestionDefinition.NumberValidationPredicates.builder();
+    numberValidationPredicatesBuilder.setMax(1);
+    NumberQuestionDefinition minNumberQuestionDefinition =
+        new NumberQuestionDefinition(
+            1L,
+            "question name",
+            Path.create("applicant.my.path.name"),
+            Optional.empty(),
+            "description",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "question?"),
+            ImmutableMap.of(Locale.US, "help text"),
+            numberValidationPredicatesBuilder.build());
+
+    applicantData.putLong(minNumberQuestionDefinition.getNumberPath(), "");
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(minNumberQuestionDefinition, applicantData);
+
+    NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
+
+    assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(numberQuestion.getQuestionErrors())
+        .containsOnly(ValidationErrorMessage.numberTooLargeError(1));
   }
 }
