@@ -9,10 +9,9 @@ import services.Path;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
-// TODO(natsid): Get rid of setting question type in here.
 public abstract class MultiOptionQuestionForm extends QuestionForm {
   // TODO(https://github.com/seattle-uat/civiform/issues/354): Handle other locales besides
-  // Locale.US
+  //  Locale.US
   // Caution: This must be a mutable list type, or else Play's form binding cannot add elements to
   // the list. This means the constructors MUST set this field to a mutable List type, NOT
   // ImmutableList.

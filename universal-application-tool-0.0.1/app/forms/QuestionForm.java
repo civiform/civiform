@@ -16,14 +16,14 @@ public abstract class QuestionForm {
   private String questionText;
   private String questionHelpText;
 
-  public QuestionForm() {
+  protected QuestionForm() {
     questionName = "";
     questionDescription = "";
     questionText = "";
     questionHelpText = "";
   }
 
-  public QuestionForm(QuestionDefinition qd) {
+  protected QuestionForm(QuestionDefinition qd) {
     questionName = qd.getName();
     questionDescription = qd.getDescription();
 
