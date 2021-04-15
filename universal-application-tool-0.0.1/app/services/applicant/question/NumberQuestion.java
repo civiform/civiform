@@ -38,7 +38,7 @@ public class NumberQuestion implements PresentsErrors {
 
     if (questionDefinition.getMin().isPresent()) {
       long min = questionDefinition.getMin().getAsLong();
-      // If the value is empty, consider this to be "less than the minimum".
+      // If the value is empty, consider it to be "less than the minimum".
       if (getNumberValue().isEmpty() || getNumberValue().get() < min) {
         errors.add(ValidationErrorMessage.numberTooSmallError(min));
       }
@@ -46,7 +46,8 @@ public class NumberQuestion implements PresentsErrors {
 
     if (questionDefinition.getMax().isPresent()) {
       long max = questionDefinition.getMax().getAsLong();
-      if (getNumberValue().get() > max) {
+      // If the value is empty, do not consider it to be "greater than the maximum".
+      if (getNumberValue().isPresent() && getNumberValue().get() > max) {
         errors.add(ValidationErrorMessage.numberTooLargeError(max));
       }
     }
