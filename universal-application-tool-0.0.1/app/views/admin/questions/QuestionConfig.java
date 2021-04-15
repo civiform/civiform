@@ -9,6 +9,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import forms.AddressQuestionForm;
 import forms.MultiOptionQuestionForm;
+import forms.NumberQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
@@ -84,16 +85,19 @@ public class QuestionConfig {
             .addMultiOptionQuestionFields(form)
             .addMultiSelectQuestionValidation(form)
             .getContainer();
-      case DROPDOWN:
+      case NUMBER:
+        return config
+            .setId("number-question-config")
+            .addNumberQuestionConfig((NumberQuestionForm) questionForm)
+            .getContainer();
+      case DROPDOWN: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
         return config
             .setId("single-select-question-config")
             .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm)
             .getContainer();
-      case NUMBER:
-        return config.setId("number-question-config").addNumberQuestionConfig().getContainer();
-      case REPEATER: // fallthrough intended
       case NAME: // fallthrough intended - no options
+      case REPEATER: // fallthrough intended
       default:
         return div();
     }
@@ -197,17 +201,19 @@ public class QuestionConfig {
     return this;
   }
 
-  private QuestionConfig addNumberQuestionConfig() {
+  private QuestionConfig addNumberQuestionConfig(NumberQuestionForm numberQuestionForm) {
     content.with(
         FieldWithLabel.number()
             .setId("number-question-min-value-input")
             .setFieldName("min")
             .setLabelText("Minimum value")
+            .setValue(numberQuestionForm.getMin())
             .getContainer(),
         FieldWithLabel.number()
             .setId("number-question-max-value-input")
             .setFieldName("max")
             .setLabelText("Maximum value")
+            .setValue(numberQuestionForm.getMax())
             .getContainer());
     return this;
   }

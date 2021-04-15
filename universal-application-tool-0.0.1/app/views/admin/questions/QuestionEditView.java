@@ -11,6 +11,7 @@ import com.google.inject.Inject;
 import forms.AddressQuestionForm;
 import forms.CheckboxQuestionForm;
 import forms.DropdownQuestionForm;
+import forms.NumberQuestionForm;
 import forms.QuestionForm;
 import forms.RadioButtonQuestionForm;
 import forms.TextQuestionForm;
@@ -24,6 +25,7 @@ import play.twirl.api.Content;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
+import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.RadioButtonQuestionDefinition;
@@ -262,6 +264,9 @@ public final class QuestionEditView extends BaseHtmlView {
       case DROPDOWN:
         questionForm = new DropdownQuestionForm();
         break;
+      case NUMBER:
+        questionForm = new NumberQuestionForm();
+        break;
       case RADIO_BUTTON:
         questionForm = new RadioButtonQuestionForm();
         break;
@@ -286,6 +291,8 @@ public final class QuestionEditView extends BaseHtmlView {
         return new CheckboxQuestionForm((CheckboxQuestionDefinition) questionDefinition);
       case DROPDOWN:
         return new DropdownQuestionForm((DropdownQuestionDefinition) questionDefinition);
+      case NUMBER:
+        return new NumberQuestionForm((NumberQuestionDefinition) questionDefinition);
       case RADIO_BUTTON:
         return new RadioButtonQuestionForm((RadioButtonQuestionDefinition) questionDefinition);
       case TEXT:
