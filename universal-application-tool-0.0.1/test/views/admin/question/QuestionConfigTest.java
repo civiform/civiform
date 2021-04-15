@@ -1,23 +1,26 @@
 package views.admin.question;
 
+import static j2html.TagCreator.div;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import forms.AddressQuestionForm;
 import forms.DropdownQuestionForm;
+import forms.NameQuestionForm;
 import forms.NumberQuestionForm;
 import forms.RadioButtonQuestionForm;
+import forms.RepeaterQuestionForm;
 import forms.TextQuestionForm;
+import j2html.tags.ContainerTag;
 import junitparams.JUnitParamsRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import services.question.types.QuestionType;
 import views.admin.questions.QuestionConfig;
 
 @RunWith(JUnitParamsRunner.class)
 public class QuestionConfigTest {
 
-  //  private static final ContainerTag DEFAULT_CONFIG = div();
-  //  private static final EnumSet<QuestionType> TYPES_WITH_NO_CONFIG =
-  //      EnumSet.of(QuestionType.NAME, QuestionType.REPEATER);
+  private static final ContainerTag DEFAULT_CONFIG = div();
 
   @Test
   public void allHandledTypesHaveCustomConfig() {
@@ -46,15 +49,12 @@ public class QuestionConfigTest {
         .contains("single-select-question-config");
   }
 
-  // TODO(natsid): Update this test to use specific question forms.
-  //  @Test
-  //  @Parameters(method = "defaultTypes")
-  //  public void unhandledQuestionTypes_defaultsToDefaultConfig(QuestionType type) {
-  //    assertThat(QuestionConfig.buildQuestionConfig(type, new QuestionForm()))
-  //        .isEqualTo(DEFAULT_CONFIG);
-  //  }
-  //
-  //  private EnumSet<QuestionType> defaultTypes() {
-  //    return TYPES_WITH_NO_CONFIG;
-  //  }
+  @Test
+  public void unhandledQuestionTypes_defaultsToDefaultConfig(QuestionType type) {
+    assertThat(QuestionConfig.buildQuestionConfig(new NameQuestionForm()))
+        .isEqualTo(DEFAULT_CONFIG);
+
+    assertThat(QuestionConfig.buildQuestionConfig(new RepeaterQuestionForm()))
+        .isEqualTo(DEFAULT_CONFIG);
+  }
 }
