@@ -53,6 +53,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private Tag maybeRenderPublishButton(
       ImmutableList<ProgramDefinition> programs, Http.Request request) {
+    // We should only render the publish button if there is at least one draft.
     if (programs.stream()
         .anyMatch(program -> program.lifecycleStage().equals(LifecycleStage.DRAFT))) {
       String link = routes.AdminProgramController.publish().url();

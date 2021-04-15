@@ -21,6 +21,7 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 
+/** A repository object for dealing with versioning of questions or programs. */
 public class VersionRepository {
 
   private final EbeanServer ebeanServer;
@@ -33,13 +34,17 @@ public class VersionRepository {
     this.programRepository = checkNotNull(programRepository);
   }
 
+  /**
+   * Publish a new version of all programs and all questions. All DRAFT programs will become ACTIVE,
+   * and all ACTIVE programs without a draft will be copied to the next version.
+   */
   public void publishNewSynchronizedVersion() {
     try {
       Transaction transaction = ebeanServer.beginTransaction();
       // For each unedited active program which does not have a draft program of the
       // same name, set the version and go.
       long version = getNextVersion();
-      for (Program uneditedActive :
+      for (Program uneditedActiveProgram :
           ebeanServer
               .find(Program.class)
               .alias("active")
@@ -53,12 +58,12 @@ public class VersionRepository {
                       .eq("lifecycle_stage", LifecycleStage.DRAFT)
                       .query())
               .findList()) {
-        uneditedActive.setLifecycleStage(LifecycleStage.OBSOLETE);
-        uneditedActive.save();
-        Program newVersion = new Program(uneditedActive.getProgramDefinition());
-        newVersion.setVersion(version);
-        newVersion.setLifecycleStage(LifecycleStage.ACTIVE);
-        this.programRepository.insertProgramSync(newVersion);
+        uneditedActiveProgram.setLifecycleStage(LifecycleStage.OBSOLETE);
+        uneditedActiveProgram.save();
+        Program newActiveProgram = new Program(uneditedActiveProgram.getProgramDefinition());
+        newActiveProgram.setVersion(version);
+        newActiveProgram.setLifecycleStage(LifecycleStage.ACTIVE);
+        this.programRepository.insertProgramSync(newActiveProgram);
       }
 
       // Then, for each program, if a draft exists, publish the draft.
@@ -79,6 +84,11 @@ public class VersionRepository {
     }
   }
 
+  /**
+   * Get the number of the version that should be used for a new draft. This is either the version
+   * number of any existing draft (preferring programs) or 1 + the version of any existing active
+   * entity (if there are no drafts, also preferring programs).
+   */
   public long getNextVersion() {
     Optional<Program> draft =
         ebeanServer
