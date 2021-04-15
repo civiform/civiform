@@ -97,6 +97,8 @@ export class AdminQuestions {
     await this.addNumberQuestion(questionNamePrefix + 'number');
     await this.addRadioButtonQuestion(questionNamePrefix + 'radio', ['one', 'two', 'three']);
     await this.addTextQuestion(questionNamePrefix + 'text');
+    await this.addRepeaterQuestion(questionNamePrefix + 'repeater');
+    await this.addRepeatedQuestion(questionNamePrefix + 'repeated', questionNamePrefix + 'repeater');
     return [questionNamePrefix + 'address',
     questionNamePrefix + 'checkbox',
     questionNamePrefix + 'dropdown',
@@ -104,6 +106,8 @@ export class AdminQuestions {
     questionNamePrefix + 'number',
     questionNamePrefix + 'radio',
     questionNamePrefix + 'text',
+    questionNamePrefix + 'repeater',
+    questionNamePrefix + 'repeated',
     ];
   }
 
@@ -267,6 +271,45 @@ export class AdminQuestions {
     await this.page.click('#create-text-question');
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText);
+
+    await this.page.click('text=Create');
+
+    await this.expectAdminQuestionsPage();
+
+    await this.expectDraftQuestionExist(questionName, questionText);
+  }
+
+  async addRepeaterQuestion(questionName: string,
+    description = 'repeater description',
+    questionText = 'repeater question text',
+    helpText = 'repeater question help text') {
+    await this.gotoAdminQuestionsPage();
+    await this.page.click('#create-question-button');
+
+    await this.page.click('#create-repeater-question');
+
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText);
+
+    await this.page.click('text=Create');
+
+    await this.expectAdminQuestionsPage();
+
+    await this.expectDraftQuestionExist(questionName, questionText);
+  }
+
+  async addRepeatedQuestion(questionName: string,
+    repeaterName: string,
+    description = 'repeated description',
+    questionText = 'repeated question text',
+    helpText = 'repeated question help text') {
+    await this.gotoAdminQuestionsPage();
+    await this.page.click('#create-question-button');
+
+    await this.page.click('#create-text-question');
+
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText);
+
+    await this.page.selectOption('#question-repeater-select', { label: repeaterName });
 
     await this.page.click('text=Create');
 
