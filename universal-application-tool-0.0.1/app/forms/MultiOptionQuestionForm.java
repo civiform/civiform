@@ -10,6 +10,7 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
+// TODO(natsid): Get rid of setting question type in here.
 public abstract class MultiOptionQuestionForm extends QuestionForm {
   // TODO(https://github.com/seattle-uat/civiform/issues/354): Handle other locales besides
   // Locale.US

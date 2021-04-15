@@ -12,4 +12,9 @@ public class RadioButtonQuestionForm extends MultiOptionQuestionForm {
   public RadioButtonQuestionForm(RadioButtonQuestionDefinition qd) {
     super(qd);
   }
+
+  @Override
+  public QuestionType getQuestionType() {
+    return QuestionType.RADIO_BUTTON;
+  }
 }

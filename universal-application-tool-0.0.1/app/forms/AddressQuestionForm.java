@@ -20,6 +20,11 @@ public class AddressQuestionForm extends QuestionForm {
     this.disallowPoBox = qd.getDisallowPoBox();
   }
 
+  @Override
+  public QuestionType getQuestionType() {
+    return QuestionType.ADDRESS;
+  }
+
   public boolean getDisallowPoBox() {
     return disallowPoBox;
   }

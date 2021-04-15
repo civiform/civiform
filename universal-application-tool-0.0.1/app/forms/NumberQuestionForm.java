@@ -24,6 +24,11 @@ public class NumberQuestionForm extends QuestionForm {
     this.max = qd.getMax();
   }
 
+  @Override
+  public QuestionType getQuestionType() {
+    return QuestionType.NUMBER;
+  }
+
   public OptionalLong getMin() {
     return min;
   }

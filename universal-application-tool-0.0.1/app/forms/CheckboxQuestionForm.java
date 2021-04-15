@@ -12,4 +12,9 @@ public class CheckboxQuestionForm extends MultiOptionQuestionForm {
   public CheckboxQuestionForm(CheckboxQuestionDefinition qd) {
     super(qd);
   }
+
+  @Override
+  public QuestionType getQuestionType() {
+    return QuestionType.CHECKBOX;
+  }
 }

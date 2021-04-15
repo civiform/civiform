@@ -12,4 +12,9 @@ public class DropdownQuestionForm extends MultiOptionQuestionForm {
   public DropdownQuestionForm(DropdownQuestionDefinition qd) {
     super(qd);
   }
+
+  @Override
+  public QuestionType getQuestionType() {
+    return QuestionType.DROPDOWN;
+  }
 }

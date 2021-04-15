@@ -24,6 +24,11 @@ public class TextQuestionForm extends QuestionForm {
     this.maxLength = qd.getMaxLength();
   }
 
+  @Override
+  public QuestionType getQuestionType() {
+    return QuestionType.TEXT;
+  }
+
   public OptionalInt getMinLength() {
     return minLength;
   }
