@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import services.Path;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
@@ -40,7 +39,7 @@ import views.style.Styles;
 public final class QuestionEditView extends BaseHtmlView {
   private final AdminLayout layout;
 
-  private static final String NO_REPEATER_DISPLAY_STRING = "applicant";
+  private static final String NO_REPEATER_DISPLAY_STRING = "does not repeat";
   private static final String NO_REPEATER_ID_STRING = "";
 
   @Inject
@@ -280,15 +279,16 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   /**
-   * Generate a {@link SelectWithLabel} fixed repeater selector with a single option that is the question definition's
-   * repeater id.
+   * Generate a {@link SelectWithLabel} fixed repeater selector with a single option that is the
+   * question definition's repeater id.
    */
   private SelectWithLabel repeaterOptionFromQuestionDefinition(
       QuestionDefinition questionDefinition) {
-    Path parentPath = questionDefinition.getPath().parentPath();
     SimpleEntry<String, String> repeaterPathAndId =
         new SimpleEntry<>(
-            parentPath.isEmpty() ? NO_REPEATER_DISPLAY_STRING : parentPath.toString(),
+            repeaterDisplayString(questionDefinition),
+            // Path parentPath = questionDefinition.getPath().parentPath();
+            // parentPath.isEmpty() ? NO_REPEATER_DISPLAY_STRING : parentPath.toString(),
             questionDefinition.getRepeaterId().map(String::valueOf).orElse(NO_REPEATER_ID_STRING));
     return repeaterOptions(ImmutableList.of(repeaterPathAndId), "not used");
   }
@@ -307,7 +307,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .map(
                 repeaterQuestionDefinition ->
                     new SimpleEntry<>(
-                        repeaterQuestionDefinition.getPath().toString(),
+                        repeaterDisplayString(repeaterQuestionDefinition),
                         String.valueOf(repeaterQuestionDefinition.getId())))
             .collect(ImmutableList.toImmutableList()));
     return repeaterOptions(
@@ -368,5 +368,18 @@ public final class QuestionEditView extends BaseHtmlView {
       default:
         return new QuestionForm(questionDefinition);
     }
+  }
+
+  /** Selector option to display for a given RepeaterQuestionDefinition. */
+  private String repeaterDisplayString(RepeaterQuestionDefinition repeaterQuestionDefinition) {
+    return repeaterQuestionDefinition.getName();
+  }
+
+  /** Selector option to display for a QuestionDefinition's repeater. */
+  private String repeaterDisplayString(QuestionDefinition questionDefinition) {
+    // TODO(#673): if question definition doesn't have a path, this needs to be updated.
+    return questionDefinition.getRepeaterId().isEmpty()
+        ? NO_REPEATER_DISPLAY_STRING
+        : questionDefinition.getPath().parentPath().withoutArrayReference().keyName();
   }
 }
