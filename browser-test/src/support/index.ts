@@ -82,6 +82,10 @@ export const selectApplicantLanguage = async (page: Page, language: string) => {
   expect(maybeProgramIndexPage).toMatch(programIndexRegex);
 }
 
+export const loginWithSimulatedIdcs = async (page: Page) => {
+  await page.click('#idcs');
+}
+
 export const dropTables = async (page: Page) => {
   await page.goto(BASE_URL + '/dev/seed');
   await page.click("#clear");

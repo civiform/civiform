@@ -17,7 +17,7 @@ done
 
 echo detected server start
 
-debug=0
+debug=1
 for arg do
     shift
     # if debug flag, set the var and leave it out of the forwarded args list
