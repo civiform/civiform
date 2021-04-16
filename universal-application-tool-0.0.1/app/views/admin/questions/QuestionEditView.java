@@ -100,15 +100,8 @@ public final class QuestionEditView extends BaseHtmlView {
   public Content renderEditQuestionForm(Request request, QuestionDefinition questionDefinition)
       throws InvalidQuestionTypeException {
     QuestionForm questionForm = getQuestionFormFromQuestionDefinition(questionDefinition);
-
-    String title = String.format("Edit %s question", questionType.toString().toLowerCase());
-
-    ContainerTag formContent =
-        buildQuestionContainer(title)
-            .with(
-                buildEditQuestionForm(questionDefinition.getId(), questionForm)
-                    .with(makeCsrfTokenInputTag(request)));
-    return renderWithPreview(formContent, questionType);
+    return renderEditQuestionForm(
+        request, questionDefinition.getId(), questionForm, questionDefinition, Optional.empty());
   }
 
   /** Render a Edit Question form with errors. */
@@ -134,10 +127,12 @@ public final class QuestionEditView extends BaseHtmlView {
 
     ContainerTag formContent =
         buildQuestionContainer(title)
-            .with(buildEditQuestionForm(id, questionForm).with(makeCsrfTokenInputTag(request)));
+            .with(
+                buildEditQuestionForm(id, questionForm, questionDefinition)
+                    .with(makeCsrfTokenInputTag(request)));
 
-    if (message.length() > 0) {
-      formContent.with(ToastMessage.error(message).setDismissible(false).getContainerTag());
+    if (message.isPresent()) {
+      formContent.with(ToastMessage.error(message.get()).setDismissible(false).getContainerTag());
     }
 
     return renderWithPreview(formContent, questionType);
@@ -152,15 +147,9 @@ public final class QuestionEditView extends BaseHtmlView {
 
     SelectWithLabel repeaterOption = repeaterOptionFromQuestionDefinition(questionDefinition);
     ContainerTag formContent =
-        buildQuestionContainer(title).with(buildViewOnlyQuestionForm(questionForm));
+        buildQuestionContainer(title).with(buildViewOnlyQuestionForm(questionForm, repeaterOption));
 
     return renderWithPreview(formContent, questionType);
-  }
-
-  private Content renderWithPreview(ContainerTag formContent, QuestionType type) {
-    ContainerTag previewContent = QuestionPreview.renderQuestionPreview(type);
-    previewContent.with(layout.viewUtils.makeLocalJsTag("preview"));
-    return layout.renderFull(main(formContent, previewContent));
   }
 
   private Content renderWithPreview(ContainerTag formContent, QuestionType type) {
@@ -204,8 +193,12 @@ public final class QuestionEditView extends BaseHtmlView {
         .withClasses(Styles.HIDDEN, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4);
   }
 
-  private ContainerTag buildNewQuestionForm(QuestionForm questionForm) {
-    ContainerTag formTag = buildSubmittableQuestionForm(questionForm);
+  private ContainerTag buildNewQuestionForm(
+      QuestionForm questionForm,
+      ImmutableList<RepeaterQuestionDefinition> repeaterQuestionDefinitions) {
+    SelectWithLabel repeaterOptions =
+        repeaterOptionsFromRepeaterQuestions(questionForm, repeaterQuestionDefinitions);
+    ContainerTag formTag = buildSubmittableQuestionForm(questionForm, repeaterOptions);
     formTag
         .withAction(
             controllers.admin.routes.QuestionController.create(
