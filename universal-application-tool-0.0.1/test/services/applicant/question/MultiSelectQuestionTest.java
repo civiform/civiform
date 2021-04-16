@@ -30,7 +30,9 @@ public class MultiSelectQuestionTest {
           ImmutableMap.of(Locale.US, "help text"),
           ImmutableList.of(
               QuestionOption.create(1L, ImmutableMap.of(Locale.US, "valid")),
-              QuestionOption.create(2L, ImmutableMap.of(Locale.US, "ok"))),
+              QuestionOption.create(2L, ImmutableMap.of(Locale.US, "ok")),
+              QuestionOption.create(3L, ImmutableMap.of(Locale.US, "third")),
+              QuestionOption.create(4L, ImmutableMap.of(Locale.US, "fourth"))),
           MultiOptionQuestionDefinition.MultiOptionValidationPredicates.builder()
               .setMinChoicesRequired(2)
               .setMaxChoicesAllowed(3)
@@ -93,14 +95,14 @@ public class MultiSelectQuestionTest {
   }
 
   @Test
-  public void selectedInvalidOptions_hasTypeErrors() {
+  public void selectedInvalidOptions_typeErrors_hasNoTypeErrors() {
     applicantData.putLong(CHECKBOX_QUESTION.getPath().join("selection[0]"), 1L);
     applicantData.putLong(CHECKBOX_QUESTION.getPath().join("selection[1]"), 2L);
     ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData);
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
-    assertThat(multiSelectQuestion.hasTypeSpecificErrors()).isTrue();
+    assertThat(multiSelectQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(multiSelectQuestion.hasQuestionErrors()).isFalse();
   }
 }

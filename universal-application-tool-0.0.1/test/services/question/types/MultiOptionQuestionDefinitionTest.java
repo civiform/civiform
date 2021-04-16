@@ -50,7 +50,8 @@ public class MultiOptionQuestionDefinitionTest {
             .setPath(Path.empty())
             .setQuestionText(ImmutableMap.of())
             .setQuestionHelpText(ImmutableMap.of())
-            .setQuestionOptions(ImmutableList.of())
+            .setQuestionOptions(
+                ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1"))))
             .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
@@ -66,10 +67,8 @@ public class MultiOptionQuestionDefinitionTest {
       throws TranslationNotFoundException, UnsupportedQuestionTypeException {
     ImmutableList<QuestionOption> options =
         ImmutableList.of(
-            QuestionOption.create(1L, ImmutableMap.of(Locale.US, "one")),
-            QuestionOption.create(2L, ImmutableMap.of(Locale.US, "two")),
-            QuestionOption.create(3L, ImmutableMap.of(Locale.GERMAN, "eins")),
-            QuestionOption.create(4L, ImmutableMap.of(Locale.GERMAN, "zwei")));
+            QuestionOption.create(1L, ImmutableMap.of(Locale.US, "one", Locale.GERMAN, "eins")),
+            QuestionOption.create(2L, ImmutableMap.of(Locale.US, "two", Locale.GERMAN, "zwei")));
     QuestionDefinition definition =
         new QuestionDefinitionBuilder()
             .setQuestionType(QuestionType.DROPDOWN)

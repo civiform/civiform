@@ -51,7 +51,7 @@ public class Question extends BaseModel {
 
   @Constraints.Required private LifecycleStage lifecycleStage;
 
-  private @DbJsonB ImmutableList<QuestionOption> questionOptions;
+  private @DbJsonB ImmutableList<QuestionOption> questionOptionsWithLocales;
 
   public long getVersion() {
     return version;
@@ -99,7 +99,7 @@ public class Question extends BaseModel {
             .setValidationPredicatesString(validationPredicates);
 
     if (QuestionType.of(questionType).isMultiOptionType()) {
-      builder.setQuestionOptions(questionOptions);
+      builder.setQuestionOptions(questionOptionsWithLocales);
     }
 
     this.questionDefinition = builder.build();
@@ -151,7 +151,7 @@ public class Question extends BaseModel {
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition multiOption =
           (MultiOptionQuestionDefinition) questionDefinition;
-      questionOptions = multiOption.getOptions();
+      questionOptionsWithLocales = multiOption.getOptions();
     }
   }
 }

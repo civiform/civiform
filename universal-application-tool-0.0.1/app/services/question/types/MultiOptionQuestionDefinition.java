@@ -139,11 +139,11 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   /**
-   * Multi-option question type answers are strings. For questions that allow multiple answers (e.g.
-   * checkbox questions), the type is still string, though a list is stored in the applicant JSON.
+   * Multi-option question type answers are longs. For questions that allow multiple answers (e.g.
+   * checkbox questions), the type is still long, though a list is stored in the applicant JSON.
    */
   public ScalarType getSelectionType() {
-    return ScalarType.STRING;
+    return ScalarType.LONG;
   }
 
   public ImmutableList<QuestionOption> getOptions() {

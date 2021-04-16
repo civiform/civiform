@@ -55,9 +55,8 @@ public class MultiSelectQuestion implements PresentsErrors {
 
   @Override
   public boolean hasTypeSpecificErrors() {
-    // Return true if the selected options are not valid options.
-    return getSelectedOptionsValue().isPresent()
-        && !getOptions().containsAll(getSelectedOptionsValue().get());
+    // The question does not recognize selected options not present in the options set
+    return false;
   }
 
   public boolean hasValue() {

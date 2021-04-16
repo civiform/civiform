@@ -142,7 +142,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
                     ImmutableMap.of(Locale.US, "help text"),
                     ImmutableList.of(
                         QuestionOption.create(1L, ImmutableMap.of(Locale.US, "cat")),
-                        QuestionOption.create(1L, ImmutableMap.of(Locale.US, "dog")))))
+                        QuestionOption.create(2L, ImmutableMap.of(Locale.US, "dog")))))
             .getResult();
     createProgram(multiSelectQuestion);
 
@@ -150,8 +150,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     ImmutableMap<String, String> rawUpdates =
         ImmutableMap.<String, String>builder()
-            .put("applicant.checkbox.selection[0]", "cat")
-            .put("applicant.checkbox.selection[1]", "dog")
+            .put("applicant.checkbox.selection[0]", "1")
+            .put("applicant.checkbox.selection[1]", "2")
             .build();
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
