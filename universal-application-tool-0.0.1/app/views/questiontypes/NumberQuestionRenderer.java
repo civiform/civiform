@@ -4,7 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
 import j2html.tags.Tag;
-import java.util.OptionalInt;
+import java.util.OptionalLong;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.NumberQuestion;
 import views.BaseHtmlView;
@@ -29,8 +29,8 @@ public class NumberQuestionRenderer extends BaseHtmlView implements ApplicantQue
             .setFieldName(numberQuestion.getNumberPath().path())
             .setFloatLabel(true);
     if (numberQuestion.getNumberValue().isPresent()) {
-      // TODO: [Bugfix] Oof! Converting Optional<Long> to OptionalInt.
-      OptionalInt value = OptionalInt.of(numberQuestion.getNumberValue().orElse(0L).intValue());
+      // TODO: [Refactor] Oof! Converting Optional<Long> to OptionalLong.
+      OptionalLong value = OptionalLong.of(numberQuestion.getNumberValue().orElse(0L));
       numberField.setValue(value);
     }
 
