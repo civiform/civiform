@@ -25,11 +25,12 @@ public class ProgramEditView extends BaseHtmlView {
 
   public Content render(Request request, ProgramDefinition program) {
     ContainerTag formTag =
-        buildProgramForm(program.name(), program.description())
+        buildProgramForm(program.adminName(), program.adminDescription())
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(program.id()))
             .withAction(controllers.admin.routes.AdminProgramController.update(program.id()).url());
-    return layout.render(renderHeader(String.format("Edit program: %s", program.name())), formTag);
+    return layout.render(
+        renderHeader(String.format("Edit program: %s", program.adminName())), formTag);
   }
 
   public Content render(Request request, long id, ProgramForm program, String message) {
@@ -53,15 +54,17 @@ public class ProgramEditView extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("program-name-input")
             .setFieldName("name")
-            .setLabelText("Program name")
-            .setPlaceholderText("The name of the program")
+            .setLabelText("What do you want to call this program?")
+            .setPlaceholderText(
+                "Give a name for internal identification purposes - this cannot be updated once"
+                    + " set")
             .setValue(programName)
             .getContainer(),
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
             .setFieldName("description")
             .setLabelText("Program description")
-            .setPlaceholderText("The description of the program")
+            .setPlaceholderText("This description is visible only to system admins")
             .setValue(programDescription)
             .getContainer(),
         submitButton("Save").withId("program-update-button"));

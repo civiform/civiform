@@ -57,19 +57,19 @@ public abstract class BlockDefinition {
    * user-defined identifiers for some repeated entity. Examples of repeated entities could be
    * household members, vehicles, jobs, etc.
    *
+   * <p>A repeater block can only have one question, and it must be {@link QuestionType#REPEATER}.
+   *
    * @return true if this block definition is a repeater.
    */
   @JsonIgnore
+  @Memoized
   public boolean isRepeater() {
     // Though `anyMatch` is used here, repeater block definitions should only ever have a single
     // question, which is a repeater question.
     return programQuestionDefinitions().stream()
-        .anyMatch(
-            programQuestionDefinition ->
-                programQuestionDefinition
-                    .getQuestionDefinition()
-                    .getQuestionType()
-                    .equals(QuestionType.REPEATER));
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .map(QuestionDefinition::getQuestionType)
+        .anyMatch(questionType -> questionType.equals(QuestionType.REPEATER));
   }
 
   /**
@@ -113,6 +113,7 @@ public abstract class BlockDefinition {
   }
 
   @JsonIgnore
+  @Memoized
   public int getQuestionCount() {
     return programQuestionDefinitions().size();
   }

@@ -3,13 +3,13 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
+import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.RadioButtonQuestionDefinition;
@@ -44,7 +44,10 @@ public class RadioButtonQuestionFormTest {
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
-            ImmutableListMultimap.of(Locale.US, "cat", Locale.US, "dog", Locale.US, "rabbit"));
+            ImmutableList.of(
+                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "cat")),
+                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "dog")),
+                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "rabbit"))));
 
     assertThat(builder.build()).isEqualTo(expected);
   }
@@ -63,12 +66,14 @@ public class RadioButtonQuestionFormTest {
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
-            ImmutableListMultimap.of(Locale.US, "hello", Locale.US, "world"));
+            ImmutableList.of(
+                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "hello")),
+                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "world"))));
 
     RadioButtonQuestionForm form = new RadioButtonQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder(path);
 
-    // The QuestionForm does not set version, which is needed in order to build the
+    // The QuestionForm does not set version)), which is needed in order to build the
     // QuestionDefinition. How we get this value hasn't been determined.
     builder.setVersion(1L);
     builder.setLifecycleStage(LifecycleStage.ACTIVE);

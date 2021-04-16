@@ -48,15 +48,16 @@ public class ProgramBlockEditView extends BaseHtmlView {
   public Content render(
       Request request,
       ProgramDefinition program,
-      BlockDefinition block,
+      BlockDefinition blockDefinition,
       String message,
       ImmutableList<QuestionDefinition> questions) {
     return render(
         request,
         program,
-        block.id(),
-        new BlockForm(block.name(), block.description()),
-        block.programQuestionDefinitions(),
+        blockDefinition.id(),
+        new BlockForm(blockDefinition.name(), blockDefinition.description()),
+        blockDefinition,
+        blockDefinition.programQuestionDefinitions(),
         message,
         questions);
   }
@@ -66,6 +67,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
       ProgramDefinition program,
       long blockId,
       BlockForm blockForm,
+      BlockDefinition blockDefinition,
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
       String message,
       ImmutableList<QuestionDefinition> questions) {
@@ -80,7 +82,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 .withClasses(Styles.FLEX, Styles.FLEX_GROW, Styles._MX_2)
                 .with(blockOrderPanel(program, blockId))
                 .with(blockEditPanel(program, blockId, blockForm, blockQuestions, csrfTag))
-                .with(questionBankPanel(questions, program, blockId, csrfTag)));
+                .with(questionBankPanel(questions, program, blockDefinition, csrfTag)));
 
     if (message.length() > 0) {
       mainContent.with(ToastMessage.error(message).setDismissible(false).getContainerTag());
@@ -107,8 +109,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
     ContainerTag programStatus =
         div("Draft").withId("program-status").withClasses(Styles.TEXT_XS, Styles.UPPERCASE);
     ContainerTag programTitle =
-        div(program.name()).withId("program-title").withClasses(Styles.TEXT_3XL, Styles.PB_3);
-    ContainerTag programDescription = div(program.description()).withClasses(Styles.TEXT_SM);
+        div(program.adminName()).withId("program-title").withClasses(Styles.TEXT_3XL, Styles.PB_3);
+    ContainerTag programDescription = div(program.adminDescription()).withClasses(Styles.TEXT_SM);
 
     ContainerTag programInfo =
         div(programStatus, programTitle, programDescription)
@@ -250,10 +252,11 @@ public class ProgramBlockEditView extends BaseHtmlView {
   private ContainerTag questionBankPanel(
       ImmutableList<QuestionDefinition> questionDefinitions,
       ProgramDefinition program,
-      long blockId,
+      BlockDefinition blockDefinition,
       Tag csrfTag) {
     String addQuestionAction =
-        controllers.admin.routes.AdminProgramBlockQuestionsController.create(program.id(), blockId)
+        controllers.admin.routes.AdminProgramBlockQuestionsController.create(
+                program.id(), blockDefinition.id())
             .url();
 
     QuestionBank qb =
@@ -261,8 +264,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .setQuestionAction(addQuestionAction)
             .setCsrfTag(csrfTag)
             .setQuestions(questionDefinitions)
-            .setProgram(program);
-
+            .setProgram(program)
+            .setBlockDefinition(blockDefinition);
     return qb.getContainer();
   }
 }

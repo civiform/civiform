@@ -3,8 +3,11 @@ package models;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.ebean.annotation.DbJson;
+import io.ebean.annotation.DbJsonB;
 import java.util.List;
+import java.util.Locale;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.PostLoad;
@@ -29,6 +32,10 @@ public class Program extends BaseModel {
 
   @Constraints.Required private String description;
 
+  @Constraints.Required @DbJsonB private ImmutableMap<Locale, String> localizedName;
+
+  @Constraints.Required @DbJsonB private ImmutableMap<Locale, String> localizedDescription;
+
   @Constraints.Required @DbJson private ImmutableList<BlockDefinition> blockDefinitions;
 
   @Constraints.Required private Long version;
@@ -47,8 +54,10 @@ public class Program extends BaseModel {
   public Program(ProgramDefinition definition) {
     this.programDefinition = definition;
     this.id = definition.id();
-    this.name = definition.name();
-    this.description = definition.description();
+    this.name = definition.adminName();
+    this.description = definition.adminDescription();
+    this.localizedName = definition.localizedName();
+    this.localizedDescription = definition.localizedDescription();
     this.blockDefinitions = definition.blockDefinitions();
     this.lifecycleStage = definition.lifecycleStage();
     this.exportDefinitions = definition.exportDefinitions();
@@ -61,6 +70,11 @@ public class Program extends BaseModel {
   public Program(String name, String description) {
     this.name = name;
     this.description = description;
+    // TODO(https://github.com/seattle-uat/civiform/issues/777): Allow the admin to
+    // set localized strings for applicant-visible name and description. Default to
+    // using the adming name and description for now.
+    this.localizedName = ImmutableMap.of(Locale.US, name);
+    this.localizedDescription = ImmutableMap.of(Locale.US, description);
     this.lifecycleStage = LifecycleStage.DRAFT;
     BlockDefinition emptyBlock =
         BlockDefinition.builder()
@@ -77,8 +91,10 @@ public class Program extends BaseModel {
   @PreUpdate
   public void persistChangesToProgramDefinition() {
     id = programDefinition.id();
-    name = programDefinition.name();
-    description = programDefinition.description();
+    name = programDefinition.adminName();
+    description = programDefinition.adminDescription();
+    localizedName = programDefinition.localizedName();
+    localizedDescription = programDefinition.localizedDescription();
     blockDefinitions = programDefinition.blockDefinitions();
     lifecycleStage = programDefinition.lifecycleStage();
     exportDefinitions = programDefinition.exportDefinitions();
@@ -92,8 +108,10 @@ public class Program extends BaseModel {
     this.programDefinition =
         ProgramDefinition.builder()
             .setId(id)
-            .setName(name)
-            .setDescription(description)
+            .setAdminName(name)
+            .setAdminDescription(description)
+            .setLocalizedName(localizedName)
+            .setLocalizedDescription(localizedDescription)
             .setBlockDefinitions(blockDefinitions)
             .setLifecycleStage(lifecycleStage)
             .setExportDefinitions(exportDefinitions)

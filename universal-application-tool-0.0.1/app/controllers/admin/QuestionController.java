@@ -91,7 +91,8 @@ public class QuestionController extends CiviFormController {
               try {
                 return ok(editView.renderViewQuestionForm(questionDefinition));
               } catch (InvalidQuestionTypeException e) {
-                return badRequest(e.toString());
+                return badRequest(
+                    invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
               }
             },
             httpExecutionContext.current());
@@ -99,22 +100,24 @@ public class QuestionController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result newOne(Request request, String type) {
+    QuestionType questionType;
     try {
-      QuestionType questionType = QuestionType.valueOf(type.toUpperCase());
-      ImmutableList<RepeaterQuestionDefinition> repeaterQuestionDefinitions =
-          service
-              .getReadOnlyQuestionService()
-              .toCompletableFuture()
-              .join()
-              .getUpToDateRepeaterQuestions();
+      questionType = QuestionType.of(type);
+    } catch (InvalidQuestionTypeException e) {
+      return badRequest(invalidQuestionTypeMessage(type));
+    }
+
+    ImmutableList<RepeaterQuestionDefinition> repeaterQuestionDefinitions =
+        service
+            .getReadOnlyQuestionService()
+            .toCompletableFuture()
+            .join()
+            .getUpToDateRepeaterQuestions();
+
+    try {
       return ok(editView.renderNewQuestionForm(request, questionType, repeaterQuestionDefinitions));
     } catch (UnsupportedQuestionTypeException e) {
       return badRequest(e.getMessage());
-    } catch (IllegalArgumentException e) {
-      return badRequest(
-          String.format(
-              "unrecognized question type: '%s', accepted values include: %s",
-              type.toUpperCase(), Arrays.toString(QuestionType.values())));
     }
   }
 
@@ -122,10 +125,9 @@ public class QuestionController extends CiviFormController {
   public Result create(Request request, String questionType) {
     QuestionForm questionForm;
     try {
-      questionForm = createQuestionForm(request, questionType);
+      questionForm = createQuestionForm(request, QuestionType.of(questionType));
     } catch (InvalidQuestionTypeException e) {
-      // Invalid question type.
-      return badRequest(e.toString());
+      return badRequest(invalidQuestionTypeMessage(questionType));
     }
 
     ReadOnlyQuestionService roService =
@@ -140,7 +142,7 @@ public class QuestionController extends CiviFormController {
               .build();
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
-      return badRequest(e.toString());
+      return badRequest(e.getMessage());
     }
 
     ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(questionDefinition);
@@ -173,7 +175,8 @@ public class QuestionController extends CiviFormController {
               try {
                 return ok(editView.renderEditQuestionForm(request, questionDefinition));
               } catch (InvalidQuestionTypeException e) {
-                return badRequest(e.toString());
+                return badRequest(
+                    invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
               }
             },
             httpExecutionContext.current());
@@ -183,10 +186,9 @@ public class QuestionController extends CiviFormController {
   public Result update(Request request, Long id, String questionType) {
     QuestionForm questionForm;
     try {
-      questionForm = createQuestionForm(request, questionType);
+      questionForm = createQuestionForm(request, QuestionType.of(questionType));
     } catch (InvalidQuestionTypeException e) {
-      // Invalid question type.
-      return badRequest(e.toString());
+      return badRequest(invalidQuestionTypeMessage(questionType));
     }
 
     QuestionDefinition questionDefinition;
@@ -202,9 +204,9 @@ public class QuestionController extends CiviFormController {
               .setLifecycleStage(LifecycleStage.DRAFT)
               .build();
     } catch (UnsupportedQuestionTypeException e) {
-      throw new RuntimeException(
-          "Failed while trying to update a question that was already created for question type "
-              + questionForm.getQuestionType());
+      // Failed while trying to update a question that was already created for the given question
+      // type
+      return badRequest(e.getMessage());
     }
 
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndUpdatedQuestionDefinition;
@@ -233,18 +235,8 @@ public class QuestionController extends CiviFormController {
     return result;
   }
 
-  private QuestionForm createQuestionForm(Request request, String type)
+  private QuestionForm createQuestionForm(Request request, QuestionType questionType)
       throws InvalidQuestionTypeException {
-    QuestionType questionType;
-    try {
-      questionType = QuestionType.of(type);
-    } catch (InvalidQuestionTypeException e) {
-      throw new InvalidQuestionTypeException(
-          String.format(
-              "unrecognized question type: '%s', accepted values include: %s",
-              type.toUpperCase(), Arrays.toString(QuestionType.values())));
-    }
-
     switch (questionType) {
       case ADDRESS:
         return formFactory.form(AddressQuestionForm.class).bindFromRequest(request).get();
@@ -280,10 +272,17 @@ public class QuestionController extends CiviFormController {
       return questionForm.getBuilder(path);
     } catch (QuestionNotFoundException | InvalidQuestionTypeException e) {
       throw new RuntimeException(
-          "Failed to create a question definition builder because of invalid repeater id"
-              + " reference: "
-              + questionForm,
+          String.format(
+              "Failed to create a question definition builder because of invalid repeater id"
+                  + " reference: %s",
+              questionForm),
           e);
     }
+  }
+
+  private String invalidQuestionTypeMessage(String questionType) {
+    return String.format(
+        "unrecognized question type: '%s', accepted values include: %s",
+        questionType.toUpperCase(), Arrays.toString(QuestionType.values()));
   }
 }

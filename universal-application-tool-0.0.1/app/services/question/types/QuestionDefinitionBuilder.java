@@ -1,12 +1,13 @@
 package services.question.types;
 
-import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import models.LifecycleStage;
 import services.Path;
+import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
@@ -29,7 +30,7 @@ public class QuestionDefinitionBuilder {
   private String validationPredicatesString = "";
 
   // Multi-option question types only.
-  private ImmutableListMultimap<Locale, String> questionOptions = ImmutableListMultimap.of();
+  private ImmutableList<QuestionOption> questionOptions = ImmutableList.of();
 
   public QuestionDefinitionBuilder() {}
 
@@ -55,21 +56,6 @@ public class QuestionDefinitionBuilder {
     }
   }
 
-  public QuestionDefinitionBuilder clearId() {
-    this.id = OptionalLong.empty();
-    return this;
-  }
-
-  public QuestionDefinitionBuilder setId(Void v) {
-    this.id = OptionalLong.empty();
-    return this;
-  }
-
-  public QuestionDefinitionBuilder setId(long id) {
-    this.id = OptionalLong.of(id);
-    return this;
-  }
-
   public static QuestionDefinitionBuilder sample() {
     return sample(QuestionType.TEXT);
   }
@@ -86,10 +72,27 @@ public class QuestionDefinitionBuilder {
             .setQuestionType(questionType);
 
     if (questionType.isMultiOptionType()) {
-      builder.setQuestionOptions(ImmutableListMultimap.of(Locale.US, "Sample question option"));
+      builder.setQuestionOptions(
+          ImmutableList.of(
+              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "Sample question option"))));
     }
 
     return builder;
+  }
+
+  public QuestionDefinitionBuilder clearId() {
+    this.id = OptionalLong.empty();
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setId(Void v) {
+    this.id = OptionalLong.empty();
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setId(long id) {
+    this.id = OptionalLong.of(id);
+    return this;
   }
 
   public QuestionDefinitionBuilder setVersion(long version) {
@@ -150,8 +153,7 @@ public class QuestionDefinitionBuilder {
     return this;
   }
 
-  public QuestionDefinitionBuilder setQuestionOptions(
-      ImmutableListMultimap<Locale, String> options) {
+  public QuestionDefinitionBuilder setQuestionOptions(ImmutableList<QuestionOption> options) {
     this.questionOptions = options;
     return this;
   }

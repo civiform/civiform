@@ -69,7 +69,7 @@ public class VersionRepositoryTest extends WithPostgresContainer {
             programs -> {
               List<Program> programsWithName = new ArrayList<>();
               for (Program program : programs) {
-                if (program.getProgramDefinition().name().equals("passthrough")) {
+                if (program.getProgramDefinition().adminName().equals("passthrough")) {
                   programsWithName.add(program);
                 }
               }
