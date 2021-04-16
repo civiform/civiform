@@ -113,8 +113,9 @@ public class ApplicantQuestionTest {
 
   // TODO(https://github.com/seattle-uat/civiform/issues/405): Change this to just use
   // @Parameters(source = QuestionType.class) once RepeatedQuestionDefinition exists.
+//  @Parameters(method = "types")
   @Test
-  @Parameters(method = "types")
+  @Parameters(source = QuestionType.class)
   public void errorsPresenterExtendedForAllTypes(QuestionType type)
       throws UnsupportedQuestionTypeException {
     QuestionDefinitionBuilder builder = QuestionDefinitionBuilder.sample(type);

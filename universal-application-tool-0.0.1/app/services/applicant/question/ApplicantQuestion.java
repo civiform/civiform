@@ -82,16 +82,8 @@ public class ApplicantQuestion {
     return new AddressQuestion(this);
   }
 
-  public SingleSelectQuestion createSingleSelectQuestion() {
-    return new SingleSelectQuestion(this);
-  }
-
   public MultiSelectQuestion createMultiSelectQuestion() {
     return new MultiSelectQuestion(this);
-  }
-
-  public TextQuestion createTextQuestion() {
-    return new TextQuestion(this);
   }
 
   public NameQuestion createNameQuestion() {
@@ -102,19 +94,33 @@ public class ApplicantQuestion {
     return new NumberQuestion(this);
   }
 
+  public RepeaterQuestion createRepeaterQuestion() {
+    return new RepeaterQuestion(this);
+  }
+
+  public SingleSelectQuestion createSingleSelectQuestion() {
+    return new SingleSelectQuestion(this);
+  }
+
+  public TextQuestion createTextQuestion() {
+    return new TextQuestion(this);
+  }
+
   public PresentsErrors errorsPresenter() {
     switch (getType()) {
       case ADDRESS:
         return createAddressQuestion();
       case CHECKBOX:
         return createMultiSelectQuestion();
-      case DROPDOWN:
+      case DROPDOWN: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
         return createSingleSelectQuestion();
       case NAME:
         return createNameQuestion();
       case NUMBER:
         return createNumberQuestion();
+      case REPEATER:
+        return createRepeaterQuestion();
       case TEXT:
         return createTextQuestion();
       default:
