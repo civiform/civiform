@@ -57,7 +57,7 @@ public abstract class BlockDefinition {
    * user-defined identifiers for some repeated entity. Examples of repeated entities could be
    * household members, vehicles, jobs, etc.
    *
-   * A repeater block can only have one question, and it must be {@link QuestionType#REPEATER}.
+   * <p>A repeater block can only have one question, and it must be {@link QuestionType#REPEATER}.
    *
    * @return true if this block definition is a repeater.
    */

@@ -13,10 +13,10 @@ describe('create dropdown question with options', () => {
 
     // Verify question preview has default text.
     expect(await page.innerText('.cf-applicant-question-text'))
-        .toContain("Sample question text");
+      .toContain("Sample question text");
     expect(await page.innerText('.cf-applicant-question-help-text'))
-        .toContain("Sample question help text");
-    
+      .toContain("Sample question help text");
+
     // Fill in basic info
     const questionName = 'favorite ice cream';
     await page.fill('text="Name"', questionName);
@@ -45,9 +45,9 @@ describe('create dropdown question with options', () => {
 
     // Verify question preview text has changed based on user input.
     expect(await page.innerText('.cf-applicant-question-text'))
-        .toContain("questionText");
+      .toContain("questionText");
     expect(await page.innerText('.cf-applicant-question-help-text'))
-        .toContain("helpText");
+      .toContain("helpText");
 
     // Submit the form, then edit that question again
     await page.click('text=Create');
