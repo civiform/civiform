@@ -1,0 +1,39 @@
+import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession } from './support'
+
+describe('Create program with repeater and repeated questions', () => {
+  it('create program with repeater and repeated questions', async () => {
+    const { browser, page } = await startSession();
+    page.setDefaultTimeout(4000);
+
+    await loginAsAdmin(page);
+    const adminQuestions = new AdminQuestions(page);
+    const adminPrograms = new AdminPrograms(page);
+
+    await adminQuestions.addAddressQuestion('apc-address');
+    await adminQuestions.addNameQuestion('apc-name');
+    await adminQuestions.addTextQuestion('apc-text');
+    await adminQuestions.addRepeaterQuestion('apc-repeater');
+
+
+    const programName = 'apc program';
+    await adminPrograms.addProgram(programName);
+    await adminPrograms.editProgramBlock(programName, 'apc program description');
+
+    // All questions should be available in the question bank
+    expect(await page.innerText('id=question-bank-questions')).toContain('apc-address');
+    expect(await page.innerText('id=question-bank-questions')).toContain('apc-name');
+    expect(await page.innerText('id=question-bank-questions')).toContain('apc-text');
+    expect(await page.innerText('id=question-bank-questions')).toContain('apc-repeater');
+
+    // Add a non-repeater question and the repeater option should go away
+    await page.click('button:text("apc-name")');
+    expect(await page.innerText('id=question-bank-questions')).not.toContain('apc-repeater');
+
+    // Remove the non-repeater question and add a repeater question. All options should go away..
+    await page.click('button:text("apc-name")');
+    await page.click('button:text("apc-repeater")');
+    expect(await page.innerText('id=question-bank-questions')).toBe('Question bank');
+
+    await endSession(browser);
+  })
+})
