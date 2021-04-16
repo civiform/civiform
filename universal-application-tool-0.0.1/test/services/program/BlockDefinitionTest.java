@@ -97,10 +97,7 @@ public class BlockDefinitionTest {
   @Test
   public void isRepeated_isTrue() {
     BlockDefinition blockDefinition =
-        makeBlockDefinitionWithQuestions().toBuilder()
-            .setRepeaterId(Optional.of(1L))
-            .setRepeaterQuestionId(Optional.of(1L))
-            .build();
+        makeBlockDefinitionWithQuestions().toBuilder().setRepeaterId(Optional.of(1L)).build();
 
     assertThat(blockDefinition.isRepeated()).isTrue();
   }

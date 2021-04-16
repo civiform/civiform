@@ -73,13 +73,6 @@ public abstract class BlockDefinition {
   }
 
   /**
-   * A repeated block definition has a reference to the {@link
-   * services.question.types.RepeaterQuestionDefinition} whose repeated questions it can contain.
-   */
-  @JsonProperty("repeaterQuestionId")
-  public abstract Optional<Long> repeaterQuestionId();
-
-  /**
    * A repeated block definition references a repeater block definition that determines the entities
    * the repeated block definition asks questions for. If a block definition does not have a
    * repeaterId, it is not repeated.
@@ -96,7 +89,7 @@ public abstract class BlockDefinition {
    */
   @JsonIgnore
   public boolean isRepeated() {
-    return repeaterId().isPresent() && repeaterQuestionId().isPresent();
+    return repeaterId().isPresent();
   }
 
   /** A {@link Predicate} that determines whether this is hidden or shown. */
@@ -187,9 +180,6 @@ public abstract class BlockDefinition {
 
     @JsonProperty("repeaterId")
     public abstract Builder setRepeaterId(Optional<Long> repeaterId);
-
-    @JsonProperty("repeaterQuestionId")
-    public abstract Builder setRepeaterQuestionId(Optional<Long> repeaterQuestionId);
 
     @JsonProperty("hidePredicate")
     public abstract Builder setHidePredicate(Optional<Predicate> hide);

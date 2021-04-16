@@ -14,8 +14,10 @@ import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.function.Predicate;
 import services.program.BlockDefinition;
+import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -27,6 +29,7 @@ import views.style.Styles;
 public class QuestionBank {
   private ProgramDefinition program;
   private BlockDefinition blockDefinition;
+  private Optional<Long> repeaterQuestionId;
   private ImmutableList<QuestionDefinition> questions = ImmutableList.of();
   private Tag csrfTag = div();
   private String questionAction = "";
@@ -177,7 +180,7 @@ public class QuestionBank {
    * program.
    */
   private boolean questionFilter(QuestionDefinition questionDefinition) {
-    return questionDefinition.getRepeaterId().equals(blockDefinition.repeaterQuestionId())
+    return questionDefinition.getRepeaterId().equals(getRepeaterQuestionId())
         && !program.hasQuestion(questionDefinition);
   }
 
@@ -188,5 +191,32 @@ public class QuestionBank {
   private boolean nonEmptyBlockFilter(QuestionDefinition questionDefinition) {
     return !questionDefinition.getQuestionType().equals(QuestionType.REPEATER)
         && questionFilter(questionDefinition);
+  }
+
+  /**
+   * Follow the {@link BlockDefinition#repeaterId()} reference to the repeater block definition, and
+   * return the id of its {@link services.question.types.RepeaterQuestionDefinition}.
+   */
+  private Optional<Long> getRepeaterQuestionId() {
+    if (repeaterQuestionId == null) {
+      repeaterQuestionId = Optional.empty();
+      Optional<Long> repeaterBlockId = blockDefinition.repeaterId();
+      if (repeaterBlockId.isPresent()) {
+        try {
+          BlockDefinition repeaterBlockDefinition =
+              program.getBlockDefinition(repeaterBlockId.get());
+          repeaterQuestionId =
+              Optional.of(repeaterBlockDefinition.getQuestionDefinition(0).getId());
+        } catch (ProgramBlockNotFoundException e) {
+          String errorMessage =
+              String.format(
+                  "BlockDefinition %d has a broken repeater block reference to id %d",
+                  blockDefinition.id(), repeaterBlockId.get());
+          throw new RuntimeException(errorMessage, e);
+        }
+        ;
+      }
+    }
+    return repeaterQuestionId;
   }
 }
