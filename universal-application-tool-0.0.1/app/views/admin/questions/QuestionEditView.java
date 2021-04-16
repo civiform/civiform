@@ -353,7 +353,7 @@ public final class QuestionEditView extends BaseHtmlView {
       case DROPDOWN:
         questionForm = new DropdownQuestionForm();
         break;
-      case FILE_UPLOAD:
+      case FILEUPLOAD:
         questionForm = new FileUploadQuestionForm();
         break;
       case NAME:
@@ -387,7 +387,7 @@ public final class QuestionEditView extends BaseHtmlView {
         return new CheckboxQuestionForm((CheckboxQuestionDefinition) questionDefinition);
       case DROPDOWN:
         return new DropdownQuestionForm((DropdownQuestionDefinition) questionDefinition);
-      case FILE_UPLOAD:
+      case FILEUPLOAD:
         return new FileUploadQuestionForm((FileUploadQuestionDefinition) questionDefinition);
       case NAME:
         return new NameQuestionForm((NameQuestionDefinition) questionDefinition);

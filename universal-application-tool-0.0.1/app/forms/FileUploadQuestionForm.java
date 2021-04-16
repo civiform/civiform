@@ -14,6 +14,6 @@ public class FileUploadQuestionForm extends QuestionForm {
 
   @Override
   public QuestionType getQuestionType() {
-    return QuestionType.FILE_UPLOAD;
+    return QuestionType.FILEUPLOAD;
   }
 }

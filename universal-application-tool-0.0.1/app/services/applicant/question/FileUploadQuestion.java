@@ -50,10 +50,10 @@ public class FileUploadQuestion implements PresentsErrors {
   }
 
   public void assertQuestionType() {
-    if (!applicantQuestion.getType().equals(QuestionType.FILE_UPLOAD)) {
+    if (!applicantQuestion.getType().equals(QuestionType.FILEUPLOAD)) {
       throw new RuntimeException(
           String.format(
-              "Question is not a FILE_UPLOAD question: %s (type: %s)",
+              "Question is not a FILEUPLOAD question: %s (type: %s)",
               applicantQuestion.getQuestionDefinition().getPath(),
               applicantQuestion.getQuestionDefinition().getQuestionType()));
     }
