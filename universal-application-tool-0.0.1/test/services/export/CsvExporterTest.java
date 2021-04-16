@@ -152,6 +152,7 @@ public class CsvExporterTest extends WithPostgresContainer {
     assertThat(records.get(0).get("first name")).isEqualTo("Alice");
     assertThat(records.get(1).get("last name")).isEqualTo("Baker");
     // Check list for multiselect
+    // TODO: export the string values of the selects instead of the IDs
     assertThat(records.get(0).get("multiselect")).isEqualTo("[1, 2]");
   }
 
