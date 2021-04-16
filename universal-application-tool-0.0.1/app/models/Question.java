@@ -54,11 +54,10 @@ public class Question extends BaseModel {
 
   @Constraints.Required private LifecycleStage lifecycleStage;
 
-  // questionOptions is the legacy storage column for multi-option questions. A few questions
-  // created
-  // early on in April 2021 may use this, but all other multi-option questions should not. In
-  // practice
-  // one can assume only a single locale is present for questions that have values stored in this
+  // questionOptions is the legacy storage column for multi-option questions.
+  // A few questions created early on in April 2021 may use this, but all
+  // other multi-option questions should not. In practice one can assume only
+  // a single locale is present for questions that have values stored in this
   // column.
   private @DbJsonB ImmutableListMultimap<Locale, String> questionOptions;
 
@@ -130,8 +129,7 @@ public class Question extends BaseModel {
     }
 
     // If the multi option question does have questionOptions, we can assume there is only one
-    // locale
-    // and convert the strings to QuestionOption instances each with a single locale.
+    // locale and convert the strings to QuestionOption instances each with a single locale.
     Locale firstKey = questionOptions.keySet().stream().iterator().next();
 
     ImmutableList<QuestionOption> options =
@@ -153,12 +151,10 @@ public class Question extends BaseModel {
   }
 
   public void setLifecycleStage(LifecycleStage lifecycleStage) {
-    // A Question object is entirely determined by a QuestionDefinition, so Question objects are
-    // usually
-    // immutable since QuestionDefinitions are immutable.  This is not a true setter - it creates an
-    // entirely
-    // new QuestionDefinition from the existing one - but it's present here as a convenience method,
-    // to save
+    // A Question object is entirely determined by a QuestionDefinition, so Question
+    // objects are usually immutable since QuestionDefinitions are immutable. This is
+    // not a true setter - it creates an entirely new QuestionDefinition from the
+    // existing one - but it's present here as a convenience method, to save
     // on verbosity due to us doing this many times throughout the application.
     try {
       this.questionDefinition =

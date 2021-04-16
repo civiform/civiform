@@ -23,6 +23,11 @@ public abstract class QuestionOption {
 
   @JsonIgnore
   public LocalizedQuestionOption localize(Locale locale) {
+    if (!optionText().containsKey(locale)) {
+      throw new RuntimeException(
+          String.format("Locale %s not supported for question option %s", locale, this));
+    }
+
     return LocalizedQuestionOption.create(id(), optionText().get(locale), locale);
   }
 
