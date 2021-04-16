@@ -257,7 +257,7 @@ public class ApplicantData {
 
   /**
    * Attempt to read a list at the given {@link Path}. Returns {@code Optional#empty} if the path
-   * does not exist or a value other than an {@link ImmutableList} of strings is found.
+   * does not exist or a value other than an {@link ImmutableList} of longs is found.
    */
   public Optional<ImmutableList<Long>> readList(Path path) {
     try {
