@@ -118,7 +118,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
           QuestionOption.create(optionCount, ImmutableMap.of(Locale.US, optionText)));
     }
 
-    return super.getBuilder()
+    return super.getBuilder(path)
         .setQuestionOptions(questionOptions.build())
         .setValidationPredicates(predicateBuilder.build());
   }

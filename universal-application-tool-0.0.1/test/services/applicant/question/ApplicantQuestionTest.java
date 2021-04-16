@@ -42,7 +42,7 @@ public class ApplicantQuestionTest {
           ImmutableMap.of(Locale.US, "help text"),
           ImmutableList.of(
               QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1")),
-              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 2"))));
+              QuestionOption.create(2L, ImmutableMap.of(Locale.US, "option 2"))));
   private static final DropdownQuestionDefinition dropdownQuestionDefinition =
       new DropdownQuestionDefinition(
           1L,
@@ -54,10 +54,8 @@ public class ApplicantQuestionTest {
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
           ImmutableList.of(
-              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1")),
-              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 2")),
-              QuestionOption.create(1L, ImmutableMap.of(Locale.FRANCE, "un")),
-              QuestionOption.create(1L, ImmutableMap.of(Locale.FRANCE, "deux"))));
+              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1", Locale.FRANCE, "un")),
+              QuestionOption.create(2L, ImmutableMap.of(Locale.US, "option 2", Locale.FRANCE, "deux"))));
   private static final TextQuestionDefinition textQuestionDefinition =
       new TextQuestionDefinition(
           1L,
