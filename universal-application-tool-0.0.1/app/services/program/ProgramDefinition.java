@@ -21,7 +21,10 @@ public abstract class ProgramDefinition {
   /** Unique identifier for a ProgramDefinition. */
   public abstract long id();
 
-  /** Descriptive name of a Program, e.g. Car Tab Rebate Program */
+  /**
+   * Descriptive name of a Program, e.g. Car Tab Rebate Program. Different versions of the same
+   * program are linked by their immutable name.
+   */
   public abstract String name();
 
   /** A human readable description of a Program. */

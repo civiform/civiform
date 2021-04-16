@@ -22,6 +22,8 @@ describe('normal question lifecycle', () => {
 
     await adminQuestions.updateAllQuestions(questions);
 
+    await adminPrograms.publishProgram(programName);
+
     await adminPrograms.createNewVersion(programName);
 
     await adminPrograms.publishProgram(programName);

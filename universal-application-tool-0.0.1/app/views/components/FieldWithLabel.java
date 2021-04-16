@@ -11,6 +11,7 @@ import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -77,8 +78,9 @@ public class FieldWithLabel {
   protected String fieldName = "";
   protected String fieldType = "text";
   protected String fieldValue = "";
+
   /** For use with fields of type `number`. */
-  protected OptionalInt fieldNumberValue = OptionalInt.empty();
+  protected OptionalLong fieldValueNumber = OptionalLong.empty();
 
   protected String formId = "";
   protected String id = "";
@@ -176,10 +178,21 @@ public class FieldWithLabel {
   public FieldWithLabel setValue(OptionalInt value) {
     if (!this.fieldType.equals("number")) {
       throw new RuntimeException(
-          "setting an OptionalInt value is only available on fields of type `number`");
+          "setting an Optional<Integer> value is only available on fields of type `number`");
     }
 
-    this.fieldNumberValue = value;
+    this.fieldValueNumber =
+        value.isPresent() ? OptionalLong.of(value.getAsInt()) : OptionalLong.empty();
+    return this;
+  }
+
+  public FieldWithLabel setValue(OptionalLong value) {
+    if (!this.fieldType.equals("number")) {
+      throw new RuntimeException(
+          "setting an OptionalLong value is only available on fields of type `number`");
+    }
+
+    this.fieldValueNumber = value;
     return this;
   }
 
@@ -200,8 +213,8 @@ public class FieldWithLabel {
     } else if (this.fieldType.equals("number")) {
       // For number types, only set the value if it's present since there is no empty string
       // equivalent for numbers.
-      if (this.fieldNumberValue.isPresent()) {
-        fieldTag.withValue(String.valueOf(this.fieldNumberValue.getAsInt()));
+      if (this.fieldValueNumber.isPresent()) {
+        fieldTag.withValue(String.valueOf(this.fieldValueNumber.getAsLong()));
       }
     } else {
       fieldTag.withValue(this.fieldValue);

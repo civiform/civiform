@@ -1,0 +1,77 @@
+package forms;
+
+import java.util.OptionalLong;
+import services.Path;
+import services.question.types.NumberQuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
+
+public class NumberQuestionForm extends QuestionForm {
+  private OptionalLong min;
+  private OptionalLong max;
+
+  public NumberQuestionForm() {
+    super();
+    this.min = OptionalLong.empty();
+    this.max = OptionalLong.empty();
+  }
+
+  public NumberQuestionForm(NumberQuestionDefinition qd) {
+    super(qd);
+    this.min = qd.getMin();
+    this.max = qd.getMax();
+  }
+
+  @Override
+  public QuestionType getQuestionType() {
+    return QuestionType.NUMBER;
+  }
+
+  public OptionalLong getMin() {
+    return min;
+  }
+
+  /**
+   * We use a string parameter here so that if the field is empty (i.e. unset), we can correctly set
+   * to an empty OptionalLong. Since the HTML input is type "number", we can be sure this string is
+   * in fact an integer when we parse it. If we instead used an int here, we see an "Invalid value"
+   * error when binding the empty value in the form.
+   */
+  public void setMin(String minAsString) {
+    if (minAsString.isEmpty()) {
+      this.min = OptionalLong.empty();
+    } else {
+      this.min = OptionalLong.of(Long.parseLong(minAsString));
+    }
+  }
+
+  public OptionalLong getMax() {
+    return max;
+  }
+
+  /**
+   * We use a string parameter here so that if the field is empty (i.e. unset), we can correctly set
+   * to an empty OptionalLong. Since the HTML input is type "number", we can be sure this string is
+   * in fact an integer when we parse it. If we instead used an int here, we see an "Invalid value"
+   * error when binding the empty value in the form.
+   */
+  public void setMax(String maxAsString) {
+    if (maxAsString.isEmpty()) {
+      this.max = OptionalLong.empty();
+    } else {
+      this.max = OptionalLong.of(Long.parseLong(maxAsString));
+    }
+  }
+
+  @Override
+  public QuestionDefinitionBuilder getBuilder(Path path) {
+    NumberQuestionDefinition.NumberValidationPredicates.Builder numberValidationPredicatesBuilder =
+        NumberQuestionDefinition.NumberValidationPredicates.builder();
+
+    numberValidationPredicatesBuilder.setMin(getMin());
+    numberValidationPredicatesBuilder.setMax(getMax());
+
+    return super.getBuilder(path)
+        .setValidationPredicates(numberValidationPredicatesBuilder.build());
+  }
+}

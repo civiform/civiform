@@ -59,6 +59,12 @@ public class SelectWithLabel extends FieldWithLabel {
   }
 
   @Override
+  public SelectWithLabel setDisabled(boolean disabled) {
+    super.setDisabled(disabled);
+    return this;
+  }
+
+  @Override
   public ContainerTag getContainer() {
     for (SimpleEntry<String, String> option : this.options) {
       Tag optionTag = option(option.getKey()).withValue(option.getValue());
