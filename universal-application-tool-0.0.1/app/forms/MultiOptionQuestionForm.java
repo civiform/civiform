@@ -40,6 +40,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
     try {
       // TODO: this will need revisiting to support multiple locales
+      // https://github.com/seattle-uat/civiform/issues/778
       if (qd.getSupportedLocales().contains(Locale.US)) {
         List<String> optionStrings =
             qd.getOptionsForLocale(Locale.US).stream()

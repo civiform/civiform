@@ -62,6 +62,7 @@ describe('normal application flow', () => {
     await adminPrograms.expectApplicationAnswers('Block 1', 'name-q', 'Queen');
 
     // TODO: display the string values of selects instead of integer IDs
+    // https://github.com/seattle-uat/civiform/issues/778
     await adminPrograms.expectApplicationAnswers('Block 1', 'radio-q', '2');
     await adminPrograms.expectApplicationAnswers('Block 2', 'ice-cream-q', '2');
     await adminPrograms.expectApplicationAnswers('Block 2', 'favorite-trees-q', '[3, 4]');
