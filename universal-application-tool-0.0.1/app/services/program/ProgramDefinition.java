@@ -24,8 +24,8 @@ public abstract class ProgramDefinition {
   public abstract long id();
 
   /**
-   * Descriptive name of a Program, e.g. Car Tab Rebate Program. This is immutable and should only
-   * be used to help admins identify programs.
+   * Descriptive name of a Program, e.g. Car Tab Rebate Program. Different versions of the same
+   * program are linked by their immutable name.
    */
   public abstract String adminName();
 

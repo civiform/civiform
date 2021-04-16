@@ -30,21 +30,19 @@ public class AddressQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    if (!streetAnswered() && !cityAnswered() && !stateAnswered() && !zipAnswered()) {
+    if (!isAnswered()) {
       return ImmutableSet.of();
     }
 
     AddressQuestionDefinition definition = getQuestionDefinition();
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
-    if (definition.getDisallowPoBox()) {
+    if (definition.getDisallowPoBox() && getStreetValue().isPresent()) {
       Pattern poBoxPattern = Pattern.compile(PO_BOX_REGEX);
       Matcher poBoxMatcher = poBoxPattern.matcher(getStreetValue().get());
 
       if (poBoxMatcher.matches()) {
-        return ImmutableSet.of(
-            ValidationErrorMessage.create(
-                "Please enter a valid address. We do not accept PO Boxes."));
+        return ImmutableSet.of(ValidationErrorMessage.noPoBox());
       }
     }
 
@@ -72,16 +70,16 @@ public class AddressQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getStreetErrors() {
-    if (streetAnswered() && getStreetValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.create("Street is required."));
+    if (isStreetAnswered() && getStreetValue().isEmpty()) {
+      return ImmutableSet.of(ValidationErrorMessage.streetRequired());
     }
 
     return ImmutableSet.of();
   }
 
   public ImmutableSet<ValidationErrorMessage> getCityErrors() {
-    if (cityAnswered() && getCityValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.create("City is required."));
+    if (isCityAnswered() && getCityValue().isEmpty()) {
+      return ImmutableSet.of(ValidationErrorMessage.cityRequired());
     }
 
     return ImmutableSet.of();
@@ -89,25 +87,24 @@ public class AddressQuestion implements PresentsErrors {
 
   public ImmutableSet<ValidationErrorMessage> getStateErrors() {
     // TODO: Validate state further.
-    if (stateAnswered() && getStateValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.create("State is required."));
+    if (isStateAnswered() && getStateValue().isEmpty()) {
+      return ImmutableSet.of(ValidationErrorMessage.stateRequired());
     }
 
     return ImmutableSet.of();
   }
 
   public ImmutableSet<ValidationErrorMessage> getZipErrors() {
-    if (zipAnswered()) {
+    if (isZipAnswered()) {
       Optional<String> zipValue = getZipValue();
       if (zipValue.isEmpty()) {
-        return ImmutableSet.of(ValidationErrorMessage.create("Zip code is required."));
+        return ImmutableSet.of(ValidationErrorMessage.zipRequired());
       }
 
       Pattern pattern = Pattern.compile("^[0-9]{5}(?:-[0-9]{4})?$");
       Matcher matcher = pattern.matcher(zipValue.get());
       if (!matcher.matches()) {
-        return ImmutableSet.of(
-            ValidationErrorMessage.create("Please enter valid 5-digit ZIP code."));
+        return ImmutableSet.of(ValidationErrorMessage.invalidZip());
       }
     }
 
@@ -181,19 +178,32 @@ public class AddressQuestion implements PresentsErrors {
     return getQuestionDefinition().getZipPath();
   }
 
-  private boolean streetAnswered() {
+  private boolean isStreetAnswered() {
+    // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
     return applicantQuestion.getApplicantData().hasPath(getStreetPath());
   }
 
-  private boolean cityAnswered() {
+  private boolean isCityAnswered() {
+    // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
     return applicantQuestion.getApplicantData().hasPath(getCityPath());
   }
 
-  private boolean stateAnswered() {
+  private boolean isStateAnswered() {
+    // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
     return applicantQuestion.getApplicantData().hasPath(getStatePath());
   }
 
-  private boolean zipAnswered() {
+  private boolean isZipAnswered() {
+    // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
     return applicantQuestion.getApplicantData().hasPath(getZipPath());
+  }
+
+  /**
+   * Returns true if any one of the address fields is answered. Returns false if all are not
+   * answered.
+   */
+  @Override
+  public boolean isAnswered() {
+    return isStreetAnswered() || isCityAnswered() || isStateAnswered() || isZipAnswered();
   }
 }

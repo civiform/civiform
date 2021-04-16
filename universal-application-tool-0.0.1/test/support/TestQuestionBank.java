@@ -64,12 +64,18 @@ public class TestQuestionBank {
         QuestionEnum.APPLICANT_HOUSEHOLD_MEMBERS, TestQuestionBank::applicantHouseholdMembers);
   }
 
+  public static Question applicantHouseholdMemberName() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_NAME,
+        TestQuestionBank::applicantHouseholdMemberName);
+  }
+
   private static Question applicantName(QuestionEnum ignore) {
     QuestionDefinition definition =
         new NameQuestionDefinition(
             VERSION,
             "applicant name",
-            Path.create("applicant.name"),
+            Path.create("applicant.applicant_name"),
             Optional.empty(),
             "name of applicant",
             LifecycleStage.ACTIVE,
@@ -83,7 +89,7 @@ public class TestQuestionBank {
         new AddressQuestionDefinition(
             VERSION,
             "applicant address",
-            Path.create("applicant.address"),
+            Path.create("applicant.applicant_address"),
             Optional.empty(),
             "address of applicant",
             LifecycleStage.ACTIVE,
@@ -97,7 +103,7 @@ public class TestQuestionBank {
         new TextQuestionDefinition(
             VERSION,
             "applicant favorite color",
-            Path.create("applicant.color"),
+            Path.create("applicant.applicant_favorite_color"),
             Optional.empty(),
             "favorite color of applicant",
             LifecycleStage.ACTIVE,
@@ -116,6 +122,22 @@ public class TestQuestionBank {
             "The applicant's household members",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "Who are your household members?"),
+            ImmutableMap.of(Locale.US, "help text"));
+
+    return maybeSave(definition);
+  }
+
+  private static Question applicantHouseholdMemberName(QuestionEnum ignore) {
+    Question householdMembers = applicantHouseholdMembers();
+    QuestionDefinition definition =
+        new NameQuestionDefinition(
+            VERSION,
+            "household members name",
+            Path.create("applicant.applicant_household_members[].name"),
+            Optional.of(householdMembers.id),
+            "The applicant's household member's name",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "what is the household member's name?"),
             ImmutableMap.of(Locale.US, "help text"));
 
     return maybeSave(definition);
@@ -141,6 +163,7 @@ public class TestQuestionBank {
     APPLICANT_NAME,
     APPLICANT_ADDRESS,
     APPLICANT_FAVORITE_COLOR,
-    APPLICANT_HOUSEHOLD_MEMBERS
+    APPLICANT_HOUSEHOLD_MEMBERS,
+    APPLICANT_HOUSEHOLD_MEMBER_NAME
   }
 }

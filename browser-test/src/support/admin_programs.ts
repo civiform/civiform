@@ -39,25 +39,31 @@ export class AdminPrograms {
     await this.expectProgramExist(programName, description);
   }
 
+  selectProgramCard(programName: string, lifecycle: string) {
+    return `.cf-admin-program-card:has(:text("${programName}")):has(:text("${lifecycle}"))`;
+  }
+
+  selectWithinProgramCard(programName: string, lifecycle: string, selector: string) {
+    return this.selectProgramCard(programName, lifecycle) + ' ' + selector;
+  }
+
   async gotoDraftProgramEditPage(programName: string) {
     await this.gotoAdminProgramsPage();
     await this.expectDraftProgram(programName);
-    // Get the admin program card enclosing the specified program. Once we settle on
-    // admin style, we should make a more identifiable class, e.g. ".cf-admin-program-card".
-    await this.page.click(`div.border:has-text("${programName}") :text("Edit")`);
+    await this.page.click(this.selectWithinProgramCard(programName, 'DRAFT', ':text("Edit")'));
     await this.expectProgramEditPage(programName);
   }
 
   async expectDraftProgram(programName: string) {
-    expect(await this.page.innerText(`div.border:has(:text("${programName}"), :text("DRAFT"))`)).toContain('Publish');
+    expect(await this.page.innerText(`div.border:has(:text("${programName}"), :text("DRAFT"))`)).not.toContain('New Version');
   }
 
   async expectActiveProgram(programName: string) {
-    expect(await this.page.innerText(`div.border:has(:text("${programName}"), :text("ACTIVE"))`)).toContain('New Version');
+    expect(await this.page.innerText(this.selectProgramCard(programName, 'ACTIVE'))).toContain('New Version');
   }
 
   async expectObsoleteProgram(programName: string) {
-    expect(await this.page.innerText(`div.border:has(:text("${programName}"), :text("OBSOLETE"))`)).toContain('Applications');
+    expect(await this.page.innerText(this.selectProgramCard(programName, 'OBSOLETE'))).toContain('Applications');
   }
 
   async expectProgramEditPage(programName: string = '') {
@@ -65,7 +71,7 @@ export class AdminPrograms {
   }
 
   async expectProgramBlockEditPage(programName: string = '') {
-    expect(await this.page.innerText('html')).toContain(programName);
+    expect(await this.page.innerText('id=program-title')).toContain(programName);
     // Compare string case insensitively because style may not have been computed.
     expect((await this.page.innerText('label')).toUpperCase()).toEqual('BLOCK NAME');
     expect(await this.page.innerText('h1')).toContain('Question bank');
@@ -104,30 +110,45 @@ export class AdminPrograms {
   async publishProgram(programName: string) {
     await this.gotoAdminProgramsPage();
     await this.expectDraftProgram(programName);
-    await this.page.click(`div.border:has(:text("${programName}"), :text("DRAFT")) :text("Publish")`);
+    await this.publishAllPrograms();
     await this.expectActiveProgram(programName);
+  }
+
+  async publishAllPrograms() {
+    await this.page.click(`#publish-programs-button > button`);
   }
 
   async createNewVersion(programName: string) {
     await this.gotoAdminProgramsPage();
     await this.expectActiveProgram(programName);
-    await this.page.click(`div.border:has(:text("${programName}"), :text("ACTIVE")) :text("New Version")`);
+    await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', ':text("New Version")'));
     await this.page.click('#program-update-button');
-    await this.expectObsoleteProgram(programName);
     await this.expectDraftProgram(programName);
   }
 
   async viewApplications(programName: string) {
-    await this.page.click(`div.border:has-text("${programName}") :text("Applications")`);
+    await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', ':text("Applications")'));
+  }
+
+  selectApplicationCardForApplicant(applicantName: string) {
+    return `.cf-admin-application-card:has-text("${applicantName}")`;
+  }
+
+  selectWithinApplicationForApplicant(applicantName: string, selector: string) {
+    return this.selectApplicationCardForApplicant(applicantName) + ' ' + selector;
+  }
+
+  selectApplicationBlock(blockName: string) {
+    return `.cf-admin-application-block-card:has-text("${blockName}")`;
   }
 
   async viewApplicationForApplicant(applicantName: string) {
-    await this.page.click(`div.border:has-text("${applicantName}") :text("View")`);
+    await this.page.click(this.selectWithinApplicationForApplicant(applicantName, ':text("View")'));
   }
 
   async expectApplicationAnswers(blockName: string, questionName: string, answer: string) {
-    expect(await this.page.innerText(`div.border:has-text("${blockName}")`)).toContain(questionName);
-    expect(await this.page.innerText(`div.border:has-text("${blockName}")`)).toContain(answer);
+    expect(await this.page.innerText(this.selectApplicationBlock(blockName))).toContain(questionName);
+    expect(await this.page.innerText(this.selectApplicationBlock(blockName))).toContain(answer);
   }
 
   async getCsv() {

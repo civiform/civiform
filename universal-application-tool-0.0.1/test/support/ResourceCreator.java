@@ -1,5 +1,6 @@
 package support;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
@@ -15,17 +16,25 @@ import models.Question;
 import play.db.ebean.EbeanConfig;
 import play.inject.Injector;
 import services.Path;
+import services.program.DuplicateProgramQuestionException;
+import services.program.ProgramBlockNotFoundException;
+import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
+import services.program.ProgramServiceImpl;
 import services.question.QuestionService;
+import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
 public class ResourceCreator {
 
   private final QuestionService questionService;
+  private final ProgramService programService;
   private final EbeanServer ebeanServer;
 
   public ResourceCreator(Injector injector) {
     this.questionService = injector.instanceOf(QuestionService.class);
+    this.programService = injector.instanceOf(ProgramServiceImpl.class);
     this.ebeanServer = Ebean.getServer(injector.instanceOf(EbeanConfig.class).defaultServer());
   }
 
@@ -90,6 +99,12 @@ public class ResourceCreator {
         .withLocalizedName(locale, name)
         .withLifecycleStage(lifecycleStage)
         .build();
+  }
+
+  public void addQuestionToProgram(Program program, Question question)
+      throws DuplicateProgramQuestionException, QuestionNotFoundException,
+          ProgramBlockNotFoundException, ProgramNotFoundException {
+    programService.addQuestionsToBlock(program.id, 1L, ImmutableList.of(question.id));
   }
 
   public Applicant insertApplicant() {

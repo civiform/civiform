@@ -167,19 +167,66 @@ public abstract class Path {
   }
 
   /**
+   * Returns true if this path starts with the other path, ignoring array index suffixes. that is,
+   * "a.b[].c[].d" starts with "a.b.c".
+   */
+  public boolean startsWith(Path other) {
+    ImmutableList<String> thisSegments =
+        segments().stream().map(this::stripArraySuffix).collect(ImmutableList.toImmutableList());
+    ImmutableList<String> otherSegments =
+        other.segments().stream()
+            .map(this::stripArraySuffix)
+            .collect(ImmutableList.toImmutableList());
+
+    // This can't start with something that is longer than it.
+    if (otherSegments.size() > thisSegments.size()) {
+      return false;
+    }
+
+    for (int i = 0; i < otherSegments.size(); i++) {
+      if (!thisSegments.get(i).equals(otherSegments.get(i))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
    * Returns the path's key name without an array index suffix. e.g. {@code a.b[1].c[3]} returns
    * "c".
    *
    * <p>For paths to non-array elements, {@code IllegalStateException} is thrown.
    */
   private String keyNameWithoutArrayIndex() {
-    Matcher matcher = ARRAY_INDEX_REGEX.matcher(keyName());
+    return stripArraySuffix(keyName(), /* strict= */ true);
+  }
+
+  /**
+   * Returns the path segment without an {@link #ARRAY_SUFFIX}.
+   *
+   * @param segment a path segment to strip of {@link #ARRAY_SUFFIX}
+   * @param strict if true, throws an {@link IllegalArgumentException} if segment does not have
+   *     anything to strip
+   * @return segment, without an {@link #ARRAY_SUFFIX}
+   */
+  private String stripArraySuffix(String segment, boolean strict) {
+    Matcher matcher = ARRAY_INDEX_REGEX.matcher(segment);
     if (matcher.matches()) {
-      return new StringBuilder(keyName())
+      return new StringBuilder(segment)
           .replace(matcher.start(ARRAY_SUFFIX_GROUP), matcher.end(ARRAY_SUFFIX_GROUP), "")
           .toString();
     }
-    throw new IllegalStateException(
-        String.format("This path %s does not reference an array element.", this));
+
+    if (strict) {
+      throw new IllegalStateException(
+          String.format("This path %s does not reference an array element.", this));
+    }
+
+    return segment;
+  }
+
+  /** Non-strict version of {@link #stripArraySuffix(String, boolean)} */
+  private String stripArraySuffix(String segment) {
+    return stripArraySuffix(segment, /* strict= */ false);
   }
 }

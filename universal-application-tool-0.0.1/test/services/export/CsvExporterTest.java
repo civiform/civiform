@@ -43,13 +43,13 @@ public class CsvExporterTest extends WithPostgresContainer {
         .addColumn(
             Column.builder()
                 .setHeader("first name")
-                .setJsonPath(Path.create("$.applicant.name.first"))
+                .setJsonPath(Path.create("$.applicant.applicant_name.first"))
                 .setColumnType(ColumnType.APPLICANT)
                 .build())
         .addColumn(
             Column.builder()
                 .setHeader("last name")
-                .setJsonPath(Path.create("$.applicant.name.last"))
+                .setJsonPath(Path.create("$.applicant.applicant_name.last"))
                 .setColumnType(ColumnType.APPLICANT)
                 .build())
         .addColumn(
@@ -83,29 +83,41 @@ public class CsvExporterTest extends WithPostgresContainer {
   @Before
   public void createFakeApplicants() {
     Applicant fakeApplicantOne = new Applicant();
-    fakeApplicantOne.getApplicantData().putString(Path.create("applicant.name.first"), "Alice");
-    fakeApplicantOne.getApplicantData().putString(Path.create("applicant.name.last"), "Appleton");
+    fakeApplicantOne
+        .getApplicantData()
+        .putString(Path.create("applicant.applicant_name.first"), "Alice");
+    fakeApplicantOne
+        .getApplicantData()
+        .putString(Path.create("applicant.applicant_name.last"), "Appleton");
     fakeApplicantOne
         .getApplicantData()
         .putString(
             Path.create("applicant.column"), "Some Value \" containing ,,, special characters");
     fakeApplicantOne
         .getApplicantData()
-        .putString(Path.create("applicant.multiselect.selection[0]"), "hello");
+        .putLong(Path.create("applicant.multiselect.selection[0]"), 1L);
     fakeApplicantOne
         .getApplicantData()
-        .putString(Path.create("applicant.multiselect.selection[1]"), "world");
-    fakeApplicantOne.getApplicantData().putString(Path.create("applicant.color.text"), "fuchsia");
+        .putLong(Path.create("applicant.multiselect.selection[1]"), 2L);
+    fakeApplicantOne
+        .getApplicantData()
+        .putString(Path.create("applicant.applicant_favorite_color.text"), "fuchsia");
     fakeApplicantOne.save();
 
     Applicant fakeApplicantTwo = new Applicant();
-    fakeApplicantTwo.getApplicantData().putString(Path.create("applicant.name.first"), "Bob");
-    fakeApplicantTwo.getApplicantData().putString(Path.create("applicant.name.last"), "Baker");
+    fakeApplicantTwo
+        .getApplicantData()
+        .putString(Path.create("applicant.applicant_name.first"), "Bob");
+    fakeApplicantTwo
+        .getApplicantData()
+        .putString(Path.create("applicant.applicant_name.last"), "Baker");
     fakeApplicantTwo.getApplicantData().putString(Path.create("applicant.column"), "");
     fakeApplicantTwo
         .getApplicantData()
         .putString(Path.create("applicant.multiselect.selection[0]"), "hello");
-    fakeApplicantTwo.getApplicantData().putString(Path.create("applicant.color.text"), "maroon");
+    fakeApplicantTwo
+        .getApplicantData()
+        .putString(Path.create("applicant.applicant_favorite_color.text"), "maroon");
     fakeApplicantTwo.save();
     this.fakeApplicants = ImmutableList.of(fakeApplicantOne, fakeApplicantTwo);
   }
@@ -140,7 +152,8 @@ public class CsvExporterTest extends WithPostgresContainer {
     assertThat(records.get(0).get("first name")).isEqualTo("Alice");
     assertThat(records.get(1).get("last name")).isEqualTo("Baker");
     // Check list for multiselect
-    assertThat(records.get(0).get("multiselect")).isEqualTo("[hello, world]");
+    // TODO: export the string values of the selects instead of the IDs
+    assertThat(records.get(0).get("multiselect")).isEqualTo("[1, 2]");
   }
 
   @Test

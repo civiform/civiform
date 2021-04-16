@@ -5,8 +5,6 @@ import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.head;
-import static j2html.TagCreator.p;
-import static j2html.TagCreator.span;
 
 import auth.FakeAdminClient;
 import auth.GuestClient;
@@ -16,14 +14,11 @@ import j2html.tags.ContainerTag;
 import java.util.Optional;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import views.components.Icons;
-import views.style.StyleUtils;
-import views.style.Styles;
+import views.components.ToastMessage;
 
 public class LoginForm extends BaseHtmlView {
 
   private final BaseHtmlLayout layout;
-  private final String BANNER_TEXT = "DO NOT enter actual or personal data in this demo site";
 
   @Inject
   public LoginForm(BaseHtmlLayout layout) {
@@ -34,8 +29,6 @@ public class LoginForm extends BaseHtmlView {
     ContainerTag bodyTag =
         body(
             div(
-                h1("Error: You are not logged in")
-                    .withCondHidden(!message.orElse("").equals("login")),
                 div(
                     h1("Log In"),
                     redirectButton(
@@ -51,6 +44,11 @@ public class LoginForm extends BaseHtmlView {
                     "Continue",
                     routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())));
 
+    if (message.isPresent()) {
+      String errorString = "Error: You are not logged in. " + message.get();
+      bodyTag.with(ToastMessage.error(errorString).getContainerTag());
+    }
+
     // "defense in depth", sort of - this client won't be present in production, and this button
     // won't show up except when running in an acceptable environment.
     if (FakeAdminClient.canEnable(request.host())) {
@@ -63,52 +61,6 @@ public class LoginForm extends BaseHtmlView {
                   routes.CallbackController.callback(FakeAdminClient.CLIENT_NAME).url())));
     }
 
-    return layout.htmlContent(head(layout.tailwindStyles()), demoBanner(), bodyTag);
-  }
-
-  public ContainerTag demoBanner() {
-    return div()
-        .withClass(Styles.BG_RED_600)
-        .with(
-            div()
-                .withClasses(
-                    Styles.MAX_W_7XL,
-                    Styles.MX_AUTO,
-                    Styles.PY_3,
-                    Styles.PX_3,
-                    StyleUtils.responsiveSmall(Styles.PX_6),
-                    StyleUtils.responsiveLarge(Styles.PX_8))
-                .with(
-                    div()
-                        .withClasses(
-                            Styles.FLEX,
-                            Styles.ITEMS_CENTER,
-                            Styles.JUSTIFY_BETWEEN,
-                            Styles.FLEX_WRAP)
-                        .with(
-                            div()
-                                .withClasses(
-                                    Styles.W_0, Styles.FLEX_1, Styles.FLEX, Styles.ITEMS_CENTER)
-                                .with(
-                                    span()
-                                        .withClasses(
-                                            Styles.FLEX,
-                                            Styles.P_2,
-                                            Styles.ROUNDED_LG,
-                                            Styles.BG_RED_800)
-                                        .with(
-                                            Icons.svg(Icons.LOGIN_BANNER_PATH, 24)
-                                                .withClasses(
-                                                    Styles.H_6, Styles.W_6, Styles.TEXT_WHITE)
-                                                .attr("fill", "none")
-                                                .attr("stroke-linecap", "round")
-                                                .attr("stroke-linejoin", "round")
-                                                .attr("stroke-width", "2")),
-                                    p().withClasses(
-                                            Styles.ML_3,
-                                            Styles.FONT_MEDIUM,
-                                            Styles.TEXT_WHITE,
-                                            Styles.TRUNCATE)
-                                        .with(span(BANNER_TEXT))))));
+    return layout.htmlContent(head(layout.tailwindStyles()), bodyTag);
   }
 }

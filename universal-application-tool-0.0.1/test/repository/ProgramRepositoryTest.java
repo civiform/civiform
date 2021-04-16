@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import models.LifecycleStage;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
@@ -81,21 +80,5 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
     assertThat(updated.getProgramDefinition().id()).isEqualTo(existing.id);
     assertThat(updated.getProgramDefinition().localizedName())
         .isEqualTo(ImmutableMap.of(Locale.US, "new name"));
-  }
-
-  @Test
-  public void publishProgram() {
-    Program active = resourceCreator().insertProgram("name");
-    active.setLifecycleStage(LifecycleStage.ACTIVE);
-    active.save();
-    Program draft = resourceCreator().insertProgram("name");
-    draft.setLifecycleStage(LifecycleStage.DRAFT);
-    draft.save();
-
-    repo.publishProgram(draft);
-
-    assertThat(draft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-    active.refresh();
-    assertThat(active.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
   }
 }

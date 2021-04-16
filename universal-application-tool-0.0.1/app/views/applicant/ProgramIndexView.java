@@ -5,7 +5,6 @@ import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.nav;
-import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.attributes.Attr.HREF;
 
@@ -18,6 +17,7 @@ import play.i18n.Messages;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
+import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -51,8 +51,7 @@ public class ProgramIndexView extends BaseHtmlView {
     ContainerTag body =
         body().withClasses(Styles.RELATIVE, Styles.PX_8, ApplicantStyles.BODY_BACKGROUND);
     if (banner.isPresent()) {
-      // TODO: make this a styled toast.
-      body.with(p(banner.get()));
+      body.with(ToastMessage.alert(banner.get()).getContainerTag());
     }
     body.with(
         nav()

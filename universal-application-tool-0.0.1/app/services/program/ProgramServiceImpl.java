@@ -374,30 +374,6 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  public void publishProgram(long id) throws ProgramNotFoundException {
-    try {
-      this.publishProgramAsync(id).toCompletableFuture().join();
-    } catch (CompletionException e) {
-      if (e.getCause() instanceof ProgramNotFoundException) {
-        throw new ProgramNotFoundException(id);
-      }
-      throw e;
-    }
-  }
-
-  @Override
-  public CompletionStage<Void> publishProgramAsync(long id) {
-    return programRepository
-        .lookupProgram(id)
-        .thenApplyAsync(
-            programMaybe ->
-                programMaybe.orElseThrow(
-                    () -> new RuntimeException(new ProgramNotFoundException(id))),
-            httpExecutionContext.current())
-        .thenComposeAsync(programRepository::publishProgramAsync);
-  }
-
-  @Override
   public ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException {
     return programRepository
         .createOrUpdateDraft(this.getProgramDefinition(id).toProgram())

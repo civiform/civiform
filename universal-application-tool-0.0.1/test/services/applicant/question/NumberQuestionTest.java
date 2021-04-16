@@ -19,6 +19,7 @@ import services.question.types.NumberQuestionDefinition;
 
 @RunWith(JUnitParamsRunner.class)
 public class NumberQuestionTest {
+
   private static final NumberQuestionDefinition numberQuestionDefinition =
       new NumberQuestionDefinition(
           1L,
@@ -52,7 +53,7 @@ public class NumberQuestionTest {
   }
 
   @Test
-  public void withEmptyApplicantData() {
+  public void withEmptyApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(numberQuestionDefinition, applicantData);
 
@@ -63,7 +64,19 @@ public class NumberQuestionTest {
   }
 
   @Test
-  public void withValidApplicantData() {
+  public void withEmptyValueAtPath_passesValidation() {
+    applicantData.putLong(numberQuestionDefinition.getNumberPath(), "");
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(numberQuestionDefinition, applicantData);
+
+    NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
+
+    assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(numberQuestion.getNumberValue()).isEmpty();
+  }
+
+  @Test
+  public void withValidValue_passesValidation() {
     applicantData.putLong(numberQuestionDefinition.getNumberPath(), 800);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(numberQuestionDefinition, applicantData);
@@ -76,7 +89,7 @@ public class NumberQuestionTest {
 
   @Test
   @Parameters({"50", "75", "100"})
-  public void withMinAndMaxValue_withValidApplicantData_passesValidation(long value) {
+  public void withMinAndMaxValue_withValidValue_passesValidation(long value) {
     applicantData.putLong(minAndMaxNumberQuestionDefinition.getNumberPath(), value);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData);
@@ -90,12 +103,13 @@ public class NumberQuestionTest {
 
   @Test
   @Parameters({
-    "-1,This answer must be at least 50.",
-    "0,This answer must be at least 50.",
-    "49,This answer must be at least 50.",
-    "999,This answer cannot be larger than 100."
+    "-1,Must be at least 50.",
+    "0,Must be at least 50.",
+    "49,Must be at least 50.",
+    "101,Must be at most 100.",
+    "999,Must be at most 100."
   })
-  public void withMinAndMaxValue_withInvalidApplicantData_failsValidation(
+  public void withMinAndMaxValue_withInvalidValue_failsValidation(
       long value, String expectedErrorMessage) {
     applicantData.putLong(minAndMaxNumberQuestionDefinition.getNumberPath(), value);
     ApplicantQuestion applicantQuestion =
@@ -107,5 +121,17 @@ public class NumberQuestionTest {
     assertThat(numberQuestion.getQuestionErrors())
         .containsOnly(ValidationErrorMessage.create(expectedErrorMessage));
     assertThat(numberQuestion.getNumberValue().get()).isEqualTo(value);
+  }
+
+  @Test
+  public void withMinAndMaxValue_withEmptyValueAtPath_passesValidation() {
+    applicantData.putLong(minAndMaxNumberQuestionDefinition.getNumberPath(), "");
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData);
+
+    NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
+
+    assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(numberQuestion.hasQuestionErrors()).isFalse();
   }
 }

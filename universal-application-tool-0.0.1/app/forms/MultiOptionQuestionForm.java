@@ -1,17 +1,22 @@
 package forms;
 
-import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.OptionalInt;
+import java.util.stream.Collectors;
+import services.Path;
+import services.question.LocalizedQuestionOption;
+import services.question.QuestionOption;
+import services.question.exceptions.TranslationNotFoundException;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
-import services.question.types.QuestionType;
 
 public abstract class MultiOptionQuestionForm extends QuestionForm {
   // TODO(https://github.com/seattle-uat/civiform/issues/354): Handle other locales besides
-  // Locale.US
+  //  Locale.US
   // Caution: This must be a mutable list type, or else Play's form binding cannot add elements to
   // the list. This means the constructors MUST set this field to a mutable List type, NOT
   // ImmutableList.
@@ -19,9 +24,8 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   private OptionalInt minChoicesRequired;
   private OptionalInt maxChoicesAllowed;
 
-  protected MultiOptionQuestionForm(QuestionType type) {
+  protected MultiOptionQuestionForm() {
     super();
-    setQuestionType(type);
     this.options = new ArrayList<>();
     this.minChoicesRequired = OptionalInt.empty();
     this.maxChoicesAllowed = OptionalInt.empty();
@@ -29,13 +33,23 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
   protected MultiOptionQuestionForm(MultiOptionQuestionDefinition qd) {
     super(qd);
-    setQuestionType(qd.getQuestionType());
     this.minChoicesRequired = qd.getMultiOptionValidationPredicates().minChoicesRequired();
     this.maxChoicesAllowed = qd.getMultiOptionValidationPredicates().maxChoicesAllowed();
 
     this.options = new ArrayList<>();
-    if (qd.getOptions().containsKey(Locale.US)) {
-      this.options.addAll(qd.getOptions().get(Locale.US));
+
+    try {
+      // TODO: this will need revisiting to support multiple locales
+      // https://github.com/seattle-uat/civiform/issues/778
+      if (qd.getSupportedLocales().contains(Locale.US)) {
+        List<String> optionStrings =
+            qd.getOptionsForLocale(Locale.US).stream()
+                .map(LocalizedQuestionOption::optionText)
+                .collect(Collectors.toList());
+        this.options.addAll(optionStrings);
+      }
+    } catch (TranslationNotFoundException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -84,7 +98,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   }
 
   @Override
-  public QuestionDefinitionBuilder getBuilder() {
+  public QuestionDefinitionBuilder getBuilder(Path path) {
     MultiOptionQuestionDefinition.MultiOptionValidationPredicates.Builder predicateBuilder =
         MultiOptionQuestionDefinition.MultiOptionValidationPredicates.builder();
 
@@ -96,9 +110,17 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
       predicateBuilder.setMaxChoicesAllowed(getMaxChoicesAllowed());
     }
 
-    return super.getBuilder()
-        .setQuestionOptions(
-            ImmutableListMultimap.<Locale, String>builder().putAll(Locale.US, getOptions()).build())
+    // TODO: this will need to be revisited to support multiple locales
+    ImmutableList.Builder<QuestionOption> questionOptions = ImmutableList.builder();
+    long optionCount = 1L;
+
+    for (String optionText : getOptions()) {
+      questionOptions.add(
+          QuestionOption.create(optionCount++, ImmutableMap.of(Locale.US, optionText)));
+    }
+
+    return super.getBuilder(path)
+        .setQuestionOptions(questionOptions.build())
         .setValidationPredicates(predicateBuilder.build());
   }
 }

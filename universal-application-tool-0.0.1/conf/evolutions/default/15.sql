@@ -1,11 +1,8 @@
-# --- Add localized name and description to the Programs table.
-
+# --- Add answer options for multi-option questions
 # --- !Ups
 
-alter table programs add localized_name jsonb;
-alter table programs add localized_description jsonb;
+alter table questions add question_options_with_locales jsonb;
 
 # --- !Downs
 
-alter table programs drop column localized_name;
-alter table programs drop column localized_description;
+alter table questions drop column question_options_with_locales;

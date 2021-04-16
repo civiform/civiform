@@ -39,11 +39,5 @@ services:
       - IDCS_SECRET
       - ADFS_CLIENT_ID
       - ADFS_SECRET
-    build: .
-    volumes:
-      - ./universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1
-      - ~/.coursier:/root/.coursier
-      - ~/.sbt:/root/.sbt
-      - ~/.ivy:/root/.ivy2
 
     command: -jvm-debug "*:8457" ~run

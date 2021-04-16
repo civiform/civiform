@@ -25,39 +25,40 @@ public class BlockDefinitionTest {
   }
 
   @Test
-  public void getScalarType() throws Exception {
+  public void getScalarType() {
     BlockDefinition block = makeBlockDefinitionWithQuestions();
-    assertThat(block.getScalarType(Path.create("applicant.name.first")))
+    assertThat(block.getScalarType(Path.create("applicant.applicant_name.first")))
         .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.name.middle")))
+    assertThat(block.getScalarType(Path.create("applicant.applicant_name.middle")))
         .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.name.last"))).hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.address.street")))
+    assertThat(block.getScalarType(Path.create("applicant.applicant_name.last")))
         .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.address.city")))
+    assertThat(block.getScalarType(Path.create("applicant.applicant_address.street")))
         .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.address.state")))
+    assertThat(block.getScalarType(Path.create("applicant.applicant_address.city")))
         .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.address.zip")))
+    assertThat(block.getScalarType(Path.create("applicant.applicant_address.state")))
         .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.color.text")))
+    assertThat(block.getScalarType(Path.create("applicant.applicant_address.zip")))
+        .hasValue(ScalarType.STRING);
+    assertThat(block.getScalarType(Path.create("applicant.applicant_favorite_color.text")))
         .hasValue(ScalarType.STRING);
     assertThat(block.getScalarType(Path.create("fake.path"))).isEmpty();
   }
 
   @Test
-  public void hasPaths() throws Exception {
+  public void hasPaths() {
     BlockDefinition block = makeBlockDefinitionWithQuestions();
     ImmutableList<Path> paths =
         ImmutableList.of(
-            Path.create("applicant.name.first"),
-            Path.create("applicant.name.middle"),
-            Path.create("applicant.name.last"),
-            Path.create("applicant.address.street"),
-            Path.create("applicant.address.city"),
-            Path.create("applicant.address.state"),
-            Path.create("applicant.address.zip"),
-            Path.create("applicant.color.text"));
+            Path.create("applicant.applicant_name.first"),
+            Path.create("applicant.applicant_name.middle"),
+            Path.create("applicant.applicant_name.last"),
+            Path.create("applicant.applicant_address.street"),
+            Path.create("applicant.applicant_address.city"),
+            Path.create("applicant.applicant_address.state"),
+            Path.create("applicant.applicant_address.zip"),
+            Path.create("applicant.applicant_favorite_color.text"));
 
     assertThat(block.hasPaths(paths)).isTrue();
 
@@ -65,7 +66,7 @@ public class BlockDefinitionTest {
   }
 
   @Test
-  public void isRepeater_isFalse() throws Exception {
+  public void isRepeater_isFalse() {
     BlockDefinition blockDefinition = makeBlockDefinitionWithQuestions();
 
     assertThat(blockDefinition.isRepeater()).isFalse();
@@ -79,7 +80,7 @@ public class BlockDefinitionTest {
   }
 
   @Test
-  public void isRepeater_isTrue() throws Exception {
+  public void isRepeater_isTrue() {
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(123L)
@@ -94,14 +95,14 @@ public class BlockDefinitionTest {
   }
 
   @Test
-  public void isRepeated_isTrue() throws Exception {
+  public void isRepeated_isTrue() {
     BlockDefinition blockDefinition =
         makeBlockDefinitionWithQuestions().toBuilder().setRepeaterId(Optional.of(1L)).build();
 
     assertThat(blockDefinition.isRepeated()).isTrue();
   }
 
-  private BlockDefinition makeBlockDefinitionWithQuestions() throws Exception {
+  private BlockDefinition makeBlockDefinitionWithQuestions() {
     QuestionDefinition nameQuestion = TestQuestionBank.applicantName().getQuestionDefinition();
     QuestionDefinition addressQuestion =
         TestQuestionBank.applicantAddress().getQuestionDefinition();

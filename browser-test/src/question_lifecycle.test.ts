@@ -2,8 +2,8 @@ import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession }
 
 describe('normal question lifecycle', () => {
   it('create, update, publish, create a new version, and update all questions', async () => {
-    const { browser, page } = await startSession()
-    page.setDefaultTimeout(2000);
+    const { browser, page } = await startSession();
+    page.setDefaultTimeout(4000);
 
     await loginAsAdmin(page);
     const adminQuestions = new AdminQuestions(page);
@@ -21,6 +21,8 @@ describe('normal question lifecycle', () => {
     await adminQuestions.createNewVersionForQuestions(questions)
 
     await adminQuestions.updateAllQuestions(questions);
+
+    await adminPrograms.publishProgram(programName);
 
     await adminPrograms.createNewVersion(programName);
 

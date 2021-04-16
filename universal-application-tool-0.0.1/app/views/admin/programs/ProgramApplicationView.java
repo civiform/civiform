@@ -21,6 +21,7 @@ import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.LinkElement;
+import views.style.ReferenceClasses;
 import views.style.Styles;
 
 public final class ProgramApplicationView extends BaseHtmlView {
@@ -50,7 +51,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     return layout.render(head(layout.tailwindStyles()), body(contentDiv));
   }
 
-  public Tag renderDownloadButton(long programId, long applicationId) {
+  private Tag renderDownloadButton(long programId, long applicationId) {
     String link =
         controllers.admin.routes.AdminApplicationController.download(programId, applicationId)
             .url();
@@ -61,7 +62,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .asButton();
   }
 
-  public Tag renderApplicationBlock(Application application, BlockDefinition block) {
+  private Tag renderApplicationBlock(Application application, BlockDefinition block) {
     Tag topContent =
         div(
                 div(
@@ -85,10 +86,15 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withClasses(
                 Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4);
 
-    return div(innerDiv).withClasses(Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
+    return div(innerDiv)
+        .withClasses(
+            ReferenceClasses.ADMIN_APPLICATION_BLOCK_CARD,
+            Styles.W_FULL,
+            Styles.SHADOW_LG,
+            Styles.MB_4);
   }
 
-  Tag renderQuestion(Application application, ProgramQuestionDefinition question) {
+  private Tag renderQuestion(Application application, ProgramQuestionDefinition question) {
     QuestionDefinition definition = question.getQuestionDefinition();
     return div(div()
             .withClasses(Styles.FLEX)

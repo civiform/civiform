@@ -85,7 +85,9 @@ public class LinkElement {
 
     return form(
             input().isHidden().withValue(csrfToken).withName("csrfToken"),
-            button(TagCreator.text(text)).withType("submit"))
+            button(TagCreator.text(text))
+                .withClasses(DEFAULT_LINK_BUTTON_STYLES)
+                .withType("submit"))
         .withMethod("POST")
         .withAction(href)
         .withCondId(!Strings.isNullOrEmpty(id), id);

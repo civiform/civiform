@@ -1,52 +1,39 @@
-import { startSession, loginAsAdmin, AdminQuestions, endSession } from './support'
+import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession } from './support'
 
-describe('create dropdown question with options', () => {
-  it('add remove buttons work correctly', async () => {
+describe('Create program with repeater and repeated questions', () => {
+  it('create program with repeater and repeated questions', async () => {
     const { browser, page } = await startSession();
+    page.setDefaultTimeout(4000);
 
     await loginAsAdmin(page);
-
     const adminQuestions = new AdminQuestions(page);
-    await page.click('text=Questions');
-    await page.click('#create-question-button');
-    await page.click('#create-dropdown-question');
+    const adminPrograms = new AdminPrograms(page);
 
-    // Fill in basic info
-    const questionName = 'favorite ice cream';
-    await page.fill('text="Name"', questionName);
-    await page.fill('text=Description', 'description');
-    await page.fill('text=Question Text', 'questionText');
-    await page.fill('text=Question help text', 'helpText');
+    await adminQuestions.addAddressQuestion('apc-address');
+    await adminQuestions.addNameQuestion('apc-name');
+    await adminQuestions.addTextQuestion('apc-text');
+    await adminQuestions.addRepeaterQuestion('apc-repeater');
 
-    // Add three options
-    await page.click('#add-new-option');
-    await page.fill('input:above(#add-new-option)', 'chocolate');
-    await page.click('#add-new-option');
-    await page.fill('input:above(#add-new-option)', 'vanilla');
-    await page.click('#add-new-option');
-    await page.fill('input:above(#add-new-option)', 'strawberry');
 
-    // Assert there are three options present
-    var questionSettingsDiv = await page.innerHTML('#question-settings');
-    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(3);
+    const programName = 'apc program';
+    await adminPrograms.addProgram(programName);
+    await adminPrograms.editProgramBlock(programName, 'apc program description');
 
-    // Remove first option - use :visible to not select the hidden template
-    await page.click('button:text("Remove"):visible')
+    // All questions should be available in the question bank
+    expect(await page.innerText('id=question-bank-questions')).toContain('apc-address');
+    expect(await page.innerText('id=question-bank-questions')).toContain('apc-name');
+    expect(await page.innerText('id=question-bank-questions')).toContain('apc-text');
+    expect(await page.innerText('id=question-bank-questions')).toContain('apc-repeater');
 
-    // Assert there are only two options now
-    questionSettingsDiv = await page.innerHTML('#question-settings');
-    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(2);
+    // Add a non-repeater question and the repeater option should go away
+    await page.click('button:text("apc-name")');
+    expect(await page.innerText('id=question-bank-questions')).not.toContain('apc-repeater');
 
-    // Submit the form, then edit that question again
-    await page.click('text=Create');
-    await adminQuestions.expectDraftQuestionExist(questionName);
-
-    // Edit the question
-    await adminQuestions.gotoQuestionEditPage(questionName);
-    var questionSettingsDiv = await page.innerHTML('#question-settings');
-    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(2);
+    // Remove the non-repeater question and add a repeater question. All options should go away..
+    await page.click('button:text("apc-name")');
+    await page.click('button:text("apc-repeater")');
+    expect(await page.innerText('id=question-bank-questions')).toBe('Question bank');
 
     await endSession(browser);
   })
 })
-

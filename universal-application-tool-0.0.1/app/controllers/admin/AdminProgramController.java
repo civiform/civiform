@@ -11,6 +11,7 @@ import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.program.ProgramDefinition;
@@ -28,6 +29,7 @@ public class AdminProgramController extends CiviFormController {
   private final ProgramNewOneView newOneView;
   private final ProgramEditView editView;
   private final FormFactory formFactory;
+  private final VersionRepository versionRepository;
 
   @Inject
   public AdminProgramController(
@@ -35,11 +37,13 @@ public class AdminProgramController extends CiviFormController {
       ProgramIndexView listView,
       ProgramNewOneView newOneView,
       ProgramEditView editView,
+      VersionRepository versionRepository,
       FormFactory formFactory) {
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);
     this.newOneView = checkNotNull(newOneView);
     this.editView = checkNotNull(editView);
+    this.versionRepository = checkNotNull(versionRepository);
     this.formFactory = checkNotNull(formFactory);
   }
 
@@ -77,12 +81,10 @@ public class AdminProgramController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public Result publish(Request request, long id) {
+  public Result publish() {
     try {
-      service.publishProgram(id);
+      versionRepository.publishNewSynchronizedVersion();
       return redirect(routes.AdminProgramController.index());
-    } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
     } catch (Exception e) {
       return badRequest(e.toString());
     }

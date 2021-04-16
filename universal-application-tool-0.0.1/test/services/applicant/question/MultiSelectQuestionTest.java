@@ -2,7 +2,7 @@ package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
@@ -12,6 +12,7 @@ import org.junit.Test;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.QuestionOption;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 
@@ -27,7 +28,11 @@ public class MultiSelectQuestionTest {
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
-          ImmutableListMultimap.of(Locale.US, "valid", Locale.US, "ok"),
+          ImmutableList.of(
+              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "valid")),
+              QuestionOption.create(2L, ImmutableMap.of(Locale.US, "ok")),
+              QuestionOption.create(3L, ImmutableMap.of(Locale.US, "third")),
+              QuestionOption.create(4L, ImmutableMap.of(Locale.US, "fourth"))),
           MultiOptionQuestionDefinition.MultiOptionValidationPredicates.builder()
               .setMinChoicesRequired(2)
               .setMaxChoicesAllowed(3)
@@ -51,9 +56,9 @@ public class MultiSelectQuestionTest {
   }
 
   @Test
-  public void withPresentApplicantData_passesValidation() {
-    applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[0]"), "valid");
-    applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[1]"), "ok");
+  public void withValidApplicantData_passesValidation() {
+    applicantData.putLong(CHECKBOX_QUESTION.getPath().join("selection[0]"), 1L);
+    applicantData.putLong(CHECKBOX_QUESTION.getPath().join("selection[1]"), 2L);
     ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData);
 
     MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
@@ -63,7 +68,7 @@ public class MultiSelectQuestionTest {
   }
 
   @Test
-  public void multiOptionQuestion_withPresentApplicantData_tooFewSelected() {
+  public void tooFewSelected_failsValidation() {
     // Put too few selections.
     applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[0]"), "one");
 
@@ -75,12 +80,12 @@ public class MultiSelectQuestionTest {
   }
 
   @Test
-  public void multiOptionQuestion_withPresentApplicantData_tooManySelected() {
+  public void tooManySelected_failsValidation() {
     // Put too many selections.
-    applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[0]"), "one");
-    applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[1]"), "two");
-    applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[2]"), "three");
-    applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[3]"), "four");
+    applicantData.putLong(CHECKBOX_QUESTION.getPath().join("selection[0]"), 1L);
+    applicantData.putLong(CHECKBOX_QUESTION.getPath().join("selection[1]"), 2L);
+    applicantData.putLong(CHECKBOX_QUESTION.getPath().join("selection[2]"), 3L);
+    applicantData.putLong(CHECKBOX_QUESTION.getPath().join("selection[3]"), 4L);
 
     ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData);
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
@@ -90,14 +95,14 @@ public class MultiSelectQuestionTest {
   }
 
   @Test
-  public void withPresentApplicantData_selectedInvalidOptions_hasTypeErrors() {
-    applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[0]"), "invalid");
-    applicantData.putString(CHECKBOX_QUESTION.getPath().join("selection[1]"), "valid");
+  public void selectedInvalidOptions_typeErrors_hasNoTypeErrors() {
+    applicantData.putLong(CHECKBOX_QUESTION.getPath().join("selection[0]"), 1L);
+    applicantData.putLong(CHECKBOX_QUESTION.getPath().join("selection[1]"), 2L);
     ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData);
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
-    assertThat(multiSelectQuestion.hasTypeSpecificErrors()).isTrue();
+    assertThat(multiSelectQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(multiSelectQuestion.hasQuestionErrors()).isFalse();
   }
 }

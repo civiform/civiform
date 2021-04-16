@@ -1,6 +1,5 @@
 package views.admin.programs;
 
-import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 
 import com.google.inject.Inject;
@@ -13,6 +12,7 @@ import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
+import views.components.ToastMessage;
 import views.style.Styles;
 
 public class ProgramEditView extends BaseHtmlView {
@@ -39,8 +39,13 @@ public class ProgramEditView extends BaseHtmlView {
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(id))
             .withAction(controllers.admin.routes.AdminProgramController.update(id).url());
+
+    if (message.length() > 0) {
+      formTag.with(ToastMessage.error(message).setDismissible(false).getContainerTag());
+    }
+
     return layout.render(
-        renderHeader(String.format("Edit program: %s", program.getName())), div(message), formTag);
+        renderHeader(String.format("Edit program: %s", program.getName())), formTag);
   }
 
   private ContainerTag buildProgramForm(String programName, String programDescription) {
