@@ -115,7 +115,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
     for (String optionText : getOptions()) {
       questionOptions.add(
-          QuestionOption.create(optionCount, ImmutableMap.of(Locale.US, optionText)));
+          QuestionOption.create(optionCount++, ImmutableMap.of(Locale.US, optionText)));
     }
 
     return super.getBuilder(path)
