@@ -203,6 +203,8 @@ public class QuestionController extends CiviFormController {
               .setLifecycleStage(LifecycleStage.DRAFT)
               .build();
     } catch (UnsupportedQuestionTypeException e) {
+      // Failed while trying to update a question that was already created for the given question
+      // type
       return badRequest(e.getMessage());
     }
 
