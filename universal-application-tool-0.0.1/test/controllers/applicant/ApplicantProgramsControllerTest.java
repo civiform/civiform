@@ -129,11 +129,13 @@ public class ApplicantProgramsControllerTest {
 
   @Test
   public void index_missingTranslationForProgram_defaultsToEnglish() {
-    resourceCreator.insertProgram(Locale.FRANCE, "A different language!", LifecycleStage.ACTIVE);
+    resourceCreator.insertProgram(
+        Locale.forLanguageTag("es-US"), "A different language!", LifecycleStage.ACTIVE);
     resourceCreator.insertProgram("English program", LifecycleStage.ACTIVE); // Missing translation
 
     // Set the PLAY_LANG cookie
-    Http.Request request = fakeRequest().langCookie(Locale.FRANCE, stubMessagesApi()).build();
+    Http.Request request =
+        fakeRequest().langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()).build();
 
     Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
 
