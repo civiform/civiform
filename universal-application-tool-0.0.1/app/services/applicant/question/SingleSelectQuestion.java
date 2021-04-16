@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
+import services.question.LocalizedQuestionOption;
 import services.question.exceptions.TranslationNotFoundException;
 import services.question.types.MultiOptionQuestionDefinition;
 
@@ -13,7 +14,7 @@ import services.question.types.MultiOptionQuestionDefinition;
 public class SingleSelectQuestion implements PresentsErrors {
 
   private final ApplicantQuestion applicantQuestion;
-  private Optional<String> selectedOptionValue;
+  private Optional<LocalizedQuestionOption> selectedOptionValue;
 
   public SingleSelectQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
@@ -32,17 +33,29 @@ public class SingleSelectQuestion implements PresentsErrors {
 
   @Override
   public boolean hasTypeSpecificErrors() {
-    // Return true if the selection option is not a valid option.
-    return getSelectedOptionValue().isPresent()
-        && !getOptions().contains(getSelectedOptionValue().get());
+    // Does not recognize invalid values
+    return false;
   }
 
-  public Optional<String> getSelectedOptionValue() {
+  public boolean hasValue() {
+    return getSelectedOptionValue().isPresent();
+  }
+
+  public Optional<LocalizedQuestionOption> getSelectedOptionValue() {
     if (selectedOptionValue != null) {
       return selectedOptionValue;
     }
 
-    selectedOptionValue = applicantQuestion.getApplicantData().readString(getSelectionPath());
+    Optional<Long> selectedOptionId =
+        applicantQuestion.getApplicantData().readLong(getSelectionPath());
+
+    selectedOptionValue =
+        selectedOptionId.isEmpty()
+            ? Optional.empty()
+            : getOptions().stream()
+                .filter(option -> selectedOptionId.get() == option.id())
+                .findFirst()
+                .or(() -> Optional.empty());
 
     return selectedOptionValue;
   }
@@ -66,11 +79,11 @@ public class SingleSelectQuestion implements PresentsErrors {
     return getQuestionDefinition().getSelectionPath();
   }
 
-  public boolean optionIsSelected(String option) {
+  public boolean optionIsSelected(LocalizedQuestionOption option) {
     return getSelectedOptionValue().isPresent() && getSelectedOptionValue().get().equals(option);
   }
 
-  public ImmutableList<String> getOptions() {
+  public ImmutableList<LocalizedQuestionOption> getOptions() {
     try {
       return getQuestionDefinition()
           .getOptionsForLocale(applicantQuestion.getApplicantData().preferredLocale());

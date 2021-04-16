@@ -1,11 +1,16 @@
 package forms;
 
-import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.OptionalInt;
+import java.util.stream.Collectors;
 import services.Path;
+import services.question.LocalizedQuestionOption;
+import services.question.QuestionOption;
+import services.question.exceptions.TranslationNotFoundException;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
@@ -32,8 +37,19 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.maxChoicesAllowed = qd.getMultiOptionValidationPredicates().maxChoicesAllowed();
 
     this.options = new ArrayList<>();
-    if (qd.getOptions().containsKey(Locale.US)) {
-      this.options.addAll(qd.getOptions().get(Locale.US));
+
+    try {
+      // TODO: this will need revisiting to support multiple locales
+      // https://github.com/seattle-uat/civiform/issues/778
+      if (qd.getSupportedLocales().contains(Locale.US)) {
+        List<String> optionStrings =
+            qd.getOptionsForLocale(Locale.US).stream()
+                .map(LocalizedQuestionOption::optionText)
+                .collect(Collectors.toList());
+        this.options.addAll(optionStrings);
+      }
+    } catch (TranslationNotFoundException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -94,9 +110,17 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
       predicateBuilder.setMaxChoicesAllowed(getMaxChoicesAllowed());
     }
 
+    // TODO: this will need to be revisited to support multiple locales
+    ImmutableList.Builder<QuestionOption> questionOptions = ImmutableList.builder();
+    long optionCount = 1L;
+
+    for (String optionText : getOptions()) {
+      questionOptions.add(
+          QuestionOption.create(optionCount++, ImmutableMap.of(Locale.US, optionText)));
+    }
+
     return super.getBuilder(path)
-        .setQuestionOptions(
-            ImmutableListMultimap.<Locale, String>builder().putAll(Locale.US, getOptions()).build())
+        .setQuestionOptions(questionOptions.build())
         .setValidationPredicates(predicateBuilder.build());
   }
 }

@@ -45,7 +45,8 @@ public class DropdownQuestionRenderer extends BaseHtmlView implements ApplicantQ
                     each(
                         singleSelectQuestion.getOptions(),
                         option ->
-                            option(option)
+                            option(option.optionText())
+                                .withValue(String.valueOf(option.id()))
                                 .condAttr(
                                     singleSelectQuestion.optionIsSelected(option),
                                     Attr.SELECTED,

@@ -1,12 +1,13 @@
 package services.question.types;
 
-import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import models.LifecycleStage;
 import services.Path;
+import services.question.QuestionOption;
 
 public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
 
@@ -20,7 +21,7 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      ImmutableListMultimap<Locale, String> options,
+      ImmutableList<QuestionOption> options,
       MultiOptionValidationPredicates validationPredicates) {
     super(
         id,
@@ -45,7 +46,7 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      ImmutableListMultimap<Locale, String> options,
+      ImmutableList<QuestionOption> options,
       MultiOptionValidationPredicates validationPredicates) {
     super(
         version,
@@ -69,7 +70,7 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      ImmutableListMultimap<Locale, String> options) {
+      ImmutableList<QuestionOption> options) {
     super(
         version,
         name,

@@ -1,21 +1,24 @@
 package services.question.types;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
-import java.util.Collection;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import models.LifecycleStage;
 import services.Path;
+import services.question.LocalizedQuestionOption;
+import services.question.QuestionOption;
 import services.question.exceptions.TranslationNotFoundException;
 
 public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
@@ -23,7 +26,8 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
   protected static final MultiOptionValidationPredicates SINGLE_SELECT_PREDICATE =
       MultiOptionValidationPredicates.create(1, 1);
 
-  private final ImmutableListMultimap<Locale, String> options;
+  private final ImmutableList<QuestionOption> options;
+  private final ImmutableSet<Locale> supportedLocales;
 
   protected MultiOptionQuestionDefinition(
       OptionalLong id,
@@ -35,7 +39,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      ImmutableListMultimap<Locale, String> options,
+      ImmutableList<QuestionOption> options,
       MultiOptionValidationPredicates validationPredicates) {
     super(
         id,
@@ -48,7 +52,8 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
         questionText,
         questionHelpText,
         validationPredicates);
-    this.options = assertSameNumberOfOptionsForEachLocale(checkNotNull(options));
+    this.options = checkNotNull(options);
+    this.supportedLocales = getSupportedLocales(options);
   }
 
   protected MultiOptionQuestionDefinition(
@@ -60,7 +65,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      ImmutableListMultimap<Locale, String> options,
+      ImmutableList<QuestionOption> options,
       MultiOptionValidationPredicates validationPredicates) {
     super(
         version,
@@ -72,7 +77,8 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
         questionText,
         questionHelpText,
         validationPredicates);
-    this.options = assertSameNumberOfOptionsForEachLocale(checkNotNull(options));
+    this.options = checkNotNull(options);
+    this.supportedLocales = getSupportedLocales(options);
   }
 
   protected MultiOptionQuestionDefinition(
@@ -84,7 +90,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      ImmutableListMultimap<Locale, String> options) {
+      ImmutableList<QuestionOption> options) {
     super(
         version,
         name,
@@ -95,17 +101,32 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
         questionText,
         questionHelpText,
         MultiOptionValidationPredicates.create());
-    this.options = assertSameNumberOfOptionsForEachLocale(checkNotNull(options));
+    this.options = checkNotNull(options);
+    this.supportedLocales = getSupportedLocales(options);
   }
 
-  private ImmutableListMultimap<Locale, String> assertSameNumberOfOptionsForEachLocale(
-      ImmutableListMultimap<Locale, String> options) {
-    long numDistinctLists =
-        options.asMap().values().stream().mapToInt(Collection::size).distinct().count();
-    if (numDistinctLists <= 1) {
-      return options;
+  public ImmutableSet<Locale> getSupportedLocales() {
+    return supportedLocales;
+  }
+
+  private ImmutableSet<Locale> getSupportedLocales(ImmutableList<QuestionOption> options) {
+    QuestionOption firstOption = Iterables.getFirst(options, null);
+
+    if (firstOption == null) {
+      throw new RuntimeException("Must have at least one option in MultiOptionQuestionDefinition");
     }
-    throw new RuntimeException("The lists of options are not the same for all locales");
+
+    ImmutableSet<Locale> locales = firstOption.optionText().keySet();
+
+    options.forEach(
+        option -> {
+          if (!option.optionText().keySet().equals(locales)) {
+            throw new RuntimeException(
+                "All options for a MultiOptionQuestionDefinition must have the same locales");
+          }
+        });
+
+    return locales;
   }
 
   @Override
@@ -118,14 +139,14 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   /**
-   * Multi-option question type answers are strings. For questions that allow multiple answers (e.g.
-   * checkbox questions), the type is still string, though a list is stored in the applicant JSON.
+   * Multi-option question type answers are longs. For questions that allow multiple answers (e.g.
+   * checkbox questions), the type is still long, though a list is stored in the applicant JSON.
    */
   public ScalarType getSelectionType() {
-    return ScalarType.STRING;
+    return ScalarType.LONG;
   }
 
-  public ImmutableListMultimap<Locale, String> getOptions() {
+  public ImmutableList<QuestionOption> getOptions() {
     return this.options;
   }
 
@@ -138,10 +159,12 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
    * @throws TranslationNotFoundException if there are no localized options for the given {@link
    *     Locale}
    */
-  public ImmutableList<String> getOptionsForLocale(Locale locale)
+  public ImmutableList<LocalizedQuestionOption> getOptionsForLocale(Locale locale)
       throws TranslationNotFoundException {
-    if (this.options.containsKey(locale)) {
-      return this.options.get(locale);
+    if (supportedLocales.contains(locale)) {
+      return this.options.stream()
+          .map(option -> option.localize(locale))
+          .collect(toImmutableList());
     } else {
       throw new TranslationNotFoundException(getPath().toString(), locale);
     }
@@ -156,6 +179,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
           AutoValue_MultiOptionQuestionDefinition_MultiOptionValidationPredicates.Builder.class)
   @AutoValue
   public abstract static class MultiOptionValidationPredicates extends ValidationPredicates {
+
     public static MultiOptionValidationPredicates create() {
       return builder().build();
     }
@@ -178,15 +202,15 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       }
     }
 
+    public static Builder builder() {
+      return new AutoValue_MultiOptionQuestionDefinition_MultiOptionValidationPredicates.Builder();
+    }
+
     @JsonProperty("minChoicesRequired")
     public abstract OptionalInt minChoicesRequired();
 
     @JsonProperty("maxChoicesAllowed")
     public abstract OptionalInt maxChoicesAllowed();
-
-    public static Builder builder() {
-      return new AutoValue_MultiOptionQuestionDefinition_MultiOptionValidationPredicates.Builder();
-    }
 
     @AutoValue.Builder
     public abstract static class Builder {
