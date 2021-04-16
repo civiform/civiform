@@ -2,7 +2,7 @@ package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
 import java.util.EnumSet;
@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
@@ -39,7 +40,9 @@ public class ApplicantQuestionTest {
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
-          ImmutableListMultimap.of(Locale.US, "option 1", Locale.US, "option 2"));
+          ImmutableList.of(
+              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1")),
+              QuestionOption.create(2L, ImmutableMap.of(Locale.US, "option 2"))));
   private static final DropdownQuestionDefinition dropdownQuestionDefinition =
       new DropdownQuestionDefinition(
           1L,
@@ -50,15 +53,11 @@ public class ApplicantQuestionTest {
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
-          ImmutableListMultimap.of(
-              Locale.US,
-              "option 1",
-              Locale.US,
-              "option 2",
-              Locale.FRANCE,
-              "un",
-              Locale.FRANCE,
-              "deux"));
+          ImmutableList.of(
+              QuestionOption.create(
+                  1L, ImmutableMap.of(Locale.US, "option 1", Locale.FRANCE, "un")),
+              QuestionOption.create(
+                  2L, ImmutableMap.of(Locale.US, "option 2", Locale.FRANCE, "deux"))));
   private static final TextQuestionDefinition textQuestionDefinition =
       new TextQuestionDefinition(
           1L,
@@ -109,7 +108,9 @@ public class ApplicantQuestionTest {
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
-          ImmutableListMultimap.of(Locale.US, "option 1", Locale.US, "option 2"));
+          ImmutableList.of(
+              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1")),
+              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 2"))));
 
   // TODO(https://github.com/seattle-uat/civiform/issues/405): Change this to just use
   // @Parameters(source = QuestionType.class) once RepeatedQuestionDefinition exists.
