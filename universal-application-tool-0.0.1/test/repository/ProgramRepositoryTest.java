@@ -3,11 +3,14 @@ package repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
+import services.program.TranslationNotFoundException;
 
 public class ProgramRepositoryTest extends WithPostgresContainer {
 
@@ -53,24 +56,29 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
-  public void insertProgramSync() {
+  public void insertProgramSync() throws TranslationNotFoundException {
     Program program = new Program("ProgramRepository", "desc");
 
     Program withId = repo.insertProgramSync(program);
 
     Program found = repo.lookupProgram(withId.id).toCompletableFuture().join().get();
-    assertThat(found.getProgramDefinition().name()).isEqualTo("ProgramRepository");
+    assertThat(found.getProgramDefinition().getLocalizedName(Locale.US))
+        .isEqualTo("ProgramRepository");
   }
 
   @Test
   public void updateProgramSync() {
     Program existing = resourceCreator().insertProgram("old name");
     Program updates =
-        new Program(existing.getProgramDefinition().toBuilder().setName("new name").build());
+        new Program(
+            existing.getProgramDefinition().toBuilder()
+                .setLocalizedName(ImmutableMap.of(Locale.US, "new name"))
+                .build());
 
     Program updated = repo.updateProgramSync(updates);
 
     assertThat(updated.getProgramDefinition().id()).isEqualTo(existing.id);
-    assertThat(updated.getProgramDefinition().name()).isEqualTo("new name");
+    assertThat(updated.getProgramDefinition().localizedName())
+        .isEqualTo(ImmutableMap.of(Locale.US, "new name"));
   }
 }

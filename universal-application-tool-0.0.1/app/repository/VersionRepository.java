@@ -221,7 +221,7 @@ public class VersionRepository {
             .find(Program.class)
             .usingTransaction(transaction)
             .where()
-            .eq("name", program.getProgramDefinition().name())
+            .eq("name", program.getProgramDefinition().adminName())
             .eq("lifecycle_stage", LifecycleStage.ACTIVE)
             .not()
             .eq("id", program.id)
