@@ -69,7 +69,7 @@ public class Icons {
             .attr("stroke-linecap", "round")
             .attr("stroke-linejoin", "round")
             .attr("stroke-width", "2");
-      case FILEUPLOAD:
+      case FILE_UPLOAD:
         return svg(Icons.FILEUPLOAD_SVG_PATH, width, height)
             .attr("fill-rule", "evenodd")
             .attr("clip-rule", "evenodd");

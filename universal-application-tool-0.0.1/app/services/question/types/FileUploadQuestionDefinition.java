@@ -79,7 +79,7 @@ public class FileUploadQuestionDefinition extends QuestionDefinition {
 
   @Override
   public QuestionType getQuestionType() {
-    return QuestionType.FILEUPLOAD;
+    return QuestionType.FILE_UPLOAD;
   }
 
   @Override

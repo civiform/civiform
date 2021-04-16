@@ -112,7 +112,7 @@ public class ApplicantQuestion {
         return createAddressQuestion();
       case CHECKBOX:
         return createMultiSelectQuestion();
-      case FILEUPLOAD:
+      case FILE_UPLOAD:
         return createFileUploadQuestion();
       case DROPDOWN:
       case RADIO_BUTTON:

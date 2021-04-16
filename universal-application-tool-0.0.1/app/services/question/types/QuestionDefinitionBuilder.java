@@ -209,7 +209,7 @@ public class QuestionDefinitionBuilder {
             questionText,
             questionHelpText,
             questionOptions);
-      case FILEUPLOAD:
+      case FILE_UPLOAD:
         return new FileUploadQuestionDefinition(
             id,
             version,

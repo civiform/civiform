@@ -244,7 +244,7 @@ public class QuestionController extends CiviFormController {
         return formFactory.form(CheckboxQuestionForm.class).bindFromRequest(request).get();
       case DROPDOWN:
         return formFactory.form(DropdownQuestionForm.class).bindFromRequest(request).get();
-      case FILEUPLOAD:
+      case FILE_UPLOAD:
         return formFactory.form(FileUploadQuestionForm.class).bindFromRequest(request).get();
       case NAME:
         return formFactory.form(NameQuestionForm.class).bindFromRequest(request).get();
