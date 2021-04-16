@@ -29,10 +29,10 @@ public class SingleSelectQuestionTest {
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
           ImmutableList.of(
-              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1")),
-              QuestionOption.create(2L, ImmutableMap.of(Locale.US, "option 2")),
-              QuestionOption.create(3L, ImmutableMap.of(Locale.FRANCE, "un")),
-              QuestionOption.create(4L, ImmutableMap.of(Locale.FRANCE, "deux"))));
+              QuestionOption.create(
+                  1L, ImmutableMap.of(Locale.US, "option 1", Locale.FRANCE, "un")),
+              QuestionOption.create(
+                  2L, ImmutableMap.of(Locale.US, "option 2", Locale.FRANCE, "deux"))));
 
   private Applicant applicant;
   private ApplicantData applicantData;
@@ -59,7 +59,7 @@ public class SingleSelectQuestionTest {
 
   @Test
   public void withPresentApplicantData() {
-    applicantData.putString(dropdownQuestionDefinition.getSelectionPath(), "option 1");
+    applicantData.putLong(dropdownQuestionDefinition.getSelectionPath(), 1L);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
 
@@ -73,16 +73,14 @@ public class SingleSelectQuestionTest {
 
   @Test
   public void withPresentApplicantData_selectedInvalidOption_hasErrors() {
-    applicantData.putString(
-        dropdownQuestionDefinition.getSelectionPath(), "this isn't a valid answer!");
+    applicantData.putLong(dropdownQuestionDefinition.getSelectionPath(), 9L);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
 
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 
-    assertThat(singleSelectQuestion.hasTypeSpecificErrors()).isTrue();
+    assertThat(singleSelectQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(singleSelectQuestion.hasQuestionErrors()).isFalse();
-    assertThat(singleSelectQuestion.getSelectedOptionValue())
-        .hasValue(LocalizedQuestionOption.create(1L, "this isn't a valid answer!", Locale.US));
+    assertThat(singleSelectQuestion.getSelectedOptionValue()).isEmpty();
   }
 }

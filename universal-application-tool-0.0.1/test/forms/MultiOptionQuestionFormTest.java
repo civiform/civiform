@@ -28,6 +28,7 @@ public class MultiOptionQuestionFormTest {
     form.setQuestionHelpText("");
     form.setMinChoicesRequired("1");
     form.setMaxChoicesAllowed("10");
+    form.setOptions(ImmutableList.of("one", "two"));
     QuestionDefinitionBuilder builder = form.getBuilder(path);
 
     builder.setVersion(1L);
@@ -90,6 +91,7 @@ public class MultiOptionQuestionFormTest {
     form.setQuestionHelpText("");
     form.setMinChoicesRequired("");
     form.setMaxChoicesAllowed("");
+    form.setOptions(ImmutableList.of("one", "two"));
     QuestionDefinitionBuilder builder = form.getBuilder(path);
 
     builder.setVersion(1L);

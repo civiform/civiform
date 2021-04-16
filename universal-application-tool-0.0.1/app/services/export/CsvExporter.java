@@ -36,7 +36,9 @@ public class CsvExporter {
    */
   public void export(Application application, Writer writer) throws IOException {
     CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT.withFirstRecordAsHeader());
+
     this.writeHeadersOnFirstExport(printer);
+
     for (Column column : this.columns) {
       switch (column.columnType()) {
         case APPLICANT:
@@ -52,6 +54,7 @@ public class CsvExporter {
           break;
       }
     }
+
     printer.println();
   }
 }

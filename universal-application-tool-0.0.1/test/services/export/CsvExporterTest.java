@@ -95,10 +95,10 @@ public class CsvExporterTest extends WithPostgresContainer {
             Path.create("applicant.column"), "Some Value \" containing ,,, special characters");
     fakeApplicantOne
         .getApplicantData()
-        .putString(Path.create("applicant.multiselect.selection[0]"), "hello");
+        .putLong(Path.create("applicant.multiselect.selection[0]"), 1L);
     fakeApplicantOne
         .getApplicantData()
-        .putString(Path.create("applicant.multiselect.selection[1]"), "world");
+        .putLong(Path.create("applicant.multiselect.selection[1]"), 2L);
     fakeApplicantOne
         .getApplicantData()
         .putString(Path.create("applicant.applicant_favorite_color.text"), "fuchsia");
@@ -152,7 +152,7 @@ public class CsvExporterTest extends WithPostgresContainer {
     assertThat(records.get(0).get("first name")).isEqualTo("Alice");
     assertThat(records.get(1).get("last name")).isEqualTo("Baker");
     // Check list for multiselect
-    assertThat(records.get(0).get("multiselect")).isEqualTo("[hello, world]");
+    assertThat(records.get(0).get("multiselect")).isEqualTo("[1, 2]");
   }
 
   @Test

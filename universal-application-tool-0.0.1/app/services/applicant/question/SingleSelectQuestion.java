@@ -33,9 +33,8 @@ public class SingleSelectQuestion implements PresentsErrors {
 
   @Override
   public boolean hasTypeSpecificErrors() {
-    // Return true if the selection option is not a valid option.
-    return getSelectedOptionValue().isPresent()
-        && !getOptions().contains(getSelectedOptionValue().get());
+    // Does not recognize invalid values
+    return false;
   }
 
   public boolean hasValue() {

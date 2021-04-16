@@ -390,9 +390,9 @@ public class ApplicantDataTest {
 
   @Test
   public void readAsString_readsAListAsAString() {
-    ApplicantData data = new ApplicantData("{\"applicant\":{\"list\":[\"hello\",\"world\"]}}");
+    ApplicantData data = new ApplicantData("{\"applicant\":{\"list\":[1, 2]}}");
 
-    assertThat(data.readAsString(Path.create("applicant.list"))).hasValue("[hello, world]");
+    assertThat(data.readAsString(Path.create("applicant.list"))).hasValue("[1, 2]");
   }
 
   @Test
