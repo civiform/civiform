@@ -31,7 +31,7 @@ export class ApplicantQuestions {
   }
 
   async answerDropdownQuestion(selected: string) {
-    await this.page.selectOption('select', selected);
+    await this.page.selectOption('select', { label: selected });
   }
 
   async answerNumberQuestion(number: string) {
