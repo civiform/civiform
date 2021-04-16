@@ -25,7 +25,7 @@ public class BlockDefinitionTest {
   }
 
   @Test
-  public void getScalarType() throws Exception {
+  public void getScalarType() {
     BlockDefinition block = makeBlockDefinitionWithQuestions();
     assertThat(block.getScalarType(Path.create("applicant.applicant_name.first")))
         .hasValue(ScalarType.STRING);
@@ -47,7 +47,7 @@ public class BlockDefinitionTest {
   }
 
   @Test
-  public void hasPaths() throws Exception {
+  public void hasPaths() {
     BlockDefinition block = makeBlockDefinitionWithQuestions();
     ImmutableList<Path> paths =
         ImmutableList.of(
@@ -66,7 +66,7 @@ public class BlockDefinitionTest {
   }
 
   @Test
-  public void isRepeater_isFalse() throws Exception {
+  public void isRepeater_isFalse() {
     BlockDefinition blockDefinition = makeBlockDefinitionWithQuestions();
 
     assertThat(blockDefinition.isRepeater()).isFalse();
@@ -80,7 +80,7 @@ public class BlockDefinitionTest {
   }
 
   @Test
-  public void isRepeater_isTrue() throws Exception {
+  public void isRepeater_isTrue() {
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(123L)
@@ -95,14 +95,14 @@ public class BlockDefinitionTest {
   }
 
   @Test
-  public void isRepeated_isTrue() throws Exception {
+  public void isRepeated_isTrue() {
     BlockDefinition blockDefinition =
         makeBlockDefinitionWithQuestions().toBuilder().setRepeaterId(Optional.of(1L)).build();
 
     assertThat(blockDefinition.isRepeated()).isTrue();
   }
 
-  private BlockDefinition makeBlockDefinitionWithQuestions() throws Exception {
+  private BlockDefinition makeBlockDefinitionWithQuestions() {
     QuestionDefinition nameQuestion = TestQuestionBank.applicantName().getQuestionDefinition();
     QuestionDefinition addressQuestion =
         TestQuestionBank.applicantAddress().getQuestionDefinition();

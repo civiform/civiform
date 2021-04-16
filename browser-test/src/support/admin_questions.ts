@@ -97,8 +97,6 @@ export class AdminQuestions {
     await this.addNumberQuestion(questionNamePrefix + 'number');
     await this.addRadioButtonQuestion(questionNamePrefix + 'radio', ['one', 'two', 'three']);
     await this.addTextQuestion(questionNamePrefix + 'text');
-    await this.addRepeaterQuestion(questionNamePrefix + 'repeater');
-    await this.addRepeatedQuestion(questionNamePrefix + 'repeated', questionNamePrefix + 'repeater');
     return [questionNamePrefix + 'address',
     questionNamePrefix + 'checkbox',
     questionNamePrefix + 'dropdown',
@@ -106,8 +104,6 @@ export class AdminQuestions {
     questionNamePrefix + 'number',
     questionNamePrefix + 'radio',
     questionNamePrefix + 'text',
-    questionNamePrefix + 'repeater',
-    questionNamePrefix + 'repeated',
     ];
   }
 
