@@ -42,10 +42,10 @@ public class FileUploadQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(fileUploadQuestionDefinition, applicantData);
 
-    TextQuestion textQuestion = new TextQuestion(applicantQuestion);
+    FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
 
-    assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(textQuestion.hasQuestionErrors()).isFalse();
+    assertThat(fileUploadQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(fileUploadQuestion.hasQuestionErrors()).isFalse();
   }
 
   @Test
