@@ -91,6 +91,7 @@ public class QuestionConfig {
             .setId("single-select-question-config")
             .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm)
             .getContainer();
+      case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended - no options
       case REPEATER: // fallthrough intended
       default:

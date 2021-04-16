@@ -20,6 +20,7 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
+import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -58,6 +59,16 @@ public class ApplicantQuestionTest {
                   1L, ImmutableMap.of(Locale.US, "option 1", Locale.FRANCE, "un")),
               QuestionOption.create(
                   2L, ImmutableMap.of(Locale.US, "option 2", Locale.FRANCE, "deux"))));
+  private static final FileUploadQuestionDefinition fileUploadQuestionDefinition =
+      new FileUploadQuestionDefinition(
+          1L,
+          "question name",
+          Path.create("applicant.my.path.name"),
+          Optional.empty(),
+          "description",
+          LifecycleStage.ACTIVE,
+          ImmutableMap.of(Locale.US, "question?"),
+          ImmutableMap.of(Locale.US, "help text"));
   private static final TextQuestionDefinition textQuestionDefinition =
       new TextQuestionDefinition(
           1L,
@@ -135,6 +146,11 @@ public class ApplicantQuestionTest {
     assertThat(addressApplicantQuestion.createAddressQuestion())
         .isInstanceOf(AddressQuestion.class);
 
+    ApplicantQuestion fileUploadApplicantQuestion =
+        new ApplicantQuestion(fileUploadQuestionDefinition, new ApplicantData());
+    assertThat(fileUploadApplicantQuestion.createFileUploadQuestion())
+        .isInstanceOf(FileUploadQuestion.class);
+
     ApplicantQuestion nameApplicantQuestion =
         new ApplicantQuestion(nameQuestionDefinition, new ApplicantData());
     assertThat(nameApplicantQuestion.createNameQuestion()).isInstanceOf(NameQuestion.class);
@@ -173,14 +189,23 @@ public class ApplicantQuestionTest {
             new ApplicantQuestion(addressQuestionDefinition, new ApplicantData()),
             new ApplicantQuestion(addressQuestionDefinition, new ApplicantData()))
         .addEqualityGroup(
+            new ApplicantQuestion(checkboxQuestionDefinition, new ApplicantData()),
+            new ApplicantQuestion(checkboxQuestionDefinition, new ApplicantData()))
+        .addEqualityGroup(
             new ApplicantQuestion(dropdownQuestionDefinition, new ApplicantData()),
             new ApplicantQuestion(dropdownQuestionDefinition, new ApplicantData()))
+        .addEqualityGroup(
+            new ApplicantQuestion(fileUploadQuestionDefinition, new ApplicantData()),
+            new ApplicantQuestion(fileUploadQuestionDefinition, new ApplicantData()))
         .addEqualityGroup(
             new ApplicantQuestion(nameQuestionDefinition, new ApplicantData()),
             new ApplicantQuestion(nameQuestionDefinition, new ApplicantData()))
         .addEqualityGroup(
             new ApplicantQuestion(numberQuestionDefinition, new ApplicantData()),
             new ApplicantQuestion(numberQuestionDefinition, new ApplicantData()))
+        .addEqualityGroup(
+            new ApplicantQuestion(radioButtonQuestionDefinition, new ApplicantData()),
+            new ApplicantQuestion(radioButtonQuestionDefinition, new ApplicantData()))
         .addEqualityGroup(
             new ApplicantQuestion(textQuestionDefinition, new ApplicantData()),
             new ApplicantQuestion(textQuestionDefinition, new ApplicantData()))
