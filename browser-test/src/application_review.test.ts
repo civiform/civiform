@@ -12,6 +12,7 @@ describe('normal application flow', () => {
     await adminQuestions.addDropdownQuestion('ice-cream-q', ['chocolate', 'banana', 'black raspberry']);
     await adminQuestions.addCheckboxQuestion('favorite-trees-q', ['oak', 'maple', 'pine', 'cherry']);
     await adminQuestions.addAddressQuestion('address-q');
+    await adminQuestions.addFileUploadQuestion('fileupload-q');
     await adminQuestions.addNameQuestion('name-q');
     await adminQuestions.addNumberQuestion('number-q');
     await adminQuestions.addTextQuestion('text-q');
@@ -21,6 +22,7 @@ describe('normal application flow', () => {
     await adminPrograms.addProgram(programName);
     await adminPrograms.editProgramBlock(programName, 'block description', ['address-q', 'name-q', 'radio-q']);
     await adminPrograms.addProgramBlock(programName, 'another description', ['ice-cream-q', 'favorite-trees-q', 'number-q', 'text-q']);
+    await adminPrograms.addProgramBlock(programName, 'third description', ['fileupload-q']);
 
     await adminPrograms.gotoAdminProgramsPage();
     await adminPrograms.expectDraftProgram(programName);
@@ -53,6 +55,9 @@ describe('normal application flow', () => {
     await applicantQuestions.answerTextQuestion('some text');
     await applicantQuestions.saveAndContinue();
 
+    await applicantQuestions.answerFileUploadQuestion('file key');
+    await applicantQuestions.saveAndContinue();
+
     await logout(page);
     await loginAsAdmin(page);
 
@@ -65,6 +70,7 @@ describe('normal application flow', () => {
     await adminPrograms.expectApplicationAnswers('Block 2', 'favorite-trees-q', '[pine, cherry]');
     await adminPrograms.expectApplicationAnswers('Block 2', 'number-q', '42');
     await adminPrograms.expectApplicationAnswers('Block 2', 'text-q', 'some text');
+    await adminPrograms.expectApplicationAnswers('Block 3', 'fileupload-q', 'file key');
     await endSession(browser);
   })
 })

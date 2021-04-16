@@ -93,6 +93,7 @@ export class AdminQuestions {
     await this.addAddressQuestion(questionNamePrefix + 'address');
     await this.addCheckboxQuestion(questionNamePrefix + 'checkbox', ['op1', 'op2', 'op3', 'op4']);
     await this.addDropdownQuestion(questionNamePrefix + 'dropdown', ['op1', 'op2', 'op3']);
+    await this.addFileUploadQuestion(questionNamePrefix + 'fileupload');
     await this.addNameQuestion(questionNamePrefix + 'name');
     await this.addNumberQuestion(questionNamePrefix + 'number');
     await this.addRadioButtonQuestion(questionNamePrefix + 'radio', ['one', 'two', 'three']);
@@ -102,6 +103,7 @@ export class AdminQuestions {
     return [questionNamePrefix + 'address',
     questionNamePrefix + 'checkbox',
     questionNamePrefix + 'dropdown',
+    questionNamePrefix + 'fileupload',
     questionNamePrefix + 'name',
     questionNamePrefix + 'number',
     questionNamePrefix + 'radio',
@@ -193,6 +195,24 @@ export class AdminQuestions {
       await this.page.click('#add-new-option');
       await this.page.fill('input:above(#add-new-option)', options[index]);
     }
+
+    await this.page.click('text=Create');
+
+    await this.expectAdminQuestionsPage();
+
+    await this.expectDraftQuestionExist(questionName, questionText);
+  }
+
+  async addFileUploadQuestion(questionName: string,
+    description = 'fileupload description',
+    questionText = 'fileupload question text',
+    helpText = 'fileupload question help text') {
+    await this.gotoAdminQuestionsPage();
+    await this.page.click('#create-question-button');
+
+    await this.page.click('#create-fileupload-question');
+
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText);
 
     await this.page.click('text=Create');
 

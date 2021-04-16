@@ -26,6 +26,10 @@ export class ApplicantQuestions {
     }
   }
 
+  async answerFileUploadQuestion(text: string) {
+    await this.page.fill('input[type="text"]', text);
+  }
+
   async answerRadioButtonQuestion(checked: string) {
     await this.page.check('input[value="' + checked + '"]');
   }
