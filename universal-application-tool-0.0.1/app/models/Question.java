@@ -1,9 +1,12 @@
 package models;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Streams;
 import io.ebean.annotation.DbJsonB;
 import java.util.Locale;
 import java.util.Optional;
@@ -51,15 +54,16 @@ public class Question extends BaseModel {
 
   @Constraints.Required private LifecycleStage lifecycleStage;
 
+  // questionOptions is the legacy storage column for multi-option questions. A few questions
+  // created
+  // early on in April 2021 may use this, but all other multi-option questions should not. In
+  // practice
+  // one can assume only a single locale is present for questions that have values stored in this
+  // column.
+  private @DbJsonB ImmutableListMultimap<Locale, String> questionOptions;
+
+  // questionOptionsWithLocales is the current storage column for multi-option questions.
   private @DbJsonB ImmutableList<QuestionOption> questionOptionsWithLocales;
-
-  public long getVersion() {
-    return version;
-  }
-
-  public String getPath() {
-    return path;
-  }
 
   public Question(QuestionDefinition questionDefinition) {
     this.questionDefinition = checkNotNull(questionDefinition);
@@ -69,6 +73,14 @@ public class Question extends BaseModel {
   public Question(QuestionDefinition questionDefinition, LifecycleStage lifecycleStage) {
     this(questionDefinition);
     this.lifecycleStage = lifecycleStage;
+  }
+
+  public long getVersion() {
+    return version;
+  }
+
+  public String getPath() {
+    return path;
   }
 
   /** Populates column values from {@link QuestionDefinition}. */
@@ -98,11 +110,38 @@ public class Question extends BaseModel {
             .setQuestionType(QuestionType.valueOf(questionType))
             .setValidationPredicatesString(validationPredicates);
 
-    if (QuestionType.of(questionType).isMultiOptionType()) {
-      builder.setQuestionOptions(questionOptionsWithLocales);
-    }
+    setQuestionOptions(builder);
 
     this.questionDefinition = builder.build();
+  }
+
+  private void setQuestionOptions(QuestionDefinitionBuilder builder)
+      throws InvalidQuestionTypeException {
+    if (!QuestionType.of(questionType).isMultiOptionType()) {
+      return;
+    }
+
+    // The majority of multi option questions should have `questionOptionsWithLocales` and not
+    // `questionOptions`.
+    // `questionOptions` is a legacy implementation that only supported a single locale.
+    if (questionOptionsWithLocales != null) {
+      builder.setQuestionOptions(questionOptionsWithLocales);
+      return;
+    }
+
+    // If the multi option question does have questionOptions, we can assume there is only one
+    // locale
+    // and convert the strings to QuestionOption instances each with a single locale.
+    Locale firstKey = questionOptions.keySet().stream().iterator().next();
+
+    ImmutableList<QuestionOption> options =
+        Streams.mapWithIndex(
+                questionOptions.get(firstKey).stream(),
+                (optionText, i) ->
+                    QuestionOption.create(Long.valueOf(i), ImmutableMap.of(firstKey, optionText)))
+            .collect(toImmutableList());
+
+    builder.setQuestionOptions(options);
   }
 
   public QuestionDefinition getQuestionDefinition() {
