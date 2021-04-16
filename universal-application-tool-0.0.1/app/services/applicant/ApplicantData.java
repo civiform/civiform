@@ -340,7 +340,7 @@ public class ApplicantData {
     return readString(path);
   }
 
-  /** Returns true if the value at the path is a JSON array of strings, and false otherwise. */
+  /** Returns true if the value at the path is a JSON array of longs, and false otherwise. */
   private boolean isJsonArray(Path path) {
     try {
       this.read(path, IMMUTABLE_LIST_LONG_TYPE);
