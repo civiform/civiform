@@ -11,6 +11,10 @@ public class Icons {
   public static final String CHECKBOX_SVG_PATH = "M5 13l4 4L19 7";
   // Menu
   public static final String DROPDOWN_SVG_PATH = "M4 6h16M4 10h16M4 14h16M4 18h16";
+  public static final String FILEUPLOAD_SVG_PATH =
+      "M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0"
+          + " 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0"
+          + " 01-1.414 0z";
   public static final String NAME_SVG_PATH =
       "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34"
           + " 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99"
@@ -65,6 +69,10 @@ public class Icons {
             .attr("stroke-linecap", "round")
             .attr("stroke-linejoin", "round")
             .attr("stroke-width", "2");
+      case FILEUPLOAD:
+        return svg(Icons.FILEUPLOAD_SVG_PATH, width, height)
+            .attr("fill-rule", "evenodd")
+            .attr("clip-rule", "evenodd");
       case NAME:
         iconPath = Icons.NAME_SVG_PATH;
         break;

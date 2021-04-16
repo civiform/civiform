@@ -11,6 +11,7 @@ import com.google.inject.Inject;
 import forms.AddressQuestionForm;
 import forms.CheckboxQuestionForm;
 import forms.DropdownQuestionForm;
+import forms.FileUploadQuestionForm;
 import forms.NameQuestionForm;
 import forms.NumberQuestionForm;
 import forms.QuestionForm;
@@ -29,6 +30,7 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
+import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -351,6 +353,9 @@ public final class QuestionEditView extends BaseHtmlView {
       case DROPDOWN:
         questionForm = new DropdownQuestionForm();
         break;
+      case FILEUPLOAD:
+        questionForm = new FileUploadQuestionForm();
+        break;
       case NAME:
         questionForm = new NameQuestionForm();
         break;
@@ -382,6 +387,8 @@ public final class QuestionEditView extends BaseHtmlView {
         return new CheckboxQuestionForm((CheckboxQuestionDefinition) questionDefinition);
       case DROPDOWN:
         return new DropdownQuestionForm((DropdownQuestionDefinition) questionDefinition);
+      case FILEUPLOAD:
+        return new FileUploadQuestionForm((FileUploadQuestionDefinition) questionDefinition);
       case NAME:
         return new NameQuestionForm((NameQuestionDefinition) questionDefinition);
       case NUMBER:
