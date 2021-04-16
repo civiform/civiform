@@ -14,6 +14,7 @@ import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
+import support.TestQuestionDefinitionBank;
 
 @RunWith(JUnitParamsRunner.class)
 public class ApplicantQuestionTest {
@@ -31,65 +32,53 @@ public class ApplicantQuestionTest {
   @Test
   public void getsExpectedQuestionType() throws UnsupportedQuestionTypeException {
     ApplicantQuestion addressApplicantQuestion =
-        new ApplicantQuestion(
-            QuestionDefinitionBuilder.sample(QuestionType.ADDRESS).build(), new ApplicantData());
+        new ApplicantQuestion(TestQuestionDefinitionBank.address(), new ApplicantData());
     assertThat(addressApplicantQuestion.createAddressQuestion())
         .isInstanceOf(AddressQuestion.class);
 
     ApplicantQuestion checkboxApplicantQuestion =
-        new ApplicantQuestion(
-            QuestionDefinitionBuilder.sample(QuestionType.CHECKBOX).build(), new ApplicantData());
+        new ApplicantQuestion(TestQuestionDefinitionBank.checkbox(), new ApplicantData());
     assertThat(checkboxApplicantQuestion.createMultiSelectQuestion())
         .isInstanceOf(MultiSelectQuestion.class);
 
+    ApplicantQuestion dropdownApplicantQuestion =
+            new ApplicantQuestion(TestQuestionDefinitionBank.dropdown(), new ApplicantData());
+    assertThat(dropdownApplicantQuestion.createSingleSelectQuestion())
+            .isInstanceOf(SingleSelectQuestion.class);
+
     ApplicantQuestion nameApplicantQuestion =
-        new ApplicantQuestion(
-            QuestionDefinitionBuilder.sample(QuestionType.NAME).build(), new ApplicantData());
+        new ApplicantQuestion(TestQuestionDefinitionBank.name(), new ApplicantData());
     assertThat(nameApplicantQuestion.createNameQuestion()).isInstanceOf(NameQuestion.class);
 
     ApplicantQuestion numberApplicantQuestion =
-        new ApplicantQuestion(
-            QuestionDefinitionBuilder.sample(QuestionType.NUMBER).build(), new ApplicantData());
+        new ApplicantQuestion(TestQuestionDefinitionBank.number(), new ApplicantData());
     assertThat(numberApplicantQuestion.createNumberQuestion()).isInstanceOf(NumberQuestion.class);
 
     ApplicantQuestion radioApplicantQuestion =
-        new ApplicantQuestion(
-            QuestionDefinitionBuilder.sample(QuestionType.RADIO_BUTTON).build(),
-            new ApplicantData());
+        new ApplicantQuestion(TestQuestionDefinitionBank.radioButton(), new ApplicantData());
     assertThat(radioApplicantQuestion.createSingleSelectQuestion())
         .isInstanceOf(SingleSelectQuestion.class);
 
-    ApplicantQuestion singleSelectApplicantQuestion =
-        new ApplicantQuestion(
-            QuestionDefinitionBuilder.sample(QuestionType.DROPDOWN).build(), new ApplicantData());
-    assertThat(singleSelectApplicantQuestion.createSingleSelectQuestion())
-        .isInstanceOf(SingleSelectQuestion.class);
-
     ApplicantQuestion textApplicantQuestion =
-        new ApplicantQuestion(
-            QuestionDefinitionBuilder.sample(QuestionType.TEXT).build(), new ApplicantData());
+        new ApplicantQuestion(TestQuestionDefinitionBank.text(), new ApplicantData());
     assertThat(textApplicantQuestion.createTextQuestion()).isInstanceOf(TextQuestion.class);
   }
 
   @Test
-  public void equals() throws UnsupportedQuestionTypeException {
-    AddressQuestionDefinition addressQuestionDefinition =
-        (AddressQuestionDefinition) QuestionDefinitionBuilder.sample(QuestionType.ADDRESS).build();
-    TextQuestionDefinition textQuestionDefinition =
-        (TextQuestionDefinition) QuestionDefinitionBuilder.sample(QuestionType.TEXT).build();
+  public void equals() {
     ApplicantData dataWithAnswers = new ApplicantData();
     dataWithAnswers.putString(Path.create("applicant.color"), "blue");
 
     new EqualsTester()
         .addEqualityGroup(
-            new ApplicantQuestion(addressQuestionDefinition, new ApplicantData()),
-            new ApplicantQuestion(addressQuestionDefinition, new ApplicantData()))
+            new ApplicantQuestion(TestQuestionDefinitionBank.address(), new ApplicantData()),
+            new ApplicantQuestion(TestQuestionDefinitionBank.address(), new ApplicantData()))
         .addEqualityGroup(
-            new ApplicantQuestion(textQuestionDefinition, new ApplicantData()),
-            new ApplicantQuestion(textQuestionDefinition, new ApplicantData()))
+            new ApplicantQuestion(TestQuestionDefinitionBank.text(), new ApplicantData()),
+            new ApplicantQuestion(TestQuestionDefinitionBank.text(), new ApplicantData()))
         .addEqualityGroup(
-            new ApplicantQuestion(textQuestionDefinition, dataWithAnswers),
-            new ApplicantQuestion(textQuestionDefinition, dataWithAnswers))
+            new ApplicantQuestion(TestQuestionDefinitionBank.text(), dataWithAnswers),
+            new ApplicantQuestion(TestQuestionDefinitionBank.text(), dataWithAnswers))
         .testEquals();
   }
 }
