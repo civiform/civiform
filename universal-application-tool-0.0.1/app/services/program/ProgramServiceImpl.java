@@ -3,7 +3,6 @@ package services.program;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import forms.BlockForm;
@@ -97,27 +96,43 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   public ErrorAnd<ProgramDefinition, CiviFormError> createProgramDefinition(
-      String name, String description) {
-    ImmutableSet<CiviFormError> errors = validateProgramDefinition(name, description);
+      String adminName,
+      String adminDescription,
+      String defaultDisplayName,
+      String defaultDisplayDescription) {
+
+    ImmutableSet.Builder<CiviFormError> builder = ImmutableSet.builder();
+    builder.addAll(validateProgramDefinition(adminName, adminDescription));
+    builder.addAll(validateProgramDefinition(defaultDisplayName, defaultDisplayDescription));
+
+    ImmutableSet<CiviFormError> errors = builder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
-    Program program = new Program(name, description);
+
+    Program program =
+        new Program(adminName, adminDescription, defaultDisplayName, defaultDisplayDescription);
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
 
   @Override
   public ErrorAnd<ProgramDefinition, CiviFormError> updateProgramDefinition(
-      long programId, String name, String description) throws ProgramNotFoundException {
+      long programId,
+      Locale locale,
+      String adminDescription,
+      String displayName,
+      String displayDescription)
+      throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
-    ImmutableSet<CiviFormError> errors = validateProgramDefinition(name, description);
+    ImmutableSet<CiviFormError> errors = validateProgramDefinition(displayName, displayDescription);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
     Program program =
         programDefinition.toBuilder()
-            .setLocalizedName(ImmutableMap.of(Locale.US, name))
-            .setLocalizedDescription(ImmutableMap.of(Locale.US, description))
+            .setAdminDescription(adminDescription)
+            .addLocalizedName(locale, displayName)
+            .addLocalizedDescription(locale, displayDescription)
             .build()
             .toProgram();
     return ErrorAnd.of(

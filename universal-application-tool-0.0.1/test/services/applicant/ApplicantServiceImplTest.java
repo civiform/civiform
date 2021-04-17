@@ -309,7 +309,10 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   private void createProgram(QuestionDefinition... questions) throws Exception {
-    programDefinition = programService.createProgramDefinition("test program", "desc").getResult();
+    programDefinition =
+        programService
+            .createProgramDefinition("test program", "desc", "name", "description")
+            .getResult();
     programDefinition =
         programService
             .addBlockToProgram(programDefinition.id(), "test block", "test block description")

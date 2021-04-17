@@ -2,6 +2,7 @@ package services.program;
 
 import com.google.common.collect.ImmutableList;
 import forms.BlockForm;
+import java.util.Locale;
 import java.util.concurrent.CompletionStage;
 import models.Application;
 import services.CiviFormError;
@@ -54,26 +55,38 @@ public interface ProgramService {
   /**
    * Create a new program with an empty block.
    *
-   * @param name a name for this program
-   * @param description the description of what the program provides
+   * @param adminName a name for this program
+   * @param adminDescription the description of what the program provides
    * @return the {@link ProgramDefinition} that was created if succeeded, or a set of errors if
    *     failed
    */
   ErrorAnd<ProgramDefinition, CiviFormError> createProgramDefinition(
-      String name, String description);
+      String adminName,
+      String adminDescription,
+      String defaultDisplayName,
+      String defaultDisplayDescription);
 
   /**
-   * Update a program's name and description.
+   * Update a program's mutable fields: admin description, display name and description for
+   * applicants.
    *
    * @param programId the ID of the program to update
-   * @param name a name for this program
-   * @param description the description of what the program provides
+   * @param locale the locale for this update - only applies to applicant display name and
+   *     description
+   * @param adminDescription the description of this program - visible only to admins
+   * @param displayName a name for this program
+   * @param displayDescription the description of what the program provides
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
    *     failed
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   ErrorAnd<ProgramDefinition, CiviFormError> updateProgramDefinition(
-      long programId, String name, String description) throws ProgramNotFoundException;
+      long programId,
+      Locale locale,
+      String adminDescription,
+      String displayName,
+      String displayDescription)
+      throws ProgramNotFoundException;
 
   /**
    * Adds a {@link BlockDefinition} to the given program.

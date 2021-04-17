@@ -67,14 +67,18 @@ public class Program extends BaseModel {
    * Construct a new Program object with the given program name and description, and with an empty
    * block named Block 1.
    */
-  public Program(String name, String description) {
-    this.name = name;
-    this.description = description;
+  public Program(
+      String adminName,
+      String adminDescription,
+      String defaultDisplayName,
+      String defaultDisplayDescription) {
+    this.name = adminName;
+    this.description = adminDescription;
     // TODO(https://github.com/seattle-uat/civiform/issues/777): Allow the admin to
     // set localized strings for applicant-visible name and description. Default to
-    // using the adming name and description for now.
-    this.localizedName = ImmutableMap.of(Locale.US, name);
-    this.localizedDescription = ImmutableMap.of(Locale.US, description);
+    // using the admin name and description for now.
+    this.localizedName = ImmutableMap.of(Locale.US, defaultDisplayName);
+    this.localizedDescription = ImmutableMap.of(Locale.US, defaultDisplayDescription);
     this.lifecycleStage = LifecycleStage.DRAFT;
     BlockDefinition emptyBlock =
         BlockDefinition.builder()

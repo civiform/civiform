@@ -1,27 +1,49 @@
 package forms;
 
 public class ProgramForm {
-  private String name;
-  private String description;
+  private String adminName;
+  private String adminDescription;
+
+  // TODO: Support multiple locales
+  private String localizedName;
+  private String localizedDescription;
 
   public ProgramForm() {
-    name = "";
-    description = "";
+    adminName = "";
+    adminDescription = "";
+    localizedName = "";
+    localizedDescription = "";
   }
 
-  public String getName() {
-    return name;
+  public String getAdminName() {
+    return adminName;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setAdminName(String adminName) {
+    this.adminName = adminName;
   }
 
-  public String getDescription() {
-    return description;
+  public String getAdminDescription() {
+    return adminDescription;
   }
 
-  public void setDescription(String description) {
-    this.description = description;
+  public void setAdminDescription(String adminDescription) {
+    this.adminDescription = adminDescription;
+  }
+
+  public String getLocalizedName() {
+    return localizedName;
+  }
+
+  public String getLocalizedDescription() {
+    return localizedDescription;
+  }
+
+  public void setLocalizedName(String localizedName) {
+    this.localizedName = localizedName;
+  }
+
+  public void setLocalizedDescription(String localizedDescription) {
+    this.localizedDescription = localizedDescription;
   }
 }
