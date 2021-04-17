@@ -229,7 +229,7 @@ public class QuestionController extends CiviFormController {
 
   private QuestionForm createQuestionForm(Request request, QuestionType questionType)
       throws InvalidQuestionTypeException {
-    return QuestionFormBuilder.create(formFactory, questionType).bindFromRequest(request).get();
+    return QuestionFormBuilder.createFromRequest(request, formFactory, questionType);
   }
 
   private QuestionDefinitionBuilder getBuilderWithQuestionPath(

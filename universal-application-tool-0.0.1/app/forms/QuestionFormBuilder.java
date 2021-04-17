@@ -1,7 +1,7 @@
 package forms;
 
-import play.data.Form;
 import play.data.FormFactory;
+import play.mvc.Http.Request;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
@@ -17,27 +17,28 @@ import services.question.types.RepeaterQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
 public class QuestionFormBuilder {
-  public static Form<QuestionForm> create(FormFactory formFactory, QuestionType questionType)
+  public static QuestionForm createFromRequest(
+      Request request, FormFactory formFactory, QuestionType questionType)
       throws InvalidQuestionTypeException {
     switch (questionType) {
       case ADDRESS:
-        return formFactory.form(AddressQuestionForm.class);
+        return formFactory.form(AddressQuestionForm.class).bindFromRequest(request).get();
       case CHECKBOX:
-        return formFactory.form(CheckboxQuestionForm.class);
+        return formFactory.form(CheckboxQuestionForm.class).bindFromRequest(request).get();
       case DROPDOWN:
-        return formFactory.form(DropdownQuestionForm.class);
+        return formFactory.form(DropdownQuestionForm.class).bindFromRequest(request).get();
       case FILEUPLOAD:
-        return formFactory.form(FileUploadQuestionForm.class);
+        return formFactory.form(FileUploadQuestionForm.class).bindFromRequest(request).get();
       case NAME:
-        return formFactory.form(NameQuestionForm.class);
+        return formFactory.form(NameQuestionForm.class).bindFromRequest(request).get();
       case NUMBER:
-        return formFactory.form(NumberQuestionForm.class);
+        return formFactory.form(NumberQuestionForm.class).bindFromRequest(request).get();
       case RADIO_BUTTON:
-        return formFactory.form(RadioButtonQuestionForm.class);
+        return formFactory.form(RadioButtonQuestionForm.class).bindFromRequest(request).get();
       case REPEATER:
-        return formFactory.form(RepeaterQuestionForm.class);
+        return formFactory.form(RepeaterQuestionForm.class).bindFromRequest(request).get();
       case TEXT:
-        return formFactory.form(TextQuestionForm.class);
+        return formFactory.form(TextQuestionForm.class).bindFromRequest(request).get();
       default:
         throw new InvalidQuestionTypeException(questionType.toString());
     }
