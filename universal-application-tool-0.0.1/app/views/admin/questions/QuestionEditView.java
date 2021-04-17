@@ -331,7 +331,7 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private QuestionForm getQuestionFormFromQuestionDefinition(QuestionDefinition questionDefinition)
       throws InvalidQuestionTypeException {
-    return QuestionDefinitionBuilder.create(questionDefinition);
+    return QuestionFormBuilder.create(questionDefinition);
   }
 
   /** Selector option to display for a given RepeaterQuestionDefinition. */
