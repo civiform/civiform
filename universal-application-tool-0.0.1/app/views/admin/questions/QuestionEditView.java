@@ -8,16 +8,8 @@ import static j2html.TagCreator.main;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import forms.AddressQuestionForm;
-import forms.CheckboxQuestionForm;
-import forms.DropdownQuestionForm;
-import forms.FileUploadQuestionForm;
-import forms.NameQuestionForm;
-import forms.NumberQuestionForm;
 import forms.QuestionForm;
-import forms.RadioButtonQuestionForm;
-import forms.RepeaterQuestionForm;
-import forms.TextQuestionForm;
+import forms.QuestionFormBuilder;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import java.util.AbstractMap.SimpleEntry;
@@ -27,17 +19,9 @@ import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.AddressQuestionDefinition;
-import services.question.types.CheckboxQuestionDefinition;
-import services.question.types.DropdownQuestionDefinition;
-import services.question.types.FileUploadQuestionDefinition;
-import services.question.types.NameQuestionDefinition;
-import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
-import services.question.types.RadioButtonQuestionDefinition;
 import services.question.types.RepeaterQuestionDefinition;
-import services.question.types.TextQuestionDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
@@ -342,66 +326,12 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private QuestionForm getFreshQuestionForm(QuestionType questionType)
       throws UnsupportedQuestionTypeException {
-    QuestionForm questionForm;
-    switch (questionType) {
-      case ADDRESS:
-        questionForm = new AddressQuestionForm();
-        break;
-      case CHECKBOX:
-        questionForm = new CheckboxQuestionForm();
-        break;
-      case DROPDOWN:
-        questionForm = new DropdownQuestionForm();
-        break;
-      case FILEUPLOAD:
-        questionForm = new FileUploadQuestionForm();
-        break;
-      case NAME:
-        questionForm = new NameQuestionForm();
-        break;
-      case NUMBER:
-        questionForm = new NumberQuestionForm();
-        break;
-      case RADIO_BUTTON:
-        questionForm = new RadioButtonQuestionForm();
-        break;
-      case REPEATER:
-        questionForm = new RepeaterQuestionForm();
-        break;
-      case TEXT:
-        questionForm = new TextQuestionForm();
-        break;
-      default:
-        throw new UnsupportedQuestionTypeException(questionType);
-    }
-    return questionForm;
+    return QuestionFormBuilder.create(questionType);
   }
 
   private QuestionForm getQuestionFormFromQuestionDefinition(QuestionDefinition questionDefinition)
       throws InvalidQuestionTypeException {
-    QuestionType questionType = questionDefinition.getQuestionType();
-    switch (questionType) {
-      case ADDRESS:
-        return new AddressQuestionForm((AddressQuestionDefinition) questionDefinition);
-      case CHECKBOX:
-        return new CheckboxQuestionForm((CheckboxQuestionDefinition) questionDefinition);
-      case DROPDOWN:
-        return new DropdownQuestionForm((DropdownQuestionDefinition) questionDefinition);
-      case FILEUPLOAD:
-        return new FileUploadQuestionForm((FileUploadQuestionDefinition) questionDefinition);
-      case NAME:
-        return new NameQuestionForm((NameQuestionDefinition) questionDefinition);
-      case NUMBER:
-        return new NumberQuestionForm((NumberQuestionDefinition) questionDefinition);
-      case RADIO_BUTTON:
-        return new RadioButtonQuestionForm((RadioButtonQuestionDefinition) questionDefinition);
-      case REPEATER:
-        return new RepeaterQuestionForm((RepeaterQuestionDefinition) questionDefinition);
-      case TEXT:
-        return new TextQuestionForm((TextQuestionDefinition) questionDefinition);
-      default:
-        throw new InvalidQuestionTypeException(questionType.toString());
-    }
+    return QuestionDefinitionBuilder.create(questionDefinition);
   }
 
   /** Selector option to display for a given RepeaterQuestionDefinition. */
