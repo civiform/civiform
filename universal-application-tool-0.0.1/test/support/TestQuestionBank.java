@@ -1,5 +1,7 @@
 package support;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Map;
@@ -10,11 +12,16 @@ import javax.persistence.PersistenceException;
 import models.LifecycleStage;
 import models.Question;
 import services.Path;
+import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
+import services.question.types.CheckboxQuestionDefinition;
+import services.question.types.DropdownQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
+import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.RadioButtonQuestionDefinition;
 import services.question.types.RepeaterQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
@@ -44,9 +51,9 @@ public class TestQuestionBank {
     nextId.set(1L);
   }
 
-  public static Question applicantName() {
+  public static Question applicantAge() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_NAME, TestQuestionBank::applicantName);
+            QuestionEnum.APPLICANT_AGE, TestQuestionBank::applicantAge);
   }
 
   public static Question applicantAddress() {
@@ -68,6 +75,40 @@ public class TestQuestionBank {
     return questionCache.computeIfAbsent(
         QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_NAME,
         TestQuestionBank::applicantHouseholdMemberName);
+  }
+
+  public static Question applicantName() {
+    return questionCache.computeIfAbsent(
+            QuestionEnum.APPLICANT_NAME, TestQuestionBank::applicantName);
+  }
+
+  public static Question applicantPets() {
+    return questionCache.computeIfAbsent(
+            QuestionEnum.APPLICANT_PETS, TestQuestionBank::applicantPets);
+  }
+
+  public static Question applicantPronouns() {
+    return questionCache.computeIfAbsent(
+            QuestionEnum.APPLICANT_PRONOUNS, TestQuestionBank::applicantPronouns);
+  }
+
+  public static Question applicantSatisfaction() {
+    return questionCache.computeIfAbsent(
+            QuestionEnum.APPLICANT_SATISFACTION, TestQuestionBank::applicantSatisfaction);
+  }
+
+  private static Question applicantAge(QuestionEnum ignore) {
+    QuestionDefinition definition =
+            new NumberQuestionDefinition(
+                    VERSION,
+                    "Applicant Age",
+                    Path.create("applicant.age"),
+                    Optional.empty(),
+                    "The age of the applicant",
+                    LifecycleStage.ACTIVE,
+                    ImmutableMap.of(Locale.US, "What is your age?"),
+                    ImmutableMap.of(Locale.US, "help text"));
+    return maybeSave(definition);
   }
 
   private static Question applicantName(QuestionEnum ignore) {
@@ -143,6 +184,60 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  private static Question applicantPets(QuestionEnum ignore) {
+    QuestionDefinition definition =
+            new CheckboxQuestionDefinition(
+                    VERSION,
+                    "checkbox",
+                    Path.create("applicant.checkbox"),
+                    Optional.empty(),
+                    "description",
+                    LifecycleStage.ACTIVE,
+                    ImmutableMap.of(Locale.US, "question?"),
+                    ImmutableMap.of(Locale.US, "help text"),
+                    ImmutableList.of(
+                            QuestionOption.create(1L, ImmutableMap.of(Locale.US, "cat")),
+                            QuestionOption.create(2L, ImmutableMap.of(Locale.US, "dog"))));
+    return maybeSave(definition);
+  }
+
+  private static Question applicantPronouns(QuestionEnum ignore) {
+    QuestionDefinition definition =
+            new DropdownQuestionDefinition(
+                    VERSION,
+                    "applicant preferred pronouns",
+                    Path.create("applicant.preferred.pronouns"),
+                    Optional.empty(),
+                    "Allows the applicant to select a preferred pronoun",
+                    LifecycleStage.ACTIVE,
+                    ImmutableMap.of(Locale.US, "What is your preferred pronoun?"),
+                    ImmutableMap.of(Locale.US, "help text"),
+                    ImmutableList.of(
+                            QuestionOption.create(1L, ImmutableMap.of(Locale.US, "He / him")),
+                            QuestionOption.create(2L, ImmutableMap.of(Locale.US, "He / him")),
+                            QuestionOption.create(3L, ImmutableMap.of(Locale.FRANCE, "Il / lui")),
+                            QuestionOption.create(4L, ImmutableMap.of(Locale.FRANCE, "Elle / elle"))));
+    return maybeSave(definition);
+  }
+
+  private static Question applicantSatisfaction(QuestionEnum ignore) {
+    QuestionDefinition definition =
+            new RadioButtonQuestionDefinition(
+                    VERSION,
+                    "Applicant Satisfaction",
+                    Path.create("applicant.satisfaction"),
+                    Optional.empty(),
+                    "The applicant's overall satisfaction with something",
+                    LifecycleStage.ACTIVE,
+                    ImmutableMap.of(Locale.US, "What is your satisfaction with enrollment?"),
+                    ImmutableMap.of(Locale.US, "help text"),
+                    ImmutableList.of(
+                            QuestionOption.create(1L, ImmutableMap.of(Locale.US, "dissatisfied")),
+                            QuestionOption.create(2L, ImmutableMap.of(Locale.US, "neutral")),
+                            QuestionOption.create(3L, ImmutableMap.of(Locale.US, "satisfied"))));
+    return maybeSave(definition);
+  }
+
   private static Question maybeSave(QuestionDefinition questionDefinition) {
     Question question = new Question(questionDefinition);
     try {
@@ -160,10 +255,14 @@ public class TestQuestionBank {
   }
 
   private enum QuestionEnum {
-    APPLICANT_NAME,
     APPLICANT_ADDRESS,
+    APPLICANT_AGE,
     APPLICANT_FAVORITE_COLOR,
     APPLICANT_HOUSEHOLD_MEMBERS,
-    APPLICANT_HOUSEHOLD_MEMBER_NAME
+    APPLICANT_HOUSEHOLD_MEMBER_NAME,
+    APPLICANT_NAME,
+    APPLICANT_PETS,
+    APPLICANT_PRONOUNS,
+    APPLICANT_SATISFACTION
   }
 }
