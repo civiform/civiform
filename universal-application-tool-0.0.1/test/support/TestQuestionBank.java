@@ -110,20 +110,6 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
-  private static Question applicantName(QuestionEnum ignore) {
-    QuestionDefinition definition =
-        new NameQuestionDefinition(
-            VERSION,
-            "applicant name",
-            Path.create("applicant.applicant_name"),
-            Optional.empty(),
-            "name of applicant",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(Locale.US, "what is your name?"),
-            ImmutableMap.of(Locale.US, "help text"));
-    return maybeSave(definition);
-  }
-
   private static Question applicantAddress(QuestionEnum ignore) {
     QuestionDefinition definition =
         new AddressQuestionDefinition(
@@ -180,6 +166,20 @@ public class TestQuestionBank {
             ImmutableMap.of(Locale.US, "what is the household member's name?"),
             ImmutableMap.of(Locale.US, "help text"));
 
+    return maybeSave(definition);
+  }
+
+  private static Question applicantName(QuestionEnum ignore) {
+    QuestionDefinition definition =
+            new NameQuestionDefinition(
+                    VERSION,
+                    "applicant name",
+                    Path.create("applicant.applicant_name"),
+                    Optional.empty(),
+                    "name of applicant",
+                    LifecycleStage.ACTIVE,
+                    ImmutableMap.of(Locale.US, "what is your name?"),
+                    ImmutableMap.of(Locale.US, "help text"));
     return maybeSave(definition);
   }
 
