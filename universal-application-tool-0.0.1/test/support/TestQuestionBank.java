@@ -171,15 +171,15 @@ public class TestQuestionBank {
 
   private static Question applicantName(QuestionEnum ignore) {
     QuestionDefinition definition =
-            new NameQuestionDefinition(
-                    VERSION,
-                    "applicant name",
-                    Path.create("applicant.applicant_name"),
-                    Optional.empty(),
-                    "name of applicant",
-                    LifecycleStage.ACTIVE,
-                    ImmutableMap.of(Locale.US, "what is your name?"),
-                    ImmutableMap.of(Locale.US, "help text"));
+        new NameQuestionDefinition(
+            VERSION,
+            "applicant name",
+            Path.create("applicant.applicant_name"),
+            Optional.empty(),
+            "name of applicant",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "what is your name?"),
+            ImmutableMap.of(Locale.US, "help text"));
     return maybeSave(definition);
   }
 
@@ -212,10 +212,14 @@ public class TestQuestionBank {
             ImmutableMap.of(Locale.US, "What is your preferred pronoun?"),
             ImmutableMap.of(Locale.US, "help text"),
             ImmutableList.of(
-                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "He / him")),
-                QuestionOption.create(2L, ImmutableMap.of(Locale.US, "He / him")),
-                QuestionOption.create(3L, ImmutableMap.of(Locale.FRANCE, "Il / lui")),
-                QuestionOption.create(4L, ImmutableMap.of(Locale.FRANCE, "Elle / elle"))));
+                QuestionOption.create(
+                    1L, ImmutableMap.of(Locale.US, "He / him", Locale.FRANCE, "Il / lui")),
+                QuestionOption.create(
+                    2L, ImmutableMap.of(Locale.US, "She / her", Locale.FRANCE, "Elle / elle")),
+                QuestionOption.create(
+                    2L,
+                    ImmutableMap.of(
+                        Locale.US, "They / them", Locale.FRANCE, "(elles ils) / eux"))));
     return maybeSave(definition);
   }
 
