@@ -112,12 +112,8 @@ public class QuestionConfig {
             .setId("address-question-disallow-po-box-checkbox")
             .setFieldName("disallowPoBox")
             .setLabelText("Disallow post office boxes")
+            .setValue("true")
             .setChecked(addressQuestionForm.getDisallowPoBox())
-            .getContainer(),
-        FieldWithLabel.checkbox()
-            .setId("address-question-include-none-checkbox")
-            .setFieldName("noAddress")
-            .setLabelText("Include \"No address\" option")
             .getContainer());
     return this;
   }
