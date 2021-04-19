@@ -7,7 +7,7 @@ var assert = require('assert');
 describe('security browser testing', () => {
   beforeAll(async () => {
     let oidcProvider = await new GenericContainer("public.ecr.aws/t1q6b4h2/oidc-provider:latest")
-        .withExposedPorts(3380)
+      .withExposedPorts(3380)
   })
 
   it('Test with fake oidc', async () => {
