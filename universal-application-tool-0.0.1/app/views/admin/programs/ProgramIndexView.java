@@ -41,9 +41,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 h1("All Programs").withClasses(Styles.MY_4),
                 each(
                     programs.stream()
-                        .collect(
-                            new GroupByKeyCollector<>(
-                                programDefinition -> programDefinition.name())),
+                        .collect(new GroupByKeyCollector<>(ProgramDefinition::adminName)),
                     e -> this.renderProgramListItem(e.getKey(), e.getValue(), request)),
                 renderNewProgramButton(),
                 maybeRenderPublishButton(programs, request));
@@ -103,8 +101,8 @@ public final class ProgramIndexView extends BaseHtmlView {
     String lastEditText = "Last updated 2 hours ago."; // TODO: Need to generate this.
     String viewApplicationsLinkText = "Applications →";
 
-    String programTitleText = displayProgram.name();
-    String programDescriptionText = displayProgram.description();
+    String programTitleText = displayProgram.adminName();
+    String programDescriptionText = displayProgram.adminDescription();
     String blockCountText = "Blocks: " + displayProgram.getBlockCount();
     String questionCountText = "Questions: " + displayProgram.getQuestionCount();
 

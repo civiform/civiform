@@ -3,7 +3,9 @@ package services.program;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
 import models.Program;
@@ -25,10 +27,19 @@ public abstract class ProgramDefinition {
    * Descriptive name of a Program, e.g. Car Tab Rebate Program. Different versions of the same
    * program are linked by their immutable name.
    */
-  public abstract String name();
+  public abstract String adminName();
 
-  /** A human readable description of a Program. */
-  public abstract String description();
+  /** A description of this program for the admin's reference. */
+  public abstract String adminDescription();
+
+  /**
+   * Descriptive name of a Program, e.g. Car Tab Rebate Program, localized for each supported
+   * locale.
+   */
+  public abstract ImmutableMap<Locale, String> localizedName();
+
+  /** A human readable description of a Program, localized for each supported locale. */
+  public abstract ImmutableMap<Locale, String> localizedDescription();
 
   /** The lifecycle stage of the Program. */
   public abstract LifecycleStage lifecycleStage();
@@ -38,6 +49,58 @@ public abstract class ProgramDefinition {
 
   /** The list of {@link ExportDefinition}s that make up the program. */
   public abstract ImmutableList<ExportDefinition> exportDefinitions();
+
+  public String getLocalizedNameOrDefault(Locale locale) {
+    try {
+      return getLocalizedName(locale);
+    } catch (TranslationNotFoundException e) {
+      return getNameForDefaultLocale();
+    }
+  }
+
+  /** The default locale for CiviForm is US English. */
+  public String getNameForDefaultLocale() {
+    try {
+      return getLocalizedName(Locale.US);
+    } catch (TranslationNotFoundException e) {
+      // This should never happen - US English should always be supported.
+      throw new RuntimeException(e);
+    }
+  }
+
+  public String getLocalizedName(Locale locale) throws TranslationNotFoundException {
+    if (localizedName().containsKey(locale)) {
+      return localizedName().get(locale);
+    } else {
+      throw new TranslationNotFoundException(id(), locale);
+    }
+  }
+
+  public String getLocalizedDescriptionOrDefault(Locale locale) {
+    try {
+      return getLocalizedDescription(locale);
+    } catch (TranslationNotFoundException e) {
+      return getDescriptionForDefaultLocale();
+    }
+  }
+
+  /** The default locale for CiviForm is US English. */
+  public String getDescriptionForDefaultLocale() {
+    try {
+      return getLocalizedDescription(Locale.US);
+    } catch (TranslationNotFoundException e) {
+      // This should never happen - US English should always be supported.
+      throw new RuntimeException(e);
+    }
+  }
+
+  public String getLocalizedDescription(Locale locale) throws TranslationNotFoundException {
+    if (localizedDescription().containsKey(locale)) {
+      return localizedDescription().get(locale);
+    } else {
+      throw new TranslationNotFoundException(id(), locale);
+    }
+  }
 
   /** Returns the {@link QuestionDefinition} at the specified block and question indices. */
   public QuestionDefinition getQuestionDefinition(int blockIndex, int questionIndex) {
@@ -134,9 +197,18 @@ public abstract class ProgramDefinition {
 
     public abstract Builder setId(long id);
 
-    public abstract Builder setName(String name);
+    public abstract Builder setAdminName(String adminName);
 
-    public abstract Builder setDescription(String description);
+    public abstract Builder setAdminDescription(String adminDescription);
+
+    public abstract Builder setLocalizedName(ImmutableMap<Locale, String> localizedName);
+
+    public abstract ImmutableMap.Builder<Locale, String> localizedNameBuilder();
+
+    public abstract Builder setLocalizedDescription(
+        ImmutableMap<Locale, String> localizedDescription);
+
+    public abstract ImmutableMap.Builder<Locale, String> localizedDescriptionBuilder();
 
     public abstract Builder setBlockDefinitions(ImmutableList<BlockDefinition> blockDefinitions);
 
@@ -149,6 +221,16 @@ public abstract class ProgramDefinition {
     public abstract ImmutableList.Builder<ExportDefinition> exportDefinitionsBuilder();
 
     public abstract ProgramDefinition build();
+
+    public Builder addLocalizedName(Locale locale, String name) {
+      localizedNameBuilder().put(locale, name);
+      return this;
+    }
+
+    public Builder addLocalizedDescription(Locale locale, String name) {
+      localizedDescriptionBuilder().put(locale, name);
+      return this;
+    }
 
     public Builder addBlockDefinition(BlockDefinition blockDefinition) {
       blockDefinitionsBuilder().add(blockDefinition);

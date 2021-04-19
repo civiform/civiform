@@ -55,8 +55,10 @@ public class ProgramTest extends WithPostgresContainer {
     ProgramDefinition definition =
         ProgramDefinition.builder()
             .setId(1L)
-            .setName("ProgramTest")
-            .setDescription("desc")
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .addLocalizedName(Locale.US, "ProgramTest")
+            .addLocalizedDescription(Locale.US, "desc")
             .setLifecycleStage(LifecycleStage.ACTIVE)
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .build();
@@ -66,7 +68,9 @@ public class ProgramTest extends WithPostgresContainer {
 
     Program found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
 
-    assertThat(found.getProgramDefinition().name()).isEqualTo("ProgramTest");
+    assertThat(found.getProgramDefinition().adminName()).isEqualTo("Admin name");
+    assertThat(found.getProgramDefinition().localizedName())
+        .isEqualTo(ImmutableMap.of(Locale.US, "ProgramTest"));
     assertThat(found.getProgramDefinition().blockDefinitions().get(0).name())
         .isEqualTo("First Block");
 
@@ -122,8 +126,10 @@ public class ProgramTest extends WithPostgresContainer {
     ProgramDefinition definition =
         ProgramDefinition.builder()
             .setId(1L)
-            .setName("ProgramTest")
-            .setDescription("desc")
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .addLocalizedName(Locale.US, "ProgramTest")
+            .addLocalizedDescription(Locale.US, "desc")
             .setLifecycleStage(LifecycleStage.ACTIVE)
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .build();

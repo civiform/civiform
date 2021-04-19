@@ -3,9 +3,11 @@ package services.program;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import forms.BlockForm;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -113,7 +115,11 @@ public class ProgramServiceImpl implements ProgramService {
       return ErrorAnd.error(errors);
     }
     Program program =
-        programDefinition.toBuilder().setName(name).setDescription(description).build().toProgram();
+        programDefinition.toBuilder()
+            .setLocalizedName(ImmutableMap.of(Locale.US, name))
+            .setLocalizedDescription(ImmutableMap.of(Locale.US, description))
+            .build()
+            .toProgram();
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
                 programRepository.updateProgramSync(program).getProgramDefinition())

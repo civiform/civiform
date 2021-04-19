@@ -10,6 +10,7 @@ import org.junit.Test;
 import services.Path;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.program.TranslationNotFoundException;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -32,8 +33,11 @@ public class ProgramBuilderTest {
             .buildDefinition();
 
     assertThat(programDefinition.id()).isGreaterThan(0);
-    assertThat(programDefinition.name()).isEqualTo("a new name");
-    assertThat(programDefinition.description()).isEqualTo("a new description");
+    assertThat(programDefinition.adminName()).isEqualTo("a new name");
+    assertThat(programDefinition.adminDescription()).isEqualTo("a new description");
+    assertThat(programDefinition.localizedName()).isEqualTo(ImmutableMap.of(Locale.US, "name"));
+    assertThat(programDefinition.localizedDescription())
+        .isEqualTo(ImmutableMap.of(Locale.US, "description"));
 
     assertThat(programDefinition.blockDefinitions()).hasSize(3);
     assertThat(programDefinition.getBlockDefinitionByIndex(0).get().id()).isEqualTo(1L);
@@ -89,12 +93,13 @@ public class ProgramBuilderTest {
   }
 
   @Test
-  public void emptyProgram() {
+  public void emptyProgram() throws TranslationNotFoundException {
     Program program = ProgramBuilder.newProgram().build();
 
     assertThat(program.id).isGreaterThan(0);
-    assertThat(program.getProgramDefinition().name()).isEqualTo("");
-    assertThat(program.getProgramDefinition().description()).isEqualTo("");
+    assertThat(program.getProgramDefinition().adminName()).isEmpty();
+    assertThat(program.getProgramDefinition().getLocalizedName(Locale.US)).isEmpty();
+    assertThat(program.getProgramDefinition().getLocalizedDescription(Locale.US)).isEmpty();
     assertThat(program.getProgramDefinition().getBlockCount()).isEqualTo(1);
   }
 }
