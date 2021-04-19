@@ -46,7 +46,7 @@ public final class QuestionEditView extends BaseHtmlView {
       QuestionType questionType,
       ImmutableList<RepeaterQuestionDefinition> repeaterQuestionDefinitions)
       throws UnsupportedQuestionTypeException {
-    QuestionForm questionForm = getFreshQuestionForm(questionType);
+    QuestionForm questionForm = QuestionFormBuilder.create(questionType);
     return renderNewQuestionForm(
         request, questionForm, repeaterQuestionDefinitions, Optional.empty());
   }
@@ -85,7 +85,7 @@ public final class QuestionEditView extends BaseHtmlView {
   /** Render a fresh Edit Question Form. */
   public Content renderEditQuestionForm(Request request, QuestionDefinition questionDefinition)
       throws InvalidQuestionTypeException {
-    QuestionForm questionForm = getQuestionFormFromQuestionDefinition(questionDefinition);
+    QuestionForm questionForm = QuestionFormBuilder.create(questionDefinition);
     return renderEditQuestionForm(
         request, questionDefinition.getId(), questionForm, questionDefinition, Optional.empty());
   }
@@ -127,7 +127,7 @@ public final class QuestionEditView extends BaseHtmlView {
   /** Render a read-only non-submittable question form. */
   public Content renderViewQuestionForm(QuestionDefinition questionDefinition)
       throws InvalidQuestionTypeException {
-    QuestionForm questionForm = getQuestionFormFromQuestionDefinition(questionDefinition);
+    QuestionForm questionForm = QuestionFormBuilder.create(questionDefinition);
     QuestionType questionType = questionForm.getQuestionType();
     String title = String.format("View %s question", questionType.toString().toLowerCase());
 
@@ -322,16 +322,6 @@ public final class QuestionEditView extends BaseHtmlView {
         .setLabelText("Question repeater")
         .setOptions(options)
         .setValue(selected);
-  }
-
-  private QuestionForm getFreshQuestionForm(QuestionType questionType)
-      throws UnsupportedQuestionTypeException {
-    return QuestionFormBuilder.create(questionType);
-  }
-
-  private QuestionForm getQuestionFormFromQuestionDefinition(QuestionDefinition questionDefinition)
-      throws InvalidQuestionTypeException {
-    return QuestionFormBuilder.create(questionDefinition);
   }
 
   /** Selector option to display for a given RepeaterQuestionDefinition. */

@@ -117,7 +117,7 @@ public class QuestionController extends CiviFormController {
   public Result create(Request request, String questionType) {
     QuestionForm questionForm;
     try {
-      questionForm = createQuestionForm(request, QuestionType.of(questionType));
+      questionForm = QuestionFormBuilder.createFromRequest(request, formFactory, QuestionType.of(questionType);
     } catch (InvalidQuestionTypeException e) {
       return badRequest(invalidQuestionTypeMessage(questionType));
     }
@@ -178,7 +178,7 @@ public class QuestionController extends CiviFormController {
   public Result update(Request request, Long id, String questionType) {
     QuestionForm questionForm;
     try {
-      questionForm = createQuestionForm(request, QuestionType.of(questionType));
+      questionForm = QuestionFormBuilder.createFromRequest(request, formFactory, QuestionType.of(questionType));
     } catch (InvalidQuestionTypeException e) {
       return badRequest(invalidQuestionTypeMessage(questionType));
     }
@@ -225,11 +225,6 @@ public class QuestionController extends CiviFormController {
       return result.flashing("message", message);
     }
     return result;
-  }
-
-  private QuestionForm createQuestionForm(Request request, QuestionType questionType)
-      throws InvalidQuestionTypeException {
-    return QuestionFormBuilder.createFromRequest(request, formFactory, questionType);
   }
 
   private QuestionDefinitionBuilder getBuilderWithQuestionPath(
