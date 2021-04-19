@@ -49,11 +49,11 @@ public final class QuestionsListView extends BaseHtmlView {
     ContainerTag bodyContent =
         body(
             renderHeader("All Questions"),
+            renderAddQuestionLink(),
             div(renderQuestionTable(
                     questions.stream()
                         .collect(new GroupByKeyCollector<>(QuestionDefinition::getName))))
                 .withClasses(Styles.M_4),
-            renderAddQuestionLink(),
             renderSummary(questions));
 
     if (maybeFlash.isPresent()) {
