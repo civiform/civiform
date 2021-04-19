@@ -170,8 +170,8 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       for (Locale supportedLocale : supportedLocales) {
         if (supportedLocale.getLanguage().equals(locale.getLanguage())) {
           return this.options.stream()
-                  .map(option -> option.localize(supportedLocale))
-                  .collect(toImmutableList());
+              .map(option -> option.localize(supportedLocale))
+              .collect(toImmutableList());
         }
       }
       throw new TranslationNotFoundException(getPath().toString(), locale);
