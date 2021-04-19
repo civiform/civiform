@@ -31,7 +31,7 @@ public class ApplicantInformationView extends BaseHtmlView {
   }
 
   public Content render(Http.Request request, long applicantId) {
-    String formAction = routes.ApplicantProgramsController.index(applicantId).url();
+    String formAction = routes.ApplicantInformationController.update(applicantId).url();
     return layout.render(
         form()
             .withAction(formAction)
@@ -44,6 +44,7 @@ public class ApplicantInformationView extends BaseHtmlView {
   private ContainerTag selectLanguageDropdown() {
     SelectWithLabel languageSelect = new SelectWithLabel();
     languageSelect.setId("select-language");
+    languageSelect.setFieldName("locale");
 
     // An option consists of the language (localized to that language - for example, this would
     // display 'Español' for es-US), and the value is the ISO code.

@@ -60,7 +60,10 @@ public class Applicant extends BaseModel {
   @PrePersist
   @PreUpdate
   public void synchronizeObject() {
-    this.preferredLocale = getApplicantData().preferredLocale().toLanguageTag();
+    this.preferredLocale =
+        getApplicantData().hasPreferredLocale()
+            ? getApplicantData().preferredLocale().toLanguageTag()
+            : null;
     this.object = objectAsJsonString();
   }
 
