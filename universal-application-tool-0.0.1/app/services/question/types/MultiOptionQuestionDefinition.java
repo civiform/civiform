@@ -166,6 +166,14 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
           .map(option -> option.localize(locale))
           .collect(toImmutableList());
     } else {
+      // As in QuestionDefinition - we need to fetch "en_US" from "en".
+      for (Locale supportedLocale : supportedLocales) {
+        if (supportedLocale.getLanguage().equals(locale.getLanguage())) {
+          return this.options.stream()
+                  .map(option -> option.localize(supportedLocale))
+                  .collect(toImmutableList());
+        }
+      }
       throw new TranslationNotFoundException(getPath().toString(), locale);
     }
   }
