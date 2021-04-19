@@ -305,31 +305,6 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThatThrownBy(() -> ps.addBlockToProgram(1L))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessage("Program not found for ID: 1");
-
-    assertThatThrownBy(() -> ps.addBlockToProgram(1L, "name", "desc"))
-        .isInstanceOf(ProgramNotFoundException.class)
-        .hasMessage("Program not found for ID: 1");
-
-    assertThatThrownBy(() -> ps.addBlockToProgram(1L, "name", "description", ImmutableList.of()))
-        .isInstanceOf(ProgramNotFoundException.class)
-        .hasMessage("Program not found for ID: 1");
-  }
-
-  @Test
-  public void addBlockToProgram_invalidBlock_returnsErrors() throws Exception {
-    ProgramDefinition programDefinition =
-        ProgramBuilder.newProgram().withBlock("Block 1").buildDefinition();
-    ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.addBlockToProgram(programDefinition.id(), "", "");
-
-    // Returns the unmodified program definition.
-    assertThat(result.hasResult()).isTrue();
-    assertThat(result.getResult()).isEqualTo(programDefinition);
-    assertThat(result.isError()).isTrue();
-    assertThat(result.getErrors())
-        .containsOnly(
-            CiviFormError.of("block name cannot be blank"),
-            CiviFormError.of("block description cannot be blank"));
   }
 
   @Test
@@ -362,12 +337,11 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void addBlockToProgram_returnsProgramDefinitionWithBlock() throws Exception {
-    ProgramDefinition programDefinition =
-        ProgramBuilder.newProgram().withBlock("Block 1").buildDefinition();
+    ProgramDefinition programDefinition = ProgramBuilder.newProgram().buildDefinition();
     Long programId = programDefinition.id();
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.addBlockToProgram(programDefinition.id(), "the block", "the block for the program");
+        ps.addBlockToProgram(programDefinition.id());
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
@@ -378,88 +352,6 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThat(found.blockDefinitions()).hasSize(2);
     assertThat(found.blockDefinitions())
         .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
-
-    BlockDefinition emptyBlock = found.blockDefinitions().get(0);
-    assertThat(emptyBlock.name()).isEqualTo("Block 1");
-    assertThat(emptyBlock.description()).isEqualTo("");
-    assertThat(emptyBlock.programQuestionDefinitions()).hasSize(0);
-
-    BlockDefinition newBlock = found.blockDefinitions().get(1);
-    assertThat(newBlock.name()).isEqualTo("the block");
-    assertThat(newBlock.description()).isEqualTo("the block for the program");
-    assertThat(newBlock.programQuestionDefinitions()).hasSize(0);
-  }
-
-  @Test
-  public void addBlockToProgram_WithQuestions_returnsProgramDefinitionWithBlock() throws Exception {
-    QuestionDefinition question = nameQuestion;
-    ProgramDefinition programDefinition =
-        ProgramBuilder.newProgram().withBlock("Block 1").buildDefinition();
-    long id = programDefinition.id();
-    ProgramQuestionDefinition programQuestionDefinition =
-        ProgramQuestionDefinition.create(question);
-
-    ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.addBlockToProgram(id, "block", "desc", ImmutableList.of(programQuestionDefinition));
-
-    assertThat(result.isError()).isFalse();
-    assertThat(result.hasResult()).isTrue();
-    ProgramDefinition updated = result.getResult();
-    assertThat(updated.blockDefinitions()).hasSize(2);
-
-    BlockDefinition emptyBlock = updated.blockDefinitions().get(0);
-    assertThat(emptyBlock.name()).isEqualTo("Block 1");
-    assertThat(emptyBlock.description()).isEqualTo("");
-    assertThat(emptyBlock.programQuestionDefinitions()).hasSize(0);
-
-    BlockDefinition newBlock = updated.blockDefinitions().get(1);
-    assertThat(newBlock.id()).isEqualTo(2L);
-    assertThat(newBlock.name()).isEqualTo("block");
-    assertThat(newBlock.description()).isEqualTo("desc");
-
-    assertThat(newBlock.programQuestionDefinitions()).hasSize(1);
-    ProgramQuestionDefinition foundPqd = newBlock.programQuestionDefinitions().get(0);
-
-    assertThat(foundPqd.id()).isEqualTo(programQuestionDefinition.id());
-    assertThat(foundPqd.getQuestionDefinition()).isInstanceOf(NameQuestionDefinition.class);
-    assertThat(foundPqd.getQuestionDefinition().getName()).isEqualTo("applicant name");
-  }
-
-  @Test
-  public void addBlockToProgram_constructsQuestionDefinitions() throws Exception {
-    QuestionDefinition question = nameQuestion;
-    ProgramDefinition program =
-        ps.createProgramDefinition("Program Name", "Program Description").getResult();
-
-    program =
-        ps.addBlockToProgram(
-                program.id(),
-                "Block",
-                "Block Description",
-                ImmutableList.of(ProgramQuestionDefinition.create(question)))
-            .getResult();
-
-    QuestionDefinition foundQuestion =
-        program
-            .blockDefinitions()
-            .get(1)
-            .programQuestionDefinitions()
-            .get(0)
-            .getQuestionDefinition();
-    assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
-
-    program =
-        ps.addBlockToProgram(program.id(), "empty block", "this block has no questions")
-            .getResult();
-
-    foundQuestion =
-        program
-            .blockDefinitions()
-            .get(1)
-            .programQuestionDefinitions()
-            .get(0)
-            .getQuestionDefinition();
-    assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
   }
 
   @Test
@@ -731,10 +623,11 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     ProgramDefinition newDraft = ps.newDraftOf(program.id);
     assertThat(newDraft.lifecycleStage()).isEqualTo(LifecycleStage.DRAFT);
     assertThat(program.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-    assertThat(newDraft.name()).isEqualTo(program.getProgramDefinition().name());
+    assertThat(newDraft.adminName()).isEqualTo(program.getProgramDefinition().adminName());
     assertThat(newDraft.blockDefinitions())
         .isEqualTo(program.getProgramDefinition().blockDefinitions());
-    assertThat(newDraft.description()).isEqualTo(program.getProgramDefinition().description());
+    assertThat(newDraft.localizedDescription())
+        .isEqualTo(program.getProgramDefinition().localizedDescription());
     assertThat(newDraft.id()).isNotEqualTo(program.getProgramDefinition().id());
 
     ProgramDefinition secondNewDraft = ps.newDraftOf(program.id);

@@ -47,6 +47,12 @@ public class ApplicantQuestionTest {
     assertThat(dropdownApplicantQuestion.createSingleSelectQuestion())
         .isInstanceOf(SingleSelectQuestion.class);
 
+    ApplicantQuestion fileUploadApplicantQuestion =
+        new ApplicantQuestion(
+            TestQuestionBank.applicantFile().getQuestionDefinition(), new ApplicantData());
+    assertThat(fileUploadApplicantQuestion.createFileUploadQuestion())
+        .isInstanceOf(FileUploadQuestion.class);
+
     ApplicantQuestion nameApplicantQuestion =
         new ApplicantQuestion(
             TestQuestionBank.applicantName().getQuestionDefinition(), new ApplicantData());
@@ -96,6 +102,12 @@ public class ApplicantQuestionTest {
                 TestQuestionBank.applicantIceCream().getQuestionDefinition(), new ApplicantData()),
             new ApplicantQuestion(
                 TestQuestionBank.applicantIceCream().getQuestionDefinition(), new ApplicantData()))
+        .addEqualityGroup(
+            // File upload
+            new ApplicantQuestion(
+                TestQuestionBank.applicantFile().getQuestionDefinition(), new ApplicantData()),
+            new ApplicantQuestion(
+                TestQuestionBank.applicantFile().getQuestionDefinition(), new ApplicantData()))
         .addEqualityGroup(
             // Name
             new ApplicantQuestion(

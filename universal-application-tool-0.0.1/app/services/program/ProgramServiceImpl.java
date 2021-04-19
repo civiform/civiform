@@ -3,9 +3,11 @@ package services.program;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import forms.BlockForm;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -113,7 +115,11 @@ public class ProgramServiceImpl implements ProgramService {
       return ErrorAnd.error(errors);
     }
     Program program =
-        programDefinition.toBuilder().setName(name).setDescription(description).build().toProgram();
+        programDefinition.toBuilder()
+            .setLocalizedName(ImmutableMap.of(Locale.US, name))
+            .setLocalizedDescription(ImmutableMap.of(Locale.US, description))
+            .build()
+            .toProgram();
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
                 programRepository.updateProgramSync(program).getProgramDefinition())
@@ -138,29 +144,10 @@ public class ProgramServiceImpl implements ProgramService {
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     String blockName = String.format("Block %d", getNextBlockId(programDefinition));
-    String description =
+    String blockDescription =
         "What is the purpose of this block? Add a description that summarizes the information"
             + " collected.";
 
-    return addBlockToProgram(programId, blockName, description, ImmutableList.of());
-  }
-
-  @Override
-  @Transactional
-  public ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(
-      long programId, String blockName, String blockDescription) throws ProgramNotFoundException {
-    return addBlockToProgram(programId, blockName, blockDescription, ImmutableList.of());
-  }
-
-  @Override
-  @Transactional
-  public ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(
-      long programId,
-      String blockName,
-      String blockDescription,
-      ImmutableList<ProgramQuestionDefinition> questionDefinitions)
-      throws ProgramNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockName, blockDescription);
     if (!errors.isEmpty()) {
       return ErrorAnd.errorAnd(errors, programDefinition);
@@ -172,7 +159,6 @@ public class ProgramServiceImpl implements ProgramService {
             .setId(blockId)
             .setName(blockName)
             .setDescription(blockDescription)
-            .setProgramQuestionDefinitions(questionDefinitions)
             .build();
 
     Program program =

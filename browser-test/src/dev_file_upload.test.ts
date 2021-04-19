@@ -23,8 +23,11 @@ describe('the dev file upload page', () => {
 
     expect(await page.textContent('html')).toContain('Dev File Upload');
 
-    const fileContent = await downloadFile(page, 'file.txt');
-    expect(fileContent).toContain('this is test');
+    if (BASE_URL !== 'http://localhost:9999') {
+      // Only download if not localhost because download doesn't work in localhost.
+      const fileContent = await downloadFile(page, 'file.txt');
+      expect(fileContent).toContain('this is test');
+    }
 
     await endSession(browser);
   })

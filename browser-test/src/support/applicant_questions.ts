@@ -22,16 +22,20 @@ export class ApplicantQuestions {
 
   async answerCheckboxQuestion(checked: Array<string>) {
     for (var index in checked) {
-      await this.page.check('input[value="' + checked[index] + '"]');
+      await this.page.check(`text=${checked[index]}`);
     }
   }
 
+  async answerFileUploadQuestion(text: string) {
+    await this.page.fill('input[type="text"]', text);
+  }
+
   async answerRadioButtonQuestion(checked: string) {
-    await this.page.check('input[value="' + checked + '"]');
+    await this.page.check(`text=${checked}`);
   }
 
   async answerDropdownQuestion(selected: string) {
-    await this.page.selectOption('select', selected);
+    await this.page.selectOption('select', { label: selected });
   }
 
   async answerNumberQuestion(number: string) {

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import forms.AddressQuestionForm;
 import forms.DropdownQuestionForm;
+import forms.FileUploadQuestionForm;
 import forms.NameQuestionForm;
 import forms.NumberQuestionForm;
 import forms.RadioButtonQuestionForm;
@@ -47,6 +48,9 @@ public class QuestionConfigTest {
 
   @Test
   public void unhandledQuestionTypes_defaultsToDefaultConfig() {
+    assertThat(QuestionConfig.buildQuestionConfig(new FileUploadQuestionForm()))
+        .isEqualTo(DEFAULT_CONFIG);
+
     assertThat(QuestionConfig.buildQuestionConfig(new NameQuestionForm()))
         .isEqualTo(DEFAULT_CONFIG);
 

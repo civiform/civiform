@@ -2,12 +2,12 @@ package views.questiontypes;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.input;
 
 import j2html.tags.Tag;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.TextQuestion;
 import views.BaseHtmlView;
+import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
@@ -25,7 +25,7 @@ public class TextQuestionRenderer extends BaseHtmlView implements ApplicantQuest
 
     return div()
         .withId(question.getPath().path())
-        .withClasses(Styles.MX_AUTO, Styles.W_MAX)
+        .withClasses(Styles.MX_AUTO, Styles.PX_16)
         .with(
             div()
                 .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT)
@@ -37,11 +37,13 @@ public class TextQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                     Styles.FONT_THIN,
                     Styles.MB_2)
                 .withText(question.getQuestionHelpText()),
-            input()
-                .withType("text")
-                .withCondValue(
-                    textQuestion.getTextValue().isPresent(), textQuestion.getTextValue().orElse(""))
-                .withName(textQuestion.getTextPath().path()),
+            FieldWithLabel.input()
+                .setFieldName(textQuestion.getTextPath().path())
+                .setLabelText("")
+                .setPlaceholderText("")
+                .setFloatLabel(true)
+                .setValue(textQuestion.getTextValue().orElse(""))
+                .getContainer(),
             fieldErrors(textQuestion.getQuestionErrors()));
   }
 }

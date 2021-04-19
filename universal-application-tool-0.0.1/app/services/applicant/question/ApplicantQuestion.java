@@ -82,6 +82,10 @@ public class ApplicantQuestion {
     return new AddressQuestion(this);
   }
 
+  public FileUploadQuestion createFileUploadQuestion() {
+    return new FileUploadQuestion(this);
+  }
+
   public MultiSelectQuestion createMultiSelectQuestion() {
     return new MultiSelectQuestion(this);
   }
@@ -112,6 +116,8 @@ public class ApplicantQuestion {
         return createAddressQuestion();
       case CHECKBOX:
         return createMultiSelectQuestion();
+      case FILEUPLOAD:
+        return createFileUploadQuestion();
       case DROPDOWN: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
         return createSingleSelectQuestion();

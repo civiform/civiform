@@ -3,7 +3,6 @@ package controllers.dev;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -27,6 +26,7 @@ import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
+import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
@@ -39,6 +39,7 @@ import views.dev.DatabaseSeedView;
 
 /** Controller for seeding the database with test content to develop against. */
 public class DatabaseSeedController extends DevController {
+
   private final DatabaseSeedView view;
   private final EbeanServer ebeanServer;
   private final QuestionService questionService;
@@ -153,8 +154,10 @@ public class DatabaseSeedController extends DevController {
                 ImmutableMap.of(
                     Locale.US, "Which of the following kitchen instruments do you own?"),
                 ImmutableMap.of(Locale.US, "help text"),
-                ImmutableListMultimap.of(
-                    Locale.US, "toaster", Locale.US, "pepper grinder", Locale.US, "garlic press")))
+                ImmutableList.of(
+                    QuestionOption.create(1L, ImmutableMap.of(Locale.US, "toaster")),
+                    QuestionOption.create(2L, ImmutableMap.of(Locale.US, "pepper grinder")),
+                    QuestionOption.create(3L, ImmutableMap.of(Locale.US, "garlic press")))))
         .getResult();
   }
 
@@ -171,15 +174,11 @@ public class DatabaseSeedController extends DevController {
                 ImmutableMap.of(
                     Locale.US, "Select your favorite ice cream flavor from the following"),
                 ImmutableMap.of(Locale.US, "this is sample help text"),
-                ImmutableListMultimap.of(
-                    Locale.US,
-                    "chocolate",
-                    Locale.US,
-                    "strawberry",
-                    Locale.US,
-                    "vanilla",
-                    Locale.US,
-                    "coffee")))
+                ImmutableList.of(
+                    QuestionOption.create(1L, ImmutableMap.of(Locale.US, "chocolate")),
+                    QuestionOption.create(2L, ImmutableMap.of(Locale.US, "strawberry")),
+                    QuestionOption.create(3L, ImmutableMap.of(Locale.US, "vanilla")),
+                    QuestionOption.create(4L, ImmutableMap.of(Locale.US, "coffee")))))
         .getResult();
   }
 
@@ -195,9 +194,11 @@ public class DatabaseSeedController extends DevController {
                 LifecycleStage.ACTIVE,
                 ImmutableMap.of(Locale.US, "What is your favorite season?"),
                 ImmutableMap.of(Locale.US, "this is sample help text"),
-                ImmutableListMultimap.of(
-                    Locale.US, "winter", Locale.US, "spring", Locale.US, "summer", Locale.US,
-                    "fall")))
+                ImmutableList.of(
+                    QuestionOption.create(1L, ImmutableMap.of(Locale.US, "winter")),
+                    QuestionOption.create(2L, ImmutableMap.of(Locale.US, "spring")),
+                    QuestionOption.create(3L, ImmutableMap.of(Locale.US, "summer")),
+                    QuestionOption.create(4L, ImmutableMap.of(Locale.US, "fall")))))
         .getResult();
   }
 
@@ -205,56 +206,48 @@ public class DatabaseSeedController extends DevController {
     try {
       ProgramDefinition programDefinition =
           programService.createProgramDefinition(name, "desc").getResult();
+      long programId = programDefinition.id();
 
-      BlockForm firstBlockForm = new BlockForm();
-      firstBlockForm.setName("Block 1");
-      firstBlockForm.setDescription("name and favorite color");
+      long blockId = 1L;
+      BlockForm blockForm = new BlockForm();
+      blockForm.setName("Block 1");
+      blockForm.setDescription("name and favorite color");
+      programService.updateBlock(programId, blockId, blockForm).getResult();
+      programService.setBlockQuestions(
+          programId,
+          blockId,
+          ImmutableList.of(
+              ProgramQuestionDefinition.create(insertNameQuestionDefinition()),
+              ProgramQuestionDefinition.create(insertColorQuestionDefinition())));
 
+      blockId =
+          programService.addBlockToProgram(programId).getResult().getLastBlockDefinition().id();
+      blockForm.setName("Block 2");
+      blockForm.setDescription("address");
+      programService.updateBlock(programId, blockId, blockForm);
+      programService.addQuestionsToBlock(
+          programId, blockId, ImmutableList.of(insertAddressQuestionDefinition().getId()));
+
+      blockId =
+          programService.addBlockToProgram(programId).getResult().getLastBlockDefinition().id();
+      blockForm.setName("Block 3");
+      blockForm.setDescription("Ice Cream Information");
+      programService.updateBlock(programId, blockId, blockForm);
+      programService.addQuestionsToBlock(
+          programId, blockId, ImmutableList.of(insertDropdownQuestionDefinition().getId()));
+
+      blockId =
+          programService.addBlockToProgram(programId).getResult().getLastBlockDefinition().id();
+      blockForm.setName("Block 4");
+      blockForm.setDescription("Random information");
+      programService.updateBlock(programId, blockId, blockForm);
       programDefinition =
-          programService
-              .updateBlock(
-                  programDefinition.id(),
-                  programDefinition.blockDefinitions().get(0).id(),
-                  firstBlockForm)
-              .getResult();
-      programDefinition =
-          programService.setBlockQuestions(
-              programDefinition.id(),
-              programDefinition.blockDefinitions().get(0).id(),
+          programService.addQuestionsToBlock(
+              programId,
+              blockId,
               ImmutableList.of(
-                  ProgramQuestionDefinition.create(insertNameQuestionDefinition()),
-                  ProgramQuestionDefinition.create(insertColorQuestionDefinition())));
-
-      programDefinition =
-          programService
-              .addBlockToProgram(
-                  programDefinition.id(),
-                  "Block 2",
-                  "address",
-                  ImmutableList.of(
-                      ProgramQuestionDefinition.create(insertAddressQuestionDefinition())))
-              .getResult();
-
-      programDefinition =
-          programService
-              .addBlockToProgram(
-                  programDefinition.id(),
-                  "Block 3",
-                  "Ice Cream Information",
-                  ImmutableList.of(
-                      ProgramQuestionDefinition.create(insertDropdownQuestionDefinition())))
-              .getResult();
-
-      programDefinition =
-          programService
-              .addBlockToProgram(
-                  programDefinition.id(),
-                  "Block 4",
-                  "Random information",
-                  ImmutableList.of(
-                      ProgramQuestionDefinition.create(insertCheckboxQuestionDefinition()),
-                      ProgramQuestionDefinition.create(insertRadioButtonQuestionDefinition())))
-              .getResult();
+                  insertCheckboxQuestionDefinition().getId(),
+                  insertRadioButtonQuestionDefinition().getId()));
 
       return programDefinition;
     } catch (Exception e) {

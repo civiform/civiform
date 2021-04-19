@@ -1,12 +1,13 @@
 package services.question.types;
 
-import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import models.LifecycleStage;
 import services.Path;
+import services.question.QuestionOption;
 
 /**
  * Defines a dropdown question, which has a list of options, of which at most one and at least one
@@ -24,7 +25,7 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      ImmutableListMultimap<Locale, String> options) {
+      ImmutableList<QuestionOption> options) {
     super(
         id,
         version,
@@ -48,7 +49,7 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
       LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
-      ImmutableListMultimap<Locale, String> options) {
+      ImmutableList<QuestionOption> options) {
     super(
         version,
         name,

@@ -91,6 +91,7 @@ public class QuestionConfig {
             .setId("single-select-question-config")
             .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm)
             .getContainer();
+      case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended - no options
       case REPEATER: // fallthrough intended
       default:
@@ -111,12 +112,8 @@ public class QuestionConfig {
             .setId("address-question-disallow-po-box-checkbox")
             .setFieldName("disallowPoBox")
             .setLabelText("Disallow post office boxes")
+            .setValue("true")
             .setChecked(addressQuestionForm.getDisallowPoBox())
-            .getContainer(),
-        FieldWithLabel.checkbox()
-            .setId("address-question-include-none-checkbox")
-            .setFieldName("noAddress")
-            .setLabelText("Include \"No address\" option")
             .getContainer());
     return this;
   }

@@ -2,12 +2,13 @@ package views.questiontypes;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.input;
 
 import j2html.tags.Tag;
+import java.util.OptionalLong;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.NumberQuestion;
 import views.BaseHtmlView;
+import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
@@ -23,9 +24,19 @@ public class NumberQuestionRenderer extends BaseHtmlView implements ApplicantQue
   public Tag render() {
     NumberQuestion numberQuestion = question.createNumberQuestion();
 
+    FieldWithLabel numberField =
+        FieldWithLabel.number()
+            .setFieldName(numberQuestion.getNumberPath().path())
+            .setFloatLabel(true);
+    if (numberQuestion.getNumberValue().isPresent()) {
+      // TODO: [Refactor] Oof! Converting Optional<Long> to OptionalLong.
+      OptionalLong value = OptionalLong.of(numberQuestion.getNumberValue().orElse(0L));
+      numberField.setValue(value);
+    }
+
     return div()
         .withId(question.getPath().path())
-        .withClasses(Styles.MX_AUTO, Styles.W_MAX)
+        .withClasses(Styles.MX_AUTO, Styles.PX_16)
         .with(
             div()
                 .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT)
@@ -37,12 +48,7 @@ public class NumberQuestionRenderer extends BaseHtmlView implements ApplicantQue
                     Styles.FONT_THIN,
                     Styles.MB_2)
                 .withText(question.getQuestionHelpText()),
-            input()
-                .withType("number")
-                .withCondValue(
-                    numberQuestion.getNumberValue().isPresent(),
-                    numberQuestion.getNumberValue().map(String::valueOf).orElse(""))
-                .withName(numberQuestion.getNumberPath().path()),
+            numberField.getContainer(),
             fieldErrors(numberQuestion.getQuestionErrors()));
   }
 }

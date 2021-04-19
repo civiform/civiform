@@ -1,6 +1,6 @@
 package support;
 
-import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Map;
@@ -11,11 +11,13 @@ import javax.persistence.PersistenceException;
 import models.LifecycleStage;
 import models.Question;
 import services.Path;
+import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
+import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -65,6 +67,12 @@ public class TestQuestionBank {
   public static Question applicantIceCream() {
     return questionCache.computeIfAbsent(
         QuestionEnum.APPLICANT_ICE_CREAM, TestQuestionBank::applicantIceCream);
+  }
+
+  // File upload
+  public static Question applicantFile() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_FILE, TestQuestionBank::applicantFile);
   }
 
   // Name
@@ -131,8 +139,10 @@ public class TestQuestionBank {
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "Which of the following kitchen instruments do you own?"),
             ImmutableMap.of(Locale.US, "help text"),
-            ImmutableListMultimap.of(
-                Locale.US, "toaster", Locale.US, "pepper grinder", Locale.US, "garlic press"));
+            ImmutableList.of(
+                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "toaster")),
+                QuestionOption.create(2L, ImmutableMap.of(Locale.US, "pepper grinder")),
+                QuestionOption.create(3L, ImmutableMap.of(Locale.US, "garlic press"))));
     return maybeSave(definition);
   }
 
@@ -148,15 +158,26 @@ public class TestQuestionBank {
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "Select your favorite ice cream flavor from the following"),
             ImmutableMap.of(Locale.US, "this is sample help text"),
-            ImmutableListMultimap.of(
-                Locale.US,
-                "chocolate",
-                Locale.US,
-                "strawberry",
-                Locale.US,
-                "vanilla",
-                Locale.US,
-                "coffee"));
+            ImmutableList.of(
+                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "chocolate")),
+                QuestionOption.create(2L, ImmutableMap.of(Locale.US, "strawberry")),
+                QuestionOption.create(3L, ImmutableMap.of(Locale.US, "vanilla")),
+                QuestionOption.create(4L, ImmutableMap.of(Locale.US, "coffee"))));
+    return maybeSave(definition);
+  }
+
+  // File upload
+  private static Question applicantFile(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new FileUploadQuestionDefinition(
+            1L,
+            "file",
+            Path.create("applicant.file"),
+            Optional.empty(),
+            "a file",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "Please upload a file"),
+            ImmutableMap.of(Locale.US, "help text"));
     return maybeSave(definition);
   }
 
@@ -202,8 +223,11 @@ public class TestQuestionBank {
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is your favorite season?"),
             ImmutableMap.of(Locale.US, "this is sample help text"),
-            ImmutableListMultimap.of(
-                Locale.US, "winter", Locale.US, "spring", Locale.US, "summer", Locale.US, "fall"));
+            ImmutableList.of(
+                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "winter")),
+                QuestionOption.create(2L, ImmutableMap.of(Locale.US, "spring")),
+                QuestionOption.create(3L, ImmutableMap.of(Locale.US, "summer")),
+                QuestionOption.create(4L, ImmutableMap.of(Locale.US, "fall"))));
     return maybeSave(definition);
   }
 
@@ -275,6 +299,7 @@ public class TestQuestionBank {
     APPLICANT_ADDRESS,
     APPLICANT_KITCHEN_TOOLS,
     APPLICANT_ICE_CREAM,
+    APPLICANT_FILE,
     APPLICANT_SEASON,
     APPLICANT_NAME,
     APPLICANT_JUGGLING_NUMBER,

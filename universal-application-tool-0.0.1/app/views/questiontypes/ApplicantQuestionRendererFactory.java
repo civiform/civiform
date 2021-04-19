@@ -25,6 +25,8 @@ public class ApplicantQuestionRendererFactory {
         return new CheckboxQuestionRenderer(question);
       case DROPDOWN:
         return new DropdownQuestionRenderer(question);
+      case FILEUPLOAD:
+        return new FileUploadQuestionRenderer(question);
       case NAME:
         return new NameQuestionRenderer(question);
       case NUMBER:
