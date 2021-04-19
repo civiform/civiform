@@ -86,6 +86,18 @@ export const selectApplicantLanguage = async (page: Page, language: string) => {
   expect(maybeProgramIndexPage).toMatch(programIndexRegex);
 }
 
+//getMethods = (obj) => Object.getOwnPropertyNames(obj).filter(item => typeof obj[item] === 'function');
+
+export const getUserId = async (page: Page) => {
+  let url = page.url();
+  await gotoEndpoint(page, '/users/me');
+  let user_id = await page.innerText('#applicant-id');
+
+  await page.goto(url);
+
+  return user_id;
+}
+
 export const loginWithSimulatedIdcs = async (page: Page) => {
   await page.click('#idcs');
 
@@ -109,3 +121,12 @@ export const dropTables = async (page: Page) => {
   await page.goto(BASE_URL + '/dev/seed');
   await page.click("#clear");
 }
+
+//const getMethods = (obj) => {
+//  let properties = new Set()
+//  let currentObj = obj
+//  do {
+//    Object.getOwnPropertyNames(currentObj).map(item => properties.add(item))
+//  } while ((currentObj = Object.getPrototypeOf(currentObj)))
+//  return [...properties.keys()].filter(item => typeof obj[item] === 'function')
+//}
