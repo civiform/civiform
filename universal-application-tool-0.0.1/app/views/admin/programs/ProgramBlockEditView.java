@@ -110,12 +110,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
         form(csrfTag)
             .withId(CREATE_REPEATED_BLOCK_FORM_ID)
             .withMethod(POST)
-            .withAction(repeatedBlockCreateAction)
-            .with(
-                FieldWithLabel.input()
-                    .setFieldName("repeaterId")
-                    .setValue(String.valueOf(blockId))
-                    .getContainer());
+            .withAction(repeatedBlockCreateAction);
 
     String blockDeleteAction =
         controllers.admin.routes.AdminProgramBlocksController.destroy(programId, blockId).url();
