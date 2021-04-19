@@ -1,11 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'We have a S3 bucket encrypted with "Customer master keys" (CMKs). The bucket is limited access to from within our VPC. This means the console does not have access to it, either.'
-Mappings:
-  S3TaskRoles:
-    prod:
-      role: arn:aws:iam::405662711265:role/AmazonECSTaskS3BucketRole
-    staging:
-      role: arn:aws:iam::405662711265:role/AmazonECSTaskS3BucketRoleStaging
 Parameters:
   S3VPCEndpoint:
     Description: The vpc endpoint from which CiviForm connects to S3.
@@ -14,6 +8,9 @@ Parameters:
     Type: String
     AllowedValues: ["staging", "prod"]
     Description: "Staging or prod environment"
+  S3TaskRole:
+    Description: The user allowed to access S3.
+    Type: String
 Resources:
   key:
     Type: AWS::KMS::Key
@@ -39,7 +36,7 @@ Resources:
         - Sid: Enable CiviForm Server Permissions
           Effect: Allow
           Principal:
-            AWS: !FindInMap [S3TaskRoles, !Ref Environment, role]
+            AWS: !Ref S3TaskRole
           Action:
             - kms:Encrypt
             - kms:Decrypt
@@ -86,7 +83,7 @@ Resources:
                 - !Ref bucket
                 - /*
             NotPrincipal:
-              AWS: !FindInMap [S3TaskRoles, !Ref Environment, role]
+              AWS: !Ref S3TaskRole
             Condition:
               StringNotEquals:
                 'aws:sourceVpce': !Ref 'S3VPCEndpoint'
@@ -101,7 +98,7 @@ Resources:
                 - !Ref bucket
                 - /*
             Principal:
-              AWS: !FindInMap [S3TaskRoles, !Ref Environment, role]
+              AWS: !Ref S3TaskRole
 Outputs:
   bucketname:
     Description: The location of the bucket for secure uploads.

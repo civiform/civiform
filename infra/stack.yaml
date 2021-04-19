@@ -8,6 +8,11 @@ Mappings:
     staging:
       Domain: staging.seattle.civiform.com
       HostedZone: Z02860647AHUYUQTEAPO
+  S3TaskRoles:
+    prod:
+      role: arn:aws:iam::405662711265:role/AmazonECSTaskS3BucketRole
+    staging:
+      role: arn:aws:iam::405662711265:role/AmazonECSTaskS3BucketRoleStaging
 Parameters:
   Timestamp:
     Description: Current timestamp in seconds.
@@ -37,6 +42,7 @@ Resources:
       Parameters:
         S3VPCEndpoint: !GetAtt 'VPC.Outputs.S3Endpoint'
         Environment: !Ref Environment
+        S3TaskRole: !FindInMap [S3TaskRoles, !Ref Environment, role]
   Secrets:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -90,6 +96,7 @@ Resources:
         S3BucketName: !GetAtt 'Filestore.Outputs.bucketname'
         DomainName: !FindInMap [DNS, !Ref Environment, Domain]
         Environment: !Ref Environment
+        S3TaskRole: !FindInMap [S3TaskRoles, !Ref Environment, role]
   Monitoring:
     Type: AWS::CloudFormation::Stack
     Condition: CreateProdResources
