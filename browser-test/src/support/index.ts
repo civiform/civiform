@@ -7,6 +7,8 @@ export { ApplicantQuestions } from './applicant_questions'
 
 export const { BASE_URL = 'http://civiform:9000', TEST_USER_LOGIN = '', TEST_USER_PASSWORD = '' } = process.env
 
+var assert = require('assert');
+
 export const startSession = async () => {
   const browser = await chromium.launch();
   const page = await browser.newPage({ acceptDownloads: true });
@@ -120,6 +122,18 @@ export const loginWithSimulatedIdcs = async (page: Page) => {
 export const dropTables = async (page: Page) => {
   await page.goto(BASE_URL + '/dev/seed');
   await page.click("#clear");
+}
+
+export const assertEndpointEquals = async (page: Page, endpoint: string) => {
+  let url = await page.url();
+  let d_url = BASE_URL.concat(endpoint);
+
+  assert.equal(url, d_url);
+}
+
+export const assertPageIncludes = async (page: Page, substring: string) => {
+  let pg_source = await page.content();
+  assert(pg_source.includes(substring));
 }
 
 //const getMethods = (obj) => {
