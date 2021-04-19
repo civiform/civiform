@@ -1,47 +1,81 @@
 package services.question;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
 import services.LocalizationUtils;
+import java.util.Set;
+import java.util.stream.Collectors;
+import models.LifecycleStage;
+import models.Question;
+import models.Version;
 import services.Path;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.RepeaterQuestionDefinition;
-import views.admin.GroupByKeyCollector;
+import services.question.types.ScalarType;
 
 public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionService {
 
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
   private final ImmutableSet<QuestionDefinition> upToDateQuestions;
+  private final ActiveAndDraftQuestions activeAndDraftQuestions;
+  private final ImmutableMap<Path, ScalarType> scalars;
 
   private Locale preferredLocale = LocalizationUtils.DEFAULT_LOCALE;
 
-  public ReadOnlyQuestionServiceImpl(ImmutableList<QuestionDefinition> questions) {
-    checkNotNull(questions);
-
-    ImmutableSet.Builder<QuestionDefinition> upToDateBuilder = ImmutableSet.builder();
-    for (ImmutableList<QuestionDefinition> qds :
-        questions.stream()
-            .collect(new GroupByKeyCollector<>(QuestionDefinition::getName))
-            .values()) {
-      upToDateBuilder.add(
-          qds.stream().max(Comparator.comparing(QuestionDefinition::getVersion)).get());
-    }
-    upToDateQuestions = upToDateBuilder.build();
-
+  public ReadOnlyQuestionServiceImpl(Version active, Version draft) {
+    checkNotNull(active);
+    checkState(active.getLifecycleStage().equals(LifecycleStage.ACTIVE));
+    checkNotNull(draft);
+    checkState(draft.getLifecycleStage().equals(LifecycleStage.DRAFT));
     ImmutableMap.Builder<Long, QuestionDefinition> questionIdMap = ImmutableMap.builder();
-    for (QuestionDefinition qd : questions) {
+    ImmutableMap.Builder<Path, QuestionDefinition> questionPathMap = ImmutableMap.builder();
+    ImmutableMap.Builder<Path, ScalarType> scalarMap = ImmutableMap.builder();
+    ImmutableSet.Builder<QuestionDefinition> upToDateBuilder = ImmutableSet.builder();
+    Set<String> namesFoundInDraft = new HashSet<>();
+    for (QuestionDefinition qd :
+        draft.getQuestions().stream()
+            .map(Question::getQuestionDefinition)
+            .collect(Collectors.toList())) {
+      upToDateBuilder.add(qd);
       questionIdMap.put(qd.getId(), qd);
+      namesFoundInDraft.add(qd.getName());
+    }
+    for (QuestionDefinition qd :
+        active.getQuestions().stream()
+            .map(Question::getQuestionDefinition)
+            .collect(Collectors.toList())) {
+      questionPathMap.put(qd.getPath(), qd);
+
+      ImmutableMap<Path, ScalarType> questionScalars = qd.getScalars();
+      questionScalars.entrySet().stream()
+          .forEach(
+              entry -> {
+                scalarMap.put(entry.getKey(), entry.getValue());
+              });
+      questionIdMap.put(qd.getId(), qd);
+      if (!namesFoundInDraft.contains(qd.getName())) {
+        upToDateBuilder.add(qd);
+      }
     }
     questionsById = questionIdMap.build();
+    scalars = scalarMap.build();
+    upToDateQuestions = upToDateBuilder.build();
+    activeAndDraftQuestions = new ActiveAndDraftQuestions(active, draft);
+  }
+
+  @Override
+  public ActiveAndDraftQuestions getActiveAndDraftQuestions() {
+    return activeAndDraftQuestions;
   }
 
   @Override
@@ -60,6 +94,11 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
         .filter(QuestionDefinition::isRepeater)
         .map(questionDefinition -> (RepeaterQuestionDefinition) questionDefinition)
         .collect(ImmutableList.toImmutableList());
+  }
+
+  @Override
+  public ImmutableMap<Path, ScalarType> getAllScalars() {
+    return scalars;
   }
 
   @Override

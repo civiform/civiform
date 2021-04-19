@@ -12,7 +12,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import models.Applicant;
-import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ApplicantRepository;
@@ -126,12 +125,10 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         questionService
             .create(
                 new CheckboxQuestionDefinition(
-                    1L,
                     "checkbox",
                     Path.create("applicant.checkbox"),
                     Optional.empty(),
                     "description",
-                    LifecycleStage.ACTIVE,
                     ImmutableMap.of(Locale.US, "question?"),
                     ImmutableMap.of(Locale.US, "help text"),
                     ImmutableList.of(
@@ -287,12 +284,10 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         questionService
             .create(
                 new NameQuestionDefinition(
-                    1L,
                     "my name",
                     Path.create("applicant.name"),
                     Optional.empty(),
                     "description",
-                    LifecycleStage.ACTIVE,
                     ImmutableMap.of(Locale.US, "question?"),
                     ImmutableMap.of(Locale.US, "help text")))
             .getResult();
@@ -304,7 +299,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
   private void createProgram(QuestionDefinition... questions) {
     programDefinition =
-        ProgramBuilder.newProgram("test program", "desc")
+        ProgramBuilder.newDraftProgram("test program", "desc")
             .withBlock()
             .withQuestionDefinitions(ImmutableList.copyOf(questions))
             .buildDefinition();

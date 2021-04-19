@@ -35,7 +35,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
 
     subject = instanceOf(ApplicantProgramBlocksController.class);
     program =
-        ProgramBuilder.newProgram()
+        ProgramBuilder.newDraftProgram()
             .withBlock()
             .withQuestion(testQuestionBank().applicantName())
             .build();
@@ -190,7 +190,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
   @Test
   public void update_withNextBlock_redirectsToEdit() {
     program =
-        ProgramBuilder.newProgram()
+        ProgramBuilder.newDraftProgram()
             .withBlock("block 1")
             .withQuestion(testQuestionBank().applicantName())
             .withBlock("block 2")
@@ -218,7 +218,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
   @Test
   public void update_completedProgram_redirectsToReviewPage() {
     program =
-        ProgramBuilder.newProgram()
+        ProgramBuilder.newDraftProgram()
             .withBlock("block 1")
             .withQuestion(testQuestionBank().applicantName())
             .build();

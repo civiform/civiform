@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
@@ -34,9 +33,6 @@ import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
 
 public class QuestionController extends CiviFormController {
-  private static final long NEW_VERSION = 1L;
-  private static final long VERSION_PLACEHOLDER = 1L;
-
   private final QuestionService service;
   private final QuestionsListView listView;
   private final QuestionEditView editView;
@@ -63,7 +59,8 @@ public class QuestionController extends CiviFormController {
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
-            readOnlyService -> ok(listView.render(readOnlyService.getAllQuestions(), maybeFlash)),
+            readOnlyService ->
+                ok(listView.render(readOnlyService.getActiveAndDraftQuestions(), maybeFlash)),
             httpExecutionContext.current());
   }
 
@@ -129,11 +126,7 @@ public class QuestionController extends CiviFormController {
 
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition =
-          getBuilderWithQuestionPath(roService, questionForm)
-              .setVersion(NEW_VERSION)
-              .setLifecycleStage(LifecycleStage.DRAFT)
-              .build();
+      questionDefinition = getBuilderWithQuestionPath(roService, questionForm).build();
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
       return badRequest(e.getMessage());
@@ -191,14 +184,7 @@ public class QuestionController extends CiviFormController {
     try {
       ReadOnlyQuestionService roService =
           service.getReadOnlyQuestionService().toCompletableFuture().join();
-      questionDefinition =
-          getBuilderWithQuestionPath(roService, questionForm)
-              .setId(id)
-              // Version is needed for building a question definition.
-              // This value is overwritten when updating the question.
-              .setVersion(VERSION_PLACEHOLDER)
-              .setLifecycleStage(LifecycleStage.DRAFT)
-              .build();
+      questionDefinition = getBuilderWithQuestionPath(roService, questionForm).setId(id).build();
     } catch (UnsupportedQuestionTypeException e) {
       // Failed while trying to update a question that was already created for the given question
       // type

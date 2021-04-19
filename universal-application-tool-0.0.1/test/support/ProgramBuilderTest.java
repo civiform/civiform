@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import models.LifecycleStage;
 import models.Program;
 import org.junit.Test;
+import repository.WithPostgresContainer;
 import services.Path;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
@@ -16,11 +16,11 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
-public class ProgramBuilderTest {
+public class ProgramBuilderTest extends WithPostgresContainer {
   @Test
   public void fluentlyCreateProgramWithBlocks() {
     ProgramDefinition programDefinition =
-        ProgramBuilder.newProgram("name", "description")
+        ProgramBuilder.newDraftProgram("name", "description")
             .withName("a new name")
             .withDescription("a new description")
             .withBlock()
@@ -56,7 +56,7 @@ public class ProgramBuilderTest {
 
   @Test
   public void createProgramWithEmptyBlock() {
-    ProgramDefinition program = ProgramBuilder.newProgram("name", "desc").buildDefinition();
+    ProgramDefinition program = ProgramBuilder.newDraftProgram("name", "desc").buildDefinition();
 
     assertThat(program.getBlockDefinitionByIndex(0).get().name()).isEqualTo("");
     assertThat(program.getBlockDefinitionByIndex(0).get().description()).isEqualTo("");
@@ -67,17 +67,15 @@ public class ProgramBuilderTest {
     QuestionDefinition nameQuestionDefinition =
         new QuestionDefinitionBuilder()
             .setId(1L)
-            .setVersion(1L)
             .setName("my name")
             .setPath(Path.create("my.path.name"))
             .setDescription("description")
             .setQuestionType(QuestionType.NAME)
             .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
             .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
-            .setLifecycleStage(LifecycleStage.DRAFT)
             .build();
     ProgramDefinition programDefinition =
-        ProgramBuilder.newProgram("name", "description")
+        ProgramBuilder.newDraftProgram("name", "description")
             .withBlock()
             .withName("block 1")
             .withDescription("block 1 description")
@@ -94,7 +92,7 @@ public class ProgramBuilderTest {
 
   @Test
   public void emptyProgram() throws TranslationNotFoundException {
-    Program program = ProgramBuilder.newProgram().build();
+    Program program = ProgramBuilder.newDraftProgram().build();
 
     assertThat(program.id).isGreaterThan(0);
     assertThat(program.getProgramDefinition().adminName()).isEmpty();

@@ -7,10 +7,12 @@ import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import models.Account;
 import models.Applicant;
 import models.Application;
@@ -23,11 +25,16 @@ public class ApplicantRepository {
 
   private final EbeanServer ebeanServer;
   private final DatabaseExecutionContext executionContext;
+  private final Provider<VersionRepository> versionRepositoryProvider;
 
   @Inject
-  public ApplicantRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
+  public ApplicantRepository(
+      EbeanConfig ebeanConfig,
+      DatabaseExecutionContext executionContext,
+      Provider<VersionRepository> versionRepositoryProvider) {
     this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
     this.executionContext = checkNotNull(executionContext);
+    this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
   }
 
   public CompletionStage<Set<Applicant>> listApplicants() {
@@ -45,23 +52,29 @@ public class ApplicantRepository {
    */
   public CompletionStage<ImmutableList<ProgramDefinition>> programsForApplicant(long applicantId) {
     return supplyAsync(
-            () ->
-                ebeanServer
-                    .find(Program.class)
-                    .alias("p")
-                    .where()
-                    .or()
-                    .eq("lifecycle_stage", LifecycleStage.ACTIVE)
-                    .exists(
-                        ebeanServer
-                            .find(Application.class)
-                            .where()
-                            .eq("applicant.id", applicantId)
-                            .eq("lifecycle_stage", LifecycleStage.DRAFT)
-                            .raw("program.id = p.id")
-                            .query())
-                    .endOr()
-                    .findList(),
+            () -> {
+              List<Program> inProgressPrograms =
+                  ebeanServer
+                      .find(Program.class)
+                      .alias("p")
+                      .where()
+                      .exists(
+                          ebeanServer
+                              .find(Application.class)
+                              .where()
+                              .eq("applicant.id", applicantId)
+                              .eq("lifecycle_stage", LifecycleStage.DRAFT)
+                              .raw("program.id = p.id")
+                              .query())
+                      .endOr()
+                      .findList();
+              List<Program> activePrograms =
+                  versionRepositoryProvider.get().getActiveVersion().getPrograms();
+              return new ImmutableList.Builder<Program>()
+                  .addAll(activePrograms)
+                  .addAll(inProgressPrograms)
+                  .build();
+            },
             executionContext.current())
         .thenApplyAsync(
             (programs) ->

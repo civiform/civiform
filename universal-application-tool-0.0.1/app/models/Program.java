@@ -9,6 +9,8 @@ import io.ebean.annotation.DbJsonB;
 import java.util.List;
 import java.util.Locale;
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.PostLoad;
 import javax.persistence.PostPersist;
@@ -39,14 +41,18 @@ public class Program extends BaseModel {
 
   @Constraints.Required @DbJson private ImmutableList<BlockDefinition> blockDefinitions;
 
-  @Constraints.Required private Long version;
-
-  @Constraints.Required private LifecycleStage lifecycleStage;
-
   @Constraints.Required @DbJson private ImmutableList<ExportDefinition> exportDefinitions;
+
+  @ManyToMany
+  @JoinTable(name = "versions_programs")
+  private List<Version> versions;
 
   @OneToMany(mappedBy = "program")
   private List<Application> applications;
+
+  public ImmutableList<Version> getVersions() {
+    return ImmutableList.copyOf(versions);
+  }
 
   public ProgramDefinition getProgramDefinition() {
     return checkNotNull(this.programDefinition);
@@ -60,7 +66,6 @@ public class Program extends BaseModel {
     this.localizedName = definition.localizedName();
     this.localizedDescription = definition.localizedDescription();
     this.blockDefinitions = definition.blockDefinitions();
-    this.lifecycleStage = definition.lifecycleStage();
     this.exportDefinitions = definition.exportDefinitions();
   }
 
@@ -80,7 +85,7 @@ public class Program extends BaseModel {
     this.localizedName = ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, defaultDisplayName);
     this.localizedDescription =
         ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, defaultDisplayDescription);
-    this.lifecycleStage = LifecycleStage.DRAFT;
+
     BlockDefinition emptyBlock =
         BlockDefinition.builder()
             .setId(1L)
@@ -101,7 +106,6 @@ public class Program extends BaseModel {
     localizedName = programDefinition.localizedName();
     localizedDescription = programDefinition.localizedDescription();
     blockDefinitions = programDefinition.blockDefinitions();
-    lifecycleStage = programDefinition.lifecycleStage();
     exportDefinitions = programDefinition.exportDefinitions();
   }
 
@@ -118,7 +122,6 @@ public class Program extends BaseModel {
             .setLocalizedName(localizedName)
             .setLocalizedDescription(localizedDescription)
             .setBlockDefinitions(blockDefinitions)
-            .setLifecycleStage(lifecycleStage)
             .setExportDefinitions(exportDefinitions)
             .build();
   }
@@ -127,21 +130,7 @@ public class Program extends BaseModel {
     return ImmutableList.copyOf(applications);
   }
 
-  public LifecycleStage getLifecycleStage() {
-    return lifecycleStage;
-  }
-
-  public void setLifecycleStage(LifecycleStage lifecycleStage) {
-    this.lifecycleStage = lifecycleStage;
-    this.programDefinition =
-        this.programDefinition.toBuilder().setLifecycleStage(lifecycleStage).build();
-  }
-
-  public Long getVersion() {
-    return version;
-  }
-
-  public void setVersion(Long version) {
-    this.version = version;
+  public void addVersion(Version version) {
+    this.versions.add(version);
   }
 }

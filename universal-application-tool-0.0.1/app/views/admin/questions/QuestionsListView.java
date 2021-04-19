@@ -12,22 +12,19 @@ import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import models.LifecycleStage;
 import play.twirl.api.Content;
 import services.LocalizationUtils;
+import services.question.ActiveAndDraftQuestions;
 import services.question.exceptions.TranslationNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
-import views.admin.GroupByKeyCollector;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.ToastMessage;
@@ -45,17 +42,15 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   /** Renders a page with a table view of all questions. */
-  public Content render(ImmutableList<QuestionDefinition> questions, Optional<String> maybeFlash) {
+  public Content render(
+      ActiveAndDraftQuestions activeAndDraftQuestions, Optional<String> maybeFlash) {
 
     ContainerTag bodyContent =
         body(
             renderHeader("All Questions"),
             renderAddQuestionLink(),
-            div(renderQuestionTable(
-                    questions.stream()
-                        .collect(new GroupByKeyCollector<>(QuestionDefinition::getName))))
-                .withClasses(Styles.M_4),
-            renderSummary(questions));
+            div(renderQuestionTable(activeAndDraftQuestions)).withClasses(Styles.M_4),
+            renderSummary(activeAndDraftQuestions));
 
     if (maybeFlash.isPresent()) {
       bodyContent.with(
@@ -111,22 +106,24 @@ public final class QuestionsListView extends BaseHtmlView {
     return linkButton.with(dropdown);
   }
 
-  private Tag renderSummary(ImmutableList<QuestionDefinition> questions) {
-    return div("Total Questions: " + questions.size())
+  private Tag renderSummary(ActiveAndDraftQuestions activeAndDraftQuestions) {
+    return div("Total Questions: " + activeAndDraftQuestions.getActiveSize())
         .withClasses(Styles.FLOAT_RIGHT, Styles.TEXT_BASE, Styles.PX_4, Styles.MY_2);
   }
 
   /** Renders the full table. */
-  private Tag renderQuestionTable(
-      ImmutableMap<String, ImmutableList<QuestionDefinition>> questions) {
+  private Tag renderQuestionTable(ActiveAndDraftQuestions activeAndDraftQuestions) {
     return table()
         .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
         .with(renderQuestionTableHeaderRow())
         .with(
             tbody(
                 each(
-                    questions,
-                    (questionName, questionList) -> renderQuestionTableRow(questionList))));
+                    activeAndDraftQuestions.getQuestionNames(),
+                    (questionName) ->
+                        renderQuestionTableRow(
+                            activeAndDraftQuestions.getActiveQuestionDefinition(questionName),
+                            activeAndDraftQuestions.getDraftQuestionDefinition(questionName)))));
   }
 
   /** Render the question table header row. */
@@ -146,32 +143,18 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   /** Display this as a table row with all fields. */
-  private Tag renderQuestionTableRow(ImmutableList<QuestionDefinition> questionVersions) {
-    ImmutableMap<String, ImmutableList<QuestionDefinition>> questionsByLifecycle =
-        questionVersions.stream()
-            .collect(
-                new GroupByKeyCollector<QuestionDefinition>(
-                    questionDefinition -> questionDefinition.getLifecycleStage().getValue()));
-    Optional<QuestionDefinition> activeDefinition =
-        questionsByLifecycle
-            .getOrDefault(LifecycleStage.ACTIVE.getValue(), ImmutableList.of())
-            .stream()
-            .findAny();
-    Optional<QuestionDefinition> draftDefinition =
-        questionsByLifecycle
-            .getOrDefault(LifecycleStage.DRAFT.getValue(), ImmutableList.of())
-            .stream()
-            .findAny();
+  private Tag renderQuestionTableRow(
+      Optional<QuestionDefinition> activeDefinition, Optional<QuestionDefinition> draftDefinition) {
     QuestionDefinition definition;
     // Find the main definition to display information from.  Prefer the latest draft.  If there
-    // is no draft, choose an active one if exists.  If there are neither, choose any.  There will
-    // be at least one or we wouldn't have gotten here!
+    // is no draft, choose an active one if exists.  There will be at least one or we
+    // wouldn't have gotten here!
     if (draftDefinition.isPresent()) {
       definition = draftDefinition.get();
     } else if (activeDefinition.isPresent()) {
       definition = activeDefinition.get();
     } else {
-      definition = questionVersions.stream().findAny().get();
+      throw new IllegalArgumentException("Did not receive a valid question.");
     }
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,

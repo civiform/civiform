@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import models.Applicant;
-import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import services.LocalizationUtils;
@@ -21,12 +20,10 @@ public class SingleSelectQuestionTest {
 
   private static final DropdownQuestionDefinition dropdownQuestionDefinition =
       new DropdownQuestionDefinition(
-          1L,
           "question name",
           Path.create("applicant.my.path.name"),
           Optional.empty(),
           "description",
-          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
           ImmutableList.of(

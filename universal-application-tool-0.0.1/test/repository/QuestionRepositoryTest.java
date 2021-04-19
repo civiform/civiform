@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-import models.LifecycleStage;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,10 +87,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   public void findPathConflictingQuestion_differentVersion_hasConflict() throws Exception {
     Question applicantName = testQuestionBank.applicantName();
     QuestionDefinition questionDefinition =
-        new QuestionDefinitionBuilder(applicantName.getQuestionDefinition())
-            .setId(123123L)
-            .setVersion(433L)
-            .build();
+        new QuestionDefinitionBuilder(applicantName.getQuestionDefinition()).setId(123123L).build();
 
     Optional<Question> maybeConflict = repo.findPathConflictingQuestion(questionDefinition);
 
@@ -191,7 +187,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   @Test
   public void lookupQuestionByPath_versioningNotSupportedYet() {
     resourceCreator.insertQuestion("path.one");
-    resourceCreator.insertQuestion("path.one", 2L);
+    resourceCreator.insertQuestion("path.one");
 
     assertThatThrownBy(() -> repo.lookupQuestionByPath("path.one").toCompletableFuture().join())
         .isInstanceOf(java.util.concurrent.CompletionException.class)
@@ -203,12 +199,10 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   public void insertQuestion() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            2L,
             "question",
             Path.create("applicant.name"),
             Optional.empty(),
             "applicant's name",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is your name?"),
             ImmutableMap.of());
     Question question = new Question(questionDefinition);
@@ -224,12 +218,10 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   public void insertQuestionSync() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            2L,
             "question",
             Path.create("applicant.name"),
             Optional.empty(),
             "applicant's name",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is your name?"),
             ImmutableMap.of());
     Question question = new Question(questionDefinition);

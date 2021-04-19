@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import models.LifecycleStage;
 import org.junit.Test;
 import services.question.types.QuestionDefinition;
 import support.TestQuestionBank;
@@ -28,7 +27,6 @@ public class ProgramDefinitionTest {
         .setAdminDescription("Admin description")
         .addLocalizedName(Locale.US, "The Program")
         .addLocalizedDescription(Locale.US, "This program is for testing.")
-        .setLifecycleStage(LifecycleStage.ACTIVE)
         .addBlockDefinition(blockA)
         .build();
   }
@@ -48,7 +46,6 @@ public class ProgramDefinitionTest {
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "The Program")
             .addLocalizedDescription(Locale.US, "This program is for testing.")
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .addBlockDefinition(blockA)
             .build();
 
@@ -64,7 +61,6 @@ public class ProgramDefinitionTest {
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "The Program")
             .addLocalizedDescription(Locale.US, "This program is for testing.")
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).isEmpty();
@@ -100,7 +96,6 @@ public class ProgramDefinitionTest {
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "The Program")
             .addLocalizedDescription(Locale.US, "This program is for testing.")
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
             .build();
@@ -119,7 +114,6 @@ public class ProgramDefinitionTest {
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "Applicant friendly name")
             .addLocalizedDescription(Locale.US, "English description")
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
     assertThat(program.adminName()).isEqualTo("Admin name");
@@ -147,7 +141,6 @@ public class ProgramDefinitionTest {
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "Applicant friendly name")
             .addLocalizedDescription(Locale.US, "English description")
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
     assertThatThrownBy(

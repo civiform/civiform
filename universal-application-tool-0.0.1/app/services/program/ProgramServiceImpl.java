@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import forms.BlockForm;
 import java.util.Locale;
 import java.util.Optional;
@@ -16,6 +17,7 @@ import models.Program;
 import play.db.ebean.Transactional;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ProgramRepository;
+import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.question.QuestionService;
@@ -28,15 +30,18 @@ public class ProgramServiceImpl implements ProgramService {
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
   private final HttpExecutionContext httpExecutionContext;
+  private final Provider<VersionRepository> versionRepositoryProvider;
 
   @Inject
   public ProgramServiceImpl(
       ProgramRepository programRepository,
       QuestionService questionService,
+      Provider<VersionRepository> versionRepositoryProvider,
       HttpExecutionContext ec) {
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
     this.httpExecutionContext = checkNotNull(ec);
+    this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
   }
 
   @Override
@@ -80,6 +85,13 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
+  public ActiveAndDraftPrograms getActiveAndDraftPrograms() {
+    return new ActiveAndDraftPrograms(
+        versionRepositoryProvider.get().getActiveVersion(),
+        versionRepositoryProvider.get().getDraftVersion());
+  }
+
+  @Override
   public CompletionStage<ProgramDefinition> getProgramDefinitionAsync(long id) {
     return programRepository
         .lookupProgram(id)
@@ -113,6 +125,7 @@ public class ProgramServiceImpl implements ProgramService {
 
     Program program =
         new Program(adminName, adminDescription, defaultDisplayName, defaultDisplayDescription);
+    program.addVersion(versionRepositoryProvider.get().getDraftVersion());
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
 

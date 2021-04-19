@@ -11,8 +11,8 @@ import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import models.LifecycleStage;
 import models.Question;
+import models.Version;
 import play.db.ebean.EbeanConfig;
 import services.Path;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -51,55 +51,37 @@ public class QuestionRepository {
    * draft if there isn't one.
    */
   public Question updateOrCreateDraft(QuestionDefinition definition) {
+    Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
+    Optional<Question> existingDraft = draftVersion.getQuestionByName(definition.getName());
     try {
-      Transaction transaction = ebeanServer.beginTransaction();
-      Optional<Question> draftMaybe =
-          ebeanServer
-              .find(Question.class)
-              .usingTransaction(transaction)
-              .where()
-              .eq("name", definition.getName())
-              .eq("lifecycle_stage", LifecycleStage.DRAFT.getValue())
-              .findOneOrEmpty();
-      if (draftMaybe.isPresent()) {
-        Question draft = draftMaybe.get();
-        definition =
-            new QuestionDefinitionBuilder(definition)
-                .setId(draft.id)
-                // Overwrite the version placeholder.
-                .setVersion(draft.getVersion())
-                .build();
-        Question updatedDraft = new Question(definition);
-        updatedDraft.setLifecycleStage(LifecycleStage.DRAFT);
-        ebeanServer.update(updatedDraft, transaction);
-        ebeanServer.commitTransaction();
-        updatedDraft.refresh();
+      if (existingDraft.isPresent()) {
+        Question updatedDraft =
+            new Question(
+                new QuestionDefinitionBuilder(definition).setId(existingDraft.get().id).build());
+        this.updateQuestionSync(updatedDraft);
         return updatedDraft;
+      } else {
+        Question newDraft =
+            new Question(new QuestionDefinitionBuilder(definition).setId(null).build());
+        try {
+          Transaction transaction = ebeanServer.beginTransaction();
+          insertQuestionSync(newDraft);
+          newDraft.addVersion(draftVersion);
+          newDraft.save();
+          versionRepositoryProvider
+              .get()
+              .updateProgramsForNewDraftQuestion(definition.getId(), transaction);
+          ebeanServer.commitTransaction();
+        } finally {
+          ebeanServer.endTransaction();
+        }
+        return newDraft;
       }
-
-      Question newDraft =
-          new Question(
-              new QuestionDefinitionBuilder(definition)
-                  .setId(null)
-                  .setVersion(versionRepositoryProvider.get().getNextVersion())
-                  .build());
-      newDraft.setLifecycleStage(LifecycleStage.DRAFT);
-      newDraft.id = null;
-      ebeanServer.insert(newDraft, transaction);
-
-      versionRepositoryProvider
-          .get()
-          .updateProgramsForNewDraftQuestion(newDraft, definition.getId(), transaction);
-
-      ebeanServer.commitTransaction();
-      newDraft.refresh();
-      return newDraft;
     } catch (UnsupportedQuestionTypeException e) {
-      // The question already exists - it should not be unsupported.  Wrap with runtime exception
-      // so the crash is maintained but callers do not have to deal with this.
+      // This should not be able to happen since the provided question definition is inherently
+      // valid.
+      // Throw runtime exception so callers don't have to deal with it.
       throw new RuntimeException(e);
-    } finally {
-      ebeanServer.endTransaction();
     }
   }
 

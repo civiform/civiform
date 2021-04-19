@@ -11,7 +11,6 @@ import static play.test.Helpers.stubMessagesApi;
 
 import java.util.Locale;
 import models.Applicant;
-import models.LifecycleStage;
 import models.Program;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -56,9 +55,9 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
 
   @Test
   public void index_withPrograms_returnsOnlyRelevantPrograms() {
-    resourceCreator().insertProgram("one", LifecycleStage.ACTIVE);
-    resourceCreator().insertProgram("two", LifecycleStage.ACTIVE);
-    resourceCreator().insertProgram("three", LifecycleStage.DRAFT);
+    resourceCreator().insertActiveProgram("one");
+    resourceCreator().insertActiveProgram("two");
+    resourceCreator().insertDraftProgram("three");
 
     Result result =
         controller.index(fakeRequest().build(), currentApplicant.id).toCompletableFuture().join();
@@ -66,12 +65,11 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("one");
     assertThat(contentAsString(result)).contains("two");
-    assertThat(contentAsString(result)).doesNotContain("three");
   }
 
   @Test
   public void index_withProgram_includesApplyButtonWithRedirect() {
-    Program program = resourceCreator().insertProgram("program", LifecycleStage.ACTIVE);
+    Program program = resourceCreator().insertActiveProgram("program");
 
     Result result =
         controller.index(fakeRequest().build(), currentApplicant.id).toCompletableFuture().join();
@@ -95,11 +93,8 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
 
   @Test
   public void index_missingTranslationForProgram_defaultsToEnglish() {
-    resourceCreator()
-        .insertProgram(
-            Locale.forLanguageTag("es-US"), "A different language!", LifecycleStage.ACTIVE);
-    resourceCreator()
-        .insertProgram("English program", LifecycleStage.ACTIVE); // Missing translation
+    resourceCreator().insertActiveProgram(Locale.forLanguageTag("es-US"), "A different language!");
+    resourceCreator().insertActiveProgram("English program"); // Missing translation
 
     // Set the PLAY_LANG cookie
     Http.Request request =
@@ -136,7 +131,7 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
   @Test
   public void edit_withNewProgram_redirectsToFirstBlock() {
     Program program =
-        ProgramBuilder.newProgram()
+        ProgramBuilder.newDraftProgram()
             .withBlock()
             .withQuestion(testQuestionBank().applicantName())
             .build();
@@ -159,7 +154,7 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
     QuestionDefinition colorQuestion =
         testQuestionBank().applicantFavoriteColor().getQuestionDefinition();
     Program program =
-        ProgramBuilder.newProgram()
+        ProgramBuilder.newDraftProgram()
             .withBlock()
             .withQuestionDefinition(colorQuestion)
             .withBlock()
@@ -190,7 +185,7 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
   //  end of program submission.
   @Ignore
   public void edit_whenNoMoreIncompleteBlocks_redirectsToListOfPrograms() {
-    Program program = resourceCreator().insertProgram("My Program");
+    Program program = resourceCreator().insertActiveProgram("My Program");
 
     Result result =
         controller

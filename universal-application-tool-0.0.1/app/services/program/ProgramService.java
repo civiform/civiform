@@ -42,6 +42,8 @@ public interface ProgramService {
    */
   ProgramDefinition getProgramDefinition(long id) throws ProgramNotFoundException;
 
+  ActiveAndDraftPrograms getActiveAndDraftPrograms();
+
   /**
    * Get the definition of a given program asynchronously.
    *

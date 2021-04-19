@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
 import services.question.types.AddressQuestionDefinition;
@@ -26,17 +25,12 @@ public class AddressQuestionFormTest {
     form.setDisallowPoBox(true);
     QuestionDefinitionBuilder builder = form.getBuilder(path);
 
-    builder.setVersion(1L);
-    builder.setLifecycleStage(LifecycleStage.ACTIVE);
-
     AddressQuestionDefinition expected =
         new AddressQuestionDefinition(
-            1L,
             "name",
             path,
             Optional.empty(),
             "description",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
             AddressQuestionDefinition.AddressValidationPredicates.create(true));
@@ -52,21 +46,16 @@ public class AddressQuestionFormTest {
 
     AddressQuestionDefinition originalQd =
         new AddressQuestionDefinition(
-            1L,
             "name",
             path,
             Optional.empty(),
             "description",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
             AddressQuestionDefinition.AddressValidationPredicates.create());
 
     AddressQuestionForm form = new AddressQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder(path);
-
-    builder.setVersion(1L);
-    builder.setLifecycleStage(LifecycleStage.ACTIVE);
 
     QuestionDefinition actual = builder.build();
 

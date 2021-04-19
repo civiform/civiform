@@ -10,10 +10,9 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import models.LifecycleStage;
 import models.Program;
+import models.Version;
 import play.db.ebean.EbeanConfig;
-import services.program.ProgramNotFoundException;
 
 public class ProgramRepository {
 
@@ -54,29 +53,21 @@ public class ProgramRepository {
     return program;
   }
 
-  public Program createOrUpdateDraft(Program existingProgram) throws ProgramNotFoundException {
+  public Program createOrUpdateDraft(Program existingProgram) {
+    Version draftVersion = versionRepository.get().getDraftVersion();
     Optional<Program> existingDraft =
-        ebeanServer
-            .find(Program.class)
-            .where()
-            .eq("lifecycle_stage", LifecycleStage.DRAFT.getValue())
-            .eq("name", existingProgram.getProgramDefinition().adminName())
-            .findOneOrEmpty();
+        draftVersion.getProgramByName(existingProgram.getProgramDefinition().adminName());
     if (existingDraft.isPresent()) {
       Program updatedDraft =
           existingProgram.getProgramDefinition().toBuilder()
               .setId(existingDraft.get().id)
-              .setLifecycleStage(LifecycleStage.DRAFT)
               .build()
               .toProgram();
       this.updateProgramSync(updatedDraft);
       return updatedDraft;
     } else {
-      Program newDraft =
-          existingProgram.getProgramDefinition().toBuilder()
-              .setLifecycleStage(LifecycleStage.DRAFT)
-              .build()
-              .toProgram();
+      Program newDraft = existingProgram.getProgramDefinition().toBuilder().build().toProgram();
+      newDraft.addVersion(draftVersion);
       insertProgramSync(newDraft);
       versionRepository.get().updateQuestionVersions(newDraft);
       return newDraft;

@@ -8,7 +8,6 @@ import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Applicant;
-import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,23 +20,19 @@ import services.question.types.TextQuestionDefinition;
 public class TextQuestionTest {
   private static final TextQuestionDefinition textQuestionDefinition =
       new TextQuestionDefinition(
-          1L,
           "question name",
           Path.create("applicant.my.path.name"),
           Optional.empty(),
           "description",
-          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
 
   private static final TextQuestionDefinition minAndMaxLengthTextQuestionDefinition =
       new TextQuestionDefinition(
-          1L,
           "question name",
           Path.create("applicant.my.path.name"),
           Optional.empty(),
           "description",
-          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
           TextQuestionDefinition.TextValidationPredicates.create(3, 4));

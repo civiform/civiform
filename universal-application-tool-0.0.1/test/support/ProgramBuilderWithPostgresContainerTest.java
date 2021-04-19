@@ -11,7 +11,7 @@ public class ProgramBuilderWithPostgresContainerTest extends WithPostgresContain
 
   @Test
   public void test() {
-    Program program = ProgramBuilder.newProgram().build();
+    Program program = ProgramBuilder.newDraftProgram().build();
 
     Program found =
         app.injector()
