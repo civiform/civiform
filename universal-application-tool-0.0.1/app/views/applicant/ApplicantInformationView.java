@@ -18,6 +18,11 @@ import play.twirl.api.Content;
 import views.BaseHtmlView;
 import views.components.SelectWithLabel;
 
+/**
+ * Provides a form for selecting an applicant's preferred language. Note that we cannot use Play's
+ * {@link play.i18n.Messages}, since the applicant has no language set yet. Instead, we use English
+ * since this is the CiviForm default language.
+ */
 public class ApplicantInformationView extends BaseHtmlView {
 
   private final ApplicantLayout layout;

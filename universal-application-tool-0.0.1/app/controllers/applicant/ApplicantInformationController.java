@@ -1,5 +1,7 @@
 package controllers.applicant;
 
+import static java.util.concurrent.CompletableFuture.supplyAsync;
+
 import auth.ProfileUtils;
 import controllers.CiviFormController;
 import forms.ApplicantInformationForm;
@@ -15,11 +17,16 @@ import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 import repository.ApplicantRepository;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantNotFoundException;
 import views.applicant.ApplicantInformationView;
 
+/**
+ * Provides methods for editing and updating an applicant's information, such as their preferred
+ * language.
+ */
 public final class ApplicantInformationController extends CiviFormController {
 
   private final HttpExecutionContext httpExecutionContext;
@@ -62,7 +69,9 @@ public final class ApplicantInformationController extends CiviFormController {
 
   public CompletionStage<Result> update(Http.Request request, long applicantId) {
     Form<ApplicantInformationForm> form = formFactory.form(ApplicantInformationForm.class);
-    // TODO: catch form binding error and give bad request
+    if (form.hasErrors()) {
+      return supplyAsync(Results::badRequest);
+    }
     ApplicantInformationForm infoForm = form.bindFromRequest(request).get();
 
     return checkApplicantAuthorization(profileUtils, request, applicantId)
