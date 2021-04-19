@@ -21,6 +21,7 @@ import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import services.question.types.RadioButtonQuestionDefinition;
 import services.question.types.RepeaterQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
@@ -38,7 +39,8 @@ import services.question.types.TextQuestionDefinition;
  *
  * <p>To add a new {@link Question} to the question bank: create a {@link QuestionEnum} for it,
  * create a private static method to construct the question, and create a public static method to
- * retrieve the cached question.
+ * retrieve the cached question. Add new methods in alphabetical order by {@link QuestionType},
+ * grouping those methods with the same type together.
  */
 public class TestQuestionBank {
 
@@ -81,6 +83,13 @@ public class TestQuestionBank {
         QuestionEnum.APPLICANT_NAME, TestQuestionBank::applicantName);
   }
 
+  // Repeated name
+  public static Question applicantHouseholdMemberName() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_NAME,
+        TestQuestionBank::applicantHouseholdMemberName);
+  }
+
   // Number
   public static Question applicantJugglingNumber() {
     return questionCache.computeIfAbsent(
@@ -97,13 +106,6 @@ public class TestQuestionBank {
   public static Question applicantHouseholdMembers() {
     return questionCache.computeIfAbsent(
         QuestionEnum.APPLICANT_HOUSEHOLD_MEMBERS, TestQuestionBank::applicantHouseholdMembers);
-  }
-
-  // Repeated name
-  public static Question applicantHouseholdMemberName() {
-    return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_NAME,
-        TestQuestionBank::applicantHouseholdMemberName);
   }
 
   // Text
@@ -196,6 +198,23 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  // Repeated name
+  private static Question applicantHouseholdMemberName(QuestionEnum ignore) {
+    Question householdMembers = applicantHouseholdMembers();
+    QuestionDefinition definition =
+        new NameQuestionDefinition(
+            VERSION,
+            "household members name",
+            Path.create("applicant.applicant_household_members[].name"),
+            Optional.of(householdMembers.id),
+            "The applicant's household member's name",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "what is the household member's name?"),
+            ImmutableMap.of(Locale.US, "help text"));
+
+    return maybeSave(definition);
+  }
+
   // Number
   private static Question applicantJugglingNumber(QuestionEnum ignore) {
     QuestionDefinition definition =
@@ -242,23 +261,6 @@ public class TestQuestionBank {
             "The applicant's household members",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "Who are your household members?"),
-            ImmutableMap.of(Locale.US, "help text"));
-
-    return maybeSave(definition);
-  }
-
-  // Repeated name
-  private static Question applicantHouseholdMemberName(QuestionEnum ignore) {
-    Question householdMembers = applicantHouseholdMembers();
-    QuestionDefinition definition =
-        new NameQuestionDefinition(
-            VERSION,
-            "household members name",
-            Path.create("applicant.applicant_household_members[].name"),
-            Optional.of(householdMembers.id),
-            "The applicant's household member's name",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(Locale.US, "what is the household member's name?"),
             ImmutableMap.of(Locale.US, "help text"));
 
     return maybeSave(definition);
