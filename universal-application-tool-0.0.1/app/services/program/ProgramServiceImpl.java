@@ -142,8 +142,27 @@ public class ProgramServiceImpl implements ProgramService {
   @Transactional
   public ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(long programId)
       throws ProgramNotFoundException {
+    return addBlockToProgram(programId, Optional.empty());
+  }
+
+  @Override
+  @Transactional
+  public ErrorAnd<ProgramDefinition, CiviFormError> addRepeatedBlockToProgram(
+      long programId, long repeaterId) throws ProgramNotFoundException {
+    return addBlockToProgram(programId, Optional.of(repeaterId));
+  }
+
+  private ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(
+      long programId, Optional<Long> repeaterId) throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
-    String blockName = String.format("Block %d", getNextBlockId(programDefinition));
+
+    long blockId = getNextBlockId(programDefinition);
+    String blockName;
+    if (repeaterId.isPresent()) {
+      blockName = String.format("Block %d (repeated from %d)", blockId, repeaterId.get());
+    } else {
+      blockName = String.format("Block %d", blockId);
+    }
     String blockDescription =
         "What is the purpose of this block? Add a description that summarizes the information"
             + " collected.";
@@ -152,13 +171,13 @@ public class ProgramServiceImpl implements ProgramService {
     if (!errors.isEmpty()) {
       return ErrorAnd.errorAnd(errors, programDefinition);
     }
-    long blockId = getNextBlockId(programDefinition);
 
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(blockId)
             .setName(blockName)
             .setDescription(blockDescription)
+            .setRepeaterId(repeaterId)
             .build();
 
     Program program =

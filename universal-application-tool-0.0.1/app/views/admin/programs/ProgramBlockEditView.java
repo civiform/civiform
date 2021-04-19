@@ -16,6 +16,7 @@ import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.BlockDefinition;
@@ -38,6 +39,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
   private final AdminLayout layout;
 
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
+  private static final String CREATE_REPEATED_BLOCK_FORM_ID = "block-repeated-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
 
   @Inject
@@ -81,7 +83,9 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 .withId("program-block-info")
                 .withClasses(Styles.FLEX, Styles.FLEX_GROW, Styles._MX_2)
                 .with(blockOrderPanel(program, blockId))
-                .with(blockEditPanel(program, blockId, blockForm, blockQuestions, csrfTag))
+                .with(
+                    blockEditPanel(
+                        program, blockId, blockDefinition, blockForm, blockQuestions, csrfTag))
                 .with(questionBankPanel(questions, program, blockDefinition, csrfTag)));
 
     if (message.length() > 0) {
@@ -93,16 +97,33 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
   private Tag addFormEndpoints(Tag csrfTag, long programId, long blockId) {
     String blockCreateAction =
-        controllers.admin.routes.AdminProgramBlocksController.create(programId).url();
+        controllers.admin.routes.AdminProgramBlocksController.create(programId, Optional.empty())
+            .url();
     ContainerTag createBlockForm =
         form(csrfTag).withId(CREATE_BLOCK_FORM_ID).withMethod(POST).withAction(blockCreateAction);
+
+    String repeatedBlockCreateAction =
+        controllers.admin.routes.AdminProgramBlocksController.create(
+                programId, Optional.of(blockId))
+            .url();
+    ContainerTag createRepeatedBlockForm =
+        form(csrfTag)
+            .withId(CREATE_REPEATED_BLOCK_FORM_ID)
+            .withMethod(POST)
+            .withAction(repeatedBlockCreateAction)
+            .with(
+                FieldWithLabel.input()
+                    .setFieldName("repeaterId")
+                    .setValue(String.valueOf(blockId))
+                    .getContainer());
 
     String blockDeleteAction =
         controllers.admin.routes.AdminProgramBlocksController.destroy(programId, blockId).url();
     ContainerTag deleteBlockForm =
         form(csrfTag).withId(DELETE_BLOCK_FORM_ID).withMethod(POST).withAction(blockDeleteAction);
 
-    return div(createBlockForm, deleteBlockForm).withClasses(Styles.HIDDEN);
+    return div(createBlockForm, createRepeatedBlockForm, deleteBlockForm)
+        .withClasses(Styles.HIDDEN);
   }
 
   private Tag programInfo(ProgramDefinition program) {
@@ -168,11 +189,13 @@ public class ProgramBlockEditView extends BaseHtmlView {
   private ContainerTag blockEditPanel(
       ProgramDefinition program,
       long blockId,
+      BlockDefinition blockDefinition,
       BlockForm blockForm,
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
       Tag csrfTag) {
     String blockUpdateAction =
         controllers.admin.routes.AdminProgramBlocksController.update(program.id(), blockId).url();
+
     ContainerTag blockInfoForm = form(csrfTag).withMethod(POST).withAction(blockUpdateAction);
 
     blockInfoForm.with(
@@ -191,11 +214,20 @@ public class ProgramBlockEditView extends BaseHtmlView {
         submitButton("Update Block")
             .withId("update-block-button")
             .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
+
     if (program.blockDefinitions().size() > 1) {
       blockInfoForm.with(
           submitButton("Delete Block")
               .withId("delete-block-button")
               .attr(Attr.FORM, DELETE_BLOCK_FORM_ID)
+              .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
+    }
+
+    if (blockDefinition.isRepeater()) {
+      blockInfoForm.with(
+          submitButton("Create Repeated Block")
+              .withId(CREATE_REPEATED_BLOCK_FORM_ID + "_button")
+              .attr(Attr.FORM, CREATE_REPEATED_BLOCK_FORM_ID)
               .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
     }
 
