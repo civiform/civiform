@@ -156,34 +156,53 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 Styles.W_1_5,
                 Styles.BORDER_R,
                 Styles.BORDER_GRAY_200);
-
-    for (BlockDefinition block : program.blockDefinitions()) {
-      String editBlockLink =
-          controllers.admin.routes.AdminProgramBlocksController.edit(program.id(), block.id())
-              .url();
-
-      // TODO: Not i18n safe.
-      int numQuestions = block.getQuestionCount();
-      String questionCountText = String.format("%d Question", numQuestions);
-      if (numQuestions != 1) {
-        questionCountText += 's';
-      }
-      String blockName = block.name();
-
-      ContainerTag blockTag =
-          a().withHref(editBlockLink)
-              .with(p(blockName), p(questionCountText).withClasses(Styles.TEXT_SM));
-      String selectedClasses = block.id() == focusedBlockId ? Styles.BG_GRAY_100 : "";
-      blockTag.withClasses(Styles.BLOCK, Styles.PY_2, Styles.PX_4, selectedClasses);
-      ret.with(blockTag);
-    }
-
+    addBlocksToContainer(
+        ret, program, program.getBlockDefinitions(Optional.empty()), focusedBlockId, 1);
     ret.with(
         submitButton("Add Block")
             .withId("add-block-button")
             .attr(Attr.FORM, CREATE_BLOCK_FORM_ID)
             .withClasses(Styles.M_4));
     return ret;
+  }
+
+  private void addBlocksToContainer(
+      ContainerTag container,
+      ProgramDefinition programDefinition,
+      ImmutableList<BlockDefinition> blockDefinitions,
+      long focusedBlockId,
+      int level) {
+    for (BlockDefinition blockDefinition : blockDefinitions) {
+      String editBlockLink =
+          controllers.admin.routes.AdminProgramBlocksController.edit(
+                  programDefinition.id(), blockDefinition.id())
+              .url();
+
+      // TODO: Not i18n safe.
+      int numQuestions = blockDefinition.getQuestionCount();
+      String questionCountText = String.format("Question count: %d", numQuestions);
+      String blockName = blockDefinition.name();
+
+      ContainerTag blockTag =
+          a().withHref(editBlockLink)
+              .with(p(blockName), p(questionCountText).withClasses(Styles.TEXT_SM));
+      String selectedClasses = blockDefinition.id() == focusedBlockId ? Styles.BG_GRAY_100 : "";
+      blockTag.withClasses(Styles.BLOCK, Styles.PY_2, Styles.PX_4, selectedClasses);
+
+      container.with(blockTag);
+
+      // Recursively do this
+      if (blockDefinition.isRepeater()) {
+        ContainerTag nestedContainer = div().withClass("pl-" + level * 2);
+        addBlocksToContainer(
+            nestedContainer,
+            programDefinition,
+            programDefinition.getBlockDefinitions(Optional.of(blockDefinition.id())),
+            focusedBlockId,
+            level + 1);
+        container.with(nestedContainer);
+      }
+    }
   }
 
   private ContainerTag blockEditPanel(

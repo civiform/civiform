@@ -186,6 +186,13 @@ public abstract class ProgramDefinition {
     return questionIds.get().contains(questionId);
   }
 
+  /** Get the block definitions associated with the repeater id. */
+  public ImmutableList<BlockDefinition> getBlockDefinitions(Optional<Long> repeaterId) {
+    return blockDefinitions().stream()
+        .filter(blockDefinition -> blockDefinition.repeaterId().equals(repeaterId))
+        .collect(ImmutableList.toImmutableList());
+  }
+
   public Program toProgram() {
     return new Program(this);
   }
