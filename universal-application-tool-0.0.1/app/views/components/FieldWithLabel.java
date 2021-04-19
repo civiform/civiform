@@ -47,26 +47,31 @@ public class FieldWithLabel {
   };
 
   private static final String[] FLOATED_FIELD_CLASSES = {
-    Styles.BG_TRANSPARENT,
-    Styles.BLOCK,
-    Styles.PX_1,
-    Styles.PY_2,
+    Styles.FONT_SEMIBOLD,
+    Styles.PX_3,
+    Styles.PT_6,
+    Styles.PB_2,
+    Styles.M_AUTO,
+    Styles.BORDER_4,
+    Styles.BG_WHITE,
+    Styles.TEXT_XL,
+    Styles.ROUNDED_XL,
     Styles.W_FULL,
     Styles.TEXT_BASE,
-    Styles.PLACEHOLDER_TRANSPARENT,
-    StyleUtils.focus(Styles.OUTLINE_NONE, Styles.PLACEHOLDER_GRAY_400)
+    Styles.OUTLINE_NONE,
+    Styles.PLACEHOLDER_GRAY_400,
+    StyleUtils.focus(Styles.BORDER_YELLOW_400)
   };
 
   private static final String[] FLOATED_LABEL_CLASSES = {
     Styles.ABSOLUTE,
     Styles.POINTER_EVENTS_NONE,
     Styles.TEXT_GRAY_600,
-    Styles.TOP_0,
-    Styles.LEFT_0,
-    Styles.TEXT_BASE,
+    Styles.TOP_1,
+    Styles.LEFT_3,
+    Styles.TEXT_XS,
     Styles.PX_1,
-    Styles.PY_2,
-    Styles.DURATION_300
+    Styles.PY_2
   };
 
   protected Tag fieldTag;
@@ -239,13 +244,7 @@ public class FieldWithLabel {
       return div()
           .with(
               div(fieldTag, labelTag)
-                  .withClasses(
-                      ReferenceClasses.FLOATED_LABEL,
-                      Styles.MY_2,
-                      Styles.RELATIVE,
-                      Styles.BORDER_B_2,
-                      Styles.BORDER_GRAY_600,
-                      StyleUtils.focusWithin(Styles.BORDER_BLUE_500)));
+                  .withClasses(ReferenceClasses.FLOATED_LABEL, Styles.MY_2, Styles.RELATIVE));
     }
     return div(labelTag, fieldTag).withClasses(Styles.MX_4, Styles.MB_6);
   }
@@ -263,6 +262,6 @@ public class FieldWithLabel {
             .condAttr(!Strings.isNullOrEmpty(this.id), Attr.FOR, this.id)
             .withText(this.labelText);
 
-    return div(fieldTag, labelTag).withClasses(Styles.MX_4, Styles.MB_1);
+    return div(fieldTag, labelTag).withClasses(Styles.M_4, Styles.MB_1);
   }
 }
