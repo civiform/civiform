@@ -117,7 +117,7 @@ public class QuestionController extends CiviFormController {
   public Result create(Request request, String questionType) {
     QuestionForm questionForm;
     try {
-      questionForm = QuestionFormBuilder.createFromRequest(request, formFactory, QuestionType.of(questionType);
+      questionForm = QuestionFormBuilder.createFromRequest(request, formFactory, QuestionType.of(questionType));
     } catch (InvalidQuestionTypeException e) {
       return badRequest(invalidQuestionTypeMessage(questionType));
     }
