@@ -6,6 +6,7 @@ import io.ebean.annotation.WhenCreated;
 import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -47,7 +48,8 @@ public class Applicant extends BaseModel {
         // Default to English until the applicant specifies their preferred language.
         this.applicantData = new ApplicantData(object);
       } else {
-        this.applicantData = new ApplicantData(Locale.forLanguageTag(preferredLocale), object);
+        this.applicantData =
+            new ApplicantData(Optional.of(Locale.forLanguageTag(preferredLocale)), object);
       }
     } else if (this.applicantData == null) {
       this.applicantData = new ApplicantData();

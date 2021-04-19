@@ -49,6 +49,8 @@ POST    /demo                       controllers.J2HtmlDemoController.create(requ
 GET     /assets/*file               controllers.Assets.versioned(file)
 
 # Methods for applicants
+GET     /applicants/:applicantId/edit                                       controllers.applicant.ApplicantInformationController.edit(request: Request, applicantId: Long)
+POST    /applicants/:applicantId                                            controllers.applicant.ApplicantInformationController.update(request: Request, applicantId: Long)
 GET     /applicants/:applicantId/programs                                   controllers.applicant.ApplicantProgramsController.index(request: Request, applicantId: Long)
 GET     /applicants/:applicantId/programs/:programId/edit                   controllers.applicant.ApplicantProgramsController.edit(request: Request, applicantId: Long, programId: Long)
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit   controllers.applicant.ApplicantProgramBlocksController.edit(request: Request, applicantId: Long, programId: Long, blockId: String)
