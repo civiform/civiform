@@ -6,6 +6,11 @@ Mappings:
       image: public.ecr.aws/t1q6b4h2/universal-application-tool:prod
     staging:
       image: public.ecr.aws/t1q6b4h2/universal-application-tool:latest
+  S3TaskRoles:
+    prod:
+      role: arn:aws:iam::405662711265:role/AmazonECSTaskS3BucketRole
+    staging:
+      role: arn:aws:iam::405662711265:role/AmazonECSTaskS3BucketRoleStaging
 Parameters:
   Environment:
     Type: String
@@ -91,7 +96,7 @@ Resources:
     Properties:
       RequiresCompatibilities:
         - FARGATE
-      TaskRoleArn: arn:aws:iam::405662711265:role/AmazonECSTaskS3BucketRole
+      TaskRoleArn: !FindInMap [S3TaskRoles, !Ref Environment, role]
       ExecutionRoleArn: arn:aws:iam::405662711265:role/ecs-task-role
       NetworkMode: awsvpc
       Cpu: 1024
