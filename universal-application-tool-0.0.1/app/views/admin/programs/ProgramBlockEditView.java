@@ -191,7 +191,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
       container.with(blockTag);
 
-      // Recursively add repeated blocked under their repeater block
+      // Recursively add repeated blocks indented under their repeater block
       if (blockDefinition.isRepeater()) {
         container.with(
             addBlocksToContainer(
