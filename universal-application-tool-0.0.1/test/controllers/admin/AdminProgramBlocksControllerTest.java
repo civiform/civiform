@@ -9,6 +9,7 @@ import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
 import models.Program;
 import models.Question;
 import org.junit.Before;
@@ -25,8 +26,6 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import support.ProgramBuilder;
 import support.TestQuestionBank;
-
-import java.util.Optional;
 
 public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
