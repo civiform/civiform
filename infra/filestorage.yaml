@@ -8,6 +8,9 @@ Parameters:
     Type: String
     AllowedValues: ["staging", "prod"]
     Description: "Staging or prod environment"
+  S3TaskRole:
+    Description: The user allowed to access S3.
+    Type: String
 Resources:
   key:
     Type: AWS::KMS::Key
@@ -33,7 +36,7 @@ Resources:
         - Sid: Enable CiviForm Server Permissions
           Effect: Allow
           Principal:
-            AWS: arn:aws:iam::405662711265:role/AmazonECSTaskS3BucketRole
+            AWS: !Ref S3TaskRole
           Action:
             - kms:Encrypt
             - kms:Decrypt
@@ -80,7 +83,7 @@ Resources:
                 - !Ref bucket
                 - /*
             NotPrincipal:
-              AWS: 'arn:aws:iam::405662711265:role/AmazonECSTaskS3BucketRole'
+              AWS: !Ref S3TaskRole
             Condition:
               StringNotEquals:
                 'aws:sourceVpce': !Ref 'S3VPCEndpoint'
@@ -95,7 +98,7 @@ Resources:
                 - !Ref bucket
                 - /*
             Principal:
-              AWS: 'arn:aws:iam::405662711265:role/AmazonECSTaskS3BucketRole'
+              AWS: !Ref S3TaskRole
 Outputs:
   bucketname:
     Description: The location of the bucket for secure uploads.

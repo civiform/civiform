@@ -11,6 +11,9 @@ Parameters:
     Type: String
     AllowedValues: ["staging", "prod"]
     Description: "Staging or prod environment"
+  S3TaskRole:
+    Description: The task role for the containers.
+    Type: String
   DBAddress:
     Description: The address at which the database can be reached.
     Type: String
@@ -91,7 +94,7 @@ Resources:
     Properties:
       RequiresCompatibilities:
         - FARGATE
-      TaskRoleArn: arn:aws:iam::405662711265:role/AmazonECSTaskS3BucketRole
+      TaskRoleArn: !Ref S3TaskRole
       ExecutionRoleArn: arn:aws:iam::405662711265:role/ecs-task-role
       NetworkMode: awsvpc
       Cpu: 1024
