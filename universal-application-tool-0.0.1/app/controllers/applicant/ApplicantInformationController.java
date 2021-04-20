@@ -84,6 +84,7 @@ public final class ApplicantInformationController extends CiviFormController {
                 Applicant applicant = maybeApplicant.get();
                 ApplicantData data = applicant.getApplicantData();
                 data.setPreferredLocale(infoForm.getLocale());
+                // Update the applicant, then pass the updated applicant to the next stage.
                 return repository
                     .updateApplicant(applicant)
                     .thenApplyAsync(v -> applicant, httpExecutionContext.current());

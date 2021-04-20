@@ -47,18 +47,19 @@ public class ApplicantInformationView extends BaseHtmlView {
   }
 
   private ContainerTag selectLanguageDropdown() {
-    SelectWithLabel languageSelect = new SelectWithLabel();
-    languageSelect.setId("select-language");
-    languageSelect.setFieldName("locale");
-
-    // An option consists of the language (localized to that language - for example, this would
-    // display 'Español' for es-US), and the value is the ISO code.
-    languageSelect.setOptions(
-        this.supportedLanguages.stream()
-            .map(
-                locale ->
-                    new AbstractMap.SimpleEntry<>(formatLabel(locale), locale.toLanguageTag()))
-            .collect(toImmutableList()));
+    SelectWithLabel languageSelect =
+        new SelectWithLabel()
+            .setId("select-language")
+            .setFieldName("locale")
+            .setOptions(
+                // An option consists of the language (localized to that language - for example,
+                // this would display 'Español' for es-US), and the value is the ISO code.
+                this.supportedLanguages.stream()
+                    .map(
+                        locale ->
+                            new AbstractMap.SimpleEntry<>(
+                                formatLabel(locale), locale.toLanguageTag()))
+                    .collect(toImmutableList()));
 
     return div()
         .with(p("Please select your preferred language from the following: "))
@@ -67,7 +68,7 @@ public class ApplicantInformationView extends BaseHtmlView {
 
   /**
    * The dropdown option label should be the language name localized to that language - for example,
-   * "español" for "es-US"). We capitalize the first letter, since some locales do not capitalize
+   * "español" for "es-US". We capitalize the first letter, since some locales do not capitalize
    * languages.
    */
   private String formatLabel(Locale locale) {
