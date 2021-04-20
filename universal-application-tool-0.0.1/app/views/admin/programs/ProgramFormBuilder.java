@@ -18,7 +18,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
       String adminDescription,
       String displayName,
       String displayDescription,
-      boolean programExists) {
+      boolean editExistingProgram) {
     ContainerTag formTag = form().withMethod("POST");
     formTag.with(
         h2("Program Information - Administrative Use Only"),
@@ -30,7 +30,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
                 "Give a name for internal identification purposes - this cannot be updated once"
                     + " set")
             .setValue(adminName)
-            .setDisabled(programExists)
+            .setDisabled(editExistingProgram)
             .getContainer(),
         FieldWithLabel.textArea()
             .setId("program-description-textarea")

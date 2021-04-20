@@ -4,7 +4,8 @@ public class ProgramForm {
   private String adminName;
   private String adminDescription;
 
-  // TODO: Support multiple locales
+  // TODO(https://github.com/seattle-uat/civiform/issues/777): Allow the admin to
+  // set localized strings for applicant-visible name and description.
   private String localizedDisplayName;
   private String localizedDisplayDescription;
 
