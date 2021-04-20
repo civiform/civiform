@@ -57,12 +57,21 @@ public class ApplicantInformationView extends BaseHtmlView {
         this.supportedLanguages.stream()
             .map(
                 locale ->
-                    new AbstractMap.SimpleEntry<>(
-                        locale.getDisplayLanguage(locale), locale.toLanguageTag()))
+                    new AbstractMap.SimpleEntry<>(formatLabel(locale), locale.toLanguageTag()))
             .collect(toImmutableList()));
 
     return div()
         .with(p("Please select your preferred language from the following: "))
         .with(languageSelect.getContainer());
+  }
+
+  /**
+   * The dropdown option label should be the language name localized to that language - for example,
+   * "español" for "es-US"). We capitalize the first letter, since some locales do not capitalize
+   * languages.
+   */
+  private String formatLabel(Locale locale) {
+    String language = locale.getDisplayLanguage(locale);
+    return language.substring(0, 1).toUpperCase(locale) + language.substring(1);
   }
 }
