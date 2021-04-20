@@ -57,7 +57,7 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void insertProgramSync() throws TranslationNotFoundException {
-    Program program = new Program("ProgramRepository", "desc");
+    Program program = new Program("ProgramRepository", "desc", "name", "description");
 
     Program withId = repo.insertProgramSync(program);
 

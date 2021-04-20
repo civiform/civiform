@@ -145,7 +145,7 @@ public class ProgramServiceImpl implements ProgramService {
 
   private ImmutableSet<CiviFormError> validateProgramText(String... text) {
     if (Arrays.stream(text).anyMatch(String::isBlank)) {
-      return ImmutableSet.of(CiviFormError.of("program text cannot be blank"));
+      return ImmutableSet.of(CiviFormError.of("program information cannot be blank"));
     }
     return ImmutableSet.of();
   }

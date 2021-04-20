@@ -160,4 +160,30 @@ public class ProgramDefinitionTest {
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Multiple entries with same key");
   }
+
+  @Test
+  public void updateNameAndDescription_replacesExistingValue() throws TranslationNotFoundException {
+    ProgramDefinition program =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .addLocalizedName(Locale.US, "existing name")
+            .addLocalizedDescription(Locale.US, "existing description")
+            .setLifecycleStage(LifecycleStage.ACTIVE)
+            .build();
+
+    program =
+        program.toBuilder()
+            .updateLocalizedName(program.localizedName(), Locale.US, "new name")
+            .build();
+    assertThat(program.getLocalizedName(Locale.US)).isEqualTo("new name");
+
+    program =
+        program.toBuilder()
+            .updateLocalizedDescription(
+                program.localizedDescription(), Locale.US, "new description")
+            .build();
+    assertThat(program.getLocalizedDescription(Locale.US)).isEqualTo("new description");
+  }
 }
