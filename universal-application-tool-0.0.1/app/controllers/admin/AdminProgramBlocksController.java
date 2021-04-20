@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import controllers.CiviFormController;
 import forms.BlockForm;
+import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -55,9 +56,17 @@ public class AdminProgramBlocksController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result create(Request request, long programId) {
+    Optional<Long> repeaterId =
+        Optional.ofNullable(
+                formFactory.form().bindFromRequest(request).get(editView.REPEATER_ID_FORM_FIELD))
+            .map(Long::valueOf);
     try {
-      ErrorAnd<ProgramDefinition, CiviFormError> result =
-          programService.addBlockToProgram(programId);
+      ErrorAnd<ProgramDefinition, CiviFormError> result;
+      if (repeaterId.isPresent()) {
+        result = programService.addRepeatedBlockToProgram(programId, repeaterId.get());
+      } else {
+        result = programService.addBlockToProgram(programId);
+      }
       ProgramDefinition program = result.getResult();
       BlockDefinition block = program.getLastBlockDefinition();
       if (result.isError()) {
@@ -67,6 +76,9 @@ public class AdminProgramBlocksController extends CiviFormController {
       return redirect(routes.AdminProgramBlocksController.edit(programId, block.id()).url());
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
       return notFound(e.toString());
+    } catch (ProgramBlockNotFoundException e) {
+      throw new RuntimeException(
+          "Something happened to the repeater block while creating a repeated block", e);
     }
   }
 

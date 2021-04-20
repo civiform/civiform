@@ -142,8 +142,38 @@ public class ProgramServiceImpl implements ProgramService {
   @Transactional
   public ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(long programId)
       throws ProgramNotFoundException {
+    try {
+      return addBlockToProgram(programId, Optional.empty());
+    } catch (ProgramBlockNotFoundException e) {
+      throw new RuntimeException(
+          "The ProgramBlockNotFoundException should never be thrown when the repeater id is"
+              + " empty.");
+    }
+  }
+
+  @Override
+  @Transactional
+  public ErrorAnd<ProgramDefinition, CiviFormError> addRepeatedBlockToProgram(
+      long programId, long repeaterBlockId)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException {
+    return addBlockToProgram(programId, Optional.of(repeaterBlockId));
+  }
+
+  private ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(
+      long programId, Optional<Long> repeaterBlockId)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
-    String blockName = String.format("Block %d", getNextBlockId(programDefinition));
+    if (repeaterBlockId.isPresent() && !programDefinition.hasRepeater(repeaterBlockId.get())) {
+      throw new ProgramBlockNotFoundException(programId, repeaterBlockId.get());
+    }
+
+    long blockId = getNextBlockId(programDefinition);
+    String blockName;
+    if (repeaterBlockId.isPresent()) {
+      blockName = String.format("Block %d (repeated from %d)", blockId, repeaterBlockId.get());
+    } else {
+      blockName = String.format("Block %d", blockId);
+    }
     String blockDescription =
         "What is the purpose of this block? Add a description that summarizes the information"
             + " collected.";
@@ -152,13 +182,13 @@ public class ProgramServiceImpl implements ProgramService {
     if (!errors.isEmpty()) {
       return ErrorAnd.errorAnd(errors, programDefinition);
     }
-    long blockId = getNextBlockId(programDefinition);
 
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(blockId)
             .setName(blockName)
             .setDescription(blockDescription)
+            .setRepeaterId(repeaterBlockId)
             .build();
 
     Program program =
