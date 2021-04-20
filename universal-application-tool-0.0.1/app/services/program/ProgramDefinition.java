@@ -206,7 +206,7 @@ public abstract class ProgramDefinition {
   /** Get non-repeated block definitions. */
   public ImmutableList<BlockDefinition> getNonRepeatedBlockDefinitions() {
     return blockDefinitions().stream()
-        .filter(blockDefinition -> blockDefinition.repeaterId().equals(Optional.empty()))
+        .filter(blockDefinition -> blockDefinition.repeaterId().isEmpty())
         .collect(ImmutableList.toImmutableList());
   }
 
