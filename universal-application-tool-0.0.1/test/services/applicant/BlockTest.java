@@ -16,10 +16,12 @@ import support.TestQuestionBank;
 
 public class BlockTest {
 
+  private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
+
   private static final NameQuestionDefinition NAME_QUESTION =
-      (NameQuestionDefinition) TestQuestionBank.applicantName().getQuestionDefinition();
+      (NameQuestionDefinition) testQuestionBank.applicantName().getQuestionDefinition();
   private static final TextQuestionDefinition COLOR_QUESTION =
-      (TextQuestionDefinition) TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+      (TextQuestionDefinition) testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
 
   @Test
   public void createNewBlock() {
