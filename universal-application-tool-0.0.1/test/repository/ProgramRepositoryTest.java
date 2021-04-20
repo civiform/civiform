@@ -62,8 +62,7 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
     Program withId = repo.insertProgramSync(program);
 
     Program found = repo.lookupProgram(withId.id).toCompletableFuture().join().get();
-    assertThat(found.getProgramDefinition().getLocalizedName(Locale.US))
-        .isEqualTo("ProgramRepository");
+    assertThat(found.getProgramDefinition().getLocalizedName(Locale.US)).isEqualTo("name");
   }
 
   @Test
