@@ -34,7 +34,7 @@ export class AdminPrograms {
     await this.page.fill('#program-display-name-input', programName);
     await this.page.fill('#program-display-description-textarea', description);
 
-    await this.page.click('text=Create');
+    await this.page.click('text=Save');
 
     await this.expectAdminProgramsPage();
 

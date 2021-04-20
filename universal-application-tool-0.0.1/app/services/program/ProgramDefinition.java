@@ -247,7 +247,11 @@ public abstract class ProgramDefinition {
      */
     public Builder updateLocalizedName(
         ImmutableMap<Locale, String> existing, Locale locale, String name) {
-      setLocalizedName(LocalizationUtils.overwriteExistingTranslation(existing, locale, name));
+      if (existing.containsKey(locale)) {
+        setLocalizedName(LocalizationUtils.overwriteExistingTranslation(existing, locale, name));
+      } else {
+        addLocalizedName(locale, name);
+      }
       return this;
     }
 
@@ -257,8 +261,12 @@ public abstract class ProgramDefinition {
      */
     public Builder updateLocalizedDescription(
         ImmutableMap<Locale, String> existing, Locale locale, String description) {
-      setLocalizedDescription(
-          LocalizationUtils.overwriteExistingTranslation(existing, locale, description));
+      if (existing.containsKey(locale)) {
+        setLocalizedDescription(
+            LocalizationUtils.overwriteExistingTranslation(existing, locale, description));
+      } else {
+        addLocalizedDescription(locale, description);
+      }
       return this;
     }
 

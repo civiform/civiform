@@ -302,7 +302,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     createProgram(questionDefinition);
   }
 
-  private void createProgram(QuestionDefinition... questions) throws Exception {
+  private void createProgram(QuestionDefinition... questions) {
     programDefinition =
         ProgramBuilder.newProgram("test program", "desc")
             .withBlock()
