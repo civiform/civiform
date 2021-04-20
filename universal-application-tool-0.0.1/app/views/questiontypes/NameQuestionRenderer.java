@@ -2,13 +2,12 @@ package views.questiontypes;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.input;
-import static j2html.TagCreator.label;
 
 import j2html.tags.Tag;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.NameQuestion;
 import views.BaseHtmlView;
+import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
@@ -26,7 +25,7 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
 
     return div()
         .withId(question.getPath().path())
-        .withClasses(Styles.MX_AUTO, Styles.W_MAX)
+        .withClasses(Styles.MX_AUTO, Styles.PX_16)
         .with(
             div()
                 .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT)
@@ -38,37 +37,32 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                     Styles.FONT_THIN,
                     Styles.MB_2)
                 .withText(question.getQuestionHelpText()),
-            label()
-                .withClasses(Styles.BLOCK)
+            div()
                 .with(
-                    input()
-                        .withType("text")
-                        .withPlaceholder("First name")
-                        .withCondValue(
-                            nameQuestion.getFirstNameValue().isPresent(),
-                            nameQuestion.getFirstNameValue().orElse(""))
-                        .withName(nameQuestion.getFirstNamePath().path()),
-                    fieldErrors(nameQuestion.getFirstNameErrors())),
-            label()
-                .withClasses(Styles.BLOCK)
+                    FieldWithLabel.input()
+                        .setFieldName(nameQuestion.getFirstNamePath().path())
+                        .setLabelText("First name")
+                        .setPlaceholderText("First name")
+                        .setFloatLabel(true)
+                        .setValue(nameQuestion.getFirstNameValue().orElse(""))
+                        .getContainer())
+                .with(fieldErrors(nameQuestion.getFirstNameErrors()))
                 .with(
-                    input()
-                        .withType("text")
-                        .withPlaceholder("Middle name")
-                        .withCondValue(
-                            nameQuestion.getMiddleNameValue().isPresent(),
-                            nameQuestion.getMiddleNameValue().orElse(""))
-                        .withName(nameQuestion.getMiddleNamePath().path())),
-            label()
-                .withClasses(Styles.BLOCK)
+                    FieldWithLabel.input()
+                        .setFieldName(nameQuestion.getMiddleNamePath().path())
+                        .setLabelText("Middle name")
+                        .setPlaceholderText("Middle name")
+                        .setFloatLabel(true)
+                        .setValue(nameQuestion.getMiddleNameValue().orElse(""))
+                        .getContainer())
                 .with(
-                    input()
-                        .withType("text")
-                        .withPlaceholder("Last name")
-                        .withCondValue(
-                            nameQuestion.getLastNameValue().isPresent(),
-                            nameQuestion.getLastNameValue().orElse(""))
-                        .withName(nameQuestion.getLastNamePath().path()),
-                    fieldErrors(nameQuestion.getLastNameErrors())));
+                    FieldWithLabel.input()
+                        .setFieldName(nameQuestion.getLastNamePath().path())
+                        .setLabelText("Last name")
+                        .setPlaceholderText("Last name")
+                        .setFloatLabel(true)
+                        .setValue(nameQuestion.getLastNameValue().orElse(""))
+                        .getContainer())
+                .with(fieldErrors(nameQuestion.getLastNameErrors())));
   }
 }

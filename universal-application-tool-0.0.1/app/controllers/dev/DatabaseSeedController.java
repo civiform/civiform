@@ -206,56 +206,48 @@ public class DatabaseSeedController extends DevController {
     try {
       ProgramDefinition programDefinition =
           programService.createProgramDefinition(name, "desc").getResult();
+      long programId = programDefinition.id();
 
-      BlockForm firstBlockForm = new BlockForm();
-      firstBlockForm.setName("Block 1");
-      firstBlockForm.setDescription("name and favorite color");
+      long blockId = 1L;
+      BlockForm blockForm = new BlockForm();
+      blockForm.setName("Block 1");
+      blockForm.setDescription("name and favorite color");
+      programService.updateBlock(programId, blockId, blockForm).getResult();
+      programService.setBlockQuestions(
+          programId,
+          blockId,
+          ImmutableList.of(
+              ProgramQuestionDefinition.create(insertNameQuestionDefinition()),
+              ProgramQuestionDefinition.create(insertColorQuestionDefinition())));
 
+      blockId =
+          programService.addBlockToProgram(programId).getResult().getLastBlockDefinition().id();
+      blockForm.setName("Block 2");
+      blockForm.setDescription("address");
+      programService.updateBlock(programId, blockId, blockForm);
+      programService.addQuestionsToBlock(
+          programId, blockId, ImmutableList.of(insertAddressQuestionDefinition().getId()));
+
+      blockId =
+          programService.addBlockToProgram(programId).getResult().getLastBlockDefinition().id();
+      blockForm.setName("Block 3");
+      blockForm.setDescription("Ice Cream Information");
+      programService.updateBlock(programId, blockId, blockForm);
+      programService.addQuestionsToBlock(
+          programId, blockId, ImmutableList.of(insertDropdownQuestionDefinition().getId()));
+
+      blockId =
+          programService.addBlockToProgram(programId).getResult().getLastBlockDefinition().id();
+      blockForm.setName("Block 4");
+      blockForm.setDescription("Random information");
+      programService.updateBlock(programId, blockId, blockForm);
       programDefinition =
-          programService
-              .updateBlock(
-                  programDefinition.id(),
-                  programDefinition.blockDefinitions().get(0).id(),
-                  firstBlockForm)
-              .getResult();
-      programDefinition =
-          programService.setBlockQuestions(
-              programDefinition.id(),
-              programDefinition.blockDefinitions().get(0).id(),
+          programService.addQuestionsToBlock(
+              programId,
+              blockId,
               ImmutableList.of(
-                  ProgramQuestionDefinition.create(insertNameQuestionDefinition()),
-                  ProgramQuestionDefinition.create(insertColorQuestionDefinition())));
-
-      programDefinition =
-          programService
-              .addBlockToProgram(
-                  programDefinition.id(),
-                  "Block 2",
-                  "address",
-                  ImmutableList.of(
-                      ProgramQuestionDefinition.create(insertAddressQuestionDefinition())))
-              .getResult();
-
-      programDefinition =
-          programService
-              .addBlockToProgram(
-                  programDefinition.id(),
-                  "Block 3",
-                  "Ice Cream Information",
-                  ImmutableList.of(
-                      ProgramQuestionDefinition.create(insertDropdownQuestionDefinition())))
-              .getResult();
-
-      programDefinition =
-          programService
-              .addBlockToProgram(
-                  programDefinition.id(),
-                  "Block 4",
-                  "Random information",
-                  ImmutableList.of(
-                      ProgramQuestionDefinition.create(insertCheckboxQuestionDefinition()),
-                      ProgramQuestionDefinition.create(insertRadioButtonQuestionDefinition())))
-              .getResult();
+                  insertCheckboxQuestionDefinition().getId(),
+                  insertRadioButtonQuestionDefinition().getId()));
 
       return programDefinition;
     } catch (Exception e) {
