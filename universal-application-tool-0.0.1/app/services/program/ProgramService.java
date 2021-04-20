@@ -90,13 +90,14 @@ public interface ProgramService {
    * Adds an empty repeated {@link BlockDefinition} to the given program.
    *
    * @param programId the ID of the program to update
-   * @param repeaterId an reference to a repeater block
+   * @param repeaterBlockId ID of the repeater block
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors with
    *     the unmodified program definition if failed
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   ErrorAnd<ProgramDefinition, CiviFormError> addRepeatedBlockToProgram(
-      long programId, long repeaterId) throws ProgramNotFoundException;
+      long programId, long repeaterBlockId)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException;
 
   /**
    * Update a {@link BlockDefinition}'s attributes.

@@ -142,24 +142,35 @@ public class ProgramServiceImpl implements ProgramService {
   @Transactional
   public ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(long programId)
       throws ProgramNotFoundException {
-    return addBlockToProgram(programId, Optional.empty());
+    try {
+      return addBlockToProgram(programId, Optional.empty());
+    } catch (ProgramBlockNotFoundException e) {
+      throw new RuntimeException(
+          "The ProgramBlockNotFoundException should never be thrown when the repeater id is"
+              + " empty.");
+    }
   }
 
   @Override
   @Transactional
   public ErrorAnd<ProgramDefinition, CiviFormError> addRepeatedBlockToProgram(
-      long programId, long repeaterId) throws ProgramNotFoundException {
-    return addBlockToProgram(programId, Optional.of(repeaterId));
+      long programId, long repeaterBlockId)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException {
+    return addBlockToProgram(programId, Optional.of(repeaterBlockId));
   }
 
   private ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(
-      long programId, Optional<Long> repeaterId) throws ProgramNotFoundException {
+      long programId, Optional<Long> repeaterBlockId)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
+    if (repeaterBlockId.isPresent() && !programDefinition.hasRepeater(repeaterBlockId.get())) {
+      throw new ProgramBlockNotFoundException(programId, repeaterBlockId.get());
+    }
 
     long blockId = getNextBlockId(programDefinition);
     String blockName;
-    if (repeaterId.isPresent()) {
-      blockName = String.format("Block %d (repeated from %d)", blockId, repeaterId.get());
+    if (repeaterBlockId.isPresent()) {
+      blockName = String.format("Block %d (repeated from %d)", blockId, repeaterBlockId.get());
     } else {
       blockName = String.format("Block %d", blockId);
     }
@@ -177,7 +188,7 @@ public class ProgramServiceImpl implements ProgramService {
             .setId(blockId)
             .setName(blockName)
             .setDescription(blockDescription)
-            .setRepeaterId(repeaterId)
+            .setRepeaterId(repeaterBlockId)
             .build();
 
     Program program =

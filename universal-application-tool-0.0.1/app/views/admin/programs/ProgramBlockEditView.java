@@ -85,7 +85,12 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 .with(blockOrderPanel(program, blockId))
                 .with(
                     blockEditPanel(
-                        program, blockId, blockDefinition, blockForm, blockQuestions, csrfTag))
+                        program,
+                        blockId,
+                        blockForm,
+                        blockQuestions,
+                        blockDefinition.isRepeater(),
+                        csrfTag))
                 .with(questionBankPanel(questions, program, blockDefinition, csrfTag)));
 
     if (message.length() > 0) {
@@ -151,8 +156,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 Styles.W_1_5,
                 Styles.BORDER_R,
                 Styles.BORDER_GRAY_200);
-    addBlocksToContainer(
-        ret, program, program.getBlockDefinitions(Optional.empty()), focusedBlockId, 1);
+    ret.with(
+        addBlocksToContainer(program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
     ret.with(
         submitButton("Add Block")
             .withId("add-block-button")
@@ -161,12 +166,12 @@ public class ProgramBlockEditView extends BaseHtmlView {
     return ret;
   }
 
-  private void addBlocksToContainer(
-      ContainerTag container,
+  private ContainerTag addBlocksToContainer(
       ProgramDefinition programDefinition,
       ImmutableList<BlockDefinition> blockDefinitions,
       long focusedBlockId,
       int level) {
+    ContainerTag container = div().withClass("pl-" + level * 2);
     for (BlockDefinition blockDefinition : blockDefinitions) {
       String editBlockLink =
           controllers.admin.routes.AdminProgramBlocksController.edit(
@@ -186,26 +191,25 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
       container.with(blockTag);
 
-      // Recursively do this
+      // Recursively add repeated blocked under their repeater block
       if (blockDefinition.isRepeater()) {
-        ContainerTag nestedContainer = div().withClass("pl-" + level * 2);
-        addBlocksToContainer(
-            nestedContainer,
-            programDefinition,
-            programDefinition.getBlockDefinitions(Optional.of(blockDefinition.id())),
-            focusedBlockId,
-            level + 1);
-        container.with(nestedContainer);
+        container.with(
+            addBlocksToContainer(
+                programDefinition,
+                programDefinition.getBlockDefinitionsForRepeater(blockDefinition.id()),
+                focusedBlockId,
+                level + 1));
       }
     }
+    return container;
   }
 
   private ContainerTag blockEditPanel(
       ProgramDefinition program,
       long blockId,
-      BlockDefinition blockDefinition,
       BlockForm blockForm,
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
+      boolean blockDefinitionIsRepeater,
       Tag csrfTag) {
     String blockUpdateAction =
         controllers.admin.routes.AdminProgramBlocksController.update(program.id(), blockId).url();
@@ -237,7 +241,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
               .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
     }
 
-    if (blockDefinition.isRepeater()) {
+    if (blockDefinitionIsRepeater) {
       blockInfoForm.with(
           submitButton("Create Repeated Block")
               .withId("create-repeated-block-button")

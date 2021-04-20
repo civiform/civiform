@@ -72,6 +72,9 @@ public class AdminProgramBlocksController extends CiviFormController {
       return redirect(routes.AdminProgramBlocksController.edit(programId, block.id()).url());
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
       return notFound(e.toString());
+    } catch (ProgramBlockNotFoundException e) {
+      throw new RuntimeException(
+          "Something happened to the repeater block while creating a repeated block", e);
     }
   }
 
