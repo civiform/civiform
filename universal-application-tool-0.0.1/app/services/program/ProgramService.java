@@ -94,6 +94,8 @@ public interface ProgramService {
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors with
    *     the unmodified program definition if failed
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramBlockNotFoundException when repeaterBlockId does not correspond to a repeater
+   *     block in the Program.
    */
   ErrorAnd<ProgramDefinition, CiviFormError> addRepeatedBlockToProgram(
       long programId, long repeaterBlockId)

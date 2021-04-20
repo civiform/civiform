@@ -38,6 +38,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
   private final AdminLayout layout;
 
+  public static final String REPEATER_ID_FORM_FIELD = "repeaterId";
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
@@ -113,7 +114,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withAction(blockCreateAction)
             .with(
                 FieldWithLabel.number()
-                    .setFieldName("repeaterId")
+                    .setFieldName(REPEATER_ID_FORM_FIELD)
                     .setValue(OptionalLong.of(blockId))
                     .getContainer());
 
