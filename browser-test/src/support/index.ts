@@ -34,6 +34,11 @@ export const loginAsGuest = async (page: Page) => {
   await page.click('#guest');
 }
 
+export const selectApplicantLanguage = async (page: Page, language: string) => {
+  await page.selectOption('select', { label: language });
+  await page.click('button');
+}
+
 export const dropTables = async (page: Page) => {
   await page.goto(BASE_URL + '/dev/seed');
   await page.click("#clear");

@@ -1,10 +1,7 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
-import static play.inject.Bindings.bind;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.NOT_FOUND;
@@ -15,59 +12,28 @@ import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.stubMessagesApi;
 
-import auth.ProfileFactory;
-import auth.ProfileUtils;
-import auth.UatProfile;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import java.util.Optional;
-import models.Account;
 import models.Applicant;
 import models.Program;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
-import play.inject.Injector;
-import play.inject.guice.GuiceApplicationBuilder;
-import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
-import support.ResourceCreator;
-import support.TestConstants;
 import support.TestQuestionBank;
 
-public class ApplicantProgramBlocksControllerTest {
-
-  private static final ProfileUtils MOCK_UTILS = Mockito.mock(ProfileUtils.class);
-
-  private static Injector injector;
-  private static ResourceCreator resourceCreator;
-  private static ProfileFactory profileFactory;
+public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantProfiles {
 
   private ApplicantProgramBlocksController subject;
   private Program program;
   private Applicant applicant;
 
-  @BeforeClass
-  public static void setupInjector() {
-    injector =
-        new GuiceApplicationBuilder()
-            .configure(TestConstants.TEST_DATABASE_CONFIG)
-            .overrides(bind(ProfileUtils.class).toInstance(MOCK_UTILS))
-            .build()
-            .injector();
-    resourceCreator = new ResourceCreator(injector);
-    profileFactory = injector.instanceOf(ProfileFactory.class);
-  }
-
   @Before
   public void setUpWithFreshApplicant() {
-    resourceCreator.clearDatabase();
-    subject = injector.instanceOf(ApplicantProgramBlocksController.class);
+    resourceCreator().clearDatabase();
+    subject = instanceOf(ApplicantProgramBlocksController.class);
     program =
         ProgramBuilder.newProgram()
             .withBlock()
@@ -293,23 +259,5 @@ public class ApplicantProgramBlocksControllerTest {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Guardar y continuar");
-  }
-
-  private Applicant createApplicantWithMockedProfile() {
-    Applicant applicant = resourceCreator.insertApplicant();
-    Account account = resourceCreator.insertAccount();
-
-    account.setApplicants(ImmutableList.of(applicant));
-    account.save();
-    applicant.setAccount(account);
-    applicant.save();
-
-    UatProfile profile = profileFactory.wrap(applicant);
-    mockProfile(profile);
-    return applicant;
-  }
-
-  private void mockProfile(UatProfile profile) {
-    when(MOCK_UTILS.currentUserProfile(any(Http.Request.class))).thenReturn(Optional.of(profile));
   }
 }

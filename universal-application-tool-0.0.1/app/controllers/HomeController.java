@@ -15,6 +15,7 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import services.applicant.ApplicantData;
 import views.LoginForm;
 import views.html.index;
 
@@ -57,11 +58,21 @@ public class HomeController extends Controller {
       return profile
           .getApplicant()
           .thenApplyAsync(
-              applicant ->
-                  redirect(
+              applicant -> {
+                // If the applicant has not yet set their preferred language, redirect to
+                // the information controller to ask for preferred language.
+                ApplicantData data = applicant.getApplicantData();
+                if (data.hasPreferredLocale()) {
+                  return redirect(
                           controllers.applicant.routes.ApplicantProgramsController.index(
                               applicant.id))
-                      .withLang(applicant.getApplicantData().preferredLocale(), messagesApi),
+                      .withLang(data.preferredLocale(), messagesApi);
+                } else {
+                  return redirect(
+                      controllers.applicant.routes.ApplicantInformationController.edit(
+                          applicant.id));
+                }
+              },
               httpExecutionContext.current());
     }
   }
