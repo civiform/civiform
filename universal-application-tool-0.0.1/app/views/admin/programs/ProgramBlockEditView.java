@@ -39,7 +39,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
   private final AdminLayout layout;
 
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
-  private static final String CREATE_REPEATED_BLOCK_FORM_ID = "block-repeated-create-form";
+  private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
 
   @Inject
@@ -240,7 +240,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
     if (blockDefinition.isRepeater()) {
       blockInfoForm.with(
           submitButton("Create Repeated Block")
-              .withId(CREATE_REPEATED_BLOCK_FORM_ID + "_button")
+              .withId("create-repeated-block-button")
               .attr(Attr.FORM, CREATE_REPEATED_BLOCK_FORM_ID)
               .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
     }
