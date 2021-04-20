@@ -158,7 +158,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 Styles.BORDER_R,
                 Styles.BORDER_GRAY_200);
     ret.with(
-        addBlocksToContainer(program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
+        renderBlockList(program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
     ret.with(
         submitButton("Add Block")
             .withId("add-block-button")
@@ -167,7 +167,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
     return ret;
   }
 
-  private ContainerTag addBlocksToContainer(
+  private ContainerTag renderBlockList(
       ProgramDefinition programDefinition,
       ImmutableList<BlockDefinition> blockDefinitions,
       long focusedBlockId,
@@ -195,7 +195,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
       // Recursively add repeated blocks indented under their repeater block
       if (blockDefinition.isRepeater()) {
         container.with(
-            addBlocksToContainer(
+            renderBlockList(
                 programDefinition,
                 programDefinition.getBlockDefinitionsForRepeater(blockDefinition.id()),
                 focusedBlockId,
