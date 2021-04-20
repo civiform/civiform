@@ -8,6 +8,8 @@ import forms.BlockForm;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http.Request;
@@ -30,6 +32,8 @@ public class AdminProgramBlocksController extends CiviFormController {
   private final ProgramBlockEditView editView;
   private final QuestionService questionService;
   private final FormFactory formFactory;
+
+  Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Inject
   public AdminProgramBlocksController(
@@ -55,7 +59,10 @@ public class AdminProgramBlocksController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public Result create(Request request, long programId, Optional<Long> repeaterId) {
+  public Result create(Request request, long programId) {
+    Optional<Long> repeaterId =
+        Optional.ofNullable(formFactory.form().bindFromRequest(request).get("repeaterId"))
+            .map(Long::valueOf);
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> result;
       if (repeaterId.isPresent()) {

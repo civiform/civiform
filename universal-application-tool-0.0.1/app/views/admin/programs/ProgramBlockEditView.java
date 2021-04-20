@@ -16,7 +16,7 @@ import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.util.Optional;
+import java.util.OptionalLong;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.BlockDefinition;
@@ -102,20 +102,20 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
   private Tag addFormEndpoints(Tag csrfTag, long programId, long blockId) {
     String blockCreateAction =
-        controllers.admin.routes.AdminProgramBlocksController.create(programId, Optional.empty())
-            .url();
+        controllers.admin.routes.AdminProgramBlocksController.create(programId).url();
     ContainerTag createBlockForm =
         form(csrfTag).withId(CREATE_BLOCK_FORM_ID).withMethod(POST).withAction(blockCreateAction);
 
-    String repeatedBlockCreateAction =
-        controllers.admin.routes.AdminProgramBlocksController.create(
-                programId, Optional.of(blockId))
-            .url();
     ContainerTag createRepeatedBlockForm =
         form(csrfTag)
             .withId(CREATE_REPEATED_BLOCK_FORM_ID)
             .withMethod(POST)
-            .withAction(repeatedBlockCreateAction);
+            .withAction(blockCreateAction)
+            .with(
+                FieldWithLabel.number()
+                    .setFieldName("repeaterId")
+                    .setValue(OptionalLong.of(blockId))
+                    .getContainer());
 
     String blockDeleteAction =
         controllers.admin.routes.AdminProgramBlocksController.destroy(programId, blockId).url();
