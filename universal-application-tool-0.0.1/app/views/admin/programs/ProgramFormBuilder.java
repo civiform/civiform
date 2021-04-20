@@ -1,6 +1,7 @@
 package views.admin.programs;
 
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.h2;
 
 import j2html.tags.ContainerTag;
 import views.BaseHtmlView;
@@ -20,6 +21,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
       boolean programExists) {
     ContainerTag formTag = form().withMethod("POST");
     formTag.with(
+        h2("Program Information - Administrative Use Only"),
         FieldWithLabel.input()
             .setId("program-name-input")
             .setFieldName("adminName")
@@ -37,8 +39,9 @@ public class ProgramFormBuilder extends BaseHtmlView {
             .setPlaceholderText("This description is visible only to system admins")
             .setValue(adminDescription)
             .getContainer(),
+        h2("Publicly Visible Program Information"),
         FieldWithLabel.input()
-            .setId("program-display-name-textarea")
+            .setId("program-display-name-input")
             .setFieldName("localizedDisplayName")
             .setLabelText("Program display name")
             .setPlaceholderText(
@@ -46,7 +49,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
             .setValue(displayName)
             .getContainer(),
         FieldWithLabel.textArea()
-            .setId("program-description-textarea")
+            .setId("program-display-description-textarea")
             .setFieldName("localizedDisplayDescription")
             .setLabelText("Program display description")
             .setPlaceholderText(
