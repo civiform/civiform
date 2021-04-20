@@ -17,7 +17,6 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
-import support.TestQuestionBank;
 
 public class QuestionRepositoryTest extends WithPostgresContainer {
 
@@ -63,7 +62,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   @Test
   public void findPathConflictingQuestion_noConflicts_ok() throws Exception {
     QuestionDefinition applicantAddress =
-        TestQuestionBank.applicantAddress().getQuestionDefinition();
+        testQuestionBank().applicantAddress().getQuestionDefinition();
     QuestionDefinition newQuestionDefinition =
         new QuestionDefinitionBuilder(applicantAddress)
             .clearId()
@@ -78,7 +77,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void findPathConflictingQuestion_sameQuestion_hasConflict() {
-    Question applicantAddress = TestQuestionBank.applicantAddress();
+    Question applicantAddress = testQuestionBank().applicantAddress();
     Optional<Question> maybeConflict =
         repo.findPathConflictingQuestion(applicantAddress.getQuestionDefinition());
 
@@ -87,7 +86,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void findPathConflictingQuestion_differentVersion_hasConflict() throws Exception {
-    Question applicantName = TestQuestionBank.applicantName();
+    Question applicantName = testQuestionBank().applicantName();
     QuestionDefinition questionDefinition =
         new QuestionDefinitionBuilder(applicantName.getQuestionDefinition())
             .setId(123123L)
@@ -101,7 +100,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void findPathConflictingQuestion_samePath_hasConflict() throws Exception {
-    Question applicantName = TestQuestionBank.applicantName();
+    Question applicantName = testQuestionBank().applicantName();
     QuestionDefinition questionDefinition =
         new QuestionDefinitionBuilder(applicantName.getQuestionDefinition()).clearId().build();
 
@@ -113,7 +112,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   @Test
   public void findPathConflictingQuestion_repeaterConflictsWithNonRepeater_hasConflict()
       throws Exception {
-    Question householdMembers = TestQuestionBank.applicantHouseholdMembers();
+    Question householdMembers = testQuestionBank().applicantHouseholdMembers();
     QuestionDefinition newQuestionDefinition =
         new QuestionDefinitionBuilder(householdMembers.getQuestionDefinition())
             .clearId()
@@ -128,7 +127,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void findPathConflictingQuestion_startsWithNewPath_hasConflict() throws Exception {
-    Question applicantName = TestQuestionBank.applicantName();
+    Question applicantName = testQuestionBank().applicantName();
     QuestionDefinition newQuestionDefinition =
         new QuestionDefinitionBuilder(applicantName.getQuestionDefinition())
             .clearId()
@@ -143,7 +142,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   @Test
   public void findPathConflictingQuestion_newPathStartsWithNonRepeater_hasConflict()
       throws Exception {
-    Question applicantName = TestQuestionBank.applicantName();
+    Question applicantName = testQuestionBank().applicantName();
     QuestionDefinition newQuestionDefinition =
         new QuestionDefinitionBuilder(applicantName.getQuestionDefinition())
             .clearId()
@@ -158,7 +157,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   @Test
   public void findPathConflictingQuestion_newPathStartsWithRepeater_hasNoConflict()
       throws Exception {
-    Question householdMembers = TestQuestionBank.applicantHouseholdMembers();
+    Question householdMembers = testQuestionBank().applicantHouseholdMembers();
     QuestionDefinition newQuestionDefinition =
         new QuestionDefinitionBuilder(householdMembers.getQuestionDefinition())
             .clearId()

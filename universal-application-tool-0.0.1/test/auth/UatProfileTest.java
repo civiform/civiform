@@ -37,10 +37,10 @@ public class UatProfileTest extends WithPostgresContainer {
   @Test
   public void checkAuthorization_passesForOneOfSeveralIdsInAccount() {
     // We need to save these first so that the IDs are populated.
-    Applicant one = resourceCreator.insertApplicant();
-    Applicant two = resourceCreator.insertApplicant();
-    Applicant three = resourceCreator.insertApplicant();
-    Account account = resourceCreator.insertAccount();
+    Applicant one = resourceCreator().insertApplicant();
+    Applicant two = resourceCreator().insertApplicant();
+    Applicant three = resourceCreator().insertApplicant();
+    Account account = resourceCreator().insertAccount();
 
     // Set the accounts on applicants and the applicants on the account. Saving required!
     one.setAccount(account);

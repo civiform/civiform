@@ -12,7 +12,6 @@ import services.Path;
 import services.question.exceptions.InvalidPathException;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
-import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -21,6 +20,8 @@ import services.question.types.TextQuestionDefinition;
 import support.TestQuestionBank;
 
 public class ReadOnlyQuestionServiceImplTest {
+
+  private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
 
   private final Path invalidPath = Path.create("invalid.path");
   private final ReadOnlyQuestionService emptyService =
@@ -32,15 +33,15 @@ public class ReadOnlyQuestionServiceImplTest {
   private ReadOnlyQuestionService service;
 
   @Before
-  public void setupQuestions() throws UnsupportedQuestionTypeException {
+  public void setupQuestions() {
     // The tests mimic that the persisted questions are read into ReadOnlyQuestionService.
     // Therefore, question ids cannot be empty.
     nameQuestion =
-        (NameQuestionDefinition) TestQuestionBank.applicantName().getQuestionDefinition();
+        (NameQuestionDefinition) testQuestionBank.applicantName().getQuestionDefinition();
     addressQuestion =
-        (AddressQuestionDefinition) TestQuestionBank.applicantAddress().getQuestionDefinition();
+        (AddressQuestionDefinition) testQuestionBank.applicantAddress().getQuestionDefinition();
     basicQuestion =
-        (TextQuestionDefinition) TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+        (TextQuestionDefinition) testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
     questions = ImmutableList.of(nameQuestion, addressQuestion, basicQuestion);
     service = new ReadOnlyQuestionServiceImpl(questions);
   }
@@ -59,7 +60,7 @@ public class ReadOnlyQuestionServiceImplTest {
   @Test
   public void getRepeaterQuestions() {
     QuestionDefinition repeaterQuestion =
-        TestQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
 
     ReadOnlyQuestionService repeaterService =
         new ReadOnlyQuestionServiceImpl(
@@ -83,7 +84,7 @@ public class ReadOnlyQuestionServiceImplTest {
   @Test
   public void makePath_withRepeater() throws Exception {
     QuestionDefinition householdMembers =
-        TestQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
     service = new ReadOnlyQuestionServiceImpl(ImmutableList.of(householdMembers));
 
     Path path = service.makePath(Optional.of(householdMembers.getId()), "some question name", true);
@@ -94,7 +95,7 @@ public class ReadOnlyQuestionServiceImplTest {
 
   @Test
   public void makePath_withBadRepeater_throws() {
-    QuestionDefinition applicantName = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition applicantName = testQuestionBank.applicantName().getQuestionDefinition();
     service = new ReadOnlyQuestionServiceImpl(ImmutableList.of(applicantName));
 
     assertThatThrownBy(

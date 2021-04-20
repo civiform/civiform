@@ -99,14 +99,14 @@ public class VersionRepositoryTest extends WithPostgresContainer {
       throws ProgramNotFoundException, DuplicateProgramQuestionException, QuestionNotFoundException,
           ProgramBlockNotFoundException {
     // Create program, version 1, with an old version of this question.
-    Question question1 = resourceCreator.insertQuestion("foo.bar", 1, "q");
-    Program program = resourceCreator.insertProgram("program", LifecycleStage.ACTIVE);
-    resourceCreator.addQuestionToProgram(program, question1);
+    Question question1 = resourceCreator().insertQuestion("foo.bar", 1, "q");
+    Program program = resourceCreator().insertProgram("program", LifecycleStage.ACTIVE);
+    resourceCreator().addQuestionToProgram(program, question1);
     program.refresh();
     assertThat(program.getVersion()).isEqualTo(1);
 
     // Create question 2, in draft state.
-    Question question2 = resourceCreator.insertQuestion("foo.bar", 2, "q");
+    Question question2 = resourceCreator().insertQuestion("foo.bar", 2, "q");
     question2.setLifecycleStage(LifecycleStage.DRAFT);
     question2.save();
 

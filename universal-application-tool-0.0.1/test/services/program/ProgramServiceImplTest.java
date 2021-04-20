@@ -21,7 +21,6 @@ import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 import support.ProgramBuilder;
-import support.TestQuestionBank;
 
 public class ProgramServiceImplTest extends WithPostgresContainer {
 
@@ -37,9 +36,9 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Before
   public void setUp() {
-    addressQuestion = TestQuestionBank.applicantAddress().getQuestionDefinition();
-    colorQuestion = TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
-    nameQuestion = TestQuestionBank.applicantName().getQuestionDefinition();
+    addressQuestion = testQuestionBank().applicantAddress().getQuestionDefinition();
+    colorQuestion = testQuestionBank().applicantFavoriteColor().getQuestionDefinition();
+    nameQuestion = testQuestionBank().applicantName().getQuestionDefinition();
   }
 
   @Test
@@ -357,7 +356,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void addRepeatedBlockToProgram() throws Exception {
-    Question repeatedQuestion = TestQuestionBank.applicantHouseholdMembers();
+    Question repeatedQuestion = testQuestionBank().applicantHouseholdMembers();
     Program program =
         ProgramBuilder.newProgram().withBlock().withQuestion(repeatedQuestion).build();
 

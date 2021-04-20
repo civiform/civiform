@@ -20,7 +20,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
-import support.TestQuestionBank;
 
 public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles {
 
@@ -29,7 +28,7 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
 
   @Before
   public void setUp() {
-    resourceCreator().clearDatabase();
+    clearDatabase();
     controller = instanceOf(ApplicantProgramsController.class);
     currentApplicant = createApplicantWithMockedProfile();
   }
@@ -37,17 +36,17 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
   @Test
   public void index_differentApplicant_returnsUnauthorizedResult() {
     Result result =
-        controller
-            .index(fakeRequest().build(), currentApplicant.id + 1)
-            .toCompletableFuture()
-            .join();
+            controller
+                    .index(fakeRequest().build(), currentApplicant.id + 1)
+                    .toCompletableFuture()
+                    .join();
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
   @Test
   public void index_withNoPrograms_returnsEmptyResult() {
     Result result =
-        controller.index(fakeRequest().build(), currentApplicant.id).toCompletableFuture().join();
+            controller.index(fakeRequest().build(), currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
@@ -62,7 +61,7 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
     resourceCreator().insertProgram("three", LifecycleStage.DRAFT);
 
     Result result =
-        controller.index(fakeRequest().build(), currentApplicant.id).toCompletableFuture().join();
+            controller.index(fakeRequest().build(), currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("one");
@@ -75,18 +74,18 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
     Program program = resourceCreator().insertProgram("program", LifecycleStage.ACTIVE);
 
     Result result =
-        controller.index(fakeRequest().build(), currentApplicant.id).toCompletableFuture().join();
+            controller.index(fakeRequest().build(), currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains(routes.ApplicantProgramsController.edit(currentApplicant.id, program.id).url());
+            .contains(routes.ApplicantProgramsController.edit(currentApplicant.id, program.id).url());
   }
 
   @Test
   public void index_usesMessagesForUserPreferredLocale() {
     // Set the PLAY_LANG cookie
     Http.Request request =
-        fakeRequest().langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()).build();
+            fakeRequest().langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()).build();
 
     Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
 
@@ -97,14 +96,14 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
   @Test
   public void index_missingTranslationForProgram_defaultsToEnglish() {
     resourceCreator()
-        .insertProgram(
-            Locale.forLanguageTag("es-US"), "A different language!", LifecycleStage.ACTIVE);
+            .insertProgram(
+                    Locale.forLanguageTag("es-US"), "A different language!", LifecycleStage.ACTIVE);
     resourceCreator()
-        .insertProgram("English program", LifecycleStage.ACTIVE); // Missing translation
+            .insertProgram("English program", LifecycleStage.ACTIVE); // Missing translation
 
     // Set the PLAY_LANG cookie
     Http.Request request =
-        fakeRequest().langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()).build();
+            fakeRequest().langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()).build();
 
     Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
 
@@ -116,20 +115,20 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
   @Test
   public void edit_differentApplicant_returnsUnauthorizedResult() {
     Result result =
-        controller
-            .edit(fakeRequest().build(), currentApplicant.id + 1, 1L)
-            .toCompletableFuture()
-            .join();
+            controller
+                    .edit(fakeRequest().build(), currentApplicant.id + 1, 1L)
+                    .toCompletableFuture()
+                    .join();
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
   @Test
   public void edit_invalidProgram_returnsBadRequest() {
     Result result =
-        controller
-            .edit(fakeRequest().build(), currentApplicant.id, 9999L)
-            .toCompletableFuture()
-            .join();
+            controller
+                    .edit(fakeRequest().build(), currentApplicant.id, 9999L)
+                    .toCompletableFuture()
+                    .join();
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
@@ -137,54 +136,54 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
   @Test
   public void edit_withNewProgram_redirectsToFirstBlock() {
     Program program =
-        ProgramBuilder.newProgram()
-            .withBlock()
-            .withQuestion(TestQuestionBank.applicantName())
-            .build();
+            ProgramBuilder.newProgram()
+                    .withBlock()
+                    .withQuestion(testQuestionBank().applicantName())
+                    .build();
 
     Result result =
-        controller
-            .edit(fakeRequest().build(), currentApplicant.id, program.id)
-            .toCompletableFuture()
-            .join();
+            controller
+                    .edit(fakeRequest().build(), currentApplicant.id, program.id)
+                    .toCompletableFuture()
+                    .join();
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
-        .hasValue(
-            routes.ApplicantProgramBlocksController.edit(currentApplicant.id, program.id, "1")
-                .url());
+            .hasValue(
+                    routes.ApplicantProgramBlocksController.edit(currentApplicant.id, program.id, "1")
+                            .url());
   }
 
   @Test
   public void edit_redirectsToFirstIncompleteBlock() {
     QuestionDefinition colorQuestion =
-        TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+            testQuestionBank().applicantFavoriteColor().getQuestionDefinition();
     Program program =
-        ProgramBuilder.newProgram()
-            .withBlock()
-            .withQuestionDefinition(colorQuestion)
-            .withBlock()
-            .withQuestion(TestQuestionBank.applicantAddress())
-            .build();
+            ProgramBuilder.newProgram()
+                    .withBlock()
+                    .withQuestionDefinition(colorQuestion)
+                    .withBlock()
+                    .withQuestion(testQuestionBank().applicantAddress())
+                    .build();
     // Answer the color question
     currentApplicant
-        .getApplicantData()
-        .putString(colorQuestion.getPath().join("text"), "forest green");
+            .getApplicantData()
+            .putString(colorQuestion.getPath().join("text"), "forest green");
     currentApplicant.getApplicantData().putLong(colorQuestion.getLastUpdatedTimePath(), 12345L);
     currentApplicant.getApplicantData().putLong(colorQuestion.getProgramIdPath(), 456L);
     currentApplicant.save();
 
     Result result =
-        controller
-            .edit(fakeRequest().build(), currentApplicant.id, program.id)
-            .toCompletableFuture()
-            .join();
+            controller
+                    .edit(fakeRequest().build(), currentApplicant.id, program.id)
+                    .toCompletableFuture()
+                    .join();
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
-        .hasValue(
-            routes.ApplicantProgramBlocksController.edit(currentApplicant.id, program.id, "2")
-                .url());
+            .hasValue(
+                    routes.ApplicantProgramBlocksController.edit(currentApplicant.id, program.id, "2")
+                            .url());
   }
 
   // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Should redirect to
@@ -194,13 +193,13 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
     Program program = resourceCreator().insertProgram("My Program");
 
     Result result =
-        controller
-            .edit(fakeRequest().build(), currentApplicant.id, program.id)
-            .toCompletableFuture()
-            .join();
+            controller
+                    .edit(fakeRequest().build(), currentApplicant.id, program.id)
+                    .toCompletableFuture()
+                    .join();
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
-        .hasValue(routes.ApplicantProgramsController.index(currentApplicant.id).url());
+            .hasValue(routes.ApplicantProgramsController.index(currentApplicant.id).url());
   }
 }

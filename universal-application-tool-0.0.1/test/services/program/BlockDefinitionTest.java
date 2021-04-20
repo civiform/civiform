@@ -12,6 +12,8 @@ import support.TestQuestionBank;
 
 public class BlockDefinitionTest {
 
+  private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
+
   @Test
   public void createBlockDefinition() {
     BlockDefinition block =
@@ -88,7 +90,7 @@ public class BlockDefinitionTest {
             .setDescription("Block Description")
             .addQuestion(
                 ProgramQuestionDefinition.create(
-                    TestQuestionBank.applicantHouseholdMembers().getQuestionDefinition()))
+                    testQuestionBank.applicantHouseholdMembers().getQuestionDefinition()))
             .build();
 
     assertThat(blockDefinition.isRepeater()).isTrue();
@@ -103,11 +105,11 @@ public class BlockDefinitionTest {
   }
 
   private BlockDefinition makeBlockDefinitionWithQuestions() {
-    QuestionDefinition nameQuestion = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
     QuestionDefinition addressQuestion =
-        TestQuestionBank.applicantAddress().getQuestionDefinition();
+        testQuestionBank.applicantAddress().getQuestionDefinition();
     QuestionDefinition colorQuestion =
-        TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+        testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
 
     BlockDefinition block =
         BlockDefinition.builder()

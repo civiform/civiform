@@ -38,8 +38,7 @@ public class ResourceCreator {
     this.ebeanServer = Ebean.getServer(injector.instanceOf(EbeanConfig.class).defaultServer());
   }
 
-  public void clearDatabase() {
-    TestQuestionBank.reset();
+  public void truncateTables() {
     ebeanServer.truncate(
         Account.class, Applicant.class, Application.class, Program.class, Question.class);
   }
