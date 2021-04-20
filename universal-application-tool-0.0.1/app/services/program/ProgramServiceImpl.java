@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import forms.BlockForm;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -101,11 +102,9 @@ public class ProgramServiceImpl implements ProgramService {
       String defaultDisplayName,
       String defaultDisplayDescription) {
 
-    ImmutableSet.Builder<CiviFormError> builder = ImmutableSet.builder();
-    builder.addAll(validateProgramDefinition(adminName, adminDescription));
-    builder.addAll(validateProgramDefinition(defaultDisplayName, defaultDisplayDescription));
-
-    ImmutableSet<CiviFormError> errors = builder.build();
+    ImmutableSet<CiviFormError> errors =
+        validateProgramText(
+            adminName, adminDescription, defaultDisplayName, defaultDisplayDescription);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -124,7 +123,8 @@ public class ProgramServiceImpl implements ProgramService {
       String displayDescription)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
-    ImmutableSet<CiviFormError> errors = validateProgramDefinition(displayName, displayDescription);
+    ImmutableSet<CiviFormError> errors =
+        validateProgramText(adminDescription, displayName, displayDescription);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -142,15 +142,11 @@ public class ProgramServiceImpl implements ProgramService {
             .join());
   }
 
-  private ImmutableSet<CiviFormError> validateProgramDefinition(String name, String description) {
-    ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.<CiviFormError>builder();
-    if (name.isBlank()) {
-      errors.add(CiviFormError.of("program name cannot be blank"));
+  private ImmutableSet<CiviFormError> validateProgramText(String... text) {
+    if (Arrays.stream(text).anyMatch(String::isBlank)) {
+      return ImmutableSet.of(CiviFormError.of("program text cannot be blank"));
     }
-    if (description.isBlank()) {
-      errors.add(CiviFormError.of("program description cannot be blank"));
-    }
-    return errors.build();
+    return ImmutableSet.of();
   }
 
   @Override
