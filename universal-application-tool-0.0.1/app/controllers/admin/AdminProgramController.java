@@ -66,8 +66,8 @@ public class AdminProgramController extends CiviFormController {
         service.createProgramDefinition(
             program.getAdminName(),
             program.getAdminDescription(),
-            program.getLocalizedName(),
-            program.getLocalizedDescription());
+            program.getLocalizedDisplayName(),
+            program.getLocalizedDisplayDescription());
     if (result.isError()) {
       String errorMessage = joinErrors(result.getErrors());
       return ok(newOneView.render(request, program, errorMessage));
@@ -116,8 +116,8 @@ public class AdminProgramController extends CiviFormController {
               id,
               Locale.US,
               program.getAdminDescription(),
-              program.getLocalizedName(),
-              program.getLocalizedDescription());
+              program.getLocalizedDisplayName(),
+              program.getLocalizedDisplayDescription());
       if (result.isError()) {
         String errorMessage = joinErrors(result.getErrors());
         return ok(editView.render(request, id, program, errorMessage));

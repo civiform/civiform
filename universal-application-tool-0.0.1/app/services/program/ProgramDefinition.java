@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
 import models.Program;
+import services.LocalizationUtils;
 import services.question.types.QuestionDefinition;
 
 @AutoValue
@@ -222,13 +223,42 @@ public abstract class ProgramDefinition {
 
     public abstract ProgramDefinition build();
 
+    /**
+     * Add a new localization for the program name. This will fail if a translation for the given
+     * locale already exists.
+     */
     public Builder addLocalizedName(Locale locale, String name) {
       localizedNameBuilder().put(locale, name);
       return this;
     }
 
+    /**
+     * Add a new localization for the program description. This will fail if a translation for the
+     * given locale already exists.
+     */
     public Builder addLocalizedDescription(Locale locale, String name) {
       localizedDescriptionBuilder().put(locale, name);
+      return this;
+    }
+
+    /**
+     * Update an existing localization for the program name. This will overwrite the old name for
+     * that locale.
+     */
+    public Builder updateLocalizedName(
+        ImmutableMap<Locale, String> existing, Locale locale, String name) {
+      setLocalizedName(LocalizationUtils.overwriteExistingTranslation(existing, locale, name));
+      return this;
+    }
+
+    /**
+     * Update an existing localization for the program description. This will overwrite the old
+     * description for that locale.
+     */
+    public Builder updateLocalizedDescription(
+        ImmutableMap<Locale, String> existing, Locale locale, String description) {
+      setLocalizedDescription(
+          LocalizationUtils.overwriteExistingTranslation(existing, locale, description));
       return this;
     }
 

@@ -131,8 +131,9 @@ public class ProgramServiceImpl implements ProgramService {
     Program program =
         programDefinition.toBuilder()
             .setAdminDescription(adminDescription)
-            .addLocalizedName(locale, displayName)
-            .addLocalizedDescription(locale, displayDescription)
+            .updateLocalizedName(programDefinition.localizedName(), locale, displayName)
+            .updateLocalizedDescription(
+                programDefinition.localizedDescription(), locale, displayDescription)
             .build()
             .toProgram();
     return ErrorAnd.of(

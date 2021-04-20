@@ -5,14 +5,14 @@ public class ProgramForm {
   private String adminDescription;
 
   // TODO: Support multiple locales
-  private String localizedName;
-  private String localizedDescription;
+  private String localizedDisplayName;
+  private String localizedDisplayDescription;
 
   public ProgramForm() {
     adminName = "";
     adminDescription = "";
-    localizedName = "";
-    localizedDescription = "";
+    localizedDisplayName = "";
+    localizedDisplayDescription = "";
   }
 
   public String getAdminName() {
@@ -31,19 +31,19 @@ public class ProgramForm {
     this.adminDescription = adminDescription;
   }
 
-  public String getLocalizedName() {
-    return localizedName;
+  public String getLocalizedDisplayName() {
+    return localizedDisplayName;
   }
 
-  public String getLocalizedDescription() {
-    return localizedDescription;
+  public String getLocalizedDisplayDescription() {
+    return localizedDisplayDescription;
   }
 
-  public void setLocalizedName(String localizedName) {
-    this.localizedName = localizedName;
+  public void setLocalizedDisplayName(String localizedDisplayName) {
+    this.localizedDisplayName = localizedDisplayName;
   }
 
-  public void setLocalizedDescription(String localizedDescription) {
-    this.localizedDescription = localizedDescription;
+  public void setLocalizedDisplayDescription(String localizedDisplayDescription) {
+    this.localizedDisplayDescription = localizedDisplayDescription;
   }
 }

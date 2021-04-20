@@ -26,15 +26,15 @@ import views.style.Styles;
  */
 public abstract class BaseHtmlView {
 
-  public Tag renderHeader(String headerText, String... additionalClasses) {
+  public static Tag renderHeader(String headerText, String... additionalClasses) {
     return h1(headerText).withClasses(Styles.M_2, StyleUtils.joinStyles(additionalClasses));
   }
 
-  protected ContainerTag fieldErrors(ImmutableSet<ValidationErrorMessage> errors) {
+  protected static ContainerTag fieldErrors(ImmutableSet<ValidationErrorMessage> errors) {
     return div(each(errors, error -> span(error.message())));
   }
 
-  protected Tag checkboxInputWithLabel(
+  protected static Tag checkboxInputWithLabel(
       String labelText, String inputId, String inputName, String inputValue) {
     return label()
         .with(
@@ -42,23 +42,23 @@ public abstract class BaseHtmlView {
             text(labelText));
   }
 
-  protected Tag button(String textContents) {
+  protected static Tag button(String textContents) {
     return TagCreator.button(text(textContents)).withType("button");
   }
 
-  protected Tag button(String id, String textContents) {
+  protected static Tag button(String id, String textContents) {
     return button(textContents).withId(id);
   }
 
-  protected Tag submitButton(String textContents) {
+  protected static Tag submitButton(String textContents) {
     return TagCreator.button(text(textContents)).withType("submit");
   }
 
-  protected Tag submitButton(String id, String textContents) {
+  protected static Tag submitButton(String id, String textContents) {
     return submitButton(textContents).withId(id);
   }
 
-  protected Tag redirectButton(String id, String text, String redirectUrl) {
+  protected static Tag redirectButton(String id, String text, String redirectUrl) {
     return button(id, text).attr("onclick", String.format("window.location = '%s';", redirectUrl));
   }
 
@@ -66,11 +66,11 @@ public abstract class BaseHtmlView {
    * Generates a hidden HTML input tag containing a signed CSRF token. The token and tag must be
    * present in all UAT forms.
    */
-  protected Tag makeCsrfTokenInputTag(Http.Request request) {
+  protected static Tag makeCsrfTokenInputTag(Http.Request request) {
     return input().isHidden().withValue(getCsrfToken(request)).withName("csrfToken");
   }
 
-  private String getCsrfToken(Http.Request request) {
+  private static String getCsrfToken(Http.Request request) {
     return CSRF.getToken(request.asScala()).value();
   }
 }
