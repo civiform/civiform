@@ -17,7 +17,6 @@ import play.mvc.Result;
 import play.test.Helpers;
 import repository.WithPostgresContainer;
 import services.question.types.QuestionDefinition;
-import support.TestQuestionBank;
 import views.html.helper.CSRF;
 
 public class QuestionControllerTest extends WithPostgresContainer {
@@ -47,7 +46,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
 
   @Test
   public void create_repeatedQuestion_redirectsOnSuccess() {
-    Question repeaterQuestion = TestQuestionBank.applicantHouseholdMembers();
+    Question repeaterQuestion = testQuestionBank().applicantHouseholdMembers();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
         .put("questionName", "name")
@@ -106,7 +105,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
 
   @Test
   public void edit_returnsPopulatedForm() {
-    Question question = TestQuestionBank.applicantName();
+    Question question = testQuestionBank().applicantName();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     controller
         .edit(request, question.id)
@@ -124,7 +123,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
 
   @Test
   public void edit_repeatedQuestion_hasFormattedRepeaterName() {
-    Question repeatedQuestion = TestQuestionBank.applicantHouseholdMemberName();
+    Question repeatedQuestion = testQuestionBank().applicantHouseholdMemberName();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     controller
         .edit(request, repeatedQuestion.id)
@@ -143,8 +142,8 @@ public class QuestionControllerTest extends WithPostgresContainer {
 
   @Test
   public void index_returnsQuestions() {
-    TestQuestionBank.applicantAddress();
-    TestQuestionBank.applicantName();
+    testQuestionBank().applicantAddress();
+    testQuestionBank().applicantName();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     controller
         .index(request)
@@ -213,7 +212,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
 
   @Test
   public void update_redirectsOnSuccess() {
-    QuestionDefinition nameQuestion = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition nameQuestion = testQuestionBank().applicantName().getQuestionDefinition();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
         .put("questionName", nameQuestion.getName())
@@ -236,7 +235,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
 
   @Test
   public void update_failsWithErrorMessageAndPopulatedFields() {
-    Question question = TestQuestionBank.applicantFavoriteColor();
+    Question question = testQuestionBank().applicantFavoriteColor();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
         .put("questionName", "favorite_color")
@@ -255,7 +254,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
 
   @Test
   public void update_failsWithInvalidQuestionType() {
-    Question question = TestQuestionBank.applicantHouseholdMembers();
+    Question question = testQuestionBank().applicantHouseholdMembers();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData.put("questionType", "INVALID_TYPE").put("questionText", "question text updated!");
     RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());

@@ -25,7 +25,9 @@ public class WithPostgresContainer {
 
   protected static Materializer mat;
 
-  protected static ResourceCreator resourceCreator;
+  private static ResourceCreator resourceCreator;
+
+  private static TestQuestionBank testQuestionBank = new TestQuestionBank(true);
 
   @BeforeClass
   public static void startPlay() {
@@ -55,6 +57,15 @@ public class WithPostgresContainer {
     return resourceCreator;
   }
 
+  protected TestQuestionBank testQuestionBank() {
+    return testQuestionBank;
+  }
+
+  public void clearDatabase() {
+    testQuestionBank().reset();
+    resourceCreator().truncateTables();
+  }
+
   @Before
   public void truncateTables() {
     EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
@@ -65,6 +76,6 @@ public class WithPostgresContainer {
 
   @Before
   public void resetSupportQuestionsCache() {
-    TestQuestionBank.reset();
+    testQuestionBank.reset();
   }
 }

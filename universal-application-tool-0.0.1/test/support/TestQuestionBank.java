@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.persistence.PersistenceException;
 import models.LifecycleStage;
 import models.Question;
 import services.Path;
@@ -43,81 +42,80 @@ import services.question.types.TextQuestionDefinition;
  * grouping those methods with the same type together.
  */
 public class TestQuestionBank {
-
   private static final long VERSION = 1L;
-  private static final Map<QuestionEnum, Question> questionCache = new ConcurrentHashMap<>();
-  private static final AtomicLong nextId = new AtomicLong(1L);
 
-  public static void reset() {
+  private boolean canSave = false;
+  private Map<QuestionEnum, Question> questionCache = new ConcurrentHashMap<>();
+  private AtomicLong nextId = new AtomicLong(1L);
+
+  public TestQuestionBank(boolean canSave) {
+    this.canSave = canSave;
+  }
+
+  public void reset() {
     questionCache.clear();
     nextId.set(1L);
   }
 
   // Address
-  public static Question applicantAddress() {
-    return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_ADDRESS, TestQuestionBank::applicantAddress);
+  public Question applicantAddress() {
+    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ADDRESS, this::applicantAddress);
   }
 
   // Checkbox
-  public static Question applicantKitchenTools() {
+  public Question applicantKitchenTools() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_KITCHEN_TOOLS, TestQuestionBank::applicantKitchenTools);
+        QuestionEnum.APPLICANT_KITCHEN_TOOLS, this::applicantKitchenTools);
   }
 
   // Dropdown
-  public static Question applicantIceCream() {
-    return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_ICE_CREAM, TestQuestionBank::applicantIceCream);
+  public Question applicantIceCream() {
+    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ICE_CREAM, this::applicantIceCream);
   }
 
   // File upload
-  public static Question applicantFile() {
-    return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_FILE, TestQuestionBank::applicantFile);
+  public Question applicantFile() {
+    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_FILE, this::applicantFile);
   }
 
   // Name
-  public static Question applicantName() {
-    return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_NAME, TestQuestionBank::applicantName);
+  public Question applicantName() {
+    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_NAME, this::applicantName);
   }
 
   // Repeated name
-  public static Question applicantHouseholdMemberName() {
+  public Question applicantHouseholdMemberName() {
     // Make sure the next call will have the question ready
     applicantHouseholdMembers();
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_NAME,
-        TestQuestionBank::applicantHouseholdMemberName);
+        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_NAME, this::applicantHouseholdMemberName);
   }
 
   // Number
-  public static Question applicantJugglingNumber() {
+  public Question applicantJugglingNumber() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_JUGGLING_NUMBER, TestQuestionBank::applicantJugglingNumber);
+        QuestionEnum.APPLICANT_JUGGLING_NUMBER, this::applicantJugglingNumber);
   }
 
   // Radio button
-  public static Question applicantSeason() {
-    return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_SEASON, TestQuestionBank::applicantSeason);
+  public Question applicantSeason() {
+    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_SEASON, this::applicantSeason);
   }
 
   // Repeater
-  public static Question applicantHouseholdMembers() {
+  public Question applicantHouseholdMembers() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBERS, TestQuestionBank::applicantHouseholdMembers);
+        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBERS, this::applicantHouseholdMembers);
   }
 
   // Text
-  public static Question applicantFavoriteColor() {
+  public Question applicantFavoriteColor() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_FAVORITE_COLOR, TestQuestionBank::applicantFavoriteColor);
+        QuestionEnum.APPLICANT_FAVORITE_COLOR, this::applicantFavoriteColor);
   }
 
   // Address
-  private static Question applicantAddress(QuestionEnum ignore) {
+  private Question applicantAddress(QuestionEnum ignore) {
     QuestionDefinition definition =
         new AddressQuestionDefinition(
             VERSION,
@@ -132,7 +130,7 @@ public class TestQuestionBank {
   }
 
   // Checkbox
-  private static Question applicantKitchenTools(QuestionEnum ignore) {
+  private Question applicantKitchenTools(QuestionEnum ignore) {
     QuestionDefinition definition =
         new CheckboxQuestionDefinition(
             1L,
@@ -151,7 +149,7 @@ public class TestQuestionBank {
   }
 
   // Dropdown
-  private static Question applicantIceCream(QuestionEnum ignore) {
+  private Question applicantIceCream(QuestionEnum ignore) {
     QuestionDefinition definition =
         new DropdownQuestionDefinition(
             1L,
@@ -171,7 +169,7 @@ public class TestQuestionBank {
   }
 
   // File upload
-  private static Question applicantFile(QuestionEnum ignore) {
+  private Question applicantFile(QuestionEnum ignore) {
     QuestionDefinition definition =
         new FileUploadQuestionDefinition(
             1L,
@@ -186,7 +184,7 @@ public class TestQuestionBank {
   }
 
   // Name
-  private static Question applicantName(QuestionEnum ignore) {
+  private Question applicantName(QuestionEnum ignore) {
     QuestionDefinition definition =
         new NameQuestionDefinition(
             VERSION,
@@ -201,7 +199,7 @@ public class TestQuestionBank {
   }
 
   // Repeated name
-  private static Question applicantHouseholdMemberName(QuestionEnum ignore) {
+  private Question applicantHouseholdMemberName(QuestionEnum ignore) {
     Question householdMembers = applicantHouseholdMembers();
     QuestionDefinition definition =
         new NameQuestionDefinition(
@@ -218,7 +216,7 @@ public class TestQuestionBank {
   }
 
   // Number
-  private static Question applicantJugglingNumber(QuestionEnum ignore) {
+  private Question applicantJugglingNumber(QuestionEnum ignore) {
     QuestionDefinition definition =
         new NumberQuestionDefinition(
             VERSION,
@@ -233,7 +231,7 @@ public class TestQuestionBank {
   }
 
   // Radio button
-  private static Question applicantSeason(QuestionEnum ignore) {
+  private Question applicantSeason(QuestionEnum ignore) {
     QuestionDefinition definition =
         new RadioButtonQuestionDefinition(
             1L,
@@ -253,7 +251,7 @@ public class TestQuestionBank {
   }
 
   // Repeater
-  private static Question applicantHouseholdMembers(QuestionEnum ignore) {
+  private Question applicantHouseholdMembers(QuestionEnum ignore) {
     QuestionDefinition definition =
         new RepeaterQuestionDefinition(
             VERSION,
@@ -269,7 +267,7 @@ public class TestQuestionBank {
   }
 
   // Text
-  private static Question applicantFavoriteColor(QuestionEnum ignore) {
+  private Question applicantFavoriteColor(QuestionEnum ignore) {
     QuestionDefinition definition =
         new TextQuestionDefinition(
             VERSION,
@@ -283,11 +281,11 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
-  private static Question maybeSave(QuestionDefinition questionDefinition) {
+  private Question maybeSave(QuestionDefinition questionDefinition) {
     Question question = new Question(questionDefinition);
-    try {
+    if (canSave) {
       question.save();
-    } catch (ExceptionInInitializerError | NoClassDefFoundError | PersistenceException ignore) {
+    } else {
       question.id = nextId.getAndIncrement();
       try {
         question.loadQuestionDefinition();
