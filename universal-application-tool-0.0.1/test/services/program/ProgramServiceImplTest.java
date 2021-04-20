@@ -9,6 +9,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import models.LifecycleStage;
 import models.Program;
+import models.Question;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
@@ -338,7 +339,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   @Test
   public void addBlockToProgram_returnsProgramDefinitionWithBlock() throws Exception {
     ProgramDefinition programDefinition = ProgramBuilder.newProgram().buildDefinition();
-    Long programId = programDefinition.id();
+    long programId = programDefinition.id();
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.addBlockToProgram(programDefinition.id());
@@ -352,6 +353,43 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThat(found.blockDefinitions()).hasSize(2);
     assertThat(found.blockDefinitions())
         .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
+  }
+
+  @Test
+  public void addRepeatedBlockToProgram() throws Exception {
+    Question repeatedQuestion = TestQuestionBank.applicantHouseholdMembers();
+    Program program =
+        ProgramBuilder.newProgram().withBlock().withQuestion(repeatedQuestion).build();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.addRepeatedBlockToProgram(program.id, 1L);
+
+    assertThat(result.isError()).isFalse();
+    assertThat(result.hasResult()).isTrue();
+    ProgramDefinition updatedProgramDefinition = result.getResult();
+
+    ProgramDefinition found = ps.getProgramDefinition(program.id);
+
+    assertThat(found.blockDefinitions()).hasSize(2);
+    assertThat(found.getBlockDefinitionByIndex(0).get().isRepeater()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(1).get().isRepeated()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(1).get().repeaterId()).contains(1L);
+    assertThat(found.blockDefinitions())
+        .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
+  }
+
+  @Test
+  public void addRepeatedBlockToProgram_invalidProgramId_throwsProgramNotFoundException() {
+    assertThatThrownBy(() -> ps.addRepeatedBlockToProgram(1L, 1L))
+        .isInstanceOf(ProgramNotFoundException.class);
+  }
+
+  @Test
+  public void addRepeatedBlockToProgram_invalidRepeaterId_throwsProgramBlockNotFoundException() {
+    Program program = ProgramBuilder.newProgram().build();
+
+    assertThatThrownBy(() -> ps.addRepeatedBlockToProgram(program.id, 5L))
+        .isInstanceOf(ProgramBlockNotFoundException.class);
   }
 
   @Test
