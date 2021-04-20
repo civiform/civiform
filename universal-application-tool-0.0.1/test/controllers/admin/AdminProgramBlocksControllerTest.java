@@ -26,6 +26,8 @@ import services.question.types.QuestionDefinitionBuilder;
 import support.ProgramBuilder;
 import support.TestQuestionBank;
 
+import java.util.Optional;
+
 public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
   private AdminProgramBlocksController controller;
@@ -58,7 +60,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
   @Test
   public void create_withInvalidProgram_notFound() {
     Request request = fakeRequest().build();
-    Result result = controller.create(request, 1L);
+    Result result = controller.create(request, 1L, Optional.empty());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -67,7 +69,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
   public void create_withProgram_addsBlock() {
     Request request = fakeRequest().build();
     Program program = ProgramBuilder.newProgram().build();
-    Result result = controller.create(request, program.id);
+    Result result = controller.create(request, program.id, Optional.empty());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
