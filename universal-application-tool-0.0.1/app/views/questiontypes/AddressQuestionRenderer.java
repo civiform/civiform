@@ -9,15 +9,11 @@ import services.applicant.question.ApplicantQuestion;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
-import views.style.StyleUtils;
 import views.style.Styles;
 
 public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQuestionRenderer {
 
   private final ApplicantQuestion question;
-
-  private static final String SECONDARY_ADDRESS_STYLES =
-      StyleUtils.joinStyles(Styles.MY_0, Styles.P_2, Styles.PB_1);
 
   public AddressQuestionRenderer(ApplicantQuestion question) {
     this.question = checkNotNull(question);
@@ -42,12 +38,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                     Styles.MB_2)
                 .withText(question.getQuestionHelpText()),
             div()
-                .withClasses(
-                    Styles.ROUNDED,
-                    Styles.BG_OPACITY_50,
-                    Styles.BG_GRAY_100,
-                    Styles.PT_2,
-                    Styles.PB_4)
+                .withClasses(Styles.ROUNDED, Styles.BG_OPACITY_50, Styles.PT_2, Styles.PB_4)
                 .with(
                     /** First line of address entry: Street */
                     FieldWithLabel.input()
@@ -57,7 +48,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                         .setFloatLabel(true)
                         .setValue(addressQuestion.getStreetValue().orElse(""))
                         .getContainer()
-                        .withClasses(Styles.MY_2, Styles.P_2, Styles.PB_0),
+                        .withClasses(Styles.MY_2, Styles.PT_2),
                     /** Second line of address entry: City, State, Zip */
                     div()
                         .withClasses(Styles.FLEX, Styles.FLEX_ROW)
@@ -69,7 +60,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                                 .setFloatLabel(true)
                                 .setValue(addressQuestion.getCityValue().orElse(""))
                                 .getContainer()
-                                .withClasses(SECONDARY_ADDRESS_STYLES, Styles.W_1_2),
+                                .withClasses(Styles.P_1, Styles.PT_2, Styles.PL_0, Styles.W_1_2),
                             FieldWithLabel.input()
                                 .setFieldName(addressQuestion.getStatePath().path())
                                 .setLabelText("State")
@@ -77,7 +68,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                                 .setFloatLabel(true)
                                 .setValue(addressQuestion.getStateValue().orElse(""))
                                 .getContainer()
-                                .withClasses(SECONDARY_ADDRESS_STYLES, Styles.W_1_3),
+                                .withClasses(Styles.P_1, Styles.PT_2, Styles.W_1_4),
                             FieldWithLabel.input()
                                 .setFieldName(addressQuestion.getZipPath().path())
                                 .setLabelText("Zip")
@@ -85,7 +76,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                                 .setFloatLabel(true)
                                 .setValue(addressQuestion.getZipValue().orElse(""))
                                 .getContainer()
-                                .withClasses(SECONDARY_ADDRESS_STYLES, Styles.W_1_6)),
+                                .withClasses(Styles.P_1, Styles.PT_2, Styles.PR_0, Styles.W_1_4)),
                     fieldErrors(addressQuestion.getQuestionErrors())
                         .withClasses(
                             Styles.ML_2, Styles.TEXT_XS, Styles.TEXT_RED_600, Styles.FONT_BOLD)));

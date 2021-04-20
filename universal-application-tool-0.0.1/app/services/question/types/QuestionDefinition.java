@@ -29,6 +29,8 @@ public abstract class QuestionDefinition {
   private final Optional<Long> repeaterId;
   private final String description;
   private final LifecycleStage lifecycleStage;
+  // Note: you must check prefixes anytime you are doing a locale lookup
+  // see getQuestionText body comment for explanation.
   private final ImmutableMap<Locale, String> questionText;
   private final ImmutableMap<Locale, String> questionHelpText;
   private final ValidationPredicates validationPredicates;
@@ -203,6 +205,12 @@ public abstract class QuestionDefinition {
 
     if (this.questionHelpText.containsKey(locale)) {
       return this.questionHelpText.get(locale);
+    }
+    // As in getQuestionText.
+    for (Locale hasLocale : this.questionHelpText.keySet()) {
+      if (hasLocale.getLanguage().equals(locale.getLanguage())) {
+        return this.questionHelpText.get(hasLocale);
+      }
     }
 
     throw new TranslationNotFoundException(this.getPath().path(), locale);

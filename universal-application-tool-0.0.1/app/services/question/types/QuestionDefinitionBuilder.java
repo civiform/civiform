@@ -209,6 +209,17 @@ public class QuestionDefinitionBuilder {
             questionText,
             questionHelpText,
             questionOptions);
+      case FILEUPLOAD:
+        return new FileUploadQuestionDefinition(
+            id,
+            version,
+            name,
+            path,
+            repeaterId,
+            description,
+            lifecycleStage,
+            questionText,
+            questionHelpText);
       case NAME:
         NameValidationPredicates nameValidationPredicates = NameValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {

@@ -56,7 +56,7 @@ public class MultiOptionQuestionDefinitionTest {
             .build();
 
     MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
-    Throwable thrown = catchThrowable(() -> multiOption.getOptionsForLocale(Locale.CANADA));
+    Throwable thrown = catchThrowable(() -> multiOption.getOptionsForLocale(Locale.CANADA_FRENCH));
 
     assertThat(thrown).isInstanceOf(TranslationNotFoundException.class);
     assertThat(thrown).hasMessageContaining("ca");

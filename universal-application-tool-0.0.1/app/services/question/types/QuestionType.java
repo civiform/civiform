@@ -6,6 +6,7 @@ public enum QuestionType {
   ADDRESS(false),
   CHECKBOX(true),
   DROPDOWN(true),
+  FILEUPLOAD(false),
   NAME(false),
   NUMBER(false),
   RADIO_BUTTON(true),

@@ -1,6 +1,5 @@
 package services.applicant;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -9,7 +8,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
@@ -25,19 +23,16 @@ import services.program.PathNotInBlockException;
 import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
-import services.program.ProgramQuestionDefinition;
-import services.program.ProgramService;
-import services.program.ProgramServiceImpl;
 import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import support.ProgramBuilder;
 
 public class ApplicantServiceImplTest extends WithPostgresContainer {
 
   private ApplicantServiceImpl subject;
-  private ProgramService programService;
   private QuestionService questionService;
   private QuestionDefinition questionDefinition;
   private ProgramDefinition programDefinition;
@@ -46,7 +41,6 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   @Before
   public void setUp() throws Exception {
     subject = instanceOf(ApplicantServiceImpl.class);
-    programService = instanceOf(ProgramServiceImpl.class);
     questionService = instanceOf(QuestionService.class);
     applicantRepository = instanceOf(ApplicantRepository.class);
     createQuestions();
@@ -310,19 +304,9 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
   private void createProgram(QuestionDefinition... questions) throws Exception {
     programDefinition =
-        programService
-            .createProgramDefinition("test program", "desc", "name", "description")
-            .getResult();
-    programDefinition =
-        programService
-            .addBlockToProgram(programDefinition.id(), "test block", "test block description")
-            .getResult();
-    programDefinition =
-        programService.setBlockQuestions(
-            programDefinition.id(),
-            programDefinition.blockDefinitions().get(0).id(),
-            Arrays.stream(questions)
-                .map(ProgramQuestionDefinition::create)
-                .collect(toImmutableList()));
+        ProgramBuilder.newProgram("test program", "desc")
+            .withBlock()
+            .withQuestionDefinitions(ImmutableList.copyOf(questions))
+            .buildDefinition();
   }
 }

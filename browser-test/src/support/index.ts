@@ -23,8 +23,7 @@ export const gotoEndpoint = async (page: Page, endpoint: string) => {
 }
 
 export const logout = async (page: Page) => {
-  // TODO: add logout button to applicant page and use that
-  await page.goto(BASE_URL + '/logout');
+  await page.click('text=Logout');
 }
 
 export const loginAsAdmin = async (page: Page) => {

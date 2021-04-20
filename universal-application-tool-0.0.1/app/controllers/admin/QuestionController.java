@@ -5,15 +5,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
-import forms.AddressQuestionForm;
-import forms.CheckboxQuestionForm;
-import forms.DropdownQuestionForm;
-import forms.NameQuestionForm;
-import forms.NumberQuestionForm;
 import forms.QuestionForm;
-import forms.RadioButtonQuestionForm;
-import forms.RepeaterQuestionForm;
-import forms.TextQuestionForm;
+import forms.QuestionFormBuilder;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -124,7 +117,9 @@ public class QuestionController extends CiviFormController {
   public Result create(Request request, String questionType) {
     QuestionForm questionForm;
     try {
-      questionForm = createQuestionForm(request, QuestionType.of(questionType));
+      questionForm =
+          QuestionFormBuilder.createFromRequest(
+              request, formFactory, QuestionType.of(questionType));
     } catch (InvalidQuestionTypeException e) {
       return badRequest(invalidQuestionTypeMessage(questionType));
     }
@@ -185,7 +180,9 @@ public class QuestionController extends CiviFormController {
   public Result update(Request request, Long id, String questionType) {
     QuestionForm questionForm;
     try {
-      questionForm = createQuestionForm(request, QuestionType.of(questionType));
+      questionForm =
+          QuestionFormBuilder.createFromRequest(
+              request, formFactory, QuestionType.of(questionType));
     } catch (InvalidQuestionTypeException e) {
       return badRequest(invalidQuestionTypeMessage(questionType));
     }
@@ -232,30 +229,6 @@ public class QuestionController extends CiviFormController {
       return result.flashing("message", message);
     }
     return result;
-  }
-
-  private QuestionForm createQuestionForm(Request request, QuestionType questionType)
-      throws InvalidQuestionTypeException {
-    switch (questionType) {
-      case ADDRESS:
-        return formFactory.form(AddressQuestionForm.class).bindFromRequest(request).get();
-      case CHECKBOX:
-        return formFactory.form(CheckboxQuestionForm.class).bindFromRequest(request).get();
-      case DROPDOWN:
-        return formFactory.form(DropdownQuestionForm.class).bindFromRequest(request).get();
-      case NAME:
-        return formFactory.form(NameQuestionForm.class).bindFromRequest(request).get();
-      case NUMBER:
-        return formFactory.form(NumberQuestionForm.class).bindFromRequest(request).get();
-      case RADIO_BUTTON:
-        return formFactory.form(RadioButtonQuestionForm.class).bindFromRequest(request).get();
-      case REPEATER:
-        return formFactory.form(RepeaterQuestionForm.class).bindFromRequest(request).get();
-      case TEXT:
-        return formFactory.form(TextQuestionForm.class).bindFromRequest(request).get();
-      default:
-        throw new InvalidQuestionTypeException(questionType.toString());
-    }
   }
 
   private QuestionDefinitionBuilder getBuilderWithQuestionPath(

@@ -65,6 +65,8 @@ public class TestQuestionBank {
   }
 
   public static Question applicantHouseholdMemberName() {
+    // Make sure the next call will have the question ready
+    applicantHouseholdMembers();
     return questionCache.computeIfAbsent(
         QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_NAME,
         TestQuestionBank::applicantHouseholdMemberName);

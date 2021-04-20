@@ -26,8 +26,7 @@ public class ApplicantQuestionRendererFactoryTest {
     assertThat(renderer.render()).isInstanceOf(Tag.class);
   }
 
-  // TODO(https://github.com/seattle-uat/civiform/issues/395): Implement dropdown rendering.
   private EnumSet<QuestionType> types() {
-    return EnumSet.complementOf(EnumSet.of(QuestionType.DROPDOWN, QuestionType.REPEATER));
+    return EnumSet.complementOf(EnumSet.of(QuestionType.REPEATER));
   }
 }
