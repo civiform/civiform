@@ -9,7 +9,6 @@ import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Optional;
 import models.Program;
 import models.Question;
 import org.junit.Before;
