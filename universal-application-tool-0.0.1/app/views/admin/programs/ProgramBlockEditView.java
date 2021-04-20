@@ -157,8 +157,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 Styles.W_1_5,
                 Styles.BORDER_R,
                 Styles.BORDER_GRAY_200);
-    ret.with(
-        renderBlockList(program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
+    ret.with(renderBlockList(program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
     ret.with(
         submitButton("Add Block")
             .withId("add-block-button")
