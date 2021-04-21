@@ -20,7 +20,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
-import support.TestQuestionBank;
 
 public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles {
 
@@ -29,7 +28,7 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
 
   @Before
   public void setUp() {
-    resourceCreator().clearDatabase();
+    clearDatabase();
     controller = instanceOf(ApplicantProgramsController.class);
     currentApplicant = createApplicantWithMockedProfile();
   }
@@ -139,7 +138,7 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
     Program program =
         ProgramBuilder.newProgram()
             .withBlock()
-            .withQuestion(TestQuestionBank.applicantName())
+            .withQuestion(testQuestionBank().applicantName())
             .build();
 
     Result result =
@@ -158,13 +157,13 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
   @Test
   public void edit_redirectsToFirstIncompleteBlock() {
     QuestionDefinition colorQuestion =
-        TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+        testQuestionBank().applicantFavoriteColor().getQuestionDefinition();
     Program program =
         ProgramBuilder.newProgram()
             .withBlock()
             .withQuestionDefinition(colorQuestion)
             .withBlock()
-            .withQuestion(TestQuestionBank.applicantAddress())
+            .withQuestion(testQuestionBank().applicantAddress())
             .build();
     // Answer the color question
     currentApplicant

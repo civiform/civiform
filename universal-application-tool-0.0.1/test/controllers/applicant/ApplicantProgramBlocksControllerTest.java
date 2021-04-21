@@ -22,7 +22,6 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
-import support.TestQuestionBank;
 
 public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantProfiles {
 
@@ -32,12 +31,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
 
   @Before
   public void setUpWithFreshApplicant() {
-    resourceCreator().clearDatabase();
+    clearDatabase();
+
     subject = instanceOf(ApplicantProgramBlocksController.class);
     program =
         ProgramBuilder.newProgram()
             .withBlock()
-            .withQuestion(TestQuestionBank.applicantName())
+            .withQuestion(testQuestionBank().applicantName())
             .build();
     applicant = createApplicantWithMockedProfile();
   }
@@ -192,9 +192,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
     program =
         ProgramBuilder.newProgram()
             .withBlock("block 1")
-            .withQuestion(TestQuestionBank.applicantName())
+            .withQuestion(testQuestionBank().applicantName())
             .withBlock("block 2")
-            .withQuestion(TestQuestionBank.applicantAddress())
+            .withQuestion(testQuestionBank().applicantAddress())
             .build();
     Request request =
         fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
@@ -220,7 +220,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
     program =
         ProgramBuilder.newProgram()
             .withBlock("block 1")
-            .withQuestion(TestQuestionBank.applicantName())
+            .withQuestion(testQuestionBank().applicantName())
             .build();
 
     Request request =

@@ -32,11 +32,11 @@ public class VersionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void publishProgram_simple() {
-    Program active = resourceCreator().insertProgram("name");
+    Program active = resourceCreator.insertProgram("name");
     active.setLifecycleStage(LifecycleStage.ACTIVE);
     active.setVersion(1L);
     active.save();
-    Program draft = resourceCreator().insertProgram("name");
+    Program draft = resourceCreator.insertProgram("name");
     draft.setLifecycleStage(LifecycleStage.DRAFT);
     draft.setVersion(2L);
     draft.save();
@@ -53,7 +53,7 @@ public class VersionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void publishProgram_passthrough() {
-    Program active = resourceCreator().insertProgram("passthrough");
+    Program active = resourceCreator.insertProgram("passthrough");
     active.setLifecycleStage(LifecycleStage.ACTIVE);
     active.setVersion(1L);
     active.save();

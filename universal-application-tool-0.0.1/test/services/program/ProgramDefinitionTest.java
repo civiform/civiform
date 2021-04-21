@@ -12,6 +12,8 @@ import support.TestQuestionBank;
 
 public class ProgramDefinitionTest {
 
+  private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
+
   @Test
   public void createProgramDefinition() {
     BlockDefinition blockA =
@@ -70,10 +72,10 @@ public class ProgramDefinitionTest {
 
   @Test
   public void hasQuestion_trueIfTheProgramUsesTheQuestion() {
-    QuestionDefinition questionA = TestQuestionBank.applicantName().getQuestionDefinition();
-    QuestionDefinition questionB = TestQuestionBank.applicantAddress().getQuestionDefinition();
+    QuestionDefinition questionA = testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition questionB = testQuestionBank.applicantAddress().getQuestionDefinition();
     QuestionDefinition questionC =
-        TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+        testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
 
     BlockDefinition blockA =
         BlockDefinition.builder()

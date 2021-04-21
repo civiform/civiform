@@ -8,22 +8,24 @@ import org.junit.Test;
 
 public class TestQuestionBankTest {
 
+  private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
+
   @Before
   public void reset() {
-    TestQuestionBank.reset();
+    testQuestionBank.reset();
   }
 
   @Test
   public void withoutDatabase_canGetQuestion() {
-    Question question = TestQuestionBank.applicantAddress();
+    Question question = testQuestionBank.applicantAddress();
 
     assertThat(question.id).isEqualTo(1L);
   }
 
   @Test
   public void withoutDatabase_setsId() {
-    TestQuestionBank.applicantAddress();
-    Question question = TestQuestionBank.applicantName();
+    testQuestionBank.applicantAddress();
+    Question question = testQuestionBank.applicantName();
 
     assertThat(question.id).isEqualTo(2L);
   }

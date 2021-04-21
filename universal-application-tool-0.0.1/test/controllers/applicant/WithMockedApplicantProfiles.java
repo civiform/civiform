@@ -18,10 +18,13 @@ import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Http;
 import support.ResourceCreator;
 import support.TestConstants;
+import support.TestQuestionBank;
 
 public class WithMockedApplicantProfiles {
 
   private static final ProfileUtils MOCK_UTILS = Mockito.mock(ProfileUtils.class);
+
+  private static TestQuestionBank testQuestionBank = new TestQuestionBank(true);
 
   private static Injector injector;
   private static ResourceCreator resourceCreator;
@@ -45,6 +48,15 @@ public class WithMockedApplicantProfiles {
 
   protected ResourceCreator resourceCreator() {
     return resourceCreator;
+  }
+
+  protected TestQuestionBank testQuestionBank() {
+    return testQuestionBank;
+  }
+
+  protected void clearDatabase() {
+    testQuestionBank().reset();
+    resourceCreator().truncateTables();
   }
 
   protected Applicant createApplicantWithMockedProfile() {
