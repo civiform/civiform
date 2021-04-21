@@ -10,14 +10,14 @@ import org.junit.runner.RunWith;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
-import services.question.types.TextQuestionDefinition;
-import support.TestQuestionDefinitionBank;
+import support.TestQuestionBank;
 
 @RunWith(JUnitParamsRunner.class)
 public class ApplicantQuestionTest {
+
+  private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
 
   @Test
   @Parameters(source = QuestionType.class)
@@ -30,37 +30,45 @@ public class ApplicantQuestionTest {
   }
 
   @Test
-  public void getsExpectedQuestionType() throws UnsupportedQuestionTypeException {
+  public void getsExpectedQuestionType() {
     ApplicantQuestion addressApplicantQuestion =
-        new ApplicantQuestion(TestQuestionDefinitionBank.address(), new ApplicantData());
+        new ApplicantQuestion(
+            testQuestionBank.applicantAddress().getQuestionDefinition(), new ApplicantData());
     assertThat(addressApplicantQuestion.createAddressQuestion())
         .isInstanceOf(AddressQuestion.class);
 
     ApplicantQuestion checkboxApplicantQuestion =
-        new ApplicantQuestion(TestQuestionDefinitionBank.checkbox(), new ApplicantData());
+        new ApplicantQuestion(
+            testQuestionBank.applicantKitchenTools().getQuestionDefinition(), new ApplicantData());
     assertThat(checkboxApplicantQuestion.createMultiSelectQuestion())
         .isInstanceOf(MultiSelectQuestion.class);
 
     ApplicantQuestion dropdownApplicantQuestion =
-            new ApplicantQuestion(TestQuestionDefinitionBank.dropdown(), new ApplicantData());
+        new ApplicantQuestion(
+            testQuestionBank.applicantIceCream().getQuestionDefinition(), new ApplicantData());
     assertThat(dropdownApplicantQuestion.createSingleSelectQuestion())
-            .isInstanceOf(SingleSelectQuestion.class);
+        .isInstanceOf(SingleSelectQuestion.class);
 
     ApplicantQuestion nameApplicantQuestion =
-        new ApplicantQuestion(TestQuestionDefinitionBank.name(), new ApplicantData());
+        new ApplicantQuestion(
+            testQuestionBank.applicantName().getQuestionDefinition(), new ApplicantData());
     assertThat(nameApplicantQuestion.createNameQuestion()).isInstanceOf(NameQuestion.class);
 
     ApplicantQuestion numberApplicantQuestion =
-        new ApplicantQuestion(TestQuestionDefinitionBank.number(), new ApplicantData());
+        new ApplicantQuestion(
+            testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+            new ApplicantData());
     assertThat(numberApplicantQuestion.createNumberQuestion()).isInstanceOf(NumberQuestion.class);
 
     ApplicantQuestion radioApplicantQuestion =
-        new ApplicantQuestion(TestQuestionDefinitionBank.radioButton(), new ApplicantData());
+        new ApplicantQuestion(
+            testQuestionBank.applicantSeason().getQuestionDefinition(), new ApplicantData());
     assertThat(radioApplicantQuestion.createSingleSelectQuestion())
         .isInstanceOf(SingleSelectQuestion.class);
 
     ApplicantQuestion textApplicantQuestion =
-        new ApplicantQuestion(TestQuestionDefinitionBank.text(), new ApplicantData());
+        new ApplicantQuestion(
+            testQuestionBank.applicantFavoriteColor().getQuestionDefinition(), new ApplicantData());
     assertThat(textApplicantQuestion.createTextQuestion()).isInstanceOf(TextQuestion.class);
   }
 
@@ -71,14 +79,59 @@ public class ApplicantQuestionTest {
 
     new EqualsTester()
         .addEqualityGroup(
-            new ApplicantQuestion(TestQuestionDefinitionBank.address(), new ApplicantData()),
-            new ApplicantQuestion(TestQuestionDefinitionBank.address(), new ApplicantData()))
+            // Address
+            new ApplicantQuestion(
+                testQuestionBank.applicantAddress().getQuestionDefinition(), new ApplicantData()),
+            new ApplicantQuestion(
+                testQuestionBank.applicantAddress().getQuestionDefinition(), new ApplicantData()))
         .addEqualityGroup(
-            new ApplicantQuestion(TestQuestionDefinitionBank.text(), new ApplicantData()),
-            new ApplicantQuestion(TestQuestionDefinitionBank.text(), new ApplicantData()))
+            // Checkbox
+            new ApplicantQuestion(
+                testQuestionBank.applicantKitchenTools().getQuestionDefinition(),
+                new ApplicantData()),
+            new ApplicantQuestion(
+                testQuestionBank.applicantKitchenTools().getQuestionDefinition(),
+                new ApplicantData()))
         .addEqualityGroup(
-            new ApplicantQuestion(TestQuestionDefinitionBank.text(), dataWithAnswers),
-            new ApplicantQuestion(TestQuestionDefinitionBank.text(), dataWithAnswers))
+            // Dropdown
+            new ApplicantQuestion(
+                testQuestionBank.applicantIceCream().getQuestionDefinition(), new ApplicantData()),
+            new ApplicantQuestion(
+                testQuestionBank.applicantIceCream().getQuestionDefinition(), new ApplicantData()))
+        .addEqualityGroup(
+            // Name
+            new ApplicantQuestion(
+                testQuestionBank.applicantName().getQuestionDefinition(), new ApplicantData()),
+            new ApplicantQuestion(
+                testQuestionBank.applicantName().getQuestionDefinition(), new ApplicantData()))
+        .addEqualityGroup(
+            // Number
+            new ApplicantQuestion(
+                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                new ApplicantData()),
+            new ApplicantQuestion(
+                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                new ApplicantData()))
+        .addEqualityGroup(
+            // Radio button
+            new ApplicantQuestion(
+                testQuestionBank.applicantSeason().getQuestionDefinition(), new ApplicantData()),
+            new ApplicantQuestion(
+                testQuestionBank.applicantSeason().getQuestionDefinition(), new ApplicantData()))
+        .addEqualityGroup(
+            // Text
+            new ApplicantQuestion(
+                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                new ApplicantData()),
+            new ApplicantQuestion(
+                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                new ApplicantData()))
+        .addEqualityGroup(
+            // Text with answered data
+            new ApplicantQuestion(
+                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(), dataWithAnswers),
+            new ApplicantQuestion(
+                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(), dataWithAnswers))
         .testEquals();
   }
 }
