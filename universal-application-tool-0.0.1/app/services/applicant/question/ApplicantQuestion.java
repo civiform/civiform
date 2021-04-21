@@ -21,6 +21,12 @@ public class ApplicantQuestion {
   private final QuestionDefinition questionDefinition;
   private final ApplicantData applicantData;
 
+  // TODO(#783):
+  //  private final RepeaterContext repeaterContext;
+
+  // TODO(#783):
+  //  public ApplicantQuestion(QuestionDefinition questionDefinition, ApplicantData applicantData,
+  //                           RepeaterContext repeaterContext) {
   public ApplicantQuestion(QuestionDefinition questionDefinition, ApplicantData applicantData) {
     this.questionDefinition = checkNotNull(questionDefinition);
     this.applicantData = checkNotNull(applicantData);

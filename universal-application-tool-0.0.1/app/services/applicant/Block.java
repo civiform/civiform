@@ -29,18 +29,29 @@ public final class Block {
    * the "8" refers to the {@link BlockDefinition} ID, and the "1-2" refers to the first household
    * member's second job.
    */
+  // TODO(#783): In order for the above to work, we probably need to get rid of the Block constructor
+  //  that accepts a `long id`.
   private final String id;
 
   private final BlockDefinition blockDefinition;
   private final ApplicantData applicantData;
+  // TODO(#783):
+  //  private final RepeaterContext repeaterContext;
   private Optional<ImmutableList<ApplicantQuestion>> questionsMemo = Optional.empty();
 
+  // TODO(#783):
+  //  Block(long id, BlockDefinition blockDefinition, ApplicantData applicantData,
+  //        RepeaterContext repeaterContext) {
+  //  Or just compute the repeaterContext from ID? I don't think that's possible if we accept a long.
+  //   Instead, we can remove the `long id` and just take a `RepeaterContext repeaterContext`.
   Block(long id, BlockDefinition blockDefinition, ApplicantData applicantData) {
     this.id = String.valueOf(id);
     this.blockDefinition = checkNotNull(blockDefinition);
     this.applicantData = checkNotNull(applicantData);
   }
 
+  // TODO(#783):
+  //  Compute the repeaterContext from the string ID
   Block(String id, BlockDefinition blockDefinition, ApplicantData applicantData) {
     this.id = id;
     this.blockDefinition = checkNotNull(blockDefinition);
@@ -67,6 +78,7 @@ public final class Block {
                   .map(ProgramQuestionDefinition::getQuestionDefinition)
                   .map(
                       questionDefinition ->
+                          // TODO(natsid): Need to pass in repeaterContext here, which exists per block.
                           new ApplicantQuestion(questionDefinition, applicantData))
                   .collect(toImmutableList()));
     }

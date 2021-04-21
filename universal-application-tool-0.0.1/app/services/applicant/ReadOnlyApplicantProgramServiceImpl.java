@@ -35,8 +35,33 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       return currentBlockList.get();
     }
 
+    // TODO(#783): Instead of just streaming blockDefinitions, need to incorporate repeated blocks
+    //  and their indices.
+
+    // TODO(#783): The following snippet does not account for recursive repeater blocks.
+    //
+
+    // Something to kickstart the recursive method with all non-repeated blocks (AKA top-level blocks)
+
+    // Recursive method:
+    //   List builder
+    //   Add the current block
+    //   Add all (recursive method)
+
+    // for each blockDef:
+    //   if NOT blockDef.isRepeated:  (we account for repeated blocks below)
+    //     construct a block
+    //   if blockDef.isRepeater:
+    //     for each item ("i") in repeater (e.g., each household member):
+    //       for each consecutive following "repeated" block ("j") (e.g., hm name, hm address):
+    //         construct a block with RepeaterContext "i,j"
+    // REFER TO ProgramBlockEditView#renderBlockList
+    // Recursively build up the RepeaterContext
+
     ImmutableList<Block> blocks =
         programDefinition.blockDefinitions().stream()
+            // TODO(#783): Pass in repeaterContext to Block constructor.
+            //  And/or create ID that fully represents the Block
             .map(blockDefinition -> new Block(blockDefinition.id(), blockDefinition, applicantData))
             .filter(
                 block ->
@@ -88,6 +113,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return programDefinition.getSupportedLocales().contains(applicantData.preferredLocale());
   }
 
+  // TODO(#783): Need to compute Blocks different for repeaters and repeateds. See getCurrentBlockList comments.
   private ImmutableList<Block> getAllBlocksForThisProgram() {
     return programDefinition.blockDefinitions().stream()
         .map(blockDefinition -> new Block(blockDefinition.id(), blockDefinition, applicantData))
