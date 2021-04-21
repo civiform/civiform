@@ -164,6 +164,21 @@ public class ProgramDefinitionTest {
   }
 
   @Test
+  public void getSupportedLocales() {
+    ProgramDefinition definition =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .addLocalizedName(Locale.US, "Applicant friendly name")
+            .addLocalizedDescription(Locale.US, "English description")
+            .setLifecycleStage(LifecycleStage.ACTIVE)
+            .build();
+
+    assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
+  }
+
+  @Test
   public void updateNameAndDescription_replacesExistingValue() throws TranslationNotFoundException {
     ProgramDefinition program =
         ProgramDefinition.builder()
