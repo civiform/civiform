@@ -31,6 +31,16 @@ import services.question.types.TextQuestionDefinition;
 @RunWith(JUnitParamsRunner.class)
 public class ApplicantQuestionTest {
 
+  private static final AddressQuestionDefinition addressQuestionDefinition =
+          new AddressQuestionDefinition(
+                  1L,
+                  "question name",
+                  Path.create("applicant.my.path.name"),
+                  Optional.empty(),
+                  "description",
+                  LifecycleStage.ACTIVE,
+                  ImmutableMap.of(Locale.US, "question?"),
+                  ImmutableMap.of(Locale.US, "help text"));
   private static final CheckboxQuestionDefinition checkboxQuestionDefinition =
       new CheckboxQuestionDefinition(
           1L,
@@ -99,16 +109,6 @@ public class ApplicantQuestionTest {
           LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
-  private static final AddressQuestionDefinition addressQuestionDefinition =
-      new AddressQuestionDefinition(
-          1L,
-          "question name",
-          Path.create("applicant.my.path.name"),
-          Optional.empty(),
-          "description",
-          LifecycleStage.ACTIVE,
-          ImmutableMap.of(Locale.US, "question?"),
-          ImmutableMap.of(Locale.US, "help text"));
   private static final RadioButtonQuestionDefinition radioButtonQuestionDefinition =
       new RadioButtonQuestionDefinition(
           1L,
@@ -123,9 +123,6 @@ public class ApplicantQuestionTest {
               QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1")),
               QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 2"))));
 
-  // TODO(https://github.com/seattle-uat/civiform/issues/405): Change this to just use
-  // @Parameters(source = QuestionType.class) once RepeatedQuestionDefinition exists.
-//  @Parameters(method = "types")
   @Test
   @Parameters(source = QuestionType.class)
   public void errorsPresenterExtendedForAllTypes(QuestionType type)
@@ -134,10 +131,6 @@ public class ApplicantQuestionTest {
     ApplicantQuestion question = new ApplicantQuestion(builder.build(), new ApplicantData());
 
     assertThat(question.errorsPresenter().hasTypeSpecificErrors()).isFalse();
-  }
-
-  private EnumSet<QuestionType> types() {
-    return EnumSet.complementOf(EnumSet.of(QuestionType.REPEATER));
   }
 
   @Test
