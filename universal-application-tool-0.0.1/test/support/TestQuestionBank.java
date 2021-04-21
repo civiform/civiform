@@ -1,5 +1,6 @@
 package support;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Map;
@@ -9,11 +10,17 @@ import java.util.concurrent.atomic.AtomicLong;
 import models.LifecycleStage;
 import models.Question;
 import services.Path;
+import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
+import services.question.types.CheckboxQuestionDefinition;
+import services.question.types.DropdownQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
+import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
+import services.question.types.RadioButtonQuestionDefinition;
 import services.question.types.RepeaterQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
@@ -30,7 +37,8 @@ import services.question.types.TextQuestionDefinition;
  *
  * <p>To add a new {@link Question} to the question bank: create a {@link QuestionEnum} for it,
  * create a private static method to construct the question, and create a public static method to
- * retrieve the cached question.
+ * retrieve the cached question. Add new methods in alphabetical order by {@link QuestionType},
+ * grouping those methods with the same type together.
  */
 public class TestQuestionBank {
   private static final long VERSION = 1L;
@@ -57,6 +65,17 @@ public class TestQuestionBank {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ADDRESS, this::applicantAddress);
   }
 
+  // Checkbox
+  public Question applicantKitchenTools() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_KITCHEN_TOOLS, this::applicantKitchenTools);
+  }
+
+  // Dropdown
+  public Question applicantIceCream() {
+    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ICE_CREAM, this::applicantIceCream);
+  }
+
   // Name
   public Question applicantName() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_NAME, this::applicantName);
@@ -68,6 +87,17 @@ public class TestQuestionBank {
     applicantHouseholdMembers();
     return questionCache.computeIfAbsent(
         QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_NAME, this::applicantHouseholdMemberName);
+  }
+
+  // Number
+  public Question applicantJugglingNumber() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_JUGGLING_NUMBER, this::applicantJugglingNumber);
+  }
+
+  // Radio button
+  public Question applicantSeason() {
+    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_SEASON, this::applicantSeason);
   }
 
   // Repeater
@@ -94,6 +124,45 @@ public class TestQuestionBank {
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "what is your address?"),
             ImmutableMap.of(Locale.US, "help text"));
+    return maybeSave(definition);
+  }
+
+  // Checkbox
+  private Question applicantKitchenTools(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new CheckboxQuestionDefinition(
+            1L,
+            "kitchen tools",
+            Path.create("applicant.kitchen_tools"),
+            Optional.empty(),
+            "description",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "Which of the following kitchen instruments do you own?"),
+            ImmutableMap.of(Locale.US, "help text"),
+            ImmutableList.of(
+                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "toaster")),
+                QuestionOption.create(2L, ImmutableMap.of(Locale.US, "pepper grinder")),
+                QuestionOption.create(3L, ImmutableMap.of(Locale.US, "garlic press"))));
+    return maybeSave(definition);
+  }
+
+  // Dropdown
+  private Question applicantIceCream(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new DropdownQuestionDefinition(
+            1L,
+            "applicant ice cream",
+            Path.create("applicant.applicant_ice_cream"),
+            Optional.empty(),
+            "select your favorite ice cream flavor",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "Select your favorite ice cream flavor from the following"),
+            ImmutableMap.of(Locale.US, "this is sample help text"),
+            ImmutableList.of(
+                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "chocolate")),
+                QuestionOption.create(2L, ImmutableMap.of(Locale.US, "strawberry")),
+                QuestionOption.create(3L, ImmutableMap.of(Locale.US, "vanilla")),
+                QuestionOption.create(4L, ImmutableMap.of(Locale.US, "coffee"))));
     return maybeSave(definition);
   }
 
@@ -125,6 +194,42 @@ public class TestQuestionBank {
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "what is the household member's name?"),
             ImmutableMap.of(Locale.US, "help text"));
+
+    return maybeSave(definition);
+  }
+
+  // Number
+  private Question applicantJugglingNumber(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new NumberQuestionDefinition(
+            VERSION,
+            "number of items applicant can juggle",
+            Path.create("applicant.juggling_number"),
+            Optional.empty(),
+            "number of items applicant can juggle at once",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "How many items can you juggle at one time?"),
+            ImmutableMap.of(Locale.US, "help text"));
+    return maybeSave(definition);
+  }
+
+  // Radio button
+  private Question applicantSeason(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new RadioButtonQuestionDefinition(
+            1L,
+            "radio",
+            Path.create("applicant.radio"),
+            Optional.empty(),
+            "favorite season in the year",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "What is your favorite season?"),
+            ImmutableMap.of(Locale.US, "this is sample help text"),
+            ImmutableList.of(
+                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "winter")),
+                QuestionOption.create(2L, ImmutableMap.of(Locale.US, "spring")),
+                QuestionOption.create(3L, ImmutableMap.of(Locale.US, "summer")),
+                QuestionOption.create(4L, ImmutableMap.of(Locale.US, "fall"))));
     return maybeSave(definition);
   }
 
@@ -175,10 +280,14 @@ public class TestQuestionBank {
   }
 
   private enum QuestionEnum {
-    APPLICANT_NAME,
     APPLICANT_ADDRESS,
-    APPLICANT_FAVORITE_COLOR,
+    APPLICANT_KITCHEN_TOOLS,
+    APPLICANT_ICE_CREAM,
+    APPLICANT_SEASON,
+    APPLICANT_NAME,
+    APPLICANT_JUGGLING_NUMBER,
     APPLICANT_HOUSEHOLD_MEMBERS,
-    APPLICANT_HOUSEHOLD_MEMBER_NAME
+    APPLICANT_HOUSEHOLD_MEMBER_NAME,
+    APPLICANT_FAVORITE_COLOR
   }
 }
