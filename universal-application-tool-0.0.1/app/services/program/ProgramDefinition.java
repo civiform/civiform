@@ -3,7 +3,6 @@ package services.program;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import com.google.auto.value.AutoValue;
-import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -108,7 +107,6 @@ public abstract class ProgramDefinition {
     }
   }
 
-  @Memoized
   public ImmutableSet<Locale> getSupportedLocales() {
     ImmutableSet<ImmutableSet<Locale>> questionLocales =
         getQuestionDefinitions().stream()
@@ -123,11 +121,12 @@ public abstract class ProgramDefinition {
     return ImmutableSet.copyOf(intersection);
   }
 
-  @Memoized
   public ImmutableSet<QuestionDefinition> getQuestionDefinitions() {
     return blockDefinitions().stream()
         .flatMap(
-            b -> b.programQuestionDefinitions().stream().map(pqd -> pqd.getQuestionDefinition()))
+            b ->
+                b.programQuestionDefinitions().stream()
+                    .map(ProgramQuestionDefinition::getQuestionDefinition))
         .collect(toImmutableSet());
   }
 
@@ -204,10 +203,7 @@ public abstract class ProgramDefinition {
     if (questionIds.isEmpty()) {
       questionIds =
           Optional.of(
-              blockDefinitions().stream()
-                  .map(BlockDefinition::programQuestionDefinitions)
-                  .flatMap(ImmutableList::stream)
-                  .map(ProgramQuestionDefinition::getQuestionDefinition)
+              getQuestionDefinitions().stream()
                   .map(QuestionDefinition::getId)
                   .collect(toImmutableSet()));
     }
