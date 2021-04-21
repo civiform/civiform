@@ -70,7 +70,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
     Result result = controller.create(request);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("program information cannot be blank");
+    assertThat(contentAsString(result)).contains("program admin name cannot be blank");
     assertThat(contentAsString(result)).contains("New program");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }
@@ -175,7 +175,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit program");
-    assertThat(contentAsString(result)).contains("program information cannot be blank");
+    assertThat(contentAsString(result)).contains("program admin description cannot be blank");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }
 

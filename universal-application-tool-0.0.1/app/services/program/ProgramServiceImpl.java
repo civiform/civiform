@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import forms.BlockForm;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -102,9 +101,12 @@ public class ProgramServiceImpl implements ProgramService {
       String defaultDisplayName,
       String defaultDisplayDescription) {
 
-    ImmutableSet<CiviFormError> errors =
-        validateProgramText(
-            adminName, adminDescription, defaultDisplayName, defaultDisplayDescription);
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    validateProgramText(errorsBuilder, "admin name", adminName);
+    validateProgramText(errorsBuilder, "admin description", adminDescription);
+    validateProgramText(errorsBuilder, "display name", defaultDisplayName);
+    validateProgramText(errorsBuilder, "display description", defaultDisplayDescription);
+    ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -123,11 +125,15 @@ public class ProgramServiceImpl implements ProgramService {
       String displayDescription)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
-    ImmutableSet<CiviFormError> errors =
-        validateProgramText(adminDescription, displayName, displayDescription);
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    validateProgramText(errorsBuilder, "admin description", adminDescription);
+    validateProgramText(errorsBuilder, "display name", displayName);
+    validateProgramText(errorsBuilder, "display description", displayDescription);
+    ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
+
     Program program =
         programDefinition.toBuilder()
             .setAdminDescription(adminDescription)
@@ -143,11 +149,11 @@ public class ProgramServiceImpl implements ProgramService {
             .join());
   }
 
-  private ImmutableSet<CiviFormError> validateProgramText(String... text) {
-    if (Arrays.stream(text).anyMatch(String::isBlank)) {
-      return ImmutableSet.of(CiviFormError.of("program information cannot be blank"));
+  private void validateProgramText(
+      ImmutableSet.Builder<CiviFormError> builder, String fieldName, String text) {
+    if (text.isBlank()) {
+      builder.add(CiviFormError.of("program " + fieldName.trim() + " cannot be blank"));
     }
-    return ImmutableSet.of();
   }
 
   @Override

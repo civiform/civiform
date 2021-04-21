@@ -55,8 +55,11 @@ public interface ProgramService {
   /**
    * Create a new program with an empty block.
    *
-   * @param adminName a name for this program
-   * @param adminDescription the description of what the program provides
+   * @param adminName a name for this program for internal use by admins - this is immutable once
+   *     set
+   * @param adminDescription a description of this program for use by admins
+   * @param defaultDisplayName the name of this program to display to applicants
+   * @param defaultDisplayDescription a description for this program to display to applicants
    * @return the {@link ProgramDefinition} that was created if succeeded, or a set of errors if
    *     failed
    */
