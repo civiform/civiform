@@ -24,7 +24,7 @@ public class DropdownQuestionFormTest {
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
-    form.setQuestionHelpText("");
+    form.setQuestionHelpText("help text");
     // Unique field
     form.setOptions(ImmutableList.of("cat", "dog", "rabbit"));
     QuestionDefinitionBuilder builder = form.getBuilder(path);
@@ -43,7 +43,7 @@ public class DropdownQuestionFormTest {
             "description",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of(),
+            ImmutableMap.of(Locale.US, "help text"),
             ImmutableList.of(
                 QuestionOption.create(1L, ImmutableMap.of(Locale.US, "cat")),
                 QuestionOption.create(2L, ImmutableMap.of(Locale.US, "dog")),
@@ -65,7 +65,7 @@ public class DropdownQuestionFormTest {
             "description",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of(),
+            ImmutableMap.of(Locale.US, "help text"),
             ImmutableList.of(
                 QuestionOption.create(1L, ImmutableMap.of(Locale.US, "hello")),
                 QuestionOption.create(1L, ImmutableMap.of(Locale.US, "world"))));
