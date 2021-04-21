@@ -32,11 +32,11 @@ public class VersionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void publishProgram_simple() {
-    Program active = resourceCreator().insertProgram("name");
+    Program active = resourceCreator.insertProgram("name");
     active.setLifecycleStage(LifecycleStage.ACTIVE);
     active.setVersion(1L);
     active.save();
-    Program draft = resourceCreator().insertProgram("name");
+    Program draft = resourceCreator.insertProgram("name");
     draft.setLifecycleStage(LifecycleStage.DRAFT);
     draft.setVersion(2L);
     draft.save();
@@ -53,7 +53,7 @@ public class VersionRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void publishProgram_passthrough() {
-    Program active = resourceCreator().insertProgram("passthrough");
+    Program active = resourceCreator.insertProgram("passthrough");
     active.setLifecycleStage(LifecycleStage.ACTIVE);
     active.setVersion(1L);
     active.save();
@@ -99,14 +99,14 @@ public class VersionRepositoryTest extends WithPostgresContainer {
       throws ProgramNotFoundException, DuplicateProgramQuestionException, QuestionNotFoundException,
           ProgramBlockNotFoundException {
     // Create program, version 1, with an old version of this question.
-    Question question1 = resourceCreator().insertQuestion("foo.bar", 1, "q");
-    Program program = resourceCreator().insertProgram("program", LifecycleStage.ACTIVE);
-    resourceCreator().addQuestionToProgram(program, question1);
+    Question question1 = resourceCreator.insertQuestion("foo.bar", 1, "q");
+    Program program = resourceCreator.insertProgram("program", LifecycleStage.ACTIVE);
+    resourceCreator.addQuestionToProgram(program, question1);
     program.refresh();
     assertThat(program.getVersion()).isEqualTo(1);
 
     // Create question 2, in draft state.
-    Question question2 = resourceCreator().insertQuestion("foo.bar", 2, "q");
+    Question question2 = resourceCreator.insertQuestion("foo.bar", 2, "q");
     question2.setLifecycleStage(LifecycleStage.DRAFT);
     question2.save();
 

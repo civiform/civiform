@@ -53,7 +53,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void create_failsWhenPathConflicts() throws Exception {
-    Question applicantName = testQuestionBank().applicantName();
+    Question applicantName = testQuestionBank.applicantName();
     QuestionDefinition questionDefinition =
         new QuestionDefinitionBuilder(applicantName.getQuestionDefinition()).clearId().build();
 
@@ -105,7 +105,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void update_returnsQuestionDefinitionWhenSucceeds() throws Exception {
-    QuestionDefinition nameQuestion = testQuestionBank().applicantName().getQuestionDefinition();
+    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
     QuestionDefinition toUpdate =
         new QuestionDefinitionBuilder(nameQuestion).setDescription("updated description").build();
 
@@ -134,7 +134,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void update_failsWhenQuestionInvariantsChange() throws Exception {
-    QuestionDefinition nameQuestion = testQuestionBank().applicantName().getQuestionDefinition();
+    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
 
     QuestionDefinition toUpdate =
         new QuestionDefinitionBuilder(nameQuestion)

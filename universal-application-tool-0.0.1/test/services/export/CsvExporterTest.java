@@ -160,7 +160,7 @@ public class CsvExporterTest extends WithPostgresContainer {
     ProgramDefinition definition =
         ProgramBuilder.newProgram()
             .withBlock()
-            .withQuestion(testQuestionBank().applicantFavoriteColor())
+            .withQuestion(testQuestionBank.applicantFavoriteColor())
             .buildDefinition();
     ExporterService exporterService = instanceOf(ExporterService.class);
 

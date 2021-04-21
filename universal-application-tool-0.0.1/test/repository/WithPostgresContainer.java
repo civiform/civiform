@@ -25,9 +25,9 @@ public class WithPostgresContainer {
 
   protected static Materializer mat;
 
-  private static ResourceCreator resourceCreator;
+  protected static ResourceCreator resourceCreator;
 
-  private static TestQuestionBank testQuestionBank = new TestQuestionBank(true);
+  protected static TestQuestionBank testQuestionBank = new TestQuestionBank(true);
 
   @BeforeClass
   public static void startPlay() {
@@ -51,14 +51,6 @@ public class WithPostgresContainer {
 
   protected <T> T instanceOf(Class<T> clazz) {
     return app.injector().instanceOf(clazz);
-  }
-
-  protected ResourceCreator resourceCreator() {
-    return resourceCreator;
-  }
-
-  protected TestQuestionBank testQuestionBank() {
-    return testQuestionBank;
   }
 
   @Before

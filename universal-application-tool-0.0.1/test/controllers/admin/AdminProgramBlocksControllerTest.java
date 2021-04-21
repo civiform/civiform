@@ -97,7 +97,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
   public void edit_withProgram_OK()
       throws UnsupportedQuestionTypeException, InvalidUpdateException {
     Program program = ProgramBuilder.newProgram().build();
-    Question appName = testQuestionBank().applicantName();
+    Question appName = testQuestionBank.applicantName();
     appName.save();
     Request request = addCSRFToken(fakeRequest()).build();
     Result result = controller.edit(request, program.id, 1L);
