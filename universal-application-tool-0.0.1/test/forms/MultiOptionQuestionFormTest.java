@@ -25,7 +25,7 @@ public class MultiOptionQuestionFormTest {
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
-    form.setQuestionHelpText("");
+    form.setQuestionHelpText("help text");
     form.setMinChoicesRequired("1");
     form.setMaxChoicesAllowed("10");
     form.setOptions(ImmutableList.of("one", "two"));
@@ -43,7 +43,7 @@ public class MultiOptionQuestionFormTest {
             "description",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of(),
+            ImmutableMap.of(Locale.US, "help text"),
             ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option one"))),
             MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(1, 10));
 
@@ -65,7 +65,7 @@ public class MultiOptionQuestionFormTest {
             "description",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of(),
+            ImmutableMap.of(Locale.US, "help text"),
             ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1"))),
             MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(1, 10));
 
@@ -88,7 +88,7 @@ public class MultiOptionQuestionFormTest {
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
-    form.setQuestionHelpText("");
+    form.setQuestionHelpText("help text");
     form.setMinChoicesRequired("");
     form.setMaxChoicesAllowed("");
     form.setOptions(ImmutableList.of("one", "two"));
@@ -106,7 +106,7 @@ public class MultiOptionQuestionFormTest {
             "description",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of(),
+            ImmutableMap.of(Locale.US, "help text"),
             ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option one"))),
             MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create());
 

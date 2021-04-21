@@ -106,8 +106,16 @@ public class DatabaseSeedController extends DevController {
                 Optional.empty(),
                 "description",
                 LifecycleStage.ACTIVE,
-                ImmutableMap.of(Locale.US, "What is your name?"),
-                ImmutableMap.of(Locale.US, "help text")))
+                ImmutableMap.of(
+                    Locale.US,
+                    "What is your name?",
+                    Locale.forLanguageTag("es-US"),
+                    "¿Cómo se llama?"),
+                ImmutableMap.of(
+                    Locale.US,
+                    "help text",
+                    Locale.forLanguageTag("es-US"),
+                    "Ponga su nombre legal")))
         .getResult();
   }
 

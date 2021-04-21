@@ -41,6 +41,25 @@ public class MultiOptionQuestionDefinitionTest {
   }
 
   @Test
+  public void getSupportedLocales_onlyIncludesLocalesSupportedByQuestionTextAndOptions()
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinition definition =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.DROPDOWN)
+            .setName("")
+            .setDescription("")
+            .setPath(Path.empty())
+            .setQuestionText(ImmutableMap.of(Locale.US, "test", Locale.FRANCE, "test"))
+            .setQuestionHelpText(ImmutableMap.of(Locale.US, "test", Locale.FRANCE, "test"))
+            .setQuestionOptions(
+                ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1"))))
+            .setLifecycleStage(LifecycleStage.ACTIVE)
+            .build();
+
+    assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
+  }
+
+  @Test
   public void getOptionsForLocale_failsForMissingLocale() throws UnsupportedQuestionTypeException {
     QuestionDefinition definition =
         new QuestionDefinitionBuilder()

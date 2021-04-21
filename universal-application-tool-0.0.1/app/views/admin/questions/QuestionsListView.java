@@ -19,6 +19,7 @@ import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import models.LifecycleStage;
 import play.twirl.api.Content;
 import services.question.exceptions.TranslationNotFoundException;
@@ -132,15 +133,16 @@ public final class QuestionsListView extends BaseHtmlView {
   private Tag renderQuestionTableHeaderRow() {
     return thead(
         tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
-            .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_2_5))
-            .with(th("Question text").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_2_5))
+            .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4))
+            .with(th("Question text").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
+            .with(th("Supported languages").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_6))
             .with(
                 th("Actions")
                     .withClasses(
                         BaseStyles.TABLE_CELL_STYLES,
                         Styles.TEXT_RIGHT,
                         Styles.PR_8,
-                        Styles.W_1_5)));
+                        Styles.W_1_6)));
   }
 
   /** Display this as a table row with all fields. */
@@ -178,6 +180,7 @@ public final class QuestionsListView extends BaseHtmlView {
             StyleUtils.even(Styles.BG_GRAY_100))
         .with(renderInfoCell(definition))
         .with(renderQuestionTextCell(definition))
+        .with(renderSupportedLanguages(definition))
         .with(renderActionsCell(activeDefinition, draftDefinition, definition));
   }
 
@@ -203,6 +206,19 @@ public final class QuestionsListView extends BaseHtmlView {
 
     return td().with(div(questionText).withClasses(Styles.FONT_SEMIBOLD))
         .with(div(questionHelpText).withClasses(Styles.TEXT_XS))
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+  }
+
+  /**
+   * Render the supported languages for this question in US English (ex: "es-US" will appear as
+   * "Spanish").
+   */
+  private Tag renderSupportedLanguages(QuestionDefinition definition) {
+    String formattedLanguages =
+        definition.getSupportedLocales().stream()
+            .map(locale -> locale.getDisplayLanguage(Locale.US))
+            .collect(Collectors.joining(", "));
+    return td().with(div(formattedLanguages))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
