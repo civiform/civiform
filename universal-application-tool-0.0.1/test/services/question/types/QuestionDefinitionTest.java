@@ -393,4 +393,33 @@ public class QuestionDefinitionTest {
             CiviFormError.of("blank description"),
             CiviFormError.of("no question text"));
   }
+
+  @Test
+  public void getSupportedLocales_onlyReturnsFullySupportedLocales() {
+    QuestionDefinition definition =
+        new TextQuestionDefinition(
+            1L,
+            "test",
+            Path.empty(),
+            Optional.empty(),
+            "test",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(
+                Locale.US,
+                "question?",
+                Locale.forLanguageTag("es-US"),
+                "pregunta",
+                Locale.FRANCE,
+                "question"),
+            ImmutableMap.of(
+                Locale.US,
+                "help",
+                Locale.forLanguageTag("es-US"),
+                "ayuda",
+                Locale.GERMAN,
+                "Hilfe"));
+
+    assertThat(definition.getSupportedLocales())
+        .containsExactly(Locale.US, Locale.forLanguageTag("es-US"));
+  }
 }

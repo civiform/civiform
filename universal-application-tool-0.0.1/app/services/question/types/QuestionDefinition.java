@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
@@ -219,6 +220,15 @@ public abstract class QuestionDefinition {
   /** Get the question help text for all locales. This is used for serialization. */
   public ImmutableMap<Locale, String> getQuestionHelpText() {
     return this.questionHelpText;
+  }
+
+  /**
+   * Get a set of {@link Locale}s that this question supports. A question fully supports a locale if
+   * it provides translations for all applicant-visible text in that locale.
+   */
+  public ImmutableSet<Locale> getSupportedLocales() {
+    return ImmutableSet.copyOf(
+        Sets.intersection(this.questionText.keySet(), this.questionHelpText.keySet()));
   }
 
   /** Get the validation predicates. */

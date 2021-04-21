@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -27,7 +28,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       MultiOptionValidationPredicates.create(1, 1);
 
   private final ImmutableList<QuestionOption> options;
-  private final ImmutableSet<Locale> supportedLocales;
+  private final ImmutableSet<Locale> supportedOptionLocales;
 
   protected MultiOptionQuestionDefinition(
       OptionalLong id,
@@ -53,7 +54,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
         questionHelpText,
         validationPredicates);
     this.options = checkNotNull(options);
-    this.supportedLocales = getSupportedLocales(options);
+    this.supportedOptionLocales = getSupportedOptionLocales(options);
   }
 
   protected MultiOptionQuestionDefinition(
@@ -78,7 +79,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
         questionHelpText,
         validationPredicates);
     this.options = checkNotNull(options);
-    this.supportedLocales = getSupportedLocales(options);
+    this.supportedOptionLocales = getSupportedOptionLocales(options);
   }
 
   protected MultiOptionQuestionDefinition(
@@ -102,14 +103,16 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
         questionHelpText,
         MultiOptionValidationPredicates.create());
     this.options = checkNotNull(options);
-    this.supportedLocales = getSupportedLocales(options);
+    this.supportedOptionLocales = getSupportedOptionLocales(options);
   }
 
+  @Override
   public ImmutableSet<Locale> getSupportedLocales() {
-    return supportedLocales;
+    ImmutableSet<Locale> questionTextLocales = super.getSupportedLocales();
+    return ImmutableSet.copyOf(Sets.intersection(questionTextLocales, this.supportedOptionLocales));
   }
 
-  private ImmutableSet<Locale> getSupportedLocales(ImmutableList<QuestionOption> options) {
+  private ImmutableSet<Locale> getSupportedOptionLocales(ImmutableList<QuestionOption> options) {
     QuestionOption firstOption = Iterables.getFirst(options, null);
 
     if (firstOption == null) {
@@ -161,13 +164,13 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
    */
   public ImmutableList<LocalizedQuestionOption> getOptionsForLocale(Locale locale)
       throws TranslationNotFoundException {
-    if (supportedLocales.contains(locale)) {
+    if (supportedOptionLocales.contains(locale)) {
       return this.options.stream()
           .map(option -> option.localize(locale))
           .collect(toImmutableList());
     } else {
       // As in QuestionDefinition - we need to fetch "en_US" from "en".
-      for (Locale supportedLocale : supportedLocales) {
+      for (Locale supportedLocale : supportedOptionLocales) {
         if (supportedLocale.getLanguage().equals(locale.getLanguage())) {
           return this.options.stream()
               .map(option -> option.localize(supportedLocale))
