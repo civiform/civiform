@@ -10,6 +10,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import models.LifecycleStage;
 import models.Program;
+import models.Question;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
@@ -21,7 +22,6 @@ import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 import support.ProgramBuilder;
-import support.TestQuestionBank;
 
 public class ProgramServiceImplTest extends WithPostgresContainer {
 
@@ -37,9 +37,9 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Before
   public void setUp() {
-    addressQuestion = TestQuestionBank.applicantAddress().getQuestionDefinition();
-    colorQuestion = TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
-    nameQuestion = TestQuestionBank.applicantName().getQuestionDefinition();
+    addressQuestion = testQuestionBank.applicantAddress().getQuestionDefinition();
+    colorQuestion = testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+    nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
   }
 
   @Test
@@ -340,7 +340,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   @Test
   public void addBlockToProgram_returnsProgramDefinitionWithBlock() throws Exception {
     ProgramDefinition programDefinition = ProgramBuilder.newProgram().buildDefinition();
-    Long programId = programDefinition.id();
+    long programId = programDefinition.id();
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.addBlockToProgram(programDefinition.id());
@@ -354,6 +354,43 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThat(found.blockDefinitions()).hasSize(2);
     assertThat(found.blockDefinitions())
         .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
+  }
+
+  @Test
+  public void addRepeatedBlockToProgram() throws Exception {
+    Question repeatedQuestion = testQuestionBank.applicantHouseholdMembers();
+    Program program =
+        ProgramBuilder.newProgram().withBlock().withQuestion(repeatedQuestion).build();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.addRepeatedBlockToProgram(program.id, 1L);
+
+    assertThat(result.isError()).isFalse();
+    assertThat(result.hasResult()).isTrue();
+    ProgramDefinition updatedProgramDefinition = result.getResult();
+
+    ProgramDefinition found = ps.getProgramDefinition(program.id);
+
+    assertThat(found.blockDefinitions()).hasSize(2);
+    assertThat(found.getBlockDefinitionByIndex(0).get().isRepeater()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(1).get().isRepeated()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(1).get().repeaterId()).contains(1L);
+    assertThat(found.blockDefinitions())
+        .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
+  }
+
+  @Test
+  public void addRepeatedBlockToProgram_invalidProgramId_throwsProgramNotFoundException() {
+    assertThatThrownBy(() -> ps.addRepeatedBlockToProgram(1L, 1L))
+        .isInstanceOf(ProgramNotFoundException.class);
+  }
+
+  @Test
+  public void addRepeatedBlockToProgram_invalidRepeaterId_throwsProgramBlockNotFoundException() {
+    Program program = ProgramBuilder.newProgram().build();
+
+    assertThatThrownBy(() -> ps.addRepeatedBlockToProgram(program.id, 5L))
+        .isInstanceOf(ProgramBlockNotFoundException.class);
   }
 
   @Test
@@ -425,7 +462,9 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
         ps.createProgramDefinition("name", "description", "name", "description").getResult();
     assertThatThrownBy(() -> ps.setBlockQuestions(p.id(), 100L, ImmutableList.of()))
         .isInstanceOf(ProgramBlockNotFoundException.class)
-        .hasMessage(String.format("Block not found in Program (ID %d) for block ID 100", p.id()));
+        .hasMessage(
+            String.format(
+                "Block not found in Program (ID %d) for block definition ID 100", p.id()));
   }
 
   @Test
@@ -524,7 +563,9 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     ProgramDefinition p = ProgramBuilder.newProgram().buildDefinition();
     assertThatThrownBy(() -> ps.setBlockHidePredicate(p.id(), 100L, Predicate.create("")))
         .isInstanceOf(ProgramBlockNotFoundException.class)
-        .hasMessage(String.format("Block not found in Program (ID %d) for block ID 100", p.id()));
+        .hasMessage(
+            String.format(
+                "Block not found in Program (ID %d) for block definition ID 100", p.id()));
   }
 
   @Test
@@ -560,7 +601,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThatThrownBy(() -> ps.setBlockOptionalPredicate(program.id, 100L, Predicate.create("")))
         .isInstanceOf(ProgramBlockNotFoundException.class)
         .hasMessage(
-            String.format("Block not found in Program (ID %d) for block ID 100", program.id));
+            String.format(
+                "Block not found in Program (ID %d) for block definition ID 100", program.id));
   }
 
   @Test

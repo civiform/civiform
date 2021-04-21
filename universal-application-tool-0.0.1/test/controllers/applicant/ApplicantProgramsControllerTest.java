@@ -1,9 +1,6 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static play.inject.Bindings.bind;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.OK;
@@ -12,58 +9,27 @@ import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.stubMessagesApi;
 
-import auth.ProfileFactory;
-import auth.ProfileUtils;
-import auth.UatProfile;
-import com.google.common.collect.ImmutableList;
 import java.util.Locale;
-import java.util.Optional;
-import models.Account;
 import models.Applicant;
 import models.LifecycleStage;
 import models.Program;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.Mockito;
-import play.inject.Injector;
-import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
-import support.ResourceCreator;
-import support.TestConstants;
-import support.TestQuestionBank;
 
-public class ApplicantProgramsControllerTest {
-
-  private static final ProfileUtils MOCK_UTILS = Mockito.mock(ProfileUtils.class);
-
-  private static Injector injector;
-  private static ResourceCreator resourceCreator;
-  private static ProfileFactory profileFactory;
+public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles {
 
   private Applicant currentApplicant;
   private ApplicantProgramsController controller;
 
-  @BeforeClass
-  public static void setupInjector() {
-    injector =
-        new GuiceApplicationBuilder()
-            .configure(TestConstants.TEST_DATABASE_CONFIG)
-            .overrides(bind(ProfileUtils.class).toInstance(MOCK_UTILS))
-            .build()
-            .injector();
-    resourceCreator = new ResourceCreator(injector);
-    profileFactory = injector.instanceOf(ProfileFactory.class);
-  }
-
   @Before
   public void setUp() {
-    resourceCreator.clearDatabase();
-    controller = injector.instanceOf(ApplicantProgramsController.class);
+    clearDatabase();
+    controller = instanceOf(ApplicantProgramsController.class);
     currentApplicant = createApplicantWithMockedProfile();
   }
 
@@ -90,9 +56,9 @@ public class ApplicantProgramsControllerTest {
 
   @Test
   public void index_withPrograms_returnsOnlyRelevantPrograms() {
-    resourceCreator.insertProgram("one", LifecycleStage.ACTIVE);
-    resourceCreator.insertProgram("two", LifecycleStage.ACTIVE);
-    resourceCreator.insertProgram("three", LifecycleStage.DRAFT);
+    resourceCreator().insertProgram("one", LifecycleStage.ACTIVE);
+    resourceCreator().insertProgram("two", LifecycleStage.ACTIVE);
+    resourceCreator().insertProgram("three", LifecycleStage.DRAFT);
 
     Result result =
         controller.index(fakeRequest().build(), currentApplicant.id).toCompletableFuture().join();
@@ -105,7 +71,7 @@ public class ApplicantProgramsControllerTest {
 
   @Test
   public void index_withProgram_includesApplyButtonWithRedirect() {
-    Program program = resourceCreator.insertProgram("program", LifecycleStage.ACTIVE);
+    Program program = resourceCreator().insertProgram("program", LifecycleStage.ACTIVE);
 
     Result result =
         controller.index(fakeRequest().build(), currentApplicant.id).toCompletableFuture().join();
@@ -129,9 +95,11 @@ public class ApplicantProgramsControllerTest {
 
   @Test
   public void index_missingTranslationForProgram_defaultsToEnglish() {
-    resourceCreator.insertProgram(
-        Locale.forLanguageTag("es-US"), "A different language!", LifecycleStage.ACTIVE);
-    resourceCreator.insertProgram("English program", LifecycleStage.ACTIVE); // Missing translation
+    resourceCreator()
+        .insertProgram(
+            Locale.forLanguageTag("es-US"), "A different language!", LifecycleStage.ACTIVE);
+    resourceCreator()
+        .insertProgram("English program", LifecycleStage.ACTIVE); // Missing translation
 
     // Set the PLAY_LANG cookie
     Http.Request request =
@@ -170,7 +138,7 @@ public class ApplicantProgramsControllerTest {
     Program program =
         ProgramBuilder.newProgram()
             .withBlock()
-            .withQuestion(TestQuestionBank.applicantName())
+            .withQuestion(testQuestionBank().applicantName())
             .build();
 
     Result result =
@@ -189,13 +157,13 @@ public class ApplicantProgramsControllerTest {
   @Test
   public void edit_redirectsToFirstIncompleteBlock() {
     QuestionDefinition colorQuestion =
-        TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+        testQuestionBank().applicantFavoriteColor().getQuestionDefinition();
     Program program =
         ProgramBuilder.newProgram()
             .withBlock()
             .withQuestionDefinition(colorQuestion)
             .withBlock()
-            .withQuestion(TestQuestionBank.applicantAddress())
+            .withQuestion(testQuestionBank().applicantAddress())
             .build();
     // Answer the color question
     currentApplicant
@@ -222,7 +190,7 @@ public class ApplicantProgramsControllerTest {
   //  end of program submission.
   @Ignore
   public void edit_whenNoMoreIncompleteBlocks_redirectsToListOfPrograms() {
-    Program program = resourceCreator.insertProgram("My Program");
+    Program program = resourceCreator().insertProgram("My Program");
 
     Result result =
         controller
@@ -233,23 +201,5 @@ public class ApplicantProgramsControllerTest {
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
         .hasValue(routes.ApplicantProgramsController.index(currentApplicant.id).url());
-  }
-
-  private Applicant createApplicantWithMockedProfile() {
-    Applicant applicant = resourceCreator.insertApplicant();
-    Account account = resourceCreator.insertAccount();
-
-    account.setApplicants(ImmutableList.of(applicant));
-    account.save();
-    applicant.setAccount(account);
-    applicant.save();
-
-    UatProfile profile = profileFactory.wrap(applicant);
-    mockProfile(profile);
-    return applicant;
-  }
-
-  private void mockProfile(UatProfile profile) {
-    when(MOCK_UTILS.currentUserProfile(any(Http.Request.class))).thenReturn(Optional.of(profile));
   }
 }

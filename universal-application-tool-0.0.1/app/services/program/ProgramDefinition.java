@@ -187,6 +187,30 @@ public abstract class ProgramDefinition {
     return questionIds.get().contains(questionId);
   }
 
+  /** Returns true if this program has a repeater block with the id. */
+  public boolean hasRepeater(long repeaterId) {
+    return blockDefinitions().stream()
+        .anyMatch(
+            blockDefinition -> blockDefinition.id() == repeaterId && blockDefinition.isRepeater());
+  }
+
+  /**
+   * Get the block definitions associated with the repeater id. Returns an empty list if there are
+   * none.
+   */
+  public ImmutableList<BlockDefinition> getBlockDefinitionsForRepeater(long repeaterId) {
+    return blockDefinitions().stream()
+        .filter(blockDefinition -> blockDefinition.repeaterId().equals(Optional.of(repeaterId)))
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  /** Get non-repeated block definitions. */
+  public ImmutableList<BlockDefinition> getNonRepeatedBlockDefinitions() {
+    return blockDefinitions().stream()
+        .filter(blockDefinition -> blockDefinition.repeaterId().isEmpty())
+        .collect(ImmutableList.toImmutableList());
+  }
+
   public Program toProgram() {
     return new Program(this);
   }

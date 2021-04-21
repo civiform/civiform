@@ -25,7 +25,7 @@ public class ApplicantData {
   private static final Locale DEFAULT_LOCALE = Locale.US;
   private static final TypeRef<ImmutableList<Long>> IMMUTABLE_LIST_LONG_TYPE = new TypeRef<>() {};
 
-  private Locale preferredLocale;
+  private Optional<Locale> preferredLocale;
   private final DocumentContext jsonData;
 
   public ApplicantData() {
@@ -33,20 +33,26 @@ public class ApplicantData {
   }
 
   public ApplicantData(String jsonData) {
-    this(DEFAULT_LOCALE, jsonData);
+    this(Optional.empty(), jsonData);
   }
 
-  public ApplicantData(Locale preferredLocale, String jsonData) {
+  public ApplicantData(Optional<Locale> preferredLocale, String jsonData) {
     this.preferredLocale = preferredLocale;
     this.jsonData = JsonPathProvider.getJsonPath().parse(checkNotNull(jsonData));
   }
 
+  /** Returns true if this applicant has set their preferred locale, and false otherwise. */
+  public boolean hasPreferredLocale() {
+    return this.preferredLocale.isPresent();
+  }
+
+  /** Returns this applicant's preferred locale if it is set, or the default locale if not set. */
   public Locale preferredLocale() {
-    return this.preferredLocale;
+    return this.preferredLocale.orElse(DEFAULT_LOCALE);
   }
 
   public void setPreferredLocale(Locale locale) {
-    this.preferredLocale = locale;
+    this.preferredLocale = Optional.of(locale);
   }
 
   /**

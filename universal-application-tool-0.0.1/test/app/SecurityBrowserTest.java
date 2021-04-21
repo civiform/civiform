@@ -76,13 +76,13 @@ public class SecurityBrowserTest extends BaseBrowserTest {
   }
 
   @Test
-  public void homePage_whenLoggedInAsApplicant_redirectsToApplicantProgramList() {
+  public void homePage_whenLoggedInAsApplicantForFirstTime_redirectsToLanguageForm() {
     loginAsGuest();
     long applicantId = getApplicantId();
 
     goToRootUrl();
 
-    assertUrlEquals(controllers.applicant.routes.ApplicantProgramsController.index(applicantId));
+    assertUrlEquals(controllers.applicant.routes.ApplicantInformationController.edit(applicantId));
   }
 
   @Test

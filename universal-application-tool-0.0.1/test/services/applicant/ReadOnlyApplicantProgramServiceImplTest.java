@@ -13,7 +13,6 @@ import repository.WithPostgresContainer;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
-import support.TestQuestionBank;
 
 public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContainer {
 
@@ -27,9 +26,9 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Before
   public void setUp() {
     applicantData = new ApplicantData();
-    nameQuestion = TestQuestionBank.applicantName().getQuestionDefinition();
-    colorQuestion = TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
-    addressQuestion = TestQuestionBank.applicantAddress().getQuestionDefinition();
+    nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
+    colorQuestion = testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+    addressQuestion = testQuestionBank.applicantAddress().getQuestionDefinition();
     programDefinition =
         ProgramBuilder.newProgram()
             .withBlock("Block one")

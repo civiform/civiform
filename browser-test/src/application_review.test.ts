@@ -1,4 +1,4 @@
-import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession, logout, loginAsGuest, ApplicantQuestions } from './support'
+import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession, logout, loginAsGuest, selectApplicantLanguage, ApplicantQuestions } from './support'
 
 describe('normal application flow', () => {
   it('all major steps', async () => {
@@ -40,6 +40,7 @@ describe('normal application flow', () => {
 
     await logout(page);
     await loginAsGuest(page);
+    await selectApplicantLanguage(page, 'English');
 
     const applicantQuestions = new ApplicantQuestions(page);
 
