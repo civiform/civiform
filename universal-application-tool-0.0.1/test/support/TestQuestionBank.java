@@ -39,6 +39,10 @@ public class TestQuestionBank {
   private Map<QuestionEnum, Question> questionCache = new ConcurrentHashMap<>();
   private AtomicLong nextId = new AtomicLong(1L);
 
+  /**
+   * Pass `true` if there is a database that comes up with the test (e.g., the test class extends
+   * WithPostgresContainer), otherwise false.
+   */
   public TestQuestionBank(boolean canSave) {
     this.canSave = canSave;
   }
@@ -112,15 +116,15 @@ public class TestQuestionBank {
   private Question applicantHouseholdMemberName(QuestionEnum ignore) {
     Question householdMembers = applicantHouseholdMembers();
     QuestionDefinition definition =
-            new NameQuestionDefinition(
-                    VERSION,
-                    "household members name",
-                    Path.create("applicant.applicant_household_members[].name"),
-                    Optional.of(householdMembers.id),
-                    "The applicant's household member's name",
-                    LifecycleStage.ACTIVE,
-                    ImmutableMap.of(Locale.US, "what is the household member's name?"),
-                    ImmutableMap.of(Locale.US, "help text"));
+        new NameQuestionDefinition(
+            VERSION,
+            "household members name",
+            Path.create("applicant.applicant_household_members[].name"),
+            Optional.of(householdMembers.id),
+            "The applicant's household member's name",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "what is the household member's name?"),
+            ImmutableMap.of(Locale.US, "help text"));
     return maybeSave(definition);
   }
 
@@ -142,15 +146,15 @@ public class TestQuestionBank {
   // Text
   private Question applicantFavoriteColor(QuestionEnum ignore) {
     QuestionDefinition definition =
-            new TextQuestionDefinition(
-                    VERSION,
-                    "applicant favorite color",
-                    Path.create("applicant.applicant_favorite_color"),
-                    Optional.empty(),
-                    "favorite color of applicant",
-                    LifecycleStage.ACTIVE,
-                    ImmutableMap.of(Locale.US, "what is your favorite color?"),
-                    ImmutableMap.of(Locale.US, "help text"));
+        new TextQuestionDefinition(
+            VERSION,
+            "applicant favorite color",
+            Path.create("applicant.applicant_favorite_color"),
+            Optional.empty(),
+            "favorite color of applicant",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "what is your favorite color?"),
+            ImmutableMap.of(Locale.US, "help text"));
     return maybeSave(definition);
   }
 
