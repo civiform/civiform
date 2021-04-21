@@ -97,4 +97,9 @@ public class SingleSelectQuestion implements PresentsErrors {
     // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
     return applicantQuestion.getApplicantData().hasPath(getSelectionPath());
   }
+
+  @Override
+  public String getAnswerString() {
+    return "Option";
+  }
 }

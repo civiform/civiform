@@ -88,4 +88,9 @@ public class TextQuestion implements PresentsErrors {
   public Path getTextPath() {
     return getQuestionDefinition().getTextPath();
   }
+
+  @Override
+  public String getAnswerString() {
+    return getTextValue().orElse("-");
+  }
 }

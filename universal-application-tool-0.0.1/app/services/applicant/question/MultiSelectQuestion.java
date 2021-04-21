@@ -134,4 +134,9 @@ public class MultiSelectQuestion implements PresentsErrors {
       throw new RuntimeException(e);
     }
   }
+
+  @Override
+  public String getAnswerString() {
+    return "A,B,C,D,E";
+  }
 }

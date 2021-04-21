@@ -48,4 +48,9 @@ public class RepeaterQuestion implements PresentsErrors {
     // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
     return applicantQuestion.getApplicantData().hasPath(getRepeaterPath());
   }
+
+  @Override
+  public String getAnswerString() {
+    return "?";
+  }
 }

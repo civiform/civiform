@@ -10,6 +10,8 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
@@ -32,6 +34,8 @@ public class ApplicantProgramsController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final ProgramIndexView programIndexView;
   private final ProfileUtils profileUtils;
+
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Inject
   public ApplicantProgramsController(
@@ -91,10 +95,13 @@ public class ApplicantProgramsController extends CiviFormController {
             httpContext.current())
         .thenComposeAsync(
             resultMaybe -> {
-              if (resultMaybe.isEmpty()) {
-                return previewPageRedirect(applicantId);
-              }
-              return supplyAsync(resultMaybe::get);
+              return resultMaybe.isEmpty()
+                  ? supplyAsync(
+                      () ->
+                          redirect(
+                              routes.ApplicantProgramReviewController.review(
+                                  applicantId, programId)))
+                  : supplyAsync(resultMaybe::get);
             },
             httpContext.current())
         .exceptionally(
@@ -113,11 +120,13 @@ public class ApplicantProgramsController extends CiviFormController {
             });
   }
 
-  private CompletionStage<Result> previewPageRedirect(long applicantId) {
+  @Secure
+  public CompletionStage<Result> review(Request request, long applicantId, long programId) {
     // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Replace
     // with a redirect to the review page.
     // For now, this just redirects to program index page.
     Call endOfProgramSubmission = routes.ApplicantProgramsController.index(applicantId);
+    logger.debug("redirecting to preview page with %d, %d", applicantId, programId);
     return supplyAsync(
         () ->
             found(endOfProgramSubmission)

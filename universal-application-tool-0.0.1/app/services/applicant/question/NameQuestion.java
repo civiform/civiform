@@ -1,7 +1,9 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.NameQuestionDefinition;
@@ -135,5 +137,14 @@ public class NameQuestion implements PresentsErrors {
   @Override
   public boolean isAnswered() {
     return isFirstNameAnswered() || isMiddleNameAnswered() || isLastNameAnswered();
+  }
+
+  @Override
+  public String getAnswerString() {
+    String[] parts = {
+      getFirstNameValue().orElse(""), getMiddleNameValue().orElse(""), getLastNameValue().orElse("")
+    };
+
+    return Arrays.stream(parts).filter(part -> part.length() > 0).collect(Collectors.joining(" "));
   }
 }

@@ -67,4 +67,9 @@ public class FileUploadQuestion implements PresentsErrors {
   public Path getFileKeyPath() {
     return getQuestionDefinition().getFileKeyPath();
   }
+
+  @Override
+  public String getAnswerString() {
+    return "-- FILE UPLOAD --";
+  }
 }

@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Application;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +20,8 @@ import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
-import play.mvc.Call;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import repository.ApplicationRepository;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
@@ -44,7 +41,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final HttpExecutionContext httpExecutionContext;
   private final ApplicantProgramBlockEditView editView;
   private final FormFactory formFactory;
-  private final ApplicationRepository applicationRepository;
   private final ProfileUtils profileUtils;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -56,14 +52,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       HttpExecutionContext httpExecutionContext,
       ApplicantProgramBlockEditView editView,
       FormFactory formFactory,
-      ApplicationRepository applicationRepository,
       ProfileUtils profileUtils) {
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
-    this.applicationRepository = checkNotNull(applicationRepository);
     this.profileUtils = checkNotNull(profileUtils);
   }
 
@@ -184,44 +178,16 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           .build())));
     }
 
-    // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Redirect to
-    //  review page when it is available.
     Optional<String> nextBlockIdMaybe =
         roApplicantProgramService.getBlockAfter(blockId).map(Block::getId);
     return nextBlockIdMaybe.isEmpty()
-        ? previewPageRedirect(applicantId, programId)
+        ? supplyAsync(
+            () -> redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)))
         : supplyAsync(
             () ->
                 redirect(
                     routes.ApplicantProgramBlocksController.edit(
                         applicantId, programId, nextBlockIdMaybe.get())));
-  }
-
-  private CompletionStage<Result> previewPageRedirect(long applicantId, long programId) {
-    // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Replace
-    // with a redirect to the review page.
-    // For now, this just saves the application and redirects to program index page.
-    Call endOfProgramSubmission = routes.ApplicantProgramsController.index(applicantId);
-    logger.debug("redirecting to preview page with %d, %d", applicantId, programId);
-    return submit(applicantId, programId)
-        .thenApplyAsync(
-            applicationMaybe -> {
-              if (applicationMaybe.isEmpty()) {
-                return found(endOfProgramSubmission)
-                    .flashing("banner", "Error saving application.");
-              }
-              Application application = applicationMaybe.get();
-              // Placeholder application ID display.
-              return found(endOfProgramSubmission)
-                  .flashing(
-                      "banner",
-                      String.format(
-                          "Successfully saved application: application ID %d", application.id));
-            });
-  }
-
-  private CompletionStage<Optional<Application>> submit(long applicantId, long programId) {
-    return applicationRepository.submitApplication(applicantId, programId);
   }
 
   private ImmutableMap<String, String> cleanForm(Map<String, String> formData) {
