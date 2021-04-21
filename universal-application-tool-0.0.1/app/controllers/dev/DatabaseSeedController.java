@@ -205,7 +205,9 @@ public class DatabaseSeedController extends DevController {
   private ProgramDefinition insertProgramWithBlocks(String name) {
     try {
       ProgramDefinition programDefinition =
-          programService.createProgramDefinition(name, "desc").getResult();
+          programService
+              .createProgramDefinition(name, "desc", name, "display description")
+              .getResult();
       long programId = programDefinition.id();
 
       long blockId = 1L;

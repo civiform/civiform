@@ -57,13 +57,12 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void insertProgramSync() throws TranslationNotFoundException {
-    Program program = new Program("ProgramRepository", "desc");
+    Program program = new Program("ProgramRepository", "desc", "name", "description");
 
     Program withId = repo.insertProgramSync(program);
 
     Program found = repo.lookupProgram(withId.id).toCompletableFuture().join().get();
-    assertThat(found.getProgramDefinition().getLocalizedName(Locale.US))
-        .isEqualTo("ProgramRepository");
+    assertThat(found.getProgramDefinition().getLocalizedName(Locale.US)).isEqualTo("name");
   }
 
   @Test

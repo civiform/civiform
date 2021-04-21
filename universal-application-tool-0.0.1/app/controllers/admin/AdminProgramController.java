@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import controllers.CiviFormController;
 import forms.ProgramForm;
+import java.util.Locale;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -62,7 +63,11 @@ public class AdminProgramController extends CiviFormController {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm program = programForm.bindFromRequest(request).get();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
-        service.createProgramDefinition(program.getName(), program.getDescription());
+        service.createProgramDefinition(
+            program.getAdminName(),
+            program.getAdminDescription(),
+            program.getLocalizedDisplayName(),
+            program.getLocalizedDisplayDescription());
     if (result.isError()) {
       String errorMessage = joinErrors(result.getErrors());
       return ok(newOneView.render(request, program, errorMessage));
@@ -107,7 +112,12 @@ public class AdminProgramController extends CiviFormController {
     ProgramForm program = programForm.bindFromRequest(request).get();
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> result =
-          service.updateProgramDefinition(id, program.getName(), program.getDescription());
+          service.updateProgramDefinition(
+              id,
+              Locale.US,
+              program.getAdminDescription(),
+              program.getLocalizedDisplayName(),
+              program.getLocalizedDisplayDescription());
       if (result.isError()) {
         String errorMessage = joinErrors(result.getErrors());
         return ok(editView.render(request, id, program, errorMessage));

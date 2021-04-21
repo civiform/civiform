@@ -70,7 +70,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
     Result result = controller.create(request);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("program name cannot be blank");
+    assertThat(contentAsString(result)).contains("program admin name cannot be blank");
     assertThat(contentAsString(result)).contains("New program");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }
@@ -78,9 +78,18 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
   @Test
   public void create_returnsNewProgramInList() {
     RequestBuilder requestBuilder =
-        Helpers.fakeRequest()
-            .bodyForm(
-                ImmutableMap.of("name", "New Program", "description", "This is a new program"));
+        addCSRFToken(
+            Helpers.fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "adminName",
+                        "New Program",
+                        "adminDescription",
+                        "This is a new program",
+                        "localizedDisplayName",
+                        "display name",
+                        "localizedDisplayDescription",
+                        "display description")));
 
     Result result = controller.create(requestBuilder.build());
 
@@ -96,9 +105,18 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
   public void create_includesNewAndExistingProgramsInList() {
     ProgramBuilder.newProgram("Existing One").build();
     RequestBuilder requestBuilder =
-        Helpers.fakeRequest()
-            .bodyForm(
-                ImmutableMap.of("name", "New Program", "description", "This is a new program"));
+        addCSRFToken(
+            Helpers.fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "adminName",
+                        "New Program",
+                        "adminDescription",
+                        "This is a new program",
+                        "localizedDisplayName",
+                        "display name",
+                        "localizedDisplayDescription",
+                        "display description")));
 
     Result result = controller.create(requestBuilder.build());
 
@@ -157,7 +175,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit program");
-    assertThat(contentAsString(result)).contains("program name cannot be blank");
+    assertThat(contentAsString(result)).contains("program admin description cannot be blank");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }
 

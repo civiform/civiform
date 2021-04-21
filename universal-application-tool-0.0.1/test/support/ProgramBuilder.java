@@ -40,7 +40,7 @@ public class ProgramBuilder {
 
   /** Creates a {@link ProgramBuilder} with a new {@link Program}. */
   public static ProgramBuilder newProgram(String name, String description) {
-    Program program = new Program(name, description);
+    Program program = new Program(name, description, name, description);
     program.setVersion(1L);
     maybeSave(program);
     ProgramDefinition.Builder builder =
