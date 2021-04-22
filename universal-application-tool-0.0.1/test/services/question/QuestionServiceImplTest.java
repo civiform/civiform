@@ -100,7 +100,6 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
     ReadOnlyQuestionService emptyService = completionStage.toCompletableFuture().join();
 
     assertThat(emptyService.getAllQuestions()).isEmpty();
-    assertThat(emptyService.getAllScalars()).isEmpty();
   }
 
   @Test
