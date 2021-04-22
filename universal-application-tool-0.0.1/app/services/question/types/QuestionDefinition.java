@@ -277,10 +277,6 @@ public abstract class QuestionDefinition {
         getLastUpdatedTimePath(), getLastUpdatedTimeType(), getProgramIdPath(), getProgramIdType());
   }
 
-  public Optional<ScalarType> getScalarType(Path path) {
-    return Optional.ofNullable(this.getScalars().get(path));
-  }
-
   /** Validate that all required fields are present and valid for the question. */
   public ImmutableSet<CiviFormError> validate() {
     ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
