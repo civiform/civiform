@@ -22,7 +22,10 @@ public class ApplicantQuestion {
   private final Path applicationPathContext;
   private final ApplicantData applicantData;
 
-  public ApplicantQuestion(QuestionDefinition questionDefinition, ApplicantData applicantData, Path applicationPathContext) {
+  public ApplicantQuestion(
+      QuestionDefinition questionDefinition,
+      ApplicantData applicantData,
+      Path applicationPathContext) {
     this.questionDefinition = checkNotNull(questionDefinition);
     this.applicantData = checkNotNull(applicantData);
     this.applicationPathContext = checkNotNull(applicationPathContext);
@@ -54,7 +57,7 @@ public class ApplicantQuestion {
   }
 
   public Path getPath() {
-    return questionDefinition.getPath();
+    return applicationPathContext.join(questionDefinition.getQuestionPathSegment());
   }
 
   public boolean hasQuestionErrors() {

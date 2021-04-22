@@ -73,7 +73,8 @@ public final class Block {
                   .map(ProgramQuestionDefinition::getQuestionDefinition)
                   .map(
                       questionDefinition ->
-                          new ApplicantQuestion(questionDefinition, applicantData, applicationContextPath))
+                          new ApplicantQuestion(
+                              questionDefinition, applicantData, applicationContextPath))
                   .collect(toImmutableList()));
     }
     return questionsMemo.get();

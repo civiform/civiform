@@ -16,7 +16,6 @@ import java.util.OptionalLong;
 import services.CiviFormError;
 import services.LocalizationUtils;
 import services.Path;
-import services.applicant.ApplicantData;
 import services.question.exceptions.TranslationNotFoundException;
 
 /** Defines a single question. */
@@ -111,10 +110,7 @@ public abstract class QuestionDefinition {
     return this.name;
   }
 
-  /**
-   * Returns the {@link Path} segment that corresponds to this QuestionDefinition. Does not include
-   *
-   */
+  /** Returns the {@link Path} segment that corresponds to this QuestionDefinition. */
   public String getQuestionPathSegment() {
     // TODO(#783): Change this getter once we save this formatted name to the database.
     return name.replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");

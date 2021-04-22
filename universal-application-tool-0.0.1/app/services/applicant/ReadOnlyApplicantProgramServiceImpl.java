@@ -5,6 +5,8 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import services.Path;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
@@ -19,6 +21,24 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     this.applicantData.setPreferredLocale(applicantData.preferredLocale());
     this.applicantData.lock();
     this.programDefinition = checkNotNull(programDefinition);
+  }
+
+  public ImmutableList<Block> getCurrentBlockListNew() {
+    ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
+
+    ImmutableList<BlockDefinition> nonRepeatedBlockDefinitions =
+        programDefinition.getNonRepeatedBlockDefinitions();
+    for (BlockDefinition blockDefinition : nonRepeatedBlockDefinitions) {
+      Block block =
+          new Block(
+              String.valueOf(blockDefinition.id()),
+              blockDefinition,
+              applicantData,
+              Path.create("applicant"));
+      blockListBuilder.add(block);
+    }
+
+    return blockListBuilder.build();
   }
 
   /**
@@ -39,9 +59,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     //  and their indices.
 
     // TODO(#783): The following snippet does not account for recursive repeater blocks.
-    //
 
-    // Something to kickstart the recursive method with all non-repeated blocks (AKA top-level blocks)
+    // Something to kickstart the recursive method with all non-repeated blocks (AKA top-level
+    // blocks)
 
     // Recursive method:
     //   List builder
@@ -50,7 +70,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
     // for each blockDef:
     //   if NOT blockDef.isRepeated:  (we account for repeated blocks below)
-    //     construct a block
+    //     construct a Block + add it to the list of Blocks
     //   if blockDef.isRepeater:
     //     for each item ("i") in repeater (e.g., each household member):
     //       for each consecutive following "repeated" block ("j") (e.g., hm name, hm address):
@@ -60,8 +80,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
     ImmutableList<Block> blocks =
         programDefinition.blockDefinitions().stream()
-            // TODO(#783): Pass in repeaterContext to Block constructor.
-            //  And/or create ID that fully represents the Block
             .map(blockDefinition -> new Block(blockDefinition.id(), blockDefinition, applicantData))
             .filter(
                 block ->
