@@ -107,6 +107,18 @@ public abstract class ProgramDefinition {
     }
   }
 
+  /**
+   * Get all the {@link Locale}s this program fully supports. A program fully supports a locale if:
+   *
+   * <ol>
+   *   <li>The publicly-visible display name is localized for the locale
+   *   <li>The publicly-visible description is localized for the locale
+   *   <li>Every question in this program fully supports this locale
+   * </ol>
+   *
+   * @return an {@link ImmutableSet} of all {@link Locale}s that are fully supported for this
+   *     program
+   */
   public ImmutableSet<Locale> getSupportedLocales() {
     ImmutableSet<ImmutableSet<Locale>> questionLocales =
         getQuestionDefinitions().stream()
@@ -119,15 +131,6 @@ public abstract class ProgramDefinition {
       intersection = Sets.intersection(intersection, set);
     }
     return ImmutableSet.copyOf(intersection);
-  }
-
-  public ImmutableSet<QuestionDefinition> getQuestionDefinitions() {
-    return blockDefinitions().stream()
-        .flatMap(
-            b ->
-                b.programQuestionDefinitions().stream()
-                    .map(ProgramQuestionDefinition::getQuestionDefinition))
-        .collect(toImmutableSet());
   }
 
   /** Returns the {@link QuestionDefinition} at the specified block and question indices. */
@@ -240,6 +243,15 @@ public abstract class ProgramDefinition {
   }
 
   public abstract Builder toBuilder();
+
+  private ImmutableSet<QuestionDefinition> getQuestionDefinitions() {
+    return blockDefinitions().stream()
+        .flatMap(
+            b ->
+                b.programQuestionDefinitions().stream()
+                    .map(ProgramQuestionDefinition::getQuestionDefinition))
+        .collect(toImmutableSet());
+  }
 
   @AutoValue.Builder
   public abstract static class Builder {
