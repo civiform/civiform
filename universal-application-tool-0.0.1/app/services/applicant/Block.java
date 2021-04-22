@@ -33,28 +33,24 @@ public final class Block {
   private final String id;
 
   private final BlockDefinition blockDefinition;
-  private final Path applicationContextPath;
   private final ApplicantData applicantData;
+  private final Path applicationContextPath;
   private Optional<ImmutableList<ApplicantQuestion>> questionsMemo = Optional.empty();
 
   Block(
       String id,
       BlockDefinition blockDefinition,
-      Path applicationContextPath,
-      ApplicantData applicantData) {
+      ApplicantData applicantData,
+      Path applicationContextPath) {
     this.id = id;
     this.blockDefinition = checkNotNull(blockDefinition);
     this.applicationContextPath = checkNotNull(applicationContextPath);
     this.applicantData = checkNotNull(applicantData);
   }
 
-  // TODO(#783): We probably need to get rid of the Block constructor that accepts a `long id`.
+  // TODO(#783): Get rid this constructor.
   Block(long id, BlockDefinition blockDefinition, ApplicantData applicantData) {
-    this(String.valueOf(id), blockDefinition, Path.create("applicant"), applicantData);
-  }
-
-  Block(String id, BlockDefinition blockDefinition, ApplicantData applicantData) {
-    this(id, blockDefinition, Path.create("applicant"), applicantData);
+    this(String.valueOf(id), blockDefinition, applicantData, Path.create("applicant"));
   }
 
   public String getId() {
@@ -77,9 +73,7 @@ public final class Block {
                   .map(ProgramQuestionDefinition::getQuestionDefinition)
                   .map(
                       questionDefinition ->
-                          // TODO(natsid): Need to pass in repeaterContext here, which exists per
-                          // block.
-                          new ApplicantQuestion(questionDefinition, applicantData))
+                          new ApplicantQuestion(questionDefinition, applicantData, applicationContextPath))
                   .collect(toImmutableList()));
     }
     return questionsMemo.get();
@@ -101,7 +95,8 @@ public final class Block {
     // TODO(https://github.com/seattle-uat/civiform/issues/551): Stream only required scalar paths
     //  instead of all scalar paths.
     // TODO(#783): needs to be able to figure out the indices used to reference repeated entities
-    //  (e.g. applicant.children[3].name.first).
+    //  (e.g. applicant.children[3].name.first). Use this.applicationContextPath in combination
+    //  with the question name and scalar names.
     return blockDefinition.scalarPaths().stream()
             .filter(path -> !applicantData.hasValueAtPath(path))
             .findAny()
