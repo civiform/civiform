@@ -5,7 +5,6 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
-import io.ebean.Transaction;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
@@ -64,13 +63,11 @@ public class QuestionRepository {
         Question newDraft =
             new Question(new QuestionDefinitionBuilder(definition).setId(null).build());
         try {
-          Transaction transaction = ebeanServer.beginTransaction();
+          ebeanServer.beginTransaction();
           insertQuestionSync(newDraft);
           newDraft.addVersion(draftVersion);
           newDraft.save();
-          versionRepositoryProvider
-              .get()
-              .updateProgramsForNewDraftQuestion(definition.getId(), transaction);
+          versionRepositoryProvider.get().updateProgramsForNewDraftQuestion(definition.getId());
           ebeanServer.commitTransaction();
         } finally {
           ebeanServer.endTransaction();

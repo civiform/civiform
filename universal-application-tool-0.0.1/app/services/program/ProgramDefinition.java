@@ -203,7 +203,11 @@ public abstract class ProgramDefinition {
     if (questionIds.isEmpty()) {
       questionIds =
           Optional.of(
-              streamQuestionDefinitions().map(QuestionDefinition::getId).collect(toImmutableSet()));
+              blockDefinitions().stream()
+                  .map(BlockDefinition::programQuestionDefinitions)
+                  .flatMap(ImmutableList::stream)
+                  .map(ProgramQuestionDefinition::id)
+                  .collect(ImmutableSet.toImmutableSet()));
     }
 
     return questionIds.get().contains(questionId);

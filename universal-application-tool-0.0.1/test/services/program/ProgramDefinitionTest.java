@@ -165,7 +165,6 @@ public class ProgramDefinitionTest {
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "existing name")
             .addLocalizedDescription(Locale.US, "existing description")
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
     program =

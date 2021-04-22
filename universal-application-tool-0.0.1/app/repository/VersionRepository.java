@@ -6,7 +6,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
-import io.ebean.Transaction;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -128,27 +127,10 @@ public class VersionRepository {
   /**
    * For each question in this program, check whether it is the most up-to-date version of the
    * question which is either DRAFT or ACTIVE. If it is not, update the pointer to the most
-   * up-to-date version of the question. This version of the method creates its own internal
-   * transaction. This method can only be called on a draft program.
-   */
-  public void updateQuestionVersions(Program draftProgram) {
-    Transaction transaction = ebeanServer.beginTransaction();
-    try {
-      updateQuestionVersions(draftProgram, transaction);
-      ebeanServer.commitTransaction();
-    } finally {
-      ebeanServer.endTransaction();
-      draftProgram.refresh();
-    }
-  }
-
-  /**
-   * For each question in this program, check whether it is the most up-to-date version of the
-   * question which is either DRAFT or ACTIVE. If it is not, update the pointer to the most
    * up-to-date version of the question, using the given transaction. This method can only be called
    * on a draft program.
    */
-  public void updateQuestionVersions(Program draftProgram, Transaction transaction) {
+  public void updateQuestionVersions(Program draftProgram) {
     Preconditions.checkArgument(isInactive(draftProgram), "input program must not be active.");
     Preconditions.checkArgument(
         isDraft(draftProgram), "input program must be in the current draft version.");
@@ -160,7 +142,7 @@ public class VersionRepository {
     }
     draftProgram = new Program(updatedDefinition.build());
     LOG.trace("Submitting update.");
-    ebeanServer.update(draftProgram, transaction);
+    ebeanServer.update(draftProgram);
   }
 
   public boolean isInactive(Question question) {
@@ -175,12 +157,12 @@ public class VersionRepository {
 
   public boolean isDraft(Question question) {
     return getDraftVersion().getQuestions().stream()
-        .anyMatch(activeProgram -> activeProgram.id.equals(question.id));
+        .anyMatch(draftQuestion -> draftQuestion.id.equals(question.id));
   }
 
   public boolean isDraft(Program program) {
     return getDraftVersion().getPrograms().stream()
-        .anyMatch(activeProgram -> activeProgram.id.equals(program.id));
+        .anyMatch(draftProgram -> draftProgram.id.equals(program.id));
   }
 
   private BlockDefinition updateQuestionVersions(BlockDefinition block) {
@@ -196,10 +178,10 @@ public class VersionRepository {
     return updatedBlock.build();
   }
 
-  public void updateProgramsForNewDraftQuestion(long oldId, Transaction transaction) {
+  public void updateProgramsForNewDraftQuestion(long oldId) {
     getDraftVersion().getPrograms().stream()
         .filter(program -> program.getProgramDefinition().hasQuestion(oldId))
-        .forEach(program -> updateQuestionVersions(program, transaction));
+        .forEach(program -> updateQuestionVersions(program));
 
     getActiveVersion().getPrograms().stream()
         .filter(program -> program.getProgramDefinition().hasQuestion(oldId))

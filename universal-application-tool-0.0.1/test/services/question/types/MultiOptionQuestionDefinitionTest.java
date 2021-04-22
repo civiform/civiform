@@ -51,7 +51,6 @@ public class MultiOptionQuestionDefinitionTest {
             .setQuestionHelpText(ImmutableMap.of(Locale.US, "test", Locale.FRANCE, "test"))
             .setQuestionOptions(
                 ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1"))))
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);

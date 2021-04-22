@@ -3,6 +3,7 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
@@ -45,6 +46,7 @@ public class ProgramRepository {
   public Program insertProgramSync(Program program) {
     program.id = null;
     ebeanServer.insert(program);
+    program.refresh();
     return program;
   }
 
@@ -67,8 +69,11 @@ public class ProgramRepository {
       return updatedDraft;
     } else {
       Program newDraft = existingProgram.getProgramDefinition().toBuilder().build().toProgram();
+      newDraft = insertProgramSync(newDraft);
       newDraft.addVersion(draftVersion);
-      insertProgramSync(newDraft);
+      newDraft.save();
+      draftVersion.refresh();
+      Preconditions.checkState(draftVersion.getPrograms().contains(newDraft));
       versionRepository.get().updateQuestionVersions(newDraft);
       return newDraft;
     }
