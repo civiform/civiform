@@ -50,11 +50,11 @@ public class ApplicantQuestionRendererFactory {
     }
   }
 
-  public static QuestionDefinitionBuilder sample() {
+  private static QuestionDefinitionBuilder sample() {
     return sample(QuestionType.TEXT);
   }
 
-  public static QuestionDefinitionBuilder sample(QuestionType questionType) {
+  private static QuestionDefinitionBuilder sample(QuestionType questionType) {
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setName("")
