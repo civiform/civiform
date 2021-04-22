@@ -56,7 +56,8 @@ public class TextQuestion implements PresentsErrors {
 
   @Override
   public boolean isAnswered() {
-    // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
+    // TODO(https://github.com/seattle-uat/civiform/issues/783):
+    //  Use applicationPathContext + question name + scalar
     return applicantQuestion.getApplicantData().hasPath(getTextPath());
   }
 
