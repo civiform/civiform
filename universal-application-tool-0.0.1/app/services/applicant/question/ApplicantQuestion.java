@@ -19,17 +19,18 @@ import services.question.types.QuestionType;
 public class ApplicantQuestion {
 
   private final QuestionDefinition questionDefinition;
+  private final Path applicationPathContext;
   private final ApplicantData applicantData;
 
-  // TODO(#783):
-  //  private final RepeaterContext repeaterContext;
-
-  // TODO(#783):
-  //  public ApplicantQuestion(QuestionDefinition questionDefinition, ApplicantData applicantData,
-  //                           RepeaterContext repeaterContext) {
-  public ApplicantQuestion(QuestionDefinition questionDefinition, ApplicantData applicantData) {
+  public ApplicantQuestion(QuestionDefinition questionDefinition, ApplicantData applicantData, Path applicationPathContext) {
     this.questionDefinition = checkNotNull(questionDefinition);
     this.applicantData = checkNotNull(applicantData);
+    this.applicationPathContext = checkNotNull(applicationPathContext);
+  }
+
+  // TODO(#783): Get rid of this constructor.
+  public ApplicantQuestion(QuestionDefinition questionDefinition, ApplicantData applicantData) {
+    this(questionDefinition, applicantData, Path.create("applicant"));
   }
 
   protected ApplicantData getApplicantData() {
