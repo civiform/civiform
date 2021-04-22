@@ -41,9 +41,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 h1("All Programs").withClasses(Styles.MY_4),
                 div()
                     .withClasses(Styles.INLINE_BLOCK)
-                    .with(
-                        renderNewProgramButton(),
-                        maybeRenderPublishButton(programs, request)),
+                    .with(renderNewProgramButton(), maybeRenderPublishButton(programs, request)),
                 each(
                     programs.stream()
                         .collect(new GroupByKeyCollector<>(ProgramDefinition::adminName)),
