@@ -39,12 +39,15 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withClasses(Styles.PX_20)
             .with(
                 h1("All Programs").withClasses(Styles.MY_4),
+                div()
+                    .withClasses(Styles.INLINE_BLOCK)
+                    .with(
+                        renderNewProgramButton(),
+                        maybeRenderPublishButton(programs, request)),
                 each(
                     programs.stream()
                         .collect(new GroupByKeyCollector<>(ProgramDefinition::adminName)),
-                    e -> this.renderProgramListItem(e.getKey(), e.getValue(), request)),
-                renderNewProgramButton(),
-                maybeRenderPublishButton(programs, request));
+                    e -> this.renderProgramListItem(e.getKey(), e.getValue(), request)));
 
     return layout.render(head(layout.tailwindStyles()), body(contentDiv));
   }
