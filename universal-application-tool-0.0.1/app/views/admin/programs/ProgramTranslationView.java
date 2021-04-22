@@ -35,7 +35,7 @@ public class ProgramTranslationView extends BaseHtmlView {
   public Content render(Http.Request request, long programId, Optional<String> errors) {
     ContainerTag form = renderTranslationForm(request, programId);
     errors.ifPresent(s -> form.with(ToastMessage.error(s).setDismissible(false).getContainerTag()));
-    return layout.render(form);
+    return layout.render(renderHeader("Manage Translations"), form);
   }
 
   private ContainerTag renderTranslationForm(Http.Request request, long programId) {
@@ -45,8 +45,16 @@ public class ProgramTranslationView extends BaseHtmlView {
         .withAction(
             controllers.admin.routes.AdminProgramTranslationsController.update(programId).url())
         .with(select().withName("locale").with(each(supportedLanguages, TagCreator::option)))
-        .with(FieldWithLabel.input().setFieldName("displayName").getContainer())
-        .with(FieldWithLabel.input().setFieldName("displayDescription").getContainer())
+        .with(
+            FieldWithLabel.input()
+                .setFieldName("displayName")
+                .setPlaceholderText("Program display name")
+                .getContainer())
+        .with(
+            FieldWithLabel.input()
+                .setFieldName("displayDescription")
+                .setPlaceholderText("Program description")
+                .getContainer())
         .with(submitButton("Save"));
   }
 }
