@@ -50,10 +50,6 @@ public class ApplicantQuestionRendererFactory {
     }
   }
 
-  private static QuestionDefinitionBuilder sample() {
-    return sample(QuestionType.TEXT);
-  }
-
   private static QuestionDefinitionBuilder sample(QuestionType questionType) {
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
