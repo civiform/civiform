@@ -48,19 +48,6 @@ public class TestQuestionBank {
   private Map<QuestionEnum, Question> questionCache = new ConcurrentHashMap<>();
   private AtomicLong nextId = new AtomicLong(1L);
 
-  private ImmutableMap<QuestionType, Question> typeToQuestionMap =
-      new ImmutableMap.Builder<QuestionType, Question>()
-          .put(QuestionType.ADDRESS, applicantAddress())
-          .put(QuestionType.CHECKBOX, applicantKitchenTools())
-          .put(QuestionType.DROPDOWN, applicantIceCream())
-          .put(QuestionType.FILEUPLOAD, applicantFile())
-          .put(QuestionType.NAME, applicantName())
-          .put(QuestionType.NUMBER, applicantJugglingNumber())
-          .put(QuestionType.RADIO_BUTTON, applicantSeason())
-          .put(QuestionType.REPEATER, applicantHouseholdMembers())
-          .put(QuestionType.TEXT, applicantFavoriteColor())
-          .build();
-
   /**
    * Pass `true` if there is a database that comes up with the test (e.g., the test class extends
    * WithPostgresContainer), otherwise false.
@@ -74,8 +61,23 @@ public class TestQuestionBank {
     nextId.set(1L);
   }
 
-  public ImmutableMap<QuestionType, Question> getTypeToQuestionMap() {
-    return typeToQuestionMap;
+  /**
+   * Gets a single question example for each supported QuestionType. Note that Questions are
+   * arbitrarily chosen.
+   * @return an ImmutableMap of QuestionType to Questions
+   */
+  public ImmutableMap<QuestionType, Question> getExampleQuestionsForAllTypes() {
+    return new ImmutableMap.Builder<QuestionType, Question>()
+        .put(QuestionType.ADDRESS, applicantAddress())
+        .put(QuestionType.CHECKBOX, applicantKitchenTools())
+        .put(QuestionType.DROPDOWN, applicantIceCream())
+        .put(QuestionType.FILEUPLOAD, applicantFile())
+        .put(QuestionType.NAME, applicantName())
+        .put(QuestionType.NUMBER, applicantJugglingNumber())
+        .put(QuestionType.RADIO_BUTTON, applicantSeason())
+        .put(QuestionType.REPEATER, applicantHouseholdMembers())
+        .put(QuestionType.TEXT, applicantFavoriteColor())
+        .build();
   }
 
   // Address
