@@ -21,10 +21,10 @@ public class ApplicantQuestionTest {
 
   @Test
   @Parameters(source = QuestionType.class)
-  public void errorsPresenterExtendedForAllTypes(QuestionType type)
+  public void errorsPresenterExtendedForAllTypes(QuestionType questionType)
       throws UnsupportedQuestionTypeException {
     QuestionDefinition definition =
-        testQuestionBank.getTypeToQuestionMap().get(type).getQuestionDefinition();
+        testQuestionBank.getSampleQuestionsForAllTypes().get(questionType).getQuestionDefinition();
     ApplicantQuestion question = new ApplicantQuestion(definition, new ApplicantData());
 
     assertThat(question.errorsPresenter().hasTypeSpecificErrors()).isFalse();

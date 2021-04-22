@@ -62,11 +62,11 @@ public class TestQuestionBank {
   }
 
   /**
-   * Gets a single question example for each supported QuestionType. Note that Questions are
-   * arbitrarily chosen.
+   * Gets a single sample question for each supported QuestionType. Note that Questions are
+   * arbitrarily chosen and are not canonical.
    * @return an ImmutableMap of QuestionType to Questions
    */
-  public ImmutableMap<QuestionType, Question> getExampleQuestionsForAllTypes() {
+  public ImmutableMap<QuestionType, Question> getSampleQuestionsForAllTypes() {
     return new ImmutableMap.Builder<QuestionType, Question>()
         .put(QuestionType.ADDRESS, applicantAddress())
         .put(QuestionType.CHECKBOX, applicantKitchenTools())

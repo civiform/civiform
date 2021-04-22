@@ -2,10 +2,16 @@ package support;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.junit.runner.RunWith;
+import services.question.types.QuestionType;
 
+@RunWith(JUnitParamsRunner.class)
 public class TestQuestionBankTest {
 
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
@@ -28,5 +34,11 @@ public class TestQuestionBankTest {
     Question question = testQuestionBank.applicantName();
 
     assertThat(question.id).isEqualTo(2L);
+  }
+
+  @Test
+  @Parameters(source = QuestionType.class)
+  public void getSampleQuestionsForAllTypesTest(QuestionType questionType) {
+    assertThat(testQuestionBank.getSampleQuestionsForAllTypes().get(questionType)).isNotNull();
   }
 }
