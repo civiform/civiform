@@ -1,22 +1,23 @@
 package views.admin.programs;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.select;
 
 import com.google.common.collect.ImmutableList;
-import forms.ProgramTranslationForm;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import java.util.Locale;
+import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Langs;
+import play.mvc.Http;
 import play.twirl.api.Content;
-import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
+import views.components.ToastMessage;
 
 public class ProgramTranslationView extends BaseHtmlView {
   private final AdminLayout layout;
@@ -31,19 +32,21 @@ public class ProgramTranslationView extends BaseHtmlView {
             .collect(toImmutableList());
   }
 
-  public Content render(ProgramTranslationForm form, ProgramDefinition program) {
-    return layout.render();
+  public Content render(Http.Request request, long programId, Optional<String> errors) {
+    ContainerTag form = renderTranslationForm(request, programId);
+    errors.ifPresent(s -> form.with(ToastMessage.error(s).setDismissible(false).getContainerTag()));
+    return layout.render(form);
   }
 
-  private ContainerTag renderCurrentSupportedLanguages() {
-
-  }
-
-  private ContainerTag renderTranslationForm() {
-    // Locale dropdown + display name + display description
-    return div()
+  private ContainerTag renderTranslationForm(Http.Request request, long programId) {
+    return form()
+        .withMethod("POST")
+        .with(makeCsrfTokenInputTag(request))
+        .withAction(
+            controllers.admin.routes.AdminProgramTranslationsController.update(programId).url())
         .with(select().withName("locale").with(each(supportedLanguages, TagCreator::option)))
         .with(FieldWithLabel.input().setFieldName("displayName").getContainer())
-        .with(FieldWithLabel.input().setFieldName("displayDescription").getContainer());
+        .with(FieldWithLabel.input().setFieldName("displayDescription").getContainer())
+        .with(submitButton("Save"));
   }
 }

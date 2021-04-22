@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import controllers.CiviFormController;
 import forms.ProgramForm;
-import forms.ProgramTranslationForm;
 import java.util.Locale;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -122,31 +121,6 @@ public class AdminProgramController extends CiviFormController {
       if (result.isError()) {
         String errorMessage = joinErrors(result.getErrors());
         return ok(editView.render(request, id, program, errorMessage));
-      }
-      return redirect(routes.AdminProgramController.index().url());
-    } catch (ProgramNotFoundException e) {
-      return notFound(String.format("Program ID %d not found.", id));
-    }
-  }
-
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public Result localize(Request request, long id) {
-    Form<ProgramTranslationForm> translationForm = formFactory.form(ProgramTranslationForm.class);
-    if (translationForm.hasErrors()) {
-      return badRequest();
-    }
-    ProgramTranslationForm translations = translationForm.bindFromRequest(request).get();
-
-    try {
-      ErrorAnd<ProgramDefinition, CiviFormError> result =
-          service.updateLocalization(
-              id,
-              translations.getLocale(),
-              translations.getDisplayName(),
-              translations.getDisplayDescription());
-      if (result.isError()) {
-        String errorMessage = joinErrors(result.getErrors());
-        return ok();
       }
       return redirect(routes.AdminProgramController.index().url());
     } catch (ProgramNotFoundException e) {
