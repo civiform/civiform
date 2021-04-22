@@ -1,12 +1,16 @@
 package services.program;
 
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import models.LifecycleStage;
 import models.Program;
 import services.LocalizationUtils;
@@ -103,6 +107,32 @@ public abstract class ProgramDefinition {
     }
   }
 
+  /**
+   * Get all the {@link Locale}s this program fully supports. A program fully supports a locale if:
+   *
+   * <ol>
+   *   <li>The publicly-visible display name is localized for the locale
+   *   <li>The publicly-visible description is localized for the locale
+   *   <li>Every question in this program fully supports this locale
+   * </ol>
+   *
+   * @return an {@link ImmutableSet} of all {@link Locale}s that are fully supported for this
+   *     program
+   */
+  public ImmutableSet<Locale> getSupportedLocales() {
+    ImmutableSet<ImmutableSet<Locale>> questionLocales =
+        getQuestionDefinitions().stream()
+            .map(QuestionDefinition::getSupportedLocales)
+            .collect(toImmutableSet());
+
+    Set<Locale> intersection =
+        Sets.intersection(localizedName().keySet(), localizedDescription().keySet());
+    for (ImmutableSet<Locale> set : questionLocales) {
+      intersection = Sets.intersection(intersection, set);
+    }
+    return ImmutableSet.copyOf(intersection);
+  }
+
   /** Returns the {@link QuestionDefinition} at the specified block and question indices. */
   public QuestionDefinition getQuestionDefinition(int blockIndex, int questionIndex) {
     return blockDefinitions().get(blockIndex).getQuestionDefinition(questionIndex);
@@ -176,12 +206,9 @@ public abstract class ProgramDefinition {
     if (questionIds.isEmpty()) {
       questionIds =
           Optional.of(
-              blockDefinitions().stream()
-                  .map(BlockDefinition::programQuestionDefinitions)
-                  .flatMap(ImmutableList::stream)
-                  .map(ProgramQuestionDefinition::getQuestionDefinition)
+              getQuestionDefinitions().stream()
                   .map(QuestionDefinition::getId)
-                  .collect(ImmutableSet.toImmutableSet()));
+                  .collect(toImmutableSet()));
     }
 
     return questionIds.get().contains(questionId);
@@ -216,6 +243,15 @@ public abstract class ProgramDefinition {
   }
 
   public abstract Builder toBuilder();
+
+  private ImmutableSet<QuestionDefinition> getQuestionDefinitions() {
+    return blockDefinitions().stream()
+        .flatMap(
+            b ->
+                b.programQuestionDefinitions().stream()
+                    .map(ProgramQuestionDefinition::getQuestionDefinition))
+        .collect(toImmutableSet());
+  }
 
   @AutoValue.Builder
   public abstract static class Builder {
