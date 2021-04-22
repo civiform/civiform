@@ -5,6 +5,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramDefinition;
 
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
@@ -85,5 +86,26 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return programDefinition.blockDefinitions().stream()
         .map(blockDefinition -> new Block(blockDefinition.id(), blockDefinition, applicantData))
         .collect(toImmutableList());
+  }
+
+  @Override
+  public ImmutableList<SummaryData> getSummaryData() {
+    ImmutableList.Builder<SummaryData> builder = new ImmutableList.Builder<SummaryData>();
+    ImmutableList<Block> blocks = this.getCurrentBlockList();
+    if (blocks.size() > 0) {
+      for (Block block : blocks) {
+        String blockId = block.getId();
+        for (ApplicantQuestion question : block.getQuestions()) {
+          String questionText = question.getQuestionText();
+          String answerText = question.errorsPresenter().getAnswerString();
+          Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
+          Optional<Long> updatedProgram = question.getUpdatedInProgramMetadata();
+          boolean isPreviousResponse = updatedProgram.isPresent() && updatedProgram.get() == programDefinition.id();
+          SummaryData data = new SummaryData(questionText, answerText, blockId, timestamp.orElse(-1L), isPreviousResponse);
+          builder.add(data);
+        }
+      }
+    }
+    return builder.build();
   }
 }

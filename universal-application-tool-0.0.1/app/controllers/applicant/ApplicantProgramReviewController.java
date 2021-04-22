@@ -19,6 +19,7 @@ import play.mvc.Result;
 import repository.ApplicationRepository;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
+import services.applicant.SummaryData;
 import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramSummaryView;
@@ -61,24 +62,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
             httpExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
-              // TODO: [NOW] We should move some of this logic into the service.
-              ImmutableList<Block> blocks = roApplicantProgramService.getCurrentBlockList();
-              if (blocks.size() > 0) {
-                ImmutableList.Builder<ApplicantQuestion> questions = ImmutableList.builder();
-                for (Block block : blocks) {
-                  ImmutableList<ApplicantQuestion> blockQuestions = block.getQuestions();
-                  questions.addAll(blockQuestions.iterator());
-                }
-                ImmutableList.Builder<String> questionText = ImmutableList.builder();
-                ImmutableList.Builder<String> answerText = ImmutableList.builder();
-                for (ApplicantQuestion question : questions.build()) {
-                  questionText.add(question.getQuestionText());
-                  answerText.add(question.errorsPresenter().getAnswerString());
-                }
-                return ok(summaryView.render(questionText.build(), answerText.build()));
-              } else {
-                return notFound();
-              }
+              ImmutableList<SummaryData> summaryData = roApplicantProgramService.getSummaryData();
+              // TODO: [NOW] Get program title.
+              String programTitle = "Program title";
+              return (summaryData.size() > 0) ?
+                 ok(summaryView.render(programId, programTitle, summaryData)) : notFound();
             },
             httpExecutionContext.current())
         .exceptionally(

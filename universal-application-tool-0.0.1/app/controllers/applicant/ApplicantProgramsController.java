@@ -35,8 +35,6 @@ public class ApplicantProgramsController extends CiviFormController {
   private final ProgramIndexView programIndexView;
   private final ProfileUtils profileUtils;
 
-  private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
   @Inject
   public ApplicantProgramsController(
       HttpExecutionContext httpContext,
@@ -118,18 +116,5 @@ public class ApplicantProgramsController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
-  }
-
-  @Secure
-  public CompletionStage<Result> review(Request request, long applicantId, long programId) {
-    // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Replace
-    // with a redirect to the review page.
-    // For now, this just redirects to program index page.
-    Call endOfProgramSubmission = routes.ApplicantProgramsController.index(applicantId);
-    logger.debug("redirecting to preview page with %d, %d", applicantId, programId);
-    return supplyAsync(
-        () ->
-            found(endOfProgramSubmission)
-                .flashing("banner", String.format("Application was already completed.")));
   }
 }

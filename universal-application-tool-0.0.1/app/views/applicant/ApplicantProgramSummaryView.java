@@ -11,6 +11,7 @@ import static j2html.TagCreator.span;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import j2html.tags.ContainerTag;
+import services.applicant.SummaryData;
 import java.util.Arrays;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
@@ -33,14 +34,12 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
    *      - answer text
    *      - block id (for edit link)
    */
-  public Content render(ImmutableList<String> questions, ImmutableList<String> answers) {
-    ContainerTag headerTag = renderHeader("program title", 100);
+  public Content render(Long programId, String programTitle, ImmutableList<SummaryData> data) {
+    ContainerTag headerTag = renderHeader(programTitle + "(" + programId + ")", 100);
 
     ContainerTag content = div().withClasses("mx-16");
-    String[] q = questions.toArray(new String[] {});
-    String[] a = answers.toArray(new String[] {});
-    for (int i = 0; i < q.length; i++) {
-      content.with(renderQuestionSummary(q[i], a[i], "Edit"));
+    for (SummaryData questionData : data) {
+      content.with(renderQuestionSummary(questionData.questionText, questionData.answerText, "Edit"));
     }
 
     // TODO: [NOW] Add submit action.    
