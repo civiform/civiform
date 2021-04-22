@@ -3,7 +3,8 @@
 # --- !Ups
 create table versions (
   id bigserial primary key,
-  lifecycle_stage varchar not null
+  lifecycle_stage varchar not null,
+  submit_time timestamp
 );
 
 create table versions_questions (
@@ -18,7 +19,7 @@ create table versions_programs (
   primary key (programs_id, versions_id)
 );
 
-insert into versions (lifecycle_stage) values ('active');
+insert into versions (lifecycle_stage, submit_time) values ('active', current_timestamp);
 
 insert into versions_questions (questions_id, versions_id)
   select id, 1 from questions
@@ -28,7 +29,8 @@ insert into versions_programs (programs_id, versions_id)
   select id, 1 from programs
   where lifecycle_stage = 'active';
 
-alter table questions drop constraint nameversion;
+alter table questions drop constraint if exists nameversion;
+alter table programs drop constraint if exists nameversion;
 alter table questions drop column if exists lifecycle_stage;
 alter table programs drop column if exists lifecycle_stage;
 alter table questions drop column if exists version;

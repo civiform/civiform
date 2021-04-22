@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.Transaction;
+import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.LifecycleStage;
@@ -40,6 +41,44 @@ public class VersionRepository {
   public void publishNewSynchronizedVersion() {
     try {
       ebeanServer.beginTransaction();
+      Version draft = getDraftVersion();
+      Version active = getActiveVersion();
+      Preconditions.checkState(
+          draft.getPrograms().size() > 0, "Must have at least 1 program in the draft version.");
+      active.getPrograms().stream()
+          .filter(
+              activeProgram ->
+                  draft.getPrograms().stream()
+                      .noneMatch(
+                          draftProgram ->
+                              activeProgram
+                                  .getProgramDefinition()
+                                  .adminName()
+                                  .equals(draftProgram.getProgramDefinition().adminName())))
+          .forEach(
+              activeProgramNotInDraft -> {
+                activeProgramNotInDraft.addVersion(draft);
+                activeProgramNotInDraft.save();
+              });
+      active.getQuestions().stream()
+          .filter(
+              activeQuestion ->
+                  draft.getQuestions().stream()
+                      .noneMatch(
+                          draftQuestion ->
+                              activeQuestion
+                                  .getQuestionDefinition()
+                                  .getName()
+                                  .equals(draftQuestion.getQuestionDefinition().getName())))
+          .forEach(
+              activeQuestionNotInDraft -> {
+                activeQuestionNotInDraft.addVersion(draft);
+                activeQuestionNotInDraft.save();
+              });
+      active.setLifecycleStage(LifecycleStage.OBSOLETE);
+      draft.setLifecycleStage(LifecycleStage.ACTIVE);
+      active.save();
+      draft.save();
       ebeanServer.commitTransaction();
     } finally {
       ebeanServer.endTransaction();
@@ -170,5 +209,27 @@ public class VersionRepository {
                     .getProgramByName(program.getProgramDefinition().adminName())
                     .isEmpty())
         .forEach(program -> programRepository.createOrUpdateDraft(program));
+  }
+
+  public List<Version> listAllVersions() {
+    return ebeanServer.find(Version.class).findList();
+  }
+
+  public void setLive(long versionId) {
+    try {
+      ebeanServer.beginTransaction();
+      Version draftVersion = getDraftVersion();
+      Version activeVersion = getActiveVersion();
+      Version newActiveVersion = ebeanServer.find(Version.class).setId(versionId).findOne();
+      newActiveVersion.setLifecycleStage(LifecycleStage.ACTIVE);
+      newActiveVersion.save();
+      activeVersion.setLifecycleStage(LifecycleStage.OBSOLETE);
+      activeVersion.save();
+      draftVersion.setLifecycleStage(LifecycleStage.DELETED);
+      draftVersion.save();
+      ebeanServer.commitTransaction();
+    } finally {
+      ebeanServer.endTransaction();
+    }
   }
 }

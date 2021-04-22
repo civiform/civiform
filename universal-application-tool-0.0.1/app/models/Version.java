@@ -1,6 +1,8 @@
 package models;
 
 import com.google.common.collect.ImmutableList;
+import io.ebean.annotation.UpdatedTimestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.Entity;
@@ -18,6 +20,8 @@ public class Version extends BaseModel {
 
   @ManyToMany(mappedBy = "versions")
   private List<Program> programs;
+
+  @UpdatedTimestamp private Instant submitTime;
 
   public Version() {
     this(LifecycleStage.DRAFT);
@@ -41,6 +45,10 @@ public class Version extends BaseModel {
 
   public LifecycleStage getLifecycleStage() {
     return lifecycleStage;
+  }
+
+  public Instant getSubmitTime() {
+    return this.submitTime;
   }
 
   public Optional<Program> getProgramByName(String name) {

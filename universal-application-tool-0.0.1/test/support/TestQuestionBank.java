@@ -46,7 +46,7 @@ public class TestQuestionBank {
   private static final Map<QuestionEnum, Question> questionCache = new ConcurrentHashMap<>();
   private static final AtomicLong nextId = new AtomicLong(1L);
 
-  private boolean canSave = false;
+  private final boolean canSave;
 
   /**
    * Pass `true` if there is a database that comes up with the test (e.g., the test class extends
