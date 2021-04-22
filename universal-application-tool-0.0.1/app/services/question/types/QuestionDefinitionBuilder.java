@@ -56,30 +56,6 @@ public class QuestionDefinitionBuilder {
     }
   }
 
-  public static QuestionDefinitionBuilder sample() {
-    return sample(QuestionType.TEXT);
-  }
-
-  public static QuestionDefinitionBuilder sample(QuestionType questionType) {
-    QuestionDefinitionBuilder builder =
-        new QuestionDefinitionBuilder()
-            .setName("")
-            .setDescription("")
-            .setPath(Path.create("sample.question.path"))
-            .setQuestionText(ImmutableMap.of(Locale.US, "Sample question text"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.US, "Sample question help text"))
-            .setLifecycleStage(LifecycleStage.ACTIVE)
-            .setQuestionType(questionType);
-
-    if (questionType.isMultiOptionType()) {
-      builder.setQuestionOptions(
-          ImmutableList.of(
-              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "Sample question option"))));
-    }
-
-    return builder;
-  }
-
   public QuestionDefinitionBuilder clearId() {
     this.id = OptionalLong.empty();
     return this;
