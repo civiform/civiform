@@ -3,6 +3,7 @@ package services.question.types;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
@@ -14,11 +15,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.CiviFormError;
 import services.Path;
+import services.question.QuestionOption;
 import services.question.exceptions.TranslationNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
-import support.TestQuestionBank;
 
 @RunWith(JUnitParamsRunner.class)
 public class QuestionDefinitionTest {
@@ -41,11 +42,22 @@ public class QuestionDefinitionTest {
 
   @Test
   @Parameters(source = QuestionType.class)
-  public void allTypesContainMetadataScalars(QuestionType type)
+  public void allTypesContainMetadataScalars(QuestionType questionType)
       throws UnsupportedQuestionTypeException {
+    // Modifying the builder to build the appropriate QuestionDefinition to test based on
+    // QuestionType
+    builder.setQuestionType(questionType);
+    builder.setValidationPredicatesString("");
 
-    TestQuestionBank bank = new TestQuestionBank(false);
-    QuestionDefinition definition = bank.getTypeToQuestionMap().get(type).getQuestionDefinition();
+    if (questionType.isMultiOptionType()) {
+      builder.setQuestionOptions(
+          ImmutableList.of(
+              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "Sample question option"))));
+      builder.setValidationPredicates(
+          MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create());
+    }
+
+    QuestionDefinition definition = builder.setQuestionType(questionType).build();
 
     assertThat(definition.getScalars()).containsKey(definition.getLastUpdatedTimePath());
     assertThat(definition.getScalars()).containsKey(definition.getProgramIdPath());

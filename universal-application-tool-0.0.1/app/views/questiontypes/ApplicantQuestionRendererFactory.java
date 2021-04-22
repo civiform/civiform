@@ -49,7 +49,8 @@ public class ApplicantQuestionRendererFactory {
     }
   }
 
-  private static QuestionDefinition questionDefinitionSample(QuestionType questionType) throws UnsupportedQuestionTypeException {
+  private static QuestionDefinition questionDefinitionSample(QuestionType questionType)
+      throws UnsupportedQuestionTypeException {
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setName("")
