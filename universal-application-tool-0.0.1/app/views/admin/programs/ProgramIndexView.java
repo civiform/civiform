@@ -136,6 +136,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                 p().withClasses(Styles.FLEX_GROW),
                 maybeRenderViewApplicationsLink(viewApplicationsLinkText, activeProgram),
+                maybeRenderManageTranslationsLink(draftProgram),
                 maybeRenderEditLink(draftProgram, activeProgram, request))
             .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
 
@@ -207,13 +208,14 @@ public final class ProgramIndexView extends BaseHtmlView {
   private Tag maybeRenderManageTranslationsLink(Optional<ProgramDefinition> draftProgram) {
     if (draftProgram.isPresent()) {
       String linkText = "Manage Translations →";
-      String linkDestination = routes.AdminProgramTranslationsController.edit(draftProgram.get().id()).url();
+      String linkDestination =
+          routes.AdminProgramTranslationsController.edit(draftProgram.get().id()).url();
       return new LinkElement()
-              .setId("program-edit-link-" + draftProgram.get().id())
-              .setHref(linkDestination)
-              .setText(linkText)
-              .setStyles(Styles.MR_2)
-              .asAnchorText();
+          .setId("program-edit-link-" + draftProgram.get().id())
+          .setHref(linkDestination)
+          .setText(linkText)
+          .setStyles(Styles.MR_2)
+          .asAnchorText();
     } else {
       return div();
     }
