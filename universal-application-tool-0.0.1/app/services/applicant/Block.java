@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.program.BlockDefinition;
 import services.program.ProgramQuestionDefinition;
@@ -29,33 +30,31 @@ public final class Block {
    * the "8" refers to the {@link BlockDefinition} ID, and the "1-2" refers to the first household
    * member's second job.
    */
-  // TODO(#783): In order for the above to work, we probably need to get rid of the Block constructor
-  //  that accepts a `long id`.
   private final String id;
 
   private final BlockDefinition blockDefinition;
+  private final Path applicationContextPath;
   private final ApplicantData applicantData;
-  // TODO(#783):
-  //  private final RepeaterContext repeaterContext;
   private Optional<ImmutableList<ApplicantQuestion>> questionsMemo = Optional.empty();
 
-  // TODO(#783):
-  //  Block(long id, BlockDefinition blockDefinition, ApplicantData applicantData,
-  //        RepeaterContext repeaterContext) {
-  //  Or just compute the repeaterContext from ID? I don't think that's possible if we accept a long.
-  //   Instead, we can remove the `long id` and just take a `RepeaterContext repeaterContext`.
-  Block(long id, BlockDefinition blockDefinition, ApplicantData applicantData) {
-    this.id = String.valueOf(id);
+  Block(
+      String id,
+      BlockDefinition blockDefinition,
+      Path applicationContextPath,
+      ApplicantData applicantData) {
+    this.id = id;
     this.blockDefinition = checkNotNull(blockDefinition);
+    this.applicationContextPath = checkNotNull(applicationContextPath);
     this.applicantData = checkNotNull(applicantData);
   }
 
-  // TODO(#783):
-  //  Compute the repeaterContext from the string ID
+  // TODO(#783): We probably need to get rid of the Block constructor that accepts a `long id`.
+  Block(long id, BlockDefinition blockDefinition, ApplicantData applicantData) {
+    this(String.valueOf(id), blockDefinition, Path.create("applicant"), applicantData);
+  }
+
   Block(String id, BlockDefinition blockDefinition, ApplicantData applicantData) {
-    this.id = id;
-    this.blockDefinition = checkNotNull(blockDefinition);
-    this.applicantData = checkNotNull(applicantData);
+    this(id, blockDefinition, Path.create("applicant"), applicantData);
   }
 
   public String getId() {
@@ -78,7 +77,8 @@ public final class Block {
                   .map(ProgramQuestionDefinition::getQuestionDefinition)
                   .map(
                       questionDefinition ->
-                          // TODO(natsid): Need to pass in repeaterContext here, which exists per block.
+                          // TODO(natsid): Need to pass in repeaterContext here, which exists per
+                          // block.
                           new ApplicantQuestion(questionDefinition, applicantData))
                   .collect(toImmutableList()));
     }
@@ -99,9 +99,9 @@ public final class Block {
    */
   public boolean isCompleteWithoutErrors() {
     // TODO(https://github.com/seattle-uat/civiform/issues/551): Stream only required scalar paths
-    // instead of all scalar paths.
-    // TODO: needs to be able to figure out the indices used to reference repeated entities (e.g.
-    // applicant.children[3].name.first).
+    //  instead of all scalar paths.
+    // TODO(#783): needs to be able to figure out the indices used to reference repeated entities
+    //  (e.g. applicant.children[3].name.first).
     return blockDefinition.scalarPaths().stream()
             .filter(path -> !applicantData.hasValueAtPath(path))
             .findAny()
