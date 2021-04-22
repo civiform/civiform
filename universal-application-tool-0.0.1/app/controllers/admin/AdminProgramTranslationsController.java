@@ -5,6 +5,7 @@ import static play.mvc.Results.badRequest;
 import auth.Authorizers;
 import controllers.CiviFormController;
 import forms.ProgramTranslationForm;
+import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -34,28 +35,38 @@ public class AdminProgramTranslationsController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public Result edit(Http.Request request, long id) {
-    return ok(translationView.render(request, id, Optional.empty()));
+  public Result edit(Http.Request request, long id, String locale) {
+    try {
+      ProgramDefinition program = service.getProgramDefinition(id);
+      return ok(
+          translationView.render(
+              request, program, Locale.forLanguageTag(locale), Optional.empty()));
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", id));
+    }
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public Result update(Http.Request request, long id) {
+  public Result update(Http.Request request, long id, String locale) {
     Form<ProgramTranslationForm> translationForm = formFactory.form(ProgramTranslationForm.class);
     if (translationForm.hasErrors()) {
       return badRequest();
     }
     ProgramTranslationForm translations = translationForm.bindFromRequest(request).get();
+    Locale updatedLocale = Locale.forLanguageTag(locale);
 
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> result =
           service.updateLocalization(
               id,
-              translations.getLocale(),
+              updatedLocale,
               translations.getDisplayName(),
               translations.getDisplayDescription());
       if (result.isError()) {
         String errorMessage = joinErrors(result.getErrors());
-        return ok(translationView.render(request, id, Optional.of(errorMessage)));
+        return ok(
+            translationView.render(
+                request, result.getResult(), updatedLocale, Optional.of(errorMessage)));
       }
       return redirect(routes.AdminProgramController.index().url());
     } catch (ProgramNotFoundException e) {

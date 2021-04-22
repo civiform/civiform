@@ -69,6 +69,14 @@ public abstract class ProgramDefinition {
     }
   }
 
+  public Optional<String> maybeGetLocalizedName(Locale locale) {
+    try {
+      return Optional.of(getLocalizedName(locale));
+    } catch (TranslationNotFoundException e) {
+      return Optional.empty();
+    }
+  }
+
   public String getLocalizedName(Locale locale) throws TranslationNotFoundException {
     if (localizedName().containsKey(locale)) {
       return localizedName().get(locale);
@@ -92,6 +100,14 @@ public abstract class ProgramDefinition {
     } catch (TranslationNotFoundException e) {
       // This should never happen - US English should always be supported.
       throw new RuntimeException(e);
+    }
+  }
+
+  public Optional<String> maybeGetLocalizedDescription(Locale locale) {
+    try {
+      return Optional.of(getLocalizedDescription(locale));
+    } catch (TranslationNotFoundException e) {
+      return Optional.empty();
     }
   }
 

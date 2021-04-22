@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.Tag;
+import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
 import play.mvc.Http;
@@ -209,7 +210,9 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (draftProgram.isPresent()) {
       String linkText = "Manage Translations →";
       String linkDestination =
-          routes.AdminProgramTranslationsController.edit(draftProgram.get().id()).url();
+          routes.AdminProgramTranslationsController.edit(
+                  draftProgram.get().id(), Locale.US.toLanguageTag())
+              .url();
       return new LinkElement()
           .setId("program-edit-link-" + draftProgram.get().id())
           .setHref(linkDestination)
