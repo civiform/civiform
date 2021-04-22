@@ -17,7 +17,7 @@ public class ApplicantQuestionRendererFactory {
 
   public ApplicantQuestionRenderer getSampleRenderer(QuestionType questionType)
       throws UnsupportedQuestionTypeException {
-    QuestionDefinition questionDefinition = sample(questionType).build();
+    QuestionDefinition questionDefinition = questionDefinitionSample(questionType);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(questionDefinition, new ApplicantData());
     return getRenderer(applicantQuestion);
@@ -49,7 +49,7 @@ public class ApplicantQuestionRendererFactory {
     }
   }
 
-  private static QuestionDefinitionBuilder sample(QuestionType questionType) {
+  private static QuestionDefinition questionDefinitionSample(QuestionType questionType) throws UnsupportedQuestionTypeException {
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setName("")
@@ -66,6 +66,6 @@ public class ApplicantQuestionRendererFactory {
               QuestionOption.create(1L, ImmutableMap.of(Locale.US, "Sample question option"))));
     }
 
-    return builder;
+    return builder.build();
   }
 }
