@@ -3,22 +3,25 @@ package services.question.types;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.LifecycleStage;
+import models.Question;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.CiviFormError;
 import services.Path;
+import services.question.QuestionOption;
 import services.question.exceptions.TranslationNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
+import support.TestQuestionBank;
 
 @RunWith(JUnitParamsRunner.class)
 public class QuestionDefinitionTest {
@@ -39,18 +42,13 @@ public class QuestionDefinitionTest {
             .setValidationPredicates(TextValidationPredicates.builder().setMaxLength(128).build());
   }
 
-  private EnumSet<QuestionType> questionTypeParameters() {
-    return EnumSet.complementOf(EnumSet.of(QuestionType.REPEATER));
-  }
-
-  // TODO(https://github.com/seattle-uat/civiform/issues/405): Change this to just use
-  // @Parameters(source = QuestionType.class) once RepeatedQuestionDefinition exists.
   @Test
-  @Parameters(method = "questionTypeParameters")
+  @Parameters(source = QuestionType.class)
   public void allTypesContainMetadataScalars(QuestionType type)
       throws UnsupportedQuestionTypeException {
-    QuestionDefinitionBuilder builder = QuestionDefinitionBuilder.sample(type);
-    QuestionDefinition definition = builder.build();
+
+    TestQuestionBank bank = new TestQuestionBank(false);
+    QuestionDefinition definition = bank.getTypeToQuestionMap().get(type).getQuestionDefinition();
 
     assertThat(definition.getScalars()).containsKey(definition.getLastUpdatedTimePath());
     assertThat(definition.getScalars()).containsKey(definition.getProgramIdPath());

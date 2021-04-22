@@ -13,16 +13,7 @@ import services.Path;
 import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.AddressQuestionDefinition;
-import services.question.types.CheckboxQuestionDefinition;
-import services.question.types.DropdownQuestionDefinition;
-import services.question.types.NameQuestionDefinition;
-import services.question.types.NumberQuestionDefinition;
-import services.question.types.QuestionDefinition;
-import services.question.types.QuestionType;
-import services.question.types.RadioButtonQuestionDefinition;
-import services.question.types.RepeaterQuestionDefinition;
-import services.question.types.TextQuestionDefinition;
+import services.question.types.*;
 
 /**
  * A cached {@link Question} bank for testing.
@@ -47,6 +38,19 @@ public class TestQuestionBank {
   private Map<QuestionEnum, Question> questionCache = new ConcurrentHashMap<>();
   private AtomicLong nextId = new AtomicLong(1L);
 
+  private ImmutableMap<QuestionType, Question> typeToQuestionMap =
+      new ImmutableMap.Builder<QuestionType, Question>()
+        .put(QuestionType.ADDRESS, applicantAddress())
+        .put(QuestionType.CHECKBOX, applicantKitchenTools())
+        .put(QuestionType.DROPDOWN, applicantIceCream())
+        .put(QuestionType.FILEUPLOAD, applicantFile())
+        .put(QuestionType.NAME, applicantName())
+        .put(QuestionType.NUMBER, applicantJugglingNumber())
+        .put(QuestionType.RADIO_BUTTON, applicantSeason())
+        .put(QuestionType.REPEATER, applicantHouseholdMembers())
+        .put(QuestionType.TEXT, applicantFavoriteColor())
+        .build();
+
   /**
    * Pass `true` if there is a database that comes up with the test (e.g., the test class extends
    * WithPostgresContainer), otherwise false.
@@ -58,6 +62,10 @@ public class TestQuestionBank {
   public void reset() {
     questionCache.clear();
     nextId.set(1L);
+  }
+
+  public ImmutableMap<QuestionType, Question> getTypeToQuestionMap() {
+    return typeToQuestionMap;
   }
 
   // Address
@@ -74,6 +82,11 @@ public class TestQuestionBank {
   // Dropdown
   public Question applicantIceCream() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ICE_CREAM, this::applicantIceCream);
+  }
+
+  // File upload
+  public Question applicantFile() {
+    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_FILE, this::applicantFile);
   }
 
   // Name
@@ -163,6 +176,21 @@ public class TestQuestionBank {
                 QuestionOption.create(2L, ImmutableMap.of(Locale.US, "strawberry")),
                 QuestionOption.create(3L, ImmutableMap.of(Locale.US, "vanilla")),
                 QuestionOption.create(4L, ImmutableMap.of(Locale.US, "coffee"))));
+    return maybeSave(definition);
+  }
+
+  // File upload
+  private Question applicantFile(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new FileUploadQuestionDefinition(
+            VERSION,
+            "applicant name",
+            Path.create("applicant.applicant_name"),
+            Optional.empty(),
+            "name of applicant",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "what is your name?"),
+            ImmutableMap.of(Locale.US, "help text"));
     return maybeSave(definition);
   }
 
@@ -288,6 +316,7 @@ public class TestQuestionBank {
     APPLICANT_JUGGLING_NUMBER,
     APPLICANT_HOUSEHOLD_MEMBERS,
     APPLICANT_HOUSEHOLD_MEMBER_NAME,
-    APPLICANT_FAVORITE_COLOR
+    APPLICANT_FAVORITE_COLOR,
+    APPLICANT_FILE
   }
 }
