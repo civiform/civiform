@@ -40,16 +40,16 @@ public class TestQuestionBank {
 
   private ImmutableMap<QuestionType, Question> typeToQuestionMap =
       new ImmutableMap.Builder<QuestionType, Question>()
-        .put(QuestionType.ADDRESS, applicantAddress())
-        .put(QuestionType.CHECKBOX, applicantKitchenTools())
-        .put(QuestionType.DROPDOWN, applicantIceCream())
-        .put(QuestionType.FILEUPLOAD, applicantFile())
-        .put(QuestionType.NAME, applicantName())
-        .put(QuestionType.NUMBER, applicantJugglingNumber())
-        .put(QuestionType.RADIO_BUTTON, applicantSeason())
-        .put(QuestionType.REPEATER, applicantHouseholdMembers())
-        .put(QuestionType.TEXT, applicantFavoriteColor())
-        .build();
+          .put(QuestionType.ADDRESS, applicantAddress())
+          .put(QuestionType.CHECKBOX, applicantKitchenTools())
+          .put(QuestionType.DROPDOWN, applicantIceCream())
+          .put(QuestionType.FILEUPLOAD, applicantFile())
+          .put(QuestionType.NAME, applicantName())
+          .put(QuestionType.NUMBER, applicantJugglingNumber())
+          .put(QuestionType.RADIO_BUTTON, applicantSeason())
+          .put(QuestionType.REPEATER, applicantHouseholdMembers())
+          .put(QuestionType.TEXT, applicantFavoriteColor())
+          .build();
 
   /**
    * Pass `true` if there is a database that comes up with the test (e.g., the test class extends

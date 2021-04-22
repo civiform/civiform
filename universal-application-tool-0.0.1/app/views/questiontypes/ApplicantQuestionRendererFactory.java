@@ -2,6 +2,7 @@ package views.questiontypes;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Locale;
 import models.LifecycleStage;
 import services.Path;
 import services.applicant.ApplicantData;
@@ -11,8 +12,6 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
-
-import java.util.Locale;
 
 public class ApplicantQuestionRendererFactory {
 
