@@ -17,6 +17,7 @@ describe('security browser testing', () => {
     const { browser, page } = await startSession();
     await gotoRootUrl(page);
     assertEndpointEquals(page, '/loginForm');
+    endSession(browser);
   })
 
   it('homePage_whenLoggedInAsAdmin_redirectsToAdminProgramList', async () => {
@@ -28,6 +29,7 @@ describe('security browser testing', () => {
 
     await logout(page);
     await gotoRootUrl(page);
+    endSession(browser);
   })
 
   it('homePage_whenLoggedInAsApplicant_redirectsToApplicantProgramList', async () => {
@@ -38,8 +40,10 @@ describe('security browser testing', () => {
 
     await gotoRootUrl(page);
 
+    // FAILS
     assertEndpointEquals(page, '/applicants/'.concat(user_id).concat('/programs'));
     await logout(page);
+    endSession(browser);
   })
 
   it('noCredLogin', async () => {
@@ -57,11 +61,11 @@ describe('security browser testing', () => {
     await assertPageIncludes(page, '403');
 
     await logout(page);
+    endSession(browser);
   })
 
   it('basicOidcLogin', async () => {
     const { browser, page } = await startSession();
-    console.log(await page.url());
     await loginWithSimulatedIdcs(page);
     await gotoEndpoint(page, '/securePlayIndex');
 
@@ -78,6 +82,7 @@ describe('security browser testing', () => {
     await assertPageIncludes(page, 'username@example.com');
 
     await logout(page);
+    endSession(browser);
   })
 
   it('mergeLogins', async () => {
@@ -117,6 +122,7 @@ describe('security browser testing', () => {
     assert.equal(user_id, user_id3);
 
     await logout(page);
+    endSession(browser);
   })
 
   it('adminTestLogin', async () => {
@@ -135,5 +141,6 @@ describe('security browser testing', () => {
     pg_source = await page.content();
     assert(pg_source.includes('Programs'));
     assert(pg_source.includes('Create new program'));
+    endSession(browser);
   })
 })

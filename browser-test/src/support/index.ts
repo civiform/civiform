@@ -111,8 +111,6 @@ export const loginWithSimulatedIdcs = async (page: Page) => {
     await page.click('css=[name=password]');
     await page.keyboard.type('password');
 
-    console.log(pg_source);
-
     await page.click('.login-submit');
   }
 
