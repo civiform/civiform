@@ -15,6 +15,7 @@ POST    /admin/programs/:programId/newVersion controllers.admin.AdminProgramCont
 POST    /admin/programs                       controllers.admin.AdminProgramController.create(request: Request)
 POST    /admin/programs/publish               controllers.admin.AdminProgramController.publish()
 POST    /admin/programs/:programId            controllers.admin.AdminProgramController.update(request: Request, programId: Long)
+POST    /admin/programs/:programId/localize   controllers.admin.AdminProgramController.localize(request: Request, programId: Long)
 
 # A controller for pages for an admin to create and maintain blocks for a program
 GET     /admin/programs/:programId/blocks                              controllers.admin.AdminProgramBlocksController.index(programId: Long)
