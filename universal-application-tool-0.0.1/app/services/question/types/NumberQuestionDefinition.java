@@ -122,7 +122,7 @@ public class NumberQuestionDefinition extends QuestionDefinition {
   }
 
   @Override
-  ImmutableMap<Path, ScalarType> getScalarMap() {
+  ImmutableMap<Path, ScalarType> getQuestionSpecificScalars() {
     return ImmutableMap.of(getNumberPath(), getNumberType());
   }
 

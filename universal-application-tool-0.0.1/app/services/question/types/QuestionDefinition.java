@@ -16,6 +16,7 @@ import java.util.OptionalLong;
 import services.CiviFormError;
 import services.LocalizationUtils;
 import services.Path;
+import services.applicant.ApplicantData;
 import services.question.exceptions.TranslationNotFoundException;
 
 /** Defines a single question. */
@@ -108,6 +109,15 @@ public abstract class QuestionDefinition {
    */
   public String getName() {
     return this.name;
+  }
+
+  /**
+   * Returns the {@link Path} segment that corresponds to this QuestionDefinition. Does not include
+   *
+   */
+  public String getQuestionPathSegment() {
+    // TODO(#783): Change this getter once we save this formatted name to the database.
+    return name.replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
   }
 
   /**
@@ -289,15 +299,15 @@ public abstract class QuestionDefinition {
   }
 
   /** Get a map of all scalars stored by this question definition. */
-  public ImmutableMap<Path, ScalarType> getScalars() {
+  public final ImmutableMap<Path, ScalarType> getScalars() {
     return ImmutableMap.<Path, ScalarType>builder()
-        .putAll(getScalarMap())
+        .putAll(getQuestionSpecificScalars())
         .putAll(getMetadataMap())
         .build();
   }
 
   /** Get a map of question specific scalars stored by this question definition. */
-  abstract ImmutableMap<Path, ScalarType> getScalarMap();
+  abstract ImmutableMap<Path, ScalarType> getQuestionSpecificScalars();
 
   /** Get a map of metadata stored by all question definitions. */
   ImmutableMap<Path, ScalarType> getMetadataMap() {

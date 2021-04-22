@@ -86,7 +86,7 @@ public class NameQuestionDefinition extends QuestionDefinition {
   }
 
   @Override
-  ImmutableMap<Path, ScalarType> getScalarMap() {
+  ImmutableMap<Path, ScalarType> getQuestionSpecificScalars() {
     return ImmutableMap.of(
         getFirstNamePath(),
         getFirstNameType(),

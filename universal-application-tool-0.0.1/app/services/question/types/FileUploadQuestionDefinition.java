@@ -74,7 +74,7 @@ public class FileUploadQuestionDefinition extends QuestionDefinition {
   }
 
   @Override
-  ImmutableMap<Path, ScalarType> getScalarMap() {
+  ImmutableMap<Path, ScalarType> getQuestionSpecificScalars() {
     return ImmutableMap.of(getFileKeyPath(), getFileKeyType());
   }
 

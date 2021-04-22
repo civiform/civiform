@@ -66,7 +66,7 @@ public class RepeaterQuestionDefinition extends QuestionDefinition {
   }
 
   @Override
-  public ImmutableMap<Path, ScalarType> getScalarMap() {
+  public ImmutableMap<Path, ScalarType> getQuestionSpecificScalars() {
     return ImmutableMap.of();
   }
 
