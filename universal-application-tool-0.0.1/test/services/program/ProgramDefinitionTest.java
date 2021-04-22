@@ -192,16 +192,16 @@ public class ProgramDefinitionTest {
   @Test
   public void getSupportedLocales_noQuestions_returnsOnlyLocalesSupportedByDisplayText() {
     ProgramDefinition definition =
-            ProgramDefinition.builder()
-                    .setId(123L)
-                    .setAdminName("Admin name")
-                    .setAdminDescription("Admin description")
-                    .addLocalizedName(Locale.US, "Applicant friendly name")
-                    .addLocalizedName(Locale.FRANCE, "test")
-                    .addLocalizedDescription(Locale.US, "English description")
-                    .addLocalizedDescription(Locale.GERMAN, "test")
-                    .setLifecycleStage(LifecycleStage.ACTIVE)
-                    .build();
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .addLocalizedName(Locale.US, "Applicant friendly name")
+            .addLocalizedName(Locale.FRANCE, "test")
+            .addLocalizedDescription(Locale.US, "English description")
+            .addLocalizedDescription(Locale.GERMAN, "test")
+            .setLifecycleStage(LifecycleStage.ACTIVE)
+            .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
   }
@@ -211,37 +211,37 @@ public class ProgramDefinitionTest {
     QuestionDefinition questionA = testQuestionBank.applicantName().getQuestionDefinition();
     QuestionDefinition questionB = testQuestionBank.applicantAddress().getQuestionDefinition();
     QuestionDefinition questionC =
-            testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+        testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
 
     BlockDefinition blockA =
-            BlockDefinition.builder()
-                    .setId(123L)
-                    .setName("Block Name")
-                    .setDescription("Block Description")
-                    .addQuestion(ProgramQuestionDefinition.create(questionA))
-                    .build();
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .addQuestion(ProgramQuestionDefinition.create(questionA))
+            .build();
     BlockDefinition blockB =
-            BlockDefinition.builder()
-                    .setId(123L)
-                    .setName("Block Name")
-                    .setDescription("Block Description")
-                    .addQuestion(ProgramQuestionDefinition.create(questionB))
-                    .addQuestion(ProgramQuestionDefinition.create(questionC))
-                    .build();
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .addQuestion(ProgramQuestionDefinition.create(questionB))
+            .addQuestion(ProgramQuestionDefinition.create(questionC))
+            .build();
     ProgramDefinition definition =
-            ProgramDefinition.builder()
-                    .setId(123L)
-                    .setAdminName("Admin name")
-                    .setAdminDescription("Admin description")
-                    .addLocalizedName(Locale.US, "Applicant friendly name")
-                    .addLocalizedName(Locale.FRANCE, "test")
-                    .addLocalizedDescription(Locale.US, "English description")
-                    .addLocalizedDescription(Locale.GERMAN, "test")
-                    .addLocalizedDescription(Locale.FRANCE, "test")
-                    .addBlockDefinition(blockA)
-                    .addBlockDefinition(blockB)
-                    .setLifecycleStage(LifecycleStage.ACTIVE)
-                    .build();
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .addLocalizedName(Locale.US, "Applicant friendly name")
+            .addLocalizedName(Locale.FRANCE, "test")
+            .addLocalizedDescription(Locale.US, "English description")
+            .addLocalizedDescription(Locale.GERMAN, "test")
+            .addLocalizedDescription(Locale.FRANCE, "test")
+            .addBlockDefinition(blockA)
+            .addBlockDefinition(blockB)
+            .setLifecycleStage(LifecycleStage.ACTIVE)
+            .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
   }
