@@ -204,6 +204,21 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
   }
 
+  private Tag maybeRenderManageTranslationsLink(Optional<ProgramDefinition> draftProgram) {
+    if (draftProgram.isPresent()) {
+      String linkText = "Manage Translations →";
+      String linkDestination = routes.AdminProgramTranslationsController.edit(draftProgram.get().id()).url();
+      return new LinkElement()
+              .setId("program-edit-link-" + draftProgram.get().id())
+              .setHref(linkDestination)
+              .setText(linkText)
+              .setStyles(Styles.MR_2)
+              .asAnchorText();
+    } else {
+      return div();
+    }
+  }
+
   Tag maybeRenderViewApplicationsLink(String text, Optional<ProgramDefinition> activeProgram) {
     if (activeProgram.isPresent()) {
       String editLink =
