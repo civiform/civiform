@@ -48,7 +48,7 @@ public class AdminLayout extends BaseHtmlLayout {
             .with(headerIcon, headerTitle)
             .with(headerLink("Questions", questionLink))
             .with(headerLink("Programs", programLink))
-                .with(headerLink("Versions", versionLink))
+            .with(headerLink("Versions", versionLink))
             .with(headerLink("Logout", logoutLink, Styles.FLOAT_RIGHT))
             .withClasses(BaseStyles.NAV_STYLES);
     return adminHeader;

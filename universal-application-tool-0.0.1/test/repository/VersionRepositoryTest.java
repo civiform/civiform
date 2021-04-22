@@ -1,16 +1,61 @@
 package repository;
 
-public class VersionRepositoryTest extends WithPostgresContainer {
-  /*
-   private ProgramRepository programRepository;
-   private VersionRepository versionRepository;
-   private ProgramService programService;
+import static org.assertj.core.api.Assertions.assertThat;
 
-   @Before
-   public void setupProgramRepository() {
-     programRepository = instanceOf(ProgramRepository.class);
-     versionRepository = instanceOf(VersionRepository.class);
-     programService = instanceOf(ProgramService.class);
-   }
-  */
+import models.LifecycleStage;
+import models.Version;
+import org.junit.Before;
+import org.junit.Test;
+
+public class VersionRepositoryTest extends WithPostgresContainer {
+  private VersionRepository versionRepository;
+
+  @Before
+  public void setupProgramRepository() {
+    versionRepository = instanceOf(VersionRepository.class);
+  }
+
+  @Test
+  public void testPublish() {
+    this.resourceCreator.insertActiveProgram("foo");
+    this.resourceCreator.insertActiveProgram("bar");
+    this.resourceCreator.insertDraftProgram("bar");
+    assertThat(this.versionRepository.getActiveVersion().getPrograms()).hasSize(2);
+    assertThat(this.versionRepository.getDraftVersion().getPrograms()).hasSize(1);
+    Version oldDraft = this.versionRepository.getDraftVersion();
+    this.versionRepository.publishNewSynchronizedVersion();
+    assertThat(this.versionRepository.getActiveVersion().getPrograms()).hasSize(2);
+    assertThat(this.versionRepository.getDraftVersion().getPrograms()).hasSize(0);
+    oldDraft.refresh();
+    assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+  }
+
+  @Test
+  public void testSetLive() {
+    this.resourceCreator.insertActiveProgram("foo");
+    this.resourceCreator.insertDraftProgram("bar");
+    Version oldDraft = this.versionRepository.getDraftVersion();
+    Version oldActive = this.versionRepository.getActiveVersion();
+    this.versionRepository.publishNewSynchronizedVersion();
+    oldDraft.refresh();
+    oldActive.refresh();
+
+    assertThat(oldDraft.getPrograms()).hasSize(2);
+    assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+    assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
+
+    this.versionRepository.setLive(oldActive.id);
+
+    oldActive.refresh();
+    oldDraft.refresh();
+    assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+    assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
+
+    this.versionRepository.setLive(oldDraft.id);
+
+    oldActive.refresh();
+    oldDraft.refresh();
+    assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
+    assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+  }
 }
