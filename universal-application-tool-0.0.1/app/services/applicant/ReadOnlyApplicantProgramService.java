@@ -22,4 +22,9 @@ public interface ReadOnlyApplicantProgramService {
   Optional<Block> getFirstIncompleteBlock();
 
   ImmutableList<SummaryData> getSummaryData();
+  /**
+   * Returns true if this program fully supports this applicant's preferred language, and false
+   * otherwise.
+   */
+  boolean preferredLanguageSupported();
 }

@@ -29,10 +29,12 @@ export class AdminPrograms {
     await this.gotoAdminProgramsPage();
     await this.page.click('#new-program-button');
 
-    await this.page.fill('text=Program name', programName);
-    await this.page.fill('text=Program description', description);
+    await this.page.fill('#program-name-input', programName);
+    await this.page.fill('#program-description-textarea', description);
+    await this.page.fill('#program-display-name-input', programName);
+    await this.page.fill('#program-display-description-textarea', description);
 
-    await this.page.click('text=Create');
+    await this.page.click('text=Save');
 
     await this.expectAdminProgramsPage();
 
@@ -73,7 +75,7 @@ export class AdminPrograms {
   async expectProgramBlockEditPage(programName: string = '') {
     expect(await this.page.innerText('id=program-title')).toContain(programName);
     // Compare string case insensitively because style may not have been computed.
-    expect((await this.page.innerText('label')).toUpperCase()).toEqual('BLOCK NAME');
+    expect((await this.page.innerText('[for=block-name-input]')).toUpperCase()).toEqual('BLOCK NAME');
     expect(await this.page.innerText('h1')).toContain('Question bank');
   }
 

@@ -3,18 +3,19 @@ package services.question.types;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.CiviFormError;
+import services.LocalizationUtils;
 import services.Path;
+import services.question.QuestionOption;
 import services.question.exceptions.TranslationNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
@@ -28,29 +29,33 @@ public class QuestionDefinitionTest {
   public void setup() {
     builder =
         new QuestionDefinitionBuilder()
-            .setVersion(1L)
             .setName("my name")
             .setPath(Path.create("my.path.name"))
             .setDescription("description")
             .setQuestionType(QuestionType.TEXT)
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
             .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
             .setValidationPredicates(TextValidationPredicates.builder().setMaxLength(128).build());
   }
 
-  private EnumSet<QuestionType> questionTypeParameters() {
-    return EnumSet.complementOf(EnumSet.of(QuestionType.REPEATER));
-  }
-
-  // TODO(https://github.com/seattle-uat/civiform/issues/405): Change this to just use
-  // @Parameters(source = QuestionType.class) once RepeatedQuestionDefinition exists.
   @Test
-  @Parameters(method = "questionTypeParameters")
-  public void allTypesContainMetadataScalars(QuestionType type)
+  @Parameters(source = QuestionType.class)
+  public void allTypesContainMetadataScalars(QuestionType questionType)
       throws UnsupportedQuestionTypeException {
-    QuestionDefinitionBuilder builder = QuestionDefinitionBuilder.sample(type);
-    QuestionDefinition definition = builder.build();
+    // Modifying the builder to build the appropriate QuestionDefinition to test based on
+    // QuestionType
+    builder.setQuestionType(questionType);
+    builder.setValidationPredicatesString("");
+
+    if (questionType.isMultiOptionType()) {
+      builder.setQuestionOptions(
+          ImmutableList.of(
+              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "Sample question option"))));
+      builder.setValidationPredicates(
+          MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create());
+    }
+
+    QuestionDefinition definition = builder.setQuestionType(questionType).build();
 
     assertThat(definition.getScalars()).containsKey(definition.getLastUpdatedTimePath());
     assertThat(definition.getScalars()).containsKey(definition.getProgramIdPath());
@@ -129,14 +134,6 @@ public class QuestionDefinitionTest {
   }
 
   @Test
-  public void testEquality_differentVersionReturnsFalse() throws UnsupportedQuestionTypeException {
-    QuestionDefinition question = builder.setId(123L).build();
-
-    QuestionDefinition differentVersion = builder.setVersion(2L).build();
-    assertThat(question.equals(differentVersion)).isFalse();
-  }
-
-  @Test
   public void testEquality_differentNameReturnsFalse() throws UnsupportedQuestionTypeException {
     QuestionDefinition question = builder.setId(123L).build();
     QuestionDefinition differentName = builder.setName("Different name").build();
@@ -156,14 +153,7 @@ public class QuestionDefinitionTest {
   public void isRepeater_false() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            1L,
-            "",
-            Path.empty(),
-            Optional.empty(),
-            "",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(),
-            ImmutableMap.of());
+            "", Path.empty(), Optional.empty(), "", ImmutableMap.of(), ImmutableMap.of());
 
     assertThat(question.isRepeater()).isFalse();
   }
@@ -172,14 +162,7 @@ public class QuestionDefinitionTest {
   public void isRepeater_true() {
     QuestionDefinition question =
         new RepeaterQuestionDefinition(
-            1L,
-            "",
-            Path.empty(),
-            Optional.empty(),
-            "",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(),
-            ImmutableMap.of());
+            "", Path.empty(), Optional.empty(), "", ImmutableMap.of(), ImmutableMap.of());
     assertThat(question.isRepeater()).isTrue();
   }
 
@@ -187,14 +170,7 @@ public class QuestionDefinitionTest {
   public void isRepeated_false() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            1L,
-            "",
-            Path.empty(),
-            Optional.empty(),
-            "",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(),
-            ImmutableMap.of());
+            "", Path.empty(), Optional.empty(), "", ImmutableMap.of(), ImmutableMap.of());
 
     assertThat(question.isRepeated()).isFalse();
   }
@@ -203,14 +179,7 @@ public class QuestionDefinitionTest {
   public void isRepeated_true() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            1L,
-            "",
-            Path.empty(),
-            Optional.of(123L),
-            "",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(),
-            ImmutableMap.of());
+            "", Path.empty(), Optional.of(123L), "", ImmutableMap.of(), ImmutableMap.of());
     assertThat(question.isRepeated()).isTrue();
   }
 
@@ -220,18 +189,15 @@ public class QuestionDefinitionTest {
         new QuestionDefinitionBuilder()
             .setQuestionType(QuestionType.TEXT)
             .setId(123L)
-            .setVersion(1L)
             .setName("my name")
             .setPath(Path.create("my.path.name"))
             .setDescription("description")
             .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
             .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setValidationPredicates(TextValidationPredicates.builder().setMinLength(0).build())
             .build();
 
     assertThat(question.getId()).isEqualTo(123L);
-    assertThat(question.getVersion()).isEqualTo(1L);
     assertThat(question.getName()).isEqualTo("my name");
     assertThat(question.getPath().path()).isEqualTo("my.path.name");
     assertThat(question.getDescription()).isEqualTo("description");
@@ -246,12 +212,10 @@ public class QuestionDefinitionTest {
     String questionPath = "question.path";
     QuestionDefinition question =
         new TextQuestionDefinition(
-            1L,
             "",
             Path.create(questionPath),
             Optional.empty(),
             "",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(),
             ImmutableMap.of());
 
@@ -268,12 +232,10 @@ public class QuestionDefinitionTest {
     String questionPath = "question.path";
     QuestionDefinition question =
         new TextQuestionDefinition(
-            1L,
             "",
             Path.create(questionPath),
             Optional.empty(),
             "",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(),
             ImmutableMap.of(Locale.US, "help text"));
 
@@ -289,29 +251,45 @@ public class QuestionDefinitionTest {
   public void getEmptyHelpTextForUnknownLocale_succeeds() throws TranslationNotFoundException {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            1L,
+            "", Path.empty(), Optional.empty(), "", ImmutableMap.of(), ImmutableMap.of());
+    assertThat(question.getQuestionHelpText(Locale.FRANCE)).isEqualTo("");
+  }
+
+  @Test
+  public void getQuestionTextOrDefault_returnsDefaultIfNotFound() {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
             "",
             Path.empty(),
             Optional.empty(),
             "",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(),
+            ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, "default"),
             ImmutableMap.of());
-    assertThat(question.getQuestionHelpText(Locale.FRANCE)).isEqualTo("");
+
+    assertThat(question.getQuestionTextOrDefault(Locale.forLanguageTag("und")))
+        .isEqualTo("default");
+  }
+
+  @Test
+  public void getQuestionHelpTextOrDefault_returnsDefaultIfNotFound() {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            "",
+            Path.empty(),
+            Optional.empty(),
+            "",
+            ImmutableMap.of(),
+            ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, "default"));
+
+    assertThat(question.getQuestionHelpTextOrDefault(Locale.forLanguageTag("und")))
+        .isEqualTo("default");
   }
 
   @Test
   public void newQuestionHasTypeText() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            1L,
-            "",
-            Path.empty(),
-            Optional.empty(),
-            "",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(),
-            ImmutableMap.of());
+            "", Path.empty(), Optional.empty(), "", ImmutableMap.of(), ImmutableMap.of());
 
     assertThat(question.getQuestionType()).isEqualTo(QuestionType.TEXT);
   }
@@ -320,12 +298,10 @@ public class QuestionDefinitionTest {
   public void newQuestionHasStringScalar() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            1L,
             "name",
             Path.create("path.to.question"),
             Optional.empty(),
             "description",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(),
             ImmutableMap.of());
     ImmutableMap<Path, ScalarType> expectedScalars =
@@ -348,14 +324,7 @@ public class QuestionDefinitionTest {
   public void newQuestionMissingScalar_returnsOptionalEmpty() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            1L,
-            "",
-            Path.empty(),
-            Optional.empty(),
-            "",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(),
-            ImmutableMap.of());
+            "", Path.empty(), Optional.empty(), "", ImmutableMap.of(), ImmutableMap.of());
     assertThat(question.getScalarType(Path.create("notPresent"))).isEqualTo(Optional.empty());
   }
 
@@ -363,12 +332,10 @@ public class QuestionDefinitionTest {
   public void validateWellFormedQuestion_returnsNoErrors() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            1L,
             "name",
             Path.create("path"),
             Optional.empty(),
             "description",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "question?"),
             ImmutableMap.of());
     assertThat(question.validate()).isEmpty();
@@ -378,19 +345,38 @@ public class QuestionDefinitionTest {
   public void validateBadQuestion_returnsErrors() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            -1L,
-            "",
-            Path.empty(),
-            Optional.empty(),
-            "",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(),
-            ImmutableMap.of());
+            "", Path.empty(), Optional.empty(), "", ImmutableMap.of(), ImmutableMap.of());
     assertThat(question.validate())
         .containsOnly(
-            CiviFormError.of("invalid version: -1"),
             CiviFormError.of("blank name"),
             CiviFormError.of("blank description"),
             CiviFormError.of("no question text"));
+  }
+
+  @Test
+  public void getSupportedLocales_onlyReturnsFullySupportedLocales() {
+    QuestionDefinition definition =
+        new TextQuestionDefinition(
+            "test",
+            Path.empty(),
+            Optional.empty(),
+            "test",
+            ImmutableMap.of(
+                Locale.US,
+                "question?",
+                Locale.forLanguageTag("es-US"),
+                "pregunta",
+                Locale.FRANCE,
+                "question"),
+            ImmutableMap.of(
+                Locale.US,
+                "help",
+                Locale.forLanguageTag("es-US"),
+                "ayuda",
+                Locale.GERMAN,
+                "Hilfe"));
+
+    assertThat(definition.getSupportedLocales())
+        .containsExactly(Locale.US, Locale.forLanguageTag("es-US"));
   }
 }

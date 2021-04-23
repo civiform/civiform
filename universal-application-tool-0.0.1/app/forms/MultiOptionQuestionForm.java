@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
+import services.LocalizationUtils;
 import services.Path;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
@@ -41,9 +42,9 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     try {
       // TODO: this will need revisiting to support multiple locales
       // https://github.com/seattle-uat/civiform/issues/778
-      if (qd.getSupportedLocales().contains(Locale.US)) {
+      if (qd.getSupportedLocales().contains(LocalizationUtils.DEFAULT_LOCALE)) {
         List<String> optionStrings =
-            qd.getOptionsForLocale(Locale.US).stream()
+            qd.getOptionsForLocale(LocalizationUtils.DEFAULT_LOCALE).stream()
                 .map(LocalizedQuestionOption::optionText)
                 .collect(Collectors.toList());
         this.options.addAll(optionStrings);

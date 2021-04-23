@@ -7,7 +7,6 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import services.Path;
 import services.applicant.ApplicantData;
-import services.question.exceptions.TranslationNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 
@@ -40,19 +39,11 @@ public class ApplicantQuestion {
   }
 
   public String getQuestionText() {
-    try {
-      return questionDefinition.getQuestionText(applicantData.preferredLocale());
-    } catch (TranslationNotFoundException e) {
-      throw new RuntimeException(e);
-    }
+    return questionDefinition.getQuestionTextOrDefault(applicantData.preferredLocale());
   }
 
   public String getQuestionHelpText() {
-    try {
-      return questionDefinition.getQuestionHelpText(applicantData.preferredLocale());
-    } catch (TranslationNotFoundException e) {
-      throw new RuntimeException(e);
-    }
+    return questionDefinition.getQuestionHelpTextOrDefault(applicantData.preferredLocale());
   }
 
   public Path getPath() {
@@ -86,16 +77,8 @@ public class ApplicantQuestion {
     return new FileUploadQuestion(this);
   }
 
-  public SingleSelectQuestion createSingleSelectQuestion() {
-    return new SingleSelectQuestion(this);
-  }
-
   public MultiSelectQuestion createMultiSelectQuestion() {
     return new MultiSelectQuestion(this);
-  }
-
-  public TextQuestion createTextQuestion() {
-    return new TextQuestion(this);
   }
 
   public NameQuestion createNameQuestion() {
@@ -106,6 +89,18 @@ public class ApplicantQuestion {
     return new NumberQuestion(this);
   }
 
+  public RepeaterQuestion createRepeaterQuestion() {
+    return new RepeaterQuestion(this);
+  }
+
+  public SingleSelectQuestion createSingleSelectQuestion() {
+    return new SingleSelectQuestion(this);
+  }
+
+  public TextQuestion createTextQuestion() {
+    return new TextQuestion(this);
+  }
+
   public PresentsErrors errorsPresenter() {
     switch (getType()) {
       case ADDRESS:
@@ -114,13 +109,15 @@ public class ApplicantQuestion {
         return createMultiSelectQuestion();
       case FILEUPLOAD:
         return createFileUploadQuestion();
-      case DROPDOWN:
-      case RADIO_BUTTON:
-        return createSingleSelectQuestion();
       case NAME:
         return createNameQuestion();
       case NUMBER:
         return createNumberQuestion();
+      case DROPDOWN: // fallthrough to RADIO_BUTTON
+      case RADIO_BUTTON:
+        return createSingleSelectQuestion();
+      case REPEATER:
+        return createRepeaterQuestion();
       case TEXT:
         return createTextQuestion();
       default:

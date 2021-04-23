@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
 import services.question.QuestionOption;
@@ -24,26 +23,19 @@ public class RadioButtonQuestionFormTest {
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
-    form.setQuestionHelpText("");
+    form.setQuestionHelpText("help text");
     // Unique field
     form.setOptions(ImmutableList.of("cat", "dog", "rabbit"));
     QuestionDefinitionBuilder builder = form.getBuilder(path);
 
-    // The QuestionForm does not set version, which is needed in order to build the
-    // QuestionDefinition. How we get this value hasn't been determined.
-    builder.setVersion(1L);
-    builder.setLifecycleStage(LifecycleStage.ACTIVE);
-
     RadioButtonQuestionDefinition expected =
         new RadioButtonQuestionDefinition(
-            1L,
             "name",
             path,
             Optional.empty(),
             "description",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of(),
+            ImmutableMap.of(Locale.US, "help text"),
             ImmutableList.of(
                 QuestionOption.create(1L, ImmutableMap.of(Locale.US, "cat")),
                 QuestionOption.create(1L, ImmutableMap.of(Locale.US, "dog")),
@@ -58,25 +50,18 @@ public class RadioButtonQuestionFormTest {
 
     RadioButtonQuestionDefinition originalQd =
         new RadioButtonQuestionDefinition(
-            1L,
             "name",
             path,
             Optional.empty(),
             "description",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of(),
+            ImmutableMap.of(Locale.US, "help text"),
             ImmutableList.of(
                 QuestionOption.create(1L, ImmutableMap.of(Locale.US, "hello")),
                 QuestionOption.create(1L, ImmutableMap.of(Locale.US, "world"))));
 
     RadioButtonQuestionForm form = new RadioButtonQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder(path);
-
-    // The QuestionForm does not set version)), which is needed in order to build the
-    // QuestionDefinition. How we get this value hasn't been determined.
-    builder.setVersion(1L);
-    builder.setLifecycleStage(LifecycleStage.ACTIVE);
 
     assertThat(builder.build()).isEqualTo(originalQd);
   }

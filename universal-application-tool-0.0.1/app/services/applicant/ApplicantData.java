@@ -16,16 +16,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import services.LocalizationUtils;
 import services.Path;
 import services.WellKnownPaths;
 import services.question.types.RepeaterQuestionDefinition;
 
 public class ApplicantData {
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
-  private static final Locale DEFAULT_LOCALE = Locale.US;
   private static final TypeRef<ImmutableList<Long>> IMMUTABLE_LIST_LONG_TYPE = new TypeRef<>() {};
 
-  private Locale preferredLocale;
+  private Optional<Locale> preferredLocale;
   private final DocumentContext jsonData;
 
   public ApplicantData() {
@@ -33,20 +33,26 @@ public class ApplicantData {
   }
 
   public ApplicantData(String jsonData) {
-    this(DEFAULT_LOCALE, jsonData);
+    this(Optional.empty(), jsonData);
   }
 
-  public ApplicantData(Locale preferredLocale, String jsonData) {
+  public ApplicantData(Optional<Locale> preferredLocale, String jsonData) {
     this.preferredLocale = preferredLocale;
     this.jsonData = JsonPathProvider.getJsonPath().parse(checkNotNull(jsonData));
   }
 
+  /** Returns true if this applicant has set their preferred locale, and false otherwise. */
+  public boolean hasPreferredLocale() {
+    return this.preferredLocale.isPresent();
+  }
+
+  /** Returns this applicant's preferred locale if it is set, or the default locale if not set. */
   public Locale preferredLocale() {
-    return this.preferredLocale;
+    return this.preferredLocale.orElse(LocalizationUtils.DEFAULT_LOCALE);
   }
 
   public void setPreferredLocale(Locale locale) {
-    this.preferredLocale = locale;
+    this.preferredLocale = Optional.of(locale);
   }
 
   /**

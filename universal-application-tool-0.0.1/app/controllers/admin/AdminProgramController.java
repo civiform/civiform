@@ -14,6 +14,7 @@ import play.mvc.Result;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.LocalizationUtils;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -49,7 +50,7 @@ public class AdminProgramController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result index(Request request) {
-    return ok(listView.render(this.service.listProgramDefinitions(), request));
+    return ok(listView.render(this.service.getActiveAndDraftPrograms(), request));
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
@@ -62,7 +63,11 @@ public class AdminProgramController extends CiviFormController {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm program = programForm.bindFromRequest(request).get();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
-        service.createProgramDefinition(program.getName(), program.getDescription());
+        service.createProgramDefinition(
+            program.getAdminName(),
+            program.getAdminDescription(),
+            program.getLocalizedDisplayName(),
+            program.getLocalizedDisplayDescription());
     if (result.isError()) {
       String errorMessage = joinErrors(result.getErrors());
       return ok(newOneView.render(request, program, errorMessage));
@@ -107,7 +112,12 @@ public class AdminProgramController extends CiviFormController {
     ProgramForm program = programForm.bindFromRequest(request).get();
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> result =
-          service.updateProgramDefinition(id, program.getName(), program.getDescription());
+          service.updateProgramDefinition(
+              id,
+              LocalizationUtils.DEFAULT_LOCALE,
+              program.getAdminDescription(),
+              program.getLocalizedDisplayName(),
+              program.getLocalizedDisplayDescription());
       if (result.isError()) {
         String errorMessage = joinErrors(result.getErrors());
         return ok(editView.render(request, id, program, errorMessage));

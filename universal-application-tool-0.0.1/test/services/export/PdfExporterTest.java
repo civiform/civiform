@@ -12,7 +12,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Optional;
 import models.Applicant;
-import models.LifecycleStage;
 import models.Program;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.form.PDField;
@@ -43,7 +42,6 @@ public class PdfExporterTest extends WithPostgresContainer {
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "fake program")
             .addLocalizedDescription(Locale.US, "fake program description")
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .addExportDefinition(
                 ExportDefinition.builder()
                     .setEngine(ExportEngine.PDF)

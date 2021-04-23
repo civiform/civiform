@@ -1,7 +1,5 @@
 package views.admin.programs;
 
-import static j2html.TagCreator.form;
-
 import com.google.inject.Inject;
 import forms.ProgramForm;
 import j2html.tags.ContainerTag;
@@ -10,7 +8,6 @@ import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
-import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.Styles;
@@ -25,7 +22,12 @@ public class ProgramEditView extends BaseHtmlView {
 
   public Content render(Request request, ProgramDefinition program) {
     ContainerTag formTag =
-        buildProgramForm(program.adminName(), program.adminDescription())
+        ProgramFormBuilder.buildProgramForm(
+                program.adminName(),
+                program.adminDescription(),
+                program.getNameForDefaultLocale(),
+                program.getDescriptionForDefaultLocale(),
+                true)
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(program.id()))
             .withAction(controllers.admin.routes.AdminProgramController.update(program.id()).url());
@@ -35,40 +37,22 @@ public class ProgramEditView extends BaseHtmlView {
 
   public Content render(Request request, long id, ProgramForm program, String message) {
     ContainerTag formTag =
-        buildProgramForm(program.getName(), program.getDescription())
+        ProgramFormBuilder.buildProgramForm(
+                program.getAdminName(),
+                program.getAdminDescription(),
+                program.getLocalizedDisplayName(),
+                program.getLocalizedDisplayDescription(),
+                true)
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(id))
             .withAction(controllers.admin.routes.AdminProgramController.update(id).url());
 
-    if (message.length() > 0) {
+    if (!message.isEmpty()) {
       formTag.with(ToastMessage.error(message).setDismissible(false).getContainerTag());
     }
 
     return layout.render(
-        renderHeader(String.format("Edit program: %s", program.getName())), formTag);
-  }
-
-  private ContainerTag buildProgramForm(String programName, String programDescription) {
-    ContainerTag formTag = form().withMethod("POST");
-    formTag.with(
-        FieldWithLabel.input()
-            .setId("program-name-input")
-            .setFieldName("name")
-            .setLabelText("What do you want to call this program?")
-            .setPlaceholderText(
-                "Give a name for internal identification purposes - this cannot be updated once"
-                    + " set")
-            .setValue(programName)
-            .getContainer(),
-        FieldWithLabel.textArea()
-            .setId("program-description-textarea")
-            .setFieldName("description")
-            .setLabelText("Program description")
-            .setPlaceholderText("This description is visible only to system admins")
-            .setValue(programDescription)
-            .getContainer(),
-        submitButton("Save").withId("program-update-button"));
-    return formTag;
+        renderHeader(String.format("Edit program: %s", program.getAdminName())), formTag);
   }
 
   private ContainerTag buildManageQuestionLink(long id) {

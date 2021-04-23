@@ -4,8 +4,6 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
-import static j2html.TagCreator.nav;
-import static j2html.TagCreator.span;
 import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
@@ -54,36 +52,11 @@ public class ProgramIndexView extends BaseHtmlView {
       body.with(ToastMessage.alert(banner.get()).getContainerTag());
     }
     body.with(
-        nav()
-            .withClasses(
-                Styles.PT_8,
-                Styles.PB_4,
-                Styles.MB_12,
-                Styles.FLEX,
-                Styles.ALIGN_MIDDLE,
-                Styles.BORDER_B_4,
-                Styles.BORDER_WHITE)
-            .with(branding(), status()),
         topContent(messages.at("content.benefits"), messages.at("content.description")),
         mainContent(
             programs, applicantId, messages.lang().toLocale(), messages.at("button.apply")));
 
     return layout.render(body);
-  }
-
-  private ContainerTag branding() {
-    return div()
-        .withId("brand-id")
-        .withClasses(Styles.W_1_2, ApplicantStyles.LOGO_STYLE)
-        .with(span("Civi"))
-        .with(span("Form").withClasses(Styles.FONT_THIN));
-  }
-
-  private ContainerTag status() {
-    return div()
-        .withId("application-status")
-        .withClasses(Styles.W_1_2, Styles.TEXT_RIGHT, Styles.TEXT_SM, Styles.UNDERLINE)
-        .with(span("view my applications"));
   }
 
   private ContainerTag topContent(String titleText, String infoText) {

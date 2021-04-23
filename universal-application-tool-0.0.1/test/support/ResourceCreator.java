@@ -10,7 +10,6 @@ import java.util.UUID;
 import models.Account;
 import models.Applicant;
 import models.Application;
-import models.LifecycleStage;
 import models.Program;
 import models.Question;
 import play.db.ebean.EbeanConfig;
@@ -36,32 +35,26 @@ public class ResourceCreator {
     this.questionService = injector.instanceOf(QuestionService.class);
     this.programService = injector.instanceOf(ProgramServiceImpl.class);
     this.ebeanServer = Ebean.getServer(injector.instanceOf(EbeanConfig.class).defaultServer());
+    ProgramBuilder.setInjector(injector);
   }
 
-  public void clearDatabase() {
-    TestQuestionBank.reset();
+  public void truncateTables() {
     ebeanServer.truncate(
         Account.class, Applicant.class, Application.class, Program.class, Question.class);
   }
 
   public Question insertQuestion(String pathString) {
-    return insertQuestion(pathString, 1L);
-  }
-
-  public Question insertQuestion(String pathString, long version) {
     String name = UUID.randomUUID().toString();
-    return insertQuestion(pathString, version, name);
+    return insertQuestion(pathString, name);
   }
 
-  public Question insertQuestion(String pathString, long version, String name) {
+  public Question insertQuestion(String pathString, String name) {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            version,
             name,
             Path.create(pathString),
             Optional.empty(),
             "",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(),
             ImmutableMap.of());
     Question question = new Question(definition);
@@ -73,32 +66,29 @@ public class ResourceCreator {
     return questionService
         .create(
             new TextQuestionDefinition(
-                1L,
                 "question name",
                 Path.create("applicant.my.path.name"),
                 Optional.empty(),
                 "description",
-                LifecycleStage.ACTIVE,
                 ImmutableMap.of(Locale.US, "question?"),
                 ImmutableMap.of(Locale.US, "help text")))
         .getResult();
   }
 
-  public Program insertProgram(String name, LifecycleStage lifecycleStage) {
-    return ProgramBuilder.newProgram(name, "description")
-        .withLifecycleStage(lifecycleStage)
-        .build();
+  public Program insertActiveProgram(String name) {
+    return ProgramBuilder.newActiveProgram(name, "description").build();
   }
 
-  public Program insertProgram(String name) {
-    return ProgramBuilder.newProgram(name, "description").build();
+  public Program insertActiveProgram(Locale locale, String name) {
+    return ProgramBuilder.newActiveProgram().withLocalizedName(locale, name).build();
   }
 
-  public Program insertProgram(Locale locale, String name, LifecycleStage lifecycleStage) {
-    return ProgramBuilder.newProgram()
-        .withLocalizedName(locale, name)
-        .withLifecycleStage(lifecycleStage)
-        .build();
+  public Program insertDraftProgram(String name) {
+    return ProgramBuilder.newDraftProgram(name, "description").build();
+  }
+
+  public Program insertDraftProgram(Locale locale, String name) {
+    return ProgramBuilder.newDraftProgram().withLocalizedName(locale, name).build();
   }
 
   public void addQuestionToProgram(Program program, Question question)

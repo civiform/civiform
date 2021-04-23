@@ -6,7 +6,6 @@ import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
-import services.question.exceptions.TranslationNotFoundException;
 import services.question.types.MultiOptionQuestionDefinition;
 
 // TODO(https://github.com/seattle-uat/civiform/issues/396): Implement a question that allows for
@@ -84,12 +83,8 @@ public class SingleSelectQuestion implements PresentsErrors {
   }
 
   public ImmutableList<LocalizedQuestionOption> getOptions() {
-    try {
-      return getQuestionDefinition()
-          .getOptionsForLocale(applicantQuestion.getApplicantData().preferredLocale());
-    } catch (TranslationNotFoundException e) {
-      throw new RuntimeException(e);
-    }
+    return getQuestionDefinition()
+        .getOptionsForLocaleOrDefault(applicantQuestion.getApplicantData().preferredLocale());
   }
 
   @Override

@@ -16,6 +16,7 @@ import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.OptionalLong;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.BlockDefinition;
@@ -37,7 +38,9 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
   private final AdminLayout layout;
 
+  public static final String REPEATER_ID_FORM_FIELD = "repeaterId";
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
+  private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
 
   @Inject
@@ -81,7 +84,14 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 .withId("program-block-info")
                 .withClasses(Styles.FLEX, Styles.FLEX_GROW, Styles._MX_2)
                 .with(blockOrderPanel(program, blockId))
-                .with(blockEditPanel(program, blockId, blockForm, blockQuestions, csrfTag))
+                .with(
+                    blockEditPanel(
+                        program,
+                        blockId,
+                        blockForm,
+                        blockQuestions,
+                        blockDefinition.isRepeater(),
+                        csrfTag))
                 .with(questionBankPanel(questions, program, blockDefinition, csrfTag)));
 
     if (message.length() > 0) {
@@ -97,12 +107,24 @@ public class ProgramBlockEditView extends BaseHtmlView {
     ContainerTag createBlockForm =
         form(csrfTag).withId(CREATE_BLOCK_FORM_ID).withMethod(POST).withAction(blockCreateAction);
 
+    ContainerTag createRepeatedBlockForm =
+        form(csrfTag)
+            .withId(CREATE_REPEATED_BLOCK_FORM_ID)
+            .withMethod(POST)
+            .withAction(blockCreateAction)
+            .with(
+                FieldWithLabel.number()
+                    .setFieldName(REPEATER_ID_FORM_FIELD)
+                    .setValue(OptionalLong.of(blockId))
+                    .getContainer());
+
     String blockDeleteAction =
         controllers.admin.routes.AdminProgramBlocksController.destroy(programId, blockId).url();
     ContainerTag deleteBlockForm =
         form(csrfTag).withId(DELETE_BLOCK_FORM_ID).withMethod(POST).withAction(blockDeleteAction);
 
-    return div(createBlockForm, deleteBlockForm).withClasses(Styles.HIDDEN);
+    return div(createBlockForm, createRepeatedBlockForm, deleteBlockForm)
+        .withClasses(Styles.HIDDEN);
   }
 
   private Tag programInfo(ProgramDefinition program) {
@@ -135,28 +157,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 Styles.W_1_5,
                 Styles.BORDER_R,
                 Styles.BORDER_GRAY_200);
-
-    for (BlockDefinition block : program.blockDefinitions()) {
-      String editBlockLink =
-          controllers.admin.routes.AdminProgramBlocksController.edit(program.id(), block.id())
-              .url();
-
-      // TODO: Not i18n safe.
-      int numQuestions = block.getQuestionCount();
-      String questionCountText = String.format("%d Question", numQuestions);
-      if (numQuestions != 1) {
-        questionCountText += 's';
-      }
-      String blockName = block.name();
-
-      ContainerTag blockTag =
-          a().withHref(editBlockLink)
-              .with(p(blockName), p(questionCountText).withClasses(Styles.TEXT_SM));
-      String selectedClasses = block.id() == focusedBlockId ? Styles.BG_GRAY_100 : "";
-      blockTag.withClasses(Styles.BLOCK, Styles.PY_2, Styles.PX_4, selectedClasses);
-      ret.with(blockTag);
-    }
-
+    ret.with(renderBlockList(program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
     ret.with(
         submitButton("Add Block")
             .withId("add-block-button")
@@ -165,14 +166,54 @@ public class ProgramBlockEditView extends BaseHtmlView {
     return ret;
   }
 
+  private ContainerTag renderBlockList(
+      ProgramDefinition programDefinition,
+      ImmutableList<BlockDefinition> blockDefinitions,
+      long focusedBlockId,
+      int level) {
+    ContainerTag container = div().withClass("pl-" + level * 2);
+    for (BlockDefinition blockDefinition : blockDefinitions) {
+      String editBlockLink =
+          controllers.admin.routes.AdminProgramBlocksController.edit(
+                  programDefinition.id(), blockDefinition.id())
+              .url();
+
+      // TODO: Not i18n safe.
+      int numQuestions = blockDefinition.getQuestionCount();
+      String questionCountText = String.format("Question count: %d", numQuestions);
+      String blockName = blockDefinition.name();
+
+      ContainerTag blockTag =
+          a().withHref(editBlockLink)
+              .with(p(blockName), p(questionCountText).withClasses(Styles.TEXT_SM));
+      String selectedClasses = blockDefinition.id() == focusedBlockId ? Styles.BG_GRAY_100 : "";
+      blockTag.withClasses(Styles.BLOCK, Styles.PY_2, Styles.PX_4, selectedClasses);
+
+      container.with(blockTag);
+
+      // Recursively add repeated blocks indented under their repeater block
+      if (blockDefinition.isRepeater()) {
+        container.with(
+            renderBlockList(
+                programDefinition,
+                programDefinition.getBlockDefinitionsForRepeater(blockDefinition.id()),
+                focusedBlockId,
+                level + 1));
+      }
+    }
+    return container;
+  }
+
   private ContainerTag blockEditPanel(
       ProgramDefinition program,
       long blockId,
       BlockForm blockForm,
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
+      boolean blockDefinitionIsRepeater,
       Tag csrfTag) {
     String blockUpdateAction =
         controllers.admin.routes.AdminProgramBlocksController.update(program.id(), blockId).url();
+
     ContainerTag blockInfoForm = form(csrfTag).withMethod(POST).withAction(blockUpdateAction);
 
     blockInfoForm.with(
@@ -191,11 +232,20 @@ public class ProgramBlockEditView extends BaseHtmlView {
         submitButton("Update Block")
             .withId("update-block-button")
             .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
+
     if (program.blockDefinitions().size() > 1) {
       blockInfoForm.with(
           submitButton("Delete Block")
               .withId("delete-block-button")
               .attr(Attr.FORM, DELETE_BLOCK_FORM_ID)
+              .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
+    }
+
+    if (blockDefinitionIsRepeater) {
+      blockInfoForm.with(
+          submitButton("Create Repeated Block")
+              .withId("create-repeated-block-button")
+              .attr(Attr.FORM, CREATE_REPEATED_BLOCK_FORM_ID)
               .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
     }
 

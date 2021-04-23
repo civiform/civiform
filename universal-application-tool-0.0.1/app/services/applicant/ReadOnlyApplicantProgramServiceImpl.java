@@ -82,6 +82,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         .findFirst();
   }
 
+  @Override
+  public boolean preferredLanguageSupported() {
+    return programDefinition.getSupportedLocales().contains(applicantData.preferredLocale());
+  }
+
   private ImmutableList<Block> getAllBlocksForThisProgram() {
     return programDefinition.blockDefinitions().stream()
         .map(blockDefinition -> new Block(blockDefinition.id(), blockDefinition, applicantData))

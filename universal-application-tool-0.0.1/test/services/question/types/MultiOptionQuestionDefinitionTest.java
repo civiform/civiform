@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
 import services.question.LocalizedQuestionOption;
@@ -32,12 +31,29 @@ public class MultiOptionQuestionDefinitionTest {
             .setQuestionText(ImmutableMap.of())
             .setQuestionHelpText(ImmutableMap.of())
             .setQuestionOptions(options)
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
     MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
 
     assertThat(multiOption.getOptions()).isEqualTo(options);
+  }
+
+  @Test
+  public void getSupportedLocales_onlyIncludesLocalesSupportedByQuestionTextAndOptions()
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinition definition =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.DROPDOWN)
+            .setName("")
+            .setDescription("")
+            .setPath(Path.empty())
+            .setQuestionText(ImmutableMap.of(Locale.US, "test", Locale.FRANCE, "test"))
+            .setQuestionHelpText(ImmutableMap.of(Locale.US, "test", Locale.FRANCE, "test"))
+            .setQuestionOptions(
+                ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1"))))
+            .build();
+
+    assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
   }
 
   @Test
@@ -52,7 +68,6 @@ public class MultiOptionQuestionDefinitionTest {
             .setQuestionHelpText(ImmutableMap.of())
             .setQuestionOptions(
                 ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1"))))
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
     MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
@@ -78,7 +93,6 @@ public class MultiOptionQuestionDefinitionTest {
             .setQuestionText(ImmutableMap.of())
             .setQuestionHelpText(ImmutableMap.of())
             .setQuestionOptions(options)
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
     MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;

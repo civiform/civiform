@@ -5,9 +5,10 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.persistence.PersistenceException;
-import models.LifecycleStage;
 import models.Program;
 import models.Question;
+import play.inject.Injector;
+import repository.VersionRepository;
 import services.program.BlockDefinition;
 import services.program.ExportDefinition;
 import services.program.Predicate;
@@ -18,6 +19,7 @@ import services.question.types.QuestionDefinition;
 public class ProgramBuilder {
 
   private static AtomicLong nextId = new AtomicLong(1);
+  private static Injector injector;
 
   ProgramDefinition.Builder builder;
   AtomicInteger numBlocks = new AtomicInteger(0);
@@ -26,27 +28,64 @@ public class ProgramBuilder {
     this.builder = builder;
   }
 
+  public static void setInjector(Injector i) {
+    injector = i;
+  }
+
   /**
-   * Creates {@link ProgramBuilder} with a new {@link Program} with an empty name and description.
+   * Creates {@link ProgramBuilder} with a new {@link Program} with an empty name and description,
+   * in draft state.
    */
-  public static ProgramBuilder newProgram() {
-    return newProgram("", "");
+  public static ProgramBuilder newDraftProgram() {
+    return newDraftProgram("", "");
   }
 
-  /** Creates a {@link ProgramBuilder} with a new {@link Program} with an empty description. */
-  public static ProgramBuilder newProgram(String name) {
-    return newProgram(name, "");
+  /**
+   * Creates a {@link ProgramBuilder} with a new {@link Program} with an empty description, in draft
+   * state.
+   */
+  public static ProgramBuilder newDraftProgram(String name) {
+    return newDraftProgram(name, "");
   }
 
-  /** Creates a {@link ProgramBuilder} with a new {@link Program}. */
-  public static ProgramBuilder newProgram(String name, String description) {
-    Program program = new Program(name, description);
-    program.setVersion(1L);
+  /** Creates a {@link ProgramBuilder} with a new {@link Program} in draft state. */
+  public static ProgramBuilder newDraftProgram(String name, String description) {
+    VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
+    Program program = new Program(name, description, name, description);
+    program.addVersion(versionRepository.getDraftVersion());
     maybeSave(program);
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder()
             .setBlockDefinitions(ImmutableList.of())
-            .setLifecycleStage(LifecycleStage.ACTIVE)
+            .setExportDefinitions(ImmutableList.of());
+    return new ProgramBuilder(builder);
+  }
+
+  /**
+   * Creates a {@link ProgramBuilder} with a new {@link Program} in active state, with blank
+   * description and name.
+   */
+  public static ProgramBuilder newActiveProgram() {
+    return newActiveProgram("");
+  }
+
+  /**
+   * Creates a {@link ProgramBuilder} with a new {@link Program} in active state, with blank
+   * description.
+   */
+  public static ProgramBuilder newActiveProgram(String name) {
+    return newActiveProgram(name, "");
+  }
+
+  /** Creates a {@link ProgramBuilder} with a new {@link Program} in active state. */
+  public static ProgramBuilder newActiveProgram(String name, String description) {
+    VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
+    Program program = new Program(name, description, name, description);
+    program.addVersion(versionRepository.getActiveVersion());
+    maybeSave(program);
+    ProgramDefinition.Builder builder =
+        program.getProgramDefinition().toBuilder()
+            .setBlockDefinitions(ImmutableList.of())
             .setExportDefinitions(ImmutableList.of());
     return new ProgramBuilder(builder);
   }
@@ -80,11 +119,6 @@ public class ProgramBuilder {
 
   public ProgramBuilder withLocalizedName(Locale locale, String name) {
     builder.addLocalizedName(locale, name);
-    return this;
-  }
-
-  public ProgramBuilder withLifecycleStage(LifecycleStage lifecycleStage) {
-    builder.setLifecycleStage(lifecycleStage);
     return this;
   }
 

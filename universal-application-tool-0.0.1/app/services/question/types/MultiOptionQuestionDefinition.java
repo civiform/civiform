@@ -11,11 +11,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
-import models.LifecycleStage;
+import services.LocalizationUtils;
 import services.Path;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
@@ -27,89 +28,73 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       MultiOptionValidationPredicates.create(1, 1);
 
   private final ImmutableList<QuestionOption> options;
-  private final ImmutableSet<Locale> supportedLocales;
+  private final ImmutableSet<Locale> supportedOptionLocales;
 
   protected MultiOptionQuestionDefinition(
       OptionalLong id,
-      long version,
       String name,
       Path path,
       Optional<Long> repeaterId,
       String description,
-      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ImmutableList<QuestionOption> options,
       MultiOptionValidationPredicates validationPredicates) {
     super(
         id,
-        version,
         name,
         path,
         repeaterId,
         description,
-        lifecycleStage,
         questionText,
         questionHelpText,
         validationPredicates);
     this.options = checkNotNull(options);
-    this.supportedLocales = getSupportedLocales(options);
+    this.supportedOptionLocales = getSupportedOptionLocales(options);
   }
 
   protected MultiOptionQuestionDefinition(
-      long version,
       String name,
       Path path,
       Optional<Long> repeaterId,
       String description,
-      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ImmutableList<QuestionOption> options,
       MultiOptionValidationPredicates validationPredicates) {
     super(
-        version,
-        name,
-        path,
-        repeaterId,
-        description,
-        lifecycleStage,
-        questionText,
-        questionHelpText,
-        validationPredicates);
+        name, path, repeaterId, description, questionText, questionHelpText, validationPredicates);
     this.options = checkNotNull(options);
-    this.supportedLocales = getSupportedLocales(options);
+    this.supportedOptionLocales = getSupportedOptionLocales(options);
   }
 
   protected MultiOptionQuestionDefinition(
-      long version,
       String name,
       Path path,
       Optional<Long> repeaterId,
       String description,
-      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ImmutableList<QuestionOption> options) {
     super(
-        version,
         name,
         path,
         repeaterId,
         description,
-        lifecycleStage,
         questionText,
         questionHelpText,
         MultiOptionValidationPredicates.create());
     this.options = checkNotNull(options);
-    this.supportedLocales = getSupportedLocales(options);
+    this.supportedOptionLocales = getSupportedOptionLocales(options);
   }
 
+  @Override
   public ImmutableSet<Locale> getSupportedLocales() {
-    return supportedLocales;
+    ImmutableSet<Locale> questionTextLocales = super.getSupportedLocales();
+    return ImmutableSet.copyOf(Sets.intersection(questionTextLocales, this.supportedOptionLocales));
   }
 
-  private ImmutableSet<Locale> getSupportedLocales(ImmutableList<QuestionOption> options) {
+  private ImmutableSet<Locale> getSupportedOptionLocales(ImmutableList<QuestionOption> options) {
     QuestionOption firstOption = Iterables.getFirst(options, null);
 
     if (firstOption == null) {
@@ -151,6 +136,28 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   /**
+   * Attempt to get question options for the given locale. If there aren't options for the given
+   * locale, it will return the options for the default locale.
+   */
+  public ImmutableList<LocalizedQuestionOption> getOptionsForLocaleOrDefault(Locale locale) {
+    try {
+      return getOptionsForLocale(locale);
+    } catch (TranslationNotFoundException e) {
+      return getOptionsForDefaultLocale();
+    }
+  }
+
+  /** Get question options localized to CiviForm's default locale. */
+  public ImmutableList<LocalizedQuestionOption> getOptionsForDefaultLocale() {
+    try {
+      return getOptionsForLocale(LocalizationUtils.DEFAULT_LOCALE);
+    } catch (TranslationNotFoundException e) {
+      // This should never happen - there should always be options localized to the default locale.
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
    * Get the ordered list of options for this {@link Locale}, if it exists. Throws an exception if
    * localized options do not exist for this locale.
    *
@@ -161,13 +168,13 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
    */
   public ImmutableList<LocalizedQuestionOption> getOptionsForLocale(Locale locale)
       throws TranslationNotFoundException {
-    if (supportedLocales.contains(locale)) {
+    if (supportedOptionLocales.contains(locale)) {
       return this.options.stream()
           .map(option -> option.localize(locale))
           .collect(toImmutableList());
     } else {
       // As in QuestionDefinition - we need to fetch "en_US" from "en".
-      for (Locale supportedLocale : supportedLocales) {
+      for (Locale supportedLocale : supportedOptionLocales) {
         if (supportedLocale.getLanguage().equals(locale.getLanguage())) {
           return this.options.stream()
               .map(option -> option.localize(supportedLocale))

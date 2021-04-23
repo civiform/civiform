@@ -14,7 +14,6 @@ import java.util.Optional;
 import models.Account;
 import models.Applicant;
 import models.Application;
-import models.LifecycleStage;
 import models.Program;
 import models.Question;
 import models.StoredFile;
@@ -100,14 +99,20 @@ public class DatabaseSeedController extends DevController {
     return questionService
         .create(
             new NameQuestionDefinition(
-                1L,
                 "name",
                 Path.create("applicant.name"),
                 Optional.empty(),
                 "description",
-                LifecycleStage.ACTIVE,
-                ImmutableMap.of(Locale.US, "What is your name?"),
-                ImmutableMap.of(Locale.US, "help text")))
+                ImmutableMap.of(
+                    Locale.US,
+                    "What is your name?",
+                    Locale.forLanguageTag("es-US"),
+                    "¿Cómo se llama?"),
+                ImmutableMap.of(
+                    Locale.US,
+                    "help text",
+                    Locale.forLanguageTag("es-US"),
+                    "Ponga su nombre legal")))
         .getResult();
   }
 
@@ -115,12 +120,10 @@ public class DatabaseSeedController extends DevController {
     return questionService
         .create(
             new TextQuestionDefinition(
-                1L,
                 "color",
                 Path.create("applicant.color"),
                 Optional.empty(),
                 "description",
-                LifecycleStage.ACTIVE,
                 ImmutableMap.of(Locale.US, "What is your favorite color?"),
                 ImmutableMap.of(Locale.US, "help text")))
         .getResult();
@@ -130,12 +133,10 @@ public class DatabaseSeedController extends DevController {
     return questionService
         .create(
             new AddressQuestionDefinition(
-                1L,
                 "address",
                 Path.create("applicant.address"),
                 Optional.empty(),
                 "description",
-                LifecycleStage.ACTIVE,
                 ImmutableMap.of(Locale.US, "What is your address?"),
                 ImmutableMap.of(Locale.US, "help text")))
         .getResult();
@@ -145,12 +146,10 @@ public class DatabaseSeedController extends DevController {
     return questionService
         .create(
             new CheckboxQuestionDefinition(
-                1L,
                 "kitchen",
                 Path.create("applicant.kitchen"),
                 Optional.empty(),
                 "description",
-                LifecycleStage.ACTIVE,
                 ImmutableMap.of(
                     Locale.US, "Which of the following kitchen instruments do you own?"),
                 ImmutableMap.of(Locale.US, "help text"),
@@ -165,12 +164,10 @@ public class DatabaseSeedController extends DevController {
     return questionService
         .create(
             new DropdownQuestionDefinition(
-                1L,
                 "dropdown",
                 Path.create("applicant.dropdown"),
                 Optional.empty(),
                 "select your favorite ice cream flavor",
-                LifecycleStage.ACTIVE,
                 ImmutableMap.of(
                     Locale.US, "Select your favorite ice cream flavor from the following"),
                 ImmutableMap.of(Locale.US, "this is sample help text"),
@@ -186,12 +183,10 @@ public class DatabaseSeedController extends DevController {
     return questionService
         .create(
             new RadioButtonQuestionDefinition(
-                1L,
                 "radio",
                 Path.create("applicant.radio"),
                 Optional.empty(),
                 "favorite season in the year",
-                LifecycleStage.ACTIVE,
                 ImmutableMap.of(Locale.US, "What is your favorite season?"),
                 ImmutableMap.of(Locale.US, "this is sample help text"),
                 ImmutableList.of(
@@ -205,7 +200,9 @@ public class DatabaseSeedController extends DevController {
   private ProgramDefinition insertProgramWithBlocks(String name) {
     try {
       ProgramDefinition programDefinition =
-          programService.createProgramDefinition(name, "desc").getResult();
+          programService
+              .createProgramDefinition(name, "desc", name, "display description")
+              .getResult();
       long programId = programDefinition.id();
 
       long blockId = 1L;

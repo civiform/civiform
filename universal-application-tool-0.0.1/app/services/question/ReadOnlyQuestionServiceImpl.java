@@ -1,65 +1,73 @@
 package services.question;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import models.LifecycleStage;
+import models.Question;
+import models.Version;
+import services.LocalizationUtils;
 import services.Path;
-import services.question.exceptions.InvalidPathException;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.RepeaterQuestionDefinition;
-import services.question.types.ScalarType;
-import views.admin.GroupByKeyCollector;
 
 public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionService {
 
-  private final ImmutableMap<Path, ScalarType> scalars;
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
-  private final ImmutableMap<Path, QuestionDefinition> questionsByPath;
   private final ImmutableSet<QuestionDefinition> upToDateQuestions;
+  private final ActiveAndDraftQuestions activeAndDraftQuestions;
 
-  private Locale preferredLocale = Locale.US;
+  private Locale preferredLocale = LocalizationUtils.DEFAULT_LOCALE;
 
-  public ReadOnlyQuestionServiceImpl(ImmutableList<QuestionDefinition> questions) {
-    checkNotNull(questions);
+  public ReadOnlyQuestionServiceImpl(Version activeVersion, Version draftVersion) {
+    checkNotNull(activeVersion);
+    checkState(
+        activeVersion.getLifecycleStage().equals(LifecycleStage.ACTIVE),
+        "Supposedly active version not ACTIVE");
+    checkNotNull(draftVersion);
+    checkState(
+        draftVersion.getLifecycleStage().equals(LifecycleStage.DRAFT),
+        "Supposedly draft version not DRAFT");
     ImmutableMap.Builder<Long, QuestionDefinition> questionIdMap = ImmutableMap.builder();
-    ImmutableMap.Builder<Path, QuestionDefinition> questionPathMap = ImmutableMap.builder();
-    ImmutableMap.Builder<Path, ScalarType> scalarMap = ImmutableMap.builder();
     ImmutableSet.Builder<QuestionDefinition> upToDateBuilder = ImmutableSet.builder();
-    for (ImmutableList<QuestionDefinition> qds :
-        questions.stream()
-            .collect(new GroupByKeyCollector<>(QuestionDefinition::getName))
-            .values()) {
-      Optional<QuestionDefinition> qdMaybe =
-          qds.stream().filter(qd -> qd.getLifecycleStage().equals(LifecycleStage.ACTIVE)).findAny();
-      if (qdMaybe.isPresent()) {
-        QuestionDefinition qd = qdMaybe.get();
-        questionPathMap.put(qd.getPath(), qd);
-        ImmutableMap<Path, ScalarType> questionScalars = qd.getScalars();
-        questionScalars.entrySet().stream()
-            .forEach(
-                entry -> {
-                  scalarMap.put(entry.getKey(), entry.getValue());
-                });
-      }
-      upToDateBuilder.add(
-          qds.stream().max(Comparator.comparing(QuestionDefinition::getVersion)).get());
-    }
-    for (QuestionDefinition qd : questions) {
+    Set<String> namesFoundInDraft = new HashSet<>();
+    for (QuestionDefinition qd :
+        draftVersion.getQuestions().stream()
+            .map(Question::getQuestionDefinition)
+            .collect(Collectors.toList())) {
+      upToDateBuilder.add(qd);
       questionIdMap.put(qd.getId(), qd);
+      namesFoundInDraft.add(qd.getName());
+    }
+    for (QuestionDefinition qd :
+        activeVersion.getQuestions().stream()
+            .map(Question::getQuestionDefinition)
+            .collect(Collectors.toList())) {
+
+      questionIdMap.put(qd.getId(), qd);
+      if (!namesFoundInDraft.contains(qd.getName())) {
+        upToDateBuilder.add(qd);
+      }
     }
     questionsById = questionIdMap.build();
-    questionsByPath = questionPathMap.build();
-    scalars = scalarMap.build();
     upToDateQuestions = upToDateBuilder.build();
+    activeAndDraftQuestions = new ActiveAndDraftQuestions(activeVersion, draftVersion);
+  }
+
+  @Override
+  public ActiveAndDraftQuestions getActiveAndDraftQuestions() {
+    return activeAndDraftQuestions;
   }
 
   @Override
@@ -111,46 +119,11 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
   }
 
   @Override
-  public ImmutableMap<Path, ScalarType> getAllScalars() {
-    return scalars;
-  }
-
-  @Override
-  public ImmutableMap<Path, ScalarType> getPathScalars(Path path) throws InvalidPathException {
-    PathType pathType = this.getPathType(path);
-    switch (pathType) {
-      case QUESTION:
-        return questionsByPath.get(path).getScalars();
-      case SCALAR:
-        ScalarType scalarType = scalars.get(path);
-        return ImmutableMap.of(path, scalarType);
-      case NONE:
-      default:
-        throw new InvalidPathException(path);
-    }
-  }
-
-  @Override
-  public PathType getPathType(Path path) {
-    if (questionsByPath.containsKey(path)) {
-      return PathType.QUESTION;
-    } else if (scalars.containsKey(path)) {
-      return PathType.SCALAR;
-    }
-    return PathType.NONE;
-  }
-
-  @Override
   public QuestionDefinition getQuestionDefinition(long id) throws QuestionNotFoundException {
     if (questionsById.containsKey(id)) {
       return questionsById.get(id);
     }
     throw new QuestionNotFoundException(id);
-  }
-
-  @Override
-  public boolean isValid(Path path) {
-    return scalars.containsKey(path) || questionsByPath.containsKey(path);
   }
 
   @Override

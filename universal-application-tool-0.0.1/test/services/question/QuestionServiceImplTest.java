@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import models.LifecycleStage;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,19 +20,16 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
-import support.TestQuestionBank;
 
 public class QuestionServiceImplTest extends WithPostgresContainer {
   QuestionServiceImpl questionService;
 
   QuestionDefinition questionDefinition =
       new TextQuestionDefinition(
-          1L,
           "my name",
           Path.create("my.path.name"),
           Optional.empty(),
           "description",
-          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
 
@@ -54,7 +50,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void create_failsWhenPathConflicts() throws Exception {
-    Question applicantName = TestQuestionBank.applicantName();
+    Question applicantName = testQuestionBank.applicantName();
     QuestionDefinition questionDefinition =
         new QuestionDefinitionBuilder(applicantName.getQuestionDefinition()).clearId().build();
 
@@ -101,12 +97,11 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
     ReadOnlyQuestionService emptyService = completionStage.toCompletableFuture().join();
 
     assertThat(emptyService.getAllQuestions()).isEmpty();
-    assertThat(emptyService.getAllScalars()).isEmpty();
   }
 
   @Test
   public void update_returnsQuestionDefinitionWhenSucceeds() throws Exception {
-    QuestionDefinition nameQuestion = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
     QuestionDefinition toUpdate =
         new QuestionDefinitionBuilder(nameQuestion).setDescription("updated description").build();
 
@@ -135,7 +130,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void update_failsWhenQuestionInvariantsChange() throws Exception {
-    QuestionDefinition nameQuestion = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
 
     QuestionDefinition toUpdate =
         new QuestionDefinitionBuilder(nameQuestion)

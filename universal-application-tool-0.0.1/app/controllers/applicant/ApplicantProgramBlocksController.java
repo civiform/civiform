@@ -94,6 +94,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             .setProgramId(programId)
                             .setBlock(block.get())
                             .setInReview(inReview)
+                            .setPreferredLanguageSupported(
+                                roApplicantProgramService.preferredLanguageSupported())
                             .build()));
               } else {
                 return notFound();
@@ -191,6 +193,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           .setProgramId(programId)
                           .setBlock(thisBlockUpdated)
                           .setInReview(inReview)
+                          .setPreferredLanguageSupported(
+                              roApplicantProgramService.preferredLanguageSupported())
                           .build())));
     }
 

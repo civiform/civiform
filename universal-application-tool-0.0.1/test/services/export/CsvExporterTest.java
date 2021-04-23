@@ -30,7 +30,6 @@ import services.program.ExportEngine;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import support.ProgramBuilder;
-import support.TestQuestionBank;
 
 public class CsvExporterTest extends WithPostgresContainer {
   private static Program fakeProgramWithCsvExport;
@@ -70,8 +69,7 @@ public class CsvExporterTest extends WithPostgresContainer {
   @BeforeClass
   public static void createFakeProgram() {
     fakeProgramWithCsvExport =
-        ProgramBuilder.newProgram()
-            .withLifecycleStage(LifecycleStage.ACTIVE)
+        ProgramBuilder.newDraftProgram()
             .withExportDefinition(
                 ExportDefinition.builder()
                     .setEngine(ExportEngine.CSV)
@@ -159,9 +157,9 @@ public class CsvExporterTest extends WithPostgresContainer {
   @Test
   public void useExporterService() throws IOException, ProgramNotFoundException {
     ProgramDefinition definition =
-        ProgramBuilder.newProgram()
+        ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withQuestion(TestQuestionBank.applicantFavoriteColor())
+            .withQuestion(testQuestionBank.applicantFavoriteColor())
             .buildDefinition();
     ExporterService exporterService = instanceOf(ExporterService.class);
 

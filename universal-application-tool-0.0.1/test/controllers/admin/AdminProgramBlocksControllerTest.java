@@ -24,7 +24,6 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import support.ProgramBuilder;
-import support.TestQuestionBank;
 
 public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
@@ -46,7 +45,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
   @Test
   public void index_withProgram_redirectsToEdit() {
-    Program program = ProgramBuilder.newProgram().build();
+    Program program = ProgramBuilder.newDraftProgram().build();
 
     Result result = controller.index(program.id);
 
@@ -66,7 +65,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
   @Test
   public void create_withProgram_addsBlock() {
     Request request = fakeRequest().build();
-    Program program = ProgramBuilder.newProgram().build();
+    Program program = ProgramBuilder.newDraftProgram().build();
     Result result = controller.create(request, program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -87,7 +86,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
   @Test
   public void edit_withInvalidBlock_notFound() {
-    Program program = ProgramBuilder.newProgram().build();
+    Program program = ProgramBuilder.newDraftProgram().build();
     Request request = fakeRequest().build();
     Result result = controller.edit(request, program.id, 2L);
 
@@ -97,8 +96,8 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
   @Test
   public void edit_withProgram_OK()
       throws UnsupportedQuestionTypeException, InvalidUpdateException {
-    Program program = ProgramBuilder.newProgram().build();
-    Question appName = TestQuestionBank.applicantName();
+    Program program = ProgramBuilder.newActiveProgram().build();
+    Question appName = testQuestionBank.applicantName();
     appName.save();
     Request request = addCSRFToken(fakeRequest()).build();
     Result result = controller.edit(request, program.id, 1L);
@@ -136,7 +135,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
   @Test
   public void update_withInvalidBlockId_notFound() {
-    Program program = ProgramBuilder.newProgram().build();
+    Program program = ProgramBuilder.newDraftProgram().build();
     Request request =
         fakeRequest()
             .bodyForm(ImmutableMap.of("name", "name", "description", "description"))
@@ -149,7 +148,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
   @Test
   public void update_overwritesExistingBlock() {
-    ProgramDefinition program = ProgramBuilder.newProgram().buildDefinition();
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
     Request request =
         fakeRequest()
             .bodyForm(ImmutableMap.of("name", "updated name", "description", "udpated description"))
@@ -182,7 +181,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
   @Test
   public void destroy_programWithTwoBlocks_redirects() {
-    Program program = ProgramBuilder.newProgram().withBlock().withBlock().build();
+    Program program = ProgramBuilder.newDraftProgram().withBlock().withBlock().build();
     Result result = controller.destroy(program.id, 1L);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -192,7 +191,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
 
   @Test
   public void destroy_lastBlock_notFound() {
-    Program program = ProgramBuilder.newProgram().build();
+    Program program = ProgramBuilder.newDraftProgram().build();
     Result result = controller.destroy(program.id, 1L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);

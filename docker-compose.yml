@@ -40,4 +40,4 @@ services:
       - ADFS_CLIENT_ID
       - ADFS_SECRET
 
-    command: -jvm-debug "*:8457" ~run
+    command: -jvm-debug "*:8457" ~run -Dconfig.file=conf/application.dev.conf

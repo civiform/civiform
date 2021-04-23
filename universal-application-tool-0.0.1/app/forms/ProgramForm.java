@@ -1,27 +1,50 @@
 package forms;
 
 public class ProgramForm {
-  private String name;
-  private String description;
+  private String adminName;
+  private String adminDescription;
+
+  // TODO(https://github.com/seattle-uat/civiform/issues/777): Allow the admin to
+  // set localized strings for applicant-visible name and description.
+  private String localizedDisplayName;
+  private String localizedDisplayDescription;
 
   public ProgramForm() {
-    name = "";
-    description = "";
+    adminName = "";
+    adminDescription = "";
+    localizedDisplayName = "";
+    localizedDisplayDescription = "";
   }
 
-  public String getName() {
-    return name;
+  public String getAdminName() {
+    return adminName;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setAdminName(String adminName) {
+    this.adminName = adminName;
   }
 
-  public String getDescription() {
-    return description;
+  public String getAdminDescription() {
+    return adminDescription;
   }
 
-  public void setDescription(String description) {
-    this.description = description;
+  public void setAdminDescription(String adminDescription) {
+    this.adminDescription = adminDescription;
+  }
+
+  public String getLocalizedDisplayName() {
+    return localizedDisplayName;
+  }
+
+  public String getLocalizedDisplayDescription() {
+    return localizedDisplayDescription;
+  }
+
+  public void setLocalizedDisplayName(String localizedDisplayName) {
+    this.localizedDisplayName = localizedDisplayName;
+  }
+
+  public void setLocalizedDisplayDescription(String localizedDisplayDescription) {
+    this.localizedDisplayDescription = localizedDisplayDescription;
   }
 }

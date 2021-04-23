@@ -2,7 +2,6 @@ package services.program;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import org.junit.Test;
 import services.Path;
@@ -11,6 +10,8 @@ import services.question.types.ScalarType;
 import support.TestQuestionBank;
 
 public class BlockDefinitionTest {
+
+  private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
 
   @Test
   public void createBlockDefinition() {
@@ -47,25 +48,6 @@ public class BlockDefinitionTest {
   }
 
   @Test
-  public void hasPaths() {
-    BlockDefinition block = makeBlockDefinitionWithQuestions();
-    ImmutableList<Path> paths =
-        ImmutableList.of(
-            Path.create("applicant.applicant_name.first"),
-            Path.create("applicant.applicant_name.middle"),
-            Path.create("applicant.applicant_name.last"),
-            Path.create("applicant.applicant_address.street"),
-            Path.create("applicant.applicant_address.city"),
-            Path.create("applicant.applicant_address.state"),
-            Path.create("applicant.applicant_address.zip"),
-            Path.create("applicant.applicant_favorite_color.text"));
-
-    assertThat(block.hasPaths(paths)).isTrue();
-
-    assertThat(block.hasPaths(Path.create("fake.path"))).isFalse();
-  }
-
-  @Test
   public void isRepeater_isFalse() {
     BlockDefinition blockDefinition = makeBlockDefinitionWithQuestions();
 
@@ -88,7 +70,7 @@ public class BlockDefinitionTest {
             .setDescription("Block Description")
             .addQuestion(
                 ProgramQuestionDefinition.create(
-                    TestQuestionBank.applicantHouseholdMembers().getQuestionDefinition()))
+                    testQuestionBank.applicantHouseholdMembers().getQuestionDefinition()))
             .build();
 
     assertThat(blockDefinition.isRepeater()).isTrue();
@@ -103,11 +85,11 @@ public class BlockDefinitionTest {
   }
 
   private BlockDefinition makeBlockDefinitionWithQuestions() {
-    QuestionDefinition nameQuestion = TestQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
     QuestionDefinition addressQuestion =
-        TestQuestionBank.applicantAddress().getQuestionDefinition();
+        testQuestionBank.applicantAddress().getQuestionDefinition();
     QuestionDefinition colorQuestion =
-        TestQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+        testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
 
     BlockDefinition block =
         BlockDefinition.builder()

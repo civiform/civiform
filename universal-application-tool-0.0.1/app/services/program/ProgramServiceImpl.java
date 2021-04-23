@@ -3,7 +3,6 @@ package services.program;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import forms.BlockForm;
@@ -17,6 +16,7 @@ import models.Program;
 import play.db.ebean.Transactional;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ProgramRepository;
+import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.question.QuestionService;
@@ -29,15 +29,18 @@ public class ProgramServiceImpl implements ProgramService {
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
   private final HttpExecutionContext httpExecutionContext;
+  private final VersionRepository versionRepository;
 
   @Inject
   public ProgramServiceImpl(
       ProgramRepository programRepository,
       QuestionService questionService,
+      VersionRepository versionRepository,
       HttpExecutionContext ec) {
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
     this.httpExecutionContext = checkNotNull(ec);
+    this.versionRepository = checkNotNull(versionRepository);
   }
 
   @Override
@@ -81,6 +84,12 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
+  public ActiveAndDraftPrograms getActiveAndDraftPrograms() {
+    return new ActiveAndDraftPrograms(
+        versionRepository.getActiveVersion(), versionRepository.getDraftVersion());
+  }
+
+  @Override
   public CompletionStage<ProgramDefinition> getProgramDefinitionAsync(long id) {
     return programRepository
         .lookupProgram(id)
@@ -97,27 +106,51 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   public ErrorAnd<ProgramDefinition, CiviFormError> createProgramDefinition(
-      String name, String description) {
-    ImmutableSet<CiviFormError> errors = validateProgramDefinition(name, description);
+      String adminName,
+      String adminDescription,
+      String defaultDisplayName,
+      String defaultDisplayDescription) {
+
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    validateProgramText(errorsBuilder, "admin name", adminName);
+    validateProgramText(errorsBuilder, "admin description", adminDescription);
+    validateProgramText(errorsBuilder, "display name", defaultDisplayName);
+    validateProgramText(errorsBuilder, "display description", defaultDisplayDescription);
+    ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
-    Program program = new Program(name, description);
+
+    Program program =
+        new Program(adminName, adminDescription, defaultDisplayName, defaultDisplayDescription);
+    program.addVersion(versionRepository.getDraftVersion());
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
 
   @Override
   public ErrorAnd<ProgramDefinition, CiviFormError> updateProgramDefinition(
-      long programId, String name, String description) throws ProgramNotFoundException {
+      long programId,
+      Locale locale,
+      String adminDescription,
+      String displayName,
+      String displayDescription)
+      throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
-    ImmutableSet<CiviFormError> errors = validateProgramDefinition(name, description);
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    validateProgramText(errorsBuilder, "admin description", adminDescription);
+    validateProgramText(errorsBuilder, "display name", displayName);
+    validateProgramText(errorsBuilder, "display description", displayDescription);
+    ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
+
     Program program =
         programDefinition.toBuilder()
-            .setLocalizedName(ImmutableMap.of(Locale.US, name))
-            .setLocalizedDescription(ImmutableMap.of(Locale.US, description))
+            .setAdminDescription(adminDescription)
+            .updateLocalizedName(programDefinition.localizedName(), locale, displayName)
+            .updateLocalizedDescription(
+                programDefinition.localizedDescription(), locale, displayDescription)
             .build()
             .toProgram();
     return ErrorAnd.of(
@@ -127,23 +160,49 @@ public class ProgramServiceImpl implements ProgramService {
             .join());
   }
 
-  private ImmutableSet<CiviFormError> validateProgramDefinition(String name, String description) {
-    ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.<CiviFormError>builder();
-    if (name.isBlank()) {
-      errors.add(CiviFormError.of("program name cannot be blank"));
+  private void validateProgramText(
+      ImmutableSet.Builder<CiviFormError> builder, String fieldName, String text) {
+    if (text.isBlank()) {
+      builder.add(CiviFormError.of("program " + fieldName.trim() + " cannot be blank"));
     }
-    if (description.isBlank()) {
-      errors.add(CiviFormError.of("program description cannot be blank"));
-    }
-    return errors.build();
   }
 
   @Override
   @Transactional
   public ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(long programId)
       throws ProgramNotFoundException {
+    try {
+      return addBlockToProgram(programId, Optional.empty());
+    } catch (ProgramBlockNotFoundException e) {
+      throw new RuntimeException(
+          "The ProgramBlockNotFoundException should never be thrown when the repeater id is"
+              + " empty.");
+    }
+  }
+
+  @Override
+  @Transactional
+  public ErrorAnd<ProgramDefinition, CiviFormError> addRepeatedBlockToProgram(
+      long programId, long repeaterBlockId)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException {
+    return addBlockToProgram(programId, Optional.of(repeaterBlockId));
+  }
+
+  private ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(
+      long programId, Optional<Long> repeaterBlockId)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
-    String blockName = String.format("Block %d", getNextBlockId(programDefinition));
+    if (repeaterBlockId.isPresent() && !programDefinition.hasRepeater(repeaterBlockId.get())) {
+      throw new ProgramBlockNotFoundException(programId, repeaterBlockId.get());
+    }
+
+    long blockId = getNextBlockId(programDefinition);
+    String blockName;
+    if (repeaterBlockId.isPresent()) {
+      blockName = String.format("Block %d (repeated from %d)", blockId, repeaterBlockId.get());
+    } else {
+      blockName = String.format("Block %d", blockId);
+    }
     String blockDescription =
         "What is the purpose of this block? Add a description that summarizes the information"
             + " collected.";
@@ -152,13 +211,13 @@ public class ProgramServiceImpl implements ProgramService {
     if (!errors.isEmpty()) {
       return ErrorAnd.errorAnd(errors, programDefinition);
     }
-    long blockId = getNextBlockId(programDefinition);
 
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(blockId)
             .setName(blockName)
             .setDescription(blockDescription)
+            .setRepeaterId(repeaterBlockId)
             .build();
 
     Program program =

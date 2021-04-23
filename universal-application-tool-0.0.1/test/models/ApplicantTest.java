@@ -55,6 +55,16 @@ public class ApplicantTest extends WithPostgresContainer {
   }
 
   @Test
+  public void missingPreferredLocale_doesNotSetLocaleOnApplicantData() {
+    Applicant applicant = new Applicant();
+    applicant.save();
+
+    applicant = repo.lookupApplicant(applicant.id).toCompletableFuture().join().get();
+
+    assertThat(applicant.getApplicantData().hasPreferredLocale()).isFalse();
+  }
+
+  @Test
   public void createsOnlyOneApplicantData() {
     Applicant applicant = new Applicant();
 

@@ -16,6 +16,10 @@ POST    /admin/programs                       controllers.admin.AdminProgramCont
 POST    /admin/programs/publish               controllers.admin.AdminProgramController.publish()
 POST    /admin/programs/:programId            controllers.admin.AdminProgramController.update(request: Request, programId: Long)
 
+# A controller for versions for an admin to set older versions live.
+GET     /admin/versions                       controllers.admin.AdminVersionController.index(request: Request)
+POST    /admin/versions/:versionId/setLive    controllers.admin.AdminVersionController.setVersionLive(versionId: Long, request: Request)
+
 # A controller for pages for an admin to create and maintain blocks for a program
 GET     /admin/programs/:programId/blocks                              controllers.admin.AdminProgramBlocksController.index(programId: Long)
 GET     /admin/programs/:programId/blocks/:blockDefinitionId/edit      controllers.admin.AdminProgramBlocksController.edit(request: Request, programId: Long, blockDefinitionId: Long)
@@ -49,6 +53,10 @@ POST    /demo                       controllers.J2HtmlDemoController.create(requ
 GET     /assets/*file               controllers.Assets.versioned(file)
 
 # Methods for applicants
+GET     /applicants/:applicantId/edit                                           controllers.applicant.ApplicantInformationController.edit(request: Request, applicantId: Long)
+POST    /applicants/:applicantId                                                controllers.applicant.ApplicantInformationController.update(request: Request, applicantId: Long)
+
+# Program methods for applicants
 GET     /applicants/:applicantId/programs                                       controllers.applicant.ApplicantProgramsController.index(request: Request, applicantId: Long)
 GET     /applicants/:applicantId/programs/:programId/edit                       controllers.applicant.ApplicantProgramsController.edit(request: Request, applicantId: Long, programId: Long)
 GET     /applicants/:applicantId/programs/:programId/review                     controllers.applicant.ApplicantProgramReviewController.review(request: Request, applicantId: Long, programId: Long)

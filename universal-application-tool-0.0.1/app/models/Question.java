@@ -8,9 +8,12 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Streams;
 import io.ebean.annotation.DbJsonB;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.PostLoad;
 import javax.persistence.PostPersist;
 import javax.persistence.PostUpdate;
@@ -33,8 +36,6 @@ public class Question extends BaseModel {
 
   private QuestionDefinition questionDefinition;
 
-  private @Constraints.Required long version;
-
   private @Constraints.Required String path;
 
   /** Different versions of the same question are linked by their immutable name. */
@@ -52,8 +53,6 @@ public class Question extends BaseModel {
 
   private @Constraints.Required @DbJsonB String validationPredicates;
 
-  @Constraints.Required private LifecycleStage lifecycleStage;
-
   // questionOptions is the legacy storage column for multi-option questions.
   // A few questions created early on in April 2021 may use this, but all
   // other multi-option questions should not. In practice one can assume only
@@ -64,22 +63,25 @@ public class Question extends BaseModel {
   // questionOptionsWithLocales is the current storage column for multi-option questions.
   private @DbJsonB ImmutableList<QuestionOption> questionOptionsWithLocales;
 
-  public Question(QuestionDefinition questionDefinition) {
-    this.questionDefinition = checkNotNull(questionDefinition);
-    setFieldsFromQuestionDefinition(questionDefinition);
-  }
-
-  public Question(QuestionDefinition questionDefinition, LifecycleStage lifecycleStage) {
-    this(questionDefinition);
-    this.lifecycleStage = lifecycleStage;
-  }
-
-  public long getVersion() {
-    return version;
-  }
+  @ManyToMany
+  @JoinTable(name = "versions_questions")
+  private List<Version> versions;
 
   public String getPath() {
     return path;
+  }
+
+  public ImmutableList<Version> getVersions() {
+    return ImmutableList.copyOf(versions);
+  }
+
+  public void addVersion(Version version) {
+    this.versions.add(version);
+  }
+
+  public Question(QuestionDefinition questionDefinition) {
+    this.questionDefinition = checkNotNull(questionDefinition);
+    setFieldsFromQuestionDefinition(questionDefinition);
   }
 
   /** Populates column values from {@link QuestionDefinition}. */
@@ -98,12 +100,10 @@ public class Question extends BaseModel {
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setId(id)
-            .setVersion(version)
             .setName(name)
             .setPath(Path.create(path))
             .setRepeaterId(Optional.ofNullable(repeaterId))
             .setDescription(description)
-            .setLifecycleStage(lifecycleStage)
             .setQuestionText(questionText)
             .setQuestionHelpText(questionHelpText)
             .setQuestionType(QuestionType.valueOf(questionType))
@@ -146,33 +146,10 @@ public class Question extends BaseModel {
     return checkNotNull(questionDefinition);
   }
 
-  public LifecycleStage getLifecycleStage() {
-    return this.getQuestionDefinition().getLifecycleStage();
-  }
-
-  public void setLifecycleStage(LifecycleStage lifecycleStage) {
-    // A Question object is entirely determined by a QuestionDefinition, so Question
-    // objects are usually immutable since QuestionDefinitions are immutable. This is
-    // not a true setter - it creates an entirely new QuestionDefinition from the
-    // existing one - but it's present here as a convenience method, to save
-    // on verbosity due to us doing this many times throughout the application.
-    try {
-      this.questionDefinition =
-          new QuestionDefinitionBuilder(this.questionDefinition)
-              .setLifecycleStage(lifecycleStage)
-              .build();
-    } catch (UnsupportedQuestionTypeException e) {
-      // Throw as runtime exception because this should never happen - we are using an existing
-      // question definition type.
-      throw new RuntimeException(e);
-    }
-  }
-
   private void setFieldsFromQuestionDefinition(QuestionDefinition questionDefinition) {
     if (questionDefinition.isPersisted()) {
       id = questionDefinition.getId();
     }
-    version = questionDefinition.getVersion();
     path = questionDefinition.getPath().path();
     repeaterId = questionDefinition.getRepeaterId().orElse(null);
     name = questionDefinition.getName();
@@ -181,7 +158,6 @@ public class Question extends BaseModel {
     questionHelpText = questionDefinition.getQuestionHelpText();
     questionType = questionDefinition.getQuestionType().toString();
     validationPredicates = questionDefinition.getValidationPredicatesAsString();
-    lifecycleStage = questionDefinition.getLifecycleStage();
 
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition multiOption =

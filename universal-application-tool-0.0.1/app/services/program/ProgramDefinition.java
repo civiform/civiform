@@ -1,14 +1,19 @@
 package services.program;
 
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import java.util.Locale;
 import java.util.Optional;
-import models.LifecycleStage;
+import java.util.Set;
+import java.util.stream.Stream;
 import models.Program;
+import services.LocalizationUtils;
 import services.question.types.QuestionDefinition;
 
 @AutoValue
@@ -41,9 +46,6 @@ public abstract class ProgramDefinition {
   /** A human readable description of a Program, localized for each supported locale. */
   public abstract ImmutableMap<Locale, String> localizedDescription();
 
-  /** The lifecycle stage of the Program. */
-  public abstract LifecycleStage lifecycleStage();
-
   /** The list of {@link BlockDefinition}s that make up the program. */
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
 
@@ -61,7 +63,7 @@ public abstract class ProgramDefinition {
   /** The default locale for CiviForm is US English. */
   public String getNameForDefaultLocale() {
     try {
-      return getLocalizedName(Locale.US);
+      return getLocalizedName(LocalizationUtils.DEFAULT_LOCALE);
     } catch (TranslationNotFoundException e) {
       // This should never happen - US English should always be supported.
       throw new RuntimeException(e);
@@ -87,7 +89,7 @@ public abstract class ProgramDefinition {
   /** The default locale for CiviForm is US English. */
   public String getDescriptionForDefaultLocale() {
     try {
-      return getLocalizedDescription(Locale.US);
+      return getLocalizedDescription(LocalizationUtils.DEFAULT_LOCALE);
     } catch (TranslationNotFoundException e) {
       // This should never happen - US English should always be supported.
       throw new RuntimeException(e);
@@ -100,6 +102,32 @@ public abstract class ProgramDefinition {
     } else {
       throw new TranslationNotFoundException(id(), locale);
     }
+  }
+
+  /**
+   * Get all the {@link Locale}s this program fully supports. A program fully supports a locale if:
+   *
+   * <ol>
+   *   <li>The publicly-visible display name is localized for the locale
+   *   <li>The publicly-visible description is localized for the locale
+   *   <li>Every question in this program fully supports this locale
+   * </ol>
+   *
+   * @return an {@link ImmutableSet} of all {@link Locale}s that are fully supported for this
+   *     program
+   */
+  public ImmutableSet<Locale> getSupportedLocales() {
+    ImmutableSet<ImmutableSet<Locale>> questionLocales =
+        streamQuestionDefinitions()
+            .map(QuestionDefinition::getSupportedLocales)
+            .collect(toImmutableSet());
+
+    Set<Locale> intersection =
+        Sets.intersection(localizedName().keySet(), localizedDescription().keySet());
+    for (ImmutableSet<Locale> set : questionLocales) {
+      intersection = Sets.intersection(intersection, set);
+    }
+    return ImmutableSet.copyOf(intersection);
   }
 
   /** Returns the {@link QuestionDefinition} at the specified block and question indices. */
@@ -178,12 +206,35 @@ public abstract class ProgramDefinition {
               blockDefinitions().stream()
                   .map(BlockDefinition::programQuestionDefinitions)
                   .flatMap(ImmutableList::stream)
-                  .map(ProgramQuestionDefinition::getQuestionDefinition)
-                  .map(QuestionDefinition::getId)
+                  .map(ProgramQuestionDefinition::id)
                   .collect(ImmutableSet.toImmutableSet()));
     }
 
     return questionIds.get().contains(questionId);
+  }
+
+  /** Returns true if this program has a repeater block with the id. */
+  public boolean hasRepeater(long repeaterId) {
+    return blockDefinitions().stream()
+        .anyMatch(
+            blockDefinition -> blockDefinition.id() == repeaterId && blockDefinition.isRepeater());
+  }
+
+  /**
+   * Get the block definitions associated with the repeater id. Returns an empty list if there are
+   * none.
+   */
+  public ImmutableList<BlockDefinition> getBlockDefinitionsForRepeater(long repeaterId) {
+    return blockDefinitions().stream()
+        .filter(blockDefinition -> blockDefinition.repeaterId().equals(Optional.of(repeaterId)))
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  /** Get non-repeated block definitions. */
+  public ImmutableList<BlockDefinition> getNonRepeatedBlockDefinitions() {
+    return blockDefinitions().stream()
+        .filter(blockDefinition -> blockDefinition.repeaterId().isEmpty())
+        .collect(ImmutableList.toImmutableList());
   }
 
   public Program toProgram() {
@@ -191,6 +242,14 @@ public abstract class ProgramDefinition {
   }
 
   public abstract Builder toBuilder();
+
+  private Stream<QuestionDefinition> streamQuestionDefinitions() {
+    return blockDefinitions().stream()
+        .flatMap(
+            b ->
+                b.programQuestionDefinitions().stream()
+                    .map(ProgramQuestionDefinition::getQuestionDefinition));
+  }
 
   @AutoValue.Builder
   public abstract static class Builder {
@@ -214,21 +273,56 @@ public abstract class ProgramDefinition {
 
     public abstract Builder setExportDefinitions(ImmutableList<ExportDefinition> exportDefinitions);
 
-    public abstract Builder setLifecycleStage(LifecycleStage lifecycleStage);
-
     public abstract ImmutableList.Builder<BlockDefinition> blockDefinitionsBuilder();
 
     public abstract ImmutableList.Builder<ExportDefinition> exportDefinitionsBuilder();
 
     public abstract ProgramDefinition build();
 
+    /**
+     * Add a new localization for the program name. This will fail if a translation for the given
+     * locale already exists.
+     */
     public Builder addLocalizedName(Locale locale, String name) {
       localizedNameBuilder().put(locale, name);
       return this;
     }
 
+    /**
+     * Add a new localization for the program description. This will fail if a translation for the
+     * given locale already exists.
+     */
     public Builder addLocalizedDescription(Locale locale, String name) {
       localizedDescriptionBuilder().put(locale, name);
+      return this;
+    }
+
+    /**
+     * Update an existing localization for the program name. This will overwrite the old name for
+     * that locale.
+     */
+    public Builder updateLocalizedName(
+        ImmutableMap<Locale, String> existing, Locale locale, String name) {
+      if (existing.containsKey(locale)) {
+        setLocalizedName(LocalizationUtils.overwriteExistingTranslation(existing, locale, name));
+      } else {
+        addLocalizedName(locale, name);
+      }
+      return this;
+    }
+
+    /**
+     * Update an existing localization for the program description. This will overwrite the old
+     * description for that locale.
+     */
+    public Builder updateLocalizedDescription(
+        ImmutableMap<Locale, String> existing, Locale locale, String description) {
+      if (existing.containsKey(locale)) {
+        setLocalizedDescription(
+            LocalizationUtils.overwriteExistingTranslation(existing, locale, description));
+      } else {
+        addLocalizedDescription(locale, description);
+      }
       return this;
     }
 

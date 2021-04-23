@@ -35,9 +35,7 @@ public class ProgramTest extends WithPostgresContainer {
         new QuestionDefinitionBuilder()
             .setQuestionType(QuestionType.TEXT)
             .setId(123L)
-            .setVersion(2L)
             .setName("question")
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setPath(Path.create("applicant.name"))
             .setDescription("applicant's name")
             .setQuestionText(ImmutableMap.of(Locale.US, "What is your name?"))
@@ -59,7 +57,6 @@ public class ProgramTest extends WithPostgresContainer {
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "ProgramTest")
             .addLocalizedDescription(Locale.US, "desc")
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .build();
     Program program = new Program(definition);
@@ -92,9 +89,7 @@ public class ProgramTest extends WithPostgresContainer {
             new QuestionDefinitionBuilder()
                 .setQuestionType(QuestionType.ADDRESS)
                 .setId(456L)
-                .setVersion(2L)
                 .setName("address question")
-                .setLifecycleStage(LifecycleStage.ACTIVE)
                 .setPath(Path.create("applicant.address"))
                 .setDescription("applicant's address")
                 .setQuestionText(ImmutableMap.of(Locale.US, "What is your address?"))
@@ -104,9 +99,7 @@ public class ProgramTest extends WithPostgresContainer {
             new QuestionDefinitionBuilder()
                 .setQuestionType(QuestionType.NAME)
                 .setId(789L)
-                .setVersion(2L)
                 .setName("name question")
-                .setLifecycleStage(LifecycleStage.ACTIVE)
                 .setPath(Path.create("applicant.name"))
                 .setDescription("applicant's name")
                 .setQuestionText(ImmutableMap.of(Locale.US, "What is your name?"))
@@ -130,7 +123,6 @@ public class ProgramTest extends WithPostgresContainer {
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "ProgramTest")
             .addLocalizedDescription(Locale.US, "desc")
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .build();
     Program program = new Program(definition);

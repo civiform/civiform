@@ -2,6 +2,7 @@ package services.program;
 
 import com.google.common.collect.ImmutableList;
 import forms.BlockForm;
+import java.util.Locale;
 import java.util.concurrent.CompletionStage;
 import models.Application;
 import services.CiviFormError;
@@ -41,6 +42,9 @@ public interface ProgramService {
    */
   ProgramDefinition getProgramDefinition(long id) throws ProgramNotFoundException;
 
+  /** Get the data object about the programs that are in the active or draft version. */
+  ActiveAndDraftPrograms getActiveAndDraftPrograms();
+
   /**
    * Get the definition of a given program asynchronously.
    *
@@ -54,26 +58,41 @@ public interface ProgramService {
   /**
    * Create a new program with an empty block.
    *
-   * @param name a name for this program
-   * @param description the description of what the program provides
+   * @param adminName a name for this program for internal use by admins - this is immutable once
+   *     set
+   * @param adminDescription a description of this program for use by admins
+   * @param defaultDisplayName the name of this program to display to applicants
+   * @param defaultDisplayDescription a description for this program to display to applicants
    * @return the {@link ProgramDefinition} that was created if succeeded, or a set of errors if
    *     failed
    */
   ErrorAnd<ProgramDefinition, CiviFormError> createProgramDefinition(
-      String name, String description);
+      String adminName,
+      String adminDescription,
+      String defaultDisplayName,
+      String defaultDisplayDescription);
 
   /**
-   * Update a program's name and description.
+   * Update a program's mutable fields: admin description, display name and description for
+   * applicants.
    *
    * @param programId the ID of the program to update
-   * @param name a name for this program
-   * @param description the description of what the program provides
+   * @param locale the locale for this update - only applies to applicant display name and
+   *     description
+   * @param adminDescription the description of this program - visible only to admins
+   * @param displayName a name for this program
+   * @param displayDescription the description of what the program provides
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
    *     failed
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   ErrorAnd<ProgramDefinition, CiviFormError> updateProgramDefinition(
-      long programId, String name, String description) throws ProgramNotFoundException;
+      long programId,
+      Locale locale,
+      String adminDescription,
+      String displayName,
+      String displayDescription)
+      throws ProgramNotFoundException;
 
   /**
    * Adds an empty {@link BlockDefinition} to the given program.
@@ -85,6 +104,21 @@ public interface ProgramService {
    */
   ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(long programId)
       throws ProgramNotFoundException;
+
+  /**
+   * Adds an empty repeated {@link BlockDefinition} to the given program.
+   *
+   * @param programId the ID of the program to update
+   * @param repeaterBlockId ID of the repeater block
+   * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors with
+   *     the unmodified program definition if failed
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramBlockNotFoundException when repeaterBlockId does not correspond to a repeater
+   *     block in the Program.
+   */
+  ErrorAnd<ProgramDefinition, CiviFormError> addRepeatedBlockToProgram(
+      long programId, long repeaterBlockId)
+      throws ProgramNotFoundException, ProgramBlockNotFoundException;
 
   /**
    * Update a {@link BlockDefinition}'s attributes.

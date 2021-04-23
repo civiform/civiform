@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import services.LocalizationUtils;
 import services.Path;
 import services.question.exceptions.TranslationNotFoundException;
 import services.question.types.QuestionDefinition;
@@ -32,13 +33,13 @@ public abstract class QuestionForm {
     repeaterId = qd.getRepeaterId();
 
     try {
-      questionText = qd.getQuestionText(Locale.US);
+      questionText = qd.getQuestionText(LocalizationUtils.DEFAULT_LOCALE);
     } catch (TranslationNotFoundException e) {
       questionText = "Missing Text";
     }
 
     try {
-      questionHelpText = qd.getQuestionHelpText(Locale.US);
+      questionHelpText = qd.getQuestionHelpText(LocalizationUtils.DEFAULT_LOCALE);
     } catch (TranslationNotFoundException e) {
       questionHelpText = "Missing Text";
     }

@@ -15,6 +15,7 @@ import org.junit.BeforeClass;
 import play.Application;
 import play.db.ebean.EbeanConfig;
 import play.test.Helpers;
+import support.ProgramBuilder;
 import support.ResourceCreator;
 import support.TestConstants;
 import support.TestQuestionBank;
@@ -27,12 +28,15 @@ public class WithPostgresContainer {
 
   protected static ResourceCreator resourceCreator;
 
+  protected static TestQuestionBank testQuestionBank = new TestQuestionBank(true);
+
   @BeforeClass
   public static void startPlay() {
     app = provideApplication();
     resourceCreator = new ResourceCreator(app.injector());
     Helpers.start(app);
     mat = app.asScala().materializer();
+    ProgramBuilder.setInjector(app.injector());
   }
 
   @AfterClass
@@ -51,10 +55,6 @@ public class WithPostgresContainer {
     return app.injector().instanceOf(clazz);
   }
 
-  protected ResourceCreator resourceCreator() {
-    return resourceCreator;
-  }
-
   @Before
   public void truncateTables() {
     EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
@@ -65,6 +65,6 @@ public class WithPostgresContainer {
 
   @Before
   public void resetSupportQuestionsCache() {
-    TestQuestionBank.reset();
+    testQuestionBank.reset();
   }
 }
