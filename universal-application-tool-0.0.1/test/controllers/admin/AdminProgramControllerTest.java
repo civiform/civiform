@@ -10,7 +10,6 @@ import static play.test.Helpers.contentAsString;
 import com.google.common.collect.ImmutableMap;
 import models.Program;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestBuilder;
@@ -180,23 +179,27 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  // TODO(https://github.com/seattle-uat/civiform/issues/777): Fix this test once admins can update
-  // descriptions
-  @Ignore
   public void update_overwritesExistingProgram() {
     Program program = ProgramBuilder.newProgram("Existing One", "old description").build();
     RequestBuilder requestBuilder =
         Helpers.fakeRequest()
             .bodyForm(
-                ImmutableMap.of("name", "New Program", "description", "This is a new program"));
+                ImmutableMap.of(
+                    "adminDescription",
+                    "new description",
+                    "localizedDisplayName",
+                    "test",
+                    "localizedDisplayDescription",
+                    "test"));
 
-    Result result = controller.update(requestBuilder.build(), program.id);
+    Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
 
     Result redirectResult = controller.index(Helpers.fakeRequest().build());
-    assertThat(contentAsString(redirectResult)).contains("Create new program");
+    assertThat(contentAsString(redirectResult))
+        .contains("Create new program", "Existing One", "new description");
     assertThat(contentAsString(redirectResult)).doesNotContain("old description");
   }
 }

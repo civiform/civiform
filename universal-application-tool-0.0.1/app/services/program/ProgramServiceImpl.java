@@ -159,7 +159,7 @@ public class ProgramServiceImpl implements ProgramService {
     validateProgramText(errorsBuilder, "display description", displayDescription);
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
-      return ErrorAnd.errorAnd(errors, programDefinition);
+      return ErrorAnd.error(errors);
     }
 
     Program program =

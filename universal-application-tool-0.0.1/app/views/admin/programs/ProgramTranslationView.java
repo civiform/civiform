@@ -61,10 +61,11 @@ public class ProgramTranslationView extends BaseHtmlView {
         renderTranslationForm(request, locale, programId, localizedName, localizedDescription);
     errors.ifPresent(s -> form.with(ToastMessage.error(s).setDismissible(false).getContainerTag()));
     return layout.render(
-        renderHeader("Manage Translations"), renderLanguageButtons(programId, locale), form);
+        renderHeader("Manage Translations"), renderLanguageLinks(programId, locale), form);
   }
 
-  private ContainerTag renderLanguageButtons(long programId, Locale currentlySelected) {
+  /** Render a list of languages, with the currently selected language underlined. */
+  private ContainerTag renderLanguageLinks(long programId, Locale currentlySelected) {
     return div()
         .withClasses(Styles.M_2)
         .with(
