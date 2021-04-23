@@ -100,6 +100,10 @@ public class NumberQuestion implements PresentsErrors {
 
   @Override
   public String getAnswerString() {
-    return "477";
+    Optional<Long> value = this.getNumberValue();
+    if (value.isPresent()) {
+      return value.get().toString();
+    }
+    return "-";
   }
 }

@@ -2,21 +2,21 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.br;
-import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.header;
-import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.routes;
-import java.util.Date;
 import j2html.tags.ContainerTag;
-import java.time.LocalDate;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
+import play.mvc.Http.HttpVerbs;
+import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.applicant.SummaryData;
 import views.BaseHtmlView;
@@ -32,66 +32,81 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     this.layout = checkNotNull(layout);
   }
 
-  /** 
-   * Renders a summary of all of the applicant's data for a specific application.
-   * Data includes:
-   *    Program Id, Applicant Id - Needed for link context (submit & edit)
-   *    Question Data for each question:
-   *      - question text
-   *      - answer text
-   *      - block id (for edit link)
+  /**
+   * Renders a summary of all of the applicant's data for a specific application. Data includes:
+   * Program Id, Applicant Id - Needed for link context (submit & edit) Question Data for each
+   * question: - question text - answer text - block id (for edit link)
    */
-  public Content render(Long applicantId, Long programId, String programTitle, ImmutableList<SummaryData> data) {
+  public Content render(
+      Request request,
+      Long applicantId,
+      Long programId,
+      String programTitle,
+      ImmutableList<SummaryData> data) {
     ContainerTag headerTag = renderHeader(programTitle, 100);
 
     ContainerTag content = div().withClasses("mx-16");
     for (SummaryData questionData : data) {
-      content.with(
-        renderQuestionSummary(questionData, applicantId, programId));
+      content.with(renderQuestionSummary(questionData, applicantId, programId));
     }
 
-    // TODO: [NOW] Add submit action (POST).
-    String submitLink = routes.ApplicantProgramReviewController.submit(applicantId, programId).url();
-    ContainerTag actions = new LinkElement()
-      .setId("submit-program-link-" + programId)
-      .setHref(submitLink)
-      .setText("Submit")
-      .setStyles(Styles.FLOAT_RIGHT, Styles.MY_4)
-      .asButton();
+    // Add submit action (POST).
+    String submitLink =
+        routes.ApplicantProgramReviewController.submit(applicantId, programId).url();
+    ContainerTag actions =
+        form()
+            .withAction(submitLink)
+            .withMethod(HttpVerbs.POST)
+            .with(makeCsrfTokenInputTag(request))
+            .with(submitButton("Submit"));
     content.with(actions);
 
-    return layout.render(headerTag, h1("Application Review").withClasses("px-16 py-4"), content);
+    return layout.render(
+        headerTag, h1("Application Review").withClasses(Styles.PX_16, Styles.PY_4), content);
   }
 
   private ContainerTag renderHeader(String programTitle, int percentComplete) {
     ContainerTag headerTag = header().withClasses("flex flex-col");
     ContainerTag titleHeader =
-      h1(programTitle)
-        .withClasses("text-base p-0 text-right p-3 p-r-0 m-0 text-secondary overflow-ellipsis overflow-hidden whitespace-nowrap max-w-full flex-auto");
-    
-    ContainerTag progressInner = div()
-      .withClasses("progress bg-yellow-400 transition-all duration-400 h-full block absolute left-0 top-0 w-1 rounded-r-full")
-      .withStyle("width:" + percentComplete + "%");
-    ContainerTag progressIndicator = div(progressInner).withId("progress-indicator")
-      .withClasses("border font-semibold bg-gray-200 relative h-2.5");
+        h1(programTitle)
+            .withClasses(
+                "text-base p-0 text-right p-3 p-r-0 m-0 text-secondary overflow-ellipsis"
+                    + " overflow-hidden whitespace-nowrap max-w-full flex-auto");
+
+    ContainerTag progressInner =
+        div()
+            .withClasses(
+                "progress bg-yellow-400 transition-all duration-400 h-full block absolute left-0"
+                    + " top-0 w-1 rounded-r-full")
+            .withStyle("width:" + percentComplete + "%");
+    ContainerTag progressIndicator =
+        div(progressInner)
+            .withId("progress-indicator")
+            .withClasses("border font-semibold bg-gray-200 relative h-2.5");
 
     headerTag.with(titleHeader, progressIndicator);
     return headerTag;
   }
 
   private ContainerTag renderQuestionSummary(SummaryData data, Long applicantId, Long programId) {
-    ContainerTag questionPrompt = div(data.questionText).withClasses("flex-auto font-semibold text-base");
-    ContainerTag questionContent = div(questionPrompt).withClasses("flex flex-row pr-2");
+    ContainerTag questionPrompt =
+        div(data.questionText).withClasses(Styles.FLEX_AUTO, Styles.FONT_SEMIBOLD);
+    ContainerTag questionContent =
+        div(questionPrompt).withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.PR_2);
 
     // Show timestamp if answered elsewhere.
     if (data.isPreviousResponse) {
-      LocalDate date = Instant.ofEpochMilli(data.timestamp).atZone(ZoneId.systemDefault()).toLocalDate();  
-      ContainerTag timestampContent = div("Previously answered on " + date).withClasses("flex-auto text-right font-light text-sm");
+      LocalDate date =
+          Instant.ofEpochMilli(data.timestamp).atZone(ZoneId.systemDefault()).toLocalDate();
+      ContainerTag timestampContent =
+          div("Previously answered on " + date)
+              .withClasses(Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_LIGHT, Styles.TEXT_XS);
       questionContent.with(timestampContent);
     }
-    
+
     // Add answer text, converting newlines to <br/> tags.
-    ContainerTag answerContent = div().withClasses("flex-auto text-left font-light text-sm");
+    ContainerTag answerContent =
+        div().withClasses(Styles.FLEX_AUTO, Styles.TEXT_LEFT, Styles.FONT_LIGHT, Styles.TEXT_SM);
     String[] texts = data.answerText.split("\n");
     texts = Arrays.stream(texts).filter(text -> text.length() > 0).toArray(String[]::new);
     for (int i = 0; i < texts.length; i++) {
@@ -102,14 +117,26 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     }
 
     // Link to block containing specific question.
-    String editLink = routes.ApplicantProgramBlocksController.review(applicantId, programId, data.blockId).url();
-    ContainerTag editAction = new LinkElement()
-      .setHref(editLink)
-      .setText("Edit")
-      .asAnchorText();      
-    ContainerTag editContent = div(editAction).withClasses("flex-auto text-right font-light italic relative");
-    ContainerTag answerDiv = div(answerContent, editContent).withClasses("flex flex-row pr-2");
+    String editLink =
+        routes.ApplicantProgramBlocksController.review(applicantId, programId, data.blockId).url();
+    ContainerTag editAction =
+        new LinkElement()
+            .setHref(editLink)
+            .setText("Edit")
+            .setStyles(Styles.ABSOLUTE, Styles.BOTTOM_0, Styles.RIGHT_0)
+            .asAnchorText();
+    ContainerTag editContent =
+        div(editAction)
+            .withClasses(
+                Styles.FLEX_AUTO,
+                Styles.TEXT_RIGHT,
+                Styles.FONT_LIGHT,
+                Styles.ITALIC,
+                Styles.RELATIVE);
+    ContainerTag answerDiv =
+        div(answerContent, editContent).withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.PR_2);
 
-    return div(questionContent, answerDiv).withClasses("w-7/8 my-2 py-2 border-b border-gray-300");
+    return div(questionContent, answerDiv)
+        .withClasses(Styles.MY_2, Styles.PY_2, Styles.BORDER_B, Styles.BORDER_GRAY_300);
   }
 }

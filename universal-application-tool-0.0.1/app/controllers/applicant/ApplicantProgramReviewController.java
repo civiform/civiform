@@ -18,9 +18,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.ApplicationRepository;
 import services.applicant.ApplicantService;
-import services.applicant.Block;
 import services.applicant.SummaryData;
-import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramSummaryView;
 
@@ -65,8 +63,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
               ImmutableList<SummaryData> summaryData = roApplicantProgramService.getSummaryData();
               // TODO: Get program title.
               String programTitle = "Program title";
-              return (summaryData.size() > 0) ?
-                 ok(summaryView.render(applicantId, programId, programTitle, summaryData)) : notFound();
+              return (summaryData.size() > 0)
+                  ? ok(
+                      summaryView.render(
+                          request, applicantId, programId, programTitle, summaryData))
+                  : notFound();
             },
             httpExecutionContext.current())
         .exceptionally(

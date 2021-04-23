@@ -100,8 +100,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
           String answerText = question.errorsPresenter().getAnswerString();
           Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
           Optional<Long> updatedProgram = question.getUpdatedInProgramMetadata();
-          boolean isPreviousResponse = updatedProgram.isPresent() && updatedProgram.get() == programDefinition.id();
-          SummaryData data = new SummaryData(questionText, answerText, blockId, timestamp.orElse(-1L), isPreviousResponse);
+          boolean isPreviousResponse =
+              updatedProgram.isPresent() && updatedProgram.get() != programDefinition.id();
+          SummaryData data =
+              new SummaryData(
+                  questionText, answerText, blockId, timestamp.orElse(-1L), isPreviousResponse);
           builder.add(data);
         }
       }
