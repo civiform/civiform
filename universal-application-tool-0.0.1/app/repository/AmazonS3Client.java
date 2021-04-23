@@ -45,6 +45,14 @@ public class AmazonS3Client {
   private S3Client s3;
   private S3Presigner presigner;
 
+  public AmazonS3Client() {
+    this.appLifecycle = null;
+    this.config = null;
+    this.environment = null;
+    this.s3 = null;
+    this.presigner = null;
+  }
+
   @Inject
   public AmazonS3Client(ApplicationLifecycle appLifecycle, Config config, Environment environment) {
     this.appLifecycle = checkNotNull(appLifecycle);
@@ -60,7 +68,10 @@ public class AmazonS3Client {
         getTestObject();
       }
     }
+    addStopHook();
+  }
 
+  private void addStopHook() {
     this.appLifecycle.addStopHook(
         () -> {
           if (s3 != null) {
@@ -86,10 +97,10 @@ public class AmazonS3Client {
 
     try {
       PutObjectRequest putObjectRequest =
-          PutObjectRequest.builder().bucket(bucket).key(key).build();
-      s3.putObject(putObjectRequest, RequestBody.fromBytes(data));
-    } catch (S3Exception e) {
-      throw new RuntimeException("S3 exception: " + e.getMessage());
+            PutObjectRequest.builder().bucket(bucket).key(key).build();
+        s3.putObject(putObjectRequest, RequestBody.fromBytes(data));
+      } catch (S3Exception e) {
+        throw new RuntimeException("S3 exception: " + e.getMessage());
     }
   }
 
