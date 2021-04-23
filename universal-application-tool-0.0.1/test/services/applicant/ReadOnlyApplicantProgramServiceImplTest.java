@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
 import models.Applicant;
-import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
@@ -30,7 +29,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     colorQuestion = testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
     addressQuestion = testQuestionBank.applicantAddress().getQuestionDefinition();
     programDefinition =
-        ProgramBuilder.newProgram()
+        ProgramBuilder.newDraftProgram()
             .withBlock("Block one")
             .withQuestionDefinition(nameQuestion)
             .withBlock("Block two")
@@ -145,7 +144,6 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 .setAdminDescription("Admin description")
                 .addLocalizedName(Locale.US, "The Program")
                 .addLocalizedDescription(Locale.US, "This program is for testing.")
-                .setLifecycleStage(LifecycleStage.ACTIVE)
                 .build());
 
     Optional<Block> maybeBlock = subject.getBlockAfter("321");

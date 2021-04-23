@@ -8,73 +8,54 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
-import models.LifecycleStage;
 import services.Path;
 
 public class NumberQuestionDefinition extends QuestionDefinition {
 
   public NumberQuestionDefinition(
       OptionalLong id,
-      long version,
       String name,
       Path path,
       Optional<Long> repeaterId,
       String description,
-      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       NumberQuestionDefinition.NumberValidationPredicates validationPredicates) {
     super(
         id,
-        version,
         name,
         path,
         repeaterId,
         description,
-        lifecycleStage,
         questionText,
         questionHelpText,
         validationPredicates);
   }
 
   public NumberQuestionDefinition(
-      long version,
       String name,
       Path path,
       Optional<Long> repeaterId,
       String description,
-      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       NumberQuestionDefinition.NumberValidationPredicates validationPredicates) {
     super(
-        version,
-        name,
-        path,
-        repeaterId,
-        description,
-        lifecycleStage,
-        questionText,
-        questionHelpText,
-        validationPredicates);
+        name, path, repeaterId, description, questionText, questionHelpText, validationPredicates);
   }
 
   public NumberQuestionDefinition(
-      long version,
       String name,
       Path path,
       Optional<Long> repeaterId,
       String description,
-      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
     super(
-        version,
         name,
         path,
         repeaterId,
         description,
-        lifecycleStage,
         questionText,
         questionHelpText,
         NumberQuestionDefinition.NumberValidationPredicates.create());

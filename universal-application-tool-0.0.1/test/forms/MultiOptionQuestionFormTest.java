@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
 import services.question.QuestionOption;
@@ -31,17 +30,12 @@ public class MultiOptionQuestionFormTest {
     form.setOptions(ImmutableList.of("one", "two"));
     QuestionDefinitionBuilder builder = form.getBuilder(path);
 
-    builder.setVersion(1L);
-    builder.setLifecycleStage(LifecycleStage.ACTIVE);
-
     CheckboxQuestionDefinition expected =
         new CheckboxQuestionDefinition(
-            1L,
             "name",
             path,
             Optional.empty(),
             "description",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(Locale.US, "help text"),
             ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option one"))),
@@ -58,12 +52,10 @@ public class MultiOptionQuestionFormTest {
 
     CheckboxQuestionDefinition originalQd =
         new CheckboxQuestionDefinition(
-            1L,
             "name",
             path,
             Optional.empty(),
             "description",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(Locale.US, "help text"),
             ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1"))),
@@ -71,9 +63,6 @@ public class MultiOptionQuestionFormTest {
 
     MultiOptionQuestionForm form = new CheckboxQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder(path);
-
-    builder.setVersion(1L);
-    builder.setLifecycleStage(LifecycleStage.ACTIVE);
 
     QuestionDefinition actual = builder.build();
 
@@ -94,17 +83,12 @@ public class MultiOptionQuestionFormTest {
     form.setOptions(ImmutableList.of("one", "two"));
     QuestionDefinitionBuilder builder = form.getBuilder(path);
 
-    builder.setVersion(1L);
-    builder.setLifecycleStage(LifecycleStage.ACTIVE);
-
     CheckboxQuestionDefinition expected =
         new CheckboxQuestionDefinition(
-            1L,
             "name",
             path,
             Optional.empty(),
             "description",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(Locale.US, "help text"),
             ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option one"))),

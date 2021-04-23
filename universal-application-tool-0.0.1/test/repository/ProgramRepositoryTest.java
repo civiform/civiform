@@ -30,8 +30,8 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void listPrograms() {
-    Program one = resourceCreator.insertProgram("one");
-    Program two = resourceCreator.insertProgram("two");
+    Program one = resourceCreator.insertActiveProgram("one");
+    Program two = resourceCreator.insertActiveProgram("two");
 
     ImmutableList<Program> allPrograms = repo.listPrograms().toCompletableFuture().join();
 
@@ -47,8 +47,8 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void lookupProgram_findsCorrectProgram() {
-    resourceCreator.insertProgram("one");
-    Program two = resourceCreator.insertProgram("two");
+    resourceCreator.insertActiveProgram("one");
+    Program two = resourceCreator.insertActiveProgram("two");
 
     Optional<Program> found = repo.lookupProgram(two.id).toCompletableFuture().join();
 
@@ -67,7 +67,7 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void updateProgramSync() {
-    Program existing = resourceCreator.insertProgram("old name");
+    Program existing = resourceCreator.insertActiveProgram("old name");
     Program updates =
         new Program(
             existing.getProgramDefinition().toBuilder()

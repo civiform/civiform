@@ -35,12 +35,10 @@ public class QuestionTest extends WithPostgresContainer {
   public void canSaveQuestion() throws UnsupportedQuestionTypeException {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            1L,
             "test",
             Path.create("my.path"),
             Optional.empty(),
             "",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(),
             ImmutableMap.of());
     Question question = new Question(definition);
@@ -58,12 +56,10 @@ public class QuestionTest extends WithPostgresContainer {
   public void canSerializeRepeaterId_EmptyOptionalLong() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            1L,
             "test",
             Path.create("my.path"),
             Optional.empty(),
             "",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(),
             ImmutableMap.of());
     Question question = new Question(questionDefinition);
@@ -78,12 +74,10 @@ public class QuestionTest extends WithPostgresContainer {
   public void canSerializeRepeaterId_NonEmptyOptionalLong() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            1L,
             "test",
             Path.create("my.path"),
             Optional.of(10L),
             "",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(),
             ImmutableMap.of());
     Question question = new Question(questionDefinition);
@@ -98,12 +92,10 @@ public class QuestionTest extends WithPostgresContainer {
   public void canSerializeLocalizationMaps() {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            1L,
             "",
             Path.empty(),
             Optional.empty(),
             "",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "hello"),
             ImmutableMap.of(Locale.US, "help"));
     Question question = new Question(definition);
@@ -122,14 +114,7 @@ public class QuestionTest extends WithPostgresContainer {
   public void canSerializeDifferentQuestionTypes() {
     AddressQuestionDefinition address =
         new AddressQuestionDefinition(
-            1L,
-            "address",
-            Path.empty(),
-            Optional.empty(),
-            "",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(),
-            ImmutableMap.of());
+            "address", Path.empty(), Optional.empty(), "", ImmutableMap.of(), ImmutableMap.of());
     Question question = new Question(address);
 
     question.save();
@@ -143,12 +128,10 @@ public class QuestionTest extends WithPostgresContainer {
   public void canSerializeValidationPredicates() {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            1L,
             "",
             Path.empty(),
             Optional.empty(),
             "",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(),
             ImmutableMap.of(),
             TextValidationPredicates.create(0, 128));
@@ -173,7 +156,6 @@ public class QuestionTest extends WithPostgresContainer {
             .setPath(Path.empty())
             .setRepeaterId(Optional.of(123L))
             .setQuestionText(ImmutableMap.of())
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setQuestionHelpText(ImmutableMap.of())
             .setQuestionOptions(
                 ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option"))))

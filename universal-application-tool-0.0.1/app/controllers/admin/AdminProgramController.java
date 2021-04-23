@@ -50,7 +50,7 @@ public class AdminProgramController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result index(Request request) {
-    return ok(listView.render(this.service.listProgramDefinitions(), request));
+    return ok(listView.render(this.service.getActiveAndDraftPrograms(), request));
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)

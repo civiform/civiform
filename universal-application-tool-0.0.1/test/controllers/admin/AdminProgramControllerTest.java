@@ -40,8 +40,8 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
 
   @Test
   public void index_returnsPrograms() {
-    ProgramBuilder.newProgram("one").build();
-    ProgramBuilder.newProgram("two").build();
+    ProgramBuilder.newDraftProgram("one").build();
+    ProgramBuilder.newDraftProgram("two").build();
 
     Result result = controller.index(Helpers.fakeRequest().build());
 
@@ -103,7 +103,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
 
   @Test
   public void create_includesNewAndExistingProgramsInList() {
-    ProgramBuilder.newProgram("Existing One").build();
+    ProgramBuilder.newActiveProgram("Existing One").build();
     RequestBuilder requestBuilder =
         addCSRFToken(
             Helpers.fakeRequest()
@@ -141,7 +141,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
   @Test
   public void edit_returnsExpectedForm() {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    Program program = ProgramBuilder.newProgram("test program").build();
+    Program program = ProgramBuilder.newDraftProgram("test program").build();
 
     Result result = controller.edit(request, program.id);
 
@@ -165,7 +165,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
 
   @Test
   public void update_invalidInput_returnsFormWithErrors() {
-    Program program = ProgramBuilder.newProgram("Existing One").build();
+    Program program = ProgramBuilder.newDraftProgram("Existing One").build();
     Request request =
         addCSRFToken(Helpers.fakeRequest())
             .bodyForm(ImmutableMap.of("name", "", "description", ""))
@@ -184,7 +184,7 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
   // descriptions
   @Ignore
   public void update_overwritesExistingProgram() {
-    Program program = ProgramBuilder.newProgram("Existing One", "old description").build();
+    Program program = ProgramBuilder.newDraftProgram("Existing One", "old description").build();
     RequestBuilder requestBuilder =
         Helpers.fakeRequest()
             .bodyForm(

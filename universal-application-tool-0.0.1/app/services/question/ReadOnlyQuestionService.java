@@ -27,6 +27,9 @@ public interface ReadOnlyQuestionService {
   /** Returns all repeater question definitions. */
   ImmutableList<RepeaterQuestionDefinition> getUpToDateRepeaterQuestions();
 
+  /** Get the data object about the questions that are in the active or draft version. */
+  ActiveAndDraftQuestions getActiveAndDraftQuestions();
+
   /**
    * Create the {@link Path} for a question from the path of the repeater id (if provided) and the
    * question name.

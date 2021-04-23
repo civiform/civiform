@@ -12,7 +12,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-import models.LifecycleStage;
 import models.Program;
 import services.LocalizationUtils;
 import services.question.types.QuestionDefinition;
@@ -46,9 +45,6 @@ public abstract class ProgramDefinition {
 
   /** A human readable description of a Program, localized for each supported locale. */
   public abstract ImmutableMap<Locale, String> localizedDescription();
-
-  /** The lifecycle stage of the Program. */
-  public abstract LifecycleStage lifecycleStage();
 
   /** The list of {@link BlockDefinition}s that make up the program. */
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
@@ -207,7 +203,11 @@ public abstract class ProgramDefinition {
     if (questionIds.isEmpty()) {
       questionIds =
           Optional.of(
-              streamQuestionDefinitions().map(QuestionDefinition::getId).collect(toImmutableSet()));
+              blockDefinitions().stream()
+                  .map(BlockDefinition::programQuestionDefinitions)
+                  .flatMap(ImmutableList::stream)
+                  .map(ProgramQuestionDefinition::id)
+                  .collect(ImmutableSet.toImmutableSet()));
     }
 
     return questionIds.get().contains(questionId);
@@ -272,8 +272,6 @@ public abstract class ProgramDefinition {
     public abstract Builder setBlockDefinitions(ImmutableList<BlockDefinition> blockDefinitions);
 
     public abstract Builder setExportDefinitions(ImmutableList<ExportDefinition> exportDefinitions);
-
-    public abstract Builder setLifecycleStage(LifecycleStage lifecycleStage);
 
     public abstract ImmutableList.Builder<BlockDefinition> blockDefinitionsBuilder();
 

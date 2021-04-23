@@ -16,7 +16,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
-import models.LifecycleStage;
 import services.LocalizationUtils;
 import services.Path;
 import services.question.LocalizedQuestionOption;
@@ -33,24 +32,20 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
 
   protected MultiOptionQuestionDefinition(
       OptionalLong id,
-      long version,
       String name,
       Path path,
       Optional<Long> repeaterId,
       String description,
-      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ImmutableList<QuestionOption> options,
       MultiOptionValidationPredicates validationPredicates) {
     super(
         id,
-        version,
         name,
         path,
         repeaterId,
         description,
-        lifecycleStage,
         questionText,
         questionHelpText,
         validationPredicates);
@@ -59,47 +54,33 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   protected MultiOptionQuestionDefinition(
-      long version,
       String name,
       Path path,
       Optional<Long> repeaterId,
       String description,
-      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ImmutableList<QuestionOption> options,
       MultiOptionValidationPredicates validationPredicates) {
     super(
-        version,
-        name,
-        path,
-        repeaterId,
-        description,
-        lifecycleStage,
-        questionText,
-        questionHelpText,
-        validationPredicates);
+        name, path, repeaterId, description, questionText, questionHelpText, validationPredicates);
     this.options = checkNotNull(options);
     this.supportedOptionLocales = getSupportedOptionLocales(options);
   }
 
   protected MultiOptionQuestionDefinition(
-      long version,
       String name,
       Path path,
       Optional<Long> repeaterId,
       String description,
-      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ImmutableList<QuestionOption> options) {
     super(
-        version,
         name,
         path,
         repeaterId,
         description,
-        lifecycleStage,
         questionText,
         questionHelpText,
         MultiOptionValidationPredicates.create());

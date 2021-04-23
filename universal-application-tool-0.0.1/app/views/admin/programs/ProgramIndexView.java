@@ -7,19 +7,16 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.head;
 import static j2html.TagCreator.p;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.Tag;
 import java.util.Optional;
-import models.LifecycleStage;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
-import views.admin.GroupByKeyCollector;
 import views.components.LinkElement;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -33,7 +30,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     this.layout = layout;
   }
 
-  public Content render(ImmutableList<ProgramDefinition> programs, Http.Request request) {
+  public Content render(ActiveAndDraftPrograms programs, Http.Request request) {
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
@@ -43,18 +40,19 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .withClasses(Styles.INLINE_BLOCK)
                     .with(renderNewProgramButton(), maybeRenderPublishButton(programs, request)),
                 each(
-                    programs.stream()
-                        .collect(new GroupByKeyCollector<>(ProgramDefinition::adminName)),
-                    e -> this.renderProgramListItem(e.getKey(), e.getValue(), request)));
+                    programs.getProgramNames(),
+                    name ->
+                        this.renderProgramListItem(
+                            programs.getActiveProgramDefinition(name),
+                            programs.getDraftProgramDefinition(name),
+                            request)));
 
     return layout.render(head(layout.tailwindStyles()), body(contentDiv));
   }
 
-  private Tag maybeRenderPublishButton(
-      ImmutableList<ProgramDefinition> programs, Http.Request request) {
+  private Tag maybeRenderPublishButton(ActiveAndDraftPrograms programs, Http.Request request) {
     // We should only render the publish button if there is at least one draft.
-    if (programs.stream()
-        .anyMatch(program -> program.lifecycleStage().equals(LifecycleStage.DRAFT))) {
+    if (programs.anyDraft()) {
       String link = routes.AdminProgramController.publish().url();
       return new LinkElement()
           .setId("publish-programs-button")
@@ -75,32 +73,23 @@ public final class ProgramIndexView extends BaseHtmlView {
         .asButton();
   }
 
-  public ProgramDefinition getDisplayProgram(ImmutableList<ProgramDefinition> programs) {
-    Preconditions.checkState(!programs.isEmpty());
-    Optional<ProgramDefinition> draftProgram =
-        programs.stream().filter(p -> p.lifecycleStage().equals(LifecycleStage.DRAFT)).findAny();
+  public ProgramDefinition getDisplayProgram(
+      Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram) {
     if (draftProgram.isPresent()) {
       return draftProgram.get();
     }
-    Optional<ProgramDefinition> activeProgram =
-        programs.stream().filter(p -> p.lifecycleStage().equals(LifecycleStage.ACTIVE)).findAny();
-    if (activeProgram.isPresent()) {
-      return activeProgram.get();
-    }
-    return programs.stream().findAny().get();
+    return activeProgram.get();
   }
 
   public Tag renderProgramListItem(
-      String name, ImmutableList<ProgramDefinition> programs, Http.Request request) {
-    // TODO: Move Strings out of here for i18n.
-    ProgramDefinition displayProgram = getDisplayProgram(programs);
-    Optional<ProgramDefinition> draftProgram =
-        programs.stream().filter(p -> p.lifecycleStage().equals(LifecycleStage.DRAFT)).findAny();
-    Optional<ProgramDefinition> activeProgram =
-        programs.stream().filter(p -> p.lifecycleStage().equals(LifecycleStage.ACTIVE)).findAny();
-    String programStatusText = extractProgramStatusText(draftProgram, activeProgram, programs);
+      Optional<ProgramDefinition> activeProgram,
+      Optional<ProgramDefinition> draftProgram,
+      Http.Request request) {
+    String programStatusText = extractProgramStatusText(draftProgram, activeProgram);
     String lastEditText = "Last updated 2 hours ago."; // TODO: Need to generate this.
     String viewApplicationsLinkText = "Applications →";
+
+    ProgramDefinition displayProgram = getDisplayProgram(draftProgram, activeProgram);
 
     String programTitleText = displayProgram.adminName();
     String programDescriptionText = displayProgram.adminDescription();
@@ -151,24 +140,15 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private String extractProgramStatusText(
-      Optional<ProgramDefinition> draftProgram,
-      Optional<ProgramDefinition> activeProgram,
-      ImmutableList<ProgramDefinition> programs) {
-    int countReferenced = 1;
-    String programStatusText = "Obsolete";
+      Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram) {
     if (draftProgram.isPresent() && activeProgram.isPresent()) {
-      programStatusText = "Active, with draft";
-      countReferenced++;
+      return "Active, with draft";
     } else if (draftProgram.isPresent()) {
-      programStatusText = "Draft";
+      return "Draft";
     } else if (activeProgram.isPresent()) {
-      programStatusText = "Active";
+      return "Active";
     }
-    if (programs.size() > countReferenced) {
-      programStatusText =
-          String.format("%s (+%d older)", programStatusText, programs.size() - countReferenced);
-    }
-    return programStatusText;
+    throw new IllegalArgumentException("Program neither active nor draft.");
   }
 
   Tag maybeRenderEditLink(

@@ -7,7 +7,6 @@ import java.util.Locale;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import models.Applicant;
-import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,12 +18,10 @@ import services.question.types.FileUploadQuestionDefinition;
 public class FileUploadQuestionTest {
   private static final FileUploadQuestionDefinition fileUploadQuestionDefinition =
       new FileUploadQuestionDefinition(
-          1L,
           "question name",
           Path.create("applicant.my.path.name"),
           Optional.empty(),
           "description",
-          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
 

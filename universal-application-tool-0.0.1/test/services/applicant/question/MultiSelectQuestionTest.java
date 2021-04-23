@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import services.LocalizationUtils;
@@ -21,12 +20,10 @@ public class MultiSelectQuestionTest {
 
   private static final MultiOptionQuestionDefinition CHECKBOX_QUESTION =
       new CheckboxQuestionDefinition(
-          1L,
           "name",
           Path.create("applicant.path"),
           Optional.empty(),
           "description",
-          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
           ImmutableList.of(

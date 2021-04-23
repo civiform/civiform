@@ -1,13 +1,19 @@
 package services.question;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import models.LifecycleStage;
+import models.Question;
+import models.Version;
 import services.LocalizationUtils;
 import services.Path;
 import services.question.exceptions.InvalidQuestionTypeException;
@@ -15,33 +21,53 @@ import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.RepeaterQuestionDefinition;
-import views.admin.GroupByKeyCollector;
 
 public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionService {
 
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
   private final ImmutableSet<QuestionDefinition> upToDateQuestions;
+  private final ActiveAndDraftQuestions activeAndDraftQuestions;
 
   private Locale preferredLocale = LocalizationUtils.DEFAULT_LOCALE;
 
-  public ReadOnlyQuestionServiceImpl(ImmutableList<QuestionDefinition> questions) {
-    checkNotNull(questions);
-
-    ImmutableSet.Builder<QuestionDefinition> upToDateBuilder = ImmutableSet.builder();
-    for (ImmutableList<QuestionDefinition> qds :
-        questions.stream()
-            .collect(new GroupByKeyCollector<>(QuestionDefinition::getName))
-            .values()) {
-      upToDateBuilder.add(
-          qds.stream().max(Comparator.comparing(QuestionDefinition::getVersion)).get());
-    }
-    upToDateQuestions = upToDateBuilder.build();
-
+  public ReadOnlyQuestionServiceImpl(Version activeVersion, Version draftVersion) {
+    checkNotNull(activeVersion);
+    checkState(
+        activeVersion.getLifecycleStage().equals(LifecycleStage.ACTIVE),
+        "Supposedly active version not ACTIVE");
+    checkNotNull(draftVersion);
+    checkState(
+        draftVersion.getLifecycleStage().equals(LifecycleStage.DRAFT),
+        "Supposedly draft version not DRAFT");
     ImmutableMap.Builder<Long, QuestionDefinition> questionIdMap = ImmutableMap.builder();
-    for (QuestionDefinition qd : questions) {
+    ImmutableSet.Builder<QuestionDefinition> upToDateBuilder = ImmutableSet.builder();
+    Set<String> namesFoundInDraft = new HashSet<>();
+    for (QuestionDefinition qd :
+        draftVersion.getQuestions().stream()
+            .map(Question::getQuestionDefinition)
+            .collect(Collectors.toList())) {
+      upToDateBuilder.add(qd);
       questionIdMap.put(qd.getId(), qd);
+      namesFoundInDraft.add(qd.getName());
+    }
+    for (QuestionDefinition qd :
+        activeVersion.getQuestions().stream()
+            .map(Question::getQuestionDefinition)
+            .collect(Collectors.toList())) {
+
+      questionIdMap.put(qd.getId(), qd);
+      if (!namesFoundInDraft.contains(qd.getName())) {
+        upToDateBuilder.add(qd);
+      }
     }
     questionsById = questionIdMap.build();
+    upToDateQuestions = upToDateBuilder.build();
+    activeAndDraftQuestions = new ActiveAndDraftQuestions(activeVersion, draftVersion);
+  }
+
+  @Override
+  public ActiveAndDraftQuestions getActiveAndDraftQuestions() {
+    return activeAndDraftQuestions;
   }
 
   @Override

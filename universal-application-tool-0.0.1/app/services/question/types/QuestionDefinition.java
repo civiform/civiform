@@ -13,7 +13,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalLong;
-import models.LifecycleStage;
 import services.CiviFormError;
 import services.LocalizationUtils;
 import services.Path;
@@ -25,12 +24,10 @@ public abstract class QuestionDefinition {
   public static final String METADATA_UPDATE_PROGRAM_ID_KEY = "updated_in_program";
 
   private final OptionalLong id;
-  private final long version;
   private final String name;
   private final Path path;
   private final Optional<Long> repeaterId;
   private final String description;
-  private final LifecycleStage lifecycleStage;
   // Note: you must check prefixes anytime you are doing a locale lookup
   // see getQuestionText body comment for explanation.
   private final ImmutableMap<Locale, String> questionText;
@@ -39,45 +36,37 @@ public abstract class QuestionDefinition {
 
   public QuestionDefinition(
       OptionalLong id,
-      long version,
       String name,
       Path path,
       Optional<Long> repeaterId,
       String description,
-      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ValidationPredicates validationPredicates) {
     this.id = checkNotNull(id);
-    this.version = version;
     this.name = checkNotNull(name);
     this.path = checkNotNull(path);
     this.repeaterId = checkNotNull(repeaterId);
     this.description = checkNotNull(description);
-    this.lifecycleStage = checkNotNull(lifecycleStage);
     this.questionText = checkNotNull(questionText);
     this.questionHelpText = checkNotNull(questionHelpText);
     this.validationPredicates = checkNotNull(validationPredicates);
   }
 
   public QuestionDefinition(
-      long version,
       String name,
       Path path,
       Optional<Long> repeaterId,
       String description,
-      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ValidationPredicates validationPredicates) {
     this(
         OptionalLong.empty(),
-        version,
         name,
         path,
         repeaterId,
         description,
-        lifecycleStage,
         questionText,
         questionHelpText,
         validationPredicates);
@@ -96,6 +85,10 @@ public abstract class QuestionDefinition {
     }
   }
 
+  public Optional<ScalarType> getScalarType(Path path) {
+    return Optional.ofNullable(this.getScalars().get(path));
+  }
+
   /** Return true if the question is persisted and has an unique identifier. */
   public boolean isPersisted() {
     return this.id.isPresent();
@@ -104,16 +97,6 @@ public abstract class QuestionDefinition {
   /** Get the unique identifier for this question. */
   public long getId() {
     return this.id.getAsLong();
-  }
-
-  /** Get the system version this question is pinned to. */
-  public long getVersion() {
-    return this.version;
-  }
-
-  /** Get the lifecycle stage this question is on. */
-  public LifecycleStage getLifecycleStage() {
-    return this.lifecycleStage;
   }
 
   /**
@@ -325,9 +308,6 @@ public abstract class QuestionDefinition {
   /** Validate that all required fields are present and valid for the question. */
   public ImmutableSet<CiviFormError> validate() {
     ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
-    if (version < 1) {
-      errors.add(CiviFormError.of(String.format("invalid version: %d", version)));
-    }
     if (name.isBlank()) {
       errors.add(CiviFormError.of("blank name"));
     }
@@ -342,7 +322,7 @@ public abstract class QuestionDefinition {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, version, path);
+    return Objects.hash(id, path);
   }
 
   /** Two QuestionDefinitions are considered equal if all of their properties are the same. */
@@ -373,14 +353,12 @@ public abstract class QuestionDefinition {
       QuestionDefinition o = (QuestionDefinition) other;
 
       return this.getQuestionType().equals(o.getQuestionType())
-          && this.version == o.getVersion()
           && this.name.equals(o.getName())
           && this.path.equals(o.getPath())
           && this.description.equals(o.getDescription())
           && this.questionText.equals(o.getQuestionText())
           && this.questionHelpText.equals(o.getQuestionHelpText())
-          && this.validationPredicates.equals(o.getValidationPredicates())
-          && this.lifecycleStage.equals(o.getLifecycleStage());
+          && this.validationPredicates.equals(o.getValidationPredicates());
     }
     return false;
   }

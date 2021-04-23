@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
 import services.question.types.NameQuestionDefinition;
@@ -24,17 +23,12 @@ public class NameQuestionFormTest {
     form.setQuestionHelpText("");
     QuestionDefinitionBuilder builder = form.getBuilder(path);
 
-    builder.setVersion(1L);
-    builder.setLifecycleStage(LifecycleStage.ACTIVE);
-
     NameQuestionDefinition expected =
         new NameQuestionDefinition(
-            1L,
             "name",
             path,
             Optional.empty(),
             "description",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of());
 
@@ -49,20 +43,15 @@ public class NameQuestionFormTest {
 
     NameQuestionDefinition originalQd =
         new NameQuestionDefinition(
-            1L,
             "name",
             path,
             Optional.empty(),
             "description",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of());
 
     NameQuestionForm form = new NameQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder(path);
-
-    builder.setVersion(1L);
-    builder.setLifecycleStage(LifecycleStage.ACTIVE);
 
     QuestionDefinition actual = builder.build();
 

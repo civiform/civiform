@@ -5,6 +5,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import models.LifecycleStage;
+import models.Question;
+import models.Version;
 import org.junit.Before;
 import org.junit.Test;
 import services.Path;
@@ -21,7 +24,8 @@ public class ReadOnlyQuestionServiceImplTest {
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
 
   private final ReadOnlyQuestionService emptyService =
-      new ReadOnlyQuestionServiceImpl(ImmutableList.of());
+      new ReadOnlyQuestionServiceImpl(
+          new Version(LifecycleStage.ACTIVE), new Version(LifecycleStage.DRAFT));
   private NameQuestionDefinition nameQuestion;
   private AddressQuestionDefinition addressQuestion;
   private TextQuestionDefinition basicQuestion;
@@ -39,7 +43,17 @@ public class ReadOnlyQuestionServiceImplTest {
     basicQuestion =
         (TextQuestionDefinition) testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
     questions = ImmutableList.of(nameQuestion, addressQuestion, basicQuestion);
-    service = new ReadOnlyQuestionServiceImpl(questions);
+    service =
+        new ReadOnlyQuestionServiceImpl(
+            new Version(LifecycleStage.ACTIVE) {
+              @Override
+              public ImmutableList<Question> getQuestions() {
+                return questions.stream()
+                    .map(q -> new Question(q))
+                    .collect(ImmutableList.toImmutableList());
+              }
+            },
+            new Version(LifecycleStage.DRAFT));
   }
 
   @Test
@@ -59,10 +73,19 @@ public class ReadOnlyQuestionServiceImplTest {
 
     ReadOnlyQuestionService repeaterService =
         new ReadOnlyQuestionServiceImpl(
-            ImmutableList.<QuestionDefinition>builder()
-                .addAll(questions)
-                .add(repeaterQuestion)
-                .build());
+            new Version(LifecycleStage.ACTIVE) {
+              @Override
+              public ImmutableList<Question> getQuestions() {
+                return ImmutableList.<QuestionDefinition>builder()
+                    .addAll(questions)
+                    .add(repeaterQuestion)
+                    .build()
+                    .stream()
+                    .map(q -> new Question(q))
+                    .collect(ImmutableList.toImmutableList());
+              }
+            },
+            new Version(LifecycleStage.DRAFT));
 
     assertThat(repeaterService.getAllRepeaterQuestions().size()).isEqualTo(1);
     assertThat(repeaterService.getAllRepeaterQuestions().get(0)).isEqualTo(repeaterQuestion);
@@ -80,7 +103,17 @@ public class ReadOnlyQuestionServiceImplTest {
   public void makePath_withRepeater() throws Exception {
     QuestionDefinition householdMembers =
         testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
-    service = new ReadOnlyQuestionServiceImpl(ImmutableList.of(householdMembers));
+    service =
+        new ReadOnlyQuestionServiceImpl(
+            new Version(LifecycleStage.ACTIVE) {
+              @Override
+              public ImmutableList<Question> getQuestions() {
+                return ImmutableList.<Question>builder()
+                    .add(new Question(householdMembers))
+                    .build();
+              }
+            },
+            new Version(LifecycleStage.DRAFT));
 
     Path path = service.makePath(Optional.of(householdMembers.getId()), "some question name", true);
 
@@ -91,7 +124,15 @@ public class ReadOnlyQuestionServiceImplTest {
   @Test
   public void makePath_withBadRepeater_throws() {
     QuestionDefinition applicantName = testQuestionBank.applicantName().getQuestionDefinition();
-    service = new ReadOnlyQuestionServiceImpl(ImmutableList.of(applicantName));
+    service =
+        new ReadOnlyQuestionServiceImpl(
+            new Version(LifecycleStage.ACTIVE) {
+              @Override
+              public ImmutableList<Question> getQuestions() {
+                return ImmutableList.<Question>builder().add(new Question(applicantName)).build();
+              }
+            },
+            new Version(LifecycleStage.DRAFT));
 
     assertThatThrownBy(
             () -> service.makePath(Optional.of(applicantName.getId()), "some question name", true))

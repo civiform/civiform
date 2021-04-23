@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import models.LifecycleStage;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,12 +26,10 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
 
   QuestionDefinition questionDefinition =
       new TextQuestionDefinition(
-          1L,
           "my name",
           Path.create("my.path.name"),
           Optional.empty(),
           "description",
-          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
 

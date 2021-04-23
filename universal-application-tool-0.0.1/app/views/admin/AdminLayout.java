@@ -9,6 +9,7 @@ import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
+import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.Tag;
@@ -30,6 +31,7 @@ public class AdminLayout extends BaseHtmlLayout {
   private ContainerTag renderNavBar() {
     String questionLink = controllers.admin.routes.QuestionController.index().url();
     String programLink = controllers.admin.routes.AdminProgramController.index().url();
+    String versionLink = routes.AdminVersionController.index().url();
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
 
     ContainerTag headerIcon =
@@ -46,6 +48,7 @@ public class AdminLayout extends BaseHtmlLayout {
             .with(headerIcon, headerTitle)
             .with(headerLink("Questions", questionLink))
             .with(headerLink("Programs", programLink))
+            .with(headerLink("Versions", versionLink))
             .with(headerLink("Logout", logoutLink, Styles.FLOAT_RIGHT))
             .withClasses(BaseStyles.NAV_STYLES);
     return adminHeader;
