@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import support.TestQuestionBank;
 
@@ -21,10 +21,11 @@ public class ApplicantQuestionTest {
 
   @Test
   @Parameters(source = QuestionType.class)
-  public void errorsPresenterExtendedForAllTypes(QuestionType type)
+  public void errorsPresenterExtendedForAllTypes(QuestionType questionType)
       throws UnsupportedQuestionTypeException {
-    QuestionDefinitionBuilder builder = QuestionDefinitionBuilder.sample(type);
-    ApplicantQuestion question = new ApplicantQuestion(builder.build(), new ApplicantData());
+    QuestionDefinition definition =
+        testQuestionBank.getSampleQuestionsForAllTypes().get(questionType).getQuestionDefinition();
+    ApplicantQuestion question = new ApplicantQuestion(definition, new ApplicantData());
 
     assertThat(question.errorsPresenter().hasTypeSpecificErrors()).isFalse();
   }
