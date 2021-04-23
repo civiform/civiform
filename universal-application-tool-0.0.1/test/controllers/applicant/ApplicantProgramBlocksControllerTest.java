@@ -134,11 +134,11 @@ public class ApplicantProgramBlocksControllerTest {
   public void update_invalidApplicant_returnsUnauthorized() {
     long badApplicantId = applicant.id + 1000;
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.update(badApplicantId, program.id, "1"))
+        fakeRequest(routes.ApplicantProgramBlocksController.update(badApplicantId, program.id, /** blockId = */ "1", /** inReview = */ false))
             .build();
 
     Result result =
-        subject.update(request, badApplicantId, program.id, "1").toCompletableFuture().join();
+        subject.update(request, badApplicantId, program.id, /** blockId = */ "1", /** inReview = */ false).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
@@ -147,11 +147,11 @@ public class ApplicantProgramBlocksControllerTest {
   public void update_invalidProgram_returnsBadRequest() {
     long badProgramId = program.id + 1000;
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, badProgramId, "1"))
+        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, badProgramId, /** blockId = */ "1", /** inReview = */ false))
             .build();
 
     Result result =
-        subject.update(request, applicant.id, badProgramId, "1").toCompletableFuture().join();
+        subject.update(request, applicant.id, badProgramId, /** blockId = */ "1", /** inReview = */ false).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
@@ -162,11 +162,11 @@ public class ApplicantProgramBlocksControllerTest {
     Request request =
         fakeRequest(
                 routes.ApplicantProgramBlocksController.update(
-                    applicant.id, program.id, badBlockId))
+                    applicant.id, program.id, badBlockId, /** inReview = */ false))
             .build();
 
     Result result =
-        subject.update(request, applicant.id, program.id, badBlockId).toCompletableFuture().join();
+        subject.update(request, applicant.id, program.id, badBlockId, /** inReview = */ false).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
@@ -174,12 +174,12 @@ public class ApplicantProgramBlocksControllerTest {
   @Test
   public void update_invalidPathsInRequest_returnsBadRequest() {
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
+        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, /** blockId = */ "1", /** inReview = */ false))
             .bodyForm(ImmutableMap.of("fake.path", "value"))
             .build();
 
     Result result =
-        subject.update(request, applicant.id, program.id, "1").toCompletableFuture().join();
+        subject.update(request, applicant.id, program.id, /** blockId = */ "1", /** inReview = */ false).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
@@ -188,12 +188,12 @@ public class ApplicantProgramBlocksControllerTest {
   public void update_reservedPathsInRequest_returnsBadRequest() {
     String reservedPath = "metadata." + QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY;
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
+        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, /** blockId = */ "1", /** inReview = */ false))
             .bodyForm(ImmutableMap.of(reservedPath, "value"))
             .build();
 
     Result result =
-        subject.update(request, applicant.id, program.id, "1").toCompletableFuture().join();
+        subject.update(request, applicant.id, program.id, /** blockId = */ "1", /** inReview = */ false).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
@@ -204,7 +204,7 @@ public class ApplicantProgramBlocksControllerTest {
         addCSRFToken(
                 fakeRequest(
                         routes.ApplicantProgramBlocksController.update(
-                            applicant.id, program.id, "1"))
+                            applicant.id, program.id, /** blockId = */ "1", /** inReview = */ false))
                     .bodyForm(
                         ImmutableMap.of(
                             "applicant.applicant_name.first",
@@ -214,7 +214,7 @@ public class ApplicantProgramBlocksControllerTest {
             .build();
 
     Result result =
-        subject.update(request, applicant.id, program.id, "1").toCompletableFuture().join();
+        subject.update(request, applicant.id, program.id, /** blockId = */ "1", /** inReview = */ false).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("FirstName");
@@ -231,7 +231,7 @@ public class ApplicantProgramBlocksControllerTest {
             .withQuestion(TestQuestionBank.applicantAddress())
             .build();
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
+        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id,  /** blockId = */ "1", /** inReview = */ false))
             .bodyForm(
                 ImmutableMap.of(
                     "applicant.applicant_name.first",
@@ -241,11 +241,11 @@ public class ApplicantProgramBlocksControllerTest {
             .build();
 
     Result result =
-        subject.update(request, applicant.id, program.id, "1").toCompletableFuture().join();
+        subject.update(request, applicant.id, program.id, /** blockId = */ "1", /** inReview = */ false).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
-        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "2").url();
+        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, /** blockId = */ "2").url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
   }
 
@@ -258,7 +258,7 @@ public class ApplicantProgramBlocksControllerTest {
             .build();
 
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
+        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, /** blockId = */ "1", /** inReview = */ false))
             .bodyForm(
                 ImmutableMap.of(
                     "applicant.applicant_name.first",
@@ -268,7 +268,7 @@ public class ApplicantProgramBlocksControllerTest {
             .build();
 
     Result result =
-        subject.update(request, applicant.id, program.id, "1").toCompletableFuture().join();
+        subject.update(request, applicant.id, program.id, /** blockId = */ "1", /** inReview = */ false).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(FOUND);
 
@@ -289,7 +289,7 @@ public class ApplicantProgramBlocksControllerTest {
             .build();
 
     Result result =
-        subject.edit(request, applicant.id, program.id, "1").toCompletableFuture().join();
+        subject.edit(request, applicant.id, program.id, /** blockId = */ "1").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Guardar y continuar");
