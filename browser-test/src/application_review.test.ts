@@ -1,4 +1,4 @@
-import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession, logout, loginAsGuest, selectApplicantLanguage, ApplicantQuestions } from './support'
+import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession, logout, loginAsTestUser, selectApplicantLanguage, ApplicantQuestions, userDisplayName  } from './support'
 
 describe('normal application flow', () => {
   it('all major steps', async () => {
@@ -39,7 +39,7 @@ describe('normal application flow', () => {
     await adminQuestions.expectActiveQuestionExist('radio-q');
 
     await logout(page);
-    await loginAsGuest(page);
+    await loginAsTestUser(page);
     await selectApplicantLanguage(page, 'English');
 
     const applicantQuestions = new ApplicantQuestions(page);
@@ -63,7 +63,7 @@ describe('normal application flow', () => {
     await loginAsAdmin(page);
 
     await adminPrograms.viewApplications(programName);
-    await adminPrograms.viewApplicationForApplicant('<Anonymous Applicant>');
+    await adminPrograms.viewApplicationForApplicant(userDisplayName());
     await adminPrograms.expectApplicationAnswers('Block 1', 'address-q', '1234 St');
     await adminPrograms.expectApplicationAnswers('Block 1', 'name-q', 'Queen');
 
