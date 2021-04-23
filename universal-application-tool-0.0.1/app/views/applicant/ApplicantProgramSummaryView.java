@@ -35,19 +35,19 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
    *      - block id (for edit link)
    */
   public Content render(Long programId, String programTitle, ImmutableList<SummaryData> data) {
-    ContainerTag headerTag = renderHeader(programTitle + "(" + programId + ")", 100);
+    ContainerTag headerTag = renderHeader(programTitle, 100);
 
     ContainerTag content = div().withClasses("mx-16");
     for (SummaryData questionData : data) {
-      content.with(renderQuestionSummary(questionData.questionText, questionData.answerText, "Edit"));
+      content.with(
+        renderQuestionSummary(questionData, programId));
     }
 
     // TODO: [NOW] Add submit action.    
     ContainerTag actions = div(button("Submit")).withClasses("float-right my-4");
     content.with(actions);
 
-    // TODO: [NOW] Add Program title.
-    return layout.render(headerTag, h1("Application Review:").withClasses("px-16 py-4"), content);
+    return layout.render(headerTag, h1("Application Review").withClasses("px-16 py-4"), content);
   }
 
   private ContainerTag renderHeader(String programTitle, int percentComplete) {
@@ -66,13 +66,12 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     return headerTag;
   }
 
-  private ContainerTag renderQuestionSummary(
-      String questionText, String answerText, String editLink) {
-    ContainerTag questionContent = div(questionText).withClasses("font-semibold text-base");
+  private ContainerTag renderQuestionSummary(SummaryData data, Long programId) {
+    ContainerTag questionContent = div(data.questionText).withClasses("font-semibold text-base");
 
     // Add answer text, converting newlines to <br/> tags.
     ContainerTag answerContent = div().withClasses("flex-auto text-left font-light text-sm");
-    String[] texts = answerText.split("\n");
+    String[] texts = data.answerText.split("\n");
     texts = Arrays.stream(texts).filter(text -> text.length() > 0).toArray(String[]::new);
     for (int i = 0; i < texts.length; i++) {
       if (i > 0) {
@@ -83,7 +82,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     // TODO: [NOW] This should be a link to block containing specific answer.
     ContainerTag editContent = div(
-      span(editLink).withClasses("absolute bottom-0 right-0 text-sm")
+      span("Edit").withClasses("absolute bottom-0 right-0 text-sm")
     ).withClasses("flex-auto text-right font-light italic relative");
     ContainerTag answerDiv = div(answerContent, editContent).withClasses("flex flex-row pr-2");
     return div(questionContent, answerDiv).withClasses("w-7/8 my-2 py-2 border-b border-gray-300");
