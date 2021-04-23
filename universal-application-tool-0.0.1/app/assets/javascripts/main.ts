@@ -64,16 +64,20 @@ function removeQuestionOption(event: Event) {
 
 /** In the repeater form - add a new input field for a repeated entity. */
 function addNewRepeaterField(event: Event) {
-  // Copy the answer template and remove ID and hidden properties.
-  const newField = document.getElementById("repeater-field-template").cloneNode(true) as HTMLElement;
-  newField.classList.remove("hidden");
-  newField.removeAttribute("id");
+  // Copy the first repeater field
+  const newField = document.querySelector(".repeater-field").cloneNode(true) as HTMLElement;
+
+  // Remove the text
+  const newTextField = newField.querySelector("[type=text]") as HTMLInputElement;
+  newTextField.value = null;
 
   const repeaterFields = document.getElementById("repeater-fields");
-
-  // Set new checkbox value to the index
   const index = repeaterFields.querySelectorAll(".repeater-field").length;
-  newField.querySelector("[type=checkbox]").setAttribute("value", index.toString());
+
+  // Set new checkbox value to the index and uncheck it
+  const newCheckbox = newField.querySelector("[type=checkbox]") as HTMLInputElement;
+  newCheckbox.setAttribute("value", index.toString());
+  newCheckbox.checked = false;
 
   repeaterFields.appendChild(newField);
 }

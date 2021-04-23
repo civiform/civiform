@@ -42,7 +42,6 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
     return div()
         .withClasses(Styles.MX_AUTO, Styles.W_MAX)
         .with(
-            repeaterFieldTemplate(),
             div()
                 .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT)
                 .withText(question.getQuestionText()),
@@ -74,11 +73,5 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
             .getContainer();
 
     return div().withClasses(REPEATER_FIELD_CLASSES).with(optionInput, removeOptionBox);
-  }
-
-  public static Tag repeaterFieldTemplate() {
-    return repeaterField("placeholder", Optional.empty(), 0)
-        .withClasses(REPEATER_FIELD_CLASSES, Styles.HIDDEN)
-        .withId(TEMPLATE_ID);
   }
 }
