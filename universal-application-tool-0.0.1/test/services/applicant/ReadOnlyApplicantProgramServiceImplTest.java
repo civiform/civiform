@@ -44,7 +44,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
     assertThatThrownBy(() -> applicantData.putString(Path.create("fake.path"), "fake value"))
         .isInstanceOf(RuntimeException.class)
-        .hasMessage("Cannot change ApplicantData after it has been locked");
+        .hasMessage("Cannot change ApplicantData after it has been locked.");
   }
 
   @Test
