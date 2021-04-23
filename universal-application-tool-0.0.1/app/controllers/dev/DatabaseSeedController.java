@@ -259,6 +259,7 @@ public class DatabaseSeedController extends DevController {
         Account.class,
         Applicant.class,
         Application.class,
+        models.Version.class,
         StoredFile.class);
   }
 }

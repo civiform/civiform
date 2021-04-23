@@ -1,4 +1,4 @@
-import { startSession, logout, loginAsGuest, loginAsAdmin, selectApplicantLanguage, ApplicantQuestions, AdminQuestions, AdminPrograms, endSession } from './support'
+import { startSession, logout, loginAsTestUser, loginAsAdmin, selectApplicantLanguage, ApplicantQuestions, AdminQuestions, AdminPrograms, endSession } from './support'
 
 describe('normal application flow', () => {
   it('all major steps', async () => {
@@ -20,7 +20,7 @@ describe('normal application flow', () => {
     await adminPrograms.addAndPublishProgramWithQuestions(['name-csv'], programName);
 
     await logout(page);
-    await loginAsGuest(page);
+    await loginAsTestUser(page);
     await selectApplicantLanguage(page, 'English');
 
     await applicantQuestions.applyProgram(programName);
