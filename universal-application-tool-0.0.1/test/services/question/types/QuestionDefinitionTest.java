@@ -372,26 +372,6 @@ public class QuestionDefinitionTest {
             Path.create("path.to.question.updated_in_program"),
             ScalarType.LONG);
     assertThat(question.getScalars()).containsAllEntriesOf(expectedScalars);
-    assertThat(question.getScalarType(Path.create("path.to.question.text")).get())
-        .isEqualTo(ScalarType.STRING);
-    assertThat(
-            question.getScalarType(Path.create("path.to.question.text")).get().getClassFor().get())
-        .isEqualTo(String.class);
-  }
-
-  @Test
-  public void newQuestionMissingScalar_returnsOptionalEmpty() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            1L,
-            "",
-            Path.empty(),
-            Optional.empty(),
-            "",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(),
-            ImmutableMap.of());
-    assertThat(question.getScalarType(Path.create("notPresent"))).isEqualTo(Optional.empty());
   }
 
   @Test

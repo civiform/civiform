@@ -11,6 +11,7 @@ import com.google.common.collect.Sets;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 import models.LifecycleStage;
 import models.Program;
 import services.LocalizationUtils;
@@ -121,7 +122,7 @@ public abstract class ProgramDefinition {
    */
   public ImmutableSet<Locale> getSupportedLocales() {
     ImmutableSet<ImmutableSet<Locale>> questionLocales =
-        getQuestionDefinitions().stream()
+        streamQuestionDefinitions()
             .map(QuestionDefinition::getSupportedLocales)
             .collect(toImmutableSet());
 
@@ -206,9 +207,7 @@ public abstract class ProgramDefinition {
     if (questionIds.isEmpty()) {
       questionIds =
           Optional.of(
-              getQuestionDefinitions().stream()
-                  .map(QuestionDefinition::getId)
-                  .collect(toImmutableSet()));
+              streamQuestionDefinitions().map(QuestionDefinition::getId).collect(toImmutableSet()));
     }
 
     return questionIds.get().contains(questionId);
@@ -244,13 +243,12 @@ public abstract class ProgramDefinition {
 
   public abstract Builder toBuilder();
 
-  private ImmutableSet<QuestionDefinition> getQuestionDefinitions() {
+  private Stream<QuestionDefinition> streamQuestionDefinitions() {
     return blockDefinitions().stream()
         .flatMap(
             b ->
                 b.programQuestionDefinitions().stream()
-                    .map(ProgramQuestionDefinition::getQuestionDefinition))
-        .collect(toImmutableSet());
+                    .map(ProgramQuestionDefinition::getQuestionDefinition));
   }
 
   @AutoValue.Builder
