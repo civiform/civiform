@@ -10,11 +10,18 @@ import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.applicant.routes;
+import java.util.Date;
 import j2html.tags.ContainerTag;
-import services.applicant.SummaryData;
+import java.time.LocalDate;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Arrays;
 import play.twirl.api.Content;
+import services.applicant.SummaryData;
 import views.BaseHtmlView;
+import views.components.LinkElement;
+import views.style.Styles;
 
 public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
@@ -34,17 +41,23 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
    *      - answer text
    *      - block id (for edit link)
    */
-  public Content render(Long programId, String programTitle, ImmutableList<SummaryData> data) {
+  public Content render(Long applicantId, Long programId, String programTitle, ImmutableList<SummaryData> data) {
     ContainerTag headerTag = renderHeader(programTitle, 100);
 
     ContainerTag content = div().withClasses("mx-16");
     for (SummaryData questionData : data) {
       content.with(
-        renderQuestionSummary(questionData, programId));
+        renderQuestionSummary(questionData, applicantId, programId));
     }
 
-    // TODO: [NOW] Add submit action.    
-    ContainerTag actions = div(button("Submit")).withClasses("float-right my-4");
+    // TODO: [NOW] Add submit action (POST).
+    String submitLink = routes.ApplicantProgramReviewController.submit(applicantId, programId).url();
+    ContainerTag actions = new LinkElement()
+      .setId("submit-program-link-" + programId)
+      .setHref(submitLink)
+      .setText("Submit")
+      .setStyles(Styles.FLOAT_RIGHT, Styles.MY_4)
+      .asButton();
     content.with(actions);
 
     return layout.render(headerTag, h1("Application Review").withClasses("px-16 py-4"), content);
@@ -66,9 +79,17 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     return headerTag;
   }
 
-  private ContainerTag renderQuestionSummary(SummaryData data, Long programId) {
-    ContainerTag questionContent = div(data.questionText).withClasses("font-semibold text-base");
+  private ContainerTag renderQuestionSummary(SummaryData data, Long applicantId, Long programId) {
+    ContainerTag questionPrompt = div(data.questionText).withClasses("flex-auto font-semibold text-base");
+    ContainerTag questionContent = div(questionPrompt).withClasses("flex flex-row pr-2");
 
+    // Show timestamp if answered elsewhere.
+    if (data.isPreviousResponse) {
+      LocalDate date = Instant.ofEpochMilli(data.timestamp).atZone(ZoneId.systemDefault()).toLocalDate();  
+      ContainerTag timestampContent = div("Previously answered on " + date).withClasses("flex-auto text-right font-light text-sm");
+      questionContent.with(timestampContent);
+    }
+    
     // Add answer text, converting newlines to <br/> tags.
     ContainerTag answerContent = div().withClasses("flex-auto text-left font-light text-sm");
     String[] texts = data.answerText.split("\n");
@@ -80,11 +101,15 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       answerContent.withText(texts[i]);
     }
 
-    // TODO: [NOW] This should be a link to block containing specific answer.
-    ContainerTag editContent = div(
-      span("Edit").withClasses("absolute bottom-0 right-0 text-sm")
-    ).withClasses("flex-auto text-right font-light italic relative");
+    // Link to block containing specific question.
+    String editLink = routes.ApplicantProgramBlocksController.review(applicantId, programId, data.blockId).url();
+    ContainerTag editAction = new LinkElement()
+      .setHref(editLink)
+      .setText("Edit")
+      .asAnchorText();      
+    ContainerTag editContent = div(editAction).withClasses("flex-auto text-right font-light italic relative");
     ContainerTag answerDiv = div(answerContent, editContent).withClasses("flex flex-row pr-2");
+
     return div(questionContent, answerDiv).withClasses("w-7/8 my-2 py-2 border-b border-gray-300");
   }
 }

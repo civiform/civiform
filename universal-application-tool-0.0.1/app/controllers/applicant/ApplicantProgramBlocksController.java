@@ -64,6 +64,18 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> edit(
       Request request, long applicantId, long programId, String blockId) {
+    return editOrReview(request, applicantId, programId, blockId, false);
+  }
+
+  @Secure
+  public CompletionStage<Result> review(
+      Request request, long applicantId, long programId, String blockId) {
+    return editOrReview(request, applicantId, programId, blockId, true);
+  }
+
+  @Secure
+  private CompletionStage<Result> editOrReview(
+    Request request, long applicantId, long programId, String blockId, boolean inReview) {
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
@@ -81,6 +93,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             .setApplicantId(applicantId)
                             .setProgramId(programId)
                             .setBlock(block.get())
+                            .setInReview(inReview)
                             .build()));
               } else {
                 return notFound();
@@ -105,7 +118,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> update(
-      Request request, long applicantId, long programId, String blockId) {
+      Request request, long applicantId, long programId, String blockId, boolean inReview) {
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
             v -> {
@@ -127,7 +140,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               ReadOnlyApplicantProgramService roApplicantProgramService =
                   errorAndROApplicantProgramService.getResult();
 
-              return update(request, applicantId, programId, blockId, roApplicantProgramService);
+              return update(request, applicantId, programId, blockId, inReview, roApplicantProgramService);
             },
             httpExecutionContext.current())
         .exceptionally(
@@ -156,12 +169,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       long programId,
       String blockId,
+      boolean inReview,
       ReadOnlyApplicantProgramService roApplicantProgramService) {
     Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getBlock(blockId);
     if (thisBlockUpdatedMaybe.isEmpty()) {
       return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
     }
     Block thisBlockUpdated = thisBlockUpdatedMaybe.get();
+    logger.debug("Updating with inReview = " + inReview);
 
     // Validation errors: re-render this block with errors and previously entered data.
     if (thisBlockUpdated.hasErrors()) {
@@ -180,7 +195,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     Optional<String> nextBlockIdMaybe =
         roApplicantProgramService.getBlockAfter(blockId).map(Block::getId);
-    return nextBlockIdMaybe.isEmpty()
+    return nextBlockIdMaybe.isEmpty() || inReview
         ? supplyAsync(
             () -> redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)))
         : supplyAsync(
