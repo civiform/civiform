@@ -56,6 +56,13 @@ export class AdminPrograms {
     await this.expectProgramEditPage(programName);
   }
 
+  async gotoDraftProgramManageTranslationsPage(programName: string) {
+    await this.gotoAdminProgramsPage();
+    await this.expectDraftProgram(programName);
+    await this.page.click(this.selectWithinProgramCard(programName, 'DRAFT', ':text("Manage Translations")'));
+    await this.expectProgramManageTranslationsPage();
+  }
+
   async expectDraftProgram(programName: string) {
     expect(await this.page.innerText(`div.border:has(:text("${programName}"), :text("DRAFT"))`)).not.toContain('New Version');
   }
@@ -70,6 +77,10 @@ export class AdminPrograms {
 
   async expectProgramEditPage(programName: string = '') {
     expect(await this.page.innerText('h1')).toContain(`Edit program: ${programName}`);
+  }
+
+  async expectProgramManageTranslationsPage() {
+    expect(await this.page.innerText('hi')).toContain('Manage Translations');
   }
 
   async expectProgramBlockEditPage(programName: string = '') {

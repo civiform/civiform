@@ -195,7 +195,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                   draftProgram.get().id(), LocalizationUtils.DEFAULT_LOCALE.toLanguageTag())
               .url();
       return new LinkElement()
-          .setId("program-edit-link-" + draftProgram.get().id())
+          .setId("program-translations-link-" + draftProgram.get().id())
           .setHref(linkDestination)
           .setText(linkText)
           .setStyles(Styles.MR_2)
