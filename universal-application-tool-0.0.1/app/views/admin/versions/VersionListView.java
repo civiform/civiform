@@ -16,10 +16,6 @@ import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -66,11 +62,6 @@ public class VersionListView extends BaseHtmlView {
             renderPastVersionTable(olderVersions, request));
 
     return layout.render(bodyContent);
-  }
-
-  private String renderDateTime(Instant time) {
-    LocalDateTime datetime = LocalDateTime.ofInstant(time, ZoneId.of("America/Los_Angeles"));
-    return datetime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd 'at' h:mm a"));
   }
 
   private Tag renderPastVersionTable(ImmutableList<Version> olderVersions, Http.Request request) {

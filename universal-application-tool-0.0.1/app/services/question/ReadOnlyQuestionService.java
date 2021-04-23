@@ -32,6 +32,7 @@ public interface ReadOnlyQuestionService {
   /** Returns all scalars for this version. */
   ImmutableMap<Path, ScalarType> getAllScalars();
 
+  /** Get the data object about the questions that are in the active or draft version. */
   ActiveAndDraftQuestions getActiveAndDraftQuestions();
 
   /**

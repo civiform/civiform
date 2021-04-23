@@ -89,7 +89,6 @@ public abstract class QuestionDefinition {
     return Optional.ofNullable(this.getScalars().get(path));
   }
 
-
   /** Return true if the question is persisted and has an unique identifier. */
   public boolean isPersisted() {
     return this.id.isPresent();

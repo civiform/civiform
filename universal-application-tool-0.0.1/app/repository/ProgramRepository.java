@@ -68,6 +68,8 @@ public class ProgramRepository {
       this.updateProgramSync(updatedDraft);
       return updatedDraft;
     } else {
+      // Program -> builder -> back to program in order to clear any metadata stored
+      // in the program (for example, version information).
       Program newDraft = existingProgram.getProgramDefinition().toBuilder().build().toProgram();
       newDraft = insertProgramSync(newDraft);
       newDraft.addVersion(draftVersion);

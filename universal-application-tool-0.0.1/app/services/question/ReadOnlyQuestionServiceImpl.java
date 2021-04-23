@@ -32,17 +32,21 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
 
   private Locale preferredLocale = LocalizationUtils.DEFAULT_LOCALE;
 
-  public ReadOnlyQuestionServiceImpl(Version active, Version draft) {
-    checkNotNull(active);
-    checkState(active.getLifecycleStage().equals(LifecycleStage.ACTIVE));
-    checkNotNull(draft);
-    checkState(draft.getLifecycleStage().equals(LifecycleStage.DRAFT));
+  public ReadOnlyQuestionServiceImpl(Version activeVersion, Version draftVersion) {
+    checkNotNull(activeVersion);
+    checkState(
+        activeVersion.getLifecycleStage().equals(LifecycleStage.ACTIVE),
+        "Supposedly active version not ACTIVE");
+    checkNotNull(draftVersion);
+    checkState(
+        draftVersion.getLifecycleStage().equals(LifecycleStage.DRAFT),
+        "Supposedly draft version not DRAFT");
     ImmutableMap.Builder<Long, QuestionDefinition> questionIdMap = ImmutableMap.builder();
     ImmutableMap.Builder<Path, ScalarType> scalarMap = ImmutableMap.builder();
     ImmutableSet.Builder<QuestionDefinition> upToDateBuilder = ImmutableSet.builder();
     Set<String> namesFoundInDraft = new HashSet<>();
     for (QuestionDefinition qd :
-        draft.getQuestions().stream()
+        draftVersion.getQuestions().stream()
             .map(Question::getQuestionDefinition)
             .collect(Collectors.toList())) {
       upToDateBuilder.add(qd);
@@ -50,7 +54,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
       namesFoundInDraft.add(qd.getName());
     }
     for (QuestionDefinition qd :
-        active.getQuestions().stream()
+        activeVersion.getQuestions().stream()
             .map(Question::getQuestionDefinition)
             .collect(Collectors.toList())) {
 
@@ -68,7 +72,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     questionsById = questionIdMap.build();
     scalars = scalarMap.build();
     upToDateQuestions = upToDateBuilder.build();
-    activeAndDraftQuestions = new ActiveAndDraftQuestions(active, draft);
+    activeAndDraftQuestions = new ActiveAndDraftQuestions(activeVersion, draftVersion);
   }
 
   @Override

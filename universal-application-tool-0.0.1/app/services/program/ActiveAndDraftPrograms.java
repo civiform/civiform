@@ -8,6 +8,12 @@ import java.util.Optional;
 import models.Program;
 import models.Version;
 
+/**
+ * A data class storing the current active and draft programs. For efficient querying of information
+ * about current active / draft programs which does not hit the database. Lifespan should be
+ * measured in milliseconds - seconds at the maximum - within one request serving path - because it
+ * does not have any mechanism for a refresh.
+ */
 public class ActiveAndDraftPrograms {
 
   private final ImmutableMap<String, Pair<Optional<ProgramDefinition>, Optional<ProgramDefinition>>>

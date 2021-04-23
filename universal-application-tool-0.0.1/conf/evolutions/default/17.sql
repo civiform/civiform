@@ -8,14 +8,14 @@ create table versions (
 );
 
 create table versions_questions (
-  questions_id bigint,
-  versions_id bigint,
+  questions_id bigint not null,
+  versions_id bigint not null,
   primary key (questions_id, versions_id)
 );
 
 create table versions_programs (
-  programs_id bigint,
-  versions_id bigint,
+  programs_id bigint not null,
+  versions_id bigint not null,
   primary key (programs_id, versions_id)
 );
 

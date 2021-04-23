@@ -21,8 +21,8 @@ import services.question.types.QuestionDefinition;
 
 public final class QuestionServiceImpl implements QuestionService {
 
-  private QuestionRepository questionRepository;
-  private Provider<VersionRepository> versionRepositoryProvider;
+  private final QuestionRepository questionRepository;
+  private final Provider<VersionRepository> versionRepositoryProvider;
 
   @Inject
   public QuestionServiceImpl(

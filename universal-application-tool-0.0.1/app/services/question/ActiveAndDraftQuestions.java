@@ -9,6 +9,12 @@ import models.Question;
 import models.Version;
 import services.question.types.QuestionDefinition;
 
+/**
+ * A data class storing the current active and draft questions. For efficient querying of
+ * information about current active / draft questions which does not hit the database. Lifespan
+ * should be measured in milliseconds - seconds at the maximum - within one request serving path -
+ * because it does not have any mechanism for a refresh.
+ */
 public class ActiveAndDraftQuestions {
 
   private final ImmutableMap<

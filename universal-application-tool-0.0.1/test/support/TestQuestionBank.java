@@ -287,9 +287,9 @@ public class TestQuestionBank {
   private Question maybeSave(QuestionDefinition questionDefinition) {
     Question question = new Question(questionDefinition);
     if (canSave) {
-      // This odd way of finding the active version is because this class is
-      // entirely static and doesn't have room for injection of the Version repository,
-      // because it needs to work without the database.
+      // This odd way of finding the active version is because this class
+      // doesn't have access to the Version repository, because it needs to
+      // work without the database.
       question.addVersion(
           question
               .db()
