@@ -65,7 +65,7 @@ function removeQuestionOption(event: Event) {
 /** In the repeater form - add a new input field for a repeated entity. */
 function addNewRepeaterField(event: Event) {
   // Copy the answer template and remove ID and hidden properties.
-  const newField = document.getElementById("repeater-field-template").cloneNode(true);
+  const newField = document.getElementById("repeater-field-template").cloneNode(true) as HTMLElement;
   newField.classList.remove("hidden");
   newField.removeAttribute("id");
 
