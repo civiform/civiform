@@ -152,16 +152,6 @@ public abstract class BlockDefinition {
   }
 
   @JsonIgnore
-  public boolean hasPaths(List<Path> paths) {
-    return scalarPaths().containsAll(ImmutableSet.copyOf(paths));
-  }
-
-  @JsonIgnore
-  public boolean hasPaths(Path... paths) {
-    return hasPaths(ImmutableList.copyOf(paths));
-  }
-
-  @JsonIgnore
   public boolean hasSameId(BlockDefinition other) {
     return other.id() == id();
   }

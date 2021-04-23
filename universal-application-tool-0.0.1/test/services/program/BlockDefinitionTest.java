@@ -49,25 +49,6 @@ public class BlockDefinitionTest {
   }
 
   @Test
-  public void hasPaths() {
-    BlockDefinition block = makeBlockDefinitionWithQuestions();
-    ImmutableList<Path> paths =
-        ImmutableList.of(
-            Path.create("applicant.applicant_name.first"),
-            Path.create("applicant.applicant_name.middle"),
-            Path.create("applicant.applicant_name.last"),
-            Path.create("applicant.applicant_address.street"),
-            Path.create("applicant.applicant_address.city"),
-            Path.create("applicant.applicant_address.state"),
-            Path.create("applicant.applicant_address.zip"),
-            Path.create("applicant.applicant_favorite_color.text"));
-
-    assertThat(block.hasPaths(paths)).isTrue();
-
-    assertThat(block.hasPaths(Path.create("fake.path"))).isFalse();
-  }
-
-  @Test
   public void isRepeater_isFalse() {
     BlockDefinition blockDefinition = makeBlockDefinitionWithQuestions();
 
