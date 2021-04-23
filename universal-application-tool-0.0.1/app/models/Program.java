@@ -80,12 +80,10 @@ public class Program extends BaseModel {
       String defaultDisplayDescription) {
     this.name = adminName;
     this.description = adminDescription;
-    // TODO(https://github.com/seattle-uat/civiform/issues/777): Allow the admin to
-    // set localized strings for applicant-visible name and description.
+    // A program is always created with the default CiviForm locale first, then localized.
     this.localizedName = ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, defaultDisplayName);
     this.localizedDescription =
         ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, defaultDisplayDescription);
-
     BlockDefinition emptyBlock =
         BlockDefinition.builder()
             .setId(1L)

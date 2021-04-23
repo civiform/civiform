@@ -160,6 +160,33 @@ public class ProgramServiceImpl implements ProgramService {
             .join());
   }
 
+  @Override
+  public ErrorAnd<ProgramDefinition, CiviFormError> updateLocalization(
+      long programId, Locale locale, String displayName, String displayDescription)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    validateProgramText(errorsBuilder, "display name", displayName);
+    validateProgramText(errorsBuilder, "display description", displayDescription);
+    ImmutableSet<CiviFormError> errors = errorsBuilder.build();
+    if (!errors.isEmpty()) {
+      return ErrorAnd.error(errors);
+    }
+
+    Program program =
+        programDefinition.toBuilder()
+            .updateLocalizedName(programDefinition.localizedName(), locale, displayName)
+            .updateLocalizedDescription(
+                programDefinition.localizedDescription(), locale, displayDescription)
+            .build()
+            .toProgram();
+    return ErrorAnd.of(
+        syncProgramDefinitionQuestions(
+                programRepository.updateProgramSync(program).getProgramDefinition())
+            .toCompletableFuture()
+            .join());
+  }
+
   private void validateProgramText(
       ImmutableSet.Builder<CiviFormError> builder, String fieldName, String text) {
     if (text.isBlank()) {

@@ -13,6 +13,7 @@ import j2html.tags.Tag;
 import java.util.Optional;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.LocalizationUtils;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
@@ -126,6 +127,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                 p().withClasses(Styles.FLEX_GROW),
                 maybeRenderViewApplicationsLink(viewApplicationsLinkText, activeProgram),
+                maybeRenderManageTranslationsLink(draftProgram),
                 maybeRenderEditLink(draftProgram, activeProgram, request))
             .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
 
@@ -181,6 +183,24 @@ public final class ProgramIndexView extends BaseHtmlView {
           .asHiddenForm(request);
     } else {
       // obsolete or deleted, no edit link, empty div.
+      return div();
+    }
+  }
+
+  private Tag maybeRenderManageTranslationsLink(Optional<ProgramDefinition> draftProgram) {
+    if (draftProgram.isPresent()) {
+      String linkText = "Manage Translations →";
+      String linkDestination =
+          routes.AdminProgramTranslationsController.edit(
+                  draftProgram.get().id(), LocalizationUtils.DEFAULT_LOCALE.toLanguageTag())
+              .url();
+      return new LinkElement()
+          .setId("program-translations-link-" + draftProgram.get().id())
+          .setHref(linkDestination)
+          .setText(linkText)
+          .setStyles(Styles.MR_2)
+          .asAnchorText();
+    } else {
       return div();
     }
   }
