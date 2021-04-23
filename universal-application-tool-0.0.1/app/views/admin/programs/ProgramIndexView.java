@@ -10,10 +10,10 @@ import static j2html.TagCreator.p;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.Tag;
-import java.util.Locale;
 import java.util.Optional;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.LocalizationUtils;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
@@ -192,7 +192,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       String linkText = "Manage Translations →";
       String linkDestination =
           routes.AdminProgramTranslationsController.edit(
-                  draftProgram.get().id(), Locale.US.toLanguageTag())
+                  draftProgram.get().id(), LocalizationUtils.DEFAULT_LOCALE.toLanguageTag())
               .url();
       return new LinkElement()
           .setId("program-edit-link-" + draftProgram.get().id())

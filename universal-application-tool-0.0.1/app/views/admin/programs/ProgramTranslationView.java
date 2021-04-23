@@ -15,6 +15,7 @@ import play.i18n.Lang;
 import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.LocalizationUtils;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
@@ -83,7 +84,7 @@ public class ProgramTranslationView extends BaseHtmlView {
             .setHref(
                 routes.AdminProgramTranslationsController.edit(programId, locale.toLanguageTag())
                     .url())
-            .setText(locale.getDisplayLanguage(Locale.US));
+            .setText(locale.getDisplayLanguage(LocalizationUtils.DEFAULT_LOCALE));
 
     if (isCurrentlySelected) {
       link.setStyles(Styles.M_2, Styles.BORDER_BLUE_400, Styles.BORDER_B_2);
@@ -117,6 +118,10 @@ public class ProgramTranslationView extends BaseHtmlView {
                 .setPlaceholderText("Program description")
                 .setValue(localizedDescription)
                 .getContainer())
-        .with(submitButton(String.format("Save %s updates", locale.getDisplayLanguage(Locale.US))));
+        .with(
+            submitButton(
+                String.format(
+                    "Save %s updates",
+                    locale.getDisplayLanguage(LocalizationUtils.DEFAULT_LOCALE))));
   }
 }
