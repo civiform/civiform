@@ -7,14 +7,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import models.LifecycleStage;
 import models.Question;
 import models.Version;
-import services.LocalizationUtils;
 import services.Path;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
@@ -27,8 +25,6 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
   private final ImmutableSet<QuestionDefinition> upToDateQuestions;
   private final ActiveAndDraftQuestions activeAndDraftQuestions;
-
-  private Locale preferredLocale = LocalizationUtils.DEFAULT_LOCALE;
 
   public ReadOnlyQuestionServiceImpl(Version activeVersion, Version draftVersion) {
     checkNotNull(activeVersion);
@@ -124,15 +120,5 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
       return questionsById.get(id);
     }
     throw new QuestionNotFoundException(id);
-  }
-
-  @Override
-  public Locale getPreferredLocale() {
-    return this.preferredLocale;
-  }
-
-  @Override
-  public void setPreferredLocale(Locale locale) {
-    this.preferredLocale = locale;
   }
 }
