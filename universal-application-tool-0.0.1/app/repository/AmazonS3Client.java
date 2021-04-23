@@ -140,7 +140,7 @@ public class AmazonS3Client {
 
     while (true) {
       try {
-        byteArray=getObjectInner(key);
+        byteArray = getObjectInner(key);
         return byteArray;
       } catch (RuntimeException e) {
         if (i < 3) {
