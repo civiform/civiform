@@ -37,7 +37,7 @@ public class TestQuestionBankTest {
 
   @Test
   @Parameters(source = QuestionType.class)
-  public void getSampleQuestionsForAllTypesTest(QuestionType questionType) {
+  public void getSampleQuestionForAllTypes_hasASampleForEachType(QuestionType questionType) {
     assertThat(testQuestionBank.getSampleQuestionsForAllTypes().get(questionType)).isNotNull();
   }
 }
