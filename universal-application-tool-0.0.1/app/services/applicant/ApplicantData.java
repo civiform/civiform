@@ -25,6 +25,8 @@ public class ApplicantData {
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
   private static final TypeRef<ImmutableList<Long>> IMMUTABLE_LIST_LONG_TYPE = new TypeRef<>() {};
 
+  private boolean locked = false;
+
   private Optional<Locale> preferredLocale;
   private final DocumentContext jsonData;
 
@@ -41,6 +43,11 @@ public class ApplicantData {
     this.jsonData = JsonPathProvider.getJsonPath().parse(checkNotNull(jsonData));
   }
 
+  /** Makes this ApplicantData immutable. A locked ApplicantData cannot be unlocked. */
+  public void lock() {
+    locked = true;
+  }
+
   /** Returns true if this applicant has set their preferred locale, and false otherwise. */
   public boolean hasPreferredLocale() {
     return this.preferredLocale.isPresent();
@@ -52,6 +59,7 @@ public class ApplicantData {
   }
 
   public void setPreferredLocale(Locale locale) {
+    checkLocked();
     this.preferredLocale = Optional.of(locale);
   }
 
@@ -155,6 +163,7 @@ public class ApplicantData {
    * @param value the value to place; values of type Map will create the equivalent JSON structure
    */
   private void put(Path path, Object value) {
+    checkLocked();
     putParentIfMissing(path);
     if (path.isArrayElement()) {
       putArrayIfMissing(path.withoutArrayReference());
@@ -176,10 +185,12 @@ public class ApplicantData {
   }
 
   private void putAt(Path path, Object value) {
+    checkLocked();
     jsonData.put(path.parentPath().toString(), path.keyName(), value);
   }
 
   private void addAt(Path path, Object value) {
+    checkLocked();
     jsonData.add(path.withoutArrayReference().toString(), value);
   }
 
@@ -388,6 +399,7 @@ public class ApplicantData {
   }
 
   private ImmutableList<Path> mergeFrom(Path rootKey, Map<?, ?> other) {
+    checkLocked();
     ImmutableList.Builder<Path> pathsRemoved = new ImmutableList.Builder<>();
     for (Map.Entry<?, ?> entry : other.entrySet()) {
       String key = entry.getKey().toString();
@@ -454,6 +466,16 @@ public class ApplicantData {
     }
     if (lastName != null && !hasPath(WellKnownPaths.APPLICANT_LAST_NAME)) {
       putString(WellKnownPaths.APPLICANT_LAST_NAME, lastName);
+    }
+  }
+
+  /**
+   * This method should be called on methods that mutate ApplicantData to protect immutable
+   * ApplicantData.
+   */
+  private void checkLocked() {
+    if (locked) {
+      throw new RuntimeException("Cannot change ApplicantData after it has been locked.");
     }
   }
 }
