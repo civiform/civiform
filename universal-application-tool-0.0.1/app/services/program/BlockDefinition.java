@@ -8,7 +8,6 @@ import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.util.List;
 import java.util.Optional;
 import services.Path;
 import services.question.types.QuestionDefinition;
