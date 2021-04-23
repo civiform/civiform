@@ -192,7 +192,6 @@ public class ProgramDefinitionTest {
             .addLocalizedName(Locale.FRANCE, "test")
             .addLocalizedDescription(Locale.US, "English description")
             .addLocalizedDescription(Locale.GERMAN, "test")
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
@@ -232,7 +231,6 @@ public class ProgramDefinitionTest {
             .addLocalizedDescription(Locale.FRANCE, "test")
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);

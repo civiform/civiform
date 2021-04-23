@@ -38,7 +38,6 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
     checkNotNull(draft);
     checkState(draft.getLifecycleStage().equals(LifecycleStage.DRAFT));
     ImmutableMap.Builder<Long, QuestionDefinition> questionIdMap = ImmutableMap.builder();
-    ImmutableMap.Builder<Path, QuestionDefinition> questionPathMap = ImmutableMap.builder();
     ImmutableMap.Builder<Path, ScalarType> scalarMap = ImmutableMap.builder();
     ImmutableSet.Builder<QuestionDefinition> upToDateBuilder = ImmutableSet.builder();
     Set<String> namesFoundInDraft = new HashSet<>();
@@ -54,7 +53,6 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
         active.getQuestions().stream()
             .map(Question::getQuestionDefinition)
             .collect(Collectors.toList())) {
-      questionPathMap.put(qd.getPath(), qd);
 
       ImmutableMap<Path, ScalarType> questionScalars = qd.getScalars();
       questionScalars.entrySet().stream()
