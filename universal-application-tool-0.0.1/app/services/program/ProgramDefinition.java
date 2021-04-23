@@ -66,7 +66,7 @@ public abstract class ProgramDefinition {
   /** The default locale for CiviForm is US English. */
   public String getNameForDefaultLocale() {
     try {
-      return getLocalizedName(Locale.US);
+      return getLocalizedName(LocalizationUtils.DEFAULT_LOCALE);
     } catch (TranslationNotFoundException e) {
       // This should never happen - US English should always be supported.
       throw new RuntimeException(e);
@@ -92,7 +92,7 @@ public abstract class ProgramDefinition {
   /** The default locale for CiviForm is US English. */
   public String getDescriptionForDefaultLocale() {
     try {
-      return getLocalizedDescription(Locale.US);
+      return getLocalizedDescription(LocalizationUtils.DEFAULT_LOCALE);
     } catch (TranslationNotFoundException e) {
       // This should never happen - US English should always be supported.
       throw new RuntimeException(e);

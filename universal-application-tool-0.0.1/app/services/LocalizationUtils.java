@@ -6,6 +6,9 @@ import java.util.Map;
 
 public class LocalizationUtils {
 
+  /** The default locale for CiviForm is US English. */
+  public static final Locale DEFAULT_LOCALE = Locale.US;
+
   /**
    * By design, {@link ImmutableMap}s do not have a {@code remove} method in their builders. If we
    * want to update an existing translation, we must copy the map except the existing entry for that

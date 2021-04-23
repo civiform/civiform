@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import models.LifecycleStage;
+import services.LocalizationUtils;
 import services.Path;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -66,15 +67,19 @@ public class QuestionDefinitionBuilder {
             .setName("")
             .setDescription("")
             .setPath(Path.create("sample.question.path"))
-            .setQuestionText(ImmutableMap.of(Locale.US, "Sample question text"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.US, "Sample question help text"))
+            .setQuestionText(
+                ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, "Sample question text"))
+            .setQuestionHelpText(
+                ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, "Sample question help text"))
             .setLifecycleStage(LifecycleStage.ACTIVE)
             .setQuestionType(questionType);
 
     if (questionType.isMultiOptionType()) {
       builder.setQuestionOptions(
           ImmutableList.of(
-              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "Sample question option"))));
+              QuestionOption.create(
+                  1L,
+                  ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, "Sample question option"))));
     }
 
     return builder;

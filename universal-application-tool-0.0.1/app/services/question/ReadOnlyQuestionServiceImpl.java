@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
+import services.LocalizationUtils;
 import services.Path;
 import services.question.exceptions.InvalidPathException;
 import services.question.exceptions.InvalidQuestionTypeException;
@@ -26,7 +27,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
   private final ImmutableMap<Path, QuestionDefinition> questionsByPath;
   private final ImmutableSet<QuestionDefinition> upToDateQuestions;
 
-  private Locale preferredLocale = Locale.US;
+  private Locale preferredLocale = LocalizationUtils.DEFAULT_LOCALE;
 
   public ReadOnlyQuestionServiceImpl(ImmutableList<QuestionDefinition> questions) {
     checkNotNull(questions);

@@ -16,6 +16,7 @@ import javax.persistence.PostUpdate;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
+import services.LocalizationUtils;
 import services.program.BlockDefinition;
 import services.program.ExportDefinition;
 import services.program.ProgramDefinition;
@@ -76,8 +77,9 @@ public class Program extends BaseModel {
     this.description = adminDescription;
     // TODO(https://github.com/seattle-uat/civiform/issues/777): Allow the admin to
     // set localized strings for applicant-visible name and description.
-    this.localizedName = ImmutableMap.of(Locale.US, defaultDisplayName);
-    this.localizedDescription = ImmutableMap.of(Locale.US, defaultDisplayDescription);
+    this.localizedName = ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, defaultDisplayName);
+    this.localizedDescription =
+        ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, defaultDisplayDescription);
     this.lifecycleStage = LifecycleStage.DRAFT;
     BlockDefinition emptyBlock =
         BlockDefinition.builder()
