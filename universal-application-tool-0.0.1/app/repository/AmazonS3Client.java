@@ -81,7 +81,7 @@ public class AmazonS3Client {
     return s3 != null;
   }
 
-  public void putObject(String key, byte[] data) {
+  private void putObjectInner(String key, byte[] data) {
     ensureS3Client();
 
     try {
@@ -93,7 +93,34 @@ public class AmazonS3Client {
     }
   }
 
-  public byte[] getObject(String key) {
+  private void sleep(int t) {
+    try {
+      Thread.sleep(t);
+    } catch (InterruptedException e) {
+      throw new RuntimeException("Interrupt on Thread.sleep: Aborting S3 bucket connection");
+    }
+  }
+
+  public void putObject(String key, byte[] data) {
+    int i = 0;
+
+    while (true) {
+      try {
+        putObjectInner(key, data);
+        break;
+      } catch (RuntimeException e) {
+        if (i < 3) {
+          sleep(50 * (int) Math.pow(2, i));
+        } else {
+          throw e;
+        }
+      }
+
+      i++;
+    }
+  }
+
+  private byte[] getObjectInner(String key) {
     ensureS3Client();
 
     try {
@@ -103,6 +130,27 @@ public class AmazonS3Client {
       return objectBytes.asByteArray();
     } catch (S3Exception e) {
       throw new RuntimeException("S3 exception: " + e.getMessage());
+    }
+  }
+
+  public byte[] getObject(String key) {
+    int i = 0;
+
+    byte[] byteArray;
+
+    while (true) {
+      try {
+        byteArray=getObjectInner(key);
+        return byteArray;
+      } catch (RuntimeException e) {
+        if (i < 3) {
+          sleep(50 * (int) Math.pow(2, i));
+        } else {
+          throw e;
+        }
+      }
+
+      i++;
     }
   }
 
@@ -125,24 +173,8 @@ public class AmazonS3Client {
       return;
     }
 
-    int i = 0;
-    while (i < 3) {
-      connectS3();
-      connectPresigner();
-
-      if (s3 == null || presigner == null) {
-        try {
-          Thread.sleep(50 * (int) Math.pow(2, i));
-        } catch (InterruptedException e) {
-          log.warn("Interrupt on Thread.sleep: Aborting S3 bucket connection");
-          break;
-        }
-      } else {
-        break;
-      }
-
-      i++;
-    }
+    connectS3();
+    connectPresigner();
 
     if (s3 == null) {
       throw new RuntimeException("Failed to create S3 client");
