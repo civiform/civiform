@@ -158,10 +158,10 @@ public class AmazonS3Client {
 
     try {
       PutObjectRequest putObjectRequest =
-            PutObjectRequest.builder().bucket(bucket).key(key).build();
-        s3.putObject(putObjectRequest, RequestBody.fromBytes(data));
-      } catch (S3Exception e) {
-        throw new RuntimeException("S3 exception: " + e.getMessage());
+          PutObjectRequest.builder().bucket(bucket).key(key).build();
+      s3.putObject(putObjectRequest, RequestBody.fromBytes(data));
+    } catch (S3Exception e) {
+      throw new RuntimeException("S3 exception: " + e.getMessage());
     }
   }
 

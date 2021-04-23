@@ -1,14 +1,8 @@
 package repository;
-import static org.mockito.Mockito.when;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Test;
-import static org.mockito.Mockito.mock;
-import repository.AmazonS3Client;
+
 import java.nio.charset.StandardCharsets;
-import com.typesafe.config.Config;
-
-import java.util.Arrays;
+import org.junit.Test;
 
 public class AmazonS3ClientTest extends WithPostgresContainer {
 
@@ -26,7 +20,7 @@ public class AmazonS3ClientTest extends WithPostgresContainer {
     }
 
     if (!error) {
-        throw new RuntimeException("null s3 client did not throw io exception");
+      throw new RuntimeException("null s3 client did not throw io exception");
     }
   }
 
@@ -43,7 +37,7 @@ public class AmazonS3ClientTest extends WithPostgresContainer {
     }
 
     if (!error) {
-        throw new RuntimeException("null s3 client did not throw io exception");
+      throw new RuntimeException("null s3 client did not throw io exception");
     }
   }
 }

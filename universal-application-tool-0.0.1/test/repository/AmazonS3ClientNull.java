@@ -7,7 +7,7 @@ public class AmazonS3ClientNull extends AmazonS3Client {
     // Mock enabled value
     return true;
   }
-  
+
   @Override
   public void ensureS3Client() {
     return;
