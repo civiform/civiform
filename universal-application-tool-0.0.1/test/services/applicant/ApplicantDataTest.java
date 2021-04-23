@@ -1,6 +1,7 @@
 package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.testing.EqualsTester;
@@ -431,5 +432,31 @@ public class ApplicantDataTest {
     ImmutableList<String> found = data.readRepeatedEntities(path);
 
     assertThat(found).containsExactly("bubbles", "luna", "taco");
+  }
+
+  @Test
+  public void locked_makesApplicantDataImmutable() {
+    ApplicantData data = new ApplicantData();
+    // Can mutate before ApplicantData is locked.
+    data.putString(Path.create("applicant.planet"), "Earth");
+
+    data.lock();
+
+    // Cannot mutate after ApplicantData is locked.
+    assertThatThrownBy(() -> data.putString(Path.create("applicant.planets[1].planetName"), "Mars"))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Cannot change ApplicantData after it has been locked.");
+    assertThatThrownBy(() -> data.putLong(Path.create("applicant.planets[3].planetSize"), 5L))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Cannot change ApplicantData after it has been locked.");
+    assertThatThrownBy(() -> data.putLong(Path.create("applicant.planets[3].planetSize"), "5"))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Cannot change ApplicantData after it has been locked.");
+    assertThatThrownBy(
+            () ->
+                data.putRepeatedEntities(
+                    Path.create("applicant.planets"), ImmutableList.of("earth", "mars")))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Cannot change ApplicantData after it has been locked.");
   }
 }

@@ -107,6 +107,7 @@ public class ApplicantData {
     }
   }
 
+  /** Parses and writes a long value */
   public void putLong(Path path, long value) {
     put(path, value);
   }
