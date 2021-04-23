@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableList;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
+
+import com.google.common.collect.ImmutableSet;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.program.BlockDefinition;
@@ -80,6 +82,10 @@ public final class Block {
     return questionsMemo.get();
   }
 
+  public ImmutableSet<Path> scalarPaths() {
+    return blockDefinition.scalarPaths();
+  }
+
   public boolean hasErrors() {
     return getQuestions().stream()
         .map(ApplicantQuestion::hasErrors)
@@ -98,7 +104,7 @@ public final class Block {
     // TODO(#783): needs to be able to figure out the indices used to reference repeated entities
     //  (e.g. applicant.children[3].name.first). Use this.applicationContextPath in combination
     //  with the question name and scalar names.
-    return blockDefinition.scalarPaths().stream()
+    return scalarPaths().stream()
             .filter(path -> !applicantData.hasValueAtPath(path))
             .findAny()
             .isEmpty()
@@ -115,7 +121,7 @@ public final class Block {
   public boolean wasCompletedInProgram(long programId) {
     return isCompleteWithoutErrors()
         && getQuestions().stream()
-            .anyMatch(
+            .allMatch(
                 q -> {
                   Optional<Long> lastUpdatedInProgram = q.getUpdatedInProgramMetadata();
                   return lastUpdatedInProgram.isPresent()

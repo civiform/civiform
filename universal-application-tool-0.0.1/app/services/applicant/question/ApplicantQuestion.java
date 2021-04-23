@@ -22,6 +22,9 @@ public class ApplicantQuestion {
   private final Path applicationPathContext;
   private final ApplicantData applicantData;
 
+  public static final String METADATA_UPDATE_TIME_KEY = QuestionDefinition.METADATA_UPDATE_TIME_KEY;
+  public static final String METADATA_UPDATE_PROGRAM_ID_KEY = QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY;
+
   public ApplicantQuestion(
       QuestionDefinition questionDefinition,
       ApplicantData applicantData,
@@ -72,11 +75,11 @@ public class ApplicantQuestion {
   }
 
   public Optional<Long> getUpdatedInProgramMetadata() {
-    return applicantData.readLong(questionDefinition.getProgramIdPath());
+    return applicantData.readLong(getPath().join(METADATA_UPDATE_PROGRAM_ID_KEY));
   }
 
   public Optional<Long> getLastUpdatedTimeMetadata() {
-    return applicantData.readLong(questionDefinition.getLastUpdatedTimePath());
+    return applicantData.readLong(getPath().join(METADATA_UPDATE_TIME_KEY));
   }
 
   public AddressQuestion createAddressQuestion() {
