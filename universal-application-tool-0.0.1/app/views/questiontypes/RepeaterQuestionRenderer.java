@@ -21,6 +21,9 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
   public static final String ADD_ELEMENT_BUTTON_ID = "repeater-field-add-button";
   public static final String REPEATER_FIELD_CLASS = "repeater-field";
 
+  // TODO(#859): make this admin-configurable
+  private static final String PLACEHOLDER = "Placeholder";
+
   private static final String REPEATER_FIELD_CLASSES =
       StyleUtils.joinStyles(REPEATER_FIELD_CLASS, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4);
 
@@ -34,7 +37,7 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
   public Tag render() {
     ContainerTag repeaterFields = div().withId(REPEATER_FIELDS_ID);
     // TODO: add each answer as a repeaterField
-    repeaterFields.with(repeaterField("placeholder", Optional.empty(), 0));
+    repeaterFields.with(repeaterField(PLACEHOLDER, Optional.empty(), 0));
 
     return div()
         .withClasses(Styles.MX_AUTO, Styles.W_MAX)
