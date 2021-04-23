@@ -1,6 +1,7 @@
 package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
@@ -9,6 +10,7 @@ import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
+import services.Path;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
@@ -20,7 +22,6 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   private QuestionDefinition addressQuestion;
   private ApplicantData applicantData;
   private ProgramDefinition programDefinition;
-  private ReadOnlyApplicantProgramService subject;
 
   @Before
   public void setUp() {
@@ -36,11 +37,20 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             .withQuestionDefinition(colorQuestion)
             .withQuestionDefinition(addressQuestion)
             .buildDefinition();
-    subject = new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+  }
+
+  @Test
+  public void readOnlyApplicantProgramService_locksApplicantData() {
+    new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+    assertThatThrownBy(() -> applicantData.putString(Path.create("fake.path"), "fake value"))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Cannot change ApplicantData after it has been locked");
   }
 
   @Test
   public void getCurrentBlockList_getsTheApplicantSpecificBlocksForTheProgram() {
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
     ImmutableList<Block> blockList = subject.getCurrentBlockList();
 
     assertThat(blockList).hasSize(2);
@@ -53,6 +63,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     // Answer block one questions
     answerNameQuestion();
 
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
     ImmutableList<Block> blockList = subject.getCurrentBlockList();
 
     assertThat(blockList).hasSize(1);
@@ -66,6 +78,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     answerColorQuestion(88L);
     answerAddressQuestion(88L);
 
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
     ImmutableList<Block> blockList = subject.getCurrentBlockList();
 
     assertThat(blockList).isEmpty();
@@ -73,12 +87,12 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
   @Test
   public void getCurrentBlockList_includesBlocksThatWereCompletedInThisProgram() {
-    ImmutableList<Block> blockList = subject.getCurrentBlockList();
-    assertThat(blockList).hasSize(2);
-
     // Answer block 1 questions in this program session
     answerNameQuestion(programDefinition.id());
-    blockList = subject.getCurrentBlockList();
+
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+    ImmutableList<Block> blockList = subject.getCurrentBlockList();
 
     // Block 1 should still be there
     assertThat(blockList).hasSize(2);
@@ -89,22 +103,29 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void getCurrentBlockList_includesBlocksThatWerePartiallyCompletedInAnotherProgram() {
     // Answer one of block 2 questions in another program
-    answerAddressQuestion(88L);
-    ImmutableList<Block> blockList = subject.getCurrentBlockList();
-    assertThat(blockList).hasSize(2);
+    answerAddressQuestion(programDefinition.id() + 1);
 
     // Answer the other block 2 questions in this program session
     answerColorQuestion(programDefinition.id());
-    blockList = subject.getCurrentBlockList();
+
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+
+    ImmutableList<Block> blockList = subject.getCurrentBlockList();
 
     // Block 1 should still be there
-    assertThat(blockList).hasSize(2);
     Block block = blockList.get(0);
     assertThat(block.getName()).isEqualTo("Block one");
+
+    // Block 2 should still be there, even though it was partially completed by another program.
+    assertThat(blockList).hasSize(2);
   }
 
   @Test
   public void getBlock_blockExists_returnsTheBlock() {
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+
     Optional<Block> maybeBlock = subject.getBlock("1");
 
     assertThat(maybeBlock).isPresent();
@@ -113,6 +134,9 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
   @Test
   public void getBlock_blockNotInList_returnsEmpty() {
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+
     Optional<Block> maybeBlock = subject.getBlock("111");
 
     assertThat(maybeBlock).isEmpty();
@@ -120,6 +144,9 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
   @Test
   public void getBlockAfter_thereExistsABlockAfter_returnsTheBlockAfterTheGivenBlock() {
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+
     Optional<Block> maybeBlock = subject.getBlockAfter("1");
 
     assertThat(maybeBlock).isPresent();
@@ -128,6 +155,9 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
   @Test
   public void getBlockAfter_argIsLastBlock_returnsEmpty() {
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+
     Optional<Block> maybeBlock = subject.getBlockAfter("321");
 
     assertThat(maybeBlock).isEmpty();
@@ -135,7 +165,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
   @Test
   public void getBlockAfter_emptyBlockList_returnsEmpty() {
-    subject =
+    ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
             new Applicant().getApplicantData(),
             ProgramDefinition.builder()
@@ -153,6 +183,9 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
   @Test
   public void getFirstIncompleteBlock_firstIncompleteBlockReturned() {
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+
     Optional<Block> maybeBlock = subject.getFirstIncompleteBlock();
 
     assertThat(maybeBlock).isNotEmpty();
@@ -163,6 +196,10 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   public void getFirstIncompleteBlock_returnsFirstIncompleteIfFirstBlockCompleted() {
     // Answer the first block in this program - it will still be in getCurrentBlockList;
     answerNameQuestion(programDefinition.id());
+
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+
     assertThat(subject.getCurrentBlockList().get(0).getName()).isEqualTo("Block one");
 
     Optional<Block> maybeBlock = subject.getFirstIncompleteBlock();
@@ -173,12 +210,18 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
   @Test
   public void preferredLanguageSupported_returnsTrueForDefaults() {
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
     assertThat(subject.preferredLanguageSupported()).isTrue();
   }
 
   @Test
   public void preferredLanguageSupported_returnsFalseForUnsupportedLang() {
     applicantData.setPreferredLocale(Locale.CHINESE);
+
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+
     assertThat(subject.preferredLanguageSupported()).isFalse();
   }
 
