@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import models.LifecycleStage;
+import services.LocalizationUtils;
 import services.Path;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
@@ -151,6 +152,28 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
 
   public ImmutableList<QuestionOption> getOptions() {
     return this.options;
+  }
+
+  /**
+   * Attempt to get question options for the given locale. If there aren't options for the given
+   * locale, it will return the options for the default locale.
+   */
+  public ImmutableList<LocalizedQuestionOption> getOptionsForLocaleOrDefault(Locale locale) {
+    try {
+      return getOptionsForLocale(locale);
+    } catch (TranslationNotFoundException e) {
+      return getOptionsForDefaultLocale();
+    }
+  }
+
+  /** Get question options localized to CiviForm's default locale. */
+  public ImmutableList<LocalizedQuestionOption> getOptionsForDefaultLocale() {
+    try {
+      return getOptionsForLocale(LocalizationUtils.DEFAULT_LOCALE);
+    } catch (TranslationNotFoundException e) {
+      // This should never happen - there should always be options localized to the default locale.
+      throw new RuntimeException(e);
+    }
   }
 
   /**

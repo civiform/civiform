@@ -20,4 +20,10 @@ public interface ReadOnlyApplicantProgramService {
 
   /** Get the program block with the lowest index that has missing answer data if there is one. */
   Optional<Block> getFirstIncompleteBlock();
+
+  /**
+   * Returns true if this program fully supports this applicant's preferred language, and false
+   * otherwise.
+   */
+  boolean preferredLanguageSupported();
 }
