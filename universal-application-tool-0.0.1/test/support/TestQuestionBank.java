@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import models.LifecycleStage;
 import models.Question;
+import models.Version;
 import services.Path;
 import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
@@ -16,6 +17,7 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
+import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -41,11 +43,10 @@ import services.question.types.TextQuestionDefinition;
  * grouping those methods with the same type together.
  */
 public class TestQuestionBank {
-  private static final long VERSION = 1L;
+  private final Map<QuestionEnum, Question> questionCache = new ConcurrentHashMap<>();
+  private static final AtomicLong nextId = new AtomicLong(1L);
 
-  private boolean canSave = false;
-  private Map<QuestionEnum, Question> questionCache = new ConcurrentHashMap<>();
-  private AtomicLong nextId = new AtomicLong(1L);
+  private final boolean canSave;
 
   /**
    * Pass `true` if there is a database that comes up with the test (e.g., the test class extends
@@ -58,6 +59,26 @@ public class TestQuestionBank {
   public void reset() {
     questionCache.clear();
     nextId.set(1L);
+  }
+
+  /**
+   * Gets a single sample question for each supported QuestionType. Note that Question contents are
+   * arbitrarily chosen and are not canonical.
+   *
+   * @return an ImmutableMap of QuestionType to Questions
+   */
+  public ImmutableMap<QuestionType, Question> getSampleQuestionsForAllTypes() {
+    return new ImmutableMap.Builder<QuestionType, Question>()
+        .put(QuestionType.ADDRESS, applicantAddress())
+        .put(QuestionType.CHECKBOX, applicantKitchenTools())
+        .put(QuestionType.DROPDOWN, applicantIceCream())
+        .put(QuestionType.FILEUPLOAD, applicantFile())
+        .put(QuestionType.NAME, applicantName())
+        .put(QuestionType.NUMBER, applicantJugglingNumber())
+        .put(QuestionType.RADIO_BUTTON, applicantSeason())
+        .put(QuestionType.REPEATER, applicantHouseholdMembers())
+        .put(QuestionType.TEXT, applicantFavoriteColor())
+        .build();
   }
 
   // Address
@@ -74,6 +95,11 @@ public class TestQuestionBank {
   // Dropdown
   public Question applicantIceCream() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ICE_CREAM, this::applicantIceCream);
+  }
+
+  // File upload
+  public Question applicantFile() {
+    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_FILE, this::applicantFile);
   }
 
   // Name
@@ -116,14 +142,12 @@ public class TestQuestionBank {
   private Question applicantAddress(QuestionEnum ignore) {
     QuestionDefinition definition =
         new AddressQuestionDefinition(
-            VERSION,
             "applicant address",
             Path.create("applicant.applicant_address"),
             Optional.empty(),
-            "address of applicant",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(Locale.US, "what is your address?"),
-            ImmutableMap.of(Locale.US, "help text"));
+            "The address of applicant",
+            ImmutableMap.of(Locale.US, "What is your address?"),
+            ImmutableMap.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
 
@@ -131,14 +155,12 @@ public class TestQuestionBank {
   private Question applicantKitchenTools(QuestionEnum ignore) {
     QuestionDefinition definition =
         new CheckboxQuestionDefinition(
-            1L,
             "kitchen tools",
             Path.create("applicant.kitchen_tools"),
             Optional.empty(),
-            "description",
-            LifecycleStage.ACTIVE,
+            "Kitchen instruments you own",
             ImmutableMap.of(Locale.US, "Which of the following kitchen instruments do you own?"),
-            ImmutableMap.of(Locale.US, "help text"),
+            ImmutableMap.of(Locale.US, "This is sample help text."),
             ImmutableList.of(
                 QuestionOption.create(1L, ImmutableMap.of(Locale.US, "toaster")),
                 QuestionOption.create(2L, ImmutableMap.of(Locale.US, "pepper grinder")),
@@ -150,14 +172,12 @@ public class TestQuestionBank {
   private Question applicantIceCream(QuestionEnum ignore) {
     QuestionDefinition definition =
         new DropdownQuestionDefinition(
-            1L,
             "applicant ice cream",
             Path.create("applicant.applicant_ice_cream"),
             Optional.empty(),
-            "select your favorite ice cream flavor",
-            LifecycleStage.ACTIVE,
+            "Select your favorite ice cream flavor",
             ImmutableMap.of(Locale.US, "Select your favorite ice cream flavor from the following"),
-            ImmutableMap.of(Locale.US, "this is sample help text"),
+            ImmutableMap.of(Locale.US, "This is sample help text."),
             ImmutableList.of(
                 QuestionOption.create(1L, ImmutableMap.of(Locale.US, "chocolate")),
                 QuestionOption.create(2L, ImmutableMap.of(Locale.US, "strawberry")),
@@ -166,16 +186,27 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  // File upload
+  private Question applicantFile(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new FileUploadQuestionDefinition(
+            "applicant file",
+            Path.create("applicant.applicant_file"),
+            Optional.empty(),
+            "The file to be uploaded",
+            ImmutableMap.of(Locale.US, "What is the file you want to upload?"),
+            ImmutableMap.of(Locale.US, "This is sample help text."));
+    return maybeSave(definition);
+  }
+
   // Name
   private Question applicantName(QuestionEnum ignore) {
     QuestionDefinition definition =
         new NameQuestionDefinition(
-            VERSION,
             "applicant name",
             Path.create("applicant.applicant_name"),
             Optional.empty(),
             "name of applicant",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "what is your name?"),
             ImmutableMap.of(Locale.US, "help text"));
     return maybeSave(definition);
@@ -186,14 +217,12 @@ public class TestQuestionBank {
     Question householdMembers = applicantHouseholdMembers();
     QuestionDefinition definition =
         new NameQuestionDefinition(
-            VERSION,
             "household members name",
             Path.create("applicant.applicant_household_members[].name"),
             Optional.of(householdMembers.id),
             "The applicant's household member's name",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(Locale.US, "what is the household member's name?"),
-            ImmutableMap.of(Locale.US, "help text"));
+            ImmutableMap.of(Locale.US, "What is the household member's name?"),
+            ImmutableMap.of(Locale.US, "This is sample help text."));
 
     return maybeSave(definition);
   }
@@ -202,14 +231,12 @@ public class TestQuestionBank {
   private Question applicantJugglingNumber(QuestionEnum ignore) {
     QuestionDefinition definition =
         new NumberQuestionDefinition(
-            VERSION,
             "number of items applicant can juggle",
             Path.create("applicant.juggling_number"),
             Optional.empty(),
-            "number of items applicant can juggle at once",
-            LifecycleStage.ACTIVE,
+            "The number of items applicant can juggle at once",
             ImmutableMap.of(Locale.US, "How many items can you juggle at one time?"),
-            ImmutableMap.of(Locale.US, "help text"));
+            ImmutableMap.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
 
@@ -217,14 +244,12 @@ public class TestQuestionBank {
   private Question applicantSeason(QuestionEnum ignore) {
     QuestionDefinition definition =
         new RadioButtonQuestionDefinition(
-            1L,
             "radio",
             Path.create("applicant.radio"),
             Optional.empty(),
-            "favorite season in the year",
-            LifecycleStage.ACTIVE,
+            "Favorite season in the year",
             ImmutableMap.of(Locale.US, "What is your favorite season?"),
-            ImmutableMap.of(Locale.US, "this is sample help text"),
+            ImmutableMap.of(Locale.US, "This is sample help text."),
             ImmutableList.of(
                 QuestionOption.create(1L, ImmutableMap.of(Locale.US, "winter")),
                 QuestionOption.create(2L, ImmutableMap.of(Locale.US, "spring")),
@@ -237,14 +262,12 @@ public class TestQuestionBank {
   private Question applicantHouseholdMembers(QuestionEnum ignore) {
     QuestionDefinition definition =
         new RepeaterQuestionDefinition(
-            VERSION,
             "applicant household members",
             Path.create("applicant.applicant_household_members[]"),
             Optional.empty(),
             "The applicant's household members",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "Who are your household members?"),
-            ImmutableMap.of(Locale.US, "help text"));
+            ImmutableMap.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
 
@@ -252,20 +275,29 @@ public class TestQuestionBank {
   private Question applicantFavoriteColor(QuestionEnum ignore) {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            VERSION,
             "applicant favorite color",
             Path.create("applicant.applicant_favorite_color"),
             Optional.empty(),
-            "favorite color of applicant",
-            LifecycleStage.ACTIVE,
-            ImmutableMap.of(Locale.US, "what is your favorite color?"),
-            ImmutableMap.of(Locale.US, "help text"));
+            "Favorite color of applicant",
+            ImmutableMap.of(Locale.US, "What is your favorite color?"),
+            ImmutableMap.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
 
   private Question maybeSave(QuestionDefinition questionDefinition) {
     Question question = new Question(questionDefinition);
     if (canSave) {
+      // This odd way of finding the active version is because this class
+      // doesn't have access to the Version repository, because it needs to
+      // work without the database.
+      question.addVersion(
+          question
+              .db()
+              .find(Version.class)
+              .where()
+              .eq("lifecycle_stage", LifecycleStage.ACTIVE)
+              .findOneOrEmpty()
+              .get());
       question.save();
     } else {
       question.id = nextId.getAndIncrement();
@@ -281,13 +313,14 @@ public class TestQuestionBank {
 
   private enum QuestionEnum {
     APPLICANT_ADDRESS,
-    APPLICANT_KITCHEN_TOOLS,
-    APPLICANT_ICE_CREAM,
-    APPLICANT_SEASON,
-    APPLICANT_NAME,
-    APPLICANT_JUGGLING_NUMBER,
+    APPLICANT_FAVORITE_COLOR,
+    APPLICANT_FILE,
     APPLICANT_HOUSEHOLD_MEMBERS,
     APPLICANT_HOUSEHOLD_MEMBER_NAME,
-    APPLICANT_FAVORITE_COLOR
+    APPLICANT_ICE_CREAM,
+    APPLICANT_JUGGLING_NUMBER,
+    APPLICANT_KITCHEN_TOOLS,
+    APPLICANT_NAME,
+    APPLICANT_SEASON
   }
 }

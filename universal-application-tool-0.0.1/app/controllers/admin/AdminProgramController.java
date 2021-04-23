@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import controllers.CiviFormController;
 import forms.ProgramForm;
-import java.util.Locale;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -15,6 +14,7 @@ import play.mvc.Result;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.LocalizationUtils;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -50,7 +50,7 @@ public class AdminProgramController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result index(Request request) {
-    return ok(listView.render(this.service.listProgramDefinitions(), request));
+    return ok(listView.render(this.service.getActiveAndDraftPrograms(), request));
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
@@ -114,7 +114,7 @@ public class AdminProgramController extends CiviFormController {
       ErrorAnd<ProgramDefinition, CiviFormError> result =
           service.updateProgramDefinition(
               id,
-              Locale.US,
+              LocalizationUtils.DEFAULT_LOCALE,
               program.getAdminDescription(),
               program.getLocalizedDisplayName(),
               program.getLocalizedDisplayDescription());

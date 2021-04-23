@@ -8,7 +8,6 @@ import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.util.List;
 import java.util.Optional;
 import services.Path;
 import services.question.types.QuestionDefinition;
@@ -149,16 +148,6 @@ public abstract class BlockDefinition {
       path = path.withoutArrayReference();
     }
     return Optional.ofNullable(scalarTypes().get(path));
-  }
-
-  @JsonIgnore
-  public boolean hasPaths(List<Path> paths) {
-    return scalarPaths().containsAll(ImmutableSet.copyOf(paths));
-  }
-
-  @JsonIgnore
-  public boolean hasPaths(Path... paths) {
-    return hasPaths(ImmutableList.copyOf(paths));
   }
 
   @JsonIgnore

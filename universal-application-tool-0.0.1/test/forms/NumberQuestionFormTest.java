@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import models.LifecycleStage;
 import org.junit.Test;
 import services.Path;
 import services.question.types.NumberQuestionDefinition;
@@ -27,17 +26,12 @@ public class NumberQuestionFormTest {
     form.setMax("8");
     QuestionDefinitionBuilder builder = form.getBuilder(path);
 
-    builder.setVersion(1L);
-    builder.setLifecycleStage(LifecycleStage.ACTIVE);
-
     NumberQuestionDefinition expected =
         new NumberQuestionDefinition(
-            1L,
             "name",
             path,
             Optional.empty(),
             "description",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
             NumberQuestionDefinition.NumberValidationPredicates.create(2, 8));
@@ -53,21 +47,16 @@ public class NumberQuestionFormTest {
 
     NumberQuestionDefinition originalQd =
         new NumberQuestionDefinition(
-            1L,
             "name",
             path,
             Optional.empty(),
             "description",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
             NumberQuestionDefinition.NumberValidationPredicates.create(2, 8));
 
     NumberQuestionForm form = new NumberQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder(path);
-
-    builder.setVersion(1L);
-    builder.setLifecycleStage(LifecycleStage.ACTIVE);
 
     QuestionDefinition actual = builder.build();
 
@@ -87,17 +76,12 @@ public class NumberQuestionFormTest {
     form.setMax("");
     QuestionDefinitionBuilder builder = form.getBuilder(path);
 
-    builder.setVersion(1L);
-    builder.setLifecycleStage(LifecycleStage.ACTIVE);
-
     NumberQuestionDefinition expected =
         new NumberQuestionDefinition(
-            1L,
             "name",
             path,
             Optional.empty(),
             "description",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(),
             NumberQuestionDefinition.NumberValidationPredicates.create());

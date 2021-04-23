@@ -1,6 +1,8 @@
 # This is the default language for the application. Please provide context for each message for use in translations.
 
-# COMPONENTS - contains text used in HTML components such as buttons.
+#---------------------------------------------------------------------#
+# COMPONENTS - contains text used in HTML components such as buttons. #
+#---------------------------------------------------------------------#
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=Apply
@@ -8,8 +10,12 @@ button.apply=Apply
 # The button text for saving the current applicant-entered data and continuing to the next block in the form.
 button.nextBlock=Save and continue
 
-# PAGES - contains text specific to a given page.
+# A toast message that displays when a program is not fully localized to the applicant's preferred locale.
+toast.localeNotSupported=We're sorry, this program is not fully translated to English.
 
+#-------------------------------------------------#
+# PAGES - contains text specific to a given page. #
+#-------------------------------------------------#
 
 # (applicant program index view): The title of the page for the list of programs.
 title.programs=Programs

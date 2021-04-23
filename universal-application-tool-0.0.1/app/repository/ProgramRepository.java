@@ -3,6 +3,7 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
@@ -10,10 +11,9 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import models.LifecycleStage;
 import models.Program;
+import models.Version;
 import play.db.ebean.EbeanConfig;
-import services.program.ProgramNotFoundException;
 
 public class ProgramRepository {
 
@@ -46,6 +46,7 @@ public class ProgramRepository {
   public Program insertProgramSync(Program program) {
     program.id = null;
     ebeanServer.insert(program);
+    program.refresh();
     return program;
   }
 
@@ -54,30 +55,27 @@ public class ProgramRepository {
     return program;
   }
 
-  public Program createOrUpdateDraft(Program existingProgram) throws ProgramNotFoundException {
+  public Program createOrUpdateDraft(Program existingProgram) {
+    Version draftVersion = versionRepository.get().getDraftVersion();
     Optional<Program> existingDraft =
-        ebeanServer
-            .find(Program.class)
-            .where()
-            .eq("lifecycle_stage", LifecycleStage.DRAFT.getValue())
-            .eq("name", existingProgram.getProgramDefinition().adminName())
-            .findOneOrEmpty();
+        draftVersion.getProgramByName(existingProgram.getProgramDefinition().adminName());
     if (existingDraft.isPresent()) {
       Program updatedDraft =
           existingProgram.getProgramDefinition().toBuilder()
               .setId(existingDraft.get().id)
-              .setLifecycleStage(LifecycleStage.DRAFT)
               .build()
               .toProgram();
       this.updateProgramSync(updatedDraft);
       return updatedDraft;
     } else {
-      Program newDraft =
-          existingProgram.getProgramDefinition().toBuilder()
-              .setLifecycleStage(LifecycleStage.DRAFT)
-              .build()
-              .toProgram();
-      insertProgramSync(newDraft);
+      // Program -> builder -> back to program in order to clear any metadata stored
+      // in the program (for example, version information).
+      Program newDraft = existingProgram.getProgramDefinition().toBuilder().build().toProgram();
+      newDraft = insertProgramSync(newDraft);
+      newDraft.addVersion(draftVersion);
+      newDraft.save();
+      draftVersion.refresh();
+      Preconditions.checkState(draftVersion.getPrograms().contains(newDraft));
       versionRepository.get().updateQuestionVersions(newDraft);
       return newDraft;
     }

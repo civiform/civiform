@@ -16,6 +16,7 @@ import models.Program;
 import play.db.ebean.Transactional;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ProgramRepository;
+import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.question.QuestionService;
@@ -28,15 +29,18 @@ public class ProgramServiceImpl implements ProgramService {
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
   private final HttpExecutionContext httpExecutionContext;
+  private final VersionRepository versionRepository;
 
   @Inject
   public ProgramServiceImpl(
       ProgramRepository programRepository,
       QuestionService questionService,
+      VersionRepository versionRepository,
       HttpExecutionContext ec) {
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
     this.httpExecutionContext = checkNotNull(ec);
+    this.versionRepository = checkNotNull(versionRepository);
   }
 
   @Override
@@ -80,6 +84,12 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
+  public ActiveAndDraftPrograms getActiveAndDraftPrograms() {
+    return new ActiveAndDraftPrograms(
+        versionRepository.getActiveVersion(), versionRepository.getDraftVersion());
+  }
+
+  @Override
   public CompletionStage<ProgramDefinition> getProgramDefinitionAsync(long id) {
     return programRepository
         .lookupProgram(id)
@@ -113,6 +123,7 @@ public class ProgramServiceImpl implements ProgramService {
 
     Program program =
         new Program(adminName, adminDescription, defaultDisplayName, defaultDisplayDescription);
+    program.addVersion(versionRepository.getDraftVersion());
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
 

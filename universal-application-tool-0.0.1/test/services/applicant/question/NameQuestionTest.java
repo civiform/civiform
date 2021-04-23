@@ -8,7 +8,6 @@ import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Applicant;
-import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,12 +19,10 @@ import services.question.types.NameQuestionDefinition;
 public class NameQuestionTest {
   private static final NameQuestionDefinition nameQuestionDefinition =
       new NameQuestionDefinition(
-          1L,
           "question name",
           Path.create("applicant.my.path.name"),
           Optional.empty(),
           "description",
-          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
 

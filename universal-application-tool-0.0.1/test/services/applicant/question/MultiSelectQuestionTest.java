@@ -6,9 +6,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
+import services.LocalizationUtils;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
@@ -20,12 +20,10 @@ public class MultiSelectQuestionTest {
 
   private static final MultiOptionQuestionDefinition CHECKBOX_QUESTION =
       new CheckboxQuestionDefinition(
-          1L,
           "name",
           Path.create("applicant.path"),
           Optional.empty(),
           "description",
-          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
           ImmutableList.of(
@@ -104,5 +102,17 @@ public class MultiSelectQuestionTest {
 
     assertThat(multiSelectQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(multiSelectQuestion.hasQuestionErrors()).isFalse();
+  }
+
+  @Test
+  public void getOptions_defaultsIfLangUnsupported() {
+    applicantData.setPreferredLocale(Locale.CHINESE);
+    ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData);
+
+    MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
+
+    assertThat(multiSelectQuestion.getOptions()).isNotEmpty();
+    assertThat(multiSelectQuestion.getOptions().get(0).locale())
+        .isEqualTo(LocalizationUtils.DEFAULT_LOCALE);
   }
 }

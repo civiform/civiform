@@ -13,8 +13,8 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalLong;
-import models.LifecycleStage;
 import services.CiviFormError;
+import services.LocalizationUtils;
 import services.Path;
 import services.question.exceptions.TranslationNotFoundException;
 
@@ -24,12 +24,10 @@ public abstract class QuestionDefinition {
   public static final String METADATA_UPDATE_PROGRAM_ID_KEY = "updated_in_program";
 
   private final OptionalLong id;
-  private final long version;
   private final String name;
   private final Path path;
   private final Optional<Long> repeaterId;
   private final String description;
-  private final LifecycleStage lifecycleStage;
   // Note: you must check prefixes anytime you are doing a locale lookup
   // see getQuestionText body comment for explanation.
   private final ImmutableMap<Locale, String> questionText;
@@ -38,45 +36,37 @@ public abstract class QuestionDefinition {
 
   public QuestionDefinition(
       OptionalLong id,
-      long version,
       String name,
       Path path,
       Optional<Long> repeaterId,
       String description,
-      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ValidationPredicates validationPredicates) {
     this.id = checkNotNull(id);
-    this.version = version;
     this.name = checkNotNull(name);
     this.path = checkNotNull(path);
     this.repeaterId = checkNotNull(repeaterId);
     this.description = checkNotNull(description);
-    this.lifecycleStage = checkNotNull(lifecycleStage);
     this.questionText = checkNotNull(questionText);
     this.questionHelpText = checkNotNull(questionHelpText);
     this.validationPredicates = checkNotNull(validationPredicates);
   }
 
   public QuestionDefinition(
-      long version,
       String name,
       Path path,
       Optional<Long> repeaterId,
       String description,
-      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ValidationPredicates validationPredicates) {
     this(
         OptionalLong.empty(),
-        version,
         name,
         path,
         repeaterId,
         description,
-        lifecycleStage,
         questionText,
         questionHelpText,
         validationPredicates);
@@ -95,6 +85,10 @@ public abstract class QuestionDefinition {
     }
   }
 
+  public Optional<ScalarType> getScalarType(Path path) {
+    return Optional.ofNullable(this.getScalars().get(path));
+  }
+
   /** Return true if the question is persisted and has an unique identifier. */
   public boolean isPersisted() {
     return this.id.isPresent();
@@ -103,16 +97,6 @@ public abstract class QuestionDefinition {
   /** Get the unique identifier for this question. */
   public long getId() {
     return this.id.getAsLong();
-  }
-
-  /** Get the system version this question is pinned to. */
-  public long getVersion() {
-    return this.version;
-  }
-
-  /** Get the lifecycle stage this question is on. */
-  public LifecycleStage getLifecycleStage() {
-    return this.lifecycleStage;
   }
 
   /**
@@ -176,6 +160,28 @@ public abstract class QuestionDefinition {
     return this.description;
   }
 
+  /**
+   * Attempts to get question text for the given locale. If there is no text for the given locale,
+   * it will return the text in the default locale.
+   */
+  public String getQuestionTextOrDefault(Locale locale) {
+    try {
+      return getQuestionText(locale);
+    } catch (TranslationNotFoundException e) {
+      return getDefaultQuestionText();
+    }
+  }
+
+  /** Gets the question text for CiviForm's default locale. */
+  public String getDefaultQuestionText() {
+    try {
+      return getQuestionText(LocalizationUtils.DEFAULT_LOCALE);
+    } catch (TranslationNotFoundException e) {
+      // This should never happen - US English should always be supported.
+      throw new RuntimeException(e);
+    }
+  }
+
   /** Get the question text for the given locale. */
   public String getQuestionText(Locale locale) throws TranslationNotFoundException {
     if (this.questionText.containsKey(locale)) {
@@ -196,6 +202,28 @@ public abstract class QuestionDefinition {
   /** Get the question tests for all locales. This is used for serialization. */
   public ImmutableMap<Locale, String> getQuestionText() {
     return questionText;
+  }
+
+  /**
+   * Attempts to get the question help text for the given locale. If there is no help text localized
+   * to the given locale, it will return text in the default locale.
+   */
+  public String getQuestionHelpTextOrDefault(Locale locale) {
+    try {
+      return getQuestionHelpText(locale);
+    } catch (TranslationNotFoundException e) {
+      return getDefaultQuestionHelpText();
+    }
+  }
+
+  /** Gets the question help text for CiviForm's default locale. */
+  public String getDefaultQuestionHelpText() {
+    try {
+      return getQuestionHelpText(LocalizationUtils.DEFAULT_LOCALE);
+    } catch (TranslationNotFoundException e) {
+      // This should never happen - US English should always be supported.
+      throw new RuntimeException(e);
+    }
   }
 
   /** Get the question help text for the given locale. */
@@ -277,16 +305,9 @@ public abstract class QuestionDefinition {
         getLastUpdatedTimePath(), getLastUpdatedTimeType(), getProgramIdPath(), getProgramIdType());
   }
 
-  public Optional<ScalarType> getScalarType(Path path) {
-    return Optional.ofNullable(this.getScalars().get(path));
-  }
-
   /** Validate that all required fields are present and valid for the question. */
   public ImmutableSet<CiviFormError> validate() {
     ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
-    if (version < 1) {
-      errors.add(CiviFormError.of(String.format("invalid version: %d", version)));
-    }
     if (name.isBlank()) {
       errors.add(CiviFormError.of("blank name"));
     }
@@ -301,7 +322,7 @@ public abstract class QuestionDefinition {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, version, path);
+    return Objects.hash(id, path);
   }
 
   /** Two QuestionDefinitions are considered equal if all of their properties are the same. */
@@ -332,14 +353,12 @@ public abstract class QuestionDefinition {
       QuestionDefinition o = (QuestionDefinition) other;
 
       return this.getQuestionType().equals(o.getQuestionType())
-          && this.version == o.getVersion()
           && this.name.equals(o.getName())
           && this.path.equals(o.getPath())
           && this.description.equals(o.getDescription())
           && this.questionText.equals(o.getQuestionText())
           && this.questionHelpText.equals(o.getQuestionHelpText())
-          && this.validationPredicates.equals(o.getValidationPredicates())
-          && this.lifecycleStage.equals(o.getLifecycleStage());
+          && this.validationPredicates.equals(o.getValidationPredicates());
     }
     return false;
   }

@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableMap;
 import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
-import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import services.Path;
@@ -20,12 +19,10 @@ public class CheckboxQuestionRendererTest {
 
   private static final CheckboxQuestionDefinition CHECKBOX_QUESTION =
       new CheckboxQuestionDefinition(
-          1L,
           "question name",
           Path.create("applicant.my.path"),
           Optional.empty(),
           "description",
-          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
           ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "hello"))));

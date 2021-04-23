@@ -62,6 +62,26 @@ function removeQuestionOption(event: Event) {
   optionDiv.parentNode.removeChild(optionDiv);
 }
 
+/** In the repeater form - add a new input field for a repeated entity. */
+function addNewRepeaterField(event: Event) {
+  // Copy the first repeater field
+  const newField = document.querySelector(".repeater-field").cloneNode(true) as HTMLElement;
+
+  // Remove the text
+  const newTextField = newField.querySelector("[type=text]") as HTMLInputElement;
+  newTextField.value = null;
+
+  const repeaterFields = document.getElementById("repeater-fields");
+  const index = repeaterFields.querySelectorAll(".repeater-field").length;
+
+  // Set new checkbox value to the index and uncheck it
+  const newCheckbox = newField.querySelector("[type=checkbox]") as HTMLInputElement;
+  newCheckbox.value = index.toString();
+  newCheckbox.checked = false;
+
+  repeaterFields.appendChild(newField);
+}
+
 function init() {
   attachDropdown("create-question-button");
 
@@ -69,6 +89,12 @@ function init() {
   const questionOptionButton = document.getElementById("add-new-option");
   if (questionOptionButton) {
     questionOptionButton.addEventListener("click", addNewQuestionAnswerOptionForm);
+  }
+
+  // Configure the button on the repeater question form to add more repeater field options
+  const repeaterOptionButton = document.getElementById("repeater-field-add-button");
+  if (repeaterOptionButton) {
+    repeaterOptionButton.addEventListener("click", addNewRepeaterField);
   }
 }
 init();

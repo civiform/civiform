@@ -9,73 +9,54 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
-import models.LifecycleStage;
 import services.Path;
 
 public class TextQuestionDefinition extends QuestionDefinition {
 
   public TextQuestionDefinition(
       OptionalLong id,
-      long version,
       String name,
       Path path,
       Optional<Long> repeaterId,
       String description,
-      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       TextValidationPredicates validationPredicates) {
     super(
         id,
-        version,
         name,
         path,
         repeaterId,
         description,
-        lifecycleStage,
         questionText,
         questionHelpText,
         validationPredicates);
   }
 
   public TextQuestionDefinition(
-      long version,
       String name,
       Path path,
       Optional<Long> repeaterId,
       String description,
-      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       TextValidationPredicates validationPredicates) {
     super(
-        version,
-        name,
-        path,
-        repeaterId,
-        description,
-        lifecycleStage,
-        questionText,
-        questionHelpText,
-        validationPredicates);
+        name, path, repeaterId, description, questionText, questionHelpText, validationPredicates);
   }
 
   public TextQuestionDefinition(
-      long version,
       String name,
       Path path,
       Optional<Long> repeaterId,
       String description,
-      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
     super(
-        version,
         name,
         path,
         repeaterId,
         description,
-        lifecycleStage,
         questionText,
         questionHelpText,
         TextValidationPredicates.create());

@@ -5,12 +5,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import models.LifecycleStage;
 import models.Question;
 import repository.QuestionRepository;
+import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.Path;
@@ -20,11 +21,15 @@ import services.question.types.QuestionDefinition;
 
 public final class QuestionServiceImpl implements QuestionService {
 
-  private QuestionRepository questionRepository;
+  private final QuestionRepository questionRepository;
+  private final Provider<VersionRepository> versionRepositoryProvider;
 
   @Inject
-  public QuestionServiceImpl(QuestionRepository questionRepository) {
+  public QuestionServiceImpl(
+      QuestionRepository questionRepository,
+      Provider<VersionRepository> versionRepositoryProvider) {
     this.questionRepository = checkNotNull(questionRepository);
+    this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
   }
 
   @Override
@@ -46,15 +51,20 @@ public final class QuestionServiceImpl implements QuestionService {
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
-
-    Question question = questionRepository.insertQuestionSync(new Question(questionDefinition));
+    Question question = new Question(questionDefinition);
+    question.addVersion(versionRepositoryProvider.get().getDraftVersion());
+    questionRepository.insertQuestionSync(question);
     return ErrorAnd.of(question.getQuestionDefinition());
   }
 
   @Override
   public CompletionStage<ReadOnlyQuestionService> getReadOnlyQuestionService() {
     return listQuestionDefinitionsAsync()
-        .thenApply(questionDefinitions -> new ReadOnlyQuestionServiceImpl(questionDefinitions));
+        .thenApply(
+            questionDefinitions ->
+                new ReadOnlyQuestionServiceImpl(
+                    versionRepositoryProvider.get().getActiveVersion(),
+                    versionRepositoryProvider.get().getDraftVersion()));
   }
 
   @Override
@@ -67,7 +77,7 @@ public final class QuestionServiceImpl implements QuestionService {
 
     Optional<Question> maybeQuestion =
         questionRepository.lookupQuestion(questionDefinition.getId()).toCompletableFuture().join();
-    if (!maybeQuestion.isPresent()) {
+    if (maybeQuestion.isEmpty()) {
       throw new InvalidUpdateException(
           String.format("question with id %d does not exist", questionDefinition.getId()));
     }
@@ -84,13 +94,6 @@ public final class QuestionServiceImpl implements QuestionService {
       return ErrorAnd.error(errors);
     }
 
-    if (question.getLifecycleStage() == LifecycleStage.DELETED) {
-      return ErrorAnd.error(
-          ImmutableSet.of(
-              CiviFormError.of(
-                  String.format("Question %d was DELETED.", questionDefinition.getId()))));
-    }
-    // DRAFT, ACTIVE, or OBSOLETE question here.
     question = questionRepository.updateOrCreateDraft(questionDefinition);
     return ErrorAnd.of(question.getQuestionDefinition());
   }

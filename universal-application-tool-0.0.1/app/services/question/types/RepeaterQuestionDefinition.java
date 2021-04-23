@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
-import models.LifecycleStage;
 import services.Path;
 
 /**
@@ -23,43 +22,35 @@ public class RepeaterQuestionDefinition extends QuestionDefinition {
 
   public RepeaterQuestionDefinition(
       OptionalLong id,
-      long version,
       String name,
       Path path,
       Optional<Long> repeaterId,
       String description,
-      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
     super(
         id,
-        version,
         name,
         path,
         repeaterId,
         description,
-        lifecycleStage,
         questionText,
         questionHelpText,
         RepeaterValidationPredicates.create());
   }
 
   public RepeaterQuestionDefinition(
-      long version,
       String name,
       Path path,
       Optional<Long> repeaterId,
       String description,
-      LifecycleStage lifecycleStage,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
     super(
-        version,
         name,
         path,
         repeaterId,
         description,
-        lifecycleStage,
         questionText,
         questionHelpText,
         RepeaterValidationPredicates.create());

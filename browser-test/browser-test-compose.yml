@@ -48,4 +48,4 @@ services:
       - ADFS_SECRET
       - DB_JDBC_STRING=jdbc:postgresql://database:5432/postgres
 
-    command: ~run
+    command: ~run -Dconfig.file=conf/application.dev.conf

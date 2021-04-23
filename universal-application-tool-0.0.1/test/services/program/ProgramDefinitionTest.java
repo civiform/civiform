@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import models.LifecycleStage;
 import org.junit.Test;
 import services.question.types.QuestionDefinition;
 import support.TestQuestionBank;
@@ -28,7 +27,6 @@ public class ProgramDefinitionTest {
         .setAdminDescription("Admin description")
         .addLocalizedName(Locale.US, "The Program")
         .addLocalizedDescription(Locale.US, "This program is for testing.")
-        .setLifecycleStage(LifecycleStage.ACTIVE)
         .addBlockDefinition(blockA)
         .build();
   }
@@ -48,7 +46,6 @@ public class ProgramDefinitionTest {
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "The Program")
             .addLocalizedDescription(Locale.US, "This program is for testing.")
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .addBlockDefinition(blockA)
             .build();
 
@@ -64,7 +61,6 @@ public class ProgramDefinitionTest {
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "The Program")
             .addLocalizedDescription(Locale.US, "This program is for testing.")
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).isEmpty();
@@ -100,7 +96,6 @@ public class ProgramDefinitionTest {
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "The Program")
             .addLocalizedDescription(Locale.US, "This program is for testing.")
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
             .build();
@@ -119,7 +114,6 @@ public class ProgramDefinitionTest {
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "Applicant friendly name")
             .addLocalizedDescription(Locale.US, "English description")
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
     assertThat(program.adminName()).isEqualTo("Admin name");
@@ -147,7 +141,6 @@ public class ProgramDefinitionTest {
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "Applicant friendly name")
             .addLocalizedDescription(Locale.US, "English description")
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
     assertThatThrownBy(
@@ -172,7 +165,6 @@ public class ProgramDefinitionTest {
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "existing name")
             .addLocalizedDescription(Locale.US, "existing description")
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .build();
 
     program =
@@ -187,5 +179,60 @@ public class ProgramDefinitionTest {
                 program.localizedDescription(), Locale.US, "new description")
             .build();
     assertThat(program.getLocalizedDescription(Locale.US)).isEqualTo("new description");
+  }
+
+  @Test
+  public void getSupportedLocales_noQuestions_returnsOnlyLocalesSupportedByDisplayText() {
+    ProgramDefinition definition =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .addLocalizedName(Locale.US, "Applicant friendly name")
+            .addLocalizedName(Locale.FRANCE, "test")
+            .addLocalizedDescription(Locale.US, "English description")
+            .addLocalizedDescription(Locale.GERMAN, "test")
+            .build();
+
+    assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
+  }
+
+  @Test
+  public void getSupportedLocales_returnsLocalesSupportedByQuestionsAndText() {
+    QuestionDefinition questionA = testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition questionB = testQuestionBank.applicantAddress().getQuestionDefinition();
+    QuestionDefinition questionC =
+        testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+
+    BlockDefinition blockA =
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .addQuestion(ProgramQuestionDefinition.create(questionA))
+            .build();
+    BlockDefinition blockB =
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .addQuestion(ProgramQuestionDefinition.create(questionB))
+            .addQuestion(ProgramQuestionDefinition.create(questionC))
+            .build();
+    ProgramDefinition definition =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .addLocalizedName(Locale.US, "Applicant friendly name")
+            .addLocalizedName(Locale.FRANCE, "test")
+            .addLocalizedDescription(Locale.US, "English description")
+            .addLocalizedDescription(Locale.GERMAN, "test")
+            .addLocalizedDescription(Locale.FRANCE, "test")
+            .addBlockDefinition(blockA)
+            .addBlockDefinition(blockB)
+            .build();
+
+    assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
   }
 }

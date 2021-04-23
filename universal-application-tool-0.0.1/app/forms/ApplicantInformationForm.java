@@ -1,13 +1,13 @@
 package forms;
 
 import java.util.Locale;
+import services.LocalizationUtils;
 
 public class ApplicantInformationForm {
   private Locale locale;
 
   public ApplicantInformationForm() {
-    // The default language for CiviForm is US English.
-    locale = Locale.US;
+    locale = LocalizationUtils.DEFAULT_LOCALE;
   }
 
   public Locale getLocale() {

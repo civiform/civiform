@@ -7,9 +7,9 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import models.Applicant;
-import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
+import services.LocalizationUtils;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.question.LocalizedQuestionOption;
@@ -20,12 +20,10 @@ public class SingleSelectQuestionTest {
 
   private static final DropdownQuestionDefinition dropdownQuestionDefinition =
       new DropdownQuestionDefinition(
-          1L,
           "question name",
           Path.create("applicant.my.path.name"),
           Optional.empty(),
           "description",
-          LifecycleStage.ACTIVE,
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
           ImmutableList.of(
@@ -82,5 +80,18 @@ public class SingleSelectQuestionTest {
     assertThat(singleSelectQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(singleSelectQuestion.hasQuestionErrors()).isFalse();
     assertThat(singleSelectQuestion.getSelectedOptionValue()).isEmpty();
+  }
+
+  @Test
+  public void getOptions_defaultsIfLangUnsupported() {
+    applicantData.setPreferredLocale(Locale.CHINESE);
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
+
+    SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
+
+    assertThat(singleSelectQuestion.getOptions()).isNotEmpty();
+    assertThat(singleSelectQuestion.getOptions().get(0).locale())
+        .isEqualTo(LocalizationUtils.DEFAULT_LOCALE);
   }
 }

@@ -17,4 +17,5 @@ public final class ReferenceClasses {
   public static final String QUESTION_CONFIG = "cf-question-config";
   public static final String REMOVE_QUESTION_BUTTON = "cf-remove-question-button";
   public static final String VIEW_BUTTON = "cf-view-application-button";
+  public static final String ADMIN_VERSION_CARD = "cf-admin-version-card";
 }

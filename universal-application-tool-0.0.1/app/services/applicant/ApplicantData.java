@@ -16,13 +16,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import services.LocalizationUtils;
 import services.Path;
 import services.WellKnownPaths;
 import services.question.types.RepeaterQuestionDefinition;
 
 public class ApplicantData {
   private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
-  private static final Locale DEFAULT_LOCALE = Locale.US;
   private static final TypeRef<ImmutableList<Long>> IMMUTABLE_LIST_LONG_TYPE = new TypeRef<>() {};
 
   private Optional<Locale> preferredLocale;
@@ -48,7 +48,7 @@ public class ApplicantData {
 
   /** Returns this applicant's preferred locale if it is set, or the default locale if not set. */
   public Locale preferredLocale() {
-    return this.preferredLocale.orElse(DEFAULT_LOCALE);
+    return this.preferredLocale.orElse(LocalizationUtils.DEFAULT_LOCALE);
   }
 
   public void setPreferredLocale(Locale locale) {

@@ -34,7 +34,7 @@ public class AdminProgramTranslationsControllerTest extends WithPostgresContaine
 
   @Test
   public void edit_rendersFormWithExistingNameAndDescription() {
-    Program program = ProgramBuilder.newProgram("test name", "test description").build();
+    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
 
     Result result = controller.edit(addCSRFToken(fakeRequest()).build(), program.id, "en-US");
 
@@ -52,7 +52,7 @@ public class AdminProgramTranslationsControllerTest extends WithPostgresContaine
 
   @Test
   public void update_savesNewFields() throws TranslationNotFoundException {
-    Program program = ProgramBuilder.newProgram().build();
+    Program program = ProgramBuilder.newDraftProgram().build();
 
     Http.RequestBuilder requestBuilder =
         fakeRequest()
@@ -86,7 +86,7 @@ public class AdminProgramTranslationsControllerTest extends WithPostgresContaine
 
   @Test
   public void update_validationErrors_rendersEditFormWithMessages() {
-    Program program = ProgramBuilder.newProgram().build();
+    Program program = ProgramBuilder.newDraftProgram().build();
     Http.RequestBuilder requestBuilder =
         fakeRequest().bodyForm(ImmutableMap.of("displayName", "", "displayDescription", ""));
 

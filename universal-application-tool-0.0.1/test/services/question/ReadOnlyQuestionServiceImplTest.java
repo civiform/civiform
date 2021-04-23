@@ -4,18 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
+import models.LifecycleStage;
+import models.Question;
+import models.Version;
 import org.junit.Before;
 import org.junit.Test;
 import services.Path;
-import services.question.exceptions.InvalidPathException;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
-import services.question.types.ScalarType;
 import services.question.types.TextQuestionDefinition;
 import support.TestQuestionBank;
 
@@ -23,9 +23,9 @@ public class ReadOnlyQuestionServiceImplTest {
 
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
 
-  private final Path invalidPath = Path.create("invalid.path");
   private final ReadOnlyQuestionService emptyService =
-      new ReadOnlyQuestionServiceImpl(ImmutableList.of());
+      new ReadOnlyQuestionServiceImpl(
+          new Version(LifecycleStage.ACTIVE), new Version(LifecycleStage.DRAFT));
   private NameQuestionDefinition nameQuestion;
   private AddressQuestionDefinition addressQuestion;
   private TextQuestionDefinition basicQuestion;
@@ -43,13 +43,22 @@ public class ReadOnlyQuestionServiceImplTest {
     basicQuestion =
         (TextQuestionDefinition) testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
     questions = ImmutableList.of(nameQuestion, addressQuestion, basicQuestion);
-    service = new ReadOnlyQuestionServiceImpl(questions);
+    service =
+        new ReadOnlyQuestionServiceImpl(
+            new Version(LifecycleStage.ACTIVE) {
+              @Override
+              public ImmutableList<Question> getQuestions() {
+                return questions.stream()
+                    .map(q -> new Question(q))
+                    .collect(ImmutableList.toImmutableList());
+              }
+            },
+            new Version(LifecycleStage.DRAFT));
   }
 
   @Test
   public void getAll_returnsEmpty() {
     assertThat(emptyService.getAllQuestions()).isEmpty();
-    assertThat(emptyService.getAllScalars()).isEmpty();
   }
 
   @Test
@@ -64,10 +73,19 @@ public class ReadOnlyQuestionServiceImplTest {
 
     ReadOnlyQuestionService repeaterService =
         new ReadOnlyQuestionServiceImpl(
-            ImmutableList.<QuestionDefinition>builder()
-                .addAll(questions)
-                .add(repeaterQuestion)
-                .build());
+            new Version(LifecycleStage.ACTIVE) {
+              @Override
+              public ImmutableList<Question> getQuestions() {
+                return ImmutableList.<QuestionDefinition>builder()
+                    .addAll(questions)
+                    .add(repeaterQuestion)
+                    .build()
+                    .stream()
+                    .map(q -> new Question(q))
+                    .collect(ImmutableList.toImmutableList());
+              }
+            },
+            new Version(LifecycleStage.DRAFT));
 
     assertThat(repeaterService.getAllRepeaterQuestions().size()).isEqualTo(1);
     assertThat(repeaterService.getAllRepeaterQuestions().get(0)).isEqualTo(repeaterQuestion);
@@ -85,7 +103,17 @@ public class ReadOnlyQuestionServiceImplTest {
   public void makePath_withRepeater() throws Exception {
     QuestionDefinition householdMembers =
         testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
-    service = new ReadOnlyQuestionServiceImpl(ImmutableList.of(householdMembers));
+    service =
+        new ReadOnlyQuestionServiceImpl(
+            new Version(LifecycleStage.ACTIVE) {
+              @Override
+              public ImmutableList<Question> getQuestions() {
+                return ImmutableList.<Question>builder()
+                    .add(new Question(householdMembers))
+                    .build();
+              }
+            },
+            new Version(LifecycleStage.DRAFT));
 
     Path path = service.makePath(Optional.of(householdMembers.getId()), "some question name", true);
 
@@ -96,7 +124,15 @@ public class ReadOnlyQuestionServiceImplTest {
   @Test
   public void makePath_withBadRepeater_throws() {
     QuestionDefinition applicantName = testQuestionBank.applicantName().getQuestionDefinition();
-    service = new ReadOnlyQuestionServiceImpl(ImmutableList.of(applicantName));
+    service =
+        new ReadOnlyQuestionServiceImpl(
+            new Version(LifecycleStage.ACTIVE) {
+              @Override
+              public ImmutableList<Question> getQuestions() {
+                return ImmutableList.<Question>builder().add(new Question(applicantName)).build();
+              }
+            },
+            new Version(LifecycleStage.DRAFT));
 
     assertThatThrownBy(
             () -> service.makePath(Optional.of(applicantName.getId()), "some question name", true))
@@ -111,78 +147,8 @@ public class ReadOnlyQuestionServiceImplTest {
   }
 
   @Test
-  public void getAllScalars() {
-    ImmutableMap.Builder<Path, ScalarType> scalars = ImmutableMap.builder();
-    scalars.putAll(nameQuestion.getScalars());
-    scalars.putAll(addressQuestion.getScalars());
-    scalars.putAll(basicQuestion.getScalars());
-    assertThat(service.getAllScalars()).isEqualTo(scalars.build());
-  }
-
-  @Test
-  public void getPathScalars_forQuestion() throws InvalidPathException {
-    ImmutableMap<Path, ScalarType> result =
-        service.getPathScalars(Path.create("applicant.applicant_address"));
-    ImmutableMap<Path, ScalarType> expected = addressQuestion.getScalars();
-    assertThat(result).isEqualTo(expected);
-  }
-
-  @Test
-  public void getPathScalars_forScalar() throws InvalidPathException {
-    ImmutableMap<Path, ScalarType> result =
-        service.getPathScalars(Path.create("applicant.applicant_address.city"));
-    ImmutableMap<Path, ScalarType> expected =
-        ImmutableMap.of(Path.create("applicant.applicant_address.city"), ScalarType.STRING);
-    assertThat(result).isEqualTo(expected);
-  }
-
-  @Test
-  public void getPathScalars_forInvalidPath() {
-    assertThatThrownBy(() -> service.getPathScalars(invalidPath))
-        .isInstanceOf(InvalidPathException.class)
-        .hasMessage("Path not found: " + invalidPath.path());
-  }
-
-  @Test
-  public void getPathType_forInvalidPath() {
-    assertThat(service.getPathType(invalidPath)).isEqualTo(PathType.NONE);
-  }
-
-  @Test
-  public void getPathType_forQuestion() {
-    assertThat(service.getPathType(Path.create("applicant.applicant_favorite_color")))
-        .isEqualTo(PathType.QUESTION);
-  }
-
-  @Test
-  public void getPathType_forScalar() {
-    assertThat(service.getPathType(Path.create("applicant.applicant_name.first")))
-        .isEqualTo(PathType.SCALAR);
-  }
-
-  @Test
   public void getQuestionDefinition_byId() throws QuestionNotFoundException {
     long questionId = nameQuestion.getId();
     assertThat(service.getQuestionDefinition(questionId)).isEqualTo(nameQuestion);
-  }
-
-  @Test
-  public void isValid_returnsFalseForInvalid() {
-    assertThat(service.isValid(Path.create("invalidPath"))).isFalse();
-  }
-
-  @Test
-  public void isValid_returnsFalseWhenEmpty() {
-    assertThat(emptyService.isValid(Path.empty())).isFalse();
-  }
-
-  @Test
-  public void isValid_returnsTrueForQuestion() {
-    assertThat(service.isValid(Path.create("applicant.applicant_name"))).isTrue();
-  }
-
-  @Test
-  public void isValid_returnsTrueForScalar() {
-    assertThat(service.isValid(Path.create("applicant.applicant_name.first"))).isTrue();
   }
 }
