@@ -259,12 +259,10 @@ public class QuestionDefinitionTest {
   public void getQuestionTextOrDefault_returnsDefaultIfNotFound() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            1L,
             "",
             Path.empty(),
             Optional.empty(),
             "",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, "default"),
             ImmutableMap.of());
 
@@ -276,12 +274,10 @@ public class QuestionDefinitionTest {
   public void getQuestionHelpTextOrDefault_returnsDefaultIfNotFound() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            1L,
             "",
             Path.empty(),
             Optional.empty(),
             "",
-            LifecycleStage.ACTIVE,
             ImmutableMap.of(),
             ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, "default"));
 
