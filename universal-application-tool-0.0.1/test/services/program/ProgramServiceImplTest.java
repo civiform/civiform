@@ -687,4 +687,51 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThat(secondNewDraft.lifecycleStage()).isEqualTo(LifecycleStage.DRAFT);
     assertThat(program.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
   }
+
+  @Test
+  public void updateLocalizations_addsNewLocale() throws Exception {
+    Program program = ProgramBuilder.newProgram().build();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.GERMAN, "German Name", "German Description");
+
+    assertThat(result.isError()).isFalse();
+    ProgramDefinition definition = result.getResult();
+    assertThat(definition.getLocalizedName(Locale.GERMAN)).isEqualTo("German Name");
+    assertThat(definition.getLocalizedDescription(Locale.GERMAN)).isEqualTo("German Description");
+  }
+
+  @Test
+  public void updateLocalizations_updatesExistingLocale() throws Exception {
+    Program program = ProgramBuilder.newProgram("English name", "English description").build();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.US, "new name", "new description");
+
+    assertThat(result.isError()).isFalse();
+    ProgramDefinition definition = result.getResult();
+    assertThat(definition.getLocalizedName(Locale.US)).isEqualTo("new name");
+    assertThat(definition.getLocalizedDescription(Locale.US)).isEqualTo("new description");
+  }
+
+  @Test
+  public void updateLocalizations_returnsErrorMessages() throws Exception {
+    Program program = ProgramBuilder.newProgram().build();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.US, "", "");
+
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsExactly(
+            CiviFormError.of("program display name cannot be blank"),
+            CiviFormError.of("program display description cannot be blank"));
+  }
+
+  @Test
+  public void updateLocalizations_programNotFound_throws() {
+    assertThatThrownBy(() -> ps.updateLocalization(1000L, Locale.US, "", ""))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID: 1000");
+  }
 }
