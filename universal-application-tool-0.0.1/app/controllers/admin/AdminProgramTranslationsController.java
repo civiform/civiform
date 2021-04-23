@@ -1,7 +1,5 @@
 package controllers.admin;
 
-import static play.mvc.Results.badRequest;
-
 import auth.Authorizers;
 import controllers.CiviFormController;
 import forms.ProgramTranslationForm;
@@ -20,6 +18,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.admin.programs.ProgramTranslationView;
 
+/** Provides methods for updating localizations for a given program. */
 public class AdminProgramTranslationsController extends CiviFormController {
 
   private final ProgramService service;
@@ -34,18 +33,42 @@ public class AdminProgramTranslationsController extends CiviFormController {
     this.formFactory = formFactory;
   }
 
+  /**
+   * Renders an edit form for a program so the admin can update translations for the given locale.
+   *
+   * @param request the current {@link Http.Request}
+   * @param id the ID of the program to update
+   * @param locale the locale to update, as an ISO language tag
+   * @return a rendered {@link ProgramTranslationView} pre-populated with any existing translations
+   *     for the given locale
+   */
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result edit(Http.Request request, long id, String locale) {
     try {
       ProgramDefinition program = service.getProgramDefinition(id);
+      Locale localeToEdit = Locale.forLanguageTag(locale);
       return ok(
           translationView.render(
-              request, program, Locale.forLanguageTag(locale), Optional.empty()));
+              request,
+              localeToEdit,
+              program.id(),
+              program.maybeGetLocalizedName(localeToEdit),
+              program.maybeGetLocalizedDescription(localeToEdit),
+              Optional.empty()));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", id));
     }
   }
 
+  /**
+   * Save updates to a program's localizations.
+   *
+   * @param request the current {@link Http.Request}
+   * @param id the ID of the program to update
+   * @param locale the locale to update, as an ISO language tag
+   * @return redirects to the admin's home page if updates were successful; otherwise, renders the
+   *     same {@link ProgramTranslationView} with error messages
+   */
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result update(Http.Request request, long id, String locale) {
     Form<ProgramTranslationForm> translationForm = formFactory.form(ProgramTranslationForm.class);
@@ -54,19 +77,22 @@ public class AdminProgramTranslationsController extends CiviFormController {
     }
     ProgramTranslationForm translations = translationForm.bindFromRequest(request).get();
     Locale updatedLocale = Locale.forLanguageTag(locale);
+    String displayName = translations.getDisplayName();
+    String displayDescription = translations.getDisplayDescription();
 
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> result =
-          service.updateLocalization(
-              id,
-              updatedLocale,
-              translations.getDisplayName(),
-              translations.getDisplayDescription());
+          service.updateLocalization(id, updatedLocale, displayName, displayDescription);
       if (result.isError()) {
         String errorMessage = joinErrors(result.getErrors());
         return ok(
             translationView.render(
-                request, result.getResult(), updatedLocale, Optional.of(errorMessage)));
+                request,
+                updatedLocale,
+                id,
+                displayName,
+                displayDescription,
+                Optional.of(errorMessage)));
       }
       return redirect(routes.AdminProgramController.index().url());
     } catch (ProgramNotFoundException e) {

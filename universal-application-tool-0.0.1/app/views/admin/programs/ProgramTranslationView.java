@@ -15,7 +15,6 @@ import play.i18n.Lang;
 import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
@@ -23,6 +22,7 @@ import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.Styles;
 
+/** Renders a list of languages to select from, and a form for updating program information. */
 public class ProgramTranslationView extends BaseHtmlView {
   private final AdminLayout layout;
   private final ImmutableList<Locale> supportedLanguages;
@@ -35,11 +35,33 @@ public class ProgramTranslationView extends BaseHtmlView {
   }
 
   public Content render(
-      Http.Request request, ProgramDefinition program, Locale locale, Optional<String> errors) {
-    ContainerTag form = renderTranslationForm(request, program, locale);
+      Http.Request request,
+      Locale locale,
+      long programId,
+      String localizedName,
+      String localizedDescription,
+      Optional<String> errors) {
+    return render(
+        request,
+        locale,
+        programId,
+        Optional.of(localizedName),
+        Optional.of(localizedDescription),
+        errors);
+  }
+
+  public Content render(
+      Http.Request request,
+      Locale locale,
+      long programId,
+      Optional<String> localizedName,
+      Optional<String> localizedDescription,
+      Optional<String> errors) {
+    ContainerTag form =
+        renderTranslationForm(request, locale, programId, localizedName, localizedDescription);
     errors.ifPresent(s -> form.with(ToastMessage.error(s).setDismissible(false).getContainerTag()));
     return layout.render(
-        renderHeader("Manage Translations"), renderLanguageButtons(program.id(), locale), form);
+        renderHeader("Manage Translations"), renderLanguageButtons(programId, locale), form);
   }
 
   private ContainerTag renderLanguageButtons(long programId, Locale currentlySelected) {
@@ -70,26 +92,30 @@ public class ProgramTranslationView extends BaseHtmlView {
   }
 
   private ContainerTag renderTranslationForm(
-      Http.Request request, ProgramDefinition program, Locale locale) {
+      Http.Request request,
+      Locale locale,
+      long programId,
+      Optional<String> localizedName,
+      Optional<String> localizedDescription) {
     return form()
         .withMethod("POST")
         .with(makeCsrfTokenInputTag(request))
         .withAction(
             controllers.admin.routes.AdminProgramTranslationsController.update(
-                    program.id(), locale.toLanguageTag())
+                    programId, locale.toLanguageTag())
                 .url())
         .with(
             FieldWithLabel.input()
                 .setFieldName("displayName")
                 .setPlaceholderText("Program display name")
-                .setValue(program.maybeGetLocalizedName(locale))
+                .setValue(localizedName)
                 .getContainer())
         .with(
             FieldWithLabel.input()
                 .setFieldName("displayDescription")
                 .setPlaceholderText("Program description")
-                .setValue(program.maybeGetLocalizedDescription(locale))
+                .setValue(localizedDescription)
                 .getContainer())
-        .with(submitButton("Save"));
+        .with(submitButton(String.format("Save %s updates", locale.getDisplayLanguage(Locale.US))));
   }
 }
