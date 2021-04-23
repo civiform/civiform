@@ -76,7 +76,7 @@ function addNewRepeaterField(event: Event) {
 
   // Set new checkbox value to the index and uncheck it
   const newCheckbox = newField.querySelector("[type=checkbox]") as HTMLInputElement;
-  newCheckbox.setAttribute("value", index.toString());
+  newCheckbox.value = index.toString();
   newCheckbox.checked = false;
 
   repeaterFields.appendChild(newField);
