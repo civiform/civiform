@@ -1,7 +1,6 @@
 package services.question;
 
 import com.google.common.collect.ImmutableList;
-import java.util.Locale;
 import java.util.Optional;
 import services.Path;
 import services.question.exceptions.InvalidQuestionTypeException;
@@ -43,12 +42,4 @@ public interface ReadOnlyQuestionService {
    * @throws QuestionNotFoundException if the question for the ID does not exist.
    */
   QuestionDefinition getQuestionDefinition(long id) throws QuestionNotFoundException;
-
-  /**
-   * When getting question text and help text we need to send the Locale. If absent it will use the
-   * preferred locale.
-   */
-  void setPreferredLocale(Locale locale);
-
-  Locale getPreferredLocale();
 }
