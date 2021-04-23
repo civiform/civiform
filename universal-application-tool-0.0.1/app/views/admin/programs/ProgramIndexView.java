@@ -45,9 +45,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                         this.renderProgramListItem(
                             programs.getActiveProgramDefinition(name),
                             programs.getDraftProgramDefinition(name),
-                            request)),
-                renderNewProgramButton(),
-                maybeRenderPublishButton(programs, request));
+                            request)));
 
     return layout.render(head(layout.tailwindStyles()), body(contentDiv));
   }

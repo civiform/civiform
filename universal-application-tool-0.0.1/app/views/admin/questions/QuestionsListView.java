@@ -107,7 +107,9 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private Tag renderSummary(ActiveAndDraftQuestions activeAndDraftQuestions) {
-    return div("Total Questions: " + activeAndDraftQuestions.getActiveSize())
+    return div(String.format(
+            "Active Questions: %d\nDraft Questions: %d",
+            activeAndDraftQuestions.getActiveSize(), activeAndDraftQuestions.getDraftSize()))
         .withClasses(Styles.FLOAT_RIGHT, Styles.TEXT_BASE, Styles.PX_4, Styles.MY_2);
   }
 

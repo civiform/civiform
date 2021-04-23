@@ -95,7 +95,7 @@ public class VersionListView extends BaseHtmlView {
             td(String.valueOf(olderVersion.getQuestions().size())),
             td(
                 new LinkElement()
-                    .setId("view-question-link-" + olderVersion.id)
+                    .setId("set-version-live-" + olderVersion.id)
                     .setHref(routes.AdminVersionController.setVersionLive(olderVersion.id).url())
                     .setText("Set Live")
                     .setStyles(Styles.MR_2)

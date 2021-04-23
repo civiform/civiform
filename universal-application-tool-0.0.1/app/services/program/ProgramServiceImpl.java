@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import forms.BlockForm;
 import java.util.Locale;
 import java.util.Optional;
@@ -30,18 +29,18 @@ public class ProgramServiceImpl implements ProgramService {
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
   private final HttpExecutionContext httpExecutionContext;
-  private final Provider<VersionRepository> versionRepositoryProvider;
+  private final VersionRepository versionRepository;
 
   @Inject
   public ProgramServiceImpl(
       ProgramRepository programRepository,
       QuestionService questionService,
-      Provider<VersionRepository> versionRepositoryProvider,
+      VersionRepository versionRepository,
       HttpExecutionContext ec) {
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
     this.httpExecutionContext = checkNotNull(ec);
-    this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
+    this.versionRepository = checkNotNull(versionRepository);
   }
 
   @Override
@@ -87,8 +86,7 @@ public class ProgramServiceImpl implements ProgramService {
   @Override
   public ActiveAndDraftPrograms getActiveAndDraftPrograms() {
     return new ActiveAndDraftPrograms(
-        versionRepositoryProvider.get().getActiveVersion(),
-        versionRepositoryProvider.get().getDraftVersion());
+        versionRepository.getActiveVersion(), versionRepository.getDraftVersion());
   }
 
   @Override
@@ -125,7 +123,7 @@ public class ProgramServiceImpl implements ProgramService {
 
     Program program =
         new Program(adminName, adminDescription, defaultDisplayName, defaultDisplayDescription);
-    program.addVersion(versionRepositoryProvider.get().getDraftVersion());
+    program.addVersion(versionRepository.getDraftVersion());
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
 

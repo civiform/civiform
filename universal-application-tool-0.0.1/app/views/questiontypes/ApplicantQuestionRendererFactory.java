@@ -3,7 +3,6 @@ package views.questiontypes;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import models.LifecycleStage;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
@@ -58,7 +57,6 @@ public class ApplicantQuestionRendererFactory {
             .setPath(Path.create("sample.question.path"))
             .setQuestionText(ImmutableMap.of(Locale.US, "Sample question text"))
             .setQuestionHelpText(ImmutableMap.of(Locale.US, "Sample question help text"))
-            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setQuestionType(questionType);
 
     if (questionType.isMultiOptionType()) {

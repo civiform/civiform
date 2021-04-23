@@ -21,14 +21,12 @@ import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.RepeaterQuestionDefinition;
-import services.question.types.ScalarType;
 
 public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionService {
 
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
   private final ImmutableSet<QuestionDefinition> upToDateQuestions;
   private final ActiveAndDraftQuestions activeAndDraftQuestions;
-  private final ImmutableMap<Path, ScalarType> scalars;
 
   private Locale preferredLocale = LocalizationUtils.DEFAULT_LOCALE;
 
@@ -42,7 +40,6 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
         draftVersion.getLifecycleStage().equals(LifecycleStage.DRAFT),
         "Supposedly draft version not DRAFT");
     ImmutableMap.Builder<Long, QuestionDefinition> questionIdMap = ImmutableMap.builder();
-    ImmutableMap.Builder<Path, ScalarType> scalarMap = ImmutableMap.builder();
     ImmutableSet.Builder<QuestionDefinition> upToDateBuilder = ImmutableSet.builder();
     Set<String> namesFoundInDraft = new HashSet<>();
     for (QuestionDefinition qd :
@@ -58,19 +55,12 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
             .map(Question::getQuestionDefinition)
             .collect(Collectors.toList())) {
 
-      ImmutableMap<Path, ScalarType> questionScalars = qd.getScalars();
-      questionScalars.entrySet().stream()
-          .forEach(
-              entry -> {
-                scalarMap.put(entry.getKey(), entry.getValue());
-              });
       questionIdMap.put(qd.getId(), qd);
       if (!namesFoundInDraft.contains(qd.getName())) {
         upToDateBuilder.add(qd);
       }
     }
     questionsById = questionIdMap.build();
-    scalars = scalarMap.build();
     upToDateQuestions = upToDateBuilder.build();
     activeAndDraftQuestions = new ActiveAndDraftQuestions(activeVersion, draftVersion);
   }
@@ -96,11 +86,6 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
         .filter(QuestionDefinition::isRepeater)
         .map(questionDefinition -> (RepeaterQuestionDefinition) questionDefinition)
         .collect(ImmutableList.toImmutableList());
-  }
-
-  @Override
-  public ImmutableMap<Path, ScalarType> getAllScalars() {
-    return scalars;
   }
 
   @Override

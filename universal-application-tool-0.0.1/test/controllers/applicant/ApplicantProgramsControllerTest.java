@@ -65,6 +65,7 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("one");
     assertThat(contentAsString(result)).contains("two");
+    assertThat(contentAsString(result)).doesNotContain("three");
   }
 
   @Test

@@ -43,7 +43,7 @@ import services.question.types.TextQuestionDefinition;
  * grouping those methods with the same type together.
  */
 public class TestQuestionBank {
-  private static final Map<QuestionEnum, Question> questionCache = new ConcurrentHashMap<>();
+  private final Map<QuestionEnum, Question> questionCache = new ConcurrentHashMap<>();
   private static final AtomicLong nextId = new AtomicLong(1L);
 
   private final boolean canSave;

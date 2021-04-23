@@ -1,7 +1,6 @@
 package services.question;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import services.Path;
@@ -9,7 +8,6 @@ import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.question.types.RepeaterQuestionDefinition;
-import services.question.types.ScalarType;
 
 /**
  * The ReadOnlyQuestionService contains all synchronous, in-memory operations for
@@ -28,9 +26,6 @@ public interface ReadOnlyQuestionService {
 
   /** Returns all repeater question definitions. */
   ImmutableList<RepeaterQuestionDefinition> getUpToDateRepeaterQuestions();
-
-  /** Returns all scalars for this version. */
-  ImmutableMap<Path, ScalarType> getAllScalars();
 
   /** Get the data object about the questions that are in the active or draft version. */
   ActiveAndDraftQuestions getActiveAndDraftQuestions();
