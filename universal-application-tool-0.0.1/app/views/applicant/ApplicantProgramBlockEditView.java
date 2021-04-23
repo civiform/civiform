@@ -52,7 +52,9 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
                     .with(submitButton(params.messages().at("button.nextBlock"))));
 
     if (!params.preferredLanguageSupported()) {
-      body.with(renderLocaleNotSupportedToast(params.programId(), params.messages()));
+      body.with(
+          renderLocaleNotSupportedToast(
+              params.applicantId(), params.programId(), params.messages()));
     }
 
     return layout.render(body);
@@ -63,12 +65,15 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
    * warning. Allow them to dismiss the warning, and once it is dismissed it does not reappear for
    * the same program.
    */
-  private ContainerTag renderLocaleNotSupportedToast(long programId, Messages messages) {
-    // Note: we include programId in the ID, so that the applicant sees the warning for each program
-    // that is not properly localized. Otherwise, once dismissed, this toast would never appear for
-    // other programs.
+  private ContainerTag renderLocaleNotSupportedToast(
+      long applicantId, long programId, Messages messages) {
+    // Note: we include applicantId and programId in the ID, so that the applicant sees the warning
+    // for each program that is not properly localized. Otherwise, once dismissed, this toast would
+    // never appear for other programs. Additionally, including the applicantId ensures that this
+    // warning still appears across applicants, so that (for example) a Trusted Intermediary
+    // handling multiple applicants will see the toast displayed.
     return ToastMessage.warning(messages.at("toast.localeNotSupported"))
-        .setId(String.format("locale-not-supported-%d", programId))
+        .setId(String.format("locale-not-supported-%d-%d", applicantId, programId))
         .setDismissible(true)
         .setIgnorable(true)
         .setDuration(0)
