@@ -16,6 +16,7 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
+import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -60,6 +61,26 @@ public class TestQuestionBank {
     nextId.set(1L);
   }
 
+  /**
+   * Gets a single sample question for each supported QuestionType. Note that Question contents are
+   * arbitrarily chosen and are not canonical.
+   *
+   * @return an ImmutableMap of QuestionType to Questions
+   */
+  public ImmutableMap<QuestionType, Question> getSampleQuestionsForAllTypes() {
+    return new ImmutableMap.Builder<QuestionType, Question>()
+        .put(QuestionType.ADDRESS, applicantAddress())
+        .put(QuestionType.CHECKBOX, applicantKitchenTools())
+        .put(QuestionType.DROPDOWN, applicantIceCream())
+        .put(QuestionType.FILEUPLOAD, applicantFile())
+        .put(QuestionType.NAME, applicantName())
+        .put(QuestionType.NUMBER, applicantJugglingNumber())
+        .put(QuestionType.RADIO_BUTTON, applicantSeason())
+        .put(QuestionType.REPEATER, applicantHouseholdMembers())
+        .put(QuestionType.TEXT, applicantFavoriteColor())
+        .build();
+  }
+
   // Address
   public Question applicantAddress() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ADDRESS, this::applicantAddress);
@@ -74,6 +95,11 @@ public class TestQuestionBank {
   // Dropdown
   public Question applicantIceCream() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ICE_CREAM, this::applicantIceCream);
+  }
+
+  // File upload
+  public Question applicantFile() {
+    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_FILE, this::applicantFile);
   }
 
   // Name
@@ -120,10 +146,10 @@ public class TestQuestionBank {
             "applicant address",
             Path.create("applicant.applicant_address"),
             Optional.empty(),
-            "address of applicant",
+            "The address of applicant",
             LifecycleStage.ACTIVE,
-            ImmutableMap.of(Locale.US, "what is your address?"),
-            ImmutableMap.of(Locale.US, "help text"));
+            ImmutableMap.of(Locale.US, "What is your address?"),
+            ImmutableMap.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
 
@@ -135,10 +161,10 @@ public class TestQuestionBank {
             "kitchen tools",
             Path.create("applicant.kitchen_tools"),
             Optional.empty(),
-            "description",
+            "Kitchen instruments you own",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "Which of the following kitchen instruments do you own?"),
-            ImmutableMap.of(Locale.US, "help text"),
+            ImmutableMap.of(Locale.US, "This is sample help text."),
             ImmutableList.of(
                 QuestionOption.create(1L, ImmutableMap.of(Locale.US, "toaster")),
                 QuestionOption.create(2L, ImmutableMap.of(Locale.US, "pepper grinder")),
@@ -154,15 +180,30 @@ public class TestQuestionBank {
             "applicant ice cream",
             Path.create("applicant.applicant_ice_cream"),
             Optional.empty(),
-            "select your favorite ice cream flavor",
+            "Select your favorite ice cream flavor",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "Select your favorite ice cream flavor from the following"),
-            ImmutableMap.of(Locale.US, "this is sample help text"),
+            ImmutableMap.of(Locale.US, "This is sample help text."),
             ImmutableList.of(
                 QuestionOption.create(1L, ImmutableMap.of(Locale.US, "chocolate")),
                 QuestionOption.create(2L, ImmutableMap.of(Locale.US, "strawberry")),
                 QuestionOption.create(3L, ImmutableMap.of(Locale.US, "vanilla")),
                 QuestionOption.create(4L, ImmutableMap.of(Locale.US, "coffee"))));
+    return maybeSave(definition);
+  }
+
+  // File upload
+  private Question applicantFile(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new FileUploadQuestionDefinition(
+            VERSION,
+            "applicant file",
+            Path.create("applicant.applicant_file"),
+            Optional.empty(),
+            "The file to be uploaded",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(Locale.US, "What is the file you want to upload?"),
+            ImmutableMap.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
 
@@ -174,10 +215,10 @@ public class TestQuestionBank {
             "applicant name",
             Path.create("applicant.applicant_name"),
             Optional.empty(),
-            "name of applicant",
+            "The name of applicant",
             LifecycleStage.ACTIVE,
-            ImmutableMap.of(Locale.US, "what is your name?"),
-            ImmutableMap.of(Locale.US, "help text"));
+            ImmutableMap.of(Locale.US, "What is your name?"),
+            ImmutableMap.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
 
@@ -192,8 +233,8 @@ public class TestQuestionBank {
             Optional.of(householdMembers.id),
             "The applicant's household member's name",
             LifecycleStage.ACTIVE,
-            ImmutableMap.of(Locale.US, "what is the household member's name?"),
-            ImmutableMap.of(Locale.US, "help text"));
+            ImmutableMap.of(Locale.US, "What is the household member's name?"),
+            ImmutableMap.of(Locale.US, "This is sample help text."));
 
     return maybeSave(definition);
   }
@@ -206,10 +247,10 @@ public class TestQuestionBank {
             "number of items applicant can juggle",
             Path.create("applicant.juggling_number"),
             Optional.empty(),
-            "number of items applicant can juggle at once",
+            "The number of items applicant can juggle at once",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "How many items can you juggle at one time?"),
-            ImmutableMap.of(Locale.US, "help text"));
+            ImmutableMap.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
 
@@ -221,10 +262,10 @@ public class TestQuestionBank {
             "radio",
             Path.create("applicant.radio"),
             Optional.empty(),
-            "favorite season in the year",
+            "Favorite season in the year",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "What is your favorite season?"),
-            ImmutableMap.of(Locale.US, "this is sample help text"),
+            ImmutableMap.of(Locale.US, "This is sample help text."),
             ImmutableList.of(
                 QuestionOption.create(1L, ImmutableMap.of(Locale.US, "winter")),
                 QuestionOption.create(2L, ImmutableMap.of(Locale.US, "spring")),
@@ -244,7 +285,7 @@ public class TestQuestionBank {
             "The applicant's household members",
             LifecycleStage.ACTIVE,
             ImmutableMap.of(Locale.US, "Who are your household members?"),
-            ImmutableMap.of(Locale.US, "help text"));
+            ImmutableMap.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
 
@@ -256,10 +297,10 @@ public class TestQuestionBank {
             "applicant favorite color",
             Path.create("applicant.applicant_favorite_color"),
             Optional.empty(),
-            "favorite color of applicant",
+            "Favorite color of applicant",
             LifecycleStage.ACTIVE,
-            ImmutableMap.of(Locale.US, "what is your favorite color?"),
-            ImmutableMap.of(Locale.US, "help text"));
+            ImmutableMap.of(Locale.US, "What is your favorite color?"),
+            ImmutableMap.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
 
@@ -281,13 +322,14 @@ public class TestQuestionBank {
 
   private enum QuestionEnum {
     APPLICANT_ADDRESS,
-    APPLICANT_KITCHEN_TOOLS,
-    APPLICANT_ICE_CREAM,
-    APPLICANT_SEASON,
-    APPLICANT_NAME,
-    APPLICANT_JUGGLING_NUMBER,
+    APPLICANT_FAVORITE_COLOR,
+    APPLICANT_FILE,
     APPLICANT_HOUSEHOLD_MEMBERS,
     APPLICANT_HOUSEHOLD_MEMBER_NAME,
-    APPLICANT_FAVORITE_COLOR
+    APPLICANT_ICE_CREAM,
+    APPLICANT_JUGGLING_NUMBER,
+    APPLICANT_KITCHEN_TOOLS,
+    APPLICANT_NAME,
+    APPLICANT_SEASON
   }
 }

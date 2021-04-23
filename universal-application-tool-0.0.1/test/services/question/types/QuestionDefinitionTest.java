@@ -3,8 +3,8 @@ package services.question.types;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.CiviFormError;
 import services.Path;
+import services.question.QuestionOption;
 import services.question.exceptions.TranslationNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
@@ -39,18 +40,24 @@ public class QuestionDefinitionTest {
             .setValidationPredicates(TextValidationPredicates.builder().setMaxLength(128).build());
   }
 
-  private EnumSet<QuestionType> questionTypeParameters() {
-    return EnumSet.complementOf(EnumSet.of(QuestionType.REPEATER));
-  }
-
-  // TODO(https://github.com/seattle-uat/civiform/issues/405): Change this to just use
-  // @Parameters(source = QuestionType.class) once RepeatedQuestionDefinition exists.
   @Test
-  @Parameters(method = "questionTypeParameters")
-  public void allTypesContainMetadataScalars(QuestionType type)
+  @Parameters(source = QuestionType.class)
+  public void allTypesContainMetadataScalars(QuestionType questionType)
       throws UnsupportedQuestionTypeException {
-    QuestionDefinitionBuilder builder = QuestionDefinitionBuilder.sample(type);
-    QuestionDefinition definition = builder.build();
+    // Modifying the builder to build the appropriate QuestionDefinition to test based on
+    // QuestionType
+    builder.setQuestionType(questionType);
+    builder.setValidationPredicatesString("");
+
+    if (questionType.isMultiOptionType()) {
+      builder.setQuestionOptions(
+          ImmutableList.of(
+              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "Sample question option"))));
+      builder.setValidationPredicates(
+          MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create());
+    }
+
+    QuestionDefinition definition = builder.setQuestionType(questionType).build();
 
     assertThat(definition.getScalars()).containsKey(definition.getLastUpdatedTimePath());
     assertThat(definition.getScalars()).containsKey(definition.getProgramIdPath());
