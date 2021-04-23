@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
+import services.LocalizationUtils;
 import services.Path;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
@@ -21,7 +22,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
   private final ImmutableSet<QuestionDefinition> upToDateQuestions;
 
-  private Locale preferredLocale = Locale.US;
+  private Locale preferredLocale = LocalizationUtils.DEFAULT_LOCALE;
 
   public ReadOnlyQuestionServiceImpl(ImmutableList<QuestionDefinition> questions) {
     checkNotNull(questions);

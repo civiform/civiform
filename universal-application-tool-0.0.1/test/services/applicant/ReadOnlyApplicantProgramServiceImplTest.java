@@ -173,6 +173,17 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     assertThat(maybeBlock.get().getName()).isEqualTo("Block two");
   }
 
+  @Test
+  public void preferredLanguageSupported_returnsTrueForDefaults() {
+    assertThat(subject.preferredLanguageSupported()).isTrue();
+  }
+
+  @Test
+  public void preferredLanguageSupported_returnsFalseForUnsupportedLang() {
+    applicantData.setPreferredLocale(Locale.CHINESE);
+    assertThat(subject.preferredLanguageSupported()).isFalse();
+  }
+
   private void answerNameQuestion() {
     answerNameQuestion(1L);
   }

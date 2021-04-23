@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.CiviFormError;
+import services.LocalizationUtils;
 import services.Path;
 import services.question.QuestionOption;
 import services.question.exceptions.TranslationNotFoundException;
@@ -305,6 +306,40 @@ public class QuestionDefinitionTest {
             ImmutableMap.of(),
             ImmutableMap.of());
     assertThat(question.getQuestionHelpText(Locale.FRANCE)).isEqualTo("");
+  }
+
+  @Test
+  public void getQuestionTextOrDefault_returnsDefaultIfNotFound() {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            1L,
+            "",
+            Path.empty(),
+            Optional.empty(),
+            "",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, "default"),
+            ImmutableMap.of());
+
+    assertThat(question.getQuestionTextOrDefault(Locale.forLanguageTag("und")))
+        .isEqualTo("default");
+  }
+
+  @Test
+  public void getQuestionHelpTextOrDefault_returnsDefaultIfNotFound() {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            1L,
+            "",
+            Path.empty(),
+            Optional.empty(),
+            "",
+            LifecycleStage.ACTIVE,
+            ImmutableMap.of(),
+            ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, "default"));
+
+    assertThat(question.getQuestionHelpTextOrDefault(Locale.forLanguageTag("und")))
+        .isEqualTo("default");
   }
 
   @Test

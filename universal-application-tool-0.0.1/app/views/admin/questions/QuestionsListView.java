@@ -17,11 +17,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import models.LifecycleStage;
 import play.twirl.api.Content;
+import services.LocalizationUtils;
 import services.question.exceptions.TranslationNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -195,12 +195,12 @@ public final class QuestionsListView extends BaseHtmlView {
     String questionHelpText = "";
 
     try {
-      questionText = definition.getQuestionText(Locale.US);
+      questionText = definition.getQuestionText(LocalizationUtils.DEFAULT_LOCALE);
     } catch (TranslationNotFoundException e) { // Ignore. Leaving blank
     }
 
     try {
-      questionHelpText = definition.getQuestionHelpText(Locale.US);
+      questionHelpText = definition.getQuestionHelpText(LocalizationUtils.DEFAULT_LOCALE);
     } catch (TranslationNotFoundException e) { // Ignore. Leaving blank
     }
 
@@ -216,7 +216,7 @@ public final class QuestionsListView extends BaseHtmlView {
   private Tag renderSupportedLanguages(QuestionDefinition definition) {
     String formattedLanguages =
         definition.getSupportedLocales().stream()
-            .map(locale -> locale.getDisplayLanguage(Locale.US))
+            .map(locale -> locale.getDisplayLanguage(LocalizationUtils.DEFAULT_LOCALE))
             .collect(Collectors.joining(", "));
     return td().with(div(formattedLanguages))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);

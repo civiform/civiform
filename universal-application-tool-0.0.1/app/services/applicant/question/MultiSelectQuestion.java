@@ -8,7 +8,6 @@ import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
-import services.question.exceptions.TranslationNotFoundException;
 import services.question.types.MultiOptionQuestionDefinition;
 
 public class MultiSelectQuestion implements PresentsErrors {
@@ -127,11 +126,7 @@ public class MultiSelectQuestion implements PresentsErrors {
   }
 
   public ImmutableList<LocalizedQuestionOption> getOptions() {
-    try {
-      return getQuestionDefinition()
-          .getOptionsForLocale(applicantQuestion.getApplicantData().preferredLocale());
-    } catch (TranslationNotFoundException e) {
-      throw new RuntimeException(e);
-    }
+    return getQuestionDefinition()
+        .getOptionsForLocaleOrDefault(applicantQuestion.getApplicantData().preferredLocale());
   }
 }
