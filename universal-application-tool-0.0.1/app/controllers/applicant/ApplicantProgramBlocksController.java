@@ -190,6 +190,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           .setApplicantId(applicantId)
                           .setProgramId(programId)
                           .setBlock(thisBlockUpdated)
+                          .setInReview(inReview)
                           .build())));
     }
 

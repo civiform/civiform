@@ -270,11 +270,9 @@ public class ApplicantProgramBlocksControllerTest {
     Result result =
         subject.update(request, applicant.id, program.id, /** blockId = */ "1", /** inReview = */ false).toCompletableFuture().join();
 
-    assertThat(result.status()).isEqualTo(FOUND);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
 
-    // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Change
-    //  reviewRoute when review page is available.
-    String reviewRoute = routes.ApplicantProgramsController.index(applicant.id).url();
+    String reviewRoute = routes.ApplicantProgramReviewController.review(applicant.id, program.id).url();
 
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
   }
