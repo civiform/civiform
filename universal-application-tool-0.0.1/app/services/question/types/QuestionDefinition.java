@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import models.LifecycleStage;
 import services.CiviFormError;
+import services.LocalizationUtils;
 import services.Path;
 import services.question.exceptions.TranslationNotFoundException;
 
@@ -176,6 +177,28 @@ public abstract class QuestionDefinition {
     return this.description;
   }
 
+  /**
+   * Attempts to get question text for the given locale. If there is no text for the given locale,
+   * it will return the text in the default locale.
+   */
+  public String getQuestionTextOrDefault(Locale locale) {
+    try {
+      return getQuestionText(locale);
+    } catch (TranslationNotFoundException e) {
+      return getDefaultQuestionText();
+    }
+  }
+
+  /** Gets the question text for CiviForm's default locale. */
+  public String getDefaultQuestionText() {
+    try {
+      return getQuestionText(LocalizationUtils.DEFAULT_LOCALE);
+    } catch (TranslationNotFoundException e) {
+      // This should never happen - US English should always be supported.
+      throw new RuntimeException(e);
+    }
+  }
+
   /** Get the question text for the given locale. */
   public String getQuestionText(Locale locale) throws TranslationNotFoundException {
     if (this.questionText.containsKey(locale)) {
@@ -196,6 +219,28 @@ public abstract class QuestionDefinition {
   /** Get the question tests for all locales. This is used for serialization. */
   public ImmutableMap<Locale, String> getQuestionText() {
     return questionText;
+  }
+
+  /**
+   * Attempts to get the question help text for the given locale. If there is no help text localized
+   * to the given locale, it will return text in the default locale.
+   */
+  public String getQuestionHelpTextOrDefault(Locale locale) {
+    try {
+      return getQuestionHelpText(locale);
+    } catch (TranslationNotFoundException e) {
+      return getDefaultQuestionHelpText();
+    }
+  }
+
+  /** Gets the question help text for CiviForm's default locale. */
+  public String getDefaultQuestionHelpText() {
+    try {
+      return getQuestionHelpText(LocalizationUtils.DEFAULT_LOCALE);
+    } catch (TranslationNotFoundException e) {
+      // This should never happen - US English should always be supported.
+      throw new RuntimeException(e);
+    }
   }
 
   /** Get the question help text for the given locale. */
