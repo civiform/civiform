@@ -2,7 +2,6 @@ package services.program;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import org.junit.Test;
 import services.Path;
@@ -46,25 +45,6 @@ public class BlockDefinitionTest {
     assertThat(block.getScalarType(Path.create("applicant.applicant_favorite_color.text")))
         .hasValue(ScalarType.STRING);
     assertThat(block.getScalarType(Path.create("fake.path"))).isEmpty();
-  }
-
-  @Test
-  public void hasPaths() {
-    BlockDefinition block = makeBlockDefinitionWithQuestions();
-    ImmutableList<Path> paths =
-        ImmutableList.of(
-            Path.create("applicant.applicant_name.first"),
-            Path.create("applicant.applicant_name.middle"),
-            Path.create("applicant.applicant_name.last"),
-            Path.create("applicant.applicant_address.street"),
-            Path.create("applicant.applicant_address.city"),
-            Path.create("applicant.applicant_address.state"),
-            Path.create("applicant.applicant_address.zip"),
-            Path.create("applicant.applicant_favorite_color.text"));
-
-    assertThat(block.hasPaths(paths)).isTrue();
-
-    assertThat(block.hasPaths(Path.create("fake.path"))).isFalse();
   }
 
   @Test
