@@ -71,16 +71,6 @@ public class AmazonS3Client {
     addStopHook();
   }
 
-  private void addStopHook() {
-    this.appLifecycle.addStopHook(
-        () -> {
-          if (s3 != null) {
-            s3.close();
-          }
-          return CompletableFuture.completedFuture(null);
-        });
-  }
-
   public boolean enabled() {
     if (!config.hasPath(AWS_ENABLE) || !config.getBoolean(AWS_ENABLE)) {
       return false;
@@ -90,26 +80,6 @@ public class AmazonS3Client {
 
   public boolean connected() {
     return s3 != null;
-  }
-
-  private void putObjectInner(String key, byte[] data) {
-    ensureS3Client();
-
-    try {
-      PutObjectRequest putObjectRequest =
-            PutObjectRequest.builder().bucket(bucket).key(key).build();
-        s3.putObject(putObjectRequest, RequestBody.fromBytes(data));
-      } catch (S3Exception e) {
-        throw new RuntimeException("S3 exception: " + e.getMessage());
-    }
-  }
-
-  private void sleep(int t) {
-    try {
-      Thread.sleep(t);
-    } catch (InterruptedException e) {
-      throw new RuntimeException("Interrupt on Thread.sleep: Aborting S3 bucket connection");
-    }
   }
 
   public void putObject(String key, byte[] data) {
@@ -128,19 +98,6 @@ public class AmazonS3Client {
       }
 
       i++;
-    }
-  }
-
-  private byte[] getObjectInner(String key) {
-    ensureS3Client();
-
-    try {
-      GetObjectRequest getObjectRequest =
-          GetObjectRequest.builder().key(key).bucket(bucket).build();
-      ResponseBytes<GetObjectResponse> objectBytes = s3.getObjectAsBytes(getObjectRequest);
-      return objectBytes.asByteArray();
-    } catch (S3Exception e) {
-      throw new RuntimeException("S3 exception: " + e.getMessage());
     }
   }
 
@@ -179,7 +136,7 @@ public class AmazonS3Client {
     return presignedGetObjectRequest.url();
   }
 
-  private void ensureS3Client() {
+  public void ensureS3Client() {
     if (s3 != null) {
       return;
     }
@@ -193,6 +150,49 @@ public class AmazonS3Client {
 
     if (presigner == null) {
       throw new RuntimeException("Failed to create S3 client presigner");
+    }
+  }
+
+  private void putObjectInner(String key, byte[] data) {
+    ensureS3Client();
+
+    try {
+      PutObjectRequest putObjectRequest =
+            PutObjectRequest.builder().bucket(bucket).key(key).build();
+        s3.putObject(putObjectRequest, RequestBody.fromBytes(data));
+      } catch (S3Exception e) {
+        throw new RuntimeException("S3 exception: " + e.getMessage());
+    }
+  }
+
+  private void sleep(int t) {
+    try {
+      Thread.sleep(t);
+    } catch (InterruptedException e) {
+      throw new RuntimeException("Interrupt on Thread.sleep: Aborting S3 bucket connection");
+    }
+  }
+
+  private void addStopHook() {
+    this.appLifecycle.addStopHook(
+        () -> {
+          if (s3 != null) {
+            s3.close();
+          }
+          return CompletableFuture.completedFuture(null);
+        });
+  }
+
+  private byte[] getObjectInner(String key) {
+    ensureS3Client();
+
+    try {
+      GetObjectRequest getObjectRequest =
+          GetObjectRequest.builder().key(key).bucket(bucket).build();
+      ResponseBytes<GetObjectResponse> objectBytes = s3.getObjectAsBytes(getObjectRequest);
+      return objectBytes.asByteArray();
+    } catch (S3Exception e) {
+      throw new RuntimeException("S3 exception: " + e.getMessage());
     }
   }
 
