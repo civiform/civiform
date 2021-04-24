@@ -1,4 +1,4 @@
-import { AdminPrograms, AdminTranslations, endSession, loginAsAdmin, startSession } from './support'
+import { AdminPrograms, AdminTranslations, endSession, loginAsAdmin, loginAsGuest, logout, selectApplicantLanguage, startSession } from './support'
 
 describe('Create program and manage translations', () => {
   it('create a program and add translation', async () => {
@@ -14,14 +14,17 @@ describe('Create program and manage translations', () => {
     // Go to manage translations page.
     adminPrograms.gotoDraftProgramManageTranslationsPage(programName);
 
-    // Add translations for Spanish
+    // Add translations for Spanish and publish
     adminTranslations.selectLanguage('Spanish');
     adminTranslations.editTranslations('Spanish name', 'Spanish description');
+    await adminPrograms.publishProgram(programName);
 
-    // Go back to manage translations page and check the Spanish translations are there
-    adminPrograms.gotoDraftProgramManageTranslationsPage(programName);
-    adminTranslations.selectLanguage('Spanish');
-    expect(await this.page.innerText('#localize-display-name')).toContain('Spanish name');
-    expect(await this.page.innerText('#localize-display-description')).toContain('Spanish description');
+    // View the applicant program page in Spanish and check that the translations are present
+    await logout(page);
+    await loginAsGuest(page);
+    await selectApplicantLanguage(page, 'Español');
+    const cardText = await page.innerText('.cf-application-card:has-text("' + programName + '")');
+    expect(cardText).toContain('Spanish name');
+    expect(cardText).toContain('Spanish description');
   })
 })
