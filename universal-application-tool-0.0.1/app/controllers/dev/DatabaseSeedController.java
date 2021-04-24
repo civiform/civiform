@@ -14,9 +14,11 @@ import java.util.Optional;
 import models.Account;
 import models.Applicant;
 import models.Application;
+import models.LifecycleStage;
 import models.Program;
 import models.Question;
 import models.StoredFile;
+import models.Version;
 import play.Environment;
 import play.db.ebean.EbeanConfig;
 import play.mvc.Http.Request;
@@ -44,7 +46,6 @@ public class DatabaseSeedController extends DevController {
   private final EbeanServer ebeanServer;
   private final QuestionService questionService;
   private final ProgramService programService;
-  private final VersionRepository versionRepository;
 
   @Inject
   public DatabaseSeedController(
@@ -52,7 +53,6 @@ public class DatabaseSeedController extends DevController {
       EbeanConfig ebeanConfig,
       QuestionService questionService,
       ProgramService programService,
-      VersionRepository versionRepository,
       Environment environment,
       Config configuration) {
     super(environment, configuration);
@@ -60,7 +60,6 @@ public class DatabaseSeedController extends DevController {
     this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
     this.questionService = checkNotNull(questionService);
     this.programService = checkNotNull(programService);
-    this.versionRepository = checkNotNull(versionRepository);
   }
 
   /**
@@ -257,14 +256,15 @@ public class DatabaseSeedController extends DevController {
   }
 
   private void truncateTables() {
-    versionRepository.getActiveVersion().empty(this);
-    versionRepository.getDraftVersion().empty(this);
     ebeanServer.truncate(
         Program.class,
         Question.class,
         Account.class,
         Applicant.class,
         Application.class,
+        Version.class,
         StoredFile.class);
+    Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
+    newActiveVersion.save();
   }
 }
