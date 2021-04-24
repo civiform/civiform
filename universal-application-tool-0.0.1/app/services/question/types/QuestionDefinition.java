@@ -85,10 +85,6 @@ public abstract class QuestionDefinition {
     }
   }
 
-  public Optional<ScalarType> getScalarType(Path path) {
-    return Optional.ofNullable(this.getScalars().get(path));
-  }
-
   /** Return true if the question is persisted and has an unique identifier. */
   public boolean isPersisted() {
     return this.id.isPresent();
@@ -298,7 +294,11 @@ public abstract class QuestionDefinition {
     return ScalarType.LONG;
   }
 
-  /** Get a map of all scalars stored by this question definition. */
+  /**
+   * TODO(#783): delete this method, {@link QuestionDefinition#getQuestionSpecificScalars()}, and
+   * getMetadataMap, and getXPath and getXType for metadata, and all of the getXPath and getXType
+   * methods in all of the QuestionDefinitions.
+   */
   public final ImmutableMap<Path, ScalarType> getScalars() {
     return ImmutableMap.<Path, ScalarType>builder()
         .putAll(getQuestionSpecificScalars())
