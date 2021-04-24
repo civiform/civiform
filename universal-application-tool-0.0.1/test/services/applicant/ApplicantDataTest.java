@@ -455,7 +455,7 @@ public class ApplicantDataTest {
     assertThatThrownBy(
             () ->
                 data.putRepeatedEntities(
-                    Path.create("applicant.planets"), ImmutableList.of("earth", "mars")))
+                    Path.create("applicant.planets[]"), ImmutableList.of("earth", "mars")))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Cannot change ApplicantData after it has been locked.");
   }
