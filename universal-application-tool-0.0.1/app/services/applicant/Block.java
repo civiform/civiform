@@ -82,7 +82,7 @@ public final class Block {
   }
 
   /**
-   * Returns the set of all hydrated {@link Path}s associated with this block.
+   * Returns the set of all contextualized {@link Path}s associated with this block.
    *
    * @throws RuntimeException when used with repeater blocks since the paths associated with a
    *     scalar don't depend on what the question is.
