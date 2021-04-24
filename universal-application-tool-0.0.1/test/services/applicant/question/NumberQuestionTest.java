@@ -63,7 +63,8 @@ public class NumberQuestionTest {
   public void withEmptyValueAtPath_passesValidation() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(numberQuestionDefinition, applicantData);
-    QuestionAnswerer.answerNumberQuestion(applicantData, applicantQuestion, "");
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "");
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
@@ -75,7 +76,8 @@ public class NumberQuestionTest {
   public void withValidValue_passesValidation() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(numberQuestionDefinition, applicantData);
-    QuestionAnswerer.answerNumberQuestion(applicantData, applicantQuestion, 800);
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 800);
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
@@ -88,7 +90,8 @@ public class NumberQuestionTest {
   public void withMinAndMaxValue_withValidValue_passesValidation(long value) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData);
-    QuestionAnswerer.answerNumberQuestion(applicantData, applicantQuestion, value);
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), value);
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
@@ -109,7 +112,8 @@ public class NumberQuestionTest {
       long value, String expectedErrorMessage) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData);
-    QuestionAnswerer.answerNumberQuestion(applicantData, applicantQuestion, value);
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), value);
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
@@ -123,7 +127,8 @@ public class NumberQuestionTest {
   public void withMinAndMaxValue_withEmptyValueAtPath_passesValidation() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData);
-    QuestionAnswerer.answerNumberQuestion(applicantData, applicantQuestion, "");
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "");
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 

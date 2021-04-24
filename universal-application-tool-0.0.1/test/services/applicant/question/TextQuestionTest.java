@@ -63,7 +63,8 @@ public class TextQuestionTest {
     applicantData.putString(textQuestionDefinition.getTextPath(), "hello");
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(textQuestionDefinition, applicantData);
-    QuestionAnswerer.answerTextQuestion(applicantData, applicantQuestion, "hello");
+    QuestionAnswerer.answerTextQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "hello");
 
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
@@ -77,7 +78,8 @@ public class TextQuestionTest {
   public void withMinAndMaxLength_withValidApplicantData_passesValidation(String value) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(minAndMaxLengthTextQuestionDefinition, applicantData);
-    QuestionAnswerer.answerTextQuestion(applicantData, applicantQuestion, value);
+    QuestionAnswerer.answerTextQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), value);
 
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
@@ -96,7 +98,8 @@ public class TextQuestionTest {
       String value, String expectedErrorMessage) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(minAndMaxLengthTextQuestionDefinition, applicantData);
-    QuestionAnswerer.answerTextQuestion(applicantData, applicantQuestion, value);
+    QuestionAnswerer.answerTextQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), value);
 
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 

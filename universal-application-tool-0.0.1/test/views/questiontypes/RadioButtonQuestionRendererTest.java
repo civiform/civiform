@@ -60,7 +60,8 @@ public class RadioButtonQuestionRendererTest {
 
   @Test
   public void render_withExistingAnswer_checksThatOption() {
-    QuestionAnswerer.answerSingleSelectQuestion(applicantData, question, 2L);
+    QuestionAnswerer.answerSingleSelectQuestion(
+        applicantData, question.getContextualizedPath(), 2L);
     Tag result = renderer.render();
 
     assertThat(result.render())

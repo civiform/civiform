@@ -57,8 +57,10 @@ public class MultiSelectQuestionTest {
   @Test
   public void withValidApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData);
-    QuestionAnswerer.answerMultiSelectQuestion(applicantData, applicantQuestion, 0, 1L);
-    QuestionAnswerer.answerMultiSelectQuestion(applicantData, applicantQuestion, 1, 2L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 1, 2L);
 
     MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
 
@@ -71,7 +73,8 @@ public class MultiSelectQuestionTest {
 
     ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData);
     // Put too few selections.
-    QuestionAnswerer.answerMultiSelectQuestion(applicantData, applicantQuestion, 0, 0L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 0, 0L);
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
@@ -83,10 +86,14 @@ public class MultiSelectQuestionTest {
   public void tooManySelected_failsValidation() {
     ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData);
     // Put too many selections.
-    QuestionAnswerer.answerMultiSelectQuestion(applicantData, applicantQuestion, 0, 1L);
-    QuestionAnswerer.answerMultiSelectQuestion(applicantData, applicantQuestion, 1, 2L);
-    QuestionAnswerer.answerMultiSelectQuestion(applicantData, applicantQuestion, 2, 3L);
-    QuestionAnswerer.answerMultiSelectQuestion(applicantData, applicantQuestion, 3, 4L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 1, 2L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 2, 3L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 3, 4L);
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
@@ -97,8 +104,10 @@ public class MultiSelectQuestionTest {
   @Test
   public void selectedInvalidOptions_typeErrors_hasNoTypeErrors() {
     ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData);
-    QuestionAnswerer.answerMultiSelectQuestion(applicantData, applicantQuestion, 0, 1L);
-    QuestionAnswerer.answerMultiSelectQuestion(applicantData, applicantQuestion, 1, 2L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 1, 2L);
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 

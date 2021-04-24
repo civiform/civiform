@@ -10,61 +10,64 @@ public class QuestionAnswerer {
 
   public static void answerAddressQuestion(
       ApplicantData applicantData,
-      ApplicantQuestion applicantQuestion,
+      Path contextualizedPath,
       String street,
       String city,
       String state,
       String zip) {
-    applicantData.putString(applicantQuestion.getContextualizedPath().join(Scalars.STREET), street);
-    applicantData.putString(applicantQuestion.getContextualizedPath().join(Scalars.CITY), city);
-    applicantData.putString(applicantQuestion.getContextualizedPath().join(Scalars.STATE), state);
-    applicantData.putString(applicantQuestion.getContextualizedPath().join(Scalars.ZIP), zip);
+    applicantData.putString(contextualizedPath.join(Scalars.STREET), street);
+    applicantData.putString(contextualizedPath.join(Scalars.CITY), city);
+    applicantData.putString(contextualizedPath.join(Scalars.STATE), state);
+    applicantData.putString(contextualizedPath.join(Scalars.ZIP), zip);
   }
 
   public static void answerFileQuestion(
-      ApplicantData applicantData, ApplicantQuestion applicantQuestion, String fileKey) {
-    applicantData.putString(applicantQuestion.getContextualizedPath().join(Scalars.FILE), fileKey);
+      ApplicantData applicantData, Path contextualizedPath, String fileKey) {
+    applicantData.putString(contextualizedPath.join(Scalars.FILE), fileKey);
   }
 
   public static void answerMultiSelectQuestion(
-      ApplicantData applicantData, ApplicantQuestion applicantQuestion, int index, long value) {
+      ApplicantData applicantData, Path contextualizedPath, int index, long value) {
     applicantData.putLong(
-        applicantQuestion
-            .getContextualizedPath()
-            .join(Scalars.SELECTION + Path.ARRAY_SUFFIX)
-            .atIndex(index),
-        value);
+        contextualizedPath.join(Scalars.SELECTION + Path.ARRAY_SUFFIX).atIndex(index), value);
   }
 
   public static void answerNameQuestion(
       ApplicantData applicantData,
-      ApplicantQuestion applicantQuestion,
+      Path contextualizedPath,
       String first,
       String middle,
       String last) {
 
-    applicantData.putString(applicantQuestion.getContextualizedPath().join(Scalars.FIRST), first);
-    applicantData.putString(applicantQuestion.getContextualizedPath().join(Scalars.MIDDLE), middle);
-    applicantData.putString(applicantQuestion.getContextualizedPath().join(Scalars.LAST), last);
+    applicantData.putString(contextualizedPath.join(Scalars.FIRST), first);
+    applicantData.putString(contextualizedPath.join(Scalars.MIDDLE), middle);
+    applicantData.putString(contextualizedPath.join(Scalars.LAST), last);
   }
 
   public static void answerNumberQuestion(
-      ApplicantData applicantData, ApplicantQuestion applicantQuestion, String value) {
-    applicantData.putLong(applicantQuestion.getContextualizedPath().join(Scalars.NUMBER), value);
+      ApplicantData applicantData, Path contextualizedPath, String value) {
+    applicantData.putLong(contextualizedPath.join(Scalars.NUMBER), value);
   }
 
   public static void answerNumberQuestion(
-      ApplicantData applicantData, ApplicantQuestion applicantQuestion, long value) {
-    applicantData.putLong(applicantQuestion.getContextualizedPath().join(Scalars.NUMBER), value);
+      ApplicantData applicantData, Path contextualizedPath, long value) {
+    applicantData.putLong(contextualizedPath.join(Scalars.NUMBER), value);
   }
 
   public static void answerSingleSelectQuestion(
-      ApplicantData applicantData, ApplicantQuestion applicantQuestion, long value) {
-    applicantData.putLong(applicantQuestion.getContextualizedPath().join(Scalars.SELECTION), value);
+      ApplicantData applicantData, Path contextualizedPath, long value) {
+    applicantData.putLong(contextualizedPath.join(Scalars.SELECTION), value);
   }
 
   public static void answerTextQuestion(
-      ApplicantData applicantData, ApplicantQuestion applicantQuestion, String value) {
-    applicantData.putString(applicantQuestion.getContextualizedPath().join(Scalars.TEXT), value);
+      ApplicantData applicantData, Path contextualizedPath, String value) {
+    applicantData.putString(contextualizedPath.join(Scalars.TEXT), value);
+  }
+
+  public static void addMetadata(
+      ApplicantData applicantData, Path contextualizedPath, long programId, long timestamp) {
+    applicantData.putLong(
+        contextualizedPath.join(Scalars.METADATA_UPDATED_PROGRAM_ID_KEY), programId);
+    applicantData.putLong(contextualizedPath.join(Scalars.METADATA_UPDATED_AT_KEY), timestamp);
   }
 }

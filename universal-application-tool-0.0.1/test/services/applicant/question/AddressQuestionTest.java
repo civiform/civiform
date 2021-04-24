@@ -64,7 +64,12 @@ public class AddressQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(noPoBoxAddressQuestionDefinition, applicantData);
     QuestionAnswerer.answerAddressQuestion(
-        applicantData, applicantQuestion, "85 Pike St", "Seattle", "WA", "98101");
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        "85 Pike St",
+        "Seattle",
+        "WA",
+        "98101");
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
@@ -80,7 +85,8 @@ public class AddressQuestionTest {
   public void withInvalidApplicantData_missingRequiredFields() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(noPoBoxAddressQuestionDefinition, applicantData);
-    QuestionAnswerer.answerAddressQuestion(applicantData, applicantQuestion, "", "", "", "");
+    QuestionAnswerer.answerAddressQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "", "", "", "");
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
@@ -97,7 +103,12 @@ public class AddressQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(noPoBoxAddressQuestionDefinition, applicantData);
     QuestionAnswerer.answerAddressQuestion(
-        applicantData, applicantQuestion, "123 A St", "Seattle", "WA", zipValue);
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        "123 A St",
+        "Seattle",
+        "WA",
+        zipValue);
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
@@ -114,7 +125,12 @@ public class AddressQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(noPoBoxAddressQuestionDefinition, applicantData);
     QuestionAnswerer.answerAddressQuestion(
-        applicantData, applicantQuestion, streetValue, "Seattle", "WA", "98107");
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        streetValue,
+        "Seattle",
+        "WA",
+        "98107");
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
@@ -137,7 +153,12 @@ public class AddressQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(noPoBoxAddressQuestionDefinition, applicantData);
     QuestionAnswerer.answerAddressQuestion(
-        applicantData, applicantQuestion, streetValue, "Seattle", "WA", "98107");
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        streetValue,
+        "Seattle",
+        "WA",
+        "98107");
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 

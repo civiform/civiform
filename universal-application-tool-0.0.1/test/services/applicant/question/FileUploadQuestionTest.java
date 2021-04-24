@@ -50,7 +50,8 @@ public class FileUploadQuestionTest {
   public void withApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(fileUploadQuestionDefinition, applicantData);
-    QuestionAnswerer.answerFileQuestion(applicantData, applicantQuestion, "file-key");
+    QuestionAnswerer.answerFileQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "file-key");
 
     FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
 

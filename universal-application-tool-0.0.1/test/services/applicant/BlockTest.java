@@ -12,6 +12,7 @@ import services.program.ProgramQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
+import support.QuestionAnswerer;
 import support.TestQuestionBank;
 
 public class BlockTest {
@@ -20,8 +21,11 @@ public class BlockTest {
 
   private static final NameQuestionDefinition NAME_QUESTION =
       (NameQuestionDefinition) testQuestionBank.applicantName().getQuestionDefinition();
+  private static final Path NAME_QUESTION_PATH = Path.create("applicant.applicant_name");
+
   private static final TextQuestionDefinition COLOR_QUESTION =
       (TextQuestionDefinition) testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+  private static final Path COLOR_QUESTION_PATH = Path.create("applicant.applicant_favorite_color");
 
   @Test
   public void createNewBlock() {
@@ -235,11 +239,8 @@ public class BlockTest {
   }
 
   private static void answerNameQuestion(ApplicantData data, long programId) {
-    data.putString(NAME_QUESTION.getFirstNamePath(), "Alice");
-    data.putString(NAME_QUESTION.getMiddleNamePath(), "P.");
-    data.putString(NAME_QUESTION.getLastNamePath(), "Walker");
-    data.putLong(NAME_QUESTION.getProgramIdPath(), programId);
-    data.putLong(NAME_QUESTION.getLastUpdatedTimePath(), 12345L);
+    QuestionAnswerer.answerNameQuestion(data, NAME_QUESTION_PATH, "Alice", "P.", "Walker");
+    QuestionAnswerer.addMetadata(data, NAME_QUESTION_PATH, programId, 12345L);
   }
 
   private static void answerColorQuestion(ApplicantData data) {
@@ -247,8 +248,7 @@ public class BlockTest {
   }
 
   private static void answerColorQuestion(ApplicantData data, long programId) {
-    data.putString(COLOR_QUESTION.getTextPath(), "maroon");
-    data.putLong(COLOR_QUESTION.getProgramIdPath(), programId);
-    data.putLong(COLOR_QUESTION.getLastUpdatedTimePath(), 12345L);
+    QuestionAnswerer.answerTextQuestion(data, COLOR_QUESTION_PATH, "maroon");
+    QuestionAnswerer.addMetadata(data, COLOR_QUESTION_PATH, programId, 12345L);
   }
 }

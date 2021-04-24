@@ -57,7 +57,7 @@ public class NameQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(nameQuestionDefinition, applicantData);
     QuestionAnswerer.answerNameQuestion(
-        applicantData, applicantQuestion, firstName, middleName, lastName);
+        applicantData, applicantQuestion.getContextualizedPath(), firstName, middleName, lastName);
 
     NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
 
@@ -77,7 +77,7 @@ public class NameQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(nameQuestionDefinition, applicantData);
     QuestionAnswerer.answerNameQuestion(
-        applicantData, applicantQuestion, firstName, middleName, lastName);
+        applicantData, applicantQuestion.getContextualizedPath(), firstName, middleName, lastName);
 
     NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
 

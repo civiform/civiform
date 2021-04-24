@@ -60,7 +60,8 @@ public class SingleSelectQuestionTest {
   public void withPresentApplicantData() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
-    QuestionAnswerer.answerSingleSelectQuestion(applicantData, applicantQuestion, 1L);
+    QuestionAnswerer.answerSingleSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 1L);
 
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 
@@ -74,7 +75,8 @@ public class SingleSelectQuestionTest {
   public void withPresentApplicantData_selectedInvalidOption_hasErrors() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
-    QuestionAnswerer.answerSingleSelectQuestion(applicantData, applicantQuestion, 9L);
+    QuestionAnswerer.answerSingleSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 9L);
 
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 

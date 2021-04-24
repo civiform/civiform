@@ -47,7 +47,7 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
 
   @Test
   public void render_withMinLengthError() {
-    QuestionAnswerer.answerTextQuestion(applicantData, question, "a");
+    QuestionAnswerer.answerTextQuestion(applicantData, question.getContextualizedPath(), "a");
 
     Tag result = renderer.render();
 
@@ -56,7 +56,7 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
 
   @Test
   public void render_withMaxLengthError() {
-    QuestionAnswerer.answerTextQuestion(applicantData, question, "abcd");
+    QuestionAnswerer.answerTextQuestion(applicantData, question.getContextualizedPath(), "abcd");
 
     Tag result = renderer.render();
 
