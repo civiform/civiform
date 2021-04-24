@@ -34,7 +34,12 @@ public class ProgramRepository {
   /** Return all programs in a list. */
   public CompletionStage<ImmutableList<Program>> listPrograms() {
     return supplyAsync(
-        () -> ImmutableList.copyOf(ebeanServer.find(Program.class).findList()), executionContext);
+        () ->
+            new ImmutableList.Builder<Program>()
+                .addAll(versionRepository.get().getActiveVersion().getPrograms())
+                .addAll(versionRepository.get().getDraftVersion().getPrograms())
+                .build(),
+        executionContext);
   }
 
   public CompletionStage<Optional<Program>> lookupProgram(long id) {
