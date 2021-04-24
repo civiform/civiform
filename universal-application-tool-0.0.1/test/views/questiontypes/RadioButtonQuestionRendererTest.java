@@ -14,12 +14,13 @@ import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.question.QuestionOption;
 import services.question.types.RadioButtonQuestionDefinition;
+import support.QuestionAnswerer;
 
 public class RadioButtonQuestionRendererTest {
 
   private static final RadioButtonQuestionDefinition QUESTION =
       new RadioButtonQuestionDefinition(
-          "name",
+          "favorite ice cream",
           Path.create("applicant.favorite_ice_cream"),
           Optional.empty(),
           "description",
@@ -32,12 +33,14 @@ public class RadioButtonQuestionRendererTest {
               QuestionOption.create(4L, ImmutableMap.of(Locale.US, "raspberry"))));
 
   private ApplicantData applicantData;
+  private ApplicantQuestion question;
   private RadioButtonQuestionRenderer renderer;
 
   @Before
   public void setup() {
     applicantData = new ApplicantData();
-    renderer = new RadioButtonQuestionRenderer(new ApplicantQuestion(QUESTION, applicantData));
+    question = new ApplicantQuestion(QUESTION, applicantData);
+    renderer = new RadioButtonQuestionRenderer(question);
   }
 
   @Test
@@ -57,7 +60,7 @@ public class RadioButtonQuestionRendererTest {
 
   @Test
   public void render_withExistingAnswer_checksThatOption() {
-    applicantData.putLong(QUESTION.getSelectionPath(), 2L);
+    QuestionAnswerer.answerSingleSelectQuestion(applicantData, question, 2L);
     Tag result = renderer.render();
 
     assertThat(result.render())

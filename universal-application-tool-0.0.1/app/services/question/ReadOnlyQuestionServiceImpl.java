@@ -108,7 +108,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
 
     QuestionDefinition repeaterQuestionDefinition = getQuestionDefinition(maybeRepeaterId.get());
     if (!repeaterQuestionDefinition.getQuestionType().equals(QuestionType.REPEATER)) {
-      throw new InvalidQuestionTypeException(repeaterQuestionDefinition.getQuestionType().name());
+      throw new InvalidQuestionTypeException(repeaterQuestionDefinition.getQuestionType());
     }
 
     return repeaterQuestionDefinition.getPath().join(questionNameFormattedForPath);
