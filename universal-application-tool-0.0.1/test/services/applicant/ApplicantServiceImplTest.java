@@ -18,6 +18,7 @@ import repository.ApplicantRepository;
 import repository.WithPostgresContainer;
 import services.ErrorAnd;
 import services.Path;
+import services.applicant.question.Scalars;
 import services.program.PathNotInBlockException;
 import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
@@ -72,8 +73,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     ImmutableSet<Update> updates =
         ImmutableSet.of(
-            Update.create(Path.create("applicant.name.first"), "Alice"),
-            Update.create(Path.create("applicant.name.last"), "Doe"));
+            Update.create(Path.create("applicant.applicant_name.first"), "Alice"),
+            Update.create(Path.create("applicant.applicant_name.last"), "Doe"));
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
@@ -96,8 +97,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     ImmutableSet<Update> updates =
         ImmutableSet.of(
-            Update.create(Path.create("applicant.name.first"), "Alice"),
-            Update.create(Path.create("applicant.name.last"), "Doe"));
+            Update.create(Path.create("applicant.applicant_name.first"), "Alice"),
+            Update.create(Path.create("applicant.applicant_name.last"), "Doe"));
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
@@ -112,9 +113,9 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         applicantRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     Path programIdPath =
-        Path.create("applicant.name." + QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY);
+        Path.create("applicant.applicant_name." + Scalars.METADATA_UPDATED_PROGRAM_ID_KEY);
     Path timestampPath =
-        Path.create("applicant.name." + QuestionDefinition.METADATA_UPDATE_TIME_KEY);
+        Path.create("applicant.applicant_name." + Scalars.METADATA_UPDATED_AT_KEY);
     assertThat(applicantDataAfter.readLong(programIdPath)).hasValue(programDefinition.id());
     assertThat(applicantDataAfter.readLong(timestampPath)).isPresent();
   }
@@ -140,10 +141,9 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
 
     ImmutableMap<String, String> rawUpdates =
-        ImmutableMap.<String, String>builder()
-            .put("applicant.checkbox.selection[0]", "1")
-            .put("applicant.checkbox.selection[1]", "2")
-            .build();
+        ImmutableMap.of(
+            "applicant.checkbox.selection[0]", "1",
+            "applicant.checkbox.selection[1]", "2");
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
@@ -178,7 +178,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void stageAndUpdateIfValid_hasProgramNotFoundException() {
+  public void stageAndUpdateIfValid_invalidProgram_throwsProgramNotFoundException() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     ImmutableSet<Update> updates = ImmutableSet.of();
     long badProgramId = programDefinition.id() + 1000L;
@@ -196,7 +196,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void stageAndUpdateIfValid_hasProgramBlockNotFoundException() {
+  public void stageAndUpdateIfValid_invalidBlock_throwsRuntimeException() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     ImmutableSet<Update> updates = ImmutableSet.of();
     String badBlockId = "100";
@@ -218,7 +218,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     ImmutableSet<Update> updates =
         ImmutableSet.of(
-            Update.create(Path.create("applicant.name.first"), "Alice"),
+            Update.create(Path.create("applicant.applicant_name.first"), "Alice"),
             Update.create(Path.create("this.is.not.in.block"), "Doe"));
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
@@ -284,8 +284,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         questionService
             .create(
                 new NameQuestionDefinition(
-                    "my name",
-                    Path.create("applicant.name"),
+                    "applicant name",
+                    Path.create("applicant.applicant_name"),
                     Optional.empty(),
                     "description",
                     ImmutableMap.of(Locale.US, "question?"),
@@ -293,7 +293,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             .getResult();
   }
 
-  private void createProgram() throws Exception {
+  private void createProgram() {
     createProgram(questionDefinition);
   }
 

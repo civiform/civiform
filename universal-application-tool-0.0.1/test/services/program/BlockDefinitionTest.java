@@ -4,9 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 import org.junit.Test;
-import services.Path;
 import services.question.types.QuestionDefinition;
-import services.question.types.ScalarType;
 import support.TestQuestionBank;
 
 public class BlockDefinitionTest {
@@ -23,28 +21,6 @@ public class BlockDefinitionTest {
             .build();
 
     assertThat(block.id()).isEqualTo(123L);
-  }
-
-  @Test
-  public void getScalarType() {
-    BlockDefinition block = makeBlockDefinitionWithQuestions();
-    assertThat(block.getScalarType(Path.create("applicant.applicant_name.first")))
-        .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.applicant_name.middle")))
-        .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.applicant_name.last")))
-        .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.applicant_address.street")))
-        .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.applicant_address.city")))
-        .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.applicant_address.state")))
-        .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.applicant_address.zip")))
-        .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.applicant_favorite_color.text")))
-        .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("fake.path"))).isEmpty();
   }
 
   @Test

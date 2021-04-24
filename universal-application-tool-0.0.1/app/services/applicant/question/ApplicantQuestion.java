@@ -3,6 +3,7 @@ package services.applicant.question;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -73,17 +74,22 @@ public class ApplicantQuestion {
   }
 
   /**
-   * Returns the map of scalar keys and their {@link ScalarType}s used by this question. This
-   * includes metadata paths.
+   * Returns the map of contextualized paths to scalars and their {@link ScalarType}s used by this
+   * question. This includes metadata paths.
    *
    * <p>This should not be used for {@link QuestionType#REPEATER} questions.
    */
-  public ImmutableMap<String, ScalarType> getScalars() {
+  public ImmutableMap<Path, ScalarType> getContextualizedScalars() {
     try {
       return ImmutableMap.<String, ScalarType>builder()
-              .putAll(Scalars.getScalars(getType()))
-              .putAll(Scalars.getMetadataScalars())
-              .build();
+          .putAll(Scalars.getScalars(getType()))
+          .putAll(Scalars.getMetadataScalars())
+          .build()
+          .entrySet()
+          .stream()
+          .collect(
+              ImmutableMap.toImmutableMap(
+                  entry -> getContextualizedPath().join(entry.getKey()), Map.Entry::getValue));
     } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
       throw new RuntimeException(e);
     }

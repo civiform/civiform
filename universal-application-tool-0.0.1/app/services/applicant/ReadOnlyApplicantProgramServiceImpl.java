@@ -54,15 +54,16 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
 
       ImmutableList<BlockDefinition> nonRepeatedBlockDefinitions =
-              programDefinition.getNonRepeatedBlockDefinitions();
+          programDefinition.getNonRepeatedBlockDefinitions();
       for (BlockDefinition blockDefinition : nonRepeatedBlockDefinitions) {
         Block block =
-                new Block(
-                        String.valueOf(blockDefinition.id()),
-                        blockDefinition,
-                        applicantData,
-                        Path.create("applicant"));
-        if (!block.isCompleteWithoutErrors() || block.wasCompletedInProgram(programDefinition.id())) {
+            new Block(
+                String.valueOf(blockDefinition.id()),
+                blockDefinition,
+                applicantData,
+                Path.create("applicant"));
+        if (!block.isCompleteWithoutErrors()
+            || block.wasCompletedInProgram(programDefinition.id())) {
           blockListBuilder.add(block);
         }
       }

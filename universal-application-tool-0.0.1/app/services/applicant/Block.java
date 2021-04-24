@@ -4,14 +4,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.PresentsErrors;
 import services.program.BlockDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.question.types.ScalarType;
 
 /** Represents a block in the context of a specific user's application. */
 public final class Block {
@@ -36,7 +40,9 @@ public final class Block {
   private final BlockDefinition blockDefinition;
   private final ApplicantData applicantData;
   private final Path applicationContextPath;
+
   private Optional<ImmutableList<ApplicantQuestion>> questionsMemo = Optional.empty();
+  private Optional<ImmutableMap<Path, ScalarType>> scalarsMemo = Optional.empty();
 
   Block(
       String id,
@@ -82,18 +88,31 @@ public final class Block {
   }
 
   /**
-   * Returns the set of all contextualized {@link Path}s associated with this block.
+   * Returns the {@link ScalarType} of the path if the path exists in this block. Returns empty if the path does not exist.
    *
-   * @throws RuntimeException when used with repeater blocks since the paths associated with a
-   *     scalar don't depend on what the question is.
+   * <p>For multi-select questions (like checkbox), we must append {@code []} to the field name so
+   * that the Play framework allows multiple form keys with the same value. When updates are passed
+   * in the request, they are of the format {@code contextualizedQuestionPath.selection[index]}. However, the scalar path
+   * does not end in {@code []}, so we remove the array element information here before checking the
+   * type.
    */
-  public ImmutableSet<Path> scalarPaths() {
-    return getQuestions().stream()
-        .flatMap(
-            question ->
-                question.getScalars().keySet().stream()
-                    .map(scalar -> question.getContextualizedPath().join(scalar)))
-        .collect(ImmutableSet.toImmutableSet());
+  public Optional<ScalarType> getScalarType(Path path) {
+    if (path.isArrayElement()) {
+      path = path.withoutArrayReference();
+    }
+    return Optional.ofNullable(getContextualizedScalars().get(path));
+  }
+
+  /** Returns a map of contextualized {@link Path}s to all scalars (including metadata scalars) to all questions in this block. */
+  private ImmutableMap<Path, ScalarType> getContextualizedScalars() {
+    if (scalarsMemo.isEmpty()) {
+      scalarsMemo =
+          Optional.of(
+              getQuestions().stream()
+                  .flatMap(question -> question.getContextualizedScalars().entrySet().stream())
+                  .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue)));
+    }
+    return scalarsMemo.get();
   }
 
   /** A block has errors if any one of its {@link ApplicantQuestion}s has errors. */
@@ -109,7 +128,12 @@ public final class Block {
   public boolean isCompleteWithoutErrors() {
     // TODO(https://github.com/seattle-uat/civiform/issues/551): Stream only required scalar paths
     //  instead of all scalar paths.
-    return scalarPaths().stream().allMatch(applicantData::hasValueAtPath) && !hasErrors();
+    return isComplete() && !hasErrors();
+  }
+
+  /** A block is complete if all of its {@link ApplicantQuestion}s {@link PresentsErrors#isAnswered()}. */
+  private boolean isComplete() {
+    return getQuestions().stream().map(ApplicantQuestion::errorsPresenter).allMatch(PresentsErrors::isAnswered);
   }
 
   /**

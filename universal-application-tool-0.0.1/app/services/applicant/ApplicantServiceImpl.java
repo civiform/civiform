@@ -20,7 +20,6 @@ import repository.ApplicantRepository;
 import services.ErrorAnd;
 import services.Path;
 import services.WellKnownPaths;
-import services.program.BlockDefinition;
 import services.program.PathNotInBlockException;
 import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
@@ -120,13 +119,22 @@ public class ApplicantServiceImpl implements ApplicantService {
               }
               Applicant applicant = applicantMaybe.get();
 
+              // Create a ReadOnlyApplicantProgramService and get the current block.
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
-
+              ReadOnlyApplicantProgramService readOnlyApplicantProgramServiceBeforeUpdate =
+                  new ReadOnlyApplicantProgramServiceImpl(
+                      applicant.getApplicantData(), programDefinition);
+              Optional<Block> maybeBlockBeforeUpdate =
+                  readOnlyApplicantProgramServiceBeforeUpdate
+                      .getBlock(blockId);
+              if (maybeBlockBeforeUpdate.isEmpty()) {
+                  return CompletableFuture.completedFuture(ErrorAnd.error(
+                          ImmutableSet.of(new ProgramBlockNotFoundException(programId, blockId))));
+              }
+              Block blockBeforeUpdate = maybeBlockBeforeUpdate.get();
               try {
-                stageUpdates(applicant, programDefinition, blockId, updates);
-              } catch (ProgramBlockNotFoundException
-                  | UnsupportedScalarTypeException
-                  | PathNotInBlockException e) {
+                stageUpdates(applicant.getApplicantData(), blockBeforeUpdate, updates, programId);
+              } catch (UnsupportedScalarTypeException | PathNotInBlockException e) {
                 return CompletableFuture.completedFuture(ErrorAnd.error(ImmutableSet.of(e)));
               }
 
@@ -167,32 +175,20 @@ public class ApplicantServiceImpl implements ApplicantService {
     return applicantRepository.programsForApplicant(applicantId);
   }
 
-  /** In-place update of {@link Applicant}'s data. */
+  /**
+   * In-place update of {@link ApplicantData}. Adds program id and timestamp metadata with updates.
+   *
+   * @throws PathNotInBlockException if there are updates for questions that aren't in the block.
+   */
   private void stageUpdates(
-      Applicant applicant,
-      ProgramDefinition programDefinition,
-      String blockId,
-      ImmutableSet<Update> updates)
-      throws ProgramBlockNotFoundException, UnsupportedScalarTypeException,
-          PathNotInBlockException {
-
-    BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockId);
-    stageUpdates(applicant.getApplicantData(), blockDefinition, programDefinition.id(), updates);
-  }
-
-  /** In-place update of {@link ApplicantData}. */
-  private void stageUpdates(
-      ApplicantData applicantData,
-      BlockDefinition blockDefinition,
-      long programId,
-      ImmutableSet<Update> updates)
+      ApplicantData applicantData, Block block, ImmutableSet<Update> updates, long programId)
       throws UnsupportedScalarTypeException, PathNotInBlockException {
     ImmutableSet.Builder<Path> questionPaths = ImmutableSet.builder();
     for (Update update : updates) {
       ScalarType type =
-          blockDefinition
+          block
               .getScalarType(update.path())
-              .orElseThrow(() -> new PathNotInBlockException(blockDefinition, update.path()));
+              .orElseThrow(() -> new PathNotInBlockException(block.getId(), update.path()));
       questionPaths.add(update.path().parentPath());
       switch (type) {
         case STRING:
