@@ -108,22 +108,23 @@ public class ProgramTranslationView extends BaseHtmlView {
                 .url())
         .with(
             FieldWithLabel.input()
-                    .setId("#localize-display-name")
+                .setId("#localize-display-name")
                 .setFieldName("displayName")
                 .setPlaceholderText("Program display name")
                 .setValue(localizedName)
                 .getContainer())
         .with(
             FieldWithLabel.input()
-                    .setId("#localize-display-description")
+                .setId("#localize-display-description")
                 .setFieldName("displayDescription")
                 .setPlaceholderText("Program description")
                 .setValue(localizedDescription)
                 .getContainer())
         .with(
             submitButton(
-                String.format(
-                    "Save %s updates",
-                    locale.getDisplayLanguage(LocalizationUtils.DEFAULT_LOCALE))).withId("#update-localizations-button"));
+                    String.format(
+                        "Save %s updates",
+                        locale.getDisplayLanguage(LocalizationUtils.DEFAULT_LOCALE)))
+                .withId("#update-localizations-button"));
   }
 }

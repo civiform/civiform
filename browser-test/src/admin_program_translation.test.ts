@@ -6,17 +6,17 @@ describe('Create program and manage translations', () => {
 
     await loginAsAdmin(page);
     const adminPrograms = new AdminPrograms(page);
-    const adminTranslations = new AdminTranslations(page);
 
     const programName = 'program to be translated';
     await adminPrograms.addProgram(programName);
 
     // Go to manage translations page.
-    adminPrograms.gotoDraftProgramManageTranslationsPage(programName);
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName);
+    const adminTranslations = new AdminTranslations(page);
 
     // Add translations for Spanish and publish
-    adminTranslations.selectLanguage('Spanish');
-    adminTranslations.editTranslations('Spanish name', 'Spanish description');
+    await adminTranslations.selectLanguage('Spanish');
+    await adminTranslations.editTranslations('Spanish name', 'Spanish description');
     await adminPrograms.publishProgram(programName);
 
     // View the applicant program page in Spanish and check that the translations are present

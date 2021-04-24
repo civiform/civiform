@@ -8,7 +8,7 @@ export class AdminTranslations {
   }
 
   async selectLanguage(language: string) {
-    await this.page.click(language);
+    await this.page.click('text=["' + language + '"]');
   }
 
   async editTranslations(name: string, description: string) {
