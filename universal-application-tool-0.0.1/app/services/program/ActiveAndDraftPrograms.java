@@ -1,6 +1,7 @@
 package services.program;
 
 import akka.japi.Pair;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -16,6 +17,8 @@ import models.Version;
  */
 public class ActiveAndDraftPrograms {
 
+  private final ImmutableList<ProgramDefinition> activePrograms;
+  private final ImmutableList<ProgramDefinition> draftPrograms;
   private final ImmutableMap<String, Pair<Optional<ProgramDefinition>, Optional<ProgramDefinition>>>
       versionedByName;
   private final int activeSize;
@@ -32,6 +35,8 @@ public class ActiveAndDraftPrograms {
         .forEach(program -> activeToName.put(program.adminName(), program));
     ImmutableMap<String, ProgramDefinition> activeNames = activeToName.build();
     ImmutableMap<String, ProgramDefinition> draftNames = draftToName.build();
+    activePrograms = activeNames.values().asList();
+    draftPrograms = draftNames.values().asList();
     activeSize = activeNames.size();
     draftSize = draftNames.size();
     ImmutableMap.Builder<String, Pair<Optional<ProgramDefinition>, Optional<ProgramDefinition>>>
@@ -44,6 +49,14 @@ public class ActiveAndDraftPrograms {
               Optional.ofNullable(draftNames.get(name))));
     }
     versionedByName = versionedByNameBuilder.build();
+  }
+
+  public ImmutableList<ProgramDefinition> getActivePrograms() {
+    return activePrograms;
+  }
+
+  public ImmutableList<ProgramDefinition> getDraftPrograms() {
+    return draftPrograms;
   }
 
   public ImmutableSet<String> getProgramNames() {
