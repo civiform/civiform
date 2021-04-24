@@ -21,6 +21,7 @@ import play.Environment;
 import play.db.ebean.EbeanConfig;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
@@ -43,6 +44,7 @@ public class DatabaseSeedController extends DevController {
   private final EbeanServer ebeanServer;
   private final QuestionService questionService;
   private final ProgramService programService;
+  private final VersionRepository versionRepository;
 
   @Inject
   public DatabaseSeedController(
@@ -50,6 +52,7 @@ public class DatabaseSeedController extends DevController {
       EbeanConfig ebeanConfig,
       QuestionService questionService,
       ProgramService programService,
+      VersionRepository versionRepository,
       Environment environment,
       Config configuration) {
     super(environment, configuration);
@@ -57,6 +60,7 @@ public class DatabaseSeedController extends DevController {
     this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
     this.questionService = checkNotNull(questionService);
     this.programService = checkNotNull(programService);
+    this.versionRepository = checkNotNull(versionRepository);
   }
 
   /**
@@ -253,6 +257,8 @@ public class DatabaseSeedController extends DevController {
   }
 
   private void truncateTables() {
+    versionRepository.getActiveVersion().empty(this);
+    versionRepository.getDraftVersion().empty(this);
     ebeanServer.truncate(
         Program.class,
         Question.class,

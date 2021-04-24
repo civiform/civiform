@@ -3,6 +3,7 @@ package repository;
 import static play.test.Helpers.fakeApplication;
 
 import akka.stream.Materializer;
+import controllers.dev.DevController;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import models.Account;
@@ -61,6 +62,10 @@ public class WithPostgresContainer {
     EbeanServer server = Ebean.getServer(config.defaultServer());
     server.truncate(
         Applicant.class, Program.class, Question.class, Account.class, models.Application.class);
+    VersionRepository versionRepository = app.injector().instanceOf(VersionRepository.class);
+    DevController dummyDevController = new DevController(app.environment(), app.config());
+    versionRepository.getActiveVersion().empty(dummyDevController);
+    versionRepository.getDraftVersion().empty(dummyDevController);
   }
 
   @Before

@@ -1,6 +1,7 @@
 package models;
 
 import com.google.common.collect.ImmutableList;
+import controllers.dev.DevController;
 import io.ebean.annotation.UpdatedTimestamp;
 import java.time.Instant;
 import java.util.List;
@@ -75,5 +76,23 @@ public class Version extends BaseModel {
     return getQuestions().stream()
         .filter(q -> q.getQuestionDefinition().getName().equals(name))
         .findAny();
+  }
+
+  /**
+   * Delete all programs and questions from this version. Requires a DevController object to
+   * absolutely ensure that this is never, ever called from a production service. This is a clear
+   * violation of the MVC paradigm and it is on purpose for this specific reason.
+   */
+  public void empty(DevController databaseSeedController) {
+    if (!databaseSeedController.isDevEnvironment()) {
+      throw new IllegalArgumentException("Not a dev environment!");
+    }
+    empty();
+  }
+
+  private void empty() {
+    this.programs.clear();
+    this.questions.clear();
+    this.save();
   }
 }
