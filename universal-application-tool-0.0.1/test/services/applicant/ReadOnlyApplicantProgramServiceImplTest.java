@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
 import models.Applicant;
-import models.Question;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
@@ -53,8 +52,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
   @Test
   public void getCurrentBlockList_doesNotIncludeCompleteBlocks() {
-    // Answer block one questions
-    answerNameQuestion();
+    // Answer block one questions in a different program
+    answerNameQuestion(programDefinition.id() + 5L);
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
@@ -107,11 +106,13 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     ImmutableList<Block> blockList = subject.getCurrentBlockList();
 
     // Block 1 should still be there
-    Block block = blockList.get(0);
-    assertThat(block.getName()).isEqualTo("Block one");
+    Block blockOne = blockList.get(0);
+    assertThat(blockOne.getName()).isEqualTo("Block one");
 
     // Block 2 should still be there, even though it was partially completed by another program.
     assertThat(blockList).hasSize(2);
+    Block blockTwo = blockList.get(1);
+    assertThat(blockTwo.getName()).isEqualTo("Block two");
   }
 
   @Test
@@ -218,10 +219,6 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     assertThat(subject.preferredLanguageSupported()).isFalse();
   }
 
-  private void answerNameQuestion() {
-    answerNameQuestion(1L);
-  }
-
   private void answerNameQuestion(long programId) {
     Path path = Path.create("applicant.applicant_name");
     QuestionAnswerer.answerNameQuestion(applicantData, path, "Alice", "Middle", "last");
@@ -236,7 +233,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
   private void answerAddressQuestion(long programId) {
     Path path = Path.create("applicant.applicant_address");
-    QuestionAnswerer.answerAddressQuestion(applicantData, path, "123 Rhode St.", "Seattle", "WA", "12345");
+    QuestionAnswerer.answerAddressQuestion(
+        applicantData, path, "123 Rhode St.", "Seattle", "WA", "12345");
     QuestionAnswerer.addMetadata(applicantData, path, programId, 12345L);
   }
 }

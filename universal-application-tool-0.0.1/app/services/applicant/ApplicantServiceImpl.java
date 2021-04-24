@@ -125,11 +125,11 @@ public class ApplicantServiceImpl implements ApplicantService {
                   new ReadOnlyApplicantProgramServiceImpl(
                       applicant.getApplicantData(), programDefinition);
               Optional<Block> maybeBlockBeforeUpdate =
-                  readOnlyApplicantProgramServiceBeforeUpdate
-                      .getBlock(blockId);
+                  readOnlyApplicantProgramServiceBeforeUpdate.getBlock(blockId);
               if (maybeBlockBeforeUpdate.isEmpty()) {
-                  return CompletableFuture.completedFuture(ErrorAnd.error(
-                          ImmutableSet.of(new ProgramBlockNotFoundException(programId, blockId))));
+                return CompletableFuture.completedFuture(
+                    ErrorAnd.error(
+                        ImmutableSet.of(new ProgramBlockNotFoundException(programId, blockId))));
               }
               Block blockBeforeUpdate = maybeBlockBeforeUpdate.get();
               try {

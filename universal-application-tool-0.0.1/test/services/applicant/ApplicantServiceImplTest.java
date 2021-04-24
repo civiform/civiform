@@ -114,8 +114,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     Path programIdPath =
         Path.create("applicant.applicant_name." + Scalars.METADATA_UPDATED_PROGRAM_ID_KEY);
-    Path timestampPath =
-        Path.create("applicant.applicant_name." + Scalars.METADATA_UPDATED_AT_KEY);
+    Path timestampPath = Path.create("applicant.applicant_name." + Scalars.METADATA_UPDATED_AT_KEY);
     assertThat(applicantDataAfter.readLong(programIdPath)).hasValue(programDefinition.id());
     assertThat(applicantDataAfter.readLong(timestampPath)).isPresent();
   }

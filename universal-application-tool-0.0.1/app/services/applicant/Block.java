@@ -5,7 +5,6 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -88,13 +87,14 @@ public final class Block {
   }
 
   /**
-   * Returns the {@link ScalarType} of the path if the path exists in this block. Returns empty if the path does not exist.
+   * Returns the {@link ScalarType} of the path if the path exists in this block. Returns empty if
+   * the path does not exist.
    *
    * <p>For multi-select questions (like checkbox), we must append {@code []} to the field name so
    * that the Play framework allows multiple form keys with the same value. When updates are passed
-   * in the request, they are of the format {@code contextualizedQuestionPath.selection[index]}. However, the scalar path
-   * does not end in {@code []}, so we remove the array element information here before checking the
-   * type.
+   * in the request, they are of the format {@code contextualizedQuestionPath.selection[index]}.
+   * However, the scalar path does not end in {@code []}, so we remove the array element information
+   * here before checking the type.
    */
   public Optional<ScalarType> getScalarType(Path path) {
     if (path.isArrayElement()) {
@@ -103,7 +103,10 @@ public final class Block {
     return Optional.ofNullable(getContextualizedScalars().get(path));
   }
 
-  /** Returns a map of contextualized {@link Path}s to all scalars (including metadata scalars) to all questions in this block. */
+  /**
+   * Returns a map of contextualized {@link Path}s to all scalars (including metadata scalars) to
+   * all questions in this block.
+   */
   private ImmutableMap<Path, ScalarType> getContextualizedScalars() {
     if (scalarsMemo.isEmpty()) {
       scalarsMemo =
@@ -131,22 +134,29 @@ public final class Block {
     return isComplete() && !hasErrors();
   }
 
-  /** A block is complete if all of its {@link ApplicantQuestion}s {@link PresentsErrors#isAnswered()}. */
+  /**
+   * A block is complete if all of its {@link ApplicantQuestion}s {@link
+   * PresentsErrors#isAnswered()}.
+   */
   private boolean isComplete() {
-    return getQuestions().stream().map(ApplicantQuestion::errorsPresenter).allMatch(PresentsErrors::isAnswered);
+    return getQuestions().stream()
+        .map(ApplicantQuestion::errorsPresenter)
+        .allMatch(PresentsErrors::isAnswered);
   }
 
   /**
-   * Checks whether all questions in this block were completed while applying to the given program.
+   * Checks that this block is complete and that at least one of the questions was answered during
+   * the program.
    *
    * @param programId the program ID to check
-   * @return true if all questions were last updated while filling out the program with the given
-   *     ID; false otherwise
+   * @return true if this block is complete at least one question was updated while filling out the
+   *     program with the given ID; false if this block is incomplete; if it is complete with
+   *     errors; or it is complete and all questions were answered in a different program.
    */
   public boolean wasCompletedInProgram(long programId) {
     return isCompleteWithoutErrors()
         && getQuestions().stream()
-            .allMatch(
+            .anyMatch(
                 q -> {
                   Optional<Long> lastUpdatedInProgram = q.getUpdatedInProgramMetadata();
                   return lastUpdatedInProgram.isPresent()
