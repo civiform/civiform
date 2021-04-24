@@ -41,16 +41,8 @@ public class DatabaseSeedView extends BaseHtmlView {
       ImmutableList<QuestionDefinition> questionDefinitions,
       Optional<String> maybeFlash) {
 
-    ImmutableList<ProgramDefinition> draftPrograms =
-        activeAndDraftPrograms.getProgramNames().stream()
-            .filter(name -> activeAndDraftPrograms.getDraftProgramDefinition(name).isPresent())
-            .map(name -> activeAndDraftPrograms.getDraftProgramDefinition(name).get())
-            .collect(ImmutableList.toImmutableList());
-    ImmutableList<ProgramDefinition> activePrograms =
-        activeAndDraftPrograms.getProgramNames().stream()
-            .filter(name -> activeAndDraftPrograms.getActiveProgramDefinition(name).isPresent())
-            .map(name -> activeAndDraftPrograms.getActiveProgramDefinition(name).get())
-            .collect(ImmutableList.toImmutableList());
+    ImmutableList<ProgramDefinition> draftPrograms = activeAndDraftPrograms.getDraftPrograms();
+    ImmutableList<ProgramDefinition> activePrograms = activeAndDraftPrograms.getActivePrograms();
 
     String prettyDraftPrograms = getPrettyJson(draftPrograms);
     String prettyActivePrograms = getPrettyJson(activePrograms);
