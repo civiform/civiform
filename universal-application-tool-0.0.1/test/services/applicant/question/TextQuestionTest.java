@@ -15,6 +15,7 @@ import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.TextQuestionDefinition;
+import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class TextQuestionTest {
@@ -62,6 +63,7 @@ public class TextQuestionTest {
     applicantData.putString(textQuestionDefinition.getTextPath(), "hello");
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(textQuestionDefinition, applicantData);
+    QuestionAnswerer.answerTextQuestion(applicantData, applicantQuestion, "hello");
 
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
@@ -73,9 +75,9 @@ public class TextQuestionTest {
   @Test
   @Parameters({"abc", "abcd"})
   public void withMinAndMaxLength_withValidApplicantData_passesValidation(String value) {
-    applicantData.putString(minAndMaxLengthTextQuestionDefinition.getTextPath(), value);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(minAndMaxLengthTextQuestionDefinition, applicantData);
+    QuestionAnswerer.answerTextQuestion(applicantData, applicantQuestion, value);
 
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
@@ -92,9 +94,9 @@ public class TextQuestionTest {
   })
   public void withMinAndMaxLength_withInvalidApplicantData_failsValidation(
       String value, String expectedErrorMessage) {
-    applicantData.putString(minAndMaxLengthTextQuestionDefinition.getTextPath(), value);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(minAndMaxLengthTextQuestionDefinition, applicantData);
+    QuestionAnswerer.answerTextQuestion(applicantData, applicantQuestion, value);
 
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 

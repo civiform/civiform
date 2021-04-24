@@ -65,9 +65,7 @@ public class TextQuestion implements PresentsErrors {
     if (textValue != null) {
       return textValue;
     }
-
     textValue = applicantQuestion.getApplicantData().readString(getTextPath());
-
     return textValue;
   }
 

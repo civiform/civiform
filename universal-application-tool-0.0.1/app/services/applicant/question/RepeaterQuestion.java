@@ -43,9 +43,6 @@ public class RepeaterQuestion implements PresentsErrors {
     return applicantQuestion
         .getApplicantData()
         .hasPath(
-            applicantQuestion
-                .getContextualizedPath()
-                .atIndex(0)
-                .join(Scalars.ENUMERATION_SCALAR));
+            applicantQuestion.getContextualizedPath().atIndex(0).join(Scalars.ENUMERATION_SCALAR));
   }
 }
