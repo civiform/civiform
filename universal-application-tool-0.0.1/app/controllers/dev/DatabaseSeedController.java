@@ -14,9 +14,11 @@ import java.util.Optional;
 import models.Account;
 import models.Applicant;
 import models.Application;
+import models.LifecycleStage;
 import models.Program;
 import models.Question;
 import models.StoredFile;
+import models.Version;
 import play.Environment;
 import play.db.ebean.EbeanConfig;
 import play.mvc.Http.Request;
@@ -259,6 +261,9 @@ public class DatabaseSeedController extends DevController {
         Account.class,
         Applicant.class,
         Application.class,
+        Version.class,
         StoredFile.class);
+    Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
+    newActiveVersion.save();
   }
 }
