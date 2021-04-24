@@ -1,7 +1,6 @@
 package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
@@ -10,7 +9,6 @@ import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
-import services.Path;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
