@@ -40,14 +40,6 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   @Test
-  public void readOnlyApplicantProgramService_locksApplicantData() {
-    new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
-    assertThatThrownBy(() -> applicantData.putString(Path.create("fake.path"), "fake value"))
-        .isInstanceOf(RuntimeException.class)
-        .hasMessage("Cannot change ApplicantData after it has been locked.");
-  }
-
-  @Test
   public void getCurrentBlockList_getsTheApplicantSpecificBlocksForTheProgram() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
