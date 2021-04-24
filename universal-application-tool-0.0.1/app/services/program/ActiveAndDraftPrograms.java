@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Optional;
-import models.Program;
 import models.Version;
 
 /**
@@ -24,14 +23,14 @@ public class ActiveAndDraftPrograms {
   private final int activeSize;
   private final int draftSize;
 
-  public ActiveAndDraftPrograms(Version active, Version draft) {
+  public ActiveAndDraftPrograms(ProgramService service, Version active, Version draft) {
     ImmutableMap.Builder<String, ProgramDefinition> activeToName = ImmutableMap.builder();
     ImmutableMap.Builder<String, ProgramDefinition> draftToName = ImmutableMap.builder();
     draft.getPrograms().stream()
-        .map(Program::getProgramDefinition)
+        .map(program -> getProgramDefinition(service, program.id))
         .forEach(program -> draftToName.put(program.adminName(), program));
     active.getPrograms().stream()
-        .map(Program::getProgramDefinition)
+        .map(program -> getProgramDefinition(service, program.id))
         .forEach(program -> activeToName.put(program.adminName(), program));
     ImmutableMap<String, ProgramDefinition> activeNames = activeToName.build();
     ImmutableMap<String, ProgramDefinition> draftNames = draftToName.build();
@@ -81,5 +80,14 @@ public class ActiveAndDraftPrograms {
 
   public boolean anyDraft() {
     return getDraftSize() > 0;
+  }
+
+  private ProgramDefinition getProgramDefinition(ProgramService service, long id) {
+    try {
+      return service.getProgramDefinition(id);
+    } catch (ProgramNotFoundException e) {
+      // This is not possible because we query with existing program ids.
+      throw new RuntimeException(e);
+    }
   }
 }

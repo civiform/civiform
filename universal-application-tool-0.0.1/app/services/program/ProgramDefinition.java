@@ -2,7 +2,6 @@ package services.program;
 
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
@@ -133,7 +132,6 @@ public abstract class ProgramDefinition {
    * @return an {@link ImmutableSet} of all {@link Locale}s that are fully supported for this
    *     program
    */
-  @JsonIgnore
   public ImmutableSet<Locale> getSupportedLocales() {
     ImmutableSet<ImmutableSet<Locale>> questionLocales =
         streamQuestionDefinitions()
