@@ -13,7 +13,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   private final ApplicantData applicantData;
   private final ProgramDefinition programDefinition;
-  private Optional<ImmutableList<Block>> currentBlockList = Optional.empty();
+  private ImmutableList<Block> currentBlockList;
 
   protected ReadOnlyApplicantProgramServiceImpl(
       ApplicantData applicantData, ProgramDefinition programDefinition) {
@@ -21,24 +21,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     this.applicantData.setPreferredLocale(applicantData.preferredLocale());
     this.applicantData.lock();
     this.programDefinition = checkNotNull(programDefinition);
-  }
-
-  public ImmutableList<Block> getCurrentBlockListNew() {
-    ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
-
-    ImmutableList<BlockDefinition> nonRepeatedBlockDefinitions =
-        programDefinition.getNonRepeatedBlockDefinitions();
-    for (BlockDefinition blockDefinition : nonRepeatedBlockDefinitions) {
-      Block block =
-          new Block(
-              String.valueOf(blockDefinition.id()),
-              blockDefinition,
-              applicantData,
-              Path.create("applicant"));
-      blockListBuilder.add(block);
-    }
-
-    return blockListBuilder.build();
   }
 
   /**
@@ -51,45 +33,42 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
    */
   @Override
   public ImmutableList<Block> getCurrentBlockList() {
-    if (currentBlockList.isPresent()) {
-      return currentBlockList.get();
+    if (currentBlockList == null) {
+      // Something to kickstart the recursive method with all non-repeated blocks (AKA top-level
+      // blocks)
+
+      // Recursive method:
+      //   List builder
+      //   Add the current block
+      //   Add all (recursive method)
+
+      // for each blockDef:
+      //   if NOT blockDef.isRepeated:  (we account for repeated blocks below)
+      //     construct a Block + add it to the list of Blocks
+      //   if blockDef.isRepeater:
+      //     for each item ("i") in repeater (e.g., each household member):
+      //       for each consecutive following "repeated" block ("j") (e.g., hm name, hm address):
+      //         construct a block with RepeaterContext "i,j"
+      // REFER TO ProgramBlockEditView#renderBlockList
+      // Recursively build up the RepeaterContext
+      ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
+
+      ImmutableList<BlockDefinition> nonRepeatedBlockDefinitions =
+              programDefinition.getNonRepeatedBlockDefinitions();
+      for (BlockDefinition blockDefinition : nonRepeatedBlockDefinitions) {
+        Block block =
+                new Block(
+                        String.valueOf(blockDefinition.id()),
+                        blockDefinition,
+                        applicantData,
+                        Path.create("applicant"));
+        if (!block.isCompleteWithoutErrors() || block.wasCompletedInProgram(programDefinition.id())) {
+          blockListBuilder.add(block);
+        }
+      }
+      currentBlockList = blockListBuilder.build();
     }
-
-    // TODO(#783): Instead of just streaming blockDefinitions, need to incorporate repeated blocks
-    //  and their indices.
-
-    // TODO(#783): The following snippet does not account for recursive repeater blocks.
-
-    // Something to kickstart the recursive method with all non-repeated blocks (AKA top-level
-    // blocks)
-
-    // Recursive method:
-    //   List builder
-    //   Add the current block
-    //   Add all (recursive method)
-
-    // for each blockDef:
-    //   if NOT blockDef.isRepeated:  (we account for repeated blocks below)
-    //     construct a Block + add it to the list of Blocks
-    //   if blockDef.isRepeater:
-    //     for each item ("i") in repeater (e.g., each household member):
-    //       for each consecutive following "repeated" block ("j") (e.g., hm name, hm address):
-    //         construct a block with RepeaterContext "i,j"
-    // REFER TO ProgramBlockEditView#renderBlockList
-    // Recursively build up the RepeaterContext
-
-    ImmutableList<Block> blocks =
-        programDefinition.blockDefinitions().stream()
-            .map(blockDefinition -> new Block(blockDefinition.id(), blockDefinition, applicantData))
-            .filter(
-                block ->
-                    !block.isCompleteWithoutErrors()
-                        || block.wasCompletedInProgram(programDefinition.id()))
-            .collect(toImmutableList());
-
-    currentBlockList = Optional.of(blocks);
-
-    return blocks;
+    return currentBlockList;
   }
 
   @Override
