@@ -24,7 +24,7 @@ public class TextQuestionRenderer extends BaseHtmlView implements ApplicantQuest
     TextQuestion textQuestion = question.createTextQuestion();
 
     return div()
-        .withId(question.getPath().path())
+        .withId(question.getContextualizedPath().path())
         .withClasses(Styles.MX_AUTO, Styles.PX_16)
         .with(
             div()

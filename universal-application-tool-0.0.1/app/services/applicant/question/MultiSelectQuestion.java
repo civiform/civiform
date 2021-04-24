@@ -122,7 +122,7 @@ public class MultiSelectQuestion implements PresentsErrors {
   }
 
   public Path getSelectionPath() {
-    return getQuestionDefinition().getSelectionPath();
+    return applicantQuestion.getContextualizedPath().join(Scalars.SELECTION);
   }
 
   public ImmutableList<LocalizedQuestionOption> getOptions() {

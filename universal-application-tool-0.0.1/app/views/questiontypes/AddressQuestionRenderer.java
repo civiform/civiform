@@ -24,7 +24,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
     AddressQuestion addressQuestion = question.createAddressQuestion();
 
     return div()
-        .withId(question.getPath().path())
+        .withId(question.getContextualizedPath().path())
         .withClasses(Styles.MX_AUTO, Styles.PX_16)
         .with(
             div()

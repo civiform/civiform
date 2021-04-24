@@ -35,7 +35,7 @@ public class NumberQuestionRenderer extends BaseHtmlView implements ApplicantQue
     }
 
     return div()
-        .withId(question.getPath().path())
+        .withId(question.getContextualizedPath().path())
         .withClasses(Styles.MX_AUTO, Styles.PX_16)
         .with(
             div()

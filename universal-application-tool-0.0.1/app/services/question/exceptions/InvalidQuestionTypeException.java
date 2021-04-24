@@ -1,5 +1,7 @@
 package services.question.exceptions;
 
+import services.question.types.QuestionType;
+
 /**
  * This exception is thrown when an invalid question type is encountered.
  *
@@ -7,7 +9,11 @@ package services.question.exceptions;
  * but not fully supported yet.
  */
 public class InvalidQuestionTypeException extends Exception {
-  public InvalidQuestionTypeException(String questionType) {
+  public InvalidQuestionTypeException(QuestionType questionType) {
     super(String.format("%s is not a valid question type.", questionType));
+  }
+
+  public InvalidQuestionTypeException(String message) {
+    super(message);
   }
 }

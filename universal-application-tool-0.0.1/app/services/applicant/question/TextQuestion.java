@@ -87,6 +87,6 @@ public class TextQuestion implements PresentsErrors {
   }
 
   public Path getTextPath() {
-    return getQuestionDefinition().getTextPath();
+    return applicantQuestion.getContextualizedPath().join(Scalars.TEXT);
   }
 }

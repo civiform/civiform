@@ -24,7 +24,7 @@ public class FileUploadQuestionRenderer extends BaseHtmlView implements Applican
     FileUploadQuestion fileUploadQuestion = question.createFileUploadQuestion();
 
     return div()
-        .withId(question.getPath().path())
+        .withId(question.getContextualizedPath().path())
         .withClasses(Styles.MX_AUTO, Styles.W_MAX)
         .with(
             div()

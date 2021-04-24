@@ -131,7 +131,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return programDefinition.getSupportedLocales().contains(applicantData.preferredLocale());
   }
 
-  // TODO(#783): Need to compute Blocks different for repeaters and repeateds. See getCurrentBlockList comments.
+  // TODO(#783): Need to compute Blocks different for repeaters and repeateds. See
+  // getCurrentBlockList comments.
   private ImmutableList<Block> getAllBlocksForThisProgram() {
     return programDefinition.blockDefinitions().stream()
         .map(blockDefinition -> new Block(blockDefinition.id(), blockDefinition, applicantData))

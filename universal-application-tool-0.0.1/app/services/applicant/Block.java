@@ -4,11 +4,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
-
-import com.google.common.collect.ImmutableSet;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.program.BlockDefinition;
@@ -82,15 +81,24 @@ public final class Block {
     return questionsMemo.get();
   }
 
+  /**
+   * Returns the set of all hydrated {@link Path}s associated with this block.
+   *
+   * @throws RuntimeException when used with repeater blocks since the paths associated with a
+   *     scalar don't depend on what the question is.
+   */
   public ImmutableSet<Path> scalarPaths() {
-    return blockDefinition.scalarPaths();
+    return getQuestions().stream()
+        .flatMap(
+            question ->
+                question.getScalars().keySet().stream()
+                    .map(scalar -> question.getContextualizedPath().join(scalar)))
+        .collect(ImmutableSet.toImmutableSet());
   }
 
+  /** A block has errors if any one of its {@link ApplicantQuestion}s has errors. */
   public boolean hasErrors() {
-    return getQuestions().stream()
-        .map(ApplicantQuestion::hasErrors)
-        .reduce(Boolean::logicalOr)
-        .orElse(false);
+    return getQuestions().stream().anyMatch(ApplicantQuestion::hasErrors);
   }
 
   /**
@@ -101,14 +109,7 @@ public final class Block {
   public boolean isCompleteWithoutErrors() {
     // TODO(https://github.com/seattle-uat/civiform/issues/551): Stream only required scalar paths
     //  instead of all scalar paths.
-    // TODO(#783): needs to be able to figure out the indices used to reference repeated entities
-    //  (e.g. applicant.children[3].name.first). Use this.applicationContextPath in combination
-    //  with the question name and scalar names.
-    return scalarPaths().stream()
-            .filter(path -> !applicantData.hasValueAtPath(path))
-            .findAny()
-            .isEmpty()
-        && !hasErrors();
+    return scalarPaths().stream().allMatch(applicantData::hasValueAtPath) && !hasErrors();
   }
 
   /**

@@ -113,7 +113,11 @@ public abstract class QuestionDefinition {
   /** Returns the {@link Path} segment that corresponds to this QuestionDefinition. */
   public String getQuestionPathSegment() {
     // TODO(#783): Change this getter once we save this formatted name to the database.
-    return name.replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
+    String formattedName = name.replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
+    if (getQuestionType().equals(QuestionType.REPEATER)) {
+      return formattedName + Path.ARRAY_SUFFIX;
+    }
+    return formattedName;
   }
 
   /**

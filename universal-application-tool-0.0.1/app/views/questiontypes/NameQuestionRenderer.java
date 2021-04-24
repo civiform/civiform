@@ -24,7 +24,7 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
     NameQuestion nameQuestion = question.createNameQuestion();
 
     return div()
-        .withId(question.getPath().path())
+        .withId(question.getContextualizedPath().path())
         .withClasses(Styles.MX_AUTO, Styles.PX_16)
         .with(
             div()
