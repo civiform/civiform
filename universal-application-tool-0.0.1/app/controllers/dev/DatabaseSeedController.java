@@ -24,6 +24,7 @@ import play.db.ebean.EbeanConfig;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.Path;
+import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
@@ -69,12 +70,12 @@ public class DatabaseSeedController extends DevController {
     if (!isDevEnvironment()) {
       return notFound();
     }
-    ImmutableList<ProgramDefinition> programDefinitions = programService.listProgramDefinitions();
+    ActiveAndDraftPrograms activeAndDraftPrograms = programService.getActiveAndDraftPrograms();
     ImmutableList<QuestionDefinition> questionDefinitions =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join().getAllQuestions();
     return ok(
         view.render(
-            request, programDefinitions, questionDefinitions, request.flash().get("success")));
+            request, activeAndDraftPrograms, questionDefinitions, request.flash().get("success")));
   }
 
   public Result seed() {
