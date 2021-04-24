@@ -213,7 +213,7 @@ public class BlockTest {
   }
 
   @Test
-  public void wasCompletedInProgram_returnsTrueIfSomeQuestionsCompletedInGivenProgram() {
+  public void wasCompletedInProgram_returnsFalseIfSomeQuestionsCompletedInDifferentProgram() {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
@@ -221,7 +221,7 @@ public class BlockTest {
     answerNameQuestion(applicantData, 100L);
     answerColorQuestion(applicantData, 200L);
 
-    assertThat(block.wasCompletedInProgram(200L)).isTrue();
+    assertThat(block.wasCompletedInProgram(200L)).isFalse();
   }
 
   private static BlockDefinition setUpBlockWithQuestions() {
