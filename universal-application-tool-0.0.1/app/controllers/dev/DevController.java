@@ -19,7 +19,7 @@ public class DevController extends Controller {
   }
 
   public boolean isDevEnvironment() {
-    if (environment.isDev() || environment.isTest()) {
+    if (environment.isDev()) {
       return true;
     }
     // Allow staging to use some dev features for testing purpose.

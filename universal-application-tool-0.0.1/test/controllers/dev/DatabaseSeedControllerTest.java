@@ -44,7 +44,7 @@ public class DatabaseSeedControllerTest extends WithPostgresContainer {
 
   @Test
   public void index_inNonDevMode_returnsNotFound() {
-    DatabaseSeedController controller = createControllerInMode(Mode.PROD);
+    DatabaseSeedController controller = createControllerInMode(Mode.TEST);
     Result result = controller.index(fakeRequest().build());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -52,7 +52,7 @@ public class DatabaseSeedControllerTest extends WithPostgresContainer {
 
   @Test
   public void seed_inNonDevMode_returnsNotFound() {
-    DatabaseSeedController controller = createControllerInMode(Mode.PROD);
+    DatabaseSeedController controller = createControllerInMode(Mode.TEST);
     Result result = controller.seed();
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -60,7 +60,7 @@ public class DatabaseSeedControllerTest extends WithPostgresContainer {
 
   @Test
   public void clear_inNonDevMode_returnsNotFound() {
-    DatabaseSeedController controller = createControllerInMode(Mode.PROD);
+    DatabaseSeedController controller = createControllerInMode(Mode.TEST);
     Result result = controller.clear();
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
