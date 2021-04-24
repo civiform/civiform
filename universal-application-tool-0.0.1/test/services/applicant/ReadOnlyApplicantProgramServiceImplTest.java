@@ -6,12 +6,15 @@ import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
 import models.Applicant;
+import models.Question;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
+import services.Path;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
+import support.QuestionAnswerer;
 
 public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContainer {
 
@@ -95,7 +98,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     // Answer one of block 2 questions in another program
     answerAddressQuestion(programDefinition.id() + 1);
 
-    // Answer the other block 2 questions in this program session
+    // Answer the other block 2 question in this program session
     answerColorQuestion(programDefinition.id());
 
     ReadOnlyApplicantProgramService subject =
@@ -220,25 +223,20 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   private void answerNameQuestion(long programId) {
-    applicantData.putString(nameQuestion.getPath().join("first"), "Alice");
-    applicantData.putString(nameQuestion.getPath().join("middle"), "Middle");
-    applicantData.putString(nameQuestion.getPath().join("last"), "Last");
-    applicantData.putLong(nameQuestion.getProgramIdPath(), programId);
-    applicantData.putLong(nameQuestion.getLastUpdatedTimePath(), 12345L);
+    Path path = Path.create("applicant.applicant_name");
+    QuestionAnswerer.answerNameQuestion(applicantData, path, "Alice", "Middle", "last");
+    QuestionAnswerer.addMetadata(applicantData, path, programId, 12345L);
   }
 
   private void answerColorQuestion(long programId) {
-    applicantData.putString(colorQuestion.getPath().join("text"), "mauve");
-    applicantData.putLong(colorQuestion.getProgramIdPath(), programId);
-    applicantData.putLong(colorQuestion.getLastUpdatedTimePath(), 12345L);
+    Path path = Path.create("applicant.applicant_favorite_color");
+    QuestionAnswerer.answerTextQuestion(applicantData, path, "mauve");
+    QuestionAnswerer.addMetadata(applicantData, path, programId, 12345L);
   }
 
   private void answerAddressQuestion(long programId) {
-    applicantData.putString(addressQuestion.getPath().join("street"), "123 Rhode St.");
-    applicantData.putString(addressQuestion.getPath().join("city"), "Seattle");
-    applicantData.putString(addressQuestion.getPath().join("state"), "WA");
-    applicantData.putString(addressQuestion.getPath().join("zip"), "12345");
-    applicantData.putLong(addressQuestion.getProgramIdPath(), programId);
-    applicantData.putLong(addressQuestion.getLastUpdatedTimePath(), 12345L);
+    Path path = Path.create("applicant.applicant_address");
+    QuestionAnswerer.answerAddressQuestion(applicantData, path, "123 Rhode St.", "Seattle", "WA", "12345");
+    QuestionAnswerer.addMetadata(applicantData, path, programId, 12345L);
   }
 }
