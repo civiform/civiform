@@ -80,7 +80,10 @@ public class ApplicantQuestion {
    */
   public ImmutableMap<String, ScalarType> getScalars() {
     try {
-      return Scalars.getScalars(getType());
+      return ImmutableMap.<String, ScalarType>builder()
+              .putAll(Scalars.getScalars(getType()))
+              .putAll(Scalars.getMetadataScalars())
+              .build();
     } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
       throw new RuntimeException(e);
     }
