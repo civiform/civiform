@@ -42,7 +42,6 @@ public class RepeaterQuestion implements PresentsErrors {
   public boolean isAnswered() {
     return applicantQuestion
         .getApplicantData()
-        .hasPath(
-            applicantQuestion.getContextualizedPath().atIndex(0).join(Scalar.ENUMERATION_SCALAR));
+        .hasPath(applicantQuestion.getContextualizedPath().atIndex(0).join(Scalar.ENTITY_NAME));
   }
 }

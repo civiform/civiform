@@ -73,12 +73,11 @@ public class ApplicantQuestion {
   }
 
   public Optional<Long> getUpdatedInProgramMetadata() {
-    return applicantData.readLong(
-        getContextualizedPath().join(Scalar.METADATA_UPDATED_PROGRAM_ID_KEY));
+    return applicantData.readLong(getContextualizedPath().join(Scalar.PROGRAM_UPDATED_IN));
   }
 
   public Optional<Long> getLastUpdatedTimeMetadata() {
-    return applicantData.readLong(getContextualizedPath().join(Scalar.METADATA_UPDATED_AT_KEY));
+    return applicantData.readLong(getContextualizedPath().join(Scalar.UPDATED_AT));
   }
 
   public AddressQuestion createAddressQuestion() {

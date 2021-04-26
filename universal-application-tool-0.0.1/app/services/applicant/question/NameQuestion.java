@@ -103,15 +103,15 @@ public class NameQuestion implements PresentsErrors {
   }
 
   public Path getFirstNamePath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.FIRST);
+    return applicantQuestion.getContextualizedPath().join(Scalar.FIRST_NAME);
   }
 
   public Path getMiddleNamePath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.MIDDLE);
+    return applicantQuestion.getContextualizedPath().join(Scalar.MIDDLE_NAME);
   }
 
   public Path getLastNamePath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.LAST);
+    return applicantQuestion.getContextualizedPath().join(Scalar.LAST_NAME);
   }
 
   private boolean isFirstNameAnswered() {
