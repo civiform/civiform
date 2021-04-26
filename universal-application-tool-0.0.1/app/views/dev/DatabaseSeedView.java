@@ -18,6 +18,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import views.BaseHtmlLayout;
@@ -36,11 +37,15 @@ public class DatabaseSeedView extends BaseHtmlView {
 
   public Content render(
       Request request,
-      ImmutableList<ProgramDefinition> programDefinitions,
+      ActiveAndDraftPrograms activeAndDraftPrograms,
       ImmutableList<QuestionDefinition> questionDefinitions,
       Optional<String> maybeFlash) {
 
-    String prettyPrograms = getPrettyJson(programDefinitions);
+    ImmutableList<ProgramDefinition> draftPrograms = activeAndDraftPrograms.getDraftPrograms();
+    ImmutableList<ProgramDefinition> activePrograms = activeAndDraftPrograms.getActivePrograms();
+
+    String prettyDraftPrograms = getPrettyJson(draftPrograms);
+    String prettyActivePrograms = getPrettyJson(activePrograms);
     String prettyQuestions = getPrettyJson(questionDefinitions);
 
     return layout.htmlContent(
@@ -65,7 +70,9 @@ public class DatabaseSeedView extends BaseHtmlView {
             .with(
                 div()
                     .withClasses(Styles.GRID, Styles.GRID_COLS_2)
-                    .with(div().with(h2("Current Programs:")).with(pre(prettyPrograms)))
+                    .with(div().with(h2("Current Draft Programs:")).with(pre(prettyDraftPrograms)))
+                    .with(
+                        div().with(h2("Current Active Programs:")).with(pre(prettyActivePrograms)))
                     .with(div().with(h2("Current Questions:")).with(pre(prettyQuestions))))
             .withClasses(Styles.PX_6, Styles.PY_6));
   }

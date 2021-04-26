@@ -95,6 +95,21 @@ public interface ProgramService {
       throws ProgramNotFoundException;
 
   /**
+   * Add or update a localization of the program's publicly-visible display name and description.
+   *
+   * @param programId the ID of the program to update
+   * @param locale the {@link Locale} to update
+   * @param displayName a localized display name for this program
+   * @param displayDescription a localized description for this program
+   * @return the {@link ProgramDefinition} that was successfully updated, or a set of errors if the
+   *     update failed
+   * @throws ProgramNotFoundException if the programId does not correspond to a valid program
+   */
+  ErrorAnd<ProgramDefinition, CiviFormError> updateLocalization(
+      long programId, Locale locale, String displayName, String displayDescription)
+      throws ProgramNotFoundException;
+
+  /**
    * Adds an empty {@link BlockDefinition} to the given program.
    *
    * @param programId the ID of the program to update

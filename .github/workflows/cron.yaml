@@ -22,6 +22,9 @@ jobs:
         run: bin/build-browser-tests
       - name: Run prober test
         run: bin/run-prober
+        env:
+          TEST_USER_LOGIN: ${{ secrets.IDCS_TEST_USER_LOGIN }}
+          TEST_USER_PASSWORD: ${{ secrets.IDCS_TEST_USER_PASSWORD }}
       - name: Promote to prod.
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}

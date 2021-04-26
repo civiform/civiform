@@ -86,7 +86,7 @@ public class ProgramServiceImpl implements ProgramService {
   @Override
   public ActiveAndDraftPrograms getActiveAndDraftPrograms() {
     return new ActiveAndDraftPrograms(
-        versionRepository.getActiveVersion(), versionRepository.getDraftVersion());
+        this, versionRepository.getActiveVersion(), versionRepository.getDraftVersion());
   }
 
   @Override
@@ -148,6 +148,33 @@ public class ProgramServiceImpl implements ProgramService {
     Program program =
         programDefinition.toBuilder()
             .setAdminDescription(adminDescription)
+            .updateLocalizedName(programDefinition.localizedName(), locale, displayName)
+            .updateLocalizedDescription(
+                programDefinition.localizedDescription(), locale, displayDescription)
+            .build()
+            .toProgram();
+    return ErrorAnd.of(
+        syncProgramDefinitionQuestions(
+                programRepository.updateProgramSync(program).getProgramDefinition())
+            .toCompletableFuture()
+            .join());
+  }
+
+  @Override
+  public ErrorAnd<ProgramDefinition, CiviFormError> updateLocalization(
+      long programId, Locale locale, String displayName, String displayDescription)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    validateProgramText(errorsBuilder, "display name", displayName);
+    validateProgramText(errorsBuilder, "display description", displayDescription);
+    ImmutableSet<CiviFormError> errors = errorsBuilder.build();
+    if (!errors.isEmpty()) {
+      return ErrorAnd.error(errors);
+    }
+
+    Program program =
+        programDefinition.toBuilder()
             .updateLocalizedName(programDefinition.localizedName(), locale, displayName)
             .updateLocalizedDescription(
                 programDefinition.localizedDescription(), locale, displayDescription)

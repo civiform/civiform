@@ -16,7 +16,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   protected ReadOnlyApplicantProgramServiceImpl(
       ApplicantData applicantData, ProgramDefinition programDefinition) {
-    this.applicantData = checkNotNull(applicantData);
+    this.applicantData = new ApplicantData(checkNotNull(applicantData).asJsonString());
+    this.applicantData.setPreferredLocale(applicantData.preferredLocale());
+    this.applicantData.lock();
     this.programDefinition = checkNotNull(programDefinition);
   }
 

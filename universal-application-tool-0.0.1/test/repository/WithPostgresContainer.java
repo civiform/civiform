@@ -7,8 +7,10 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import models.Account;
 import models.Applicant;
+import models.LifecycleStage;
 import models.Program;
 import models.Question;
+import models.Version;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -60,7 +62,14 @@ public class WithPostgresContainer {
     EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
     EbeanServer server = Ebean.getServer(config.defaultServer());
     server.truncate(
-        Applicant.class, Program.class, Question.class, Account.class, models.Application.class);
+        Applicant.class,
+        Program.class,
+        Question.class,
+        Account.class,
+        Version.class,
+        models.Application.class);
+    Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
+    newActiveVersion.save();
   }
 
   @Before
