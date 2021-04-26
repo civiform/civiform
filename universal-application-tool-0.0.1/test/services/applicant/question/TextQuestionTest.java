@@ -60,7 +60,6 @@ public class TextQuestionTest {
 
   @Test
   public void withApplicantData_passesValidation() {
-    applicantData.putString(textQuestionDefinition.getTextPath(), "hello");
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(textQuestionDefinition, applicantData);
     QuestionAnswerer.answerTextQuestion(
