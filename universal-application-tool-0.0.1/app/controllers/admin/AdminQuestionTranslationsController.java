@@ -1,0 +1,99 @@
+package controllers.admin;
+
+import auth.Authorizers;
+import controllers.CiviFormController;
+import forms.QuestionTranslationForm;
+import java.util.Locale;
+import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
+import org.pac4j.play.java.Secure;
+import play.data.Form;
+import play.data.FormFactory;
+import play.libs.concurrent.HttpExecutionContext;
+import play.mvc.Http;
+import play.mvc.Result;
+import services.CiviFormError;
+import services.ErrorAnd;
+import services.question.QuestionService;
+import services.question.exceptions.InvalidUpdateException;
+import services.question.exceptions.QuestionNotFoundException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import views.admin.questions.QuestionTranslationView;
+
+public class AdminQuestionTranslationsController extends CiviFormController {
+
+  private final HttpExecutionContext httpExecutionContext;
+  private final QuestionService questionService;
+  private final QuestionTranslationView translationView;
+  private final FormFactory formFactory;
+
+  @Inject
+  public AdminQuestionTranslationsController(
+      HttpExecutionContext httpExecutionContext,
+      QuestionService questionService,
+      QuestionTranslationView translationView,
+      FormFactory formFactory) {
+    this.httpExecutionContext = httpExecutionContext;
+    this.questionService = questionService;
+    this.translationView = translationView;
+    this.formFactory = formFactory;
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public CompletionStage<Result> edit(Http.Request request, long id, String locale) {
+    return questionService
+        .getReadOnlyQuestionService()
+        .thenApplyAsync(
+            readOnlyQuestionService -> {
+              try {
+                readOnlyQuestionService.getQuestionDefinition(id);
+                Locale localeToEdit = Locale.forLanguageTag(locale);
+                return ok(translationView.render());
+              } catch (QuestionNotFoundException e) {
+                return notFound(e.getMessage());
+              }
+            },
+            httpExecutionContext.current());
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public Result update(Http.Request request, long id, String locale) {
+    Form<QuestionTranslationForm> translationForm = formFactory.form(QuestionTranslationForm.class);
+    if (translationForm.hasErrors()) {
+      return badRequest();
+    }
+
+    QuestionTranslationForm translations = translationForm.bindFromRequest(request).get();
+    Locale updatedLocale = Locale.forLanguageTag(locale);
+    String questionText = translations.getQuestionText();
+    String questionHelpText = translations.getQuestionHelpText();
+
+    questionService
+        .getReadOnlyQuestionService()
+        .thenApplyAsync(
+            readOnlyQuestionService -> {
+              try {
+                QuestionDefinition toUpdate = readOnlyQuestionService.getQuestionDefinition(id);
+                QuestionDefinitionBuilder builder = new QuestionDefinitionBuilder(toUpdate);
+                builder.updateQuestionText(updatedLocale, questionText);
+                builder.updateQuestionHelpText(updatedLocale, questionHelpText);
+                ErrorAnd<QuestionDefinition, CiviFormError> result =
+                    questionService.update(builder.build());
+
+                if (result.isError()) {
+                  String errorMessage = joinErrors(result.getErrors());
+                  return ok(translationView.render());
+                }
+                return redirect(routes.QuestionController.index().url());
+              } catch (QuestionNotFoundException e) {
+                return notFound(e.getMessage());
+              } catch (UnsupportedQuestionTypeException e) {
+                return badRequest(e.getMessage());
+              } catch (InvalidUpdateException e) {
+                return internalServerError(e.getMessage());
+              }
+            });
+  }
+}

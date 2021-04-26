@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
+import services.LocalizationUtils;
 import services.Path;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -114,9 +115,19 @@ public class QuestionDefinitionBuilder {
     return this;
   }
 
+  public QuestionDefinitionBuilder updateQuestionText(Locale locale, String text) {
+    LocalizationUtils.overwriteExistingTranslation(this.questionText, locale, text);
+    return this;
+  }
+
   public QuestionDefinitionBuilder setQuestionHelpText(
       ImmutableMap<Locale, String> questionHelpText) {
     this.questionHelpText = questionHelpText;
+    return this;
+  }
+
+  public QuestionDefinitionBuilder updateQuestionHelpText(Locale locale, String helpText) {
+    LocalizationUtils.overwriteExistingTranslation(this.questionHelpText, locale, helpText);
     return this;
   }
 

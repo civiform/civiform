@@ -33,13 +33,6 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   @Override
-  public boolean addTranslation(
-      Path path, Locale locale, String questionText, Optional<String> questionHelpText)
-      throws InvalidPathException {
-    throw new java.lang.UnsupportedOperationException("Not supported yet.");
-  }
-
-  @Override
   public ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition questionDefinition) {
     ImmutableSet<CiviFormError> validationErrors = questionDefinition.validate();
     ImmutableSet<CiviFormError> pathConflictErrors = validateNewQuestionPath(questionDefinition);

@@ -36,22 +36,6 @@ public interface QuestionService {
   ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition definition);
 
   /**
-   * Adds a new translation to an existing question definition. Returns true if the write is
-   * successful.
-   *
-   * <p>The write will fail if:
-   *
-   * <p>- The path does not resolve to a QuestionDefinition.
-   *
-   * <p>- A translation with that Locale already exists for a given question path.
-   *
-   * <p>NOTE: This does not update the version.
-   */
-  boolean addTranslation(
-      Path path, Locale locale, String questionText, Optional<String> questionHelpText)
-      throws InvalidPathException;
-
-  /**
    * Destructive overwrite of a question at a given path.
    *
    * <p>The write will fail if:
