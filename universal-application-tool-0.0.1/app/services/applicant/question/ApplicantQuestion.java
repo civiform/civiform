@@ -2,18 +2,13 @@ package services.applicant.question;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.collect.ImmutableMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import services.Path;
 import services.applicant.ApplicantData;
-import services.question.exceptions.InvalidQuestionTypeException;
-import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
-import services.question.types.ScalarType;
 
 /**
  * Represents a question in the context of a specific applicant. Other type-specific classes (e.g.
