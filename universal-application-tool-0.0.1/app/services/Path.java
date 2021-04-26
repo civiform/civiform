@@ -7,6 +7,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import services.applicant.question.Scalar;
 
 /**
  * Represents a path into the applicant JSON data. Stored as the path to data without the JsonPath
@@ -91,6 +92,13 @@ public abstract class Path {
   /** Append a path to the path. */
   public Path join(String path) {
     Path other = Path.create(path);
+    return Path.create(
+        ImmutableList.<String>builder().addAll(segments()).addAll(other.segments()).build());
+  }
+
+  /** Append a path to the path. */
+  public Path join(Scalar scalar) {
+    Path other = Path.create(scalar.toString());
     return Path.create(
         ImmutableList.<String>builder().addAll(segments()).addAll(other.segments()).build());
   }

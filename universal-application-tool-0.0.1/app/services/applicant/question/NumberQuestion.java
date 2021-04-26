@@ -95,6 +95,6 @@ public class NumberQuestion implements PresentsErrors {
   }
 
   public Path getNumberPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalars.NUMBER);
+    return applicantQuestion.getContextualizedPath().join(Scalar.NUMBER);
   }
 }

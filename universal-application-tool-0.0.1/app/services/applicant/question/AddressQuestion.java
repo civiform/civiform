@@ -163,19 +163,19 @@ public class AddressQuestion implements PresentsErrors {
   }
 
   public Path getStreetPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalars.STREET);
+    return applicantQuestion.getContextualizedPath().join(Scalar.STREET);
   }
 
   public Path getCityPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalars.CITY);
+    return applicantQuestion.getContextualizedPath().join(Scalar.CITY);
   }
 
   public Path getStatePath() {
-    return applicantQuestion.getContextualizedPath().join(Scalars.STATE);
+    return applicantQuestion.getContextualizedPath().join(Scalar.STATE);
   }
 
   public Path getZipPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalars.ZIP);
+    return applicantQuestion.getContextualizedPath().join(Scalar.ZIP);
   }
 
   private boolean isStreetAnswered() {

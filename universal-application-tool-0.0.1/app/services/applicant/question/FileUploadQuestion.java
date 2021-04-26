@@ -65,6 +65,6 @@ public class FileUploadQuestion implements PresentsErrors {
   }
 
   public Path getFileKeyPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalars.FILE);
+    return applicantQuestion.getContextualizedPath().join(Scalar.FILE_KEY);
   }
 }
