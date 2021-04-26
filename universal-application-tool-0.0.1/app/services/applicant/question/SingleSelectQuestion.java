@@ -75,7 +75,7 @@ public class SingleSelectQuestion implements PresentsErrors {
   }
 
   public Path getSelectionPath() {
-    return getQuestionDefinition().getSelectionPath();
+    return applicantQuestion.getContextualizedPath().join(Scalars.SELECTION);
   }
 
   public boolean optionIsSelected(LocalizedQuestionOption option) {

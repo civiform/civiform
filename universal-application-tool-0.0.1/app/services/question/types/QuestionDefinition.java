@@ -110,6 +110,16 @@ public abstract class QuestionDefinition {
     return this.name;
   }
 
+  /** Returns the {@link Path} segment that corresponds to this QuestionDefinition. */
+  public String getQuestionPathSegment() {
+    // TODO(#783): Change this getter once we save this formatted name to the database.
+    String formattedName = name.replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
+    if (getQuestionType().equals(QuestionType.REPEATER)) {
+      return formattedName + Path.ARRAY_SUFFIX;
+    }
+    return formattedName;
+  }
+
   /**
    * A repeater question is used to enumerate a variable list of user-defined identifiers for a
    * repeated entity (e.g. children, or household members).

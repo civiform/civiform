@@ -41,6 +41,6 @@ public class CheckboxQuestionRendererTest {
   public void render_usesCorrectInputName() {
     Tag result = renderer.render();
 
-    assertThat(result.render()).contains("applicant.my.path.selection[]");
+    assertThat(result.render()).contains("applicant.question_name.selection[]");
   }
 }
