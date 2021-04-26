@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Question;
@@ -14,8 +13,6 @@ import repository.QuestionRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.Path;
-import services.question.exceptions.InvalidPathException;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.types.QuestionDefinition;
 

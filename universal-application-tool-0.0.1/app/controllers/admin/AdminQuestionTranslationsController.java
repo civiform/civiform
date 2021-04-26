@@ -1,5 +1,7 @@
 package controllers.admin;
 
+import static java.util.concurrent.CompletableFuture.supplyAsync;
+
 import auth.Authorizers;
 import controllers.CiviFormController;
 import forms.QuestionTranslationForm;
@@ -12,6 +14,7 @@ import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.question.QuestionService;
@@ -59,10 +62,10 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public Result update(Http.Request request, long id, String locale) {
+  public CompletionStage<Result> update(Http.Request request, long id, String locale) {
     Form<QuestionTranslationForm> translationForm = formFactory.form(QuestionTranslationForm.class);
     if (translationForm.hasErrors()) {
-      return badRequest();
+      return supplyAsync(Results::badRequest);
     }
 
     QuestionTranslationForm translations = translationForm.bindFromRequest(request).get();
@@ -70,7 +73,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
     String questionText = translations.getQuestionText();
     String questionHelpText = translations.getQuestionHelpText();
 
-    questionService
+    return questionService
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyQuestionService -> {
@@ -86,7 +89,9 @@ public class AdminQuestionTranslationsController extends CiviFormController {
                   String errorMessage = joinErrors(result.getErrors());
                   return ok(translationView.render());
                 }
+
                 return redirect(routes.QuestionController.index().url());
+
               } catch (QuestionNotFoundException e) {
                 return notFound(e.getMessage());
               } catch (UnsupportedQuestionTypeException e) {

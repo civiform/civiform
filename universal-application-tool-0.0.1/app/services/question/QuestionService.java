@@ -1,12 +1,9 @@
 package services.question;
 
-import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.Path;
-import services.question.exceptions.InvalidPathException;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.types.QuestionDefinition;
 
