@@ -16,6 +16,7 @@ import java.util.OptionalLong;
 import services.CiviFormError;
 import services.LocalizationUtils;
 import services.Path;
+import services.applicant.question.Scalar;
 import services.question.exceptions.TranslationNotFoundException;
 
 /** Defines a single question. */
@@ -283,7 +284,7 @@ public abstract class QuestionDefinition {
   public abstract QuestionType getQuestionType();
 
   public Path getLastUpdatedTimePath() {
-    return getPath().join(METADATA_UPDATE_TIME_KEY);
+    return getPath().join(Scalar.UPDATED_AT);
   }
 
   public ScalarType getLastUpdatedTimeType() {
@@ -291,7 +292,7 @@ public abstract class QuestionDefinition {
   }
 
   public Path getProgramIdPath() {
-    return getPath().join(METADATA_UPDATE_PROGRAM_ID_KEY);
+    return getPath().join(Scalar.PROGRAM_UPDATED_IN);
   }
 
   public ScalarType getProgramIdType() {

@@ -173,9 +173,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
                             applicant.id, program.id, "1"))
                     .bodyForm(
                         ImmutableMap.of(
-                            "applicant.applicant_name.first",
+                            "applicant.applicant_name.first_name",
                             "FirstName",
-                            "applicant.applicant_name.last",
+                            "applicant.applicant_name.last_name",
                             "")))
             .build();
 
@@ -200,9 +200,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
         fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
             .bodyForm(
                 ImmutableMap.of(
-                    "applicant.applicant_name.first",
+                    "applicant.applicant_name.first_name",
                     "FirstName",
-                    "applicant.applicant_name.last",
+                    "applicant.applicant_name.last_name",
                     "LastName"))
             .build();
 
@@ -227,9 +227,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
         fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
             .bodyForm(
                 ImmutableMap.of(
-                    "applicant.applicant_name.first",
+                    "applicant.applicant_name.first_name",
                     "FirstName",
-                    "applicant.applicant_name.last",
+                    "applicant.applicant_name.last_name",
                     "LastName"))
             .build();
 

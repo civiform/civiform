@@ -28,11 +28,11 @@ public class BlockDefinitionTest {
   @Test
   public void getScalarType() {
     BlockDefinition block = makeBlockDefinitionWithQuestions();
-    assertThat(block.getScalarType(Path.create("applicant.applicant_name.first")))
+    assertThat(block.getScalarType(Path.create("applicant.applicant_name.first_name")))
         .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.applicant_name.middle")))
+    assertThat(block.getScalarType(Path.create("applicant.applicant_name.middle_name")))
         .hasValue(ScalarType.STRING);
-    assertThat(block.getScalarType(Path.create("applicant.applicant_name.last")))
+    assertThat(block.getScalarType(Path.create("applicant.applicant_name.last_name")))
         .hasValue(ScalarType.STRING);
     assertThat(block.getScalarType(Path.create("applicant.applicant_address.street")))
         .hasValue(ScalarType.STRING);

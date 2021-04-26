@@ -39,6 +39,7 @@ public class RepeaterQuestion implements PresentsErrors {
   }
 
   @Override
+  /** This is answered if there is at least one entity name stored. */
   public boolean isAnswered() {
     return applicantQuestion
         .getApplicantData()

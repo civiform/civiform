@@ -103,7 +103,7 @@ public abstract class Path {
    * to append to a path.
    */
   public Path join(Scalar scalar) {
-    Path other = Path.create(scalar.toString());
+    Path other = Path.create(scalar.toString().toLowerCase());
     return Path.create(
         ImmutableList.<String>builder().addAll(segments()).addAll(other.segments()).build());
   }

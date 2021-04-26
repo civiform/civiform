@@ -88,8 +88,6 @@ public final class Block {
   public boolean isCompleteWithoutErrors() {
     // TODO(https://github.com/seattle-uat/civiform/issues/551): Stream only required scalar paths
     // instead of all scalar paths.
-    // TODO: needs to be able to figure out the indices used to reference repeated entities (e.g.
-    // applicant.children[3].name.first).
     return blockDefinition.scalarPaths().stream()
             .filter(path -> !applicantData.hasValueAtPath(path))
             .findAny()
