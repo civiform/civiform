@@ -16,14 +16,15 @@ describe('Create program and manage translations', () => {
 
     // Add translations for Spanish and publish
     await adminTranslations.selectLanguage('Spanish');
-    await adminTranslations.editTranslations('Spanish name', 'Spanish description');
+    const publicName = 'Spanish name';
+    await adminTranslations.editTranslations(publicName, 'Spanish description');
     await adminPrograms.publishProgram(programName);
 
     // View the applicant program page in Spanish and check that the translations are present
     await logout(page);
     await loginAsGuest(page);
     await selectApplicantLanguage(page, 'Español');
-    const cardText = await page.innerText('.cf-application-card:has-text("' + programName + '")');
+    const cardText = await page.innerText('.cf-application-card:has-text("' + publicName + '")');
     expect(cardText).toContain('Spanish name');
     expect(cardText).toContain('Spanish description');
   })
