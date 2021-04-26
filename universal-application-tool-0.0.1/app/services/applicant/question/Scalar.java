@@ -7,8 +7,8 @@ import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 
 /**
- * This enum represents all scalars used in {@link services.applicant.ApplicantData}. The scalars maps
- * are a mapping from the scalar to its {@link ScalarType}.
+ * This enum represents all scalars used in {@link services.applicant.ApplicantData}. The scalars
+ * maps are a mapping from the scalar to its {@link ScalarType}.
  *
  * <p>Each {@link QuestionType} has question-specific scalars accessible through {@link
  * Scalar#getScalars(QuestionType)}, and metadata scalars used by all questions are available
@@ -66,8 +66,8 @@ public enum Scalar {
   /**
    * Returns the scalars for a specific {@link QuestionType}.
    *
-   * <p>The {@link QuestionType#REPEATER} does not have scalars. Use {@link
-   * Scalar#ENTITY_NAME} instead.
+   * <p>The {@link QuestionType#REPEATER} does not have scalars. Use {@link Scalar#ENTITY_NAME}
+   * instead.
    */
   public static ImmutableMap<Scalar, ScalarType> getScalars(QuestionType questionType)
       throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
