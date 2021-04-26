@@ -1,4 +1,4 @@
-import { AdminPrograms, AdminTranslations, endSession, loginAsAdmin, loginAsGuest, logout, selectApplicantLanguage, startSession } from './support'
+import { AdminPrograms, AdminQuestions, AdminTranslations, ApplicantQuestions, endSession, loginAsAdmin, loginAsGuest, logout, selectApplicantLanguage, startSession } from './support'
 
 describe('Create program and manage translations', () => {
   it('create a program and add translation', async () => {
@@ -27,5 +27,37 @@ describe('Create program and manage translations', () => {
     const cardText = await page.innerText('.cf-application-card:has-text("' + publicName + '")');
     expect(cardText).toContain('Spanish name');
     expect(cardText).toContain('Spanish description');
-  })
+
+    await endSession(browser);
+  });
+
+  it('Applicant sees toast message warning translation is not complete', async () => {
+    const { browser, page } = await startSession();
+
+    // Add a new program with one non-translated question
+    await loginAsAdmin(page);
+    const adminPrograms = new AdminPrograms(page);
+    const adminQuestions = new AdminQuestions(page);
+
+    const programName = 'toast';
+    await adminPrograms.addProgram(programName);
+
+    await adminQuestions.addNameQuestion('name-english');
+    await adminPrograms.editProgramBlock(programName, 'not translated', ['name-english']);
+
+    await adminPrograms.publishProgram(programName);
+    await logout(page);
+
+    // Set applicant preferred language to Spanish
+    await loginAsGuest(page);
+    await selectApplicantLanguage(page, 'Español');
+    const applicantQuestions = new ApplicantQuestions(page);
+    await applicantQuestions.applyProgram(programName);
+
+    // Check that a toast appears warning the program is not fully translated
+    const toastMessages = await page.innerText('#toast-container')
+    expect(toastMessages).toContain('Lo siento, este programa no está completamente traducido al español.');
+
+    await endSession(browser);
+  });
 })

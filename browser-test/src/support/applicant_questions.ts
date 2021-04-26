@@ -47,7 +47,7 @@ export class ApplicantQuestions {
   }
 
   async applyProgram(programName: string) {
-    await this.page.click(`.cf-application-card:has-text("${programName}") :text("Apply")`);
+    const programCard = await this.page.click(`.cf-application-card:has-text("${programName}") .apply-button`);
   }
 
   async saveAndContinue() {
