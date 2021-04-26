@@ -179,22 +179,18 @@ public class AddressQuestion implements PresentsErrors {
   }
 
   private boolean isStreetAnswered() {
-    // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
     return applicantQuestion.getApplicantData().hasPath(getStreetPath());
   }
 
   private boolean isCityAnswered() {
-    // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
     return applicantQuestion.getApplicantData().hasPath(getCityPath());
   }
 
   private boolean isStateAnswered() {
-    // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
     return applicantQuestion.getApplicantData().hasPath(getStatePath());
   }
 
   private boolean isZipAnswered() {
-    // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
     return applicantQuestion.getApplicantData().hasPath(getZipPath());
   }
 

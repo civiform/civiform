@@ -35,7 +35,6 @@ public class FileUploadQuestion implements PresentsErrors {
 
   @Override
   public boolean isAnswered() {
-    // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
     return applicantQuestion.getApplicantData().hasPath(getFileKeyPath());
   }
 

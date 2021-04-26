@@ -83,17 +83,14 @@ public enum Scalar {
       case TEXT:
         return TEXT_SCALARS;
 
-        // QuestionTypes with multi-selection
-      case CHECKBOX:
+      case CHECKBOX: // QuestionTypes with multi-selection
         return MULTI_SELECT_SCALARS;
 
-        // QuestionTypes with single-selection
-      case DROPDOWN:
+      case DROPDOWN: // QuestionTypes with single-selection
       case RADIO_BUTTON:
         return SINGLE_SELECT_SCALARS;
 
-        // Repeater Question does not have scalars like the other question types do.
-      case REPEATER:
+      case REPEATER: // Repeater Question does not have scalars like the other question types do.
         throw new InvalidQuestionTypeException("Enumeration questions are handled separately.");
 
       default:

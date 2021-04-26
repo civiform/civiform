@@ -96,7 +96,12 @@ public abstract class Path {
         ImmutableList.<String>builder().addAll(segments()).addAll(other.segments()).build());
   }
 
-  /** Append a path to the path. */
+  /**
+   * Append a {@link Scalar} to the path
+   *
+   * <p>This is just a helper method so we don't have to use {@link Scalar#toString()} when we want
+   * to append to a path.
+   */
   public Path join(Scalar scalar) {
     Path other = Path.create(scalar.toString());
     return Path.create(
