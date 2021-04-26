@@ -43,7 +43,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       Long programId,
       String programTitle,
       ImmutableList<SummaryData> data) {
-    ContainerTag headerTag = renderHeader(programTitle, 100);
+    ContainerTag headerTag = renderHeader(100);
 
     ContainerTag content = div().withClasses("mx-16");
     for (SummaryData questionData : data) {
@@ -62,17 +62,13 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     content.with(actions);
 
     return layout.render(
-        headerTag, h1("Application Review").withClasses(Styles.PX_16, Styles.PY_4), content);
+        headerTag,
+        h1("Application review for " + programTitle).withClasses(Styles.PX_16, Styles.PY_4),
+        content);
   }
 
-  private ContainerTag renderHeader(String programTitle, int percentComplete) {
-    ContainerTag headerTag = header().withClasses("flex flex-col");
-    ContainerTag titleHeader =
-        h1(programTitle)
-            .withClasses(
-                "text-base p-0 text-right p-3 p-r-0 m-0 text-secondary overflow-ellipsis"
-                    + " overflow-hidden whitespace-nowrap max-w-full flex-auto");
-
+  private ContainerTag renderHeader(int percentComplete) {
+    ContainerTag headerTag = header().withClasses("flex flex-col -mt-12");
     ContainerTag progressInner =
         div()
             .withClasses(
@@ -84,7 +80,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
             .withId("progress-indicator")
             .withClasses("border font-semibold bg-gray-200 relative h-2.5");
 
-    headerTag.with(titleHeader, progressIndicator);
+    headerTag.with(progressIndicator);
     return headerTag;
   }
 

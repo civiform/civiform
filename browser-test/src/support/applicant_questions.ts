@@ -53,4 +53,12 @@ export class ApplicantQuestions {
   async saveAndContinue() {
     await this.page.click('text="Save and continue"');
   }
+  
+  async submitFromReviewPage() {
+    // assert that we're on the review page.
+    // expect(await this.page.innerText('h1')).toContain('Application review');
+
+    // click on submit button.
+    // await this.page.click('text="Submit"');
+  }
 }

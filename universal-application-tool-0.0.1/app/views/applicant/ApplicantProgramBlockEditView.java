@@ -64,7 +64,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     return applicantQuestionRendererFactory.getRenderer(question).render();
   }
 
- /**
+  /**
    * If the applicant's preferred language is not supported for this program, render a toast
    * warning. Allow them to dismiss the warning, and once it is dismissed it does not reappear for
    * the same program.
