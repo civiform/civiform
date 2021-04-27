@@ -21,6 +21,7 @@ import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.components.ToastMessage;
+import views.style.AdminStyles;
 import views.style.Styles;
 
 /** Renders a list of languages to select from, and a form for updating program information. */
@@ -87,7 +88,9 @@ public class ProgramTranslationView extends BaseHtmlView {
             .setText(locale.getDisplayLanguage(LocalizationUtils.DEFAULT_LOCALE));
 
     if (isCurrentlySelected) {
-      link.setStyles(Styles.M_2, Styles.BORDER_BLUE_400, Styles.BORDER_B_2);
+      link.setStyles(AdminStyles.LANGUAGE_LINK_SELECTED);
+    } else {
+      link.setStyles(AdminStyles.LANGUAGE_LINK_NOT_SELECTED);
     }
 
     return link.asAnchorText();

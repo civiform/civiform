@@ -217,6 +217,18 @@ public final class QuestionsListView extends BaseHtmlView {
         .asAnchorText();
   }
 
+  private Tag renderQuestionTranslationLink(QuestionDefinition definition, String linkText) {
+    String link =
+        controllers.admin.routes.AdminQuestionTranslationsController.edit(
+            definition.getId(), LocalizationUtils.DEFAULT_LOCALE);
+    return new LinkElement()
+        .setId("translate-question-link-" + definition.getId())
+        .setHref(link)
+        .setText(linkText)
+        .setStyles(Styles.MR_2)
+        .asAnchorText();
+  }
+
   private Tag renderQuestionViewLink(QuestionDefinition definition, String linkText) {
     String link = controllers.admin.routes.QuestionController.show(definition.getId()).url();
     return new LinkElement()
@@ -237,9 +249,11 @@ public final class QuestionsListView extends BaseHtmlView {
       td.with(renderQuestionEditLink(active.get(), "New Version →"));
     } else if (active.isEmpty() && draft.isPresent()) {
       td.with(renderQuestionEditLink(draft.get(), "Edit Draft →"));
+      td.with(renderQuestionTranslationLink(draft.get(), "Manage Translations →"));
     } else if (active.isPresent() && draft.isPresent()) {
       td.with(renderQuestionViewLink(active.get(), "View Published →"));
       td.with(renderQuestionEditLink(draft.get(), "Edit Draft →"));
+      td.with(renderQuestionTranslationLink(draft.get(), "Manage Draft Translations →"));
     } else if (active.isEmpty() && draft.isEmpty()) {
       td.with(renderQuestionViewLink(definition, "View →"));
     }
