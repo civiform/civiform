@@ -134,8 +134,7 @@ public class ApplicantDataTest {
 
     data.putString(Path.create("root"), "value");
 
-    assertThat(data.asJsonString())
-        .isEqualTo("{\"applicant\":{},\"root\":\"value\"}");
+    assertThat(data.asJsonString()).isEqualTo("{\"applicant\":{},\"root\":\"value\"}");
   }
 
   @Test
@@ -145,8 +144,7 @@ public class ApplicantDataTest {
     data.putString(Path.create("new.path.at.root"), "hooray");
 
     assertThat(data.asJsonString())
-        .isEqualTo(
-            "{\"applicant\":{},\"new\":{\"path\":{\"at\":{\"root\":\"hooray\"}}}}");
+        .isEqualTo("{\"applicant\":{},\"new\":{\"path\":{\"at\":{\"root\":\"hooray\"}}}}");
   }
 
   @Test
@@ -161,8 +159,7 @@ public class ApplicantDataTest {
   @Test
   public void putString_addsANestedScalar() {
     ApplicantData data = new ApplicantData();
-    String expected =
-        "{\"applicant\":{\"favorites\":{\"food\":{\"apple\":\"Granny Smith\"}}}}";
+    String expected = "{\"applicant\":{\"favorites\":{\"food\":{\"apple\":\"Granny Smith\"}}}}";
 
     data.putString(Path.create("applicant.favorites.food.apple"), "Granny Smith");
 
@@ -187,8 +184,7 @@ public class ApplicantDataTest {
 
     data.putString(Path.create("applicant.children[0].favorite_color.text"), "Orange");
 
-    String expected =
-        "{\"applicant\":{\"children\":[{\"favorite_color\":{\"text\":\"Orange\"}}]}}";
+    String expected = "{\"applicant\":{\"children\":[{\"favorite_color\":{\"text\":\"Orange\"}}]}}";
     assertThat(data.asJsonString()).isEqualTo(expected);
   }
 
@@ -222,8 +218,7 @@ public class ApplicantDataTest {
 
     data.putString(Path.create("applicant.allergies[0]"), "peanut");
 
-    assertThat(data.asJsonString())
-        .isEqualTo("{\"applicant\":{\"allergies\":[\"peanut\"]}}");
+    assertThat(data.asJsonString()).isEqualTo("{\"applicant\":{\"allergies\":[\"peanut\"]}}");
   }
 
   @Test
@@ -235,8 +230,7 @@ public class ApplicantDataTest {
     data.putString(Path.create("applicant.allergies[2]"), "shellfish");
 
     assertThat(data.asJsonString())
-        .isEqualTo(
-            "{\"applicant\":{\"allergies\":[\"peanut\",\"strawberry\",\"shellfish\"]}}");
+        .isEqualTo("{\"applicant\":{\"allergies\":[\"peanut\",\"strawberry\",\"shellfish\"]}}");
   }
 
   @Test
