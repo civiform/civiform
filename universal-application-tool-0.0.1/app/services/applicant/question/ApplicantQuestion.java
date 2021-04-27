@@ -19,16 +19,14 @@ import services.question.types.QuestionType;
 public class ApplicantQuestion {
 
   private final QuestionDefinition questionDefinition;
-  private final Path applicationPathContext;
+  private final Path contextualizedPath;
   private final ApplicantData applicantData;
 
   public ApplicantQuestion(
-      QuestionDefinition questionDefinition,
-      ApplicantData applicantData,
-      Path applicationPathContext) {
+      QuestionDefinition questionDefinition, ApplicantData applicantData, Path contextualizedPath) {
     this.questionDefinition = checkNotNull(questionDefinition);
     this.applicantData = checkNotNull(applicantData);
-    this.applicationPathContext = checkNotNull(applicationPathContext);
+    this.contextualizedPath = checkNotNull(contextualizedPath);
   }
 
   // TODO(#783): Get rid of this constructor.
@@ -65,7 +63,7 @@ public class ApplicantQuestion {
    * "applicant.household_member[3].name".
    */
   public Path getContextualizedPath() {
-    return applicationPathContext.join(questionDefinition.getQuestionPathSegment());
+    return contextualizedPath.join(questionDefinition.getQuestionPathSegment());
   }
 
   public boolean hasErrors() {
