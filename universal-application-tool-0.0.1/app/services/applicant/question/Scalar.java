@@ -111,6 +111,8 @@ public enum Scalar {
       metadataScalarKeys =
           METADATA_SCALARS.keySet().stream()
               .map(Scalar::name)
+              .map(String::toLowerCase) // TODO(783, kct): get rid of this once scalars are defined
+              // entirely in Block.
               .collect(ImmutableSet.toImmutableSet());
     }
     return metadataScalarKeys;

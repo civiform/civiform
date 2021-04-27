@@ -251,6 +251,29 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
+  public void
+      stageAndUpdateIfValid_withIllegalArrayElement_hasIllegalArgumentExceptionForReservedScalarKeys() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    String reservedScalar =
+        Path.create("applicant.name")
+            .join(Scalar.UPDATED_AT)
+            .asArrayElement()
+            .atIndex(0)
+            .toString();
+    ImmutableMap<String, String> updates = ImmutableMap.of(reservedScalar, "12345");
+
+    assertThatExceptionOfType(CompletionException.class)
+        .isThrownBy(
+            () ->
+                subject
+                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+                    .toCompletableFuture()
+                    .join())
+        .withCauseInstanceOf(IllegalArgumentException.class)
+        .withMessageContaining("Path contained reserved scalar key");
+  }
+
+  @Test
   public void createApplicant_createsANewApplicant() {
     Applicant applicant = subject.createApplicant(1l).toCompletableFuture().join();
 

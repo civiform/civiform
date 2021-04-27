@@ -91,7 +91,15 @@ public class ApplicantServiceImpl implements ApplicantService {
     boolean updatePathsContainReservedKeys =
         !Sets.intersection(
                 Scalar.getMetadataScalarKeys(),
-                updates.stream().map(Update::path).map(Path::keyName).collect(Collectors.toSet()))
+                updates.stream()
+                    .map(
+                        update -> {
+                          if (update.path().isArrayElement()) {
+                            return update.path().withoutArrayReference().keyName();
+                          }
+                          return update.path().keyName();
+                        })
+                    .collect(Collectors.toSet()))
             .isEmpty();
     if (updatePathsContainReservedKeys) {
       return CompletableFuture.failedFuture(
