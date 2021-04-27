@@ -14,6 +14,7 @@ import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.question.types.TextQuestionDefinition;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
+import support.QuestionAnswerer;
 
 public class TextQuestionRendererTest extends WithPostgresContainer {
   private static final TextQuestionDefinition TEXT_QUESTION_DEFINITION =
@@ -28,11 +29,12 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
 
   private final ApplicantData applicantData = new ApplicantData();
 
+  private ApplicantQuestion question;
   private TextQuestionRenderer renderer;
 
   @Before
   public void setUp() {
-    ApplicantQuestion question = new ApplicantQuestion(TEXT_QUESTION_DEFINITION, applicantData);
+    question = new ApplicantQuestion(TEXT_QUESTION_DEFINITION, applicantData);
     renderer = new TextQuestionRenderer(question);
   }
 
@@ -45,7 +47,7 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
 
   @Test
   public void render_withMinLengthError() {
-    applicantData.putString(TEXT_QUESTION_DEFINITION.getTextPath(), "a");
+    QuestionAnswerer.answerTextQuestion(applicantData, question.getContextualizedPath(), "a");
 
     Tag result = renderer.render();
 
@@ -54,7 +56,7 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
 
   @Test
   public void render_withMaxLengthError() {
-    applicantData.putString(TEXT_QUESTION_DEFINITION.getTextPath(), "abcd");
+    QuestionAnswerer.answerTextQuestion(applicantData, question.getContextualizedPath(), "abcd");
 
     Tag result = renderer.render();
 

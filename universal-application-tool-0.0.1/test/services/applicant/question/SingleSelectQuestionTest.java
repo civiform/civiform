@@ -15,6 +15,7 @@ import services.applicant.ApplicantData;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
 import services.question.types.DropdownQuestionDefinition;
+import support.QuestionAnswerer;
 
 public class SingleSelectQuestionTest {
 
@@ -57,9 +58,10 @@ public class SingleSelectQuestionTest {
 
   @Test
   public void withPresentApplicantData() {
-    applicantData.putLong(dropdownQuestionDefinition.getSelectionPath(), 1L);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
+    QuestionAnswerer.answerSingleSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 1L);
 
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 
@@ -71,9 +73,10 @@ public class SingleSelectQuestionTest {
 
   @Test
   public void withPresentApplicantData_selectedInvalidOption_hasErrors() {
-    applicantData.putLong(dropdownQuestionDefinition.getSelectionPath(), 9L);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData);
+    QuestionAnswerer.answerSingleSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 9L);
 
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 

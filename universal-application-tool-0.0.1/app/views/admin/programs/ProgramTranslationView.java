@@ -80,7 +80,7 @@ public class ProgramTranslationView extends BaseHtmlView {
       long programId, Locale locale, boolean isCurrentlySelected) {
     LinkElement link =
         new LinkElement()
-            .setStyles(Styles.M_2)
+            .setStyles("language-link", Styles.M_2)
             .setHref(
                 routes.AdminProgramTranslationsController.edit(programId, locale.toLanguageTag())
                     .url())
@@ -108,20 +108,23 @@ public class ProgramTranslationView extends BaseHtmlView {
                 .url())
         .with(
             FieldWithLabel.input()
+                .setId("localize-display-name")
                 .setFieldName("displayName")
                 .setPlaceholderText("Program display name")
                 .setValue(localizedName)
                 .getContainer())
         .with(
             FieldWithLabel.input()
+                .setId("localize-display-description")
                 .setFieldName("displayDescription")
                 .setPlaceholderText("Program description")
                 .setValue(localizedDescription)
                 .getContainer())
         .with(
             submitButton(
-                String.format(
-                    "Save %s updates",
-                    locale.getDisplayLanguage(LocalizationUtils.DEFAULT_LOCALE))));
+                    String.format(
+                        "Save %s updates",
+                        locale.getDisplayLanguage(LocalizationUtils.DEFAULT_LOCALE)))
+                .withId("update-localizations-button"));
   }
 }

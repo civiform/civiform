@@ -19,11 +19,21 @@ import services.question.types.QuestionType;
 public class ApplicantQuestion {
 
   private final QuestionDefinition questionDefinition;
+  private final Path applicationPathContext;
   private final ApplicantData applicantData;
 
-  public ApplicantQuestion(QuestionDefinition questionDefinition, ApplicantData applicantData) {
+  public ApplicantQuestion(
+      QuestionDefinition questionDefinition,
+      ApplicantData applicantData,
+      Path applicationPathContext) {
     this.questionDefinition = checkNotNull(questionDefinition);
     this.applicantData = checkNotNull(applicantData);
+    this.applicationPathContext = checkNotNull(applicationPathContext);
+  }
+
+  // TODO(#783): Get rid of this constructor.
+  public ApplicantQuestion(QuestionDefinition questionDefinition, ApplicantData applicantData) {
+    this(questionDefinition, applicantData, Path.create("applicant"));
   }
 
   protected ApplicantData getApplicantData() {
@@ -46,27 +56,28 @@ public class ApplicantQuestion {
     return questionDefinition.getQuestionHelpTextOrDefault(applicantData.preferredLocale());
   }
 
-  public Path getPath() {
-    return questionDefinition.getPath();
-  }
-
-  public boolean hasQuestionErrors() {
-    return errorsPresenter().hasQuestionErrors();
+  /**
+   * Returns the contextualized path for this question. The path is contextualized with respect to
+   * the enumerated elements it is about.
+   *
+   * <p>For example, a generic path about the name of an applicant's household member may look like
+   * "applicant.household_member[].name", while a contextualized path would look like
+   * "applicant.household_member[3].name".
+   */
+  public Path getContextualizedPath() {
+    return applicationPathContext.join(questionDefinition.getQuestionPathSegment());
   }
 
   public boolean hasErrors() {
-    if (hasQuestionErrors()) {
-      return true;
-    }
-    return errorsPresenter().hasTypeSpecificErrors();
+    return errorsPresenter().hasQuestionErrors() || errorsPresenter().hasTypeSpecificErrors();
   }
 
   public Optional<Long> getUpdatedInProgramMetadata() {
-    return applicantData.readLong(questionDefinition.getProgramIdPath());
+    return applicantData.readLong(getContextualizedPath().join(Scalar.PROGRAM_UPDATED_IN));
   }
 
   public Optional<Long> getLastUpdatedTimeMetadata() {
-    return applicantData.readLong(questionDefinition.getLastUpdatedTimePath());
+    return applicantData.readLong(getContextualizedPath().join(Scalar.UPDATED_AT));
   }
 
   public AddressQuestion createAddressQuestion() {

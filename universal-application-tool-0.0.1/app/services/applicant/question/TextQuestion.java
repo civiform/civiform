@@ -56,7 +56,6 @@ public class TextQuestion implements PresentsErrors {
 
   @Override
   public boolean isAnswered() {
-    // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
     return applicantQuestion.getApplicantData().hasPath(getTextPath());
   }
 
@@ -64,9 +63,7 @@ public class TextQuestion implements PresentsErrors {
     if (textValue != null) {
       return textValue;
     }
-
     textValue = applicantQuestion.getApplicantData().readString(getTextPath());
-
     return textValue;
   }
 
@@ -86,7 +83,7 @@ public class TextQuestion implements PresentsErrors {
   }
 
   public Path getTextPath() {
-    return getQuestionDefinition().getTextPath();
+    return applicantQuestion.getContextualizedPath().join(Scalar.TEXT);
   }
 
   @Override

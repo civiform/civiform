@@ -1,6 +1,5 @@
 package services.applicant.question;
 
-import services.Path;
 import services.question.types.QuestionType;
 import services.question.types.RepeaterQuestionDefinition;
 
@@ -20,7 +19,7 @@ public class RepeaterQuestion implements PresentsErrors {
 
   @Override
   public boolean hasTypeSpecificErrors() {
-    // There are no inherent requirements in a text question.
+    // There are no inherent requirements in a repeater question.
     return false;
   }
 
@@ -39,14 +38,12 @@ public class RepeaterQuestion implements PresentsErrors {
     return (RepeaterQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 
-  public Path getRepeaterPath() {
-    return getQuestionDefinition().getPath();
-  }
-
+  /** This is answered if there is at least one entity name stored. */
   @Override
   public boolean isAnswered() {
-    // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
-    return applicantQuestion.getApplicantData().hasPath(getRepeaterPath());
+    return applicantQuestion
+        .getApplicantData()
+        .hasPath(applicantQuestion.getContextualizedPath().atIndex(0).join(Scalar.ENTITY_NAME));
   }
 
   @Override
