@@ -1,11 +1,9 @@
 package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
-
 import services.Path;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
@@ -35,32 +33,14 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public ImmutableList<Block> getCurrentBlockList() {
     if (currentBlockList == null) {
-      ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
-
-      ImmutableList<BlockDefinition> nonRepeatedBlockDefinitions =
-              programDefinition.getNonRepeatedBlockDefinitions();
-      for (BlockDefinition blockDefinition : nonRepeatedBlockDefinitions) {
-        Block block =
-                new Block(
-                        String.valueOf(blockDefinition.id()),
-                        blockDefinition,
-                        applicantData,
-                        Path.create("applicant"));
-        if (!block.isCompleteWithoutErrors()
-                || block.wasCompletedInProgram(programDefinition.id())) {
-          blockListBuilder.add(block);
-        }
-      }
-
-      currentBlockList = blockListBuilder.build();
+      currentBlockList = getBlockList(true);
     }
-
     return currentBlockList;
   }
 
   @Override
   public Optional<Block> getBlock(String blockId) {
-    return getAllBlocksForThisProgram().stream()
+    return getAllBlocks().stream()
         .filter((block) -> block.getId().equals(blockId))
         .findFirst();
   }
@@ -97,10 +77,31 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return programDefinition.getSupportedLocales().contains(applicantData.preferredLocale());
   }
 
-  // TODO(#783): Need to compute Blocks for repeated questions. See getCurrentBlockList.
-  private ImmutableList<Block> getAllBlocksForThisProgram() {
-    return programDefinition.blockDefinitions().stream()
-        .map(blockDefinition -> new Block(blockDefinition.id(), blockDefinition, applicantData))
-        .collect(toImmutableList());
+  private ImmutableList<Block> getAllBlocks() {
+    return getBlockList(false);
+  }
+
+  // TODO(#783): Need to compute Blocks for repeated questions.
+  private ImmutableList<Block> getBlockList(boolean onlyCurrentBlockList) {
+    ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
+
+    ImmutableList<BlockDefinition> nonRepeatedBlockDefinitions =
+        programDefinition.getNonRepeatedBlockDefinitions();
+    for (BlockDefinition blockDefinition : nonRepeatedBlockDefinitions) {
+      Block block =
+          new Block(
+              String.valueOf(blockDefinition.id()),
+              blockDefinition,
+              applicantData,
+              Path.create("applicant"));
+
+      if (!onlyCurrentBlockList
+          || !block.isCompleteWithoutErrors()
+          || block.wasCompletedInProgram(programDefinition.id())) {
+        blockListBuilder.add(block);
+      }
+    }
+
+    return blockListBuilder.build();
   }
 }
