@@ -20,7 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import services.question.types.QuestionDefinition;
+import services.applicant.question.Scalar;
 import support.ProgramBuilder;
 
 public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantProfiles {
@@ -152,7 +152,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
 
   @Test
   public void update_reservedPathsInRequest_returnsBadRequest() {
-    String reservedPath = "metadata." + QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY;
+    String reservedPath = "metadata." + Scalar.PROGRAM_UPDATED_IN.name();
     Request request =
         fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
             .bodyForm(ImmutableMap.of(reservedPath, "value"))

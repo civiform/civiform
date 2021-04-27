@@ -18,6 +18,7 @@ import repository.ApplicantRepository;
 import repository.WithPostgresContainer;
 import services.ErrorAnd;
 import services.Path;
+import services.applicant.question.Scalar;
 import services.program.PathNotInBlockException;
 import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
@@ -111,16 +112,14 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     ApplicantData applicantDataAfter =
         applicantRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
-    Path programIdPath =
-        Path.create("applicant.name." + QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY);
-    Path timestampPath =
-        Path.create("applicant.name." + QuestionDefinition.METADATA_UPDATE_TIME_KEY);
+    Path programIdPath = Path.create("applicant.name." + Scalar.PROGRAM_UPDATED_IN.name());
+    Path timestampPath = Path.create("applicant.name." + Scalar.UPDATED_AT.name());
     assertThat(applicantDataAfter.readLong(programIdPath)).hasValue(programDefinition.id());
     assertThat(applicantDataAfter.readLong(timestampPath)).isPresent();
   }
 
   @Test
-  public void stageAndUpdateIfValid_rawUpdatesContainMultiSelectAnswers_isOk() throws Exception {
+  public void stageAndUpdateIfValid_rawUpdatesContainMultiSelectAnswers_isOk() {
     QuestionDefinition multiSelectQuestion =
         questionService
             .create(
@@ -235,7 +234,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   @Test
   public void stageAndUpdateIfValid_hasIllegalArgumentExceptionForReservedScalarKeys() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
-    String reservedScalar = "applicant.name." + QuestionDefinition.METADATA_UPDATE_TIME_KEY;
+    String reservedScalar = "applicant.name." + Scalar.UPDATED_AT.name();
     ImmutableMap<String, String> updates = ImmutableMap.of(reservedScalar, "12345");
 
     assertThatExceptionOfType(CompletionException.class)
