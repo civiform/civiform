@@ -2,6 +2,7 @@ package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
+import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.UNAUTHORIZED;
@@ -54,28 +55,32 @@ public class ApplicantProgramReviewControllerTest extends WithMockedApplicantPro
     assertThat(result.status()).isEqualTo(OK);
   }
 
-  private Result review(long applicantId, long programId) {
-    Request request = 
-    addCSRFToken(fakeRequest(routes.ApplicantProgramReviewController.review(applicantId, programId)))
-        .build();
-    return subject
-        .review(request, applicantId, programId)
-        .toCompletableFuture()
-        .join();
+  @Test
+  public void submit_invalid_returnsUnauthorized() {
+    long badApplicantId = applicant.id + 1000;
+    Result result = this.submit(badApplicantId, program.id);
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
-  // @Test
-  // public void submit_empty_returnsErrors() {
+  @Test
+  public void submit_isSuccessful() {
+    Result result = this.submit(applicant.id, program.id);
+    assertThat(result.status()).isEqualTo(FOUND);
+  }
 
-  // }
+  private Result review(long applicantId, long programId) {
+    Request request =
+        addCSRFToken(
+                fakeRequest(routes.ApplicantProgramReviewController.review(applicantId, programId)))
+            .build();
+    return subject.review(request, applicantId, programId).toCompletableFuture().join();
+  }
 
-  // @Test
-  // public void submit_invalid_returnsUnauthorized() {
-
-  // }
-
-  // @Test
-  // public void submit_isSuccessful() {
-
-  // }
+  private Result submit(long applicantId, long programId) {
+    Request request =
+        addCSRFToken(
+                fakeRequest(routes.ApplicantProgramReviewController.submit(applicantId, programId)))
+            .build();
+    return subject.submit(request, applicantId, programId).toCompletableFuture().join();
+  }
 }

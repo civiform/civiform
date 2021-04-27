@@ -10,8 +10,6 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Application;
 import org.pac4j.play.java.Secure;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
 import play.mvc.Http.Request;
@@ -86,11 +84,31 @@ public class ApplicantProgramReviewController extends CiviFormController {
   }
 
   @Secure
-  public CompletionStage<Result> submit(Request request, long applicantId, long programId) {    
-    Call endOfProgramSubmission = routes.ApplicantProgramsController.index(applicantId);
+  public CompletionStage<Result> submit(Request request, long applicantId, long programId) {
+    return checkApplicantAuthorization(profileUtils, request, applicantId)
+        .thenComposeAsync(
+            v -> {
+              return submit(applicantId, programId);
+            },
+            httpExecutionContext.current())
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                Throwable cause = ex.getCause();
+                if (cause instanceof SecurityException) {
+                  return unauthorized();
+                }
+                if (cause instanceof ProgramNotFoundException) {
+                  return notFound(cause.toString());
+                }
+                throw new RuntimeException(cause);
+              }
+              throw new RuntimeException(ex);
+            });
+  }
 
-    // return checkApplicantAuthorization(profileUtils, request, applicantId)
-    //     .thenApplyAsync(
+  private CompletionStage<Result> submit(long applicantId, long programId) {
+    Call endOfProgramSubmission = routes.ApplicantProgramsController.index(applicantId);
     return applicationRepository
         .submitApplication(applicantId, programId)
         .thenApplyAsync(
