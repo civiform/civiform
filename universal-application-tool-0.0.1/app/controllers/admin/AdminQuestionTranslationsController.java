@@ -51,9 +51,10 @@ public class AdminQuestionTranslationsController extends CiviFormController {
         .thenApplyAsync(
             readOnlyQuestionService -> {
               try {
-                readOnlyQuestionService.getQuestionDefinition(id);
+                QuestionDefinition definition = readOnlyQuestionService.getQuestionDefinition(id);
                 Locale localeToEdit = Locale.forLanguageTag(locale);
-                return ok(translationView.render());
+                return ok(
+                    translationView.render(definition.getQuestionTextOrDefault(localeToEdit)));
               } catch (QuestionNotFoundException e) {
                 return notFound(e.getMessage());
               }
@@ -86,8 +87,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
                     questionService.update(builder.build());
 
                 if (result.isError()) {
-                  String errorMessage = joinErrors(result.getErrors());
-                  return ok(translationView.render());
+                  return ok(translationView.render(questionText));
                 }
 
                 return redirect(routes.QuestionController.index().url());

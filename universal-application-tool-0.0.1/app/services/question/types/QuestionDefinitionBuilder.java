@@ -116,7 +116,8 @@ public class QuestionDefinitionBuilder {
   }
 
   public QuestionDefinitionBuilder updateQuestionText(Locale locale, String text) {
-    LocalizationUtils.overwriteExistingTranslation(this.questionText, locale, text);
+    this.questionText =
+        LocalizationUtils.overwriteExistingTranslation(this.questionText, locale, text);
     return this;
   }
 
@@ -127,7 +128,8 @@ public class QuestionDefinitionBuilder {
   }
 
   public QuestionDefinitionBuilder updateQuestionHelpText(Locale locale, String helpText) {
-    LocalizationUtils.overwriteExistingTranslation(this.questionHelpText, locale, helpText);
+    this.questionHelpText =
+        LocalizationUtils.overwriteExistingTranslation(this.questionHelpText, locale, helpText);
     return this;
   }
 
