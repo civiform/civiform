@@ -1,13 +1,13 @@
 package support;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.Scalar;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class QuestionAnswererTest {
 
@@ -42,9 +42,9 @@ public class QuestionAnswererTest {
     QuestionAnswerer.answerMultiSelectQuestion(applicantData, path, 0, 5L);
     QuestionAnswerer.answerMultiSelectQuestion(applicantData, path, 1, 6L);
 
-    assertThat(applicantData.readList(path.join(Scalar.SELECTION))).contains(ImmutableList.of(5L, 6L));
+    assertThat(applicantData.readList(path.join(Scalar.SELECTION)))
+        .contains(ImmutableList.of(5L, 6L));
   }
-
 
   @Test
   public void answerNameQuestion() {
@@ -54,7 +54,6 @@ public class QuestionAnswererTest {
     assertThat(applicantData.readString(path.join(Scalar.FIRST_NAME))).contains("first");
     assertThat(applicantData.readString(path.join(Scalar.MIDDLE_NAME))).contains("middle");
     assertThat(applicantData.readString(path.join(Scalar.LAST_NAME))).contains("last");
-
   }
 
   @Test
