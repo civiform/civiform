@@ -19,4 +19,6 @@ public final class ReferenceClasses {
   public static final String REMOVE_QUESTION_BUTTON = "cf-remove-question-button";
   public static final String VIEW_BUTTON = "cf-view-application-button";
   public static final String ADMIN_VERSION_CARD = "cf-admin-version-card";
+  public static final String RADIO_OPTION = "cf-radio-option";
+  public static final String RADIO_INPUT = "cf-radio-input";
 }
