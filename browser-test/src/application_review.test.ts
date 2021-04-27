@@ -1,4 +1,4 @@
-import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession, logout, loginAsTestUser, selectApplicantLanguage, ApplicantQuestions, userDisplayName  } from './support'
+import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession, logout, loginAsTestUser, selectApplicantLanguage, ApplicantQuestions, userDisplayName } from './support'
 
 describe('normal application flow', () => {
   it('all major steps', async () => {
@@ -60,8 +60,8 @@ describe('normal application flow', () => {
 
     // Applicant fills out third application block.
     await applicantQuestions.answerFileUploadQuestion('file key');
-    await applicantQuestions.saveAndContinue(); 
-    
+    await applicantQuestions.saveAndContinue();
+
     // Application submits answers from review page.
     await applicantQuestions.submitFromReviewPage();
 

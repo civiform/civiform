@@ -45,7 +45,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       ImmutableList<SummaryData> data) {
     ContainerTag headerTag = renderHeader(100);
 
-    ContainerTag content = div().withClasses("mx-16");
+    ContainerTag content = div().withClasses(Styles.MX_16);
     for (SummaryData questionData : data) {
       content.with(renderQuestionSummary(questionData, applicantId, programId));
     }
@@ -68,17 +68,16 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
   }
 
   private ContainerTag renderHeader(int percentComplete) {
-    ContainerTag headerTag = header().withClasses("flex flex-col -mt-12");
+    ContainerTag headerTag = header().withClasses(Styles.FLEX, Styles.FLEX_COL, Styles._MT_12);
     ContainerTag progressInner =
         div()
-            .withClasses(
-                "progress bg-yellow-400 transition-all duration-400 h-full block absolute left-0"
-                    + " top-0 w-1 rounded-r-full")
+            .withClasses(Styles.BG_YELLOW_400, Styles.TRANSITION_ALL, Styles.DURATION_300, Styles.H_FULL, Styles.BLOCK, Styles.ABSOLUTE, Styles.LEFT_0, Styles.TOP_0, Styles.W_1,
+                Styles.ROUNDED_R_FULL)
             .withStyle("width:" + percentComplete + "%");
     ContainerTag progressIndicator =
         div(progressInner)
             .withId("progress-indicator")
-            .withClasses("border font-semibold bg-gray-200 relative h-2.5");
+            .withClasses(Styles.BORDER, Styles.FONT_SEMIBOLD, Styles.BG_GRAY_200, Styles.RELATIVE, Styles.H_2);
 
     headerTag.with(progressIndicator);
     return headerTag;
