@@ -150,7 +150,7 @@ public class ProgramIndexView extends BaseHtmlView {
             .withText(applyText)
             .withId(baseId + "-apply")
             .withClasses(
-                "apply-button",
+                ReferenceClasses.APPLY_BUTTON,
                 Styles.BLOCK,
                 Styles.UPPERCASE,
                 Styles.ROUNDED_3XL,

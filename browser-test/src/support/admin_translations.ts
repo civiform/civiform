@@ -8,7 +8,7 @@ export class AdminTranslations {
   }
 
   async selectLanguage(language: string) {
-    await this.page.click(`.language-link:has-text("${language}")`);
+    await this.page.click(`.language-link:text("${language}")`);
   }
 
   async editTranslations(name: string, description: string) {
