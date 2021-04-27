@@ -105,6 +105,22 @@ public class PathTest {
   }
 
   @Test
+  public void asArrayElement() {
+    Path path = Path.create("one.two[3].four").asArrayElement();
+
+    assertThat(path.isArrayElement()).isTrue();
+    assertThat(path.toString()).isEqualTo("one.two[3].four[]");
+  }
+
+  @Test
+  public void asArrayElement_alreadyAnArrayElement() {
+    Path path = Path.create("one.two[3].four[5]").asArrayElement();
+
+    assertThat(path.isArrayElement()).isTrue();
+    assertThat(path.toString()).isEqualTo("one.two[3].four[5]");
+  }
+
+  @Test
   public void withoutArrayReference() {
     Path path = Path.create("one.two[3]");
     assertThat(path.withoutArrayReference()).isEqualTo(Path.create("one.two"));

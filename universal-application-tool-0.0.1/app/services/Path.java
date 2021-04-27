@@ -89,7 +89,11 @@ public abstract class Path {
     return Path.create(segments().subList(0, segments().size() - 1));
   }
 
-  /** Append a path to the path. */
+  /**
+   * Append a path to the path.
+   *
+   * <p>If joining a {@link Scalar}, please use {@link Path#join(Scalar)} instead.
+   */
   public Path join(String path) {
     Path other = Path.create(path);
     return Path.create(
@@ -103,7 +107,7 @@ public abstract class Path {
    * to append to a path.
    */
   public Path join(Scalar scalar) {
-    Path other = Path.create(scalar.toString().toLowerCase());
+    Path other = Path.create(scalar.name());
     return Path.create(
         ImmutableList.<String>builder().addAll(segments()).addAll(other.segments()).build());
   }
@@ -125,6 +129,14 @@ public abstract class Path {
    */
   public boolean isArrayElement() {
     return ARRAY_INDEX_REGEX.matcher(keyName()).find();
+  }
+
+  /** Returns this path as a path to an array element, e.g. {@code applicant.children[3]}. */
+  public Path asArrayElement() {
+    if (isArrayElement()) {
+      return this;
+    }
+    return parentPath().join(keyName() + ARRAY_SUFFIX);
   }
 
   /**

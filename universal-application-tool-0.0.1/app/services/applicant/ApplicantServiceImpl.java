@@ -5,11 +5,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import java.time.Clock;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Applicant;
 import models.Application;
@@ -20,21 +22,16 @@ import repository.ApplicantRepository;
 import services.ErrorAnd;
 import services.Path;
 import services.WellKnownPaths;
+import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.PathNotInBlockException;
 import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.question.exceptions.UnsupportedScalarTypeException;
-import services.question.types.QuestionDefinition;
 import services.question.types.ScalarType;
 
 public class ApplicantServiceImpl implements ApplicantService {
-  private static final ImmutableSet<String> RESERVED_SCALAR_KEYS =
-      ImmutableSet.of(
-          QuestionDefinition.METADATA_UPDATE_TIME_KEY,
-          QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY);
-
   private final ApplicantRepository applicantRepository;
   private final ProgramService programService;
   private final Clock clock;
@@ -92,7 +89,18 @@ public class ApplicantServiceImpl implements ApplicantService {
             .collect(ImmutableSet.toImmutableSet());
 
     boolean updatePathsContainReservedKeys =
-        updates.stream().anyMatch(u -> RESERVED_SCALAR_KEYS.contains(u.path().keyName()));
+        !Sets.intersection(
+                Scalar.getMetadataScalarKeys(),
+                updates.stream()
+                    .map(
+                        update -> {
+                          if (update.path().isArrayElement()) {
+                            return update.path().withoutArrayReference().keyName();
+                          }
+                          return update.path().keyName();
+                        })
+                    .collect(Collectors.toSet()))
+            .isEmpty();
     if (updatePathsContainReservedKeys) {
       return CompletableFuture.failedFuture(
           new IllegalArgumentException("Path contained reserved scalar key"));
@@ -210,7 +218,7 @@ public class ApplicantServiceImpl implements ApplicantService {
   }
 
   private void writeMetadataForPath(Path path, ApplicantData data, long programId) {
-    data.putLong(path.join(QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY), programId);
-    data.putLong(path.join(QuestionDefinition.METADATA_UPDATE_TIME_KEY), clock.millis());
+    data.putLong(path.join(Scalar.PROGRAM_UPDATED_IN), programId);
+    data.putLong(path.join(Scalar.UPDATED_AT), clock.millis());
   }
 }
