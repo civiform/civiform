@@ -220,7 +220,7 @@ public final class QuestionsListView extends BaseHtmlView {
   private Tag renderQuestionTranslationLink(QuestionDefinition definition, String linkText) {
     String link =
         controllers.admin.routes.AdminQuestionTranslationsController.edit(
-            definition.getId(), LocalizationUtils.DEFAULT_LOCALE);
+            definition.getId(), LocalizationUtils.DEFAULT_LOCALE.toLanguageTag());
     return new LinkElement()
         .setId("translate-question-link-" + definition.getId())
         .setHref(link)
