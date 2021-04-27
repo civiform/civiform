@@ -153,7 +153,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
 
   @Test
   public void update_reservedPathsInRequest_returnsBadRequest() {
-    String reservedPath = "metadata." + Scalar.PROGRAM_UPDATED_IN.name();
+    String reservedPath = Path.create("metadata").join(Scalar.PROGRAM_UPDATED_IN).toString();
     Request request =
         fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
             .bodyForm(ImmutableMap.of(reservedPath, "value"))
