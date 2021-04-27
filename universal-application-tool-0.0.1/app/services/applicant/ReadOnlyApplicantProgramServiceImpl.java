@@ -22,32 +22,27 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     this.programDefinition = checkNotNull(programDefinition);
   }
 
-  /**
-   * Get the list of {@link Block}s this applicant should fill out for this program. This list
-   * includes any block that is incomplete or has errors (which indicate the applicant needs to make
-   * a correction), or any block that was completed while filling out this program form.
-   *
-   * @return a list of {@link Block}s that were completed by the applicant in this session or still
-   *     need to be completed for this program
-   */
   @Override
-  public ImmutableList<Block> getCurrentBlockList() {
+  public ImmutableList<Block> getAllBlocks() {
+    return getBlocks(false);
+  }
+
+  @Override
+  public ImmutableList<Block> getInProgressBlocks() {
     if (currentBlockList == null) {
-      currentBlockList = getBlockList(true);
+      currentBlockList = getBlocks(true);
     }
     return currentBlockList;
   }
 
   @Override
   public Optional<Block> getBlock(String blockId) {
-    return getAllBlocks().stream()
-        .filter((block) -> block.getId().equals(blockId))
-        .findFirst();
+    return getAllBlocks().stream().filter((block) -> block.getId().equals(blockId)).findFirst();
   }
 
   @Override
   public Optional<Block> getBlockAfter(String blockId) {
-    ImmutableList<Block> blocks = getCurrentBlockList();
+    ImmutableList<Block> blocks = getInProgressBlocks();
 
     for (int i = 0; i < blocks.size() - 1; i++) {
       if (!blocks.get(i).getId().equals(blockId)) {
@@ -67,7 +62,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public Optional<Block> getFirstIncompleteBlock() {
-    return getCurrentBlockList().stream()
+    return getInProgressBlocks().stream()
         .filter(block -> !block.isCompleteWithoutErrors())
         .findFirst();
   }
@@ -77,12 +72,14 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return programDefinition.getSupportedLocales().contains(applicantData.preferredLocale());
   }
 
-  private ImmutableList<Block> getAllBlocks() {
-    return getBlockList(false);
-  }
-
+  /**
+   * Gets {@link Block}s for this program and applicant. If {@code onlyIncludeInProgressBlocks} is
+   * true, then only the current blocks will be included in the list. A block is "in progress" if it
+   * has yet to be filled out by the applicant, or if it was filled out in the context of this
+   * program.
+   */
   // TODO(#783): Need to compute Blocks for repeated questions.
-  private ImmutableList<Block> getBlockList(boolean onlyCurrentBlockList) {
+  private ImmutableList<Block> getBlocks(boolean onlyIncludeInProgressBlocks) {
     ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
 
     ImmutableList<BlockDefinition> nonRepeatedBlockDefinitions =
@@ -95,7 +92,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
               applicantData,
               Path.create("applicant"));
 
-      if (!onlyCurrentBlockList
+      boolean includeAllBlocks = !onlyIncludeInProgressBlocks;
+      if (includeAllBlocks
           || !block.isCompleteWithoutErrors()
           || block.wasCompletedInProgram(programDefinition.id())) {
         blockListBuilder.add(block);

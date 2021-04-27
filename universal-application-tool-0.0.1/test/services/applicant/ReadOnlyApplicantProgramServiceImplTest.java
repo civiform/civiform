@@ -40,10 +40,23 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   @Test
-  public void getCurrentBlockList_getsTheApplicantSpecificBlocksForTheProgram() {
+  public void getAllBlocks_includesPreviouslyCompletedBlocks() {
+    // Answer first block in a separate program
+    answerNameQuestion(programDefinition.id() + 1);
+
+    ReadOnlyApplicantProgramService subject = new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+    ImmutableList<Block> allBlocks = subject.getAllBlocks();
+
+    assertThat(allBlocks).hasSize(2);
+    assertThat(allBlocks.get(0).getName()).isEqualTo("Block one");
+    assertThat(allBlocks.get(1).getName()).isEqualTo("Block two");
+  }
+
+  @Test
+  public void getInProgressBlocks_getsTheApplicantSpecificBlocksForTheProgram() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
-    ImmutableList<Block> blockList = subject.getCurrentBlockList();
+    ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     assertThat(blockList).hasSize(2);
     Block block = blockList.get(0);
@@ -51,40 +64,40 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   @Test
-  public void getCurrentBlockList_doesNotIncludeCompleteBlocks() {
+  public void getInProgressBlocks_doesNotIncludeCompleteBlocks() {
     // Answer block one questions
-    answerNameQuestion();
+    answerNameQuestion(programDefinition.id() + 1);
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
-    ImmutableList<Block> blockList = subject.getCurrentBlockList();
+    ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     assertThat(blockList).hasSize(1);
     assertThat(blockList.get(0).getName()).isEqualTo("Block two");
   }
 
   @Test
-  public void getCurrentBlockList_returnsEmptyListIfAllBlocksCompletedInAnotherProgram() {
+  public void getInProgressBlocks_returnsEmptyListIfAllBlocksCompletedInAnotherProgram() {
     // Answer all questions for a different program.
-    answerNameQuestion(88L);
-    answerColorQuestion(88L);
-    answerAddressQuestion(88L);
+    answerNameQuestion(programDefinition.id() + 1);
+    answerColorQuestion(programDefinition.id() + 1);
+    answerAddressQuestion(programDefinition.id() + 1);
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
-    ImmutableList<Block> blockList = subject.getCurrentBlockList();
+    ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     assertThat(blockList).isEmpty();
   }
 
   @Test
-  public void getCurrentBlockList_includesBlocksThatWereCompletedInThisProgram() {
+  public void getInProgressBlocks_includesBlocksThatWereCompletedInThisProgram() {
     // Answer block 1 questions in this program session
     answerNameQuestion(programDefinition.id());
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
-    ImmutableList<Block> blockList = subject.getCurrentBlockList();
+    ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     // Block 1 should still be there
     assertThat(blockList).hasSize(2);
@@ -93,7 +106,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   @Test
-  public void getCurrentBlockList_includesBlocksThatWerePartiallyCompletedInAnotherProgram() {
+  public void getInProgressBlocks_includesBlocksThatWerePartiallyCompletedInAnotherProgram() {
     // Answer one of block 2 questions in another program
     answerAddressQuestion(programDefinition.id() + 1);
 
@@ -103,7 +116,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
 
-    ImmutableList<Block> blockList = subject.getCurrentBlockList();
+    ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     // Block 1 should still be there
     Block block = blockList.get(0);
@@ -156,7 +169,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   @Test
-  public void getBlockAfter_emptyBlockList_returnsEmpty() {
+  public void getBlockAfter_emptyBlocks_returnsEmpty() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
             new Applicant().getApplicantData(),
@@ -186,13 +199,13 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
   @Test
   public void getFirstIncompleteBlock_returnsFirstIncompleteIfFirstBlockCompleted() {
-    // Answer the first block in this program - it will still be in getCurrentBlockList;
+    // Answer the first block in this program - it will still be in getInProgressBlocks;
     answerNameQuestion(programDefinition.id());
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
 
-    assertThat(subject.getCurrentBlockList().get(0).getName()).isEqualTo("Block one");
+    assertThat(subject.getInProgressBlocks().get(0).getName()).isEqualTo("Block one");
 
     Optional<Block> maybeBlock = subject.getFirstIncompleteBlock();
 
@@ -215,10 +228,6 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
 
     assertThat(subject.preferredLanguageSupported()).isFalse();
-  }
-
-  private void answerNameQuestion() {
-    answerNameQuestion(1L);
   }
 
   private void answerNameQuestion(long programId) {
