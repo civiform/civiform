@@ -1,6 +1,5 @@
 package views.admin;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
@@ -9,15 +8,11 @@ import static j2html.TagCreator.main;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
 
-import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.Tag;
-import java.util.Locale;
 import javax.inject.Inject;
-import play.i18n.Lang;
-import play.i18n.Langs;
 import play.twirl.api.Content;
 import views.BaseHtmlLayout;
 import views.ViewUtils;
@@ -27,13 +22,9 @@ import views.style.Styles;
 
 public class AdminLayout extends BaseHtmlLayout {
 
-  private final ImmutableList<Locale> supportedLocales;
-
   @Inject
-  public AdminLayout(ViewUtils viewUtils, Langs langs) {
+  public AdminLayout(ViewUtils viewUtils) {
     super(viewUtils);
-    this.supportedLocales =
-        langs.availables().stream().map(Lang::toLocale).collect(toImmutableList());
   }
 
   private ContainerTag renderNavBar() {

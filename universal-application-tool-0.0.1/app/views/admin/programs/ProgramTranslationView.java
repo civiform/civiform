@@ -1,39 +1,29 @@
 package views.admin.programs;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 
-import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
-import play.i18n.Lang;
 import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizationUtils;
-import views.BaseHtmlView;
+import views.TranslationFormView;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
-import views.components.LinkElement;
 import views.components.ToastMessage;
-import views.style.AdminStyles;
-import views.style.Styles;
 
 /** Renders a list of languages to select from, and a form for updating program information. */
-public class ProgramTranslationView extends BaseHtmlView {
+public class ProgramTranslationView extends TranslationFormView {
   private final AdminLayout layout;
-  private final ImmutableList<Locale> supportedLanguages;
 
   @Inject
   public ProgramTranslationView(AdminLayout layout, Langs langs) {
+    super(langs);
     this.layout = layout;
-    this.supportedLanguages =
-        langs.availables().stream().map(Lang::toLocale).collect(toImmutableList());
   }
 
   public Content render(
@@ -66,34 +56,9 @@ public class ProgramTranslationView extends BaseHtmlView {
         renderHeader("Manage Translations"), renderLanguageLinks(programId, locale), form);
   }
 
-  /** Render a list of languages, with the currently selected language underlined. */
-  private ContainerTag renderLanguageLinks(long programId, Locale currentlySelected) {
-    return div()
-        .withClasses(Styles.M_2)
-        .with(
-            each(
-                supportedLanguages,
-                language ->
-                    renderLanguageLink(programId, language, language.equals(currentlySelected))));
-  }
-
-  private ContainerTag renderLanguageLink(
-      long programId, Locale locale, boolean isCurrentlySelected) {
-    LinkElement link =
-        new LinkElement()
-            .setStyles("language-link", Styles.M_2)
-            .setHref(
-                routes.AdminProgramTranslationsController.edit(programId, locale.toLanguageTag())
-                    .url())
-            .setText(locale.getDisplayLanguage(LocalizationUtils.DEFAULT_LOCALE));
-
-    if (isCurrentlySelected) {
-      link.setStyles(AdminStyles.LANGUAGE_LINK_SELECTED);
-    } else {
-      link.setStyles(AdminStyles.LANGUAGE_LINK_NOT_SELECTED);
-    }
-
-    return link.asAnchorText();
+  @Override
+  protected String languageLinkDestination(long programId, Locale locale) {
+    return routes.AdminProgramTranslationsController.edit(programId, locale.toLanguageTag()).url();
   }
 
   private ContainerTag renderTranslationForm(
