@@ -71,13 +71,27 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     ContainerTag headerTag = header().withClasses(Styles.FLEX, Styles.FLEX_COL, Styles._MT_12);
     ContainerTag progressInner =
         div()
-            .withClasses(Styles.BG_YELLOW_400, Styles.TRANSITION_ALL, Styles.DURATION_300, Styles.H_FULL, Styles.BLOCK, Styles.ABSOLUTE, Styles.LEFT_0, Styles.TOP_0, Styles.W_1,
+            .withClasses(
+                Styles.BG_YELLOW_400,
+                Styles.TRANSITION_ALL,
+                Styles.DURATION_300,
+                Styles.H_FULL,
+                Styles.BLOCK,
+                Styles.ABSOLUTE,
+                Styles.LEFT_0,
+                Styles.TOP_0,
+                Styles.W_1,
                 Styles.ROUNDED_R_FULL)
             .withStyle("width:" + percentComplete + "%");
     ContainerTag progressIndicator =
         div(progressInner)
             .withId("progress-indicator")
-            .withClasses(Styles.BORDER, Styles.FONT_SEMIBOLD, Styles.BG_GRAY_200, Styles.RELATIVE, Styles.H_2);
+            .withClasses(
+                Styles.BORDER,
+                Styles.FONT_SEMIBOLD,
+                Styles.BG_GRAY_200,
+                Styles.RELATIVE,
+                Styles.H_2);
 
     headerTag.with(progressIndicator);
     return headerTag;
