@@ -24,7 +24,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
     AddressQuestion addressQuestion = question.createAddressQuestion();
 
     return div()
-        .withId(question.getPath().path())
+        .withId(question.getContextualizedPath().toString())
         .withClasses(Styles.MX_AUTO, Styles.PX_16)
         .with(
             div()
@@ -42,7 +42,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                 .with(
                     /** First line of address entry: Street */
                     FieldWithLabel.input()
-                        .setFieldName(addressQuestion.getStreetPath().path())
+                        .setFieldName(addressQuestion.getStreetPath().toString())
                         .setLabelText("Street address")
                         .setPlaceholderText("Enter your street address")
                         .setFloatLabel(true)
@@ -54,7 +54,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                         .withClasses(Styles.FLEX, Styles.FLEX_ROW)
                         .with(
                             FieldWithLabel.input()
-                                .setFieldName(addressQuestion.getCityPath().path())
+                                .setFieldName(addressQuestion.getCityPath().toString())
                                 .setLabelText("City")
                                 .setPlaceholderText("City")
                                 .setFloatLabel(true)
@@ -62,7 +62,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                                 .getContainer()
                                 .withClasses(Styles.P_1, Styles.PT_2, Styles.PL_0, Styles.W_1_2),
                             FieldWithLabel.input()
-                                .setFieldName(addressQuestion.getStatePath().path())
+                                .setFieldName(addressQuestion.getStatePath().toString())
                                 .setLabelText("State")
                                 .setPlaceholderText("State")
                                 .setFloatLabel(true)
@@ -70,7 +70,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                                 .getContainer()
                                 .withClasses(Styles.P_1, Styles.PT_2, Styles.W_1_4),
                             FieldWithLabel.input()
-                                .setFieldName(addressQuestion.getZipPath().path())
+                                .setFieldName(addressQuestion.getZipPath().toString())
                                 .setLabelText("Zip")
                                 .setPlaceholderText("Zip")
                                 .setFloatLabel(true)

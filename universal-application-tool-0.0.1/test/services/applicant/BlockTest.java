@@ -12,6 +12,7 @@ import services.program.ProgramQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
+import support.QuestionAnswerer;
 import support.TestQuestionBank;
 
 public class BlockTest {
@@ -235,11 +236,9 @@ public class BlockTest {
   }
 
   private static void answerNameQuestion(ApplicantData data, long programId) {
-    data.putString(NAME_QUESTION.getFirstNamePath(), "Alice");
-    data.putString(NAME_QUESTION.getMiddleNamePath(), "P.");
-    data.putString(NAME_QUESTION.getLastNamePath(), "Walker");
-    data.putLong(NAME_QUESTION.getProgramIdPath(), programId);
-    data.putLong(NAME_QUESTION.getLastUpdatedTimePath(), 12345L);
+    Path path = Path.create("applicant.applicant_name");
+    QuestionAnswerer.answerNameQuestion(data, path, "Alice", "P.", "Walker");
+    QuestionAnswerer.addMetadata(data, path, programId, 12345L);
   }
 
   private static void answerColorQuestion(ApplicantData data) {
@@ -247,8 +246,8 @@ public class BlockTest {
   }
 
   private static void answerColorQuestion(ApplicantData data, long programId) {
-    data.putString(COLOR_QUESTION.getTextPath(), "maroon");
-    data.putLong(COLOR_QUESTION.getProgramIdPath(), programId);
-    data.putLong(COLOR_QUESTION.getLastUpdatedTimePath(), 12345L);
+    Path path = Path.create("applicant.applicant_favorite_color");
+    QuestionAnswerer.answerTextQuestion(data, path, "maroon");
+    QuestionAnswerer.addMetadata(data, path, programId, 12345L);
   }
 }

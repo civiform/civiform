@@ -27,7 +27,7 @@ public class RadioButtonQuestionRenderer extends BaseHtmlView implements Applica
     SingleSelectQuestion singleOptionQuestion = question.createSingleSelectQuestion();
 
     return div()
-        .withId(question.getPath().toString())
+        .withId(question.getContextualizedPath().toString())
         .withClasses(Styles.MX_AUTO, Styles.W_MAX)
         .with(
             div()

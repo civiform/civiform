@@ -72,8 +72,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     ImmutableSet<Update> updates =
         ImmutableSet.of(
-            Update.create(Path.create("applicant.name.first"), "Alice"),
-            Update.create(Path.create("applicant.name.last"), "Doe"));
+            Update.create(Path.create("applicant.name.first_name"), "Alice"),
+            Update.create(Path.create("applicant.name.last_name"), "Doe"));
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
@@ -96,8 +96,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     ImmutableSet<Update> updates =
         ImmutableSet.of(
-            Update.create(Path.create("applicant.name.first"), "Alice"),
-            Update.create(Path.create("applicant.name.last"), "Doe"));
+            Update.create(Path.create("applicant.name.first_name"), "Alice"),
+            Update.create(Path.create("applicant.name.last_name"), "Doe"));
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
@@ -284,7 +284,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         questionService
             .create(
                 new NameQuestionDefinition(
-                    "my name",
+                    "name",
                     Path.create("applicant.name"),
                     Optional.empty(),
                     "description",

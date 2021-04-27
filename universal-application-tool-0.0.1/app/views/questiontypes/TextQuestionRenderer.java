@@ -24,7 +24,7 @@ public class TextQuestionRenderer extends BaseHtmlView implements ApplicantQuest
     TextQuestion textQuestion = question.createTextQuestion();
 
     return div()
-        .withId(question.getPath().path())
+        .withId(question.getContextualizedPath().toString())
         .withClasses(Styles.MX_AUTO, Styles.PX_16)
         .with(
             div()
@@ -38,7 +38,7 @@ public class TextQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                     Styles.MB_2)
                 .withText(question.getQuestionHelpText()),
             FieldWithLabel.input()
-                .setFieldName(textQuestion.getTextPath().path())
+                .setFieldName(textQuestion.getTextPath().toString())
                 .setLabelText("")
                 .setPlaceholderText("")
                 .setFloatLabel(true)
