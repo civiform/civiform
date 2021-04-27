@@ -92,7 +92,7 @@ public abstract class Path {
   /**
    * Append a path to the path.
    *
-   * If joining a {@link Scalar}, please use {@link Path#join(Scalar)} instead.
+   * <p>If joining a {@link Scalar}, please use {@link Path#join(Scalar)} instead.
    */
   public Path join(String path) {
     Path other = Path.create(path);
@@ -129,6 +129,14 @@ public abstract class Path {
    */
   public boolean isArrayElement() {
     return ARRAY_INDEX_REGEX.matcher(keyName()).find();
+  }
+
+  /** Returns this path as a path to an array element, e.g. {@code applicant.children[3]}. */
+  public Path asArrayElement() {
+    if (isArrayElement()) {
+      return this;
+    }
+    return parentPath().join(keyName() + ARRAY_SUFFIX);
   }
 
   /**
