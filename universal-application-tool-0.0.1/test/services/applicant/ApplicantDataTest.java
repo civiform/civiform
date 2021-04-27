@@ -14,7 +14,7 @@ public class ApplicantDataTest {
 
   @Test
   public void equality() {
-    String testData = "{ \"applicant\": { \"testKey\": \"testValue\"}, \"metadata\": {}}";
+    String testData = "{ \"applicant\": { \"testKey\": \"testValue\"} }";
 
     new EqualsTester()
         .addEqualityGroup(new ApplicantData(), new ApplicantData())
@@ -60,8 +60,7 @@ public class ApplicantDataTest {
     ApplicantData data =
         new ApplicantData(
             "{\"applicant\":{\"children\":[{\"entity\":\"first child\", \"name\": {"
-                + " \"first\":\"first\", \"last\": \"last\"}},{\"entity\": \"second child\"}]},"
-                + "\"metadata\":{}}");
+                + " \"first\":\"first\", \"last\": \"last\"}},{\"entity\": \"second child\"}]}}");
 
     Path path = Path.create("applicant.children[0].entity");
     assertThat(data.hasPath(path)).isTrue();
@@ -136,7 +135,7 @@ public class ApplicantDataTest {
     data.putString(Path.create("root"), "value");
 
     assertThat(data.asJsonString())
-        .isEqualTo("{\"applicant\":{},\"metadata\":{},\"root\":\"value\"}");
+        .isEqualTo("{\"applicant\":{},\"root\":\"value\"}");
   }
 
   @Test
@@ -147,7 +146,7 @@ public class ApplicantDataTest {
 
     assertThat(data.asJsonString())
         .isEqualTo(
-            "{\"applicant\":{},\"metadata\":{},\"new\":{\"path\":{\"at\":{\"root\":\"hooray\"}}}}");
+            "{\"applicant\":{},\"new\":{\"path\":{\"at\":{\"root\":\"hooray\"}}}}");
   }
 
   @Test
@@ -156,14 +155,14 @@ public class ApplicantDataTest {
 
     data.putLong(Path.create("applicant.age"), 99);
 
-    assertThat(data.asJsonString()).isEqualTo("{\"applicant\":{\"age\":99},\"metadata\":{}}");
+    assertThat(data.asJsonString()).isEqualTo("{\"applicant\":{\"age\":99}}");
   }
 
   @Test
   public void putString_addsANestedScalar() {
     ApplicantData data = new ApplicantData();
     String expected =
-        "{\"applicant\":{\"favorites\":{\"food\":{\"apple\":\"Granny Smith\"}}},\"metadata\":{}}";
+        "{\"applicant\":{\"favorites\":{\"food\":{\"apple\":\"Granny Smith\"}}}}";
 
     data.putString(Path.create("applicant.favorites.food.apple"), "Granny Smith");
 
@@ -174,7 +173,7 @@ public class ApplicantDataTest {
   public void putString_writesNullIfStringIsEmpty() {
     ApplicantData data = new ApplicantData();
     Path path = Path.create("applicant.name");
-    String expected = "{\"applicant\":{\"name\":null},\"metadata\":{}}";
+    String expected = "{\"applicant\":{\"name\":null}}";
 
     data.putString(path, "");
 
@@ -189,7 +188,7 @@ public class ApplicantDataTest {
     data.putString(Path.create("applicant.children[0].favorite_color.text"), "Orange");
 
     String expected =
-        "{\"applicant\":{\"children\":[{\"favorite_color\":{\"text\":\"Orange\"}}]},\"metadata\":{}}";
+        "{\"applicant\":{\"children\":[{\"favorite_color\":{\"text\":\"Orange\"}}]}}";
     assertThat(data.asJsonString()).isEqualTo(expected);
   }
 
@@ -201,7 +200,7 @@ public class ApplicantDataTest {
     data.putString(Path.create("applicant.children[1].favorite_color.text"), "Brown");
 
     String expected =
-        "{\"applicant\":{\"children\":[{\"favorite_color\":{\"text\":\"Orange\"}},{\"favorite_color\":{\"text\":\"Brown\"}}]},\"metadata\":{}}";
+        "{\"applicant\":{\"children\":[{\"favorite_color\":{\"text\":\"Orange\"}},{\"favorite_color\":{\"text\":\"Brown\"}}]}}";
     assertThat(data.asJsonString()).isEqualTo(expected);
   }
 
@@ -214,7 +213,7 @@ public class ApplicantDataTest {
 
     assertThat(data.asJsonString())
         .isEqualTo(
-            "{\"applicant\":{\"children\":[{},{},{\"favorite_color\":{\"text\":\"Orange\"}}]},\"metadata\":{}}");
+            "{\"applicant\":{\"children\":[{},{},{\"favorite_color\":{\"text\":\"Orange\"}}]}}");
   }
 
   @Test
@@ -224,7 +223,7 @@ public class ApplicantDataTest {
     data.putString(Path.create("applicant.allergies[0]"), "peanut");
 
     assertThat(data.asJsonString())
-        .isEqualTo("{\"applicant\":{\"allergies\":[\"peanut\"]},\"metadata\":{}}");
+        .isEqualTo("{\"applicant\":{\"allergies\":[\"peanut\"]}}");
   }
 
   @Test
@@ -237,14 +236,14 @@ public class ApplicantDataTest {
 
     assertThat(data.asJsonString())
         .isEqualTo(
-            "{\"applicant\":{\"allergies\":[\"peanut\",\"strawberry\",\"shellfish\"]},\"metadata\":{}}");
+            "{\"applicant\":{\"allergies\":[\"peanut\",\"strawberry\",\"shellfish\"]}}");
   }
 
   @Test
   public void putLong_writesNullIfStringIsEmpty() {
     ApplicantData data = new ApplicantData();
     Path path = Path.create("applicant.age");
-    String expected = "{\"applicant\":{\"age\":null},\"metadata\":{}}";
+    String expected = "{\"applicant\":{\"age\":null}}";
 
     data.putLong(path, "");
 
@@ -262,7 +261,7 @@ public class ApplicantDataTest {
 
     assertThat(data.asJsonString())
         .isEqualTo(
-            "{\"applicant\":{\"children\":[{},{\"pets\":[{\"entity_name\":\"bubbles\"},{\"entity_name\":\"luna\"},{\"entity_name\":\"taco\"}]}]},\"metadata\":{}}");
+            "{\"applicant\":{\"children\":[{},{\"pets\":[{\"entity_name\":\"bubbles\"},{\"entity_name\":\"luna\"},{\"entity_name\":\"taco\"}]}]}}");
   }
 
   @Test
@@ -272,7 +271,7 @@ public class ApplicantDataTest {
             "{\"applicant\":{\"children\":[{},{\"entity_name\":\"an old name\",\"pets\":["
                 + "{\"entity_name\":\"bubbles\"},"
                 + "{\"entity_name\":\"luna\"},"
-                + "{\"entity_name\":\"taco\"}]}]},\"metadata\":{}}");
+                + "{\"entity_name\":\"taco\"}]}]}}");
     Path path = Path.create("applicant.children[]");
     ImmutableList<String> childrenNames = ImmutableList.of("alice", "bob");
 
@@ -280,7 +279,7 @@ public class ApplicantDataTest {
 
     assertThat(data.asJsonString())
         .isEqualTo(
-            "{\"applicant\":{\"children\":[{\"entity_name\":\"alice\"},{\"entity_name\":\"bob\",\"pets\":[{\"entity_name\":\"bubbles\"},{\"entity_name\":\"luna\"},{\"entity_name\":\"taco\"}]}]},\"metadata\":{}}");
+            "{\"applicant\":{\"children\":[{\"entity_name\":\"alice\"},{\"entity_name\":\"bob\",\"pets\":[{\"entity_name\":\"bubbles\"},{\"entity_name\":\"luna\"},{\"entity_name\":\"taco\"}]}]}}");
   }
 
   @Test
@@ -299,8 +298,7 @@ public class ApplicantDataTest {
         new ApplicantData(
             "{\"applicant\":{\"children\":["
                 + "{\"entity\":\"first child\",\"name\":{\"first\":\"Billy\", \"last\": \"Bob\"}},"
-                + "{\"entity\": \"second child\"}]},"
-                + "\"metadata\":{}}");
+                + "{\"entity\": \"second child\"}]}}");
 
     Optional<String> found = data.readString(Path.create("applicant.children[0].name.first"));
 
@@ -424,8 +422,7 @@ public class ApplicantDataTest {
         "{\"applicant\":{\"children\":[{},{\"pets\":["
             + "{\"entity_name\":\"bubbles\"},"
             + "{\"entity_name\":\"luna\"},"
-            + "{\"entity_name\":\"taco\"}"
-            + "]}]},\"metadata\":{}}";
+            + "{\"entity_name\":\"taco\"}]}]}}";
     ApplicantData data = new ApplicantData(testData);
     Path path = Path.create("applicant.children[1].pets[]");
 

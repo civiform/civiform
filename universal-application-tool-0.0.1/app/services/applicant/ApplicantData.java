@@ -22,7 +22,10 @@ import services.WellKnownPaths;
 import services.question.types.RepeaterQuestionDefinition;
 
 public class ApplicantData {
-  private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
+  public static final String ROOT = "applicant";
+  public static final Path ROOT_PATH = Path.create(ROOT);
+  private static final String EMPTY_APPLICANT_DATA_JSON = String.format("{ \"%s\": {} }", ROOT);
+
   private static final TypeRef<ImmutableList<Long>> IMMUTABLE_LIST_LONG_TYPE = new TypeRef<>() {};
 
   private boolean locked = false;
