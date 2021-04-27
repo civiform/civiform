@@ -25,6 +25,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import views.admin.questions.QuestionTranslationView;
 
+/** Provides controller methods for editing and updating question translations. */
 public class AdminQuestionTranslationsController extends CiviFormController {
 
   private final HttpExecutionContext httpExecutionContext;
@@ -44,6 +45,16 @@ public class AdminQuestionTranslationsController extends CiviFormController {
     this.formFactory = formFactory;
   }
 
+  /**
+   * Renders an edit form for admins to add or update translations for the question in the given
+   * locale.
+   *
+   * @param request the current {@link Http.Request}
+   * @param id the ID of the question to update
+   * @param locale the locale to update, as an ISO language tag
+   * @return a rendered {@link QuestionTranslationView} pre-populated with any existing translations
+   *     for the given locale
+   */
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public CompletionStage<Result> edit(Http.Request request, long id, String locale) {
     return questionService
@@ -62,6 +73,15 @@ public class AdminQuestionTranslationsController extends CiviFormController {
             httpExecutionContext.current());
   }
 
+  /**
+   * Save updates to a question's localizations.
+   *
+   * @param request the current {@link Http.Request}
+   * @param id the ID of the question to update
+   * @param locale the locale to update, as an ISO language tag
+   * @return redirects to the admin's home page if updates were successful; otherwise, renders the
+   *     same {@link QuestionTranslationView} with error messages
+   */
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public CompletionStage<Result> update(Http.Request request, long id, String locale) {
     Form<QuestionTranslationForm> translationForm = formFactory.form(QuestionTranslationForm.class);

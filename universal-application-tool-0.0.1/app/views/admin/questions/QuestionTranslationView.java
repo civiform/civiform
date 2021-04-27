@@ -18,6 +18,8 @@ public class QuestionTranslationView extends BaseHtmlView {
   }
 
   public Content render(String questionText) {
+    // TODO(https://github.com/seattle-uat/civiform/issues/778): Provide a form to manage question
+    // translations.
     return layout.render(
         renderHeader("Manage Question Translations"),
         div().with(p("Question text: " + questionText)));
