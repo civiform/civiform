@@ -54,28 +54,33 @@ public class RadioButtonQuestionRenderer extends BaseHtmlView implements Applica
   private Tag renderSingleRadioOption(
       String selectionPath, LocalizedQuestionOption option, boolean checked) {
     String id = option.optionText().replaceAll("\\s+", "_");
-    
-    ContainerTag labelTag = label()
-        .withClasses(Styles.W_FULL, Styles.BLOCK, Styles.P_3)
+
+    ContainerTag labelTag =
+        label()
+            .withClasses(Styles.W_FULL, Styles.BLOCK, Styles.P_3)
+            .with(
+                input()
+                    .withId(id)
+                    .withType("radio")
+                    .withName(selectionPath)
+                    .withValue(String.valueOf(option.id()))
+                    .condAttr(checked, Attr.CHECKED, "")
+                    .withClasses(ReferenceClasses.RADIO_INPUT, Styles.H_5, Styles.W_5),
+                span(option.optionText()).withClasses(Styles.ML_4, Styles.TEXT_GRAY_700));
+
+    return div()
+        .withClasses(Styles.MY_2, Styles.RELATIVE)
         .with(
-            input()
-                .withId(id)
-                .withType("radio")
-                .withName(selectionPath)
-                .withValue(String.valueOf(option.id()))
-                .condAttr(checked, Attr.CHECKED, "")
-                .withClasses(ReferenceClasses.RADIO_INPUT, Styles.H_5, Styles.W_5),
-            span(option.optionText()).withClasses(Styles.ML_4, Styles.TEXT_GRAY_700)
-        );
-    
-    return div().withClasses(Styles.MY_2, Styles.RELATIVE)
-        .with(
-            div(labelTag).withClasses(
-                ReferenceClasses.RADIO_OPTION,
-                Styles.M_AUTO, Styles.W_4_5, Styles.TEXT_2XL, Styles.BORDER_4, Styles.BG_WHITE, Styles.ROUNDED_XL,
-                checked ? Styles.BG_BLUE_100 : "",
-                checked ? Styles.BORDER_BLUE_400 : ""
-            )
-        );
+            div(labelTag)
+                .withClasses(
+                    ReferenceClasses.RADIO_OPTION,
+                    Styles.M_AUTO,
+                    Styles.W_4_5,
+                    Styles.TEXT_2XL,
+                    Styles.BORDER_4,
+                    Styles.BG_WHITE,
+                    Styles.ROUNDED_XL,
+                    checked ? Styles.BG_BLUE_100 : "",
+                    checked ? Styles.BORDER_BLUE_400 : ""));
   }
 }
