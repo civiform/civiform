@@ -1,11 +1,11 @@
 package services.program;
 
 import akka.japi.Pair;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Optional;
-import models.Program;
 import models.Version;
 
 /**
@@ -16,22 +16,26 @@ import models.Version;
  */
 public class ActiveAndDraftPrograms {
 
+  private final ImmutableList<ProgramDefinition> activePrograms;
+  private final ImmutableList<ProgramDefinition> draftPrograms;
   private final ImmutableMap<String, Pair<Optional<ProgramDefinition>, Optional<ProgramDefinition>>>
       versionedByName;
   private final int activeSize;
   private final int draftSize;
 
-  public ActiveAndDraftPrograms(Version active, Version draft) {
+  public ActiveAndDraftPrograms(ProgramService service, Version active, Version draft) {
     ImmutableMap.Builder<String, ProgramDefinition> activeToName = ImmutableMap.builder();
     ImmutableMap.Builder<String, ProgramDefinition> draftToName = ImmutableMap.builder();
     draft.getPrograms().stream()
-        .map(Program::getProgramDefinition)
+        .map(program -> getProgramDefinition(service, program.id))
         .forEach(program -> draftToName.put(program.adminName(), program));
     active.getPrograms().stream()
-        .map(Program::getProgramDefinition)
+        .map(program -> getProgramDefinition(service, program.id))
         .forEach(program -> activeToName.put(program.adminName(), program));
     ImmutableMap<String, ProgramDefinition> activeNames = activeToName.build();
     ImmutableMap<String, ProgramDefinition> draftNames = draftToName.build();
+    activePrograms = activeNames.values().asList();
+    draftPrograms = draftNames.values().asList();
     activeSize = activeNames.size();
     draftSize = draftNames.size();
     ImmutableMap.Builder<String, Pair<Optional<ProgramDefinition>, Optional<ProgramDefinition>>>
@@ -44,6 +48,14 @@ public class ActiveAndDraftPrograms {
               Optional.ofNullable(draftNames.get(name))));
     }
     versionedByName = versionedByNameBuilder.build();
+  }
+
+  public ImmutableList<ProgramDefinition> getActivePrograms() {
+    return activePrograms;
+  }
+
+  public ImmutableList<ProgramDefinition> getDraftPrograms() {
+    return draftPrograms;
   }
 
   public ImmutableSet<String> getProgramNames() {
@@ -68,5 +80,14 @@ public class ActiveAndDraftPrograms {
 
   public boolean anyDraft() {
     return getDraftSize() > 0;
+  }
+
+  private ProgramDefinition getProgramDefinition(ProgramService service, long id) {
+    try {
+      return service.getProgramDefinition(id);
+    } catch (ProgramNotFoundException e) {
+      // This is not possible because we query with existing program ids.
+      throw new RuntimeException(e);
+    }
   }
 }

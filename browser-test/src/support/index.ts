@@ -35,9 +35,35 @@ export const loginAsGuest = async (page: Page) => {
   await page.click('#guest');
 }
 
+export const loginAsTestUser = async (page: Page) => {
+  if (isTestUser()) {
+    await page.click("#idcs");
+    await page.fill("#idcs-signin-basic-signin-form-username", process.env["TEST_USER_LOGIN"]);
+    await page.fill("#idcs-signin-basic-signin-form-password > input", process.env["TEST_USER_PASSWORD"]);
+    await page.click("#idcs-signin-basic-signin-form-submit")
+  } else {
+    await page.click('#guest');
+  }
+}
+
+function isTestUser() {
+  return process.env["TEST_USER_LOGIN"] != undefined && process.env["TEST_USER_PASSWORD"] != undefined
+}
+
+
+export const userDisplayName = () => {
+  if (isTestUser()) {
+    return 'TEST, UATAPP'
+  } else {
+    return '<Anonymous Applicant>'
+  }
+}
+
 export const selectApplicantLanguage = async (page: Page, language: string) => {
-  await page.selectOption('select', { label: language });
-  await page.click('button');
+  if (!isTestUser()) {
+    await page.selectOption('select', { label: language });
+    await page.click('button');
+  }
 }
 
 export const dropTables = async (page: Page) => {
