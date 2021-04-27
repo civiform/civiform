@@ -21,9 +21,6 @@ import services.question.exceptions.TranslationNotFoundException;
 
 /** Defines a single question. */
 public abstract class QuestionDefinition {
-  public static final String METADATA_UPDATE_TIME_KEY = "updated_at";
-  public static final String METADATA_UPDATE_PROGRAM_ID_KEY = "updated_in_program";
-
   private final OptionalLong id;
   private final String name;
   private final Path path;
