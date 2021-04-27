@@ -25,11 +25,12 @@ describe('normal application flow', () => {
 
     await applicantQuestions.applyProgram(programName);
 
-    // Applicant fills out first application block .
+    // Applicant fills out first application block.
     await applicantQuestions.answerNameQuestion('sarah', 'smith');
     await applicantQuestions.saveAndContinue();
+
     // Application submits answers from review page.
-    // await applicantQuestions.submitFromReviewPage();
+    await applicantQuestions.submitFromReviewPage();
 
     await logout(page);
     await loginAsAdmin(page);

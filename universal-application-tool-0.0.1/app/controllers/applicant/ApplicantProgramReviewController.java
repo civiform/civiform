@@ -36,8 +36,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final ApplicantProgramSummaryView summaryView;
   private final ProfileUtils profileUtils;
 
-  private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
   @Inject
   public ApplicantProgramReviewController(
       ApplicantService applicantService,
@@ -61,7 +59,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
         .thenApplyAsync(
             (roApplicantProgramService) -> {
               ImmutableList<SummaryData> summaryData = roApplicantProgramService.getSummaryData();
-              // TODO: Get program title.
+              // TODO: Get program title. (Currently no way to do that from
+              // roApplicantProgramService)
               String programTitle = "Program title";
               return (summaryData.size() > 0)
                   ? ok(
@@ -87,9 +86,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
   }
 
   @Secure
-  public CompletionStage<Result> submit(Request request, long applicantId, long programId) {
+  public CompletionStage<Result> submit(Request request, long applicantId, long programId) {    
     Call endOfProgramSubmission = routes.ApplicantProgramsController.index(applicantId);
-    logger.debug("redirecting to preview page with %d, %d", applicantId, programId);
+
+    // return checkApplicantAuthorization(profileUtils, request, applicantId)
+    //     .thenApplyAsync(
     return applicationRepository
         .submitApplication(applicantId, programId)
         .thenApplyAsync(
