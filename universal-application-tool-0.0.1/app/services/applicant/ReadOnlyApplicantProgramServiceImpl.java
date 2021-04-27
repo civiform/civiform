@@ -5,13 +5,16 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+
+import services.Path;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
 
   private final ApplicantData applicantData;
   private final ProgramDefinition programDefinition;
-  private Optional<ImmutableList<Block>> currentBlockList = Optional.empty();
+  private ImmutableList<Block> currentBlockList;
 
   protected ReadOnlyApplicantProgramServiceImpl(
       ApplicantData applicantData, ProgramDefinition programDefinition) {
@@ -31,22 +34,28 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
    */
   @Override
   public ImmutableList<Block> getCurrentBlockList() {
-    if (currentBlockList.isPresent()) {
-      return currentBlockList.get();
+    if (currentBlockList == null) {
+      ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
+
+      ImmutableList<BlockDefinition> nonRepeatedBlockDefinitions =
+              programDefinition.getNonRepeatedBlockDefinitions();
+      for (BlockDefinition blockDefinition : nonRepeatedBlockDefinitions) {
+        Block block =
+                new Block(
+                        String.valueOf(blockDefinition.id()),
+                        blockDefinition,
+                        applicantData,
+                        Path.create("applicant"));
+        if (!block.isCompleteWithoutErrors()
+                || block.wasCompletedInProgram(programDefinition.id())) {
+          blockListBuilder.add(block);
+        }
+      }
+
+      currentBlockList = blockListBuilder.build();
     }
 
-    ImmutableList<Block> blocks =
-        programDefinition.blockDefinitions().stream()
-            .map(blockDefinition -> new Block(blockDefinition.id(), blockDefinition, applicantData))
-            .filter(
-                block ->
-                    !block.isCompleteWithoutErrors()
-                        || block.wasCompletedInProgram(programDefinition.id()))
-            .collect(toImmutableList());
-
-    currentBlockList = Optional.of(blocks);
-
-    return blocks;
+    return currentBlockList;
   }
 
   @Override
@@ -88,6 +97,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return programDefinition.getSupportedLocales().contains(applicantData.preferredLocale());
   }
 
+  // TODO(#783): Need to compute Blocks for repeated questions. See getCurrentBlockList.
   private ImmutableList<Block> getAllBlocksForThisProgram() {
     return programDefinition.blockDefinitions().stream()
         .map(blockDefinition -> new Block(blockDefinition.id(), blockDefinition, applicantData))
