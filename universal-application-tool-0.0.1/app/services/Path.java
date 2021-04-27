@@ -89,7 +89,11 @@ public abstract class Path {
     return Path.create(segments().subList(0, segments().size() - 1));
   }
 
-  /** Append a path to the path. */
+  /**
+   * Append a path to the path.
+   *
+   * If joining a {@link Scalar}, please use {@link Path#join(Scalar)} instead.
+   */
   public Path join(String path) {
     Path other = Path.create(path);
     return Path.create(

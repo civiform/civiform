@@ -73,8 +73,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     ImmutableSet<Update> updates =
         ImmutableSet.of(
-            Update.create(Path.create("applicant.name.first_name"), "Alice"),
-            Update.create(Path.create("applicant.name.last_name"), "Doe"));
+            Update.create(Path.create("applicant.name.FIRST_NAME"), "Alice"),
+            Update.create(Path.create("applicant.name.LAST_NAME"), "Doe"));
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
@@ -97,8 +97,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     ImmutableSet<Update> updates =
         ImmutableSet.of(
-            Update.create(Path.create("applicant.name.first_name"), "Alice"),
-            Update.create(Path.create("applicant.name.last_name"), "Doe"));
+            Update.create(Path.create("applicant.name.FIRST_NAME"), "Alice"),
+            Update.create(Path.create("applicant.name.LAST_NAME"), "Doe"));
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
@@ -140,8 +140,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     ImmutableMap<String, String> rawUpdates =
         ImmutableMap.<String, String>builder()
-            .put("applicant.checkbox.selection[0]", "1")
-            .put("applicant.checkbox.selection[1]", "2")
+            .put("applicant.checkbox.SELECTION[0]", "1")
+            .put("applicant.checkbox.SELECTION[1]", "2")
             .build();
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
@@ -156,7 +156,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     ApplicantData applicantDataAfter =
         applicantRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
-    assertThat(applicantDataAfter.readList(Path.create("applicant.checkbox.selection")))
+    assertThat(applicantDataAfter.readList(Path.create("applicant.checkbox.SELECTION")))
         .hasValue(ImmutableList.of(1L, 2L));
   }
 
