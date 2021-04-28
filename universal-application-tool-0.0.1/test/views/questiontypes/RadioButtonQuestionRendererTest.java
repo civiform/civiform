@@ -68,6 +68,6 @@ public class RadioButtonQuestionRendererTest {
         .contains(
             "<input id=\"peanut_butter\" type=\"radio\""
                 + " name=\"applicant.favorite_ice_cream.selection\""
-                + " value=\"2\" checked=\"\">");
+                + " value=\"2\" checked=\"\"");
   }
 }
