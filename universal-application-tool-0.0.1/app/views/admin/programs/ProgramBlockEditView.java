@@ -233,12 +233,18 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withId("update-block-button")
             .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
 
+    // TODO(https://github.com/seattle-uat/civiform/issues/842): When there is only no blocks created
+    // or when the metadata for a block (name and description),
+    // If you want button to be disabled before user changes form, have to use front-end scripting to
+    // have button be disabled/reunabled when user dynamically interacts with page; cannot do it on compile time
+    // Best thing we can do is probably have a toast (error message?) that pops up when user tries to update the
+    // block's metadata when there is nothing to change.
     if (program.blockDefinitions().size() > 1) {
       blockInfoForm.with(
           submitButton("Delete Block")
               .withId("delete-block-button")
               .attr(Attr.FORM, DELETE_BLOCK_FORM_ID)
-              .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
+              .withClasses(Styles.MX_4, Styles.MY_1, Styles.BG_RED_500, "hover:" + Styles.BG_RED_700, Styles.INLINE));
     }
 
     if (blockDefinitionIsRepeater) {
