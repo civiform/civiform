@@ -216,7 +216,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
     ContainerTag blockInfoForm = form(csrfTag).withMethod(POST).withAction(blockUpdateAction);
 
-    blockInfoForm.with(
+    blockInfoForm.withId("block-edit-form").with(
         FieldWithLabel.input()
             .setId("block-name-input")
             .setFieldName("name")
@@ -231,7 +231,10 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .getContainer(),
         submitButton("Update Block")
             .withId("update-block-button")
-            .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
+            .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE, "disabled:" + Styles.OPACITY_50)
+            .attr("disabled", ""));   // disabled until user changes form
+    // Looks like J2HTML does not have support for adding CSS psuedo classes so it cannot be
+    // used with Tailwind's styling variants (https://tailwindcss.com/docs/hover-focus-and-other-states#disabled)
 
     // TODO(https://github.com/seattle-uat/civiform/issues/842): When there is only no blocks created
     // or when the metadata for a block (name and description),
