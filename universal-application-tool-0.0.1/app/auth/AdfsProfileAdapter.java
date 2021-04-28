@@ -28,7 +28,7 @@ public class AdfsProfileAdapter extends UatProfileAdapter {
   }
 
   @Override
-  protected ImmutableSet<Roles> roles() {
+  protected ImmutableSet<Roles> roles(UatProfile profile) {
     return ImmutableSet.of(Roles.ROLE_UAT_ADMIN);
   }
 

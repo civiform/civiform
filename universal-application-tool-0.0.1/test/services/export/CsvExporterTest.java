@@ -42,13 +42,13 @@ public class CsvExporterTest extends WithPostgresContainer {
         .addColumn(
             Column.builder()
                 .setHeader("first name")
-                .setJsonPath(Path.create("$.applicant.applicant_name.first"))
+                .setJsonPath(Path.create("$.applicant.applicant_name.first_name"))
                 .setColumnType(ColumnType.APPLICANT)
                 .build())
         .addColumn(
             Column.builder()
                 .setHeader("last name")
-                .setJsonPath(Path.create("$.applicant.applicant_name.last"))
+                .setJsonPath(Path.create("$.applicant.applicant_name.last_name"))
                 .setColumnType(ColumnType.APPLICANT)
                 .build())
         .addColumn(
@@ -83,10 +83,10 @@ public class CsvExporterTest extends WithPostgresContainer {
     Applicant fakeApplicantOne = new Applicant();
     fakeApplicantOne
         .getApplicantData()
-        .putString(Path.create("applicant.applicant_name.first"), "Alice");
+        .putString(Path.create("applicant.applicant_name.first_name"), "Alice");
     fakeApplicantOne
         .getApplicantData()
-        .putString(Path.create("applicant.applicant_name.last"), "Appleton");
+        .putString(Path.create("applicant.applicant_name.last_name"), "Appleton");
     fakeApplicantOne
         .getApplicantData()
         .putString(
@@ -105,10 +105,10 @@ public class CsvExporterTest extends WithPostgresContainer {
     Applicant fakeApplicantTwo = new Applicant();
     fakeApplicantTwo
         .getApplicantData()
-        .putString(Path.create("applicant.applicant_name.first"), "Bob");
+        .putString(Path.create("applicant.applicant_name.first_name"), "Bob");
     fakeApplicantTwo
         .getApplicantData()
-        .putString(Path.create("applicant.applicant_name.last"), "Baker");
+        .putString(Path.create("applicant.applicant_name.last_name"), "Baker");
     fakeApplicantTwo.getApplicantData().putString(Path.create("applicant.column"), "");
     fakeApplicantTwo
         .getApplicantData()
@@ -174,11 +174,11 @@ public class CsvExporterTest extends WithPostgresContainer {
             exporterService.getProgramCsv(definition.id()),
             CSVFormat.DEFAULT.withFirstRecordAsHeader());
 
+    assertThat(parser.getHeaderMap()).hasSize(3);
     assertThat(parser.getHeaderMap()).containsEntry("ID", 0);
     assertThat(parser.getHeaderMap()).containsEntry("Submit time", 1);
     assertThat(parser.getHeaderMap()).containsEntry("applicant favorite color.text", 2);
 
-    assertThat(parser.getHeaderMap()).hasSize(3);
     List<CSVRecord> records = parser.getRecords();
     assertThat(records).hasSize(2);
     assertThat(records.get(0).get("applicant favorite color.text")).isEqualTo("fuchsia");

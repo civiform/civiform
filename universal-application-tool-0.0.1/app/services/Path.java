@@ -7,6 +7,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import services.applicant.question.Scalar;
 
 /**
  * Represents a path into the applicant JSON data. Stored as the path to data without the JsonPath
@@ -88,9 +89,25 @@ public abstract class Path {
     return Path.create(segments().subList(0, segments().size() - 1));
   }
 
-  /** Append a path to the path. */
+  /**
+   * Append a path to the path.
+   *
+   * <p>If joining a {@link Scalar}, please use {@link Path#join(Scalar)} instead.
+   */
   public Path join(String path) {
     Path other = Path.create(path);
+    return Path.create(
+        ImmutableList.<String>builder().addAll(segments()).addAll(other.segments()).build());
+  }
+
+  /**
+   * Append a {@link Scalar} to the path
+   *
+   * <p>This is just a helper method so we don't have to use {@link Scalar#toString()} when we want
+   * to append to a path.
+   */
+  public Path join(Scalar scalar) {
+    Path other = Path.create(scalar.name());
     return Path.create(
         ImmutableList.<String>builder().addAll(segments()).addAll(other.segments()).build());
   }
@@ -112,6 +129,14 @@ public abstract class Path {
    */
   public boolean isArrayElement() {
     return ARRAY_INDEX_REGEX.matcher(keyName()).find();
+  }
+
+  /** Returns this path as a path to an array element, e.g. {@code applicant.children[3]}. */
+  public Path asArrayElement() {
+    if (isArrayElement()) {
+      return this;
+    }
+    return parentPath().join(keyName() + ARRAY_SUFFIX);
   }
 
   /**

@@ -26,7 +26,7 @@ public class NumberQuestionRenderer extends BaseHtmlView implements ApplicantQue
 
     FieldWithLabel numberField =
         FieldWithLabel.number()
-            .setFieldName(numberQuestion.getNumberPath().path())
+            .setFieldName(numberQuestion.getNumberPath().toString())
             .setFloatLabel(true);
     if (numberQuestion.getNumberValue().isPresent()) {
       // TODO: [Refactor] Oof! Converting Optional<Long> to OptionalLong.
@@ -35,7 +35,7 @@ public class NumberQuestionRenderer extends BaseHtmlView implements ApplicantQue
     }
 
     return div()
-        .withId(question.getPath().path())
+        .withId(question.getContextualizedPath().toString())
         .withClasses(Styles.MX_AUTO, Styles.PX_16)
         .with(
             div()

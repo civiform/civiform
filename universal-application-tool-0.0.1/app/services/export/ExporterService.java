@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import models.Application;
 import models.Program;
 import services.Path;
+import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.Column;
 import services.program.ColumnType;
@@ -21,7 +22,6 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
-import services.question.types.QuestionDefinition;
 import services.question.types.ScalarType;
 
 public class ExporterService {
@@ -79,10 +79,10 @@ public class ExporterService {
       // throw so that it's findable / fixable if it does ever happen.
       throw new RuntimeException(e);
     }
-    ImmutableList.Builder<Column> columnBuilder = new ImmutableList.Builder<>();
+    ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
     // First add the ID and submit time columns.
-    columnBuilder.add(Column.builder().setHeader("ID").setColumnType(ColumnType.ID).build());
-    columnBuilder.add(
+    columnsBuilder.add(Column.builder().setHeader("ID").setColumnType(ColumnType.ID).build());
+    columnsBuilder.add(
         Column.builder().setHeader("Submit time").setColumnType(ColumnType.SUBMIT_TIME).build());
     // Next add one column for each scalar entry in every column.
     for (BlockDefinition block : programDefinition.blockDefinitions()) {
@@ -91,9 +91,10 @@ public class ExporterService {
             question.getQuestionDefinition().getScalars().entrySet()) {
           String finalSegment = entry.getKey().keyName();
           // These are the two metadata fields in every answer - we don't need to report them.
-          if (!finalSegment.equals(QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY)
-              && !finalSegment.equals(QuestionDefinition.METADATA_UPDATE_TIME_KEY)) {
-            columnBuilder.add(
+          if (!Scalar.getMetadataScalars().keySet().stream()
+              .anyMatch(
+                  metadataScalar -> metadataScalar.toString().toLowerCase().equals(finalSegment))) {
+            columnsBuilder.add(
                 Column.builder()
                     // e.g. "name.first".
                     .setHeader(question.getQuestionDefinition().getName() + "." + finalSegment)
@@ -107,7 +108,7 @@ public class ExporterService {
     return new CsvExportConfig() {
       @Override
       public ImmutableList<Column> columns() {
-        return columnBuilder.build();
+        return columnsBuilder.build();
       }
     };
   }

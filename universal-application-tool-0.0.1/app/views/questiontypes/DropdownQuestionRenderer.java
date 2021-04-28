@@ -26,7 +26,7 @@ public class DropdownQuestionRenderer extends BaseHtmlView implements ApplicantQ
     SingleSelectQuestion singleSelectQuestion = question.createSingleSelectQuestion();
 
     return div()
-        .withId(question.getPath().toString())
+        .withId(question.getContextualizedPath().toString())
         .withClasses(Styles.MX_AUTO, Styles.W_MAX)
         .with(
             div()

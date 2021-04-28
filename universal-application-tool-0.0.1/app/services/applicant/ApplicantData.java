@@ -22,13 +22,18 @@ import services.WellKnownPaths;
 import services.question.types.RepeaterQuestionDefinition;
 
 public class ApplicantData {
-  private static final String EMPTY_APPLICANT_DATA_JSON = "{ \"applicant\": {}, \"metadata\": {} }";
+  private static final String APPLICANT = "applicant";
+  private static final String EMPTY_APPLICANT_DATA_JSON =
+      String.format("{ \"%s\": {} }", APPLICANT);
+
   private static final TypeRef<ImmutableList<Long>> IMMUTABLE_LIST_LONG_TYPE = new TypeRef<>() {};
 
   private boolean locked = false;
 
   private Optional<Locale> preferredLocale;
   private final DocumentContext jsonData;
+
+  public static final Path APPLICANT_PATH = Path.create(APPLICANT);
 
   public ApplicantData() {
     this(EMPTY_APPLICANT_DATA_JSON);

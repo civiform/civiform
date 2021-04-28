@@ -1,6 +1,7 @@
 import { Browser, chromium, Page } from 'playwright'
 export { AdminQuestions } from './admin_questions'
 export { AdminPrograms } from './admin_programs'
+export { AdminTranslations } from './admin_translations'
 export { ApplicantQuestions } from './applicant_questions'
 
 const { BASE_URL = 'http://civiform:9000' } = process.env
@@ -58,11 +59,18 @@ export const userDisplayName = () => {
   }
 }
 
+/**
+ * The option to select a language is only shown once for a given applicant. If this is
+ * the first time they see this page, select the given language. Otherwise continue.
+ */
 export const selectApplicantLanguage = async (page: Page, language: string) => {
-  if (!isTestUser()) {
+  const maybeSelectLanguagePage = await page.$('#select-language');
+  if (maybeSelectLanguagePage) {
     await page.selectOption('select', { label: language });
     await page.click('button');
   }
+  const programIndexTitle = await page.$('#float-title');
+  expect(programIndexTitle).toBeDefined();
 }
 
 export const dropTables = async (page: Page) => {
