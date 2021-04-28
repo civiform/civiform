@@ -11,8 +11,8 @@ import javax.inject.Inject;
 import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import views.TranslationFormView;
 import views.admin.AdminLayout;
+import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
 
 /** Renders a list of languages to select from, and a form for updating program information. */
@@ -50,7 +50,8 @@ public class ProgramTranslationView extends TranslationFormView {
       Optional<String> errors) {
     String formAction =
         controllers.admin.routes.AdminProgramTranslationsController.update(
-                programId, locale.toLanguageTag()).url();
+                programId, locale.toLanguageTag())
+            .url();
     ContainerTag form =
         renderTranslationForm(
             request, locale, formAction, formFields(localizedName, localizedDescription), errors);
