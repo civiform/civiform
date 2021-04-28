@@ -17,6 +17,8 @@ import support.TestQuestionBank;
 
 public class BlockTest {
 
+  private static final long UNUSED_PROGRAM_ID = 1L;
+
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
 
   private static final NameQuestionDefinition NAME_QUESTION =
@@ -28,7 +30,7 @@ public class BlockTest {
   public void createNewBlock() {
     BlockDefinition definition =
         BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
-    Block block = new Block(1L, definition, new ApplicantData());
+    Block block = new Block("1", definition, new ApplicantData(), ApplicantData.APPLICANT_PATH);
     assertThat(block.getId()).isEqualTo("1");
     assertThat(block.getName()).isEqualTo("name");
     assertThat(block.getDescription()).isEqualTo("description");
@@ -47,26 +49,29 @@ public class BlockTest {
 
     new EqualsTester()
         .addEqualityGroup(
-            new Block(1L, definition, new ApplicantData()),
-            new Block(1L, definition, new ApplicantData()))
+            new Block("1", definition, new ApplicantData(), ApplicantData.APPLICANT_PATH),
+            new Block("1", definition, new ApplicantData(), ApplicantData.APPLICANT_PATH))
         .addEqualityGroup(
-            new Block(2L, definition, new ApplicantData()),
-            new Block(2L, definition, new ApplicantData()))
+            new Block("2", definition, new ApplicantData(), ApplicantData.APPLICANT_PATH),
+            new Block("2", definition, new ApplicantData(), ApplicantData.APPLICANT_PATH))
         .addEqualityGroup(
             new Block(
-                1L,
+                "1",
                 definition.toBuilder()
                     .addQuestion(ProgramQuestionDefinition.create(question))
                     .build(),
-                new ApplicantData()),
+                new ApplicantData(),
+                ApplicantData.APPLICANT_PATH),
             new Block(
-                1L,
+                "1",
                 definition.toBuilder()
                     .addQuestion(ProgramQuestionDefinition.create(question))
                     .build(),
-                new ApplicantData()))
+                new ApplicantData(),
+                ApplicantData.APPLICANT_PATH))
         .addEqualityGroup(
-            new Block(1L, definition, applicant), new Block(1L, definition, applicant))
+            new Block("1", definition, applicant, ApplicantData.APPLICANT_PATH),
+            new Block("1", definition, applicant, ApplicantData.APPLICANT_PATH))
         .testEquals();
   }
 
@@ -75,7 +80,7 @@ public class BlockTest {
     BlockDefinition definition = setUpBlockWithQuestions();
     ApplicantData applicantData = new ApplicantData();
 
-    Block block = new Block(1L, definition, applicantData);
+    Block block = new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH);
 
     ImmutableList<ApplicantQuestion> expected =
         ImmutableList.of(
@@ -90,7 +95,7 @@ public class BlockTest {
   public void hasErrors_returnsFalseIfBlockHasNoQuestions() {
     BlockDefinition definition =
         BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
-    Block block = new Block(1L, definition, new ApplicantData());
+    Block block = new Block("1", definition, new ApplicantData(), ApplicantData.APPLICANT_PATH);
 
     assertThat(block.hasErrors()).isFalse();
   }
@@ -98,7 +103,7 @@ public class BlockTest {
   @Test
   public void hasErrors_returnsFalseIfQuestionsHaveNoErrors() {
     BlockDefinition definition = setUpBlockWithQuestions();
-    Block block = new Block(1L, definition, new ApplicantData());
+    Block block = new Block("1", definition, new ApplicantData(), ApplicantData.APPLICANT_PATH);
 
     assertThat(block.hasErrors()).isFalse();
   }
@@ -107,7 +112,7 @@ public class BlockTest {
   public void isComplete_returnsTrueForBlockWithNoQuestions() {
     BlockDefinition definition =
         BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
-    Block block = new Block(1L, definition, new ApplicantData());
+    Block block = new Block("1", definition, new ApplicantData(), ApplicantData.APPLICANT_PATH);
 
     assertThat(block.isCompleteWithoutErrors()).isTrue();
   }
@@ -117,7 +122,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = new Block(1L, definition, applicantData);
+    Block block = new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH);
 
     // No questions filled in yet.
     assertThat(block.isCompleteWithoutErrors()).isFalse();
@@ -127,10 +132,10 @@ public class BlockTest {
   public void isComplete_returnsFalseIfOneQuestionNotAnswered() {
     ApplicantData applicantData = new ApplicantData();
     // Fill in one of the questions.
-    answerColorQuestion(applicantData);
+    answerColorQuestion(applicantData, UNUSED_PROGRAM_ID);
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = new Block(1L, definition, applicantData);
+    Block block = new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH);
 
     assertThat(block.isCompleteWithoutErrors()).isFalse();
   }
@@ -139,11 +144,11 @@ public class BlockTest {
   public void isComplete_returnsTrueIfAllQuestionsAnswered() {
     ApplicantData applicantData = new ApplicantData();
     // Fill in all questions.
-    answerNameQuestion(applicantData);
-    answerColorQuestion(applicantData);
+    answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
+    answerColorQuestion(applicantData, UNUSED_PROGRAM_ID);
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = new Block(1L, definition, applicantData);
+    Block block = new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH);
 
     assertThat(block.isCompleteWithoutErrors()).isTrue();
   }
@@ -153,13 +158,13 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = new Block(1L, definition, applicantData);
+    Block block = new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH);
 
     assertThat(block.isCompleteWithoutErrors()).isFalse();
 
     // Complete the block.
-    answerNameQuestion(applicantData);
-    answerColorQuestion(applicantData);
+    answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
+    answerColorQuestion(applicantData, UNUSED_PROGRAM_ID);
     assertThat(block.isCompleteWithoutErrors()).isTrue();
   }
 
@@ -168,7 +173,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = new Block(1L, definition, applicantData);
+    Block block = new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH);
 
     assertThat(block.wasCompletedInProgram(1L)).isFalse();
   }
@@ -178,7 +183,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = new Block(1L, definition, applicantData);
+    Block block = new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH);
     // Answer questions in different program.
     answerNameQuestion(applicantData, 567L);
     answerColorQuestion(applicantData, 567L);
@@ -191,7 +196,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = new Block(1L, definition, applicantData);
+    Block block = new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH);
     answerNameQuestion(applicantData, 1L);
 
     assertThat(block.wasCompletedInProgram(1L)).isFalse();
@@ -202,7 +207,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = new Block(1L, definition, applicantData);
+    Block block = new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH);
     answerNameQuestion(applicantData, 22L);
     answerColorQuestion(applicantData, 22L);
 
@@ -214,7 +219,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = new Block(1L, definition, applicantData);
+    Block block = new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH);
     answerNameQuestion(applicantData, 100L);
     answerColorQuestion(applicantData, 200L);
 
@@ -231,18 +236,10 @@ public class BlockTest {
         .build();
   }
 
-  private static void answerNameQuestion(ApplicantData data) {
-    answerNameQuestion(data, 1L);
-  }
-
   private static void answerNameQuestion(ApplicantData data, long programId) {
     Path path = Path.create("applicant.applicant_name");
     QuestionAnswerer.answerNameQuestion(data, path, "Alice", "P.", "Walker");
     QuestionAnswerer.addMetadata(data, path, programId, 12345L);
-  }
-
-  private static void answerColorQuestion(ApplicantData data) {
-    answerColorQuestion(data, 1L);
   }
 
   private static void answerColorQuestion(ApplicantData data, long programId) {
