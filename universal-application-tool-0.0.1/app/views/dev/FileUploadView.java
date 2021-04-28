@@ -19,7 +19,7 @@ import static j2html.TagCreator.tr;
 import static j2html.attributes.Attr.ENCTYPE;
 
 import com.google.common.collect.ImmutableList;
-import j2html.tags.Tag;
+import j2html.tags.ContainerTag;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.StoredFile;
@@ -55,7 +55,7 @@ public class FileUploadView extends BaseHtmlView {
                     .with(div().with(h2("Current Files:")).with(pre(renderFiles(files))))));
   }
 
-  private Tag renderFiles(ImmutableList<StoredFile> files) {
+  private ContainerTag renderFiles(ImmutableList<StoredFile> files) {
     return table()
         .with(
             tbody(
@@ -67,25 +67,33 @@ public class FileUploadView extends BaseHtmlView {
                             td(a(file.getName()).withHref(file.getPresignedURL().toString()))))));
   }
 
-  private Tag fileUploadForm(SignedS3UploadRequest request) {
+  private ContainerTag fileUploadForm(SignedS3UploadRequest request) {
     String actionLink =
         String.format(
             "https://%s-%s.amazonaws.com/%s",
             request.serviceName(), request.regionName(), request.bucket());
-    return form()
-        .attr(ENCTYPE, "multipart/form-data")
-        .with(input().withType("input").withName("key").withValue(request.key()))
-        .with(
-            input()
-                .withType("hidden")
-                .withName("success_action_redirect")
-                .withValue(request.successActionRedirect()))
-        .with(input().withType("text").withName("X-Amz-Credential").withValue(request.credential()))
-        .with(
-            input()
-                .withType("hidden")
-                .withName("X-Amz-Security-Token")
-                .withValue(request.securityToken()))
+    ContainerTag formTag =
+        form()
+            .attr(ENCTYPE, "multipart/form-data")
+            .with(input().withType("input").withName("key").withValue(request.key()))
+            .with(
+                input()
+                    .withType("hidden")
+                    .withName("success_action_redirect")
+                    .withValue(request.successActionRedirect()))
+            .with(
+                input()
+                    .withType("text")
+                    .withName("X-Amz-Credential")
+                    .withValue(request.credential()));
+    if (!request.securityToken().isEmpty()) {
+      formTag.with(
+          input()
+              .withType("hidden")
+              .withName("X-Amz-Security-Token")
+              .withValue(request.securityToken()));
+    }
+    return formTag
         .with(input().withType("text").withName("X-Amz-Algorithm").withValue(request.algorithm()))
         .with(input().withType("text").withName("X-Amz-Date").withValue(request.date()))
         .with(input().withType("hidden").withName("Policy").withValue(request.policy()))
