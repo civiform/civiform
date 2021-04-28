@@ -20,6 +20,7 @@ import services.ErrorAnd;
 import services.Path;
 import services.applicant.question.Scalar;
 import services.program.PathNotInBlockException;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -197,7 +198,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void stageAndUpdateIfValid_hasProgramBlockNotFoundException() {
+  public void stageAndUpdateIfValid_hasProgramBlockDefinitionNotFoundException() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     ImmutableSet<Update> updates = ImmutableSet.of();
     String badBlockId = "100";
@@ -211,7 +212,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     assertThat(errorAnd.hasResult()).isFalse();
     assertThat(errorAnd.getErrors()).hasSize(1);
     assertThat(errorAnd.getErrors().asList().get(0))
-        .isInstanceOf(ProgramBlockNotFoundException.class);
+        .isInstanceOf(ProgramBlockDefinitionNotFoundException.class);
   }
 
   @Test
