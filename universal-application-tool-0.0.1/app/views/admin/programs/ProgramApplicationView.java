@@ -30,8 +30,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private final ApplicantService applicantService;
 
   @Inject
-  public ProgramApplicationView(
-      AdminLayout layout, ApplicantService applicantService) {
+  public ProgramApplicationView(AdminLayout layout, ApplicantService applicantService) {
     this.layout = layout;
     this.applicantService = applicantService;
   }
