@@ -72,6 +72,10 @@ public class ApplicantInformationView extends BaseHtmlView {
    * languages.
    */
   private String formatLabel(Locale locale) {
+    // The default for Java is 中文, but the City of Seattle prefers 繁體中文
+    if (locale.equals(Locale.TRADITIONAL_CHINESE)) {
+      return "繁體中文";
+    }
     String language = locale.getDisplayLanguage(locale);
     return language.substring(0, 1).toUpperCase(locale) + language.substring(1);
   }
