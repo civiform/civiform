@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.concurrent.CompletionStage;
 import models.Applicant;
-import models.Application;
 import services.ErrorAnd;
 import services.program.ProgramDefinition;
 
@@ -44,8 +43,6 @@ public interface ApplicantService {
    */
   CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
       long applicantId, long programId);
-
-  String applicantName(Application application);
 
   /**
    * Returns all programs that are appropriate to serve to an applicant - which is any active

@@ -38,7 +38,7 @@ public class ApplicantQuestion {
     return this.applicantData;
   }
 
-  protected QuestionDefinition getQuestionDefinition() {
+  public QuestionDefinition getQuestionDefinition() {
     return this.questionDefinition;
   }
 

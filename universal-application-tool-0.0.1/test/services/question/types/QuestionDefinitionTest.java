@@ -3,19 +3,16 @@ package services.question.types;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.CiviFormError;
 import services.LocalizationUtils;
 import services.Path;
-import services.question.QuestionOption;
 import services.question.exceptions.TranslationNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
@@ -36,29 +33,6 @@ public class QuestionDefinitionTest {
             .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
             .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
             .setValidationPredicates(TextValidationPredicates.builder().setMaxLength(128).build());
-  }
-
-  @Test
-  @Parameters(source = QuestionType.class)
-  public void allTypesContainMetadataScalars(QuestionType questionType)
-      throws UnsupportedQuestionTypeException {
-    // Modifying the builder to build the appropriate QuestionDefinition to test based on
-    // QuestionType
-    builder.setQuestionType(questionType);
-    builder.setValidationPredicatesString("");
-
-    if (questionType.isMultiOptionType()) {
-      builder.setQuestionOptions(
-          ImmutableList.of(
-              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "Sample question option"))));
-      builder.setValidationPredicates(
-          MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create());
-    }
-
-    QuestionDefinition definition = builder.setQuestionType(questionType).build();
-
-    assertThat(definition.getScalars()).containsKey(definition.getLastUpdatedTimePath());
-    assertThat(definition.getScalars()).containsKey(definition.getProgramIdPath());
   }
 
   @Test
@@ -302,44 +276,6 @@ public class QuestionDefinitionTest {
             ImmutableMap.of());
 
     assertThat(question.getQuestionType()).isEqualTo(QuestionType.TEXT);
-  }
-
-  @Test
-  public void newQuestionHasStringScalar() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            "text",
-            Path.create("applicant.text"),
-            Optional.empty(),
-            "description",
-            ImmutableMap.of(),
-            ImmutableMap.of());
-    ImmutableMap<Path, ScalarType> expectedScalars =
-        ImmutableMap.of(
-            Path.create("applicant.text.text"),
-            ScalarType.STRING,
-            Path.create("applicant.text.updated_at"),
-            ScalarType.LONG,
-            Path.create("applicant.text.program_updated_in"),
-            ScalarType.LONG);
-    assertThat(question.getScalars()).containsAllEntriesOf(expectedScalars);
-    assertThat(question.getScalarType(Path.create("applicant.text.text")).get())
-        .isEqualTo(ScalarType.STRING);
-    assertThat(question.getScalarType(Path.create("applicant.text.text")).get().getClassFor().get())
-        .isEqualTo(String.class);
-  }
-
-  @Test
-  public void newQuestionMissingScalar_returnsOptionalEmpty() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            "text",
-            Path.create("applicant.text"),
-            Optional.empty(),
-            "",
-            ImmutableMap.of(),
-            ImmutableMap.of());
-    assertThat(question.getScalarType(Path.create("notPresent"))).isEqualTo(Optional.empty());
   }
 
   @Test
