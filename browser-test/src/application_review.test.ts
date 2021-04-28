@@ -62,7 +62,8 @@ describe('normal application flow', () => {
     await applicantQuestions.answerFileUploadQuestion('file key');
     await applicantQuestions.saveAndContinue();
 
-    // Application submits answers from review page.
+    // Applicant submits answers from review page.
+
     await applicantQuestions.submitFromReviewPage();
 
     await logout(page);
