@@ -39,7 +39,7 @@ public class RadioButtonQuestionRendererTest {
   @Before
   public void setup() {
     applicantData = new ApplicantData();
-    question = new ApplicantQuestion(QUESTION, applicantData);
+    question = new ApplicantQuestion(QUESTION, applicantData, ApplicantData.APPLICANT_PATH);
     renderer = new RadioButtonQuestionRenderer(question);
   }
 

@@ -34,7 +34,9 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
 
   @Before
   public void setUp() {
-    question = new ApplicantQuestion(TEXT_QUESTION_DEFINITION, applicantData);
+    question =
+        new ApplicantQuestion(
+            TEXT_QUESTION_DEFINITION, applicantData, ApplicantData.APPLICANT_PATH);
     renderer = new TextQuestionRenderer(question);
   }
 

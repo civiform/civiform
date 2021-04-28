@@ -34,11 +34,6 @@ public class ApplicantQuestion {
     this.contextualizedPath = checkNotNull(contextualizedPath);
   }
 
-  // TODO(#783): Get rid of this constructor.
-  public ApplicantQuestion(QuestionDefinition questionDefinition, ApplicantData applicantData) {
-    this(questionDefinition, applicantData, Path.create("applicant"));
-  }
-
   protected ApplicantData getApplicantData() {
     return this.applicantData;
   }
