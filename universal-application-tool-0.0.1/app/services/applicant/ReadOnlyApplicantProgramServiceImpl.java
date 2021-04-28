@@ -4,8 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
-import services.applicant.question.ApplicantQuestion;
 import services.Path;
+import services.applicant.question.ApplicantQuestion;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 
