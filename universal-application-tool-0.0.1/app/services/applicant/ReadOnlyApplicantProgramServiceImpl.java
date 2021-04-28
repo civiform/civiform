@@ -107,8 +107,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public ImmutableList<AnswerData> getSummaryData() {
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<AnswerData>();
-    // TODO: Change to getBlockList() when available.
-    ImmutableList<Block> blocks = getCurrentBlockList();
+    ImmutableList<Block> blocks = getAllBlocks();
     for (Block block : blocks) {
       String blockId = block.getId();
       for (ApplicantQuestion question : block.getQuestions()) {

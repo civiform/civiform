@@ -261,10 +261,6 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     assertThat(result.get(2).answerText()).isEqualTo("");
   }
 
-  private void answerNameQuestion() {
-    answerNameQuestion(1L);
-  }
-
   private void answerNameQuestion(long programId) {
     Path path = Path.create("applicant.applicant_name");
     QuestionAnswerer.answerNameQuestion(applicantData, path, "Alice", "Middle", "Last");
