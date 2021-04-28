@@ -15,12 +15,14 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.Optional;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import services.applicant.SummaryData;
+import services.applicant.AnswerData;
 import views.BaseHtmlView;
 import views.components.LinkElement;
+import views.components.ToastMessage;
 import views.style.Styles;
 
 public final class ApplicantProgramSummaryView extends BaseHtmlView {
@@ -42,12 +44,18 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       Long applicantId,
       Long programId,
       String programTitle,
-      ImmutableList<SummaryData> data) {
+      ImmutableList<AnswerData> data,
+      Optional<String> banner) {
     ContainerTag headerTag = renderHeader(100);
 
     ContainerTag content = div().withClasses(Styles.MX_16);
-    for (SummaryData questionData : data) {
-      content.with(renderQuestionSummary(questionData, applicantId, programId));
+
+    if (banner.isPresent()) {
+      content.with(ToastMessage.error(banner.get()).getContainerTag());
+    }
+
+    for (AnswerData questionData : data) {
+      content.with(renderQuestionSummary(questionData, applicantId));
     }
 
     // Add submit action (POST).
@@ -97,16 +105,16 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     return headerTag;
   }
 
-  private ContainerTag renderQuestionSummary(SummaryData data, Long applicantId, Long programId) {
+  private ContainerTag renderQuestionSummary(AnswerData data, Long applicantId) {
     ContainerTag questionPrompt =
-        div(data.questionText).withClasses(Styles.FLEX_AUTO, Styles.FONT_SEMIBOLD);
+        div(data.questionText()).withClasses(Styles.FLEX_AUTO, Styles.FONT_SEMIBOLD);
     ContainerTag questionContent =
         div(questionPrompt).withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.PR_2);
 
     // Show timestamp if answered elsewhere.
-    if (data.isPreviousResponse) {
+    if (data.isPreviousResponse()) {
       LocalDate date =
-          Instant.ofEpochMilli(data.timestamp).atZone(ZoneId.systemDefault()).toLocalDate();
+          Instant.ofEpochMilli(data.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
       ContainerTag timestampContent =
           div("Previously answered on " + date)
               .withClasses(Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_LIGHT, Styles.TEXT_XS);
@@ -116,7 +124,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     // Add answer text, converting newlines to <br/> tags.
     ContainerTag answerContent =
         div().withClasses(Styles.FLEX_AUTO, Styles.TEXT_LEFT, Styles.FONT_LIGHT, Styles.TEXT_SM);
-    String[] texts = data.answerText.split("\n");
+    String[] texts = data.answerText().split("\n");
     texts = Arrays.stream(texts).filter(text -> text.length() > 0).toArray(String[]::new);
     for (int i = 0; i < texts.length; i++) {
       if (i > 0) {
@@ -127,7 +135,9 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     // Link to block containing specific question.
     String editLink =
-        routes.ApplicantProgramBlocksController.review(applicantId, programId, data.blockId).url();
+        routes.ApplicantProgramBlocksController.review(
+                applicantId, data.programId(), data.blockId())
+            .url();
     ContainerTag editAction =
         new LinkElement()
             .setHref(editLink)

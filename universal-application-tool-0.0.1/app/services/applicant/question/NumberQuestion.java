@@ -99,10 +99,6 @@ public class NumberQuestion implements PresentsErrors {
 
   @Override
   public String getAnswerString() {
-    Optional<Long> value = this.getNumberValue();
-    if (value.isPresent()) {
-      return value.get().toString();
-    }
-    return "-";
+    return getNumberValue().map(Object::toString).orElse("-");
   }
 }

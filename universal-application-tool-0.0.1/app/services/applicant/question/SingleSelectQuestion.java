@@ -94,10 +94,6 @@ public class SingleSelectQuestion implements PresentsErrors {
 
   @Override
   public String getAnswerString() {
-    Optional<LocalizedQuestionOption> option = this.getSelectedOptionValue();
-    if (option.isPresent()) {
-      return option.get().optionText();
-    }
-    return "-";
+    return getSelectedOptionValue().map(LocalizedQuestionOption::optionText).orElse("-");
   }
 }

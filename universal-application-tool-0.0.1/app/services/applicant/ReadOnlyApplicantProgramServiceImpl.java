@@ -96,24 +96,29 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-  public ImmutableList<SummaryData> getSummaryData() {
-    ImmutableList.Builder<SummaryData> builder = new ImmutableList.Builder<SummaryData>();
-    ImmutableList<Block> blocks = this.getCurrentBlockList();
-    if (blocks.size() > 0) {
-      for (Block block : blocks) {
-        String blockId = block.getId();
-        for (ApplicantQuestion question : block.getQuestions()) {
-          String questionText = question.getQuestionText();
-          String answerText = question.errorsPresenter().getAnswerString();
-          Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
-          Optional<Long> updatedProgram = question.getUpdatedInProgramMetadata();
-          boolean isPreviousResponse =
-              updatedProgram.isPresent() && updatedProgram.get() != programDefinition.id();
-          SummaryData data =
-              new SummaryData(
-                  questionText, answerText, blockId, timestamp.orElse(-1L), isPreviousResponse);
-          builder.add(data);
-        }
+  public ImmutableList<AnswerData> getSummaryData() {
+    ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<AnswerData>();
+    // TODO: Change to getBlockList() when available.
+    ImmutableList<Block> blocks = getCurrentBlockList();
+    for (Block block : blocks) {
+      String blockId = block.getId();
+      for (ApplicantQuestion question : block.getQuestions()) {
+        String questionText = question.getQuestionText();
+        String answerText = question.errorsPresenter().getAnswerString();
+        Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
+        Optional<Long> updatedProgram = question.getUpdatedInProgramMetadata();
+        boolean isPreviousResponse =
+            updatedProgram.isPresent() && updatedProgram.get() != programDefinition.id();
+        AnswerData data =
+            AnswerData.builder()
+                .setProgramId(programDefinition.id())
+                .setBlockId(blockId)
+                .setQuestionText(questionText)
+                .setAnswerText(answerText)
+                .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
+                .setIsPreviousResponse(isPreviousResponse)
+                .build();
+        builder.add(data);
       }
     }
     return builder.build();

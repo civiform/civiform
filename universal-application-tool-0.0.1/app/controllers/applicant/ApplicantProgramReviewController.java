@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
+import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -15,8 +16,8 @@ import play.mvc.Call;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.ApplicationRepository;
+import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
-import services.applicant.SummaryData;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramSummaryView;
 
@@ -50,21 +51,20 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> review(Request request, long applicantId, long programId) {
+    Optional<String> banner = request.flash().get("banner");
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             httpExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
-              ImmutableList<SummaryData> summaryData = roApplicantProgramService.getSummaryData();
+              ImmutableList<AnswerData> summaryData = roApplicantProgramService.getSummaryData();
               // TODO: Get program title. (Currently no way to do that from
               // roApplicantProgramService)
               String programTitle = "Program title";
-              return (summaryData.size() > 0)
-                  ? ok(
-                      summaryView.render(
-                          request, applicantId, programId, programTitle, summaryData))
-                  : notFound();
+              return ok(
+                  summaryView.render(
+                      request, applicantId, programId, programTitle, summaryData, banner));
             },
             httpExecutionContext.current())
         .exceptionally(
@@ -108,15 +108,17 @@ public class ApplicantProgramReviewController extends CiviFormController {
   }
 
   private CompletionStage<Result> submit(long applicantId, long programId) {
-    Call endOfProgramSubmission = routes.ApplicantProgramsController.index(applicantId);
+
     return applicationRepository
         .submitApplication(applicantId, programId)
         .thenApplyAsync(
             applicationMaybe -> {
               if (applicationMaybe.isEmpty()) {
-                return found(endOfProgramSubmission)
-                    .flashing("banner", "Error saving application.");
+                Call reviewPage =
+                    routes.ApplicantProgramReviewController.review(applicantId, programId);
+                return found(reviewPage).flashing("banner", "Error saving application.");
               }
+              Call endOfProgramSubmission = routes.ApplicantProgramsController.index(applicantId);
               Application application = applicationMaybe.get();
               // Placeholder application ID display.
               return found(endOfProgramSubmission)

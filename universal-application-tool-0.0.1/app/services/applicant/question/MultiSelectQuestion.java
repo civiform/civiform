@@ -132,11 +132,12 @@ public class MultiSelectQuestion implements PresentsErrors {
 
   @Override
   public String getAnswerString() {
-    Optional<ImmutableList<LocalizedQuestionOption>> maybeOptions = this.getSelectedOptionsValue();
-    if (maybeOptions.isPresent()) {
-      ImmutableList<LocalizedQuestionOption> options = maybeOptions.get();
-      return options.stream().map(option -> option.optionText()).collect(Collectors.joining("\n"));
-    }
-    return "-";
+    return getSelectedOptionsValue()
+        .map(
+            options ->
+                options.stream()
+                    .map(LocalizedQuestionOption::optionText)
+                    .collect(Collectors.joining("\n")))
+        .orElse("-");
   }
 }

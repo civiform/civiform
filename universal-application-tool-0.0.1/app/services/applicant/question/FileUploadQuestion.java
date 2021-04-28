@@ -69,6 +69,7 @@ public class FileUploadQuestion implements PresentsErrors {
 
   @Override
   public String getAnswerString() {
-    return "-- FILE UPLOAD --";
+    // TODO: What do we display here when a file has been uploaded? Filename? Link to the file?
+    return isAnswered() ? "-- FILE UPLOADED --" : "-- NO FILE SELECTED --";
   }
 }
