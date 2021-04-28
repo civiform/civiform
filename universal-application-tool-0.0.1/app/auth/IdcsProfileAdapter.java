@@ -8,7 +8,7 @@ import javax.inject.Provider;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
-import repository.ApplicantRepository;
+import repository.UserRepository;
 
 /**
  * This class takes an existing UAT profile and augments it with the information from an IDCS
@@ -20,7 +20,7 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
-      Provider<ApplicantRepository> applicantRepositoryProvider) {
+      Provider<UserRepository> applicantRepositoryProvider) {
     super(configuration, client, profileFactory, applicantRepositoryProvider);
   }
 

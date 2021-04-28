@@ -18,7 +18,7 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
-import repository.ApplicantRepository;
+import repository.UserRepository;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantNotFoundException;
 import views.applicant.ApplicantInformationView;
@@ -32,7 +32,7 @@ public final class ApplicantInformationController extends CiviFormController {
   private final HttpExecutionContext httpExecutionContext;
   private final MessagesApi messagesApi;
   private final ApplicantInformationView informationView;
-  private final ApplicantRepository repository;
+  private final UserRepository repository;
   private final FormFactory formFactory;
   private final ProfileUtils profileUtils;
 
@@ -41,7 +41,7 @@ public final class ApplicantInformationController extends CiviFormController {
       HttpExecutionContext httpExecutionContext,
       MessagesApi messagesApi,
       ApplicantInformationView informationView,
-      ApplicantRepository repository,
+      UserRepository repository,
       FormFactory formFactory,
       ProfileUtils profileUtils) {
     this.httpExecutionContext = httpExecutionContext;

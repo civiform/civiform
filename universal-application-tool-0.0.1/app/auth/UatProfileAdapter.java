@@ -16,7 +16,7 @@ import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.oidc.profile.creator.OidcProfileCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import repository.ApplicantRepository;
+import repository.UserRepository;
 
 /**
  * This class ensures that the OidcProfileCreator that both the AD and IDCS clients use will
@@ -27,7 +27,7 @@ import repository.ApplicantRepository;
  */
 public abstract class UatProfileAdapter extends OidcProfileCreator {
   protected final ProfileFactory profileFactory;
-  protected final Provider<ApplicantRepository> applicantRepositoryProvider;
+  protected final Provider<UserRepository> applicantRepositoryProvider;
 
   private static Logger LOG = LoggerFactory.getLogger(UatProfileAdapter.class);
 
@@ -35,7 +35,7 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
-      Provider<ApplicantRepository> applicantRepositoryProvider) {
+      Provider<UserRepository> applicantRepositoryProvider) {
     super(configuration, client);
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
     this.applicantRepositoryProvider = applicantRepositoryProvider;
