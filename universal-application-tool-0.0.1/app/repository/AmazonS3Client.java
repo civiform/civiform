@@ -45,12 +45,14 @@ public class AmazonS3Client {
     this.appLifecycle = checkNotNull(appLifecycle);
     this.config = checkNotNull(config);
     this.environment = checkNotNull(environment);
-    this.credentials = DefaultCredentialsProvider.create().resolveCredentials();
 
     log.info("aws s3 enabled: " + String.valueOf(enabled()));
-    if (enabled()) {
-      connect();
+    if (!enabled()) {
+      this.credentials = null;
+      return;
     }
+    this.credentials = DefaultCredentialsProvider.create().resolveCredentials();
+    connect();
 
     this.appLifecycle.addStopHook(
         () -> {
