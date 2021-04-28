@@ -44,7 +44,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     // Answer first block in a separate program
     answerNameQuestion(programDefinition.id() + 1);
 
-    ReadOnlyApplicantProgramService subject = new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
     ImmutableList<Block> allBlocks = subject.getAllBlocks();
 
     assertThat(allBlocks).hasSize(2);

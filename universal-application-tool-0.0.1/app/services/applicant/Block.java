@@ -49,11 +49,6 @@ public final class Block {
     this.contextualizedPath = checkNotNull(contextualizedPath);
   }
 
-  // TODO(#783): Remove this constructor.
-  Block(long id, BlockDefinition blockDefinition, ApplicantData applicantData) {
-    this(String.valueOf(id), blockDefinition, applicantData, Path.create("applicant"));
-  }
-
   public String getId() {
     return id;
   }
