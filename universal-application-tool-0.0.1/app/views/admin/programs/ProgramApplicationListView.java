@@ -23,13 +23,11 @@ import views.style.Styles;
 
 public final class ProgramApplicationListView extends BaseHtmlView {
   private final AdminLayout layout;
-  private final ApplicantService applicantService;
   private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
 
   @Inject
-  public ProgramApplicationListView(AdminLayout layout, ApplicantService applicantService) {
+  public ProgramApplicationListView(AdminLayout layout) {
     this.layout = layout;
-    this.applicantService = applicantService;
   }
 
   public Content render(long programId, ImmutableList<Application> applications) {
