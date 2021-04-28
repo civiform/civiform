@@ -1,4 +1,4 @@
-package services.program;
+package services.applicant;
 
 public class ProgramBlockNotFoundException extends Exception {
   public ProgramBlockNotFoundException(long programId, String blockId) {
