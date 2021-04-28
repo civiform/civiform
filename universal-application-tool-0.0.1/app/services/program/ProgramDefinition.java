@@ -164,17 +164,18 @@ public abstract class ProgramDefinition {
    *
    * @param blockDefinitionId the id of the block definition
    * @return the {@link BlockDefinition} with the specified block id
-   * @throws ProgramBlockNotFoundException if no block matched the block id
+   * @throws ProgramBlockDefinitionNotFoundException if no block matched the block id
    */
   public BlockDefinition getBlockDefinition(long blockDefinitionId)
-      throws ProgramBlockNotFoundException {
+      throws ProgramBlockDefinitionNotFoundException {
     return blockDefinitions().stream()
         .filter(b -> b.id() == blockDefinitionId)
         .findAny()
-        .orElseThrow(() -> new ProgramBlockNotFoundException(id(), blockDefinitionId));
+        .orElseThrow(() -> new ProgramBlockDefinitionNotFoundException(id(), blockDefinitionId));
   }
 
-  public BlockDefinition getBlockDefinition(String blockId) throws ProgramBlockNotFoundException {
+  public BlockDefinition getBlockDefinition(String blockId)
+      throws ProgramBlockDefinitionNotFoundException {
     // TODO: add a new exception for malformed blockId.
     // TODO: refactor this blockId parsing to a shared method somewhere with appropriate context.
     long blockDefinitionId =
