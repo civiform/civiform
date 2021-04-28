@@ -18,7 +18,6 @@ import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramNotFoundException;
-import services.program.ProgramService;
 import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
@@ -28,14 +27,12 @@ import views.style.Styles;
 
 public final class ProgramApplicationView extends BaseHtmlView {
   private final AdminLayout layout;
-  private final ProgramService service;
   private final ApplicantService applicantService;
 
   @Inject
   public ProgramApplicationView(
-      AdminLayout layout, ProgramService service, ApplicantService applicantService) {
+      AdminLayout layout, ApplicantService applicantService) {
     this.layout = layout;
-    this.service = service;
     this.applicantService = applicantService;
   }
 

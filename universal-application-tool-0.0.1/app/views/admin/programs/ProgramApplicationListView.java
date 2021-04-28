@@ -14,7 +14,6 @@ import models.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.twirl.api.Content;
-import services.applicant.ApplicantService;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.LinkElement;
