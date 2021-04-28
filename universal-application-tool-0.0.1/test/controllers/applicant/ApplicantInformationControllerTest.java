@@ -59,7 +59,7 @@ public class ApplicantInformationControllerTest extends WithMockedApplicantProfi
             .toCompletableFuture()
             .join();
     assertThat(contentAsString(result)).contains("English");
-    assertThat(contentAsString(result)).contains("中文");
+    assertThat(contentAsString(result)).contains("繁體中文");
     assertThat(contentAsString(result)).contains("Español");
     assertThat(contentAsString(result)).contains("Tiếng Việt");
     assertThat(contentAsString(result)).contains("Soomaali");

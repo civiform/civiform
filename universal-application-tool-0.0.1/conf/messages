@@ -12,7 +12,7 @@ button.apply=Apply
 button.nextBlock=Save and continue
 
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
-toast.localeNotSupported=We're sorry, this program is not fully translated to English.
+toast.localeNotSupported=We're sorry, this program is not fully translated to your preferred language.
 
 #-------------------------------------------------#
 # PAGES - contains text specific to a given page. #
