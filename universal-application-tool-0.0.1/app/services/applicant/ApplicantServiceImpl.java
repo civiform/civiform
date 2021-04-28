@@ -25,7 +25,7 @@ import services.WellKnownPaths;
 import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.PathNotInBlockException;
-import services.program.ProgramBlockNotFoundException;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.question.exceptions.UnsupportedScalarTypeException;
@@ -132,7 +132,7 @@ public class ApplicantServiceImpl implements ApplicantService {
 
               try {
                 stageUpdates(applicant, programDefinition, blockId, updates);
-              } catch (ProgramBlockNotFoundException
+              } catch (ProgramBlockDefinitionNotFoundException
                   | UnsupportedScalarTypeException
                   | PathNotInBlockException e) {
                 return CompletableFuture.completedFuture(ErrorAnd.error(ImmutableSet.of(e)));
@@ -181,7 +181,7 @@ public class ApplicantServiceImpl implements ApplicantService {
       ProgramDefinition programDefinition,
       String blockId,
       ImmutableSet<Update> updates)
-      throws ProgramBlockNotFoundException, UnsupportedScalarTypeException,
+      throws ProgramBlockDefinitionNotFoundException, UnsupportedScalarTypeException,
           PathNotInBlockException {
 
     BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockId);

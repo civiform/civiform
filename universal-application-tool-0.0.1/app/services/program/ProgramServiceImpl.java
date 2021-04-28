@@ -200,10 +200,10 @@ public class ProgramServiceImpl implements ProgramService {
       throws ProgramNotFoundException {
     try {
       return addBlockToProgram(programId, Optional.empty());
-    } catch (ProgramBlockNotFoundException e) {
+    } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(
-          "The ProgramBlockNotFoundException should never be thrown when the repeater id is"
-              + " empty.");
+          "The ProgramBlockDefinitionNotFoundException should never be thrown when the repeater id"
+              + " is empty.");
     }
   }
 
@@ -211,16 +211,16 @@ public class ProgramServiceImpl implements ProgramService {
   @Transactional
   public ErrorAnd<ProgramDefinition, CiviFormError> addRepeatedBlockToProgram(
       long programId, long repeaterBlockId)
-      throws ProgramNotFoundException, ProgramBlockNotFoundException {
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     return addBlockToProgram(programId, Optional.of(repeaterBlockId));
   }
 
   private ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(
       long programId, Optional<Long> repeaterBlockId)
-      throws ProgramNotFoundException, ProgramBlockNotFoundException {
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     if (repeaterBlockId.isPresent() && !programDefinition.hasRepeater(repeaterBlockId.get())) {
-      throw new ProgramBlockNotFoundException(programId, repeaterBlockId.get());
+      throw new ProgramBlockDefinitionNotFoundException(programId, repeaterBlockId.get());
     }
 
     long blockId = getNextBlockId(programDefinition);
@@ -260,7 +260,7 @@ public class ProgramServiceImpl implements ProgramService {
   @Transactional
   public ErrorAnd<ProgramDefinition, CiviFormError> updateBlock(
       long programId, long blockDefinitionId, BlockForm blockForm)
-      throws ProgramNotFoundException, ProgramBlockNotFoundException {
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet<CiviFormError> errors =
         validateBlockDefinition(blockForm.getName(), blockForm.getDescription());
@@ -295,7 +295,7 @@ public class ProgramServiceImpl implements ProgramService {
       long programId,
       long blockDefinitionId,
       ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions)
-      throws ProgramNotFoundException, ProgramBlockNotFoundException {
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
@@ -311,7 +311,7 @@ public class ProgramServiceImpl implements ProgramService {
   public ProgramDefinition addQuestionsToBlock(
       long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
       throws DuplicateProgramQuestionException, QuestionNotFoundException, ProgramNotFoundException,
-          ProgramBlockNotFoundException {
+          ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     for (long questionId : questionIds) {
@@ -352,7 +352,8 @@ public class ProgramServiceImpl implements ProgramService {
   @Transactional
   public ProgramDefinition removeQuestionsFromBlock(
       long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
-      throws QuestionNotFoundException, ProgramNotFoundException, ProgramBlockNotFoundException {
+      throws QuestionNotFoundException, ProgramNotFoundException,
+          ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     for (long questionId : questionIds) {
@@ -380,7 +381,7 @@ public class ProgramServiceImpl implements ProgramService {
   @Transactional
   public ProgramDefinition setBlockHidePredicate(
       long programId, long blockDefinitionId, Predicate predicate)
-      throws ProgramNotFoundException, ProgramBlockNotFoundException {
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
@@ -395,7 +396,7 @@ public class ProgramServiceImpl implements ProgramService {
   @Transactional
   public ProgramDefinition setBlockOptionalPredicate(
       long programId, long blockDefinitionId, Predicate predicate)
-      throws ProgramNotFoundException, ProgramBlockNotFoundException {
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
