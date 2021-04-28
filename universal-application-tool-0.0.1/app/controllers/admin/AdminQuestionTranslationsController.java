@@ -6,6 +6,7 @@ import auth.Authorizers;
 import controllers.CiviFormController;
 import forms.QuestionTranslationForm;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -65,7 +66,13 @@ public class AdminQuestionTranslationsController extends CiviFormController {
                 QuestionDefinition definition = readOnlyQuestionService.getQuestionDefinition(id);
                 Locale localeToEdit = Locale.forLanguageTag(locale);
                 return ok(
-                    translationView.render(definition.getQuestionTextOrDefault(localeToEdit)));
+                    translationView.render(
+                        request,
+                        id,
+                        localeToEdit,
+                        definition.maybeGetQuestionText(localeToEdit),
+                        definition.maybeGetQuestionHelpText(localeToEdit),
+                        Optional.empty()));
               } catch (QuestionNotFoundException e) {
                 return notFound(e.getMessage());
               }
@@ -107,7 +114,15 @@ public class AdminQuestionTranslationsController extends CiviFormController {
                     questionService.update(builder.build());
 
                 if (result.isError()) {
-                  return ok(translationView.render(questionText));
+                  String errorMessage = joinErrors(result.getErrors());
+                  return ok(
+                      translationView.render(
+                          request,
+                          id,
+                          updatedLocale,
+                          Optional.of(questionText),
+                          Optional.of(questionHelpText),
+                          Optional.of(errorMessage)));
                 }
 
                 return redirect(routes.QuestionController.index().url());

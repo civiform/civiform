@@ -182,6 +182,18 @@ public abstract class QuestionDefinition {
     }
   }
 
+  /**
+   * Return an {@link Optional} containing the question text for this locale, or empty if this
+   * locale is not supported.
+   */
+  public Optional<String> maybeGetQuestionText(Locale locale) {
+    try {
+      return Optional.of(getQuestionText(locale));
+    } catch (TranslationNotFoundException e) {
+      return Optional.empty();
+    }
+  }
+
   /** Get the question text for the given locale. */
   public String getQuestionText(Locale locale) throws TranslationNotFoundException {
     if (this.questionText.containsKey(locale)) {
@@ -213,6 +225,18 @@ public abstract class QuestionDefinition {
       return getQuestionHelpText(locale);
     } catch (TranslationNotFoundException e) {
       return getDefaultQuestionHelpText();
+    }
+  }
+
+  /**
+   * Return an {@link Optional} containing the question help text for this locale, or empty if this
+   * locale is not supported.
+   */
+  public Optional<String> maybeGetQuestionHelpText(Locale locale) {
+    try {
+      return Optional.of(getQuestionHelpText(locale));
+    } catch (TranslationNotFoundException e) {
+      return Optional.empty();
     }
   }
 
