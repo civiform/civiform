@@ -46,7 +46,8 @@ public class MultiSelectQuestionTest {
 
   @Test
   public void withEmptyApplicantData() {
-    ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, ApplicantData.APPLICANT_PATH);
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, ApplicantData.APPLICANT_PATH);
 
     MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
 
@@ -56,7 +57,8 @@ public class MultiSelectQuestionTest {
 
   @Test
   public void withValidApplicantData_passesValidation() {
-    ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, ApplicantData.APPLICANT_PATH);
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, ApplicantData.APPLICANT_PATH);
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
     QuestionAnswerer.answerMultiSelectQuestion(
@@ -71,7 +73,8 @@ public class MultiSelectQuestionTest {
   @Test
   public void tooFewSelected_failsValidation() {
 
-    ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, ApplicantData.APPLICANT_PATH);
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, ApplicantData.APPLICANT_PATH);
     // Put too few selections.
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 0, 0L);
@@ -84,7 +87,8 @@ public class MultiSelectQuestionTest {
 
   @Test
   public void tooManySelected_failsValidation() {
-    ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, ApplicantData.APPLICANT_PATH);
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, ApplicantData.APPLICANT_PATH);
     // Put too many selections.
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
@@ -103,7 +107,8 @@ public class MultiSelectQuestionTest {
 
   @Test
   public void selectedInvalidOptions_typeErrors_hasNoTypeErrors() {
-    ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, ApplicantData.APPLICANT_PATH);
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, ApplicantData.APPLICANT_PATH);
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
     QuestionAnswerer.answerMultiSelectQuestion(
@@ -118,7 +123,8 @@ public class MultiSelectQuestionTest {
   @Test
   public void getOptions_defaultsIfLangUnsupported() {
     applicantData.setPreferredLocale(Locale.CHINESE);
-    ApplicantQuestion applicantQuestion = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, ApplicantData.APPLICANT_PATH);
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, ApplicantData.APPLICANT_PATH);
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 

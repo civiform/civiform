@@ -76,7 +76,8 @@ public class TextQuestionTest {
   @Parameters({"abc", "abcd"})
   public void withMinAndMaxLength_withValidApplicantData_passesValidation(String value) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(minAndMaxLengthTextQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(
+            minAndMaxLengthTextQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
     QuestionAnswerer.answerTextQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 
@@ -96,7 +97,8 @@ public class TextQuestionTest {
   public void withMinAndMaxLength_withInvalidApplicantData_failsValidation(
       String value, String expectedErrorMessage) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(minAndMaxLengthTextQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(
+            minAndMaxLengthTextQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
     QuestionAnswerer.answerTextQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 

@@ -61,7 +61,8 @@ public class ApplicantQuestionTest {
   public void errorsPresenterExtendedForAllTypes(QuestionType questionType) {
     QuestionDefinition definition =
         testQuestionBank.getSampleQuestionsForAllTypes().get(questionType).getQuestionDefinition();
-    ApplicantQuestion question = new ApplicantQuestion(definition, new ApplicantData(), ApplicantData.APPLICANT_PATH);
+    ApplicantQuestion question =
+        new ApplicantQuestion(definition, new ApplicantData(), ApplicantData.APPLICANT_PATH);
 
     assertThat(question.errorsPresenter().hasTypeSpecificErrors()).isFalse();
   }
@@ -70,42 +71,55 @@ public class ApplicantQuestionTest {
   public void getsExpectedQuestionType() {
     ApplicantQuestion addressApplicantQuestion =
         new ApplicantQuestion(
-            testQuestionBank.applicantAddress().getQuestionDefinition(), new ApplicantData(), ApplicantData.APPLICANT_PATH);
+            testQuestionBank.applicantAddress().getQuestionDefinition(),
+            new ApplicantData(),
+            ApplicantData.APPLICANT_PATH);
     assertThat(addressApplicantQuestion.createAddressQuestion())
         .isInstanceOf(AddressQuestion.class);
 
     ApplicantQuestion checkboxApplicantQuestion =
         new ApplicantQuestion(
-            testQuestionBank.applicantKitchenTools().getQuestionDefinition(), new ApplicantData(), ApplicantData.APPLICANT_PATH);
+            testQuestionBank.applicantKitchenTools().getQuestionDefinition(),
+            new ApplicantData(),
+            ApplicantData.APPLICANT_PATH);
     assertThat(checkboxApplicantQuestion.createMultiSelectQuestion())
         .isInstanceOf(MultiSelectQuestion.class);
 
     ApplicantQuestion dropdownApplicantQuestion =
         new ApplicantQuestion(
-            testQuestionBank.applicantIceCream().getQuestionDefinition(), new ApplicantData(), ApplicantData.APPLICANT_PATH);
+            testQuestionBank.applicantIceCream().getQuestionDefinition(),
+            new ApplicantData(),
+            ApplicantData.APPLICANT_PATH);
     assertThat(dropdownApplicantQuestion.createSingleSelectQuestion())
         .isInstanceOf(SingleSelectQuestion.class);
 
     ApplicantQuestion nameApplicantQuestion =
         new ApplicantQuestion(
-            testQuestionBank.applicantName().getQuestionDefinition(), new ApplicantData(), ApplicantData.APPLICANT_PATH);
+            testQuestionBank.applicantName().getQuestionDefinition(),
+            new ApplicantData(),
+            ApplicantData.APPLICANT_PATH);
     assertThat(nameApplicantQuestion.createNameQuestion()).isInstanceOf(NameQuestion.class);
 
     ApplicantQuestion numberApplicantQuestion =
         new ApplicantQuestion(
             testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
-            new ApplicantData(), ApplicantData.APPLICANT_PATH);
+            new ApplicantData(),
+            ApplicantData.APPLICANT_PATH);
     assertThat(numberApplicantQuestion.createNumberQuestion()).isInstanceOf(NumberQuestion.class);
 
     ApplicantQuestion radioApplicantQuestion =
         new ApplicantQuestion(
-            testQuestionBank.applicantSeason().getQuestionDefinition(), new ApplicantData(), ApplicantData.APPLICANT_PATH);
+            testQuestionBank.applicantSeason().getQuestionDefinition(),
+            new ApplicantData(),
+            ApplicantData.APPLICANT_PATH);
     assertThat(radioApplicantQuestion.createSingleSelectQuestion())
         .isInstanceOf(SingleSelectQuestion.class);
 
     ApplicantQuestion textApplicantQuestion =
         new ApplicantQuestion(
-            testQuestionBank.applicantFavoriteColor().getQuestionDefinition(), new ApplicantData(), ApplicantData.APPLICANT_PATH);
+            testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+            new ApplicantData(),
+            ApplicantData.APPLICANT_PATH);
     assertThat(textApplicantQuestion.createTextQuestion()).isInstanceOf(TextQuestion.class);
   }
 
@@ -118,57 +132,83 @@ public class ApplicantQuestionTest {
         .addEqualityGroup(
             // Address
             new ApplicantQuestion(
-                testQuestionBank.applicantAddress().getQuestionDefinition(), new ApplicantData(), ApplicantData.APPLICANT_PATH),
+                testQuestionBank.applicantAddress().getQuestionDefinition(),
+                new ApplicantData(),
+                ApplicantData.APPLICANT_PATH),
             new ApplicantQuestion(
-                testQuestionBank.applicantAddress().getQuestionDefinition(), new ApplicantData(), ApplicantData.APPLICANT_PATH))
+                testQuestionBank.applicantAddress().getQuestionDefinition(),
+                new ApplicantData(),
+                ApplicantData.APPLICANT_PATH))
         .addEqualityGroup(
             // Checkbox
             new ApplicantQuestion(
                 testQuestionBank.applicantKitchenTools().getQuestionDefinition(),
-                new ApplicantData(), ApplicantData.APPLICANT_PATH),
+                new ApplicantData(),
+                ApplicantData.APPLICANT_PATH),
             new ApplicantQuestion(
                 testQuestionBank.applicantKitchenTools().getQuestionDefinition(),
-                new ApplicantData(), ApplicantData.APPLICANT_PATH))
+                new ApplicantData(),
+                ApplicantData.APPLICANT_PATH))
         .addEqualityGroup(
             // Dropdown
             new ApplicantQuestion(
-                testQuestionBank.applicantIceCream().getQuestionDefinition(), new ApplicantData(), ApplicantData.APPLICANT_PATH),
+                testQuestionBank.applicantIceCream().getQuestionDefinition(),
+                new ApplicantData(),
+                ApplicantData.APPLICANT_PATH),
             new ApplicantQuestion(
-                testQuestionBank.applicantIceCream().getQuestionDefinition(), new ApplicantData(), ApplicantData.APPLICANT_PATH))
+                testQuestionBank.applicantIceCream().getQuestionDefinition(),
+                new ApplicantData(),
+                ApplicantData.APPLICANT_PATH))
         .addEqualityGroup(
             // Name
             new ApplicantQuestion(
-                testQuestionBank.applicantName().getQuestionDefinition(), new ApplicantData(), ApplicantData.APPLICANT_PATH),
+                testQuestionBank.applicantName().getQuestionDefinition(),
+                new ApplicantData(),
+                ApplicantData.APPLICANT_PATH),
             new ApplicantQuestion(
-                testQuestionBank.applicantName().getQuestionDefinition(), new ApplicantData(), ApplicantData.APPLICANT_PATH))
+                testQuestionBank.applicantName().getQuestionDefinition(),
+                new ApplicantData(),
+                ApplicantData.APPLICANT_PATH))
         .addEqualityGroup(
             // Number
             new ApplicantQuestion(
                 testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
-                new ApplicantData(), ApplicantData.APPLICANT_PATH),
+                new ApplicantData(),
+                ApplicantData.APPLICANT_PATH),
             new ApplicantQuestion(
                 testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
-                new ApplicantData(), ApplicantData.APPLICANT_PATH))
+                new ApplicantData(),
+                ApplicantData.APPLICANT_PATH))
         .addEqualityGroup(
             // Radio button
             new ApplicantQuestion(
-                testQuestionBank.applicantSeason().getQuestionDefinition(), new ApplicantData(), ApplicantData.APPLICANT_PATH),
+                testQuestionBank.applicantSeason().getQuestionDefinition(),
+                new ApplicantData(),
+                ApplicantData.APPLICANT_PATH),
             new ApplicantQuestion(
-                testQuestionBank.applicantSeason().getQuestionDefinition(), new ApplicantData(), ApplicantData.APPLICANT_PATH))
+                testQuestionBank.applicantSeason().getQuestionDefinition(),
+                new ApplicantData(),
+                ApplicantData.APPLICANT_PATH))
         .addEqualityGroup(
             // Text
             new ApplicantQuestion(
                 testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
-                new ApplicantData(), ApplicantData.APPLICANT_PATH),
+                new ApplicantData(),
+                ApplicantData.APPLICANT_PATH),
             new ApplicantQuestion(
                 testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
-                new ApplicantData(), ApplicantData.APPLICANT_PATH))
+                new ApplicantData(),
+                ApplicantData.APPLICANT_PATH))
         .addEqualityGroup(
             // Text with answered data
             new ApplicantQuestion(
-                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(), dataWithAnswers, ApplicantData.APPLICANT_PATH),
+                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                dataWithAnswers,
+                ApplicantData.APPLICANT_PATH),
             new ApplicantQuestion(
-                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(), dataWithAnswers, ApplicantData.APPLICANT_PATH))
+                testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+                dataWithAnswers,
+                ApplicantData.APPLICANT_PATH))
         .testEquals();
   }
 }
