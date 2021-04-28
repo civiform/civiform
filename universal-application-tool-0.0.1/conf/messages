@@ -1,0 +1,28 @@
+# This is the default language for the application. Please provide context for each message for use in translations.
+# If a translation cannot be found for a given language, it will default to this file's text instead.
+
+#---------------------------------------------------------------------#
+# COMPONENTS - contains text used in HTML components such as buttons. #
+#---------------------------------------------------------------------#
+
+# The text on the button an applicant clicks to apply to a specific program.
+button.apply=Apply
+
+# The button text for saving the current applicant-entered data and continuing to the next block in the form.
+button.nextBlock=Save and continue
+
+# A toast message that displays when a program is not fully localized to the applicant's preferred locale.
+toast.localeNotSupported=We're sorry, this program is not fully translated to English.
+
+#-------------------------------------------------#
+# PAGES - contains text specific to a given page. #
+#-------------------------------------------------#
+
+# (applicant program index view): The title of the page for the list of programs.
+title.programs=Programs
+
+# "get benefits" floating text
+content.benefits=get benefits
+
+# Long form description of the CiviForm site shown to the applicant.
+content.description=CiviForm lets you apply for many benefits at once by reusing information. You handle getting into it and we'll handle sending it to the right places. Select an application to get started.
