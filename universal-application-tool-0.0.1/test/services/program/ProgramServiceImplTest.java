@@ -395,11 +395,12 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void addRepeatedBlockToProgram_invalidRepeaterId_throwsProgramBlockNotFoundException() {
+  public void
+      addRepeatedBlockToProgram_invalidRepeaterId_throwsProgramBlockDefinitionNotFoundException() {
     Program program = ProgramBuilder.newActiveProgram().build();
 
     assertThatThrownBy(() -> ps.addRepeatedBlockToProgram(program.id, 5L))
-        .isInstanceOf(ProgramBlockNotFoundException.class);
+        .isInstanceOf(ProgramBlockDefinitionNotFoundException.class);
   }
 
   @Test
@@ -466,11 +467,11 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void setBlockQuestions_withBogusBlockId_throwsProgramBlockNotFoundException() {
+  public void setBlockQuestions_withBogusBlockId_throwsProgramBlockDefinitionNotFoundException() {
     ProgramDefinition p =
         ps.createProgramDefinition("name", "description", "name", "description").getResult();
     assertThatThrownBy(() -> ps.setBlockQuestions(p.id(), 100L, ImmutableList.of()))
-        .isInstanceOf(ProgramBlockNotFoundException.class)
+        .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
         .hasMessage(
             String.format(
                 "Block not found in Program (ID %d) for block definition ID 100", p.id()));
@@ -571,10 +572,11 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void setBlockHidePredicate_withBogusBlockId_throwsProgramBlockNotFoundException() {
+  public void
+      setBlockHidePredicate_withBogusBlockId_throwsProgramBlockDefinitionNotFoundException() {
     ProgramDefinition p = ProgramBuilder.newDraftProgram().buildDefinition();
     assertThatThrownBy(() -> ps.setBlockHidePredicate(p.id(), 100L, Predicate.create("")))
-        .isInstanceOf(ProgramBlockNotFoundException.class)
+        .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
         .hasMessage(
             String.format(
                 "Block not found in Program (ID %d) for block definition ID 100", p.id()));
@@ -611,10 +613,11 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void setBlockOptionalPredicate_withBogusBlockId_throwsProgramBlockNotFoundException() {
+  public void
+      setBlockOptionalPredicate_withBogusBlockId_throwsProgramBlockDefinitionNotFoundException() {
     Program program = ProgramBuilder.newDraftProgram().build();
     assertThatThrownBy(() -> ps.setBlockOptionalPredicate(program.id, 100L, Predicate.create("")))
-        .isInstanceOf(ProgramBlockNotFoundException.class)
+        .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
         .hasMessage(
             String.format(
                 "Block not found in Program (ID %d) for block definition ID 100", program.id));

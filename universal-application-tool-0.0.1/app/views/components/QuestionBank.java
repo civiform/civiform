@@ -17,7 +17,7 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.Predicate;
 import services.program.BlockDefinition;
-import services.program.ProgramBlockNotFoundException;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -207,7 +207,7 @@ public class QuestionBank {
               program.getBlockDefinition(repeaterBlockId.get());
           repeaterQuestionId =
               Optional.of(repeaterBlockDefinition.getQuestionDefinition(0).getId());
-        } catch (ProgramBlockNotFoundException e) {
+        } catch (ProgramBlockDefinitionNotFoundException e) {
           String errorMessage =
               String.format(
                   "BlockDefinition %d has a broken repeater block reference to id %d",
