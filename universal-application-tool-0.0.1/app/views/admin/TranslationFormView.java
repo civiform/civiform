@@ -20,6 +20,10 @@ import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.Styles;
 
+/**
+ * Contains helper methods for rendering a form allow an admin to translate a given entity, such as
+ * a question or program.
+ */
 public abstract class TranslationFormView extends BaseHtmlView {
 
   private final ImmutableList<Locale> supportedLocales;
@@ -43,8 +47,16 @@ public abstract class TranslationFormView extends BaseHtmlView {
                 }));
   }
 
+  /**
+   * Given the ID of the entity to translate and a locale for translation, returns a link
+   * destination URL for the edit form to translate the entity in the given locale.
+   */
   protected abstract String languageLinkDestination(long entityId, Locale locale);
 
+  /**
+   * Renders a single locale as the English version of the language (ex: es-US would read
+   * "Spanish"). The text links to a form to translate the entity into that language.
+   */
   private ContainerTag renderLanguageLink(
       String linkDestination, Locale locale, boolean isCurrentlySelected) {
     LinkElement link =
@@ -62,6 +74,10 @@ public abstract class TranslationFormView extends BaseHtmlView {
     return link.asAnchorText();
   }
 
+  /**
+   * Renders a form that allows an admin to enter localized text for an entity's applicant-visible
+   * fields.
+   */
   protected ContainerTag renderTranslationForm(
       Http.Request request,
       Locale locale,

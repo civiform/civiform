@@ -12,6 +12,7 @@ import views.admin.AdminLayout;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
 
+/** Renders a list of languages to select from, and a form for updating question information. */
 public class QuestionTranslationView extends TranslationFormView {
 
   private final AdminLayout layout;
