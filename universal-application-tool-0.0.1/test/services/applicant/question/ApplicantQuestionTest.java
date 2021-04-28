@@ -1,17 +1,20 @@
 package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.testing.EqualsTester;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 import services.Path;
 import services.applicant.ApplicantData;
-import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.question.types.ScalarType;
 import support.TestQuestionBank;
 
 @RunWith(JUnitParamsRunner.class)
@@ -20,9 +23,42 @@ public class ApplicantQuestionTest {
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
 
   @Test
+  public void getContextualizedScalars_returnsContextualizedScalarsAndMetadataForType() {
+    ApplicantQuestion testApplicantQuestion =
+        new ApplicantQuestion(
+            testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
+            new ApplicantData(),
+            ApplicantData.APPLICANT_PATH);
+
+    ImmutableMap<Path, ScalarType> expected =
+        ImmutableMap.of(
+            Path.create("applicant.applicant_favorite_color").join(Scalar.TEXT),
+            ScalarType.STRING,
+            Path.create("applicant.applicant_favorite_color").join(Scalar.UPDATED_AT),
+            ScalarType.LONG,
+            Path.create("applicant.applicant_favorite_color").join(Scalar.PROGRAM_UPDATED_IN),
+            ScalarType.LONG);
+
+    assertThat(testApplicantQuestion.getContextualizedScalars().entrySet())
+        .containsExactlyElementsOf(expected.entrySet());
+  }
+
+  @Test
+  public void getContextualizedScalars_forEnumerationQuestion_throwsInvalidQuestionTypeException() {
+    ApplicantQuestion enumerationApplicantQuestion =
+        new ApplicantQuestion(
+            testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+            new ApplicantData(),
+            ApplicantData.APPLICANT_PATH);
+
+    assertThatThrownBy(() -> enumerationApplicantQuestion.getContextualizedScalars())
+        .isInstanceOf(RuntimeException.class)
+        .hasCauseInstanceOf(InvalidQuestionTypeException.class);
+  }
+
+  @Test
   @Parameters(source = QuestionType.class)
-  public void errorsPresenterExtendedForAllTypes(QuestionType questionType)
-      throws UnsupportedQuestionTypeException {
+  public void errorsPresenterExtendedForAllTypes(QuestionType questionType) {
     QuestionDefinition definition =
         testQuestionBank.getSampleQuestionsForAllTypes().get(questionType).getQuestionDefinition();
     ApplicantQuestion question = new ApplicantQuestion(definition, new ApplicantData(), ApplicantData.APPLICANT_PATH);
