@@ -7,15 +7,17 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.head;
 import static j2html.TagCreator.p;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import j2html.tags.Tag;
 import models.Application;
 import play.twirl.api.Content;
 import services.Path;
+import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
-import services.program.BlockDefinition;
+import services.applicant.Block;
+import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramNotFoundException;
-import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
 import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
@@ -38,14 +40,20 @@ public final class ProgramApplicationView extends BaseHtmlView {
   }
 
   public Content render(long programId, Application application) throws ProgramNotFoundException {
+    ImmutableList<Block> allBlocks =
+        applicantService
+            .getReadOnlyApplicantProgramService(application.getApplicant().id, programId)
+            .toCompletableFuture()
+            .join()
+            .getAllBlocks();
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
             .with(
-                h1(applicantService.applicantName(application)).withClasses(Styles.MY_4),
+                h1(application.getApplicantData().getApplicantName()).withClasses(Styles.MY_4),
                 each(
-                    service.getProgramDefinition(programId).blockDefinitions(),
-                    block -> this.renderApplicationBlock(application, block)),
+                    allBlocks,
+                    block -> this.renderApplicationBlock(application.getApplicantData(), block)),
                 renderDownloadButton(programId, application.id));
 
     return layout.render(head(layout.tailwindStyles()), body(contentDiv));
@@ -62,15 +70,15 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .asButton();
   }
 
-  private Tag renderApplicationBlock(Application application, BlockDefinition block) {
+  private Tag renderApplicationBlock(ApplicantData applicantData, Block block) {
     Tag topContent =
         div(
                 div(
-                    div(block.name())
+                    div(block.getName())
                         .withClasses(
                             Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.TEXT_XL, Styles.MB_2)),
                 p().withClasses(Styles.FLEX_GROW),
-                p(block.description()).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC))
+                p(block.getDescription()).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC))
             .withClasses(Styles.FLEX);
 
     Tag mainContent =
@@ -78,8 +86,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withClasses(Styles.W_FULL)
             .with(
                 each(
-                    block.programQuestionDefinitions(),
-                    question -> this.renderQuestion(application, question)));
+                    block.getQuestions(),
+                    question -> this.renderQuestion(applicantData, question)));
 
     Tag innerDiv =
         div(topContent, mainContent)
@@ -94,29 +102,29 @@ public final class ProgramApplicationView extends BaseHtmlView {
             Styles.MB_4);
   }
 
-  private Tag renderQuestion(Application application, ProgramQuestionDefinition question) {
-    QuestionDefinition definition = question.getQuestionDefinition();
+  private Tag renderQuestion(ApplicantData applicantData, ApplicantQuestion question) {
+    QuestionDefinition questionDefinition = question.getQuestionDefinition();
     return div(div()
             .withClasses(Styles.FLEX)
             .with(
                 div(
-                        div(String.format("Question %d", definition.getId()))
+                        div(String.format("Question %d", questionDefinition.getId()))
                             .withClasses(
                                 Styles.TEXT_GRAY_400, Styles.TEXT_XL, Styles.MB_2, "line-clamp-3"),
-                        div(definition.getName())
+                        div(questionDefinition.getName())
                             .withClasses(Styles.TEXT_GRAY_400, Styles.TEXT_BASE, "line-clamp-3"))
                     .withClasses(Styles.MB_8),
                 p().withClasses(Styles.W_8),
                 div(
                     each(
-                        definition.getScalars().entrySet(),
-                        entry -> this.renderScalar(entry.getKey(), application))),
+                        question.getContextualizedScalars().entrySet(),
+                        entry -> this.renderScalar(entry.getKey(), applicantData))),
                 p().withClasses(Styles.FLEX_GROW)))
         .withClasses(Styles.MB_8);
   }
 
-  private Tag renderScalar(Path key, Application application) {
-    return div(application.getApplicantData().readAsString(key).orElse("<unanswered>"))
+  private Tag renderScalar(Path key, ApplicantData applicantData) {
+    return div(applicantData.readAsString(key).orElse("<unanswered>"))
         .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_BASE, "line-clamp-3");
   }
 }

@@ -59,7 +59,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   private Tag renderApplicationListItem(long programId, Application application) {
     String downloadLinkText = "Download (PDF)";
     long applicationId = application.id;
-    String applicantName = applicantService.applicantName(application);
+    String applicantName = application.getApplicantData().getApplicantName();
     String lastEditText;
     try {
       lastEditText = application.getSubmitTime().toString();
