@@ -21,7 +21,6 @@ import services.Path;
 import services.applicant.question.Scalar;
 import services.program.PathNotInBlockException;
 import services.program.ProgramBlockDefinitionNotFoundException;
-import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.question.QuestionOption;

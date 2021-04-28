@@ -395,7 +395,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void addRepeatedBlockToProgram_invalidRepeaterId_throwsProgramBlockDefinitionNotFoundException() {
+  public void
+      addRepeatedBlockToProgram_invalidRepeaterId_throwsProgramBlockDefinitionNotFoundException() {
     Program program = ProgramBuilder.newActiveProgram().build();
 
     assertThatThrownBy(() -> ps.addRepeatedBlockToProgram(program.id, 5L))
@@ -571,7 +572,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void setBlockHidePredicate_withBogusBlockId_throwsProgramBlockDefinitionNotFoundException() {
+  public void
+      setBlockHidePredicate_withBogusBlockId_throwsProgramBlockDefinitionNotFoundException() {
     ProgramDefinition p = ProgramBuilder.newDraftProgram().buildDefinition();
     assertThatThrownBy(() -> ps.setBlockHidePredicate(p.id(), 100L, Predicate.create("")))
         .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
@@ -611,7 +613,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void setBlockOptionalPredicate_withBogusBlockId_throwsProgramBlockDefinitionNotFoundException() {
+  public void
+      setBlockOptionalPredicate_withBogusBlockId_throwsProgramBlockDefinitionNotFoundException() {
     Program program = ProgramBuilder.newDraftProgram().build();
     assertThatThrownBy(() -> ps.setBlockOptionalPredicate(program.id, 100L, Predicate.create("")))
         .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
