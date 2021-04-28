@@ -104,12 +104,12 @@ public class BlockTest {
         .contains(ScalarType.STRING);
     assertThat(
             block.getScalarType(
-                    ApplicantData.APPLICANT_PATH.join("applicant_name").join(Scalar.MIDDLE_NAME)))
-            .contains(ScalarType.STRING);
+                ApplicantData.APPLICANT_PATH.join("applicant_name").join(Scalar.MIDDLE_NAME)))
+        .contains(ScalarType.STRING);
     assertThat(
             block.getScalarType(
-                    ApplicantData.APPLICANT_PATH.join("applicant_name").join(Scalar.LAST_NAME)))
-            .contains(ScalarType.STRING);
+                ApplicantData.APPLICANT_PATH.join("applicant_name").join(Scalar.LAST_NAME)))
+        .contains(ScalarType.STRING);
     assertThat(
             block.getScalarType(
                 ApplicantData.APPLICANT_PATH
