@@ -3,6 +3,7 @@ package views.admin.ti;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
 import static j2html.TagCreator.td;
@@ -11,12 +12,16 @@ import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
 
 import com.google.inject.Inject;
+import controllers.admin.routes;
+import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.List;
 import models.TrustedIntermediaryGroup;
+import play.mvc.Http;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
+import views.components.FieldWithLabel;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -30,9 +35,13 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
     this.layout = layout;
   }
 
-  public Content render(List<TrustedIntermediaryGroup> tis) {
+  public Content render(List<TrustedIntermediaryGroup> tis, Http.Request request) {
     return layout.render(
-        body(renderHeader("Trusted Intermediary Groups"), renderTiGroupCards(tis)));
+        body(
+            renderHeader("Trusted Intermediary Groups"),
+            renderTiGroupCards(tis),
+            renderHeader("Create New Group").withClass(Styles.MT_8),
+            renderAddNewButton(request)));
   }
 
   private Tag renderTiGroupCards(List<TrustedIntermediaryGroup> tis) {
@@ -41,6 +50,34 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
             .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
             .with(renderGroupTableHeader())
             .with(tbody(each(tis, ti -> renderGroupRow(ti)))));
+  }
+
+  private Tag renderAddNewButton(Http.Request request) {
+    ContainerTag formTag =
+        form()
+            .withMethod("POST")
+            .withAction(routes.TrustedIntermediaryManagementController.newGroup().url());
+    FieldWithLabel nameField =
+        FieldWithLabel.input()
+            .setId("group-name-input")
+            .setFieldName("name")
+            .setLabelText("Name")
+            .setPlaceholderText("The name of this Trusted Intermediary Group.");
+    FieldWithLabel descriptionField =
+        FieldWithLabel.input()
+            .setId("group-description-input")
+            .setFieldName("description")
+            .setLabelText("Description")
+            .setPlaceholderText("The description of this group.");
+    return div()
+        .with(
+            formTag.with(
+                nameField.getContainer(),
+                descriptionField.getContainer(),
+                makeCsrfTokenInputTag(request),
+                submitButton("Create").withClasses(Styles.ML_2, Styles.MB_6)))
+        .withClasses(
+            Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_1_2, Styles.MT_6);
   }
 
   private Tag renderGroupRow(TrustedIntermediaryGroup ti) {
