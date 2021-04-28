@@ -286,6 +286,52 @@ public class QuestionDefinitionTest {
   }
 
   @Test
+  public void maybeGetQuestionText_returnsOptionalWithText() {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            "",
+            Path.empty(),
+            Optional.empty(),
+            "",
+            ImmutableMap.of(Locale.US, "hello"),
+            ImmutableMap.of());
+
+    assertThat(question.maybeGetQuestionText(Locale.US)).hasValue("hello");
+  }
+
+  @Test
+  public void maybeGetQuestionText_returnsEmptyIfLocaleNotFound() {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            "", Path.empty(), Optional.empty(), "", ImmutableMap.of(), ImmutableMap.of());
+
+    assertThat(question.maybeGetQuestionText(Locale.forLanguageTag("und"))).isEmpty();
+  }
+
+  @Test
+  public void maybeGetQuestionHelpText_returnsOptionalWithText() {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            "",
+            Path.empty(),
+            Optional.empty(),
+            "",
+            ImmutableMap.of(),
+            ImmutableMap.of(Locale.US, "world"));
+
+    assertThat(question.maybeGetQuestionHelpText(Locale.US)).hasValue("world");
+  }
+
+  @Test
+  public void maybeGetQuestionHelpText_returnsEmptyIfLocaleNotFound() {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            "", Path.empty(), Optional.empty(), "", ImmutableMap.of(), ImmutableMap.of());
+
+    assertThat(question.maybeGetQuestionHelpText(Locale.forLanguageTag("und"))).isEmpty();
+  }
+
+  @Test
   public void newQuestionHasTypeText() {
     QuestionDefinition question =
         new TextQuestionDefinition(
@@ -348,9 +394,22 @@ public class QuestionDefinitionTest {
             "", Path.empty(), Optional.empty(), "", ImmutableMap.of(), ImmutableMap.of());
     assertThat(question.validate())
         .containsOnly(
-            CiviFormError.of("blank name"),
-            CiviFormError.of("blank description"),
-            CiviFormError.of("no question text"));
+            CiviFormError.of("Name cannot be blank"),
+            CiviFormError.of("Description cannot be blank"),
+            CiviFormError.of("Question text cannot be blank"));
+  }
+
+  @Test
+  public void validate_localeHasBlankText_returnsError() {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            "test",
+            Path.empty(),
+            Optional.empty(),
+            "test",
+            ImmutableMap.of(Locale.US, ""),
+            ImmutableMap.of());
+    assertThat(question.validate()).containsOnly(CiviFormError.of("Question text cannot be blank"));
   }
 
   @Test

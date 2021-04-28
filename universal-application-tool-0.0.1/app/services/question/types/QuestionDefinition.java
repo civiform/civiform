@@ -234,7 +234,8 @@ public abstract class QuestionDefinition {
    */
   public Optional<String> maybeGetQuestionHelpText(Locale locale) {
     try {
-      return Optional.of(getQuestionHelpText(locale));
+      String helpText = getQuestionHelpText(locale);
+      return helpText.isEmpty() ? Optional.empty() : Optional.of(helpText);
     } catch (TranslationNotFoundException e) {
       return Optional.empty();
     }
@@ -333,13 +334,16 @@ public abstract class QuestionDefinition {
   public ImmutableSet<CiviFormError> validate() {
     ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
     if (name.isBlank()) {
-      errors.add(CiviFormError.of("blank name"));
+      errors.add(CiviFormError.of("Name cannot be blank"));
     }
     if (description.isBlank()) {
-      errors.add(CiviFormError.of("blank description"));
+      errors.add(CiviFormError.of("Description cannot be blank"));
     }
     if (questionText.isEmpty()) {
-      errors.add(CiviFormError.of("no question text"));
+      errors.add(CiviFormError.of("Question text cannot be blank"));
+    }
+    if (questionText.values().stream().anyMatch(String::isBlank)) {
+      errors.add(CiviFormError.of("Question text cannot be blank"));
     }
     return errors.build();
   }
