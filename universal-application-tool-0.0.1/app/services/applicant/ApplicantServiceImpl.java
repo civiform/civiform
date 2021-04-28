@@ -18,7 +18,7 @@ import models.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.concurrent.HttpExecutionContext;
-import repository.ApplicantRepository;
+import repository.UserRepository;
 import services.ErrorAnd;
 import services.Path;
 import services.WellKnownPaths;
@@ -32,7 +32,8 @@ import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
 
 public class ApplicantServiceImpl implements ApplicantService {
-  private final ApplicantRepository applicantRepository;
+
+  private final UserRepository userRepository;
   private final ProgramService programService;
   private final Clock clock;
   private final HttpExecutionContext httpExecutionContext;
@@ -40,11 +41,11 @@ public class ApplicantServiceImpl implements ApplicantService {
 
   @Inject
   public ApplicantServiceImpl(
-      ApplicantRepository applicantRepository,
+      UserRepository userRepository,
       ProgramService programService,
       Clock clock,
       HttpExecutionContext httpExecutionContext) {
-    this.applicantRepository = checkNotNull(applicantRepository);
+    this.userRepository = checkNotNull(userRepository);
     this.programService = checkNotNull(programService);
     this.clock = checkNotNull(clock);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
@@ -53,14 +54,14 @@ public class ApplicantServiceImpl implements ApplicantService {
   @Override
   public CompletionStage<Applicant> createApplicant(long userId) {
     Applicant applicant = new Applicant();
-    return applicantRepository.insertApplicant(applicant).thenApply((unused) -> applicant);
+    return userRepository.insertApplicant(applicant).thenApply((unused) -> applicant);
   }
 
   @Override
   public CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
       long applicantId, long programId) {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
-        applicantRepository.lookupApplicant(applicantId).toCompletableFuture();
+        userRepository.lookupApplicant(applicantId).toCompletableFuture();
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
         programService.getProgramDefinitionAsync(programId).toCompletableFuture();
 
@@ -113,7 +114,7 @@ public class ApplicantServiceImpl implements ApplicantService {
       stageAndUpdateIfValid(
           long applicantId, long programId, String blockId, ImmutableSet<Update> updates) {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
-        applicantRepository.lookupApplicant(applicantId).toCompletableFuture();
+        userRepository.lookupApplicant(applicantId).toCompletableFuture();
 
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
         programService.getProgramDefinitionAsync(programId).toCompletableFuture();
@@ -144,7 +145,7 @@ public class ApplicantServiceImpl implements ApplicantService {
 
               Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
               if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
-                return applicantRepository
+                return userRepository
                     .updateApplicant(applicant)
                     .thenApplyAsync(
                         (finishedSaving) -> ErrorAnd.of(roApplicantProgramService),
@@ -172,7 +173,7 @@ public class ApplicantServiceImpl implements ApplicantService {
 
   @Override
   public CompletionStage<ImmutableList<ProgramDefinition>> relevantPrograms(long applicantId) {
-    return applicantRepository.programsForApplicant(applicantId);
+    return userRepository.programsForApplicant(applicantId);
   }
 
   /** In-place update of {@link Applicant}'s data. */

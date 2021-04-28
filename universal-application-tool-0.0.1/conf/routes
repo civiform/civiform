@@ -42,6 +42,8 @@ GET     /admin/questions/:id         controllers.admin.QuestionController.show(i
 POST    /admin/questions/:id         controllers.admin.QuestionController.update(request: Request, id: Long, type: String)
 POST    /admin/questions             controllers.admin.QuestionController.create(request: Request, type: String)
 
+GET     /admin/tis               controllers.admin.TrustedIntermediaryManagementController.index()
+
 # Controller for admins only, related to applications
 GET     /admin/programs/:programId/applications                           controllers.admin.AdminApplicationController.answerList(programId: Long)
 GET     /admin/programs/:programId/applications/all                       controllers.admin.AdminApplicationController.downloadAll(programId: Long)
