@@ -7,10 +7,12 @@ import com.google.common.testing.EqualsTester;
 import org.junit.Test;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.ScalarType;
 import services.question.types.TextQuestionDefinition;
 import support.QuestionAnswerer;
 import support.TestQuestionBank;
@@ -87,6 +89,63 @@ public class BlockTest {
             new ApplicantQuestion(NAME_QUESTION, applicantData),
             new ApplicantQuestion(COLOR_QUESTION, applicantData));
     assertThat(block.getQuestions()).containsExactlyElementsOf(expected);
+  }
+
+  @Test
+  public void getScalarType_returnsAllScalarTypes() {
+    BlockDefinition definition = setUpBlockWithQuestions();
+    ApplicantData applicantData = new ApplicantData();
+
+    Block block = new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH);
+
+    assertThat(
+            block.getScalarType(
+                ApplicantData.APPLICANT_PATH.join("applicant_name").join(Scalar.FIRST_NAME)))
+        .contains(ScalarType.STRING);
+    assertThat(
+            block.getScalarType(
+                ApplicantData.APPLICANT_PATH.join("applicant_name").join(Scalar.MIDDLE_NAME)))
+        .contains(ScalarType.STRING);
+    assertThat(
+            block.getScalarType(
+                ApplicantData.APPLICANT_PATH.join("applicant_name").join(Scalar.LAST_NAME)))
+        .contains(ScalarType.STRING);
+    assertThat(
+            block.getScalarType(
+                ApplicantData.APPLICANT_PATH
+                    .join("applicant_name")
+                    .join(Scalar.PROGRAM_UPDATED_IN)))
+        .contains(ScalarType.LONG);
+    assertThat(
+            block.getScalarType(
+                ApplicantData.APPLICANT_PATH.join("applicant_name").join(Scalar.UPDATED_AT)))
+        .contains(ScalarType.LONG);
+    assertThat(
+            block.getScalarType(
+                ApplicantData.APPLICANT_PATH.join("applicant_favorite_color").join(Scalar.TEXT)))
+        .contains(ScalarType.STRING);
+    assertThat(
+            block.getScalarType(
+                ApplicantData.APPLICANT_PATH
+                    .join("applicant_favorite_color")
+                    .join(Scalar.PROGRAM_UPDATED_IN)))
+        .contains(ScalarType.LONG);
+    assertThat(
+            block.getScalarType(
+                ApplicantData.APPLICANT_PATH
+                    .join("applicant_favorite_color")
+                    .join(Scalar.UPDATED_AT)))
+        .contains(ScalarType.LONG);
+  }
+
+  @Test
+  public void getScalarType_forNonExistentPath_returnsEmpty() {
+    BlockDefinition definition = setUpBlockWithQuestions();
+    ApplicantData applicantData = new ApplicantData();
+
+    Block block = new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH);
+
+    assertThat(block.getScalarType(Path.create("fake.path"))).isEmpty();
   }
 
   // TODO(https://github.com/seattle-uat/universal-application-tool/issues/377): Add more tests for

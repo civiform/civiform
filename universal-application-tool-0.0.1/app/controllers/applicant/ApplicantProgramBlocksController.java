@@ -27,8 +27,8 @@ import play.mvc.Result;
 import repository.ApplicationRepository;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
+import services.applicant.ProgramBlockNotFoundException;
 import services.applicant.ReadOnlyApplicantProgramService;
-import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramBlockEditView;
 
