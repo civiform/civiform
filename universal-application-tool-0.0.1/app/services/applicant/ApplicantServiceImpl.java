@@ -2,14 +2,17 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import java.time.Clock;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Applicant;
 import models.Application;
@@ -20,21 +23,14 @@ import repository.ApplicantRepository;
 import services.ErrorAnd;
 import services.Path;
 import services.WellKnownPaths;
-import services.program.BlockDefinition;
+import services.applicant.question.Scalar;
 import services.program.PathNotInBlockException;
-import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.question.exceptions.UnsupportedScalarTypeException;
-import services.question.types.QuestionDefinition;
 import services.question.types.ScalarType;
 
 public class ApplicantServiceImpl implements ApplicantService {
-  private static final ImmutableSet<String> RESERVED_SCALAR_KEYS =
-      ImmutableSet.of(
-          QuestionDefinition.METADATA_UPDATE_TIME_KEY,
-          QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY);
-
   private final ApplicantRepository applicantRepository;
   private final ProgramService programService;
   private final Clock clock;
@@ -91,8 +87,20 @@ public class ApplicantServiceImpl implements ApplicantService {
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
             .collect(ImmutableSet.toImmutableSet());
 
+    // Ensures updates do not collide with metadata scalars. "keyName[]" collides with "keyName".
     boolean updatePathsContainReservedKeys =
-        updates.stream().anyMatch(u -> RESERVED_SCALAR_KEYS.contains(u.path().keyName()));
+        !Sets.intersection(
+                Scalar.getMetadataScalarKeys(),
+                updates.stream()
+                    .map(
+                        update -> {
+                          if (update.path().isArrayElement()) {
+                            return update.path().withoutArrayReference().keyName();
+                          }
+                          return update.path().keyName();
+                        })
+                    .collect(Collectors.toSet()))
+            .isEmpty();
     if (updatePathsContainReservedKeys) {
       return CompletableFuture.failedFuture(
           new IllegalArgumentException("Path contained reserved scalar key"));
@@ -120,13 +128,25 @@ public class ApplicantServiceImpl implements ApplicantService {
               }
               Applicant applicant = applicantMaybe.get();
 
+              // Create a ReadOnlyApplicantProgramService and get the current block.
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
+              ReadOnlyApplicantProgramService readOnlyApplicantProgramServiceBeforeUpdate =
+                  new ReadOnlyApplicantProgramServiceImpl(
+                      applicant.getApplicantData(), programDefinition);
+              Optional<Block> maybeBlockBeforeUpdate =
+                  readOnlyApplicantProgramServiceBeforeUpdate.getBlock(blockId);
+              if (maybeBlockBeforeUpdate.isEmpty()) {
+                return CompletableFuture.completedFuture(
+                    ErrorAnd.error(
+                        ImmutableSet.of(new ProgramBlockNotFoundException(programId, blockId))));
+              }
+              Block blockBeforeUpdate = maybeBlockBeforeUpdate.get();
 
+              UpdateMetadata updateMetadata = UpdateMetadata.create(programId, clock.millis());
               try {
-                stageUpdates(applicant, programDefinition, blockId, updates);
-              } catch (ProgramBlockNotFoundException
-                  | UnsupportedScalarTypeException
-                  | PathNotInBlockException e) {
+                stageUpdates(
+                    applicant.getApplicantData(), blockBeforeUpdate, updateMetadata, updates);
+              } catch (UnsupportedScalarTypeException | PathNotInBlockException e) {
                 return CompletableFuture.completedFuture(ErrorAnd.error(ImmutableSet.of(e)));
               }
 
@@ -167,32 +187,23 @@ public class ApplicantServiceImpl implements ApplicantService {
     return applicantRepository.programsForApplicant(applicantId);
   }
 
-  /** In-place update of {@link Applicant}'s data. */
-  private void stageUpdates(
-      Applicant applicant,
-      ProgramDefinition programDefinition,
-      String blockId,
-      ImmutableSet<Update> updates)
-      throws ProgramBlockNotFoundException, UnsupportedScalarTypeException,
-          PathNotInBlockException {
-
-    BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockId);
-    stageUpdates(applicant.getApplicantData(), blockDefinition, programDefinition.id(), updates);
-  }
-
-  /** In-place update of {@link ApplicantData}. */
+  /**
+   * In-place update of {@link ApplicantData}. Adds program id and timestamp metadata with updates.
+   *
+   * @throws PathNotInBlockException if there are updates for questions that aren't in the block.
+   */
   private void stageUpdates(
       ApplicantData applicantData,
-      BlockDefinition blockDefinition,
-      long programId,
+      Block block,
+      UpdateMetadata updateMetadata,
       ImmutableSet<Update> updates)
       throws UnsupportedScalarTypeException, PathNotInBlockException {
     ImmutableSet.Builder<Path> questionPaths = ImmutableSet.builder();
     for (Update update : updates) {
       ScalarType type =
-          blockDefinition
+          block
               .getScalarType(update.path())
-              .orElseThrow(() -> new PathNotInBlockException(blockDefinition, update.path()));
+              .orElseThrow(() -> new PathNotInBlockException(block.getId(), update.path()));
       questionPaths.add(update.path().parentPath());
       switch (type) {
         case STRING:
@@ -206,11 +217,24 @@ public class ApplicantServiceImpl implements ApplicantService {
       }
     }
 
-    questionPaths.build().forEach(path -> writeMetadataForPath(path, applicantData, programId));
+    questionPaths
+        .build()
+        .forEach(path -> writeMetadataForPath(path, applicantData, updateMetadata));
   }
 
-  private void writeMetadataForPath(Path path, ApplicantData data, long programId) {
-    data.putLong(path.join(QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY), programId);
-    data.putLong(path.join(QuestionDefinition.METADATA_UPDATE_TIME_KEY), clock.millis());
+  private void writeMetadataForPath(Path path, ApplicantData data, UpdateMetadata updateMetadata) {
+    data.putLong(path.join(Scalar.PROGRAM_UPDATED_IN), updateMetadata.programId());
+    data.putLong(path.join(Scalar.UPDATED_AT), updateMetadata.updatedAt());
+  }
+
+  @AutoValue
+  abstract static class UpdateMetadata {
+    abstract long programId();
+
+    abstract long updatedAt();
+
+    static UpdateMetadata create(long programId, long updatedAt) {
+      return new AutoValue_ApplicantServiceImpl_UpdateMetadata(programId, updatedAt);
+    }
   }
 }

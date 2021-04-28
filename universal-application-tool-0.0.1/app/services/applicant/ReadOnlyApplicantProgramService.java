@@ -6,8 +6,25 @@ import java.util.Optional;
 /** Provides synchronous, read-only behavior relevant to an applicant for a specific program. */
 public interface ReadOnlyApplicantProgramService {
 
-  /** Get the program's current Blocks for the applicant. */
-  ImmutableList<Block> getCurrentBlockList();
+  /**
+   * Get the {@link Block}s for this program and applicant. This includes all blocks, whether the
+   * block was filled out in this program or a previous program.
+   */
+  ImmutableList<Block> getAllBlocks();
+
+  /**
+   * Get the {@link Block}s this applicant needs to fill out or has filled out for this program.
+   *
+   * <p>This list includes any block that is incomplete or has errors (which indicate the applicant
+   * needs to make a correction), or any block that was completed while filling out this program
+   * form.
+   *
+   * <p>This list does not include blocks that were completely filled out in a different program.
+   *
+   * @return a list of {@link Block}s that were completed by the applicant in this session or still
+   *     need to be completed for this program
+   */
+  ImmutableList<Block> getInProgressBlocks();
 
   /** Get the block with the given block ID */
   Optional<Block> getBlock(String blockId);

@@ -24,8 +24,8 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
+import services.applicant.ProgramBlockNotFoundException;
 import services.applicant.ReadOnlyApplicantProgramService;
-import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramBlockEditView;
 

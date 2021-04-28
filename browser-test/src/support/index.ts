@@ -59,11 +59,21 @@ export const userDisplayName = () => {
   }
 }
 
+/**
+ * The option to select a language is only shown once for a given applicant. If this is
+ * the first time they see this page, select the given language. Otherwise continue.
+ */
 export const selectApplicantLanguage = async (page: Page, language: string) => {
-  if (!isTestUser()) {
+  const infoPageRegex = /applicants\/\d+\/edit/;
+  const maybeSelectLanguagePage = await page.url();
+  if (maybeSelectLanguagePage.match(infoPageRegex)) {
     await page.selectOption('select', { label: language });
     await page.click('button');
   }
+
+  const programIndexRegex = /applicants\/\d+\/programs/;
+  const maybeProgramIndexPage = await page.url();
+  expect(maybeProgramIndexPage).toMatch(programIndexRegex);
 }
 
 export const dropTables = async (page: Page) => {

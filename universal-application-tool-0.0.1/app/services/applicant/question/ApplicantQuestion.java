@@ -2,13 +2,18 @@ package services.applicant.question;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.question.exceptions.InvalidQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.question.types.ScalarType;
 
 /**
  * Represents a question in the context of a specific applicant. Other type-specific classes (e.g.
@@ -19,16 +24,14 @@ import services.question.types.QuestionType;
 public class ApplicantQuestion {
 
   private final QuestionDefinition questionDefinition;
-  private final Path applicationPathContext;
+  private final Path contextualizedPath;
   private final ApplicantData applicantData;
 
   public ApplicantQuestion(
-      QuestionDefinition questionDefinition,
-      ApplicantData applicantData,
-      Path applicationPathContext) {
+      QuestionDefinition questionDefinition, ApplicantData applicantData, Path contextualizedPath) {
     this.questionDefinition = checkNotNull(questionDefinition);
     this.applicantData = checkNotNull(applicantData);
-    this.applicationPathContext = checkNotNull(applicationPathContext);
+    this.contextualizedPath = checkNotNull(contextualizedPath);
   }
 
   // TODO(#783): Get rid of this constructor.
@@ -65,7 +68,29 @@ public class ApplicantQuestion {
    * "applicant.household_member[3].name".
    */
   public Path getContextualizedPath() {
-    return applicationPathContext.join(questionDefinition.getQuestionPathSegment());
+    return contextualizedPath.join(questionDefinition.getQuestionPathSegment());
+  }
+
+  /**
+   * Returns the map of contextualized paths to scalars and their {@link ScalarType}s used by this
+   * question. This includes metadata paths.
+   *
+   * <p>This should not be used for {@link QuestionType#REPEATER} questions.
+   */
+  public ImmutableMap<Path, ScalarType> getContextualizedScalars() {
+    try {
+      return ImmutableMap.<Scalar, ScalarType>builder()
+          .putAll(Scalar.getScalars(getType()))
+          .putAll(Scalar.getMetadataScalars())
+          .build()
+          .entrySet()
+          .stream()
+          .collect(
+              ImmutableMap.toImmutableMap(
+                  entry -> getContextualizedPath().join(entry.getKey()), Map.Entry::getValue));
+    } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public boolean hasErrors() {

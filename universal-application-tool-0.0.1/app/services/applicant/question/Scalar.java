@@ -1,6 +1,7 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
@@ -63,6 +64,8 @@ public enum Scalar {
           UPDATED_AT, ScalarType.LONG,
           PROGRAM_UPDATED_IN, ScalarType.LONG);
 
+  private static ImmutableSet<String> metadataScalarKeys;
+
   /**
    * Returns the scalars for a specific {@link QuestionType}.
    *
@@ -100,5 +103,18 @@ public enum Scalar {
 
   public static ImmutableMap<Scalar, ScalarType> getMetadataScalars() {
     return METADATA_SCALARS;
+  }
+
+  /** A set of Scalar strings that represent keys where metadata is stored. */
+  public static ImmutableSet<String> getMetadataScalarKeys() {
+    if (metadataScalarKeys == null) {
+      metadataScalarKeys =
+          METADATA_SCALARS.keySet().stream()
+              .map(Scalar::name)
+              .map(String::toLowerCase) // TODO(783, kct): get rid of this once scalars are defined
+              // entirely in Block.
+              .collect(ImmutableSet.toImmutableSet());
+    }
+    return metadataScalarKeys;
   }
 }
