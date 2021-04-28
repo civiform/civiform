@@ -84,8 +84,8 @@ public class BlockTest {
 
     ImmutableList<ApplicantQuestion> expected =
         ImmutableList.of(
-            new ApplicantQuestion(NAME_QUESTION, applicantData),
-            new ApplicantQuestion(COLOR_QUESTION, applicantData));
+            new ApplicantQuestion(NAME_QUESTION, applicantData, ApplicantData.APPLICANT_PATH),
+            new ApplicantQuestion(COLOR_QUESTION, applicantData, ApplicantData.APPLICANT_PATH));
     assertThat(block.getQuestions()).containsExactlyElementsOf(expected);
   }
 

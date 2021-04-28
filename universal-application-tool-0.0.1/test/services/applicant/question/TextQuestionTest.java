@@ -50,7 +50,7 @@ public class TextQuestionTest {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(textQuestionDefinition, applicantData);
+        new ApplicantQuestion(textQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
 
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
@@ -61,7 +61,7 @@ public class TextQuestionTest {
   @Test
   public void withApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(textQuestionDefinition, applicantData);
+        new ApplicantQuestion(textQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
     QuestionAnswerer.answerTextQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "hello");
 
@@ -76,7 +76,7 @@ public class TextQuestionTest {
   @Parameters({"abc", "abcd"})
   public void withMinAndMaxLength_withValidApplicantData_passesValidation(String value) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(minAndMaxLengthTextQuestionDefinition, applicantData);
+        new ApplicantQuestion(minAndMaxLengthTextQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
     QuestionAnswerer.answerTextQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 
@@ -96,7 +96,7 @@ public class TextQuestionTest {
   public void withMinAndMaxLength_withInvalidApplicantData_failsValidation(
       String value, String expectedErrorMessage) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(minAndMaxLengthTextQuestionDefinition, applicantData);
+        new ApplicantQuestion(minAndMaxLengthTextQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
     QuestionAnswerer.answerTextQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 

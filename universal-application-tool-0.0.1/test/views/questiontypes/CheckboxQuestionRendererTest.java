@@ -33,7 +33,7 @@ public class CheckboxQuestionRendererTest {
 
   @Before
   public void setup() {
-    ApplicantQuestion question = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData);
+    ApplicantQuestion question = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, ApplicantData.APPLICANT_PATH);
     renderer = new CheckboxQuestionRenderer(question);
   }
 

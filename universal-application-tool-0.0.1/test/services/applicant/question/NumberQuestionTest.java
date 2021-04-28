@@ -51,7 +51,7 @@ public class NumberQuestionTest {
   @Test
   public void withEmptyApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(numberQuestionDefinition, applicantData);
+        new ApplicantQuestion(numberQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
 
     NumberQuestion numberQuestion = new NumberQuestion(applicantQuestion);
 
@@ -62,7 +62,7 @@ public class NumberQuestionTest {
   @Test
   public void withEmptyValueAtPath_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(numberQuestionDefinition, applicantData);
+        new ApplicantQuestion(numberQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "");
 
@@ -75,7 +75,7 @@ public class NumberQuestionTest {
   @Test
   public void withValidValue_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(numberQuestionDefinition, applicantData);
+        new ApplicantQuestion(numberQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 800);
 
@@ -89,7 +89,7 @@ public class NumberQuestionTest {
   @Parameters({"50", "75", "100"})
   public void withMinAndMaxValue_withValidValue_passesValidation(long value) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData);
+        new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 
@@ -111,7 +111,7 @@ public class NumberQuestionTest {
   public void withMinAndMaxValue_withInvalidValue_failsValidation(
       long value, String expectedErrorMessage) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData);
+        new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 
@@ -126,7 +126,7 @@ public class NumberQuestionTest {
   @Test
   public void withMinAndMaxValue_withEmptyValueAtPath_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData);
+        new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "");
 
