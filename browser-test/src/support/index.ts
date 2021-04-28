@@ -64,8 +64,9 @@ export const userDisplayName = () => {
  * the first time they see this page, select the given language. Otherwise continue.
  */
 export const selectApplicantLanguage = async (page: Page, language: string) => {
-  const maybeSelectLanguagePage = await page.$('#select-language');
-  if (maybeSelectLanguagePage) {
+  const infoPageRegex = /applicants\/\d+\/edit/;
+  const maybeSelectLanguagePage = await page.url();
+  if (maybeSelectLanguagePage.match(infoPageRegex)) {
     await page.selectOption('select', { label: language });
     await page.click('button');
   }
