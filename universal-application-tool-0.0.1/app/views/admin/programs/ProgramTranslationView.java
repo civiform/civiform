@@ -57,7 +57,7 @@ public class ProgramTranslationView extends TranslationFormView {
             request, locale, formAction, formFields(localizedName, localizedDescription), errors);
 
     return layout.render(
-        renderHeader("Manage Translations"), renderLanguageLinks(programId, locale), form);
+        renderHeader("Manage Program Translations"), renderLanguageLinks(programId, locale), form);
   }
 
   @Override

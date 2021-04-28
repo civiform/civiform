@@ -95,7 +95,7 @@ public class AdminProgramTranslationsControllerTest extends WithPostgresContaine
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
         .contains(
-            "Manage Translations",
+            "Manage Program Translations",
             "program display name cannot be blank",
             "program display description cannot be blank");
   }
