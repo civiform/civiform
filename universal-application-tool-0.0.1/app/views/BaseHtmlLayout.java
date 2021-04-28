@@ -68,7 +68,7 @@ public class BaseHtmlLayout extends BaseHtmlView {
 
     @Override
     public String contentType() {
-      return "text/html; charset=UTF-8";
+      return "text/html";
     }
   }
 }
