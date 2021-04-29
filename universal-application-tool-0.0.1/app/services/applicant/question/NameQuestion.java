@@ -94,7 +94,7 @@ public class NameQuestion implements PresentsErrors {
       throw new RuntimeException(
           String.format(
               "Question is not a NAME question: %s (type: %s)",
-              applicantQuestion.getQuestionDefinition().getPath(),
+              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
               applicantQuestion.getQuestionDefinition().getQuestionType()));
     }
   }
