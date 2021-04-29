@@ -39,8 +39,8 @@ import services.question.types.TextQuestionDefinition;
  *
  * <p>To add a new {@link Question} to the question bank: create a {@link QuestionEnum} for it,
  * create a private method to construct the question, and create a public method to retrieve the
- * cached question. Add new methods in alphabetical order by {@link QuestionType},
- * grouping those methods with the same type together.
+ * cached question. Add new methods in alphabetical order by {@link QuestionType}, grouping those
+ * methods with the same type together.
  */
 public class TestQuestionBank {
   private final Map<QuestionEnum, Question> questionCache = new ConcurrentHashMap<>();
