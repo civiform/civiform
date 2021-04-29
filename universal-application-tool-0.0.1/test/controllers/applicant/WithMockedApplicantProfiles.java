@@ -16,6 +16,7 @@ import org.mockito.Mockito;
 import play.inject.Injector;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Http;
+import support.ProgramBuilder;
 import support.ResourceCreator;
 import support.TestConstants;
 import support.TestQuestionBank;
@@ -40,6 +41,7 @@ public class WithMockedApplicantProfiles {
             .injector();
     resourceCreator = new ResourceCreator(injector);
     profileFactory = injector.instanceOf(ProfileFactory.class);
+    ProgramBuilder.setInjector(injector);
   }
 
   protected <T> T instanceOf(Class<T> clazz) {

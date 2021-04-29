@@ -1,12 +1,9 @@
 package services.question;
 
-import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.Path;
-import services.question.exceptions.InvalidPathException;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.types.QuestionDefinition;
 
@@ -34,22 +31,6 @@ public interface QuestionService {
    * <p>NOTE: This does not update the version.
    */
   ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition definition);
-
-  /**
-   * Adds a new translation to an existing question definition. Returns true if the write is
-   * successful.
-   *
-   * <p>The write will fail if:
-   *
-   * <p>- The path does not resolve to a QuestionDefinition.
-   *
-   * <p>- A translation with that Locale already exists for a given question path.
-   *
-   * <p>NOTE: This does not update the version.
-   */
-  boolean addTranslation(
-      Path path, Locale locale, String questionText, Optional<String> questionHelpText)
-      throws InvalidPathException;
 
   /**
    * Destructive overwrite of a question at a given path.
