@@ -5,7 +5,6 @@ import static j2html.TagCreator.div;
 
 import j2html.tags.Tag;
 import java.util.OptionalLong;
-
 import play.i18n.Messages;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.NumberQuestion;

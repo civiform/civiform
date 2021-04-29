@@ -5,5 +5,24 @@ button.nextBlock=Save and continue
 toast.localeNotSupported=We're sorry, this program is not fully translated to English.
 
 title.programs=Programs
+link.viewApplications=view my applications
+content.noCategory=No Category
+content.programDetails=Program details
 content.benefits=get benefits
 content.description=CiviForm lets you apply for many benefits at once by reusing information. You handle getting into it and we'll handle sending it to the right places. Select an application to get started.
+
+label.street=Street address
+placeholder.street=Enter your street address
+label.city=City
+placeholder.city=City
+label.state=State
+placeholder.state=State
+label.zipcode=Zipcode
+placeholder.zipcode=Zipcode
+label.firstName=First name
+placeholder.firstName=First name
+label.middleName=Middle name
+placeholder.middleName=Middle name
+label.lastName=Last name
+placeholder.lastName=Last name
+button.addRepeaterEntity=add element

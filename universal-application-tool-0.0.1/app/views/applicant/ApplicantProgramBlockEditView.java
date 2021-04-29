@@ -48,7 +48,10 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
                     .withAction(formAction)
                     .withMethod(HttpVerbs.POST)
                     .with(makeCsrfTokenInputTag(params.request()))
-                    .with(each(params.block().getQuestions(), question -> renderQuestion(question, params.messages())))
+                    .with(
+                        each(
+                            params.block().getQuestions(),
+                            question -> renderQuestion(question, params.messages())))
                     .with(submitButton(params.messages().at("button.nextBlock"))));
 
     if (!params.preferredLanguageSupported()) {

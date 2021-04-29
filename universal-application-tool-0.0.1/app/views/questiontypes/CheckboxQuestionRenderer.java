@@ -42,11 +42,7 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
                 multiOptionQuestion.getOptions(),
                 option ->
                     checkbox()
-                        .setId(
-                            "checkbox-"
-                                + question.getContextualizedPath()
-                                + "-"
-                                +  option.id())
+                        .setId("checkbox-" + question.getContextualizedPath() + "-" + option.id())
                         .setLabelText(option.optionText())
                         .setFieldName(multiOptionQuestion.getSelectionPathAsArray())
                         .setValue(String.valueOf(option.id()))

@@ -6,7 +6,6 @@ import static j2html.TagCreator.div;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
-
 import play.i18n.Messages;
 import services.applicant.question.ApplicantQuestion;
 import services.question.types.RepeaterQuestionDefinition;
