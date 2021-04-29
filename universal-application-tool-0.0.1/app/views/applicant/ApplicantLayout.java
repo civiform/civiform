@@ -11,6 +11,7 @@ import static j2html.TagCreator.title;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import javax.inject.Inject;
+import play.i18n.Messages;
 import play.twirl.api.Content;
 import views.BaseHtmlLayout;
 import views.ViewUtils;
@@ -26,13 +27,16 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   /** Renders mainDomContents within the main tag, in the context of the applicant layout. */
-  protected Content render(DomContent... mainDomContents) {
+  protected Content render(Messages messages, DomContent... mainDomContents) {
     return htmlContent(
         head().with(title("Applicant layout title")).with(tailwindStyles()),
-        body().with(renderNavBar()).with(mainDomContents).with(viewUtils.makeLocalJsTag("main")));
+        body()
+            .with(renderNavBar(messages))
+            .with(mainDomContents)
+            .with(viewUtils.makeLocalJsTag("main")));
   }
 
-  private ContainerTag renderNavBar() {
+  private ContainerTag renderNavBar(Messages messages) {
     return nav()
         .withClasses(
             Styles.PT_8,
@@ -42,7 +46,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             Styles.ALIGN_MIDDLE,
             Styles.BORDER_B_4,
             Styles.BORDER_WHITE)
-        .with(branding(), status(), logoutButton());
+        .with(branding(), status(messages), logoutButton(messages));
   }
 
   private ContainerTag branding() {
@@ -53,16 +57,16 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(span("Form").withClasses(Styles.FONT_THIN));
   }
 
-  private ContainerTag status() {
+  private ContainerTag status(Messages messages) {
     return div()
         .withId("application-status")
         .withClasses(Styles.W_1_2, Styles.TEXT_RIGHT, Styles.TEXT_SM, Styles.UNDERLINE)
-        .with(span("view my applications"));
+        .with(span(messages.at("link.viewApplications")));
   }
 
-  private ContainerTag logoutButton() {
+  private ContainerTag logoutButton(Messages messages) {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
-    return a("Logout")
+    return a(messages.at("button.logout"))
         .withHref(logoutLink)
         .withClasses(
             Styles.PX_3, Styles.TEXT_SM, Styles.OPACITY_75, StyleUtils.hover(Styles.OPACITY_100));

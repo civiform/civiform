@@ -5,6 +5,9 @@
 # COMPONENTS - contains text used in HTML components such as buttons. #
 #---------------------------------------------------------------------#
 
+# The text on the button an applicant clicks to log out of their session.
+button.logout=Logout
+
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=Apply
 
@@ -14,15 +17,50 @@ button.nextBlock=Save and continue
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=We're sorry, this program is not fully translated to your preferred language.
 
-#-------------------------------------------------#
-# PAGES - contains text specific to a given page. #
-#-------------------------------------------------#
+#--------------------------------------------------------#
+# PROGRAMS - contains text specific to viewing programs. #
+#--------------------------------------------------------#
 
 # (applicant program index view): The title of the page for the list of programs.
 title.programs=Programs
+
+# The text an applicant clicks on the home page to view their submitted applications.
+link.viewApplications=view my applications
+
+# Text indicating a particular program does not belong to any category.
+content.noCategory=No Category
+
+# Link text to read more about a program.
+content.programDetails=Program details
 
 # "get benefits" floating text
 content.benefits=get benefits
 
 # Long form description of the CiviForm site shown to the applicant.
 content.description=CiviForm lets you apply for many benefits at once by reusing information. You handle getting into it and we'll handle sending it to the right places. Select an application to get started.
+
+#----------------------------------------------------------#
+# QUESTIONS - contains text specific to viewing questions. #
+#----------------------------------------------------------#
+
+# Address question labels and placeholder text
+label.street=Street address
+placeholder.street=Enter your street address
+label.city=City
+placeholder.city=City
+label.state=State
+placeholder.state=State
+label.zipcode=Zipcode
+placeholder.zipcode=Zipcode
+
+# Name question labels and placeholder text
+label.firstName=First name
+placeholder.firstName=First name
+label.middleName=Middle name
+placeholder.middleName=Middle name
+label.lastName=Last name
+placeholder.lastName=Last name
+
+# Repeater question text
+# Text on a button an applicant would click to add another entity
+button.addRepeaterEntity=add element

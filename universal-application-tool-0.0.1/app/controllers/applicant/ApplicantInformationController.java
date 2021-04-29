@@ -55,7 +55,10 @@ public final class ApplicantInformationController extends CiviFormController {
   public CompletionStage<Result> edit(Http.Request request, long applicantId) {
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenApplyAsync(
-            v -> ok(informationView.render(request, applicantId)), httpExecutionContext.current())
+            // Since this is pre-preferred-language, use the applicant's preferred language from the
+            // request. The default is fine.
+            v -> ok(informationView.render(request, messagesApi.preferred(request), applicantId)),
+            httpExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {

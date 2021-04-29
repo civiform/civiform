@@ -5,6 +5,8 @@ import static j2html.TagCreator.div;
 
 import j2html.tags.Tag;
 import java.util.OptionalLong;
+
+import play.i18n.Messages;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.NumberQuestion;
 import views.BaseHtmlView;
@@ -21,7 +23,7 @@ public class NumberQuestionRenderer extends BaseHtmlView implements ApplicantQue
   }
 
   @Override
-  public Tag render() {
+  public Tag render(Messages messages) {
     NumberQuestion numberQuestion = question.createNumberQuestion();
 
     FieldWithLabel numberField =
