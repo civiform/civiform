@@ -3,7 +3,6 @@ package support;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import models.Program;
 import models.Question;
 import play.inject.Injector;
