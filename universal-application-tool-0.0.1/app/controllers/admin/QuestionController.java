@@ -77,20 +77,8 @@ public class QuestionController extends CiviFormController {
                 return badRequest(e.toString());
               }
 
-              // Maybe get a repeater question's name for display
               Optional<String> maybeRepeaterQuestionName =
-                  questionDefinition
-                      .getRepeaterId()
-                      .flatMap(
-                          repeaterId -> {
-                            try {
-                              return Optional.of(readOnlyService.getQuestionDefinition(repeaterId));
-                            } catch (QuestionNotFoundException e) {
-                              return Optional.empty();
-                            }
-                          })
-                      .map(QuestionDefinition::getName);
-
+                  maybeGetRepeaterQuestionName(readOnlyService, questionDefinition);
               try {
                 return ok(
                     editView.renderViewQuestionForm(questionDefinition, maybeRepeaterQuestionName));
@@ -175,7 +163,7 @@ public class QuestionController extends CiviFormController {
               }
 
               Optional<String> maybeRepeaterName =
-                  getMaybeRepeaterQuestionName(readOnlyService, questionDefinition);
+                  maybeGetRepeaterQuestionName(readOnlyService, questionDefinition);
               try {
                 return ok(
                     editView.renderEditQuestionForm(
@@ -222,7 +210,7 @@ public class QuestionController extends CiviFormController {
     if (errorAndUpdatedQuestionDefinition.isError()) {
       String errorMessage = joinErrors(errorAndUpdatedQuestionDefinition.getErrors());
       Optional<String> maybeRepeaterName =
-          getMaybeRepeaterQuestionName(roService, questionDefinition);
+          maybeGetRepeaterQuestionName(roService, questionDefinition);
       return ok(
           editView.renderEditQuestionForm(
               request, id, questionForm, questionDefinition, maybeRepeaterName, errorMessage));
@@ -268,7 +256,7 @@ public class QuestionController extends CiviFormController {
    * Maybe return the name of the question definition's repeater question, if it is a repeated
    * question definition.
    */
-  private Optional<String> getMaybeRepeaterQuestionName(
+  private Optional<String> maybeGetRepeaterQuestionName(
       ReadOnlyQuestionService readOnlyQuestionService, QuestionDefinition questionDefinition) {
     return questionDefinition
         .getRepeaterId()

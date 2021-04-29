@@ -115,8 +115,15 @@ public class QuestionRepository {
     }
 
     private boolean hasConflict(Question question) {
-      return question.getQuestionDefinition().getRepeaterId().equals(repeaterId)
-          && question.getQuestionDefinition().getQuestionPathSegment().equals(questionPathSegment);
+      if (question.getQuestionDefinition().getRepeaterId().equals(repeaterId)
+          && question
+              .getQuestionDefinition()
+              .getQuestionPathSegment()
+              .equals(questionPathSegment)) {
+        conflictedQuestion = Optional.of(question);
+        return true;
+      }
+      return false;
     }
   }
 

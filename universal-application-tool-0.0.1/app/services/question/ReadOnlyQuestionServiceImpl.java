@@ -93,7 +93,8 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
   }
 
   // TODO(https://github.com/seattle-uat/civiform/issues/673): delete this when question definitions
-  // don't need paths
+  //  don't need paths
+
   @Override
   public Path makePath(Optional<Long> maybeRepeaterId, String questionName, boolean isRepeater)
       throws QuestionNotFoundException, InvalidQuestionTypeException {

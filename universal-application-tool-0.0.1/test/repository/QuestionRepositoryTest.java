@@ -58,7 +58,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
-  public void findPathConflictingQuestion_noConflicts_ok() throws Exception {
+  public void findConflictingQuestion_noConflicts_ok() throws Exception {
     QuestionDefinition applicantAddress =
         testQuestionBank.applicantAddress().getQuestionDefinition();
     QuestionDefinition newQuestionDefinition =
@@ -74,12 +74,12 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
-  public void findPathConflictingQuestion_sameQuestionPathSegment_hasConflict() throws Exception {
+  public void findConflictingQuestion_sameQuestionPathSegment_hasConflict() throws Exception {
     Question applicantAddress = testQuestionBank.applicantAddress();
     QuestionDefinition newQuestionDefinition =
         new QuestionDefinitionBuilder(applicantAddress.getQuestionDefinition())
             .clearId()
-            .setName("applicant_address")
+            .setName("applicant address!")
             .setPath(Path.create("fake"))
             .build();
 
@@ -89,7 +89,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
-  public void findPathConflictingQuestion_sameQuestionPathSegmentButDifferentRepeaterId_ok()
+  public void findConflictingQuestion_sameQuestionPathSegmentButDifferentRepeaterId_ok()
       throws Exception {
     Question applicantAddress = testQuestionBank.applicantAddress();
     QuestionDefinition newQuestionDefinition =
@@ -106,7 +106,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
-  public void findPathConflictingQuestion_sameQuestion_hasConflict() {
+  public void findConflictingQuestion_sameQuestion_hasConflict() {
     Question applicantAddress = testQuestionBank.applicantAddress();
     Optional<Question> maybeConflict =
         repo.findConflictingQuestion(applicantAddress.getQuestionDefinition());
@@ -115,7 +115,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
-  public void findPathConflictingQuestion_differentVersion_hasConflict() throws Exception {
+  public void findConflictingQuestion_differentVersion_hasConflict() throws Exception {
     Question applicantName = testQuestionBank.applicantName();
     QuestionDefinition questionDefinition =
         new QuestionDefinitionBuilder(applicantName.getQuestionDefinition()).setId(123123L).build();
