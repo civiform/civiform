@@ -68,9 +68,19 @@ export class AdminQuestions {
     await this.expectQuestionEditPage(questionName);
   }
 
+  async goToQuestionTranslationPage(questionName: string) {
+    await this.gotoAdminQuestionsPage();
+    await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("Manage Translations")'));
+    await this.expectQuestionTranslationPage();
+  }
+
   async expectQuestionEditPage(questionName: string) {
     expect(await this.page.innerText('h1')).toContain('Edit');
     expect(await this.page.getAttribute('input#question-name-input', 'value')).toEqual(questionName);
+  }
+
+  async expectQuestionTranslationPage() {
+    expect(await this.page.innerText('h1')).toContain('Manage Question Translations');
   }
 
   async updateQuestion(questionName: string) {
