@@ -44,27 +44,27 @@ public final class QuestionEditView extends BaseHtmlView {
   public Content renderNewQuestionForm(
       Request request,
       QuestionType questionType,
-      ImmutableList<RepeaterQuestionDefinition> repeaterQuestionDefinitions)
+      ImmutableList<RepeaterQuestionDefinition> enumerationQuestionDefinitions)
       throws UnsupportedQuestionTypeException {
     QuestionForm questionForm = QuestionFormBuilder.create(questionType);
     return renderNewQuestionForm(
-        request, questionForm, repeaterQuestionDefinitions, Optional.empty());
+        request, questionForm, enumerationQuestionDefinitions, Optional.empty());
   }
 
   /** Render a New Question Form with a partially filled form and an error message. */
   public Content renderNewQuestionForm(
       Request request,
       QuestionForm questionForm,
-      ImmutableList<RepeaterQuestionDefinition> repeaterQuestionDefinitions,
+      ImmutableList<RepeaterQuestionDefinition> enumerationQuestionDefinitions,
       String errorMessage) {
     return renderNewQuestionForm(
-        request, questionForm, repeaterQuestionDefinitions, Optional.of(errorMessage));
+        request, questionForm, enumerationQuestionDefinitions, Optional.of(errorMessage));
   }
 
   private Content renderNewQuestionForm(
       Request request,
       QuestionForm questionForm,
-      ImmutableList<RepeaterQuestionDefinition> repeaterQuestionDefinitions,
+      ImmutableList<RepeaterQuestionDefinition> enumerationQuestionDefinitions,
       Optional<String> message) {
     QuestionType questionType = questionForm.getQuestionType();
     String title = String.format("New %s question", questionType.toString().toLowerCase());
@@ -72,7 +72,7 @@ public final class QuestionEditView extends BaseHtmlView {
     ContainerTag formContent =
         buildQuestionContainer(title)
             .with(
-                buildNewQuestionForm(questionForm, repeaterQuestionDefinitions)
+                buildNewQuestionForm(questionForm, enumerationQuestionDefinitions)
                     .with(makeCsrfTokenInputTag(request)));
 
     if (message.isPresent()) {
@@ -84,15 +84,16 @@ public final class QuestionEditView extends BaseHtmlView {
 
   /** Render a fresh Edit Question Form. */
   public Content renderEditQuestionForm(
-      Request request, QuestionDefinition questionDefinition, Optional<String> maybeRepeaterName)
+      Request request,
+      QuestionDefinition questionDefinition,
+      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition)
       throws InvalidQuestionTypeException {
     QuestionForm questionForm = QuestionFormBuilder.create(questionDefinition);
     return renderEditQuestionForm(
         request,
         questionDefinition.getId(),
         questionForm,
-        questionDefinition,
-        maybeRepeaterName,
+        maybeEnumerationQuestionDefinition,
         Optional.empty());
   }
 
@@ -101,19 +102,17 @@ public final class QuestionEditView extends BaseHtmlView {
       Request request,
       long id,
       QuestionForm questionForm,
-      QuestionDefinition questionDefinition,
-      Optional<String> maybeRepeaterName,
+      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
       String message) {
     return renderEditQuestionForm(
-        request, id, questionForm, questionDefinition, maybeRepeaterName, Optional.of(message));
+        request, id, questionForm, maybeEnumerationQuestionDefinition, Optional.of(message));
   }
 
   private Content renderEditQuestionForm(
       Request request,
       long id,
       QuestionForm questionForm,
-      QuestionDefinition questionDefinition,
-      Optional<String> maybeRepeaterName,
+      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
       Optional<String> message) {
 
     QuestionType questionType = questionForm.getQuestionType();
@@ -122,7 +121,7 @@ public final class QuestionEditView extends BaseHtmlView {
     ContainerTag formContent =
         buildQuestionContainer(title)
             .with(
-                buildEditQuestionForm(id, questionForm, questionDefinition, maybeRepeaterName)
+                buildEditQuestionForm(id, questionForm, maybeEnumerationQuestionDefinition)
                     .with(makeCsrfTokenInputTag(request)));
 
     if (message.isPresent()) {
@@ -134,16 +133,19 @@ public final class QuestionEditView extends BaseHtmlView {
 
   /** Render a read-only non-submittable question form. */
   public Content renderViewQuestionForm(
-      QuestionDefinition questionDefinition, Optional<String> maybeRepeaterName)
+      QuestionDefinition questionDefinition,
+      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition)
       throws InvalidQuestionTypeException {
     QuestionForm questionForm = QuestionFormBuilder.create(questionDefinition);
     QuestionType questionType = questionForm.getQuestionType();
     String title = String.format("View %s question", questionType.toString().toLowerCase());
 
-    SelectWithLabel repeaterOption =
-        repeaterOptionFromQuestionDefinition(questionDefinition, maybeRepeaterName);
+    SelectWithLabel enumerationOption =
+        enumerationOptionsFromMaybeEnumerationQuestionDefinition(
+            maybeEnumerationQuestionDefinition);
     ContainerTag formContent =
-        buildQuestionContainer(title).with(buildViewOnlyQuestionForm(questionForm, repeaterOption));
+        buildQuestionContainer(title)
+            .with(buildViewOnlyQuestionForm(questionForm, enumerationOption));
 
     return renderWithPreview(formContent, questionType);
   }
@@ -155,13 +157,13 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private ContainerTag buildSubmittableQuestionForm(
-      QuestionForm questionForm, SelectWithLabel repeaterOptions) {
-    return buildQuestionForm(questionForm, repeaterOptions, true);
+      QuestionForm questionForm, SelectWithLabel enumerationOptions) {
+    return buildQuestionForm(questionForm, enumerationOptions, true);
   }
 
   private ContainerTag buildViewOnlyQuestionForm(
-      QuestionForm questionForm, SelectWithLabel repeaterOptions) {
-    return buildQuestionForm(questionForm, repeaterOptions, false);
+      QuestionForm questionForm, SelectWithLabel enumerationOptions) {
+    return buildQuestionForm(questionForm, enumerationOptions, false);
   }
 
   private ContainerTag buildQuestionContainer(String title) {
@@ -191,10 +193,11 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private ContainerTag buildNewQuestionForm(
       QuestionForm questionForm,
-      ImmutableList<RepeaterQuestionDefinition> repeaterQuestionDefinitions) {
-    SelectWithLabel repeaterOptions =
-        repeaterOptionsFromRepeaterQuestions(questionForm, repeaterQuestionDefinitions);
-    ContainerTag formTag = buildSubmittableQuestionForm(questionForm, repeaterOptions);
+      ImmutableList<RepeaterQuestionDefinition> enumerationQuestionDefinitions) {
+    SelectWithLabel enumerationOptions =
+        enumerationOptionsFromEnumerationQuestionDefinitions(
+            questionForm, enumerationQuestionDefinitions);
+    ContainerTag formTag = buildSubmittableQuestionForm(questionForm, enumerationOptions);
     formTag
         .withAction(
             controllers.admin.routes.QuestionController.create(
@@ -208,11 +211,11 @@ public final class QuestionEditView extends BaseHtmlView {
   private ContainerTag buildEditQuestionForm(
       long id,
       QuestionForm questionForm,
-      QuestionDefinition questionDefinition,
-      Optional<String> maybeRepeaterName) {
-    SelectWithLabel repeaterOption =
-        repeaterOptionFromQuestionDefinition(questionDefinition, maybeRepeaterName);
-    ContainerTag formTag = buildSubmittableQuestionForm(questionForm, repeaterOption);
+      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition) {
+    SelectWithLabel enumerationOption =
+        enumerationOptionsFromMaybeEnumerationQuestionDefinition(
+            maybeEnumerationQuestionDefinition);
+    ContainerTag formTag = buildSubmittableQuestionForm(questionForm, enumerationOption);
     formTag
         .withAction(
             controllers.admin.routes.QuestionController.update(
@@ -223,7 +226,7 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private ContainerTag buildQuestionForm(
-      QuestionForm questionForm, SelectWithLabel repeaterOptions, boolean submittable) {
+      QuestionForm questionForm, SelectWithLabel enumerationOptions, boolean submittable) {
     QuestionType questionType = questionForm.getQuestionType();
     ContainerTag formTag = form().withMethod("POST");
     FieldWithLabel nameField =
@@ -254,7 +257,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setDisabled(!submittable)
                 .setValue(questionForm.getQuestionDescription())
                 .getContainer(),
-            repeaterOptions.setDisabled(!submittable).getContainer(),
+            enumerationOptions.setDisabled(!submittable).getContainer(),
             FieldWithLabel.textArea()
                 .setId("question-text-textarea")
                 .setFieldName("questionText")
@@ -294,54 +297,51 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   /**
-   * Generate a {@link SelectWithLabel} fixed repeater selector with a single option that is the
-   * question definition's repeater id.
+   * Generate a {@link SelectWithLabel} enumeration selector with all the available enumeration
+   * question definitions.
    */
-  private SelectWithLabel repeaterOptionFromQuestionDefinition(
-      QuestionDefinition questionDefinition, Optional<String> maybeRepeaterName) {
-    String repeaterDisplayString =
-        maybeRepeaterName.isPresent() ? maybeRepeaterName.get() : NO_REPEATER_DISPLAY_STRING;
-    SimpleEntry<String, String> repeaterPathAndId =
-        new SimpleEntry<>(
-            repeaterDisplayString,
-            questionDefinition.getRepeaterId().map(String::valueOf).orElse(NO_REPEATER_ID_STRING));
-    return repeaterOptions(ImmutableList.of(repeaterPathAndId), "not used");
-  }
-
-  /**
-   * Generate a {@link SelectWithLabel} repeater selector with all the available repeater question
-   * definitions.
-   */
-  private SelectWithLabel repeaterOptionsFromRepeaterQuestions(
+  private SelectWithLabel enumerationOptionsFromEnumerationQuestionDefinitions(
       QuestionForm questionForm,
-      ImmutableList<RepeaterQuestionDefinition> repeaterQuestionDefinitions) {
+      ImmutableList<RepeaterQuestionDefinition> enumerationQuestionDefinitions) {
     ImmutableList.Builder<SimpleEntry<String, String>> optionsBuilder = ImmutableList.builder();
     optionsBuilder.add(new SimpleEntry<>(NO_REPEATER_DISPLAY_STRING, NO_REPEATER_ID_STRING));
     optionsBuilder.addAll(
-        repeaterQuestionDefinitions.stream()
+        enumerationQuestionDefinitions.stream()
             .map(
-                repeaterQuestionDefinition ->
+                enumerationQuestionDefinition ->
                     new SimpleEntry<>(
-                        repeaterDisplayString(repeaterQuestionDefinition),
-                        String.valueOf(repeaterQuestionDefinition.getId())))
+                        enumerationQuestionDefinition.getName(),
+                        String.valueOf(enumerationQuestionDefinition.getId())))
             .collect(ImmutableList.toImmutableList()));
-    return repeaterOptions(
+    return enumerationOptions(
         optionsBuilder.build(),
         questionForm.getRepeaterId().map(String::valueOf).orElse(NO_REPEATER_ID_STRING));
   }
 
-  private SelectWithLabel repeaterOptions(
-      ImmutableList<SimpleEntry<String, String>> options, String selected) {
-    return new SelectWithLabel()
-        .setId("question-repeater-select")
-        .setFieldName("repeaterId")
-        .setLabelText("Question repeater")
-        .setOptions(options)
-        .setValue(selected);
+  /**
+   * Generate a {@link SelectWithLabel} enumeration selector with one value from an enumeration
+   * question definition if available, or with just the no-enumeration option.
+   */
+  private SelectWithLabel enumerationOptionsFromMaybeEnumerationQuestionDefinition(
+      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition) {
+    SimpleEntry<String, String> enumerationOption =
+        maybeEnumerationQuestionDefinition
+            .map(
+                enumerationQuestionDefinition ->
+                    new SimpleEntry<>(
+                        enumerationQuestionDefinition.getName(),
+                        String.valueOf(enumerationQuestionDefinition.getId())))
+            .orElse(new SimpleEntry<>(NO_REPEATER_DISPLAY_STRING, NO_REPEATER_ID_STRING));
+    return enumerationOptions(ImmutableList.of(enumerationOption), enumerationOption.getValue());
   }
 
-  /** Selector option to display for a given RepeaterQuestionDefinition. */
-  private String repeaterDisplayString(RepeaterQuestionDefinition repeaterQuestionDefinition) {
-    return repeaterQuestionDefinition.getName();
+  private SelectWithLabel enumerationOptions(
+      ImmutableList<SimpleEntry<String, String>> options, String selected) {
+    return new SelectWithLabel()
+        .setId("question-enumeration-select")
+        .setFieldName("repeaterId")
+        .setLabelText("Question enumeration")
+        .setOptions(options)
+        .setValue(selected);
   }
 }

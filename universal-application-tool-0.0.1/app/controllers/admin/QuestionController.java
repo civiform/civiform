@@ -77,11 +77,11 @@ public class QuestionController extends CiviFormController {
                 return badRequest(e.toString());
               }
 
-              Optional<String> maybeRepeaterQuestionName =
-                  maybeGetRepeaterQuestionName(readOnlyService, questionDefinition);
+              Optional<QuestionDefinition> maybeEnumerationQuestion =
+                  maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
               try {
                 return ok(
-                    editView.renderViewQuestionForm(questionDefinition, maybeRepeaterQuestionName));
+                    editView.renderViewQuestionForm(questionDefinition, maybeEnumerationQuestion));
               } catch (InvalidQuestionTypeException e) {
                 return badRequest(
                     invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
@@ -162,12 +162,12 @@ public class QuestionController extends CiviFormController {
                 return badRequest(e.toString());
               }
 
-              Optional<String> maybeRepeaterName =
-                  maybeGetRepeaterQuestionName(readOnlyService, questionDefinition);
+              Optional<QuestionDefinition> maybeEnumerationQuestion =
+                  maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
               try {
                 return ok(
                     editView.renderEditQuestionForm(
-                        request, questionDefinition, maybeRepeaterName));
+                        request, questionDefinition, maybeEnumerationQuestion));
               } catch (InvalidQuestionTypeException e) {
                 return badRequest(
                     invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
@@ -209,11 +209,11 @@ public class QuestionController extends CiviFormController {
 
     if (errorAndUpdatedQuestionDefinition.isError()) {
       String errorMessage = joinErrors(errorAndUpdatedQuestionDefinition.getErrors());
-      Optional<String> maybeRepeaterName =
-          maybeGetRepeaterQuestionName(roService, questionDefinition);
+      Optional<QuestionDefinition> maybeEnumerationQuestion =
+          maybeGetEnumerationQuestion(roService, questionDefinition);
       return ok(
           editView.renderEditQuestionForm(
-              request, id, questionForm, questionDefinition, maybeRepeaterName, errorMessage));
+              request, id, questionForm, maybeEnumerationQuestion, errorMessage));
     }
 
     String successMessage = String.format("question %s updated", questionForm.getQuestionName());
@@ -256,7 +256,7 @@ public class QuestionController extends CiviFormController {
    * Maybe return the name of the question definition's repeater question, if it is a repeated
    * question definition.
    */
-  private Optional<String> maybeGetRepeaterQuestionName(
+  private Optional<QuestionDefinition> maybeGetEnumerationQuestion(
       ReadOnlyQuestionService readOnlyQuestionService, QuestionDefinition questionDefinition) {
     return questionDefinition
         .getRepeaterId()
@@ -269,7 +269,6 @@ public class QuestionController extends CiviFormController {
                     "This repeated question's repeater id reference does not refer to a real"
                         + " question!");
               }
-            })
-        .map(QuestionDefinition::getName);
+            });
   }
 }
