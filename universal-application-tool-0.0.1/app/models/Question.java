@@ -150,6 +150,9 @@ public class Question extends BaseModel {
     if (questionDefinition.isPersisted()) {
       id = questionDefinition.getId();
     }
+
+    // TODO(https://github.com/seattle-uat/civiform/issues/673): delete this when questions don't
+    // need paths
     path = questionDefinition.getPath().path();
     repeaterId = questionDefinition.getRepeaterId().orElse(null);
     name = questionDefinition.getName();
