@@ -15,8 +15,13 @@ import j2html.tags.DomContent;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.Optional;
+
+import play.i18n.Lang;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.LocalizationUtils;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
@@ -31,13 +36,16 @@ import views.style.Styles;
 
 public final class QuestionEditView extends BaseHtmlView {
   private final AdminLayout layout;
+  private final Messages messages;
 
   private static final String NO_REPEATER_DISPLAY_STRING = "does not repeat";
   private static final String NO_REPEATER_ID_STRING = "";
 
   @Inject
-  public QuestionEditView(AdminLayout layout) {
+  public QuestionEditView(AdminLayout layout, MessagesApi messagesApi) {
     this.layout = layout;
+    // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
+    this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
   }
 
   /** Render a fresh New Question Form. */
@@ -139,7 +147,7 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private Content renderWithPreview(ContainerTag formContent, QuestionType type) {
-    ContainerTag previewContent = QuestionPreview.renderQuestionPreview(type);
+    ContainerTag previewContent = QuestionPreview.renderQuestionPreview(type, messages);
     previewContent.with(layout.viewUtils.makeLocalJsTag("preview"));
     return layout.renderFull(main(formContent, previewContent));
   }
