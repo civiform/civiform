@@ -11,11 +11,13 @@ GET     /securePlayIndex            controllers.HomeController.securePlayIndex()
 GET     /admin/programs                                         controllers.admin.AdminProgramController.index(request: Request)
 GET     /admin/programs/new                                     controllers.admin.AdminProgramController.newOne(request: Request)
 GET     /admin/programs/:programId/edit                         controllers.admin.AdminProgramController.edit(request: Request, programId: Long)
-GET     /admin/programs/:programId/translations/:locale/edit    controllers.admin.AdminProgramTranslationsController.edit(request: Request, programId: Long, locale: String)
 POST    /admin/programs/:programId/newVersion                   controllers.admin.AdminProgramController.newVersionFrom(request: Request, programId: Long)
 POST    /admin/programs                                         controllers.admin.AdminProgramController.create(request: Request)
 POST    /admin/programs/publish                                 controllers.admin.AdminProgramController.publish()
 POST    /admin/programs/:programId                              controllers.admin.AdminProgramController.update(request: Request, programId: Long)
+
+# Routes for managing program localization
+GET     /admin/programs/:programId/translations/:locale/edit    controllers.admin.AdminProgramTranslationsController.edit(request: Request, programId: Long, locale: String)
 POST    /admin/programs/:programId/translations/:locale         controllers.admin.AdminProgramTranslationsController.update(request: Request, programId: Long, locale: String)
 
 # A controller for versions for an admin to set older versions live.
@@ -42,6 +44,11 @@ GET     /admin/questions/:id         controllers.admin.QuestionController.show(i
 POST    /admin/questions/:id         controllers.admin.QuestionController.update(request: Request, id: Long, type: String)
 POST    /admin/questions             controllers.admin.QuestionController.create(request: Request, type: String)
 
+# Routes for editing question localizations
+GET     /admin/questions/:id/translations/:locale/edit  controllers.admin.AdminQuestionTranslationsController.edit(request: Request, id: Long, locale: String)
+POST    /admin/questions/:id/translations/:locale       controllers.admin.AdminQuestionTranslationsController.update(request: Request, id: Long, locale: String)
+
+# Trusted Intermediary routes
 GET     /admin/tis               controllers.admin.TrustedIntermediaryManagementController.index()
 
 # Controller for admins only, related to applications
