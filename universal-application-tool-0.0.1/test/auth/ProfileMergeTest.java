@@ -8,7 +8,7 @@ import javax.inject.Provider;
 import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.oidc.profile.OidcProfile;
-import repository.ApplicantRepository;
+import repository.UserRepository;
 import repository.WithPostgresContainer;
 
 public class ProfileMergeTest extends WithPostgresContainer {
@@ -19,15 +19,15 @@ public class ProfileMergeTest extends WithPostgresContainer {
   @Before
   public void setupFactory() {
     profileFactory = instanceOf(ProfileFactory.class);
-    ApplicantRepository repository = instanceOf(ApplicantRepository.class);
+    UserRepository repository = instanceOf(UserRepository.class);
     profileAdapter =
         new IdcsProfileAdapter(
             null,
             null,
             profileFactory,
-            new Provider<ApplicantRepository>() {
+            new Provider<UserRepository>() {
               @Override
-              public ApplicantRepository get() {
+              public UserRepository get() {
                 return repository;
               }
             });

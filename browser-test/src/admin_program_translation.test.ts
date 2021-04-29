@@ -83,6 +83,8 @@ describe('Admin can manage translations', () => {
     await logout(page);
 
     // Set applicant preferred language to Spanish
+    // DO NOT LOG IN AS TEST USER. We want a fresh guest so we can guarantee
+    // the language has not yet been set.
     await loginAsGuest(page);
     await selectApplicantLanguage(page, 'Español');
     const applicantQuestions = new ApplicantQuestions(page);

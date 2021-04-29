@@ -102,30 +102,27 @@ public class NameQuestion implements PresentsErrors {
     return (NameQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 
-  public Path getMiddleNamePath() {
-    return getQuestionDefinition().getMiddleNamePath();
+  public Path getFirstNamePath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.FIRST_NAME);
   }
 
-  public Path getFirstNamePath() {
-    return getQuestionDefinition().getFirstNamePath();
+  public Path getMiddleNamePath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.MIDDLE_NAME);
   }
 
   public Path getLastNamePath() {
-    return getQuestionDefinition().getLastNamePath();
+    return applicantQuestion.getContextualizedPath().join(Scalar.LAST_NAME);
   }
 
   private boolean isFirstNameAnswered() {
-    // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
     return applicantQuestion.getApplicantData().hasPath(getFirstNamePath());
   }
 
   private boolean isMiddleNameAnswered() {
-    // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
     return applicantQuestion.getApplicantData().hasPath(getMiddleNamePath());
   }
 
   private boolean isLastNameAnswered() {
-    // TODO(https://github.com/seattle-uat/civiform/issues/783): Use hydrated path.
     return applicantQuestion.getApplicantData().hasPath(getLastNamePath());
   }
 

@@ -15,7 +15,7 @@ import org.junit.Test;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 import play.Application;
-import repository.ApplicantRepository;
+import repository.UserRepository;
 import services.WellKnownPaths;
 import support.TestConstants;
 
@@ -27,7 +27,7 @@ public class SecurityBrowserTest extends BaseBrowserTest {
   public static GenericContainer<?> oidcProvider =
       new GenericContainer<>(OIDC_IMAGE).withExposedPorts(3380);
 
-  private static ApplicantRepository applicantRepository;
+  private static UserRepository userRepository;
 
   @Override
   protected Application provideApplication() {
@@ -42,7 +42,7 @@ public class SecurityBrowserTest extends BaseBrowserTest {
 
   @Before
   public void getApplicantRepository() {
-    applicantRepository = app.injector().instanceOf(ApplicantRepository.class);
+    userRepository = app.injector().instanceOf(UserRepository.class);
   }
 
   protected void loginWithSimulatedIdcs() {
@@ -110,7 +110,7 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     assertThat(browser.pageSource()).contains("username@example.com");
 
     Applicant applicant =
-        applicantRepository.lookupApplicant(getApplicantId()).toCompletableFuture().join().get();
+        userRepository.lookupApplicant(getApplicantId()).toCompletableFuture().join().get();
     Optional<String> applicantName =
         applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_FIRST_NAME);
     assertThat(applicantName).isPresent();

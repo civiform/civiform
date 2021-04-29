@@ -20,7 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import services.question.types.QuestionDefinition;
+import services.Path;
+import services.applicant.question.Scalar;
 import support.ProgramBuilder;
 
 public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantProfiles {
@@ -152,7 +153,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
 
   @Test
   public void update_reservedPathsInRequest_returnsBadRequest() {
-    String reservedPath = "metadata." + QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY;
+    String reservedPath = Path.create("metadata").join(Scalar.PROGRAM_UPDATED_IN).toString();
     Request request =
         fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
             .bodyForm(ImmutableMap.of(reservedPath, "value"))
@@ -173,9 +174,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
                             applicant.id, program.id, "1"))
                     .bodyForm(
                         ImmutableMap.of(
-                            "applicant.applicant_name.first",
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.FIRST_NAME)
+                                .toString(),
                             "FirstName",
-                            "applicant.applicant_name.last",
+                            Path.create("applicant.applicant_name")
+                                .join(Scalar.LAST_NAME)
+                                .toString(),
                             "")))
             .build();
 
@@ -200,9 +205,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
         fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
             .bodyForm(
                 ImmutableMap.of(
-                    "applicant.applicant_name.first",
+                    Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
                     "FirstName",
-                    "applicant.applicant_name.last",
+                    Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
                     "LastName"))
             .build();
 
@@ -227,9 +232,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
         fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
             .bodyForm(
                 ImmutableMap.of(
-                    "applicant.applicant_name.first",
+                    Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
                     "FirstName",
-                    "applicant.applicant_name.last",
+                    Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
                     "LastName"))
             .build();
 

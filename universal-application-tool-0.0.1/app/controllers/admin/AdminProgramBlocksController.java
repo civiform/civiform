@@ -15,7 +15,7 @@ import play.mvc.Result;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.program.BlockDefinition;
-import services.program.ProgramBlockNotFoundException;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNeedsABlockException;
 import services.program.ProgramNotFoundException;
@@ -76,7 +76,7 @@ public class AdminProgramBlocksController extends CiviFormController {
       return redirect(routes.AdminProgramBlocksController.edit(programId, block.id()).url());
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
       return notFound(e.toString());
-    } catch (ProgramBlockNotFoundException e) {
+    } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(
           "Something happened to the repeater block while creating a repeated block", e);
     }
@@ -88,7 +88,7 @@ public class AdminProgramBlocksController extends CiviFormController {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       BlockDefinition block = program.getBlockDefinition(blockId);
       return renderEditViewWithMessage(request, program, block, "");
-    } catch (ProgramNotFoundException | ProgramBlockNotFoundException e) {
+    } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
     }
   }
@@ -106,7 +106,7 @@ public class AdminProgramBlocksController extends CiviFormController {
         return renderEditViewWithMessage(
             request, result.getResult(), blockId, blockForm, errorMessage);
       }
-    } catch (ProgramNotFoundException | ProgramBlockNotFoundException e) {
+    } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
     }
 
@@ -154,7 +154,7 @@ public class AdminProgramBlocksController extends CiviFormController {
               blockDefinition.programQuestionDefinitions(),
               message,
               roQuestionService.getUpToDateQuestions()));
-    } catch (ProgramBlockNotFoundException e) {
+    } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
     }
   }

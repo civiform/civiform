@@ -14,12 +14,12 @@ import java.util.concurrent.CompletionException;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
-import repository.ApplicantRepository;
+import repository.UserRepository;
 import repository.WithPostgresContainer;
 import services.ErrorAnd;
 import services.Path;
+import services.applicant.question.Scalar;
 import services.program.PathNotInBlockException;
-import services.program.ProgramBlockNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.question.QuestionOption;
@@ -35,13 +35,13 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   private QuestionService questionService;
   private QuestionDefinition questionDefinition;
   private ProgramDefinition programDefinition;
-  private ApplicantRepository applicantRepository;
+  private UserRepository userRepository;
 
   @Before
   public void setUp() throws Exception {
     subject = instanceOf(ApplicantServiceImpl.class);
     questionService = instanceOf(QuestionService.class);
-    applicantRepository = instanceOf(ApplicantRepository.class);
+    userRepository = instanceOf(UserRepository.class);
     createQuestions();
     createProgram();
   }
@@ -59,7 +59,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             .join();
 
     ApplicantData applicantDataAfter =
-        applicantRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(applicantDataAfter).isEqualTo(applicantDataBefore);
     assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
@@ -72,8 +72,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     ImmutableSet<Update> updates =
         ImmutableSet.of(
-            Update.create(Path.create("applicant.name.first"), "Alice"),
-            Update.create(Path.create("applicant.name.last"), "Doe"));
+            Update.create(Path.create("applicant.name").join(Scalar.FIRST_NAME), "Alice"),
+            Update.create(Path.create("applicant.name").join(Scalar.LAST_NAME), "Doe"));
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
@@ -85,7 +85,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     assertThat(errorAnd.isError()).isFalse();
 
     ApplicantData applicantDataAfter =
-        applicantRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(applicantDataAfter.asJsonString()).contains("Alice", "Doe");
   }
@@ -96,8 +96,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     ImmutableSet<Update> updates =
         ImmutableSet.of(
-            Update.create(Path.create("applicant.name.first"), "Alice"),
-            Update.create(Path.create("applicant.name.last"), "Doe"));
+            Update.create(Path.create("applicant.name").join(Scalar.FIRST_NAME), "Alice"),
+            Update.create(Path.create("applicant.name").join(Scalar.LAST_NAME), "Doe"));
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
         subject
@@ -109,18 +109,16 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
 
     ApplicantData applicantDataAfter =
-        applicantRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
-    Path programIdPath =
-        Path.create("applicant.name." + QuestionDefinition.METADATA_UPDATE_PROGRAM_ID_KEY);
-    Path timestampPath =
-        Path.create("applicant.name." + QuestionDefinition.METADATA_UPDATE_TIME_KEY);
+    Path programIdPath = Path.create("applicant.name").join(Scalar.PROGRAM_UPDATED_IN);
+    Path timestampPath = Path.create("applicant.name").join(Scalar.UPDATED_AT);
     assertThat(applicantDataAfter.readLong(programIdPath)).hasValue(programDefinition.id());
     assertThat(applicantDataAfter.readLong(timestampPath)).isPresent();
   }
 
   @Test
-  public void stageAndUpdateIfValid_rawUpdatesContainMultiSelectAnswers_isOk() throws Exception {
+  public void stageAndUpdateIfValid_rawUpdatesContainMultiSelectAnswers_isOk() {
     QuestionDefinition multiSelectQuestion =
         questionService
             .create(
@@ -139,10 +137,11 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
 
+    Path checkboxPath = Path.create("applicant.checkbox").join(Scalar.SELECTION).asArrayElement();
     ImmutableMap<String, String> rawUpdates =
         ImmutableMap.<String, String>builder()
-            .put("applicant.checkbox.selection[0]", "1")
-            .put("applicant.checkbox.selection[1]", "2")
+            .put(checkboxPath.atIndex(0).toString(), "1")
+            .put(checkboxPath.atIndex(1).toString(), "2")
             .build();
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
@@ -155,9 +154,10 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
 
     ApplicantData applicantDataAfter =
-        applicantRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
-    assertThat(applicantDataAfter.readList(Path.create("applicant.checkbox.selection")))
+    assertThat(
+            applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTION)))
         .hasValue(ImmutableList.of(1L, 2L));
   }
 
@@ -235,7 +235,30 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   @Test
   public void stageAndUpdateIfValid_hasIllegalArgumentExceptionForReservedScalarKeys() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
-    String reservedScalar = "applicant.name." + QuestionDefinition.METADATA_UPDATE_TIME_KEY;
+    String reservedScalar = Path.create("applicant.name").join(Scalar.UPDATED_AT).toString();
+    ImmutableMap<String, String> updates = ImmutableMap.of(reservedScalar, "12345");
+
+    assertThatExceptionOfType(CompletionException.class)
+        .isThrownBy(
+            () ->
+                subject
+                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+                    .toCompletableFuture()
+                    .join())
+        .withCauseInstanceOf(IllegalArgumentException.class)
+        .withMessageContaining("Path contained reserved scalar key");
+  }
+
+  @Test
+  public void
+      stageAndUpdateIfValid_withIllegalArrayElement_hasIllegalArgumentExceptionForReservedScalarKeys() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    String reservedScalar =
+        Path.create("applicant.name")
+            .join(Scalar.UPDATED_AT)
+            .asArrayElement()
+            .atIndex(0)
+            .toString();
     ImmutableMap<String, String> updates = ImmutableMap.of(reservedScalar, "12345");
 
     assertThatExceptionOfType(CompletionException.class)
@@ -284,7 +307,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         questionService
             .create(
                 new NameQuestionDefinition(
-                    "my name",
+                    "name",
                     Path.create("applicant.name"),
                     Optional.empty(),
                     "description",

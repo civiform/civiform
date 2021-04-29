@@ -48,6 +48,9 @@ POST    /admin/questions             controllers.admin.QuestionController.create
 GET     /admin/questions/:id/translations/:locale/edit  controllers.admin.AdminQuestionTranslationsController.edit(request: Request, id: Long, locale: String)
 POST    /admin/questions/:id/translations/:locale       controllers.admin.AdminQuestionTranslationsController.update(request: Request, id: Long, locale: String)
 
+# Trusted Intermediary routes
+GET     /admin/tis               controllers.admin.TrustedIntermediaryManagementController.index()
+
 # Controller for admins only, related to applications
 GET     /admin/programs/:programId/applications                           controllers.admin.AdminApplicationController.answerList(programId: Long)
 GET     /admin/programs/:programId/applications/all                       controllers.admin.AdminApplicationController.downloadAll(programId: Long)
@@ -98,6 +101,7 @@ GET     /dev/seed                    controllers.dev.DatabaseSeedController.inde
 POST    /dev/seed                    controllers.dev.DatabaseSeedController.seed()
 POST    /dev/seed/clear              controllers.dev.DatabaseSeedController.clear()
 
-# Methods for development: directly upload file to S3
+# Methods for development: directly upload file to S3.
+# We redirect to create page on success to update our own record in db. Unfortunately this can only be GET.
 GET     /dev/fileUpload              controllers.dev.FileUploadController.index(request: Request)
-POST    /dev/fileUpload              controllers.dev.FileUploadController.create(request: Request)
+GET     /dev/fileUpload/create       controllers.dev.FileUploadController.create(request: Request)

@@ -15,6 +15,7 @@ import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.NumberQuestionDefinition;
+import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class NumberQuestionTest {
@@ -50,7 +51,8 @@ public class NumberQuestionTest {
   @Test
   public void withEmptyApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(numberQuestionDefinition, applicantData);
+        new ApplicantQuestion(
+            numberQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
 
     NumberQuestion numberQuestion = new NumberQuestion(applicantQuestion);
 
@@ -60,9 +62,11 @@ public class NumberQuestionTest {
 
   @Test
   public void withEmptyValueAtPath_passesValidation() {
-    applicantData.putLong(numberQuestionDefinition.getNumberPath(), "");
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(numberQuestionDefinition, applicantData);
+        new ApplicantQuestion(
+            numberQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "");
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
@@ -72,9 +76,11 @@ public class NumberQuestionTest {
 
   @Test
   public void withValidValue_passesValidation() {
-    applicantData.putLong(numberQuestionDefinition.getNumberPath(), 800);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(numberQuestionDefinition, applicantData);
+        new ApplicantQuestion(
+            numberQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 800);
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
@@ -85,9 +91,11 @@ public class NumberQuestionTest {
   @Test
   @Parameters({"50", "75", "100"})
   public void withMinAndMaxValue_withValidValue_passesValidation(long value) {
-    applicantData.putLong(minAndMaxNumberQuestionDefinition.getNumberPath(), value);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData);
+        new ApplicantQuestion(
+            minAndMaxNumberQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), value);
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
@@ -106,9 +114,11 @@ public class NumberQuestionTest {
   })
   public void withMinAndMaxValue_withInvalidValue_failsValidation(
       long value, String expectedErrorMessage) {
-    applicantData.putLong(minAndMaxNumberQuestionDefinition.getNumberPath(), value);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData);
+        new ApplicantQuestion(
+            minAndMaxNumberQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), value);
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
@@ -120,9 +130,11 @@ public class NumberQuestionTest {
 
   @Test
   public void withMinAndMaxValue_withEmptyValueAtPath_passesValidation() {
-    applicantData.putLong(minAndMaxNumberQuestionDefinition.getNumberPath(), "");
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData);
+        new ApplicantQuestion(
+            minAndMaxNumberQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "");
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 

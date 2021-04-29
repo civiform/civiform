@@ -15,19 +15,19 @@ import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.ApplicantRepository;
+import repository.UserRepository;
 
 public class ApplicantInformationControllerTest extends WithMockedApplicantProfiles {
 
   private Applicant currentApplicant;
-  private ApplicantRepository applicantRepository;
+  private UserRepository userRepository;
   private ApplicantInformationController controller;
 
   @Before
   public void setup() {
     clearDatabase();
     controller = instanceOf(ApplicantInformationController.class);
-    applicantRepository = instanceOf(ApplicantRepository.class);
+    userRepository = instanceOf(UserRepository.class);
     currentApplicant = createApplicantWithMockedProfile();
   }
 
@@ -59,7 +59,13 @@ public class ApplicantInformationControllerTest extends WithMockedApplicantProfi
             .toCompletableFuture()
             .join();
     assertThat(contentAsString(result)).contains("English");
+    assertThat(contentAsString(result)).contains("繁體中文");
     assertThat(contentAsString(result)).contains("Español");
+    assertThat(contentAsString(result)).contains("Tiếng Việt");
+    assertThat(contentAsString(result)).contains("Soomaali");
+    assertThat(contentAsString(result)).contains("አማርኛ");
+    assertThat(contentAsString(result)).contains("한국어");
+    assertThat(contentAsString(result)).contains("Tagalog");
   }
 
   @Test
@@ -73,7 +79,7 @@ public class ApplicantInformationControllerTest extends WithMockedApplicantProfi
     Result result = controller.update(request, currentApplicant.id).toCompletableFuture().join();
 
     currentApplicant =
-        applicantRepository.lookupApplicant(currentApplicant.id).toCompletableFuture().join().get();
+        userRepository.lookupApplicant(currentApplicant.id).toCompletableFuture().join().get();
     assertThat(currentApplicant.getApplicantData().preferredLocale())
         .isEqualTo(Locale.forLanguageTag("es-US"));
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -92,7 +98,7 @@ public class ApplicantInformationControllerTest extends WithMockedApplicantProfi
     Result result = controller.update(request, currentApplicant.id).toCompletableFuture().join();
 
     currentApplicant =
-        applicantRepository.lookupApplicant(currentApplicant.id).toCompletableFuture().join().get();
+        userRepository.lookupApplicant(currentApplicant.id).toCompletableFuture().join().get();
     assertThat(currentApplicant.getApplicantData().preferredLocale())
         .isEqualTo(Locale.forLanguageTag("es-US"));
     assertThat(result.status()).isEqualTo(SEE_OTHER);

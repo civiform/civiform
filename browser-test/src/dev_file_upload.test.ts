@@ -11,9 +11,9 @@ describe('the dev file upload page', () => {
 
     await page.goto(BASE_URL + '/dev/fileUpload');
 
-    expect(await page.textContent('html')).toContain('Dev File Upload');
+    expect(await page.textContent('h1')).toContain('Dev File Upload');
 
-    await page.setInputFiles('input#myFile', {
+    await page.setInputFiles('input[type=file]', {
       name: 'file.txt',
       mimeType: 'text/plain',
       buffer: Buffer.from('this is test')
@@ -21,12 +21,25 @@ describe('the dev file upload page', () => {
 
     await page.click('button');
 
-    expect(await page.textContent('html')).toContain('Dev File Upload');
+    expect(await page.textContent('h1')).toContain('Dev File Upload');
 
-    if (BASE_URL !== 'http://localhost:9999') {
-      // Only download if not localhost because download doesn't work in localhost.
-      const fileContent = await downloadFile(page, 'file.txt');
-      expect(fileContent).toContain('this is test');
+    switch (BASE_URL) {
+      case 'http://localhost:9999':
+        // Do not check file content if run locally because presigned links
+        // do not work outside docker network.
+        break;
+      case 'http://civiform:9000':
+        // Localstack responds with mime type 'text/html' while actual AWS
+        // responds with type 'binary/octet-stream'. Browser would not download
+        // files with type 'text/html' so we just go to the display page and
+        // verify content.
+        await page.click('text=file.txt');
+        expect(await page.content()).toContain('this is test');
+        break;
+      default:
+        // Download the file and verify content in all other cases.
+        const fileContent = await downloadFile(page, 'file.txt');
+        expect(fileContent).toContain('this is test');
     }
 
     await endSession(browser);
@@ -36,7 +49,7 @@ describe('the dev file upload page', () => {
 const downloadFile = async (page: Page, fileName: string) => {
   const [downloadEvent] = await Promise.all([
     page.waitForEvent('download'),
-    page.click(`text="${fileName}"`)
+    page.click(`text=${fileName}`)
   ]);
   const path = await downloadEvent.path();
   if (path === null) {

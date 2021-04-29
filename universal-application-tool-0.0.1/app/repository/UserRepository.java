@@ -18,17 +18,18 @@ import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
 import models.Program;
+import models.TrustedIntermediaryGroup;
 import play.db.ebean.EbeanConfig;
 import services.program.ProgramDefinition;
 
-public class ApplicantRepository {
+public class UserRepository {
 
   private final EbeanServer ebeanServer;
   private final DatabaseExecutionContext executionContext;
   private final Provider<VersionRepository> versionRepositoryProvider;
 
   @Inject
-  public ApplicantRepository(
+  public UserRepository(
       EbeanConfig ebeanConfig,
       DatabaseExecutionContext executionContext,
       Provider<VersionRepository> versionRepositoryProvider) {
@@ -141,5 +142,9 @@ public class ApplicantRepository {
     left.setAccount(right.getAccount());
     right.getApplicantData().mergeFrom(left.getApplicantData());
     return right;
+  }
+
+  public List<TrustedIntermediaryGroup> listTrustedIntermediaryGroups() {
+    return ebeanServer.find(TrustedIntermediaryGroup.class).findList();
   }
 }

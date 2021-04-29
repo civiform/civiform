@@ -2,13 +2,18 @@ package services.applicant.question;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.question.exceptions.InvalidQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.question.types.ScalarType;
 
 /**
  * Represents a question in the context of a specific applicant. Other type-specific classes (e.g.
@@ -19,18 +24,21 @@ import services.question.types.QuestionType;
 public class ApplicantQuestion {
 
   private final QuestionDefinition questionDefinition;
+  private final Path contextualizedPath;
   private final ApplicantData applicantData;
 
-  public ApplicantQuestion(QuestionDefinition questionDefinition, ApplicantData applicantData) {
+  public ApplicantQuestion(
+      QuestionDefinition questionDefinition, ApplicantData applicantData, Path contextualizedPath) {
     this.questionDefinition = checkNotNull(questionDefinition);
     this.applicantData = checkNotNull(applicantData);
+    this.contextualizedPath = checkNotNull(contextualizedPath);
   }
 
   protected ApplicantData getApplicantData() {
     return this.applicantData;
   }
 
-  protected QuestionDefinition getQuestionDefinition() {
+  public QuestionDefinition getQuestionDefinition() {
     return this.questionDefinition;
   }
 
@@ -46,27 +54,50 @@ public class ApplicantQuestion {
     return questionDefinition.getQuestionHelpTextOrDefault(applicantData.preferredLocale());
   }
 
-  public Path getPath() {
-    return questionDefinition.getPath();
+  /**
+   * Returns the contextualized path for this question. The path is contextualized with respect to
+   * the enumerated elements it is about.
+   *
+   * <p>For example, a generic path about the name of an applicant's household member may look like
+   * "applicant.household_member[].name", while a contextualized path would look like
+   * "applicant.household_member[3].name".
+   */
+  public Path getContextualizedPath() {
+    return contextualizedPath.join(questionDefinition.getQuestionPathSegment());
   }
 
-  public boolean hasQuestionErrors() {
-    return errorsPresenter().hasQuestionErrors();
+  /**
+   * Returns the map of contextualized paths to scalars and their {@link ScalarType}s used by this
+   * question. This includes metadata paths.
+   *
+   * <p>This should not be used for {@link QuestionType#REPEATER} questions.
+   */
+  public ImmutableMap<Path, ScalarType> getContextualizedScalars() {
+    try {
+      return ImmutableMap.<Scalar, ScalarType>builder()
+          .putAll(Scalar.getScalars(getType()))
+          .putAll(Scalar.getMetadataScalars())
+          .build()
+          .entrySet()
+          .stream()
+          .collect(
+              ImmutableMap.toImmutableMap(
+                  entry -> getContextualizedPath().join(entry.getKey()), Map.Entry::getValue));
+    } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public boolean hasErrors() {
-    if (hasQuestionErrors()) {
-      return true;
-    }
-    return errorsPresenter().hasTypeSpecificErrors();
+    return errorsPresenter().hasQuestionErrors() || errorsPresenter().hasTypeSpecificErrors();
   }
 
   public Optional<Long> getUpdatedInProgramMetadata() {
-    return applicantData.readLong(questionDefinition.getProgramIdPath());
+    return applicantData.readLong(getContextualizedPath().join(Scalar.PROGRAM_UPDATED_IN));
   }
 
   public Optional<Long> getLastUpdatedTimeMetadata() {
-    return applicantData.readLong(questionDefinition.getLastUpdatedTimePath());
+    return applicantData.readLong(getContextualizedPath().join(Scalar.UPDATED_AT));
   }
 
   public AddressQuestion createAddressQuestion() {

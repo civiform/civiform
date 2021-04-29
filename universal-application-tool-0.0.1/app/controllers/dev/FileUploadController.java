@@ -5,78 +5,76 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import java.io.FileInputStream;
-import java.nio.file.Files;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.Set;
 import models.StoredFile;
 import play.Environment;
-import play.libs.Files.TemporaryFile;
-import play.mvc.Http.MultipartFormData;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.AmazonS3Client;
+import repository.SignedS3UploadRequest;
 import repository.StoredFileRepository;
 import views.dev.FileUploadView;
 
 /** Controller for interacting with S3 directly in dev mode. */
 public class FileUploadController extends DevController {
   private final FileUploadView view;
+  private final AmazonS3Client s3Client;
   private final StoredFileRepository storedFileRepository;
+  private final String baseUrl;
 
   @Inject
   public FileUploadController(
       FileUploadView view,
+      AmazonS3Client s3Client,
       StoredFileRepository storedFileRepository,
       Environment environment,
       Config configuration) {
     super(environment, configuration);
     this.view = checkNotNull(view);
+    this.s3Client = checkNotNull(s3Client);
     this.storedFileRepository = checkNotNull(storedFileRepository);
+    this.baseUrl = checkNotNull(configuration).getString("base_url");
   }
 
   public Result index(Request request) {
     if (!isDevEnvironment()) {
       return notFound();
     }
+    SignedS3UploadRequest signedRequest =
+        s3Client.getSignedUploadRequest(
+            "dev/${filename}", baseUrl + routes.FileUploadController.create().url());
     Set<StoredFile> files =
         storedFileRepository.listWithPresignedUrl().toCompletableFuture().join();
     ImmutableList<StoredFile> fileList =
         files.stream()
             .sorted(Comparator.comparing(StoredFile::getName))
             .collect(ImmutableList.toImmutableList());
-    return ok(view.render(request, fileList, request.flash().get("success")));
+    return ok(view.render(request, signedRequest, fileList, request.flash().get("success")));
   }
 
   public Result create(Request request) {
     if (!isDevEnvironment()) {
       return notFound();
     }
-    MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
-    MultipartFormData.FilePart<TemporaryFile> data = body.getFile("filename");
-    if (data == null) {
-      return badRequest("Missing file");
+    Optional<String> bucket = request.queryString("bucket");
+    Optional<String> key = request.queryString("key");
+    Optional<String> etag = request.queryString("etag");
+    if (!bucket.isPresent() || !key.isPresent()) {
+      return redirect(routes.FileUploadController.index().url());
     }
-    String fileName = data.getFilename();
-    long fileSize = data.getFileSize();
-    String contentType = data.getContentType();
-    TemporaryFile file = data.getRef();
-    uploadToS3(fileName, file);
+    updateFileRecord(key.get());
     String successMessage =
         String.format(
-            "File uploaded: name: %s, size: %d, type: %s.", fileName, fileSize, contentType);
+            "File successfully uploaded to S3: bucket: %s, key: %s, etag: %s.",
+            bucket.get(), key.get(), etag.orElse(""));
     return redirect(routes.FileUploadController.index().url()).flashing("success", successMessage);
   }
 
-  private void uploadToS3(String name, TemporaryFile file) {
+  private void updateFileRecord(String key) {
     StoredFile storedFile = new StoredFile();
-    storedFile.setName(name);
-    try (FileInputStream fileInputStream = new FileInputStream(file.path().toFile())) {
-      byte[] data = new byte[(int) Files.size(file.path())];
-      fileInputStream.read(data);
-      storedFile.setContent(data);
-      storedFileRepository.insert(storedFile);
-    } catch (java.io.IOException e) {
-      throw new RuntimeException(e);
-    }
+    storedFile.setName(key);
+    storedFileRepository.insert(storedFile);
   }
 }

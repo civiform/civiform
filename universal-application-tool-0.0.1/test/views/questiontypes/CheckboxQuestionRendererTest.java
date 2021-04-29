@@ -33,7 +33,8 @@ public class CheckboxQuestionRendererTest {
 
   @Before
   public void setup() {
-    ApplicantQuestion question = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData);
+    ApplicantQuestion question =
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, ApplicantData.APPLICANT_PATH);
     renderer = new CheckboxQuestionRenderer(question);
   }
 
@@ -41,6 +42,6 @@ public class CheckboxQuestionRendererTest {
   public void render_usesCorrectInputName() {
     Tag result = renderer.render();
 
-    assertThat(result.render()).contains("applicant.my.path.selection[]");
+    assertThat(result.render()).contains("applicant.question_name.selection[]");
   }
 }
