@@ -47,5 +47,6 @@ services:
       - ADFS_CLIENT_ID
       - ADFS_SECRET
       - DB_JDBC_STRING=jdbc:postgresql://database:5432/postgres
+      - BASE_URL=http://civiform:9000
 
     command: ~run -Dconfig.file=conf/application.dev.conf
