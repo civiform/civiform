@@ -52,6 +52,9 @@ public abstract class ProgramDefinition {
   /** The list of {@link ExportDefinition}s that make up the program. */
   public abstract ImmutableList<ExportDefinition> exportDefinitions();
 
+  /**
+   * Returns the localized program name for the given locale. Useful for applicant-facing things.
+   */
   public String getLocalizedNameOrDefault(Locale locale) {
     try {
       return getLocalizedName(locale);
@@ -60,7 +63,10 @@ public abstract class ProgramDefinition {
     }
   }
 
-  /** The default locale for CiviForm is US English. */
+  /**
+   * Returns the program name localized in the {@link LocalizationUtils#DEFAULT_LOCALE}. Useful for
+   * admin-facing things.
+   */
   public String getNameForDefaultLocale() {
     try {
       return getLocalizedName(LocalizationUtils.DEFAULT_LOCALE);

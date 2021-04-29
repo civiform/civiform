@@ -50,7 +50,6 @@ public class StoredFileRepository {
           if (file == null) {
             return Optional.empty();
           }
-          file.setContent(s3Client.getObject(file.getName()));
           return Optional.of(file);
         },
         executionContext);
@@ -60,7 +59,6 @@ public class StoredFileRepository {
     return supplyAsync(
         () -> {
           ebeanServer.insert(file);
-          s3Client.putObject(file.getName(), file.getContent());
           return file.id;
         },
         executionContext);
