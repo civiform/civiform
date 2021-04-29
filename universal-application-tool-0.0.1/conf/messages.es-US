@@ -1,8 +1,11 @@
 # Spanish (US)
 
+button.logout=Cerrar Sesión
 button.apply=Solicitar
 button.nextBlock=Guardar y continuar
 toast.localeNotSupported=Lo siento, este programa no está completamente traducido al español.
+toast.programCompleted=Ya completó esta solicitud
+toast.applicationSaved=Solicitud guardada con ID: {0}
 
 title.programs=Programas
 link.viewApplications=ver mis applicaciones
@@ -13,6 +16,8 @@ content.description=CiviForm le permite solicitar muchos beneficios a la vez reu
 
 label.street=Calle
 placeholder.street=Nombre de la calle
+label.city=Ciudad
+placeholder.city=Ciudad
 label.state=Estado
 placeholder.state=Estado
 label.zipcode=Códiogo Postal

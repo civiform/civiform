@@ -1,8 +1,11 @@
 # US English
 
+button.logout=Logout
 button.apply=Apply
 button.nextBlock=Save and continue
 toast.localeNotSupported=We're sorry, this program is not fully translated to English.
+toast.programCompleted=Application was already completed.
+toast.applicationSaved=Successfully saved application: application ID {0}
 
 title.programs=Programs
 link.viewApplications=view my applications

@@ -15,13 +15,11 @@ import j2html.tags.DomContent;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.Optional;
-
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import services.LocalizationUtils;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
