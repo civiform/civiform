@@ -152,7 +152,7 @@ public class AddressQuestion implements PresentsErrors {
       throw new RuntimeException(
           String.format(
               "Question is not an ADDRESS question: %s (type: %s)",
-              applicantQuestion.getQuestionDefinition().getPath(),
+              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
               applicantQuestion.getQuestionDefinition().getQuestionType()));
     }
   }
