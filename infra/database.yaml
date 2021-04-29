@@ -50,6 +50,7 @@ Resources:
       DBInstanceIdentifier: !Join ["-", [!Ref Environment, "civiform-postgres-db"]]
       DBName: postgres
       DBInstanceClass: !FindInMap [DbSize, !Ref Environment, Size]
+      EnableIAMDatabaseAuthentication: true
       AllocatedStorage: 50
       Engine: postgres
       EngineVersion: '12.5'
