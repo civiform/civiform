@@ -166,12 +166,12 @@ public final class QuestionServiceImpl implements QuestionService {
                   toUpdate.getRepeaterId().map(String::valueOf).orElse("[no repeater]"))));
     }
 
-    if (!questionDefinition.getPath().equals(toUpdate.getPath())) {
+    if (!questionDefinition.getQuestionPathSegment().equals(toUpdate.getQuestionPathSegment())) {
       errors.add(
           CiviFormError.of(
               String.format(
-                  "question paths mismatch: %s does not match %s",
-                  questionDefinition.getPath(), toUpdate.getPath())));
+                  "question path segment mismatch: %s does not match %s",
+                  questionDefinition.getQuestionPathSegment(), toUpdate.getQuestionPathSegment())));
     }
 
     if (!questionDefinition.getQuestionType().equals(toUpdate.getQuestionType())) {
