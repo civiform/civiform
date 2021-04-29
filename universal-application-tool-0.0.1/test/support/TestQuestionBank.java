@@ -38,8 +38,8 @@ import services.question.types.TextQuestionDefinition;
  * representative of the properties defined by CiviForm administrators.
  *
  * <p>To add a new {@link Question} to the question bank: create a {@link QuestionEnum} for it,
- * create a private static method to construct the question, and create a public static method to
- * retrieve the cached question. Add new methods in alphabetical order by {@link QuestionType},
+ * create a private method to construct the question, and create a public method to retrieve the
+ * cached question. Add new methods in alphabetical order by {@link QuestionType},
  * grouping those methods with the same type together.
  */
 public class TestQuestionBank {
