@@ -77,8 +77,23 @@ public class QuestionController extends CiviFormController {
                 return badRequest(e.toString());
               }
 
+              // Maybe get a repeater question's name for display
+              Optional<String> maybeRepeaterQuestionName =
+                  questionDefinition
+                      .getRepeaterId()
+                      .flatMap(
+                          repeaterId -> {
+                            try {
+                              return Optional.of(readOnlyService.getQuestionDefinition(repeaterId));
+                            } catch (QuestionNotFoundException e) {
+                              return Optional.empty();
+                            }
+                          })
+                      .map(QuestionDefinition::getName);
+
               try {
-                return ok(editView.renderViewQuestionForm(questionDefinition));
+                return ok(
+                    editView.renderViewQuestionForm(questionDefinition, maybeRepeaterQuestionName));
               } catch (InvalidQuestionTypeException e) {
                 return badRequest(
                     invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
@@ -159,8 +174,12 @@ public class QuestionController extends CiviFormController {
                 return badRequest(e.toString());
               }
 
+              Optional<String> maybeRepeaterName =
+                  getMaybeRepeaterQuestionName(readOnlyService, questionDefinition);
               try {
-                return ok(editView.renderEditQuestionForm(request, questionDefinition));
+                return ok(
+                    editView.renderEditQuestionForm(
+                        request, questionDefinition, maybeRepeaterName));
               } catch (InvalidQuestionTypeException e) {
                 return badRequest(
                     invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
@@ -180,10 +199,11 @@ public class QuestionController extends CiviFormController {
       return badRequest(invalidQuestionTypeMessage(questionType));
     }
 
+    ReadOnlyQuestionService roService =
+        service.getReadOnlyQuestionService().toCompletableFuture().join();
+
     QuestionDefinition questionDefinition;
     try {
-      ReadOnlyQuestionService roService =
-          service.getReadOnlyQuestionService().toCompletableFuture().join();
       questionDefinition = getBuilderWithQuestionPath(roService, questionForm).setId(id).build();
     } catch (UnsupportedQuestionTypeException e) {
       // Failed while trying to update a question that was already created for the given question
@@ -201,9 +221,11 @@ public class QuestionController extends CiviFormController {
 
     if (errorAndUpdatedQuestionDefinition.isError()) {
       String errorMessage = joinErrors(errorAndUpdatedQuestionDefinition.getErrors());
+      Optional<String> maybeRepeaterName =
+          getMaybeRepeaterQuestionName(roService, questionDefinition);
       return ok(
           editView.renderEditQuestionForm(
-              request, id, questionForm, questionDefinition, errorMessage));
+              request, id, questionForm, questionDefinition, maybeRepeaterName, errorMessage));
     }
 
     String successMessage = String.format("question %s updated", questionForm.getQuestionName());
@@ -240,5 +262,26 @@ public class QuestionController extends CiviFormController {
     return String.format(
         "unrecognized question type: '%s', accepted values include: %s",
         questionType.toUpperCase(), Arrays.toString(QuestionType.values()));
+  }
+
+  /**
+   * Maybe return the name of the question definition's repeater question, if it is a repeated
+   * question definition.
+   */
+  private Optional<String> getMaybeRepeaterQuestionName(
+      ReadOnlyQuestionService readOnlyQuestionService, QuestionDefinition questionDefinition) {
+    return questionDefinition
+        .getRepeaterId()
+        .flatMap(
+            repeaterId -> {
+              try {
+                return Optional.of(readOnlyQuestionService.getQuestionDefinition(repeaterId));
+              } catch (QuestionNotFoundException e) {
+                throw new RuntimeException(
+                    "This repeated question's repeater id reference does not refer to a real"
+                        + " question!");
+              }
+            })
+        .map(QuestionDefinition::getName);
   }
 }
