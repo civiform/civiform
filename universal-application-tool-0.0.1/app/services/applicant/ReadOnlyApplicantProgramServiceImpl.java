@@ -106,10 +106,10 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public ImmutableList<AnswerData> getSummaryData() {
+    // TODO: We need to be able to use this on the admin side with admin-specific l10n.
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<AnswerData>();
     ImmutableList<Block> blocks = getAllBlocks();
     for (Block block : blocks) {
-      String blockId = block.getId();
       for (ApplicantQuestion question : block.getQuestions()) {
         String questionText = question.getQuestionText();
         String answerText = question.errorsPresenter().getAnswerString();
@@ -120,7 +120,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         AnswerData data =
             AnswerData.builder()
                 .setProgramId(programDefinition.id())
-                .setBlockId(blockId)
+                .setBlockId(block.getId())
                 .setQuestionText(questionText)
                 .setAnswerText(answerText)
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))

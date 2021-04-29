@@ -59,7 +59,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
         .thenApplyAsync(
             (roApplicantProgramService) -> {
               ImmutableList<AnswerData> summaryData = roApplicantProgramService.getSummaryData();
-              // TODO: Get program title. (Currently no way to do that from
+              // TODO(#914): Get program title. (Currently no way to do that from
               // roApplicantProgramService)
               String programTitle = "Program title";
               return ok(
@@ -108,7 +108,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
   }
 
   private CompletionStage<Result> submit(long applicantId, long programId) {
-
     return applicationRepository
         .submitApplication(applicantId, programId)
         .thenApplyAsync(
@@ -120,7 +119,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
               }
               Call endOfProgramSubmission = routes.ApplicantProgramsController.index(applicantId);
               Application application = applicationMaybe.get();
-              // Placeholder application ID display.
+              // TODO(#914): Show program title instead of ID.
               return found(endOfProgramSubmission)
                   .flashing(
                       "banner",
