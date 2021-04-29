@@ -19,7 +19,7 @@ export class AdminTIGroups {
   }
 
   async fillInGroupBasics(groupName: string, description: string) {
-    // This function should only be called on question create/edit page.
+    // This function should only be called on group page.
     await this.page.fill('text="Name"', groupName);
     await this.page.fill('text=Description', description);
     await this.page.click('text="Create"');
