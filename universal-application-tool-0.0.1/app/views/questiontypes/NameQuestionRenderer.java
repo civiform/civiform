@@ -24,7 +24,7 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
     NameQuestion nameQuestion = question.createNameQuestion();
 
     return div()
-        .withId(question.getPath().path())
+        .withId(question.getContextualizedPath().toString())
         .withClasses(Styles.MX_AUTO, Styles.PX_16)
         .with(
             div()
@@ -40,7 +40,7 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
             div()
                 .with(
                     FieldWithLabel.input()
-                        .setFieldName(nameQuestion.getFirstNamePath().path())
+                        .setFieldName(nameQuestion.getFirstNamePath().toString())
                         .setLabelText("First name")
                         .setPlaceholderText("First name")
                         .setFloatLabel(true)
@@ -49,7 +49,7 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                 .with(fieldErrors(nameQuestion.getFirstNameErrors()))
                 .with(
                     FieldWithLabel.input()
-                        .setFieldName(nameQuestion.getMiddleNamePath().path())
+                        .setFieldName(nameQuestion.getMiddleNamePath().toString())
                         .setLabelText("Middle name")
                         .setPlaceholderText("Middle name")
                         .setFloatLabel(true)
@@ -57,7 +57,7 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                         .getContainer())
                 .with(
                     FieldWithLabel.input()
-                        .setFieldName(nameQuestion.getLastNamePath().path())
+                        .setFieldName(nameQuestion.getLastNamePath().toString())
                         .setLabelText("Last name")
                         .setPlaceholderText("Last name")
                         .setFloatLabel(true)

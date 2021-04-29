@@ -3,6 +3,7 @@ package services;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
+import services.applicant.question.Scalar;
 
 public class PathTest {
 
@@ -104,6 +105,22 @@ public class PathTest {
   }
 
   @Test
+  public void asArrayElement() {
+    Path path = Path.create("one.two[3].four").asArrayElement();
+
+    assertThat(path.isArrayElement()).isTrue();
+    assertThat(path.toString()).isEqualTo("one.two[3].four[]");
+  }
+
+  @Test
+  public void asArrayElement_alreadyAnArrayElement() {
+    Path path = Path.create("one.two[3].four[5]").asArrayElement();
+
+    assertThat(path.isArrayElement()).isTrue();
+    assertThat(path.toString()).isEqualTo("one.two[3].four[5]");
+  }
+
+  @Test
   public void withoutArrayReference() {
     Path path = Path.create("one.two[3]");
     assertThat(path.withoutArrayReference()).isEqualTo(Path.create("one.two"));
@@ -138,7 +155,7 @@ public class PathTest {
   }
 
   @Test
-  public void pathJoin() {
+  public void join() {
     Path path = Path.create("applicant.my.path");
     assertThat(path.path()).isEqualTo("applicant.my.path");
 
@@ -147,13 +164,20 @@ public class PathTest {
   }
 
   @Test
-  public void pathJoin_withMultipleSegments_parentPathWorks() {
+  public void join_withMultipleSegments_parentPathWorks() {
     Path path = Path.create("one");
     Path path2 = path.join("two.three.four");
     Path actual = path2.parentPath();
 
     Path expected = Path.create("one.two.three");
     assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  public void join_withScalarEnum() {
+    Path path = Path.create("start").join(Scalar.FIRST_NAME);
+
+    assertThat(path).isEqualTo(Path.create("start.first_name"));
   }
 
   @Test

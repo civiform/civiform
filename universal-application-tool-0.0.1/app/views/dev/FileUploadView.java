@@ -19,13 +19,13 @@ import static j2html.TagCreator.tr;
 import static j2html.attributes.Attr.ENCTYPE;
 
 import com.google.common.collect.ImmutableList;
-import controllers.dev.routes;
-import j2html.tags.Tag;
+import j2html.tags.ContainerTag;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.StoredFile;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import repository.SignedS3UploadRequest;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.style.Styles;
@@ -39,29 +39,23 @@ public class FileUploadView extends BaseHtmlView {
   }
 
   public Content render(
-      Request request, ImmutableList<StoredFile> files, Optional<String> maybeFlash) {
+      Request request,
+      SignedS3UploadRequest signedRequest,
+      ImmutableList<StoredFile> files,
+      Optional<String> maybeFlash) {
     return layout.htmlContent(
         head(title("Dev File Upload"), layout.tailwindStyles()),
         body()
             .with(div(maybeFlash.orElse("")))
             .with(h1("Dev File Upload"))
-            .with(
-                div()
-                    .with(
-                        form()
-                            .with(makeCsrfTokenInputTag(request))
-                            .attr(ENCTYPE, "multipart/form-data")
-                            .with(input().withType("file").withId("myFile").withName("filename"))
-                            .with(submitButton("Upload file"))
-                            .withMethod("post")
-                            .withAction(routes.FileUploadController.create().url())))
+            .with(div().with(fileUploadForm(signedRequest)))
             .with(
                 div()
                     .withClasses(Styles.GRID, Styles.GRID_COLS_2)
                     .with(div().with(h2("Current Files:")).with(pre(renderFiles(files))))));
   }
 
-  private Tag renderFiles(ImmutableList<StoredFile> files) {
+  private ContainerTag renderFiles(ImmutableList<StoredFile> files) {
     return table()
         .with(
             tbody(
@@ -71,5 +65,38 @@ public class FileUploadView extends BaseHtmlView {
                         tr(
                             td(String.valueOf(file.id)),
                             td(a(file.getName()).withHref(file.getPresignedURL().toString()))))));
+  }
+
+  private ContainerTag fileUploadForm(SignedS3UploadRequest request) {
+    ContainerTag formTag =
+        form()
+            .attr(ENCTYPE, "multipart/form-data")
+            .with(input().withType("input").withName("key").withValue(request.key()))
+            .with(
+                input()
+                    .withType("hidden")
+                    .withName("success_action_redirect")
+                    .withValue(request.successActionRedirect()))
+            .with(
+                input()
+                    .withType("text")
+                    .withName("X-Amz-Credential")
+                    .withValue(request.credential()));
+    if (!request.securityToken().isEmpty()) {
+      formTag.with(
+          input()
+              .withType("hidden")
+              .withName("X-Amz-Security-Token")
+              .withValue(request.securityToken()));
+    }
+    return formTag
+        .with(input().withType("text").withName("X-Amz-Algorithm").withValue(request.algorithm()))
+        .with(input().withType("text").withName("X-Amz-Date").withValue(request.date()))
+        .with(input().withType("hidden").withName("Policy").withValue(request.policy()))
+        .with(input().withType("hidden").withName("X-Amz-Signature").withValue(request.signature()))
+        .with(input().withType("file").withName("file"))
+        .with(submitButton("Upload to Amazon S3"))
+        .withMethod("post")
+        .withAction(request.actionLink());
   }
 }

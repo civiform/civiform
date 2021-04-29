@@ -2,9 +2,11 @@ package models;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -15,6 +17,9 @@ public class Account extends BaseModel {
 
   @OneToMany(mappedBy = "account")
   private List<Applicant> applicants;
+
+  @ManyToOne private TrustedIntermediaryGroup memberOfGroup;
+  @ManyToOne private TrustedIntermediaryGroup managedByGroup;
 
   private String emailAddress;
 
@@ -36,5 +41,21 @@ public class Account extends BaseModel {
 
   public String getEmailAddress() {
     return this.emailAddress;
+  }
+
+  public void setMemberOfGroup(TrustedIntermediaryGroup group) {
+    this.memberOfGroup = group;
+  }
+
+  public void setManagedByGroup(TrustedIntermediaryGroup group) {
+    this.managedByGroup = group;
+  }
+
+  public Optional<TrustedIntermediaryGroup> getMemberOfGroup() {
+    return Optional.fromNullable(this.memberOfGroup);
+  }
+
+  public Optional<TrustedIntermediaryGroup> getManagedByGroup() {
+    return Optional.fromNullable(this.managedByGroup);
   }
 }

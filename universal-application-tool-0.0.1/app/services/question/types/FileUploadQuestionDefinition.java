@@ -79,7 +79,7 @@ public class FileUploadQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getFileKeyPath() {
-    return getPath().join("filekey");
+    return getPath().join("file_key");
   }
 
   public ScalarType getFileKeyType() {

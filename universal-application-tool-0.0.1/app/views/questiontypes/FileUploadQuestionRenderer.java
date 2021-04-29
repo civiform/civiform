@@ -24,7 +24,7 @@ public class FileUploadQuestionRenderer extends BaseHtmlView implements Applican
     FileUploadQuestion fileUploadQuestion = question.createFileUploadQuestion();
 
     return div()
-        .withId(question.getPath().path())
+        .withId(question.getContextualizedPath().toString())
         .withClasses(Styles.MX_AUTO, Styles.W_MAX)
         .with(
             div()
@@ -42,7 +42,7 @@ public class FileUploadQuestionRenderer extends BaseHtmlView implements Applican
                 .withCondValue(
                     fileUploadQuestion.getFileKeyValue().isPresent(),
                     fileUploadQuestion.getFileKeyValue().orElse(""))
-                .withName(fileUploadQuestion.getFileKeyPath().path()),
+                .withName(fileUploadQuestion.getFileKeyPath().toString()),
             fieldErrors(fileUploadQuestion.getQuestionErrors()));
   }
 }

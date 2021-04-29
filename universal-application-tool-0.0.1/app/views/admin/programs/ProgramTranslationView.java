@@ -109,6 +109,7 @@ public class ProgramTranslationView extends BaseHtmlView {
         .with(
             FieldWithLabel.input()
                 .setId("localize-display-name")
+                .setLabelText("Display Name")
                 .setFieldName("displayName")
                 .setPlaceholderText("Program display name")
                 .setValue(localizedName)
@@ -116,6 +117,7 @@ public class ProgramTranslationView extends BaseHtmlView {
         .with(
             FieldWithLabel.input()
                 .setId("localize-display-description")
+                .setLabelText("Display Description")
                 .setFieldName("displayDescription")
                 .setPlaceholderText("Program description")
                 .setValue(localizedDescription)

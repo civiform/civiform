@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.question.types.FileUploadQuestionDefinition;
+import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class FileUploadQuestionTest {
@@ -37,7 +38,8 @@ public class FileUploadQuestionTest {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData);
+        new ApplicantQuestion(
+            fileUploadQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
 
     FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
 
@@ -47,9 +49,11 @@ public class FileUploadQuestionTest {
 
   @Test
   public void withApplicantData_passesValidation() {
-    applicantData.putString(fileUploadQuestionDefinition.getFileKeyPath(), "file-key");
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData);
+        new ApplicantQuestion(
+            fileUploadQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+    QuestionAnswerer.answerFileQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "file-key");
 
     FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
 
