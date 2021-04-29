@@ -38,16 +38,6 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void addTranslation_notImplemented() {
-    assertThatThrownBy(
-            () ->
-                questionService.addTranslation(
-                    Path.create("your.name"), Locale.GERMAN, "Wie heisst du?", Optional.empty()))
-        .isInstanceOf(UnsupportedOperationException.class)
-        .hasMessage("Not supported yet.");
-  }
-
-  @Test
   public void create_failsWhenQuestionsConflict() throws Exception {
     QuestionDefinition householdMemberName =
         testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition();

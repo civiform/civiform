@@ -5,6 +5,8 @@ import java.util.Optional;
 
 /** Provides synchronous, read-only behavior relevant to an applicant for a specific program. */
 public interface ReadOnlyApplicantProgramService {
+  /** Returns the program title, localized to the applicant's preferred locale. */
+  String getProgramTitle();
 
   /**
    * Get the {@link Block}s for this program and applicant. This includes all blocks, whether the

@@ -30,13 +30,31 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     colorQuestion = testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
     addressQuestion = testQuestionBank.applicantAddress().getQuestionDefinition();
     programDefinition =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newDraftProgram("My Program")
+            .withLocalizedName(Locale.GERMAN, "Mein Programm")
             .withBlock("Block one")
             .withQuestionDefinition(nameQuestion)
             .withBlock("Block two")
             .withQuestionDefinition(colorQuestion)
             .withQuestionDefinition(addressQuestion)
             .buildDefinition();
+  }
+
+  @Test
+  public void getProgramTitle_returnsProgramTitleInDefaultLocale() {
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+
+    assertThat(subject.getProgramTitle()).isEqualTo("My Program");
+  }
+
+  @Test
+  public void getProgramTitle_returnsProgramTitleForPreferredLocale() {
+    applicantData.setPreferredLocale(Locale.GERMAN);
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+
+    assertThat(subject.getProgramTitle()).isEqualTo("Mein Programm");
   }
 
   @Test
