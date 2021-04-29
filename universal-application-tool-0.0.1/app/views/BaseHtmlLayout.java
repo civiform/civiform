@@ -38,6 +38,7 @@ public class BaseHtmlLayout extends BaseHtmlView {
         ToastMessage.error(BANNER_TEXT).setId("warning-message").setIgnorable(true).setDuration(0);
     contents.add(0, privacyBanner.getContainerTag());
     contents.add(viewUtils.makeLocalJsTag("toast"));
+    contents.add(viewUtils.makeLocalJsTag("radio"));
     return new HtmlResponseContent(contents.toArray(new DomContent[0]));
   }
 
