@@ -17,6 +17,7 @@ import services.Path;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
+/** Creates services that interface with the default database server for testing. */
 public class ResourceCreator {
 
   private final EbeanServer ebeanServer;
