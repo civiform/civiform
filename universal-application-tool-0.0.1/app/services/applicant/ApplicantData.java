@@ -13,9 +13,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.LocalizationUtils;
 import services.Path;
 import services.WellKnownPaths;
@@ -32,6 +35,8 @@ public class ApplicantData {
 
   private Optional<Locale> preferredLocale;
   private final DocumentContext jsonData;
+
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   public static final Path APPLICANT_PATH = Path.create(APPLICANT);
 
@@ -66,6 +71,17 @@ public class ApplicantData {
   public void setPreferredLocale(Locale locale) {
     checkLocked();
     this.preferredLocale = Optional.of(locale);
+  }
+
+  public String getApplicantName() {
+    try {
+      String firstName = readString(WellKnownPaths.APPLICANT_FIRST_NAME).get();
+      String lastName = readString(WellKnownPaths.APPLICANT_LAST_NAME).get();
+      return String.format("%s, %s", lastName, firstName);
+    } catch (NoSuchElementException e) {
+      logger.error("Application {} does not include an applicant name.");
+      return "<Anonymous Applicant>";
+    }
   }
 
   /**

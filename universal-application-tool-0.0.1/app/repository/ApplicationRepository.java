@@ -22,7 +22,7 @@ import services.program.ProgramNotFoundException;
 
 public class ApplicationRepository {
   private final ProgramRepository programRepository;
-  private final ApplicantRepository applicantRepository;
+  private final UserRepository userRepository;
   private final EbeanServer ebeanServer;
   private final DatabaseExecutionContext executionContext;
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationRepository.class);
@@ -30,11 +30,11 @@ public class ApplicationRepository {
   @Inject
   public ApplicationRepository(
       ProgramRepository programRepository,
-      ApplicantRepository applicantRepository,
+      UserRepository userRepository,
       EbeanConfig ebeanConfig,
       DatabaseExecutionContext executionContext) {
     this.programRepository = checkNotNull(programRepository);
-    this.applicantRepository = checkNotNull(applicantRepository);
+    this.userRepository = checkNotNull(userRepository);
     this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
     this.executionContext = checkNotNull(executionContext);
   }
@@ -91,8 +91,7 @@ public class ApplicationRepository {
 
   private CompletionStage<Optional<Application>> perform(
       long applicantId, long programId, Function<ApplicationArguments, Application> fn) {
-    CompletionStage<Optional<Applicant>> applicantDb =
-        applicantRepository.lookupApplicant(applicantId);
+    CompletionStage<Optional<Applicant>> applicantDb = userRepository.lookupApplicant(applicantId);
     CompletionStage<Optional<Program>> programDb = programRepository.lookupProgram(programId);
     return applicantDb
         .thenCombineAsync(

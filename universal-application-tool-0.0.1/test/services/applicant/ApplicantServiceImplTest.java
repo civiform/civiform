@@ -14,7 +14,7 @@ import java.util.concurrent.CompletionException;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
-import repository.ApplicantRepository;
+import repository.UserRepository;
 import repository.WithPostgresContainer;
 import services.ErrorAnd;
 import services.Path;
@@ -35,13 +35,13 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   private QuestionService questionService;
   private QuestionDefinition questionDefinition;
   private ProgramDefinition programDefinition;
-  private ApplicantRepository applicantRepository;
+  private UserRepository userRepository;
 
   @Before
   public void setUp() throws Exception {
     subject = instanceOf(ApplicantServiceImpl.class);
     questionService = instanceOf(QuestionService.class);
-    applicantRepository = instanceOf(ApplicantRepository.class);
+    userRepository = instanceOf(UserRepository.class);
     createQuestions();
     createProgram();
   }
@@ -59,7 +59,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             .join();
 
     ApplicantData applicantDataAfter =
-        applicantRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(applicantDataAfter).isEqualTo(applicantDataBefore);
     assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
@@ -85,7 +85,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     assertThat(errorAnd.isError()).isFalse();
 
     ApplicantData applicantDataAfter =
-        applicantRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(applicantDataAfter.asJsonString()).contains("Alice", "Doe");
   }
@@ -109,7 +109,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
 
     ApplicantData applicantDataAfter =
-        applicantRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     Path programIdPath = Path.create("applicant.name").join(Scalar.PROGRAM_UPDATED_IN);
     Path timestampPath = Path.create("applicant.name").join(Scalar.UPDATED_AT);
@@ -154,7 +154,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
 
     ApplicantData applicantDataAfter =
-        applicantRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(
             applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTION)))

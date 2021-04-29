@@ -42,8 +42,8 @@ import org.pac4j.play.store.PlayCookieSessionStore;
 import org.pac4j.play.store.ShiroAesDataEncrypter;
 import play.Environment;
 import play.libs.concurrent.HttpExecutionContext;
-import repository.ApplicantRepository;
 import repository.DatabaseExecutionContext;
+import repository.UserRepository;
 
 public class SecurityModule extends AbstractModule {
 
@@ -122,7 +122,7 @@ public class SecurityModule extends AbstractModule {
   @Singleton
   @IdcsOidcClient
   protected OidcClient provideIDCSClient(
-      ProfileFactory profileFactory, Provider<ApplicantRepository> applicantRepositoryProvider) {
+      ProfileFactory profileFactory, Provider<UserRepository> applicantRepositoryProvider) {
     if (!this.configuration.hasPath("idcs.client_id")
         || !this.configuration.hasPath("idcs.secret")) {
       return null;
@@ -148,7 +148,7 @@ public class SecurityModule extends AbstractModule {
   @Singleton
   @AdOidcClient
   protected OidcClient provideAdClient(
-      ProfileFactory profileFactory, Provider<ApplicantRepository> applicantRepositoryProvider) {
+      ProfileFactory profileFactory, Provider<UserRepository> applicantRepositoryProvider) {
     if (!this.configuration.hasPath("adfs.client_id")
         || !this.configuration.hasPath("adfs.secret")) {
       return null;
