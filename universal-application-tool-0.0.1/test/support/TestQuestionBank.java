@@ -44,7 +44,7 @@ import services.question.types.TextQuestionDefinition;
  */
 public class TestQuestionBank {
   private final Map<QuestionEnum, Question> questionCache = new ConcurrentHashMap<>();
-  private static final AtomicLong nextId = new AtomicLong(1L);
+  private final AtomicLong nextId = new AtomicLong(1L);
 
   private final boolean canSave;
 
