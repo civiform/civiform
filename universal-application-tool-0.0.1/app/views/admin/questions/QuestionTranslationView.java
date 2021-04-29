@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.question.types.QuestionDefinition;
 import views.admin.AdminLayout;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
@@ -23,28 +24,53 @@ public class QuestionTranslationView extends TranslationFormView {
     this.layout = layout;
   }
 
-  public Content render(
+  public Content render(Http.Request request, Locale locale, QuestionDefinition question) {
+    return render(
+        request,
+        locale,
+        question,
+        question.maybeGetQuestionText(locale),
+        question.maybeGetQuestionHelpText(locale),
+        Optional.empty());
+  }
+
+  public Content renderErrors(
+      Http.Request request, Locale locale, QuestionDefinition invalidQuestion, String errors) {
+    return render(
+        request,
+        locale,
+        invalidQuestion,
+        invalidQuestion.maybeGetQuestionText(locale),
+        invalidQuestion.maybeGetQuestionHelpText(locale),
+        Optional.of(errors));
+  }
+
+  private Content render(
       Http.Request request,
-      long questionId,
       Locale locale,
+      QuestionDefinition question,
       Optional<String> existingQuestionText,
       Optional<String> existingQuestionHelpText,
       Optional<String> errors) {
     String formAction =
         controllers.admin.routes.AdminQuestionTranslationsController.update(
-                questionId, locale.toLanguageTag())
+                question.getId(), locale.toLanguageTag())
             .url();
     ContainerTag form =
         renderTranslationForm(
             request,
             locale,
             formAction,
-            formFields(existingQuestionText, existingQuestionHelpText),
+            formFields(
+                question.getDefaultQuestionText(),
+                question.getDefaultQuestionHelpText(),
+                existingQuestionText,
+                existingQuestionHelpText),
             errors);
 
     return layout.render(
         renderHeader("Manage Question Translations"),
-        renderLanguageLinks(questionId, locale),
+        renderLanguageLinks(question.getId(), locale),
         form);
   }
 
@@ -56,16 +82,21 @@ public class QuestionTranslationView extends TranslationFormView {
   }
 
   private ImmutableList<FieldWithLabel> formFields(
-      Optional<String> questionText, Optional<String> questionHelpText) {
+      String defaultText,
+      String defaultHelpText,
+      Optional<String> questionText,
+      Optional<String> questionHelpText) {
     return ImmutableList.of(
         FieldWithLabel.input()
             .setId("localize-question-text")
             .setFieldName("questionText")
+            .setLabelText(defaultText)
             .setPlaceholderText("Question text")
             .setValue(questionText),
         FieldWithLabel.input()
             .setId("localize-question-help-text")
             .setFieldName("questionHelpText")
+            .setLabelText(defaultHelpText)
             .setPlaceholderText("Question help text")
             .setValue(questionHelpText));
   }

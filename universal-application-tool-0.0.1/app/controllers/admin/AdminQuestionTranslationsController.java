@@ -6,7 +6,6 @@ import auth.Authorizers;
 import controllers.CiviFormController;
 import forms.QuestionTranslationForm;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -65,14 +64,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
               try {
                 QuestionDefinition definition = readOnlyQuestionService.getQuestionDefinition(id);
                 Locale localeToEdit = Locale.forLanguageTag(locale);
-                return ok(
-                    translationView.render(
-                        request,
-                        id,
-                        localeToEdit,
-                        definition.maybeGetQuestionText(localeToEdit),
-                        definition.maybeGetQuestionHelpText(localeToEdit),
-                        Optional.empty()));
+                return ok(translationView.render(request, localeToEdit, definition));
               } catch (QuestionNotFoundException e) {
                 return notFound(e.getMessage());
               }
@@ -110,19 +102,15 @@ public class AdminQuestionTranslationsController extends CiviFormController {
                 QuestionDefinitionBuilder builder = new QuestionDefinitionBuilder(toUpdate);
                 builder.updateQuestionText(updatedLocale, questionText);
                 builder.updateQuestionHelpText(updatedLocale, questionHelpText);
+                QuestionDefinition definitionWithUpdates = builder.build();
                 ErrorAnd<QuestionDefinition, CiviFormError> result =
-                    questionService.update(builder.build());
+                    questionService.update(definitionWithUpdates);
 
                 if (result.isError()) {
                   String errorMessage = joinErrors(result.getErrors());
                   return ok(
-                      translationView.render(
-                          request,
-                          id,
-                          updatedLocale,
-                          Optional.of(questionText),
-                          Optional.of(questionHelpText),
-                          Optional.of(errorMessage)));
+                      translationView.renderErrors(
+                          request, updatedLocale, definitionWithUpdates, errorMessage));
                 }
 
                 return redirect(routes.QuestionController.index().url());
