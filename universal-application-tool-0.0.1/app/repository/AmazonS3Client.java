@@ -35,7 +35,7 @@ public class AmazonS3Client {
   private final ApplicationLifecycle appLifecycle;
   private final Config config;
   private final Environment environment;
-  private final AwsCredentials credentials;
+  private final DefaultCredentialsProvider credentialsProvider;
   private Region region;
   private String bucket;
   private S3Presigner presigner;
@@ -45,13 +45,12 @@ public class AmazonS3Client {
     this.appLifecycle = checkNotNull(appLifecycle);
     this.config = checkNotNull(config);
     this.environment = checkNotNull(environment);
+    this.credentialsProvider = DefaultCredentialsProvider.create();
 
     log.info("aws s3 enabled: " + String.valueOf(enabled()));
     if (!enabled()) {
-      this.credentials = null;
       return;
     }
-    this.credentials = DefaultCredentialsProvider.create().resolveCredentials();
     connect();
 
     this.appLifecycle.addStopHook(
@@ -85,6 +84,7 @@ public class AmazonS3Client {
   }
 
   public SignedS3UploadRequest getSignedUploadRequest(String key, String successActionRedirect) {
+    AwsCredentials credentials = credentialsProvider.resolveCredentials();
     SignedS3UploadRequest.Builder builder =
         SignedS3UploadRequest.builder()
             .setActionLink(bucketAddress())
