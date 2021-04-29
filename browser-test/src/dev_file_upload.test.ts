@@ -33,7 +33,7 @@ describe('the dev file upload page', () => {
         // responds with type 'binary/octet-stream'. Browser would not download
         // files with type 'text/html' so we just go to the display page and
         // verify content.
-        await page.click('text=file.txt');
+        await page.click('a:text("file.txt")');
         expect(await page.content()).toContain('this is test');
         break;
       default:
@@ -49,7 +49,7 @@ describe('the dev file upload page', () => {
 const downloadFile = async (page: Page, fileName: string) => {
   const [downloadEvent] = await Promise.all([
     page.waitForEvent('download'),
-    page.click(`text=${fileName}`)
+    page.click(`a:text("${fileName}")`)
   ]);
   const path = await downloadEvent.path();
   if (path === null) {

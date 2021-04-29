@@ -77,8 +77,11 @@ public class QuestionController extends CiviFormController {
                 return badRequest(e.toString());
               }
 
+              Optional<QuestionDefinition> maybeEnumerationQuestion =
+                  maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
               try {
-                return ok(editView.renderViewQuestionForm(questionDefinition));
+                return ok(
+                    editView.renderViewQuestionForm(questionDefinition, maybeEnumerationQuestion));
               } catch (InvalidQuestionTypeException e) {
                 return badRequest(
                     invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
@@ -159,8 +162,12 @@ public class QuestionController extends CiviFormController {
                 return badRequest(e.toString());
               }
 
+              Optional<QuestionDefinition> maybeEnumerationQuestion =
+                  maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
               try {
-                return ok(editView.renderEditQuestionForm(request, questionDefinition));
+                return ok(
+                    editView.renderEditQuestionForm(
+                        request, questionDefinition, maybeEnumerationQuestion));
               } catch (InvalidQuestionTypeException e) {
                 return badRequest(
                     invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
@@ -180,10 +187,11 @@ public class QuestionController extends CiviFormController {
       return badRequest(invalidQuestionTypeMessage(questionType));
     }
 
+    ReadOnlyQuestionService roService =
+        service.getReadOnlyQuestionService().toCompletableFuture().join();
+
     QuestionDefinition questionDefinition;
     try {
-      ReadOnlyQuestionService roService =
-          service.getReadOnlyQuestionService().toCompletableFuture().join();
       questionDefinition = getBuilderWithQuestionPath(roService, questionForm).setId(id).build();
     } catch (UnsupportedQuestionTypeException e) {
       // Failed while trying to update a question that was already created for the given question
@@ -201,9 +209,11 @@ public class QuestionController extends CiviFormController {
 
     if (errorAndUpdatedQuestionDefinition.isError()) {
       String errorMessage = joinErrors(errorAndUpdatedQuestionDefinition.getErrors());
+      Optional<QuestionDefinition> maybeEnumerationQuestion =
+          maybeGetEnumerationQuestion(roService, questionDefinition);
       return ok(
           editView.renderEditQuestionForm(
-              request, id, questionForm, questionDefinition, errorMessage));
+              request, id, questionForm, maybeEnumerationQuestion, errorMessage));
     }
 
     String successMessage = String.format("question %s updated", questionForm.getQuestionName());
@@ -240,5 +250,25 @@ public class QuestionController extends CiviFormController {
     return String.format(
         "unrecognized question type: '%s', accepted values include: %s",
         questionType.toUpperCase(), Arrays.toString(QuestionType.values()));
+  }
+
+  /**
+   * Maybe return the name of the question definition's repeater question, if it is a repeated
+   * question definition.
+   */
+  private Optional<QuestionDefinition> maybeGetEnumerationQuestion(
+      ReadOnlyQuestionService readOnlyQuestionService, QuestionDefinition questionDefinition) {
+    return questionDefinition
+        .getRepeaterId()
+        .flatMap(
+            repeaterId -> {
+              try {
+                return Optional.of(readOnlyQuestionService.getQuestionDefinition(repeaterId));
+              } catch (QuestionNotFoundException e) {
+                throw new RuntimeException(
+                    "This repeated question's repeater id reference does not refer to a real"
+                        + " question!");
+              }
+            });
   }
 }
