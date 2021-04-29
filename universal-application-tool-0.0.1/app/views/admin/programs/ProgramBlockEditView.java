@@ -231,8 +231,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .getContainer(),
         submitButton("Update Block")
             .withId("update-block-button")
-            .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE, "disabled:" + Styles.OPACITY_50)
-            .attr("disabled", ""));   // disabled until user changes form
+            .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE)
+            .attr("disabled", ""));   // disabled until user changes form; should use the disabled pseudo class so that Tailwind knows when to apply opacity-50
     // Looks like J2HTML does not have support for adding CSS psuedo classes so it cannot be
     // used with Tailwind's styling variants (https://tailwindcss.com/docs/hover-focus-and-other-states#disabled)
 

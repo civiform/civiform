@@ -23,4 +23,8 @@
   button:hover {
     @apply bg-blue-700;
   }
+
+  button:disabled {
+    @apply opacity-50;
+  }
 }
