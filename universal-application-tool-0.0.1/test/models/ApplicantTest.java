@@ -6,18 +6,18 @@ import java.util.List;
 import java.util.Locale;
 import org.junit.Before;
 import org.junit.Test;
-import repository.ApplicantRepository;
+import repository.UserRepository;
 import repository.WithPostgresContainer;
 import services.Path;
 import services.applicant.ApplicantData;
 
 public class ApplicantTest extends WithPostgresContainer {
 
-  private ApplicantRepository repo;
+  private UserRepository repo;
 
   @Before
   public void setupApplicantRepository() {
-    repo = instanceOf(ApplicantRepository.class);
+    repo = instanceOf(UserRepository.class);
   }
 
   @Test

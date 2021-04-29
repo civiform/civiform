@@ -39,7 +39,7 @@ public class NameQuestionTest {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(nameQuestionDefinition, applicantData);
+        new ApplicantQuestion(nameQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
 
     NameQuestion nameQuestion = new NameQuestion(applicantQuestion);
 
@@ -55,7 +55,7 @@ public class NameQuestionTest {
   public void withValidApplicantData_passesValidation(
       String firstName, String middleName, String lastName) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(nameQuestionDefinition, applicantData);
+        new ApplicantQuestion(nameQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
     QuestionAnswerer.answerNameQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), firstName, middleName, lastName);
 
@@ -75,7 +75,7 @@ public class NameQuestionTest {
   public void withInvalidApplicantData_failsValidation(
       String firstName, String middleName, String lastName) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(nameQuestionDefinition, applicantData);
+        new ApplicantQuestion(nameQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
     QuestionAnswerer.answerNameQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), firstName, middleName, lastName);
 

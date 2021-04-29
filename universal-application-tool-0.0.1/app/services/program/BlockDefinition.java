@@ -6,13 +6,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
-import services.Path;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
-import services.question.types.ScalarType;
 
 /**
  * Defines a single program block, which contains a list of questions and data about the block.
@@ -115,44 +111,6 @@ public abstract class BlockDefinition {
   @Memoized
   public int getQuestionCount() {
     return programQuestionDefinitions().size();
-  }
-
-  @JsonIgnore
-  @Memoized
-  public ImmutableMap<Path, ScalarType> scalarTypes() {
-    ImmutableMap.Builder<Path, ScalarType> scalarTypesBuilder = ImmutableMap.builder();
-    programQuestionDefinitions().stream()
-        .map(ProgramQuestionDefinition::getQuestionDefinition)
-        .map(QuestionDefinition::getScalars)
-        .forEach(scalarTypesBuilder::putAll);
-
-    return scalarTypesBuilder.build();
-  }
-
-  @JsonIgnore
-  @Memoized
-  public ImmutableSet<Path> scalarPaths() {
-    return scalarTypes().keySet();
-  }
-
-  /**
-   * For multi-select questions (like checkbox), we must append {@code []} to the field name so that
-   * the Play framework allows multiple form keys with the same value. When updates are passed in
-   * the request, they are of the format {@code path.selection[index]}. However, the scalar path
-   * does not end in {@code []}, so we remove the array element information here before checking the
-   * type.
-   */
-  @JsonIgnore
-  public Optional<ScalarType> getScalarType(Path path) {
-    if (path.isArrayElement()) {
-      path = path.withoutArrayReference();
-    }
-    return Optional.ofNullable(scalarTypes().get(path));
-  }
-
-  @JsonIgnore
-  public boolean hasSameId(BlockDefinition other) {
-    return other.id() == id();
   }
 
   @AutoValue.Builder

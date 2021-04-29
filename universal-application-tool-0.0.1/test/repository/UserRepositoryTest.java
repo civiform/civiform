@@ -9,13 +9,13 @@ import org.junit.Before;
 import org.junit.Test;
 import services.Path;
 
-public class ApplicantRepositoryTest extends WithPostgresContainer {
+public class UserRepositoryTest extends WithPostgresContainer {
 
-  private ApplicantRepository repo;
+  private UserRepository repo;
 
   @Before
   public void setupApplicantRepository() {
-    repo = instanceOf(ApplicantRepository.class);
+    repo = instanceOf(UserRepository.class);
   }
 
   @Test
