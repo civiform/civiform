@@ -87,6 +87,7 @@ public class AmazonS3Client {
   public SignedS3UploadRequest getSignedUploadRequest(String key, String successActionRedirect) {
     SignedS3UploadRequest.Builder builder =
         SignedS3UploadRequest.builder()
+            .setActionLink(bucketAddress())
             .setKey(key)
             .setSuccessActionRedirect(successActionRedirect)
             .setAccessKey(credentials.accessKeyId())
@@ -99,6 +100,13 @@ public class AmazonS3Client {
       builder.setSecurityToken(sessionCredentials.sessionToken());
     }
     return builder.build();
+  }
+
+  private String bucketAddress() {
+    if (environment.isDev()) {
+      return String.join("/", config.getString(AWS_LOCAL_ENDPOINT), bucket);
+    }
+    return String.format("https://s3-%s.amazonaws.com/%s", region.id(), bucket);
   }
 
   private void connect() {

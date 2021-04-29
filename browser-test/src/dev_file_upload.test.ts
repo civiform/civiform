@@ -11,9 +11,9 @@ describe('the dev file upload page', () => {
 
     await page.goto(BASE_URL + '/dev/fileUpload');
 
-    expect(await page.textContent('html')).toContain('Dev File Upload');
+    expect(await page.textContent('h1')).toContain('Dev File Upload');
 
-    await page.setInputFiles('input#myFile', {
+    await page.setInputFiles('input[type=file]', {
       name: 'file.txt',
       mimeType: 'text/plain',
       buffer: Buffer.from('this is test')
@@ -21,26 +21,18 @@ describe('the dev file upload page', () => {
 
     await page.click('button');
 
-    expect(await page.textContent('html')).toContain('Dev File Upload');
+    expect(await page.textContent('h1')).toContain('Dev File Upload');
 
     if (BASE_URL !== 'http://localhost:9999') {
-      // Only download if not localhost because download doesn't work in localhost.
-      const fileContent = await downloadFile(page, 'file.txt');
-      expect(fileContent).toContain('this is test');
+      // Only confirm file content if not localhost because presigned link
+      // doesn't work outside docker network.
+
+      // Localstack responds with 'text/html' while actual AWS responds 'binary/octet-stream'.
+      // We just go to the display page and check content.
+      await page.click('text=file.txt');
+      expect(await page.content()).toContain('this is test')
     }
 
     await endSession(browser);
   })
 })
-
-const downloadFile = async (page: Page, fileName: string) => {
-  const [downloadEvent] = await Promise.all([
-    page.waitForEvent('download'),
-    page.click(`text="${fileName}"`)
-  ]);
-  const path = await downloadEvent.path();
-  if (path === null) {
-    throw new Error('download failed');
-  }
-  return readFileSync(path, 'utf8');
-}

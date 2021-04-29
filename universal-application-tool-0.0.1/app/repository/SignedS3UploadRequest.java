@@ -55,6 +55,9 @@ public abstract class SignedS3UploadRequest {
 
   // -- Below should be included in the upload form.
 
+  /** Action link for the form. */
+  public abstract String actionLink();
+
   /** Key of the object in S3 bucket. */
   public abstract String key();
 
@@ -111,6 +114,8 @@ public abstract class SignedS3UploadRequest {
 
   @AutoValue.Builder
   public abstract static class Builder {
+
+    public abstract Builder setActionLink(String actionLink);
 
     public abstract Builder setKey(String key);
 

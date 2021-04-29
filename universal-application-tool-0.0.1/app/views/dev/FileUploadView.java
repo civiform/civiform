@@ -68,10 +68,6 @@ public class FileUploadView extends BaseHtmlView {
   }
 
   private ContainerTag fileUploadForm(SignedS3UploadRequest request) {
-    String actionLink =
-        String.format(
-            "https://%s-%s.amazonaws.com/%s",
-            request.serviceName(), request.regionName(), request.bucket());
     ContainerTag formTag =
         form()
             .attr(ENCTYPE, "multipart/form-data")
@@ -101,6 +97,6 @@ public class FileUploadView extends BaseHtmlView {
         .with(input().withType("file").withName("file"))
         .with(submitButton("Upload to Amazon S3"))
         .withMethod("post")
-        .withAction(actionLink);
+        .withAction(request.actionLink());
   }
 }

@@ -61,14 +61,14 @@ public class FileUploadController extends DevController {
     Optional<String> bucket = request.queryString("bucket");
     Optional<String> key = request.queryString("key");
     Optional<String> etag = request.queryString("etag");
-    if (!bucket.isPresent() || !key.isPresent() || !etag.isPresent()) {
+    if (!bucket.isPresent() || !key.isPresent()) {
       return redirect(routes.FileUploadController.index().url());
     }
     updateFileRecord(key.get());
     String successMessage =
         String.format(
             "File successfully uploaded to S3: bucket: %s, key: %s, etag: %s.",
-            bucket.get(), key.get(), etag.get());
+            bucket.get(), key.get(), etag.orElse(""));
     return redirect(routes.FileUploadController.index().url()).flashing("success", successMessage);
   }
 
