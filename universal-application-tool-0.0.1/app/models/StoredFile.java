@@ -22,16 +22,6 @@ public class StoredFile extends BaseModel {
 
   @Constraints.Required String name;
 
-  public byte[] getContent() {
-    return data;
-  }
-
-  public void setContent(byte[] data) {
-    this.data = data;
-  }
-
-  @Transient @Constraints.Required byte[] data;
-
   public URL getPresignedURL() {
     return presignedURL;
   }

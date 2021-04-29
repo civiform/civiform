@@ -6,7 +6,6 @@ import com.typesafe.config.Config;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
@@ -15,15 +14,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
-import software.amazon.awssdk.core.ResponseBytes;
-import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectResponse;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
@@ -40,9 +35,9 @@ public class AmazonS3Client {
   private final ApplicationLifecycle appLifecycle;
   private final Config config;
   private final Environment environment;
+  private final DefaultCredentialsProvider credentialsProvider;
   private Region region;
   private String bucket;
-  private S3Client s3;
   private S3Presigner presigner;
 
   @Inject
@@ -50,18 +45,18 @@ public class AmazonS3Client {
     this.appLifecycle = checkNotNull(appLifecycle);
     this.config = checkNotNull(config);
     this.environment = checkNotNull(environment);
+    this.credentialsProvider = DefaultCredentialsProvider.create();
 
     log.info("aws s3 enabled: " + String.valueOf(enabled()));
-    if (enabled()) {
-      connect();
-      putTestObject();
-      getTestObject();
+    if (!enabled()) {
+      return;
     }
+    connect();
 
     this.appLifecycle.addStopHook(
         () -> {
-          if (s3 != null) {
-            s3.close();
+          if (presigner != null) {
+            presigner.close();
           }
           return CompletableFuture.completedFuture(null);
         });
@@ -72,31 +67,6 @@ public class AmazonS3Client {
       return false;
     }
     return (config.hasPath(AWS_S3_REGION) && config.hasPath(AWS_S3_BUCKET));
-  }
-
-  public void putObject(String key, byte[] data) {
-    ensureS3Client();
-
-    try {
-      PutObjectRequest putObjectRequest =
-          PutObjectRequest.builder().bucket(bucket).key(key).build();
-      s3.putObject(putObjectRequest, RequestBody.fromBytes(data));
-    } catch (S3Exception e) {
-      throw new RuntimeException("S3 exception: " + e.getMessage());
-    }
-  }
-
-  public byte[] getObject(String key) {
-    ensureS3Client();
-
-    try {
-      GetObjectRequest getObjectRequest =
-          GetObjectRequest.builder().key(key).bucket(bucket).build();
-      ResponseBytes<GetObjectResponse> objectBytes = s3.getObjectAsBytes(getObjectRequest);
-      return objectBytes.asByteArray();
-    } catch (S3Exception e) {
-      throw new RuntimeException("S3 exception: " + e.getMessage());
-    }
   }
 
   public URL getPresignedUrl(String key) {
@@ -113,24 +83,30 @@ public class AmazonS3Client {
     return presignedGetObjectRequest.url();
   }
 
-  private void ensureS3Client() {
-    if (s3 != null) {
-      return;
+  public SignedS3UploadRequest getSignedUploadRequest(String key, String successActionRedirect) {
+    AwsCredentials credentials = credentialsProvider.resolveCredentials();
+    SignedS3UploadRequest.Builder builder =
+        SignedS3UploadRequest.builder()
+            .setActionLink(bucketAddress())
+            .setKey(key)
+            .setSuccessActionRedirect(successActionRedirect)
+            .setAccessKey(credentials.accessKeyId())
+            .setExpirationDuration(AWS_PRESIGNED_URL_DURATION)
+            .setBucket(bucket)
+            .setSecretKey(credentials.secretAccessKey())
+            .setRegionName(region.id());
+    if (credentials instanceof AwsSessionCredentials) {
+      AwsSessionCredentials sessionCredentials = (AwsSessionCredentials) credentials;
+      builder.setSecurityToken(sessionCredentials.sessionToken());
     }
-    connect();
-    if (s3 == null) {
-      throw new RuntimeException("Failed to create S3 client");
-    }
+    return builder.build();
   }
 
-  private void putTestObject() {
-    String testInput = "UAT S3 test content";
-    putObject("file1", testInput.getBytes(StandardCharsets.UTF_8));
-  }
-
-  private void getTestObject() {
-    byte[] data = getObject("file1");
-    log.info("got data from s3: " + new String(data, StandardCharsets.UTF_8));
+  private String bucketAddress() {
+    if (environment.isDev()) {
+      return String.join("/", config.getString(AWS_LOCAL_ENDPOINT), bucket);
+    }
+    return String.format("https://s3-%s.amazonaws.com/%s", region.id(), bucket);
   }
 
   private void connect() {
@@ -138,18 +114,15 @@ public class AmazonS3Client {
     region = Region.of(regionName);
     bucket = config.getString(AWS_S3_BUCKET);
 
-    S3ClientBuilder s3ClientBuilder = S3Client.builder().region(region);
     S3Presigner.Builder s3PresignerBuilder = S3Presigner.builder().region(region);
     if (environment.isDev()) {
       try {
         URI localUri = new URI(config.getString(AWS_LOCAL_ENDPOINT));
-        s3ClientBuilder = s3ClientBuilder.endpointOverride(localUri);
         s3PresignerBuilder = s3PresignerBuilder.endpointOverride(localUri);
       } catch (URISyntaxException e) {
         throw new RuntimeException(e);
       }
     }
-    s3 = s3ClientBuilder.build();
     presigner = s3PresignerBuilder.build();
   }
 }

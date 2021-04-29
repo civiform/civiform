@@ -128,12 +128,12 @@ public interface ProgramService {
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors with
    *     the unmodified program definition if failed
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
-   * @throws ProgramBlockNotFoundException when repeaterBlockId does not correspond to a repeater
-   *     block in the Program.
+   * @throws ProgramBlockDefinitionNotFoundException when repeaterBlockId does not correspond to a
+   *     repeater block in the Program.
    */
   ErrorAnd<ProgramDefinition, CiviFormError> addRepeatedBlockToProgram(
       long programId, long repeaterBlockId)
-      throws ProgramNotFoundException, ProgramBlockNotFoundException;
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
 
   /**
    * Update a {@link BlockDefinition}'s attributes.
@@ -144,12 +144,12 @@ public interface ProgramService {
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors with
    *     the unmodified program definition if failed
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
-   * @throws ProgramBlockNotFoundException when blockDefinitionId does not correspond to a real
-   *     Block.
+   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
+   *     real Block.
    */
   ErrorAnd<ProgramDefinition, CiviFormError> updateBlock(
       long programId, long blockDefinitionId, BlockForm blockForm)
-      throws ProgramNotFoundException, ProgramBlockNotFoundException;
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
 
   /**
    * Update a {@link BlockDefinition} with a set of questions.
@@ -159,14 +159,14 @@ public interface ProgramService {
    * @param programQuestionDefinitions an {@link ImmutableList} of questions for the block
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
-   * @throws ProgramBlockNotFoundException when blockDefinitionId does not correspond to a real
-   *     Block.
+   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
+   *     real Block.
    */
   ProgramDefinition setBlockQuestions(
       long programId,
       long blockDefinitionId,
       ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions)
-      throws ProgramNotFoundException, ProgramBlockNotFoundException;
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
 
   /**
    * Update a {@link BlockDefinition} to include additional questions.
@@ -176,15 +176,15 @@ public interface ProgramService {
    * @param questionIds an {@link ImmutableList} of question IDs for the block
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
-   * @throws ProgramBlockNotFoundException when blockDefinitionId does not correspond to a real
-   *     Block.
+   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
+   *     real Block.
    * @throws QuestionNotFoundException when questionIds does not correspond to real Questions.
    * @throws DuplicateProgramQuestionException if the block already contains any of the Questions.
    */
   ProgramDefinition addQuestionsToBlock(
       long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
-      throws ProgramNotFoundException, ProgramBlockNotFoundException, QuestionNotFoundException,
-          DuplicateProgramQuestionException;
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          QuestionNotFoundException, DuplicateProgramQuestionException;
 
   /**
    * Update a {@link BlockDefinition} to remove questions.
@@ -194,13 +194,14 @@ public interface ProgramService {
    * @param questionIds an {@link ImmutableList} of question IDs to be removed from the block
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
-   * @throws ProgramBlockNotFoundException when blockDefinitionId does not correspond to a real
-   *     Block.
+   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
+   *     real Block.
    * @throws QuestionNotFoundException when questionIds does not correspond to real Questions.
    */
   ProgramDefinition removeQuestionsFromBlock(
       long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
-      throws ProgramNotFoundException, ProgramBlockNotFoundException, QuestionNotFoundException;
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          QuestionNotFoundException;
 
   /**
    * Set the hide {@link Predicate} for a block. This predicate describes under what conditions the
@@ -211,12 +212,12 @@ public interface ProgramService {
    * @param predicate the {@link Predicate} for hiding the block
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
-   * @throws ProgramBlockNotFoundException when blockDefinitionId does not correspond to a real
-   *     Block.
+   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
+   *     real Block.
    */
   ProgramDefinition setBlockHidePredicate(
       long programId, long blockDefinitionId, Predicate predicate)
-      throws ProgramNotFoundException, ProgramBlockNotFoundException;
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
 
   /**
    * Set the optional {@link Predicate} for a block. This predicate describes under what conditions
@@ -227,12 +228,12 @@ public interface ProgramService {
    * @param predicate the {@link Predicate} for making the block optional
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
-   * @throws ProgramBlockNotFoundException when blockDefinitionId does not correspond to a real
-   *     Block.
+   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
+   *     real Block.
    */
   ProgramDefinition setBlockOptionalPredicate(
       long programId, long blockDefinitionId, Predicate predicate)
-      throws ProgramNotFoundException, ProgramBlockNotFoundException;
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
 
   /**
    * Delete a block from a program if the block ID is present. Otherwise, does nothing.

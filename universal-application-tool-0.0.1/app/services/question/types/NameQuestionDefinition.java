@@ -97,7 +97,7 @@ public class NameQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getFirstNamePath() {
-    return getPath().join("first");
+    return getPath().join("first_name");
   }
 
   public ScalarType getFirstNameType() {
@@ -105,7 +105,7 @@ public class NameQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getMiddleNamePath() {
-    return getPath().join("middle");
+    return getPath().join("middle_name");
   }
 
   public ScalarType getMiddleNameType() {
@@ -113,7 +113,7 @@ public class NameQuestionDefinition extends QuestionDefinition {
   }
 
   public Path getLastNamePath() {
-    return getPath().join("last");
+    return getPath().join("last_name");
   }
 
   public ScalarType getLastNameType() {

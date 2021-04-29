@@ -16,13 +16,11 @@ import java.util.OptionalLong;
 import services.CiviFormError;
 import services.LocalizationUtils;
 import services.Path;
+import services.applicant.question.Scalar;
 import services.question.exceptions.TranslationNotFoundException;
 
 /** Defines a single question. */
 public abstract class QuestionDefinition {
-  public static final String METADATA_UPDATE_TIME_KEY = "updated_at";
-  public static final String METADATA_UPDATE_PROGRAM_ID_KEY = "updated_in_program";
-
   private final OptionalLong id;
   private final String name;
   private final Path path;
@@ -85,10 +83,6 @@ public abstract class QuestionDefinition {
     }
   }
 
-  public Optional<ScalarType> getScalarType(Path path) {
-    return Optional.ofNullable(this.getScalars().get(path));
-  }
-
   /** Return true if the question is persisted and has an unique identifier. */
   public boolean isPersisted() {
     return this.id.isPresent();
@@ -108,6 +102,16 @@ public abstract class QuestionDefinition {
    */
   public String getName() {
     return this.name;
+  }
+
+  /** Returns the {@link Path} segment that corresponds to this QuestionDefinition. */
+  public String getQuestionPathSegment() {
+    // TODO(#783): Change this getter once we save this formatted name to the database.
+    String formattedName = name.replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
+    if (getQuestionType().equals(QuestionType.REPEATER)) {
+      return formattedName + Path.ARRAY_SUFFIX;
+    }
+    return formattedName;
   }
 
   /**
@@ -298,7 +302,7 @@ public abstract class QuestionDefinition {
   public abstract QuestionType getQuestionType();
 
   public Path getLastUpdatedTimePath() {
-    return getPath().join(METADATA_UPDATE_TIME_KEY);
+    return getPath().join(Scalar.UPDATED_AT);
   }
 
   public ScalarType getLastUpdatedTimeType() {
@@ -306,7 +310,7 @@ public abstract class QuestionDefinition {
   }
 
   public Path getProgramIdPath() {
-    return getPath().join(METADATA_UPDATE_PROGRAM_ID_KEY);
+    return getPath().join(Scalar.PROGRAM_UPDATED_IN);
   }
 
   public ScalarType getProgramIdType() {

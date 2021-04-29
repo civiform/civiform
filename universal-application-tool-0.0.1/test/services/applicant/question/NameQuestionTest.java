@@ -14,6 +14,7 @@ import org.junit.runner.RunWith;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.question.types.NameQuestionDefinition;
+import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class NameQuestionTest {
@@ -38,7 +39,7 @@ public class NameQuestionTest {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(nameQuestionDefinition, applicantData);
+        new ApplicantQuestion(nameQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
 
     NameQuestion nameQuestion = new NameQuestion(applicantQuestion);
 
@@ -53,11 +54,10 @@ public class NameQuestionTest {
   @Parameters({"Wendel,Middle Name,Patric", "Wendel,,Patrick"})
   public void withValidApplicantData_passesValidation(
       String firstName, String middleName, String lastName) {
-    applicantData.putString(nameQuestionDefinition.getFirstNamePath(), firstName);
-    applicantData.putString(nameQuestionDefinition.getMiddleNamePath(), middleName);
-    applicantData.putString(nameQuestionDefinition.getLastNamePath(), lastName);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(nameQuestionDefinition, applicantData);
+        new ApplicantQuestion(nameQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+    QuestionAnswerer.answerNameQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), firstName, middleName, lastName);
 
     NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
 
@@ -74,11 +74,10 @@ public class NameQuestionTest {
   @Parameters({",,", ",Middle Name,", "Wendel,,", ",,Patrick"})
   public void withInvalidApplicantData_failsValidation(
       String firstName, String middleName, String lastName) {
-    applicantData.putString(nameQuestionDefinition.getFirstNamePath(), firstName);
-    applicantData.putString(nameQuestionDefinition.getMiddleNamePath(), middleName);
-    applicantData.putString(nameQuestionDefinition.getLastNamePath(), lastName);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(nameQuestionDefinition, applicantData);
+        new ApplicantQuestion(nameQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+    QuestionAnswerer.answerNameQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), firstName, middleName, lastName);
 
     NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
 

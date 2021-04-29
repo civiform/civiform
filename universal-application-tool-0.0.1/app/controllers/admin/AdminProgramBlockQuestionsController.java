@@ -12,7 +12,7 @@ import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.program.DuplicateProgramQuestionException;
-import services.program.ProgramBlockNotFoundException;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.exceptions.QuestionNotFoundException;
@@ -42,7 +42,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
       programService.addQuestionsToBlock(programId, blockId, questionIds);
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
-    } catch (ProgramBlockNotFoundException e) {
+    } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
     } catch (QuestionNotFoundException e) {
       return notFound(String.format("Question IDs %s not found", questionIds));
@@ -69,7 +69,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
       programService.removeQuestionsFromBlock(programId, blockId, questionIds);
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
-    } catch (ProgramBlockNotFoundException e) {
+    } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
     } catch (QuestionNotFoundException e) {
       return notFound(String.format("Question ID %s not found", questionIds));

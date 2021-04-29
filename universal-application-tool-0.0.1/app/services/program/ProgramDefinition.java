@@ -52,6 +52,9 @@ public abstract class ProgramDefinition {
   /** The list of {@link ExportDefinition}s that make up the program. */
   public abstract ImmutableList<ExportDefinition> exportDefinitions();
 
+  /**
+   * Returns the localized program name for the given locale. Useful for applicant-facing things.
+   */
   public String getLocalizedNameOrDefault(Locale locale) {
     try {
       return getLocalizedName(locale);
@@ -60,7 +63,10 @@ public abstract class ProgramDefinition {
     }
   }
 
-  /** The default locale for CiviForm is US English. */
+  /**
+   * Returns the program name localized in the {@link LocalizationUtils#DEFAULT_LOCALE}. Useful for
+   * admin-facing things.
+   */
   public String getNameForDefaultLocale() {
     try {
       return getLocalizedName(LocalizationUtils.DEFAULT_LOCALE);
@@ -164,17 +170,18 @@ public abstract class ProgramDefinition {
    *
    * @param blockDefinitionId the id of the block definition
    * @return the {@link BlockDefinition} with the specified block id
-   * @throws ProgramBlockNotFoundException if no block matched the block id
+   * @throws ProgramBlockDefinitionNotFoundException if no block matched the block id
    */
   public BlockDefinition getBlockDefinition(long blockDefinitionId)
-      throws ProgramBlockNotFoundException {
+      throws ProgramBlockDefinitionNotFoundException {
     return blockDefinitions().stream()
         .filter(b -> b.id() == blockDefinitionId)
         .findAny()
-        .orElseThrow(() -> new ProgramBlockNotFoundException(id(), blockDefinitionId));
+        .orElseThrow(() -> new ProgramBlockDefinitionNotFoundException(id(), blockDefinitionId));
   }
 
-  public BlockDefinition getBlockDefinition(String blockId) throws ProgramBlockNotFoundException {
+  public BlockDefinition getBlockDefinition(String blockId)
+      throws ProgramBlockDefinitionNotFoundException {
     // TODO: add a new exception for malformed blockId.
     // TODO: refactor this blockId parsing to a shared method somewhere with appropriate context.
     long blockDefinitionId =

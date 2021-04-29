@@ -14,11 +14,14 @@ import services.question.types.QuestionType;
 
 public class ApplicantQuestionRendererFactory {
 
+  /** This is just used in creating samples, and they don't need real contextualized paths. */
+  private static final Path FAKE_CONTEXTUALIZED_PATH = Path.create("fake");
+
   public ApplicantQuestionRenderer getSampleRenderer(QuestionType questionType)
       throws UnsupportedQuestionTypeException {
     QuestionDefinition questionDefinition = questionDefinitionSample(questionType);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(questionDefinition, new ApplicantData());
+        new ApplicantQuestion(questionDefinition, new ApplicantData(), FAKE_CONTEXTUALIZED_PATH);
     return getRenderer(applicantQuestion);
   }
 

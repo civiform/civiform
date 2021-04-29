@@ -15,6 +15,7 @@ import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.AddressQuestionDefinition;
+import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class AddressQuestionTest {
@@ -50,7 +51,8 @@ public class AddressQuestionTest {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(addressQuestionDefinition, applicantData);
+        new ApplicantQuestion(
+            addressQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
 
     AddressQuestion addressQuestion = new AddressQuestion(applicantQuestion);
 
@@ -60,12 +62,16 @@ public class AddressQuestionTest {
 
   @Test
   public void withValidApplicantData() {
-    applicantData.putString(addressQuestionDefinition.getStreetPath(), "85 Pike St");
-    applicantData.putString(addressQuestionDefinition.getCityPath(), "Seattle");
-    applicantData.putString(addressQuestionDefinition.getStatePath(), "WA");
-    applicantData.putString(addressQuestionDefinition.getZipPath(), "98101");
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(addressQuestionDefinition, applicantData);
+        new ApplicantQuestion(
+            noPoBoxAddressQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+    QuestionAnswerer.answerAddressQuestion(
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        "85 Pike St",
+        "Seattle",
+        "WA",
+        "98101");
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
@@ -79,12 +85,11 @@ public class AddressQuestionTest {
 
   @Test
   public void withInvalidApplicantData_missingRequiredFields() {
-    applicantData.putString(addressQuestionDefinition.getStreetPath(), "");
-    applicantData.putString(addressQuestionDefinition.getCityPath(), "");
-    applicantData.putString(addressQuestionDefinition.getStatePath(), "");
-    applicantData.putString(addressQuestionDefinition.getZipPath(), "");
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(addressQuestionDefinition, applicantData);
+        new ApplicantQuestion(
+            noPoBoxAddressQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+    QuestionAnswerer.answerAddressQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "", "", "", "");
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
@@ -98,12 +103,16 @@ public class AddressQuestionTest {
   @Test
   @Parameters({"not a zip code", "123456789", "123ab"})
   public void withInvalidApplicantData_invalidZipCode(String zipValue) {
-    applicantData.putString(addressQuestionDefinition.getStreetPath(), "123 A St");
-    applicantData.putString(addressQuestionDefinition.getCityPath(), "Seattle");
-    applicantData.putString(addressQuestionDefinition.getStatePath(), "WA");
-    applicantData.putString(addressQuestionDefinition.getZipPath(), zipValue);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(addressQuestionDefinition, applicantData);
+        new ApplicantQuestion(
+            noPoBoxAddressQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+    QuestionAnswerer.answerAddressQuestion(
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        "123 A St",
+        "Seattle",
+        "WA",
+        zipValue);
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
@@ -117,12 +126,16 @@ public class AddressQuestionTest {
   @Test
   @Parameters({"123 A St", "123 Boxpo Ave", "12345", "1 Box Blvd"})
   public void withNoPoBoxAllowed_withValidApplicantData_passesValidation(String streetValue) {
-    applicantData.putString(noPoBoxAddressQuestionDefinition.getStreetPath(), streetValue);
-    applicantData.putString(noPoBoxAddressQuestionDefinition.getCityPath(), "Seattle");
-    applicantData.putString(noPoBoxAddressQuestionDefinition.getStatePath(), "WA");
-    applicantData.putString(noPoBoxAddressQuestionDefinition.getZipPath(), "98107");
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(noPoBoxAddressQuestionDefinition, applicantData);
+        new ApplicantQuestion(
+            noPoBoxAddressQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+    QuestionAnswerer.answerAddressQuestion(
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        streetValue,
+        "Seattle",
+        "WA",
+        "98107");
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
@@ -142,12 +155,16 @@ public class AddressQuestionTest {
     "po-box 555"
   })
   public void withNoPoBoxAllowed_withInvalidApplicantData_failsValidation(String streetValue) {
-    applicantData.putString(noPoBoxAddressQuestionDefinition.getStreetPath(), streetValue);
-    applicantData.putString(noPoBoxAddressQuestionDefinition.getCityPath(), "Seattle");
-    applicantData.putString(noPoBoxAddressQuestionDefinition.getStatePath(), "WA");
-    applicantData.putString(noPoBoxAddressQuestionDefinition.getZipPath(), "98107");
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(noPoBoxAddressQuestionDefinition, applicantData);
+        new ApplicantQuestion(
+            noPoBoxAddressQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+    QuestionAnswerer.answerAddressQuestion(
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        streetValue,
+        "Seattle",
+        "WA",
+        "98107");
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 

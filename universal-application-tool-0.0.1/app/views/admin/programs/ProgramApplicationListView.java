@@ -14,7 +14,6 @@ import models.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.twirl.api.Content;
-import services.applicant.ApplicantService;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.LinkElement;
@@ -23,13 +22,11 @@ import views.style.Styles;
 
 public final class ProgramApplicationListView extends BaseHtmlView {
   private final AdminLayout layout;
-  private final ApplicantService applicantService;
   private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
 
   @Inject
-  public ProgramApplicationListView(AdminLayout layout, ApplicantService applicantService) {
+  public ProgramApplicationListView(AdminLayout layout) {
     this.layout = layout;
-    this.applicantService = applicantService;
   }
 
   public Content render(long programId, ImmutableList<Application> applications) {
@@ -59,7 +56,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   private Tag renderApplicationListItem(long programId, Application application) {
     String downloadLinkText = "Download (PDF)";
     long applicationId = application.id;
-    String applicantName = applicantService.applicantName(application);
+    String applicantName = application.getApplicantData().getApplicantName();
     String lastEditText;
     try {
       lastEditText = application.getSubmitTime().toString();

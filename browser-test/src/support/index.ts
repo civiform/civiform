@@ -4,7 +4,7 @@ export { AdminPrograms } from './admin_programs'
 export { AdminTranslations } from './admin_translations'
 export { ApplicantQuestions } from './applicant_questions'
 
-const { BASE_URL = 'http://civiform:9000' } = process.env
+const { BASE_URL = 'http://civiform:9000', TEST_USER_LOGIN = '', TEST_USER_PASSWORD = '' } = process.env
 
 export const startSession = async () => {
   const browser = await chromium.launch();
@@ -38,8 +38,8 @@ export const loginAsGuest = async (page: Page) => {
 export const loginAsTestUser = async (page: Page) => {
   if (isTestUser()) {
     await page.click("#idcs");
-    await page.fill("#idcs-signin-basic-signin-form-username", process.env["TEST_USER_LOGIN"]);
-    await page.fill("#idcs-signin-basic-signin-form-password > input", process.env["TEST_USER_PASSWORD"]);
+    await page.fill("#idcs-signin-basic-signin-form-username", TEST_USER_LOGIN);
+    await page.fill("#idcs-signin-basic-signin-form-password > input", TEST_USER_PASSWORD);
     await page.click("#idcs-signin-basic-signin-form-submit")
   } else {
     await page.click('#guest');
@@ -47,7 +47,7 @@ export const loginAsTestUser = async (page: Page) => {
 }
 
 function isTestUser() {
-  return process.env["TEST_USER_LOGIN"] != undefined && process.env["TEST_USER_PASSWORD"] != undefined
+  return TEST_USER_LOGIN !== '' && TEST_USER_PASSWORD !== ''
 }
 
 
@@ -59,11 +59,21 @@ export const userDisplayName = () => {
   }
 }
 
+/**
+ * The option to select a language is only shown once for a given applicant. If this is
+ * the first time they see this page, select the given language. Otherwise continue.
+ */
 export const selectApplicantLanguage = async (page: Page, language: string) => {
-  if (!isTestUser()) {
+  const infoPageRegex = /applicants\/\d+\/edit/;
+  const maybeSelectLanguagePage = await page.url();
+  if (maybeSelectLanguagePage.match(infoPageRegex)) {
     await page.selectOption('select', { label: language });
     await page.click('button');
   }
+
+  const programIndexRegex = /applicants\/\d+\/programs/;
+  const maybeProgramIndexPage = await page.url();
+  expect(maybeProgramIndexPage).toMatch(programIndexRegex);
 }
 
 export const dropTables = async (page: Page) => {

@@ -15,6 +15,7 @@ import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.TextQuestionDefinition;
+import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class TextQuestionTest {
@@ -49,7 +50,7 @@ public class TextQuestionTest {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(textQuestionDefinition, applicantData);
+        new ApplicantQuestion(textQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
 
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
@@ -59,9 +60,10 @@ public class TextQuestionTest {
 
   @Test
   public void withApplicantData_passesValidation() {
-    applicantData.putString(textQuestionDefinition.getTextPath(), "hello");
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(textQuestionDefinition, applicantData);
+        new ApplicantQuestion(textQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+    QuestionAnswerer.answerTextQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "hello");
 
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
@@ -73,9 +75,11 @@ public class TextQuestionTest {
   @Test
   @Parameters({"abc", "abcd"})
   public void withMinAndMaxLength_withValidApplicantData_passesValidation(String value) {
-    applicantData.putString(minAndMaxLengthTextQuestionDefinition.getTextPath(), value);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(minAndMaxLengthTextQuestionDefinition, applicantData);
+        new ApplicantQuestion(
+            minAndMaxLengthTextQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+    QuestionAnswerer.answerTextQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), value);
 
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
@@ -92,9 +96,11 @@ public class TextQuestionTest {
   })
   public void withMinAndMaxLength_withInvalidApplicantData_failsValidation(
       String value, String expectedErrorMessage) {
-    applicantData.putString(minAndMaxLengthTextQuestionDefinition.getTextPath(), value);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(minAndMaxLengthTextQuestionDefinition, applicantData);
+        new ApplicantQuestion(
+            minAndMaxLengthTextQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+    QuestionAnswerer.answerTextQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), value);
 
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
