@@ -188,6 +188,18 @@ public abstract class QuestionDefinition {
     }
   }
 
+  /**
+   * Return an {@link Optional} containing the question text for this locale, or empty if this
+   * locale is not supported.
+   */
+  public Optional<String> maybeGetQuestionText(Locale locale) {
+    try {
+      return Optional.of(getQuestionText(locale));
+    } catch (TranslationNotFoundException e) {
+      return Optional.empty();
+    }
+  }
+
   /** Get the question text for the given locale. */
   public String getQuestionText(Locale locale) throws TranslationNotFoundException {
     if (this.questionText.containsKey(locale)) {
@@ -219,6 +231,19 @@ public abstract class QuestionDefinition {
       return getQuestionHelpText(locale);
     } catch (TranslationNotFoundException e) {
       return getDefaultQuestionHelpText();
+    }
+  }
+
+  /**
+   * Return an {@link Optional} containing the question help text for this locale, or empty if this
+   * locale is not supported.
+   */
+  public Optional<String> maybeGetQuestionHelpText(Locale locale) {
+    try {
+      String helpText = getQuestionHelpText(locale);
+      return helpText.isEmpty() ? Optional.empty() : Optional.of(helpText);
+    } catch (TranslationNotFoundException e) {
+      return Optional.empty();
     }
   }
 
@@ -315,13 +340,16 @@ public abstract class QuestionDefinition {
   public ImmutableSet<CiviFormError> validate() {
     ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
     if (name.isBlank()) {
-      errors.add(CiviFormError.of("blank name"));
+      errors.add(CiviFormError.of("Name cannot be blank"));
     }
     if (description.isBlank()) {
-      errors.add(CiviFormError.of("blank description"));
+      errors.add(CiviFormError.of("Description cannot be blank"));
     }
     if (questionText.isEmpty()) {
-      errors.add(CiviFormError.of("no question text"));
+      errors.add(CiviFormError.of("Question text cannot be blank"));
+    }
+    if (questionText.values().stream().anyMatch(String::isBlank)) {
+      errors.add(CiviFormError.of("Question text cannot be blank"));
     }
     return errors.build();
   }

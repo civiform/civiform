@@ -1,14 +1,18 @@
 package views.questiontypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import play.i18n.Lang;
+import play.i18n.Messages;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
@@ -28,6 +32,8 @@ public class CheckboxQuestionRendererTest {
           ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "hello"))));
 
   private final ApplicantData applicantData = new ApplicantData();
+  private final Messages messages =
+      stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
 
   private CheckboxQuestionRenderer renderer;
 
@@ -40,7 +46,7 @@ public class CheckboxQuestionRendererTest {
 
   @Test
   public void render_usesCorrectInputName() {
-    Tag result = renderer.render();
+    Tag result = renderer.render(messages);
 
     assertThat(result.render()).contains("applicant.question_name.selection[]");
   }

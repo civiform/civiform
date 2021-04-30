@@ -10,6 +10,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
+import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
@@ -92,7 +93,7 @@ public class ApplicantProgramsController extends CiviFormController {
         .thenComposeAsync(
             resultMaybe -> {
               if (resultMaybe.isEmpty()) {
-                return previewPageRedirect(applicantId);
+                return previewPageRedirect(messagesApi.preferred(request), applicantId);
               }
               return supplyAsync(resultMaybe::get);
             },
@@ -113,7 +114,7 @@ public class ApplicantProgramsController extends CiviFormController {
             });
   }
 
-  private CompletionStage<Result> previewPageRedirect(long applicantId) {
+  private CompletionStage<Result> previewPageRedirect(Messages messages, long applicantId) {
     // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Replace
     // with a redirect to the review page.
     // For now, this just redirects to program index page.
@@ -121,6 +122,6 @@ public class ApplicantProgramsController extends CiviFormController {
     return supplyAsync(
         () ->
             found(endOfProgramSubmission)
-                .flashing("banner", String.format("Application was already completed.")));
+                .flashing("banner", messages.at("toast.programCompleted")));
   }
 }

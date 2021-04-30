@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
@@ -47,16 +48,23 @@ public class AdminQuestionTranslationsControllerTest extends WithPostgresContain
     Question question = questionBank.applicantName();
 
     Result result =
-        controller.edit(fakeRequest().build(), question.id, "en-US").toCompletableFuture().join();
+        controller
+            .edit(addCSRFToken(fakeRequest()).build(), question.id, "en-US")
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Manage Question Translations");
+    assertThat(contentAsString(result))
+        .contains("Manage Question Translations", "English", "Spanish", "what is your name?");
   }
 
   @Test
   public void edit_questionNotFound_returnsNotFound() {
     Result result =
-        controller.edit(fakeRequest().build(), 1000L, "en-US").toCompletableFuture().join();
+        controller
+            .edit(addCSRFToken(fakeRequest()).build(), 1000L, "en-US")
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -64,12 +72,15 @@ public class AdminQuestionTranslationsControllerTest extends WithPostgresContain
   @Test
   public void update_addsNewLocalesAndRedirects() throws TranslationNotFoundException {
     Question question = createDraftQuestion();
-    Http.Request request =
+    Http.RequestBuilder requestBuilder =
         fakeRequest()
-            .bodyForm(ImmutableMap.of("questionText", "french", "questionHelpText", "french help"))
-            .build();
+            .bodyForm(ImmutableMap.of("questionText", "french", "questionHelpText", "french help"));
 
-    Result result = controller.update(request, question.id, "fr").toCompletableFuture().join();
+    Result result =
+        controller
+            .update(addCSRFToken(requestBuilder).build(), question.id, "fr")
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
@@ -87,12 +98,15 @@ public class AdminQuestionTranslationsControllerTest extends WithPostgresContain
   @Test
   public void update_updatesExistingLocalesAndRedirects() throws TranslationNotFoundException {
     Question question = createDraftQuestion();
-    Http.Request request =
+    Http.RequestBuilder requestBuilder =
         fakeRequest()
-            .bodyForm(ImmutableMap.of("questionText", "new", "questionHelpText", "new help"))
-            .build();
+            .bodyForm(ImmutableMap.of("questionText", "new", "questionHelpText", "new help"));
 
-    Result result = controller.update(request, question.id, "en-US").toCompletableFuture().join();
+    Result result =
+        controller
+            .update(addCSRFToken(requestBuilder).build(), question.id, "en-US")
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
@@ -110,9 +124,29 @@ public class AdminQuestionTranslationsControllerTest extends WithPostgresContain
   @Test
   public void update_questionNotFound_returnsNotFound() {
     Result result =
-        controller.update(fakeRequest().build(), 1000L, "en-US").toCompletableFuture().join();
+        controller
+            .update(addCSRFToken(fakeRequest()).build(), 1000L, "en-US")
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void update_validationErrors_rendersEditFormWithMessage() {
+    Question question = createDraftQuestion();
+    Http.RequestBuilder requestBuilder =
+        fakeRequest().bodyForm(ImmutableMap.of("questionText", "", "questionHelpText", ""));
+
+    Result result =
+        controller
+            .update(addCSRFToken(requestBuilder).build(), question.id, "en-US")
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains("Manage Question Translations", "Question text cannot be blank");
   }
 
   /** Creates a draft question, since only draft questions are editable. */
