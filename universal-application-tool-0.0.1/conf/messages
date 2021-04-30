@@ -1,6 +1,9 @@
 # This is the default language for the application. Please provide context for each message for use in translations.
 # If a translation cannot be found for a given language, it will default to this file's text instead.
 
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+content.selectLanguage=Please select your preferred language from the following:
+
 #---------------------------------------------------------------------#
 # COMPONENTS - contains text used in HTML components such as buttons. #
 #---------------------------------------------------------------------#

@@ -44,11 +44,11 @@ public class ApplicantInformationView extends BaseHtmlView {
             .withAction(formAction)
             .withMethod(Http.HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(request))
-            .with(selectLanguageDropdown())
+            .with(selectLanguageDropdown(messages))
             .with(submitButton("Submit")));
   }
 
-  private ContainerTag selectLanguageDropdown() {
+  private ContainerTag selectLanguageDropdown(Messages messages) {
     SelectWithLabel languageSelect =
         new SelectWithLabel()
             .setId("select-language")
@@ -63,9 +63,7 @@ public class ApplicantInformationView extends BaseHtmlView {
                                 formatLabel(locale), locale.toLanguageTag()))
                     .collect(toImmutableList()));
 
-    return div()
-        .with(p("Please select your preferred language from the following: "))
-        .with(languageSelect.getContainer());
+    return div().with(p(messages.at("content.selectLanguage"))).with(languageSelect.getContainer());
   }
 
   /**
