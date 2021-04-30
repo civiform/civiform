@@ -87,11 +87,13 @@ public abstract class BlockDefinition {
     return repeaterId().isPresent();
   }
 
+  @JsonIgnore
   public QuestionDefinition getEnumerationQuestionDefinition() {
     if (isRepeater()) {
       return getQuestionDefinition(0);
     }
-    throw new RuntimeException("Only a repeater block can have an enumeration question definition.");
+    throw new RuntimeException(
+        "Only a repeater block can have an enumeration question definition.");
   }
 
   /** A {@link Predicate} that determines whether this is hidden or shown. */

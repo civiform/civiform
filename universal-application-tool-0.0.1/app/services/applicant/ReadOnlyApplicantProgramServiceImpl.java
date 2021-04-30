@@ -120,7 +120,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       if (blockDefinition.isRepeater()) {
 
         // Get all the repeated entities enumerated by this enumeration block.
-        QuestionDefinition enumerationQuestionDefinition = blockDefinition.getEnumerationQuestionDefinition();
+        QuestionDefinition enumerationQuestionDefinition =
+            blockDefinition.getEnumerationQuestionDefinition();
         Path contextualizedPathForEnumeration =
             contextualizedPath.join(enumerationQuestionDefinition.getQuestionPathSegment());
         ImmutableList<String> entityNames =
