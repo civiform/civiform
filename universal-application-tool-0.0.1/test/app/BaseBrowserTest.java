@@ -11,10 +11,8 @@ import controllers.routes;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Optional;
-import models.Account;
-import models.Applicant;
-import models.Program;
-import models.Question;
+import models.LifecycleStage;
+import models.Version;
 import org.fluentlenium.core.domain.FluentList;
 import org.fluentlenium.core.domain.FluentWebElement;
 import org.junit.Before;
@@ -24,6 +22,7 @@ import play.api.mvc.Call;
 import play.db.ebean.EbeanConfig;
 import play.test.WithBrowser;
 import services.question.types.QuestionType;
+import support.Models;
 import support.TestConstants;
 import views.style.ReferenceClasses;
 
@@ -39,11 +38,12 @@ public class BaseBrowserTest extends WithBrowser {
   }
 
   @Before
-  public void truncateTables() {
+  public void resetTables() {
     EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
     EbeanServer server = Ebean.getServer(config.defaultServer());
-    server.truncate(
-        Applicant.class, Program.class, Question.class, Account.class, models.Application.class);
+    server.truncate(Models.modelsToTruncate());
+    Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
+    newActiveVersion.save();
   }
 
   /**

@@ -335,7 +335,7 @@ export class AdminQuestions {
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText);
 
-    await this.page.selectOption('#question-repeater-select', { label: repeaterName });
+    await this.page.selectOption('#question-enumeration-select', { label: repeaterName });
 
     await this.page.click('text=Create');
 
