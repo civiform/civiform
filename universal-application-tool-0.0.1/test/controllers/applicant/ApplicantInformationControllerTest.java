@@ -25,7 +25,7 @@ public class ApplicantInformationControllerTest extends WithMockedApplicantProfi
 
   @Before
   public void setup() {
-    clearDatabase();
+    resetDatabase();
     controller = instanceOf(ApplicantInformationController.class);
     userRepository = instanceOf(UserRepository.class);
     currentApplicant = createApplicantWithMockedProfile();

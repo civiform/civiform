@@ -29,7 +29,7 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
 
   @Before
   public void setUp() {
-    clearDatabase();
+    resetDatabase();
     controller = instanceOf(ApplicantProgramsController.class);
     currentApplicant = createApplicantWithMockedProfile();
   }

@@ -11,6 +11,8 @@ import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import models.Account;
 import models.Applicant;
+import models.LifecycleStage;
+import models.Version;
 import org.junit.BeforeClass;
 import org.mockito.Mockito;
 import play.inject.Injector;
@@ -56,9 +58,11 @@ public class WithMockedApplicantProfiles {
     return testQuestionBank;
   }
 
-  protected void clearDatabase() {
+  protected void resetDatabase() {
     testQuestionBank().reset();
     resourceCreator().truncateTables();
+    Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
+    newActiveVersion.save();
   }
 
   protected Applicant createApplicantWithMockedProfile() {

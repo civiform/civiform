@@ -2,6 +2,7 @@ package support;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import models.Program;
 import models.Question;
@@ -121,19 +122,19 @@ public class ProgramBuilder {
    */
   public BlockBuilder withBlock() {
     long blockId = Long.valueOf(numBlocks.incrementAndGet());
-    return BlockBuilder.newBlock(this, blockId);
+    return BlockBuilder.newBlock(this, blockId, "", "", Optional.empty());
   }
 
   /** Creates a {@link BlockBuilder} with this {@link ProgramBuilder} with empty description. */
   public BlockBuilder withBlock(String name) {
     long blockId = Long.valueOf(numBlocks.incrementAndGet());
-    return BlockBuilder.newBlock(this, blockId, name);
+    return BlockBuilder.newBlock(this, blockId, name, "", Optional.empty());
   }
 
   /** Creates a {@link BlockBuilder} with this {@link ProgramBuilder}. */
   public BlockBuilder withBlock(String name, String description) {
     long blockId = Long.valueOf(numBlocks.incrementAndGet());
-    return BlockBuilder.newBlock(this, blockId, name, description);
+    return BlockBuilder.newBlock(this, blockId, name, description, Optional.empty());
   }
 
   /** Returns the {@link ProgramDefinition} built from this {@link ProgramBuilder}. */
@@ -168,25 +169,19 @@ public class ProgramBuilder {
       blockDefBuilder = BlockDefinition.builder();
     }
 
-    private static BlockBuilder newBlock(ProgramBuilder programBuilder, long id) {
-      BlockBuilder blockBuilder = new BlockBuilder(programBuilder);
-      blockBuilder.blockDefBuilder =
-          BlockDefinition.builder().setId(id).setName("").setDescription("");
-      return blockBuilder;
-    }
-
-    private static BlockBuilder newBlock(ProgramBuilder programBuilder, long id, String name) {
-      BlockBuilder blockBuilder = new BlockBuilder(programBuilder);
-      blockBuilder.blockDefBuilder =
-          BlockDefinition.builder().setId(id).setName(name).setDescription("");
-      return blockBuilder;
-    }
-
     private static BlockBuilder newBlock(
-        ProgramBuilder programBuilder, long id, String name, String description) {
+        ProgramBuilder programBuilder,
+        long id,
+        String name,
+        String description,
+        Optional<Long> repeaterId) {
       BlockBuilder blockBuilder = new BlockBuilder(programBuilder);
       blockBuilder.blockDefBuilder =
-          BlockDefinition.builder().setId(id).setName(name).setDescription(description);
+          BlockDefinition.builder()
+              .setId(id)
+              .setName(name)
+              .setDescription(description)
+              .setRepeaterId(repeaterId);
       return blockBuilder;
     }
 
@@ -254,8 +249,7 @@ public class ProgramBuilder {
      * starts a new {@link support.ProgramBuilder.BlockBuilder} with an empty name and description.
      */
     public BlockBuilder withBlock() {
-      programBuilder.builder.addBlockDefinition(blockDefBuilder.build());
-      return programBuilder.withBlock();
+      return withBlock("", "");
     }
 
     /**
@@ -263,8 +257,7 @@ public class ProgramBuilder {
      * starts a new {@link support.ProgramBuilder.BlockBuilder} with an empty description.
      */
     public BlockBuilder withBlock(String name) {
-      programBuilder.builder.addBlockDefinition(blockDefBuilder.build());
-      return programBuilder.withBlock(name);
+      return withBlock(name, "");
     }
 
     /**
@@ -273,7 +266,78 @@ public class ProgramBuilder {
      */
     public BlockBuilder withBlock(String name, String description) {
       programBuilder.builder.addBlockDefinition(blockDefBuilder.build());
-      return programBuilder.withBlock(name, description);
+      long blockId = Long.valueOf(programBuilder.numBlocks.incrementAndGet());
+      return BlockBuilder.newBlock(programBuilder, blockId, name, description, Optional.empty());
+    }
+
+    /**
+     * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
+     * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that has this block as its
+     * repeater, with an empty name and description.
+     */
+    public BlockBuilder withRepeatedBlock() {
+      return withRepeatedBlock("", "");
+    }
+
+    /**
+     * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
+     * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that has this block as its
+     * repeater, with an empty description.
+     */
+    public BlockBuilder withRepeatedBlock(String name) {
+      return withRepeatedBlock(name, "");
+    }
+
+    /**
+     * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
+     * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that has this block as its
+     * repeater.
+     */
+    public BlockBuilder withRepeatedBlock(String name, String description) {
+      BlockDefinition thisBlock = blockDefBuilder.build();
+      if (!thisBlock.isRepeater()) {
+        throw new RuntimeException(
+            "Cannot create a repeated block if this block is not a repeater.");
+      }
+      programBuilder.builder.addBlockDefinition(thisBlock);
+      long blockId = Long.valueOf(programBuilder.numBlocks.incrementAndGet());
+      return BlockBuilder.newBlock(
+          programBuilder, blockId, name, description, Optional.of(thisBlock.id()));
+    }
+
+    /**
+     * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
+     * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that shares a repeater
+     * block with this block, with an empty name and description.
+     */
+    public BlockBuilder withAnotherRepeatedBlock() {
+      return withAnotherRepeatedBlock("", "");
+    }
+
+    /**
+     * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
+     * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that shares a repeater
+     * block with this block, with an empty description.
+     */
+    public BlockBuilder withAnotherRepeatedBlock(String name) {
+      return withAnotherRepeatedBlock(name, "");
+    }
+
+    /**
+     * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
+     * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that shares a repeater
+     * block with this block.
+     */
+    public BlockBuilder withAnotherRepeatedBlock(String name, String description) {
+      BlockDefinition thisBlock = blockDefBuilder.build();
+      if (!thisBlock.isRepeated()) {
+        throw new RuntimeException(
+            "Cannot create a another repeated block if this block is not repeated.");
+      }
+      programBuilder.builder.addBlockDefinition(thisBlock);
+      long blockId = Long.valueOf(programBuilder.numBlocks.incrementAndGet());
+      return BlockBuilder.newBlock(
+          programBuilder, blockId, name, description, thisBlock.repeaterId());
     }
 
     /**

@@ -13,6 +13,7 @@ import java.util.Locale;
 import javax.inject.Inject;
 import play.i18n.Lang;
 import play.i18n.Langs;
+import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
@@ -35,18 +36,19 @@ public class ApplicantInformationView extends BaseHtmlView {
         langs.availables().stream().map(Lang::toLocale).collect(toImmutableList());
   }
 
-  public Content render(Http.Request request, long applicantId) {
+  public Content render(Http.Request request, Messages messages, long applicantId) {
     String formAction = routes.ApplicantInformationController.update(applicantId).url();
     return layout.render(
+        messages,
         form()
             .withAction(formAction)
             .withMethod(Http.HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(request))
-            .with(selectLanguageDropdown())
+            .with(selectLanguageDropdown(messages))
             .with(submitButton("Submit")));
   }
 
-  private ContainerTag selectLanguageDropdown() {
+  private ContainerTag selectLanguageDropdown(Messages messages) {
     SelectWithLabel languageSelect =
         new SelectWithLabel()
             .setId("select-language")
@@ -61,9 +63,7 @@ public class ApplicantInformationView extends BaseHtmlView {
                                 formatLabel(locale), locale.toLanguageTag()))
                     .collect(toImmutableList()));
 
-    return div()
-        .with(p("Please select your preferred language from the following: "))
-        .with(languageSelect.getContainer());
+    return div().with(p(messages.at("content.selectLanguage"))).with(languageSelect.getContainer());
   }
 
   /**

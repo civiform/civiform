@@ -5,6 +5,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 
 import j2html.tags.Tag;
+import play.i18n.Messages;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import views.BaseHtmlView;
@@ -20,7 +21,7 @@ public class FileUploadQuestionRenderer extends BaseHtmlView implements Applican
   }
 
   @Override
-  public Tag render() {
+  public Tag render(Messages messages) {
     FileUploadQuestion fileUploadQuestion = question.createFileUploadQuestion();
 
     return div()

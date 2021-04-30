@@ -21,7 +21,8 @@ public class QuestionAnswererTest {
   @Test
   public void answerAddressQuestion() {
     Path path = Path.create("applicant.address");
-    QuestionAnswerer.answerAddressQuestion(applicantData, path, "street", "city", "state", "zip");
+    QuestionAnswerer.answerAddressQuestion(
+        applicantData, path, "street", "line 2", "city", "state", "zip");
 
     assertThat(applicantData.readString(path.join(Scalar.STREET))).contains("street");
     assertThat(applicantData.readString(path.join(Scalar.CITY))).contains("city");

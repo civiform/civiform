@@ -1,7 +1,6 @@
 package app;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 import static play.test.Helpers.fakeApplication;
 
 import auth.Roles;
@@ -97,7 +96,7 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     assertThat(browser.pageSource()).contains(Roles.ROLE_APPLICANT.toString());
 
     goTo(controllers.admin.routes.AdminProgramController.index());
-    assertTrue(browser.pageSource().contains("403"));
+    assertThat(browser.pageSource()).contains("403");
   }
 
   @Test
@@ -160,7 +159,7 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     assertThat(browser.pageSource()).contains(Roles.ROLE_UAT_ADMIN.toString());
 
     goTo(controllers.admin.routes.AdminProgramController.index());
-    assertTrue(browser.pageSource().contains("Programs"));
-    assertTrue(browser.pageSource().contains("Create new program"));
+    assertThat(browser.pageSource()).contains("Programs");
+    assertThat(browser.pageSource()).contains("Create new program");
   }
 }

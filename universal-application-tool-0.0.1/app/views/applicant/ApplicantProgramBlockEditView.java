@@ -48,7 +48,10 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
                     .withAction(formAction)
                     .withMethod(HttpVerbs.POST)
                     .with(makeCsrfTokenInputTag(params.request()))
-                    .with(each(params.block().getQuestions(), this::renderQuestion))
+                    .with(
+                        each(
+                            params.block().getQuestions(),
+                            question -> renderQuestion(question, params.messages())))
                     .with(submitButton(params.messages().at("button.nextBlock"))));
 
     if (!params.preferredLanguageSupported()) {
@@ -57,11 +60,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
               params.applicantId(), params.programId(), params.messages()));
     }
 
-    return layout.render(body);
-  }
-
-  private Tag renderQuestion(ApplicantQuestion question) {
-    return applicantQuestionRendererFactory.getRenderer(question).render();
+    return layout.render(params.messages(), body);
   }
 
   /**
@@ -82,6 +81,10 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         .setIgnorable(true)
         .setDuration(0)
         .getContainerTag();
+  }
+
+  private Tag renderQuestion(ApplicantQuestion question, Messages messages) {
+    return applicantQuestionRendererFactory.getRenderer(question).render(messages);
   }
 
   @AutoValue

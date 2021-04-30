@@ -21,6 +21,7 @@ public enum Scalar {
   FILE_KEY,
   FIRST_NAME,
   LAST_NAME,
+  LINE2,
   MIDDLE_NAME,
   NUMBER,
   PROGRAM_UPDATED_IN,
@@ -34,6 +35,7 @@ public enum Scalar {
   private static final ImmutableMap<Scalar, ScalarType> ADDRESS_SCALARS =
       ImmutableMap.of(
           STREET, ScalarType.STRING,
+          LINE2, ScalarType.STRING,
           CITY, ScalarType.STRING,
           STATE, ScalarType.STRING,
           ZIP, ScalarType.STRING);
