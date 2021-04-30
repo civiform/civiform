@@ -26,7 +26,7 @@ public class ResourceCreator {
   }
 
   public void truncateTables() {
-    ebeanServer.truncate(Models.MODELS.toArray(new Class[0]));
+    ebeanServer.truncate(Models.modelsToTruncate());
   }
 
   public Question insertQuestion(String pathString) {

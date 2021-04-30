@@ -11,9 +11,11 @@ import models.StoredFile;
 import models.TrustedIntermediaryGroup;
 import models.Version;
 
-/** This is just a global constant of the list of models we have so we can truncate them in tests. */
+/**
+ * This is just a global constant of the list of models we have so we can truncate them in tests.
+ */
 public class Models {
-  public static final ImmutableList<Class<? extends BaseModel>> MODELS =
+  private static final ImmutableList<Class<? extends BaseModel>> MODELS =
       ImmutableList.of(
           Account.class,
           Applicant.class,
@@ -23,4 +25,9 @@ public class Models {
           StoredFile.class,
           TrustedIntermediaryGroup.class,
           Version.class);
+
+  /** Get the complete list of ebean models to truncate. */
+  public static Class[] modelsToTruncate() {
+    return MODELS.toArray(new Class[0]);
+  }
 }
