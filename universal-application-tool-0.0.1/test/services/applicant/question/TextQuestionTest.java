@@ -1,7 +1,9 @@
 package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static play.test.Helpers.stubMessagesApi;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
@@ -11,6 +13,8 @@ import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import play.i18n.Lang;
+import play.i18n.Messages;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
@@ -38,6 +42,8 @@ public class TextQuestionTest {
           ImmutableMap.of(Locale.US, "help text"),
           TextQuestionDefinition.TextValidationPredicates.create(3, 4));
 
+  private final Messages messages = stubMessagesApi().preferred(ImmutableList.of(Lang.defaultLang()));
+
   private Applicant applicant;
   private ApplicantData applicantData;
 
@@ -54,8 +60,8 @@ public class TextQuestionTest {
 
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
-    assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(textQuestion.hasQuestionErrors()).isFalse();
+    assertThat(textQuestion.hasTypeSpecificErrors(messages)).isFalse();
+    assertThat(textQuestion.hasQuestionErrors(messages)).isFalse();
   }
 
   @Test
@@ -68,8 +74,8 @@ public class TextQuestionTest {
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
     assertThat(textQuestion.getTextValue().get()).isEqualTo("hello");
-    assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(textQuestion.hasQuestionErrors()).isFalse();
+    assertThat(textQuestion.hasTypeSpecificErrors(messages)).isFalse();
+    assertThat(textQuestion.hasQuestionErrors(messages)).isFalse();
   }
 
   @Test
@@ -84,8 +90,8 @@ public class TextQuestionTest {
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
     assertThat(textQuestion.getTextValue().get()).isEqualTo(value);
-    assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(textQuestion.hasQuestionErrors()).isFalse();
+    assertThat(textQuestion.hasTypeSpecificErrors(messages)).isFalse();
+    assertThat(textQuestion.hasQuestionErrors(messages)).isFalse();
   }
 
   @Test
@@ -107,8 +113,7 @@ public class TextQuestionTest {
     if (textQuestion.getTextValue().isPresent()) {
       assertThat(textQuestion.getTextValue().get()).isEqualTo(value);
     }
-    assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(textQuestion.getQuestionErrors())
-        .containsOnly(ValidationErrorMessage.create(expectedErrorMessage));
+    assertThat(textQuestion.hasTypeSpecificErrors(messages)).isFalse();
+    assertThat(textQuestion.getQuestionErrors(messages)).containsOnly(expectedErrorMessage);
   }
 }
