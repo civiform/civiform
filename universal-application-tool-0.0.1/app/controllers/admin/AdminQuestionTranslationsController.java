@@ -4,7 +4,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.Authorizers;
 import controllers.CiviFormController;
-import forms.QuestionTranslationForm;
+import forms.translation.QuestionTranslationForm;
 import java.util.Locale;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;

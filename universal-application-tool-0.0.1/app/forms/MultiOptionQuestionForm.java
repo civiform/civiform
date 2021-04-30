@@ -16,8 +16,6 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
 public abstract class MultiOptionQuestionForm extends QuestionForm {
-  // TODO(https://github.com/seattle-uat/civiform/issues/354): Handle other locales besides
-  //  Locale.US
   // Caution: This must be a mutable list type, or else Play's form binding cannot add elements to
   // the list. This means the constructors MUST set this field to a mutable List type, NOT
   // ImmutableList.
@@ -40,8 +38,8 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.options = new ArrayList<>();
 
     try {
-      // TODO: this will need revisiting to support multiple locales
-      // https://github.com/seattle-uat/civiform/issues/778
+      // The first time a question is created, we only create for the default locale. The admin can
+      // localize the options later.
       if (qd.getSupportedLocales().contains(LocalizationUtils.DEFAULT_LOCALE)) {
         List<String> optionStrings =
             qd.getOptionsForLocale(LocalizationUtils.DEFAULT_LOCALE).stream()
