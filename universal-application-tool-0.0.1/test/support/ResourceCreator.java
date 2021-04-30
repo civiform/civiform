@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.UUID;
 import models.Account;
 import models.Applicant;
-import models.Application;
 import models.Program;
 import models.Question;
 import play.db.ebean.EbeanConfig;
@@ -27,8 +26,7 @@ public class ResourceCreator {
   }
 
   public void truncateTables() {
-    ebeanServer.truncate(
-        Account.class, Applicant.class, Application.class, Program.class, Question.class);
+    ebeanServer.truncate(Models.modelsToTruncate());
   }
 
   public Question insertQuestion(String pathString) {
