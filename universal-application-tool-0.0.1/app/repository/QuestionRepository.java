@@ -60,16 +60,10 @@ public class QuestionRepository {
       } else {
         Question newDraft =
             new Question(new QuestionDefinitionBuilder(definition).setId(null).build());
-        try {
-          ebeanServer.beginTransaction();
-          insertQuestionSync(newDraft);
-          newDraft.addVersion(draftVersion);
-          newDraft.save();
-          versionRepositoryProvider.get().updateProgramsForNewDraftQuestion(definition.getId());
-          ebeanServer.commitTransaction();
-        } finally {
-          ebeanServer.endTransaction();
-        }
+        insertQuestionSync(newDraft);
+        newDraft.addVersion(draftVersion);
+        newDraft.save();
+        versionRepositoryProvider.get().updateProgramsForNewDraftQuestion(definition.getId());
         return newDraft;
       }
     } catch (UnsupportedQuestionTypeException e) {
