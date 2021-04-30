@@ -6,12 +6,6 @@ import akka.stream.Materializer;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import models.LifecycleStage;
-<<<<<<< HEAD
-=======
-import models.Program;
-import models.Question;
-import models.TrustedIntermediaryGroup;
->>>>>>> ae889510 (Add test.)
 import models.Version;
 import org.junit.AfterClass;
 import org.junit.Before;
