@@ -6,6 +6,7 @@ import play.i18n.Messages;
 import services.Path;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionType;
+import views.MessageKeys;
 
 public class NameQuestion implements PresentsErrors {
 
@@ -45,7 +46,7 @@ public class NameQuestion implements PresentsErrors {
 
   public ImmutableSet<String> getFirstNameErrors(Messages messages) {
     if (isFirstNameAnswered() && getFirstNameValue().isEmpty()) {
-      return ImmutableSet.of(messages.at("validation.firstNameRequired"));
+      return ImmutableSet.of(messages.at(MessageKeys.FIRST_NAME_REQUIRED));
     }
 
     return ImmutableSet.of();
@@ -53,7 +54,7 @@ public class NameQuestion implements PresentsErrors {
 
   public ImmutableSet<String> getLastNameErrors(Messages messages) {
     if (isLastNameAnswered() && getLastNameValue().isEmpty()) {
-      return ImmutableSet.of(messages.at("validation.firstNameRequired"));
+      return ImmutableSet.of(messages.at(MessageKeys.LAST_NAME_REQUIRED));
     }
 
     return ImmutableSet.of();

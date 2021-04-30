@@ -6,6 +6,7 @@ import play.i18n.Messages;
 import services.Path;
 import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
+import views.MessageKeys;
 
 public class TextQuestion implements PresentsErrors {
 
@@ -35,14 +36,14 @@ public class TextQuestion implements PresentsErrors {
     if (definition.getMinLength().isPresent()) {
       int minLength = definition.getMinLength().getAsInt();
       if (textLength < minLength) {
-        errors.add(messages.at("validation.textTooShort", minLength));
+        errors.add(messages.at(MessageKeys.TEXT_TOO_SHORT, minLength));
       }
     }
 
     if (definition.getMaxLength().isPresent()) {
       int maxLength = definition.getMaxLength().getAsInt();
       if (textLength > maxLength) {
-        errors.add(messages.at("validation.textTooLong", maxLength));
+        errors.add(messages.at(MessageKeys.TEXT_TOO_LONG, maxLength));
       }
     }
 

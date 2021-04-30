@@ -8,6 +8,7 @@ import play.i18n.Messages;
 import services.Path;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionType;
+import views.MessageKeys;
 
 public class AddressQuestion implements PresentsErrors {
   private static final String PO_BOX_REGEX =
@@ -43,7 +44,7 @@ public class AddressQuestion implements PresentsErrors {
       Matcher poBoxMatcher = poBoxPattern.matcher(getStreetValue().get());
 
       if (poBoxMatcher.matches()) {
-        return ImmutableSet.of(messages.at("validation.noPoBox"));
+        return ImmutableSet.of(messages.at(MessageKeys.NO_PO_BOX));
       }
     }
 
@@ -73,7 +74,7 @@ public class AddressQuestion implements PresentsErrors {
 
   public ImmutableSet<String> getStreetErrors(Messages messages) {
     if (isStreetAnswered() && getStreetValue().isEmpty()) {
-      return ImmutableSet.of(messages.at("validation.streetRequired"));
+      return ImmutableSet.of(messages.at(MessageKeys.STREET_REQUIRED));
     }
 
     return ImmutableSet.of();
@@ -81,7 +82,7 @@ public class AddressQuestion implements PresentsErrors {
 
   public ImmutableSet<String> getCityErrors(Messages messages) {
     if (isCityAnswered() && getCityValue().isEmpty()) {
-      return ImmutableSet.of(messages.at("validation.cityRequired"));
+      return ImmutableSet.of(messages.at(MessageKeys.CITY_REQUIRED));
     }
 
     return ImmutableSet.of();
@@ -90,7 +91,7 @@ public class AddressQuestion implements PresentsErrors {
   public ImmutableSet<String> getStateErrors(Messages messages) {
     // TODO: Validate state further.
     if (isStateAnswered() && getStateValue().isEmpty()) {
-      return ImmutableSet.of(messages.at("validation.streetRequired"));
+      return ImmutableSet.of(messages.at(MessageKeys.STATE_REQUIRED));
     }
 
     return ImmutableSet.of();
@@ -100,13 +101,13 @@ public class AddressQuestion implements PresentsErrors {
     if (isZipAnswered()) {
       Optional<String> zipValue = getZipValue();
       if (zipValue.isEmpty()) {
-        return ImmutableSet.of(messages.at("validation.zipcodeRequired"));
+        return ImmutableSet.of(messages.at(MessageKeys.ZIP_CODE_REQUIRED));
       }
 
       Pattern pattern = Pattern.compile("^[0-9]{5}(?:-[0-9]{4})?$");
       Matcher matcher = pattern.matcher(zipValue.get());
       if (!matcher.matches()) {
-        return ImmutableSet.of(messages.at("validation.invalidZipcode"));
+        return ImmutableSet.of(messages.at(MessageKeys.INVALID_ZIP_CODE));
       }
     }
 

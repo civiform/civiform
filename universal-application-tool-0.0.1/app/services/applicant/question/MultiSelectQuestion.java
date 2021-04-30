@@ -9,6 +9,7 @@ import play.i18n.Messages;
 import services.Path;
 import services.question.LocalizedQuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
+import views.MessageKeys;
 
 public class MultiSelectQuestion implements PresentsErrors {
 
@@ -39,7 +40,7 @@ public class MultiSelectQuestion implements PresentsErrors {
       int minChoicesRequired =
           definition.getMultiOptionValidationPredicates().minChoicesRequired().getAsInt();
       if (numberOfSelections < minChoicesRequired) {
-        errors.add(messages.at("validation.tooFewSelections", minChoicesRequired));
+        errors.add(messages.at(MessageKeys.TOO_FEW_SELECTIONS, minChoicesRequired));
       }
     }
 
@@ -47,7 +48,7 @@ public class MultiSelectQuestion implements PresentsErrors {
       int maxChoicesAllowed =
           definition.getMultiOptionValidationPredicates().maxChoicesAllowed().getAsInt();
       if (numberOfSelections > maxChoicesAllowed) {
-        errors.add(messages.at("validation.tooManySelections", maxChoicesAllowed));
+        errors.add(messages.at(MessageKeys.TOO_MANY_SELECTIONS, maxChoicesAllowed));
       }
     }
     return errors.build();

@@ -75,6 +75,8 @@ placeholder.lastName=Last name
 button.addRepeaterEntity=add element
 
 # Question validation
+validation.firstNameRequired=Please enter your first name.
+validation.lastNameRequired=Please enter your last name.
 validation.textTooShort=Must contain at least {0} characters.
 validation.textTooLong=Must contain at most {0} characters.
 validation.numberTooSmall=Must be at least {0}.

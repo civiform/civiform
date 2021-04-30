@@ -6,6 +6,7 @@ import play.i18n.Messages;
 import services.Path;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionType;
+import views.MessageKeys;
 
 public class NumberQuestion implements PresentsErrors {
 
@@ -43,7 +44,7 @@ public class NumberQuestion implements PresentsErrors {
       long min = questionDefinition.getMin().getAsLong();
       // If value is empty, don't test against min.
       if (getNumberValue().isPresent() && getNumberValue().get() < min) {
-        errors.add(messages.at("validation.numberTooSmall", min));
+        errors.add(messages.at(MessageKeys.NUMBER_TOO_SMALL, min));
       }
     }
 
@@ -51,7 +52,7 @@ public class NumberQuestion implements PresentsErrors {
       long max = questionDefinition.getMax().getAsLong();
       // If value is empty, don't test against max.
       if (getNumberValue().isPresent() && getNumberValue().get() > max) {
-        errors.add(messages.at("validation.numberTooLarge", max));
+        errors.add(messages.at(MessageKeys.NUMBER_TOO_BIG, max));
       }
     }
 
