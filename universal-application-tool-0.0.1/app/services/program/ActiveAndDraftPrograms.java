@@ -1,5 +1,7 @@
 package services.program;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import akka.japi.Pair;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -26,11 +28,11 @@ public class ActiveAndDraftPrograms {
   public ActiveAndDraftPrograms(ProgramService service, Version active, Version draft) {
     ImmutableMap.Builder<String, ProgramDefinition> activeToName = ImmutableMap.builder();
     ImmutableMap.Builder<String, ProgramDefinition> draftToName = ImmutableMap.builder();
-    draft.getPrograms().stream()
-        .map(program -> getProgramDefinition(service, program.id))
+    checkNotNull(draft).getPrograms().stream()
+        .map(program -> getProgramDefinition(checkNotNull(service), program.id))
         .forEach(program -> draftToName.put(program.adminName(), program));
-    active.getPrograms().stream()
-        .map(program -> getProgramDefinition(service, program.id))
+    checkNotNull(active).getPrograms().stream()
+        .map(program -> getProgramDefinition(checkNotNull(service), program.id))
         .forEach(program -> activeToName.put(program.adminName(), program));
     ImmutableMap<String, ProgramDefinition> activeNames = activeToName.build();
     ImmutableMap<String, ProgramDefinition> draftNames = draftToName.build();

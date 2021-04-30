@@ -5,11 +5,7 @@ import static play.test.Helpers.fakeApplication;
 import akka.stream.Materializer;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
-import models.Account;
-import models.Applicant;
 import models.LifecycleStage;
-import models.Program;
-import models.Question;
 import models.Version;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -17,6 +13,7 @@ import org.junit.BeforeClass;
 import play.Application;
 import play.db.ebean.EbeanConfig;
 import play.test.Helpers;
+import support.Models;
 import support.ProgramBuilder;
 import support.ResourceCreator;
 import support.TestConstants;
@@ -58,16 +55,10 @@ public class WithPostgresContainer {
   }
 
   @Before
-  public void truncateTables() {
+  public void resetTables() {
     EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
     EbeanServer server = Ebean.getServer(config.defaultServer());
-    server.truncate(
-        Applicant.class,
-        Program.class,
-        Question.class,
-        Account.class,
-        Version.class,
-        models.Application.class);
+    server.truncate(Models.modelsToTruncate());
     Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
     newActiveVersion.save();
   }

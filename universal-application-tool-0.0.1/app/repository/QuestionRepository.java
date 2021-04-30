@@ -13,11 +13,9 @@ import javax.inject.Provider;
 import models.Question;
 import models.Version;
 import play.db.ebean.EbeanConfig;
-import services.Path;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
-import services.question.types.QuestionType;
 
 public class QuestionRepository {
 
@@ -83,30 +81,33 @@ public class QuestionRepository {
   }
 
   /**
-   * Maybe find a {@link Question} whose path conflicts with {@link QuestionDefinition}.
+   * Maybe find a {@link Question} that conflicts with {@link QuestionDefinition}.
    *
    * <p>This is intended to be used for new question definitions, since updates will collide with
    * themselves and previous versions, and new versions of an old question will conflict with the
    * old question.
    *
-   * <p>A new question definition's path conflicts with a stored question if it is NOT a {@link
-   * QuestionType#REPEATER}, and starts with, or is started with, the stored question's path.
+   * <p>Questions collide if they share a {@link QuestionDefinition#getQuestionPathSegment()} and
+   * {@link QuestionDefinition#getRepeaterId()}.
    */
-  public Optional<Question> findPathConflictingQuestion(QuestionDefinition newQuestionDefinition) {
-    PathConflictDetector pathConflictDetector =
-        new PathConflictDetector(newQuestionDefinition.getPath());
+  public Optional<Question> findConflictingQuestion(QuestionDefinition newQuestionDefinition) {
+    ConflictDetector conflictDetector =
+        new ConflictDetector(
+            newQuestionDefinition.getRepeaterId(), newQuestionDefinition.getQuestionPathSegment());
     ebeanServer
         .find(Question.class)
-        .findEachWhile(question -> !pathConflictDetector.hasConflict(question));
-    return pathConflictDetector.getConflictedQuestion();
+        .findEachWhile(question -> !conflictDetector.hasConflict(question));
+    return conflictDetector.getConflictedQuestion();
   }
 
-  private static class PathConflictDetector {
+  private static class ConflictDetector {
     private Optional<Question> conflictedQuestion = Optional.empty();
-    private final Path newPath;
+    private final Optional<Long> repeaterId;
+    private final String questionPathSegment;
 
-    private PathConflictDetector(Path newPath) {
-      this.newPath = checkNotNull(newPath);
+    private ConflictDetector(Optional<Long> repeaterId, String questionPathSegment) {
+      this.repeaterId = checkNotNull(repeaterId);
+      this.questionPathSegment = checkNotNull(questionPathSegment);
     }
 
     private Optional<Question> getConflictedQuestion() {
@@ -114,28 +115,14 @@ public class QuestionRepository {
     }
 
     private boolean hasConflict(Question question) {
-      Path other = Path.create(question.getPath());
-
-      // Conflict exists if paths are exactly the same
-      if (newPath.equals(other)) {
+      if (question.getQuestionDefinition().getRepeaterId().equals(repeaterId)
+          && question
+              .getQuestionDefinition()
+              .getQuestionPathSegment()
+              .equals(questionPathSegment)) {
         conflictedQuestion = Optional.of(question);
         return true;
       }
-
-      // Conflict exists if an existing path starts with this new path
-      if (other.startsWith(newPath)) {
-        conflictedQuestion = Optional.of(question);
-        return true;
-      }
-
-      // Conflict exists if this new path starts with an existing path for a non-repeater question,
-      // but not for repeater questions, since that is a very common pattern.
-      QuestionType otherType = question.getQuestionDefinition().getQuestionType();
-      if (!otherType.equals(QuestionType.REPEATER) && newPath.startsWith(other)) {
-        conflictedQuestion = Optional.of(question);
-        return true;
-      }
-
       return false;
     }
   }

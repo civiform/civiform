@@ -32,7 +32,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
 
   @Before
   public void setUpWithFreshApplicant() {
-    clearDatabase();
+    resetDatabase();
 
     subject = instanceOf(ApplicantProgramBlocksController.class);
     program =

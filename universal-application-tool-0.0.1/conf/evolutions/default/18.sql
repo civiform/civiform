@@ -11,6 +11,6 @@ alter table accounts add column member_of_group_id bigint constraint fk_member r
 alter table accounts add column managed_by_group_id bigint constraint fk_managed references ti_organizations(id) on delete set null;
 
 # --- !Downs
-drop table if exists ti_organization;
+drop table if exists ti_organizations;
 alter table accounts drop column member_of_group_id;
 alter table accounts drop column managed_by_group_id;
