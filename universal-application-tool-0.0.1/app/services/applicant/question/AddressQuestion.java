@@ -15,6 +15,7 @@ public class AddressQuestion implements PresentsErrors {
 
   private final ApplicantQuestion applicantQuestion;
   private Optional<String> streetValue;
+  private Optional<String> line2Value;
   private Optional<String> cityValue;
   private Optional<String> stateValue;
   private Optional<String> zipValue;
@@ -39,6 +40,8 @@ public class AddressQuestion implements PresentsErrors {
 
     if (definition.getDisallowPoBox() && getStreetValue().isPresent()) {
       Pattern poBoxPattern = Pattern.compile(PO_BOX_REGEX);
+      // TODO(https://github.com/seattle-uat/civiform/issues/844): Compare PO_BOX_REGEX against
+      // getLine2Value() as well.
       Matcher poBoxMatcher = poBoxPattern.matcher(getStreetValue().get());
 
       if (poBoxMatcher.matches()) {
@@ -120,6 +123,15 @@ public class AddressQuestion implements PresentsErrors {
     return streetValue;
   }
 
+  public Optional<String> getLine2Value() {
+    if (line2Value != null) {
+      return line2Value;
+    }
+
+    line2Value = applicantQuestion.getApplicantData().readString(getLine2Path());
+    return line2Value;
+  }
+
   public Optional<String> getCityValue() {
     if (cityValue != null) {
       return cityValue;
@@ -166,6 +178,10 @@ public class AddressQuestion implements PresentsErrors {
     return applicantQuestion.getContextualizedPath().join(Scalar.STREET);
   }
 
+  public Path getLine2Path() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.LINE2);
+  }
+
   public Path getCityPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.CITY);
   }
@@ -180,6 +196,10 @@ public class AddressQuestion implements PresentsErrors {
 
   private boolean isStreetAnswered() {
     return applicantQuestion.getApplicantData().hasPath(getStreetPath());
+  }
+
+  private boolean isLine2Answered() {
+    return applicantQuestion.getApplicantData().hasPath(getLine2Path());
   }
 
   private boolean isCityAnswered() {
@@ -200,6 +220,10 @@ public class AddressQuestion implements PresentsErrors {
    */
   @Override
   public boolean isAnswered() {
-    return isStreetAnswered() || isCityAnswered() || isStateAnswered() || isZipAnswered();
+    return isStreetAnswered()
+        || isLine2Answered()
+        || isCityAnswered()
+        || isStateAnswered()
+        || isZipAnswered();
   }
 }
