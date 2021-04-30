@@ -83,7 +83,7 @@ public class NumberQuestion implements PresentsErrors {
       throw new RuntimeException(
           String.format(
               "Question is not a NUMBER question: %s (type: %s)",
-              applicantQuestion.getQuestionDefinition().getPath(),
+              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
               applicantQuestion.getQuestionDefinition().getQuestionType()));
     }
   }

@@ -24,6 +24,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
+  public String getProgramTitle() {
+    return programDefinition.getLocalizedNameOrDefault(applicantData.preferredLocale());
+  }
+
+  @Override
   public ImmutableList<Block> getAllBlocks() {
     return getBlocks(false);
   }

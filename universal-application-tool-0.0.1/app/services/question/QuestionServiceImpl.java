@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Question;
@@ -14,8 +13,6 @@ import repository.QuestionRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.Path;
-import services.question.exceptions.InvalidPathException;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.types.QuestionDefinition;
 
@@ -33,20 +30,13 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   @Override
-  public boolean addTranslation(
-      Path path, Locale locale, String questionText, Optional<String> questionHelpText)
-      throws InvalidPathException {
-    throw new java.lang.UnsupportedOperationException("Not supported yet.");
-  }
-
-  @Override
   public ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition questionDefinition) {
     ImmutableSet<CiviFormError> validationErrors = questionDefinition.validate();
-    ImmutableSet<CiviFormError> pathConflictErrors = validateNewQuestionPath(questionDefinition);
+    ImmutableSet<CiviFormError> conflictErrors = checkConflicts(questionDefinition);
     ImmutableSet<CiviFormError> errors =
         ImmutableSet.<CiviFormError>builder()
             .addAll(validationErrors)
-            .addAll(pathConflictErrors)
+            .addAll(conflictErrors)
             .build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
@@ -109,20 +99,33 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   /**
-   * Check for path conflicts. This is to be only used with new questions because updated questions
-   * conflict with themselves, and new versions of questions conflict with previous versions.
+   * Check for conflicts with other questions. This is to be only used with new questions because
+   * questions being updated will likely conflict with themselves, and new versions of previous
+   * questions will conflict with their previous versions.
+   *
+   * <p>Questions conflict if they have the same repeater id reference and the same question path
+   * segment.
    */
-  private ImmutableSet<CiviFormError> validateNewQuestionPath(
-      QuestionDefinition questionDefinition) {
+  private ImmutableSet<CiviFormError> checkConflicts(QuestionDefinition questionDefinition) {
     Optional<Question> maybeConflict =
-        questionRepository.findPathConflictingQuestion(questionDefinition);
+        questionRepository.findConflictingQuestion(questionDefinition);
     if (maybeConflict.isPresent()) {
       Question conflict = maybeConflict.get();
-      return ImmutableSet.of(
-          CiviFormError.of(
-              String.format(
-                  "path '%s' conflicts with question id: %s",
-                  questionDefinition.getPath(), conflict.id)));
+      String errorMessage;
+      if (questionDefinition.getRepeaterId().isEmpty()) {
+        errorMessage =
+            String.format(
+                "Question '%s' conflicts with question id: %s",
+                questionDefinition.getQuestionPathSegment(), conflict.id);
+      } else {
+        errorMessage =
+            String.format(
+                "Question '%s' with Repeater ID %d conflicts with question id: %d",
+                questionDefinition.getQuestionPathSegment(),
+                questionDefinition.getRepeaterId().get(),
+                conflict.id);
+      }
+      return ImmutableSet.of(CiviFormError.of(errorMessage));
     }
     return ImmutableSet.of();
   }
@@ -153,12 +156,12 @@ public final class QuestionServiceImpl implements QuestionService {
                   toUpdate.getRepeaterId().map(String::valueOf).orElse("[no repeater]"))));
     }
 
-    if (!questionDefinition.getPath().equals(toUpdate.getPath())) {
+    if (!questionDefinition.getQuestionPathSegment().equals(toUpdate.getQuestionPathSegment())) {
       errors.add(
           CiviFormError.of(
               String.format(
-                  "question paths mismatch: %s does not match %s",
-                  questionDefinition.getPath(), toUpdate.getPath())));
+                  "question path segment mismatch: %s does not match %s",
+                  questionDefinition.getQuestionPathSegment(), toUpdate.getQuestionPathSegment())));
     }
 
     if (!questionDefinition.getQuestionType().equals(toUpdate.getQuestionType())) {

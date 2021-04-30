@@ -150,6 +150,8 @@ public abstract class QuestionDefinition {
     return repeaterId;
   }
 
+  // TODO(https://github.com/seattle-uat/civiform/issues/673): delete this when question definitions
+  //  don't need paths
   /** Get the full path of this question, in JSON notation. */
   public Path getPath() {
     return this.path;

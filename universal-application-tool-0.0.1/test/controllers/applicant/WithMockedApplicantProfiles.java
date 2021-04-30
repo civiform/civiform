@@ -11,11 +11,14 @@ import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import models.Account;
 import models.Applicant;
+import models.LifecycleStage;
+import models.Version;
 import org.junit.BeforeClass;
 import org.mockito.Mockito;
 import play.inject.Injector;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Http;
+import support.ProgramBuilder;
 import support.ResourceCreator;
 import support.TestConstants;
 import support.TestQuestionBank;
@@ -40,6 +43,7 @@ public class WithMockedApplicantProfiles {
             .injector();
     resourceCreator = new ResourceCreator(injector);
     profileFactory = injector.instanceOf(ProfileFactory.class);
+    ProgramBuilder.setInjector(injector);
   }
 
   protected <T> T instanceOf(Class<T> clazz) {
@@ -54,9 +58,11 @@ public class WithMockedApplicantProfiles {
     return testQuestionBank;
   }
 
-  protected void clearDatabase() {
+  protected void resetDatabase() {
     testQuestionBank().reset();
     resourceCreator().truncateTables();
+    Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
+    newActiveVersion.save();
   }
 
   protected Applicant createApplicantWithMockedProfile() {

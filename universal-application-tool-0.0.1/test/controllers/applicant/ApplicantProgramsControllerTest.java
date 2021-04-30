@@ -17,6 +17,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
+import services.applicant.ApplicantData;
+import services.applicant.question.Scalar;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 
@@ -27,7 +29,7 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
 
   @Before
   public void setUp() {
-    clearDatabase();
+    resetDatabase();
     controller = instanceOf(ApplicantProgramsController.class);
     currentApplicant = createApplicantWithMockedProfile();
   }
@@ -164,7 +166,9 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
     // Answer the color question
     currentApplicant
         .getApplicantData()
-        .putString(colorQuestion.getPath().join("text"), "forest green");
+        .putString(
+            ApplicantData.APPLICANT_PATH.join("applicant_favorite_color").join(Scalar.TEXT),
+            "forest green");
     currentApplicant.getApplicantData().putLong(colorQuestion.getLastUpdatedTimePath(), 12345L);
     currentApplicant.getApplicantData().putLong(colorQuestion.getProgramIdPath(), 456L);
     currentApplicant.save();

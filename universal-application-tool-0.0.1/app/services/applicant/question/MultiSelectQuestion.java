@@ -101,7 +101,7 @@ public class MultiSelectQuestion implements PresentsErrors {
       throw new RuntimeException(
           String.format(
               "Question is not a multi-option question: %s (type: %s)",
-              applicantQuestion.getQuestionDefinition().getPath(),
+              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
               applicantQuestion.getQuestionDefinition().getQuestionType()));
     }
   }

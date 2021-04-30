@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import models.Question;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
@@ -39,20 +38,14 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void addTranslation_notImplemented() {
-    assertThatThrownBy(
-            () ->
-                questionService.addTranslation(
-                    Path.create("your.name"), Locale.GERMAN, "Wie heisst du?", Optional.empty()))
-        .isInstanceOf(UnsupportedOperationException.class)
-        .hasMessage("Not supported yet.");
-  }
-
-  @Test
-  public void create_failsWhenPathConflicts() throws Exception {
-    Question applicantName = testQuestionBank.applicantName();
+  public void create_failsWhenQuestionsConflict() throws Exception {
+    QuestionDefinition householdMemberName =
+        testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition();
     QuestionDefinition questionDefinition =
-        new QuestionDefinitionBuilder(applicantName.getQuestionDefinition()).clearId().build();
+        new QuestionDefinitionBuilder(householdMemberName)
+            .clearId()
+            .setName(householdMemberName.getName() + "_")
+            .build();
 
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult =
         questionService.create(questionDefinition);
@@ -63,8 +56,10 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
         .containsOnly(
             CiviFormError.of(
                 String.format(
-                    "path '%s' conflicts with question id: %d",
-                    questionDefinition.getPath(), applicantName.id)));
+                    "Question '%s' with Repeater ID %d conflicts with question id: %d",
+                    questionDefinition.getQuestionPathSegment(),
+                    householdMemberName.getRepeaterId().get(),
+                    householdMemberName.getId())));
   }
 
   @Test
@@ -74,7 +69,8 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
 
     assertThat(errorAndResult.isError()).isFalse();
     assertThat(errorAndResult.hasResult()).isTrue();
-    assertThat(errorAndResult.getResult().getPath()).isEqualTo(questionDefinition.getPath());
+    assertThat(errorAndResult.getResult().getQuestionPathSegment())
+        .isEqualTo(questionDefinition.getQuestionPathSegment());
   }
 
   @Test
@@ -129,13 +125,12 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void update_failsWhenQuestionInvariantsChange() throws Exception {
+  public void update_failsWhenQuestionImmutableMembersChange() throws Exception {
     QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
 
     QuestionDefinition toUpdate =
         new QuestionDefinitionBuilder(nameQuestion)
             .setName("this is a new name")
-            .setPath(Path.create("this is a new path"))
             .setRepeaterId(Optional.of(100L))
             .setQuestionType(QuestionType.ADDRESS)
             .build();
@@ -152,8 +147,8 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
                     nameQuestion.getName(), toUpdate.getName())),
             CiviFormError.of(
                 String.format(
-                    "question paths mismatch: %s does not match %s",
-                    nameQuestion.getPath(), toUpdate.getPath())),
+                    "question path segment mismatch: %s does not match %s",
+                    nameQuestion.getQuestionPathSegment(), toUpdate.getQuestionPathSegment())),
             CiviFormError.of(
                 String.format(
                     "question repeater ids mismatch: [no repeater] does not match %s",

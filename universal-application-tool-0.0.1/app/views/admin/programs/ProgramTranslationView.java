@@ -62,7 +62,7 @@ public class ProgramTranslationView extends BaseHtmlView {
         renderTranslationForm(request, locale, programId, localizedName, localizedDescription);
     errors.ifPresent(s -> form.with(ToastMessage.error(s).setDismissible(false).getContainerTag()));
     return layout.render(
-        renderHeader("Manage Translations"), renderLanguageLinks(programId, locale), form);
+        renderHeader("Manage Program Translations"), renderLanguageLinks(programId, locale), form);
   }
 
   /** Render a list of languages, with the currently selected language underlined. */
@@ -109,6 +109,7 @@ public class ProgramTranslationView extends BaseHtmlView {
         .with(
             FieldWithLabel.input()
                 .setId("localize-display-name")
+                .setLabelText("Display Name")
                 .setFieldName("displayName")
                 .setPlaceholderText("Program display name")
                 .setValue(localizedName)
@@ -116,6 +117,7 @@ public class ProgramTranslationView extends BaseHtmlView {
         .with(
             FieldWithLabel.input()
                 .setId("localize-display-description")
+                .setLabelText("Display Description")
                 .setFieldName("displayDescription")
                 .setPlaceholderText("Program description")
                 .setValue(localizedDescription)

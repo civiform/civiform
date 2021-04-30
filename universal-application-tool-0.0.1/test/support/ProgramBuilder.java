@@ -4,8 +4,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import javax.persistence.PersistenceException;
 import models.Program;
 import models.Question;
 import play.inject.Injector;
@@ -17,9 +15,16 @@ import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
+/**
+ * The ProgramBuilder can only be used by tests that have a database available because the programs
+ * it builds are versioned with the version table, and are persisted in the database.
+ *
+ * <p>If any tests need to use the ProgramBuilder without a database, new `public static
+ * ProgramBuilder newProgram` methods can be added to create programs that are not versioned, and do
+ * not get persisted to the database.
+ */
 public class ProgramBuilder {
 
-  private static AtomicLong nextId = new AtomicLong(1);
   private static Injector injector;
 
   ProgramDefinition.Builder builder;
@@ -54,7 +59,7 @@ public class ProgramBuilder {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
     Program program = new Program(name, description, name, description);
     program.addVersion(versionRepository.getDraftVersion());
-    maybeSave(program);
+    program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder()
             .setBlockDefinitions(ImmutableList.of())
@@ -83,29 +88,12 @@ public class ProgramBuilder {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
     Program program = new Program(name, description, name, description);
     program.addVersion(versionRepository.getActiveVersion());
-    maybeSave(program);
+    program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder()
             .setBlockDefinitions(ImmutableList.of())
             .setExportDefinitions(ImmutableList.of());
     return new ProgramBuilder(builder);
-  }
-
-  private static void maybeSave(Program program) {
-    try {
-      program.save();
-    } catch (ExceptionInInitializerError | NoClassDefFoundError | PersistenceException ignore) {
-      program.id = nextId.getAndIncrement();
-      program.loadProgramDefinition();
-    }
-  }
-
-  private static void maybeUpdate(Program program) {
-    try {
-      program.update();
-    } catch (NoClassDefFoundError | PersistenceException ignore) {
-      // This is ok not to update if there is no database available.
-    }
   }
 
   public ProgramBuilder withName(String name) {
@@ -163,7 +151,7 @@ public class ProgramBuilder {
     }
 
     Program program = programDefinition.toProgram();
-    maybeUpdate(program);
+    program.update();
     return program;
   }
 

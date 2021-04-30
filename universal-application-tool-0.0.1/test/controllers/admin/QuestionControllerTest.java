@@ -122,7 +122,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void edit_repeatedQuestion_hasFormattedRepeaterName() {
+  public void edit_repeatedQuestion_hasRepeaterName() {
     Question repeatedQuestion = testQuestionBank.applicantHouseholdMemberName();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     controller
@@ -131,7 +131,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
             result -> {
               assertThat(result.status()).isEqualTo(OK);
               assertThat(contentAsString(result)).contains("Edit name question");
-              assertThat(contentAsString(result)).contains("applicant_household_members");
+              assertThat(contentAsString(result)).contains("applicant household members");
               assertThat(contentAsString(result))
                   .contains(CSRF.getToken(request.asScala()).value());
               assertThat(contentAsString(result)).contains("Sample Question of type:");
