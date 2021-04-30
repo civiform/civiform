@@ -18,6 +18,7 @@ import models.LifecycleStage;
 import models.Program;
 import models.Question;
 import models.StoredFile;
+import models.TrustedIntermediaryGroup;
 import models.Version;
 import play.Environment;
 import play.db.ebean.EbeanConfig;
@@ -263,6 +264,7 @@ public class DatabaseSeedController extends DevController {
         Applicant.class,
         Application.class,
         Version.class,
+        TrustedIntermediaryGroup.class,
         StoredFile.class);
     Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
     newActiveVersion.save();

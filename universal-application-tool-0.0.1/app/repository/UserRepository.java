@@ -159,4 +159,11 @@ public class UserRepository {
   public List<TrustedIntermediaryGroup> listTrustedIntermediaryGroups() {
     return ebeanServer.find(TrustedIntermediaryGroup.class).findList();
   }
+
+  public TrustedIntermediaryGroup createNewTrustedIntermediaryGroup(
+      String name, String description) {
+    TrustedIntermediaryGroup tiGroup = new TrustedIntermediaryGroup(name, description);
+    tiGroup.save();
+    return tiGroup;
+  }
 }
