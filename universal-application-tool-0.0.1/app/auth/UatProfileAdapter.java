@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import javax.inject.Provider;
+import models.Account;
 import models.Applicant;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
@@ -99,13 +100,14 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
         // This will be the most common.
         existingProfile = Optional.of(profileFactory.wrap(existingApplicant.get()));
       } else {
-        existingProfile =
-            Optional.of(
-                profileFactory.wrap(
-                    applicantRepositoryProvider
-                        .get()
-                        .mergeApplicants(
-                            existingProfile.get().getApplicant().join(), existingApplicant.get())));
+        Account existingAccount = existingApplicant.get().getAccount();
+        Applicant mergedApplicant =
+            applicantRepositoryProvider
+                .get()
+                .mergeApplicants(
+                    existingProfile.get().getApplicant().join(), existingApplicant.get());
+        mergedApplicant.setAccount(existingAccount);
+        existingProfile = Optional.of(profileFactory.wrap(mergedApplicant));
       }
     }
 

@@ -98,8 +98,8 @@ public class UserRepository {
                   .findOneOrEmpty();
           // Return the applicant which was most recently created.
           return accountMaybe.flatMap(
-              applicant ->
-                  applicant.getApplicants().stream()
+              account ->
+                  account.getApplicants().stream()
                       .max(Comparator.comparing(compared -> compared.getWhenCreated())));
         },
         executionContext);
@@ -127,10 +127,7 @@ public class UserRepository {
     return ebeanServer.find(Applicant.class).setId(id).findOneOrEmpty();
   }
 
-  /**
-   * Merge the older applicant into the newer applicant, update the Account of the newer to point to
-   * both the older and newer, and
-   */
+  /** Merge the applicant data from older applicant into the newer applicant. */
   public Applicant mergeApplicants(Applicant left, Applicant right) {
     if (left.getWhenCreated().isAfter(right.getWhenCreated())) {
       Applicant tmp = left;
@@ -139,7 +136,6 @@ public class UserRepository {
     }
     // At this point, "left" is older, "right" is newer, we will merge "left" into "right", because
     // the newer applicant is always preferred when more than one applicant matches an account.
-    left.setAccount(right.getAccount());
     right.getApplicantData().mergeFrom(left.getApplicantData());
     return right;
   }
