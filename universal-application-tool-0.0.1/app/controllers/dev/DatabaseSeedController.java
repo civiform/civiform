@@ -11,13 +11,9 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Locale;
 import java.util.Optional;
-import models.Account;
-import models.Applicant;
-import models.Application;
+
 import models.LifecycleStage;
-import models.Program;
-import models.Question;
-import models.StoredFile;
+import models.Models;
 import models.Version;
 import play.Environment;
 import play.db.ebean.EbeanConfig;
@@ -256,14 +252,7 @@ public class DatabaseSeedController extends DevController {
   }
 
   private void truncateTables() {
-    ebeanServer.truncate(
-        Program.class,
-        Question.class,
-        Account.class,
-        Applicant.class,
-        Application.class,
-        Version.class,
-        StoredFile.class);
+    Models.truncate(ebeanServer);
     Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
     newActiveVersion.save();
   }

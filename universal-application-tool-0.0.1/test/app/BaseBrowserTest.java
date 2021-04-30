@@ -22,7 +22,7 @@ import play.api.mvc.Call;
 import play.db.ebean.EbeanConfig;
 import play.test.WithBrowser;
 import services.question.types.QuestionType;
-import support.Models;
+import models.Models;
 import support.TestConstants;
 import views.style.ReferenceClasses;
 
@@ -41,7 +41,7 @@ public class BaseBrowserTest extends WithBrowser {
   public void resetTables() {
     EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
     EbeanServer server = Ebean.getServer(config.defaultServer());
-    server.truncate(Models.modelsToTruncate());
+    Models.truncate(server);
     Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
     newActiveVersion.save();
   }

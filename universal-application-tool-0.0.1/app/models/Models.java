@@ -1,6 +1,7 @@
-package support;
+package models;
 
 import com.google.common.collect.ImmutableList;
+import io.ebean.EbeanServer;
 import models.Account;
 import models.Applicant;
 import models.Application;
@@ -27,7 +28,7 @@ public class Models {
           Version.class);
 
   /** Get the complete list of ebean models to truncate. */
-  public static Class[] modelsToTruncate() {
-    return MODELS.toArray(new Class[0]);
+  public static void truncate(EbeanServer ebeanServer) {
+    ebeanServer.truncate(MODELS.toArray(new Class[0]));
   }
 }
