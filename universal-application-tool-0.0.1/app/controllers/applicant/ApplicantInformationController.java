@@ -11,6 +11,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Applicant;
+import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
@@ -52,6 +53,7 @@ public final class ApplicantInformationController extends CiviFormController {
     this.profileUtils = profileUtils;
   }
 
+  @Secure
   public CompletionStage<Result> edit(Http.Request request, long applicantId) {
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenApplyAsync(
@@ -67,6 +69,7 @@ public final class ApplicantInformationController extends CiviFormController {
             });
   }
 
+  @Secure
   public CompletionStage<Result> update(Http.Request request, long applicantId) {
     Form<ApplicantInformationForm> form = formFactory.form(ApplicantInformationForm.class);
     if (form.hasErrors()) {
