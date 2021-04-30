@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
 import j2html.tags.Tag;
+import play.i18n.Messages;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.NameQuestion;
 import views.BaseHtmlView;
@@ -20,7 +21,7 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
   }
 
   @Override
-  public Tag render() {
+  public Tag render(Messages messages) {
     NameQuestion nameQuestion = question.createNameQuestion();
 
     return div()
@@ -41,8 +42,8 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                 .with(
                     FieldWithLabel.input()
                         .setFieldName(nameQuestion.getFirstNamePath().toString())
-                        .setLabelText("First name")
-                        .setPlaceholderText("First name")
+                        .setLabelText(messages.at("label.firstName"))
+                        .setPlaceholderText(messages.at("placeholder.firstName"))
                         .setFloatLabel(true)
                         .setValue(nameQuestion.getFirstNameValue().orElse(""))
                         .getContainer())
@@ -50,16 +51,16 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                 .with(
                     FieldWithLabel.input()
                         .setFieldName(nameQuestion.getMiddleNamePath().toString())
-                        .setLabelText("Middle name")
-                        .setPlaceholderText("Middle name")
+                        .setLabelText(messages.at("label.middleName"))
+                        .setPlaceholderText(messages.at("placeholder.middleName"))
                         .setFloatLabel(true)
                         .setValue(nameQuestion.getMiddleNameValue().orElse(""))
                         .getContainer())
                 .with(
                     FieldWithLabel.input()
                         .setFieldName(nameQuestion.getLastNamePath().toString())
-                        .setLabelText("Last name")
-                        .setPlaceholderText("Last name")
+                        .setLabelText(messages.at("label.lastName"))
+                        .setPlaceholderText(messages.at("placeholder.lastName"))
                         .setFloatLabel(true)
                         .setValue(nameQuestion.getLastNameValue().orElse(""))
                         .getContainer())

@@ -4,6 +4,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.span;
 
 import j2html.tags.ContainerTag;
+import play.i18n.Messages;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
 import views.questiontypes.ApplicantQuestionRendererFactory;
@@ -11,13 +12,13 @@ import views.style.Styles;
 
 public class QuestionPreview {
 
-  private static ContainerTag buildQuestionRenderer(QuestionType type)
+  private static ContainerTag buildQuestionRenderer(QuestionType type, Messages messages)
       throws UnsupportedQuestionTypeException {
     ApplicantQuestionRendererFactory rf = new ApplicantQuestionRendererFactory();
-    return div(rf.getSampleRenderer(type).render());
+    return div(rf.getSampleRenderer(type).render(messages));
   }
 
-  public static ContainerTag renderQuestionPreview(QuestionType type) {
+  public static ContainerTag renderQuestionPreview(QuestionType type, Messages messages) {
     ContainerTag titleContainer =
         div()
             .withId("sample-render")
@@ -33,7 +34,7 @@ public class QuestionPreview {
 
     ContainerTag renderedQuestion = div();
     try {
-      renderedQuestion = buildQuestionRenderer(type);
+      renderedQuestion = buildQuestionRenderer(type, messages);
     } catch (UnsupportedQuestionTypeException e) {
       renderedQuestion = div().withText(e.toString());
     }

@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
 import j2html.tags.Tag;
+import play.i18n.Messages;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import views.BaseHtmlView;
@@ -20,7 +21,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
   }
 
   @Override
-  public Tag render() {
+  public Tag render(Messages messages) {
     AddressQuestion addressQuestion = question.createAddressQuestion();
 
     return div()
@@ -43,8 +44,8 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                     /** First line of address entry: Street */
                     FieldWithLabel.input()
                         .setFieldName(addressQuestion.getStreetPath().toString())
-                        .setLabelText("Street address")
-                        .setPlaceholderText("Enter your street address")
+                        .setLabelText(messages.at("label.street"))
+                        .setPlaceholderText(messages.at("placeholder.street"))
                         .setFloatLabel(true)
                         .setValue(addressQuestion.getStreetValue().orElse(""))
                         .getContainer()
@@ -55,24 +56,24 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                         .with(
                             FieldWithLabel.input()
                                 .setFieldName(addressQuestion.getCityPath().toString())
-                                .setLabelText("City")
-                                .setPlaceholderText("City")
+                                .setLabelText(messages.at("label.city"))
+                                .setPlaceholderText(messages.at("placeholder.city"))
                                 .setFloatLabel(true)
                                 .setValue(addressQuestion.getCityValue().orElse(""))
                                 .getContainer()
                                 .withClasses(Styles.P_1, Styles.PT_2, Styles.PL_0, Styles.W_1_2),
                             FieldWithLabel.input()
                                 .setFieldName(addressQuestion.getStatePath().toString())
-                                .setLabelText("State")
-                                .setPlaceholderText("State")
+                                .setLabelText(messages.at("label.state"))
+                                .setPlaceholderText(messages.at("placeholder.state"))
                                 .setFloatLabel(true)
                                 .setValue(addressQuestion.getStateValue().orElse(""))
                                 .getContainer()
                                 .withClasses(Styles.P_1, Styles.PT_2, Styles.W_1_4),
                             FieldWithLabel.input()
                                 .setFieldName(addressQuestion.getZipPath().toString())
-                                .setLabelText("Zip")
-                                .setPlaceholderText("Zip")
+                                .setLabelText(messages.at("label.zipcode"))
+                                .setPlaceholderText(messages.at("placeholder.zipcode"))
                                 .setFloatLabel(true)
                                 .setValue(addressQuestion.getZipValue().orElse(""))
                                 .getContainer()

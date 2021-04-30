@@ -6,6 +6,7 @@ import static j2html.TagCreator.div;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
+import play.i18n.Messages;
 import services.applicant.question.ApplicantQuestion;
 import services.question.types.RepeaterQuestionDefinition;
 import views.BaseHtmlView;
@@ -34,7 +35,7 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
   }
 
   @Override
-  public Tag render() {
+  public Tag render(Messages messages) {
     ContainerTag repeaterFields = div().withId(REPEATER_FIELDS_ID);
     // TODO: add each answer as a repeaterField
     repeaterFields.with(repeaterField(PLACEHOLDER, Optional.empty(), 0));
@@ -53,7 +54,7 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
                     Styles.MB_2)
                 .withText(question.getQuestionHelpText()),
             repeaterFields,
-            button(ADD_ELEMENT_BUTTON_ID, "add element"))
+            button(ADD_ELEMENT_BUTTON_ID, messages.at("button.addRepeaterEntity")))
         .withType("button");
   }
 
