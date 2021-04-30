@@ -100,13 +100,16 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
         // This will be the most common.
         existingProfile = Optional.of(profileFactory.wrap(existingApplicant.get()));
       } else {
+        // Merge the two applicants and prefer the newer one.
+        // For account, use the existing account and ignore the guest account.
+        Applicant guestApplicant = existingProfile.get().getApplicant().join();
         Account existingAccount = existingApplicant.get().getAccount();
         Applicant mergedApplicant =
             applicantRepositoryProvider
                 .get()
-                .mergeApplicants(
-                    existingProfile.get().getApplicant().join(), existingApplicant.get());
-        mergedApplicant.setAccount(existingAccount);
+                .mergeApplicants(guestApplicant, existingApplicant.get(), existingAccount)
+                .toCompletableFuture()
+                .join();
         existingProfile = Optional.of(profileFactory.wrap(mergedApplicant));
       }
     }

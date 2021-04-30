@@ -127,8 +127,24 @@ public class UserRepository {
     return ebeanServer.find(Applicant.class).setId(id).findOneOrEmpty();
   }
 
+  /** Merge the older applicant data into the newer applicant, and set both to the given account. */
+  public CompletionStage<Applicant> mergeApplicants(
+      Applicant left, Applicant right, Account account) {
+    return supplyAsync(
+        () -> {
+          left.setAccount(account);
+          left.save();
+          right.setAccount(account);
+          right.save();
+          Applicant merged = mergeApplicants(left, right);
+          merged.save();
+          return merged;
+        },
+        executionContext);
+  }
+
   /** Merge the applicant data from older applicant into the newer applicant. */
-  public Applicant mergeApplicants(Applicant left, Applicant right) {
+  private Applicant mergeApplicants(Applicant left, Applicant right) {
     if (left.getWhenCreated().isAfter(right.getWhenCreated())) {
       Applicant tmp = left;
       left = right;
