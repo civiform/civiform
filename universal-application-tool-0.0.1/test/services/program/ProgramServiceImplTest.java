@@ -422,8 +422,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
         .containsOnly(
-            CiviFormError.of("block name cannot be blank"),
-            CiviFormError.of("block description cannot be blank"));
+            CiviFormError.of("Block name cannot be blank"),
+            CiviFormError.of("Block description cannot be blank"));
   }
 
   @Test
@@ -733,8 +733,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
         .containsExactly(
-            CiviFormError.of("program display name cannot be blank"),
-            CiviFormError.of("program display description cannot be blank"));
+            CiviFormError.of("Program display name cannot be blank"),
+            CiviFormError.of("Program display description cannot be blank"));
   }
 
   @Test

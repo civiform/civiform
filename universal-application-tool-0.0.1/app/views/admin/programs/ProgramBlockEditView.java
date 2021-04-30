@@ -231,7 +231,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 .setLabelText("Block description")
                 .setValue(blockForm.getDescription())
                 .getContainer(),
-            submitButton("Update Block Metadata")
+            submitButton("Update Metadata")
                 .withId("update-block-button")
                 .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE)
                 .attr("disabled", ""));
