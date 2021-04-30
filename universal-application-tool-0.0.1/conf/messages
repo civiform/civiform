@@ -53,8 +53,10 @@ content.description=CiviForm lets you apply for many benefits at once by reusing
 #----------------------------------------------------------#
 
 # Address question labels and placeholder text
-label.street=Street address
-placeholder.street=Enter your street address
+label.street=Address line 1
+placeholder.street=Street address
+label.line2=Address line 2
+placeholder.line2=Apartment, suite, unit, building, floor, etc.
 label.city=City
 placeholder.city=City
 label.state=State
