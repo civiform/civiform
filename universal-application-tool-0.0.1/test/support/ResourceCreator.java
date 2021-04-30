@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.UUID;
 import models.Account;
 import models.Applicant;
-import models.Models;
 import models.Program;
 import models.Question;
 import play.db.ebean.EbeanConfig;

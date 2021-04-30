@@ -6,7 +6,7 @@ import akka.stream.Materializer;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import models.LifecycleStage;
-import models.Models;
+import support.Models;
 import models.Version;
 import org.junit.AfterClass;
 import org.junit.Before;

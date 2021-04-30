@@ -12,7 +12,7 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Optional;
 import models.LifecycleStage;
-import models.Models;
+import support.Models;
 import models.Version;
 import org.fluentlenium.core.domain.FluentList;
 import org.fluentlenium.core.domain.FluentWebElement;
