@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import services.LocalizationUtils;
 import services.Path;
 import services.WellKnownPaths;
-import services.question.types.RepeaterQuestionDefinition;
+import services.applicant.question.Scalar;
 
 public class ApplicantData {
   private static final String APPLICANT = "applicant";
@@ -147,9 +147,8 @@ public class ApplicantData {
 
   /**
    * Puts the names of the repeated entities at the path. Each element in the JSON array at the path
-   * is a JSON object that has at minimum a property {@link
-   * RepeaterQuestionDefinition#REPEATED_ENTITY_NAME_KEY} that contains a string value, along with
-   * possibly other nested answers to questions or repeated entities.
+   * is a JSON object that has at minimum a property {@link Scalar#ENTITY_NAME} that contains a
+   * string value, along with possibly other nested answers to questions or repeated entities.
    *
    * <p>This should not affect any other data that may already exist for the repeated entities.
    *
@@ -161,9 +160,7 @@ public class ApplicantData {
       put(path, ImmutableList.of());
     } else {
       for (int i = 0; i < entityNames.size(); i++) {
-        putString(
-            path.atIndex(i).join(RepeaterQuestionDefinition.REPEATED_ENTITY_NAME_KEY),
-            entityNames.get(i));
+        putString(path.atIndex(i).join(Scalar.ENTITY_NAME), entityNames.get(i));
       }
     }
   }
@@ -317,9 +314,7 @@ public class ApplicantData {
     int index = 0;
     ImmutableList.Builder<String> listBuilder = ImmutableList.builder();
     while (hasPath(path.atIndex(index))) {
-      listBuilder.add(
-          readString(path.atIndex(index).join(RepeaterQuestionDefinition.REPEATED_ENTITY_NAME_KEY))
-              .get());
+      listBuilder.add(readString(path.atIndex(index).join(Scalar.ENTITY_NAME)).get());
       index++;
     }
     return listBuilder.build();

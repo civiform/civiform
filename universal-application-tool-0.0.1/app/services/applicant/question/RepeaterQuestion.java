@@ -1,5 +1,6 @@
 package services.applicant.question;
 
+import com.google.common.collect.ImmutableList;
 import services.question.types.QuestionType;
 import services.question.types.RepeaterQuestionDefinition;
 
@@ -44,5 +45,11 @@ public class RepeaterQuestion implements PresentsErrors {
     return applicantQuestion
         .getApplicantData()
         .hasPath(applicantQuestion.getContextualizedPath().atIndex(0).join(Scalar.ENTITY_NAME));
+  }
+
+  public ImmutableList<String> getEntityNames() {
+    return applicantQuestion
+        .getApplicantData()
+        .readRepeatedEntities(applicantQuestion.getContextualizedPath());
   }
 }

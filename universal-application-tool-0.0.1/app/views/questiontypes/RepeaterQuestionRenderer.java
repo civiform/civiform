@@ -3,12 +3,13 @@ package views.questiontypes;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
+import com.google.common.collect.ImmutableList;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
 import play.i18n.Messages;
 import services.applicant.question.ApplicantQuestion;
-import services.question.types.RepeaterQuestionDefinition;
+import services.applicant.question.RepeaterQuestion;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
@@ -18,7 +19,6 @@ import views.style.Styles;
 public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQuestionRenderer {
 
   public static final String REPEATER_FIELDS_ID = "repeater-fields";
-  public static final String TEMPLATE_ID = "repeater-field-template";
   public static final String ADD_ELEMENT_BUTTON_ID = "repeater-field-add-button";
   public static final String REPEATER_FIELD_CLASS = "repeater-field";
 
@@ -36,9 +36,16 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
 
   @Override
   public Tag render(Messages messages) {
+    RepeaterQuestion enumeratorQuestion = question.createEnumeratorQuestion();
+    ImmutableList<String> entityNames = enumeratorQuestion.getEntityNames();
+
     ContainerTag repeaterFields = div().withId(REPEATER_FIELDS_ID);
     // TODO: add each answer as a repeaterField
-    repeaterFields.with(repeaterField(PLACEHOLDER, Optional.empty(), 0));
+    int index;
+    for (index = 0; index < entityNames.size(); index++) {
+      repeaterFields.with(repeaterField(PLACEHOLDER, Optional.of(entityNames.get(index)), index));
+    }
+    repeaterFields.with(repeaterField(PLACEHOLDER, Optional.empty(), index));
 
     return div()
         .withClasses(Styles.MX_AUTO, Styles.W_MAX)
@@ -58,18 +65,17 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
         .withType("button");
   }
 
-  public static Tag repeaterField(
-      String placeholderText, Optional<String> existingOption, int index) {
+  public Tag repeaterField(String placeholderText, Optional<String> existingOption, int index) {
     ContainerTag optionInput =
         FieldWithLabel.input()
-            .setFieldName(RepeaterQuestionDefinition.REPEATED_ENTITY_NAME_KEY + "[]")
+            .setFieldName(question.getContextualizedPath().toString())
             .setPlaceholderText(placeholderText)
             .setValue(existingOption)
             .getContainer()
             .withClasses(Styles.FLEX, Styles.ML_2);
     Tag removeOptionBox =
         FieldWithLabel.checkbox()
-            .setFieldName(RepeaterQuestionDefinition.REPEATED_ENTITY_NAME_KEY + "_delete[]")
+            .setFieldName("delete[]")
             .setValue(String.valueOf(index))
             .getContainer();
 

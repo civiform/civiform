@@ -120,7 +120,7 @@ public class ApplicantQuestion {
     return new NumberQuestion(this);
   }
 
-  public RepeaterQuestion createRepeaterQuestion() {
+  public RepeaterQuestion createEnumeratorQuestion() {
     return new RepeaterQuestion(this);
   }
 
@@ -148,7 +148,7 @@ public class ApplicantQuestion {
       case RADIO_BUTTON:
         return createSingleSelectQuestion();
       case REPEATER:
-        return createRepeaterQuestion();
+        return createEnumeratorQuestion();
       case TEXT:
         return createTextQuestion();
       default:
