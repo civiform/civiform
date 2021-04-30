@@ -17,11 +17,13 @@ import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.List;
 import models.TrustedIntermediaryGroup;
+import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
+import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -36,12 +38,24 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
   }
 
   public Content render(List<TrustedIntermediaryGroup> tis, Http.Request request) {
-    return layout.render(
+    ContainerTag body =
         body(
             renderHeader("Trusted Intermediary Groups"),
             renderTiGroupCards(tis),
             renderHeader("Create New Group").withClass(Styles.MT_8),
-            renderAddNewButton(request)));
+            renderAddNewButton(request));
+    if (request.flash().get("error").isPresent()) {
+      LoggerFactory.getLogger(TrustedIntermediaryGroupListView.class)
+          .info(request.flash().get("error").get());
+      String error = request.flash().get("error").get();
+      body.with(
+          ToastMessage.error(error)
+              .setId("warning-message-ti-form-fill")
+              .setIgnorable(false)
+              .setDuration(0)
+              .getContainerTag());
+    }
+    return layout.render(body);
   }
 
   private Tag renderTiGroupCards(List<TrustedIntermediaryGroup> tis) {
@@ -62,12 +76,14 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
             .setId("group-name-input")
             .setFieldName("name")
             .setLabelText("Name")
+            .setValue(request.flash().get("providedName").orElse(""))
             .setPlaceholderText("The name of this Trusted Intermediary Group.");
     FieldWithLabel descriptionField =
         FieldWithLabel.input()
             .setId("group-description-input")
             .setFieldName("description")
             .setLabelText("Description")
+            .setValue(request.flash().get("providedDescription").orElse(""))
             .setPlaceholderText("The description of this group.");
     return div()
         .with(
