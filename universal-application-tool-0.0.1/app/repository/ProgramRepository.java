@@ -7,10 +7,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import io.ebean.TxScope;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import models.LifecycleStage;
 import models.Program;
 import models.Version;
 import play.db.ebean.EbeanConfig;
@@ -73,16 +75,39 @@ public class ProgramRepository {
       this.updateProgramSync(updatedDraft);
       return updatedDraft;
     } else {
-      // Program -> builder -> back to program in order to clear any metadata stored
-      // in the program (for example, version information).
-      Program newDraft = existingProgram.getProgramDefinition().toBuilder().build().toProgram();
-      newDraft = insertProgramSync(newDraft);
-      newDraft.addVersion(draftVersion);
-      newDraft.save();
-      draftVersion.refresh();
-      Preconditions.checkState(draftVersion.getPrograms().contains(newDraft));
-      versionRepository.get().updateQuestionVersions(newDraft);
-      return newDraft;
+      try {
+        ebeanServer.beginTransaction(TxScope.requiresNew());
+        // Program -> builder -> back to program in order to clear any metadata stored
+        // in the program (for example, version information).
+        Program newDraft = existingProgram.getProgramDefinition().toBuilder().build().toProgram();
+        newDraft = insertProgramSync(newDraft);
+        newDraft.addVersion(draftVersion);
+        newDraft.save();
+        draftVersion.refresh();
+        Preconditions.checkState(
+            draftVersion.getPrograms().contains(newDraft),
+            "Must have successfully added draft version.");
+        Preconditions.checkState(
+            draftVersion.getLifecycleStage().equals(LifecycleStage.DRAFT),
+            "Draft version must remain a draft throughout this transaction.");
+        Preconditions.checkState(
+            draftVersion.getPrograms().stream()
+                    .filter(
+                        program ->
+                            program
+                                .getProgramDefinition()
+                                .adminName()
+                                .equals(existingProgram.getProgramDefinition().adminName()))
+                    .count()
+                == 1,
+            "Must be exactly one program with this name in the draft.");
+        versionRepository.get().updateQuestionVersions(newDraft);
+        ebeanServer.commitTransaction();
+        return newDraft;
+      } catch (IllegalStateException e) {
+        ebeanServer.rollbackTransaction();
+        return createOrUpdateDraft(existingProgram);
+      }
     }
   }
 }
