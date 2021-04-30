@@ -6,7 +6,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
-import io.ebean.TxScope;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -100,7 +99,7 @@ public class VersionRepository {
     } else {
       try {
         // Suspends any existing transaction if one exists.
-        ebeanServer.beginTransaction(TxScope.requiresNew());
+        ebeanServer.beginTransaction();
         Version newDraftVersion = new Version(LifecycleStage.DRAFT);
         ebeanServer.insert(newDraftVersion);
         ebeanServer
@@ -215,20 +214,14 @@ public class VersionRepository {
   }
 
   public void setLive(long versionId) {
-    try {
-      ebeanServer.beginTransaction();
-      Version draftVersion = getDraftVersion();
-      Version activeVersion = getActiveVersion();
-      Version newActiveVersion = ebeanServer.find(Version.class).setId(versionId).findOne();
-      newActiveVersion.setLifecycleStage(LifecycleStage.ACTIVE);
-      newActiveVersion.save();
-      activeVersion.setLifecycleStage(LifecycleStage.OBSOLETE);
-      activeVersion.save();
-      draftVersion.setLifecycleStage(LifecycleStage.DELETED);
-      draftVersion.save();
-      ebeanServer.commitTransaction();
-    } finally {
-      ebeanServer.endTransaction();
-    }
+    Version draftVersion = getDraftVersion();
+    Version activeVersion = getActiveVersion();
+    Version newActiveVersion = ebeanServer.find(Version.class).setId(versionId).findOne();
+    newActiveVersion.setLifecycleStage(LifecycleStage.ACTIVE);
+    newActiveVersion.save();
+    activeVersion.setLifecycleStage(LifecycleStage.OBSOLETE);
+    activeVersion.save();
+    draftVersion.setLifecycleStage(LifecycleStage.DELETED);
+    draftVersion.save();
   }
 }
