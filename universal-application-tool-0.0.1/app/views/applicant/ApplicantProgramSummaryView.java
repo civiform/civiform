@@ -14,6 +14,8 @@ import j2html.tags.ContainerTag;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import java.util.Arrays;
 import java.util.Optional;
 import play.mvc.Http.HttpVerbs;
@@ -41,6 +43,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
    */
   public Content render(
       Request request,
+      Messages messages,
       Long applicantId,
       Long programId,
       String programTitle,
@@ -70,6 +73,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     content.with(actions);
 
     return layout.render(
+        messages,
         headerTag,
         h1("Application review for " + programTitle).withClasses(Styles.PX_16, Styles.PY_4),
         content);

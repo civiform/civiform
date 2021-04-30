@@ -24,7 +24,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedApplicantPro
 
   @Before
   public void setUpWithFreshApplicant() {
-    clearDatabase();
+    resetDatabase();
 
     subject = instanceOf(ApplicantProgramReviewController.class);
     program =

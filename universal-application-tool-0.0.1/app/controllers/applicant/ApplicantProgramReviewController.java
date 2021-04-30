@@ -10,6 +10,8 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Application;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import org.pac4j.play.java.Secure;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
@@ -32,6 +34,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final ApplicantService applicantService;
   private final ApplicationRepository applicationRepository;
   private final HttpExecutionContext httpExecutionContext;
+  private final MessagesApi messagesApi;
   private final ApplicantProgramSummaryView summaryView;
   private final ProfileUtils profileUtils;
 
@@ -40,10 +43,12 @@ public class ApplicantProgramReviewController extends CiviFormController {
       ApplicantService applicantService,
       ApplicationRepository applicationRepository,
       HttpExecutionContext httpExecutionContext,
+      MessagesApi messagesApi,
       ApplicantProgramSummaryView summaryView,
       ProfileUtils profileUtils) {
     this.applicantService = checkNotNull(applicantService);
     this.applicationRepository = checkNotNull(applicationRepository);
+    this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.summaryView = checkNotNull(summaryView);
     this.profileUtils = checkNotNull(profileUtils);
@@ -64,7 +69,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
               String programTitle = "Program title";
               return ok(
                   summaryView.render(
-                      request, applicantId, programId, programTitle, summaryData, banner));
+                      request, messagesApi.preferred(request), applicantId, programId, programTitle, summaryData, banner));
             },
             httpExecutionContext.current())
         .exceptionally(
