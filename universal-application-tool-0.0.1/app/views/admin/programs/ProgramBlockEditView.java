@@ -247,7 +247,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                   Styles.MX_4,
                   Styles.MY_1,
                   Styles.BG_RED_500,
-                  "hover:" + Styles.BG_RED_700,
+                  StyleUtils.hover(Styles.BG_RED_700),
                   Styles.INLINE));
     }
 

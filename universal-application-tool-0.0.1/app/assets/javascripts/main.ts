@@ -41,7 +41,7 @@ function maybeHideElement(e: Event, id: string, parentId: string) {
 }
 
 /** In admin program block edit form - enabling submit button when form is changed */
-function enableButton(event: Event) {
+function enableUpdateBlockButton(event: Event) {
   const submitButton = document.getElementById("update-block-button");
   submitButton.removeAttribute("disabled");
 }
@@ -94,7 +94,7 @@ function init() {
   // Submit button is disabled by default until program block edit form is changed
   const blockEditForm = document.getElementById("block-edit-form");
   if (blockEditForm) {
-    blockEditForm.addEventListener("change", enableButton);
+    blockEditForm.addEventListener("input", enableUpdateBlockButton);
   }
 
   // Configure the button on the admin question form to add more answer options
