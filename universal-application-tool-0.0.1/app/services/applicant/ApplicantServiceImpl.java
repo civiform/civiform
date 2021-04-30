@@ -195,7 +195,7 @@ public class ApplicantServiceImpl implements ApplicantService {
       Block block,
       UpdateMetadata updateMetadata,
       ImmutableSet<Update> updates) {
-      // throws UnsupportedScalarTypeException, PathNotInBlockException {
+    // throws UnsupportedScalarTypeException, PathNotInBlockException {
     logger.error(applicantData.getApplicantName());
     logger.error(block.getName());
     logger.error(updates.toString());

@@ -1,6 +1,7 @@
 package views.questiontypes;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 
 import com.google.common.collect.ImmutableList;
@@ -40,12 +41,12 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
     ImmutableList<String> entityNames = enumeratorQuestion.getEntityNames();
 
     ContainerTag repeaterFields = div().withId(REPEATER_FIELDS_ID);
-    // TODO: add each answer as a repeaterField
     int index;
     for (index = 0; index < entityNames.size(); index++) {
-      repeaterFields.with(repeaterField(PLACEHOLDER, Optional.of(entityNames.get(index)), index));
+      repeaterFields.with(
+          existingRepeaterField(PLACEHOLDER, Optional.of(entityNames.get(index)), index));
     }
-    repeaterFields.with(repeaterField(PLACEHOLDER, Optional.empty(), index));
+    repeaterFields.with(newRepeaterFieldTemplate(PLACEHOLDER));
 
     return div()
         .withClasses(Styles.MX_AUTO, Styles.W_MAX)
@@ -65,7 +66,8 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
         .withType("button");
   }
 
-  public Tag repeaterField(String placeholderText, Optional<String> existingOption, int index) {
+  public Tag existingRepeaterField(
+      String placeholderText, Optional<String> existingOption, int index) {
     ContainerTag optionInput =
         FieldWithLabel.input()
             .setFieldName(question.getContextualizedPath().toString())
@@ -80,5 +82,19 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
             .getContainer();
 
     return div().withClasses(REPEATER_FIELD_CLASSES).with(optionInput, removeOptionBox);
+  }
+
+  public Tag newRepeaterFieldTemplate(String placeholderText) {
+    ContainerTag optionInput =
+        FieldWithLabel.input()
+            .setFieldName(question.getContextualizedPath().toString())
+            .setPlaceholderText(placeholderText)
+            .getContainer()
+            .withClasses(Styles.FLEX, Styles.ML_2);
+    Tag removeFieldButton = button("x").withType("button").withClasses(Styles.FLEX, Styles.ML_4);
+    return div()
+        .withId("repeater-field-template")
+        .withClasses(StyleUtils.joinStyles(REPEATER_FIELD_CLASSES, Styles.HIDDEN))
+        .with(optionInput, removeFieldButton);
   }
 }

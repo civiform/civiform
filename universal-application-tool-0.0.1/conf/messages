@@ -72,4 +72,4 @@ placeholder.lastName=Last name
 
 # Repeater question text
 # Text on a button an applicant would click to add another entity
-button.addRepeaterEntity=add element
+button.addEnumeratorEntity=add element

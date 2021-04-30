@@ -48,7 +48,7 @@ function addNewQuestionAnswerOptionForm(event: Event) {
   newField.removeAttribute("id");
 
   // Register the click event handler for the remove button.
-  newField.lastElementChild.addEventListener("click", removeQuestionOption);
+  newField.querySelector("[type=button]").addEventListener("click", removeQuestionOption);
 
   // Find the add option button and insert the new option input field before it.
   const button = document.getElementById("add-new-option");
@@ -57,29 +57,38 @@ function addNewQuestionAnswerOptionForm(event: Event) {
 
 /** In the admin question form - remove an answer option input for multi-option questions. */
 function removeQuestionOption(event: Event) {
+
   // Get the parent div, which contains the input field and remove button, and remove it.
   const optionDiv = (event.target as Element).parentNode;
   optionDiv.parentNode.removeChild(optionDiv);
+
 }
 
-/** In the repeater form - add a new input field for a repeated entity. */
-function addNewRepeaterField(event: Event) {
-  // Copy the first repeater field
-  const newField = document.querySelector(".repeater-field").cloneNode(true) as HTMLElement;
+/** In the enumerator form - add a new input field for a repeated entity. */
+function addNewEnumeratorField(event: Event) {
+  // Copy the enuemrator field template
+  const newField = document.getElementById("enumerator-field-template").cloneNode(true) as HTMLElement;
+  newField.classList.remove("hidden");
+  newField.removeAttribute("id");
 
-  // Remove the text
-  const newTextField = newField.querySelector("[type=text]") as HTMLInputElement;
-  newTextField.value = null;
+  // Add placeholder text
+  const placeholder = document.getElementById("enumerator-placeholder-text").innerText;
+  const inputField = newField.querySelector("[type=text]") as HTMLInputElement;
+  inputField.placeholder = placeholder;
 
-  const repeaterFields = document.getElementById("repeater-fields");
-  const index = repeaterFields.querySelectorAll(".repeater-field").length;
 
-  // Set new checkbox value to the index and uncheck it
-  const newCheckbox = newField.querySelector("[type=checkbox]") as HTMLInputElement;
-  newCheckbox.value = index.toString();
-  newCheckbox.checked = false;
+  // Add the remove enumerator field event listener to the delete button
+  newField.querySelector("[type=button]").addEventListener("click", removeEnumeratorField);
 
-  repeaterFields.appendChild(newField);
+  // Add to the end of enumerator-fields div.
+  const enumeratorFields = document.getElementById("enumerator-fields");
+  enumeratorFields.appendChild(newField);
+}
+
+function removeEnumeratorField(event: Event) {
+  // Get the parent div, which contains the input field and remove button, and remove it.
+  const enumeratorFieldDiv = (event.target as Element).parentNode;
+  enumeratorFieldDiv.parentNode.removeChild(enumeratorFieldDiv);
 }
 
 function init() {
@@ -91,10 +100,10 @@ function init() {
     questionOptionButton.addEventListener("click", addNewQuestionAnswerOptionForm);
   }
 
-  // Configure the button on the repeater question form to add more repeater field options
-  const repeaterOptionButton = document.getElementById("repeater-field-add-button");
-  if (repeaterOptionButton) {
-    repeaterOptionButton.addEventListener("click", addNewRepeaterField);
+  // Configure the button on the enumerator question form to add more enumerator field options
+  const enumeratorOptionButton = document.getElementById("enumerator-field-add-button");
+  if (enumeratorOptionButton) {
+    enumeratorOptionButton.addEventListener("click", addNewEnumeratorField);
   }
 }
 init();

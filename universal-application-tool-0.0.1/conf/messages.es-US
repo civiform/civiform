@@ -28,4 +28,4 @@ label.middleName=Segundo nombre
 placeholder.middleName=Segundo nombre
 label.lastName=Apellido
 placeholder.lastName=Apellido
-button.addRepeatedEntity=Agrega otro
+button.addEnumeratorEntity=Agrega otro

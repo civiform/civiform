@@ -28,4 +28,4 @@ label.middleName=Middle name
 placeholder.middleName=Middle name
 label.lastName=Last name
 placeholder.lastName=Last name
-button.addRepeaterEntity=add element
+button.addEnumeratorEntity=add element
