@@ -11,7 +11,6 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Locale;
 import java.util.Optional;
-
 import models.LifecycleStage;
 import models.Models;
 import models.Version;
@@ -89,7 +88,7 @@ public class DatabaseSeedController extends DevController {
     if (!isDevEnvironment()) {
       return notFound();
     }
-    truncateTables();
+    resetTables();
     return redirect(routes.DatabaseSeedController.index().url())
         .flashing("success", "The database has been cleared");
   }
@@ -251,7 +250,7 @@ public class DatabaseSeedController extends DevController {
     }
   }
 
-  private void truncateTables() {
+  private void resetTables() {
     Models.truncate(ebeanServer);
     Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
     newActiveVersion.save();

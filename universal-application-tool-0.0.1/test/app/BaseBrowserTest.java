@@ -12,6 +12,7 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Optional;
 import models.LifecycleStage;
+import models.Models;
 import models.Version;
 import org.fluentlenium.core.domain.FluentList;
 import org.fluentlenium.core.domain.FluentWebElement;
@@ -22,7 +23,6 @@ import play.api.mvc.Call;
 import play.db.ebean.EbeanConfig;
 import play.test.WithBrowser;
 import services.question.types.QuestionType;
-import models.Models;
 import support.TestConstants;
 import views.style.ReferenceClasses;
 
