@@ -7,7 +7,6 @@ import static j2html.TagCreator.head;
 import static j2html.TagCreator.main;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
-import static j2html.TagCreator.text;
 
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
