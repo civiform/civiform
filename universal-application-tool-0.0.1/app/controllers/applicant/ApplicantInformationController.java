@@ -3,6 +3,7 @@ package controllers.applicant;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
 import forms.ApplicantInformationForm;
 import java.util.Locale;
@@ -13,6 +14,7 @@ import javax.inject.Inject;
 import models.Applicant;
 import play.data.Form;
 import play.data.FormFactory;
+import play.i18n.Lang;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
@@ -56,9 +58,13 @@ public final class ApplicantInformationController extends CiviFormController {
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenApplyAsync(
             // Since this is before we set the applicant's preferred language, use
-            // MessagesApi#preferred to try to get their language from the request for now. It is ok
-            // if it just uses the default language.
-            v -> ok(informationView.render(request, messagesApi.preferred(request), applicantId)),
+            // the default language for now.
+            v ->
+                ok(
+                    informationView.render(
+                        request,
+                        messagesApi.preferred(ImmutableSet.of(Lang.defaultLang())),
+                        applicantId)),
             httpExecutionContext.current())
         .exceptionally(
             ex -> {
