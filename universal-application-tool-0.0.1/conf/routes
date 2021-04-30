@@ -50,7 +50,7 @@ POST    /admin/questions/:id/translations/:locale       controllers.admin.AdminQ
 
 # Trusted Intermediary routes
 GET     /admin/tis               controllers.admin.TrustedIntermediaryManagementController.index(request: Request)
-POST    /admin/tis/new           controllers.admin.TrustedIntermediaryManagementController.newGroup(request: Request)
+POST    /admin/tis/new           controllers.admin.TrustedIntermediaryManagementController.create(request: Request)
 
 # Controller for admins only, related to applications
 GET     /admin/programs/:programId/applications                           controllers.admin.AdminApplicationController.answerList(programId: Long)

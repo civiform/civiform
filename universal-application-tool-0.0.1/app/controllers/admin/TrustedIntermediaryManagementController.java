@@ -37,7 +37,7 @@ public class TrustedIntermediaryManagementController extends Controller {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public Result newGroup(Http.Request request) {
+  public Result create(Http.Request request) {
     Form<CreateTrustedIntermediaryGroupForm> form =
         formFactory.form(CreateTrustedIntermediaryGroupForm.class).bindFromRequest(request);
     if (form.hasErrors()) {
