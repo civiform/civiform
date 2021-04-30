@@ -2,8 +2,8 @@ package services.applicant.question;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import play.i18n.Messages;
 import services.Path;
-import services.applicant.ValidationErrorMessage;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.QuestionType;
 
@@ -18,19 +18,25 @@ public class FileUploadQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
-    return !getQuestionErrors().isEmpty();
+  public boolean hasQuestionErrors(Messages messages) {
+    return !getQuestionErrors(messages).isEmpty();
   }
 
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+  @Override
+  public ImmutableSet<String> getQuestionErrors(Messages messages) {
     // TODO: Implement admin-defined validation.
     return ImmutableSet.of();
   }
 
   @Override
-  public boolean hasTypeSpecificErrors() {
+  public boolean hasTypeSpecificErrors(Messages messages) {
+    return !getAllTypeSpecificErrors(messages).isEmpty();
+  }
+
+  @Override
+  public ImmutableSet<String> getAllTypeSpecificErrors(Messages messages) {
     // There are no inherent requirements in a file upload question.
-    return false;
+    return ImmutableSet.of();
   }
 
   @Override

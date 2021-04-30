@@ -3,13 +3,11 @@ package services.applicant.question;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import play.i18n.Messages;
 import services.Path;
-import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 
-// TODO(https://github.com/seattle-uat/civiform/issues/396): Implement a question that allows for
-// multiple answer selections (i.e. the value is a list)
 public class SingleSelectQuestion implements PresentsErrors {
 
   private final ApplicantQuestion applicantQuestion;
@@ -21,19 +19,25 @@ public class SingleSelectQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
-    return !getQuestionErrors().isEmpty();
+  public boolean hasQuestionErrors(Messages messages) {
+    return !getQuestionErrors(messages).isEmpty();
   }
 
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+  @Override
+  public ImmutableSet<String> getQuestionErrors(Messages messages) {
     // Only one selection is possible - there is no admin-configured validation.
     return ImmutableSet.of();
   }
 
   @Override
-  public boolean hasTypeSpecificErrors() {
-    // Does not recognize invalid values
-    return false;
+  public boolean hasTypeSpecificErrors(Messages messages) {
+    return !getAllTypeSpecificErrors(messages).isEmpty();
+  }
+
+  @Override
+  public ImmutableSet<String> getAllTypeSpecificErrors(Messages messages) {
+    // Only one selection is possible - there is no admin-configured validation.
+    return ImmutableSet.of();
   }
 
   public boolean hasValue() {

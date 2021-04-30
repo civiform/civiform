@@ -44,6 +44,6 @@ public class FileUploadQuestionRenderer extends BaseHtmlView implements Applican
                     fileUploadQuestion.getFileKeyValue().isPresent(),
                     fileUploadQuestion.getFileKeyValue().orElse(""))
                 .withName(fileUploadQuestion.getFileKeyPath().toString()),
-            fieldErrors(fileUploadQuestion.getQuestionErrors()));
+            fieldErrors(fileUploadQuestion.getQuestionErrors(messages)));
   }
 }

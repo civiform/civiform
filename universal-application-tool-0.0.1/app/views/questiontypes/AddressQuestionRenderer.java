@@ -78,7 +78,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                                 .setValue(addressQuestion.getZipValue().orElse(""))
                                 .getContainer()
                                 .withClasses(Styles.P_1, Styles.PT_2, Styles.PR_0, Styles.W_1_4)),
-                    fieldErrors(addressQuestion.getQuestionErrors())
+                    fieldErrors(addressQuestion.getQuestionErrors(messages))
                         .withClasses(
                             Styles.ML_2, Styles.TEXT_XS, Styles.TEXT_RED_600, Styles.FONT_BOLD)));
   }

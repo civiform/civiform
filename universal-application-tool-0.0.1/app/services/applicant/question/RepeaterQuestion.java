@@ -1,5 +1,7 @@
 package services.applicant.question;
 
+import com.google.common.collect.ImmutableSet;
+import play.i18n.Messages;
 import services.question.types.QuestionType;
 import services.question.types.RepeaterQuestionDefinition;
 
@@ -13,14 +15,24 @@ public class RepeaterQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
-    return false;
+  public boolean hasQuestionErrors(Messages messages) {
+    return !getQuestionErrors(messages).isEmpty();
   }
 
   @Override
-  public boolean hasTypeSpecificErrors() {
+  public ImmutableSet<String> getQuestionErrors(Messages messages) {
+    return ImmutableSet.of();
+  }
+
+  @Override
+  public boolean hasTypeSpecificErrors(Messages messages) {
+    return !getAllTypeSpecificErrors(messages).isEmpty();
+  }
+
+  @Override
+  public ImmutableSet<String> getAllTypeSpecificErrors(Messages messages) {
     // There are no inherent requirements in a repeater question.
-    return false;
+    return ImmutableSet.of();
   }
 
   public void assertQuestionType() {

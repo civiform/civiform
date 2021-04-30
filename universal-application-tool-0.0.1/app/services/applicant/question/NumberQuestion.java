@@ -2,8 +2,8 @@ package services.applicant.question;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import play.i18n.Messages;
 import services.Path;
-import services.applicant.ValidationErrorMessage;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionType;
 
@@ -18,11 +18,12 @@ public class NumberQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
-    return !getQuestionErrors().isEmpty();
+  public boolean hasQuestionErrors(Messages messages) {
+    return !getQuestionErrors(messages).isEmpty();
   }
 
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+  @Override
+  public ImmutableSet<String> getQuestionErrors(Messages messages) {
     if (!isAnswered()) {
       return ImmutableSet.of();
     }
@@ -36,13 +37,13 @@ public class NumberQuestion implements PresentsErrors {
       return ImmutableSet.of();
     }
 
-    ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
+    ImmutableSet.Builder<String> errors = ImmutableSet.builder();
 
     if (questionDefinition.getMin().isPresent()) {
       long min = questionDefinition.getMin().getAsLong();
       // If value is empty, don't test against min.
       if (getNumberValue().isPresent() && getNumberValue().get() < min) {
-        errors.add(ValidationErrorMessage.numberTooSmallError(min));
+        errors.add(messages.at("validation.numberTooSmall", min));
       }
     }
 
@@ -50,7 +51,7 @@ public class NumberQuestion implements PresentsErrors {
       long max = questionDefinition.getMax().getAsLong();
       // If value is empty, don't test against max.
       if (getNumberValue().isPresent() && getNumberValue().get() > max) {
-        errors.add(ValidationErrorMessage.numberTooLargeError(max));
+        errors.add(messages.at("validation.numberTooLarge", max));
       }
     }
 
@@ -58,9 +59,14 @@ public class NumberQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasTypeSpecificErrors() {
+  public boolean hasTypeSpecificErrors(Messages messages) {
+    return !getAllTypeSpecificErrors(messages).isEmpty();
+  }
+
+  @Override
+  public ImmutableSet<String> getAllTypeSpecificErrors(Messages messages) {
     // There are no inherent requirements in a number question.
-    return false;
+    return ImmutableSet.of();
   }
 
   @Override

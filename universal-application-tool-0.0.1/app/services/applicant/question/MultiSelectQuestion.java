@@ -5,8 +5,8 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import play.i18n.Messages;
 import services.Path;
-import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 
@@ -21,24 +21,25 @@ public class MultiSelectQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
-    return !getQuestionErrors().isEmpty();
+  public boolean hasQuestionErrors(Messages messages) {
+    return !getQuestionErrors(messages).isEmpty();
   }
 
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+  @Override
+  public ImmutableSet<String> getQuestionErrors(Messages messages) {
     if (!isAnswered()) {
       return ImmutableSet.of();
     }
 
     MultiOptionQuestionDefinition definition = getQuestionDefinition();
     int numberOfSelections = getSelectedOptionsValue().map(ImmutableList::size).orElse(0);
-    ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
+    ImmutableSet.Builder<String> errors = ImmutableSet.builder();
 
     if (definition.getMultiOptionValidationPredicates().minChoicesRequired().isPresent()) {
       int minChoicesRequired =
           definition.getMultiOptionValidationPredicates().minChoicesRequired().getAsInt();
       if (numberOfSelections < minChoicesRequired) {
-        errors.add(ValidationErrorMessage.tooFewSelectionsError(minChoicesRequired));
+        errors.add(messages.at("validation.tooFewSelections", minChoicesRequired));
       }
     }
 
@@ -46,16 +47,21 @@ public class MultiSelectQuestion implements PresentsErrors {
       int maxChoicesAllowed =
           definition.getMultiOptionValidationPredicates().maxChoicesAllowed().getAsInt();
       if (numberOfSelections > maxChoicesAllowed) {
-        errors.add(ValidationErrorMessage.tooManySelectionsError(maxChoicesAllowed));
+        errors.add(messages.at("validation.tooManySelections", maxChoicesAllowed));
       }
     }
     return errors.build();
   }
 
   @Override
-  public boolean hasTypeSpecificErrors() {
+  public boolean hasTypeSpecificErrors(Messages messages) {
     // The question does not recognize selected options not present in the options set
-    return false;
+    return !getAllTypeSpecificErrors(messages).isEmpty();
+  }
+
+  @Override
+  public ImmutableSet<String> getAllTypeSpecificErrors(Messages messages) {
+    return ImmutableSet.of();
   }
 
   public boolean hasValue() {

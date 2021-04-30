@@ -2,8 +2,8 @@ package services.applicant.question;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import play.i18n.Messages;
 import services.Path;
-import services.applicant.ValidationErrorMessage;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionType;
 
@@ -20,38 +20,40 @@ public class NameQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
-    return !getQuestionErrors().isEmpty();
+  public boolean hasQuestionErrors(Messages messages) {
+    return !getQuestionErrors(messages).isEmpty();
   }
 
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+  @Override
+  public ImmutableSet<String> getQuestionErrors(Messages messages) {
     // TODO: Implement admin-defined validation.
     return ImmutableSet.of();
   }
 
   @Override
-  public boolean hasTypeSpecificErrors() {
-    return !getAllTypeSpecificErrors().isEmpty();
+  public boolean hasTypeSpecificErrors(Messages messages) {
+    return !getAllTypeSpecificErrors(messages).isEmpty();
   }
 
-  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
-    return ImmutableSet.<ValidationErrorMessage>builder()
-        .addAll(getFirstNameErrors())
-        .addAll(getLastNameErrors())
+  @Override
+  public ImmutableSet<String> getAllTypeSpecificErrors(Messages messages) {
+    return ImmutableSet.<String>builder()
+        .addAll(getFirstNameErrors(messages))
+        .addAll(getLastNameErrors(messages))
         .build();
   }
 
-  public ImmutableSet<ValidationErrorMessage> getFirstNameErrors() {
+  public ImmutableSet<String> getFirstNameErrors(Messages messages) {
     if (isFirstNameAnswered() && getFirstNameValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.create("First name is required."));
+      return ImmutableSet.of(messages.at("validation.firstNameRequired"));
     }
 
     return ImmutableSet.of();
   }
 
-  public ImmutableSet<ValidationErrorMessage> getLastNameErrors() {
+  public ImmutableSet<String> getLastNameErrors(Messages messages) {
     if (isLastNameAnswered() && getLastNameValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.create("Last name is required."));
+      return ImmutableSet.of(messages.at("validation.firstNameRequired"));
     }
 
     return ImmutableSet.of();

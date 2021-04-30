@@ -2,8 +2,8 @@ package services.applicant.question;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import play.i18n.Messages;
 import services.Path;
-import services.applicant.ValidationErrorMessage;
 import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
 
@@ -18,30 +18,31 @@ public class TextQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
-    return !getQuestionErrors().isEmpty();
+  public boolean hasQuestionErrors(Messages messages) {
+    return !getQuestionErrors(messages).isEmpty();
   }
 
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+  @Override
+  public ImmutableSet<String> getQuestionErrors(Messages messages) {
     if (!isAnswered()) {
       return ImmutableSet.of();
     }
 
     TextQuestionDefinition definition = getQuestionDefinition();
     int textLength = getTextValue().map(s -> s.length()).orElse(0);
-    ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
+    ImmutableSet.Builder<String> errors = ImmutableSet.builder();
 
     if (definition.getMinLength().isPresent()) {
       int minLength = definition.getMinLength().getAsInt();
       if (textLength < minLength) {
-        errors.add(ValidationErrorMessage.textTooShortError(minLength));
+        errors.add(messages.at("validation.textTooShort", minLength));
       }
     }
 
     if (definition.getMaxLength().isPresent()) {
       int maxLength = definition.getMaxLength().getAsInt();
       if (textLength > maxLength) {
-        errors.add(ValidationErrorMessage.textTooLongError(maxLength));
+        errors.add(messages.at("validation.textTooLong", maxLength));
       }
     }
 
@@ -49,9 +50,14 @@ public class TextQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasTypeSpecificErrors() {
+  public boolean hasTypeSpecificErrors(Messages messages) {
+    return !getAllTypeSpecificErrors(messages).isEmpty();
+  }
+
+  @Override
+  public ImmutableSet<String> getAllTypeSpecificErrors(Messages messages) {
     // There are no inherent requirements in a text question.
-    return false;
+    return ImmutableSet.of();
   }
 
   @Override
