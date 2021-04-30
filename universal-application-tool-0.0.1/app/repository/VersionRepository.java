@@ -6,6 +6,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import io.ebean.TxScope;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -79,6 +80,7 @@ public class VersionRepository {
       draft.setLifecycleStage(LifecycleStage.ACTIVE);
       active.save();
       draft.save();
+      draft.refresh();
       ebeanServer.commitTransaction();
     } finally {
       ebeanServer.endTransaction();
@@ -87,49 +89,32 @@ public class VersionRepository {
 
   /** Get the current draft version. Creates it if one does not exist. */
   public Version getDraftVersion() {
-    Optional<Version> version;
-    try {
-      version =
-          ebeanServer
-              .find(Version.class)
-              .where()
-              .eq("lifecycle_stage", LifecycleStage.DRAFT)
-              .findOneOrEmpty();
-    } catch (NonUniqueResultException e) {
-      handleMultipleDrafts();
-      return getDraftVersion();
-    }
-    if (version.isPresent()) {
-      return version.get();
-    } else {
-      Version newDraftVersion = new Version(LifecycleStage.DRAFT);
-      ebeanServer.insert(newDraftVersion);
-      return newDraftVersion;
-    }
-  }
-
-  private void handleMultipleDrafts() {
-    List<Version> versions =
+    Optional<Version> version =
         ebeanServer
             .find(Version.class)
             .where()
             .eq("lifecycle_stage", LifecycleStage.DRAFT)
-            .findList();
-    Preconditions.checkState(
-        versions.size() > 1, "called handleMultipleDrafts with only one draft.");
-    Version versionToMergeInto = versions.get(0);
-    for (int i = 1; i < versions.size(); i++) {
-      Version versionToMergeFrom = versions.get(i);
-      for (Program p : versionToMergeFrom.getPrograms()) {
-        p.addVersion(versionToMergeInto);
-        p.save();
+            .findOneOrEmpty();
+    if (version.isPresent()) {
+      return version.get();
+    } else {
+      try {
+        // Suspends any existing transaction if one exists.
+        ebeanServer.beginTransaction(TxScope.requiresNew());
+        Version newDraftVersion = new Version(LifecycleStage.DRAFT);
+        ebeanServer.insert(newDraftVersion);
+        ebeanServer
+            .find(Version.class)
+            .forUpdate()
+            .where()
+            .eq("lifecycle_stage", LifecycleStage.DRAFT)
+            .findOne();
+        ebeanServer.commitTransaction();
+        return newDraftVersion;
+      } catch (NonUniqueResultException e) {
+        ebeanServer.endTransaction();
+        return getDraftVersion();
       }
-      for (Question q : versionToMergeFrom.getQuestions()) {
-        q.addVersion(versionToMergeInto);
-        q.save();
-      }
-      versionToMergeFrom.setLifecycleStage(LifecycleStage.OBSOLETE);
-      versionToMergeFrom.save();
     }
   }
 
