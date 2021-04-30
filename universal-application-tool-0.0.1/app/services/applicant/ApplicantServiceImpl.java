@@ -14,6 +14,8 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Applicant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.UserRepository;
 import services.ErrorAnd;
@@ -31,6 +33,8 @@ public class ApplicantServiceImpl implements ApplicantService {
   private final ProgramService programService;
   private final Clock clock;
   private final HttpExecutionContext httpExecutionContext;
+
+  Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Inject
   public ApplicantServiceImpl(
@@ -174,6 +178,36 @@ public class ApplicantServiceImpl implements ApplicantService {
    * @throws PathNotInBlockException if there are updates for questions that aren't in the block.
    */
   private void stageUpdates(
+      ApplicantData applicantData,
+      Block block,
+      UpdateMetadata updateMetadata,
+      ImmutableSet<Update> updates)
+      throws UnsupportedScalarTypeException, PathNotInBlockException {
+    if (block.isEnumerator()) {
+      stageEnumeratorUpdates(applicantData, block, updateMetadata, updates);
+    } else {
+      stageNormalUpdates(applicantData, block, updateMetadata, updates);
+    }
+  }
+
+  private void stageEnumeratorUpdates(
+      ApplicantData applicantData,
+      Block block,
+      UpdateMetadata updateMetadata,
+      ImmutableSet<Update> updates) {
+      // throws UnsupportedScalarTypeException, PathNotInBlockException {
+    logger.error(applicantData.getApplicantName());
+    logger.error(block.getName());
+    logger.error(updates.toString());
+    logger.error(updateMetadata.toString());
+  }
+
+  /**
+   * In-place update of {@link ApplicantData}. Adds program id and timestamp metadata with updates.
+   *
+   * @throws PathNotInBlockException if there are updates for questions that aren't in the block.
+   */
+  private void stageNormalUpdates(
       ApplicantData applicantData,
       Block block,
       UpdateMetadata updateMetadata,

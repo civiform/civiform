@@ -66,6 +66,10 @@ public final class Block {
     return blockDefinition.description();
   }
 
+  public boolean isEnumerator() {
+    return blockDefinition.isRepeater();
+  }
+
   public ImmutableList<ApplicantQuestion> getQuestions() {
     if (questionsMemo.isEmpty()) {
       this.questionsMemo =
