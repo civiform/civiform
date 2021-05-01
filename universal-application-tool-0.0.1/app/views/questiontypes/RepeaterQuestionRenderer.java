@@ -11,6 +11,7 @@ import play.i18n.Messages;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.RepeaterQuestion;
+import services.applicant.question.Scalar;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
@@ -67,7 +68,10 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
         .withType("button");
   }
 
-  /** Crete an enumerator field for existing entries. These come with a checkbox to delete during form submission. */
+  /**
+   * Crete an enumerator field for existing entries. These come with a checkbox to delete during
+   * form submission.
+   */
   private Tag existingEnumeratorField(Optional<String> existingOption, int index) {
     ContainerTag optionInput =
         FieldWithLabel.input()
@@ -77,14 +81,16 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
             .withClasses(Styles.FLEX, Styles.ML_2);
     Tag removeOptionBox =
         FieldWithLabel.checkbox()
-            .setFieldName("delete[]")
+            .setFieldName(Path.empty().join(Scalar.DELETE_ENTITY).asArrayElement().toString())
             .setValue(String.valueOf(index))
             .getContainer();
 
     return div().withClasses(ENUMERATOR_FIELD_CLASSES).with(optionInput, removeOptionBox);
   }
 
-  /** Create an enumerator field template for new entries. These come with a button to delete itself. */
+  /**
+   * Create an enumerator field template for new entries. These come with a button to delete itself.
+   */
   public static Tag newEnumeratorFieldTemplate(Path contextualizedPath) {
     ContainerTag optionInput =
         FieldWithLabel.input()

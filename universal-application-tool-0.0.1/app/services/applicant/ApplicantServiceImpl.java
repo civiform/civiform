@@ -10,6 +10,7 @@ import com.google.common.collect.Sets;
 import java.time.Clock;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -187,13 +188,37 @@ public class ApplicantServiceImpl implements ApplicantService {
     }
   }
 
+  /**
+   * Stage updates for an enumerator.
+   *
+   * @throws PathNotInBlockException for updates that aren't {@link Scalar#ENTITY_NAME}, or {@link
+   *     Scalar#DELETE_ENTITY}.
+   */
   private void stageEnumeratorUpdates(
       ApplicantData applicantData,
       Block block,
       UpdateMetadata updateMetadata,
-      ImmutableSet<Update> updates) {
-    // throws UnsupportedScalarTypeException, PathNotInBlockException {
+      ImmutableSet<Update> updates)
+      throws PathNotInBlockException {
     ImmutableSet<Update> addsAndChanges = validateEnumeratorAddsAndChanges(block, updates);
+    ImmutableSet<Update> deletes =
+        updates.stream()
+            .filter(
+                update ->
+                    update
+                        .path()
+                        .withoutArrayReference()
+                        .equals(Path.empty().join(Scalar.DELETE_ENTITY)))
+            .collect(ImmutableSet.toImmutableSet());
+
+    // If there are more updates than there are adds/changes and deletes, throw
+    Set<Update> unknownUpdates = Sets.difference(updates, Sets.union(addsAndChanges, deletes));
+    if (!unknownUpdates.isEmpty()) {
+      throw new PathNotInBlockException(block.getId(), unknownUpdates.iterator().next().path());
+    }
+
+    // TODO(#952): handle deletes!
+
     for (Update update : addsAndChanges) {
       applicantData.putString(update.path().join(Scalar.ENTITY_NAME), update.value());
       writeMetadataForPath(update.path(), applicantData, updateMetadata);
