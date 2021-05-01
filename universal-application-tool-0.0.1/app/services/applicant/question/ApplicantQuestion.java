@@ -93,11 +93,28 @@ public class ApplicantQuestion {
   }
 
   public Optional<Long> getUpdatedInProgramMetadata() {
-    return applicantData.readLong(getContextualizedPath().join(Scalar.PROGRAM_UPDATED_IN));
+    Path contextualizedMetadataPath = getContextualizedPath().join(Scalar.PROGRAM_UPDATED_IN);
+
+    // Metadata for enumerators is stored for each JSON array element, but we rely on metadata for
+    // the first one.
+    if (questionDefinition.isRepeater()) {
+      contextualizedMetadataPath =
+          getContextualizedPath().atIndex(0).join(Scalar.PROGRAM_UPDATED_IN);
+    }
+
+    return applicantData.readLong(contextualizedMetadataPath);
   }
 
   public Optional<Long> getLastUpdatedTimeMetadata() {
-    return applicantData.readLong(getContextualizedPath().join(Scalar.UPDATED_AT));
+    Path contextualizedMetadataPath = getContextualizedPath().join(Scalar.UPDATED_AT);
+
+    // Metadata for enumerators are stored for each JSON array element, but we rely on metadata for
+    // the first one.
+    if (questionDefinition.isRepeater()) {
+      contextualizedMetadataPath = getContextualizedPath().atIndex(0).join(Scalar.UPDATED_AT);
+    }
+
+    return applicantData.readLong(contextualizedMetadataPath);
   }
 
   public AddressQuestion createAddressQuestion() {

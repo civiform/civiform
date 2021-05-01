@@ -70,6 +70,15 @@ public final class Block {
     return blockDefinition.isRepeater();
   }
 
+  /** Get the enumerator {@link ApplicantQuestion} for this enumerator block. */
+  public ApplicantQuestion getEnumeratorQuestion() {
+    if (isEnumerator()) {
+      return getQuestions().get(0);
+    }
+    throw new RuntimeException(
+        "Only a repeater block can have an enumeration question definition.");
+  }
+
   public ImmutableList<ApplicantQuestion> getQuestions() {
     if (questionsMemo.isEmpty()) {
       this.questionsMemo =

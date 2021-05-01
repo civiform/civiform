@@ -8,14 +8,13 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.time.Clock;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Applicant;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.UserRepository;
 import services.ErrorAnd;
@@ -33,8 +32,6 @@ public class ApplicantServiceImpl implements ApplicantService {
   private final ProgramService programService;
   private final Clock clock;
   private final HttpExecutionContext httpExecutionContext;
-
-  Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Inject
   public ApplicantServiceImpl(
@@ -196,10 +193,48 @@ public class ApplicantServiceImpl implements ApplicantService {
       UpdateMetadata updateMetadata,
       ImmutableSet<Update> updates) {
     // throws UnsupportedScalarTypeException, PathNotInBlockException {
-    logger.error(applicantData.getApplicantName());
-    logger.error(block.getName());
-    logger.error(updates.toString());
-    logger.error(updateMetadata.toString());
+    ImmutableSet<Update> addsAndChanges = validateEnumeratorAddsAndChanges(block, updates);
+    for (Update update : addsAndChanges) {
+      applicantData.putString(update.path().join(Scalar.ENTITY_NAME), update.value());
+      writeMetadataForPath(update.path(), applicantData, updateMetadata);
+    }
+  }
+
+  /**
+   * Validate that the updates to add or change enumerated entity names have the correct paths with
+   * the right indices.
+   */
+  private ImmutableSet<Update> validateEnumeratorAddsAndChanges(
+      Block block, ImmutableSet<Update> updates) {
+    ImmutableSet<Update> entityUpdates =
+        updates.stream()
+            .filter(
+                update ->
+                    update
+                        .path()
+                        .withoutArrayReference()
+                        .equals(
+                            block
+                                .getEnumeratorQuestion()
+                                .getContextualizedPath()
+                                .withoutArrayReference()))
+            .collect(ImmutableSet.toImmutableSet());
+
+    // Early return if it is empty.
+    if (entityUpdates.isEmpty()) {
+      return entityUpdates;
+    }
+
+    // Check that the entity updates have unique and consecutive indices
+    ImmutableSet<Integer> indices =
+        entityUpdates.stream()
+            .map(update -> update.path().arrayIndex())
+            .collect(ImmutableSet.toImmutableSet());
+    assert indices.size() == entityUpdates.size();
+    assert indices.stream().min(Comparator.naturalOrder()).get() == 0;
+    assert indices.stream().max(Comparator.naturalOrder()).get() == entityUpdates.size() - 1;
+
+    return entityUpdates;
   }
 
   /**

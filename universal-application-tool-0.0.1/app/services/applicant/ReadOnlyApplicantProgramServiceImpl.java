@@ -13,6 +13,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   private final ApplicantData applicantData;
   private final ProgramDefinition programDefinition;
+  private ImmutableList<Block> allBlockList;
   private ImmutableList<Block> currentBlockList;
 
   protected ReadOnlyApplicantProgramServiceImpl(
@@ -30,7 +31,10 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public ImmutableList<Block> getAllBlocks() {
-    return getBlocks(false);
+    if (allBlockList == null) {
+      allBlockList = getBlocks(false);
+    }
+    return allBlockList;
   }
 
   @Override
