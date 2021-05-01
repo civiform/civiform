@@ -217,12 +217,18 @@ public class ApplicantServiceImpl implements ApplicantService {
       throw new PathNotInBlockException(block.getId(), unknownUpdates.iterator().next().path());
     }
 
-    // TODO(#952): handle deletes!
-
     for (Update update : addsAndChanges) {
       applicantData.putString(update.path().join(Scalar.ENTITY_NAME), update.value());
       writeMetadataForPath(update.path(), applicantData, updateMetadata);
     }
+
+    ImmutableList<Integer> deleteIndices =
+        deletes.stream()
+            .map(Update::value)
+            .map(Integer::valueOf)
+            .collect(ImmutableList.toImmutableList());
+    applicantData.deleteRepeatedEntity(
+        block.getEnumeratorQuestion().getContextualizedPath(), deleteIndices);
   }
 
   /**

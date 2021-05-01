@@ -426,6 +426,30 @@ public class ApplicantDataTest {
   }
 
   @Test
+  public void deleteRepeatedEntity_indexTooBig_doesntDeleteAnything() {
+    ApplicantData data = new ApplicantData();
+    Path path = Path.create("entities[]");
+    data.putRepeatedEntities(path, ImmutableList.of("a", "b", "c"));
+
+    assertThat(data.deleteRepeatedEntity(path, ImmutableList.of(1, 2, 3, 4, 5))).isFalse();
+
+    ImmutableList<String> remaining = data.readRepeatedEntities(path);
+    assertThat(remaining).containsExactly("a", "b", "c");
+  }
+
+  @Test
+  public void deleteRepeatedEntity() {
+    ApplicantData data = new ApplicantData();
+    Path path = Path.create("entities[]");
+    data.putRepeatedEntities(path, ImmutableList.of("a", "b", "c", "d", "e"));
+
+    data.deleteRepeatedEntity(path, ImmutableList.of(0, 2, 4));
+
+    ImmutableList<String> remaining = data.readRepeatedEntities(path);
+    assertThat(remaining).containsExactly("b", "d");
+  }
+
+  @Test
   public void locked_makesApplicantDataImmutable() {
     ApplicantData data = new ApplicantData();
     // Can mutate before ApplicantData is locked.

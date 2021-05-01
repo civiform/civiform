@@ -9,6 +9,7 @@ import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.TypeRef;
 import com.jayway.jsonpath.spi.mapper.MappingException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -372,6 +373,32 @@ public class ApplicantData {
     }
 
     return readString(path);
+  }
+
+  /**
+   * Delete the ENTIRE repeated entity for each entity specified by the path to an array element and
+   * list of indices.
+   */
+  public boolean deleteRepeatedEntity(Path path, ImmutableList<Integer> indices) {
+    checkLocked();
+    ImmutableList<Integer> reverseSortedIndices =
+        indices.stream()
+            .sorted(Collections.reverseOrder())
+            .collect(ImmutableList.toImmutableList());
+
+    // Make sure there are enough things to delete by checking the first index in the reverse sorted
+    // list
+    if (!hasPath(path.atIndex(reverseSortedIndices.get(0)))) {
+      return false;
+    }
+
+    // Delete in reverse sorted order because deletion is index based, and indices would need to be
+    // decremented
+    // for each deletion if it wasn't reverse sorted.
+    for (int index : reverseSortedIndices) {
+      jsonData.delete(path.atIndex(index).toString());
+    }
+    return true;
   }
 
   /** Returns true if the value at the path is a JSON array of longs, and false otherwise. */
