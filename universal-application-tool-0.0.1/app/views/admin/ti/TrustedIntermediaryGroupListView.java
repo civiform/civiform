@@ -99,7 +99,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
 
   private Tag renderGroupRow(TrustedIntermediaryGroup ti, Http.Request request) {
     return tr().withClasses(
-            ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
+            ReferenceClasses.ADMIN_TI_GROUP_ROW,
             Styles.BORDER_B,
             Styles.BORDER_GRAY_300,
             StyleUtils.even(Styles.BG_GRAY_100))
