@@ -67,7 +67,8 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
         .withType("button");
   }
 
-  public Tag existingEnumeratorField(Optional<String> existingOption, int index) {
+  /** Crete an enumerator field for existing entries. These come with a checkbox to delete during form submission. */
+  private Tag existingEnumeratorField(Optional<String> existingOption, int index) {
     ContainerTag optionInput =
         FieldWithLabel.input()
             .setFieldName(question.getContextualizedPath().toString())
@@ -83,6 +84,7 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
     return div().withClasses(ENUMERATOR_FIELD_CLASSES).with(optionInput, removeOptionBox);
   }
 
+  /** Create an enumerator field template for new entries. These come with a button to delete itself. */
   public static Tag newEnumeratorFieldTemplate(Path contextualizedPath) {
     ContainerTag optionInput =
         FieldWithLabel.input()

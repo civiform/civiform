@@ -66,6 +66,7 @@ public final class Block {
     return blockDefinition.description();
   }
 
+  /** This block is an enumerator block if its {@link BlockDefinition} is an enumerator. */
   public boolean isEnumerator() {
     return blockDefinition.isRepeater();
   }

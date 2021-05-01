@@ -47,6 +47,7 @@ public class RepeaterQuestion implements PresentsErrors {
         .hasPath(applicantQuestion.getContextualizedPath().atIndex(0).join(Scalar.ENTITY_NAME));
   }
 
+  /** Return the repeated entity names associated with this enumerator question. */
   public ImmutableList<String> getEntityNames() {
     return applicantQuestion
         .getApplicantData()
