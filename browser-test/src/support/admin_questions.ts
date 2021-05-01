@@ -19,12 +19,14 @@ export class AdminQuestions {
   async fillInQuestionBasics(questionName: string,
     description: string,
     questionText: string,
-    helpText: string) {
+    helpText: string,
+    enumeratorName: string) {
     // This function should only be called on question create/edit page.
     await this.page.fill('text="Name"', questionName);
     await this.page.fill('text=Description', description);
     await this.page.fill('text=Question Text', questionText);
     await this.page.fill('text=Question help text', helpText);
+    await this.page.selectOption('#question-enumeration-select', { label: enumeratorName });
   }
 
   async updateQuestionText(updateText: string) {
@@ -146,13 +148,14 @@ export class AdminQuestions {
   async addAddressQuestion(questionName: string,
     description = 'address description',
     questionText = 'address question text',
-    helpText = 'address question help text') {
+    helpText = 'address question help text',
+    enumeratorName = 'does not repeat') {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-address-question');
 
-    await this.fillInQuestionBasics(questionName, description, questionText, helpText);
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
     await this.page.click('text=Create');
 
@@ -165,13 +168,14 @@ export class AdminQuestions {
     options: Array<string>,
     description = 'checkbox description',
     questionText = 'checkbox question text',
-    helpText = 'checkbox question help text') {
+    helpText = 'checkbox question help text',
+    enumeratorName = 'does not repeat') {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-checkbox-question');
 
-    await this.fillInQuestionBasics(questionName, description, questionText, helpText);
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
     for (var index in options) {
       await this.page.click('#add-new-option');
@@ -189,13 +193,14 @@ export class AdminQuestions {
     options: Array<string>,
     description = 'dropdown description',
     questionText = 'dropdown question text',
-    helpText = 'dropdown question help text') {
+    helpText = 'dropdown question help text',
+    enumeratorName = 'does not repeat') {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-dropdown-question');
 
-    await this.fillInQuestionBasics(questionName, description, questionText, helpText);
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
     for (var index in options) {
       await this.page.click('#add-new-option');
@@ -212,13 +217,14 @@ export class AdminQuestions {
   async addFileUploadQuestion(questionName: string,
     description = 'fileupload description',
     questionText = 'fileupload question text',
-    helpText = 'fileupload question help text') {
+    helpText = 'fileupload question help text',
+    enumeratorName = 'does not repeat') {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-fileupload-question');
 
-    await this.fillInQuestionBasics(questionName, description, questionText, helpText);
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
     await this.page.click('text=Create');
 
@@ -230,13 +236,14 @@ export class AdminQuestions {
   async addNameQuestion(questionName: string,
     description = 'name description',
     questionText = 'name question text',
-    helpText = 'name question help text') {
+    helpText = 'name question help text',
+    enumeratorName = 'does not repeat') {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-name-question');
 
-    await this.fillInQuestionBasics(questionName, description, questionText, helpText);
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
     await this.page.click('text=Create');
 
@@ -248,13 +255,14 @@ export class AdminQuestions {
   async addNumberQuestion(questionName: string,
     description = 'number description',
     questionText = 'number question text',
-    helpText = 'number question help text') {
+    helpText = 'number question help text',
+    enumeratorName = 'does not repeat') {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-number-question');
 
-    await this.fillInQuestionBasics(questionName, description, questionText, helpText);
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
     await this.page.click('text=Create');
 
@@ -267,13 +275,14 @@ export class AdminQuestions {
     options: Array<string>,
     description = 'radio button description',
     questionText = 'radio button question text',
-    helpText = 'radio button question help text') {
+    helpText = 'radio button question help text',
+    enumeratorName = 'does not repeat') {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-radio_button-question');
 
-    await this.fillInQuestionBasics(questionName, description, questionText, helpText);
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
     for (var index in options) {
       await this.page.click('#add-new-option')
@@ -290,13 +299,14 @@ export class AdminQuestions {
   async addTextQuestion(questionName: string,
     description = 'text description',
     questionText = 'text question text',
-    helpText = 'text question help text') {
+    helpText = 'text question help text',
+    enumeratorName = 'does not repeat') {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-text-question');
 
-    await this.fillInQuestionBasics(questionName, description, questionText, helpText);
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
     await this.page.click('text=Create');
 
@@ -305,37 +315,19 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
-  async addRepeaterQuestion(questionName: string,
-    description = 'repeater description',
-    questionText = 'repeater question text',
-    helpText = 'repeater question help text') {
+  async addEnumeratorQuestion(questionName: string,
+    description = 'enumerator description',
+    questionText = 'enumerator question text',
+    helpText = 'enumerator question help text',
+    enumeratorName = 'does not repeat') {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-repeater-question');
 
-    await this.fillInQuestionBasics(questionName, description, questionText, helpText);
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-    await this.page.click('text=Create');
-
-    await this.expectAdminQuestionsPage();
-
-    await this.expectDraftQuestionExist(questionName, questionText);
-  }
-
-  async addRepeatedQuestion(questionName: string,
-    repeaterName: string,
-    description = 'repeated description',
-    questionText = 'repeated question text',
-    helpText = 'repeated question help text') {
-    await this.gotoAdminQuestionsPage();
-    await this.page.click('#create-question-button');
-
-    await this.page.click('#create-text-question');
-
-    await this.fillInQuestionBasics(questionName, description, questionText, helpText);
-
-    await this.page.selectOption('#question-enumeration-select', { label: repeaterName });
+    await this.page.selectOption('#question-enumeration-select', { label: enumeratorName });
 
     await this.page.click('text=Create');
 
