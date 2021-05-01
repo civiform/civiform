@@ -381,6 +381,12 @@ public class ApplicantData {
    */
   public boolean deleteRepeatedEntity(Path path, ImmutableList<Integer> indices) {
     checkLocked();
+
+    /** Early return if there's nothing to delete */
+    if (indices.isEmpty()) {
+      return false;
+    }
+
     ImmutableList<Integer> reverseSortedIndices =
         indices.stream()
             .sorted(Collections.reverseOrder())
