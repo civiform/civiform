@@ -115,6 +115,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
               contextualizedPath);
       boolean includeAllBlocks = !onlyIncludeInProgressBlocks;
       if (includeAllBlocks
+          || block.isEnumerator() // always include enumerator blocks
           || !block.isCompleteWithoutErrors()
           || block.wasCompletedInProgram(programDefinition.id())) {
         blockListBuilder.add(block);

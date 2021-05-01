@@ -17,6 +17,8 @@ public interface ReadOnlyApplicantProgramService {
   /**
    * Get the {@link Block}s this applicant needs to fill out or has filled out for this program.
    *
+   * <p>All blocks where {@link Block#isEnumerator()} are <b>always</b> in-progress.
+   *
    * <p>This list includes any block that is incomplete or has errors (which indicate the applicant
    * needs to make a correction), or any block that was completed while filling out this program
    * form.
