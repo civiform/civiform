@@ -312,10 +312,11 @@ public class ApplicantData {
    *     repeated entities at path.
    */
   public ImmutableList<String> readRepeatedEntities(Path path) {
+    logger.error(asJsonString());
     int index = 0;
     ImmutableList.Builder<String> listBuilder = ImmutableList.builder();
     while (hasPath(path.atIndex(index))) {
-      listBuilder.add(readString(path.atIndex(index).join(Scalar.ENTITY_NAME)).get());
+      listBuilder.add(readString(path.atIndex(index).join(Scalar.ENTITY_NAME)).orElse(""));
       index++;
     }
     return listBuilder.build();

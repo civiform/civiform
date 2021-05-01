@@ -64,8 +64,9 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
                     Styles.MB_2)
                 .withText(question.getQuestionHelpText()),
             enumeratorFields,
-            button(ADD_ELEMENT_BUTTON_ID, messages.at("button.addEnumeratorEntity")))
-        .withType("button");
+            button(ADD_ELEMENT_BUTTON_ID, messages.at("button.addEnumeratorEntity"))
+                .withType("button"),
+            fieldErrors(enumeratorQuestion.getQuestionErrors()));
   }
 
   /**

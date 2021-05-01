@@ -16,6 +16,8 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Applicant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.UserRepository;
 import services.ErrorAnd;
@@ -28,6 +30,8 @@ import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
 
 public class ApplicantServiceImpl implements ApplicantService {
+
+  Logger logger = LoggerFactory.getLogger(this.getClass());
 
   private final UserRepository userRepository;
   private final ProgramService programService;

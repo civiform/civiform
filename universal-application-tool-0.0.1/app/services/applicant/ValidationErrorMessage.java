@@ -22,6 +22,8 @@ public abstract class ValidationErrorMessage {
   public static String INVALID_ZIP = "Please enter valid 5-digit ZIP code.";
   public static String NO_PO_BOX = "Please enter a valid address. We do not accept PO Boxes.";
 
+  public static String ENTITY_NAME_REQUIRED = "Please enter a value for each entity.";
+
   public abstract String message();
 
   // TODO: Ability to get message for a given locale. Probably requires taking in a map from locale
