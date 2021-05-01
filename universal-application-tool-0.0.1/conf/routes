@@ -49,8 +49,12 @@ GET     /admin/questions/:id/translations/:locale/edit  controllers.admin.AdminQ
 POST    /admin/questions/:id/translations/:locale       controllers.admin.AdminQuestionTranslationsController.update(request: Request, id: Long, locale: String)
 
 # Trusted Intermediary routes
-GET     /admin/tis               controllers.admin.TrustedIntermediaryManagementController.index(request: Request)
-POST    /admin/tis/new           controllers.admin.TrustedIntermediaryManagementController.create(request: Request)
+GET     /admin/tis                    controllers.admin.TrustedIntermediaryManagementController.index(request: Request)
+POST    /admin/tis/new                controllers.admin.TrustedIntermediaryManagementController.create(request: Request)
+POST    /admin/tis/:id/delete         controllers.admin.TrustedIntermediaryManagementController.delete(id: Long, request: Request)
+GET     /admin/tis/:id/edit           controllers.admin.TrustedIntermediaryManagementController.edit(id: Long, request: Request)
+POST    /admin/tis/:id/addTi          controllers.admin.TrustedIntermediaryManagementController.addIntermediary(id: Long, request: Request)
+POST    /admin/tis/:id/removeTi/:tiId controllers.admin.TrustedIntermediaryManagementController.removeIntermediary(id: Long, tiId: Long)
 
 # Controller for admins only, related to applications
 GET     /admin/programs/:programId/applications                           controllers.admin.AdminApplicationController.answerList(programId: Long)

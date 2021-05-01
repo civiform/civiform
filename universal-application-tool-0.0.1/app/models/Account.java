@@ -4,6 +4,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import java.util.Comparator;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -57,5 +58,12 @@ public class Account extends BaseModel {
 
   public Optional<TrustedIntermediaryGroup> getManagedByGroup() {
     return Optional.fromNullable(this.managedByGroup);
+  }
+
+  public String getApplicantName() {
+    return this.getApplicants().stream()
+        .max(Comparator.comparing(Applicant::getWhenCreated))
+        .map(u -> u.getApplicantData().getApplicantName())
+        .orElse("<Unnamed User>");
   }
 }

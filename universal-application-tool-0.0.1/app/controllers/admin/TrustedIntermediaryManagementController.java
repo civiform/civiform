@@ -2,8 +2,11 @@ package controllers.admin;
 
 import auth.Authorizers;
 import com.google.common.base.Strings;
+import forms.AddTrustedIntermediaryForm;
 import forms.CreateTrustedIntermediaryGroupForm;
+import java.util.Optional;
 import javax.inject.Inject;
+import models.TrustedIntermediaryGroup;
 import org.pac4j.play.java.Secure;
 import org.slf4j.LoggerFactory;
 import play.data.Form;
@@ -12,21 +15,27 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.UserRepository;
+import services.ti.NoSuchTrustedIntermediaryError;
+import services.ti.NoSuchTrustedIntermediaryGroupError;
+import views.admin.ti.EditTrustedIntermediaryGroupView;
 import views.admin.ti.TrustedIntermediaryGroupListView;
 
 public class TrustedIntermediaryManagementController extends Controller {
   private final TrustedIntermediaryGroupListView listView;
   private final UserRepository userRepository;
   private final FormFactory formFactory;
+  private final EditTrustedIntermediaryGroupView editView;
 
   @Inject
   public TrustedIntermediaryManagementController(
       TrustedIntermediaryGroupListView listView,
+      EditTrustedIntermediaryGroupView editView,
       UserRepository userRepository,
       FormFactory formFactory) {
     this.listView = listView;
     this.userRepository = userRepository;
     this.formFactory = formFactory;
+    this.editView = editView;
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
@@ -41,13 +50,13 @@ public class TrustedIntermediaryManagementController extends Controller {
     Form<CreateTrustedIntermediaryGroupForm> form =
         formFactory.form(CreateTrustedIntermediaryGroupForm.class).bindFromRequest(request);
     if (form.hasErrors()) {
-      return flashFieldValuesWithError(form.errors().get(0).toString(), form);
+      return flashCreateTIFieldValuesWithError(form.errors().get(0).toString(), form);
     }
     if (Strings.isNullOrEmpty(form.get().getName())) {
-      return flashFieldValuesWithError("Must provide group name.", form);
+      return flashCreateTIFieldValuesWithError("Must provide group name.", form);
     }
     if (Strings.isNullOrEmpty(form.get().getDescription())) {
-      return flashFieldValuesWithError("Must provide group description.", form);
+      return flashCreateTIFieldValuesWithError("Must provide group description.", form);
     }
     userRepository.createNewTrustedIntermediaryGroup(
         form.get().getName(), form.get().getDescription());
@@ -55,7 +64,7 @@ public class TrustedIntermediaryManagementController extends Controller {
     return redirect(routes.TrustedIntermediaryManagementController.index());
   }
 
-  private Result flashFieldValuesWithError(
+  private Result flashCreateTIFieldValuesWithError(
       String error, Form<CreateTrustedIntermediaryGroupForm> form) {
     Result result =
         redirect(routes.TrustedIntermediaryManagementController.index()).flashing("error", error);
@@ -64,5 +73,65 @@ public class TrustedIntermediaryManagementController extends Controller {
       result = result.flashing("providedDescription", form.value().get().getDescription());
     }
     return result;
+  }
+
+  private Result flashAddTIFieldValuesWithError(
+      String error, Form<AddTrustedIntermediaryForm> form, long id) {
+    Result result =
+        redirect(routes.TrustedIntermediaryManagementController.edit(id)).flashing("error", error);
+    if (form.value().isPresent()) {
+      result = result.flashing("providedEmailAddress", form.value().get().getEmailAddress());
+    }
+    return result;
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public Result edit(long id, Http.Request request) {
+    Optional<TrustedIntermediaryGroup> tiGroup = userRepository.getTrustedIntermediaryGroup(id);
+    if (tiGroup.isEmpty()) {
+      return notFound("no such group.");
+    }
+    return ok(editView.render(tiGroup.get(), request));
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public Result delete(long id, Http.Request request) {
+    try {
+      userRepository.deleteTrustedIntermediaryGroup(id);
+    } catch (NoSuchTrustedIntermediaryGroupError e) {
+      return notFound("no such group");
+    }
+    return redirect(routes.TrustedIntermediaryManagementController.index());
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public Result addIntermediary(long id, Http.Request request) {
+    Form<AddTrustedIntermediaryForm> form =
+        formFactory.form(AddTrustedIntermediaryForm.class).bindFromRequest(request);
+    if (form.hasErrors()) {
+      return flashAddTIFieldValuesWithError(form.errors().get(0).toString(), form, id);
+    }
+    try {
+      userRepository.addTrustedIntermediaryToGroup(id, form.get().getEmailAddress());
+    } catch (NoSuchTrustedIntermediaryGroupError e) {
+      return flashAddTIFieldValuesWithError("No such TI group.", form, id);
+    }
+
+    return redirect(routes.TrustedIntermediaryManagementController.edit(id));
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public Result removeIntermediary(long id, long accountId) {
+    try {
+      userRepository.removeTrustedIntermediaryFromGroup(id, accountId);
+    } catch (NoSuchTrustedIntermediaryGroupError e) {
+      return redirect(routes.TrustedIntermediaryManagementController.edit(id))
+          .flashing("error", "No such TI group.");
+    } catch (NoSuchTrustedIntermediaryError e) {
+      return redirect(routes.TrustedIntermediaryManagementController.edit(id))
+          .flashing("error", "No such TI.");
+    }
+
+    return redirect(routes.TrustedIntermediaryManagementController.edit(id));
   }
 }
