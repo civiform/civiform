@@ -34,6 +34,8 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
   private final ApplicantData applicantData = new ApplicantData();
   private final Messages messages =
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
+  private final ApplicantQuestionRendererParams params =
+      ApplicantQuestionRendererParams.sample(messages);
 
   private ApplicantQuestion question;
   private TextQuestionRenderer renderer;
@@ -48,7 +50,7 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
 
   @Test
   public void render_withoutQuestionErrors() {
-    Tag result = renderer.render(messages);
+    Tag result = renderer.render(params);
 
     assertThat(result.render()).doesNotContain("Must contain at");
   }
@@ -57,7 +59,7 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
   public void render_withMinLengthError() {
     QuestionAnswerer.answerTextQuestion(applicantData, question.getContextualizedPath(), "a");
 
-    Tag result = renderer.render(messages);
+    Tag result = renderer.render(params);
 
     assertThat(result.render()).contains("Must contain at least 2 characters.");
   }
@@ -66,7 +68,7 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
   public void render_withMaxLengthError() {
     QuestionAnswerer.answerTextQuestion(applicantData, question.getContextualizedPath(), "abcd");
 
-    Tag result = renderer.render(messages);
+    Tag result = renderer.render(params);
 
     assertThat(result.render()).contains("Must contain at most 3 characters.");
   }
