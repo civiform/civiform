@@ -59,7 +59,8 @@ describe('End to end enumerator test', () => {
     await endSession(browser);
   });
 
-  it('Applicant can fill in lots of blocks', async () => {
+
+  it('Applicant can fill in lots of blocks, and then go back and delete some repeated entities', async () => {
     const { browser, page } = await startSession();
     await loginAsGuest(page);
     await selectApplicantLanguage(page, 'English');
@@ -98,6 +99,19 @@ describe('End to end enumerator test', () => {
     await applicantQuestions.saveAndContinue();
     await applicantQuestions.answerTextQuestion("world");
     await applicantQuestions.saveAndContinue();
+
+    // Go back and delete some stuff
+    await applicantQuestions.applyProgram(programName);
+    expect(await page.innerHTML("#enumerator-fields")).toContain("first");
+    expect(await page.innerHTML("#enumerator-fields")).toContain("second");
+    await applicantQuestions.selectEnumeratorAnswerForDelete("first");
+    await applicantQuestions.selectEnumeratorAnswerForDelete("second");
+    await applicantQuestions.saveAndContinue();
+
+    // Go back and see that it is empty
+    await applicantQuestions.applyProgram(programName);
+    expect(await page.innerHTML("#enumerator-fields")).not.toContain("first");
+    expect(await page.innerHTML("#enumerator-fields")).not.toContain("second");
 
     await endSession(browser);
   });

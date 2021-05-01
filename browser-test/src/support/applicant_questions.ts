@@ -51,6 +51,10 @@ export class ApplicantQuestions {
     await this.page.fill('input:above(#enumerator-field-add-button)', entityName)
   }
 
+  async selectEnumeratorAnswerForDelete(entityName: string) {
+    await this.page.check(`.enumerator-field:has(input[value=${entityName}]) input[type=checkbox]`);
+  }
+
   async applyProgram(programName: string) {
     await this.page.click(`.cf-application-card:has-text("${programName}") .apply-button`);
   }
