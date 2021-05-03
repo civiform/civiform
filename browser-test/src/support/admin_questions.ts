@@ -3,6 +3,8 @@ import { Page } from 'playwright'
 export class AdminQuestions {
   public page!: Page
 
+  static readonly DOES_NOT_REPEAT_OPTION = 'does not repeat';
+
   constructor(page: Page) {
     this.page = page
   }
@@ -20,7 +22,7 @@ export class AdminQuestions {
     description: string,
     questionText: string,
     helpText: string,
-    enumeratorName: string) {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     // This function should only be called on question create/edit page.
     await this.page.fill('text="Name"', questionName);
     await this.page.fill('text=Description', description);
@@ -149,7 +151,7 @@ export class AdminQuestions {
     description = 'address description',
     questionText = 'address question text',
     helpText = 'address question help text',
-    enumeratorName = 'does not repeat') {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
 
@@ -169,7 +171,7 @@ export class AdminQuestions {
     description = 'checkbox description',
     questionText = 'checkbox question text',
     helpText = 'checkbox question help text',
-    enumeratorName = 'does not repeat') {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
 
@@ -194,7 +196,7 @@ export class AdminQuestions {
     description = 'dropdown description',
     questionText = 'dropdown question text',
     helpText = 'dropdown question help text',
-    enumeratorName = 'does not repeat') {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
 
@@ -218,7 +220,7 @@ export class AdminQuestions {
     description = 'fileupload description',
     questionText = 'fileupload question text',
     helpText = 'fileupload question help text',
-    enumeratorName = 'does not repeat') {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
 
@@ -237,7 +239,7 @@ export class AdminQuestions {
     description = 'name description',
     questionText = 'name question text',
     helpText = 'name question help text',
-    enumeratorName = 'does not repeat') {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
 
@@ -256,7 +258,7 @@ export class AdminQuestions {
     description = 'number description',
     questionText = 'number question text',
     helpText = 'number question help text',
-    enumeratorName = 'does not repeat') {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
 
@@ -276,7 +278,7 @@ export class AdminQuestions {
     description = 'radio button description',
     questionText = 'radio button question text',
     helpText = 'radio button question help text',
-    enumeratorName = 'does not repeat') {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
 
@@ -300,7 +302,7 @@ export class AdminQuestions {
     description = 'text description',
     questionText = 'text question text',
     helpText = 'text question help text',
-    enumeratorName = 'does not repeat') {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
 
@@ -322,7 +324,7 @@ export class AdminQuestions {
     description = 'enumerator description',
     questionText = 'enumerator question text',
     helpText = 'enumerator question help text',
-    enumeratorName = 'does not repeat') {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
 
