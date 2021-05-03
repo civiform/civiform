@@ -339,7 +339,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   private void answerAddressQuestion(long programId) {
     Path path = Path.create("applicant.applicant_address");
     QuestionAnswerer.answerAddressQuestion(
-        applicantData, path, "123 Rhode St.", "Seattle", "WA", "12345");
+        applicantData, path, "123 Rhode St.", "", "Seattle", "WA", "12345");
     QuestionAnswerer.addMetadata(applicantData, path, programId, 12345L);
   }
 }

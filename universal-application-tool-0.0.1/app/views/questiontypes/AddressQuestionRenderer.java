@@ -21,7 +21,8 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
   }
 
   @Override
-  public Tag render(Messages messages) {
+  public Tag render(ApplicantQuestionRendererParams params) {
+    Messages messages = params.messages();
     AddressQuestion addressQuestion = question.createAddressQuestion();
 
     return div()

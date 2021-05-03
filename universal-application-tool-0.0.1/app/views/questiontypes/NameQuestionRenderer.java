@@ -21,7 +21,8 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
   }
 
   @Override
-  public Tag render(Messages messages) {
+  public Tag render(ApplicantQuestionRendererParams params) {
+    Messages messages = params.messages();
     NameQuestion nameQuestion = question.createNameQuestion();
 
     return div()
