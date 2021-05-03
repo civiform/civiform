@@ -6,9 +6,9 @@ import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
-import services.question.types.QuestionDefinition;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.question.types.QuestionDefinition;
 
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
 
