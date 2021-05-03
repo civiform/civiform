@@ -184,6 +184,11 @@ public class UserRepository {
     return ebeanServer.find(TrustedIntermediaryGroup.class).setId(id).findOneOrEmpty();
   }
 
+  /**
+   * Adds the given email address to the TI group. If the email address does not correspond to an
+   * existing account, then create an account and associate it, so it will be ready when the TI
+   * signs in for the first time.
+   */
   public void addTrustedIntermediaryToGroup(long id, String emailAddress)
       throws NoSuchTrustedIntermediaryGroupError {
     Optional<TrustedIntermediaryGroup> tiGroup = getTrustedIntermediaryGroup(id);
