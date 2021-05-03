@@ -11,7 +11,7 @@ public class RepeaterQuestion implements PresentsErrors {
   private final ApplicantQuestion applicantQuestion;
 
   // TODO(#859): make this admin-configurable
-  private final String PLACEHOLDER = "placeholder";
+  private final String PLACEHOLDER = "";
 
   public RepeaterQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
