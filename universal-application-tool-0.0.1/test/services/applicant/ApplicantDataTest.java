@@ -426,24 +426,24 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void deleteRepeatedEntity_indexTooBig_doesntDeleteAnything() {
+  public void deleteRepeatedEntities_indexTooBig_doesNotDeleteAnything() {
     ApplicantData data = new ApplicantData();
     Path path = Path.create("entities[]");
     data.putRepeatedEntities(path, ImmutableList.of("a", "b", "c"));
 
-    assertThat(data.deleteRepeatedEntity(path, ImmutableList.of(1, 2, 3, 4, 5))).isFalse();
+    assertThat(data.deleteRepeatedEntities(path, ImmutableList.of(1, 2, 3, 4, 5))).isFalse();
 
     ImmutableList<String> remaining = data.readRepeatedEntities(path);
     assertThat(remaining).containsExactly("a", "b", "c");
   }
 
   @Test
-  public void deleteRepeatedEntity() {
+  public void deleteRepeatedEntities() {
     ApplicantData data = new ApplicantData();
     Path path = Path.create("entities[]");
     data.putRepeatedEntities(path, ImmutableList.of("a", "b", "c", "d", "e"));
 
-    data.deleteRepeatedEntity(path, ImmutableList.of(0, 2, 4));
+    assertThat(data.deleteRepeatedEntities(path, ImmutableList.of(0, 2, 4))).isTrue();
 
     ImmutableList<String> remaining = data.readRepeatedEntities(path);
     assertThat(remaining).containsExactly("b", "d");

@@ -227,7 +227,7 @@ public class ApplicantServiceImpl implements ApplicantService {
             .map(Update::value)
             .map(Integer::valueOf)
             .collect(ImmutableList.toImmutableList());
-    applicantData.deleteRepeatedEntity(
+    applicantData.deleteRepeatedEntities(
         block.getEnumeratorQuestion().getContextualizedPath(), deleteIndices);
   }
 

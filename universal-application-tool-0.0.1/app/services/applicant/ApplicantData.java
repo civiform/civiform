@@ -379,7 +379,7 @@ public class ApplicantData {
    * Delete the ENTIRE repeated entity for each entity specified by the path to an array element and
    * list of indices.
    */
-  public boolean deleteRepeatedEntity(Path path, ImmutableList<Integer> indices) {
+  public boolean deleteRepeatedEntities(Path path, ImmutableList<Integer> indices) {
     checkLocked();
 
     /** Early return if there's nothing to delete */
