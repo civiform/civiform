@@ -16,7 +16,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-
 import play.i18n.Messages;
 import play.mvc.Http;
 import services.applicant.ValidationErrorMessage;
@@ -36,7 +35,8 @@ public abstract class BaseHtmlView {
     return h1(headerText).withClasses(Styles.M_2, StyleUtils.joinStyles(additionalClasses));
   }
 
-  protected static ContainerTag fieldErrors(Messages messages, ImmutableSet<ValidationErrorMessage> errors) {
+  protected static ContainerTag fieldErrors(
+      Messages messages, ImmutableSet<ValidationErrorMessage> errors) {
     return div(each(errors, error -> span(error.getMessage(messages))));
   }
 

@@ -51,6 +51,8 @@ public class DropdownQuestionRenderer extends BaseHtmlView implements ApplicantQ
                                 .condAttr(
                                     singleSelectQuestion.optionIsSelected(option),
                                     Attr.SELECTED,
-                                    "selected"))));
+                                    "selected"))),
+            fieldErrors(messages, singleSelectQuestion.getQuestionErrors())
+                .withClasses(Styles.ML_2, Styles.TEXT_XS, Styles.TEXT_RED_600, Styles.FONT_BOLD));
   }
 }
