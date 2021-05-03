@@ -8,6 +8,7 @@ import static j2html.TagCreator.input;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import play.filters.csrf.CSRF;
@@ -76,6 +77,11 @@ public class LinkElement {
   }
 
   public ContainerTag asHiddenForm(Http.Request request) {
+    return this.asHiddenForm(request, ImmutableMap.of());
+  }
+
+  public ContainerTag asHiddenForm(
+      Http.Request request, ImmutableMap<String, String> hiddenFormValues) {
     Preconditions.checkNotNull(href);
     Option<CSRF.Token> csrfTokenMaybe = CSRF.getToken(request.asScala());
     String csrfToken = "";
@@ -83,13 +89,18 @@ public class LinkElement {
       csrfToken = csrfTokenMaybe.get().value();
     }
 
-    return form(
-            input().isHidden().withValue(csrfToken).withName("csrfToken"),
-            button(TagCreator.text(text))
-                .withClasses(DEFAULT_LINK_BUTTON_STYLES)
-                .withType("submit"))
-        .withMethod("POST")
-        .withAction(href)
-        .withCondId(!Strings.isNullOrEmpty(id), id);
+    ContainerTag form =
+        form(
+                input().isHidden().withValue(csrfToken).withName("csrfToken"),
+                button(TagCreator.text(text))
+                    .withClasses(DEFAULT_LINK_BUTTON_STYLES)
+                    .withType("submit"))
+            .withMethod("POST")
+            .withAction(href)
+            .withCondId(!Strings.isNullOrEmpty(id), id);
+    hiddenFormValues.entrySet().stream()
+        .map(entry -> input().isHidden().withName(entry.getKey()).withValue(entry.getValue()))
+        .forEach(tag -> form.with(tag));
+    return form;
   }
 }

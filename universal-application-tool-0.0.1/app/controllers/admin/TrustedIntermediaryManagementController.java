@@ -1,9 +1,11 @@
 package controllers.admin;
 
 import auth.Authorizers;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import forms.AddTrustedIntermediaryForm;
 import forms.CreateTrustedIntermediaryGroupForm;
+import forms.RemoveTrustedIntermediaryForm;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.TrustedIntermediaryGroup;
@@ -32,10 +34,10 @@ public class TrustedIntermediaryManagementController extends Controller {
       EditTrustedIntermediaryGroupView editView,
       UserRepository userRepository,
       FormFactory formFactory) {
-    this.listView = listView;
-    this.userRepository = userRepository;
-    this.formFactory = formFactory;
-    this.editView = editView;
+    this.listView = Preconditions.checkNotNull(listView);
+    this.userRepository = Preconditions.checkNotNull(userRepository);
+    this.formFactory = Preconditions.checkNotNull(formFactory);
+    this.editView = Preconditions.checkNotNull(editView);
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
@@ -121,9 +123,11 @@ public class TrustedIntermediaryManagementController extends Controller {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public Result removeIntermediary(long id, long accountId) {
+  public Result removeIntermediary(long id, Http.Request request) {
     try {
-      userRepository.removeTrustedIntermediaryFromGroup(id, accountId);
+      Form<RemoveTrustedIntermediaryForm> form =
+          formFactory.form(RemoveTrustedIntermediaryForm.class).bindFromRequest(request);
+      userRepository.removeTrustedIntermediaryFromGroup(id, form.get().getAccountId());
     } catch (NoSuchTrustedIntermediaryGroupError e) {
       return redirect(routes.TrustedIntermediaryManagementController.edit(id))
           .flashing("error", "No such TI group.");

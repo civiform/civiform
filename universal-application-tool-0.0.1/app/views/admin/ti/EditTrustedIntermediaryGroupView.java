@@ -10,6 +10,7 @@ import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
@@ -109,10 +110,8 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
         .setText("Delete")
         .setId("delete-" + account.id + "-button")
         .setHref(
-            routes.TrustedIntermediaryManagementController.removeIntermediary(
-                    tiGroup.id, account.id)
-                .url())
-        .asHiddenForm(request);
+            routes.TrustedIntermediaryManagementController.removeIntermediary(tiGroup.id).url())
+        .asHiddenForm(request, ImmutableMap.of("accountId", account.id.toString()));
   }
 
   private Tag renderGroupTableHeader() {

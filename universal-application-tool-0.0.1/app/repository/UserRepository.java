@@ -173,8 +173,7 @@ public class UserRepository {
   }
 
   public void deleteTrustedIntermediaryGroup(long id) throws NoSuchTrustedIntermediaryGroupError {
-    Optional<TrustedIntermediaryGroup> tiGroup =
-        ebeanServer.find(TrustedIntermediaryGroup.class).setId(id).findOneOrEmpty();
+    Optional<TrustedIntermediaryGroup> tiGroup = getTrustedIntermediaryGroup(id);
     if (tiGroup.isEmpty()) {
       throw new NoSuchTrustedIntermediaryGroupError();
     }
@@ -210,8 +209,7 @@ public class UserRepository {
     if (tiGroup.isEmpty()) {
       throw new NoSuchTrustedIntermediaryGroupError();
     }
-    Optional<Account> accountMaybe =
-        ebeanServer.find(Account.class).setId(accountId).findOneOrEmpty();
+    Optional<Account> accountMaybe = lookupAccount(accountId);
     if (accountMaybe.isEmpty()) {
       throw new NoSuchTrustedIntermediaryError();
     }
@@ -223,5 +221,9 @@ public class UserRepository {
     } else {
       throw new NoSuchTrustedIntermediaryError();
     }
+  }
+
+  private Optional<Account> lookupAccount(long accountId) {
+    return ebeanServer.find(Account.class).setId(accountId).findOneOrEmpty();
   }
 }

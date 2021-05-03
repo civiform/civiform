@@ -60,6 +60,12 @@ public class Account extends BaseModel {
     return Optional.fromNullable(this.managedByGroup);
   }
 
+  /**
+   * Returns the name, as a string, of the most-recently created Applicant associated with this
+   * Account. There is no particular reason for an Account to have more than one Applicant - this
+   * was a capability we built but did not use - so the ordering is somewhat arbitrary /
+   * unnecessary.
+   */
   public String getApplicantName() {
     return this.getApplicants().stream()
         .max(Comparator.comparing(Applicant::getWhenCreated))
