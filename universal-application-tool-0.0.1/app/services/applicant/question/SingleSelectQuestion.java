@@ -91,4 +91,9 @@ public class SingleSelectQuestion implements PresentsErrors {
   public boolean isAnswered() {
     return applicantQuestion.getApplicantData().hasPath(getSelectionPath());
   }
+
+  @Override
+  public String getAnswerString() {
+    return getSelectedOptionValue().map(LocalizedQuestionOption::optionText).orElse("-");
+  }
 }

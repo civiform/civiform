@@ -1,9 +1,11 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.AddressQuestionDefinition;
@@ -225,5 +227,18 @@ public class AddressQuestion implements PresentsErrors {
         || isCityAnswered()
         || isStateAnswered()
         || isZipAnswered();
+  }
+
+  @Override
+  public String getAnswerString() {
+    String line1 = getStreetValue().orElse("");
+    String[] parts = {
+      getCityValue().orElse(""), getStateValue().orElse(""), getZipValue().orElse("")
+    };
+    String line2 =
+        Arrays.stream(parts).filter(part -> part.length() > 0).collect(Collectors.joining(", "));
+
+    String[] ret = {line1, line2};
+    return Arrays.stream(ret).filter(part -> part.length() > 0).collect(Collectors.joining("\n"));
   }
 }
