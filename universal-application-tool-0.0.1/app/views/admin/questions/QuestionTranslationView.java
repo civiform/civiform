@@ -8,10 +8,15 @@ import javax.inject.Inject;
 import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.LocalizationUtils;
+import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import views.admin.AdminLayout;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
+
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 /** Renders a list of languages to select from, and a form for updating question information. */
 public class QuestionTranslationView extends TranslationFormView {
@@ -52,20 +57,29 @@ public class QuestionTranslationView extends TranslationFormView {
       Optional<String> existingQuestionText,
       Optional<String> existingQuestionHelpText,
       Optional<String> errors) {
+
     String formAction =
         controllers.admin.routes.AdminQuestionTranslationsController.update(
                 question.getId(), locale.toLanguageTag())
             .url();
+
+    ImmutableList.Builder<FieldWithLabel> inputFields = ImmutableList.builder();
+    inputFields.addAll(formFields(
+            question.getDefaultQuestionText(),
+            question.getDefaultQuestionHelpText(),
+            existingQuestionText,
+            existingQuestionHelpText));
+
+    if (question.getQuestionType().equals(QuestionType.DROPDOWN)) {
+      inputFields.addAll(multiOptionQuestionFields((MultiOptionQuestionDefinition) question, locale));
+    }
+
     ContainerTag form =
         renderTranslationForm(
             request,
             locale,
             formAction,
-            formFields(
-                question.getDefaultQuestionText(),
-                question.getDefaultQuestionHelpText(),
-                existingQuestionText,
-                existingQuestionHelpText),
+            inputFields.build(),
             errors);
 
     return layout.render(
@@ -99,5 +113,19 @@ public class QuestionTranslationView extends TranslationFormView {
             .setLabelText(defaultHelpText)
             .setPlaceholderText("Question help text")
             .setValue(questionHelpText));
+  }
+
+  private ImmutableList<FieldWithLabel> multiOptionQuestionFields(MultiOptionQuestionDefinition question, Locale toUpdate) {
+    // Generate a text input for each existing question option.
+    // For each option, the input label should be the existing English translation.
+    // Input field
+    return question.getOptions().stream().map(option ->
+      FieldWithLabel.input()
+              .setId("localize-question-help-text")
+              .setFieldName("questionHelpText")
+              .setLabelText(option.optionText().get(LocalizationUtils.DEFAULT_LOCALE))
+              .setPlaceholderText("Question help text")
+              .setValue(option.optionText().get(toUpdate))
+    ).collect(toImmutableList());
   }
 }
