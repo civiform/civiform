@@ -96,4 +96,9 @@ public class NumberQuestion implements PresentsErrors {
   public Path getNumberPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.NUMBER);
   }
+
+  @Override
+  public String getAnswerString() {
+    return getNumberValue().map(Object::toString).orElse("-");
+  }
 }

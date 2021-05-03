@@ -3,7 +3,6 @@ package controllers.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
-import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
@@ -98,14 +97,39 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
   }
 
   @Test
-  public void update_invalidApplicant_returnsUnauthorized() {
-    long badApplicantId = applicant.id + 1000;
+  public void edit_withMessages_returnsCorrectButtonText() {
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.update(badApplicantId, program.id, "1"))
+        addCSRFToken(
+                fakeRequest(
+                        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1"))
+                    .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()))
             .build();
 
     Result result =
-        subject.update(request, badApplicantId, program.id, "1").toCompletableFuture().join();
+        subject
+            .edit(request, applicant.id, program.id, /* blockId = */ "1")
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Guardar y continuar");
+  }
+
+  @Test
+  public void update_invalidApplicant_returnsUnauthorized() {
+    long badApplicantId = applicant.id + 1000;
+    Request request =
+        fakeRequest(
+                routes.ApplicantProgramBlocksController.update(
+                    badApplicantId, program.id, /* blockId = */ "1", /* inReview = */ false))
+            .build();
+
+    Result result =
+        subject
+            .update(
+                request, badApplicantId, program.id, /* blockId = */ "1", /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
@@ -114,11 +138,17 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
   public void update_invalidProgram_returnsBadRequest() {
     long badProgramId = program.id + 1000;
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, badProgramId, "1"))
+        fakeRequest(
+                routes.ApplicantProgramBlocksController.update(
+                    applicant.id, badProgramId, /* blockId = */ "1", /* inReview = */ false))
             .build();
 
     Result result =
-        subject.update(request, applicant.id, badProgramId, "1").toCompletableFuture().join();
+        subject
+            .update(
+                request, applicant.id, badProgramId, /* blockId = */ "1", /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
@@ -129,11 +159,14 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
     Request request =
         fakeRequest(
                 routes.ApplicantProgramBlocksController.update(
-                    applicant.id, program.id, badBlockId))
+                    applicant.id, program.id, badBlockId, /* inReview = */ false))
             .build();
 
     Result result =
-        subject.update(request, applicant.id, program.id, badBlockId).toCompletableFuture().join();
+        subject
+            .update(request, applicant.id, program.id, badBlockId, /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
@@ -141,12 +174,17 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
   @Test
   public void update_invalidPathsInRequest_returnsBadRequest() {
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
+        fakeRequest(
+                routes.ApplicantProgramBlocksController.update(
+                    applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false))
             .bodyForm(ImmutableMap.of("fake.path", "value"))
             .build();
 
     Result result =
-        subject.update(request, applicant.id, program.id, "1").toCompletableFuture().join();
+        subject
+            .update(request, applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
@@ -155,12 +193,17 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
   public void update_reservedPathsInRequest_returnsBadRequest() {
     String reservedPath = Path.create("metadata").join(Scalar.PROGRAM_UPDATED_IN).toString();
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
+        fakeRequest(
+                routes.ApplicantProgramBlocksController.update(
+                    applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false))
             .bodyForm(ImmutableMap.of(reservedPath, "value"))
             .build();
 
     Result result =
-        subject.update(request, applicant.id, program.id, "1").toCompletableFuture().join();
+        subject
+            .update(request, applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
@@ -171,7 +214,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
         addCSRFToken(
                 fakeRequest(
                         routes.ApplicantProgramBlocksController.update(
-                            applicant.id, program.id, "1"))
+                            applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false))
                     .bodyForm(
                         ImmutableMap.of(
                             Path.create("applicant.applicant_name")
@@ -185,7 +228,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
             .build();
 
     Result result =
-        subject.update(request, applicant.id, program.id, "1").toCompletableFuture().join();
+        subject
+            .update(request, applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("FirstName");
@@ -202,7 +248,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
             .withQuestion(testQuestionBank().applicantAddress())
             .build();
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
+        fakeRequest(
+                routes.ApplicantProgramBlocksController.update(
+                    applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -212,11 +260,15 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
             .build();
 
     Result result =
-        subject.update(request, applicant.id, program.id, "1").toCompletableFuture().join();
+        subject
+            .update(request, applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
-        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "2").url();
+        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, /* blockId = */ "2")
+            .url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
   }
 
@@ -229,7 +281,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
             .build();
 
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.update(applicant.id, program.id, "1"))
+        fakeRequest(
+                routes.ApplicantProgramBlocksController.update(
+                    applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -239,30 +293,16 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
             .build();
 
     Result result =
-        subject.update(request, applicant.id, program.id, "1").toCompletableFuture().join();
+        subject
+            .update(request, applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
 
-    assertThat(result.status()).isEqualTo(FOUND);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
 
-    // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Change
-    //  reviewRoute when review page is available.
-    String reviewRoute = routes.ApplicantProgramsController.index(applicant.id).url();
+    String reviewRoute =
+        routes.ApplicantProgramReviewController.review(applicant.id, program.id).url();
 
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
-  }
-
-  @Test
-  public void edit_withMessages_returnsCorrectButtonText() {
-    Request request =
-        addCSRFToken(
-                fakeRequest(
-                        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1"))
-                    .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()))
-            .build();
-
-    Result result =
-        subject.edit(request, applicant.id, program.id, "1").toCompletableFuture().join();
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Guardar y continuar");
   }
 }

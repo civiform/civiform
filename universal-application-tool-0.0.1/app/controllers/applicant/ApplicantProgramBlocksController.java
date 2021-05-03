@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Application;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +20,8 @@ import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
-import play.mvc.Call;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import repository.ApplicationRepository;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ProgramBlockNotFoundException;
@@ -44,7 +41,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final HttpExecutionContext httpExecutionContext;
   private final ApplicantProgramBlockEditView editView;
   private final FormFactory formFactory;
-  private final ApplicationRepository applicationRepository;
   private final ProfileUtils profileUtils;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -56,20 +52,30 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       HttpExecutionContext httpExecutionContext,
       ApplicantProgramBlockEditView editView,
       FormFactory formFactory,
-      ApplicationRepository applicationRepository,
       ProfileUtils profileUtils) {
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
-    this.applicationRepository = checkNotNull(applicationRepository);
     this.profileUtils = checkNotNull(profileUtils);
   }
 
   @Secure
   public CompletionStage<Result> edit(
       Request request, long applicantId, long programId, String blockId) {
+    return editOrReview(request, applicantId, programId, blockId, false);
+  }
+
+  @Secure
+  public CompletionStage<Result> review(
+      Request request, long applicantId, long programId, String blockId) {
+    return editOrReview(request, applicantId, programId, blockId, true);
+  }
+
+  @Secure
+  private CompletionStage<Result> editOrReview(
+      Request request, long applicantId, long programId, String blockId, boolean inReview) {
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
@@ -87,6 +93,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             .setApplicantId(applicantId)
                             .setProgramId(programId)
                             .setBlock(block.get())
+                            .setInReview(inReview)
                             .setPreferredLanguageSupported(
                                 roApplicantProgramService.preferredLanguageSupported())
                             .build()));
@@ -113,7 +120,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> update(
-      Request request, long applicantId, long programId, String blockId) {
+      Request request, long applicantId, long programId, String blockId, boolean inReview) {
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
             v -> {
@@ -135,7 +142,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               ReadOnlyApplicantProgramService roApplicantProgramService =
                   errorAndROApplicantProgramService.getResult();
 
-              return update(request, applicantId, programId, blockId, roApplicantProgramService);
+              return update(
+                  request, applicantId, programId, blockId, inReview, roApplicantProgramService);
             },
             httpExecutionContext.current())
         .exceptionally(
@@ -164,6 +172,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       long programId,
       String blockId,
+      boolean inReview,
       ReadOnlyApplicantProgramService roApplicantProgramService) {
     Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getBlock(blockId);
     if (thisBlockUpdatedMaybe.isEmpty()) {
@@ -183,49 +192,22 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           .setApplicantId(applicantId)
                           .setProgramId(programId)
                           .setBlock(thisBlockUpdated)
+                          .setInReview(inReview)
                           .setPreferredLanguageSupported(
                               roApplicantProgramService.preferredLanguageSupported())
                           .build())));
     }
 
-    // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Redirect to
-    //  review page when it is available.
     Optional<String> nextBlockIdMaybe =
         roApplicantProgramService.getBlockAfter(blockId).map(Block::getId);
-    return nextBlockIdMaybe.isEmpty()
-        ? previewPageRedirect(applicantId, programId)
+    return nextBlockIdMaybe.isEmpty() || inReview
+        ? supplyAsync(
+            () -> redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)))
         : supplyAsync(
             () ->
                 redirect(
                     routes.ApplicantProgramBlocksController.edit(
                         applicantId, programId, nextBlockIdMaybe.get())));
-  }
-
-  private CompletionStage<Result> previewPageRedirect(long applicantId, long programId) {
-    // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Replace
-    // with a redirect to the review page.
-    // For now, this just saves the application and redirects to program index page.
-    Call endOfProgramSubmission = routes.ApplicantProgramsController.index(applicantId);
-    logger.debug("redirecting to preview page with %d, %d", applicantId, programId);
-    return submit(applicantId, programId)
-        .thenApplyAsync(
-            applicationMaybe -> {
-              if (applicationMaybe.isEmpty()) {
-                return found(endOfProgramSubmission)
-                    .flashing("banner", "Error saving application.");
-              }
-              Application application = applicationMaybe.get();
-              // Placeholder application ID display.
-              return found(endOfProgramSubmission)
-                  .flashing(
-                      "banner",
-                      String.format(
-                          "Successfully saved application: application ID %d", application.id));
-            });
-  }
-
-  private CompletionStage<Optional<Application>> submit(long applicantId, long programId) {
-    return applicationRepository.submitApplication(applicantId, programId);
   }
 
   private ImmutableMap<String, String> cleanForm(Map<String, String> formData) {

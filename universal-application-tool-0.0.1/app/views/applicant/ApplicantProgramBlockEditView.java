@@ -37,7 +37,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   public Content render(Params params) {
     String formAction =
         routes.ApplicantProgramBlocksController.update(
-                params.applicantId(), params.programId(), params.block().getId())
+                params.applicantId(), params.programId(), params.block().getId(), params.inReview())
             .url();
     ContainerTag body =
         body()
@@ -90,6 +90,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
       return new AutoValue_ApplicantProgramBlockEditView_Params.Builder();
     }
 
+    abstract boolean inReview();
+
     abstract Http.Request request();
 
     abstract Messages messages();
@@ -105,6 +107,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     @AutoValue.Builder
     public abstract static class Builder {
       public abstract Builder setRequest(Http.Request request);
+
+      public abstract Builder setInReview(boolean inReview);
 
       public abstract Builder setMessages(Messages messages);
 
