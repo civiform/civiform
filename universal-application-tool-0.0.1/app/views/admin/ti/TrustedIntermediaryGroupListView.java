@@ -44,7 +44,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
             renderHeader("Create New Trusted Intermediary").withClass(Styles.MT_8),
             renderAddNewButton(request),
             renderHeader("Existing Trusted Intermediaries"),
-            renderTiGroupCards(tis));
+            renderTiGroupCards(tis, request));
     if (request.flash().get("error").isPresent()) {
       LoggerFactory.getLogger(TrustedIntermediaryGroupListView.class)
           .info(request.flash().get("error").get());
