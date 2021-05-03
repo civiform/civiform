@@ -41,10 +41,10 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
   public Content render(List<TrustedIntermediaryGroup> tis, Http.Request request) {
     ContainerTag body =
         body(
-            renderHeader("Trusted Intermediary Groups"),
-            renderTiGroupCards(tis, request),
-            renderHeader("Create New Group").withClass(Styles.MT_8),
-            renderAddNewButton(request));
+            renderHeader("Create New Trusted Intermediary").withClass(Styles.MT_8),
+            renderAddNewButton(request),
+            renderHeader("Existing Trusted Intermediaries"),
+            renderTiGroupCards(tis, request));
     if (request.flash().get("error").isPresent()) {
       LoggerFactory.getLogger(TrustedIntermediaryGroupListView.class)
           .info(request.flash().get("error").get());
