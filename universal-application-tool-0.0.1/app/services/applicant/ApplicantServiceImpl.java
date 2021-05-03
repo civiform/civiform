@@ -217,7 +217,8 @@ public class ApplicantServiceImpl implements ApplicantService {
       throw new PathNotInBlockException(block.getId(), unknownUpdates.iterator().next().path());
     }
 
-    // Add and change entity names BEFORE deleting, because if deletes happened first, then changed entity names
+    // Add and change entity names BEFORE deleting, because if deletes happened first, then changed
+    // entity names
     // may not match the intended entities.
     for (Update update : addsAndChanges) {
       applicantData.putString(update.path().join(Scalar.ENTITY_NAME), update.value());

@@ -26,7 +26,8 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
   private static final String PLACEHOLDER_ID = "enumerator-placeholder-text";
 
   public static final String ENUMERATOR_FIELD_CLASSES =
-      StyleUtils.joinStyles(ReferenceClasses.ENUMERATOR_FIELD, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4);
+      StyleUtils.joinStyles(
+          ReferenceClasses.ENUMERATOR_FIELD, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4);
 
   private final ApplicantQuestion question;
 
@@ -50,7 +51,10 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
             div()
                 .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT)
                 .withText(question.getQuestionText()),
-            div().withId(PLACEHOLDER_ID).withClass(Styles.HIDDEN).withText(enumeratorQuestion.getPlaceholder()),
+            div()
+                .withId(PLACEHOLDER_ID)
+                .withClass(Styles.HIDDEN)
+                .withText(enumeratorQuestion.getPlaceholder()),
             div()
                 .withClasses(
                     ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
