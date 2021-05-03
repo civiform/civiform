@@ -90,13 +90,14 @@ public class ApplicantProgramsController extends CiviFormController {
             httpContext.current())
         .thenComposeAsync(
             resultMaybe -> {
-              return resultMaybe.isEmpty()
-                  ? supplyAsync(
-                      () ->
-                          redirect(
-                              routes.ApplicantProgramReviewController.review(
-                                  applicantId, programId)))
-                  : supplyAsync(resultMaybe::get);
+              if (resultMaybe.isEmpty()) {
+                return supplyAsync(
+                    () ->
+                        redirect(
+                            routes.ApplicantProgramReviewController.review(
+                                applicantId, programId)));
+              }
+              return supplyAsync(resultMaybe::get);
             },
             httpContext.current())
         .exceptionally(
