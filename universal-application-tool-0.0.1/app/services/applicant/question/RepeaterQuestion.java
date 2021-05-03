@@ -10,6 +10,9 @@ public class RepeaterQuestion implements PresentsErrors {
 
   private final ApplicantQuestion applicantQuestion;
 
+  // TODO(#859): make this admin-configurable
+  private final String PLACEHOLDER = "placeholder";
+
   public RepeaterQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
     assertQuestionType();
@@ -29,8 +32,7 @@ public class RepeaterQuestion implements PresentsErrors {
   /** No blank values are allowed. */
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     if (isAnswered() && getEntityNames().stream().anyMatch(String::isBlank)) {
-      return ImmutableSet.of(
-          ValidationErrorMessage.create(ValidationErrorMessage.ENTITY_NAME_REQUIRED));
+      return ImmutableSet.of(ValidationErrorMessage.entityNameRequired(getPlaceholder()));
     }
     return ImmutableSet.of();
   }
@@ -63,5 +65,9 @@ public class RepeaterQuestion implements PresentsErrors {
     return applicantQuestion
         .getApplicantData()
         .readRepeatedEntities(applicantQuestion.getContextualizedPath());
+  }
+
+  public String getPlaceholder() {
+    return PLACEHOLDER;
   }
 }

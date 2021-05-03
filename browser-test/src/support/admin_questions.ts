@@ -315,6 +315,9 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
+  /**
+   * The `enumeratorName` argument is used to make _this_ enumerator question a repeated question.
+   */
   async addEnumeratorQuestion(questionName: string,
     description = 'enumerator description',
     questionText = 'enumerator question text',

@@ -22,7 +22,7 @@ public abstract class ValidationErrorMessage {
   public static String INVALID_ZIP = "Please enter valid 5-digit ZIP code.";
   public static String NO_PO_BOX = "Please enter a valid address. We do not accept PO Boxes.";
 
-  public static String ENTITY_NAME_REQUIRED = "Please enter a value for each entity.";
+  private static String ENTITY_NAME_REQUIRED_TEMPLATE = "Please enter a value for each %s.";
 
   public abstract String message();
 
@@ -78,5 +78,9 @@ public abstract class ValidationErrorMessage {
 
   public static ValidationErrorMessage noPoBox() {
     return create(NO_PO_BOX);
+  }
+
+  public static ValidationErrorMessage entityNameRequired(String placeholder) {
+    return create(String.format(ENTITY_NAME_REQUIRED_TEMPLATE, placeholder));
   }
 }

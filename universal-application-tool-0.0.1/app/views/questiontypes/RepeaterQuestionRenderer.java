@@ -24,13 +24,9 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
   private static final String ADD_ELEMENT_BUTTON_ID = "enumerator-field-add-button";
   private static final String ENUMERATOR_FIELD_TEMPLATE_ID = "enumerator-field-template";
   private static final String PLACEHOLDER_ID = "enumerator-placeholder-text";
-  private static final String ENUMERATOR_FIELD_CLASS = "enumerator-field";
-
-  // TODO(#859): make this admin-configurable
-  private static final String PLACEHOLDER = "Placeholder";
 
   public static final String ENUMERATOR_FIELD_CLASSES =
-      StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASS, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4);
+      StyleUtils.joinStyles(ReferenceClasses.ENUMERATOR_FIELD, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4);
 
   private final ApplicantQuestion question;
 
@@ -44,8 +40,7 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
     ImmutableList<String> entityNames = enumeratorQuestion.getEntityNames();
 
     ContainerTag enumeratorFields = div().withId(ENUMERATOR_FIELDS_ID);
-    int index;
-    for (index = 0; index < entityNames.size(); index++) {
+    for (int index = 0; index < entityNames.size(); index++) {
       enumeratorFields.with(existingEnumeratorField(Optional.of(entityNames.get(index)), index));
     }
 
@@ -55,7 +50,7 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
             div()
                 .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT)
                 .withText(question.getQuestionText()),
-            div().withId(PLACEHOLDER_ID).withClass(Styles.HIDDEN).withText(PLACEHOLDER),
+            div().withId(PLACEHOLDER_ID).withClass(Styles.HIDDEN).withText(enumeratorQuestion.getPlaceholder()),
             div()
                 .withClasses(
                     ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
