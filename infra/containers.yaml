@@ -125,6 +125,8 @@ Resources:
               Value: !Sub '{{resolve:secretsmanager:${Environment}-oidc-secrets:SecretString:IDCS_CLIENT_ID}}'
             - Name: IDCS_SECRET
               Value: !Sub '{{resolve:secretsmanager:${Environment}-oidc-secrets:SecretString:IDCS_SECRET}}'
+            - Name: IDCS_DISCOVERY_URI
+              Value: !Sub '{{resolve:secretsmanager:${Environment}-oidc-secrets:SecretString:IDCS_DISCOVERY_URI}}'
             - Name: ADFS_CLIENT_ID
               Value: !Sub '{{resolve:secretsmanager:${Environment}-oidc-secrets:SecretString:ADFS_CLIENT_ID}}'
             - Name: ADFS_SECRET
