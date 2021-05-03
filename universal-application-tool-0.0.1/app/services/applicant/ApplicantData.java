@@ -401,8 +401,7 @@ public class ApplicantData {
     }
 
     // Delete in reverse sorted order because deletion is index based, and indices would need to be
-    // decremented
-    // for each deletion if it wasn't reverse sorted.
+    // decremented for each deletion if it wasn't reverse sorted.
     for (int index : reverseSortedIndices) {
       jsonData.delete(path.atIndex(index).toString());
     }
