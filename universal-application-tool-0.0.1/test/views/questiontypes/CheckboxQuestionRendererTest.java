@@ -34,6 +34,8 @@ public class CheckboxQuestionRendererTest {
   private final ApplicantData applicantData = new ApplicantData();
   private final Messages messages =
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
+  private final ApplicantQuestionRendererParams params =
+      ApplicantQuestionRendererParams.sample(messages);
 
   private CheckboxQuestionRenderer renderer;
 
@@ -46,7 +48,7 @@ public class CheckboxQuestionRendererTest {
 
   @Test
   public void render_usesCorrectInputName() {
-    Tag result = renderer.render(messages);
+    Tag result = renderer.render(params);
 
     assertThat(result.render()).contains("applicant.question_name.selection[]");
   }

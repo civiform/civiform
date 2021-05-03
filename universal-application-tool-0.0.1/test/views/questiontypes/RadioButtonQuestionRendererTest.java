@@ -38,6 +38,8 @@ public class RadioButtonQuestionRendererTest {
 
   private final Messages messages =
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
+  private final ApplicantQuestionRendererParams params =
+      ApplicantQuestionRendererParams.sample(messages);
 
   private ApplicantData applicantData;
   private ApplicantQuestion question;
@@ -52,7 +54,7 @@ public class RadioButtonQuestionRendererTest {
 
   @Test
   public void render_generatesCorrectInputNames() {
-    Tag result = renderer.render(messages);
+    Tag result = renderer.render(params);
 
     assertThat(result.render()).contains("name=\"applicant.favorite_ice_cream.selection\"");
     assertThat(result.render()).contains("value=\"2\"");
@@ -60,7 +62,7 @@ public class RadioButtonQuestionRendererTest {
 
   @Test
   public void render_generatesIds_formatsWhitespaceAsUnderscore() {
-    Tag result = renderer.render(messages);
+    Tag result = renderer.render(params);
 
     assertThat(result.render()).contains("id=\"peanut_butter\"");
   }
@@ -69,7 +71,7 @@ public class RadioButtonQuestionRendererTest {
   public void render_withExistingAnswer_checksThatOption() {
     QuestionAnswerer.answerSingleSelectQuestion(
         applicantData, question.getContextualizedPath(), 2L);
-    Tag result = renderer.render(messages);
+    Tag result = renderer.render(params);
 
     assertThat(result.render())
         .contains(

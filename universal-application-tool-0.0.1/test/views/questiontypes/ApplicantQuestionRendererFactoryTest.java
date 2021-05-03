@@ -19,6 +19,8 @@ public class ApplicantQuestionRendererFactoryTest {
 
   private final Messages messages =
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
+  private final ApplicantQuestionRendererParams params =
+      ApplicantQuestionRendererParams.sample(messages);
 
   @Test
   @Parameters(source = QuestionType.class)
@@ -27,6 +29,6 @@ public class ApplicantQuestionRendererFactoryTest {
 
     ApplicantQuestionRenderer renderer = factory.getSampleRenderer(type);
 
-    assertThat(renderer.render(messages)).isInstanceOf(Tag.class);
+    assertThat(renderer.render(params)).isInstanceOf(Tag.class);
   }
 }
