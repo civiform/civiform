@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Optional;
+import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
@@ -45,6 +46,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       Long programId,
       String programTitle,
       ImmutableList<AnswerData> data,
+      Messages messages,
       Optional<String> banner) {
     ContainerTag headerTag = renderHeader(100);
 
@@ -70,6 +72,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     content.with(actions);
 
     return layout.render(
+        messages,
         headerTag,
         h1("Application review for " + programTitle).withClasses(Styles.PX_16, Styles.PY_4),
         content);

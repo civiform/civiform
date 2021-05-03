@@ -12,6 +12,8 @@ import javax.inject.Inject;
 import models.Application;
 import org.pac4j.play.java.Secure;
 import play.libs.concurrent.HttpExecutionContext;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import play.mvc.Call;
 import play.mvc.Http.Request;
 import play.mvc.Result;
@@ -32,6 +34,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final ApplicantService applicantService;
   private final ApplicationRepository applicationRepository;
   private final HttpExecutionContext httpExecutionContext;
+  private final MessagesApi messagesApi;
   private final ApplicantProgramSummaryView summaryView;
   private final ProfileUtils profileUtils;
 
@@ -40,11 +43,13 @@ public class ApplicantProgramReviewController extends CiviFormController {
       ApplicantService applicantService,
       ApplicationRepository applicationRepository,
       HttpExecutionContext httpExecutionContext,
+      MessagesApi messagesApi,
       ApplicantProgramSummaryView summaryView,
       ProfileUtils profileUtils) {
     this.applicantService = checkNotNull(applicantService);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.messagesApi = checkNotNull(messagesApi);
     this.summaryView = checkNotNull(summaryView);
     this.profileUtils = checkNotNull(profileUtils);
   }
@@ -64,7 +69,13 @@ public class ApplicantProgramReviewController extends CiviFormController {
               String programTitle = "Program title";
               return ok(
                   summaryView.render(
-                      request, applicantId, programId, programTitle, summaryData, banner));
+                      request,
+                      applicantId,
+                      programId,
+                      programTitle,
+                      summaryData,
+                      messagesApi.preferred(request),
+                      banner));
             },
             httpExecutionContext.current())
         .exceptionally(
