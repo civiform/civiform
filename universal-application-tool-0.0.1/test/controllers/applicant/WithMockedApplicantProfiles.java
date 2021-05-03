@@ -13,11 +13,14 @@ import models.Account;
 import models.Applicant;
 import models.LifecycleStage;
 import models.Version;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.mockito.Mockito;
+import play.Application;
 import play.inject.Injector;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Http;
+import play.test.Helpers;
 import support.ProgramBuilder;
 import support.ResourceCreator;
 import support.TestConstants;
@@ -32,18 +35,28 @@ public class WithMockedApplicantProfiles {
   private static Injector injector;
   private static ResourceCreator resourceCreator;
   private static ProfileFactory profileFactory;
+  protected static Application app;
 
   @BeforeClass
   public static void setupInjector() {
-    injector =
+    app =
         new GuiceApplicationBuilder()
             .configure(TestConstants.TEST_DATABASE_CONFIG)
             .overrides(bind(ProfileUtils.class).toInstance(MOCK_UTILS))
-            .build()
-            .injector();
+            .build();
+    injector = app.injector();
     resourceCreator = new ResourceCreator(injector);
+    Helpers.start(app);
     profileFactory = injector.instanceOf(ProfileFactory.class);
     ProgramBuilder.setInjector(injector);
+  }
+
+  @AfterClass
+  public static void stopApp() {
+    if (app != null) {
+      Helpers.stop(app);
+      app = null;
+    }
   }
 
   protected <T> T instanceOf(Class<T> clazz) {
