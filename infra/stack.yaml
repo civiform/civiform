@@ -1,6 +1,11 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'The main stack for CiviForm.'
 Mappings:
+  Container:
+    prod:
+      Domain: civiform.seattle.gov
+    staging:
+      Domain: staging.seattle.civiform.com
   DNS:
     prod:
       # The city's DNS is configured as a CNAME to this address.
@@ -95,7 +100,7 @@ Resources:
         LBTargetName: !GetAtt 'LB.Outputs.LBTarget'
         ContainerSecurityGroup: !GetAtt 'SecurityGroups.Outputs.ContainerGroup'
         S3BucketName: !GetAtt 'Filestore.Outputs.bucketname'
-        DomainName: !FindInMap [DNS, !Ref Environment, Domain]
+        DomainName: !FindInMap [Container, !Ref Environment, Domain]
         Environment: !Ref Environment
         S3TaskRole: !FindInMap [S3TaskRoles, !Ref Environment, role]
   Monitoring:
