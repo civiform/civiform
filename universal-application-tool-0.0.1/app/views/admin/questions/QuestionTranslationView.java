@@ -1,5 +1,7 @@
 package views.admin.questions;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
 import com.google.common.collect.ImmutableList;
 import j2html.tags.ContainerTag;
 import java.util.Locale;
@@ -9,14 +11,12 @@ import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizationUtils;
+import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
-import services.question.types.QuestionType;
 import views.admin.AdminLayout;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
-
-import static com.google.common.collect.ImmutableList.toImmutableList;
 
 /** Renders a list of languages to select from, and a form for updating question information. */
 public class QuestionTranslationView extends TranslationFormView {
@@ -63,24 +63,18 @@ public class QuestionTranslationView extends TranslationFormView {
                 question.getId(), locale.toLanguageTag())
             .url();
 
+    // Add form fields for questions.
     ImmutableList.Builder<FieldWithLabel> inputFields = ImmutableList.builder();
-    inputFields.addAll(formFields(
+    inputFields.addAll(
+        questionTextFields(
             question.getDefaultQuestionText(),
             question.getDefaultQuestionHelpText(),
             existingQuestionText,
             existingQuestionHelpText));
-
-    if (question.getQuestionType().equals(QuestionType.DROPDOWN)) {
-      inputFields.addAll(multiOptionQuestionFields((MultiOptionQuestionDefinition) question, locale));
-    }
+    inputFields.addAll(getQuestionTypeSpecificFields(question, locale));
 
     ContainerTag form =
-        renderTranslationForm(
-            request,
-            locale,
-            formAction,
-            inputFields.build(),
-            errors);
+        renderTranslationForm(request, locale, formAction, inputFields.build(), errors);
 
     return layout.render(
         renderHeader("Manage Question Translations"),
@@ -95,7 +89,26 @@ public class QuestionTranslationView extends TranslationFormView {
         .url();
   }
 
-  private ImmutableList<FieldWithLabel> formFields(
+  private ImmutableList<FieldWithLabel> getQuestionTypeSpecificFields(
+      QuestionDefinition question, Locale toUpdate) {
+    switch (question.getQuestionType()) {
+      case CHECKBOX:
+      case DROPDOWN:
+      case RADIO_BUTTON:
+        MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) question;
+        return multiOptionQuestionFields(multiOption.getOptions(), toUpdate);
+      case ADDRESS:
+      case FILEUPLOAD:
+      case NAME:
+      case NUMBER:
+      case REPEATER:
+      case TEXT:
+      default:
+        return ImmutableList.of();
+    }
+  }
+
+  private ImmutableList<FieldWithLabel> questionTextFields(
       String defaultText,
       String defaultHelpText,
       Optional<String> questionText,
@@ -115,17 +128,18 @@ public class QuestionTranslationView extends TranslationFormView {
             .setValue(questionHelpText));
   }
 
-  private ImmutableList<FieldWithLabel> multiOptionQuestionFields(MultiOptionQuestionDefinition question, Locale toUpdate) {
-    // Generate a text input for each existing question option.
-    // For each option, the input label should be the existing English translation.
-    // Input field
-    return question.getOptions().stream().map(option ->
-      FieldWithLabel.input()
-              .setId("localize-question-help-text")
-              .setFieldName("questionHelpText")
-              .setLabelText(option.optionText().get(LocalizationUtils.DEFAULT_LOCALE))
-              .setPlaceholderText("Question help text")
-              .setValue(option.optionText().get(toUpdate))
-    ).collect(toImmutableList());
+  private ImmutableList<FieldWithLabel> multiOptionQuestionFields(
+      ImmutableList<QuestionOption> options, Locale toUpdate) {
+    return options.stream()
+        .map(
+            option ->
+                FieldWithLabel.input()
+                    .setId("localize-question-help-text")
+                    .setFieldName("questionHelpText")
+                    .setLabelText(
+                        option.optionText().getOrDefault(LocalizationUtils.DEFAULT_LOCALE, ""))
+                    .setPlaceholderText("Answer option")
+                    .setValue(option.optionText().getOrDefault(toUpdate, "")))
+        .collect(toImmutableList());
   }
 }
