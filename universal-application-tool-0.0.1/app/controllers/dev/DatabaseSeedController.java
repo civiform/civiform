@@ -11,14 +11,8 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Locale;
 import java.util.Optional;
-import models.Account;
-import models.Applicant;
-import models.Application;
 import models.LifecycleStage;
-import models.Program;
-import models.Question;
-import models.StoredFile;
-import models.TrustedIntermediaryGroup;
+import models.Models;
 import models.Version;
 import play.Environment;
 import play.db.ebean.EbeanConfig;
@@ -94,7 +88,7 @@ public class DatabaseSeedController extends DevController {
     if (!isDevEnvironment()) {
       return notFound();
     }
-    truncateTables();
+    resetTables();
     return redirect(routes.DatabaseSeedController.index().url())
         .flashing("success", "The database has been cleared");
   }
@@ -256,16 +250,8 @@ public class DatabaseSeedController extends DevController {
     }
   }
 
-  private void truncateTables() {
-    ebeanServer.truncate(
-        Program.class,
-        Question.class,
-        Account.class,
-        Applicant.class,
-        Application.class,
-        Version.class,
-        TrustedIntermediaryGroup.class,
-        StoredFile.class);
+  private void resetTables() {
+    Models.truncate(ebeanServer);
     Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
     newActiveVersion.save();
   }

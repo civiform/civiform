@@ -36,7 +36,9 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
   }
 
   @Override
-  public Tag render(Messages messages) {
+  public Tag render(ApplicantQuestionRendererParams params) {
+
+    Messages messages = params.messages();
     RepeaterQuestion enumeratorQuestion = question.createEnumeratorQuestion();
     ImmutableList<String> entityNames = enumeratorQuestion.getEntityNames();
 
@@ -44,7 +46,6 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
     for (int index = 0; index < entityNames.size(); index++) {
       enumeratorFields.with(existingEnumeratorField(Optional.of(entityNames.get(index)), index));
     }
-
     return div()
         .withClasses(Styles.MX_AUTO, Styles.W_MAX)
         .with(

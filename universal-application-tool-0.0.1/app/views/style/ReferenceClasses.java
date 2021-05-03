@@ -8,6 +8,7 @@ public final class ReferenceClasses {
   public static final String ADMIN_LANGUAGE_LINK = "cf-admin-language-link";
   public static final String ADMIN_PROGRAM_CARD = "cf-admin-program-card";
   public static final String ADMIN_QUESTION_TABLE_ROW = "cf-admin-question-table-row";
+  public static final String ADMIN_TI_GROUP_ROW = "cf-ti-row";
   public static final String ADMIN_VERSION_CARD = "cf-admin-version-card";
   public static final String APPLICANT_QUESTION_HELP_TEXT = "cf-applicant-question-help-text";
   public static final String APPLICANT_QUESTION_TEXT = "cf-applicant-question-text";
