@@ -1,9 +1,7 @@
 package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.test.Helpers.stubMessagesApi;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
@@ -13,10 +11,9 @@ import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import play.i18n.Lang;
-import play.i18n.Messages;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.ValidationErrorMessage;
 import services.question.types.AddressQuestionDefinition;
 import support.QuestionAnswerer;
 
@@ -42,9 +39,6 @@ public class AddressQuestionTest {
           ImmutableMap.of(Locale.US, "help text"),
           AddressQuestionDefinition.AddressValidationPredicates.create(true));
 
-  private final Messages messages =
-      stubMessagesApi().preferred(ImmutableList.of(Lang.defaultLang()));
-
   private Applicant applicant;
   private ApplicantData applicantData;
 
@@ -62,8 +56,8 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = new AddressQuestion(applicantQuestion);
 
-    assertThat(addressQuestion.hasTypeSpecificErrors(messages)).isFalse();
-    assertThat(addressQuestion.hasQuestionErrors(messages)).isFalse();
+    assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(addressQuestion.hasQuestionErrors()).isFalse();
   }
 
   @Test
@@ -82,8 +76,8 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.hasTypeSpecificErrors(messages)).isFalse();
-    assertThat(addressQuestion.hasQuestionErrors(messages)).isFalse();
+    assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(addressQuestion.hasQuestionErrors()).isFalse();
     assertThat(addressQuestion.getStreetValue().get()).isEqualTo("85 Pike St");
     assertThat(addressQuestion.getLine2Value().get()).isEqualTo("Unit B");
     assertThat(addressQuestion.getCityValue().get()).isEqualTo("Seattle");
@@ -101,12 +95,11 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.hasTypeSpecificErrors(messages)).isTrue();
-    assertThat(addressQuestion.getStreetErrors(messages))
-        .contains("Please enter valid street name and number.");
-    assertThat(addressQuestion.getCityErrors(messages)).contains("Please enter city.");
-    assertThat(addressQuestion.getStateErrors(messages)).contains("Please enter state.");
-    assertThat(addressQuestion.getZipErrors(messages)).contains("Please enter valid ZIP code.");
+    assertThat(addressQuestion.hasTypeSpecificErrors()).isTrue();
+    assertThat(addressQuestion.getStreetErrors()).contains(ValidationErrorMessage.streetRequired());
+    assertThat(addressQuestion.getCityErrors()).contains(ValidationErrorMessage.cityRequired());
+    assertThat(addressQuestion.getStateErrors()).contains(ValidationErrorMessage.stateRequired());
+    assertThat(addressQuestion.getZipErrors()).contains(ValidationErrorMessage.zipRequired());
   }
 
   @Test
@@ -126,12 +119,11 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.hasTypeSpecificErrors(messages)).isTrue();
-    assertThat(addressQuestion.getZipErrors(messages))
-        .contains("Please enter valid 5-digit ZIP code.");
-    assertThat(addressQuestion.getStreetErrors(messages)).isEmpty();
-    assertThat(addressQuestion.getCityErrors(messages)).isEmpty();
-    assertThat(addressQuestion.getStateErrors(messages)).isEmpty();
+    assertThat(addressQuestion.hasTypeSpecificErrors()).isTrue();
+    assertThat(addressQuestion.getZipErrors()).contains(ValidationErrorMessage.invalidZip());
+    assertThat(addressQuestion.getStreetErrors()).isEmpty();
+    assertThat(addressQuestion.getCityErrors()).isEmpty();
+    assertThat(addressQuestion.getStateErrors()).isEmpty();
   }
 
   @Test
@@ -151,8 +143,8 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.hasTypeSpecificErrors(messages)).isFalse();
-    assertThat(addressQuestion.hasQuestionErrors(messages)).isFalse();
+    assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(addressQuestion.hasQuestionErrors()).isFalse();
   }
 
   @Test
@@ -181,8 +173,7 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.hasTypeSpecificErrors(messages)).isFalse();
-    assertThat(addressQuestion.getQuestionErrors(messages))
-        .containsOnly("Please enter a valid address. We do not accept PO Boxes.");
+    assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(addressQuestion.getQuestionErrors()).containsOnly(ValidationErrorMessage.noPoBox());
   }
 }

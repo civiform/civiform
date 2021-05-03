@@ -1,7 +1,6 @@
 package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -10,8 +9,6 @@ import java.util.Optional;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
-import play.i18n.Lang;
-import play.i18n.Messages;
 import services.LocalizationUtils;
 import services.Path;
 import services.applicant.ApplicantData;
@@ -35,9 +32,6 @@ public class SingleSelectQuestionTest {
                   1L, ImmutableMap.of(Locale.US, "option 1", Locale.FRANCE, "un")),
               QuestionOption.create(
                   2L, ImmutableMap.of(Locale.US, "option 2", Locale.FRANCE, "deux"))));
-
-  private final Messages messages =
-      stubMessagesApi().preferred(ImmutableList.of(Lang.defaultLang()));
 
   private Applicant applicant;
   private ApplicantData applicantData;
@@ -73,8 +67,8 @@ public class SingleSelectQuestionTest {
 
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 
-    assertThat(singleSelectQuestion.hasTypeSpecificErrors(messages)).isFalse();
-    assertThat(singleSelectQuestion.hasQuestionErrors(messages)).isFalse();
+    assertThat(singleSelectQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(singleSelectQuestion.hasQuestionErrors()).isFalse();
     assertThat(singleSelectQuestion.getSelectedOptionValue())
         .hasValue(LocalizedQuestionOption.create(1L, "option 1", Locale.US));
   }
@@ -89,8 +83,8 @@ public class SingleSelectQuestionTest {
 
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 
-    assertThat(singleSelectQuestion.hasTypeSpecificErrors(messages)).isFalse();
-    assertThat(singleSelectQuestion.hasQuestionErrors(messages)).isFalse();
+    assertThat(singleSelectQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(singleSelectQuestion.hasQuestionErrors()).isFalse();
     assertThat(singleSelectQuestion.getSelectedOptionValue()).isEmpty();
   }
 

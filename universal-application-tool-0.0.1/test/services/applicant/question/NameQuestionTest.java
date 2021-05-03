@@ -1,9 +1,7 @@
 package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.test.Helpers.stubMessagesApi;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
@@ -13,8 +11,6 @@ import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import play.i18n.Lang;
-import play.i18n.Messages;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.question.types.NameQuestionDefinition;
@@ -30,9 +26,6 @@ public class NameQuestionTest {
           "description",
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
-
-  private final Messages messages =
-      stubMessagesApi().preferred(ImmutableList.of(Lang.defaultLang()));
 
   private Applicant applicant;
   private ApplicantData applicantData;
@@ -53,8 +46,8 @@ public class NameQuestionTest {
     assertThat(nameQuestion.getFirstNameValue()).isEmpty();
     assertThat(nameQuestion.getMiddleNameValue()).isEmpty();
     assertThat(nameQuestion.getLastNameValue()).isEmpty();
-    assertThat(nameQuestion.hasTypeSpecificErrors(messages)).isFalse();
-    assertThat(nameQuestion.hasQuestionErrors(messages)).isFalse();
+    assertThat(nameQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(nameQuestion.hasQuestionErrors()).isFalse();
   }
 
   @Test
@@ -68,8 +61,8 @@ public class NameQuestionTest {
 
     NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
 
-    assertThat(nameQuestion.hasTypeSpecificErrors(messages)).isFalse();
-    assertThat(nameQuestion.hasQuestionErrors(messages)).isFalse();
+    assertThat(nameQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(nameQuestion.hasQuestionErrors()).isFalse();
     assertThat(nameQuestion.getFirstNameValue().get()).isEqualTo(firstName);
     if (nameQuestion.getMiddleNameValue().isPresent()) {
       assertThat(nameQuestion.getMiddleNameValue().get()).isEqualTo(middleName);
@@ -88,7 +81,7 @@ public class NameQuestionTest {
 
     NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
 
-    assertThat(nameQuestion.hasQuestionErrors(messages)).isFalse();
-    assertThat(nameQuestion.hasTypeSpecificErrors(messages)).isTrue();
+    assertThat(nameQuestion.hasQuestionErrors()).isFalse();
+    assertThat(nameQuestion.hasTypeSpecificErrors()).isTrue();
   }
 }

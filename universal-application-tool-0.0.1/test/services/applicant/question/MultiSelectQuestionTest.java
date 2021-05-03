@@ -1,7 +1,6 @@
 package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -9,11 +8,10 @@ import java.util.Locale;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import play.i18n.Lang;
-import play.i18n.Messages;
 import services.LocalizationUtils;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.ValidationErrorMessage;
 import services.question.QuestionOption;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -39,9 +37,6 @@ public class MultiSelectQuestionTest {
               .setMaxChoicesAllowed(3)
               .build());
 
-  private final Messages messages =
-      stubMessagesApi().preferred(ImmutableList.of(Lang.defaultLang()));
-
   private ApplicantData applicantData;
 
   @Before
@@ -56,8 +51,8 @@ public class MultiSelectQuestionTest {
 
     MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
 
-    assertThat(multiSelectQuestion.hasTypeSpecificErrors(messages)).isFalse();
-    assertThat(multiSelectQuestion.hasQuestionErrors(messages)).isFalse();
+    assertThat(multiSelectQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(multiSelectQuestion.hasQuestionErrors()).isFalse();
   }
 
   @Test
@@ -71,8 +66,8 @@ public class MultiSelectQuestionTest {
 
     MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
 
-    assertThat(multiSelectQuestion.hasTypeSpecificErrors(messages)).isFalse();
-    assertThat(multiSelectQuestion.hasQuestionErrors(messages)).isFalse();
+    assertThat(multiSelectQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(multiSelectQuestion.hasQuestionErrors()).isFalse();
   }
 
   @Test
@@ -86,8 +81,8 @@ public class MultiSelectQuestionTest {
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
-    assertThat(multiSelectQuestion.getQuestionErrors(messages))
-        .containsOnly("Please select at least 2.");
+    assertThat(multiSelectQuestion.getQuestionErrors())
+        .containsOnly(ValidationErrorMessage.tooFewSelectionsError(2));
   }
 
   @Test
@@ -106,8 +101,8 @@ public class MultiSelectQuestionTest {
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
-    assertThat(multiSelectQuestion.getQuestionErrors(messages))
-        .containsOnly("Please select fewer than 3.");
+    assertThat(multiSelectQuestion.getQuestionErrors())
+        .containsOnly(ValidationErrorMessage.tooManySelectionsError(3));
   }
 
   @Test
@@ -121,8 +116,8 @@ public class MultiSelectQuestionTest {
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
-    assertThat(multiSelectQuestion.hasTypeSpecificErrors(messages)).isFalse();
-    assertThat(multiSelectQuestion.hasQuestionErrors(messages)).isFalse();
+    assertThat(multiSelectQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(multiSelectQuestion.hasQuestionErrors()).isFalse();
   }
 
   @Test
