@@ -71,12 +71,6 @@ function addNewEnumeratorField(event: Event) {
   newField.classList.remove("hidden");
   newField.removeAttribute("id");
 
-  // Add placeholder text
-  const placeholder = document.getElementById("enumerator-placeholder-text").innerText;
-  const inputField = newField.querySelector("[type=text]") as HTMLInputElement;
-  inputField.placeholder = placeholder;
-
-
   // Add the remove enumerator field event listener to the delete button
   newField.querySelector("[type=button]").addEventListener("click", removeEnumeratorField);
 

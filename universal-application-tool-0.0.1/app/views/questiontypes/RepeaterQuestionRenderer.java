@@ -53,10 +53,6 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
                 .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT)
                 .withText(question.getQuestionText()),
             div()
-                .withId(PLACEHOLDER_ID)
-                .withClass(Styles.HIDDEN)
-                .withText(enumeratorQuestion.getPlaceholder()),
-            div()
                 .withClasses(
                     ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
                     Styles.TEXT_BASE,
@@ -91,10 +87,11 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
   /**
    * Create an enumerator field template for new entries. These come with a button to delete itself.
    */
-  public static Tag newEnumeratorFieldTemplate(Path contextualizedPath) {
+  public static Tag newEnumeratorFieldTemplate(Path contextualizedPath, String placeholder) {
     ContainerTag optionInput =
         FieldWithLabel.input()
             .setFieldName(contextualizedPath.toString())
+            .setPlaceholderText(placeholder)
             .getContainer()
             .withClasses(Styles.FLEX, Styles.ML_2);
     Tag removeFieldButton = button("x").withType("button").withClasses(Styles.FLEX, Styles.ML_4);
