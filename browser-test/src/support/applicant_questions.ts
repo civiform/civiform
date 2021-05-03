@@ -11,7 +11,7 @@ export class ApplicantQuestions {
     await this.page.fill('[placeholder="Enter your street address"]', street);
     await this.page.fill('[placeholder="City"]', city);
     await this.page.fill('[placeholder="State"]', state);
-    await this.page.fill('[placeholder="Zip"]', zip);
+    await this.page.fill('[placeholder="Zipcode"]', zip);
   }
 
   async answerNameQuestion(firstName: string, lastName: string, middleName = '') {

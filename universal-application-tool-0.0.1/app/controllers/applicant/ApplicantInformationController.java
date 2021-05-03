@@ -3,6 +3,7 @@ package controllers.applicant;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
 import forms.ApplicantInformationForm;
 import java.util.Locale;
@@ -14,6 +15,7 @@ import models.Applicant;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
+import play.i18n.Lang;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
@@ -57,7 +59,15 @@ public final class ApplicantInformationController extends CiviFormController {
   public CompletionStage<Result> edit(Http.Request request, long applicantId) {
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenApplyAsync(
-            v -> ok(informationView.render(request, applicantId)), httpExecutionContext.current())
+            // Since this is before we set the applicant's preferred language, use
+            // the default language for now.
+            v ->
+                ok(
+                    informationView.render(
+                        request,
+                        messagesApi.preferred(ImmutableSet.of(Lang.defaultLang())),
+                        applicantId)),
+            httpExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {

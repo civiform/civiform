@@ -69,6 +69,7 @@ public class AddressQuestionTest {
         applicantData,
         applicantQuestion.getContextualizedPath(),
         "85 Pike St",
+        "Unit B",
         "Seattle",
         "WA",
         "98101");
@@ -78,6 +79,7 @@ public class AddressQuestionTest {
     assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(addressQuestion.hasQuestionErrors()).isFalse();
     assertThat(addressQuestion.getStreetValue().get()).isEqualTo("85 Pike St");
+    assertThat(addressQuestion.getLine2Value().get()).isEqualTo("Unit B");
     assertThat(addressQuestion.getCityValue().get()).isEqualTo("Seattle");
     assertThat(addressQuestion.getStateValue().get()).isEqualTo("WA");
     assertThat(addressQuestion.getZipValue().get()).isEqualTo("98101");
@@ -89,7 +91,7 @@ public class AddressQuestionTest {
         new ApplicantQuestion(
             noPoBoxAddressQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
     QuestionAnswerer.answerAddressQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), "", "", "", "");
+        applicantData, applicantQuestion.getContextualizedPath(), "", "", "", "", "");
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
@@ -110,6 +112,7 @@ public class AddressQuestionTest {
         applicantData,
         applicantQuestion.getContextualizedPath(),
         "123 A St",
+        "Unit B",
         "Seattle",
         "WA",
         zipValue);
@@ -133,6 +136,7 @@ public class AddressQuestionTest {
         applicantData,
         applicantQuestion.getContextualizedPath(),
         streetValue,
+        "Unit B",
         "Seattle",
         "WA",
         "98107");
@@ -162,6 +166,7 @@ public class AddressQuestionTest {
         applicantData,
         applicantQuestion.getContextualizedPath(),
         streetValue,
+        "Unit B",
         "Seattle",
         "WA",
         "98107");

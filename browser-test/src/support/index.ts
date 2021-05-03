@@ -2,6 +2,7 @@ import { Browser, chromium, Page } from 'playwright'
 export { AdminQuestions } from './admin_questions'
 export { AdminPrograms } from './admin_programs'
 export { AdminTranslations } from './admin_translations'
+export { AdminTIGroups } from './admin_ti_groups'
 export { ApplicantQuestions } from './applicant_questions'
 
 const { BASE_URL = 'http://civiform:9000', TEST_USER_LOGIN = '', TEST_USER_PASSWORD = '' } = process.env

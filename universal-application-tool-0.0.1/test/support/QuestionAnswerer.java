@@ -12,10 +12,12 @@ public class QuestionAnswerer {
       ApplicantData applicantData,
       Path contextualizedPath,
       String street,
+      String line2,
       String city,
       String state,
       String zip) {
     applicantData.putString(contextualizedPath.join(Scalar.STREET), street);
+    applicantData.putString(contextualizedPath.join(Scalar.LINE2), line2);
     applicantData.putString(contextualizedPath.join(Scalar.CITY), city);
     applicantData.putString(contextualizedPath.join(Scalar.STATE), state);
     applicantData.putString(contextualizedPath.join(Scalar.ZIP), zip);

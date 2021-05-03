@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.data.FormFactory;
+import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
@@ -179,6 +180,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
     }
     Block thisBlockUpdated = thisBlockUpdatedMaybe.get();
+    Messages applicantMessages = messagesApi.preferred(request);
 
     // Validation errors: re-render this block with errors and previously entered data.
     if (thisBlockUpdated.hasErrors()) {
@@ -188,7 +190,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   editView.render(
                       ApplicantProgramBlockEditView.Params.builder()
                           .setRequest(request)
-                          .setMessages(messagesApi.preferred(request))
+                          .setMessages(applicantMessages)
                           .setApplicantId(applicantId)
                           .setProgramId(programId)
                           .setBlock(thisBlockUpdated)
