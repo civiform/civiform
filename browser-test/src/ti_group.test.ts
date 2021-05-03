@@ -10,6 +10,10 @@ describe('normal application flow', () => {
     await adminGroups.gotoAdminTIPage();
     await adminGroups.fillInGroupBasics("group name", "group description");
     await adminGroups.expectGroupExist("group name", "group description");
+
+    await adminGroups.editGroup("group name");
+    await adminGroups.addGroupMember("foo@bar.com");
+    await adminGroups.expectGroupMemberExist("<Unnamed User>", "foo@bar.com");
     await endSession(browser);
   })
 })

@@ -21,6 +21,8 @@ import models.Program;
 import models.TrustedIntermediaryGroup;
 import play.db.ebean.EbeanConfig;
 import services.program.ProgramDefinition;
+import services.ti.NoSuchTrustedIntermediaryError;
+import services.ti.NoSuchTrustedIntermediaryGroupError;
 
 public class UserRepository {
 
@@ -84,18 +86,21 @@ public class UserRepository {
                     .collect(ImmutableList.toImmutableList()));
   }
 
+  public Optional<Account> lookupAccount(String emailAddress) {
+    if (emailAddress == null || emailAddress.isEmpty()) {
+      return Optional.empty();
+    }
+    return ebeanServer
+        .find(Account.class)
+        .where()
+        .eq("email_address", emailAddress)
+        .findOneOrEmpty();
+  }
+
   public CompletionStage<Optional<Applicant>> lookupApplicant(String emailAddress) {
     return supplyAsync(
         () -> {
-          if (emailAddress == null || emailAddress.isEmpty()) {
-            return Optional.empty();
-          }
-          Optional<Account> accountMaybe =
-              ebeanServer
-                  .find(Account.class)
-                  .where()
-                  .eq("email_address", emailAddress)
-                  .findOneOrEmpty();
+          Optional<Account> accountMaybe = lookupAccount(emailAddress);
           // Return the applicant which was most recently created.
           return accountMaybe.flatMap(
               account ->
@@ -165,5 +170,65 @@ public class UserRepository {
     TrustedIntermediaryGroup tiGroup = new TrustedIntermediaryGroup(name, description);
     tiGroup.save();
     return tiGroup;
+  }
+
+  public void deleteTrustedIntermediaryGroup(long id) throws NoSuchTrustedIntermediaryGroupError {
+    Optional<TrustedIntermediaryGroup> tiGroup = getTrustedIntermediaryGroup(id);
+    if (tiGroup.isEmpty()) {
+      throw new NoSuchTrustedIntermediaryGroupError();
+    }
+    ebeanServer.delete(tiGroup.get());
+  }
+
+  public Optional<TrustedIntermediaryGroup> getTrustedIntermediaryGroup(long id) {
+    return ebeanServer.find(TrustedIntermediaryGroup.class).setId(id).findOneOrEmpty();
+  }
+
+  /**
+   * Adds the given email address to the TI group. If the email address does not correspond to an
+   * existing account, then create an account and associate it, so it will be ready when the TI
+   * signs in for the first time.
+   */
+  public void addTrustedIntermediaryToGroup(long id, String emailAddress)
+      throws NoSuchTrustedIntermediaryGroupError {
+    Optional<TrustedIntermediaryGroup> tiGroup = getTrustedIntermediaryGroup(id);
+    if (tiGroup.isEmpty()) {
+      throw new NoSuchTrustedIntermediaryGroupError();
+    }
+    Optional<Account> accountMaybe = lookupAccount(emailAddress);
+    Account account =
+        accountMaybe.orElseGet(
+            () -> {
+              Account a = new Account();
+              a.setEmailAddress(emailAddress);
+              a.save();
+              return a;
+            });
+    account.setMemberOfGroup(tiGroup.get());
+    account.save();
+  }
+
+  public void removeTrustedIntermediaryFromGroup(long id, long accountId)
+      throws NoSuchTrustedIntermediaryGroupError, NoSuchTrustedIntermediaryError {
+    Optional<TrustedIntermediaryGroup> tiGroup = getTrustedIntermediaryGroup(id);
+    if (tiGroup.isEmpty()) {
+      throw new NoSuchTrustedIntermediaryGroupError();
+    }
+    Optional<Account> accountMaybe = lookupAccount(accountId);
+    if (accountMaybe.isEmpty()) {
+      throw new NoSuchTrustedIntermediaryError();
+    }
+    Account account = accountMaybe.get();
+    if (account.getMemberOfGroup().isPresent()
+        && account.getMemberOfGroup().get().equals(tiGroup.get())) {
+      account.setMemberOfGroup(null);
+      account.save();
+    } else {
+      throw new NoSuchTrustedIntermediaryError();
+    }
+  }
+
+  private Optional<Account> lookupAccount(long accountId) {
+    return ebeanServer.find(Account.class).setId(accountId).findOneOrEmpty();
   }
 }

@@ -8,6 +8,7 @@ import play.i18n.Messages;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
 import views.questiontypes.ApplicantQuestionRendererFactory;
+import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.Styles;
 
 public class QuestionPreview {
@@ -15,7 +16,8 @@ public class QuestionPreview {
   private static ContainerTag buildQuestionRenderer(QuestionType type, Messages messages)
       throws UnsupportedQuestionTypeException {
     ApplicantQuestionRendererFactory rf = new ApplicantQuestionRendererFactory();
-    return div(rf.getSampleRenderer(type).render(messages));
+    ApplicantQuestionRendererParams params = ApplicantQuestionRendererParams.sample(messages);
+    return div(rf.getSampleRenderer(type).render(params));
   }
 
   public static ContainerTag renderQuestionPreview(QuestionType type, Messages messages) {

@@ -21,6 +21,7 @@ import services.applicant.question.ApplicantQuestion;
 import views.BaseHtmlView;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
+import views.questiontypes.ApplicantQuestionRendererParams;
 
 public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
@@ -39,6 +40,12 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         routes.ApplicantProgramBlocksController.update(
                 params.applicantId(), params.programId(), params.block().getId(), params.inReview())
             .url();
+    ApplicantQuestionRendererParams rendererParams =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(params.messages())
+            .setProgramId(params.programId())
+            .setApplicantId(params.applicantId())
+            .build();
     ContainerTag body =
         body()
             .with(h1(params.block().getName()))
@@ -51,7 +58,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
                     .with(
                         each(
                             params.block().getQuestions(),
-                            question -> renderQuestion(question, params.messages())))
+                            question -> renderQuestion(question, rendererParams)))
                     .with(submitButton(params.messages().at("button.nextBlock"))));
 
     if (!params.preferredLanguageSupported()) {
@@ -83,8 +90,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         .getContainerTag();
   }
 
-  private Tag renderQuestion(ApplicantQuestion question, Messages messages) {
-    return applicantQuestionRendererFactory.getRenderer(question).render(messages);
+  private Tag renderQuestion(ApplicantQuestion question, ApplicantQuestionRendererParams params) {
+    return applicantQuestionRendererFactory.getRenderer(question).render(params);
   }
 
   @AutoValue

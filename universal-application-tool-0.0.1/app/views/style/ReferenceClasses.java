@@ -22,4 +22,5 @@ public final class ReferenceClasses {
   public static final String ADMIN_VERSION_CARD = "cf-admin-version-card";
   public static final String RADIO_OPTION = "cf-radio-option";
   public static final String RADIO_INPUT = "cf-radio-input";
+  public static final String ADMIN_TI_GROUP_ROW = "cf-ti-row";
 }
