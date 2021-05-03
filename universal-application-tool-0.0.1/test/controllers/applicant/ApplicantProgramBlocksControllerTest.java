@@ -97,29 +97,37 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
   }
 
   @Test
+  public void edit_withMessages_returnsCorrectButtonText() {
+    Request request =
+        addCSRFToken(
+                fakeRequest(
+                        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1"))
+                    .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()))
+            .build();
+
+    Result result =
+        subject
+            .edit(request, applicant.id, program.id, /* blockId = */ "1")
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Guardar y continuar");
+  }
+
+  @Test
   public void update_invalidApplicant_returnsUnauthorized() {
     long badApplicantId = applicant.id + 1000;
     Request request =
         fakeRequest(
                 routes.ApplicantProgramBlocksController.update(
-                    badApplicantId,
-                    program.id,
-                    /** blockId = */
-                    "1",
-                    /** inReview = */
-                    false))
+                    badApplicantId, program.id, /* blockId = */ "1", /* inReview = */ false))
             .build();
 
     Result result =
         subject
             .update(
-                request,
-                badApplicantId,
-                program.id,
-                /** blockId = */
-                "1",
-                /** inReview = */
-                false)
+                request, badApplicantId, program.id, /* blockId = */ "1", /* inReview = */ false)
             .toCompletableFuture()
             .join();
 
@@ -132,24 +140,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
     Request request =
         fakeRequest(
                 routes.ApplicantProgramBlocksController.update(
-                    applicant.id,
-                    badProgramId,
-                    /** blockId = */
-                    "1",
-                    /** inReview = */
-                    false))
+                    applicant.id, badProgramId, /* blockId = */ "1", /* inReview = */ false))
             .build();
 
     Result result =
         subject
             .update(
-                request,
-                applicant.id,
-                badProgramId,
-                /** blockId = */
-                "1",
-                /** inReview = */
-                false)
+                request, applicant.id, badProgramId, /* blockId = */ "1", /* inReview = */ false)
             .toCompletableFuture()
             .join();
 
@@ -162,22 +159,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
     Request request =
         fakeRequest(
                 routes.ApplicantProgramBlocksController.update(
-                    applicant.id,
-                    program.id,
-                    badBlockId,
-                    /** inReview = */
-                    false))
+                    applicant.id, program.id, badBlockId, /* inReview = */ false))
             .build();
 
     Result result =
         subject
-            .update(
-                request,
-                applicant.id,
-                program.id,
-                badBlockId,
-                /** inReview = */
-                false)
+            .update(request, applicant.id, program.id, badBlockId, /* inReview = */ false)
             .toCompletableFuture()
             .join();
 
@@ -189,25 +176,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
     Request request =
         fakeRequest(
                 routes.ApplicantProgramBlocksController.update(
-                    applicant.id,
-                    program.id,
-                    /** blockId = */
-                    "1",
-                    /** inReview = */
-                    false))
+                    applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false))
             .bodyForm(ImmutableMap.of("fake.path", "value"))
             .build();
 
     Result result =
         subject
-            .update(
-                request,
-                applicant.id,
-                program.id,
-                /** blockId = */
-                "1",
-                /** inReview = */
-                false)
+            .update(request, applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false)
             .toCompletableFuture()
             .join();
 
@@ -220,25 +195,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
     Request request =
         fakeRequest(
                 routes.ApplicantProgramBlocksController.update(
-                    applicant.id,
-                    program.id,
-                    /** blockId = */
-                    "1",
-                    /** inReview = */
-                    false))
+                    applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false))
             .bodyForm(ImmutableMap.of(reservedPath, "value"))
             .build();
 
     Result result =
         subject
-            .update(
-                request,
-                applicant.id,
-                program.id,
-                /** blockId = */
-                "1",
-                /** inReview = */
-                false)
+            .update(request, applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false)
             .toCompletableFuture()
             .join();
 
@@ -251,12 +214,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
         addCSRFToken(
                 fakeRequest(
                         routes.ApplicantProgramBlocksController.update(
-                            applicant.id,
-                            program.id,
-                            /** blockId = */
-                            "1",
-                            /** inReview = */
-                            false))
+                            applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false))
                     .bodyForm(
                         ImmutableMap.of(
                             Path.create("applicant.applicant_name")
@@ -271,14 +229,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
 
     Result result =
         subject
-            .update(
-                request,
-                applicant.id,
-                program.id,
-                /** blockId = */
-                "1",
-                /** inReview = */
-                false)
+            .update(request, applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false)
             .toCompletableFuture()
             .join();
 
@@ -299,12 +250,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
     Request request =
         fakeRequest(
                 routes.ApplicantProgramBlocksController.update(
-                    applicant.id,
-                    program.id,
-                    /** blockId = */
-                    "1",
-                    /** inReview = */
-                    false))
+                    applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -315,24 +261,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
 
     Result result =
         subject
-            .update(
-                request,
-                applicant.id,
-                program.id,
-                /** blockId = */
-                "1",
-                /** inReview = */
-                false)
+            .update(request, applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false)
             .toCompletableFuture()
             .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
-        routes.ApplicantProgramBlocksController.edit(
-                applicant.id,
-                program.id,
-                /** blockId = */
-                "2")
+        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, /* blockId = */ "2")
             .url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
   }
@@ -348,12 +283,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
     Request request =
         fakeRequest(
                 routes.ApplicantProgramBlocksController.update(
-                    applicant.id,
-                    program.id,
-                    /** blockId = */
-                    "1",
-                    /** inReview = */
-                    false))
+                    applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -364,14 +294,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
 
     Result result =
         subject
-            .update(
-                request,
-                applicant.id,
-                program.id,
-                /** blockId = */
-                "1",
-                /** inReview = */
-                false)
+            .update(request, applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false)
             .toCompletableFuture()
             .join();
 
@@ -381,29 +304,5 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
         routes.ApplicantProgramReviewController.review(applicant.id, program.id).url();
 
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
-  }
-
-  @Test
-  public void edit_withMessages_returnsCorrectButtonText() {
-    Request request =
-        addCSRFToken(
-                fakeRequest(
-                        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1"))
-                    .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()))
-            .build();
-
-    Result result =
-        subject
-            .edit(
-                request,
-                applicant.id,
-                program.id,
-                /** blockId = */
-                "1")
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Guardar y continuar");
   }
 }

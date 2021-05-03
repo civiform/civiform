@@ -10,9 +10,8 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Application;
-import play.i18n.Messages;
-import play.i18n.MessagesApi;
 import org.pac4j.play.java.Secure;
+import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
 import play.mvc.Http.Request;
@@ -48,8 +47,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
       ProfileUtils profileUtils) {
     this.applicantService = checkNotNull(applicantService);
     this.applicationRepository = checkNotNull(applicationRepository);
-    this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.messagesApi = checkNotNull(messagesApi);
     this.summaryView = checkNotNull(summaryView);
     this.profileUtils = checkNotNull(profileUtils);
   }
@@ -69,7 +68,13 @@ public class ApplicantProgramReviewController extends CiviFormController {
               String programTitle = "Program title";
               return ok(
                   summaryView.render(
-                      request, messagesApi.preferred(request), applicantId, programId, programTitle, summaryData, banner));
+                      request,
+                      applicantId,
+                      programId,
+                      programTitle,
+                      summaryData,
+                      messagesApi.preferred(request),
+                      banner));
             },
             httpExecutionContext.current())
         .exceptionally(

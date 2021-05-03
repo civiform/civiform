@@ -14,10 +14,9 @@ import j2html.tags.ContainerTag;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import play.i18n.Messages;
-import play.i18n.MessagesApi;
 import java.util.Arrays;
 import java.util.Optional;
+import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
@@ -43,11 +42,11 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
    */
   public Content render(
       Request request,
-      Messages messages,
       Long applicantId,
       Long programId,
       String programTitle,
       ImmutableList<AnswerData> data,
+      Messages messages,
       Optional<String> banner) {
     ContainerTag headerTag = renderHeader(100);
 

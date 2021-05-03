@@ -63,7 +63,6 @@ describe('normal application flow', () => {
     await applicantQuestions.saveAndContinue();
 
     // Applicant submits answers from review page.
-
     await applicantQuestions.submitFromReviewPage();
 
     await logout(page);
