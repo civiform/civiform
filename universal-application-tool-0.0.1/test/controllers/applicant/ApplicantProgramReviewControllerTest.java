@@ -1,6 +1,10 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.Before;
+import org.junit.Test;
+
 // import static play.mvc.Http.Status.FOUND;
 // import static play.mvc.Http.Status.NOT_FOUND;
 // import static play.mvc.Http.Status.OK;
@@ -9,13 +13,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 // import models.Applicant;
 // import models.Program;
-import org.junit.Before;
-import org.junit.Test;
 // import play.mvc.Http.Request;
 // import play.mvc.Result;
 // import support.ProgramBuilder;
 
-public class ApplicantProgramReviewControllerTest {// extends WithMockedApplicantProfiles {
+public class ApplicantProgramReviewControllerTest { // extends WithMockedApplicantProfiles {
 
   // private ApplicantProgramReviewController subject;
   // private Program program;
@@ -70,14 +72,16 @@ public class ApplicantProgramReviewControllerTest {// extends WithMockedApplican
 
   // public Result review(long applicantId, long programId) {
   //   Request request =
-  //               fakeRequest(routes.ApplicantProgramReviewController.review(applicantId, programId))
+  //               fakeRequest(routes.ApplicantProgramReviewController.review(applicantId,
+  // programId))
   //           .build();
   //   return subject.review(request, applicantId, programId).toCompletableFuture().join();
   // }
 
   // public Result submit(long applicantId, long programId) {
   //   Request request =
-  //               fakeRequest(routes.ApplicantProgramReviewController.submit(applicantId, programId))
+  //               fakeRequest(routes.ApplicantProgramReviewController.submit(applicantId,
+  // programId))
   //           .build();
   //   return subject.submit(request, applicantId, programId).toCompletableFuture().join();
   // }
