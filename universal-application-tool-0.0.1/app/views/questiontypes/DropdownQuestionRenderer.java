@@ -7,6 +7,7 @@ import static j2html.TagCreator.select;
 
 import j2html.attributes.Attr;
 import j2html.tags.Tag;
+import play.i18n.Messages;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.SingleSelectQuestion;
 import views.BaseHtmlView;
@@ -22,7 +23,7 @@ public class DropdownQuestionRenderer extends BaseHtmlView implements ApplicantQ
   }
 
   @Override
-  public Tag render() {
+  public Tag render(Messages messages) {
     SingleSelectQuestion singleSelectQuestion = question.createSingleSelectQuestion();
 
     return div()

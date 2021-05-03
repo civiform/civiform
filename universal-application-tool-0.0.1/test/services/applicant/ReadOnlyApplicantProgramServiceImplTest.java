@@ -3,6 +3,7 @@ package services.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import models.Applicant;
@@ -10,8 +11,10 @@ import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
 import services.Path;
+import services.applicant.question.Scalar;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.ScalarType;
 import support.ProgramBuilder;
 import support.QuestionAnswerer;
 
@@ -69,6 +72,78 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     assertThat(allBlocks).hasSize(2);
     assertThat(allBlocks.get(0).getName()).isEqualTo("Block one");
     assertThat(allBlocks.get(1).getName()).isEqualTo("Block two");
+  }
+
+  @Test
+  public void getAllBlocks_includesRepeatedBlocks() {
+    programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("name")
+            .withQuestion(testQuestionBank.applicantName())
+            .withBlock("address")
+            .withQuestion(testQuestionBank.applicantAddress())
+            .withBlock("enumeration - household members")
+            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRepeatedBlock("repeated - household members name")
+            .withQuestion(testQuestionBank.applicantHouseholdMemberName())
+            .buildDefinition();
+
+    // Add repeated entities to applicant data
+    Path enumerationPath =
+        ApplicantData.APPLICANT_PATH.join("applicant_household_members").asArrayElement();
+    applicantData.putString(enumerationPath.atIndex(0).join(Scalar.ENTITY_NAME), "first entity");
+    applicantData.putString(enumerationPath.atIndex(1).join(Scalar.ENTITY_NAME), "second entity");
+    applicantData.putString(enumerationPath.atIndex(2).join(Scalar.ENTITY_NAME), "third entity");
+
+    ReadOnlyApplicantProgramService service =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+
+    ImmutableList<Block> blocks = service.getAllBlocks();
+
+    assertThat(blocks).hasSize(6);
+
+    assertThat(blocks.get(3).getId()).isEqualTo("4-0");
+    Path questionPath = enumerationPath.atIndex(0).join("household_members_name");
+    assertThat(blocks.get(3).getQuestions().get(0).getContextualizedScalars())
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                questionPath.join(Scalar.FIRST_NAME), ScalarType.STRING,
+                questionPath.join(Scalar.MIDDLE_NAME), ScalarType.STRING,
+                questionPath.join(Scalar.LAST_NAME), ScalarType.STRING,
+                questionPath.join(Scalar.PROGRAM_UPDATED_IN), ScalarType.LONG,
+                questionPath.join(Scalar.UPDATED_AT), ScalarType.LONG));
+
+    assertThat(blocks.get(4).getId()).isEqualTo("4-1");
+    questionPath = enumerationPath.atIndex(1).join("household_members_name");
+    assertThat(blocks.get(4).getQuestions().get(0).getContextualizedScalars())
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                questionPath.join(Scalar.FIRST_NAME),
+                ScalarType.STRING,
+                questionPath.join(Scalar.MIDDLE_NAME),
+                ScalarType.STRING,
+                questionPath.join(Scalar.LAST_NAME),
+                ScalarType.STRING,
+                questionPath.join(Scalar.PROGRAM_UPDATED_IN),
+                ScalarType.LONG,
+                questionPath.join(Scalar.UPDATED_AT),
+                ScalarType.LONG));
+
+    assertThat(blocks.get(5).getId()).isEqualTo("4-2");
+    questionPath = enumerationPath.atIndex(2).join("household_members_name");
+    assertThat(blocks.get(5).getQuestions().get(0).getContextualizedScalars())
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                questionPath.join(Scalar.FIRST_NAME),
+                ScalarType.STRING,
+                questionPath.join(Scalar.MIDDLE_NAME),
+                ScalarType.STRING,
+                questionPath.join(Scalar.LAST_NAME),
+                ScalarType.STRING,
+                questionPath.join(Scalar.PROGRAM_UPDATED_IN),
+                ScalarType.LONG,
+                questionPath.join(Scalar.UPDATED_AT),
+                ScalarType.LONG));
   }
 
   @Test
@@ -264,7 +339,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   private void answerAddressQuestion(long programId) {
     Path path = Path.create("applicant.applicant_address");
     QuestionAnswerer.answerAddressQuestion(
-        applicantData, path, "123 Rhode St.", "Seattle", "WA", "12345");
+        applicantData, path, "123 Rhode St.", "", "Seattle", "WA", "12345");
     QuestionAnswerer.addMetadata(applicantData, path, programId, 12345L);
   }
 }

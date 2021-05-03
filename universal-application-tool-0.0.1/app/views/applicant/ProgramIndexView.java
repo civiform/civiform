@@ -53,10 +53,9 @@ public class ProgramIndexView extends BaseHtmlView {
     }
     body.with(
         topContent(messages.at("content.benefits"), messages.at("content.description")),
-        mainContent(
-            programs, applicantId, messages.lang().toLocale(), messages.at("button.apply")));
+        mainContent(messages, programs, applicantId, messages.lang().toLocale()));
 
-    return layout.render(body);
+    return layout.render(messages, body);
   }
 
   private ContainerTag topContent(String titleText, String infoText) {
@@ -83,21 +82,20 @@ public class ProgramIndexView extends BaseHtmlView {
   }
 
   private ContainerTag mainContent(
+      Messages messages,
       ImmutableList<ProgramDefinition> programs,
       long applicantId,
-      Locale preferredLocale,
-      String applyText) {
+      Locale preferredLocale) {
     return div()
         .withId("main-content")
         .withClasses(Styles.RELATIVE, Styles.W_FULL, Styles.FLEX, Styles.FLEX_WRAP, Styles.PB_8)
         .with(
             each(
-                programs,
-                program -> programCard(program, applicantId, preferredLocale, applyText)));
+                programs, program -> programCard(messages, program, applicantId, preferredLocale)));
   }
 
   private ContainerTag programCard(
-      ProgramDefinition program, Long applicantId, Locale preferredLocale, String applyText) {
+      Messages messages, ProgramDefinition program, Long applicantId, Locale preferredLocale) {
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
     ContainerTag category =
         div()
@@ -112,7 +110,7 @@ public class ProgramIndexView extends BaseHtmlView {
                         Styles.ROUNDED_FULL,
                         Styles.INLINE_BLOCK,
                         Styles.ALIGN_MIDDLE),
-                div("No Category")
+                div(messages.at("content.noCategory"))
                     .withClasses(
                         Styles.ML_2,
                         Styles.INLINE,
@@ -135,7 +133,7 @@ public class ProgramIndexView extends BaseHtmlView {
         div()
             .withId(baseId + "-external-link")
             .withClasses(Styles.TEXT_XS, Styles.UNDERLINE)
-            .withText("Program details");
+            .withText(messages.at("content.programDetails"));
     ContainerTag programData =
         div()
             .withId(baseId + "-data")
@@ -147,7 +145,7 @@ public class ProgramIndexView extends BaseHtmlView {
             .url();
     ContainerTag applyButton =
         a().attr(HREF, applyUrl)
-            .withText(applyText)
+            .withText(messages.at("button.apply"))
             .withId(baseId + "-apply")
             .withClasses(
                 ReferenceClasses.APPLY_BUTTON,

@@ -1,13 +1,17 @@
 package views.questiontypes;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import play.i18n.Lang;
+import play.i18n.Messages;
 import repository.WithPostgresContainer;
 import services.Path;
 import services.applicant.ApplicantData;
@@ -28,6 +32,8 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
           TextValidationPredicates.create(2, 3));
 
   private final ApplicantData applicantData = new ApplicantData();
+  private final Messages messages =
+      stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
 
   private ApplicantQuestion question;
   private TextQuestionRenderer renderer;
@@ -42,7 +48,7 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
 
   @Test
   public void render_withoutQuestionErrors() {
-    Tag result = renderer.render();
+    Tag result = renderer.render(messages);
 
     assertThat(result.render()).doesNotContain("Must contain at");
   }
@@ -51,7 +57,7 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
   public void render_withMinLengthError() {
     QuestionAnswerer.answerTextQuestion(applicantData, question.getContextualizedPath(), "a");
 
-    Tag result = renderer.render();
+    Tag result = renderer.render(messages);
 
     assertThat(result.render()).contains("Must contain at least 2 characters.");
   }
@@ -60,7 +66,7 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
   public void render_withMaxLengthError() {
     QuestionAnswerer.answerTextQuestion(applicantData, question.getContextualizedPath(), "abcd");
 
-    Tag result = renderer.render();
+    Tag result = renderer.render(messages);
 
     assertThat(result.render()).contains("Must contain at most 3 characters.");
   }

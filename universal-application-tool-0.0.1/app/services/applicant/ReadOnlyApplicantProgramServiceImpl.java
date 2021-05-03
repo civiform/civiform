@@ -7,6 +7,7 @@ import java.util.Optional;
 import services.Path;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.question.types.QuestionDefinition;
 
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
 
@@ -83,25 +84,63 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
    * has yet to be filled out by the applicant, or if it was filled out in the context of this
    * program.
    */
-  // TODO(#783): Need to compute Blocks for repeated questions.
   private ImmutableList<Block> getBlocks(boolean onlyIncludeInProgressBlocks) {
+    String emptyBlockIdSuffix = "";
+    return getBlocks(
+        programDefinition.getNonRepeatedBlockDefinitions(),
+        emptyBlockIdSuffix,
+        ApplicantData.APPLICANT_PATH,
+        onlyIncludeInProgressBlocks);
+  }
+
+  /** Recursive helper method for {@link ReadOnlyApplicantProgramServiceImpl#getBlocks(boolean)}. */
+  private ImmutableList<Block> getBlocks(
+      ImmutableList<BlockDefinition> blockDefinitions,
+      String blockIdSuffix,
+      Path contextualizedPath,
+      boolean onlyIncludeInProgressBlocks) {
     ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
 
-    ImmutableList<BlockDefinition> nonRepeatedBlockDefinitions =
-        programDefinition.getNonRepeatedBlockDefinitions();
-    for (BlockDefinition blockDefinition : nonRepeatedBlockDefinitions) {
+    for (BlockDefinition blockDefinition : blockDefinitions) {
+      // Create and maybe include the block for this block definition.
       Block block =
           new Block(
-              String.valueOf(blockDefinition.id()),
+              blockDefinition.id() + blockIdSuffix,
               blockDefinition,
               applicantData,
-              Path.create("applicant"));
-
+              contextualizedPath);
       boolean includeAllBlocks = !onlyIncludeInProgressBlocks;
       if (includeAllBlocks
           || !block.isCompleteWithoutErrors()
           || block.wasCompletedInProgram(programDefinition.id())) {
         blockListBuilder.add(block);
+      }
+
+      // For an enumeration block definition, build blocks for its repeated questions
+      if (blockDefinition.isRepeater()) {
+
+        // Get all the repeated entities enumerated by this enumeration block.
+        QuestionDefinition enumerationQuestionDefinition =
+            blockDefinition.getEnumerationQuestionDefinition();
+        Path contextualizedPathForEnumeration =
+            contextualizedPath.join(enumerationQuestionDefinition.getQuestionPathSegment());
+        ImmutableList<String> entityNames =
+            applicantData.readRepeatedEntities(contextualizedPathForEnumeration);
+
+        // For each repeated entity, recursively build blocks for all of the repeated blocks of this
+        // enumeration block.
+        ImmutableList<BlockDefinition> repeatedBlockDefinitions =
+            programDefinition.getBlockDefinitionsForRepeater(blockDefinition.id());
+        for (int i = 0; i < entityNames.size(); i++) {
+          String nextBlockIdSuffix = String.format("%s-%d", blockIdSuffix, i);
+          Path contextualizedPathForEntity = contextualizedPathForEnumeration.atIndex(i);
+          blockListBuilder.addAll(
+              getBlocks(
+                  repeatedBlockDefinitions,
+                  nextBlockIdSuffix,
+                  contextualizedPathForEntity,
+                  onlyIncludeInProgressBlocks));
+        }
       }
     }
 

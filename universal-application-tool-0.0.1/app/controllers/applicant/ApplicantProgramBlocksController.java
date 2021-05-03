@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.data.FormFactory;
+import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
@@ -170,6 +171,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
     }
     Block thisBlockUpdated = thisBlockUpdatedMaybe.get();
+    Messages applicantMessages = messagesApi.preferred(request);
 
     // Validation errors: re-render this block with errors and previously entered data.
     if (thisBlockUpdated.hasErrors()) {
@@ -179,7 +181,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   editView.render(
                       ApplicantProgramBlockEditView.Params.builder()
                           .setRequest(request)
-                          .setMessages(messagesApi.preferred(request))
+                          .setMessages(applicantMessages)
                           .setApplicantId(applicantId)
                           .setProgramId(programId)
                           .setBlock(thisBlockUpdated)
@@ -193,7 +195,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     Optional<String> nextBlockIdMaybe =
         roApplicantProgramService.getBlockAfter(blockId).map(Block::getId);
     return nextBlockIdMaybe.isEmpty()
-        ? previewPageRedirect(applicantId, programId)
+        ? previewPageRedirect(applicantMessages, applicantId, programId)
         : supplyAsync(
             () ->
                 redirect(
@@ -201,7 +203,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         applicantId, programId, nextBlockIdMaybe.get())));
   }
 
-  private CompletionStage<Result> previewPageRedirect(long applicantId, long programId) {
+  private CompletionStage<Result> previewPageRedirect(
+      Messages messages, long applicantId, long programId) {
     // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Replace
     // with a redirect to the review page.
     // For now, this just saves the application and redirects to program index page.
@@ -217,10 +220,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               Application application = applicationMaybe.get();
               // Placeholder application ID display.
               return found(endOfProgramSubmission)
-                  .flashing(
-                      "banner",
-                      String.format(
-                          "Successfully saved application: application ID %d", application.id));
+                  .flashing("banner", messages.at("toast.applicationSaved", application.id));
             });
   }
 

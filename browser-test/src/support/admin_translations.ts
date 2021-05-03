@@ -8,12 +8,18 @@ export class AdminTranslations {
   }
 
   async selectLanguage(language: string) {
-    await this.page.click(`.language-link:text("${language}")`);
+    await this.page.click(`.cf-admin-language-link:text("${language}")`);
   }
 
-  async editTranslations(name: string, description: string) {
+  async editProgramTranslations(name: string, description: string) {
     await this.page.fill('#localize-display-name', name);
     await this.page.fill('#localize-display-description', description);
+    await this.page.click('#update-localizations-button');
+  }
+
+  async editQuestionTranslations(text: string, helpText: string) {
+    await this.page.fill('#localize-question-text', text);
+    await this.page.fill('#localize-question-help-text', helpText);
     await this.page.click('#update-localizations-button');
   }
 }
