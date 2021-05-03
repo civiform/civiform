@@ -33,5 +33,25 @@ export class AdminTIGroups {
     expect(tableInnerText).toContain(description);
   }
 
+  async editGroup(groupName: string) {
+    await this.gotoAdminTIPage();
+    await this.page.click(this.selectWithinRow(groupName, ':text("Edit")'));
+  }
 
+  selectWithinRow(groupName: string, selector: string) {
+    return `.cf-ti-row:has-text("${groupName}") ${selector}`;
+  }
+
+  async addGroupMember(emailAddress: string) {
+    await this.page.fill('text="Email Address"', emailAddress);
+    await this.page.click('text="Add"');
+  }
+
+  async expectGroupMemberExist(username: string, emailAddress: string) {
+    const tableInnerText = await this.page.innerText('table');
+
+    expect(tableInnerText).toContain(username);
+    expect(tableInnerText).toContain(emailAddress);
+    expect(tableInnerText).toContain('Not yet signed in.');
+  }
 }

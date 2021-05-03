@@ -5,7 +5,6 @@ import static j2html.TagCreator.each;
 import static views.components.FieldWithLabel.checkbox;
 
 import j2html.tags.Tag;
-import play.i18n.Messages;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import views.BaseHtmlView;
@@ -21,7 +20,7 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
   }
 
   @Override
-  public Tag render(Messages messages) {
+  public Tag render(ApplicantQuestionRendererParams params) {
     MultiSelectQuestion multiOptionQuestion = question.createMultiSelectQuestion();
 
     return div()

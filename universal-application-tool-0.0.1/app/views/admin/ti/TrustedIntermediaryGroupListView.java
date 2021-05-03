@@ -23,6 +23,7 @@ import play.twirl.api.Content;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
+import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -58,12 +59,12 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
     return layout.render(body);
   }
 
-  private Tag renderTiGroupCards(List<TrustedIntermediaryGroup> tis) {
+  private Tag renderTiGroupCards(List<TrustedIntermediaryGroup> tis, Http.Request request) {
     return div(
         table()
             .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
             .with(renderGroupTableHeader())
-            .with(tbody(each(tis, ti -> renderGroupRow(ti)))));
+            .with(tbody(each(tis, ti -> renderGroupRow(ti, request)))));
   }
 
   private Tag renderAddNewButton(Http.Request request) {
@@ -96,15 +97,15 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
             Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_1_2, Styles.MT_6);
   }
 
-  private Tag renderGroupRow(TrustedIntermediaryGroup ti) {
+  private Tag renderGroupRow(TrustedIntermediaryGroup ti, Http.Request request) {
     return tr().withClasses(
-            ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
+            ReferenceClasses.ADMIN_TI_GROUP_ROW,
             Styles.BORDER_B,
             Styles.BORDER_GRAY_300,
             StyleUtils.even(Styles.BG_GRAY_100))
         .with(renderInfoCell(ti))
         .with(renderMemberCountCell(ti))
-        .with(renderActionsCell(ti));
+        .with(renderActionsCell(ti, request));
   }
 
   private Tag renderInfoCell(TrustedIntermediaryGroup tiGroup) {
@@ -123,8 +124,24 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
-  private Tag renderActionsCell(TrustedIntermediaryGroup tiGroup) {
-    return td().with(div(tiGroup.toString()));
+  private Tag renderActionsCell(TrustedIntermediaryGroup tiGroup, Http.Request request) {
+    return td().with(renderEditButton(tiGroup), renderDeleteButton(tiGroup, request));
+  }
+
+  private Tag renderDeleteButton(TrustedIntermediaryGroup tiGroup, Http.Request request) {
+    return new LinkElement()
+        .setText("Delete")
+        .setId("delete-" + tiGroup.id + "-button")
+        .setHref(routes.TrustedIntermediaryManagementController.delete(tiGroup.id).url())
+        .asHiddenForm(request);
+  }
+
+  private Tag renderEditButton(TrustedIntermediaryGroup tiGroup) {
+    return new LinkElement()
+        .setText("Edit")
+        .setId("edit-" + tiGroup.id + "-button")
+        .setHref(routes.TrustedIntermediaryManagementController.edit(tiGroup.id).url())
+        .asButton();
   }
 
   private Tag renderGroupTableHeader() {
