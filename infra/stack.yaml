@@ -3,6 +3,7 @@ Description: 'The main stack for CiviForm.'
 Mappings:
   DNS:
     prod:
+      # The city's DNS is configured as a CNAME to this address.
       Domain: seattle.civiform.com
       HostedZone: Z02860647AHUYUQTEAPO
     staging:
