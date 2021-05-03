@@ -100,14 +100,14 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       Path contextualizedPath,
       boolean onlyIncludeInProgressBlocks) {
     ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
-    for (BlockDefinition blockDefinition : nonRepeatedBlockDefinitions) {
+    for (BlockDefinition blockDefinition : blockDefinitions) {
+      // Create and maybe include the block for this block definition.
       Block block =
           new Block(
-              blockIdSuffix,
+              blockDefinition.id() + blockIdSuffix,
               blockDefinition,
               applicantData,
               contextualizedPath);
-
       boolean includeAllBlocks = !onlyIncludeInProgressBlocks;
       if (includeAllBlocks
           || !block.isCompleteWithoutErrors()
