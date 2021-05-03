@@ -31,7 +31,8 @@ public class NameQuestionTest {
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"));
 
-  private final Messages messages = stubMessagesApi().preferred(ImmutableList.of(Lang.defaultLang()));
+  private final Messages messages =
+      stubMessagesApi().preferred(ImmutableList.of(Lang.defaultLang()));
 
   private Applicant applicant;
   private ApplicantData applicantData;

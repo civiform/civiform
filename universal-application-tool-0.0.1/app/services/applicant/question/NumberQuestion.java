@@ -2,11 +2,11 @@ package services.applicant.question;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
-import play.i18n.Messages;
+import services.MessageKey;
 import services.Path;
+import services.applicant.ValidationErrorMessage;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionType;
-import views.MessageKeys;
 
 public class NumberQuestion implements PresentsErrors {
 
@@ -19,12 +19,12 @@ public class NumberQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors(Messages messages) {
-    return !getQuestionErrors(messages).isEmpty();
+  public boolean hasQuestionErrors() {
+    return !getQuestionErrors().isEmpty();
   }
 
   @Override
-  public ImmutableSet<String> getQuestionErrors(Messages messages) {
+  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     if (!isAnswered()) {
       return ImmutableSet.of();
     }
@@ -38,13 +38,13 @@ public class NumberQuestion implements PresentsErrors {
       return ImmutableSet.of();
     }
 
-    ImmutableSet.Builder<String> errors = ImmutableSet.builder();
+    ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
     if (questionDefinition.getMin().isPresent()) {
       long min = questionDefinition.getMin().getAsLong();
       // If value is empty, don't test against min.
       if (getNumberValue().isPresent() && getNumberValue().get() < min) {
-        errors.add(messages.at(MessageKeys.NUMBER_TOO_SMALL, min));
+        errors.add(ValidationErrorMessage.create(MessageKey.NUMBER_TOO_SMALL, min));
       }
     }
 
@@ -52,7 +52,7 @@ public class NumberQuestion implements PresentsErrors {
       long max = questionDefinition.getMax().getAsLong();
       // If value is empty, don't test against max.
       if (getNumberValue().isPresent() && getNumberValue().get() > max) {
-        errors.add(messages.at(MessageKeys.NUMBER_TOO_BIG, max));
+        errors.add(ValidationErrorMessage.create(MessageKey.NUMBER_TOO_BIG, max));
       }
     }
 
@@ -60,12 +60,12 @@ public class NumberQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasTypeSpecificErrors(Messages messages) {
-    return !getAllTypeSpecificErrors(messages).isEmpty();
+  public boolean hasTypeSpecificErrors() {
+    return !getAllTypeSpecificErrors().isEmpty();
   }
 
   @Override
-  public ImmutableSet<String> getAllTypeSpecificErrors(Messages messages) {
+  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
     // There are no inherent requirements in a number question.
     return ImmutableSet.of();
   }

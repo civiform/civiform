@@ -17,7 +17,6 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import services.Path;
 import services.applicant.ApplicantData;
-import services.applicant.ValidationErrorMessage;
 import services.question.types.NumberQuestionDefinition;
 import support.QuestionAnswerer;
 
@@ -43,7 +42,8 @@ public class NumberQuestionTest {
           ImmutableMap.of(Locale.US, "help text"),
           NumberQuestionDefinition.NumberValidationPredicates.create(50, 100));
 
-  private final Messages messages = stubMessagesApi().preferred(ImmutableList.of(Lang.defaultLang()));
+  private final Messages messages =
+      stubMessagesApi().preferred(ImmutableList.of(Lang.defaultLang()));
 
   private Applicant applicant;
   private ApplicantData applicantData;
@@ -129,8 +129,7 @@ public class NumberQuestionTest {
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
     assertThat(numberQuestion.hasTypeSpecificErrors(messages)).isFalse();
-    assertThat(numberQuestion.getQuestionErrors(messages))
-        .containsOnly(expectedErrorMessage);
+    assertThat(numberQuestion.getQuestionErrors(messages)).containsOnly(expectedErrorMessage);
     assertThat(numberQuestion.getNumberValue().get()).isEqualTo(value);
   }
 

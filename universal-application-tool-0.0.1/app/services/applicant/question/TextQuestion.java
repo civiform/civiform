@@ -2,11 +2,11 @@ package services.applicant.question;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
-import play.i18n.Messages;
+import services.MessageKey;
 import services.Path;
+import services.applicant.ValidationErrorMessage;
 import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
-import views.MessageKeys;
 
 public class TextQuestion implements PresentsErrors {
 
@@ -19,31 +19,31 @@ public class TextQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors(Messages messages) {
-    return !getQuestionErrors(messages).isEmpty();
+  public boolean hasQuestionErrors() {
+    return !getQuestionErrors().isEmpty();
   }
 
   @Override
-  public ImmutableSet<String> getQuestionErrors(Messages messages) {
+  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     if (!isAnswered()) {
       return ImmutableSet.of();
     }
 
     TextQuestionDefinition definition = getQuestionDefinition();
     int textLength = getTextValue().map(s -> s.length()).orElse(0);
-    ImmutableSet.Builder<String> errors = ImmutableSet.builder();
+    ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
     if (definition.getMinLength().isPresent()) {
       int minLength = definition.getMinLength().getAsInt();
       if (textLength < minLength) {
-        errors.add(messages.at(MessageKeys.TEXT_TOO_SHORT, minLength));
+        errors.add(ValidationErrorMessage.create(MessageKey.TEXT_TOO_SHORT, minLength));
       }
     }
 
     if (definition.getMaxLength().isPresent()) {
       int maxLength = definition.getMaxLength().getAsInt();
       if (textLength > maxLength) {
-        errors.add(messages.at(MessageKeys.TEXT_TOO_LONG, maxLength));
+        errors.add(ValidationErrorMessage.create(MessageKey.TEXT_TOO_LONG, maxLength));
       }
     }
 
@@ -51,12 +51,12 @@ public class TextQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasTypeSpecificErrors(Messages messages) {
-    return !getAllTypeSpecificErrors(messages).isEmpty();
+  public boolean hasTypeSpecificErrors() {
+    return !getAllTypeSpecificErrors().isEmpty();
   }
 
   @Override
-  public ImmutableSet<String> getAllTypeSpecificErrors(Messages messages) {
+  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
     // There are no inherent requirements in a text question.
     return ImmutableSet.of();
   }

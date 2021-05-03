@@ -17,7 +17,6 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import services.Path;
 import services.applicant.ApplicantData;
-import services.applicant.ValidationErrorMessage;
 import services.question.types.TextQuestionDefinition;
 import support.QuestionAnswerer;
 
@@ -42,7 +41,8 @@ public class TextQuestionTest {
           ImmutableMap.of(Locale.US, "help text"),
           TextQuestionDefinition.TextValidationPredicates.create(3, 4));
 
-  private final Messages messages = stubMessagesApi().preferred(ImmutableList.of(Lang.defaultLang()));
+  private final Messages messages =
+      stubMessagesApi().preferred(ImmutableList.of(Lang.defaultLang()));
 
   private Applicant applicant;
   private ApplicantData applicantData;

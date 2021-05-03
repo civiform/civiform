@@ -14,7 +14,6 @@ import play.i18n.Messages;
 import services.LocalizationUtils;
 import services.Path;
 import services.applicant.ApplicantData;
-import services.applicant.ValidationErrorMessage;
 import services.question.QuestionOption;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -40,7 +39,8 @@ public class MultiSelectQuestionTest {
               .setMaxChoicesAllowed(3)
               .build());
 
-  private final Messages messages = stubMessagesApi().preferred(ImmutableList.of(Lang.defaultLang()));
+  private final Messages messages =
+      stubMessagesApi().preferred(ImmutableList.of(Lang.defaultLang()));
 
   private ApplicantData applicantData;
 

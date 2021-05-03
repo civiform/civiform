@@ -36,7 +36,8 @@ public class SingleSelectQuestionTest {
               QuestionOption.create(
                   2L, ImmutableMap.of(Locale.US, "option 2", Locale.FRANCE, "deux"))));
 
-  private final Messages messages = stubMessagesApi().preferred(ImmutableList.of(Lang.defaultLang()));
+  private final Messages messages =
+      stubMessagesApi().preferred(ImmutableList.of(Lang.defaultLang()));
 
   private Applicant applicant;
   private ApplicantData applicantData;

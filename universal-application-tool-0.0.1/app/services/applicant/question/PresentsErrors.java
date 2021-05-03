@@ -1,21 +1,21 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableSet;
-import play.i18n.Messages;
+import services.applicant.ValidationErrorMessage;
 
 public interface PresentsErrors {
   /** Returns true if values do not meet conditions defined by admins. */
-  boolean hasQuestionErrors(Messages messages);
+  boolean hasQuestionErrors();
 
-  ImmutableSet<String> getQuestionErrors(Messages messages);
+  ImmutableSet<ValidationErrorMessage> getQuestionErrors();
 
   /**
    * Returns true if there is any type specific errors. The validation does not consider
    * admin-defined conditions.
    */
-  boolean hasTypeSpecificErrors(Messages messages);
+  boolean hasTypeSpecificErrors();
 
-  ImmutableSet<String> getAllTypeSpecificErrors(Messages messages);
+  ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors();
 
   /**
    * Returns true if the question has been answered by the applicant, even if that answer was blank.

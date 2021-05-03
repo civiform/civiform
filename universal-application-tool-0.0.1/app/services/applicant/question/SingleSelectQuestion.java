@@ -3,8 +3,8 @@ package services.applicant.question;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
-import play.i18n.Messages;
 import services.Path;
+import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 
@@ -19,23 +19,23 @@ public class SingleSelectQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors(Messages messages) {
-    return !getQuestionErrors(messages).isEmpty();
+  public boolean hasQuestionErrors() {
+    return !getQuestionErrors().isEmpty();
   }
 
   @Override
-  public ImmutableSet<String> getQuestionErrors(Messages messages) {
+  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     // Only one selection is possible - there is no admin-configured validation.
     return ImmutableSet.of();
   }
 
   @Override
-  public boolean hasTypeSpecificErrors(Messages messages) {
-    return !getAllTypeSpecificErrors(messages).isEmpty();
+  public boolean hasTypeSpecificErrors() {
+    return !getAllTypeSpecificErrors().isEmpty();
   }
 
   @Override
-  public ImmutableSet<String> getAllTypeSpecificErrors(Messages messages) {
+  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
     // Only one selection is possible - there is no admin-configured validation.
     return ImmutableSet.of();
   }
