@@ -202,20 +202,4 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
     assertThat(result.redirectLocation())
         .hasValue(routes.ApplicantProgramsController.index(currentApplicant.id).url());
   }
-
-  @Test
-  public void edit_withMessages_returnsCorrectButtonText() {
-    Request request =
-        addCSRFToken(
-                fakeRequest(
-                        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1"))
-                    .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()))
-            .build();
-
-    Result result =
-        subject.edit(request, applicant.id, program.id, "1").toCompletableFuture().join();
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Guardar y continuar");
-  }
 }
