@@ -1,9 +1,6 @@
 package controllers.admin;
 
 import auth.Authorizers;
-import auth.ProfileUtils;
-import auth.Roles;
-import auth.UatProfile;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import forms.AddTrustedIntermediaryForm;
@@ -24,7 +21,6 @@ import services.ti.NoSuchTrustedIntermediaryError;
 import services.ti.NoSuchTrustedIntermediaryGroupError;
 import views.admin.ti.EditTrustedIntermediaryGroupView;
 import views.admin.ti.TrustedIntermediaryGroupListView;
-import views.applicant.TrustedIntermediaryDashboardView;
 
 public class TrustedIntermediaryManagementController extends Controller {
   private final TrustedIntermediaryGroupListView listView;

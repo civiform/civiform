@@ -507,7 +507,7 @@ public class ApplicantData {
     setUserName(firstName, middleName, lastName);
   }
 
-  private void setUserName(
+  public void setUserName(
       String firstName, @Nullable String middleName, @Nullable String lastName) {
     if (!hasPath(WellKnownPaths.APPLICANT_FIRST_NAME)) {
       putString(WellKnownPaths.APPLICANT_FIRST_NAME, firstName);

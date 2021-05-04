@@ -38,10 +38,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   protected Content render(Http.Request request, Messages messages, DomContent... mainDomContents) {
-      return render(profileUtils.currentUserProfile(request), messages, mainDomContents);
+    return render(profileUtils.currentUserProfile(request), messages, mainDomContents);
   }
   /** Renders mainDomContents within the main tag, in the context of the applicant layout. */
-  protected Content render(Optional<UatProfile> profile, Messages messages, DomContent... mainDomContents) {
+  protected Content render(
+      Optional<UatProfile> profile, Messages messages, DomContent... mainDomContents) {
     return htmlContent(
         head().with(title("Applicant layout title")).with(tailwindStyles()),
         body()
@@ -67,9 +68,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
     if (profile.isPresent() && profile.get().getRoles().contains(Roles.ROLE_TI.toString())) {
       String tiDashboardLink = routes.TrustedIntermediaryController.dashboard().url();
       return a("Trusted Intermediary Dashboard")
-              .withHref(tiDashboardLink)
-              .withClasses(
-                      Styles.PX_3, Styles.TEXT_SM, Styles.OPACITY_75, StyleUtils.hover(Styles.OPACITY_100));
+          .withHref(tiDashboardLink)
+          .withClasses(
+              Styles.PX_3, Styles.TEXT_SM, Styles.OPACITY_75, StyleUtils.hover(Styles.OPACITY_100));
     }
     return div();
   }

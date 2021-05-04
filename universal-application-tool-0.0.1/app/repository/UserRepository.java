@@ -4,7 +4,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.UatProfile;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Comparator;
@@ -22,6 +24,7 @@ import models.Program;
 import models.TrustedIntermediaryGroup;
 import play.db.ebean.EbeanConfig;
 import services.program.ProgramDefinition;
+import services.ti.EmailAddressExistsException;
 import services.ti.NoSuchTrustedIntermediaryError;
 import services.ti.NoSuchTrustedIntermediaryGroupError;
 
@@ -103,10 +106,23 @@ public class UserRepository {
         () -> {
           Optional<Account> accountMaybe = lookupAccount(emailAddress);
           // Return the applicant which was most recently created.
-          return accountMaybe.flatMap(
-              account ->
-                  account.getApplicants().stream()
-                      .max(Comparator.comparing(compared -> compared.getWhenCreated())));
+          // If no applicant exists, this is probably an account waiting for
+          // a trusted intermediary - create one.
+          if (accountMaybe.isEmpty()) {
+            return Optional.empty();
+          }
+          Optional<Applicant> applicantMaybe =
+              accountMaybe.flatMap(
+                  account ->
+                      account.getApplicants().stream()
+                          .max(Comparator.comparing(compared -> compared.getWhenCreated())));
+          if (applicantMaybe.isPresent()) {
+            return applicantMaybe;
+          }
+          Applicant newApplicant = new Applicant();
+          newApplicant.setAccount(accountMaybe.get());
+          newApplicant.save();
+          return Optional.of(newApplicant);
         },
         executionContext);
   }
@@ -235,5 +251,31 @@ public class UserRepository {
 
   public Optional<TrustedIntermediaryGroup> getTrustedIntermediaryGroup(UatProfile uatProfile) {
     return uatProfile.getAccount().join().getMemberOfGroup();
+  }
+
+  /**
+   * Create an applicant and add it to the provided trusted intermediary group.
+   * Associate it with an email address if one is provided, but if one is not provided,
+   * use an anonymous (guest-style) account.
+   * @throws EmailAddressExistsException if the provided email address already exists.
+   */
+  public void createNewApplicantForTrustedIntermediaryGroup(
+      AddApplicantToTrustedIntermediaryGroupForm form, TrustedIntermediaryGroup tiGroup)
+      throws EmailAddressExistsException {
+    Account newAccount = new Account();
+    if (!Strings.isNullOrEmpty(form.getEmailAddress())) {
+      if (lookupAccount(form.getEmailAddress()).isPresent()) {
+        throw new EmailAddressExistsException();
+      }
+      newAccount.setEmailAddress(form.getEmailAddress());
+    }
+    newAccount.setManagedByGroup(tiGroup);
+    newAccount.save();
+    Applicant applicant = new Applicant();
+    applicant.setAccount(newAccount);
+    applicant
+        .getApplicantData()
+        .setUserName(form.getFirstName(), form.getMiddleName(), form.getLastName());
+    applicant.save();
   }
 }
