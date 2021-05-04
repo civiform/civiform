@@ -1,9 +1,8 @@
 package services;
 
-import play.i18n.Messages;
-
 /** Contains keys into the {@code messages} files used for translation. */
 public enum MessageKey {
+  // TODO(cdanzi): Add all message keys to this file.
   FIRST_NAME_REQUIRED("validation.firstNameRequired"),
   LAST_NAME_REQUIRED("validation.lastNameRequired"),
   TEXT_TOO_SHORT("validation.textTooShort"),
@@ -27,13 +26,5 @@ public enum MessageKey {
 
   public String getKeyName() {
     return this.keyName;
-  }
-
-  public String getMessage(Messages messages) {
-    return messages.at(this.keyName);
-  }
-
-  public String getMessage(Messages messages, Object... args) {
-    return messages.at(this.keyName, args);
   }
 }

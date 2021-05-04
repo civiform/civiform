@@ -21,6 +21,6 @@ public abstract class ValidationErrorMessage {
   public abstract ImmutableList<Object> args();
 
   public String getMessage(Messages messages) {
-    return key().getMessage(messages, args().toArray());
+    return messages.at(key().getKeyName(), args().toArray());
   }
 }
