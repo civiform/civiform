@@ -38,6 +38,9 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
 
   public Content render(TrustedIntermediaryGroup tiGroup, Http.Request request) {
     return layout.render(
+        div()
+                .withClasses(Styles.MY_5)
+                .with(renderAddNewButton(tiGroup, request)),
         div(
             table()
                 .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
@@ -46,8 +49,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
                     tbody(
                         each(
                             tiGroup.getTrustedIntermediaries(),
-                            account -> renderTIRow(tiGroup, account, request))))),
-        renderAddNewButton(tiGroup, request));
+                            account -> renderTIRow(tiGroup, account, request))))));
   }
 
   private Tag renderAddNewButton(TrustedIntermediaryGroup tiGroup, Http.Request request) {
@@ -60,9 +62,9 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("group-name-input")
             .setFieldName("emailAddress")
-            .setLabelText("Email Address")
+            .setLabelText("Member Email Address")
             .setValue(request.flash().get("providedEmail").orElse(""))
-            .setPlaceholderText("The email address to add.");
+            .setPlaceholderText("The email address of the member you want to add.");
     return div()
         .with(
             formTag.with(
@@ -70,7 +72,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
                 makeCsrfTokenInputTag(request),
                 submitButton("Add").withClasses(Styles.ML_2, Styles.MB_6)))
         .withClasses(
-            Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_1_2, Styles.MT_6);
+            Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.MT_6);
   }
 
   private Tag renderTIRow(TrustedIntermediaryGroup tiGroup, Account ti, Http.Request request) {
@@ -117,7 +119,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
   private Tag renderGroupTableHeader() {
     return thead(
         tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
-            .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_2))
+            .with(th("Members").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_2))
             .with(th("Status").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4))
             .with(
                 th("Actions")

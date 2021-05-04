@@ -147,7 +147,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
   private Tag renderGroupTableHeader() {
     return thead(
         tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
-            .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_2))
+            .with(th("Name / Description").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_2))
             .with(th("Size").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4))
             .with(
                 th("Actions")
