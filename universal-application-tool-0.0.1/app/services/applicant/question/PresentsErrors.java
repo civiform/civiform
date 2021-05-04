@@ -15,4 +15,7 @@ public interface PresentsErrors {
    * In general, if a question is not answered, it cannot have errors associated with it.
    */
   boolean isAnswered();
+
+  /** Returns the answer as a text string. */
+  String getAnswerString();
 }

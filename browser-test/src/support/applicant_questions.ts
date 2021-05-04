@@ -54,4 +54,17 @@ export class ApplicantQuestions {
   async saveAndContinue() {
     await this.page.click('text="Save and continue"');
   }
+  
+  async submitFromReviewPage() {
+    // assert that we're on the review page.
+    expect(await this.page.innerText('h1')).toContain('Application review');
+
+    // click on submit button.
+    await this.page.click('text="Submit"');
+
+    // Ensure that we redirected to the programs list page.
+    expect(await this.page.url().split('/').pop()).toEqual('programs');
+
+    // And grab the toast message to verify that the app was submitted.
+  }
 }

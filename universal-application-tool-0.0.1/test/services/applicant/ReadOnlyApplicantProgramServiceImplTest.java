@@ -1,6 +1,7 @@
 package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -322,6 +323,35 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
 
     assertThat(subject.preferredLanguageSupported()).isFalse();
+  }
+
+  @Test
+  public void getSummaryData_returnsCompletedData() {
+    answerNameQuestion(programDefinition.id());
+    answerColorQuestion(programDefinition.id());
+    answerAddressQuestion(programDefinition.id());
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+
+    ImmutableList<AnswerData> result = subject.getSummaryData();
+
+    assertEquals(3, result.size());
+    assertThat(result.get(0).answerText()).isEqualTo("Alice Middle Last");
+    assertThat(result.get(1).answerText()).isEqualTo("mauve");
+    assertThat(result.get(2).answerText()).isEqualTo("123 Rhode St.\nSeattle, WA, 12345");
+  }
+
+  @Test
+  public void getSummaryData_returnsWithEmptyData() {
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+
+    ImmutableList<AnswerData> result = subject.getSummaryData();
+
+    assertEquals(3, result.size());
+    assertThat(result.get(0).answerText()).isEqualTo("");
+    assertThat(result.get(1).answerText()).isEqualTo("-");
+    assertThat(result.get(2).answerText()).isEqualTo("");
   }
 
   private void answerNameQuestion(long programId) {

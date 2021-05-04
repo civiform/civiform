@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import services.Path;
+import services.applicant.question.ApplicantQuestion;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
@@ -145,5 +146,33 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     }
 
     return blockListBuilder.build();
+  }
+
+  @Override
+  public ImmutableList<AnswerData> getSummaryData() {
+    // TODO: We need to be able to use this on the admin side with admin-specific l10n.
+    ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<AnswerData>();
+    ImmutableList<Block> blocks = getAllBlocks();
+    for (Block block : blocks) {
+      for (ApplicantQuestion question : block.getQuestions()) {
+        String questionText = question.getQuestionText();
+        String answerText = question.errorsPresenter().getAnswerString();
+        Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
+        Optional<Long> updatedProgram = question.getUpdatedInProgramMetadata();
+        boolean isPreviousResponse =
+            updatedProgram.isPresent() && updatedProgram.get() != programDefinition.id();
+        AnswerData data =
+            AnswerData.builder()
+                .setProgramId(programDefinition.id())
+                .setBlockId(block.getId())
+                .setQuestionText(questionText)
+                .setAnswerText(answerText)
+                .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
+                .setIsPreviousResponse(isPreviousResponse)
+                .build();
+        builder.add(data);
+      }
+    }
+    return builder.build();
   }
 }

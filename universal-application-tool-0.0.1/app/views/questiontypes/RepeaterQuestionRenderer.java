@@ -35,8 +35,9 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
   }
 
   @Override
-  public Tag render(Messages messages) {
+  public Tag render(ApplicantQuestionRendererParams params) {
     ContainerTag repeaterFields = div().withId(REPEATER_FIELDS_ID);
+    Messages messages = params.messages();
     // TODO: add each answer as a repeaterField
     repeaterFields.with(repeaterField(PLACEHOLDER, Optional.empty(), 0));
 
