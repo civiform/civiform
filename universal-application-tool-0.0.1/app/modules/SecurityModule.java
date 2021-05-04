@@ -132,7 +132,7 @@ public class SecurityModule extends AbstractModule {
     config.setSecret(this.configuration.getString("idcs.secret"));
     config.setDiscoveryURI(this.configuration.getString("idcs.discovery_uri"));
     config.setResponseMode("form_post");
-    config.setResponseType("id_token");
+    config.setResponseType("id_token token");
     config.setUseNonce(true);
     config.setWithState(false);
     OidcClient client = new OidcClient(config);
