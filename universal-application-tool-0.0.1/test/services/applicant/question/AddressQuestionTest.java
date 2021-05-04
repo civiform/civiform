@@ -65,12 +65,12 @@ public class AddressQuestionTest {
   public void withValidApplicantData() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
-            noPoBoxAddressQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+            addressQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
     QuestionAnswerer.answerAddressQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
-        "85 Pike St",
-        "Unit B",
+        "PO Box 123",
+        "Line 2",
         "Seattle",
         "WA",
         "98101");
@@ -79,8 +79,8 @@ public class AddressQuestionTest {
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(addressQuestion.hasQuestionErrors()).isFalse();
-    assertThat(addressQuestion.getStreetValue().get()).isEqualTo("85 Pike St");
-    assertThat(addressQuestion.getLine2Value().get()).isEqualTo("Unit B");
+    assertThat(addressQuestion.getStreetValue().get()).isEqualTo("PO Box 123");
+    assertThat(addressQuestion.getLine2Value().get()).isEqualTo("Line 2");
     assertThat(addressQuestion.getCityValue().get()).isEqualTo("Seattle");
     assertThat(addressQuestion.getStateValue().get()).isEqualTo("WA");
     assertThat(addressQuestion.getZipValue().get()).isEqualTo("98101");
@@ -155,16 +155,18 @@ public class AddressQuestionTest {
 
   @Test
   @Parameters({
-    "PO Box 123",
-    "PO box 123",
-    "pO Box 123",
-    "po box 123",
-    "P.O. Box 123",
-    "p.o. box 123",
-    "My P.O. Box ABC",
-    "po-box 555"
+    "PO Box 123,Line 2",
+    "PO box 123,Line 2",
+    "pO Box 123,Line 2",
+    "po box 123,Line 2",
+    "P.O. Box 123,Line 2",
+    "p.o. box 123,Line 2",
+    "My P.O. Box ABC,Line 2",
+    "po-box 555,Line 2",
+    "Sesame St,PO Box 123"
   })
-  public void withNoPoBoxAllowed_withInvalidApplicantData_failsValidation(String streetValue) {
+  public void withNoPoBoxAllowed_withInvalidApplicantData_failsValidation(
+      String streetValue, String line2Value) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
             noPoBoxAddressQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
@@ -172,7 +174,7 @@ public class AddressQuestionTest {
         applicantData,
         applicantQuestion.getContextualizedPath(),
         streetValue,
-        "Unit B",
+        line2Value,
         "Seattle",
         "WA",
         "98107");

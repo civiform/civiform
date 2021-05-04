@@ -42,13 +42,12 @@ public class AddressQuestion implements PresentsErrors {
     AddressQuestionDefinition definition = getQuestionDefinition();
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
-    if (definition.getDisallowPoBox() && getStreetValue().isPresent()) {
+    if (definition.getDisallowPoBox()) {
       Pattern poBoxPattern = Pattern.compile(PO_BOX_REGEX);
-      // TODO(https://github.com/seattle-uat/civiform/issues/844): Compare PO_BOX_REGEX against
-      // getLine2Value() as well.
-      Matcher poBoxMatcher = poBoxPattern.matcher(getStreetValue().get());
+      Matcher poBoxMatcher1 = poBoxPattern.matcher(getStreetValue().orElse(""));
+      Matcher poBoxMatcher2 = poBoxPattern.matcher(getLine2Value().orElse(""));
 
-      if (poBoxMatcher.matches()) {
+      if (poBoxMatcher1.matches() || poBoxMatcher2.matches()) {
         return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.NO_PO_BOX));
       }
     }
