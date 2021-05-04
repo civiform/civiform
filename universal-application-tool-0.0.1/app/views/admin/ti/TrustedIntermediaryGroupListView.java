@@ -116,10 +116,10 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
 
   private Tag renderMemberCountCell(TrustedIntermediaryGroup tiGroup) {
     return td().with(
-            div("Trusted Intermediaries: " + tiGroup.getTrustedIntermediaries().size())
+            div("Members: " + tiGroup.getTrustedIntermediaries().size())
                 .withClasses(Styles.FONT_SEMIBOLD))
         .with(
-            div("Managed Accounts: " + tiGroup.getManagedAccounts().size())
+            div("Clients: " + tiGroup.getManagedAccounts().size())
                 .withClasses(Styles.TEXT_SM))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
