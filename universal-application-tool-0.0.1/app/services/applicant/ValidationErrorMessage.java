@@ -6,8 +6,11 @@ import play.i18n.Messages;
 import services.MessageKey;
 
 /**
- * This is a wrapper around Play's {@link Messages}, for use when we don't have access to messages
- * yet.
+ * This acts a wrapper around Play's {@link Messages}, for use when we don't have access to messages
+ * yet. We typically only have access to {@link Messages} in renderers, but validation error
+ * generation happens in the applicant service. Therefore, we use this class to collect the
+ * information needed to generate validation error messages in the applicant's preferred language
+ * later in the view classes.
  */
 @AutoValue
 public abstract class ValidationErrorMessage {

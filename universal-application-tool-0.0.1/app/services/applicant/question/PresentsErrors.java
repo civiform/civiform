@@ -7,6 +7,7 @@ public interface PresentsErrors {
   /** Returns true if values do not meet conditions defined by admins. */
   boolean hasQuestionErrors();
 
+  /** Returns a set of {@link ValidationErrorMessage}s related to conditions defined by admins. */
   ImmutableSet<ValidationErrorMessage> getQuestionErrors();
 
   /**
@@ -15,6 +16,11 @@ public interface PresentsErrors {
    */
   boolean hasTypeSpecificErrors();
 
+  /**
+   * Returns a set of {@link ValidationErrorMessage}s to be shown to the applicant. These errors are
+   * inherent to the question type itself - for example, an applicant providing a zip code with
+   * letters would be a type error for an address question.
+   */
   ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors();
 
   /**

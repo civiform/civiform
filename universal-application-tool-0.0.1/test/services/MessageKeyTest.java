@@ -26,7 +26,9 @@ public class MessageKeyTest extends WithPostgresContainer {
   @Parameters(source = MessageKey.class)
   public void messageKey_isValid(MessageKey messageKey) {
     // If a message key does not exist, it will return the invalid key as the message itself.
-    assertThat(messagesApi.get(Lang.defaultLang(), messageKey.getKeyName()))
-        .isNotEqualTo(messageKey.getKeyName());
+    // Therefore, we can verify that all keys provided are valid keys by simply checking
+    // whether generating the message returns something other than the key name.
+    String keyName = messageKey.getKeyName();
+    assertThat(messagesApi.get(Lang.defaultLang(), keyName)).isNotEqualTo(keyName);
   }
 }
