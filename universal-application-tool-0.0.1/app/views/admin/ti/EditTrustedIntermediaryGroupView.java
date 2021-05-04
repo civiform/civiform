@@ -38,9 +38,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
 
   public Content render(TrustedIntermediaryGroup tiGroup, Http.Request request) {
     return layout.render(
-        div()
-                .withClasses(Styles.MY_5)
-                .with(renderAddNewButton(tiGroup, request)),
+        div().withClasses(Styles.MY_5).with(renderAddNewButton(tiGroup, request)),
         div(
             table()
                 .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
@@ -71,8 +69,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
                 emailField.getContainer(),
                 makeCsrfTokenInputTag(request),
                 submitButton("Add").withClasses(Styles.ML_2, Styles.MB_6)))
-        .withClasses(
-            Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.MT_6);
+        .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.MT_6);
   }
 
   private Tag renderTIRow(TrustedIntermediaryGroup tiGroup, Account ti, Http.Request request) {
