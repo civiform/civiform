@@ -100,6 +100,9 @@ describe('End to end enumerator test', () => {
     await applicantQuestions.answerTextQuestion("world");
     await applicantQuestions.saveAndContinue();
 
+    // Applicant submits answers from review page.
+    await applicantQuestions.submitFromReviewPage();
+
     // Go back and delete some stuff
     await applicantQuestions.applyProgram(programName);
     expect(await page.innerHTML("#enumerator-fields")).toContain("first");
@@ -107,6 +110,9 @@ describe('End to end enumerator test', () => {
     await applicantQuestions.selectEnumeratorAnswerForDelete("first");
     await applicantQuestions.selectEnumeratorAnswerForDelete("second");
     await applicantQuestions.saveAndContinue();
+
+    // Applicant submits answers from review page.
+    await applicantQuestions.submitFromReviewPage();
 
     // Go back and see that it is empty
     await applicantQuestions.applyProgram(programName);
