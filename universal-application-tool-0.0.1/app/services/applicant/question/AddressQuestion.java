@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.AddressQuestionDefinition;
@@ -32,6 +33,7 @@ public class AddressQuestion implements PresentsErrors {
     return !getQuestionErrors().isEmpty();
   }
 
+  @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     if (!isAnswered()) {
       return ImmutableSet.of();
@@ -46,7 +48,7 @@ public class AddressQuestion implements PresentsErrors {
       Matcher poBoxMatcher2 = poBoxPattern.matcher(getLine2Value().orElse(""));
 
       if (poBoxMatcher1.matches() || poBoxMatcher2.matches()) {
-        return ImmutableSet.of(ValidationErrorMessage.noPoBox());
+        return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.NO_PO_BOX));
       }
     }
 
@@ -58,6 +60,7 @@ public class AddressQuestion implements PresentsErrors {
     return !getAllTypeSpecificErrors().isEmpty();
   }
 
+  @Override
   public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
     return ImmutableSet.<ValidationErrorMessage>builder()
         .addAll(getAddressErrors())
@@ -75,7 +78,7 @@ public class AddressQuestion implements PresentsErrors {
 
   public ImmutableSet<ValidationErrorMessage> getStreetErrors() {
     if (isStreetAnswered() && getStreetValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.streetRequired());
+      return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.STREET_REQUIRED));
     }
 
     return ImmutableSet.of();
@@ -83,7 +86,7 @@ public class AddressQuestion implements PresentsErrors {
 
   public ImmutableSet<ValidationErrorMessage> getCityErrors() {
     if (isCityAnswered() && getCityValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.cityRequired());
+      return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.CITY_REQUIRED));
     }
 
     return ImmutableSet.of();
@@ -92,7 +95,7 @@ public class AddressQuestion implements PresentsErrors {
   public ImmutableSet<ValidationErrorMessage> getStateErrors() {
     // TODO: Validate state further.
     if (isStateAnswered() && getStateValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.stateRequired());
+      return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.STATE_REQUIRED));
     }
 
     return ImmutableSet.of();
@@ -102,13 +105,13 @@ public class AddressQuestion implements PresentsErrors {
     if (isZipAnswered()) {
       Optional<String> zipValue = getZipValue();
       if (zipValue.isEmpty()) {
-        return ImmutableSet.of(ValidationErrorMessage.zipRequired());
+        return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.ZIP_CODE_REQUIRED));
       }
 
       Pattern pattern = Pattern.compile("^[0-9]{5}(?:-[0-9]{4})?$");
       Matcher matcher = pattern.matcher(zipValue.get());
       if (!matcher.matches()) {
-        return ImmutableSet.of(ValidationErrorMessage.invalidZip());
+        return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.INVALID_ZIP_CODE));
       }
     }
 

@@ -1,5 +1,7 @@
 package services.applicant.question;
 
+import com.google.common.collect.ImmutableSet;
+import services.applicant.ValidationErrorMessage;
 import services.question.types.QuestionType;
 import services.question.types.RepeaterQuestionDefinition;
 
@@ -14,13 +16,23 @@ public class RepeaterQuestion implements PresentsErrors {
 
   @Override
   public boolean hasQuestionErrors() {
-    return false;
+    return !getQuestionErrors().isEmpty();
+  }
+
+  @Override
+  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+    return ImmutableSet.of();
   }
 
   @Override
   public boolean hasTypeSpecificErrors() {
+    return !getAllTypeSpecificErrors().isEmpty();
+  }
+
+  @Override
+  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
     // There are no inherent requirements in a repeater question.
-    return false;
+    return ImmutableSet.of();
   }
 
   public void assertQuestionType() {

@@ -216,7 +216,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("FirstName");
-    assertThat(contentAsString(result)).contains("Last name is required.");
+    assertThat(contentAsString(result)).contains("Please enter your last name.");
   }
 
   @Test

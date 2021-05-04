@@ -75,3 +75,19 @@ placeholder.lastName=Last name
 # Repeater question text
 # Text on a button an applicant would click to add another entity
 button.addRepeaterEntity=add element
+
+# Question validation
+validation.firstNameRequired=Please enter your first name.
+validation.lastNameRequired=Please enter your last name.
+validation.textTooShort=Must contain at least {0} characters.
+validation.textTooLong=Must contain at most {0} characters.
+validation.numberTooSmall=Must be at least {0}.
+validation.numberTooBig=Must be at most {0}.
+validation.tooFewSelections=Please select at least {0}.
+validation.tooManySelections=Please select fewer than {0}.
+validation.streetRequired=Please enter valid street name and number.
+validation.cityRequired=Please enter city.
+validation.stateRequired=Please enter state.
+validation.zipcodeRequired=Please enter valid ZIP code.
+validation.invalidZipcode=Please enter valid 5-digit ZIP code.
+validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.

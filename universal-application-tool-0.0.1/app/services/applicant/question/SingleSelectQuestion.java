@@ -8,8 +8,6 @@ import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 
-// TODO(https://github.com/seattle-uat/civiform/issues/396): Implement a question that allows for
-// multiple answer selections (i.e. the value is a list)
 public class SingleSelectQuestion implements PresentsErrors {
 
   private final ApplicantQuestion applicantQuestion;
@@ -25,6 +23,7 @@ public class SingleSelectQuestion implements PresentsErrors {
     return !getQuestionErrors().isEmpty();
   }
 
+  @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     // Only one selection is possible - there is no admin-configured validation.
     return ImmutableSet.of();
@@ -32,8 +31,13 @@ public class SingleSelectQuestion implements PresentsErrors {
 
   @Override
   public boolean hasTypeSpecificErrors() {
-    // Does not recognize invalid values
-    return false;
+    return !getAllTypeSpecificErrors().isEmpty();
+  }
+
+  @Override
+  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
+    // Only one selection is possible - there is no admin-configured validation.
+    return ImmutableSet.of();
   }
 
   public boolean hasValue() {
