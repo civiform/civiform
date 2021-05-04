@@ -40,6 +40,7 @@ public class ApplicantInformationView extends BaseHtmlView {
   public Content render(Http.Request request, Messages messages, long applicantId) {
     String formAction = routes.ApplicantInformationController.update(applicantId).url();
     return layout.render(
+            request,
         messages,
         form()
             .withAction(formAction)

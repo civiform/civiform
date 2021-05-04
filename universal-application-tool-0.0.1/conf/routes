@@ -56,6 +56,8 @@ GET     /admin/tiGroups/:id/edit           controllers.admin.TrustedIntermediary
 POST    /admin/tiGroups/:id/addTi          controllers.admin.TrustedIntermediaryManagementController.addIntermediary(id: Long, request: Request)
 POST    /admin/tiGroups/:id/removeTi       controllers.admin.TrustedIntermediaryManagementController.removeIntermediary(id: Long, request: Request)
 
+GET     /admin/tiDash  controllers.ti.TrustedIntermediaryController.dashboard(request: Request)
+
 # Controller for admins only, related to applications
 GET     /admin/programs/:programId/applications                           controllers.admin.AdminApplicationController.answerList(programId: Long)
 GET     /admin/programs/:programId/applications/all                       controllers.admin.AdminApplicationController.downloadAll(programId: Long)

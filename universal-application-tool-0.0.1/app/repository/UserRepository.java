@@ -3,6 +3,7 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import auth.UatProfile;
 import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
@@ -230,5 +231,9 @@ public class UserRepository {
 
   private Optional<Account> lookupAccount(long accountId) {
     return ebeanServer.find(Account.class).setId(accountId).findOneOrEmpty();
+  }
+
+  public Optional<TrustedIntermediaryGroup> getTrustedIntermediaryGroup(UatProfile uatProfile) {
+    return uatProfile.getAccount().join().getMemberOfGroup();
   }
 }

@@ -12,6 +12,7 @@ import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
+import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
 import services.program.ProgramDefinition;
@@ -44,6 +45,7 @@ public class ProgramIndexView extends BaseHtmlView {
    */
   public Content render(
       Messages messages,
+      Http.Request request,
       long applicantId,
       ImmutableList<ProgramDefinition> programs,
       Optional<String> banner) {
@@ -58,7 +60,7 @@ public class ProgramIndexView extends BaseHtmlView {
             messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION.getKeyName())),
         mainContent(messages, programs, applicantId, messages.lang().toLocale()));
 
-    return layout.render(messages, body);
+    return layout.render(request, messages, body);
   }
 
   private ContainerTag topContent(String titleText, String infoText) {
