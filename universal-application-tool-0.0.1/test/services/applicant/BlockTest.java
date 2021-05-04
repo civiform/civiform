@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.testing.EqualsTester;
+import models.Question;
 import org.junit.Test;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
@@ -283,6 +284,48 @@ public class BlockTest {
     answerColorQuestion(applicantData, 200L);
 
     assertThat(block.wasCompletedInProgram(200L)).isTrue();
+  }
+
+  @Test
+  public void isEnumerator_isTrue() {
+    ApplicantData applicantData = new ApplicantData();
+    BlockDefinition definition = BlockDefinition.builder()
+        .setId(1L)
+        .setName("")
+        .setDescription("")
+        .addQuestion(ProgramQuestionDefinition.create(testQuestionBank.applicantHouseholdMembers().getQuestionDefinition()))
+        .build();
+
+    Block block = new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH);
+
+    assertThat(block.isEnumerator()).isTrue();
+  }
+
+  @Test
+  public void isEnumerator_isFalse() {
+    ApplicantData applicantData = new ApplicantData();
+    BlockDefinition definition = setUpBlockWithQuestions();
+
+    Block block = new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH);
+
+    assertThat(block.isEnumerator()).isFalse();
+  }
+
+  @Test
+  public void getEnumeratorQuestion() {
+    ApplicantData applicantData = new ApplicantData();
+    QuestionDefinition enumeratorQuestionDefinition = testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+    BlockDefinition definition = BlockDefinition.builder()
+        .setId(1L)
+        .setName("")
+        .setDescription("")
+        .addQuestion(ProgramQuestionDefinition.create(enumeratorQuestionDefinition))
+        .build();
+    Block block = new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH);
+
+    ApplicantQuestion enumeratorQuestion = block.getEnumeratorQuestion();
+
+    assertThat(enumeratorQuestion.getQuestionDefinition()).isEqualTo(enumeratorQuestionDefinition);
   }
 
   private static BlockDefinition setUpBlockWithQuestions() {
