@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
+import services.LocalizationUtils;
 import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.QuestionType;
@@ -15,7 +16,8 @@ public class RepeaterQuestion implements PresentsErrors {
   private final ApplicantQuestion applicantQuestion;
 
   // TODO(#859): make this admin-configurable
-  private final ImmutableMap<Locale, String> PLACEHOLDER = ImmutableMap.of(Locale.getDefault(), "");
+  private final ImmutableMap<Locale, String> PLACEHOLDER =
+      ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, "");
 
   public RepeaterQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
@@ -78,7 +80,9 @@ public class RepeaterQuestion implements PresentsErrors {
   }
 
   public String getPlaceholder(Locale locale) {
-    return PLACEHOLDER.get(locale);
+    return PLACEHOLDER.containsKey(locale)
+        ? PLACEHOLDER.get(locale)
+        : PLACEHOLDER.get(LocalizationUtils.DEFAULT_LOCALE);
   }
 
   @Override

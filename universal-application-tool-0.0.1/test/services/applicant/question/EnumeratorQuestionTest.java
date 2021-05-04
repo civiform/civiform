@@ -12,6 +12,10 @@ import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import play.i18n.Lang;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
+import repository.WithPostgresContainer;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.question.types.QuestionDefinition;
@@ -20,7 +24,7 @@ import support.QuestionAnswerer;
 import support.TestQuestionBank;
 
 @RunWith(JUnitParamsRunner.class)
-public class EnumeratorQuestionTest {
+public class EnumeratorQuestionTest extends WithPostgresContainer {
   private static final RepeaterQuestionDefinition enumeratorQuestionDefinition =
       new RepeaterQuestionDefinition(
           "household members",
@@ -32,6 +36,7 @@ public class EnumeratorQuestionTest {
 
   private Applicant applicant;
   private ApplicantData applicantData;
+  private Messages messages;
 
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
 
@@ -40,6 +45,7 @@ public class EnumeratorQuestionTest {
     applicant = new Applicant();
     applicantData = applicant.getApplicantData();
     testQuestionBank.reset();
+    messages = instanceOf(MessagesApi.class).preferred(ImmutableList.of(Lang.defaultLang()));
   }
 
   @Test
@@ -88,6 +94,9 @@ public class EnumeratorQuestionTest {
     assertThat(enumeratorQuestion.getEntityNames()).contains(value);
     assertThat(enumeratorQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(enumeratorQuestion.hasQuestionErrors()).isTrue();
+    assertThat(enumeratorQuestion.getQuestionErrors()).hasSize(1);
+    assertThat(enumeratorQuestion.getQuestionErrors().asList().get(0).getMessage(messages))
+        .isEqualTo("Please enter a value for each line.");
   }
 
   @Test
