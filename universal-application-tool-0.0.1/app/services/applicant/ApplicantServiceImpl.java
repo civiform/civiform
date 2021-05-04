@@ -259,7 +259,9 @@ public class ApplicantServiceImpl implements ApplicantService {
       return entityUpdates;
     }
 
-    // Check that the entity updates have unique and consecutive indices
+    // Check that the entity updates have unique and consecutive indices. The indices should be
+    // 0,...N-1 where N is entityUpdates.size() because all entity names are submitted in the form,
+    // whether or not they actually changed.
     ImmutableSet<Integer> indices =
         entityUpdates.stream()
             .map(update -> update.path().arrayIndex())
