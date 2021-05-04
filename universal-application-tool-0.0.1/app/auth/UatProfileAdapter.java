@@ -2,10 +2,6 @@ package auth;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import com.nimbusds.jose.util.DefaultResourceRetriever;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import javax.inject.Provider;
 import models.Account;
@@ -17,7 +13,6 @@ import org.pac4j.core.profile.UserProfile;
 import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
-import org.pac4j.oidc.credentials.OidcCredentials;
 import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.oidc.profile.creator.OidcProfileCreator;
 import org.slf4j.Logger;
@@ -70,25 +65,7 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
   public Optional<UserProfile> create(
       Credentials cred, WebContext context, SessionStore sessionStore) {
     ProfileUtils profileUtils = new ProfileUtils(sessionStore, profileFactory);
-    // This is here because IDCS demands an authorization header to access the JWT token.
-    // There's no particular reason for IDCS to demand this but this should successfully work around
-    // that requirement by providing the current access token.  This is reasonably thread-safe
-    // because
-    // there's no requirement that the GET request use the access token for any particular request.
-    this.configuration.setResourceRetriever(
-        new DefaultResourceRetriever(
-            this.configuration.getConnectTimeout(), this.configuration.getReadTimeout()) {
-          @Override
-          public Map<String, List<String>> getHeaders() {
-            Map<String, List<String>> headers = super.getHeaders();
-            if (headers == null) {
-              headers = new HashMap<>();
-            }
-            String authHeader = ((OidcCredentials) cred).getAccessToken().toAuthorizationHeader();
-            headers.put("Authorization", List.of(authHeader));
-            return headers;
-          }
-        });
+    possiblyModifyConfigBasedOnCred(cred);
     Optional<UserProfile> oidcProfile = super.create(cred, context, sessionStore);
 
     if (oidcProfile.isEmpty()) {
@@ -146,4 +123,6 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
       return Optional.of(mergeUatProfile(existingProfile.get(), profile));
     }
   }
+
+  protected abstract void possiblyModifyConfigBasedOnCred(Credentials cred);
 }

@@ -2,6 +2,7 @@ package auth;
 
 import com.google.common.collect.ImmutableSet;
 import javax.inject.Provider;
+import org.pac4j.core.credentials.Credentials;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
@@ -36,5 +37,10 @@ public class AdfsProfileAdapter extends UatProfileAdapter {
   public UatProfileData uatProfileFromOidcProfile(OidcProfile profile) {
     return mergeUatProfile(
         profileFactory.wrapProfileData(profileFactory.createNewAdmin()), profile);
+  }
+
+  @Override
+  protected void possiblyModifyConfigBasedOnCred(Credentials cred) {
+    // No need!
   }
 }
