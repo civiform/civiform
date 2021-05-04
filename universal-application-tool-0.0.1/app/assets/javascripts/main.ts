@@ -81,7 +81,7 @@ function addNewEnumeratorField(event: Event) {
 
 function removeEnumeratorField(event: Event) {
   // Get the parent div, which contains the input field and remove button, and remove it.
-  const enumeratorFieldDiv = (event.target as Element).parentNode;
+  const enumeratorFieldDiv = (event.currentTarget as HTMLElement).parentNode;
   enumeratorFieldDiv.parentNode.removeChild(enumeratorFieldDiv);
 }
 

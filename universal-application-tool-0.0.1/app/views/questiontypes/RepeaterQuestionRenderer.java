@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
 import com.google.common.collect.ImmutableList;
+import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
@@ -14,6 +15,7 @@ import services.applicant.question.RepeaterQuestion;
 import services.applicant.question.Scalar;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
+import views.components.Icons;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -68,35 +70,43 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
    * form submission.
    */
   private Tag existingEnumeratorField(Optional<String> existingOption, int index) {
-    ContainerTag optionInput =
+    ContainerTag entityNameInput =
         FieldWithLabel.input()
             .setFieldName(question.getContextualizedPath().toString())
             .setValue(existingOption)
             .getContainer()
             .withClasses(Styles.FLEX, Styles.ML_2);
-    Tag removeOptionBox =
+    Tag removeEntityBox =
         FieldWithLabel.checkbox()
             .setFieldName(Path.empty().join(Scalar.DELETE_ENTITY).asArrayElement().toString())
             .setValue(String.valueOf(index))
             .getContainer();
 
-    return div().withClasses(ENUMERATOR_FIELD_CLASSES).with(optionInput, removeOptionBox);
+    return div().withClasses(ENUMERATOR_FIELD_CLASSES).with(entityNameInput, removeEntityBox);
   }
 
   /**
    * Create an enumerator field template for new entries. These come with a button to delete itself.
    */
-  public static Tag newEnumeratorFieldTemplate(Path contextualizedPath, String placeholder) {
-    ContainerTag optionInput =
+  public static Tag newEnumeratorFieldTemplate(
+      Path contextualizedPath, String placeholder, Messages messages) {
+    ContainerTag entityNameInput =
         FieldWithLabel.input()
             .setFieldName(contextualizedPath.toString())
             .setPlaceholderText(placeholder)
             .getContainer()
             .withClasses(Styles.FLEX, Styles.ML_2);
-    Tag removeFieldButton = button("x").withType("button").withClasses(Styles.FLEX, Styles.ML_4);
+    ContainerTag icon =
+        Icons.svg(Icons.TRASH_CAN_SVG_PATH, 24)
+            .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
+    Tag removeEntityButton =
+        TagCreator.button(icon)
+            .withType("button")
+            .withClasses(Styles.FLEX, Styles.ML_4)
+            .attr("aria-label", messages.at("button.deleteEntity"));
     return div()
         .withId(ENUMERATOR_FIELD_TEMPLATE_ID)
         .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, Styles.HIDDEN))
-        .with(optionInput, removeFieldButton);
+        .with(entityNameInput, removeEntityButton);
   }
 }
