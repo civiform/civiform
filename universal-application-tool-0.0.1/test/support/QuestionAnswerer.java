@@ -1,5 +1,6 @@
 package support;
 
+import com.google.common.collect.ImmutableList;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
@@ -21,6 +22,14 @@ public class QuestionAnswerer {
     applicantData.putString(contextualizedPath.join(Scalar.CITY), city);
     applicantData.putString(contextualizedPath.join(Scalar.STATE), state);
     applicantData.putString(contextualizedPath.join(Scalar.ZIP), zip);
+  }
+
+  public static void answerEnumeratorQuestion(
+      ApplicantData applicantData, Path contextualizedPath, ImmutableList<String> entityNames) {
+    for (int i = 0; i < entityNames.size(); i++) {
+      applicantData.putString(
+          contextualizedPath.atIndex(i).join(Scalar.ENTITY_NAME), entityNames.get(i));
+    }
   }
 
   public static void answerFileQuestion(

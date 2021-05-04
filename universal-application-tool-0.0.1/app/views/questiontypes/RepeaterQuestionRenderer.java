@@ -23,7 +23,6 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
   private static final String ENUMERATOR_FIELDS_ID = "enumerator-fields";
   private static final String ADD_ELEMENT_BUTTON_ID = "enumerator-field-add-button";
   private static final String ENUMERATOR_FIELD_TEMPLATE_ID = "enumerator-field-template";
-  private static final String PLACEHOLDER_ID = "enumerator-placeholder-text";
 
   public static final String ENUMERATOR_FIELD_CLASSES =
       StyleUtils.joinStyles(
