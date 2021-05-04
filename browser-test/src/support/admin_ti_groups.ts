@@ -15,7 +15,7 @@ export class AdminTIGroups {
   }
 
   async expectAdminTIPage() {
-    expect(await this.page.innerText('h1')).toEqual('Trusted Intermediary Groups');
+    expect(await this.page.innerText('h1')).toEqual('Create New Trusted Intermediary');
   }
 
   async fillInGroupBasics(groupName: string, description: string) {

@@ -66,4 +66,10 @@ public class FileUploadQuestion implements PresentsErrors {
   public Path getFileKeyPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.FILE_KEY);
   }
+
+  @Override
+  public String getAnswerString() {
+    // TODO: What do we display here when a file has been uploaded? Filename? Link to the file?
+    return isAnswered() ? "-- FILE UPLOADED --" : "-- NO FILE SELECTED --";
+  }
 }

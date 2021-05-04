@@ -5,6 +5,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
@@ -127,5 +128,16 @@ public class MultiSelectQuestion implements PresentsErrors {
   public ImmutableList<LocalizedQuestionOption> getOptions() {
     return getQuestionDefinition()
         .getOptionsForLocaleOrDefault(applicantQuestion.getApplicantData().preferredLocale());
+  }
+
+  @Override
+  public String getAnswerString() {
+    return getSelectedOptionsValue()
+        .map(
+            options ->
+                options.stream()
+                    .map(LocalizedQuestionOption::optionText)
+                    .collect(Collectors.joining("\n")))
+        .orElse("-");
   }
 }

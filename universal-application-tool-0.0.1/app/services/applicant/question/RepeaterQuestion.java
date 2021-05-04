@@ -1,5 +1,6 @@
 package services.applicant.question;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import services.applicant.ValidationErrorMessage;
@@ -69,5 +70,10 @@ public class RepeaterQuestion implements PresentsErrors {
 
   public String getPlaceholder() {
     return PLACEHOLDER;
+  }
+
+  @Override
+  public String getAnswerString() {
+    return Joiner.on("\n").join(getEntityNames());
   }
 }
