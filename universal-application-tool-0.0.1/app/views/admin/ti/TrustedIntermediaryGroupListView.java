@@ -118,9 +118,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
     return td().with(
             div("Members: " + tiGroup.getTrustedIntermediaries().size())
                 .withClasses(Styles.FONT_SEMIBOLD))
-        .with(
-            div("Clients: " + tiGroup.getManagedAccounts().size())
-                .withClasses(Styles.TEXT_SM))
+        .with(div("Clients: " + tiGroup.getManagedAccounts().size()).withClasses(Styles.TEXT_SM))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
