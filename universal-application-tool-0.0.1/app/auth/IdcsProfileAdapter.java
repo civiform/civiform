@@ -108,6 +108,9 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
           @Override
           public Map<String, List<String>> getHeaders() {
             Map<String, List<String>> headers = super.getHeaders();
+            if (((OidcCredentials) cred).getAccessToken() == null) {
+              return headers;
+            }
             if (headers == null) {
               headers = new HashMap<>();
             }
