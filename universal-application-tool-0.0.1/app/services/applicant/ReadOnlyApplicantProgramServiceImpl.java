@@ -74,7 +74,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public Optional<Block> getFirstIncompleteBlock() {
     return getInProgressBlocks().stream()
-        .filter(block -> block.isEnumerator() || !block.isCompleteWithoutErrors())
+        .filter(block -> !block.isCompleteWithoutErrors())
         .findFirst();
   }
 

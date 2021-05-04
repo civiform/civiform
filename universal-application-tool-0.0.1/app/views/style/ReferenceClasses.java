@@ -12,11 +12,12 @@ public final class ReferenceClasses {
   public static final String ADMIN_VERSION_CARD = "cf-admin-version-card";
   public static final String APPLICANT_QUESTION_HELP_TEXT = "cf-applicant-question-help-text";
   public static final String APPLICANT_QUESTION_TEXT = "cf-applicant-question-text";
+  public static final String APPLICANT_SUMMARY_ROW = "cf-applicant-summary-row";
   public static final String APPLICATION_CARD = "cf-application-card";
-  public static final String APPLY_BUTTON = "apply-button";
+  public static final String APPLY_BUTTON = "cf-apply-button";
   public static final String DOWNLOAD_ALL_BUTTON = "cf-download-all-button";
   public static final String DOWNLOAD_BUTTON = "cf-download-button";
-  public static final String ENUMERATOR_FIELD = "enumerator-field";
+  public static final String ENUMERATOR_FIELD = "cf-enumerator-field";
   public static final String FLOATED_LABEL = "cf-floated";
   public static final String QUESTION_CONFIG = "cf-question-config";
   public static final String RADIO_INPUT = "cf-radio-input";

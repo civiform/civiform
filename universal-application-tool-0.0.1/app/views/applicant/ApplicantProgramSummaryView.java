@@ -24,6 +24,7 @@ import services.applicant.AnswerData;
 import views.BaseHtmlView;
 import views.components.LinkElement;
 import views.components.ToastMessage;
+import views.style.ReferenceClasses;
 import views.style.Styles;
 
 public final class ApplicantProgramSummaryView extends BaseHtmlView {
@@ -159,6 +160,11 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         div(answerContent, editContent).withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.PR_2);
 
     return div(questionContent, answerDiv)
-        .withClasses(Styles.MY_2, Styles.PY_2, Styles.BORDER_B, Styles.BORDER_GRAY_300);
+        .withClasses(
+            Styles.MY_2,
+            Styles.PY_2,
+            Styles.BORDER_B,
+            Styles.BORDER_GRAY_300,
+            ReferenceClasses.APPLICANT_SUMMARY_ROW);
   }
 }

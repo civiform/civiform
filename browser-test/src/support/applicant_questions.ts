@@ -52,11 +52,11 @@ export class ApplicantQuestions {
   }
 
   async selectEnumeratorAnswerForDelete(entityName: string) {
-    await this.page.check(`.enumerator-field:has(input[value=${entityName}]) input[type=checkbox]`);
+    await this.page.check(`.cf-enumerator-field:has(input[value="${entityName}"]) input[type=checkbox]`);
   }
 
   async applyProgram(programName: string) {
-    await this.page.click(`.cf-application-card:has-text("${programName}") .apply-button`);
+    await this.page.click(`.cf-application-card:has-text("${programName}") .cf-apply-button`);
   }
 
   async saveAndContinue() {

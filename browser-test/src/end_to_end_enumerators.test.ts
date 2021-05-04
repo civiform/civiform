@@ -12,7 +12,7 @@ describe('End to end enumerator test', () => {
     const adminPrograms = new AdminPrograms(page);
 
     await adminQuestions.addNameQuestion('enumerator-ete-name');
-    await adminQuestions.addEnumeratorQuestion('enumerator-ete-enumerator');
+    await adminQuestions.addEnumeratorQuestion('enumerator-ete-enumerator', 'desc', 'enumerator-ete-question');
     await adminQuestions.addNameQuestion('enumerator-ete-enumerator-name', 'desc', 'text', 'helptext', 'enumerator-ete-enumerator');
     await adminQuestions.addEnumeratorQuestion('enumerator-ete-enumerator-enumerator', 'desc', 'text', 'helptext', 'enumerator-ete-enumerator');
     await adminQuestions.addTextQuestion('enumerator-ete-enumerator-enumerator-text', 'desc', 'text', 'helptext', 'enumerator-ete-enumerator-enumerator');
@@ -68,17 +68,17 @@ describe('End to end enumerator test', () => {
     await applicantQuestions.applyProgram(programName);
 
     // Fill in name question
-    await applicantQuestions.answerNameQuestion("first", "last");
+    await applicantQuestions.answerNameQuestion("first name", "last name");
     await applicantQuestions.saveAndContinue();
 
     // Put in two things in the enumerator question
-    await applicantQuestions.addEnumeratorAnswer("first");
-    await applicantQuestions.addEnumeratorAnswer("second");
+    await applicantQuestions.addEnumeratorAnswer("enum one");
+    await applicantQuestions.addEnumeratorAnswer("enum two");
     await applicantQuestions.saveAndContinue();
 
     // FIRST REPEATED ENTITY
     // Answer name
-    await applicantQuestions.answerNameQuestion("first repeated", "last repeated");
+    await applicantQuestions.answerNameQuestion("enum one first", "enum one last");
     await applicantQuestions.saveAndContinue();
 
     // Put nothing in the first nested enumerator
@@ -86,12 +86,12 @@ describe('End to end enumerator test', () => {
 
     // SECOND REPEATED ENTITY
     // Answer name
-    await applicantQuestions.answerNameQuestion("second repeated", "second repeated");
+    await applicantQuestions.answerNameQuestion("enum two first", "enum two last");
     await applicantQuestions.saveAndContinue();
 
     // Put two things in the second nested enumerator
-    await applicantQuestions.addEnumeratorAnswer("one");
-    await applicantQuestions.addEnumeratorAnswer("two");
+    await applicantQuestions.addEnumeratorAnswer("thing one");
+    await applicantQuestions.addEnumeratorAnswer("thing two");
     await applicantQuestions.saveAndContinue();
 
     // Answer two nested repeated text questions
@@ -100,24 +100,35 @@ describe('End to end enumerator test', () => {
     await applicantQuestions.answerTextQuestion("world");
     await applicantQuestions.saveAndContinue();
 
-    // Applicant submits answers from review page.
-    await applicantQuestions.submitFromReviewPage();
+    // Make sure the enumerator answers are in the review page
+    expect(await page.innerText("body")).toContain("first name");
+    expect(await page.innerText("body")).toContain("last name");
+    expect(await page.innerText("body")).toContain("enum one first");
+    expect(await page.innerText("body")).toContain("enum one last");
+    expect(await page.innerText("body")).toContain("enum two first");
+    expect(await page.innerText("body")).toContain("enum two last");
+    expect(await page.innerText("body")).toContain("thing one");
+    expect(await page.innerText("body")).toContain("thing two");
+    expect(await page.innerText("body")).toContain("hello");
+    expect(await page.innerText("body")).toContain("world");
 
-    // Go back and delete some stuff
-    await applicantQuestions.applyProgram(programName);
-    expect(await page.innerHTML("#enumerator-fields")).toContain("first");
-    expect(await page.innerHTML("#enumerator-fields")).toContain("second");
-    await applicantQuestions.selectEnumeratorAnswerForDelete("first");
-    await applicantQuestions.selectEnumeratorAnswerForDelete("second");
+    // Go back to delete enumerator answers
+    await page.click('.cf-applicant-summary-row:has(div:has-text("enumerator-ete-question")) a:has-text("Edit")');
+    await applicantQuestions.selectEnumeratorAnswerForDelete("enum one");
+    await applicantQuestions.selectEnumeratorAnswerForDelete("enum two");
     await applicantQuestions.saveAndContinue();
 
-    // Applicant submits answers from review page.
-    await applicantQuestions.submitFromReviewPage();
-
-    // Go back and see that it is empty
-    await applicantQuestions.applyProgram(programName);
-    expect(await page.innerHTML("#enumerator-fields")).not.toContain("first");
-    expect(await page.innerHTML("#enumerator-fields")).not.toContain("second");
+    // Make sure there are no enumerators or repeated things in the review page
+    expect(await page.innerText("body")).toContain("first name");
+    expect(await page.innerText("body")).toContain("last name");
+    expect(await page.innerText("body")).not.toContain("enum one first");
+    expect(await page.innerText("body")).not.toContain("enum one last");
+    expect(await page.innerText("body")).not.toContain("enum two first");
+    expect(await page.innerText("body")).not.toContain("enum two last");
+    expect(await page.innerText("body")).not.toContain("thing one");
+    expect(await page.innerText("body")).not.toContain("thing two");
+    expect(await page.innerText("body")).not.toContain("hello");
+    expect(await page.innerText("body")).not.toContain("world");
 
     await endSession(browser);
   });
