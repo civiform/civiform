@@ -62,11 +62,11 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
                 .withText(question.getQuestionHelpText()),
             enumeratorFields,
             button(ADD_ELEMENT_BUTTON_ID, messages.at("button.addEnumeratorEntity")),
-            fieldErrors(enumeratorQuestion.getQuestionErrors()));
+            fieldErrors(messages, enumeratorQuestion.getQuestionErrors()));
   }
 
   /**
-   * Crete an enumerator field for existing entries. These come with a checkbox to delete during
+   * Create an enumerator field for existing entries. These come with a checkbox to delete during
    * form submission.
    */
   private Tag existingEnumeratorField(Optional<String> existingOption, int index) {

@@ -1,7 +1,7 @@
 # --- Create the versions table and migrate existing actives and drafts.
 
 # --- !Ups
-create table ti_organizations (
+create table if not exists ti_organizations (
   id bigserial primary key,
   name varchar not null,
   description varchar

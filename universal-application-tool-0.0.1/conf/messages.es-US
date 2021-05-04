@@ -17,6 +17,10 @@ content.description=CiviForm le permite solicitar muchos beneficios a la vez reu
 
 label.street=Calle
 placeholder.street=Nombre de la calle
+label.street=Dirección Línea 1
+placeholder.street=Dirección
+label.addressLine2=Línea de dirección 2
+placeholder.line2=Apartamento, suite, unidad, edificio, piso, etc.
 label.city=Ciudad
 placeholder.city=Ciudad
 label.state=Estado

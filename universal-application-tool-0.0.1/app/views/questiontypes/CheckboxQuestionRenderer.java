@@ -46,6 +46,8 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
                         .setFieldName(multiOptionQuestion.getSelectionPathAsArray())
                         .setValue(String.valueOf(option.id()))
                         .setChecked(multiOptionQuestion.optionIsSelected(option))
-                        .getContainer()));
+                        .getContainer()),
+            fieldErrors(params.messages(), multiOptionQuestion.getQuestionErrors())
+                .withClasses(Styles.ML_2, Styles.TEXT_XS, Styles.TEXT_RED_600, Styles.FONT_BOLD));
   }
 }
