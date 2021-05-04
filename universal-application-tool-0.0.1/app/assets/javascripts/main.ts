@@ -40,10 +40,27 @@ function maybeHideElement(e: Event, id: string, parentId: string) {
   }
 }
 
-/** In admin program block edit form - enabling submit button when form is changed */
-function enableUpdateBlockButton(event: Event) {
+/** In admin program block edit form - enabling submit button when form is changed or if not empty */
+function changeUpdateBlockButtonState(event: Event) {
+  const blockEditForm = document.getElementById("block-edit-form");
   const submitButton = document.getElementById("update-block-button");
-  submitButton.removeAttribute("disabled");
+  // Iterating over form elements
+  //   form.every(formElement => {
+  //     if (formNameInput.value !== formNameInput.defaultValue) {
+  //
+  //       return false;
+  //     }
+  //     return true;
+  //   })
+  const formNameInput = blockEditForm["block-name-input"];
+  const formDescriptionText = blockEditForm["block-description-textarea"]
+  if ((formNameInput.value !== formNameInput.defaultValue ||
+    formDescriptionText.value !== formDescriptionText.defaultValue) &&
+    (formNameInput.value !== "" && formDescriptionText.value !== "")) {
+    submitButton.removeAttribute("disabled");
+  } else {
+    submitButton.setAttribute("disabled", "");
+  }
 }
 
 /** In the admin question form - add a new option input for each new question answer option. */
@@ -94,7 +111,7 @@ function init() {
   // Submit button is disabled by default until program block edit form is changed
   const blockEditForm = document.getElementById("block-edit-form");
   if (blockEditForm) {
-    blockEditForm.addEventListener("input", enableUpdateBlockButton);
+    blockEditForm.addEventListener("input", changeUpdateBlockButtonState);
   }
 
   // Configure the button on the admin question form to add more answer options

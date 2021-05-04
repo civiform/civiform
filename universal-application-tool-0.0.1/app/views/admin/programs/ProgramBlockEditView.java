@@ -233,7 +233,12 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 .getContainer(),
             submitButton("Update Metadata")
                 .withId("update-block-button")
-                .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE)
+                .withClasses(
+                    Styles.MX_4,
+                    Styles.MY_1,
+                    Styles.INLINE,
+                    Styles.OPACITY_100,
+                    StyleUtils.disabled(Styles.OPACITY_50))
                 .attr("disabled", ""));
 
     // TODO: Maybe add alpha variants to button color on hover over so we do not have
