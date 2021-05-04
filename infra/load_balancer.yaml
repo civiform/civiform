@@ -3,7 +3,7 @@ Description: 'The public load balancer for Civiform, plus a dummy target that dr
 Mappings:
   Certificate:
     prod:
-      CertArn: arn:aws:acm:us-west-2:405662711265:certificate/f014a620-3d5b-4fbd-8d7a-055030599f1f
+      CertArn: arn:aws:acm:us-west-2:405662711265:certificate/74f32a1f-e8aa-453c-88f1-b2aac0f7e92b
     staging:
       CertArn: arn:aws:acm:us-west-2:405662711265:certificate/e35f35af-6329-4277-8cbf-a8c8a6ab2b40
 Parameters:
