@@ -44,16 +44,10 @@ function maybeHideElement(e: Event, id: string, parentId: string) {
 function changeUpdateBlockButtonState(event: Event) {
   const blockEditForm = document.getElementById("block-edit-form");
   const submitButton = document.getElementById("update-block-button");
-  // Iterating over form elements
-  //   form.every(formElement => {
-  //     if (formNameInput.value !== formNameInput.defaultValue) {
-  //
-  //       return false;
-  //     }
-  //     return true;
-  //   })
+
   const formNameInput = blockEditForm["block-name-input"];
-  const formDescriptionText = blockEditForm["block-description-textarea"]
+  const formDescriptionText = blockEditForm["block-description-textarea"];
+
   if ((formNameInput.value !== formNameInput.defaultValue ||
     formDescriptionText.value !== formDescriptionText.defaultValue) &&
     (formNameInput.value !== "" && formDescriptionText.value !== "")) {
