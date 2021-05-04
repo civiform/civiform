@@ -2,7 +2,9 @@ package services.applicant.question;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.util.Locale;
 import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.QuestionType;
@@ -13,7 +15,7 @@ public class RepeaterQuestion implements PresentsErrors {
   private final ApplicantQuestion applicantQuestion;
 
   // TODO(#859): make this admin-configurable
-  private final String PLACEHOLDER = "";
+  private final ImmutableMap<Locale, String> PLACEHOLDER = ImmutableMap.of(Locale.getDefault(), "");
 
   public RepeaterQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
@@ -40,12 +42,7 @@ public class RepeaterQuestion implements PresentsErrors {
   @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     if (isAnswered() && getEntityNames().stream().anyMatch(String::isBlank)) {
-      String placeholder = getPlaceholder();
-      if (placeholder.isEmpty()) {
-        placeholder = "entity";
-      }
-      return ImmutableSet.of(
-          ValidationErrorMessage.create(MessageKey.EMPTY_ENTITY_NAME, placeholder));
+      return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.EMPTY_ENTITY_NAME));
     }
     return ImmutableSet.of();
   }
@@ -80,8 +77,8 @@ public class RepeaterQuestion implements PresentsErrors {
         .readRepeatedEntities(applicantQuestion.getContextualizedPath());
   }
 
-  public String getPlaceholder() {
-    return PLACEHOLDER;
+  public String getPlaceholder(Locale locale) {
+    return PLACEHOLDER.get(locale);
   }
 
   @Override

@@ -3,7 +3,7 @@
 button.logout=Logout
 button.apply=Apply
 button.nextBlock=Save and continue
-button.deleteEntity=Delete entity
+button.deleteEntity=Delete
 toast.localeNotSupported=We're sorry, this program is not fully translated to English.
 toast.programCompleted=Application was already completed.
 toast.applicationSaved=Successfully saved application: application ID {0}
@@ -46,4 +46,4 @@ validation.stateRequired=Please enter state.
 validation.zipcodeRequired=Please enter valid ZIP code.
 validation.invalidZipcode=Please enter valid 5-digit ZIP code.
 validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
-validation.entityNameRequired=Please enter a value for each {0}.
+validation.entityNameRequired=Please enter a value for each line.

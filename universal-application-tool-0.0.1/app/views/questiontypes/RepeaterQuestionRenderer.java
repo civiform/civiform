@@ -89,11 +89,11 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
    * Create an enumerator field template for new entries. These come with a button to delete itself.
    */
   public static Tag newEnumeratorFieldTemplate(
-      Path contextualizedPath, String placeholder, Messages messages) {
+      Path contextualizedPath, String localizedPlaceholder, Messages messages) {
     ContainerTag entityNameInput =
         FieldWithLabel.input()
             .setFieldName(contextualizedPath.toString())
-            .setPlaceholderText(placeholder)
+            .setPlaceholderText(localizedPlaceholder)
             .getContainer()
             .withClasses(Styles.FLEX, Styles.ML_2);
     ContainerTag icon =
@@ -103,7 +103,7 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
         TagCreator.button(icon)
             .withType("button")
             .withClasses(Styles.FLEX, Styles.ML_4)
-            .attr("aria-label", messages.at("button.deleteEntity"));
+            .attr("aria-label", messages.at("button.deleteEntity", localizedPlaceholder));
     return div()
         .withId(ENUMERATOR_FIELD_TEMPLATE_ID)
         .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, Styles.HIDDEN))

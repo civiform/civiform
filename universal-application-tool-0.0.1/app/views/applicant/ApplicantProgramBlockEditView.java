@@ -73,7 +73,11 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
       body.with(
           RepeaterQuestionRenderer.newEnumeratorFieldTemplate(
               params.block().getEnumeratorQuestion().getContextualizedPath(),
-              params.block().getEnumeratorQuestion().createEnumeratorQuestion().getPlaceholder(),
+              params
+                  .block()
+                  .getEnumeratorQuestion()
+                  .createEnumeratorQuestion()
+                  .getPlaceholder(params.messages().lang().toLocale()),
               params.messages()));
     }
 
