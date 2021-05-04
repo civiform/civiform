@@ -49,7 +49,7 @@ public class RadioButtonQuestionRenderer extends BaseHtmlView implements Applica
                         singleOptionQuestion.getSelectionPath().toString(),
                         option,
                         singleOptionQuestion.optionIsSelected(option))),
-            fieldErrors(messages, singleOptionQuestion.getQuestionErrors())
+            fieldErrors(params.messages(), singleOptionQuestion.getQuestionErrors())
                 .withClasses(Styles.ML_2, Styles.TEXT_XS, Styles.TEXT_RED_600, Styles.FONT_BOLD));
   }
 

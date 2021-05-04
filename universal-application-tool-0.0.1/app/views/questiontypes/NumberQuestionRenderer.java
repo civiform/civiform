@@ -49,6 +49,6 @@ public class NumberQuestionRenderer extends BaseHtmlView implements ApplicantQue
                     Styles.MB_2)
                 .withText(question.getQuestionHelpText()),
             numberField.getContainer(),
-            fieldErrors(messages, numberQuestion.getQuestionErrors()));
+            fieldErrors(params.messages(), numberQuestion.getQuestionErrors()));
   }
 }

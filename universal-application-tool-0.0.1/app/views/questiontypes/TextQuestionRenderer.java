@@ -42,6 +42,6 @@ public class TextQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                 .setFloatLabel(true)
                 .setValue(textQuestion.getTextValue().orElse(""))
                 .getContainer(),
-            fieldErrors(messages, textQuestion.getQuestionErrors()));
+            fieldErrors(params.messages(), textQuestion.getQuestionErrors()));
   }
 }
