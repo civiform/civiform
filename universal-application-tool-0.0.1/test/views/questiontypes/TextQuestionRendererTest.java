@@ -1,7 +1,6 @@
 package views.questiontypes;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -12,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
 import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import repository.WithPostgresContainer;
 import services.Path;
 import services.applicant.ApplicantData;
@@ -32,12 +32,10 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
           TextValidationPredicates.create(2, 3));
 
   private final ApplicantData applicantData = new ApplicantData();
-  private final Messages messages =
-      stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
-  private final ApplicantQuestionRendererParams params =
-      ApplicantQuestionRendererParams.sample(messages);
 
   private ApplicantQuestion question;
+  private Messages messages;
+  private ApplicantQuestionRendererParams params;
   private TextQuestionRenderer renderer;
 
   @Before
@@ -45,6 +43,8 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
     question =
         new ApplicantQuestion(
             TEXT_QUESTION_DEFINITION, applicantData, ApplicantData.APPLICANT_PATH);
+    messages = instanceOf(MessagesApi.class).preferred(ImmutableSet.of(Lang.defaultLang()));
+    params = ApplicantQuestionRendererParams.sample(messages);
     renderer = new TextQuestionRenderer(question);
   }
 
