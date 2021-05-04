@@ -45,7 +45,7 @@ describe('normal application flow', () => {
     const applicantQuestions = new ApplicantQuestions(page);
 
     await applicantQuestions.applyProgram(programName);
-    await applicantQuestions.answerAddressQuestion('1234 St', 'Sim', 'Ames', '54321');
+    await applicantQuestions.answerAddressQuestion('1234 St', 'Unit B', 'Sim', 'Ames', '54321');
     await applicantQuestions.answerNameQuestion('Queen', 'Hearts', 'of');
     await applicantQuestions.answerRadioButtonQuestion('two');
     await applicantQuestions.saveAndContinue();

@@ -61,8 +61,8 @@ label.city=City
 placeholder.city=City
 label.state=State
 placeholder.state=State
-label.zipcode=Zipcode
-placeholder.zipcode=Zipcode
+label.zipcode=ZIP Code
+placeholder.zipcode=ZIP Code
 
 # Name question labels and placeholder text
 label.firstName=First name
