@@ -57,4 +57,10 @@ public class RepeaterQuestion implements PresentsErrors {
         .getApplicantData()
         .hasPath(applicantQuestion.getContextualizedPath().atIndex(0).join(Scalar.ENTITY_NAME));
   }
+
+  @Override
+  public String getAnswerString() {
+    // TODO: What do we show for repeater questions?
+    return "?";
+  }
 }

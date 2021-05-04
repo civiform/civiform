@@ -92,4 +92,9 @@ public class TextQuestion implements PresentsErrors {
   public Path getTextPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.TEXT);
   }
+
+  @Override
+  public String getAnswerString() {
+    return getTextValue().orElse("-");
+  }
 }
