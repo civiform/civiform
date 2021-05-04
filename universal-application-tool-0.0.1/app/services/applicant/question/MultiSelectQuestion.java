@@ -59,7 +59,6 @@ public class MultiSelectQuestion implements PresentsErrors {
 
   @Override
   public boolean hasTypeSpecificErrors() {
-    // The question does not recognize selected options not present in the options set
     return !getAllTypeSpecificErrors().isEmpty();
   }
 
