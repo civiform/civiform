@@ -54,7 +54,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                     /** Second line of address entry: Address line 2 AKA apartment, unit, etc. */
                     FieldWithLabel.input()
                         .setFieldName(addressQuestion.getLine2Path().toString())
-                        .setLabelText(messages.at("label.line2"))
+                        .setLabelText(messages.at("label.addressLine2"))
                         .setPlaceholderText(messages.at("placeholder.line2"))
                         .setFloatLabel(true)
                         .setValue(addressQuestion.getLine2Value().orElse(""))
