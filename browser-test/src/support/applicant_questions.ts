@@ -7,11 +7,12 @@ export class ApplicantQuestions {
     this.page = page
   }
 
-  async answerAddressQuestion(street: string, city: string, state: string, zip: string) {
-    await this.page.fill('[placeholder="Enter your street address"]', street);
+  async answerAddressQuestion(street: string, line2: string, city: string, state: string, zip: string) {
+    await this.page.fill('[placeholder="Street address"]', street);
+    await this.page.fill('[placeholder="Apartment, suite, unit, building, floor, etc."]', line2);
     await this.page.fill('[placeholder="City"]', city);
     await this.page.fill('[placeholder="State"]', state);
-    await this.page.fill('[placeholder="Zipcode"]', zip);
+    await this.page.fill('[placeholder="ZIP Code"]', zip);
   }
 
   async answerNameQuestion(firstName: string, lastName: string, middleName = '') {
