@@ -14,8 +14,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.question.types.QuestionDefinition;
 import services.question.types.RepeaterQuestionDefinition;
 import support.QuestionAnswerer;
+import support.TestQuestionBank;
 
 @RunWith(JUnitParamsRunner.class)
 public class EnumeratorQuestionTest {
@@ -31,10 +33,13 @@ public class EnumeratorQuestionTest {
   private Applicant applicant;
   private ApplicantData applicantData;
 
+  private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
+
   @Before
   public void setUp() {
     applicant = new Applicant();
     applicantData = applicant.getApplicantData();
+    testQuestionBank.reset();
   }
 
   @Test
@@ -83,5 +88,23 @@ public class EnumeratorQuestionTest {
     assertThat(enumeratorQuestion.getEntityNames()).contains(value);
     assertThat(enumeratorQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(enumeratorQuestion.hasQuestionErrors()).isTrue();
+  }
+
+  @Test
+  public void getMetadata_forEnumeratorQuestion() {
+    ApplicantData applicantData = new ApplicantData();
+    QuestionDefinition enumeratorQuestionDefinition =
+        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+    Path enumeratorPath =
+        ApplicantData.APPLICANT_PATH.join(enumeratorQuestionDefinition.getQuestionPathSegment());
+    applicantData.putLong(enumeratorPath.atIndex(0).join(Scalar.UPDATED_AT), 123L);
+    applicantData.putLong(enumeratorPath.atIndex(0).join(Scalar.PROGRAM_UPDATED_IN), 5L);
+
+    ApplicantQuestion question =
+        new ApplicantQuestion(
+            enumeratorQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+
+    assertThat(question.getLastUpdatedTimeMetadata()).contains(123L);
+    assertThat(question.getUpdatedInProgramMetadata()).contains(5L);
   }
 }
