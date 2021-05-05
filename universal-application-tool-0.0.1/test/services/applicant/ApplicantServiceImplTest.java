@@ -164,9 +164,10 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     // Ensure that we can successfully overwrite the array.
     rawUpdates =
-        ImmutableMap.<String, String>builder()        
-        .put(checkboxPath.atIndex(0).toString(), "3") 
-        .put(checkboxPath.atIndex(1).toString(), "1").build();
+        ImmutableMap.<String, String>builder()
+            .put(checkboxPath.atIndex(0).toString(), "3")
+            .put(checkboxPath.atIndex(1).toString(), "1")
+            .build();
     errorAnd =
         subject
             .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", rawUpdates)
@@ -179,8 +180,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     applicantDataAfter = userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(
-        applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTION)))
-    .hasValue(ImmutableList.of(3L, 1L));
+            applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTION)))
+        .hasValue(ImmutableList.of(3L, 1L));
 
     // Clear values by sending an empty item.
     rawUpdates =
