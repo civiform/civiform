@@ -44,7 +44,8 @@ public class EnumeratorQuestion implements PresentsErrors {
   @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     if (isAnswered() && getEntityNames().stream().anyMatch(String::isBlank)) {
-      return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.EMPTY_ENTITY_NAME));
+      return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_ENTITY_REQUIRED));
     }
     return ImmutableSet.of();
   }
