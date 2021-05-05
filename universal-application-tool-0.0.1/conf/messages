@@ -5,7 +5,7 @@
 # 1. Apostrophes in translations must be escaped by another apostrophe. See https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
 # 2. Sections correspond to a single view, such as the applicant's home page or a view of an address question.
 # 3. We use the following key format: ${component_type}.${descriptive_name} - for example, button.nextPage would
-     contain a translation for a button used to go to the next page.
+#    contain a translation for a button used to go to the next page.
 # 4. Keys in this file should be alphabetized within their own section or sub-section.
 
 #-------------------------------------------------------------#

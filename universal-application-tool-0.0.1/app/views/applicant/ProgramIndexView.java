@@ -133,7 +133,7 @@ public class ProgramIndexView extends BaseHtmlView {
         div()
             .withId(baseId + "-external-link")
             .withClasses(Styles.TEXT_XS, Styles.UNDERLINE)
-            .withText(messages.at("content.programDetails"));
+            .withText(messages.at("link.programDetails"));
     ContainerTag programData =
         div()
             .withId(baseId + "-data")
