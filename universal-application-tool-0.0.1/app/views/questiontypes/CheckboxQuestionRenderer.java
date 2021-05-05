@@ -6,8 +6,6 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.span;
 
-import static views.components.FieldWithLabel.checkbox;
-
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
@@ -44,6 +42,12 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
                     Styles.FONT_THIN,
                     Styles.MB_2)
                 .withText(question.getQuestionHelpText()),
+            input() // Hidden input that's always selected to allow for clearing mutli-select data.
+                .withType("checkbox")
+                .withName(multiOptionQuestion.getSelectionPathAsArray())
+                .withValue("")
+                .condAttr(!multiOptionQuestion.hasValue(), Attr.CHECKED, "")
+                .withClasses(ReferenceClasses.RADIO_DEFAULT, Styles.HIDDEN),
             each(
                 multiOptionQuestion.getOptions(),
                 option ->
@@ -52,7 +56,6 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
                         option,
                         multiOptionQuestion.optionIsSelected(option))));
   }
-
 
   private Tag renderCheckboxQuestion(
       String selectionPath, LocalizedQuestionOption option, boolean isSelected) {

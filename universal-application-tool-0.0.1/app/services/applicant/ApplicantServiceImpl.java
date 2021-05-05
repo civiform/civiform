@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -180,18 +181,28 @@ public class ApplicantServiceImpl implements ApplicantService {
       ImmutableSet<Update> updates)
       throws UnsupportedScalarTypeException, PathNotInBlockException {
     ImmutableSet.Builder<Path> questionPaths = ImmutableSet.builder();
+    ArrayList<Path> visitedPaths = new ArrayList<>();
     for (Update update : updates) {
+      Path currentPath = update.path();
+
+      // If we're updating an array we need to clear it first.
+      if (currentPath.isArrayElement()
+          && !visitedPaths.contains(currentPath.withoutArrayReference())) {
+        visitedPaths.add(currentPath.withoutArrayReference());
+        applicantData.maybeClearArray(currentPath);
+      }
+
       ScalarType type =
           block
-              .getScalarType(update.path())
-              .orElseThrow(() -> new PathNotInBlockException(block.getId(), update.path()));
-      questionPaths.add(update.path().parentPath());
+              .getScalarType(currentPath)
+              .orElseThrow(() -> new PathNotInBlockException(block.getId(), currentPath));
+      questionPaths.add(currentPath.parentPath());
       switch (type) {
         case STRING:
-          applicantData.putString(update.path(), update.value());
+          applicantData.putString(currentPath, update.value());
           break;
         case LONG:
-          applicantData.putLong(update.path(), update.value());
+          applicantData.putLong(currentPath, update.value());
           break;
         default:
           throw new UnsupportedScalarTypeException(type);
