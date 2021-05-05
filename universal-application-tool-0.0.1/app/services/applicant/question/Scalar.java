@@ -15,7 +15,7 @@ import services.question.types.ScalarType;
  * Scalar#getScalars(QuestionType)}, and metadata scalars used by all questions are available
  * through {@link Scalar#getMetadataScalars}.
  *
- * EXISTING SCALARS SHOULD NOT BE MODIFIED. The Scalar enum should be treated as append-only.
+ * <p>EXISTING SCALARS SHOULD NOT BE MODIFIED. The Scalar enum should be treated as append-only.
  */
 public enum Scalar {
   CITY,
