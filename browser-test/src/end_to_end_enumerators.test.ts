@@ -101,16 +101,16 @@ describe('End to end enumerator test', () => {
     await applicantQuestions.saveAndContinue();
 
     // Make sure the enumerator answers are in the review page
-    expect(await page.innerText("body")).toContain("first name");
-    expect(await page.innerText("body")).toContain("last name");
-    expect(await page.innerText("body")).toContain("enum one first");
-    expect(await page.innerText("body")).toContain("enum one last");
-    expect(await page.innerText("body")).toContain("enum two first");
-    expect(await page.innerText("body")).toContain("enum two last");
-    expect(await page.innerText("body")).toContain("thing one");
-    expect(await page.innerText("body")).toContain("thing two");
-    expect(await page.innerText("body")).toContain("hello");
-    expect(await page.innerText("body")).toContain("world");
+    expect(await page.innerText("#application-summary")).toContain("first name");
+    expect(await page.innerText("#application-summary")).toContain("last name");
+    expect(await page.innerText("#application-summary")).toContain("enum one first");
+    expect(await page.innerText("#application-summary")).toContain("enum one last");
+    expect(await page.innerText("#application-summary")).toContain("enum two first");
+    expect(await page.innerText("#application-summary")).toContain("enum two last");
+    expect(await page.innerText("#application-summary")).toContain("thing one");
+    expect(await page.innerText("#application-summary")).toContain("thing two");
+    expect(await page.innerText("#application-summary")).toContain("hello");
+    expect(await page.innerText("#application-summary")).toContain("world");
 
     // Go back to delete enumerator answers
     await page.click('.cf-applicant-summary-row:has(div:has-text("enumerator-ete-question")) a:has-text("Edit")');
@@ -119,16 +119,16 @@ describe('End to end enumerator test', () => {
     await applicantQuestions.saveAndContinue();
 
     // Make sure there are no enumerators or repeated things in the review page
-    expect(await page.innerText("body")).toContain("first name");
-    expect(await page.innerText("body")).toContain("last name");
-    expect(await page.innerText("body")).not.toContain("enum one first");
-    expect(await page.innerText("body")).not.toContain("enum one last");
-    expect(await page.innerText("body")).not.toContain("enum two first");
-    expect(await page.innerText("body")).not.toContain("enum two last");
-    expect(await page.innerText("body")).not.toContain("thing one");
-    expect(await page.innerText("body")).not.toContain("thing two");
-    expect(await page.innerText("body")).not.toContain("hello");
-    expect(await page.innerText("body")).not.toContain("world");
+    expect(await page.innerText("#application-summary")).toContain("first name");
+    expect(await page.innerText("#application-summary")).toContain("last name");
+    expect(await page.innerText("#application-summary")).not.toContain("enum one first");
+    expect(await page.innerText("#application-summary")).not.toContain("enum one last");
+    expect(await page.innerText("#application-summary")).not.toContain("enum two first");
+    expect(await page.innerText("#application-summary")).not.toContain("enum two last");
+    expect(await page.innerText("#application-summary")).not.toContain("thing one");
+    expect(await page.innerText("#application-summary")).not.toContain("thing two");
+    expect(await page.innerText("#application-summary")).not.toContain("hello");
+    expect(await page.innerText("#application-summary")).not.toContain("world");
 
     await endSession(browser);
   });

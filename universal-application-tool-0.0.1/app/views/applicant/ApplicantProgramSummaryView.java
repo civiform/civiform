@@ -57,9 +57,11 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       content.with(ToastMessage.error(banner.get()).getContainerTag());
     }
 
+    ContainerTag applicationSummary = div().withId("application-summary");
     for (AnswerData questionData : data) {
-      content.with(renderQuestionSummary(questionData, applicantId));
+      applicationSummary.with(renderQuestionSummary(questionData, applicantId));
     }
+    content.with(applicationSummary);
 
     // Add submit action (POST).
     String submitLink =
