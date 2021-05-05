@@ -4,13 +4,16 @@ package services;
 public enum MessageKey {
   ADDRESS_LINE_2_LABEL("label.addressLine2"),
   ADDRESS_LINE_2_PLACEHOLDER("placeholder.line2"),
-  ADD_REPEATER_ENTITY_BUTTON("button.addRepeaterEntity"),
+  ADD_ENUMERATOR_ENTITY("addEnumeratorEntity"),
   APPLICATION_SAVED_TOAST("toast.applicationSaved"),
   APPLY_BUTTON("button.apply"),
+  BUTTON_UNTRANSLATED_SUBMIT("button.untranslatedSubmit"),
   CITY_LABEL("label.city"),
   CITY_PLACEHOLDER("placeholder.city"),
   CITY_REQUIRED("validation.cityRequired"),
   CIVIFORM_DESCRIPTION("content.description"),
+  DELETE_ENTITY_BUTTON("button.deleteEntity"),
+  EMPTY_ENTITY_NAME("validation.entityNameRequired"),
   FIRST_NAME_LABEL("label.firstName"),
   FIRST_NAME_PLACEHOLDER("placeholder.firstName"),
   FIRST_NAME_REQUIRED("validation.firstNameRequired"),
@@ -45,8 +48,7 @@ public enum MessageKey {
   VIEW_APPLICATIONS_LINK("link.viewApplications"),
   ZIPCODE_LABEL("label.zipcode"),
   ZIPCODE_PLACEHOLDER("placeholder.zipcode"),
-  ZIP_CODE_REQUIRED("validation.zipcodeRequired"),
-  EMPTY_ENTITY_NAME("validation.entityNameRequired");
+  ZIP_CODE_REQUIRED("validation.zipcodeRequired");
 
   private final String keyName;
 

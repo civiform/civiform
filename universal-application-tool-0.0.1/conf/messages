@@ -18,6 +18,9 @@ button.logout=Logout
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 content.selectLanguage=Please select your preferred language from the following:
 
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+button.untranslatedSubmit=Submit
+
 #--------------------------------------------------------------------------#
 # PROGRAM FORM - contains text shown when filling out an application form. #
 #--------------------------------------------------------------------------#
@@ -94,6 +97,8 @@ validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
 
 # Text on a button an applicant would click to add another entity
 button.addEnumeratorEntity=add element
+
+button.deleteEntity=Delete {0}
 
 # Validation error that shows when an applicant does not enter a value.
 validation.entityNameRequired=Please enter a value for each line.

@@ -13,6 +13,7 @@ import j2html.tags.DomContent;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.twirl.api.Content;
+import services.MessageKey;
 import views.BaseHtmlLayout;
 import views.ViewUtils;
 import views.style.ApplicantStyles;
@@ -61,12 +62,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return div()
         .withId("application-status")
         .withClasses(Styles.W_1_2, Styles.TEXT_RIGHT, Styles.TEXT_SM, Styles.UNDERLINE)
-        .with(span(messages.at("link.viewApplications")));
+        .with(span(messages.at(MessageKey.VIEW_APPLICATIONS_LINK.getKeyName())));
   }
 
   private ContainerTag logoutButton(Messages messages) {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
-    return a(messages.at("button.logout"))
+    return a(messages.at(MessageKey.LOGOUT_BUTTON.getKeyName()))
         .withHref(logoutLink)
         .withClasses(
             Styles.PX_3, Styles.TEXT_SM, Styles.OPACITY_75, StyleUtils.hover(Styles.OPACITY_100));

@@ -9,6 +9,7 @@ import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
 import play.i18n.Messages;
+import services.MessageKey;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.RepeaterQuestion;
@@ -61,7 +62,8 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
                     Styles.MB_2)
                 .withText(question.getQuestionHelpText()),
             enumeratorFields,
-            button(ADD_ELEMENT_BUTTON_ID, messages.at("button.addEnumeratorEntity")),
+            button(
+                ADD_ELEMENT_BUTTON_ID, messages.at(MessageKey.ADD_ENUMERATOR_ENTITY.getKeyName())),
             fieldErrors(messages, enumeratorQuestion.getQuestionErrors()));
   }
 
@@ -103,7 +105,9 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
         TagCreator.button(icon)
             .withType("button")
             .withClasses(Styles.FLEX, Styles.ML_4)
-            .attr("aria-label", messages.at("button.deleteEntity", localizedPlaceholder));
+            .attr(
+                "aria-label",
+                messages.at(MessageKey.DELETE_ENTITY_BUTTON.getKeyName(), localizedPlaceholder));
     return div()
         .withId(ENUMERATOR_FIELD_TEMPLATE_ID)
         .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, Styles.HIDDEN))

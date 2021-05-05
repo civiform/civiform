@@ -5,6 +5,7 @@ import static j2html.TagCreator.div;
 
 import j2html.tags.Tag;
 import play.i18n.Messages;
+import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.NameQuestion;
 import views.BaseHtmlView;
@@ -43,8 +44,9 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                 .with(
                     FieldWithLabel.input()
                         .setFieldName(nameQuestion.getFirstNamePath().toString())
-                        .setLabelText(messages.at("label.firstName"))
-                        .setPlaceholderText(messages.at("placeholder.firstName"))
+                        .setLabelText(messages.at(MessageKey.FIRST_NAME_LABEL.getKeyName()))
+                        .setPlaceholderText(
+                            messages.at(MessageKey.FIRST_NAME_PLACEHOLDER.getKeyName()))
                         .setFloatLabel(true)
                         .setValue(nameQuestion.getFirstNameValue().orElse(""))
                         .getContainer())
@@ -52,16 +54,18 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                 .with(
                     FieldWithLabel.input()
                         .setFieldName(nameQuestion.getMiddleNamePath().toString())
-                        .setLabelText(messages.at("label.middleName"))
-                        .setPlaceholderText(messages.at("placeholder.middleName"))
+                        .setLabelText(messages.at(MessageKey.MIDDLE_NAME_LABEL.getKeyName()))
+                        .setPlaceholderText(
+                            messages.at(MessageKey.MIDDLE_NAME_PLACEHOLDER.getKeyName()))
                         .setFloatLabel(true)
                         .setValue(nameQuestion.getMiddleNameValue().orElse(""))
                         .getContainer())
                 .with(
                     FieldWithLabel.input()
                         .setFieldName(nameQuestion.getLastNamePath().toString())
-                        .setLabelText(messages.at("label.lastName"))
-                        .setPlaceholderText(messages.at("placeholder.lastName"))
+                        .setLabelText(messages.at(MessageKey.LAST_NAME_LABEL.getKeyName()))
+                        .setPlaceholderText(
+                            messages.at(MessageKey.LAST_NAME_PLACEHOLDER.getKeyName()))
                         .setFloatLabel(true)
                         .setValue(nameQuestion.getLastNameValue().orElse(""))
                         .getContainer())
