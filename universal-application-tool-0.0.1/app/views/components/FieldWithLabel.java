@@ -60,7 +60,7 @@ public class FieldWithLabel {
     BaseStyles.FIELD_BORDER_COLOR,
     Styles.ROUNDED_LG,
     Styles.W_FULL,
-    Styles.TEXT_BASE,
+    Styles.TEXT_LG,
     Styles.PLACEHOLDER_GRAY_400,
     StyleUtils.focus(Styles.BORDER_BLUE_500)
   };
