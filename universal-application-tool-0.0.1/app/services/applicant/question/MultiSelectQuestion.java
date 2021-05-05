@@ -5,6 +5,8 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
@@ -25,6 +27,7 @@ public class MultiSelectQuestion implements PresentsErrors {
     return !getQuestionErrors().isEmpty();
   }
 
+  @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     if (!isAnswered()) {
       return ImmutableSet.of();
@@ -38,7 +41,8 @@ public class MultiSelectQuestion implements PresentsErrors {
       int minChoicesRequired =
           definition.getMultiOptionValidationPredicates().minChoicesRequired().getAsInt();
       if (numberOfSelections < minChoicesRequired) {
-        errors.add(ValidationErrorMessage.tooFewSelectionsError(minChoicesRequired));
+        errors.add(
+            ValidationErrorMessage.create(MessageKey.TOO_FEW_SELECTIONS, minChoicesRequired));
       }
     }
 
@@ -46,7 +50,8 @@ public class MultiSelectQuestion implements PresentsErrors {
       int maxChoicesAllowed =
           definition.getMultiOptionValidationPredicates().maxChoicesAllowed().getAsInt();
       if (numberOfSelections > maxChoicesAllowed) {
-        errors.add(ValidationErrorMessage.tooManySelectionsError(maxChoicesAllowed));
+        errors.add(
+            ValidationErrorMessage.create(MessageKey.TOO_MANY_SELECTIONS, maxChoicesAllowed));
       }
     }
     return errors.build();
@@ -54,8 +59,12 @@ public class MultiSelectQuestion implements PresentsErrors {
 
   @Override
   public boolean hasTypeSpecificErrors() {
-    // The question does not recognize selected options not present in the options set
-    return false;
+    return !getAllTypeSpecificErrors().isEmpty();
+  }
+
+  @Override
+  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
+    return ImmutableSet.of();
   }
 
   public boolean hasValue() {
@@ -127,5 +136,16 @@ public class MultiSelectQuestion implements PresentsErrors {
   public ImmutableList<LocalizedQuestionOption> getOptions() {
     return getQuestionDefinition()
         .getOptionsForLocaleOrDefault(applicantQuestion.getApplicantData().preferredLocale());
+  }
+
+  @Override
+  public String getAnswerString() {
+    return getSelectedOptionsValue()
+        .map(
+            options ->
+                options.stream()
+                    .map(LocalizedQuestionOption::optionText)
+                    .collect(Collectors.joining("\n")))
+        .orElse("-");
   }
 }

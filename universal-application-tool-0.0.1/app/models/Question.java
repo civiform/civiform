@@ -41,7 +41,7 @@ public class Question extends BaseModel {
   /** Different versions of the same question are linked by their immutable name. */
   private @Constraints.Required String name;
 
-  private Long repeaterId;
+  private Long enumeratorId;
 
   private @Constraints.Required String description;
 
@@ -98,7 +98,7 @@ public class Question extends BaseModel {
             .setId(id)
             .setName(name)
             .setPath(Path.create(path))
-            .setRepeaterId(Optional.ofNullable(repeaterId))
+            .setEnumeratorId(Optional.ofNullable(enumeratorId))
             .setDescription(description)
             .setQuestionText(questionText)
             .setQuestionHelpText(questionHelpText)
@@ -149,9 +149,9 @@ public class Question extends BaseModel {
 
     // TODO(https://github.com/seattle-uat/civiform/issues/673): delete this when questions don't
     //  need paths
-    path = questionDefinition.getPath().path();
+    path = questionDefinition.getPath().toString();
 
-    repeaterId = questionDefinition.getRepeaterId().orElse(null);
+    enumeratorId = questionDefinition.getEnumeratorId().orElse(null);
     name = questionDefinition.getName();
     description = questionDefinition.getDescription();
     questionText = questionDefinition.getQuestionText();

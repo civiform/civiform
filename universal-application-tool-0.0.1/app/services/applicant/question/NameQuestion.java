@@ -1,7 +1,10 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.NameQuestionDefinition;
@@ -24,6 +27,7 @@ public class NameQuestion implements PresentsErrors {
     return !getQuestionErrors().isEmpty();
   }
 
+  @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     // TODO: Implement admin-defined validation.
     return ImmutableSet.of();
@@ -34,6 +38,7 @@ public class NameQuestion implements PresentsErrors {
     return !getAllTypeSpecificErrors().isEmpty();
   }
 
+  @Override
   public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
     return ImmutableSet.<ValidationErrorMessage>builder()
         .addAll(getFirstNameErrors())
@@ -43,7 +48,7 @@ public class NameQuestion implements PresentsErrors {
 
   public ImmutableSet<ValidationErrorMessage> getFirstNameErrors() {
     if (isFirstNameAnswered() && getFirstNameValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.create("First name is required."));
+      return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.FIRST_NAME_REQUIRED));
     }
 
     return ImmutableSet.of();
@@ -51,7 +56,7 @@ public class NameQuestion implements PresentsErrors {
 
   public ImmutableSet<ValidationErrorMessage> getLastNameErrors() {
     if (isLastNameAnswered() && getLastNameValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.create("Last name is required."));
+      return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.LAST_NAME_REQUIRED));
     }
 
     return ImmutableSet.of();
@@ -132,5 +137,14 @@ public class NameQuestion implements PresentsErrors {
   @Override
   public boolean isAnswered() {
     return isFirstNameAnswered() || isMiddleNameAnswered() || isLastNameAnswered();
+  }
+
+  @Override
+  public String getAnswerString() {
+    String[] parts = {
+      getFirstNameValue().orElse(""), getMiddleNameValue().orElse(""), getLastNameValue().orElse("")
+    };
+
+    return Arrays.stream(parts).filter(part -> part.length() > 0).collect(Collectors.joining(" "));
   }
 }

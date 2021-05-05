@@ -1,9 +1,12 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.AddressQuestionDefinition;
@@ -30,6 +33,7 @@ public class AddressQuestion implements PresentsErrors {
     return !getQuestionErrors().isEmpty();
   }
 
+  @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     if (!isAnswered()) {
       return ImmutableSet.of();
@@ -38,14 +42,13 @@ public class AddressQuestion implements PresentsErrors {
     AddressQuestionDefinition definition = getQuestionDefinition();
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
-    if (definition.getDisallowPoBox() && getStreetValue().isPresent()) {
+    if (definition.getDisallowPoBox()) {
       Pattern poBoxPattern = Pattern.compile(PO_BOX_REGEX);
-      // TODO(https://github.com/seattle-uat/civiform/issues/844): Compare PO_BOX_REGEX against
-      // getLine2Value() as well.
-      Matcher poBoxMatcher = poBoxPattern.matcher(getStreetValue().get());
+      Matcher poBoxMatcher1 = poBoxPattern.matcher(getStreetValue().orElse(""));
+      Matcher poBoxMatcher2 = poBoxPattern.matcher(getLine2Value().orElse(""));
 
-      if (poBoxMatcher.matches()) {
-        return ImmutableSet.of(ValidationErrorMessage.noPoBox());
+      if (poBoxMatcher1.matches() || poBoxMatcher2.matches()) {
+        return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.NO_PO_BOX));
       }
     }
 
@@ -57,6 +60,7 @@ public class AddressQuestion implements PresentsErrors {
     return !getAllTypeSpecificErrors().isEmpty();
   }
 
+  @Override
   public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
     return ImmutableSet.<ValidationErrorMessage>builder()
         .addAll(getAddressErrors())
@@ -74,7 +78,7 @@ public class AddressQuestion implements PresentsErrors {
 
   public ImmutableSet<ValidationErrorMessage> getStreetErrors() {
     if (isStreetAnswered() && getStreetValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.streetRequired());
+      return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.STREET_REQUIRED));
     }
 
     return ImmutableSet.of();
@@ -82,7 +86,7 @@ public class AddressQuestion implements PresentsErrors {
 
   public ImmutableSet<ValidationErrorMessage> getCityErrors() {
     if (isCityAnswered() && getCityValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.cityRequired());
+      return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.CITY_REQUIRED));
     }
 
     return ImmutableSet.of();
@@ -91,7 +95,7 @@ public class AddressQuestion implements PresentsErrors {
   public ImmutableSet<ValidationErrorMessage> getStateErrors() {
     // TODO: Validate state further.
     if (isStateAnswered() && getStateValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.stateRequired());
+      return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.STATE_REQUIRED));
     }
 
     return ImmutableSet.of();
@@ -101,13 +105,13 @@ public class AddressQuestion implements PresentsErrors {
     if (isZipAnswered()) {
       Optional<String> zipValue = getZipValue();
       if (zipValue.isEmpty()) {
-        return ImmutableSet.of(ValidationErrorMessage.zipRequired());
+        return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.ZIP_CODE_REQUIRED));
       }
 
       Pattern pattern = Pattern.compile("^[0-9]{5}(?:-[0-9]{4})?$");
       Matcher matcher = pattern.matcher(zipValue.get());
       if (!matcher.matches()) {
-        return ImmutableSet.of(ValidationErrorMessage.invalidZip());
+        return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.INVALID_ZIP_CODE));
       }
     }
 
@@ -225,5 +229,18 @@ public class AddressQuestion implements PresentsErrors {
         || isCityAnswered()
         || isStateAnswered()
         || isZipAnswered();
+  }
+
+  @Override
+  public String getAnswerString() {
+    String line1 = getStreetValue().orElse("");
+    String[] parts = {
+      getCityValue().orElse(""), getStateValue().orElse(""), getZipValue().orElse("")
+    };
+    String line2 =
+        Arrays.stream(parts).filter(part -> part.length() > 0).collect(Collectors.joining(", "));
+
+    String[] ret = {line1, line2};
+    return Arrays.stream(ret).filter(part -> part.length() > 0).collect(Collectors.joining("\n"));
   }
 }

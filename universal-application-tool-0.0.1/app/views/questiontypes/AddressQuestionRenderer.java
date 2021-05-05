@@ -21,7 +21,8 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
   }
 
   @Override
-  public Tag render(Messages messages) {
+  public Tag render(ApplicantQuestionRendererParams params) {
+    Messages messages = params.messages();
     AddressQuestion addressQuestion = question.createAddressQuestion();
 
     return div()
@@ -41,7 +42,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
             div()
                 .withClasses(Styles.ROUNDED, Styles.BG_OPACITY_50, Styles.PT_2, Styles.PB_4)
                 .with(
-                    /** First line of address entry: Street */
+                    /** First line of address entry: Address line 1 AKA street address */
                     FieldWithLabel.input()
                         .setFieldName(addressQuestion.getStreetPath().toString())
                         .setLabelText(messages.at("label.street"))
@@ -50,7 +51,16 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                         .setValue(addressQuestion.getStreetValue().orElse(""))
                         .getContainer()
                         .withClasses(Styles.MY_2, Styles.PT_2),
-                    /** Second line of address entry: City, State, Zip */
+                    /** Second line of address entry: Address line 2 AKA apartment, unit, etc. */
+                    FieldWithLabel.input()
+                        .setFieldName(addressQuestion.getLine2Path().toString())
+                        .setLabelText(messages.at("label.addressLine2"))
+                        .setPlaceholderText(messages.at("placeholder.line2"))
+                        .setFloatLabel(true)
+                        .setValue(addressQuestion.getLine2Value().orElse(""))
+                        .getContainer()
+                        .withClasses(Styles.MY_2, Styles.PT_2),
+                    /** Third line of address entry: City, State, Zip */
                     div()
                         .withClasses(Styles.FLEX, Styles.FLEX_ROW)
                         .with(
@@ -78,7 +88,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                                 .setValue(addressQuestion.getZipValue().orElse(""))
                                 .getContainer()
                                 .withClasses(Styles.P_1, Styles.PT_2, Styles.PR_0, Styles.W_1_4)),
-                    fieldErrors(addressQuestion.getQuestionErrors())
+                    fieldErrors(messages, addressQuestion.getQuestionErrors())
                         .withClasses(
                             Styles.ML_2, Styles.TEXT_XS, Styles.TEXT_RED_600, Styles.FONT_BOLD)));
   }

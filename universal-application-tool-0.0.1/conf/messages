@@ -17,6 +17,9 @@ button.apply=Apply
 # The button text for saving the current applicant-entered data and continuing to the next block in the form.
 button.nextBlock=Save and continue
 
+# The aria text on the button used by an applicant to mark an entity for deletion.
+button.deleteEntity=Delete {0}
+
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=We're sorry, this program is not fully translated to your preferred language.
 
@@ -53,14 +56,16 @@ content.description=CiviForm lets you apply for many benefits at once by reusing
 #----------------------------------------------------------#
 
 # Address question labels and placeholder text
-label.street=Street address
-placeholder.street=Enter your street address
+label.street=Address line 1
+placeholder.street=Street address
+label.addressLine2=Address line 2
+placeholder.line2=Apartment, suite, unit, building, floor, etc.
 label.city=City
 placeholder.city=City
 label.state=State
 placeholder.state=State
-label.zipcode=Zipcode
-placeholder.zipcode=Zipcode
+label.zipcode=ZIP Code
+placeholder.zipcode=ZIP Code
 
 # Name question labels and placeholder text
 label.firstName=First name
@@ -70,6 +75,23 @@ placeholder.middleName=Middle name
 label.lastName=Last name
 placeholder.lastName=Last name
 
-# Repeater question text
+# Enumerator question text
 # Text on a button an applicant would click to add another entity
-button.addRepeaterEntity=add element
+button.addEnumeratorEntity=add element
+
+# Question validation
+validation.firstNameRequired=Please enter your first name.
+validation.lastNameRequired=Please enter your last name.
+validation.textTooShort=Must contain at least {0} characters.
+validation.textTooLong=Must contain at most {0} characters.
+validation.numberTooSmall=Must be at least {0}.
+validation.numberTooBig=Must be at most {0}.
+validation.tooFewSelections=Please select at least {0}.
+validation.tooManySelections=Please select fewer than {0}.
+validation.streetRequired=Please enter valid street name and number.
+validation.cityRequired=Please enter city.
+validation.stateRequired=Please enter state.
+validation.zipcodeRequired=Please enter valid ZIP code.
+validation.invalidZipcode=Please enter valid 5-digit ZIP code.
+validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
+validation.entityNameRequired=Please enter a value for each line.

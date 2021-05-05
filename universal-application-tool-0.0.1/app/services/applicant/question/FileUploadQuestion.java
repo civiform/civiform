@@ -22,6 +22,7 @@ public class FileUploadQuestion implements PresentsErrors {
     return !getQuestionErrors().isEmpty();
   }
 
+  @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     // TODO: Implement admin-defined validation.
     return ImmutableSet.of();
@@ -29,8 +30,13 @@ public class FileUploadQuestion implements PresentsErrors {
 
   @Override
   public boolean hasTypeSpecificErrors() {
+    return !getAllTypeSpecificErrors().isEmpty();
+  }
+
+  @Override
+  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
     // There are no inherent requirements in a file upload question.
-    return false;
+    return ImmutableSet.of();
   }
 
   @Override
@@ -65,5 +71,11 @@ public class FileUploadQuestion implements PresentsErrors {
 
   public Path getFileKeyPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.FILE_KEY);
+  }
+
+  @Override
+  public String getAnswerString() {
+    // TODO: What do we display here when a file has been uploaded? Filename? Link to the file?
+    return isAnswered() ? "-- FILE UPLOADED --" : "-- NO FILE SELECTED --";
   }
 }

@@ -11,6 +11,7 @@ import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
@@ -64,12 +65,12 @@ public class AddressQuestionTest {
   public void withValidApplicantData() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
-            noPoBoxAddressQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+            addressQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
     QuestionAnswerer.answerAddressQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
-        "85 Pike St",
-        "Unit B",
+        "PO Box 123",
+        "Line 2",
         "Seattle",
         "WA",
         "98101");
@@ -78,8 +79,8 @@ public class AddressQuestionTest {
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(addressQuestion.hasQuestionErrors()).isFalse();
-    assertThat(addressQuestion.getStreetValue().get()).isEqualTo("85 Pike St");
-    assertThat(addressQuestion.getLine2Value().get()).isEqualTo("Unit B");
+    assertThat(addressQuestion.getStreetValue().get()).isEqualTo("PO Box 123");
+    assertThat(addressQuestion.getLine2Value().get()).isEqualTo("Line 2");
     assertThat(addressQuestion.getCityValue().get()).isEqualTo("Seattle");
     assertThat(addressQuestion.getStateValue().get()).isEqualTo("WA");
     assertThat(addressQuestion.getZipValue().get()).isEqualTo("98101");
@@ -96,10 +97,14 @@ public class AddressQuestionTest {
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isTrue();
-    assertThat(addressQuestion.getStreetErrors()).contains(ValidationErrorMessage.streetRequired());
-    assertThat(addressQuestion.getCityErrors()).contains(ValidationErrorMessage.cityRequired());
-    assertThat(addressQuestion.getStateErrors()).contains(ValidationErrorMessage.stateRequired());
-    assertThat(addressQuestion.getZipErrors()).contains(ValidationErrorMessage.zipRequired());
+    assertThat(addressQuestion.getStreetErrors())
+        .contains(ValidationErrorMessage.create(MessageKey.STREET_REQUIRED));
+    assertThat(addressQuestion.getCityErrors())
+        .contains(ValidationErrorMessage.create(MessageKey.CITY_REQUIRED));
+    assertThat(addressQuestion.getStateErrors())
+        .contains(ValidationErrorMessage.create(MessageKey.STATE_REQUIRED));
+    assertThat(addressQuestion.getZipErrors())
+        .contains(ValidationErrorMessage.create(MessageKey.ZIP_CODE_REQUIRED));
   }
 
   @Test
@@ -120,7 +125,8 @@ public class AddressQuestionTest {
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isTrue();
-    assertThat(addressQuestion.getZipErrors()).contains(ValidationErrorMessage.invalidZip());
+    assertThat(addressQuestion.getZipErrors())
+        .contains(ValidationErrorMessage.create(MessageKey.INVALID_ZIP_CODE));
     assertThat(addressQuestion.getStreetErrors()).isEmpty();
     assertThat(addressQuestion.getCityErrors()).isEmpty();
     assertThat(addressQuestion.getStateErrors()).isEmpty();
@@ -149,16 +155,18 @@ public class AddressQuestionTest {
 
   @Test
   @Parameters({
-    "PO Box 123",
-    "PO box 123",
-    "pO Box 123",
-    "po box 123",
-    "P.O. Box 123",
-    "p.o. box 123",
-    "My P.O. Box ABC",
-    "po-box 555"
+    "PO Box 123,Line 2",
+    "PO box 123,Line 2",
+    "pO Box 123,Line 2",
+    "po box 123,Line 2",
+    "P.O. Box 123,Line 2",
+    "p.o. box 123,Line 2",
+    "My P.O. Box ABC,Line 2",
+    "po-box 555,Line 2",
+    "Sesame St,PO Box 123"
   })
-  public void withNoPoBoxAllowed_withInvalidApplicantData_failsValidation(String streetValue) {
+  public void withNoPoBoxAllowed_withInvalidApplicantData_failsValidation(
+      String streetValue, String line2Value) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
             noPoBoxAddressQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
@@ -166,7 +174,7 @@ public class AddressQuestionTest {
         applicantData,
         applicantQuestion.getContextualizedPath(),
         streetValue,
-        "Unit B",
+        line2Value,
         "Seattle",
         "WA",
         "98107");
@@ -174,6 +182,7 @@ public class AddressQuestionTest {
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(addressQuestion.getQuestionErrors()).containsOnly(ValidationErrorMessage.noPoBox());
+    assertThat(addressQuestion.getQuestionErrors())
+        .containsOnly(ValidationErrorMessage.create(MessageKey.NO_PO_BOX));
   }
 }

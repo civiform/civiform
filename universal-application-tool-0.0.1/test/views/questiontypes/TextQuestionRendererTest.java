@@ -1,7 +1,6 @@
 package views.questiontypes;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -12,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
 import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import repository.WithPostgresContainer;
 import services.Path;
 import services.applicant.ApplicantData;
@@ -32,10 +32,10 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
           TextValidationPredicates.create(2, 3));
 
   private final ApplicantData applicantData = new ApplicantData();
-  private final Messages messages =
-      stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
 
   private ApplicantQuestion question;
+  private Messages messages;
+  private ApplicantQuestionRendererParams params;
   private TextQuestionRenderer renderer;
 
   @Before
@@ -43,12 +43,14 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
     question =
         new ApplicantQuestion(
             TEXT_QUESTION_DEFINITION, applicantData, ApplicantData.APPLICANT_PATH);
+    messages = instanceOf(MessagesApi.class).preferred(ImmutableSet.of(Lang.defaultLang()));
+    params = ApplicantQuestionRendererParams.sample(messages);
     renderer = new TextQuestionRenderer(question);
   }
 
   @Test
   public void render_withoutQuestionErrors() {
-    Tag result = renderer.render(messages);
+    Tag result = renderer.render(params);
 
     assertThat(result.render()).doesNotContain("Must contain at");
   }
@@ -57,7 +59,7 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
   public void render_withMinLengthError() {
     QuestionAnswerer.answerTextQuestion(applicantData, question.getContextualizedPath(), "a");
 
-    Tag result = renderer.render(messages);
+    Tag result = renderer.render(params);
 
     assertThat(result.render()).contains("Must contain at least 2 characters.");
   }
@@ -66,7 +68,7 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
   public void render_withMaxLengthError() {
     QuestionAnswerer.answerTextQuestion(applicantData, question.getContextualizedPath(), "abcd");
 
-    Tag result = renderer.render(messages);
+    Tag result = renderer.render(params);
 
     assertThat(result.render()).contains("Must contain at most 3 characters.");
   }

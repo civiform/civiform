@@ -65,6 +65,7 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
   public Optional<UserProfile> create(
       Credentials cred, WebContext context, SessionStore sessionStore) {
     ProfileUtils profileUtils = new ProfileUtils(sessionStore, profileFactory);
+    possiblyModifyConfigBasedOnCred(cred);
     Optional<UserProfile> oidcProfile = super.create(cred, context, sessionStore);
 
     if (oidcProfile.isEmpty()) {
@@ -122,4 +123,6 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
       return Optional.of(mergeUatProfile(existingProfile.get(), profile));
     }
   }
+
+  protected abstract void possiblyModifyConfigBasedOnCred(Credentials cred);
 }

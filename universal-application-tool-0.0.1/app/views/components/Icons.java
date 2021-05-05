@@ -11,6 +11,9 @@ public class Icons {
   public static final String CHECKBOX_SVG_PATH = "M5 13l4 4L19 7";
   // Menu
   public static final String DROPDOWN_SVG_PATH = "M4 6h16M4 10h16M4 14h16M4 18h16";
+  public static final String ENUMERATOR_SVG_PATH =
+      "M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2"
+          + " 2 0 00-2 2v8a2 2 0 002 2z";
   // Upload
   public static final String FILEUPLOAD_SVG_PATH =
       "M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0"
@@ -36,14 +39,14 @@ public class Icons {
   // Custom: the circle from Stop plus the little circle from Cog
   public static final String RADIO_BUTTON_OUTER_SVG_PATH = "M21 12a9 9 0 11-18 0 9 9 0 0118 0z";
   public static final String RADIO_BUTTON_INNER_SVG_PATH = "M15 12a3 3 0 11-6 0 3 3 0 016 0z";
-  public static final String REPEATER_SVG_PATH =
-      "M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2"
-          + " 2 0 00-2 2v8a2 2 0 002 2z";
   public static final String TEXT_SVG_PATH =
       "M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0"
           + " 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4"
           + " 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5"
           + " 0-2.21-1.79-4-4-4z";
+  public static final String TRASH_CAN_SVG_PATH =
+      "M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1"
+          + " 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16";
   public static final String WARNING_SVG_PATH =
       "M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742"
           + " 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012"
@@ -86,8 +89,8 @@ public class Icons {
             .attr("stroke-linejoin", "round")
             .attr("stroke-width", "2")
             .with(path(Icons.RADIO_BUTTON_INNER_SVG_PATH));
-      case REPEATER:
-        iconPath = Icons.REPEATER_SVG_PATH;
+      case ENUMERATOR:
+        iconPath = Icons.ENUMERATOR_SVG_PATH;
         return svg(iconPath, width, height).attr("fill", "transparent").attr("stroke-width", "2");
       case TEXT:
       default:

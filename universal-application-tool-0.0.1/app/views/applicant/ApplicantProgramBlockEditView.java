@@ -21,6 +21,8 @@ import services.applicant.question.ApplicantQuestion;
 import views.BaseHtmlView;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
+import views.questiontypes.ApplicantQuestionRendererParams;
+import views.questiontypes.EnumeratorQuestionRenderer;
 
 public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
@@ -37,8 +39,14 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   public Content render(Params params) {
     String formAction =
         routes.ApplicantProgramBlocksController.update(
-                params.applicantId(), params.programId(), params.block().getId())
+                params.applicantId(), params.programId(), params.block().getId(), params.inReview())
             .url();
+    ApplicantQuestionRendererParams rendererParams =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(params.messages())
+            .setProgramId(params.programId())
+            .setApplicantId(params.applicantId())
+            .build();
     ContainerTag body =
         body()
             .with(h1(params.block().getName()))
@@ -51,13 +59,26 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
                     .with(
                         each(
                             params.block().getQuestions(),
-                            question -> renderQuestion(question, params.messages())))
+                            question -> renderQuestion(question, rendererParams)))
                     .with(submitButton(params.messages().at("button.nextBlock"))));
 
     if (!params.preferredLanguageSupported()) {
       body.with(
           renderLocaleNotSupportedToast(
               params.applicantId(), params.programId(), params.messages()));
+    }
+
+    // Add the hidden enumerator field template
+    if (params.block().isEnumerator()) {
+      body.with(
+          EnumeratorQuestionRenderer.newEnumeratorFieldTemplate(
+              params.block().getEnumeratorQuestion().getContextualizedPath(),
+              params
+                  .block()
+                  .getEnumeratorQuestion()
+                  .createEnumeratorQuestion()
+                  .getPlaceholder(params.messages().lang().toLocale()),
+              params.messages()));
     }
 
     return layout.render(params.messages(), body);
@@ -83,8 +104,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         .getContainerTag();
   }
 
-  private Tag renderQuestion(ApplicantQuestion question, Messages messages) {
-    return applicantQuestionRendererFactory.getRenderer(question).render(messages);
+  private Tag renderQuestion(ApplicantQuestion question, ApplicantQuestionRendererParams params) {
+    return applicantQuestionRendererFactory.getRenderer(question).render(params);
   }
 
   @AutoValue
@@ -92,6 +113,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     public static Builder builder() {
       return new AutoValue_ApplicantProgramBlockEditView_Params.Builder();
     }
+
+    abstract boolean inReview();
 
     abstract Http.Request request();
 
@@ -108,6 +131,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     @AutoValue.Builder
     public abstract static class Builder {
       public abstract Builder setRequest(Http.Request request);
+
+      public abstract Builder setInReview(boolean inReview);
 
       public abstract Builder setMessages(Messages messages);
 

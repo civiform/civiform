@@ -19,6 +19,7 @@ import java.util.function.Predicate;
 import services.program.BlockDefinition;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import views.style.BaseStyles;
@@ -29,7 +30,7 @@ import views.style.Styles;
 public class QuestionBank {
   private ProgramDefinition program;
   private BlockDefinition blockDefinition;
-  private Optional<Long> repeaterQuestionId;
+  private Optional<Long> enumeratorQuestionId;
   private ImmutableList<QuestionDefinition> questions = ImmutableList.of();
   private Tag csrfTag = div();
   private String questionAction = "";
@@ -159,14 +160,14 @@ public class QuestionBank {
    * <p>Questions that are filtered out:
    *
    * <ul>
-   *   <li>If there is at least one question in the current block, all repeater questions
+   *   <li>If there is at least one question in the current block, all enumerator questions
    *   <li>If this is a repeated block only show the appropriate repeated questions
    *   <li>Questions already in the program
    * </ul>
    */
   private ImmutableList<QuestionDefinition> filterQuestions() {
-    // A repeater block cannot add any more questions
-    if (blockDefinition.isRepeater()) {
+    // An enumerator block cannot add any more questions
+    if (blockDefinition.isEnumerator()) {
       return ImmutableList.of();
     }
 
@@ -176,47 +177,47 @@ public class QuestionBank {
   }
 
   /**
-   * An block can add questions with the appropriate repeater id that aren't already in this
+   * An block can add questions with the appropriate enumerator id that aren't already in this
    * program.
    */
   private boolean questionFilter(QuestionDefinition questionDefinition) {
-    return questionDefinition.getRepeaterId().equals(getRepeaterQuestionId())
+    return questionDefinition.getEnumeratorId().equals(getEnumeratorQuestionId())
         && !program.hasQuestion(questionDefinition);
   }
 
   /**
-   * A non-empty block cannot add repeater questions, in addition to {@link
+   * A non-empty block cannot add enumerator questions, in addition to {@link
    * QuestionBank#questionFilter}.
    */
   private boolean nonEmptyBlockFilter(QuestionDefinition questionDefinition) {
-    return !questionDefinition.getQuestionType().equals(QuestionType.REPEATER)
+    return !questionDefinition.getQuestionType().equals(QuestionType.ENUMERATOR)
         && questionFilter(questionDefinition);
   }
 
   /**
-   * Follow the {@link BlockDefinition#repeaterId()} reference to the repeater block definition, and
-   * return the id of its {@link services.question.types.RepeaterQuestionDefinition}.
+   * Follow the {@link BlockDefinition#enumeratorId()} reference to the enumerator block definition,
+   * and return the id of its {@link EnumeratorQuestionDefinition}.
    */
-  private Optional<Long> getRepeaterQuestionId() {
-    if (repeaterQuestionId == null) {
-      repeaterQuestionId = Optional.empty();
-      Optional<Long> repeaterBlockId = blockDefinition.repeaterId();
-      if (repeaterBlockId.isPresent()) {
+  private Optional<Long> getEnumeratorQuestionId() {
+    if (enumeratorQuestionId == null) {
+      enumeratorQuestionId = Optional.empty();
+      Optional<Long> enumeratorBlockId = blockDefinition.enumeratorId();
+      if (enumeratorBlockId.isPresent()) {
         try {
-          BlockDefinition repeaterBlockDefinition =
-              program.getBlockDefinition(repeaterBlockId.get());
-          repeaterQuestionId =
-              Optional.of(repeaterBlockDefinition.getQuestionDefinition(0).getId());
+          BlockDefinition enumeratorBlockDefinition =
+              program.getBlockDefinition(enumeratorBlockId.get());
+          enumeratorQuestionId =
+              Optional.of(enumeratorBlockDefinition.getQuestionDefinition(0).getId());
         } catch (ProgramBlockDefinitionNotFoundException e) {
           String errorMessage =
               String.format(
-                  "BlockDefinition %d has a broken repeater block reference to id %d",
-                  blockDefinition.id(), repeaterBlockId.get());
+                  "BlockDefinition %d has a broken enumerator block reference to id %d",
+                  blockDefinition.id(), enumeratorBlockId.get());
           throw new RuntimeException(errorMessage, e);
         }
         ;
       }
     }
-    return repeaterQuestionId;
+    return enumeratorQuestionId;
   }
 }

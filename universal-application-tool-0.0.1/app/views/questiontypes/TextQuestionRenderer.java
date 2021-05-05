@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
 import j2html.tags.Tag;
-import play.i18n.Messages;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.TextQuestion;
 import views.BaseHtmlView;
@@ -21,7 +20,7 @@ public class TextQuestionRenderer extends BaseHtmlView implements ApplicantQuest
   }
 
   @Override
-  public Tag render(Messages messages) {
+  public Tag render(ApplicantQuestionRendererParams params) {
     TextQuestion textQuestion = question.createTextQuestion();
 
     return div()
@@ -43,6 +42,6 @@ public class TextQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                 .setFloatLabel(true)
                 .setValue(textQuestion.getTextValue().orElse(""))
                 .getContainer(),
-            fieldErrors(textQuestion.getQuestionErrors()));
+            fieldErrors(params.messages(), textQuestion.getQuestionErrors()));
   }
 }

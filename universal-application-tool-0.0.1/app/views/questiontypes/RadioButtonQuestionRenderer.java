@@ -9,7 +9,6 @@ import static j2html.TagCreator.span;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import play.i18n.Messages;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.SingleSelectQuestion;
 import services.question.LocalizedQuestionOption;
@@ -26,7 +25,7 @@ public class RadioButtonQuestionRenderer extends BaseHtmlView implements Applica
   }
 
   @Override
-  public Tag render(Messages messages) {
+  public Tag render(ApplicantQuestionRendererParams params) {
     SingleSelectQuestion singleOptionQuestion = question.createSingleSelectQuestion();
 
     return div()
@@ -49,7 +48,9 @@ public class RadioButtonQuestionRenderer extends BaseHtmlView implements Applica
                     renderSingleRadioOption(
                         singleOptionQuestion.getSelectionPath().toString(),
                         option,
-                        singleOptionQuestion.optionIsSelected(option))));
+                        singleOptionQuestion.optionIsSelected(option))),
+            fieldErrors(params.messages(), singleOptionQuestion.getQuestionErrors())
+                .withClasses(Styles.ML_2, Styles.TEXT_XS, Styles.TEXT_RED_600, Styles.FONT_BOLD));
   }
 
   private Tag renderSingleRadioOption(

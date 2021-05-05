@@ -14,7 +14,7 @@ public class FileUploadQuestionDefinition extends QuestionDefinition {
       OptionalLong id,
       String name,
       Path path,
-      Optional<Long> repeaterId,
+      Optional<Long> enumeratorId,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
@@ -22,7 +22,7 @@ public class FileUploadQuestionDefinition extends QuestionDefinition {
         id,
         name,
         path,
-        repeaterId,
+        enumeratorId,
         description,
         questionText,
         questionHelpText,
@@ -32,14 +32,14 @@ public class FileUploadQuestionDefinition extends QuestionDefinition {
   public FileUploadQuestionDefinition(
       String name,
       Path path,
-      Optional<Long> repeaterId,
+      Optional<Long> enumeratorId,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
     super(
         name,
         path,
-        repeaterId,
+        enumeratorId,
         description,
         questionText,
         questionHelpText,
