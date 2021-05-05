@@ -9,7 +9,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -175,6 +177,109 @@ public class ApplicantServiceImpl implements ApplicantService {
    * @throws PathNotInBlockException if there are updates for questions that aren't in the block.
    */
   private void stageUpdates(
+      ApplicantData applicantData,
+      Block block,
+      UpdateMetadata updateMetadata,
+      ImmutableSet<Update> updates)
+      throws UnsupportedScalarTypeException, PathNotInBlockException {
+    if (block.isEnumerator()) {
+      stageEnumeratorUpdates(applicantData, block, updateMetadata, updates);
+    } else {
+      stageNormalUpdates(applicantData, block, updateMetadata, updates);
+    }
+  }
+
+  /**
+   * Stage updates for an enumerator.
+   *
+   * @throws PathNotInBlockException for updates that aren't {@link Scalar#ENTITY_NAME}, or {@link
+   *     Scalar#DELETE_ENTITY}.
+   */
+  private void stageEnumeratorUpdates(
+      ApplicantData applicantData,
+      Block block,
+      UpdateMetadata updateMetadata,
+      ImmutableSet<Update> updates)
+      throws PathNotInBlockException {
+    ImmutableSet<Update> addsAndChanges = validateEnumeratorAddsAndChanges(block, updates);
+    ImmutableSet<Update> deletes =
+        updates.stream()
+            .filter(
+                update ->
+                    update
+                        .path()
+                        .withoutArrayReference()
+                        .equals(Path.empty().join(Scalar.DELETE_ENTITY)))
+            .collect(ImmutableSet.toImmutableSet());
+
+    // If there are more updates than there are adds/changes and deletes, throw
+    Set<Update> unknownUpdates = Sets.difference(updates, Sets.union(addsAndChanges, deletes));
+    if (!unknownUpdates.isEmpty()) {
+      throw new PathNotInBlockException(block.getId(), unknownUpdates.iterator().next().path());
+    }
+
+    // Add and change entity names BEFORE deleting, because if deletes happened first, then changed
+    // entity names
+    // may not match the intended entities.
+    for (Update update : addsAndChanges) {
+      applicantData.putString(update.path().join(Scalar.ENTITY_NAME), update.value());
+      writeMetadataForPath(update.path(), applicantData, updateMetadata);
+    }
+
+    ImmutableList<Integer> deleteIndices =
+        deletes.stream()
+            .map(Update::value)
+            .map(Integer::valueOf)
+            .collect(ImmutableList.toImmutableList());
+    applicantData.deleteRepeatedEntities(
+        block.getEnumeratorQuestion().getContextualizedPath(), deleteIndices);
+  }
+
+  /**
+   * Validate that the updates to add or change enumerated entity names have the correct paths with
+   * the right indices.
+   */
+  private ImmutableSet<Update> validateEnumeratorAddsAndChanges(
+      Block block, ImmutableSet<Update> updates) {
+    ImmutableSet<Update> entityUpdates =
+        updates.stream()
+            .filter(
+                update ->
+                    update
+                        .path()
+                        .withoutArrayReference()
+                        .equals(
+                            block
+                                .getEnumeratorQuestion()
+                                .getContextualizedPath()
+                                .withoutArrayReference()))
+            .collect(ImmutableSet.toImmutableSet());
+
+    // Early return if it is empty.
+    if (entityUpdates.isEmpty()) {
+      return entityUpdates;
+    }
+
+    // Check that the entity updates have unique and consecutive indices. The indices should be
+    // 0,...N-1 where N is entityUpdates.size() because all entity names are submitted in the form,
+    // whether or not they actually changed.
+    ImmutableSet<Integer> indices =
+        entityUpdates.stream()
+            .map(update -> update.path().arrayIndex())
+            .collect(ImmutableSet.toImmutableSet());
+    assert indices.size() == entityUpdates.size();
+    assert indices.stream().min(Comparator.naturalOrder()).get() == 0;
+    assert indices.stream().max(Comparator.naturalOrder()).get() == entityUpdates.size() - 1;
+
+    return entityUpdates;
+  }
+
+  /**
+   * In-place update of {@link ApplicantData}. Adds program id and timestamp metadata with updates.
+   *
+   * @throws PathNotInBlockException if there are updates for questions that aren't in the block.
+   */
+  private void stageNormalUpdates(
       ApplicantData applicantData,
       Block block,
       UpdateMetadata updateMetadata,

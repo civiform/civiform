@@ -7,11 +7,12 @@ export class ApplicantQuestions {
     this.page = page
   }
 
-  async answerAddressQuestion(street: string, city: string, state: string, zip: string) {
-    await this.page.fill('[placeholder="Enter your street address"]', street);
+  async answerAddressQuestion(street: string, line2: string, city: string, state: string, zip: string) {
+    await this.page.fill('[placeholder="Street address"]', street);
+    await this.page.fill('[placeholder="Apartment, suite, unit, building, floor, etc."]', line2);
     await this.page.fill('[placeholder="City"]', city);
     await this.page.fill('[placeholder="State"]', state);
-    await this.page.fill('[placeholder="Zipcode"]', zip);
+    await this.page.fill('[placeholder="ZIP Code"]', zip);
   }
 
   async answerNameQuestion(firstName: string, lastName: string, middleName = '') {
@@ -46,8 +47,17 @@ export class ApplicantQuestions {
     await this.page.fill('input[type="text"]', text);
   }
 
+  async addEnumeratorAnswer(entityName: string) {
+    await this.page.click('button:text("add element")');
+    await this.page.fill('input:above(#enumerator-field-add-button)', entityName)
+  }
+
+  async selectEnumeratorAnswerForDelete(entityName: string) {
+    await this.page.check(`.cf-enumerator-field:has(input[value="${entityName}"]) input[type=checkbox]`);
+  }
+
   async applyProgram(programName: string) {
-    await this.page.click(`.cf-application-card:has-text("${programName}") .apply-button`);
+    await this.page.click(`.cf-application-card:has-text("${programName}") .cf-apply-button`);
   }
 
   async saveAndContinue() {

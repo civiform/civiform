@@ -3,6 +3,7 @@
 button.logout=Cerrar Sesión
 button.apply=Solicitar
 button.nextBlock=Guardar y continuar
+button.deleteEntity=Eliminar
 toast.localeNotSupported=Lo siento, este programa no está completamente traducido al español.
 toast.programCompleted=Ya completó esta solicitud
 toast.applicationSaved=Solicitud guardada con ID: {0}
@@ -16,6 +17,10 @@ content.description=CiviForm le permite solicitar muchos beneficios a la vez reu
 
 label.street=Calle
 placeholder.street=Nombre de la calle
+label.street=Dirección Línea 1
+placeholder.street=Dirección
+label.addressLine2=Línea de dirección 2
+placeholder.line2=Apartamento, suite, unidad, edificio, piso, etc.
 label.city=Ciudad
 placeholder.city=Ciudad
 label.state=Estado
@@ -28,4 +33,6 @@ label.middleName=Segundo nombre
 placeholder.middleName=Segundo nombre
 label.lastName=Apellido
 placeholder.lastName=Apellido
-button.addRepeatedEntity=Agrega otro
+button.addEnumeratorEntity=Agrega otro
+
+validation.entityNameRequired=Ingrese un valor para cada línea.

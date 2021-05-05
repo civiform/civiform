@@ -34,7 +34,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       OptionalLong id,
       String name,
       Path path,
-      Optional<Long> repeaterId,
+      Optional<Long> enumeratorId,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
@@ -44,7 +44,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
         id,
         name,
         path,
-        repeaterId,
+        enumeratorId,
         description,
         questionText,
         questionHelpText,
@@ -56,14 +56,20 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
   protected MultiOptionQuestionDefinition(
       String name,
       Path path,
-      Optional<Long> repeaterId,
+      Optional<Long> enumeratorId,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ImmutableList<QuestionOption> options,
       MultiOptionValidationPredicates validationPredicates) {
     super(
-        name, path, repeaterId, description, questionText, questionHelpText, validationPredicates);
+        name,
+        path,
+        enumeratorId,
+        description,
+        questionText,
+        questionHelpText,
+        validationPredicates);
     this.options = checkNotNull(options);
     this.supportedOptionLocales = getSupportedOptionLocales(options);
   }
@@ -71,7 +77,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
   protected MultiOptionQuestionDefinition(
       String name,
       Path path,
-      Optional<Long> repeaterId,
+      Optional<Long> enumeratorId,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
@@ -79,7 +85,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
     super(
         name,
         path,
-        repeaterId,
+        enumeratorId,
         description,
         questionText,
         questionHelpText,
@@ -181,7 +187,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
               .collect(toImmutableList());
         }
       }
-      throw new TranslationNotFoundException(getPath().toString(), locale);
+      throw new TranslationNotFoundException(getPath(), locale);
     }
   }
 

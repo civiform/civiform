@@ -236,27 +236,28 @@ public abstract class ProgramDefinition {
     return questionIds.get().contains(questionId);
   }
 
-  /** Returns true if this program has a repeater block with the id. */
-  public boolean hasRepeater(long repeaterId) {
+  /** Returns true if this program has an enumerator block with the id. */
+  public boolean hasEnumerator(long enumeratorId) {
     return blockDefinitions().stream()
         .anyMatch(
-            blockDefinition -> blockDefinition.id() == repeaterId && blockDefinition.isRepeater());
+            blockDefinition ->
+                blockDefinition.id() == enumeratorId && blockDefinition.isEnumerator());
   }
 
   /**
-   * Get the block definitions associated with the repeater id. Returns an empty list if there are
+   * Get the block definitions associated with the enumerator id. Returns an empty list if there are
    * none.
    */
-  public ImmutableList<BlockDefinition> getBlockDefinitionsForRepeater(long repeaterId) {
+  public ImmutableList<BlockDefinition> getBlockDefinitionsForEnumerator(long enumeratorId) {
     return blockDefinitions().stream()
-        .filter(blockDefinition -> blockDefinition.repeaterId().equals(Optional.of(repeaterId)))
+        .filter(blockDefinition -> blockDefinition.enumeratorId().equals(Optional.of(enumeratorId)))
         .collect(ImmutableList.toImmutableList());
   }
 
   /** Get non-repeated block definitions. */
   public ImmutableList<BlockDefinition> getNonRepeatedBlockDefinitions() {
     return blockDefinitions().stream()
-        .filter(blockDefinition -> blockDefinition.repeaterId().isEmpty())
+        .filter(blockDefinition -> blockDefinition.enumeratorId().isEmpty())
         .collect(ImmutableList.toImmutableList());
   }
 

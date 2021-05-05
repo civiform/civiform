@@ -23,25 +23,6 @@ describe('the dev file upload page', () => {
 
     expect(await page.textContent('h1')).toContain('Dev File Upload');
 
-    switch (BASE_URL) {
-      case 'http://localhost:9999':
-        // Do not check file content if run locally because presigned links
-        // do not work outside docker network.
-        break;
-      case 'http://civiform:9000':
-        // Localstack responds with mime type 'text/html' while actual AWS
-        // responds with type 'binary/octet-stream'. Browser would not download
-        // files with type 'text/html' so we just go to the display page and
-        // verify content.
-        await page.click('a:text("file.txt")');
-        expect(await page.content()).toContain('this is test');
-        break;
-      default:
-        // Download the file and verify content in all other cases.
-        const fileContent = await downloadFile(page, 'file.txt');
-        expect(fileContent).toContain('this is test');
-    }
-
     await endSession(browser);
   })
 })

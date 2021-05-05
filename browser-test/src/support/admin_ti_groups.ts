@@ -43,7 +43,7 @@ export class AdminTIGroups {
   }
 
   async addGroupMember(emailAddress: string) {
-    await this.page.fill('text="Email Address"', emailAddress);
+    await this.page.fill('text="Member Email Address"', emailAddress);
     await this.page.click('text="Add"');
   }
 

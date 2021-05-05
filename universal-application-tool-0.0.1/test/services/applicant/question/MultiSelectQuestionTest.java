@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import services.LocalizationUtils;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
@@ -82,7 +83,7 @@ public class MultiSelectQuestionTest {
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
     assertThat(multiSelectQuestion.getQuestionErrors())
-        .containsOnly(ValidationErrorMessage.tooFewSelectionsError(2));
+        .containsOnly(ValidationErrorMessage.create(MessageKey.TOO_FEW_SELECTIONS, 2));
   }
 
   @Test
@@ -102,7 +103,7 @@ public class MultiSelectQuestionTest {
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
     assertThat(multiSelectQuestion.getQuestionErrors())
-        .containsOnly(ValidationErrorMessage.tooManySelectionsError(3));
+        .containsOnly(ValidationErrorMessage.create(MessageKey.TOO_MANY_SELECTIONS, 3));
   }
 
   @Test

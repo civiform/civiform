@@ -7,24 +7,24 @@ import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
 import services.Path;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
-import services.question.types.RepeaterQuestionDefinition;
 
-public class RepeaterQuestionFormTest {
+public class EnumeratorQuestionFormTest {
   @Test
   public void getBuilder_returnsCompleteBuilder() throws Exception {
     Path path = Path.create("my.question.path.name");
 
-    RepeaterQuestionForm form = new RepeaterQuestionForm();
+    EnumeratorQuestionForm form = new EnumeratorQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
     QuestionDefinitionBuilder builder = form.getBuilder(path);
 
-    RepeaterQuestionDefinition expected =
-        new RepeaterQuestionDefinition(
+    EnumeratorQuestionDefinition expected =
+        new EnumeratorQuestionDefinition(
             "name",
             path,
             Optional.empty(),
@@ -41,8 +41,8 @@ public class RepeaterQuestionFormTest {
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
     Path path = Path.create("my.question.path.name");
 
-    RepeaterQuestionDefinition originalQd =
-        new RepeaterQuestionDefinition(
+    EnumeratorQuestionDefinition originalQd =
+        new EnumeratorQuestionDefinition(
             "name",
             path,
             Optional.empty(),
@@ -50,7 +50,7 @@ public class RepeaterQuestionFormTest {
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of());
 
-    RepeaterQuestionForm form = new RepeaterQuestionForm(originalQd);
+    EnumeratorQuestionForm form = new EnumeratorQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder(path);
 
     QuestionDefinition actual = builder.build();

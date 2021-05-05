@@ -22,6 +22,7 @@ import views.BaseHtmlView;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
+import views.questiontypes.EnumeratorQuestionRenderer;
 
 public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
@@ -65,6 +66,19 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
       body.with(
           renderLocaleNotSupportedToast(
               params.applicantId(), params.programId(), params.messages()));
+    }
+
+    // Add the hidden enumerator field template
+    if (params.block().isEnumerator()) {
+      body.with(
+          EnumeratorQuestionRenderer.newEnumeratorFieldTemplate(
+              params.block().getEnumeratorQuestion().getContextualizedPath(),
+              params
+                  .block()
+                  .getEnumeratorQuestion()
+                  .createEnumeratorQuestion()
+                  .getPlaceholder(params.messages().lang().toLocale()),
+              params.messages()));
     }
 
     return layout.render(params.messages(), body);
