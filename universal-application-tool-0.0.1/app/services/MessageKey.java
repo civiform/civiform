@@ -16,7 +16,8 @@ public enum MessageKey {
   STATE_REQUIRED("validation.stateRequired"),
   ZIP_CODE_REQUIRED("validation.zipcodeRequired"),
   INVALID_ZIP_CODE("validation.invalidZipcode"),
-  NO_PO_BOX("validation.noPoBox");
+  NO_PO_BOX("validation.noPoBox"),
+  EMPTY_ENTITY_NAME("validation.entityNameRequired");
 
   private final String keyName;
 

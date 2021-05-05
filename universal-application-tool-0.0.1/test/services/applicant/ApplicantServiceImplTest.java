@@ -162,6 +162,40 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
+  public void stageAndUpdateIfValid_withEnumeratorChangesAndDeletes_isOk() {
+    QuestionDefinition enumeratorQuestionDefinition =
+        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+    createProgram(enumeratorQuestionDefinition);
+
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+
+    Path enumeratorPath =
+        ApplicantData.APPLICANT_PATH.join(enumeratorQuestionDefinition.getQuestionPathSegment());
+    Path deletionPath = Path.empty().join(Scalar.DELETE_ENTITY).asArrayElement();
+    ImmutableMap<String, String> rawUpdates =
+        ImmutableMap.of(
+            enumeratorPath.atIndex(0).toString(), "first",
+            enumeratorPath.atIndex(1).toString(), "second",
+            enumeratorPath.atIndex(2).toString(), "third",
+            deletionPath.atIndex(0).toString(), "2",
+            deletionPath.atIndex(1).toString(), "0");
+
+    ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
+        subject
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", rawUpdates)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(errorAnd.isError()).isFalse();
+    assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
+
+    ApplicantData applicantDataAfter =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    assertThat(applicantDataAfter.readRepeatedEntities(enumeratorPath)).containsExactly("second");
+  }
+
+  @Test
   public void stageAndUpdateIfValid_hasApplicantNotFoundException() {
     ImmutableSet<Update> updates = ImmutableSet.of();
     long badApplicantId = 1L;
@@ -233,7 +267,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void stageAndUpdateIfValid_hasIllegalArgumentExceptionForReservedScalarKeys() {
+  public void stageAndUpdateIfValid_hasIllegalArgumentExceptionForReservedMetadataScalarKeys() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     String reservedScalar = Path.create("applicant.name").join(Scalar.UPDATED_AT).toString();
     ImmutableMap<String, String> updates = ImmutableMap.of(reservedScalar, "12345");
@@ -251,7 +285,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void
-      stageAndUpdateIfValid_withIllegalArrayElement_hasIllegalArgumentExceptionForReservedScalarKeys() {
+      stageAndUpdateIfValid_withIllegalArrayElement_hasIllegalArgumentExceptionForReservedMetadataScalarKeys() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     String reservedScalar =
         Path.create("applicant.name")
@@ -316,7 +350,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             .getResult();
   }
 
-  private void createProgram() throws Exception {
+  private void createProgram() {
     createProgram(questionDefinition);
   }
 

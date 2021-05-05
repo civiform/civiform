@@ -9,6 +9,7 @@ import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.TypeRef;
 import com.jayway.jsonpath.spi.mapper.MappingException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -22,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import services.LocalizationUtils;
 import services.Path;
 import services.WellKnownPaths;
-import services.question.types.RepeaterQuestionDefinition;
+import services.applicant.question.Scalar;
 
 public class ApplicantData {
   private static final String APPLICANT = "applicant";
@@ -147,9 +148,8 @@ public class ApplicantData {
 
   /**
    * Puts the names of the repeated entities at the path. Each element in the JSON array at the path
-   * is a JSON object that has at minimum a property {@link
-   * RepeaterQuestionDefinition#REPEATED_ENTITY_NAME_KEY} that contains a string value, along with
-   * possibly other nested answers to questions or repeated entities.
+   * is a JSON object that has at minimum a property {@link Scalar#ENTITY_NAME} that contains a
+   * string value, along with possibly other nested answers to questions or repeated entities.
    *
    * <p>This should not affect any other data that may already exist for the repeated entities.
    *
@@ -161,9 +161,7 @@ public class ApplicantData {
       put(path, ImmutableList.of());
     } else {
       for (int i = 0; i < entityNames.size(); i++) {
-        putString(
-            path.atIndex(i).join(RepeaterQuestionDefinition.REPEATED_ENTITY_NAME_KEY),
-            entityNames.get(i));
+        putString(path.atIndex(i).join(Scalar.ENTITY_NAME), entityNames.get(i));
       }
     }
   }
@@ -317,9 +315,7 @@ public class ApplicantData {
     int index = 0;
     ImmutableList.Builder<String> listBuilder = ImmutableList.builder();
     while (hasPath(path.atIndex(index))) {
-      listBuilder.add(
-          readString(path.atIndex(index).join(RepeaterQuestionDefinition.REPEATED_ENTITY_NAME_KEY))
-              .get());
+      listBuilder.add(readString(path.atIndex(index).join(Scalar.ENTITY_NAME)).orElse(""));
       index++;
     }
     return listBuilder.build();
@@ -377,6 +373,39 @@ public class ApplicantData {
     }
 
     return readString(path);
+  }
+
+  /**
+   * Delete the ENTIRE repeated entity for each entity specified by the path to an array element and
+   * list of indices.
+   *
+   * @return true if something is deleted.
+   */
+  public boolean deleteRepeatedEntities(Path path, ImmutableList<Integer> indices) {
+    checkLocked();
+
+    /** Early return if there's nothing to delete */
+    if (indices.isEmpty()) {
+      return false;
+    }
+
+    ImmutableList<Integer> reverseSortedIndices =
+        indices.stream()
+            .sorted(Collections.reverseOrder())
+            .collect(ImmutableList.toImmutableList());
+
+    // Make sure there are enough things to delete by checking the first index in the reverse sorted
+    // list
+    if (!hasPath(path.atIndex(reverseSortedIndices.get(0)))) {
+      return false;
+    }
+
+    // Delete in reverse sorted order because deletion is index based, and indices would need to be
+    // decremented for each deletion if it wasn't reverse sorted.
+    for (int index : reverseSortedIndices) {
+      jsonData.delete(path.atIndex(index).toString());
+    }
+    return true;
   }
 
   /** Returns true if the value at the path is a JSON array of longs, and false otherwise. */

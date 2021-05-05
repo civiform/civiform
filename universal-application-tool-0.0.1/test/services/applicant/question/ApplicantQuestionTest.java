@@ -93,6 +93,14 @@ public class ApplicantQuestionTest {
     assertThat(dropdownApplicantQuestion.createSingleSelectQuestion())
         .isInstanceOf(SingleSelectQuestion.class);
 
+    ApplicantQuestion enumeratorApplicantQuestion =
+        new ApplicantQuestion(
+            testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+            new ApplicantData(),
+            ApplicantData.APPLICANT_PATH);
+    assertThat(enumeratorApplicantQuestion.createEnumeratorQuestion())
+        .isInstanceOf(RepeaterQuestion.class);
+
     ApplicantQuestion nameApplicantQuestion =
         new ApplicantQuestion(
             testQuestionBank.applicantName().getQuestionDefinition(),

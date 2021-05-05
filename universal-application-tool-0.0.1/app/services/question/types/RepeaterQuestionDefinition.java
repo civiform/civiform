@@ -18,8 +18,6 @@ import services.Path;
  */
 public class RepeaterQuestionDefinition extends QuestionDefinition {
 
-  public static final String REPEATED_ENTITY_NAME_KEY = "entity_name";
-
   public RepeaterQuestionDefinition(
       OptionalLong id,
       String name,
