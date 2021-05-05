@@ -81,7 +81,7 @@ describe('normal application flow', () => {
 
     await adminPrograms.expectApplicationAnswers('Block 2', 'number-q', '42');
     await adminPrograms.expectApplicationAnswers('Block 2', 'text-q', 'some text');
-    await adminPrograms.expectApplicationAnswers('Block 3', 'fileupload-q', 'file key');
+    await adminPrograms.expectApplicationAnswers('Block 3', 'fileupload-q', 'block-3');
     await endSession(browser);
   })
 })
