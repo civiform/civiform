@@ -5,6 +5,7 @@ import services.question.exceptions.InvalidQuestionTypeException;
 public enum QuestionType {
   ADDRESS(false),
   CHECKBOX(true),
+  DATE(false),
   DROPDOWN(true),
   FILEUPLOAD(false),
   NAME(false),
