@@ -4,7 +4,7 @@ package services;
 public enum MessageKey {
   ADDRESS_LINE_2_LABEL("label.addressLine2"),
   ADDRESS_LINE_2_PLACEHOLDER("placeholder.line2"),
-  ADD_ENUMERATOR_ENTITY("addEnumeratorEntity"),
+  ADD_ENUMERATOR_ENTITY("button.addEnumeratorEntity"),
   APPLICATION_SAVED_TOAST("toast.applicationSaved"),
   APPLY_BUTTON("button.apply"),
   BUTTON_UNTRANSLATED_SUBMIT("button.untranslatedSubmit"),
