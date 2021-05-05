@@ -57,16 +57,6 @@ public abstract class Path {
   }
 
   /**
-   * A single path in JSON notation, without the $. JsonPath prefix.
-   *
-   * <p>TODO: get rid of this method. Methods should use {@link Path} or {@link #toString()}.
-   */
-  @Memoized
-  public String path() {
-    return toString();
-  }
-
-  /**
    * Returns the JSON path compatible string representation of this path.
    *
    * <p>Example: {@code "applicant.children[2].favorite_color.text"}

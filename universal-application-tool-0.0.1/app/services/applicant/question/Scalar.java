@@ -17,7 +17,8 @@ import services.question.types.ScalarType;
  */
 public enum Scalar {
   CITY,
-  ENTITY_NAME,
+  DELETE_ENTITY, // This is used for deleting enumerator entries
+  ENTITY_NAME, // This is used for adding/updating enumerator entries
   FILE_KEY,
   FIRST_NAME,
   LAST_NAME,

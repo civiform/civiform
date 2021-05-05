@@ -45,7 +45,8 @@ public enum MessageKey {
   VIEW_APPLICATIONS_LINK("link.viewApplications"),
   ZIPCODE_LABEL("label.zipcode"),
   ZIPCODE_PLACEHOLDER("placeholder.zipcode"),
-  ZIP_CODE_REQUIRED("validation.zipcodeRequired");
+  ZIP_CODE_REQUIRED("validation.zipcodeRequired"),
+  EMPTY_ENTITY_NAME("validation.entityNameRequired");
 
   private final String keyName;
 

@@ -12,9 +12,8 @@ describe('Create program with repeater and repeated questions', () => {
     await adminQuestions.addAddressQuestion('apc-address');
     await adminQuestions.addNameQuestion('apc-name');
     await adminQuestions.addTextQuestion('apc-text');
-    await adminQuestions.addRepeaterQuestion('apc-repeater');
-    await adminQuestions.addRepeatedQuestion('apc-repeated', 'apc-repeater');
-
+    await adminQuestions.addEnumeratorQuestion('apc-repeater');
+    await adminQuestions.addTextQuestion('apc-repeated', 'description', 'text', 'helptext', 'apc-repeater');
 
     const programName = 'apc program';
     await adminPrograms.addProgram(programName);

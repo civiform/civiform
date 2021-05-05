@@ -25,6 +25,9 @@ content.selectLanguage=Please select your preferred language from the following:
 # The button text for saving the current applicant-entered data and continuing to the next block in the form.
 button.nextBlock=Save and continue
 
+# The aria text on the button used by an applicant to mark an entity for deletion.
+button.deleteEntity=Delete {0}
+
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=We're sorry, this program is not fully translated to your preferred language.
 
@@ -90,7 +93,10 @@ validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
 #--------------------------------------------------------------------------------------------------------#
 
 # Text on a button an applicant would click to add another entity
-button.addRepeaterEntity=add element
+button.addEnumeratorEntity=add element
+
+# Validation error that shows when an applicant does not enter a value.
+validation.entityNameRequired=Please enter a value for each line.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
@@ -133,4 +139,3 @@ validation.numberTooSmall=Must be at least {0}.
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.textTooLong=Must contain at most {0} characters.
 validation.textTooShort=Must contain at least {0} characters.
-
