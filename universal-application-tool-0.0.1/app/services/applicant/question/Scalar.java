@@ -97,7 +97,7 @@ public enum Scalar {
         return SINGLE_SELECT_SCALARS;
 
       case ENUMERATOR: // Enumerator Question does not have scalars like the other question types
-                       // do.
+        // do.
         throw new InvalidQuestionTypeException("Enumeration questions are handled separately.");
 
       default:
