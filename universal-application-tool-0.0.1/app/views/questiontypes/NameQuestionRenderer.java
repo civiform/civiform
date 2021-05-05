@@ -44,16 +44,14 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                     FieldWithLabel.input()
                         .setFieldName(nameQuestion.getFirstNamePath().toString())
                         .setLabelText(messages.at("label.firstName"))
-                        .setPlaceholderText(messages.at("placeholder.firstName"))
                         .setFloatLabel(true)
                         .setValue(nameQuestion.getFirstNameValue().orElse(""))
+                        .setFieldErrors(nameQuestion.getFirstNameErrors())
                         .getContainer())
-                .with(fieldErrors(nameQuestion.getFirstNameErrors()))
                 .with(
                     FieldWithLabel.input()
                         .setFieldName(nameQuestion.getMiddleNamePath().toString())
                         .setLabelText(messages.at("label.middleName"))
-                        .setPlaceholderText(messages.at("placeholder.middleName"))
                         .setFloatLabel(true)
                         .setValue(nameQuestion.getMiddleNameValue().orElse(""))
                         .getContainer())
@@ -61,10 +59,9 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                     FieldWithLabel.input()
                         .setFieldName(nameQuestion.getLastNamePath().toString())
                         .setLabelText(messages.at("label.lastName"))
-                        .setPlaceholderText(messages.at("placeholder.lastName"))
                         .setFloatLabel(true)
                         .setValue(nameQuestion.getLastNameValue().orElse(""))
-                        .getContainer())
-                .with(fieldErrors(nameQuestion.getLastNameErrors())));
+                        .setFieldErrors(nameQuestion.getLastNameErrors())
+                        .getContainer()));
   }
 }
