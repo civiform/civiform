@@ -23,8 +23,8 @@ import views.style.Styles;
 
 public class FieldWithLabel {
   private static final String[] CORE_FIELD_CLASSES = {
-    BaseStyles.FIELD_BACKGROUND_COLOR,
     BaseStyles.FIELD_BORDER_COLOR,
+    Styles.BG_GRAY_50,
     Styles.BLOCK,
     Styles.BORDER,
     Styles.P_2,
@@ -51,19 +51,18 @@ public class FieldWithLabel {
   };
 
   private static final String[] FLOATED_FIELD_CLASSES = {
+    Styles.OUTLINE_NONE,
     Styles.PX_3,
     Styles.PT_6,
     Styles.PB_2,
     Styles.M_AUTO,
-    Styles.BORDER_2,
-    Styles.BG_WHITE,
-    Styles.TEXT_XL,
-    Styles.ROUNDED_XL,
+    Styles.BORDER,
+    BaseStyles.FIELD_BORDER_COLOR,
+    Styles.ROUNDED_LG,
     Styles.W_FULL,
     Styles.TEXT_BASE,
-    Styles.OUTLINE_NONE,
     Styles.PLACEHOLDER_GRAY_400,
-    StyleUtils.focus(Styles.BORDER_YELLOW_400)
+    StyleUtils.focus(Styles.BORDER_BLUE_500)
   };
 
   private static final String[] FLOATED_LABEL_CLASSES = {
@@ -227,8 +226,7 @@ public class FieldWithLabel {
 
     String fieldTagClasses = StyleUtils.joinStyles(CORE_FIELD_CLASSES);
     if (!fieldErrors.isEmpty()) {
-      fieldTagClasses =
-          StyleUtils.joinStyles(fieldTagClasses, BaseStyles.FIELD_ERROR_BORDER_COLOR);
+      fieldTagClasses = StyleUtils.joinStyles(fieldTagClasses, BaseStyles.FIELD_ERROR_BORDER_COLOR);
     }
 
     if (Strings.isNullOrEmpty(this.id)) this.id = this.fieldName;
@@ -288,6 +286,6 @@ public class FieldWithLabel {
 
   private Tag buildFieldErrorsTag() {
     return div(each(fieldErrors, error -> span(error.message())))
-        .withClasses(StyleUtils.joinStyles(BaseStyles.ERROR_TEXT, Styles.PX_2));
+        .withClasses(StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT, Styles.PX_2));
   }
 }

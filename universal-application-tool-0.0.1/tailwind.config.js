@@ -11,6 +11,9 @@ module.exports = {
       colors: {
         orange: colors.orange,
         teal: colors.teal,
+        beige: {
+          DEFAULT: "#eeede8",
+        },
       },
     },
   },

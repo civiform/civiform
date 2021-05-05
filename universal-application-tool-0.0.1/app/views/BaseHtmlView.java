@@ -36,7 +36,8 @@ public abstract class BaseHtmlView {
   }
 
   protected static ContainerTag fieldErrors(ImmutableSet<ValidationErrorMessage> errors) {
-    return div(each(errors, error -> span(error.message()))).withClasses(BaseStyles.ERROR_TEXT);
+    return div(each(errors, error -> span(error.message())))
+        .withClasses(BaseStyles.FORM_ERROR_TEXT);
   }
 
   protected static Tag checkboxInputWithLabel(

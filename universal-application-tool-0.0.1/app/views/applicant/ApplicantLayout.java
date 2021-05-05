@@ -16,6 +16,7 @@ import play.twirl.api.Content;
 import views.BaseHtmlLayout;
 import views.ViewUtils;
 import views.style.ApplicantStyles;
+import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
@@ -33,7 +34,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
         body()
             .with(renderNavBar(messages))
             .with(mainDomContents)
-            .with(viewUtils.makeLocalJsTag("main")));
+            .with(viewUtils.makeLocalJsTag("main"))
+            .withClasses(BaseStyles.APPLICANT_BG_COLOR));
   }
 
   private ContainerTag renderNavBar(Messages messages) {
