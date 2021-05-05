@@ -80,6 +80,14 @@ public final class Block {
         "Only a repeater block can have an enumeration question definition.");
   }
 
+  /**
+   * This block is a file upload block if its {@link BlockDefinition} contains a file upload
+   * question.
+   */
+  public boolean isFileUpload() {
+    return blockDefinition.isFileUpload();
+  }
+
   public ImmutableList<ApplicantQuestion> getQuestions() {
     if (questionsMemo.isEmpty()) {
       this.questionsMemo =

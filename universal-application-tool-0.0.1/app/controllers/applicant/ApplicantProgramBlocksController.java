@@ -7,6 +7,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.typesafe.config.Config;
 import controllers.CiviFormController;
 import java.util.Map;
 import java.util.Optional;
@@ -23,11 +24,13 @@ import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.AmazonS3Client;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ProgramBlockNotFoundException;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.ProgramNotFoundException;
+import services.question.types.QuestionType;
 import views.applicant.ApplicantProgramBlockEditView;
 
 /**
@@ -42,7 +45,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final HttpExecutionContext httpExecutionContext;
   private final ApplicantProgramBlockEditView editView;
   private final FormFactory formFactory;
+  private final AmazonS3Client amazonS3Client;
   private final ProfileUtils profileUtils;
+  private final String baseUrl;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -53,13 +58,17 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       HttpExecutionContext httpExecutionContext,
       ApplicantProgramBlockEditView editView,
       FormFactory formFactory,
-      ProfileUtils profileUtils) {
+      AmazonS3Client amazonS3Client,
+      ProfileUtils profileUtils,
+      Config configuration) {
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
+    this.amazonS3Client = checkNotNull(amazonS3Client);
     this.profileUtils = checkNotNull(profileUtils);
+    this.baseUrl = checkNotNull(configuration).getString("base_url");
   }
 
   @Secure
@@ -97,6 +106,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             .setInReview(inReview)
                             .setPreferredLanguageSupported(
                                 roApplicantProgramService.preferredLanguageSupported())
+                            .setAmazonS3Client(amazonS3Client)
+                            .setBaseUrl(baseUrl)
                             .build()));
               } else {
                 return notFound();
@@ -112,6 +123,85 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 }
                 if (cause instanceof ProgramNotFoundException) {
                   return notFound(cause.toString());
+                }
+                throw new RuntimeException(cause);
+              }
+              throw new RuntimeException(ex);
+            });
+  }
+
+  /**
+   * This method is used by the file upload question. We let users directly upload files to S3
+   * bucket from browsers. On success, users are redirected to this method. The redirect is a GET
+   * method with file key in the query string. We parse and store them in the database for record
+   * and redirect users to the next block or review page.
+   */
+  @Secure
+  public CompletionStage<Result> updateFile(
+      Request request, long applicantId, long programId, String blockId, boolean inReview) {
+    return checkApplicantAuthorization(profileUtils, request, applicantId)
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            httpExecutionContext.current())
+        .thenComposeAsync(
+            (roApplicantProgramService) -> {
+              Optional<Block> block = roApplicantProgramService.getBlock(blockId);
+
+              if (!block.isPresent() || !block.get().isFileUpload()) {
+                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+              }
+
+              Optional<String> bucket = request.queryString("bucket");
+              Optional<String> key = request.queryString("key");
+              if (!bucket.isPresent() || !key.isPresent()) {
+                return failedFuture(
+                    new IllegalArgumentException("missing file key and bucket names"));
+              }
+
+              String applicantFileUploadQuestionKeyPath =
+                  block.get().getQuestions().stream()
+                      .filter(question -> question.getType().equals(QuestionType.FILEUPLOAD))
+                      .findAny()
+                      .get()
+                      .createFileUploadQuestion()
+                      .getFileKeyPath()
+                      .toString();
+              ImmutableMap<String, String> formData =
+                  ImmutableMap.of(applicantFileUploadQuestionKeyPath, key.get());
+
+              return applicantService.stageAndUpdateIfValid(
+                  applicantId, programId, blockId, formData);
+            },
+            httpExecutionContext.current())
+        .thenComposeAsync(
+            (errorAndROApplicantProgramService) -> {
+              if (errorAndROApplicantProgramService.isError()) {
+                errorAndROApplicantProgramService
+                    .getErrors()
+                    .forEach(e -> logger.error("Exception while updating applicant data", e));
+                return supplyAsync(() -> badRequest("Unable to process this request"));
+              }
+              ReadOnlyApplicantProgramService roApplicantProgramService =
+                  errorAndROApplicantProgramService.getResult();
+
+              return update(
+                  request, applicantId, programId, blockId, inReview, roApplicantProgramService);
+            },
+            httpExecutionContext.current())
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                Throwable cause = ex.getCause();
+                if (cause instanceof SecurityException) {
+                  return unauthorized();
+                } else if (cause instanceof ProgramNotFoundException) {
+                  return badRequest(cause.toString());
+                } else if (cause instanceof ProgramBlockNotFoundException) {
+                  logger.error("Exception while updating applicant data", cause);
+                  return badRequest("Unable to process this request");
+                } else if (cause instanceof IllegalArgumentException) {
+                  logger.error(cause.getMessage());
+                  return badRequest();
                 }
                 throw new RuntimeException(cause);
               }
@@ -197,6 +287,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           .setInReview(inReview)
                           .setPreferredLanguageSupported(
                               roApplicantProgramService.preferredLanguageSupported())
+                          .setAmazonS3Client(amazonS3Client)
+                          .setBaseUrl(baseUrl)
                           .build())));
     }
 
