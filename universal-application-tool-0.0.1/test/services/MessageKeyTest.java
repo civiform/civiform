@@ -1,7 +1,10 @@
 package services;
 
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableSet;
+import java.util.EnumSet;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Before;
@@ -25,10 +28,14 @@ public class MessageKeyTest extends WithPostgresContainer {
   @Test
   @Parameters(source = MessageKey.class)
   public void messageKey_isValid(MessageKey messageKey) {
-    // If a message key does not exist, it will return the invalid key as the message itself.
-    // Therefore, we can verify that all keys provided are valid keys by simply checking
-    // whether generating the message returns something other than the key name.
-    String keyName = messageKey.getKeyName();
-    assertThat(messagesApi.get(Lang.defaultLang(), keyName)).isNotEqualTo(keyName);
+    assertThat(messagesApi.isDefinedAt(Lang.defaultLang(), messageKey.getKeyName())).isTrue();
+  }
+
+  @Test
+  public void noDuplicateKeys() {
+    EnumSet<MessageKey> messageKeys = EnumSet.allOf(MessageKey.class);
+    ImmutableSet<String> stringKeys =
+        messageKeys.stream().map(MessageKey::getKeyName).collect(toImmutableSet());
+    assertThat(messageKeys.size()).isEqualTo(stringKeys.size());
   }
 }

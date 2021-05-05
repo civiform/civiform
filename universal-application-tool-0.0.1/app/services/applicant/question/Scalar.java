@@ -14,24 +14,30 @@ import services.question.types.ScalarType;
  * <p>Each {@link QuestionType} has question-specific scalars accessible through {@link
  * Scalar#getScalars(QuestionType)}, and metadata scalars used by all questions are available
  * through {@link Scalar#getMetadataScalars}.
+ *
+ * <p>EXISTING SCALARS SHOULD NOT BE MODIFIED. The Scalar enum should be treated as append-only.
  */
 public enum Scalar {
   CITY,
-  DELETE_ENTITY, // This is used for deleting enumerator entries
-  ENTITY_NAME, // This is used for adding/updating enumerator entries
   FILE_KEY,
   FIRST_NAME,
   LAST_NAME,
   LINE2,
   MIDDLE_NAME,
   NUMBER,
-  PROGRAM_UPDATED_IN,
   SELECTION,
   STATE,
   STREET,
   TEXT,
+  ZIP,
+
+  // Special scalars for Enumerator updates
+  DELETE_ENTITY, // This is used for deleting enumerator entries
+  ENTITY_NAME, // This is used for adding/updating enumerator entries
+
+  // Metadata scalars
   UPDATED_AT,
-  ZIP;
+  PROGRAM_UPDATED_IN;
 
   private static final ImmutableMap<Scalar, ScalarType> ADDRESS_SCALARS =
       ImmutableMap.of(
@@ -109,14 +115,13 @@ public enum Scalar {
     return METADATA_SCALARS;
   }
 
-  /** A set of Scalar strings that represent keys where metadata is stored. */
+  /** A set of Scalars as strings that represent keys where metadata is stored. */
   public static ImmutableSet<String> getMetadataScalarKeys() {
     if (metadataScalarKeys == null) {
       metadataScalarKeys =
           METADATA_SCALARS.keySet().stream()
               .map(Scalar::name)
-              .map(String::toLowerCase) // TODO(783, kct): get rid of this once scalars are defined
-              // entirely in Block.
+              .map(String::toLowerCase)
               .collect(ImmutableSet.toImmutableSet());
     }
     return metadataScalarKeys;

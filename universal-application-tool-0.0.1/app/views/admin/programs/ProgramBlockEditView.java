@@ -216,29 +216,44 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
     ContainerTag blockInfoForm = form(csrfTag).withMethod(POST).withAction(blockUpdateAction);
 
-    blockInfoForm.with(
-        FieldWithLabel.input()
-            .setId("block-name-input")
-            .setFieldName("name")
-            .setLabelText("Block name")
-            .setValue(blockForm.getName())
-            .getContainer(),
-        FieldWithLabel.textArea()
-            .setId("block-description-textarea")
-            .setFieldName("description")
-            .setLabelText("Block description")
-            .setValue(blockForm.getDescription())
-            .getContainer(),
-        submitButton("Update Block")
-            .withId("update-block-button")
-            .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
+    blockInfoForm
+        .withId("block-edit-form")
+        .with(
+            FieldWithLabel.input()
+                .setId("block-name-input")
+                .setFieldName("name")
+                .setLabelText("Block name")
+                .setValue(blockForm.getName())
+                .getContainer(),
+            FieldWithLabel.textArea()
+                .setId("block-description-textarea")
+                .setFieldName("description")
+                .setLabelText("Block description")
+                .setValue(blockForm.getDescription())
+                .getContainer(),
+            submitButton("Update Metadata")
+                .withId("update-block-button")
+                .withClasses(
+                    Styles.MX_4,
+                    Styles.MY_1,
+                    Styles.INLINE,
+                    Styles.OPACITY_100,
+                    StyleUtils.disabled(Styles.OPACITY_50))
+                .attr("disabled", ""));
 
+    // TODO: Maybe add alpha variants to button color on hover over so we do not have
+    // to hard code what the color will be when button is in hover state?
     if (program.blockDefinitions().size() > 1) {
       blockInfoForm.with(
           submitButton("Delete Block")
               .withId("delete-block-button")
               .attr(Attr.FORM, DELETE_BLOCK_FORM_ID)
-              .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
+              .withClasses(
+                  Styles.MX_4,
+                  Styles.MY_1,
+                  Styles.BG_RED_500,
+                  StyleUtils.hover(Styles.BG_RED_700),
+                  Styles.INLINE));
     }
 
     if (blockDefinitionIsEnumerator) {
