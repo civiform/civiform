@@ -1,5 +1,10 @@
 package forms.translation;
 
+import java.util.Locale;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+
 public class QuestionTranslationForm {
 
   private String questionText;
@@ -24,5 +29,13 @@ public class QuestionTranslationForm {
 
   public void setQuestionHelpText(String questionHelpText) {
     this.questionHelpText = questionHelpText;
+  }
+
+  public QuestionDefinition buildUpdates(QuestionDefinition toUpdate, Locale updatedLocale)
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinitionBuilder builder = new QuestionDefinitionBuilder(toUpdate);
+    builder.updateQuestionText(updatedLocale, questionText);
+    builder.updateQuestionHelpText(updatedLocale, questionHelpText);
+    return builder.build();
   }
 }

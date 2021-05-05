@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import services.LocalizationUtils;
 
 /**
  * Represents a single option in a {@link services.question.types.MultiOptionQuestionDefinition}.
@@ -38,4 +39,41 @@ public abstract class QuestionOption {
   /** The text strings to display to the user, keyed by locale. */
   @JsonProperty("optionText")
   public abstract ImmutableMap<Locale, String> optionText();
+
+  public abstract Builder toBuilder();
+
+  @AutoValue.Builder
+  public abstract static class Builder {
+
+    public abstract Builder setId(long id);
+
+    public abstract Builder setOptionText(ImmutableMap<Locale, String> optionText);
+
+    public abstract ImmutableMap.Builder<Locale, String> optionTextBuilder();
+
+    public abstract QuestionOption build();
+
+    /**
+     * Add a new option text localization. This will fail if a translation for the given locale
+     * already exists.
+     */
+    public Builder addLocalizedOptionText(Locale locale, String text) {
+      optionTextBuilder().put(locale, text);
+      return this;
+    }
+
+    /**
+     * Update an existing localization of option text. This will overwrite the old name for that
+     * locale.
+     */
+    public Builder updateOptionText(
+        ImmutableMap<Locale, String> existing, Locale locale, String text) {
+      if (existing.containsKey(locale)) {
+        setOptionText(LocalizationUtils.overwriteExistingTranslation(existing, locale, text));
+      } else {
+        addLocalizedOptionText(locale, text);
+      }
+      return this;
+    }
+  }
 }

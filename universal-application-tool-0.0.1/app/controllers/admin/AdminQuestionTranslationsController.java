@@ -22,7 +22,6 @@ import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
-import services.question.types.QuestionDefinitionBuilder;
 import views.admin.questions.QuestionTranslationView;
 
 /** Provides controller methods for editing and updating question translations. */
@@ -99,10 +98,8 @@ public class AdminQuestionTranslationsController extends CiviFormController {
             readOnlyQuestionService -> {
               try {
                 QuestionDefinition toUpdate = readOnlyQuestionService.getQuestionDefinition(id);
-                QuestionDefinitionBuilder builder = new QuestionDefinitionBuilder(toUpdate);
-                builder.updateQuestionText(updatedLocale, questionText);
-                builder.updateQuestionHelpText(updatedLocale, questionHelpText);
-                QuestionDefinition definitionWithUpdates = builder.build();
+                QuestionDefinition definitionWithUpdates =
+                    translations.buildUpdates(toUpdate, updatedLocale);
                 ErrorAnd<QuestionDefinition, CiviFormError> result =
                     questionService.update(definitionWithUpdates);
 

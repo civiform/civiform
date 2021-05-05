@@ -1,7 +1,16 @@
 package forms.translation;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import services.question.QuestionOption;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
 
 public class MultiOptionQuestionTranslationForm extends QuestionTranslationForm {
 
@@ -18,5 +27,22 @@ public class MultiOptionQuestionTranslationForm extends QuestionTranslationForm 
 
   public void setOptions(List<String> options) {
     this.options = options;
+  }
+
+  @Override
+  public QuestionDefinition buildUpdates(QuestionDefinition definition, Locale updatedLocale)
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinition semiUpdated = super.buildUpdates(definition, updatedLocale);
+    QuestionDefinitionBuilder builder = new QuestionDefinitionBuilder(semiUpdated);
+    ImmutableList<QuestionOption> currentOptions =
+        ((MultiOptionQuestionDefinition) definition).getOptions();
+    ImmutableList<QuestionOption> updatedOptions = currentOptions.stream()
+        .map(
+            option ->
+                option.toBuilder()
+                    .updateOptionText(
+                        option.optionText(), updatedLocale, this.options.get((int) option.id())).build())
+        .collect(toImmutableList());
+    return builder.setQuestionOptions(updatedOptions).build();
   }
 }
