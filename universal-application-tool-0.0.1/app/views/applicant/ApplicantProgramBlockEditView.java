@@ -25,7 +25,7 @@ import views.BaseHtmlView;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
-import views.questiontypes.RepeaterQuestionRenderer;
+import views.questiontypes.EnumeratorQuestionRenderer;
 
 public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
@@ -55,7 +55,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     // Add the hidden enumerator field template
     if (params.block().isEnumerator()) {
       body.with(
-          RepeaterQuestionRenderer.newEnumeratorFieldTemplate(
+          EnumeratorQuestionRenderer.newEnumeratorFieldTemplate(
               params.block().getEnumeratorQuestion().getContextualizedPath(),
               params
                   .block()

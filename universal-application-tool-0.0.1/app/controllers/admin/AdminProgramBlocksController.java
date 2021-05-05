@@ -56,14 +56,14 @@ public class AdminProgramBlocksController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result create(Request request, long programId) {
-    Optional<Long> repeaterId =
+    Optional<Long> enumeratorId =
         Optional.ofNullable(
-                formFactory.form().bindFromRequest(request).get(editView.REPEATER_ID_FORM_FIELD))
+                formFactory.form().bindFromRequest(request).get(editView.ENUMERATOR_ID_FORM_FIELD))
             .map(Long::valueOf);
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> result;
-      if (repeaterId.isPresent()) {
-        result = programService.addRepeatedBlockToProgram(programId, repeaterId.get());
+      if (enumeratorId.isPresent()) {
+        result = programService.addRepeatedBlockToProgram(programId, enumeratorId.get());
       } else {
         result = programService.addBlockToProgram(programId);
       }
@@ -78,7 +78,7 @@ public class AdminProgramBlocksController extends CiviFormController {
       return notFound(e.toString());
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(
-          "Something happened to the repeater block while creating a repeated block", e);
+          "Something happened to the enumerator block while creating a repeated block", e);
     }
   }
 

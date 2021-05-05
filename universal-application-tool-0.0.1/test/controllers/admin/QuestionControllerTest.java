@@ -46,12 +46,12 @@ public class QuestionControllerTest extends WithPostgresContainer {
 
   @Test
   public void create_repeatedQuestion_redirectsOnSuccess() {
-    Question repeaterQuestion = testQuestionBank.applicantHouseholdMembers();
+    Question enumeratorQuestion = testQuestionBank.applicantHouseholdMembers();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData
         .put("questionName", "name")
         .put("questionDescription", "desc")
-        .put("repeaterId", String.valueOf(repeaterQuestion.id))
+        .put("enumeratorId", String.valueOf(enumeratorQuestion.id))
         .put("questionType", "TEXT")
         .put("questionText", "Hi mom!")
         .put("questionHelpText", ":-)");
@@ -122,7 +122,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
   }
 
   @Test
-  public void edit_repeatedQuestion_hasRepeaterName() {
+  public void edit_repeatedQuestion_hasEnumeratorName() {
     Question repeatedQuestion = testQuestionBank.applicantHouseholdMemberName();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     controller

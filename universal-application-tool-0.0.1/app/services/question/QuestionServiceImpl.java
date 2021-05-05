@@ -103,7 +103,7 @@ public final class QuestionServiceImpl implements QuestionService {
    * questions being updated will likely conflict with themselves, and new versions of previous
    * questions will conflict with their previous versions.
    *
-   * <p>Questions conflict if they have the same repeater id reference and the same question path
+   * <p>Questions conflict if they have the same enumerator id reference and the same question path
    * segment.
    */
   private ImmutableSet<CiviFormError> checkConflicts(QuestionDefinition questionDefinition) {
@@ -112,7 +112,7 @@ public final class QuestionServiceImpl implements QuestionService {
     if (maybeConflict.isPresent()) {
       Question conflict = maybeConflict.get();
       String errorMessage;
-      if (questionDefinition.getRepeaterId().isEmpty()) {
+      if (questionDefinition.getEnumeratorId().isEmpty()) {
         errorMessage =
             String.format(
                 "Question '%s' conflicts with question id: %s",
@@ -120,9 +120,9 @@ public final class QuestionServiceImpl implements QuestionService {
       } else {
         errorMessage =
             String.format(
-                "Question '%s' with Repeater ID %d conflicts with question id: %d",
+                "Question '%s' with Enumerator ID %d conflicts with question id: %d",
                 questionDefinition.getQuestionPathSegment(),
-                questionDefinition.getRepeaterId().get(),
+                questionDefinition.getEnumeratorId().get(),
                 conflict.id);
       }
       return ImmutableSet.of(CiviFormError.of(errorMessage));
@@ -133,7 +133,7 @@ public final class QuestionServiceImpl implements QuestionService {
   /**
    * Validates that a question's updates do not change its immutable members.
    *
-   * <p>Question immutable members are: name, repeater id, path, and type.
+   * <p>Question immutable members are: name, enumerator id, path, and type.
    */
   private ImmutableSet<CiviFormError> validateQuestionImmutableMembers(
       QuestionDefinition questionDefinition, QuestionDefinition toUpdate) {
@@ -147,13 +147,16 @@ public final class QuestionServiceImpl implements QuestionService {
                   questionDefinition.getName(), toUpdate.getName())));
     }
 
-    if (!questionDefinition.getRepeaterId().equals(toUpdate.getRepeaterId())) {
+    if (!questionDefinition.getEnumeratorId().equals(toUpdate.getEnumeratorId())) {
       errors.add(
           CiviFormError.of(
               String.format(
-                  "question repeater ids mismatch: %s does not match %s",
-                  questionDefinition.getRepeaterId().map(String::valueOf).orElse("[no repeater]"),
-                  toUpdate.getRepeaterId().map(String::valueOf).orElse("[no repeater]"))));
+                  "question enumerator ids mismatch: %s does not match %s",
+                  questionDefinition
+                      .getEnumeratorId()
+                      .map(String::valueOf)
+                      .orElse("[no enumerator]"),
+                  toUpdate.getEnumeratorId().map(String::valueOf).orElse("[no enumerator]"))));
     }
 
     if (!questionDefinition.getQuestionPathSegment().equals(toUpdate.getQuestionPathSegment())) {

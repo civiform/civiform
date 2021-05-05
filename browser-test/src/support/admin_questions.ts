@@ -328,7 +328,7 @@ export class AdminQuestions {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
 
-    await this.page.click('#create-repeater-question');
+    await this.page.click('#create-enumerator-question');
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 

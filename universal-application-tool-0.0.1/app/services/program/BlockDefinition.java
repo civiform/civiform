@@ -47,53 +47,54 @@ public abstract class BlockDefinition {
   public abstract String description();
 
   /**
-   * A repeater block definition is a block definition that contains a {@link QuestionDefinition}
-   * that is of type {@code QuestionType.REPEATER}. Repeater questions provide a variable list of
-   * user-defined identifiers for some repeated entity. Examples of repeated entities could be
+   * An enumerator block definition is a block definition that contains a {@link QuestionDefinition}
+   * that is of type {@link QuestionType#ENUMERATOR}. Enumerator questions provide a variable list
+   * of user-defined identifiers for some repeated entity. Examples of repeated entities could be
    * household members, vehicles, jobs, etc.
    *
-   * <p>A repeater block can only have one question, and it must be {@link QuestionType#REPEATER}.
+   * <p>An enumerator block can only have one question, and it must be {@link
+   * QuestionType#ENUMERATOR}.
    *
-   * @return true if this block definition is a repeater.
+   * @return true if this block definition is an enumerator.
    */
   @JsonIgnore
   @Memoized
-  public boolean isRepeater() {
-    // Though `anyMatch` is used here, repeater block definitions should only ever have a single
-    // question, which is a repeater question.
+  public boolean isEnumerator() {
+    // Though `anyMatch` is used here, enumerator block definitions should only ever have a single
+    // question, which is an enumerator question.
     return programQuestionDefinitions().stream()
         .map(ProgramQuestionDefinition::getQuestionDefinition)
         .map(QuestionDefinition::getQuestionType)
-        .anyMatch(questionType -> questionType.equals(QuestionType.REPEATER));
+        .anyMatch(questionType -> questionType.equals(QuestionType.ENUMERATOR));
   }
 
   /**
-   * A repeated block definition references a repeater block definition that determines the entities
-   * the repeated block definition asks questions for. If a block definition does not have a
-   * repeaterId, it is not repeated.
+   * A repeated block definition references an enumerator block definition that determines the
+   * entities the repeated block definition asks questions for. If a block definition does not have
+   * a enumeratorId, it is not repeated.
    *
-   * @return the BlockDefinition ID for this block definitions repeater, if it exists
+   * @return the BlockDefinition ID for this block definitions enumerator, if it exists
    */
   @JsonProperty("repeaterId")
-  public abstract Optional<Long> repeaterId();
+  public abstract Optional<Long> enumeratorId();
 
   /**
-   * See {@link #repeaterId()}.
+   * See {@link #enumeratorId()}.
    *
    * @return true if this block definition is for a repeated block.
    */
   @JsonIgnore
   public boolean isRepeated() {
-    return repeaterId().isPresent();
+    return enumeratorId().isPresent();
   }
 
   @JsonIgnore
   public QuestionDefinition getEnumerationQuestionDefinition() {
-    if (isRepeater()) {
+    if (isEnumerator()) {
       return getQuestionDefinition(0);
     }
     throw new RuntimeException(
-        "Only a repeater block can have an enumeration question definition.");
+        "Only an enumerator block can have an enumeration question definition.");
   }
 
   @JsonIgnore
@@ -146,7 +147,7 @@ public abstract class BlockDefinition {
     public abstract Builder setDescription(String value);
 
     @JsonProperty("repeaterId")
-    public abstract Builder setRepeaterId(Optional<Long> repeaterId);
+    public abstract Builder setEnumeratorId(Optional<Long> enumeratorId);
 
     @JsonProperty("hidePredicate")
     public abstract Builder setHidePredicate(Optional<Predicate> hide);

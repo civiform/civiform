@@ -67,18 +67,18 @@ public class ReadOnlyQuestionServiceImplTest {
   }
 
   @Test
-  public void getRepeaterQuestions() {
-    QuestionDefinition repeaterQuestion =
+  public void getEnumeratorQuestions() {
+    QuestionDefinition enumeratorQuestion =
         testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
 
-    ReadOnlyQuestionService repeaterService =
+    service =
         new ReadOnlyQuestionServiceImpl(
             new Version(LifecycleStage.ACTIVE) {
               @Override
               public ImmutableList<Question> getQuestions() {
                 return ImmutableList.<QuestionDefinition>builder()
                     .addAll(questions)
-                    .add(repeaterQuestion)
+                    .add(enumeratorQuestion)
                     .build()
                     .stream()
                     .map(q -> new Question(q))
@@ -87,10 +87,10 @@ public class ReadOnlyQuestionServiceImplTest {
             },
             new Version(LifecycleStage.DRAFT));
 
-    assertThat(repeaterService.getAllRepeaterQuestions().size()).isEqualTo(1);
-    assertThat(repeaterService.getAllRepeaterQuestions().get(0)).isEqualTo(repeaterQuestion);
-    assertThat(repeaterService.getUpToDateRepeaterQuestions().size()).isEqualTo(1);
-    assertThat(repeaterService.getUpToDateRepeaterQuestions().get(0)).isEqualTo(repeaterQuestion);
+    assertThat(service.getAllEnumeratorQuestions().size()).isEqualTo(1);
+    assertThat(service.getAllEnumeratorQuestions().get(0)).isEqualTo(enumeratorQuestion);
+    assertThat(service.getUpToDateEnumeratorQuestions().size()).isEqualTo(1);
+    assertThat(service.getUpToDateEnumeratorQuestions().get(0)).isEqualTo(enumeratorQuestion);
   }
 
   @Test
@@ -100,7 +100,7 @@ public class ReadOnlyQuestionServiceImplTest {
   }
 
   @Test
-  public void makePath_withRepeater() throws Exception {
+  public void makePath_withEnumerator() throws Exception {
     QuestionDefinition householdMembers =
         testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
     service =
@@ -122,7 +122,7 @@ public class ReadOnlyQuestionServiceImplTest {
   }
 
   @Test
-  public void makePath_withBadRepeater_throws() {
+  public void makePath_withBadEnumerator_throws() {
     QuestionDefinition applicantName = testQuestionBank.applicantName().getQuestionDefinition();
     service =
         new ReadOnlyQuestionServiceImpl(
