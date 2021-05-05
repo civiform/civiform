@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# Without any arguments, this script will generate a diff of each localized message
+# file with the default `messages` file. Missing translations will be presented
+# first, followed by weird stuff. The weird stuff may be
+#   1. message keys in the localized file that do not exist in the default file
+#   2. duplicated message keys
+#
+# You can run this script with a single argument like "en-US" which will generate the
+# diff of just that one translation.
+#
+# Example output:
+#  There are no translations in universal-application-tool-0.0.1/conf/messages.am
+#  Missing translations in universal-application-tool-0.0.1/conf/messages.en-US:
+#    content.selectLanguage
+#  Missing translations in universal-application-tool-0.0.1/conf/messages.es-US:
+#      content.selectLanguage
+#      validation.tooFewSelections
+#    Something weird is going on with these messages:
+#      label.street
+#      placeholder.street
+#
+
+pushd $(git rev-parse --show-toplevel) >/dev/null
+
+get_messages() {
+  regex="^[a-z][^=]*"
+  echo "$(grep -o ${regex} $1 | sort)"
+}
+
+diff_messages() {
+  if [[ ! -z $2 ]]
+  then
+    echo "Missing translations in $3:";
+    difference="$(diff -BZbw --strip-trailing-cr <(echo "$1") <(echo "$2"))";
+    echo "${difference}" | grep "<" | grep -o "[^<]*" | sed "s/^/    /";
+
+    extra=$(echo "${difference}" | grep ">" | grep -o "[^>]*");
+    if [[ ! -z "${extra}" ]];
+    then
+      echo "  Something weird is going on with these messages:";
+      echo "${extra}" | sed "s/^/    /";
+    fi
+  else
+    echo "There are no translations in $3"
+  fi
+}
+
+messagesDir="universal-application-tool-0.0.1/conf"
+messagesFile="${messagesDir}/messages"
+
+messages="$(get_messages ${messagesFile})"
+
+if [ $# -eq 1 ];
+then
+  translation="$1";
+  translatedMessagesFile="${messagesFile}.${translation}";
+  if [ -f "${translatedMessagesFile}" ];
+  then
+    translatedMessages="$(get_messages ${translatedMessagesFile})";
+    diff_messages "$messages" "$translatedMessages" $translatedMessagesFile;
+  else
+    echo "File ${translatedMessagesFile} does not exist.";
+  fi
+else
+  for translatedMessagesFile in ${messagesFile}.*
+  do
+    translatedMessages="$(get_messages ${translatedMessagesFile})";
+    diff_messages "$messages" "$translatedMessages" $translatedMessagesFile;
+  done
+fi
+
+popd >/dev/null
