@@ -77,9 +77,7 @@ public class FieldWithLabel {
     Styles.PY_2
   };
 
-  private static final String[] ERROR_BORDER_CLASSES = {
-          BaseStyles.FIELD_ERROR_BORDER_COLOR
-  };
+  private static final String[] ERROR_BORDER_CLASSES = {BaseStyles.FIELD_ERROR_BORDER_COLOR};
 
   private static final String[] ERROR_TEXT_CLASSES = {
     BaseStyles.VALIDATION_ERROR_TEXT_COLOR, Styles.TEXT_SM, Styles.PX_2
@@ -235,7 +233,9 @@ public class FieldWithLabel {
 
     String fieldTagClasses = StyleUtils.joinStyles(CORE_FIELD_CLASSES);
     if (!fieldErrors.isEmpty()) {
-      fieldTagClasses = StyleUtils.joinStyles(fieldTagClasses, StyleUtils.joinStyles(FieldWithLabel.ERROR_BORDER_CLASSES));
+      fieldTagClasses =
+          StyleUtils.joinStyles(
+              fieldTagClasses, StyleUtils.joinStyles(FieldWithLabel.ERROR_BORDER_CLASSES));
     }
 
     if (Strings.isNullOrEmpty(this.id)) this.id = this.fieldName;
@@ -261,7 +261,9 @@ public class FieldWithLabel {
     if (this.floatLabel) {
       fieldTagClasses = StyleUtils.joinStyles(FieldWithLabel.FLOATED_FIELD_CLASSES);
       if (!fieldErrors.isEmpty()) {
-        fieldTagClasses = StyleUtils.joinStyles(fieldTagClasses, StyleUtils.joinStyles(FieldWithLabel.ERROR_BORDER_CLASSES));
+        fieldTagClasses =
+            StyleUtils.joinStyles(
+                fieldTagClasses, StyleUtils.joinStyles(FieldWithLabel.ERROR_BORDER_CLASSES));
       }
 
       fieldTag.withClasses(fieldTagClasses);
@@ -293,6 +295,7 @@ public class FieldWithLabel {
   }
 
   private Tag buildFieldErrorsTag() {
-    return div(each(fieldErrors, error -> span(error.message()).withClasses(FieldWithLabel.ERROR_TEXT_CLASSES)));
+    return div(each(fieldErrors, error -> span(error.message())))
+        .withClasses(FieldWithLabel.ERROR_TEXT_CLASSES);
   }
 }
