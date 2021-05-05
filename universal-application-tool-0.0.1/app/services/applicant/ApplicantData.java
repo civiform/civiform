@@ -336,7 +336,7 @@ public class ApplicantData {
     } catch (PathNotFoundException e) {
       return Optional.empty();
     } catch (MappingException e) {
-      throw new JsonPathTypeMismatchException(path.path(), type, e);
+      throw new JsonPathTypeMismatchException(path, type, e);
     }
   }
 
@@ -351,11 +351,11 @@ public class ApplicantData {
    */
   private <T> Optional<T> read(Path path, TypeRef<T> type) throws JsonPathTypeMismatchException {
     try {
-      return Optional.ofNullable(this.jsonData.read(path.path(), type));
+      return Optional.ofNullable(this.jsonData.read(path.toString(), type));
     } catch (PathNotFoundException e) {
       return Optional.empty();
     } catch (MappingException e) {
-      throw new JsonPathTypeMismatchException(path.path(), type.getClass(), e);
+      throw new JsonPathTypeMismatchException(path, type.getClass(), e);
     }
   }
 
@@ -463,7 +463,7 @@ public class ApplicantData {
           // Add items from lists.
           // TODO(github.com/seattle-uat/civiform/issues/405): improve merge for repeated fields.
           for (Object item : (List) entry.getValue()) {
-            this.jsonData.add(path.path(), item);
+            this.jsonData.add(path.toString(), item);
           }
         } else {
           try {

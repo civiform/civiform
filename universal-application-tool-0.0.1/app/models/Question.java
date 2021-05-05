@@ -149,7 +149,7 @@ public class Question extends BaseModel {
 
     // TODO(https://github.com/seattle-uat/civiform/issues/673): delete this when questions don't
     //  need paths
-    path = questionDefinition.getPath().path();
+    path = questionDefinition.getPath().toString();
 
     repeaterId = questionDefinition.getRepeaterId().orElse(null);
     name = questionDefinition.getName();
