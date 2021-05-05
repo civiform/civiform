@@ -10,7 +10,7 @@ public enum QuestionType {
   NAME(false),
   NUMBER(false),
   RADIO_BUTTON(true),
-  REPEATER(false),
+  ENUMERATOR(false),
   TEXT(false);
 
   private final boolean isMultiOptionType;

@@ -12,7 +12,7 @@ import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
-import services.applicant.question.RepeaterQuestion;
+import services.applicant.question.EnumeratorQuestion;
 import services.applicant.question.Scalar;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
@@ -21,7 +21,7 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
-public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQuestionRenderer {
+public class EnumeratorQuestionRenderer extends BaseHtmlView implements ApplicantQuestionRenderer {
 
   private static final String ENUMERATOR_FIELDS_ID = "enumerator-fields";
   private static final String ADD_ELEMENT_BUTTON_ID = "enumerator-field-add-button";
@@ -33,7 +33,7 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
 
   private final ApplicantQuestion question;
 
-  public RepeaterQuestionRenderer(ApplicantQuestion question) {
+  public EnumeratorQuestionRenderer(ApplicantQuestion question) {
     this.question = checkNotNull(question);
   }
 
@@ -41,7 +41,7 @@ public class RepeaterQuestionRenderer extends BaseHtmlView implements ApplicantQ
   public Tag render(ApplicantQuestionRendererParams params) {
 
     Messages messages = params.messages();
-    RepeaterQuestion enumeratorQuestion = question.createEnumeratorQuestion();
+    EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();
     ImmutableList<String> entityNames = enumeratorQuestion.getEntityNames();
 
     ContainerTag enumeratorFields = div().withId(ENUMERATOR_FIELDS_ID);

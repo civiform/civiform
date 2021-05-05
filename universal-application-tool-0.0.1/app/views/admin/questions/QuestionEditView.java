@@ -22,9 +22,9 @@ import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
-import services.question.types.RepeaterQuestionDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
@@ -36,8 +36,8 @@ public final class QuestionEditView extends BaseHtmlView {
   private final AdminLayout layout;
   private final Messages messages;
 
-  private static final String NO_REPEATER_DISPLAY_STRING = "does not repeat";
-  private static final String NO_REPEATER_ID_STRING = "";
+  private static final String NO_ENUMERATOR_DISPLAY_STRING = "does not repeat";
+  private static final String NO_ENUMERATOR_ID_STRING = "";
 
   @Inject
   public QuestionEditView(AdminLayout layout, MessagesApi messagesApi) {
@@ -50,7 +50,7 @@ public final class QuestionEditView extends BaseHtmlView {
   public Content renderNewQuestionForm(
       Request request,
       QuestionType questionType,
-      ImmutableList<RepeaterQuestionDefinition> enumerationQuestionDefinitions)
+      ImmutableList<EnumeratorQuestionDefinition> enumerationQuestionDefinitions)
       throws UnsupportedQuestionTypeException {
     QuestionForm questionForm = QuestionFormBuilder.create(questionType);
     return renderNewQuestionForm(
@@ -61,7 +61,7 @@ public final class QuestionEditView extends BaseHtmlView {
   public Content renderNewQuestionForm(
       Request request,
       QuestionForm questionForm,
-      ImmutableList<RepeaterQuestionDefinition> enumerationQuestionDefinitions,
+      ImmutableList<EnumeratorQuestionDefinition> enumerationQuestionDefinitions,
       String errorMessage) {
     return renderNewQuestionForm(
         request, questionForm, enumerationQuestionDefinitions, Optional.of(errorMessage));
@@ -70,7 +70,7 @@ public final class QuestionEditView extends BaseHtmlView {
   private Content renderNewQuestionForm(
       Request request,
       QuestionForm questionForm,
-      ImmutableList<RepeaterQuestionDefinition> enumerationQuestionDefinitions,
+      ImmutableList<EnumeratorQuestionDefinition> enumerationQuestionDefinitions,
       Optional<String> message) {
     QuestionType questionType = questionForm.getQuestionType();
     String title = String.format("New %s question", questionType.toString().toLowerCase());
@@ -199,7 +199,7 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private ContainerTag buildNewQuestionForm(
       QuestionForm questionForm,
-      ImmutableList<RepeaterQuestionDefinition> enumerationQuestionDefinitions) {
+      ImmutableList<EnumeratorQuestionDefinition> enumerationQuestionDefinitions) {
     SelectWithLabel enumerationOptions =
         enumerationOptionsFromEnumerationQuestionDefinitions(
             questionForm, enumerationQuestionDefinitions);
@@ -308,9 +308,9 @@ public final class QuestionEditView extends BaseHtmlView {
    */
   private SelectWithLabel enumerationOptionsFromEnumerationQuestionDefinitions(
       QuestionForm questionForm,
-      ImmutableList<RepeaterQuestionDefinition> enumerationQuestionDefinitions) {
+      ImmutableList<EnumeratorQuestionDefinition> enumerationQuestionDefinitions) {
     ImmutableList.Builder<SimpleEntry<String, String>> optionsBuilder = ImmutableList.builder();
-    optionsBuilder.add(new SimpleEntry<>(NO_REPEATER_DISPLAY_STRING, NO_REPEATER_ID_STRING));
+    optionsBuilder.add(new SimpleEntry<>(NO_ENUMERATOR_DISPLAY_STRING, NO_ENUMERATOR_ID_STRING));
     optionsBuilder.addAll(
         enumerationQuestionDefinitions.stream()
             .map(
@@ -321,7 +321,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .collect(ImmutableList.toImmutableList()));
     return enumerationOptions(
         optionsBuilder.build(),
-        questionForm.getRepeaterId().map(String::valueOf).orElse(NO_REPEATER_ID_STRING));
+        questionForm.getEnumeratorId().map(String::valueOf).orElse(NO_ENUMERATOR_ID_STRING));
   }
 
   /**
@@ -337,7 +337,7 @@ public final class QuestionEditView extends BaseHtmlView {
                     new SimpleEntry<>(
                         enumerationQuestionDefinition.getName(),
                         String.valueOf(enumerationQuestionDefinition.getId())))
-            .orElse(new SimpleEntry<>(NO_REPEATER_DISPLAY_STRING, NO_REPEATER_ID_STRING));
+            .orElse(new SimpleEntry<>(NO_ENUMERATOR_DISPLAY_STRING, NO_ENUMERATOR_ID_STRING));
     return enumerationOptions(ImmutableList.of(enumerationOption), enumerationOption.getValue());
   }
 
@@ -345,7 +345,7 @@ public final class QuestionEditView extends BaseHtmlView {
       ImmutableList<SimpleEntry<String, String>> options, String selected) {
     return new SelectWithLabel()
         .setId("question-enumeration-select")
-        .setFieldName("repeaterId")
+        .setFieldName("enumeratorId")
         .setLabelText("Question enumeration")
         .setOptions(options)
         .setValue(selected);

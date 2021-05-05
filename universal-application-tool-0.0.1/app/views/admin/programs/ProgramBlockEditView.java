@@ -38,7 +38,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
   private final AdminLayout layout;
 
-  public static final String REPEATER_ID_FORM_FIELD = "repeaterId";
+  public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
@@ -90,7 +90,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                         blockId,
                         blockForm,
                         blockQuestions,
-                        blockDefinition.isRepeater(),
+                        blockDefinition.isEnumerator(),
                         csrfTag))
                 .with(questionBankPanel(questions, program, blockDefinition, csrfTag)));
 
@@ -114,7 +114,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withAction(blockCreateAction)
             .with(
                 FieldWithLabel.number()
-                    .setFieldName(REPEATER_ID_FORM_FIELD)
+                    .setFieldName(ENUMERATOR_ID_FORM_FIELD)
                     .setValue(OptionalLong.of(blockId))
                     .getContainer());
 
@@ -191,12 +191,12 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
       container.with(blockTag);
 
-      // Recursively add repeated blocks indented under their repeater block
-      if (blockDefinition.isRepeater()) {
+      // Recursively add repeated blocks indented under their enumerator block
+      if (blockDefinition.isEnumerator()) {
         container.with(
             renderBlockList(
                 programDefinition,
-                programDefinition.getBlockDefinitionsForRepeater(blockDefinition.id()),
+                programDefinition.getBlockDefinitionsForEnumerator(blockDefinition.id()),
                 focusedBlockId,
                 level + 1));
       }
@@ -209,7 +209,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
       long blockId,
       BlockForm blockForm,
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
-      boolean blockDefinitionIsRepeater,
+      boolean blockDefinitionIsEnumerator,
       Tag csrfTag) {
     String blockUpdateAction =
         controllers.admin.routes.AdminProgramBlocksController.update(program.id(), blockId).url();
@@ -241,7 +241,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
               .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
     }
 
-    if (blockDefinitionIsRepeater) {
+    if (blockDefinitionIsEnumerator) {
       blockInfoForm.with(
           submitButton("Create Repeated Block")
               .withId("create-repeated-block-button")

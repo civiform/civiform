@@ -122,7 +122,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       }
 
       // For an enumeration block definition, build blocks for its repeated questions
-      if (blockDefinition.isRepeater()) {
+      if (blockDefinition.isEnumerator()) {
 
         // Get all the repeated entities enumerated by this enumeration block.
         QuestionDefinition enumerationQuestionDefinition =
@@ -135,7 +135,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         // For each repeated entity, recursively build blocks for all of the repeated blocks of this
         // enumeration block.
         ImmutableList<BlockDefinition> repeatedBlockDefinitions =
-            programDefinition.getBlockDefinitionsForRepeater(blockDefinition.id());
+            programDefinition.getBlockDefinitionsForEnumerator(blockDefinition.id());
         for (int i = 0; i < entityNames.size(); i++) {
           String nextBlockIdSuffix = String.format("%s-%d", blockIdSuffix, i);
           Path contextualizedPathForEntity = contextualizedPathForEnumeration.atIndex(i);
