@@ -31,6 +31,9 @@ public interface ReadOnlyApplicantProgramService {
   /** Get the block with the given block ID */
   Optional<Block> getBlock(String blockId);
 
+  /** Gets the completion percent based on current block index. */
+  int getCompletionPercent(String blockId);
+
   /** Get the block that comes after the block with the given ID if there is one. */
   Optional<Block> getBlockAfter(String blockId);
 

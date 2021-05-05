@@ -5,7 +5,6 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.header;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -49,7 +48,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       ImmutableList<AnswerData> data,
       Messages messages,
       Optional<String> banner) {
-    ContainerTag headerTag = renderHeader(100);
+    ContainerTag headerTag = layout.renderHeader(100);
 
     ContainerTag content = div().withClasses(Styles.MX_16);
 
@@ -79,36 +78,6 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         headerTag,
         h1("Application review for " + programTitle).withClasses(Styles.PX_16, Styles.PY_4),
         content);
-  }
-
-  private ContainerTag renderHeader(int percentComplete) {
-    ContainerTag headerTag = header().withClasses(Styles.FLEX, Styles.FLEX_COL, Styles._MT_12);
-    ContainerTag progressInner =
-        div()
-            .withClasses(
-                Styles.BG_YELLOW_400,
-                Styles.TRANSITION_ALL,
-                Styles.DURATION_300,
-                Styles.H_FULL,
-                Styles.BLOCK,
-                Styles.ABSOLUTE,
-                Styles.LEFT_0,
-                Styles.TOP_0,
-                Styles.W_1,
-                Styles.ROUNDED_R_FULL)
-            .withStyle("width:" + percentComplete + "%");
-    ContainerTag progressIndicator =
-        div(progressInner)
-            .withId("progress-indicator")
-            .withClasses(
-                Styles.BORDER,
-                Styles.FONT_SEMIBOLD,
-                Styles.BG_GRAY_200,
-                Styles.RELATIVE,
-                Styles.H_2);
-
-    headerTag.with(progressIndicator);
-    return headerTag;
   }
 
   private ContainerTag renderQuestionSummary(AnswerData data, Long applicantId) {

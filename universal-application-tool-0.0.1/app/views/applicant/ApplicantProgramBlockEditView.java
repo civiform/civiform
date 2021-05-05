@@ -37,6 +37,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   public Content render(Params params) {
+    ContainerTag headerTag = layout.renderHeader(params.percentComplete());
+
     String formAction =
         routes.ApplicantProgramBlocksController.update(
                 params.applicantId(), params.programId(), params.block().getId(), params.inReview())
@@ -81,7 +83,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
               params.messages()));
     }
 
-    return layout.render(params.messages(), body);
+    return layout.render(params.messages(), headerTag, body);
   }
 
   /**
@@ -114,6 +116,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
       return new AutoValue_ApplicantProgramBlockEditView_Params.Builder();
     }
 
+    abstract int percentComplete();
+
     abstract boolean inReview();
 
     abstract Http.Request request();
@@ -133,6 +137,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
       public abstract Builder setRequest(Http.Request request);
 
       public abstract Builder setInReview(boolean inReview);
+
+      public abstract Builder setPercentComplete(int percentComplete);
 
       public abstract Builder setMessages(Messages messages);
 

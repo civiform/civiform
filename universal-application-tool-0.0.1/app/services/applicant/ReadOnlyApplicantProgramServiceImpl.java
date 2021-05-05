@@ -52,6 +52,36 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
+  public int getCompletionPercent(String blockId) {
+    ImmutableList<Block> blocks = getAllBlocks();
+
+    double blockCount = blocks.size();
+    // If there aren't any blocks then I guess we're done.
+    if (blockCount == 0) {
+      return 100;
+    }
+
+    double blockIndex = -1;
+    for (int i = 0; i < blocks.size() && blockIndex == -1; i++) {
+      if (blocks.get(i).getId().equals(blockId)) {
+        blockIndex = i;
+      }
+    }
+
+    // If the block doesn't exist then return 0.
+    if (blockIndex == -1) {
+      return 0;
+    }
+
+    // If we're on the first block, move the needle a little.
+    if (blockIndex == 0) {
+      blockIndex = 0.1;
+    }
+
+    return (int) ((blockIndex / blockCount) * 100.0);
+  }
+
+  @Override
   public Optional<Block> getBlockAfter(String blockId) {
     ImmutableList<Block> blocks = getInProgressBlocks();
 

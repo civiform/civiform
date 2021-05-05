@@ -84,7 +84,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenApplyAsync(
             (roApplicantProgramService) -> {
               Optional<Block> block = roApplicantProgramService.getBlock(blockId);
-
               if (block.isPresent()) {
                 return ok(
                     editView.render(
@@ -92,6 +91,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             .setRequest(request)
                             .setMessages(messagesApi.preferred(request))
                             .setApplicantId(applicantId)
+                            .setPercentComplete(
+                                roApplicantProgramService.getCompletionPercent(blockId))
                             .setProgramId(programId)
                             .setBlock(block.get())
                             .setInReview(inReview)
