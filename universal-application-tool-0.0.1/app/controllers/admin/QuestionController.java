@@ -25,10 +25,10 @@ import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
-import services.question.types.RepeaterQuestionDefinition;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
 
@@ -99,15 +99,16 @@ public class QuestionController extends CiviFormController {
       return badRequest(invalidQuestionTypeMessage(type));
     }
 
-    ImmutableList<RepeaterQuestionDefinition> repeaterQuestionDefinitions =
+    ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
         service
             .getReadOnlyQuestionService()
             .toCompletableFuture()
             .join()
-            .getUpToDateRepeaterQuestions();
+            .getUpToDateEnumeratorQuestions();
 
     try {
-      return ok(editView.renderNewQuestionForm(request, questionType, repeaterQuestionDefinitions));
+      return ok(
+          editView.renderNewQuestionForm(request, questionType, enumeratorQuestionDefinitions));
     } catch (UnsupportedQuestionTypeException e) {
       return badRequest(e.getMessage());
     }
@@ -138,11 +139,11 @@ public class QuestionController extends CiviFormController {
     ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(questionDefinition);
     if (result.isError()) {
       String errorMessage = joinErrors(result.getErrors());
-      ImmutableList<RepeaterQuestionDefinition> repeaterQuestionDefinitions =
-          roService.getUpToDateRepeaterQuestions();
+      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
+          roService.getUpToDateEnumeratorQuestions();
       return ok(
           editView.renderNewQuestionForm(
-              request, questionForm, repeaterQuestionDefinitions, errorMessage));
+              request, questionForm, enumeratorQuestionDefinitions, errorMessage));
     }
 
     String successMessage = String.format("question %s created", questionForm.getQuestionName());
@@ -232,14 +233,14 @@ public class QuestionController extends CiviFormController {
     try {
       Path path =
           roService.makePath(
-              questionForm.getRepeaterId(),
+              questionForm.getEnumeratorId(),
               questionForm.getQuestionName(),
-              questionForm.getQuestionType().equals(QuestionType.REPEATER));
+              questionForm.getQuestionType().equals(QuestionType.ENUMERATOR));
       return questionForm.getBuilder(path);
     } catch (QuestionNotFoundException | InvalidQuestionTypeException e) {
       throw new RuntimeException(
           String.format(
-              "Failed to create a question definition builder because of invalid repeater id"
+              "Failed to create a question definition builder because of invalid enumerator id"
                   + " reference: %s",
               questionForm),
           e);
@@ -253,20 +254,20 @@ public class QuestionController extends CiviFormController {
   }
 
   /**
-   * Maybe return the name of the question definition's repeater question, if it is a repeated
+   * Maybe return the name of the question definition's enumerator question, if it is a repeated
    * question definition.
    */
   private Optional<QuestionDefinition> maybeGetEnumerationQuestion(
       ReadOnlyQuestionService readOnlyQuestionService, QuestionDefinition questionDefinition) {
     return questionDefinition
-        .getRepeaterId()
+        .getEnumeratorId()
         .flatMap(
-            repeaterId -> {
+            enumeratorId -> {
               try {
-                return Optional.of(readOnlyQuestionService.getQuestionDefinition(repeaterId));
+                return Optional.of(readOnlyQuestionService.getQuestionDefinition(enumeratorId));
               } catch (QuestionNotFoundException e) {
                 throw new RuntimeException(
-                    "This repeated question's repeater id reference does not refer to a real"
+                    "This repeated question's enumerator id reference does not refer to a real"
                         + " question!");
               }
             });

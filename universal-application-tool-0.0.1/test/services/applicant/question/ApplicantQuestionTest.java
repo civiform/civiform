@@ -99,7 +99,7 @@ public class ApplicantQuestionTest {
             new ApplicantData(),
             ApplicantData.APPLICANT_PATH);
     assertThat(enumeratorApplicantQuestion.createEnumeratorQuestion())
-        .isInstanceOf(RepeaterQuestion.class);
+        .isInstanceOf(EnumeratorQuestion.class);
 
     ApplicantQuestion nameApplicantQuestion =
         new ApplicantQuestion(

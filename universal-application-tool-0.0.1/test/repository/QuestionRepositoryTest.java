@@ -89,14 +89,14 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
-  public void findConflictingQuestion_sameQuestionPathSegmentButDifferentRepeaterId_ok()
+  public void findConflictingQuestion_sameQuestionPathSegmentButDifferentEnumeratorId_ok()
       throws Exception {
     Question applicantAddress = testQuestionBank.applicantAddress();
     QuestionDefinition newQuestionDefinition =
         new QuestionDefinitionBuilder(applicantAddress.getQuestionDefinition())
             .clearId()
             .setName("applicant_address")
-            .setRepeaterId(Optional.of(1L))
+            .setEnumeratorId(Optional.of(1L))
             .setPath(Path.create("fake"))
             .build();
 

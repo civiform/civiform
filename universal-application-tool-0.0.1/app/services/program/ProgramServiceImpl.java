@@ -202,31 +202,32 @@ public class ProgramServiceImpl implements ProgramService {
       return addBlockToProgram(programId, Optional.empty());
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(
-          "The ProgramBlockDefinitionNotFoundException should never be thrown when the repeater id"
-              + " is empty.");
+          "The ProgramBlockDefinitionNotFoundException should never be thrown when the enumerator"
+              + " id is empty.");
     }
   }
 
   @Override
   @Transactional
   public ErrorAnd<ProgramDefinition, CiviFormError> addRepeatedBlockToProgram(
-      long programId, long repeaterBlockId)
+      long programId, long enumeratorBlockId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
-    return addBlockToProgram(programId, Optional.of(repeaterBlockId));
+    return addBlockToProgram(programId, Optional.of(enumeratorBlockId));
   }
 
   private ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(
-      long programId, Optional<Long> repeaterBlockId)
+      long programId, Optional<Long> enumeratorBlockId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
-    if (repeaterBlockId.isPresent() && !programDefinition.hasRepeater(repeaterBlockId.get())) {
-      throw new ProgramBlockDefinitionNotFoundException(programId, repeaterBlockId.get());
+    if (enumeratorBlockId.isPresent()
+        && !programDefinition.hasEnumerator(enumeratorBlockId.get())) {
+      throw new ProgramBlockDefinitionNotFoundException(programId, enumeratorBlockId.get());
     }
 
     long blockId = getNextBlockId(programDefinition);
     String blockName;
-    if (repeaterBlockId.isPresent()) {
-      blockName = String.format("Block %d (repeated from %d)", blockId, repeaterBlockId.get());
+    if (enumeratorBlockId.isPresent()) {
+      blockName = String.format("Block %d (repeated from %d)", blockId, enumeratorBlockId.get());
     } else {
       blockName = String.format("Block %d", blockId);
     }
@@ -244,7 +245,7 @@ public class ProgramServiceImpl implements ProgramService {
             .setId(blockId)
             .setName(blockName)
             .setDescription(blockDescription)
-            .setRepeaterId(repeaterBlockId)
+            .setEnumeratorId(enumeratorBlockId)
             .build();
 
     Program program =

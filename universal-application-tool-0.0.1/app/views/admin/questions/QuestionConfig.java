@@ -93,7 +93,7 @@ public class QuestionConfig {
             .getContainer();
       case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended - no options
-      case REPEATER: // fallthrough intended
+      case ENUMERATOR: // fallthrough intended
       default:
         return div();
     }

@@ -72,7 +72,7 @@ public enum Scalar {
   /**
    * Returns the scalars for a specific {@link QuestionType}.
    *
-   * <p>The {@link QuestionType#REPEATER} does not have scalars. Use {@link Scalar#ENTITY_NAME}
+   * <p>The {@link QuestionType#ENUMERATOR} does not have scalars. Use {@link Scalar#ENTITY_NAME}
    * instead.
    */
   public static ImmutableMap<Scalar, ScalarType> getScalars(QuestionType questionType)
@@ -96,7 +96,8 @@ public enum Scalar {
       case RADIO_BUTTON:
         return SINGLE_SELECT_SCALARS;
 
-      case REPEATER: // Repeater Question does not have scalars like the other question types do.
+      case ENUMERATOR: // Enumerator Question does not have scalars like the other question types
+        // do.
         throw new InvalidQuestionTypeException("Enumeration questions are handled separately.");
 
       default:

@@ -5,11 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import forms.AddressQuestionForm;
 import forms.DropdownQuestionForm;
+import forms.EnumeratorQuestionForm;
 import forms.FileUploadQuestionForm;
 import forms.NameQuestionForm;
 import forms.NumberQuestionForm;
 import forms.RadioButtonQuestionForm;
-import forms.RepeaterQuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import org.junit.Test;
@@ -54,7 +54,7 @@ public class QuestionConfigTest {
     assertThat(QuestionConfig.buildQuestionConfig(new NameQuestionForm()))
         .isEqualTo(DEFAULT_CONFIG);
 
-    assertThat(QuestionConfig.buildQuestionConfig(new RepeaterQuestionForm()))
+    assertThat(QuestionConfig.buildQuestionConfig(new EnumeratorQuestionForm()))
         .isEqualTo(DEFAULT_CONFIG);
   }
 }

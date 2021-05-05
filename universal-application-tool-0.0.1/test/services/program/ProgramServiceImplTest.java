@@ -381,9 +381,9 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     ProgramDefinition found = ps.getProgramDefinition(program.id);
 
     assertThat(found.blockDefinitions()).hasSize(2);
-    assertThat(found.getBlockDefinitionByIndex(0).get().isRepeater()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(0).get().isEnumerator()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(1).get().isRepeated()).isTrue();
-    assertThat(found.getBlockDefinitionByIndex(1).get().repeaterId()).contains(1L);
+    assertThat(found.getBlockDefinitionByIndex(1).get().enumeratorId()).contains(1L);
     assertThat(found.blockDefinitions())
         .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
   }
@@ -396,7 +396,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void
-      addRepeatedBlockToProgram_invalidRepeaterId_throwsProgramBlockDefinitionNotFoundException() {
+      addRepeatedBlockToProgram_invalidEnumeratorId_throwsProgramBlockDefinitionNotFoundException() {
     Program program = ProgramBuilder.newActiveProgram().build();
 
     assertThatThrownBy(() -> ps.addRepeatedBlockToProgram(program.id, 5L))

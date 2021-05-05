@@ -56,9 +56,9 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
         .containsOnly(
             CiviFormError.of(
                 String.format(
-                    "Question '%s' with Repeater ID %d conflicts with question id: %d",
+                    "Question '%s' with Enumerator ID %d conflicts with question id: %d",
                     questionDefinition.getQuestionPathSegment(),
-                    householdMemberName.getRepeaterId().get(),
+                    householdMemberName.getEnumeratorId().get(),
                     householdMemberName.getId())));
   }
 
@@ -131,7 +131,7 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
     QuestionDefinition toUpdate =
         new QuestionDefinitionBuilder(nameQuestion)
             .setName("this is a new name")
-            .setRepeaterId(Optional.of(100L))
+            .setEnumeratorId(Optional.of(100L))
             .setQuestionType(QuestionType.ADDRESS)
             .build();
 
@@ -151,8 +151,8 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
                     nameQuestion.getQuestionPathSegment(), toUpdate.getQuestionPathSegment())),
             CiviFormError.of(
                 String.format(
-                    "question repeater ids mismatch: [no repeater] does not match %s",
-                    toUpdate.getRepeaterId().get())),
+                    "question enumerator ids mismatch: [no enumerator] does not match %s",
+                    toUpdate.getEnumeratorId().get())),
             CiviFormError.of(
                 String.format(
                     "question types mismatch: %s does not match %s",
