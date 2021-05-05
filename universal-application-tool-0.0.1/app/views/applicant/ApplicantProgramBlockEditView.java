@@ -97,12 +97,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
                 params.applicantId(), params.programId(), params.block().getId(), params.inReview())
             .url();
     ApplicantQuestionRendererParams rendererParams =
-        ApplicantQuestionRendererParams.builder()
-            .setMessages(params.messages())
-            .setProgramId(params.programId())
-            .setApplicantId(params.applicantId())
-            .setBlockId(params.block().getId())
-            .build();
+        ApplicantQuestionRendererParams.builder().setMessages(params.messages()).build();
     return form()
         .withAction(formAction)
         .withMethod(HttpVerbs.POST)
@@ -132,9 +127,6 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder()
             .setMessages(params.messages())
-            .setProgramId(params.programId())
-            .setApplicantId(params.applicantId())
-            .setBlockId(params.block().getId())
             .setSignedFileUploadRequest(signedRequest)
             .build();
     return form()
