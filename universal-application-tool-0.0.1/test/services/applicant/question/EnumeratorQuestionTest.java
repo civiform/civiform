@@ -18,15 +18,15 @@ import play.i18n.MessagesApi;
 import repository.WithPostgresContainer;
 import services.Path;
 import services.applicant.ApplicantData;
-import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.RepeaterQuestionDefinition;
 import support.QuestionAnswerer;
 import support.TestQuestionBank;
 
 @RunWith(JUnitParamsRunner.class)
 public class EnumeratorQuestionTest extends WithPostgresContainer {
-  private static final EnumeratorQuestionDefinition enumeratorQuestionDefinition =
-      new EnumeratorQuestionDefinition(
+  private static final RepeaterQuestionDefinition enumeratorQuestionDefinition =
+      new RepeaterQuestionDefinition(
           "household members",
           Path.create("applicant.household_members[]"),
           Optional.empty(),
@@ -54,7 +54,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
         new ApplicantQuestion(
             enumeratorQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
 
-    EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
+    RepeaterQuestion enumeratorQuestion = new RepeaterQuestion(applicantQuestion);
 
     assertThat(enumeratorQuestion.isAnswered()).isFalse();
     assertThat(enumeratorQuestion.hasTypeSpecificErrors()).isFalse();
@@ -71,7 +71,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
         applicantQuestion.getContextualizedPath(),
         ImmutableList.of("first", "second", "third"));
 
-    EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
+    RepeaterQuestion enumeratorQuestion = new RepeaterQuestion(applicantQuestion);
 
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).contains("first", "second", "third");
@@ -88,7 +88,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.of(value));
 
-    EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
+    RepeaterQuestion enumeratorQuestion = new RepeaterQuestion(applicantQuestion);
 
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).contains(value);

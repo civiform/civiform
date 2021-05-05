@@ -5,8 +5,8 @@ import java.util.Optional;
 import services.Path;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
-import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.RepeaterQuestionDefinition;
 
 /**
  * The ReadOnlyQuestionService contains all synchronous, in-memory operations for
@@ -20,20 +20,20 @@ public interface ReadOnlyQuestionService {
   /** Returns all up-to-date question definitions for this version. */
   ImmutableList<QuestionDefinition> getUpToDateQuestions();
 
-  /** Returns all enumerator question definitions. */
-  ImmutableList<EnumeratorQuestionDefinition> getAllEnumeratorQuestions();
+  /** Returns all repeater question definitions. */
+  ImmutableList<RepeaterQuestionDefinition> getAllRepeaterQuestions();
 
-  /** Returns all up-to-date enumerator question definitions. */
-  ImmutableList<EnumeratorQuestionDefinition> getUpToDateEnumeratorQuestions();
+  /** Returns all repeater question definitions. */
+  ImmutableList<RepeaterQuestionDefinition> getUpToDateRepeaterQuestions();
 
   /** Get the data object about the questions that are in the active or draft version. */
   ActiveAndDraftQuestions getActiveAndDraftQuestions();
 
   /**
-   * Create the {@link Path} for a question from the path of the enumerator id (if provided) and the
+   * Create the {@link Path} for a question from the path of the repeater id (if provided) and the
    * question name.
    */
-  Path makePath(Optional<Long> enumeratorId, String questionName, boolean isEnumerator)
+  Path makePath(Optional<Long> repeaterId, String questionName, boolean isRepeater)
       throws InvalidQuestionTypeException, QuestionNotFoundException;
 
   /**

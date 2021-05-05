@@ -23,8 +23,8 @@ public final class Block {
    * The block's ID. Note this is different from the {@code BlockDefinition}'s ID because
    * BlockDefinitions that repeat expand to multiple Blocks.
    *
-   * <p>A top level block has a single number, e.g. "1". This could be a {@link
-   * services.question.types.QuestionType#ENUMERATOR} question (e.g. who are your household members)
+   * <p>A top level block has a single number, e.g. "1". This could be a REPEATER question (e.g. who
+   * are your household members)
    *
    * <p>Repeated blocks, which ask questions about repeated entities, use dash separated integers
    * which reference a block definition followed by repeated entity indices. For example, consider a
@@ -68,7 +68,7 @@ public final class Block {
 
   /** This block is an enumerator block if its {@link BlockDefinition} is an enumerator. */
   public boolean isEnumerator() {
-    return blockDefinition.isEnumerator();
+    return blockDefinition.isRepeater();
   }
 
   /** Get the enumerator {@link ApplicantQuestion} for this enumerator block. */
@@ -77,7 +77,7 @@ public final class Block {
       return getQuestions().get(0);
     }
     throw new RuntimeException(
-        "Only an enumerator block can have an enumeration question definition.");
+        "Only a repeater block can have an enumeration question definition.");
   }
 
   public ImmutableList<ApplicantQuestion> getQuestions() {

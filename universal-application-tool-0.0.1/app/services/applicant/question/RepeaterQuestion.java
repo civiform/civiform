@@ -8,10 +8,10 @@ import java.util.Locale;
 import services.LocalizationUtils;
 import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
-import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionType;
+import services.question.types.RepeaterQuestionDefinition;
 
-public class EnumeratorQuestion implements PresentsErrors {
+public class RepeaterQuestion implements PresentsErrors {
 
   private final ApplicantQuestion applicantQuestion;
 
@@ -19,7 +19,7 @@ public class EnumeratorQuestion implements PresentsErrors {
   private final ImmutableMap<Locale, String> PLACEHOLDER =
       ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, "");
 
-  public EnumeratorQuestion(ApplicantQuestion applicantQuestion) {
+  public RepeaterQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
     assertQuestionType();
   }
@@ -36,7 +36,7 @@ public class EnumeratorQuestion implements PresentsErrors {
 
   @Override
   public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
-    // There are no inherent requirements in an enumerator question.
+    // There are no inherent requirements in a repeater question.
     return ImmutableSet.of();
   }
 
@@ -50,18 +50,18 @@ public class EnumeratorQuestion implements PresentsErrors {
   }
 
   public void assertQuestionType() {
-    if (!applicantQuestion.getType().equals(QuestionType.ENUMERATOR)) {
+    if (!applicantQuestion.getType().equals(QuestionType.REPEATER)) {
       throw new RuntimeException(
           String.format(
-              "Question is not a ENUMERATOR question: %s (type: %s)",
+              "Question is not a REPEATER question: %s (type: %s)",
               applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
               applicantQuestion.getQuestionDefinition().getQuestionType()));
     }
   }
 
-  public EnumeratorQuestionDefinition getQuestionDefinition() {
+  public RepeaterQuestionDefinition getQuestionDefinition() {
     assertQuestionType();
-    return (EnumeratorQuestionDefinition) applicantQuestion.getQuestionDefinition();
+    return (RepeaterQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 
   /** This is answered if there is at least one entity name stored. */

@@ -7,13 +7,13 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
-import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.RadioButtonQuestionDefinition;
+import services.question.types.RepeaterQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
 public class QuestionFormBuilder {
@@ -35,8 +35,8 @@ public class QuestionFormBuilder {
         return formFactory.form(NumberQuestionForm.class).bindFromRequest(request).get();
       case RADIO_BUTTON:
         return formFactory.form(RadioButtonQuestionForm.class).bindFromRequest(request).get();
-      case ENUMERATOR:
-        return formFactory.form(EnumeratorQuestionForm.class).bindFromRequest(request).get();
+      case REPEATER:
+        return formFactory.form(RepeaterQuestionForm.class).bindFromRequest(request).get();
       case TEXT:
         return formFactory.form(TextQuestionForm.class).bindFromRequest(request).get();
       default:
@@ -61,8 +61,8 @@ public class QuestionFormBuilder {
         return new NumberQuestionForm();
       case RADIO_BUTTON:
         return new RadioButtonQuestionForm();
-      case ENUMERATOR:
-        return new EnumeratorQuestionForm();
+      case REPEATER:
+        return new RepeaterQuestionForm();
       case TEXT:
         return new TextQuestionForm();
       default:
@@ -88,8 +88,8 @@ public class QuestionFormBuilder {
         return new NumberQuestionForm((NumberQuestionDefinition) questionDefinition);
       case RADIO_BUTTON:
         return new RadioButtonQuestionForm((RadioButtonQuestionDefinition) questionDefinition);
-      case ENUMERATOR:
-        return new EnumeratorQuestionForm((EnumeratorQuestionDefinition) questionDefinition);
+      case REPEATER:
+        return new RepeaterQuestionForm((RepeaterQuestionDefinition) questionDefinition);
       case TEXT:
         return new TextQuestionForm((TextQuestionDefinition) questionDefinition);
       default:

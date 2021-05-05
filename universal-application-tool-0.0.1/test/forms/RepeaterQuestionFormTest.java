@@ -7,24 +7,24 @@ import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
 import services.Path;
-import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.RepeaterQuestionDefinition;
 
-public class EnumeratorQuestionFormTest {
+public class RepeaterQuestionFormTest {
   @Test
   public void getBuilder_returnsCompleteBuilder() throws Exception {
     Path path = Path.create("my.question.path.name");
 
-    EnumeratorQuestionForm form = new EnumeratorQuestionForm();
+    RepeaterQuestionForm form = new RepeaterQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
     QuestionDefinitionBuilder builder = form.getBuilder(path);
 
-    EnumeratorQuestionDefinition expected =
-        new EnumeratorQuestionDefinition(
+    RepeaterQuestionDefinition expected =
+        new RepeaterQuestionDefinition(
             "name",
             path,
             Optional.empty(),
@@ -41,8 +41,8 @@ public class EnumeratorQuestionFormTest {
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
     Path path = Path.create("my.question.path.name");
 
-    EnumeratorQuestionDefinition originalQd =
-        new EnumeratorQuestionDefinition(
+    RepeaterQuestionDefinition originalQd =
+        new RepeaterQuestionDefinition(
             "name",
             path,
             Optional.empty(),
@@ -50,7 +50,7 @@ public class EnumeratorQuestionFormTest {
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of());
 
-    EnumeratorQuestionForm form = new EnumeratorQuestionForm(originalQd);
+    RepeaterQuestionForm form = new RepeaterQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder(path);
 
     QuestionDefinition actual = builder.build();

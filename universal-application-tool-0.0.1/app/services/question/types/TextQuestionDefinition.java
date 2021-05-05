@@ -17,7 +17,7 @@ public class TextQuestionDefinition extends QuestionDefinition {
       OptionalLong id,
       String name,
       Path path,
-      Optional<Long> enumeratorId,
+      Optional<Long> repeaterId,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
@@ -26,7 +26,7 @@ public class TextQuestionDefinition extends QuestionDefinition {
         id,
         name,
         path,
-        enumeratorId,
+        repeaterId,
         description,
         questionText,
         questionHelpText,
@@ -36,32 +36,26 @@ public class TextQuestionDefinition extends QuestionDefinition {
   public TextQuestionDefinition(
       String name,
       Path path,
-      Optional<Long> enumeratorId,
+      Optional<Long> repeaterId,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       TextValidationPredicates validationPredicates) {
     super(
-        name,
-        path,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates);
+        name, path, repeaterId, description, questionText, questionHelpText, validationPredicates);
   }
 
   public TextQuestionDefinition(
       String name,
       Path path,
-      Optional<Long> enumeratorId,
+      Optional<Long> repeaterId,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText) {
     super(
         name,
         path,
-        enumeratorId,
+        repeaterId,
         description,
         questionText,
         questionHelpText,

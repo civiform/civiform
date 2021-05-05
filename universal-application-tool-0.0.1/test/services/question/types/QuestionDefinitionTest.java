@@ -124,20 +124,20 @@ public class QuestionDefinitionTest {
   }
 
   @Test
-  public void isEnumerator_false() {
+  public void isRepeater_false() {
     QuestionDefinition question =
         new TextQuestionDefinition(
             "", Path.empty(), Optional.empty(), "", ImmutableMap.of(), ImmutableMap.of());
 
-    assertThat(question.isEnumerator()).isFalse();
+    assertThat(question.isRepeater()).isFalse();
   }
 
   @Test
-  public void isEnumerator_true() {
+  public void isRepeater_true() {
     QuestionDefinition question =
-        new EnumeratorQuestionDefinition(
+        new RepeaterQuestionDefinition(
             "", Path.empty(), Optional.empty(), "", ImmutableMap.of(), ImmutableMap.of());
-    assertThat(question.isEnumerator()).isTrue();
+    assertThat(question.isRepeater()).isTrue();
   }
 
   @Test

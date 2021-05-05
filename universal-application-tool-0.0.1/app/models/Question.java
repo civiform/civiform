@@ -41,7 +41,7 @@ public class Question extends BaseModel {
   /** Different versions of the same question are linked by their immutable name. */
   private @Constraints.Required String name;
 
-  private Long enumeratorId;
+  private Long repeaterId;
 
   private @Constraints.Required String description;
 
@@ -98,7 +98,7 @@ public class Question extends BaseModel {
             .setId(id)
             .setName(name)
             .setPath(Path.create(path))
-            .setEnumeratorId(Optional.ofNullable(enumeratorId))
+            .setRepeaterId(Optional.ofNullable(repeaterId))
             .setDescription(description)
             .setQuestionText(questionText)
             .setQuestionHelpText(questionHelpText)
@@ -151,7 +151,7 @@ public class Question extends BaseModel {
     //  need paths
     path = questionDefinition.getPath().toString();
 
-    enumeratorId = questionDefinition.getEnumeratorId().orElse(null);
+    repeaterId = questionDefinition.getRepeaterId().orElse(null);
     name = questionDefinition.getName();
     description = questionDefinition.getDescription();
     questionText = questionDefinition.getQuestionText();

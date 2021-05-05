@@ -24,7 +24,7 @@ public abstract class QuestionDefinition {
   private final OptionalLong id;
   private final String name;
   private final Path path;
-  private final Optional<Long> enumeratorId;
+  private final Optional<Long> repeaterId;
   private final String description;
   // Note: you must check prefixes anytime you are doing a locale lookup
   // see getQuestionText body comment for explanation.
@@ -36,7 +36,7 @@ public abstract class QuestionDefinition {
       OptionalLong id,
       String name,
       Path path,
-      Optional<Long> enumeratorId,
+      Optional<Long> repeaterId,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
@@ -44,7 +44,7 @@ public abstract class QuestionDefinition {
     this.id = checkNotNull(id);
     this.name = checkNotNull(name);
     this.path = checkNotNull(path);
-    this.enumeratorId = checkNotNull(enumeratorId);
+    this.repeaterId = checkNotNull(repeaterId);
     this.description = checkNotNull(description);
     this.questionText = checkNotNull(questionText);
     this.questionHelpText = checkNotNull(questionHelpText);
@@ -54,7 +54,7 @@ public abstract class QuestionDefinition {
   public QuestionDefinition(
       String name,
       Path path,
-      Optional<Long> enumeratorId,
+      Optional<Long> repeaterId,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
@@ -63,7 +63,7 @@ public abstract class QuestionDefinition {
         OptionalLong.empty(),
         name,
         path,
-        enumeratorId,
+        repeaterId,
         description,
         questionText,
         questionHelpText,
@@ -108,46 +108,46 @@ public abstract class QuestionDefinition {
   public String getQuestionPathSegment() {
     // TODO(#783): Change this getter once we save this formatted name to the database.
     String formattedName = name.replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
-    if (getQuestionType().equals(QuestionType.ENUMERATOR)) {
+    if (getQuestionType().equals(QuestionType.REPEATER)) {
       return formattedName + Path.ARRAY_SUFFIX;
     }
     return formattedName;
   }
 
   /**
-   * A question is used to enumerate a variable list of user-defined identifiers for a repeated
-   * entity (e.g. children, or household members).
+   * A repeater question is used to enumerate a variable list of user-defined identifiers for a
+   * repeated entity (e.g. children, or household members).
    *
-   * @return true if this is an enumerator question.
+   * @return true if this is a repeater question.
    */
-  public boolean isEnumerator() {
-    return getQuestionType().equals(QuestionType.ENUMERATOR);
+  public boolean isRepeater() {
+    return getQuestionType().equals(QuestionType.REPEATER);
   }
 
   /**
-   * See {@link #getEnumeratorId()}.
+   * See {@link #getRepeaterId()}.
    *
    * @return true if this is a repeated question.
    */
   public boolean isRepeated() {
-    return enumeratorId.isPresent();
+    return repeaterId.isPresent();
   }
 
   /**
-   * A repeated question definition references an enumerator question definition that determines the
+   * A repeated question definition references a repeater question definition that determines the
    * entities the repeated question definition asks its question for.
    *
-   * <p>For example, the enumerator question "List your household members", may have a repeated
+   * <p>For example, the repeater question "List your household members", may have a repeated
    * question asking for the birthdate of each household member. The repeated birthdate question
-   * would have a reference to the household members enumerator question.
+   * would have a reference to the household members repeater question.
    *
-   * <p>If a question definition does not have an enumeratorId, it is not repeated.
+   * <p>If a question definition does not have a repeaterId, it is not repeated.
    *
-   * @return the {@link QuestionDefinition#id} for this question definition's enumerator, if it
+   * @return the {@link QuestionDefinition#id} for this question definition's repeater, if it
    *     exists.
    */
-  public Optional<Long> getEnumeratorId() {
-    return enumeratorId;
+  public Optional<Long> getRepeaterId() {
+    return repeaterId;
   }
 
   // TODO(https://github.com/seattle-uat/civiform/issues/673): delete this when question definitions

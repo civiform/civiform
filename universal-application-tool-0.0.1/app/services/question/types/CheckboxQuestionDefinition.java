@@ -14,7 +14,7 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
       OptionalLong id,
       String name,
       Path path,
-      Optional<Long> enumeratorId,
+      Optional<Long> repeaterId,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
@@ -24,7 +24,7 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
         id,
         name,
         path,
-        enumeratorId,
+        repeaterId,
         description,
         questionText,
         questionHelpText,
@@ -35,7 +35,7 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
   public CheckboxQuestionDefinition(
       String name,
       Path path,
-      Optional<Long> enumeratorId,
+      Optional<Long> repeaterId,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
@@ -44,7 +44,7 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
     super(
         name,
         path,
-        enumeratorId,
+        repeaterId,
         description,
         questionText,
         questionHelpText,
@@ -55,7 +55,7 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
   public CheckboxQuestionDefinition(
       String name,
       Path path,
-      Optional<Long> enumeratorId,
+      Optional<Long> repeaterId,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
@@ -63,7 +63,7 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
     super(
         name,
         path,
-        enumeratorId,
+        repeaterId,
         description,
         questionText,
         questionHelpText,

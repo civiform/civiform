@@ -34,7 +34,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       OptionalLong id,
       String name,
       Path path,
-      Optional<Long> enumeratorId,
+      Optional<Long> repeaterId,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
@@ -44,7 +44,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
         id,
         name,
         path,
-        enumeratorId,
+        repeaterId,
         description,
         questionText,
         questionHelpText,
@@ -56,20 +56,14 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
   protected MultiOptionQuestionDefinition(
       String name,
       Path path,
-      Optional<Long> enumeratorId,
+      Optional<Long> repeaterId,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
       ImmutableList<QuestionOption> options,
       MultiOptionValidationPredicates validationPredicates) {
     super(
-        name,
-        path,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates);
+        name, path, repeaterId, description, questionText, questionHelpText, validationPredicates);
     this.options = checkNotNull(options);
     this.supportedOptionLocales = getSupportedOptionLocales(options);
   }
@@ -77,7 +71,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
   protected MultiOptionQuestionDefinition(
       String name,
       Path path,
-      Optional<Long> enumeratorId,
+      Optional<Long> repeaterId,
       String description,
       ImmutableMap<Locale, String> questionText,
       ImmutableMap<Locale, String> questionHelpText,
@@ -85,7 +79,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
     super(
         name,
         path,
-        enumeratorId,
+        repeaterId,
         description,
         questionText,
         questionHelpText,

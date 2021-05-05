@@ -16,9 +16,9 @@ import models.Version;
 import services.Path;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
-import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.question.types.RepeaterQuestionDefinition;
 
 public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionService {
 
@@ -77,18 +77,18 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
   }
 
   @Override
-  public ImmutableList<EnumeratorQuestionDefinition> getUpToDateEnumeratorQuestions() {
+  public ImmutableList<RepeaterQuestionDefinition> getUpToDateRepeaterQuestions() {
     return getUpToDateQuestions().stream()
-        .filter(QuestionDefinition::isEnumerator)
-        .map(questionDefinition -> (EnumeratorQuestionDefinition) questionDefinition)
+        .filter(QuestionDefinition::isRepeater)
+        .map(questionDefinition -> (RepeaterQuestionDefinition) questionDefinition)
         .collect(ImmutableList.toImmutableList());
   }
 
   @Override
-  public ImmutableList<EnumeratorQuestionDefinition> getAllEnumeratorQuestions() {
+  public ImmutableList<RepeaterQuestionDefinition> getAllRepeaterQuestions() {
     return getAllQuestions().stream()
-        .filter(QuestionDefinition::isEnumerator)
-        .map(questionDefinition -> (EnumeratorQuestionDefinition) questionDefinition)
+        .filter(QuestionDefinition::isRepeater)
+        .map(questionDefinition -> (RepeaterQuestionDefinition) questionDefinition)
         .collect(ImmutableList.toImmutableList());
   }
 
@@ -96,26 +96,25 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
   //  don't need paths
 
   @Override
-  public Path makePath(Optional<Long> maybeEnumeratorId, String questionName, boolean isEnumerator)
+  public Path makePath(Optional<Long> maybeRepeaterId, String questionName, boolean isRepeater)
       throws QuestionNotFoundException, InvalidQuestionTypeException {
     String questionNameFormattedForPath =
         questionName.replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
-    if (isEnumerator) {
+    if (isRepeater) {
       questionNameFormattedForPath += Path.ARRAY_SUFFIX;
     }
 
-    // No enumerator, then use "applicant" as root.
-    if (maybeEnumeratorId.isEmpty()) {
+    // No repeater, then use "applicant" as root.
+    if (maybeRepeaterId.isEmpty()) {
       return Path.create("applicant").join(questionNameFormattedForPath);
     }
 
-    QuestionDefinition enumeratorQuestionDefinition =
-        getQuestionDefinition(maybeEnumeratorId.get());
-    if (!enumeratorQuestionDefinition.getQuestionType().equals(QuestionType.ENUMERATOR)) {
-      throw new InvalidQuestionTypeException(enumeratorQuestionDefinition.getQuestionType().name());
+    QuestionDefinition repeaterQuestionDefinition = getQuestionDefinition(maybeRepeaterId.get());
+    if (!repeaterQuestionDefinition.getQuestionType().equals(QuestionType.REPEATER)) {
+      throw new InvalidQuestionTypeException(repeaterQuestionDefinition.getQuestionType().name());
     }
 
-    return enumeratorQuestionDefinition.getPath().join(questionNameFormattedForPath);
+    return repeaterQuestionDefinition.getPath().join(questionNameFormattedForPath);
   }
 
   @Override

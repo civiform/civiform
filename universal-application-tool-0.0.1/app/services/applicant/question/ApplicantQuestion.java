@@ -70,7 +70,7 @@ public class ApplicantQuestion {
    * Returns the map of contextualized paths to scalars and their {@link ScalarType}s used by this
    * question. This includes metadata paths.
    *
-   * <p>This should not be used for {@link QuestionType#ENUMERATOR} questions.
+   * <p>This should not be used for {@link QuestionType#REPEATER} questions.
    */
   public ImmutableMap<Path, ScalarType> getContextualizedScalars() {
     try {
@@ -97,7 +97,7 @@ public class ApplicantQuestion {
 
     // Metadata for enumerators is stored for each JSON array element, but we rely on metadata for
     // the first one.
-    if (questionDefinition.isEnumerator()) {
+    if (questionDefinition.isRepeater()) {
       contextualizedMetadataPath =
           getContextualizedPath().atIndex(0).join(Scalar.PROGRAM_UPDATED_IN);
     }
@@ -110,7 +110,7 @@ public class ApplicantQuestion {
 
     // Metadata for enumerators are stored for each JSON array element, but we rely on metadata for
     // the first one.
-    if (questionDefinition.isEnumerator()) {
+    if (questionDefinition.isRepeater()) {
       contextualizedMetadataPath = getContextualizedPath().atIndex(0).join(Scalar.UPDATED_AT);
     }
 
@@ -137,8 +137,8 @@ public class ApplicantQuestion {
     return new NumberQuestion(this);
   }
 
-  public EnumeratorQuestion createEnumeratorQuestion() {
-    return new EnumeratorQuestion(this);
+  public RepeaterQuestion createEnumeratorQuestion() {
+    return new RepeaterQuestion(this);
   }
 
   public SingleSelectQuestion createSingleSelectQuestion() {
@@ -164,7 +164,7 @@ public class ApplicantQuestion {
       case DROPDOWN: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
         return createSingleSelectQuestion();
-      case ENUMERATOR:
+      case REPEATER:
         return createEnumeratorQuestion();
       case TEXT:
         return createTextQuestion();

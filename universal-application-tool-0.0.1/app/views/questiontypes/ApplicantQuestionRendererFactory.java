@@ -41,8 +41,8 @@ public class ApplicantQuestionRendererFactory {
         return new NumberQuestionRenderer(question);
       case RADIO_BUTTON:
         return new RadioButtonQuestionRenderer(question);
-      case ENUMERATOR:
-        return new EnumeratorQuestionRenderer(question);
+      case REPEATER:
+        return new RepeaterQuestionRenderer(question);
       case TEXT:
         return new TextQuestionRenderer(question);
       default:
