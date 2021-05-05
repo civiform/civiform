@@ -107,7 +107,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             each(
                 params.block().getQuestions(),
                 question -> renderQuestion(question, rendererParams)))
-        .with(submitButton(params.messages().at("button.nextBlock")));
+        .with(submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName())));
   }
 
   private Tag renderFileUploadBlockSubmitForm(Params params) {
