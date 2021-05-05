@@ -34,9 +34,12 @@ public final class BaseStyles {
 
   public static final String FIELD_BACKGROUND_COLOR = Styles.BG_GRAY_50;
   public static final String FIELD_BORDER_COLOR = Styles.BORDER_GRAY_500;
+  public static final String FIELD_ERROR_BORDER_COLOR = Styles.BORDER_RED_600;
 
   public static final String LABEL_BACKGROUND_COLOR = Styles.BG_TRANSPARENT;
   public static final String LABEL_TEXT_COLOR = Styles.TEXT_GRAY_600;
+
+  public static final String VALIDATION_ERROR_TEXT_COLOR = Styles.TEXT_RED_600;
 
   public static final String LINK_TEXT = Styles.TEXT_BLUE_400;
   public static final String LINK_HOVER_TEXT = StyleUtils.hover(Styles.TEXT_BLUE_500);
