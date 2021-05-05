@@ -174,14 +174,14 @@ public class ProgramBuilder {
         long id,
         String name,
         String description,
-        Optional<Long> repeaterId) {
+        Optional<Long> enumeratorId) {
       BlockBuilder blockBuilder = new BlockBuilder(programBuilder);
       blockBuilder.blockDefBuilder =
           BlockDefinition.builder()
               .setId(id)
               .setName(name)
               .setDescription(description)
-              .setRepeaterId(repeaterId);
+              .setEnumeratorId(enumeratorId);
       return blockBuilder;
     }
 
@@ -273,7 +273,7 @@ public class ProgramBuilder {
     /**
      * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
      * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that has this block as its
-     * repeater, with an empty name and description.
+     * enumerator, with an empty name and description.
      */
     public BlockBuilder withRepeatedBlock() {
       return withRepeatedBlock("", "");
@@ -282,7 +282,7 @@ public class ProgramBuilder {
     /**
      * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
      * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that has this block as its
-     * repeater, with an empty description.
+     * enumerator, with an empty description.
      */
     public BlockBuilder withRepeatedBlock(String name) {
       return withRepeatedBlock(name, "");
@@ -291,13 +291,13 @@ public class ProgramBuilder {
     /**
      * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
      * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that has this block as its
-     * repeater.
+     * enumerator.
      */
     public BlockBuilder withRepeatedBlock(String name, String description) {
       BlockDefinition thisBlock = blockDefBuilder.build();
-      if (!thisBlock.isRepeater()) {
+      if (!thisBlock.isEnumerator()) {
         throw new RuntimeException(
-            "Cannot create a repeated block if this block is not a repeater.");
+            "Cannot create a repeated block if this block is not an enumerator.");
       }
       programBuilder.builder.addBlockDefinition(thisBlock);
       long blockId = Long.valueOf(programBuilder.numBlocks.incrementAndGet());
@@ -307,7 +307,7 @@ public class ProgramBuilder {
 
     /**
      * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
-     * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that shares a repeater
+     * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that shares an enumerator
      * block with this block, with an empty name and description.
      */
     public BlockBuilder withAnotherRepeatedBlock() {
@@ -316,7 +316,7 @@ public class ProgramBuilder {
 
     /**
      * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
-     * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that shares a repeater
+     * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that shares an enumerator
      * block with this block, with an empty description.
      */
     public BlockBuilder withAnotherRepeatedBlock(String name) {
@@ -325,7 +325,7 @@ public class ProgramBuilder {
 
     /**
      * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
-     * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that shares a repeater
+     * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that shares an enumerator
      * block with this block.
      */
     public BlockBuilder withAnotherRepeatedBlock(String name, String description) {
@@ -337,7 +337,7 @@ public class ProgramBuilder {
       programBuilder.builder.addBlockDefinition(thisBlock);
       long blockId = Long.valueOf(programBuilder.numBlocks.incrementAndGet());
       return BlockBuilder.newBlock(
-          programBuilder, blockId, name, description, thisBlock.repeaterId());
+          programBuilder, blockId, name, description, thisBlock.enumeratorId());
     }
 
     /**

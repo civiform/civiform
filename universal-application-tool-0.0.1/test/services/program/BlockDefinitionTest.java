@@ -24,10 +24,10 @@ public class BlockDefinitionTest {
   }
 
   @Test
-  public void isRepeater_isFalse() {
+  public void isEnumerator_isFalse() {
     BlockDefinition blockDefinition = makeBlockDefinitionWithQuestions();
 
-    assertThat(blockDefinition.isRepeater()).isFalse();
+    assertThat(blockDefinition.isEnumerator()).isFalse();
   }
 
   @Test
@@ -38,7 +38,7 @@ public class BlockDefinitionTest {
   }
 
   @Test
-  public void isRepeater_isTrue() {
+  public void isEnumerator_isTrue() {
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(123L)
@@ -49,13 +49,13 @@ public class BlockDefinitionTest {
                     testQuestionBank.applicantHouseholdMembers().getQuestionDefinition()))
             .build();
 
-    assertThat(blockDefinition.isRepeater()).isTrue();
+    assertThat(blockDefinition.isEnumerator()).isTrue();
   }
 
   @Test
   public void isRepeated_isTrue() {
     BlockDefinition blockDefinition =
-        makeBlockDefinitionWithQuestions().toBuilder().setRepeaterId(Optional.of(1L)).build();
+        makeBlockDefinitionWithQuestions().toBuilder().setEnumeratorId(Optional.of(1L)).build();
 
     assertThat(blockDefinition.isRepeated()).isTrue();
   }

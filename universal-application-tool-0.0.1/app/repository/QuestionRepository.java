@@ -82,12 +82,13 @@ public class QuestionRepository {
    * old question.
    *
    * <p>Questions collide if they share a {@link QuestionDefinition#getQuestionPathSegment()} and
-   * {@link QuestionDefinition#getRepeaterId()}.
+   * {@link QuestionDefinition#getEnumeratorId()}.
    */
   public Optional<Question> findConflictingQuestion(QuestionDefinition newQuestionDefinition) {
     ConflictDetector conflictDetector =
         new ConflictDetector(
-            newQuestionDefinition.getRepeaterId(), newQuestionDefinition.getQuestionPathSegment());
+            newQuestionDefinition.getEnumeratorId(),
+            newQuestionDefinition.getQuestionPathSegment());
     ebeanServer
         .find(Question.class)
         .findEachWhile(question -> !conflictDetector.hasConflict(question));
@@ -96,11 +97,11 @@ public class QuestionRepository {
 
   private static class ConflictDetector {
     private Optional<Question> conflictedQuestion = Optional.empty();
-    private final Optional<Long> repeaterId;
+    private final Optional<Long> enumeratorId;
     private final String questionPathSegment;
 
-    private ConflictDetector(Optional<Long> repeaterId, String questionPathSegment) {
-      this.repeaterId = checkNotNull(repeaterId);
+    private ConflictDetector(Optional<Long> enumeratorId, String questionPathSegment) {
+      this.enumeratorId = checkNotNull(enumeratorId);
       this.questionPathSegment = checkNotNull(questionPathSegment);
     }
 
@@ -109,7 +110,7 @@ public class QuestionRepository {
     }
 
     private boolean hasConflict(Question question) {
-      if (question.getQuestionDefinition().getRepeaterId().equals(repeaterId)
+      if (question.getQuestionDefinition().getEnumeratorId().equals(enumeratorId)
           && question
               .getQuestionDefinition()
               .getQuestionPathSegment()

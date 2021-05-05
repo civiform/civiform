@@ -53,7 +53,7 @@ public class QuestionTest extends WithPostgresContainer {
   }
 
   @Test
-  public void canSerializeRepeaterId_EmptyOptionalLong() {
+  public void canSerializeEnumeratorId_EmptyOptionalLong() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
             "test",
@@ -67,11 +67,11 @@ public class QuestionTest extends WithPostgresContainer {
 
     Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
-    assertThat(found.getQuestionDefinition().getRepeaterId()).isEmpty();
+    assertThat(found.getQuestionDefinition().getEnumeratorId()).isEmpty();
   }
 
   @Test
-  public void canSerializeRepeaterId_NonEmptyOptionalLong() {
+  public void canSerializeEnumeratorId_NonEmptyOptionalLong() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
             "test",
@@ -85,7 +85,7 @@ public class QuestionTest extends WithPostgresContainer {
 
     Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
-    assertThat(found.getQuestionDefinition().getRepeaterId()).hasValue(10L);
+    assertThat(found.getQuestionDefinition().getEnumeratorId()).hasValue(10L);
   }
 
   @Test
@@ -154,7 +154,7 @@ public class QuestionTest extends WithPostgresContainer {
             .setName("")
             .setDescription("")
             .setPath(Path.empty())
-            .setRepeaterId(Optional.of(123L))
+            .setEnumeratorId(Optional.of(123L))
             .setQuestionText(ImmutableMap.of())
             .setQuestionHelpText(ImmutableMap.of())
             .setQuestionOptions(
@@ -173,6 +173,6 @@ public class QuestionTest extends WithPostgresContainer {
     assertThat(multiOption.getOptions())
         .isEqualTo(
             ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option"))));
-    assertThat(multiOption.getRepeaterId()).hasValue(123L);
+    assertThat(multiOption.getEnumeratorId()).hasValue(123L);
   }
 }
