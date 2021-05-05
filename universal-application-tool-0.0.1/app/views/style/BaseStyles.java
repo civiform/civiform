@@ -41,6 +41,8 @@ public final class BaseStyles {
 
   public static final String VALIDATION_ERROR_TEXT_COLOR = Styles.TEXT_RED_600;
 
+  public static final String ERROR_TEXT = StyleUtils.joinStyles(BaseStyles.VALIDATION_ERROR_TEXT_COLOR, Styles.TEXT_SM);
+
   public static final String LINK_TEXT = Styles.TEXT_BLUE_400;
   public static final String LINK_HOVER_TEXT = StyleUtils.hover(Styles.TEXT_BLUE_500);
 

@@ -77,12 +77,6 @@ public class FieldWithLabel {
     Styles.PY_2
   };
 
-  private static final String[] ERROR_BORDER_CLASSES = {BaseStyles.FIELD_ERROR_BORDER_COLOR};
-
-  private static final String[] ERROR_TEXT_CLASSES = {
-    BaseStyles.VALIDATION_ERROR_TEXT_COLOR, Styles.TEXT_SM, Styles.PX_2
-  };
-
   protected Tag fieldTag;
   protected String fieldName = "";
   protected String fieldType = "text";
@@ -234,8 +228,7 @@ public class FieldWithLabel {
     String fieldTagClasses = StyleUtils.joinStyles(CORE_FIELD_CLASSES);
     if (!fieldErrors.isEmpty()) {
       fieldTagClasses =
-          StyleUtils.joinStyles(
-              fieldTagClasses, StyleUtils.joinStyles(FieldWithLabel.ERROR_BORDER_CLASSES));
+          StyleUtils.joinStyles(fieldTagClasses, BaseStyles.FIELD_ERROR_BORDER_COLOR);
     }
 
     if (Strings.isNullOrEmpty(this.id)) this.id = this.fieldName;
@@ -262,8 +255,7 @@ public class FieldWithLabel {
       fieldTagClasses = StyleUtils.joinStyles(FieldWithLabel.FLOATED_FIELD_CLASSES);
       if (!fieldErrors.isEmpty()) {
         fieldTagClasses =
-            StyleUtils.joinStyles(
-                fieldTagClasses, StyleUtils.joinStyles(FieldWithLabel.ERROR_BORDER_CLASSES));
+            StyleUtils.joinStyles(fieldTagClasses, BaseStyles.FIELD_ERROR_BORDER_COLOR);
       }
 
       fieldTag.withClasses(fieldTagClasses);
@@ -296,6 +288,6 @@ public class FieldWithLabel {
 
   private Tag buildFieldErrorsTag() {
     return div(each(fieldErrors, error -> span(error.message())))
-        .withClasses(FieldWithLabel.ERROR_TEXT_CLASSES);
+        .withClasses(StyleUtils.joinStyles(BaseStyles.ERROR_TEXT, Styles.PX_2));
   }
 }

@@ -19,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import play.mvc.Http;
 import services.applicant.ValidationErrorMessage;
 import views.html.helper.CSRF;
+import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
@@ -35,7 +36,7 @@ public abstract class BaseHtmlView {
   }
 
   protected static ContainerTag fieldErrors(ImmutableSet<ValidationErrorMessage> errors) {
-    return div(each(errors, error -> span(error.message())));
+    return div(each(errors, error -> span(error.message()))).withClasses(BaseStyles.ERROR_TEXT);
   }
 
   protected static Tag checkboxInputWithLabel(
