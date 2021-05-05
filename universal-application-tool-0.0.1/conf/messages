@@ -5,7 +5,8 @@
 # 1. Apostrophes in translations must be escaped by another apostrophe. See https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
 # 2. Sections correspond to a single view, such as the applicant's home page or a view of an address question.
 # 3. We use the following key format: ${component_type}.${descriptive_name} - for example, button.nextPage would
-#    contain a translation for a button used to go to the next page.
+#    contain a translation for a button used to go to the next page. button.ariaLabel.delete would contain a
+#    translation a screen reader could read for the delete button.
 # 4. Keys in this file should be alphabetized within their own section or sub-section.
 
 #-------------------------------------------------------------#
@@ -29,10 +30,10 @@ button.untranslatedSubmit=Submit
 button.nextBlock=Save and continue
 
 # The aria text on the button used by an applicant to mark an entity for deletion.
-button.deleteEntity=Delete {0}
+button.ariaLabel.deleteEntity=Delete {0}
 
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
-toast.localeNotSupported=We're sorry, this program is not fully translated to your preferred language.
+toast.localeNotSupported=We''re sorry, this program is not fully translated to your preferred language.
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -45,7 +46,7 @@ button.apply=Apply
 content.benefits=get benefits
 
 # Long form description of the CiviForm site shown to the applicant.
-content.description=CiviForm lets you apply for many benefits at once by reusing information. You handle getting into it and we'll handle sending it to the right places. Select an application to get started.
+content.description=CiviForm lets you apply for many benefits at once by reusing information. You handle getting into it and we''ll handle sending it to the right places. Select an application to get started.
 
 # Text indicating a particular program does not belong to any category.
 content.noCategory=No Category

@@ -62,12 +62,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return div()
         .withId("application-status")
         .withClasses(Styles.W_1_2, Styles.TEXT_RIGHT, Styles.TEXT_SM, Styles.UNDERLINE)
-        .with(span(messages.at(MessageKey.VIEW_APPLICATIONS_LINK.getKeyName())));
+        .with(span(messages.at(MessageKey.LINK_VIEW_APPLICATIONS.getKeyName())));
   }
 
   private ContainerTag logoutButton(Messages messages) {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
-    return a(messages.at(MessageKey.LOGOUT_BUTTON.getKeyName()))
+    return a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
         .withHref(logoutLink)
         .withClasses(
             Styles.PX_3, Styles.TEXT_SM, Styles.OPACITY_75, StyleUtils.hover(Styles.OPACITY_100));

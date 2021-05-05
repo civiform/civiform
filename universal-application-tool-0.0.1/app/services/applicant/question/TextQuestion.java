@@ -36,14 +36,14 @@ public class TextQuestion implements PresentsErrors {
     if (definition.getMinLength().isPresent()) {
       int minLength = definition.getMinLength().getAsInt();
       if (textLength < minLength) {
-        errors.add(ValidationErrorMessage.create(MessageKey.TEXT_TOO_SHORT, minLength));
+        errors.add(ValidationErrorMessage.create(MessageKey.TEXT_VALIDATION_TOO_SHORT, minLength));
       }
     }
 
     if (definition.getMaxLength().isPresent()) {
       int maxLength = definition.getMaxLength().getAsInt();
       if (textLength > maxLength) {
-        errors.add(ValidationErrorMessage.create(MessageKey.TEXT_TOO_LONG, maxLength));
+        errors.add(ValidationErrorMessage.create(MessageKey.TEXT_VALIDATION_TOO_LONG, maxLength));
       }
     }
 

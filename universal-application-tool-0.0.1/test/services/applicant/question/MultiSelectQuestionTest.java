@@ -83,7 +83,7 @@ public class MultiSelectQuestionTest {
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
     assertThat(multiSelectQuestion.getQuestionErrors())
-        .containsOnly(ValidationErrorMessage.create(MessageKey.TOO_FEW_SELECTIONS, 2));
+        .containsOnly(ValidationErrorMessage.create(MessageKey.MULTI_SELECT_VALIDATION_TOO_FEW, 2));
   }
 
   @Test
@@ -103,7 +103,8 @@ public class MultiSelectQuestionTest {
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
     assertThat(multiSelectQuestion.getQuestionErrors())
-        .containsOnly(ValidationErrorMessage.create(MessageKey.TOO_MANY_SELECTIONS, 3));
+        .containsOnly(
+            ValidationErrorMessage.create(MessageKey.MULTI_SELECT_VALIDATION_TOO_MANY, 3));
   }
 
   @Test

@@ -54,8 +54,8 @@ public class ProgramIndexView extends BaseHtmlView {
     }
     body.with(
         topContent(
-            messages.at(MessageKey.GET_BENEFITS.getKeyName()),
-            messages.at(MessageKey.CIVIFORM_DESCRIPTION.getKeyName())),
+            messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()),
+            messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION.getKeyName())),
         mainContent(messages, programs, applicantId, messages.lang().toLocale()));
 
     return layout.render(messages, body);
@@ -113,7 +113,7 @@ public class ProgramIndexView extends BaseHtmlView {
                         Styles.ROUNDED_FULL,
                         Styles.INLINE_BLOCK,
                         Styles.ALIGN_MIDDLE),
-                div(messages.at(MessageKey.NO_CATEGORY.getKeyName()))
+                div(messages.at(MessageKey.CONTENT_NO_CATEGORY.getKeyName()))
                     .withClasses(
                         Styles.ML_2,
                         Styles.INLINE,
@@ -136,7 +136,7 @@ public class ProgramIndexView extends BaseHtmlView {
         div()
             .withId(baseId + "-external-link")
             .withClasses(Styles.TEXT_XS, Styles.UNDERLINE)
-            .withText(messages.at(MessageKey.PROGRAM_DETAILS.getKeyName()));
+            .withText(messages.at(MessageKey.CONTENT_PROGRAM_DETAILS.getKeyName()));
     ContainerTag programData =
         div()
             .withId(baseId + "-data")
@@ -148,7 +148,7 @@ public class ProgramIndexView extends BaseHtmlView {
             .url();
     ContainerTag applyButton =
         a().attr(HREF, applyUrl)
-            .withText(messages.at(MessageKey.APPLY_BUTTON.getKeyName()))
+            .withText(messages.at(MessageKey.BUTTON_APPLY.getKeyName()))
             .withId(baseId + "-apply")
             .withClasses(
                 ReferenceClasses.APPLY_BUTTON,

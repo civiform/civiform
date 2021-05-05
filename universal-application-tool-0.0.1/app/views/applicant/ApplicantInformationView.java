@@ -65,7 +65,7 @@ public class ApplicantInformationView extends BaseHtmlView {
                     .collect(toImmutableList()));
 
     return div()
-        .with(p(messages.at(MessageKey.SELECT_LANGUAGE.getKeyName())))
+        .with(p(messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName())))
         .with(languageSelect.getContainer());
   }
 

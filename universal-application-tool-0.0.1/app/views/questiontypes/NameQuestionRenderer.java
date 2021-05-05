@@ -44,9 +44,9 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                 .with(
                     FieldWithLabel.input()
                         .setFieldName(nameQuestion.getFirstNamePath().toString())
-                        .setLabelText(messages.at(MessageKey.FIRST_NAME_LABEL.getKeyName()))
+                        .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
                         .setPlaceholderText(
-                            messages.at(MessageKey.FIRST_NAME_PLACEHOLDER.getKeyName()))
+                            messages.at(MessageKey.NAME_PLACEHOLDER_FIRST.getKeyName()))
                         .setFloatLabel(true)
                         .setValue(nameQuestion.getFirstNameValue().orElse(""))
                         .getContainer())
@@ -54,18 +54,18 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                 .with(
                     FieldWithLabel.input()
                         .setFieldName(nameQuestion.getMiddleNamePath().toString())
-                        .setLabelText(messages.at(MessageKey.MIDDLE_NAME_LABEL.getKeyName()))
+                        .setLabelText(messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName()))
                         .setPlaceholderText(
-                            messages.at(MessageKey.MIDDLE_NAME_PLACEHOLDER.getKeyName()))
+                            messages.at(MessageKey.NAME_PLACEHOLDER_MIDDLE.getKeyName()))
                         .setFloatLabel(true)
                         .setValue(nameQuestion.getMiddleNameValue().orElse(""))
                         .getContainer())
                 .with(
                     FieldWithLabel.input()
                         .setFieldName(nameQuestion.getLastNamePath().toString())
-                        .setLabelText(messages.at(MessageKey.LAST_NAME_LABEL.getKeyName()))
+                        .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
                         .setPlaceholderText(
-                            messages.at(MessageKey.LAST_NAME_PLACEHOLDER.getKeyName()))
+                            messages.at(MessageKey.NAME_PLACEHOLDER_LAST.getKeyName()))
                         .setFloatLabel(true)
                         .setValue(nameQuestion.getLastNameValue().orElse(""))
                         .getContainer())

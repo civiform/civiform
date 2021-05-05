@@ -63,7 +63,8 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
                 .withText(question.getQuestionHelpText()),
             enumeratorFields,
             button(
-                ADD_ELEMENT_BUTTON_ID, messages.at(MessageKey.ADD_ENUMERATOR_ENTITY.getKeyName())),
+                ADD_ELEMENT_BUTTON_ID,
+                messages.at(MessageKey.BUTTON_ADD_ENUMERATOR_ENTITY.getKeyName())),
             fieldErrors(messages, enumeratorQuestion.getQuestionErrors()));
   }
 
@@ -107,7 +108,8 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
             .withClasses(Styles.FLEX, Styles.ML_4)
             .attr(
                 "aria-label",
-                messages.at(MessageKey.DELETE_ENTITY_BUTTON.getKeyName(), localizedPlaceholder));
+                messages.at(
+                    MessageKey.BUTTON_ARIA_LABEL_DELETE_ENTITY.getKeyName(), localizedPlaceholder));
     return div()
         .withId(ENUMERATOR_FIELD_TEMPLATE_ID)
         .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, Styles.HIDDEN))
