@@ -18,4 +18,14 @@ public class ApplicantQuestionRendererParamsTest {
 
     assertThat(params.isSample()).isTrue();
   }
+
+  @Test
+  public void normalParams_isNotSample() {
+
+    Messages messages = stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
+    ApplicantQuestionRendererParams params =
+        ApplicantQuestionRendererParams.builder().setMessages(messages).build();
+
+    assertThat(params.isSample()).isFalse();
+  }
 }
