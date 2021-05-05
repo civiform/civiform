@@ -131,7 +131,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
                     ImmutableMap.of(Locale.US, "help text"),
                     ImmutableList.of(
                         QuestionOption.create(1L, ImmutableMap.of(Locale.US, "cat")),
-                        QuestionOption.create(2L, ImmutableMap.of(Locale.US, "dog")))))
+                        QuestionOption.create(2L, ImmutableMap.of(Locale.US, "dog")),
+                        QuestionOption.create(3L, ImmutableMap.of(Locale.US, "horse")))))
             .getResult();
     createProgram(multiSelectQuestion);
 
@@ -142,6 +143,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         ImmutableMap.<String, String>builder()
             .put(checkboxPath.atIndex(0).toString(), "1")
             .put(checkboxPath.atIndex(1).toString(), "2")
+            .put(checkboxPath.atIndex(2).toString(), "3")
             .build();
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
@@ -158,7 +160,45 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     assertThat(
             applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTION)))
-        .hasValue(ImmutableList.of(1L, 2L));
+        .hasValue(ImmutableList.of(1L, 2L, 3L));
+
+    // Ensure that we can successfully overwrite the array.
+    rawUpdates =
+        ImmutableMap.<String, String>builder()        
+        .put(checkboxPath.atIndex(0).toString(), "3") 
+        .put(checkboxPath.atIndex(1).toString(), "1").build();
+    errorAnd =
+        subject
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", rawUpdates)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(errorAnd.isError()).isFalse();
+    assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
+
+    applicantDataAfter = userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    assertThat(
+        applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTION)))
+    .hasValue(ImmutableList.of(3L, 1L));
+
+    // Clear values by sending an empty item.
+    rawUpdates =
+        ImmutableMap.<String, String>builder().put(checkboxPath.atIndex(0).toString(), "").build();
+    errorAnd =
+        subject
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", rawUpdates)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(errorAnd.isError()).isFalse();
+    assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
+
+    applicantDataAfter = userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    assertThat(
+            applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTION)))
+        .hasValue(ImmutableList.of());
   }
 
   @Test
