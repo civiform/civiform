@@ -79,7 +79,7 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                                 .setFieldName(addressQuestion.getStatePath().toString())
                                 .setLabelText(messages.at(MessageKey.STATE_LABEL.getKeyName()))
                                 .setPlaceholderText(
-                                    messages.at(MessageKey.STREET_PLACEHOLDER.getKeyName()))
+                                    messages.at(MessageKey.STATE_PLACEHOLDER.getKeyName()))
                                 .setFloatLabel(true)
                                 .setValue(addressQuestion.getStateValue().orElse(""))
                                 .getContainer()

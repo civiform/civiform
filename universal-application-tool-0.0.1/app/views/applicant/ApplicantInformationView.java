@@ -46,7 +46,7 @@ public class ApplicantInformationView extends BaseHtmlView {
             .withMethod(Http.HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(request))
             .with(selectLanguageDropdown(messages))
-            .with(submitButton(MessageKey.BUTTON_UNTRANSLATED_SUBMIT.getKeyName())));
+            .with(submitButton(messages.at(MessageKey.BUTTON_UNTRANSLATED_SUBMIT.getKeyName()))));
   }
 
   private ContainerTag selectLanguageDropdown(Messages messages) {
