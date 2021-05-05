@@ -181,7 +181,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
               .collect(toImmutableList());
         }
       }
-      throw new TranslationNotFoundException(getPath().toString(), locale);
+      throw new TranslationNotFoundException(getPath(), locale);
     }
   }
 

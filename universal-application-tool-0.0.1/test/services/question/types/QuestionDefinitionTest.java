@@ -173,7 +173,7 @@ public class QuestionDefinitionTest {
 
     assertThat(question.getId()).isEqualTo(123L);
     assertThat(question.getName()).isEqualTo("name");
-    assertThat(question.getPath().path()).isEqualTo("applicant.name");
+    assertThat(question.getPath().toString()).isEqualTo("applicant.name");
     assertThat(question.getDescription()).isEqualTo("description");
     assertThat(question.getQuestionText(Locale.US)).isEqualTo("question?");
     assertThat(question.getQuestionHelpText(Locale.US)).isEqualTo("help text");

@@ -214,7 +214,7 @@ public abstract class QuestionDefinition {
         return this.questionText.get(hasLocale);
       }
     }
-    throw new TranslationNotFoundException(this.getPath().path(), locale);
+    throw new TranslationNotFoundException(this.getPath(), locale);
   }
 
   /** Get the question tests for all locales. This is used for serialization. */
@@ -273,7 +273,7 @@ public abstract class QuestionDefinition {
       }
     }
 
-    throw new TranslationNotFoundException(this.getPath().path(), locale);
+    throw new TranslationNotFoundException(this.getPath(), locale);
   }
 
   /** Get the question help text for all locales. This is used for serialization. */
