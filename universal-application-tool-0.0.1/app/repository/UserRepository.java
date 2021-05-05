@@ -254,9 +254,10 @@ public class UserRepository {
   }
 
   /**
-   * Create an applicant and add it to the provided trusted intermediary group.
-   * Associate it with an email address if one is provided, but if one is not provided,
-   * use an anonymous (guest-style) account.
+   * Create an applicant and add it to the provided trusted intermediary group. Associate it with an
+   * email address if one is provided, but if one is not provided, use an anonymous (guest-style)
+   * account.
+   *
    * @throws EmailAddressExistsException if the provided email address already exists.
    */
   public void createNewApplicantForTrustedIntermediaryGroup(
