@@ -40,6 +40,23 @@ function maybeHideElement(e: Event, id: string, parentId: string) {
   }
 }
 
+/** In admin program block edit form - enabling submit button when form is changed or if not empty */
+function changeUpdateBlockButtonState(event: Event) {
+  const blockEditForm = document.getElementById("block-edit-form");
+  const submitButton = document.getElementById("update-block-button");
+
+  const formNameInput = blockEditForm["block-name-input"];
+  const formDescriptionText = blockEditForm["block-description-textarea"];
+
+  if ((formNameInput.value !== formNameInput.defaultValue ||
+    formDescriptionText.value !== formDescriptionText.defaultValue) &&
+    (formNameInput.value !== "" && formDescriptionText.value !== "")) {
+    submitButton.removeAttribute("disabled");
+  } else {
+    submitButton.setAttribute("disabled", "");
+  }
+}
+
 /** In the admin question form - add a new option input for each new question answer option. */
 function addNewQuestionAnswerOptionForm(event: Event) {
   // Copy the answer template and remove ID and hidden properties.
@@ -87,6 +104,12 @@ function removeEnumeratorField(event: Event) {
 
 function init() {
   attachDropdown("create-question-button");
+
+  // Submit button is disabled by default until program block edit form is changed
+  const blockEditForm = document.getElementById("block-edit-form");
+  if (blockEditForm) {
+    blockEditForm.addEventListener("input", changeUpdateBlockButtonState);
+  }
 
   // Configure the button on the admin question form to add more answer options
   const questionOptionButton = document.getElementById("add-new-option");

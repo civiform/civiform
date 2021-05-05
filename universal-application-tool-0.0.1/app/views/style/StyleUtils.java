@@ -9,6 +9,7 @@ public class StyleUtils {
   public static String FOCUS = "focus";
   public static String FOCUS_WITHIN = "focus-within";
   public static String HOVER = "hover";
+  public static String DISABLED = "disabled";
 
   public static String RESPONSIVE_SM = "sm";
   public static String RESPONSIVE_MD = "md";
@@ -26,6 +27,14 @@ public class StyleUtils {
 
   public static String applyUtilityClass(String utility, Stream<String> styles) {
     return styles.map(entry -> utility + ":" + entry).collect(Collectors.joining(" "));
+  }
+
+  public static String disabled(ImmutableList<String> styles) {
+    return applyUtilityClass(DISABLED, styles);
+  }
+
+  public static String disabled(String... styles) {
+    return applyUtilityClass(DISABLED, styles);
   }
 
   public static String even(ImmutableList<String> styles) {

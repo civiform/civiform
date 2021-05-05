@@ -48,7 +48,8 @@ public class AddressQuestion implements PresentsErrors {
       Matcher poBoxMatcher2 = poBoxPattern.matcher(getLine2Value().orElse(""));
 
       if (poBoxMatcher1.matches() || poBoxMatcher2.matches()) {
-        return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.NO_PO_BOX));
+        return ImmutableSet.of(
+            ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_NO_PO_BOX));
       }
     }
 
@@ -78,7 +79,8 @@ public class AddressQuestion implements PresentsErrors {
 
   public ImmutableSet<ValidationErrorMessage> getStreetErrors() {
     if (isStreetAnswered() && getStreetValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.STREET_REQUIRED));
+      return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STREET_REQUIRED));
     }
 
     return ImmutableSet.of();
@@ -86,7 +88,8 @@ public class AddressQuestion implements PresentsErrors {
 
   public ImmutableSet<ValidationErrorMessage> getCityErrors() {
     if (isCityAnswered() && getCityValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.CITY_REQUIRED));
+      return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_CITY_REQUIRED));
     }
 
     return ImmutableSet.of();
@@ -95,7 +98,8 @@ public class AddressQuestion implements PresentsErrors {
   public ImmutableSet<ValidationErrorMessage> getStateErrors() {
     // TODO: Validate state further.
     if (isStateAnswered() && getStateValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.STATE_REQUIRED));
+      return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STATE_REQUIRED));
     }
 
     return ImmutableSet.of();
@@ -105,13 +109,15 @@ public class AddressQuestion implements PresentsErrors {
     if (isZipAnswered()) {
       Optional<String> zipValue = getZipValue();
       if (zipValue.isEmpty()) {
-        return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.ZIP_CODE_REQUIRED));
+        return ImmutableSet.of(
+            ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_ZIPCODE_REQUIRED));
       }
 
       Pattern pattern = Pattern.compile("^[0-9]{5}(?:-[0-9]{4})?$");
       Matcher matcher = pattern.matcher(zipValue.get());
       if (!matcher.matches()) {
-        return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.INVALID_ZIP_CODE));
+        return ImmutableSet.of(
+            ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_INVALID_ZIPCODE));
       }
     }
 

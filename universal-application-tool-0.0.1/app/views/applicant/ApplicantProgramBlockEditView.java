@@ -19,6 +19,7 @@ import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
 import repository.AmazonS3Client;
 import repository.SignedS3UploadRequest;
+import services.MessageKey;
 import services.applicant.Block;
 import services.applicant.question.ApplicantQuestion;
 import views.BaseHtmlView;
@@ -80,7 +81,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     // never appear for other programs. Additionally, including the applicantId ensures that this
     // warning still appears across applicants, so that (for example) a Trusted Intermediary
     // handling multiple applicants will see the toast displayed.
-    return ToastMessage.warning(messages.at("toast.localeNotSupported"))
+    return ToastMessage.warning(messages.at(MessageKey.TOAST_LOCALE_NOT_SUPPORTED.getKeyName()))
         .setId(String.format("locale-not-supported-%d-%d", applicantId, programId))
         .setDismissible(true)
         .setIgnorable(true)
@@ -137,7 +138,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             each(
                 params.block().getQuestions(),
                 question -> renderQuestion(question, rendererParams)))
-        .with(submitButton(params.messages().at("button.nextBlock")));
+        .with(submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName())));
   }
 
   private Tag renderQuestion(ApplicantQuestion question, ApplicantQuestionRendererParams params) {

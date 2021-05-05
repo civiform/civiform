@@ -42,7 +42,8 @@ public class MultiSelectQuestion implements PresentsErrors {
           definition.getMultiOptionValidationPredicates().minChoicesRequired().getAsInt();
       if (numberOfSelections < minChoicesRequired) {
         errors.add(
-            ValidationErrorMessage.create(MessageKey.TOO_FEW_SELECTIONS, minChoicesRequired));
+            ValidationErrorMessage.create(
+                MessageKey.MULTI_SELECT_VALIDATION_TOO_FEW, minChoicesRequired));
       }
     }
 
@@ -51,7 +52,8 @@ public class MultiSelectQuestion implements PresentsErrors {
           definition.getMultiOptionValidationPredicates().maxChoicesAllowed().getAsInt();
       if (numberOfSelections > maxChoicesAllowed) {
         errors.add(
-            ValidationErrorMessage.create(MessageKey.TOO_MANY_SELECTIONS, maxChoicesAllowed));
+            ValidationErrorMessage.create(
+                MessageKey.MULTI_SELECT_VALIDATION_TOO_MANY, maxChoicesAllowed));
       }
     }
     return errors.build();
