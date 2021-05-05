@@ -75,7 +75,7 @@ public abstract class BlockDefinition {
    *
    * @return the BlockDefinition ID for this block definitions enumerator, if it exists
    */
-  @JsonProperty("enumeratorId")
+  @JsonProperty("repeaterId")
   public abstract Optional<Long> enumeratorId();
 
   /**
@@ -135,7 +135,7 @@ public abstract class BlockDefinition {
     @JsonProperty("description")
     public abstract Builder setDescription(String value);
 
-    @JsonProperty("enumeratorId")
+    @JsonProperty("repeaterId")
     public abstract Builder setEnumeratorId(Optional<Long> enumeratorId);
 
     @JsonProperty("hidePredicate")
