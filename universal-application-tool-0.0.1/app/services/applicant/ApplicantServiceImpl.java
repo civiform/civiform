@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Applicant;
 import play.libs.concurrent.HttpExecutionContext;
@@ -86,18 +85,10 @@ public class ApplicantServiceImpl implements ApplicantService {
 
     // Ensures updates do not collide with metadata scalars. "keyName[]" collides with "keyName".
     boolean updatePathsContainReservedKeys =
-        !Sets.intersection(
-                Scalar.getMetadataScalarKeys(),
-                updates.stream()
-                    .map(
-                        update -> {
-                          if (update.path().isArrayElement()) {
-                            return update.path().withoutArrayReference().keyName();
-                          }
-                          return update.path().keyName();
-                        })
-                    .collect(Collectors.toSet()))
-            .isEmpty();
+        updates.stream()
+            .map(Update::path)
+            .map(path -> path.isArrayElement() ? path.withoutArrayReference() : path)
+            .anyMatch(path -> Scalar.getMetadataScalarKeys().contains(path.keyName()));
     if (updatePathsContainReservedKeys) {
       return CompletableFuture.failedFuture(
           new IllegalArgumentException("Path contained reserved scalar key"));
