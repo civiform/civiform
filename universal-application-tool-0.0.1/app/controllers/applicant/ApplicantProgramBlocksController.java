@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.StoredFile;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.AmazonS3Client;
+import repository.StoredFileRepository;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ProgramBlockNotFoundException;
@@ -46,6 +48,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final ApplicantProgramBlockEditView editView;
   private final FormFactory formFactory;
   private final AmazonS3Client amazonS3Client;
+  private final StoredFileRepository storedFileRepository;
   private final ProfileUtils profileUtils;
   private final String baseUrl;
 
@@ -59,6 +62,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ApplicantProgramBlockEditView editView,
       FormFactory formFactory,
       AmazonS3Client amazonS3Client,
+      StoredFileRepository storedFileRepository,
       ProfileUtils profileUtils,
       Config configuration) {
     this.applicantService = checkNotNull(applicantService);
@@ -67,6 +71,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
     this.amazonS3Client = checkNotNull(amazonS3Client);
+    this.storedFileRepository = checkNotNull(storedFileRepository);
     this.profileUtils = checkNotNull(profileUtils);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
   }
@@ -169,6 +174,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               ImmutableMap<String, String> formData =
                   ImmutableMap.of(applicantFileUploadQuestionKeyPath, key.get());
 
+              updateFileRecord(key.get());
               return applicantService.stageAndUpdateIfValid(
                   applicantId, programId, blockId, formData);
             },
@@ -308,5 +314,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     return formData.entrySet().stream()
         .filter(entry -> !STRIPPED_FORM_FIELDS.contains(entry.getKey()))
         .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
+  }
+
+  private void updateFileRecord(String key) {
+    StoredFile storedFile = new StoredFile();
+    storedFile.setName(key);
+    storedFileRepository.insert(storedFile);
   }
 }
