@@ -93,6 +93,10 @@ public class Question extends BaseModel {
   @PostUpdate
   public void loadQuestionDefinition()
       throws UnsupportedQuestionTypeException, InvalidQuestionTypeException {
+    // Migrate REPEATER to ENUMERATOR
+    if (questionType.toUpperCase().equals("REPEATER")) {
+      questionType = "ENUMERATOR";
+    }
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setId(id)
