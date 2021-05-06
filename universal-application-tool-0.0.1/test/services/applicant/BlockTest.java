@@ -3,7 +3,6 @@ package services.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
 import org.junit.Test;
 import services.Path;
@@ -35,7 +34,7 @@ public class BlockTest {
         BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
     Block block =
         new Block(
-            "1", definition, new ApplicantData(), ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+            "1", definition, new ApplicantData(), ApplicantData.APPLICANT_PATH, ImmutableList.of());
     assertThat(block.getId()).isEqualTo("1");
     assertThat(block.getName()).isEqualTo("name");
     assertThat(block.getDescription()).isEqualTo("description");
@@ -59,26 +58,26 @@ public class BlockTest {
                 definition,
                 new ApplicantData(),
                 ApplicantData.APPLICANT_PATH,
-                ImmutableMap.of()),
+                ImmutableList.of()),
             new Block(
                 "1",
                 definition,
                 new ApplicantData(),
                 ApplicantData.APPLICANT_PATH,
-                ImmutableMap.of()))
+                ImmutableList.of()))
         .addEqualityGroup(
             new Block(
                 "2",
                 definition,
                 new ApplicantData(),
                 ApplicantData.APPLICANT_PATH,
-                ImmutableMap.of()),
+                ImmutableList.of()),
             new Block(
                 "2",
                 definition,
                 new ApplicantData(),
                 ApplicantData.APPLICANT_PATH,
-                ImmutableMap.of()))
+                ImmutableList.of()))
         .addEqualityGroup(
             new Block(
                 "1",
@@ -87,7 +86,7 @@ public class BlockTest {
                     .build(),
                 new ApplicantData(),
                 ApplicantData.APPLICANT_PATH,
-                ImmutableMap.of()),
+                ImmutableList.of()),
             new Block(
                 "1",
                 definition.toBuilder()
@@ -95,10 +94,10 @@ public class BlockTest {
                     .build(),
                 new ApplicantData(),
                 ApplicantData.APPLICANT_PATH,
-                ImmutableMap.of()))
+                ImmutableList.of()))
         .addEqualityGroup(
-            new Block("1", definition, applicant, ApplicantData.APPLICANT_PATH, ImmutableMap.of()),
-            new Block("1", definition, applicant, ApplicantData.APPLICANT_PATH, ImmutableMap.of()))
+            new Block("1", definition, applicant, ApplicantData.APPLICANT_PATH, ImmutableList.of()),
+            new Block("1", definition, applicant, ApplicantData.APPLICANT_PATH, ImmutableList.of()))
         .testEquals();
   }
 
@@ -108,7 +107,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
 
     Block block =
-        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableList.of());
 
     ImmutableList<ApplicantQuestion> expected =
         ImmutableList.of(
@@ -123,7 +122,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
 
     Block block =
-        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableList.of());
 
     assertThat(
             block.getScalarType(
@@ -171,7 +170,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
 
     Block block =
-        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableList.of());
 
     assertThat(block.getScalarType(Path.create("fake.path"))).isEmpty();
   }
@@ -184,7 +183,7 @@ public class BlockTest {
         BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
     Block block =
         new Block(
-            "1", definition, new ApplicantData(), ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+            "1", definition, new ApplicantData(), ApplicantData.APPLICANT_PATH, ImmutableList.of());
 
     assertThat(block.hasErrors()).isFalse();
   }
@@ -194,7 +193,7 @@ public class BlockTest {
     BlockDefinition definition = setUpBlockWithQuestions();
     Block block =
         new Block(
-            "1", definition, new ApplicantData(), ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+            "1", definition, new ApplicantData(), ApplicantData.APPLICANT_PATH, ImmutableList.of());
 
     assertThat(block.hasErrors()).isFalse();
   }
@@ -205,7 +204,7 @@ public class BlockTest {
         BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
     Block block =
         new Block(
-            "1", definition, new ApplicantData(), ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+            "1", definition, new ApplicantData(), ApplicantData.APPLICANT_PATH, ImmutableList.of());
 
     assertThat(block.isCompleteWithoutErrors()).isTrue();
   }
@@ -216,7 +215,7 @@ public class BlockTest {
     BlockDefinition definition = setUpBlockWithQuestions();
 
     Block block =
-        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableList.of());
 
     // No questions filled in yet.
     assertThat(block.isCompleteWithoutErrors()).isFalse();
@@ -230,7 +229,7 @@ public class BlockTest {
     BlockDefinition definition = setUpBlockWithQuestions();
 
     Block block =
-        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableList.of());
 
     assertThat(block.isCompleteWithoutErrors()).isFalse();
   }
@@ -244,7 +243,7 @@ public class BlockTest {
     BlockDefinition definition = setUpBlockWithQuestions();
 
     Block block =
-        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableList.of());
 
     assertThat(block.isCompleteWithoutErrors()).isTrue();
   }
@@ -255,7 +254,7 @@ public class BlockTest {
     BlockDefinition definition = setUpBlockWithQuestions();
 
     Block block =
-        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableList.of());
 
     assertThat(block.isCompleteWithoutErrors()).isFalse();
 
@@ -271,7 +270,7 @@ public class BlockTest {
     BlockDefinition definition = setUpBlockWithQuestions();
 
     Block block =
-        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableList.of());
 
     assertThat(block.wasCompletedInProgram(1L)).isFalse();
   }
@@ -282,7 +281,7 @@ public class BlockTest {
     BlockDefinition definition = setUpBlockWithQuestions();
 
     Block block =
-        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableList.of());
     // Answer questions in different program.
     answerNameQuestion(applicantData, 567L);
     answerColorQuestion(applicantData, 567L);
@@ -296,7 +295,7 @@ public class BlockTest {
     BlockDefinition definition = setUpBlockWithQuestions();
 
     Block block =
-        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableList.of());
     answerNameQuestion(applicantData, 1L);
 
     assertThat(block.wasCompletedInProgram(1L)).isFalse();
@@ -308,7 +307,7 @@ public class BlockTest {
     BlockDefinition definition = setUpBlockWithQuestions();
 
     Block block =
-        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableList.of());
     answerNameQuestion(applicantData, 22L);
     answerColorQuestion(applicantData, 22L);
 
@@ -321,7 +320,7 @@ public class BlockTest {
     BlockDefinition definition = setUpBlockWithQuestions();
 
     Block block =
-        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableList.of());
     answerNameQuestion(applicantData, 100L);
     answerColorQuestion(applicantData, 200L);
 
@@ -342,7 +341,7 @@ public class BlockTest {
             .build();
 
     Block block =
-        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableList.of());
 
     assertThat(block.isEnumerator()).isTrue();
   }
@@ -353,7 +352,7 @@ public class BlockTest {
     BlockDefinition definition = setUpBlockWithQuestions();
 
     Block block =
-        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableList.of());
 
     assertThat(block.isEnumerator()).isFalse();
   }
@@ -371,7 +370,7 @@ public class BlockTest {
             .addQuestion(ProgramQuestionDefinition.create(enumeratorQuestionDefinition))
             .build();
     Block block =
-        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableList.of());
 
     ApplicantQuestion enumeratorQuestion = block.getEnumeratorQuestion();
 
@@ -392,7 +391,7 @@ public class BlockTest {
             .build();
 
     Block block =
-        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableList.of());
 
     assertThat(block.isFileUpload()).isTrue();
   }
@@ -403,7 +402,7 @@ public class BlockTest {
     BlockDefinition definition = setUpBlockWithQuestions();
 
     Block block =
-        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableMap.of());
+        new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH, ImmutableList.of());
 
     assertThat(block.isFileUpload()).isFalse();
   }

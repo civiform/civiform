@@ -14,7 +14,6 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.PresentsErrors;
 import services.program.BlockDefinition;
 import services.program.ProgramQuestionDefinition;
-import services.question.types.QuestionDefinition;
 import services.question.types.ScalarType;
 
 /** Represents a block in the context of a specific user's application. */
@@ -40,7 +39,7 @@ public final class Block {
   private final BlockDefinition blockDefinition;
   private final ApplicantData applicantData;
   private final Path contextualizedPath;
-  private final ImmutableMap<QuestionDefinition, String> entityNames;
+  private final ImmutableList<RepeatedEntity> repeatedEntities;
 
   private Optional<ImmutableList<ApplicantQuestion>> questionsMemo = Optional.empty();
   private Optional<ImmutableMap<Path, ScalarType>> scalarsMemo = Optional.empty();
@@ -50,12 +49,12 @@ public final class Block {
       BlockDefinition blockDefinition,
       ApplicantData applicantData,
       Path contextualizedPath,
-      ImmutableMap<QuestionDefinition, String> entityNames) {
+      ImmutableList<RepeatedEntity> repeatedEntities) {
     this.id = id;
     this.blockDefinition = checkNotNull(blockDefinition);
     this.applicantData = checkNotNull(applicantData);
     this.contextualizedPath = checkNotNull(contextualizedPath);
-    this.entityNames = checkNotNull(entityNames);
+    this.repeatedEntities = checkNotNull(repeatedEntities);
   }
 
   public String getId() {
@@ -71,18 +70,14 @@ public final class Block {
   }
 
   /**
-   * For repeated blocks, this returns a mapping from an {@link
-   * services.question.types.QuestionType#ENUMERATOR} {@link QuestionDefinition} to the entity name
-   * for that enumerator associated with this repeated block.
-   *
-   * <p>{@link ImmutableMap}s are ordered, and the order represents the nesting of the repeated
-   * entities. The first map entry is for the first enumerator, followed by more and more deeply
-   * nested enumerators.
+   * Returns the list of {@link RepeatedEntity}s associated with this repeated block, where the
+   * first entity is the repeated entity from the first enumerator question, followed by more and
+   * more deeply nested repeated entities.
    *
    * <p>If this is not a repeated block, the map will be empty.
    */
-  public ImmutableMap<QuestionDefinition, String> getEntityNames() {
-    return entityNames;
+  public ImmutableList<RepeatedEntity> getRepeatedEntities() {
+    return repeatedEntities;
   }
 
   /** This block is an enumerator block if its {@link BlockDefinition} is an enumerator. */

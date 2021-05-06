@@ -136,7 +136,8 @@ public class TestQuestionBank {
   // Deeply nested Number
   public Question applicantHouseholdMemberJobIncome() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_JOB_INCOME, this::applicantHouseholdMemberJobIncome);
+        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_JOB_INCOME,
+        this::applicantHouseholdMemberJobIncome);
   }
 
   // Radio button
@@ -285,14 +286,14 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new NumberQuestionDefinition(
             "household members jobs income",
-            Path.create("applicant.applicant_household_members[].household_members_jobs[].household_members_jobs_income"),
+            Path.create(
+                "applicant.applicant_household_members[].household_members_jobs[].household_members_jobs_income"),
             Optional.of(householdMemberJobs.id),
             "The applicant's household member's job's income",
             ImmutableMap.of(Locale.US, "What is the household member's job's income?"),
             ImmutableMap.of(Locale.US, "This is sample help text."));
 
     return maybeSave(definition);
-
   }
 
   // Radio button

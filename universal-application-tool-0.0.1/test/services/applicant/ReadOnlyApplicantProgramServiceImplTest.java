@@ -95,14 +95,26 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
     // Add repeated entities to applicant data
     Path enumerationPath =
-        ApplicantData.APPLICANT_PATH.join(testQuestionBank.applicantHouseholdMembers().getQuestionDefinition().getQuestionPathSegment());
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank
+                .applicantHouseholdMembers()
+                .getQuestionDefinition()
+                .getQuestionPathSegment());
     applicantData.putString(enumerationPath.atIndex(0).join(Scalar.ENTITY_NAME), "first entity");
     applicantData.putString(enumerationPath.atIndex(1).join(Scalar.ENTITY_NAME), "second entity");
     applicantData.putString(enumerationPath.atIndex(2).join(Scalar.ENTITY_NAME), "third entity");
-    Path deepEnumerationPath = enumerationPath.atIndex(2).join(
-        testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition().getQuestionPathSegment());
-    applicantData.putString(deepEnumerationPath.atIndex(0).join(Scalar.ENTITY_NAME), "nested first job");
-    applicantData.putString(deepEnumerationPath.atIndex(1).join(Scalar.ENTITY_NAME), "nested second job");
+    Path deepEnumerationPath =
+        enumerationPath
+            .atIndex(2)
+            .join(
+                testQuestionBank
+                    .applicantHouseholdMemberJobs()
+                    .getQuestionDefinition()
+                    .getQuestionPathSegment());
+    applicantData.putString(
+        deepEnumerationPath.atIndex(0).join(Scalar.ENTITY_NAME), "nested first job");
+    applicantData.putString(
+        deepEnumerationPath.atIndex(1).join(Scalar.ENTITY_NAME), "nested second job");
 
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
@@ -186,11 +198,14 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 ScalarType.LONG,
                 questionPath.join(Scalar.UPDATED_AT),
                 ScalarType.LONG));
-    assertThat(blocks.get(10).getEntityNames()).containsExactlyEntriesOf(ImmutableMap.of(
-        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
-        "third entity",
-        testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
-        "nested second job"));
+    assertThat(blocks.get(10).getRepeatedEntities())
+        .containsExactly(
+            RepeatedEntity.create(
+                testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+                "third entity"),
+            RepeatedEntity.create(
+                testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
+                "nested second job"));
   }
 
   @Test
