@@ -14,6 +14,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.PresentsErrors;
 import services.program.BlockDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.question.types.QuestionDefinition;
 import services.question.types.ScalarType;
 
 /** Represents a block in the context of a specific user's application. */
@@ -39,6 +40,7 @@ public final class Block {
   private final BlockDefinition blockDefinition;
   private final ApplicantData applicantData;
   private final Path contextualizedPath;
+  private final ImmutableMap<QuestionDefinition, String> entityNames;
 
   private Optional<ImmutableList<ApplicantQuestion>> questionsMemo = Optional.empty();
   private Optional<ImmutableMap<Path, ScalarType>> scalarsMemo = Optional.empty();
@@ -47,11 +49,13 @@ public final class Block {
       String id,
       BlockDefinition blockDefinition,
       ApplicantData applicantData,
-      Path contextualizedPath) {
+      Path contextualizedPath,
+      ImmutableMap<QuestionDefinition, String> entityNames) {
     this.id = id;
     this.blockDefinition = checkNotNull(blockDefinition);
     this.applicantData = checkNotNull(applicantData);
     this.contextualizedPath = checkNotNull(contextualizedPath);
+    this.entityNames = checkNotNull(entityNames);
   }
 
   public String getId() {
@@ -64,6 +68,21 @@ public final class Block {
 
   public String getDescription() {
     return blockDefinition.description();
+  }
+
+  /**
+   * For repeated blocks, this returns a mapping from an {@link
+   * services.question.types.QuestionType#ENUMERATOR} {@link QuestionDefinition} to the entity name
+   * for that enumerator associated with this repeated block.
+   *
+   * <p>{@link ImmutableMap}s are ordered, and the order represents the nesting of the repeated
+   * entities. The first map entry is for the first enumerator, followed by more and more deeply
+   * nested enumerators.
+   *
+   * <p>If this is not a repeated block, the map will be empty.
+   */
+  public ImmutableMap<QuestionDefinition, String> getEntityNames() {
+    return entityNames;
   }
 
   /** This block is an enumerator block if its {@link BlockDefinition} is an enumerator. */

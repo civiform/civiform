@@ -87,21 +87,29 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             .withQuestion(testQuestionBank.applicantHouseholdMembers())
             .withRepeatedBlock("repeated - household members name")
             .withQuestion(testQuestionBank.applicantHouseholdMemberName())
+            .withAnotherRepeatedBlock("repeated - household members jobs")
+            .withQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRepeatedBlock("deeply repeated - household members jobs income")
+            .withQuestion(testQuestionBank.applicantHouseholdMemberJobIncome())
             .buildDefinition();
 
     // Add repeated entities to applicant data
     Path enumerationPath =
-        ApplicantData.APPLICANT_PATH.join("applicant_household_members").asArrayElement();
+        ApplicantData.APPLICANT_PATH.join(testQuestionBank.applicantHouseholdMembers().getQuestionDefinition().getQuestionPathSegment());
     applicantData.putString(enumerationPath.atIndex(0).join(Scalar.ENTITY_NAME), "first entity");
     applicantData.putString(enumerationPath.atIndex(1).join(Scalar.ENTITY_NAME), "second entity");
     applicantData.putString(enumerationPath.atIndex(2).join(Scalar.ENTITY_NAME), "third entity");
+    Path deepEnumerationPath = enumerationPath.atIndex(2).join(
+        testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition().getQuestionPathSegment());
+    applicantData.putString(deepEnumerationPath.atIndex(0).join(Scalar.ENTITY_NAME), "nested first job");
+    applicantData.putString(deepEnumerationPath.atIndex(1).join(Scalar.ENTITY_NAME), "nested second job");
 
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
 
     ImmutableList<Block> blocks = service.getAllBlocks();
 
-    assertThat(blocks).hasSize(6);
+    assertThat(blocks).hasSize(11);
 
     assertThat(blocks.get(3).getId()).isEqualTo("4-0");
     Path questionPath = enumerationPath.atIndex(0).join("household_members_name");
@@ -114,24 +122,11 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 questionPath.join(Scalar.PROGRAM_UPDATED_IN), ScalarType.LONG,
                 questionPath.join(Scalar.UPDATED_AT), ScalarType.LONG));
 
-    assertThat(blocks.get(4).getId()).isEqualTo("4-1");
-    questionPath = enumerationPath.atIndex(1).join("household_members_name");
-    assertThat(blocks.get(4).getQuestions().get(0).getContextualizedScalars())
-        .containsExactlyInAnyOrderEntriesOf(
-            ImmutableMap.of(
-                questionPath.join(Scalar.FIRST_NAME),
-                ScalarType.STRING,
-                questionPath.join(Scalar.MIDDLE_NAME),
-                ScalarType.STRING,
-                questionPath.join(Scalar.LAST_NAME),
-                ScalarType.STRING,
-                questionPath.join(Scalar.PROGRAM_UPDATED_IN),
-                ScalarType.LONG,
-                questionPath.join(Scalar.UPDATED_AT),
-                ScalarType.LONG));
+    assertThat(blocks.get(4).getId()).isEqualTo("5-0");
+    assertThat(blocks.get(4).isEnumerator()).isTrue();
 
-    assertThat(blocks.get(5).getId()).isEqualTo("4-2");
-    questionPath = enumerationPath.atIndex(2).join("household_members_name");
+    assertThat(blocks.get(5).getId()).isEqualTo("4-1");
+    questionPath = enumerationPath.atIndex(1).join("household_members_name");
     assertThat(blocks.get(5).getQuestions().get(0).getContextualizedScalars())
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(
@@ -145,6 +140,57 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 ScalarType.LONG,
                 questionPath.join(Scalar.UPDATED_AT),
                 ScalarType.LONG));
+
+    assertThat(blocks.get(6).getId()).isEqualTo("5-1");
+    assertThat(blocks.get(6).isEnumerator()).isTrue();
+
+    assertThat(blocks.get(7).getId()).isEqualTo("4-2");
+    questionPath = enumerationPath.atIndex(2).join("household_members_name");
+    assertThat(blocks.get(7).getQuestions().get(0).getContextualizedScalars())
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                questionPath.join(Scalar.FIRST_NAME),
+                ScalarType.STRING,
+                questionPath.join(Scalar.MIDDLE_NAME),
+                ScalarType.STRING,
+                questionPath.join(Scalar.LAST_NAME),
+                ScalarType.STRING,
+                questionPath.join(Scalar.PROGRAM_UPDATED_IN),
+                ScalarType.LONG,
+                questionPath.join(Scalar.UPDATED_AT),
+                ScalarType.LONG));
+
+    assertThat(blocks.get(8).getId()).isEqualTo("5-2");
+    assertThat(blocks.get(8).isEnumerator()).isTrue();
+
+    assertThat(blocks.get(9).getId()).isEqualTo("6-2-0");
+    questionPath = deepEnumerationPath.atIndex(0).join("household_members_jobs_income");
+    assertThat(blocks.get(9).getQuestions().get(0).getContextualizedScalars())
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                questionPath.join(Scalar.NUMBER),
+                ScalarType.LONG,
+                questionPath.join(Scalar.PROGRAM_UPDATED_IN),
+                ScalarType.LONG,
+                questionPath.join(Scalar.UPDATED_AT),
+                ScalarType.LONG));
+
+    assertThat(blocks.get(10).getId()).isEqualTo("6-2-1");
+    questionPath = deepEnumerationPath.atIndex(1).join("household_members_jobs_income");
+    assertThat(blocks.get(10).getQuestions().get(0).getContextualizedScalars())
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                questionPath.join(Scalar.NUMBER),
+                ScalarType.LONG,
+                questionPath.join(Scalar.PROGRAM_UPDATED_IN),
+                ScalarType.LONG,
+                questionPath.join(Scalar.UPDATED_AT),
+                ScalarType.LONG));
+    assertThat(blocks.get(10).getEntityNames()).containsExactlyEntriesOf(ImmutableMap.of(
+        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+        "third entity",
+        testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
+        "nested second job"));
   }
 
   @Test

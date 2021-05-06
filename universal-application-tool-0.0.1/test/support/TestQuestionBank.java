@@ -103,6 +103,12 @@ public class TestQuestionBank {
         QuestionEnum.APPLICANT_HOUSEHOLD_MEMBERS, this::applicantHouseholdMembers);
   }
 
+  // Nested Enumerator
+  public Question applicantHouseholdMemberJobs() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_JOBS, this::applicantHouseholdMemberJobs);
+  }
+
   // File upload
   public Question applicantFile() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_FILE, this::applicantFile);
@@ -125,6 +131,12 @@ public class TestQuestionBank {
   public Question applicantJugglingNumber() {
     return questionCache.computeIfAbsent(
         QuestionEnum.APPLICANT_JUGGLING_NUMBER, this::applicantJugglingNumber);
+  }
+
+  // Deeply nested Number
+  public Question applicantHouseholdMemberJobIncome() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_JOB_INCOME, this::applicantHouseholdMemberJobIncome);
   }
 
   // Radio button
@@ -199,6 +211,20 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  // Nested Enumerator
+  private Question applicantHouseholdMemberJobs(QuestionEnum ignore) {
+    Question householdMembers = applicantHouseholdMembers();
+    QuestionDefinition definition =
+        new EnumeratorQuestionDefinition(
+            "household members jobs",
+            Path.create("applicant.applicant_household_members[].household_members_jobs[]"),
+            Optional.of(householdMembers.id),
+            "The applicant's household member's jobs",
+            ImmutableMap.of(Locale.US, "What are the household member's jobs?"),
+            ImmutableMap.of(Locale.US, "This is sample help text."));
+    return maybeSave(definition);
+  }
+
   // File upload
   private Question applicantFile(QuestionEnum ignore) {
     QuestionDefinition definition =
@@ -251,6 +277,22 @@ public class TestQuestionBank {
             ImmutableMap.of(Locale.US, "How many items can you juggle at one time?"),
             ImmutableMap.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
+  }
+
+  // Deeply Nested Number
+  private Question applicantHouseholdMemberJobIncome(QuestionEnum ignore) {
+    Question householdMemberJobs = applicantHouseholdMemberJobs();
+    QuestionDefinition definition =
+        new NumberQuestionDefinition(
+            "household members jobs income",
+            Path.create("applicant.applicant_household_members[].household_members_jobs[].household_members_jobs_income"),
+            Optional.of(householdMemberJobs.id),
+            "The applicant's household member's job's income",
+            ImmutableMap.of(Locale.US, "What is the household member's job's income?"),
+            ImmutableMap.of(Locale.US, "This is sample help text."));
+
+    return maybeSave(definition);
+
   }
 
   // Radio button
@@ -317,6 +359,8 @@ public class TestQuestionBank {
     APPLICANT_FILE,
     APPLICANT_HOUSEHOLD_MEMBERS,
     APPLICANT_HOUSEHOLD_MEMBER_NAME,
+    APPLICANT_HOUSEHOLD_MEMBER_JOBS,
+    APPLICANT_HOUSEHOLD_MEMBER_JOB_INCOME,
     APPLICANT_ICE_CREAM,
     APPLICANT_JUGGLING_NUMBER,
     APPLICANT_KITCHEN_TOOLS,
