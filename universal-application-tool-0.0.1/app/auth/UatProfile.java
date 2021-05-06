@@ -118,12 +118,8 @@ public class UatProfile {
                     .map(Account::ownedApplicantIds)
                     .reduce(
                         ImmutableList.of(),
-                        (one, two) -> {
-                          ImmutableList.Builder<Long> builder = new ImmutableList.Builder<>();
-                          builder.addAll(one);
-                          builder.addAll(two);
-                          return builder.build();
-                        }))
+                        (one, two) ->
+                            new ImmutableList.Builder<Long>().addAll(one).addAll(two).build()))
         .thenApplyAsync(
             idList -> {
               if (!idList.contains(applicantId)) {
