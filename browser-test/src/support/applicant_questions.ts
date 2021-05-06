@@ -28,7 +28,11 @@ export class ApplicantQuestions {
   }
 
   async answerFileUploadQuestion(text: string) {
-    await this.page.fill('input[type="text"]', text);
+    await this.page.setInputFiles('input[type=file]', {
+      name: 'file.txt',
+      mimeType: 'text/plain',
+      buffer: Buffer.from(text)
+    });
   }
 
   async answerRadioButtonQuestion(checked: string) {
