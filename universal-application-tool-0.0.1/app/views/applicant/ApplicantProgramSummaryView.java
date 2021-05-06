@@ -75,6 +75,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     content.with(actions);
 
     return layout.render(
+        request,
         messages,
         headerTag,
         h1("Application review for " + programTitle).withClasses(Styles.PX_16, Styles.PY_4),
