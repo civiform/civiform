@@ -15,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Applicant;
+import models.Application;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.UserRepository;
 import services.ErrorAnd;
@@ -69,6 +70,14 @@ public class ApplicantServiceImpl implements ApplicantService {
                   applicant.getApplicantData(), programDefinition);
             },
             httpExecutionContext.current());
+  }
+
+  @Override
+  public CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
+      Application application) {
+    return CompletableFuture.completedFuture(
+        new ReadOnlyApplicantProgramServiceImpl(
+            application.getApplicantData(), application.getProgram().getProgramDefinition()));
   }
 
   @Override

@@ -5,8 +5,10 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import models.Account;
 import models.Applicant;
@@ -104,7 +106,20 @@ public class UatProfile {
       return CompletableFuture.completedFuture(null);
     }
 
-    return getOwnedApplicantIds()
+    return getAccount()
+        .thenApplyAsync(
+            account ->
+                Stream.concat(
+                        account
+                            .getMemberOfGroup()
+                            .flatMap(tiGroup -> Optional.of(tiGroup.getManagedAccounts().stream()))
+                            .orElse(Stream.of()),
+                        Stream.of(account))
+                    .map(Account::ownedApplicantIds)
+                    .reduce(
+                        ImmutableList.of(),
+                        (one, two) ->
+                            new ImmutableList.Builder<Long>().addAll(one).addAll(two).build()))
         .thenApplyAsync(
             idList -> {
               if (!idList.contains(applicantId)) {
@@ -115,9 +130,5 @@ public class UatProfile {
               }
               return null;
             });
-  }
-
-  private CompletableFuture<ImmutableList<Long>> getOwnedApplicantIds() {
-    return getAccount().thenApplyAsync(Account::ownedApplicantIds);
   }
 }

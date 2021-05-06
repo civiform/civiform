@@ -2,10 +2,10 @@ package models;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -32,6 +32,10 @@ public class Account extends BaseModel {
     return applicants;
   }
 
+  public Optional<Applicant> newestApplicant() {
+    return applicants.stream().max(Comparator.comparing(Applicant::getWhenCreated));
+  }
+
   public void setApplicants(List<Applicant> applicants) {
     this.applicants = applicants;
   }
@@ -53,11 +57,11 @@ public class Account extends BaseModel {
   }
 
   public Optional<TrustedIntermediaryGroup> getMemberOfGroup() {
-    return Optional.fromNullable(this.memberOfGroup);
+    return Optional.ofNullable(this.memberOfGroup);
   }
 
   public Optional<TrustedIntermediaryGroup> getManagedByGroup() {
-    return Optional.fromNullable(this.managedByGroup);
+    return Optional.ofNullable(this.managedByGroup);
   }
 
   /**
