@@ -21,7 +21,6 @@ import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
-import services.question.types.QuestionType;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -160,20 +159,24 @@ public class QuestionBank {
    * <p>Questions that are filtered out:
    *
    * <ul>
-   *   <li>If there is at least one question in the current block, all enumerator questions
+   *   <li>If there is at least one question in the current block, all single-block questions
    *   <li>If this is a repeated block only show the appropriate repeated questions
    *   <li>Questions already in the program
    * </ul>
    */
   private ImmutableList<QuestionDefinition> filterQuestions() {
-    // An enumerator block cannot add any more questions
-    if (blockDefinition.isEnumerator()) {
+    if (noMoreQuestionsAllowed()) {
       return ImmutableList.of();
     }
 
     Predicate<QuestionDefinition> filter =
         blockDefinition.getQuestionCount() > 0 ? this::nonEmptyBlockFilter : this::questionFilter;
     return questions.stream().filter(filter).collect(ImmutableList.toImmutableList());
+  }
+
+  /** If a block already contains a single-block question, no more questions can be added. */
+  private boolean noMoreQuestionsAllowed() {
+    return blockDefinition.isEnumerator() || blockDefinition.isFileUpload();
   }
 
   /**
@@ -186,12 +189,21 @@ public class QuestionBank {
   }
 
   /**
-   * A non-empty block cannot add enumerator questions, in addition to {@link
+   * A non-empty block cannot add single-block questions, in addition to {@link
    * QuestionBank#questionFilter}.
    */
   private boolean nonEmptyBlockFilter(QuestionDefinition questionDefinition) {
-    return !questionDefinition.getQuestionType().equals(QuestionType.ENUMERATOR)
-        && questionFilter(questionDefinition);
+    return !singleBlockQuestion(questionDefinition) && questionFilter(questionDefinition);
+  }
+
+  private boolean singleBlockQuestion(QuestionDefinition questionDefinition) {
+    switch (questionDefinition.getQuestionType()) {
+      case ENUMERATOR:
+      case FILEUPLOAD:
+        return true;
+      default:
+        return false;
+    }
   }
 
   /**
