@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import scala.App;
 
 @Entity
 @Table(name = "accounts")
@@ -30,6 +31,10 @@ public class Account extends BaseModel {
 
   public List<Applicant> getApplicants() {
     return applicants;
+  }
+
+  public Optional<Applicant> newestApplicant() {
+    return applicants.stream().max(Comparator.comparing(Applicant::getWhenCreated));
   }
 
   public void setApplicants(List<Applicant> applicants) {
