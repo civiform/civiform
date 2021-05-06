@@ -66,7 +66,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
               params.messages()));
     }
 
-    return layout.render(params.messages(), body);
+    return layout.render(params.request(), params.messages(), body);
   }
 
   /**
