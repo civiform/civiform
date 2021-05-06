@@ -51,3 +51,10 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
         run: bin/deploy-staging
+
+      - name: Run prober test
+        run: bin/run-prober
+        env:
+          TEST_USER_LOGIN: ${{ secrets.IDCS_TEST_USER_LOGIN }}
+          TEST_USER_PASSWORD: ${{ secrets.IDCS_TEST_USER_PASSWORD }}
+
