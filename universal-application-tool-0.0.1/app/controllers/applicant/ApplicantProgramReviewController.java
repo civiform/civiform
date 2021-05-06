@@ -19,6 +19,7 @@ import play.mvc.Result;
 import repository.ApplicationRepository;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
+import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramSummaryView;
 
@@ -63,9 +64,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
         .thenApplyAsync(
             (roApplicantProgramService) -> {
               ImmutableList<AnswerData> summaryData = roApplicantProgramService.getSummaryData();
-              // TODO(#914): Get program title. (Currently no way to do that from
-              // roApplicantProgramService)
-              String programTitle = "Program title";
+              String programTitle = roApplicantProgramService.getProgramTitle();
               return ok(
                   summaryView.render(
                       request,
@@ -118,23 +117,24 @@ public class ApplicantProgramReviewController extends CiviFormController {
   }
 
   private CompletionStage<Result> submit(long applicantId, long programId) {
-    return applicationRepository
-        .submitApplication(applicantId, programId)
-        .thenApplyAsync(
-            applicationMaybe -> {
-              if (applicationMaybe.isEmpty()) {
-                Call reviewPage =
-                    routes.ApplicantProgramReviewController.review(applicantId, programId);
-                return found(reviewPage).flashing("banner", "Error saving application.");
-              }
-              Call endOfProgramSubmission = routes.ApplicantProgramsController.index(applicantId);
-              Application application = applicationMaybe.get();
-              // TODO(#914): Show program title instead of ID.
-              return found(endOfProgramSubmission)
-                  .flashing(
-                      "banner",
-                      String.format(
-                          "Successfully saved application: application ID %d", application.id));
-            });
+    CompletionStage<java.util.Optional<Application>> submitApp =
+        applicationRepository.submitApplication(applicantId, programId);
+    CompletionStage<ReadOnlyApplicantProgramService> service =
+        applicantService.getReadOnlyApplicantProgramService(applicantId, programId);
+
+    return submitApp.thenCombineAsync(
+        service,
+        (applicationMaybe, roApplicantProgramService) -> {
+          if (applicationMaybe.isEmpty()) {
+            Call reviewPage =
+                routes.ApplicantProgramReviewController.review(applicantId, programId);
+            return found(reviewPage).flashing("banner", "Error saving application.");
+          }
+          Call endOfProgramSubmission = routes.ApplicantProgramsController.index(applicantId);
+          String programTitle = roApplicantProgramService.getProgramTitle();
+          return found(endOfProgramSubmission)
+              .flashing(
+                  "banner", String.format("Successfully saved application: %s", programTitle));
+        });
   }
 }
