@@ -14,19 +14,16 @@ import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.ti.routes;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
-import j2html.tags.DomContent;
 import j2html.tags.Tag;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import models.Account;
 import models.Applicant;
-import models.Application;
 import models.TrustedIntermediaryGroup;
 import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
@@ -180,18 +177,20 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             Styles.BORDER_B,
             Styles.BORDER_GRAY_300,
             StyleUtils.even(Styles.BG_GRAY_100))
-            .with(renderInfoCell(applicant))
-            .with(renderApplicantInfoCell(applicant))
-            .with(renderActionsCell(applicant));
+        .with(renderInfoCell(applicant))
+        .with(renderApplicantInfoCell(applicant))
+        .with(renderActionsCell(applicant));
   }
 
   private Tag renderApplicantInfoCell(Account applicantAccount) {
-    int applicationCount = applicantAccount.getApplicants().stream().map(
-            applicant -> applicant.getApplications().size()).collect(Collectors.summingInt(
-                    Integer::intValue
-    ));
-    return td().with(div(String.format("Application count: %d", applicationCount)).withClasses(Styles.FONT_SEMIBOLD))
-            .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+    int applicationCount =
+        applicantAccount.getApplicants().stream()
+            .map(applicant -> applicant.getApplications().size())
+            .collect(Collectors.summingInt(Integer::intValue));
+    return td().with(
+            div(String.format("Application count: %d", applicationCount))
+                .withClasses(Styles.FONT_SEMIBOLD))
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
   private Tag renderActionsCell(Account applicant) {
@@ -201,14 +200,14 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     }
     return td().with(
             new LinkElement()
-                    .setId(String.format("act-as-%d-button", newestApplicant.get().id))
-                    .setText("Applicant Dashboard ➔")
-                    .setHref(controllers.applicant.routes.ApplicantProgramsController.index(
-                            newestApplicant.get().id
-                    ).url())
-                    .asAnchorText()
-    )
-            .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+                .setId(String.format("act-as-%d-button", newestApplicant.get().id))
+                .setText("Applicant Dashboard ➔")
+                .setHref(
+                    controllers.applicant.routes.ApplicantProgramsController.index(
+                            newestApplicant.get().id)
+                        .url())
+                .asAnchorText())
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
   private Tag renderInfoCell(Account ti) {
@@ -232,10 +231,10 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
 
   private Tag renderApplicantTableHeader() {
     return thead(
-            tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
-                    .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
-                    .with(th("Applications").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
-                    .with(th("Actions").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4)));
+        tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
+            .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
+            .with(th("Applications").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
+            .with(th("Actions").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4)));
   }
 
   private Tag renderGroupTableHeader() {
