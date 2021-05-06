@@ -3,11 +3,17 @@ package services.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import services.LocalizationUtils;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.question.LocalizedQuestionOption;
 import services.question.types.QuestionDefinition;
 
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
@@ -169,14 +175,69 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
             AnswerData.builder()
                 .setProgramId(programDefinition.id())
                 .setBlockId(block.getId())
+                .setQuestionId(question.getQuestionDefinition().getId())
                 .setQuestionText(questionText)
                 .setAnswerText(answerText)
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
                 .setIsPreviousResponse(isPreviousResponse)
+                .setAnswersInDefaultLocale(getAnswers(question, LocalizationUtils.DEFAULT_LOCALE))
                 .build();
         builder.add(data);
       }
     }
     return builder.build();
+  }
+
+  /**
+   * Returns the {@link Path}s and their corresponding answers to a {@link ApplicantQuestion}.
+   * Answers do not include metadata.
+   */
+  private ImmutableMap<Path, String> getAnswers(ApplicantQuestion question, Locale locale) {
+    return question.getContextualizedScalars().keySet().stream()
+        .filter(path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))
+        .collect(
+            ImmutableMap.toImmutableMap(path -> path, path -> getAnswer(question, path, locale)));
+  }
+
+  /**
+   * The {@link Path} isn't actually used for
+   *
+   * <ul>
+   *   <li>{@link services.applicant.question.SingleSelectQuestion}
+   *   <li>{@link services.applicant.question.MultiSelectQuestion}
+   *   <li>{@link services.applicant.question.EnumeratorQuestion}
+   * </ul>
+   *
+   * because
+   *
+   * <ul>
+   *   <li>they just have one scalar anyway
+   *   <li>their answer needs to be processed into something useful
+   * </ul>
+   */
+  private String getAnswer(ApplicantQuestion question, Path path, Locale locale) {
+    switch (question.getType()) {
+      case DROPDOWN:
+      case RADIO_BUTTON:
+        return question
+            .createSingleSelectQuestion()
+            .getSelectedOptionValue(locale)
+            .map(LocalizedQuestionOption::optionText)
+            .orElse("");
+      case CHECKBOX:
+        return question
+            .createMultiSelectQuestion()
+            .getSelectedOptionsValue(locale)
+            .map(
+                selectedOptions ->
+                    selectedOptions.stream()
+                        .map(LocalizedQuestionOption::optionText)
+                        .collect(Collectors.joining(", ")))
+            .orElse("");
+      case ENUMERATOR:
+        return question.createEnumeratorQuestion().getAnswerString();
+      default:
+        return applicantData.readAsString(path).orElse("");
+    }
   }
 }
