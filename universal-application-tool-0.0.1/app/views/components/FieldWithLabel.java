@@ -3,7 +3,6 @@ package views.components;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.label;
-import static j2html.TagCreator.span;
 import static j2html.TagCreator.textarea;
 
 import com.google.common.base.Strings;
@@ -15,6 +14,7 @@ import j2html.tags.Tag;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import play.i18n.Messages;
 import services.applicant.ValidationErrorMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -88,6 +88,7 @@ public class FieldWithLabel {
   protected String id = "";
   protected String labelText = "";
   protected String placeholderText = "";
+  protected Messages messages;
   protected ImmutableSet<ValidationErrorMessage> fieldErrors = ImmutableSet.of();
   protected boolean checked = false;
   protected boolean floatLabel = false;
@@ -204,7 +205,9 @@ public class FieldWithLabel {
     return this;
   }
 
-  public FieldWithLabel setFieldErrors(ImmutableSet<ValidationErrorMessage> errors) {
+  public FieldWithLabel setFieldErrors(
+      Messages messages, ImmutableSet<ValidationErrorMessage> errors) {
+    this.messages = messages;
     this.fieldErrors = errors;
     return this;
   }
@@ -285,7 +288,7 @@ public class FieldWithLabel {
   }
 
   private Tag buildFieldErrorsTag() {
-    return div(each(fieldErrors, error -> span(error.message())))
+    return div(each(fieldErrors, error -> div(error.getMessage(messages))))
         .withClasses(StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT, Styles.PX_2));
   }
 }

@@ -47,7 +47,7 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                         .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
                         .setFloatLabel(true)
                         .setValue(nameQuestion.getFirstNameValue().orElse(""))
-                        .setFieldErrors(nameQuestion.getFirstNameErrors())
+                        .setFieldErrors(messages, nameQuestion.getFirstNameErrors())
                         .getContainer())
                 .with(
                     FieldWithLabel.input()
@@ -62,7 +62,7 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                         .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
                         .setFloatLabel(true)
                         .setValue(nameQuestion.getLastNameValue().orElse(""))
-                        .setFieldErrors(nameQuestion.getLastNameErrors())
+                        .setFieldErrors(messages, nameQuestion.getLastNameErrors())
                         .getContainer()));
   }
 }
