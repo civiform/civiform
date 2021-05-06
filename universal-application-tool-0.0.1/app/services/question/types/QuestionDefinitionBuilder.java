@@ -69,7 +69,10 @@ public class QuestionDefinitionBuilder {
     if (questionType.isMultiOptionType()) {
       builder.setQuestionOptions(
           ImmutableList.of(
-              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "Sample question option"))));
+              QuestionOption.builder()
+                  .setId(1L)
+                  .setOptionText(ImmutableMap.of(Locale.US, "Sample question option"))
+                  .build()));
     }
 
     return builder;

@@ -16,7 +16,7 @@ public class MultiOptionQuestionTranslationForm extends QuestionTranslationForm 
 
   private List<String> options;
 
-  protected MultiOptionQuestionTranslationForm() {
+  public MultiOptionQuestionTranslationForm() {
     super();
     this.options = new ArrayList<>();
   }
@@ -36,13 +36,12 @@ public class MultiOptionQuestionTranslationForm extends QuestionTranslationForm 
     QuestionDefinitionBuilder builder = new QuestionDefinitionBuilder(semiUpdated);
     ImmutableList<QuestionOption> currentOptions =
         ((MultiOptionQuestionDefinition) definition).getOptions();
-    ImmutableList<QuestionOption> updatedOptions = currentOptions.stream()
-        .map(
-            option ->
-                option.toBuilder()
-                    .updateOptionText(
-                        option.optionText(), updatedLocale, this.options.get((int) option.id())).build())
-        .collect(toImmutableList());
-    return builder.setQuestionOptions(updatedOptions).build();
+
+    ImmutableList.Builder<QuestionOption> updatedOptionsBuilder = ImmutableList.builder();
+    for (int i = 0; i < currentOptions.size(); i++) {
+      QuestionOption current = currentOptions.get(i);
+      updatedOptionsBuilder.add(current.toBuilder().updateOptionText(current.optionText(), updatedLocale, this.options.get(i)).build());
+    }
+    return builder.setQuestionOptions(updatedOptionsBuilder.build()).build();
   }
 }

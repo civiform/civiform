@@ -1,8 +1,8 @@
 package services.question;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
@@ -11,16 +11,9 @@ import services.LocalizationUtils;
 /**
  * Represents a single option in a {@link services.question.types.MultiOptionQuestionDefinition}.
  */
+@JsonDeserialize(builder = AutoValue_QuestionOption.Builder.class)
 @AutoValue
 public abstract class QuestionOption {
-
-  /** Create a QuestionOption. */
-  @JsonCreator
-  public static QuestionOption create(
-      @JsonProperty("id") long id,
-      @JsonProperty("optionText") ImmutableMap<Locale, String> optionText) {
-    return new AutoValue_QuestionOption(id, optionText);
-  }
 
   @JsonIgnore
   public LocalizedQuestionOption localize(Locale locale) {
@@ -42,11 +35,17 @@ public abstract class QuestionOption {
 
   public abstract Builder toBuilder();
 
+  public static QuestionOption.Builder builder() {
+    return new AutoValue_QuestionOption.Builder();
+  }
+
   @AutoValue.Builder
   public abstract static class Builder {
 
+    @JsonProperty("id")
     public abstract Builder setId(long id);
 
+    @JsonProperty("optionText")
     public abstract Builder setOptionText(ImmutableMap<Locale, String> optionText);
 
     public abstract ImmutableMap.Builder<Locale, String> optionTextBuilder();

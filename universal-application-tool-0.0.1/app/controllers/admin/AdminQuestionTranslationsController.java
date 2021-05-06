@@ -1,20 +1,17 @@
 package controllers.admin;
 
-import static java.util.concurrent.CompletableFuture.supplyAsync;
-
 import auth.Authorizers;
 import controllers.CiviFormController;
+import forms.translation.MultiOptionQuestionTranslationForm;
 import forms.translation.QuestionTranslationForm;
 import java.util.Locale;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
-import play.data.Form;
 import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.mvc.Results;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.question.QuestionService;
@@ -82,15 +79,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public CompletionStage<Result> update(Http.Request request, long id, String locale) {
-    Form<QuestionTranslationForm> translationForm = formFactory.form(QuestionTranslationForm.class);
-    if (translationForm.hasErrors()) {
-      return supplyAsync(Results::badRequest);
-    }
-
-    QuestionTranslationForm translations = translationForm.bindFromRequest(request).get();
     Locale updatedLocale = Locale.forLanguageTag(locale);
-    String questionText = translations.getQuestionText();
-    String questionHelpText = translations.getQuestionHelpText();
 
     return questionService
         .getReadOnlyQuestionService()
@@ -98,8 +87,9 @@ public class AdminQuestionTranslationsController extends CiviFormController {
             readOnlyQuestionService -> {
               try {
                 QuestionDefinition toUpdate = readOnlyQuestionService.getQuestionDefinition(id);
+                QuestionTranslationForm form = buildFormFromRequest(request, toUpdate);
                 QuestionDefinition definitionWithUpdates =
-                    translations.buildUpdates(toUpdate, updatedLocale);
+                    form.buildUpdates(toUpdate, updatedLocale);
                 ErrorAnd<QuestionDefinition, CiviFormError> result =
                     questionService.update(definitionWithUpdates);
 
@@ -119,6 +109,28 @@ public class AdminQuestionTranslationsController extends CiviFormController {
               } catch (InvalidUpdateException e) {
                 return internalServerError(e.getMessage());
               }
-            });
+            },
+            httpExecutionContext.current());
+  }
+
+  private QuestionTranslationForm buildFormFromRequest(
+      Http.Request request, QuestionDefinition definition) {
+    switch (definition.getQuestionType()) {
+      case CHECKBOX:
+      case DROPDOWN:
+      case RADIO_BUTTON:
+        return formFactory
+            .form(MultiOptionQuestionTranslationForm.class)
+            .bindFromRequest(request)
+            .get();
+      case ADDRESS:
+      case ENUMERATOR:
+      case FILEUPLOAD:
+      case NAME:
+      case NUMBER:
+      case TEXT:
+      default:
+        return formFactory.form(QuestionTranslationForm.class).bindFromRequest(request).get();
+    }
   }
 }

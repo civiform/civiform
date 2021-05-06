@@ -109,13 +109,16 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
       predicateBuilder.setMaxChoicesAllowed(getMaxChoicesAllowed());
     }
 
-    // TODO: this will need to be revisited to support multiple locales
     ImmutableList.Builder<QuestionOption> questionOptions = ImmutableList.builder();
     long optionCount = 1L;
 
+    // Note: the question edit form only sets or updates the default locale.
     for (String optionText : getOptions()) {
       questionOptions.add(
-          QuestionOption.create(optionCount++, ImmutableMap.of(Locale.US, optionText)));
+          QuestionOption.builder()
+              .setId(optionCount++)
+              .setOptionText(ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, optionText))
+              .build());
     }
 
     return super.getBuilder(path)

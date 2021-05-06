@@ -98,10 +98,10 @@ public class QuestionTranslationView extends TranslationFormView {
         MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) question;
         return multiOptionQuestionFields(multiOption.getOptions(), toUpdate);
       case ADDRESS:
+      case ENUMERATOR:
       case FILEUPLOAD:
       case NAME:
       case NUMBER:
-      case REPEATER:
       case TEXT:
       default:
         return ImmutableList.of();
@@ -135,7 +135,7 @@ public class QuestionTranslationView extends TranslationFormView {
             option ->
                 FieldWithLabel.input()
                     .setId("localize-question-help-text")
-                    .setFieldName("questionHelpText")
+                    .setFieldName("options[]")
                     .setLabelText(
                         option.optionText().getOrDefault(LocalizationUtils.DEFAULT_LOCALE, ""))
                     .setPlaceholderText("Answer option")

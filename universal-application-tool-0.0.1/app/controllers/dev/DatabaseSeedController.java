@@ -152,9 +152,18 @@ public class DatabaseSeedController extends DevController {
                     Locale.US, "Which of the following kitchen instruments do you own?"),
                 ImmutableMap.of(Locale.US, "help text"),
                 ImmutableList.of(
-                    QuestionOption.create(1L, ImmutableMap.of(Locale.US, "toaster")),
-                    QuestionOption.create(2L, ImmutableMap.of(Locale.US, "pepper grinder")),
-                    QuestionOption.create(3L, ImmutableMap.of(Locale.US, "garlic press")))))
+                    QuestionOption.builder()
+                        .setId(1L)
+                        .setOptionText(ImmutableMap.of(Locale.US, "toaster"))
+                        .build(),
+                    QuestionOption.builder()
+                        .setId(2L)
+                        .setOptionText(ImmutableMap.of(Locale.US, "pepper grinder"))
+                        .build(),
+                    QuestionOption.builder()
+                        .setId(3L)
+                        .setOptionText(ImmutableMap.of(Locale.US, "garlic press"))
+                        .build())))
         .getResult();
   }
 
@@ -170,10 +179,22 @@ public class DatabaseSeedController extends DevController {
                     Locale.US, "Select your favorite ice cream flavor from the following"),
                 ImmutableMap.of(Locale.US, "this is sample help text"),
                 ImmutableList.of(
-                    QuestionOption.create(1L, ImmutableMap.of(Locale.US, "chocolate")),
-                    QuestionOption.create(2L, ImmutableMap.of(Locale.US, "strawberry")),
-                    QuestionOption.create(3L, ImmutableMap.of(Locale.US, "vanilla")),
-                    QuestionOption.create(4L, ImmutableMap.of(Locale.US, "coffee")))))
+                    QuestionOption.builder()
+                        .setId(1L)
+                        .setOptionText(ImmutableMap.of(Locale.US, "chocolate"))
+                        .build(),
+                    QuestionOption.builder()
+                        .setId(2L)
+                        .setOptionText(ImmutableMap.of(Locale.US, "strawberry"))
+                        .build(),
+                    QuestionOption.builder()
+                        .setId(3L)
+                        .setOptionText(ImmutableMap.of(Locale.US, "vanilla"))
+                        .build(),
+                    QuestionOption.builder()
+                        .setId(4L)
+                        .setOptionText(ImmutableMap.of(Locale.US, "coffee"))
+                        .build())))
         .getResult();
   }
 
@@ -188,10 +209,22 @@ public class DatabaseSeedController extends DevController {
                 ImmutableMap.of(Locale.US, "What is your favorite season?"),
                 ImmutableMap.of(Locale.US, "this is sample help text"),
                 ImmutableList.of(
-                    QuestionOption.create(1L, ImmutableMap.of(Locale.US, "winter")),
-                    QuestionOption.create(2L, ImmutableMap.of(Locale.US, "spring")),
-                    QuestionOption.create(3L, ImmutableMap.of(Locale.US, "summer")),
-                    QuestionOption.create(4L, ImmutableMap.of(Locale.US, "fall")))))
+                    QuestionOption.builder()
+                        .setId(1L)
+                        .setOptionText(ImmutableMap.of(Locale.US, "winter"))
+                        .build(),
+                    QuestionOption.builder()
+                        .setId(2L)
+                        .setOptionText(ImmutableMap.of(Locale.US, "spring"))
+                        .build(),
+                    QuestionOption.builder()
+                        .setId(3L)
+                        .setOptionText(ImmutableMap.of(Locale.US, "summer"))
+                        .build(),
+                    QuestionOption.builder()
+                        .setId(4L)
+                        .setOptionText(ImmutableMap.of(Locale.US, "fall"))
+                        .build())))
         .getResult();
   }
 

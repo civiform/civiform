@@ -132,7 +132,10 @@ public class Question extends BaseModel {
         Streams.mapWithIndex(
                 questionOptions.get(firstKey).stream(),
                 (optionText, i) ->
-                    QuestionOption.create(Long.valueOf(i), ImmutableMap.of(firstKey, optionText)))
+                    QuestionOption.builder()
+                        .setId(Long.valueOf(i))
+                        .setOptionText(ImmutableMap.of(firstKey, optionText))
+                        .build())
             .collect(toImmutableList());
 
     builder.setQuestionOptions(options);
