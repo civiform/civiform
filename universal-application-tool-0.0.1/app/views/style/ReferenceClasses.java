@@ -20,6 +20,7 @@ public final class ReferenceClasses {
   public static final String ENUMERATOR_FIELD = "cf-enumerator-field";
   public static final String FLOATED_LABEL = "cf-floated";
   public static final String QUESTION_CONFIG = "cf-question-config";
+  public static final String RADIO_DEFAULT = "cf-radio-default";
   public static final String RADIO_INPUT = "cf-radio-input";
   public static final String RADIO_OPTION = "cf-radio-option";
   public static final String REMOVE_QUESTION_BUTTON = "cf-remove-question-button";

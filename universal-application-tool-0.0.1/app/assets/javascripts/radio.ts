@@ -1,11 +1,33 @@
 
 /** This class controls the style of selected radio buttons. */
 class RadioController {
+  static radioDefaultClass = '.cf-radio-default';
   static radioInputClass = '.cf-radio-input';
   static radioOptionClass = '.cf-radio-option';
 
   constructor() {
     this.addRadioListeners();
+  }
+
+  /**
+   * Initialize styling on radio buttons.
+   *
+   * Since the styling is toggled via javascript, we need to run this whenever the page
+   * is shown so that the BF cache doesn't put us in a bad state. 
+   */
+  public static initializeRadios() {
+    const radios = Array.from(document.querySelectorAll(RadioController.radioInputClass));
+    radios.forEach(
+      (radio) => {
+        // Apply appropriate styles in case the user clicked the back button or something.
+        const container = radio.closest(RadioController.radioOptionClass);
+        const radioChecked = (radio as HTMLInputElement).checked;
+        if (container) {
+          container.classList.toggle("bg-blue-100", radioChecked);
+          container.classList.toggle("border-blue-400", radioChecked);
+        }
+      }
+    );
   }
 
   /** Add listeners to radio buttons to change style on selection. */
@@ -14,15 +36,29 @@ class RadioController {
     radios.forEach(
       (radio) => {
         // Add listener to radio button.
-        radio.addEventListener('change', () => {
-          const buttons = Array.from(document.querySelectorAll(RadioController.radioInputClass));
+        radio.addEventListener('change', (e) => {
+          const targetElement = e.target as HTMLInputElement;
+          const radioName = targetElement.getAttribute('name');
+          let checkCount = 0;
+          const buttons = Array.from(
+            document.querySelectorAll(RadioController.radioInputClass + "[name='" + radioName + "']"));
           for (const radioButton of buttons) {
             const currentButton = (radioButton as HTMLInputElement);
             const isChecked = currentButton.checked;
+            checkCount += isChecked ? 1 : 0;
             const radioContainer = radioButton.closest(RadioController.radioOptionClass);
             if (radioContainer) {
               radioContainer.classList.toggle("bg-blue-100", isChecked);
               radioContainer.classList.toggle("border-blue-400", isChecked);
+            }
+          }
+          // If this is a checkbox we need to check or uncheck the "None selected" option.
+          if (targetElement.type === "checkbox") {
+            const defaultCheckbox =
+              document.querySelector(RadioController.radioDefaultClass + "[name='" + radioName + "']") as HTMLInputElement;
+            if (defaultCheckbox !== null) {
+              defaultCheckbox.checked = checkCount == 0;
+              console.log("Number selected for " + radioName + ": " + checkCount);
             }
           }
         });
@@ -31,4 +67,5 @@ class RadioController {
 
 }
 
+window.addEventListener('pageshow', () => RadioController.initializeRadios());
 new RadioController();
