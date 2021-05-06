@@ -39,8 +39,8 @@ public abstract class AnswerData {
   public abstract boolean isPreviousResponse();
 
   /**
-   * Answers for each scalar, in {@link services.LocalizationUtils#DEFAULT_LOCALE} to present to
-   * admins.
+   * Paths and their answers for each scalar (in {@link services.LocalizationUtils#DEFAULT_LOCALE}
+   * for {@link services.question.LocalizedQuestionOption}s based answers) to present to admins.
    */
   public abstract ImmutableMap<Path, String> answersInDefaultLocale();
 
