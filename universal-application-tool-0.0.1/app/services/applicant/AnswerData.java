@@ -42,7 +42,7 @@ public abstract class AnswerData {
    * Paths and their answers for each scalar (in {@link services.LocalizationUtils#DEFAULT_LOCALE}
    * for {@link services.question.LocalizedQuestionOption}s based answers) to present to admins.
    */
-  public abstract ImmutableMap<Path, String> answersInDefaultLocale();
+  public abstract ImmutableMap<Path, String> scalarAnswersInDefaultLocale();
 
   @AutoValue.Builder
   public abstract static class Builder {
@@ -60,7 +60,7 @@ public abstract class AnswerData {
 
     public abstract Builder setIsPreviousResponse(boolean isPreviousResponse);
 
-    public abstract Builder setAnswersInDefaultLocale(ImmutableMap<Path, String> answers);
+    public abstract Builder setScalarAnswersInDefaultLocale(ImmutableMap<Path, String> answers);
 
     public abstract AnswerData build();
   }

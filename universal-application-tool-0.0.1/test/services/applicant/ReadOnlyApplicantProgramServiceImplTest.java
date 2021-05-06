@@ -401,7 +401,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
     // Check single and multi select answers
     assertThat(result.get(3).questionId()).isEqualTo(singleSelectQuestionDefinition.getId());
-    assertThat(result.get(3).answersInDefaultLocale())
+    assertThat(result.get(3).scalarAnswersInDefaultLocale())
         .containsExactly(
             new AbstractMap.SimpleEntry<>(
                 ApplicantData.APPLICANT_PATH
@@ -409,7 +409,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                     .join(Scalar.SELECTION),
                 "winter"));
     assertThat(result.get(4).questionId()).isEqualTo(multiSelectQuestionDefinition.getId());
-    assertThat(result.get(4).answersInDefaultLocale())
+    assertThat(result.get(4).scalarAnswersInDefaultLocale())
         .containsExactly(
             new AbstractMap.SimpleEntry<>(
                 ApplicantData.APPLICANT_PATH
@@ -419,10 +419,10 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
     // check enumerator and repeated answers
     assertThat(result.get(5).questionId()).isEqualTo(enumeratorQuestionDefinition.getId());
-    assertThat(result.get(5).answersInDefaultLocale())
+    assertThat(result.get(5).scalarAnswersInDefaultLocale())
         .containsExactly(new AbstractMap.SimpleEntry<>(enumeratorPath, "enum one\nenum two"));
     assertThat(result.get(6).questionId()).isEqualTo(repeatedQuestionDefinition.getId());
-    assertThat(result.get(6).answersInDefaultLocale())
+    assertThat(result.get(6).scalarAnswersInDefaultLocale())
         .containsExactlyEntriesOf(
             ImmutableMap.of(
                 enumeratorPath
@@ -441,7 +441,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                     .join(Scalar.LAST_NAME),
                 "last"));
     assertThat(result.get(7).questionId()).isEqualTo(repeatedQuestionDefinition.getId());
-    assertThat(result.get(7).answersInDefaultLocale())
+    assertThat(result.get(7).scalarAnswersInDefaultLocale())
         .containsExactlyEntriesOf(
             ImmutableMap.of(
                 enumeratorPath

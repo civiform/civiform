@@ -180,7 +180,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setAnswerText(answerText)
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
                 .setIsPreviousResponse(isPreviousResponse)
-                .setAnswersInDefaultLocale(getAnswers(question, LocalizationUtils.DEFAULT_LOCALE))
+                .setScalarAnswersInDefaultLocale(
+                    getScalarAnswers(question, LocalizationUtils.DEFAULT_LOCALE))
                 .build();
         builder.add(data);
       }
@@ -189,10 +190,10 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   /**
-   * Returns the {@link Path}s and their corresponding answers to a {@link ApplicantQuestion}.
-   * Answers do not include metadata.
+   * Returns the {@link Path}s and their corresponding scalar answers to a {@link
+   * ApplicantQuestion}. Answers do not include metadata.
    */
-  private ImmutableMap<Path, String> getAnswers(ApplicantQuestion question, Locale locale) {
+  private ImmutableMap<Path, String> getScalarAnswers(ApplicantQuestion question, Locale locale) {
     switch (question.getType()) {
       case DROPDOWN:
       case RADIO_BUTTON:
