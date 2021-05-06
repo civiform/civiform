@@ -20,7 +20,7 @@ public class QuestionDefinitionBuilder {
   private OptionalLong id = OptionalLong.empty();
   private String name;
   private Path path;
-  private Optional<Long> repeaterId = Optional.empty();
+  private Optional<Long> enumeratorId = Optional.empty();
   private String description;
   private ImmutableMap<Locale, String> questionText;
   private ImmutableMap<Locale, String> questionHelpText = ImmutableMap.of();
@@ -39,7 +39,7 @@ public class QuestionDefinitionBuilder {
     }
     name = definition.getName();
     path = definition.getPath();
-    repeaterId = definition.getRepeaterId();
+    enumeratorId = definition.getEnumeratorId();
     description = definition.getDescription();
     questionText = definition.getQuestionText();
     questionHelpText = definition.getQuestionHelpText();
@@ -100,8 +100,8 @@ public class QuestionDefinitionBuilder {
     return this;
   }
 
-  public QuestionDefinitionBuilder setRepeaterId(Optional<Long> repeaterId) {
-    this.repeaterId = repeaterId;
+  public QuestionDefinitionBuilder setEnumeratorId(Optional<Long> enumeratorId) {
+    this.enumeratorId = enumeratorId;
     return this;
   }
 
@@ -168,7 +168,7 @@ public class QuestionDefinitionBuilder {
             id,
             name,
             path,
-            repeaterId,
+            enumeratorId,
             description,
             questionText,
             questionHelpText,
@@ -184,7 +184,7 @@ public class QuestionDefinitionBuilder {
             id,
             name,
             path,
-            repeaterId,
+            enumeratorId,
             description,
             questionText,
             questionHelpText,
@@ -195,14 +195,14 @@ public class QuestionDefinitionBuilder {
             id,
             name,
             path,
-            repeaterId,
+            enumeratorId,
             description,
             questionText,
             questionHelpText,
             questionOptions);
       case FILEUPLOAD:
         return new FileUploadQuestionDefinition(
-            id, name, path, repeaterId, description, questionText, questionHelpText);
+            id, name, path, enumeratorId, description, questionText, questionHelpText);
       case NAME:
         NameValidationPredicates nameValidationPredicates = NameValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {
@@ -212,7 +212,7 @@ public class QuestionDefinitionBuilder {
             id,
             name,
             path,
-            repeaterId,
+            enumeratorId,
             description,
             questionText,
             questionHelpText,
@@ -228,7 +228,7 @@ public class QuestionDefinitionBuilder {
             id,
             name,
             path,
-            repeaterId,
+            enumeratorId,
             description,
             questionText,
             questionHelpText,
@@ -238,14 +238,14 @@ public class QuestionDefinitionBuilder {
             id,
             name,
             path,
-            repeaterId,
+            enumeratorId,
             description,
             questionText,
             questionHelpText,
             questionOptions);
-      case REPEATER:
-        return new RepeaterQuestionDefinition(
-            id, name, path, repeaterId, description, questionText, questionHelpText);
+      case ENUMERATOR:
+        return new EnumeratorQuestionDefinition(
+            id, name, path, enumeratorId, description, questionText, questionHelpText);
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {
@@ -255,7 +255,7 @@ public class QuestionDefinitionBuilder {
             id,
             name,
             path,
-            repeaterId,
+            enumeratorId,
             description,
             questionText,
             questionHelpText,

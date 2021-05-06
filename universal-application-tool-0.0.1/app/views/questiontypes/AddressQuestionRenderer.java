@@ -5,6 +5,7 @@ import static j2html.TagCreator.div;
 
 import j2html.tags.Tag;
 import play.i18n.Messages;
+import services.MessageKey;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import views.BaseHtmlView;
@@ -45,8 +46,9 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                     /** First line of address entry: Address line 1 AKA street address */
                     FieldWithLabel.input()
                         .setFieldName(addressQuestion.getStreetPath().toString())
-                        .setLabelText(messages.at("label.street"))
-                        .setPlaceholderText(messages.at("placeholder.street"))
+                        .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STREET.getKeyName()))
+                        .setPlaceholderText(
+                            messages.at(MessageKey.ADDRESS_PLACEHOLDER_STREET.getKeyName()))
                         .setFloatLabel(true)
                         .setValue(addressQuestion.getStreetValue().orElse(""))
                         .setFieldErrors(addressQuestion.getStreetErrors())
@@ -55,8 +57,9 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                     /** Second line of address entry: Address line 2 AKA apartment, unit, etc. */
                     FieldWithLabel.input()
                         .setFieldName(addressQuestion.getLine2Path().toString())
-                        .setLabelText(messages.at("label.addressLine2"))
-                        .setPlaceholderText(messages.at("placeholder.line2"))
+                        .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_LINE_2.getKeyName()))
+                        .setPlaceholderText(
+                            messages.at(MessageKey.ADDRESS_PLACEHOLDER_LINE_2.getKeyName()))
                         .setFloatLabel(true)
                         .setValue(addressQuestion.getLine2Value().orElse(""))
                         .getContainer()
@@ -67,7 +70,8 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                         .with(
                             FieldWithLabel.input()
                                 .setFieldName(addressQuestion.getCityPath().toString())
-                                .setLabelText(messages.at("label.city"))
+                                .setLabelText(
+                                    messages.at(MessageKey.ADDRESS_LABEL_CITY.getKeyName()))
                                 .setFloatLabel(true)
                                 .setValue(addressQuestion.getCityValue().orElse(""))
                                 .setFieldErrors(addressQuestion.getCityErrors())
@@ -75,7 +79,8 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                                 .withClasses(Styles.P_1, Styles.PT_2, Styles.PL_0, Styles.W_1_2),
                             FieldWithLabel.input()
                                 .setFieldName(addressQuestion.getStatePath().toString())
-                                .setLabelText(messages.at("label.state"))
+                                .setLabelText(
+                                    messages.at(MessageKey.ADDRESS_LABEL_STATE.getKeyName()))
                                 .setFloatLabel(true)
                                 .setValue(addressQuestion.getStateValue().orElse(""))
                                 .setFieldErrors(addressQuestion.getStateErrors())
@@ -83,13 +88,14 @@ public class AddressQuestionRenderer extends BaseHtmlView implements ApplicantQu
                                 .withClasses(Styles.P_1, Styles.PT_2, Styles.W_1_4),
                             FieldWithLabel.input()
                                 .setFieldName(addressQuestion.getZipPath().toString())
-                                .setLabelText(messages.at("label.zipcode"))
+                                .setLabelText(
+                                    messages.at(MessageKey.ADDRESS_LABEL_ZIPCODE.getKeyName()))
                                 .setFloatLabel(true)
                                 .setValue(addressQuestion.getZipValue().orElse(""))
                                 .setFieldErrors(addressQuestion.getZipErrors())
                                 .getContainer()
                                 .withClasses(Styles.P_1, Styles.PT_2, Styles.PR_0, Styles.W_1_4)),
-                    fieldErrors(addressQuestion.getQuestionErrors())
+                    fieldErrors(messages, addressQuestion.getQuestionErrors())
                         .withClasses(
                             Styles.ML_2, Styles.TEXT_XS, Styles.TEXT_RED_600, Styles.FONT_BOLD)));
   }

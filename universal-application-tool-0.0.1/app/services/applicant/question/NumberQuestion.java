@@ -2,6 +2,7 @@ package services.applicant.question;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.NumberQuestionDefinition;
@@ -22,6 +23,7 @@ public class NumberQuestion implements PresentsErrors {
     return !getQuestionErrors().isEmpty();
   }
 
+  @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     if (!isAnswered()) {
       return ImmutableSet.of();
@@ -42,7 +44,7 @@ public class NumberQuestion implements PresentsErrors {
       long min = questionDefinition.getMin().getAsLong();
       // If value is empty, don't test against min.
       if (getNumberValue().isPresent() && getNumberValue().get() < min) {
-        errors.add(ValidationErrorMessage.numberTooSmallError(min));
+        errors.add(ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_TOO_SMALL, min));
       }
     }
 
@@ -50,7 +52,7 @@ public class NumberQuestion implements PresentsErrors {
       long max = questionDefinition.getMax().getAsLong();
       // If value is empty, don't test against max.
       if (getNumberValue().isPresent() && getNumberValue().get() > max) {
-        errors.add(ValidationErrorMessage.numberTooLargeError(max));
+        errors.add(ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_TOO_BIG, max));
       }
     }
 
@@ -59,8 +61,13 @@ public class NumberQuestion implements PresentsErrors {
 
   @Override
   public boolean hasTypeSpecificErrors() {
+    return !getAllTypeSpecificErrors().isEmpty();
+  }
+
+  @Override
+  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
     // There are no inherent requirements in a number question.
-    return false;
+    return ImmutableSet.of();
   }
 
   @Override

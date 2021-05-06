@@ -10,10 +10,10 @@ public class PathTest {
   @Test
   public void pathWithPrefix_removesOnlyPrefixAndWhitespace() {
     String path = "favorite.color";
-    assertThat(Path.create("$.applicant." + path).path()).isEqualTo("applicant.favorite.color");
-    assertThat(Path.create(path).path()).isEqualTo(path);
-    assertThat(Path.create("      applicant.hello   ").path()).isEqualTo("applicant.hello");
-    assertThat(Path.create("    $.applicant  ").path()).isEqualTo("applicant");
+    assertThat(Path.create("$.applicant." + path).toString()).isEqualTo("applicant.favorite.color");
+    assertThat(Path.create(path).toString()).isEqualTo(path);
+    assertThat(Path.create("      applicant.hello   ").toString()).isEqualTo("applicant.hello");
+    assertThat(Path.create("    $.applicant  ").toString()).isEqualTo("applicant");
   }
 
   @Test
@@ -157,10 +157,10 @@ public class PathTest {
   @Test
   public void join() {
     Path path = Path.create("applicant.my.path");
-    assertThat(path.path()).isEqualTo("applicant.my.path");
+    assertThat(path.toString()).isEqualTo("applicant.my.path");
 
     path = path.join("another");
-    assertThat(path.path()).isEqualTo("applicant.my.path.another");
+    assertThat(path.toString()).isEqualTo("applicant.my.path.another");
   }
 
   @Test

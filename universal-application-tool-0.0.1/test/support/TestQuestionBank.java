@@ -17,13 +17,13 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.RadioButtonQuestionDefinition;
-import services.question.types.RepeaterQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
 /**
@@ -76,7 +76,7 @@ public class TestQuestionBank {
         .put(QuestionType.NAME, applicantName())
         .put(QuestionType.NUMBER, applicantJugglingNumber())
         .put(QuestionType.RADIO_BUTTON, applicantSeason())
-        .put(QuestionType.REPEATER, applicantHouseholdMembers())
+        .put(QuestionType.ENUMERATOR, applicantHouseholdMembers())
         .put(QuestionType.TEXT, applicantFavoriteColor())
         .build();
   }
@@ -95,6 +95,12 @@ public class TestQuestionBank {
   // Dropdown
   public Question applicantIceCream() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ICE_CREAM, this::applicantIceCream);
+  }
+
+  // Enumerator
+  public Question applicantHouseholdMembers() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBERS, this::applicantHouseholdMembers);
   }
 
   // File upload
@@ -124,12 +130,6 @@ public class TestQuestionBank {
   // Radio button
   public Question applicantSeason() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_SEASON, this::applicantSeason);
-  }
-
-  // Repeater
-  public Question applicantHouseholdMembers() {
-    return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBERS, this::applicantHouseholdMembers);
   }
 
   // Text
@@ -183,6 +183,19 @@ public class TestQuestionBank {
                 QuestionOption.create(2L, ImmutableMap.of(Locale.US, "strawberry")),
                 QuestionOption.create(3L, ImmutableMap.of(Locale.US, "vanilla")),
                 QuestionOption.create(4L, ImmutableMap.of(Locale.US, "coffee"))));
+    return maybeSave(definition);
+  }
+
+  // Enumerator
+  private Question applicantHouseholdMembers(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new EnumeratorQuestionDefinition(
+            "applicant household members",
+            Path.create("applicant.applicant_household_members[]"),
+            Optional.empty(),
+            "The applicant's household members",
+            ImmutableMap.of(Locale.US, "Who are your household members?"),
+            ImmutableMap.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
 
@@ -255,19 +268,6 @@ public class TestQuestionBank {
                 QuestionOption.create(2L, ImmutableMap.of(Locale.US, "spring")),
                 QuestionOption.create(3L, ImmutableMap.of(Locale.US, "summer")),
                 QuestionOption.create(4L, ImmutableMap.of(Locale.US, "fall"))));
-    return maybeSave(definition);
-  }
-
-  // Repeater
-  private Question applicantHouseholdMembers(QuestionEnum ignore) {
-    QuestionDefinition definition =
-        new RepeaterQuestionDefinition(
-            "applicant household members",
-            Path.create("applicant.applicant_household_members[]"),
-            Optional.empty(),
-            "The applicant's household members",
-            ImmutableMap.of(Locale.US, "Who are your household members?"),
-            ImmutableMap.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
 

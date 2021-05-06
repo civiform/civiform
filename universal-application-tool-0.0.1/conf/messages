@@ -1,77 +1,147 @@
 # This is the default language for the application. Please provide context for each message for use in translations.
 # If a translation cannot be found for a given language, it will default to this file's text instead.
 
-# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
-content.selectLanguage=Please select your preferred language from the following:
+# NOTES ON THIS FILE
+# 1. Apostrophes in translations must be escaped by another apostrophe. See https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
+# 2. Sections correspond to a single view, such as the applicant's home page or a view of an address question.
+# 3. We use the following key format: ${component_type}.${descriptive_name} - for example, button.nextPage would
+#    contain a translation for a button used to go to the next page. button.ariaLabel.delete would contain a
+#    translation a screen reader could read for the delete button.
+# 4. Keys in this file should be alphabetized within their own section or sub-section.
 
-#---------------------------------------------------------------------#
-# COMPONENTS - contains text used in HTML components such as buttons. #
-#---------------------------------------------------------------------#
+#-------------------------------------------------------------#
+# GENERAL - contains text that corresponds to multiple views. #
+#-------------------------------------------------------------#
 
 # The text on the button an applicant clicks to log out of their session.
 button.logout=Logout
 
-# The text on the button an applicant clicks to apply to a specific program.
-button.apply=Apply
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+content.selectLanguage=Please select your preferred language from the following:
+
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+button.untranslatedSubmit=Submit
+
+#--------------------------------------------------------------------------#
+# PROGRAM FORM - contains text shown when filling out an application form. #
+#--------------------------------------------------------------------------#
 
 # The button text for saving the current applicant-entered data and continuing to the next block in the form.
 button.nextBlock=Save and continue
 
+# The aria text on the button used by an applicant to mark an entity for deletion.
+button.ariaLabel.deleteEntity=Delete {0}
+
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
-toast.localeNotSupported=We're sorry, this program is not fully translated to your preferred language.
+toast.localeNotSupported=We''re sorry, this program is not fully translated to your preferred language.
 
-# A toast message that displays when an applicant tries to apply to a previously completed program.
-toast.programCompleted=Application was already completed.
+#----------------------------------------------------------------------------#
+# APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
+#----------------------------------------------------------------------------#
 
-# A toast message that displays when an applicant submits an application.
-toast.applicationSaved=Successfully saved application: application ID {0}
-
-#--------------------------------------------------------#
-# PROGRAMS - contains text specific to viewing programs. #
-#--------------------------------------------------------#
-
-# (applicant program index view): The title of the page for the list of programs.
-title.programs=Programs
-
-# The text an applicant clicks on the home page to view their submitted applications.
-link.viewApplications=view my applications
-
-# Text indicating a particular program does not belong to any category.
-content.noCategory=No Category
-
-# Link text to read more about a program.
-content.programDetails=Program details
+# The text on the button an applicant clicks to apply to a specific program.
+button.apply=Apply
 
 # "get benefits" floating text
 content.benefits=get benefits
 
 # Long form description of the CiviForm site shown to the applicant.
-content.description=CiviForm lets you apply for many benefits at once by reusing information. You handle getting into it and we'll handle sending it to the right places. Select an application to get started.
+content.description=CiviForm lets you apply for many benefits at once by reusing information. You handle getting into it and we''ll handle sending it to the right places. Select an application to get started.
+
+# Text indicating a particular program does not belong to any category.
+content.noCategory=No Category
+
+# Link text to read more about a program.
+link.programDetails=Program details
+
+# The text an applicant clicks on the home page to view their submitted applications.
+link.viewApplications=view my applications
+
+# The title of the page for the list of programs.
+title.programs=Programs
+
+# A toast message that displays when an applicant submits an application.
+toast.applicationSaved=Successfully saved application: application ID {0}
+
+# A toast message that displays when an applicant tries to apply to a previously completed program.
+toast.programCompleted=Application was already completed.
 
 #----------------------------------------------------------#
-# QUESTIONS - contains text specific to viewing questions. #
+# ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
 
-# Address question labels and placeholder text
-label.street=Address line 1
-placeholder.street=Street address
+# Address question labels - these are shown as the field label before an input box.
 label.addressLine2=Address line 2
-placeholder.line2=Apartment, suite, unit, building, floor, etc.
 label.city=City
-placeholder.city=City
 label.state=State
-placeholder.state=State
+label.street=Address line 1
 label.zipcode=ZIP Code
+
+# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
+placeholder.city=City
+placeholder.line2=Apartment, suite, unit, building, floor, etc.
+placeholder.state=State
+placeholder.street=Street address
 placeholder.zipcode=ZIP Code
 
-# Name question labels and placeholder text
-label.firstName=First name
-placeholder.firstName=First name
-label.middleName=Middle name
-placeholder.middleName=Middle name
-label.lastName=Last name
-placeholder.lastName=Last name
+# Validation errors that are shown when a user enters an invalid address.
+validation.streetRequired=Please enter valid street name and number.
+validation.cityRequired=Please enter city.
+validation.stateRequired=Please enter state.
+validation.zipcodeRequired=Please enter valid ZIP code.
+validation.invalidZipcode=Please enter valid 5-digit ZIP code.
+validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
 
-# Repeater question text
+#--------------------------------------------------------------------------------------------------------#
+# ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
+#--------------------------------------------------------------------------------------------------------#
+
 # Text on a button an applicant would click to add another entity
-button.addRepeaterEntity=add element
+button.addEnumeratorEntity=add element
+
+button.deleteEntity=Delete {0}
+
+# Validation error that shows when an applicant does not enter a value.
+validation.entityNameRequired=Please enter a value for each line.
+
+#----------------------------------------------------------------------------------------------------------#
+# MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
+#----------------------------------------------------------------------------------------------------------#
+
+# Validation errors that are shown if a user selects too many or too few answers.
+validation.tooFewSelections=Please select at least {0}.
+validation.tooManySelections=Please select fewer than {0}.
+
+#---------------------------------------------------#
+# NAME QUESTION - text when viewing a name question #
+#---------------------------------------------------#
+
+# Name question labels - these are shown as the field label before an input box.
+label.firstName=First name
+label.lastName=Last name
+label.middleName=Middle name
+
+# Placeholder text - this is shown inside the input box, before a user enters an answer.
+placeholder.firstName=First name
+placeholder.lastName=Last name
+placeholder.middleName=Middle name
+
+# Validation errors - these are shown if a user enters an invalid name.
+validation.firstNameRequired=Please enter your first name.
+validation.lastNameRequired=Please enter your last name.
+
+#------------------------------------------------------------------------#
+# NUMBER QUESTION - text specific to answering a question with a number. #
+#------------------------------------------------------------------------#
+
+# Validation errors that are shown when a user enters a number that is too big or too small.
+validation.numberTooBig=Must be at most {0}.
+validation.numberTooSmall=Must be at least {0}.
+
+#---------------------------------------------------------------------#
+# TEXT QUESTION - text specific to filling out a question with words. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if a user enters an answer that is too long or too short.
+validation.textTooLong=Must contain at most {0} characters.
+validation.textTooShort=Must contain at least {0} characters.

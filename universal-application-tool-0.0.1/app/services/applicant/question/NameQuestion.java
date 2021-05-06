@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.NameQuestionDefinition;
@@ -26,6 +27,7 @@ public class NameQuestion implements PresentsErrors {
     return !getQuestionErrors().isEmpty();
   }
 
+  @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     // TODO: Implement admin-defined validation.
     return ImmutableSet.of();
@@ -36,6 +38,7 @@ public class NameQuestion implements PresentsErrors {
     return !getAllTypeSpecificErrors().isEmpty();
   }
 
+  @Override
   public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
     return ImmutableSet.<ValidationErrorMessage>builder()
         .addAll(getFirstNameErrors())
@@ -45,7 +48,8 @@ public class NameQuestion implements PresentsErrors {
 
   public ImmutableSet<ValidationErrorMessage> getFirstNameErrors() {
     if (isFirstNameAnswered() && getFirstNameValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.create("First name is required."));
+      return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.NAME_VALIDATION_FIRST_REQUIRED));
     }
 
     return ImmutableSet.of();
@@ -53,7 +57,8 @@ public class NameQuestion implements PresentsErrors {
 
   public ImmutableSet<ValidationErrorMessage> getLastNameErrors() {
     if (isLastNameAnswered() && getLastNameValue().isEmpty()) {
-      return ImmutableSet.of(ValidationErrorMessage.create("Last name is required."));
+      return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.NAME_VALIDATION_LAST_REQUIRED));
     }
 
     return ImmutableSet.of();

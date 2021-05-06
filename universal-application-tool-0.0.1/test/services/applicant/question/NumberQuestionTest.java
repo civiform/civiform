@@ -2,6 +2,7 @@ package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
@@ -11,14 +12,17 @@ import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import play.i18n.Lang;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
+import repository.WithPostgresContainer;
 import services.Path;
 import services.applicant.ApplicantData;
-import services.applicant.ValidationErrorMessage;
 import services.question.types.NumberQuestionDefinition;
 import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
-public class NumberQuestionTest {
+public class NumberQuestionTest extends WithPostgresContainer {
 
   private static final NumberQuestionDefinition numberQuestionDefinition =
       new NumberQuestionDefinition(
@@ -41,11 +45,13 @@ public class NumberQuestionTest {
 
   private Applicant applicant;
   private ApplicantData applicantData;
+  private Messages messages;
 
   @Before
   public void setUp() {
     applicant = new Applicant();
     applicantData = applicant.getApplicantData();
+    messages = instanceOf(MessagesApi.class).preferred(ImmutableList.of(Lang.defaultLang()));
   }
 
   @Test
@@ -123,8 +129,9 @@ public class NumberQuestionTest {
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
     assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(numberQuestion.getQuestionErrors())
-        .containsOnly(ValidationErrorMessage.create(expectedErrorMessage));
+    assertThat(numberQuestion.getQuestionErrors()).hasSize(1);
+    String errorMessage = numberQuestion.getQuestionErrors().iterator().next().getMessage(messages);
+    assertThat(errorMessage).isEqualTo(expectedErrorMessage);
     assertThat(numberQuestion.getNumberValue().get()).isEqualTo(value);
   }
 

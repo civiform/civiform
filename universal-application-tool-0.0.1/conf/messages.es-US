@@ -3,6 +3,7 @@
 button.logout=Cerrar Sesión
 button.apply=Solicitar
 button.nextBlock=Guardar y continuar
+button.deleteEntity=Eliminar
 toast.localeNotSupported=Lo siento, este programa no está completamente traducido al español.
 toast.programCompleted=Ya completó esta solicitud
 toast.applicationSaved=Solicitud guardada con ID: {0}
@@ -10,7 +11,7 @@ toast.applicationSaved=Solicitud guardada con ID: {0}
 title.programs=Programas
 link.viewApplications=ver mis applicaciones
 content.noCategory=Sin Categoría
-content.programDetails=Detalles del programa
+link.programDetails=Detalles del programa
 content.benefits=obtener beneficios
 content.description=CiviForm le permite solicitar muchos beneficios a la vez reutilizando información. Usted se encarga de entrar y nosotros nos encargaremos de enviarlo a los lugares correctos. Seleccione una aplicación para comenzar.
 
@@ -32,4 +33,6 @@ label.middleName=Segundo nombre
 placeholder.middleName=Segundo nombre
 label.lastName=Apellido
 placeholder.lastName=Apellido
-button.addRepeatedEntity=Agrega otro
+button.addEnumeratorEntity=Agrega otro
+
+validation.entityNameRequired=Ingrese un valor para cada línea.

@@ -5,6 +5,7 @@ import static j2html.TagCreator.div;
 
 import j2html.tags.Tag;
 import play.i18n.Messages;
+import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.NameQuestion;
 import views.BaseHtmlView;
@@ -43,7 +44,7 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                 .with(
                     FieldWithLabel.input()
                         .setFieldName(nameQuestion.getFirstNamePath().toString())
-                        .setLabelText(messages.at("label.firstName"))
+                        .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
                         .setFloatLabel(true)
                         .setValue(nameQuestion.getFirstNameValue().orElse(""))
                         .setFieldErrors(nameQuestion.getFirstNameErrors())
@@ -51,14 +52,14 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                 .with(
                     FieldWithLabel.input()
                         .setFieldName(nameQuestion.getMiddleNamePath().toString())
-                        .setLabelText(messages.at("label.middleName"))
+                        .setLabelText(messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName()))
                         .setFloatLabel(true)
                         .setValue(nameQuestion.getMiddleNameValue().orElse(""))
                         .getContainer())
                 .with(
                     FieldWithLabel.input()
                         .setFieldName(nameQuestion.getLastNamePath().toString())
-                        .setLabelText(messages.at("label.lastName"))
+                        .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
                         .setFloatLabel(true)
                         .setValue(nameQuestion.getLastNameValue().orElse(""))
                         .setFieldErrors(nameQuestion.getLastNameErrors())

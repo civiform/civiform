@@ -15,14 +15,14 @@ import services.question.types.QuestionType;
 public abstract class QuestionForm {
   private String questionName;
   private String questionDescription;
-  private Optional<Long> repeaterId;
+  private Optional<Long> enumeratorId;
   private String questionText;
   private String questionHelpText;
 
   protected QuestionForm() {
     questionName = "";
     questionDescription = "";
-    repeaterId = Optional.empty();
+    enumeratorId = Optional.empty();
     questionText = "";
     questionHelpText = "";
   }
@@ -30,7 +30,7 @@ public abstract class QuestionForm {
   protected QuestionForm(QuestionDefinition qd) {
     questionName = qd.getName();
     questionDescription = qd.getDescription();
-    repeaterId = qd.getRepeaterId();
+    enumeratorId = qd.getEnumeratorId();
 
     try {
       questionText = qd.getQuestionText(LocalizationUtils.DEFAULT_LOCALE);
@@ -61,13 +61,13 @@ public abstract class QuestionForm {
     this.questionDescription = checkNotNull(questionDescription);
   }
 
-  public Optional<Long> getRepeaterId() {
-    return repeaterId;
+  public Optional<Long> getEnumeratorId() {
+    return enumeratorId;
   }
 
-  public void setRepeaterId(String repeaterId) {
-    this.repeaterId =
-        repeaterId.isEmpty() ? Optional.empty() : Optional.of(Long.valueOf(repeaterId));
+  public void setEnumeratorId(String enumeratorId) {
+    this.enumeratorId =
+        enumeratorId.isEmpty() ? Optional.empty() : Optional.of(Long.valueOf(enumeratorId));
   }
 
   public abstract QuestionType getQuestionType();
@@ -102,7 +102,7 @@ public abstract class QuestionForm {
             .setName(questionName)
             .setPath(path)
             .setDescription(questionDescription)
-            .setRepeaterId(repeaterId)
+            .setEnumeratorId(enumeratorId)
             .setQuestionText(questionTextMap)
             .setQuestionHelpText(questionHelpTextMap);
     return builder;

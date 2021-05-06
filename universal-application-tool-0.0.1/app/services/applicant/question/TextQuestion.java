@@ -2,6 +2,7 @@ package services.applicant.question;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.QuestionType;
@@ -22,6 +23,7 @@ public class TextQuestion implements PresentsErrors {
     return !getQuestionErrors().isEmpty();
   }
 
+  @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     if (!isAnswered()) {
       return ImmutableSet.of();
@@ -34,14 +36,14 @@ public class TextQuestion implements PresentsErrors {
     if (definition.getMinLength().isPresent()) {
       int minLength = definition.getMinLength().getAsInt();
       if (textLength < minLength) {
-        errors.add(ValidationErrorMessage.textTooShortError(minLength));
+        errors.add(ValidationErrorMessage.create(MessageKey.TEXT_VALIDATION_TOO_SHORT, minLength));
       }
     }
 
     if (definition.getMaxLength().isPresent()) {
       int maxLength = definition.getMaxLength().getAsInt();
       if (textLength > maxLength) {
-        errors.add(ValidationErrorMessage.textTooLongError(maxLength));
+        errors.add(ValidationErrorMessage.create(MessageKey.TEXT_VALIDATION_TOO_LONG, maxLength));
       }
     }
 
@@ -50,8 +52,13 @@ public class TextQuestion implements PresentsErrors {
 
   @Override
   public boolean hasTypeSpecificErrors() {
+    return !getAllTypeSpecificErrors().isEmpty();
+  }
+
+  @Override
+  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
     // There are no inherent requirements in a text question.
-    return false;
+    return ImmutableSet.of();
   }
 
   @Override
