@@ -161,7 +161,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public ImmutableList<AnswerData> getSummaryData() {
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
-    ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<AnswerData>();
+    ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> blocks = getAllBlocks();
     for (Block block : blocks) {
       for (ApplicantQuestion question : block.getQuestions()) {
@@ -193,51 +193,38 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
    * Answers do not include metadata.
    */
   private ImmutableMap<Path, String> getAnswers(ApplicantQuestion question, Locale locale) {
-    return question.getContextualizedScalars().keySet().stream()
-        .filter(path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))
-        .collect(
-            ImmutableMap.toImmutableMap(path -> path, path -> getAnswer(question, path, locale)));
-  }
-
-  /**
-   * The {@link Path} isn't actually used for
-   *
-   * <ul>
-   *   <li>{@link services.applicant.question.SingleSelectQuestion}
-   *   <li>{@link services.applicant.question.MultiSelectQuestion}
-   *   <li>{@link services.applicant.question.EnumeratorQuestion}
-   * </ul>
-   *
-   * because
-   *
-   * <ul>
-   *   <li>they just have one scalar anyway
-   *   <li>their answer needs to be processed into something useful
-   * </ul>
-   */
-  private String getAnswer(ApplicantQuestion question, Path path, Locale locale) {
     switch (question.getType()) {
       case DROPDOWN:
       case RADIO_BUTTON:
-        return question
-            .createSingleSelectQuestion()
-            .getSelectedOptionValue(locale)
-            .map(LocalizedQuestionOption::optionText)
-            .orElse("");
+        return ImmutableMap.of(
+            question.getContextualizedPath().join(Scalar.SELECTION),
+            question
+                .createSingleSelectQuestion()
+                .getSelectedOptionValue(locale)
+                .map(LocalizedQuestionOption::optionText)
+                .orElse(""));
       case CHECKBOX:
-        return question
-            .createMultiSelectQuestion()
-            .getSelectedOptionsValue(locale)
-            .map(
-                selectedOptions ->
-                    selectedOptions.stream()
-                        .map(LocalizedQuestionOption::optionText)
-                        .collect(Collectors.joining(", ")))
-            .orElse("");
+        return ImmutableMap.of(
+            question.getContextualizedPath().join(Scalar.SELECTION),
+            question
+                .createMultiSelectQuestion()
+                .getSelectedOptionsValue(locale)
+                .map(
+                    selectedOptions ->
+                        selectedOptions.stream()
+                            .map(LocalizedQuestionOption::optionText)
+                            .collect(Collectors.joining(", ")))
+                .orElse(""));
       case ENUMERATOR:
-        return question.createEnumeratorQuestion().getAnswerString();
+        return ImmutableMap.of(
+            question.getContextualizedPath(),
+            question.createEnumeratorQuestion().getAnswerString());
       default:
-        return applicantData.readAsString(path).orElse("");
+        return question.getContextualizedScalars().keySet().stream()
+            .filter(path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    path -> path, path -> applicantData.readAsString(path).orElse("")));
     }
   }
 }
