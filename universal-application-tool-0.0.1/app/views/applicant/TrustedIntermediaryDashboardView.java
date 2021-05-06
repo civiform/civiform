@@ -20,8 +20,10 @@ import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import models.Account;
+import models.Applicant;
 import models.TrustedIntermediaryGroup;
 import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
@@ -30,6 +32,7 @@ import play.twirl.api.Content;
 import views.BaseHtmlView;
 import views.admin.ti.TrustedIntermediaryGroupListView;
 import views.components.FieldWithLabel;
+import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -78,14 +81,14 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return div(
         table()
             .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_3_4)
-            .with(renderGroupTableHeader())
+            .with(renderApplicantTableHeader())
             .with(
                 tbody(
                     each(
                         tiGroup.getManagedAccounts().stream()
                             .sorted(Comparator.comparing(Account::getApplicantName))
                             .collect(Collectors.toList()),
-                        account -> renderTIRow(account)))));
+                        account -> renderApplicantRow(account)))));
   }
 
   private ContainerTag renderTIMembersTable(TrustedIntermediaryGroup tiGroup) {
@@ -168,6 +171,45 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderStatusCell(ti));
   }
 
+  private Tag renderApplicantRow(Account applicant) {
+    return tr().withClasses(
+            ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
+            Styles.BORDER_B,
+            Styles.BORDER_GRAY_300,
+            StyleUtils.even(Styles.BG_GRAY_100))
+        .with(renderInfoCell(applicant))
+        .with(renderApplicantInfoCell(applicant))
+        .with(renderActionsCell(applicant));
+  }
+
+  private Tag renderApplicantInfoCell(Account applicantAccount) {
+    int applicationCount =
+        applicantAccount.getApplicants().stream()
+            .map(applicant -> applicant.getApplications().size())
+            .collect(Collectors.summingInt(Integer::intValue));
+    return td().with(
+            div(String.format("Application count: %d", applicationCount))
+                .withClasses(Styles.FONT_SEMIBOLD))
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+  }
+
+  private Tag renderActionsCell(Account applicant) {
+    Optional<Applicant> newestApplicant = applicant.newestApplicant();
+    if (newestApplicant.isEmpty()) {
+      return td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+    }
+    return td().with(
+            new LinkElement()
+                .setId(String.format("act-as-%d-button", newestApplicant.get().id))
+                .setText("Applicant Dashboard ➔")
+                .setHref(
+                    controllers.applicant.routes.ApplicantProgramsController.index(
+                            newestApplicant.get().id)
+                        .url())
+                .asAnchorText())
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+  }
+
   private Tag renderInfoCell(Account ti) {
     String emailField = ti.getEmailAddress();
     if (Strings.isNullOrEmpty(emailField)) {
@@ -185,6 +227,14 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     }
     return td().with(div(accountStatus).withClasses(Styles.FONT_SEMIBOLD))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+  }
+
+  private Tag renderApplicantTableHeader() {
+    return thead(
+        tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
+            .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
+            .with(th("Applications").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
+            .with(th("Actions").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4)));
   }
 
   private Tag renderGroupTableHeader() {
