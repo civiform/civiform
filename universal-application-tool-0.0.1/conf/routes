@@ -85,6 +85,9 @@ GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/review     
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/updateFile/:inReview   controllers.applicant.ApplicantProgramBlocksController.updateFile(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview              controllers.applicant.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
 
+# Deep-link methods
+GET     /programs/:programName      controllers.applicant.DeepLinkController.programByName(request: Request, programName: String)
+
 # User profile pages
 GET     /users/me                    controllers.ProfileController.myProfile(request: Request)
 GET     /users/:id                   controllers.ProfileController.profilePage(request: Request, id: Long)

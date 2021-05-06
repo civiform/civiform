@@ -56,6 +56,15 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
+  public void getForSlug_findsCorrectProgram() {
+    Program program = resourceCreator.insertActiveProgram("Something With A Name");
+
+    Program found = repo.getForSlug("something-with-a-name").toCompletableFuture().join();
+
+    assertThat(found).isEqualTo(program);
+  }
+
+  @Test
   public void insertProgramSync() throws TranslationNotFoundException {
     Program program = new Program("ProgramRepository", "desc", "name", "description");
 
