@@ -21,3 +21,4 @@ ECSSERVICE=$(aws cloudformation describe-stacks --region ${REGION} --stack-name 
 ECSCLUSTER=$(aws cloudformation describe-stacks --region ${REGION} --stack-name civiform-staging | jq -r '.Stacks[0].Outputs[] | select(.OutputKey == "ECSCluster") | .OutputValue')
 
 aws ecs update-service --region=${REGION} --cluster "$ECSCLUSTER" --service "$ECSSERVICE" --force-new-deployment
+aws ecs wait services-stable --region=${REGION} --cluster "$ECSCLUSTER" --services "$ECSSERVICE"
