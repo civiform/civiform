@@ -61,7 +61,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                     renderTIApplicantsTable(tiGroup),
                     hr().withClasses(Styles.MT_6),
                     renderHeader("Trusted Intermediary Members"),
-                    renderTIMembersTable(tiGroup).withClasses(Styles.ML_2))
+                    renderTIMembersTable(tiGroup).withClasses(Styles.ML_2)))
             .withClasses(Styles.PX_2, Styles.MAX_W_SCREEN_XL, Styles.MX_AUTO);
     if (request.flash().get("error").isPresent()) {
       LoggerFactory.getLogger(TrustedIntermediaryGroupListView.class)
