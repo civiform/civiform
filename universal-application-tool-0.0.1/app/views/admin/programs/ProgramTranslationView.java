@@ -58,7 +58,7 @@ public class ProgramTranslationView extends TranslationFormView {
     String title = "Manage Program Translations";
     HtmlBundle bundle = new HtmlBundle()
         .setTitle(title)
-        .addHeaderContentrenderHeader(title))
+        .addHeaderContent(renderHeader(title))
         .addMainContent(renderLanguageLinks(programId, locale))
         .addMainContent(form);
       
