@@ -10,7 +10,6 @@ import services.question.types.QuestionType;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.BaseStyles;
-import views.style.StyleUtils;
 import views.style.Styles;
 
 public class QuestionPreview {
