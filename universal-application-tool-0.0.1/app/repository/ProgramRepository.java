@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.TxScope;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -121,8 +122,14 @@ public class ProgramRepository {
             program.getSlug();
             program.save();
           }
+          ImmutableList<Program> activePrograms =
+              versionRepository.get().getActiveVersion().getPrograms();
+          List<Program> programsMatchingSlug =
+              ebeanServer.find(Program.class).where().eq("slug", slug).findList();
           Optional<Program> programMaybe =
-              ebeanServer.find(Program.class).where().eq("slug", slug).findOneOrEmpty();
+              activePrograms.stream()
+                  .filter(activeProgram -> programsMatchingSlug.contains(activeProgram))
+                  .findFirst();
           if (programMaybe.isPresent()) {
             return programMaybe.get();
           }
