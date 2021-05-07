@@ -63,6 +63,33 @@ describe('Admin can manage translations', () => {
 
     expect(await page.innerText('.cf-applicant-question-text')).toContain('Spanish question text');
     expect(await page.innerText('.cf-applicant-question-help-text')).toContain('Spanish help text');
+    await endSession(browser);
+  });
+
+  it('updating a question does not clobber translations', async () => {
+    const { browser, page } = await startSession();
+
+    await loginAsAdmin(page);
+    const adminQuestions = new AdminQuestions(page);
+
+    // Add a new question.
+    const questionName = 'translate-no-clobber';
+    await adminQuestions.addNumberQuestion(questionName);
+
+    // Add a translation for a non-English language.
+    await adminQuestions.goToQuestionTranslationPage(questionName);
+    const adminTranslations = new AdminTranslations(page);
+    await adminTranslations.selectLanguage('Spanish');
+    await adminTranslations.editQuestionTranslations('something different', 'help text different');
+
+    // Edit the question again and update the question.
+    await adminQuestions.updateQuestion(questionName);
+
+    // View the question translations and check that the Spanish translations are still there.
+    await adminQuestions.goToQuestionTranslationPage(questionName);
+    await adminTranslations.selectLanguage('Spanish');
+    expect(await page.getAttribute('#localize-question-text', 'value')).toContain('something different');
+    await endSession(browser);
   });
 
   it('Applicant sees toast message warning translation is not complete', async () => {

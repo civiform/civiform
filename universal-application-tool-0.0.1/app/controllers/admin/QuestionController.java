@@ -4,10 +4,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -18,6 +20,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.LocalizationUtils;
 import services.Path;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
@@ -130,7 +133,8 @@ public class QuestionController extends CiviFormController {
 
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = getBuilderWithQuestionPath(roService, questionForm).build();
+      questionDefinition =
+          getBuilderWithQuestionPath(roService, Optional.empty(), questionForm).build();
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
       return badRequest(e.getMessage());
@@ -191,9 +195,17 @@ public class QuestionController extends CiviFormController {
     ReadOnlyQuestionService roService =
         service.getReadOnlyQuestionService().toCompletableFuture().join();
 
+    Optional<QuestionDefinition> maybeExisting;
+    try {
+      maybeExisting = Optional.of(roService.getQuestionDefinition(id));
+    } catch (QuestionNotFoundException e) {
+      maybeExisting = Optional.empty();
+    }
+
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = getBuilderWithQuestionPath(roService, questionForm).setId(id).build();
+      questionDefinition =
+          getBuilderWithQuestionPath(roService, maybeExisting, questionForm).setId(id).build();
     } catch (UnsupportedQuestionTypeException e) {
       // Failed while trying to update a question that was already created for the given question
       // type
@@ -229,14 +241,22 @@ public class QuestionController extends CiviFormController {
   }
 
   private QuestionDefinitionBuilder getBuilderWithQuestionPath(
-      ReadOnlyQuestionService roService, QuestionForm questionForm) {
+      ReadOnlyQuestionService roService,
+      Optional<QuestionDefinition> existing,
+      QuestionForm questionForm) {
     try {
       Path path =
           roService.makePath(
               questionForm.getEnumeratorId(),
               questionForm.getQuestionName(),
               questionForm.getQuestionType().equals(QuestionType.ENUMERATOR));
-      return questionForm.getBuilder(path);
+      QuestionDefinitionBuilder updated = questionForm.getBuilder(path);
+
+      if (existing.isPresent()) {
+        updated = mergeLocalizations(existing.get(), updated, questionForm);
+      }
+
+      return updated;
     } catch (QuestionNotFoundException | InvalidQuestionTypeException e) {
       throw new RuntimeException(
           String.format(
@@ -245,6 +265,27 @@ public class QuestionController extends CiviFormController {
               questionForm),
           e);
     }
+  }
+
+  private QuestionDefinitionBuilder mergeLocalizations(
+      QuestionDefinition existing, QuestionDefinitionBuilder updated, QuestionForm questionForm) {
+    // Instead of overwriting all localizations, we just want to overwrite the one
+    // for the default locale (the only one possible to change in the edit form).
+    ImmutableMap<Locale, String> localizedQuestionText =
+        LocalizationUtils.overwriteExistingTranslation(
+            existing.getQuestionText(),
+            LocalizationUtils.DEFAULT_LOCALE,
+            questionForm.getQuestionText());
+    ImmutableMap<Locale, String> localizedQuestionHelpText =
+        LocalizationUtils.overwriteExistingTranslation(
+            existing.getQuestionHelpText(),
+            LocalizationUtils.DEFAULT_LOCALE,
+            questionForm.getQuestionHelpText());
+
+    updated.setQuestionText(localizedQuestionText);
+    updated.setQuestionHelpText(localizedQuestionHelpText);
+
+    return updated;
   }
 
   private String invalidQuestionTypeMessage(String questionType) {
