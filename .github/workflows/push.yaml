@@ -6,7 +6,7 @@ on:
 
 # Two probers running at once can break each other.
 concurrency:
-  group: staging/environment
+  group: stagingenvironment
   cancel-in-progress: true
 
 jobs:
