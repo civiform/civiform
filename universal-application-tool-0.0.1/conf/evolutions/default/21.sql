@@ -2,9 +2,9 @@
 
 # --- !Ups
 create table program_accounts (
-  programs_id bigint not null,
+  program_id bigint not null,
   account_id bigint not null,
-  primary key (programs_id, account_id)
+  primary key (program_id, account_id)
 );
 
 # --- !Downs

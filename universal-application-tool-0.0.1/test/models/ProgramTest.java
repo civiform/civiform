@@ -31,6 +31,8 @@ public class ProgramTest extends WithPostgresContainer {
 
   @Test
   public void canSaveProgram() throws UnsupportedQuestionTypeException {
+    Account account = new Account();
+
     QuestionDefinition questionDefinition =
         new QuestionDefinitionBuilder()
             .setQuestionType(QuestionType.TEXT)
@@ -53,6 +55,7 @@ public class ProgramTest extends WithPostgresContainer {
     ProgramDefinition definition =
         ProgramDefinition.builder()
             .setId(1L)
+            .setProgramAdminAccounts(ImmutableList.of(account))
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "ProgramTest")
@@ -65,6 +68,7 @@ public class ProgramTest extends WithPostgresContainer {
 
     Program found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
 
+    assertThat(found.getProgramDefinition().programAdminAccounts()).containsOnly(account);
     assertThat(found.getProgramDefinition().adminName()).isEqualTo("Admin name");
     assertThat(found.getProgramDefinition().localizedName())
         .isEqualTo(ImmutableMap.of(Locale.US, "ProgramTest"));
