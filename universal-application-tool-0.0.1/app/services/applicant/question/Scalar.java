@@ -19,16 +19,19 @@ import services.question.types.ScalarType;
  */
 public enum Scalar {
   CITY,
+  DAY,
   FILE_KEY,
   FIRST_NAME,
   LAST_NAME,
   LINE2,
   MIDDLE_NAME,
+  MONTH,
   NUMBER,
   SELECTION,
   STATE,
   STREET,
   TEXT,
+  YEAR,
   ZIP,
 
   // Special scalars for Enumerator updates

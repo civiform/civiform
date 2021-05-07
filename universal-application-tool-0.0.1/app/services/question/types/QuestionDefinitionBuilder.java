@@ -193,18 +193,13 @@ public class QuestionDefinitionBuilder {
 
       case DATE:
         DateQuestionDefinition.DateValidationPredicates dateValidationPredicates =
-                DateQuestionDefinition.DateValidationPredicates.create();
+            DateQuestionDefinition.DateValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {
           dateValidationPredicates =
-                  DateQuestionDefinition.DateValidationPredicates.parse(validationPredicatesString);
+              DateQuestionDefinition.DateValidationPredicates.parse(validationPredicatesString);
         }
         return new DateQuestionDefinition(
-                name,
-                path,
-                enumeratorId,
-                description,
-                questionText,
-                questionHelpText);
+            name, path, enumeratorId, description, questionText, questionHelpText);
 
       case DROPDOWN:
         return new DropdownQuestionDefinition(
