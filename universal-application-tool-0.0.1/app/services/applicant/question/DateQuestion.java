@@ -67,9 +67,9 @@ public class DateQuestion implements PresentsErrors {
   @Override
   public String getAnswerString() {
     String[] parts = {
-            getMonthValue().map(Object::toString).orElse("-"),
-            getDayValue().map(Object::toString).orElse("-"),
-            getYearValue().map(Object::toString).orElse("-")
+      getMonthValue().map(Object::toString).orElse("-"),
+      getDayValue().map(Object::toString).orElse("-"),
+      getYearValue().map(Object::toString).orElse("-")
     };
 
     return Arrays.stream(parts).filter(part -> !part.isBlank()).collect(Collectors.joining(" "));
@@ -113,11 +113,10 @@ public class DateQuestion implements PresentsErrors {
   public void assertQuestionType() {
     if (!applicantQuestion.getType().equals(QuestionType.DATE)) {
       throw new RuntimeException(
-              String.format(
-                      "Question is not a DATE question: %s (type: %s)",
-                      applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
-                      applicantQuestion.getQuestionDefinition().getQuestionType()));
+          String.format(
+              "Question is not a DATE question: %s (type: %s)",
+              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
+              applicantQuestion.getQuestionDefinition().getQuestionType()));
     }
   }
-
 }

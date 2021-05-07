@@ -192,12 +192,13 @@ public class QuestionDefinitionBuilder {
             multiOptionValidationPredicates);
 
       case DATE:
-        DateQuestionDefinition.DateValidationPredicates dateValidationPredicates =
-            DateQuestionDefinition.DateValidationPredicates.create();
-        if (!validationPredicatesString.isEmpty()) {
-          dateValidationPredicates =
-              DateQuestionDefinition.DateValidationPredicates.parse(validationPredicatesString);
-        }
+        //        DateQuestionDefinition.DateValidationPredicates dateValidationPredicates =
+        //            DateQuestionDefinition.DateValidationPredicates.create();
+        //        if (!validationPredicatesString.isEmpty()) {
+        //          dateValidationPredicates =
+        //
+        // DateQuestionDefinition.DateValidationPredicates.parse(validationPredicatesString);
+        //        }
         return new DateQuestionDefinition(
             name, path, enumeratorId, description, questionText, questionHelpText);
 
