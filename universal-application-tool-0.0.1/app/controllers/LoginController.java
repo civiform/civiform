@@ -10,6 +10,7 @@ import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.oidc.client.OidcClient;
+import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.play.PlayWebContext;
 import org.pac4j.play.http.PlayHttpActionAdapter;
 import play.mvc.Controller;
@@ -54,6 +55,7 @@ public class LoginController extends Controller {
       return badRequest("Identity provider secrets not configured.");
     }
     PlayWebContext webContext = new PlayWebContext(request);
+    webContext.setRequestAttribute(OidcConfiguration.SCOPE, client.getConfiguration().getScope());
     Optional<RedirectionAction> redirect = client.getRedirectionAction(webContext, sessionStore);
     if (redirect.isPresent()) {
       return (Result) httpActionAdapter.adapt(redirect.get(), webContext);
