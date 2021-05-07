@@ -73,7 +73,7 @@ describe('Admin can manage translations', () => {
     const adminQuestions = new AdminQuestions(page);
 
     // Add a new question.
-    const questionName = 'number-question-translated';
+    const questionName = 'translate-no-clobber';
     await adminQuestions.addNumberQuestion(questionName);
 
     // Add a translation for a non-English language.
