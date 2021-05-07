@@ -4,7 +4,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
-import static j2html.TagCreator.label;
 import static j2html.TagCreator.text;
 
 import com.google.common.collect.ImmutableSet;
@@ -39,14 +38,6 @@ public abstract class BaseHtmlView {
       Messages messages, ImmutableSet<ValidationErrorMessage> errors) {
     return div(each(errors, error -> div(error.getMessage(messages))))
         .withClasses(BaseStyles.FORM_ERROR_TEXT);
-  }
-
-  protected static Tag checkboxInputWithLabel(
-      String labelText, String inputId, String inputName, String inputValue) {
-    return label()
-        .with(
-            input().withType("checkbox").withName(inputName).withValue(inputValue).withId(inputId),
-            text(labelText));
   }
 
   protected static Tag button(String textContents) {
