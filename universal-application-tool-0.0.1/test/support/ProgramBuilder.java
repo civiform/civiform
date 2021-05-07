@@ -62,6 +62,7 @@ public class ProgramBuilder {
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder()
+            .setProgramAdminAccounts(ImmutableList.of())
             .setBlockDefinitions(ImmutableList.of())
             .setExportDefinitions(ImmutableList.of());
     return new ProgramBuilder(builder);
@@ -91,6 +92,7 @@ public class ProgramBuilder {
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder()
+            .setProgramAdminAccounts(ImmutableList.of())
             .setBlockDefinitions(ImmutableList.of())
             .setExportDefinitions(ImmutableList.of());
     return new ProgramBuilder(builder);

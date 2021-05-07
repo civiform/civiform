@@ -2,6 +2,7 @@ package services.export;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -38,6 +39,7 @@ public class PdfExporterTest extends WithPostgresContainer {
     ProgramDefinition definition =
         ProgramDefinition.builder()
             .setId(1L)
+            .setProgramAdminAccounts(ImmutableList.of())
             .setAdminName("fake program")
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "fake program")

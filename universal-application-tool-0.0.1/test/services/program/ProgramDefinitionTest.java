@@ -3,6 +3,7 @@ package services.program;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import org.junit.Test;
@@ -23,6 +24,7 @@ public class ProgramDefinitionTest {
             .build();
     ProgramDefinition.builder()
         .setId(123L)
+        .setProgramAdminAccounts(ImmutableList.of())
         .setAdminName("Admin name")
         .setAdminDescription("Admin description")
         .addLocalizedName(Locale.US, "The Program")
@@ -42,6 +44,7 @@ public class ProgramDefinitionTest {
     ProgramDefinition program =
         ProgramDefinition.builder()
             .setId(123L)
+            .setProgramAdminAccounts(ImmutableList.of())
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "The Program")
@@ -57,6 +60,7 @@ public class ProgramDefinitionTest {
     ProgramDefinition program =
         ProgramDefinition.builder()
             .setId(123L)
+            .setProgramAdminAccounts(ImmutableList.of())
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "The Program")
@@ -92,6 +96,7 @@ public class ProgramDefinitionTest {
     ProgramDefinition program =
         ProgramDefinition.builder()
             .setId(123L)
+            .setProgramAdminAccounts(ImmutableList.of())
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "The Program")
@@ -110,6 +115,7 @@ public class ProgramDefinitionTest {
     ProgramDefinition program =
         ProgramDefinition.builder()
             .setId(123L)
+            .setProgramAdminAccounts(ImmutableList.of())
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "Applicant friendly name")
@@ -137,6 +143,7 @@ public class ProgramDefinitionTest {
     ProgramDefinition program =
         ProgramDefinition.builder()
             .setId(123L)
+            .setProgramAdminAccounts(ImmutableList.of())
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "Applicant friendly name")
@@ -161,6 +168,7 @@ public class ProgramDefinitionTest {
     ProgramDefinition program =
         ProgramDefinition.builder()
             .setId(123L)
+            .setProgramAdminAccounts(ImmutableList.of())
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "existing name")
@@ -186,6 +194,7 @@ public class ProgramDefinitionTest {
     ProgramDefinition definition =
         ProgramDefinition.builder()
             .setId(123L)
+            .setProgramAdminAccounts(ImmutableList.of())
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "Applicant friendly name")
@@ -222,6 +231,7 @@ public class ProgramDefinitionTest {
     ProgramDefinition definition =
         ProgramDefinition.builder()
             .setId(123L)
+            .setProgramAdminAccounts(ImmutableList.of())
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "Applicant friendly name")
