@@ -3,6 +3,8 @@ package models;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
+import io.ebean.annotation.DbArray;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import services.program.ProgramDefinition;
 
 @Entity
 @Table(name = "accounts")
@@ -21,6 +24,9 @@ public class Account extends BaseModel {
 
   @ManyToOne private TrustedIntermediaryGroup memberOfGroup;
   @ManyToOne private TrustedIntermediaryGroup managedByGroup;
+
+  // This must be a mutable collection so we can add to the list later.
+  @DbArray private List<String> adminOf = new ArrayList<>();
 
   private String emailAddress;
 
@@ -62,6 +68,14 @@ public class Account extends BaseModel {
 
   public Optional<TrustedIntermediaryGroup> getManagedByGroup() {
     return Optional.ofNullable(this.managedByGroup);
+  }
+
+  public ImmutableList<String> getAdministeredProgramNames() {
+    return ImmutableList.copyOf(this.adminOf);
+  }
+
+  public void addAdministeredProgram(ProgramDefinition program) {
+    this.adminOf.add(program.adminName());
   }
 
   /**
