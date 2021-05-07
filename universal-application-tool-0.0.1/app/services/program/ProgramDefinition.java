@@ -30,7 +30,7 @@ public abstract class ProgramDefinition {
   /** Unique identifier for a ProgramDefinition. */
   public abstract long id();
 
-  /** Which accounts are admins for this programs? */
+  /** Which accounts are admins for this program? */
   public abstract ImmutableList<Account> programAdminAccounts();
 
   /**
