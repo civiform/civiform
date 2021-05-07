@@ -63,6 +63,7 @@ describe('Admin can manage translations', () => {
 
     expect(await page.innerText('.cf-applicant-question-text')).toContain('Spanish question text');
     expect(await page.innerText('.cf-applicant-question-help-text')).toContain('Spanish help text');
+    await endSession(browser);
   });
 
   it('updating a question does not clobber translations', async () => {
@@ -88,6 +89,7 @@ describe('Admin can manage translations', () => {
     await adminQuestions.goToQuestionTranslationPage(questionName);
     await adminTranslations.selectLanguage('Spanish');
     expect(await page.getAttribute('#localize-question-text', 'value')).toContain('something different');
+    await endSession(browser);
   });
 
   it('Applicant sees toast message warning translation is not complete', async () => {
