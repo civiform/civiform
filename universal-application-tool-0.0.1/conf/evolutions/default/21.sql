@@ -1,4 +1,5 @@
-# --- Create a table that links programs to the program admin accounts that administer them.
+# --- Add a column to accounts with the names of programs that account administers.
+# --- Also add an index using PostgreSQL's GIN index
 
 # --- !Ups
 alter table accounts add column admin_of varchar[];
