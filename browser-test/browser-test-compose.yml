@@ -39,8 +39,8 @@ services:
     environment:
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
-      - AWS_S3_REGION=us-west-2
-      - AWS_S3_BUCKET_NAME=civiform-local-s3
+      - AWS_REGION
+      - AWS_S3_BUCKET_NAME
       - IDCS_CLIENT_ID=foo
       - IDCS_SECRET=bar
       - IDCS_DISCOVERY_URI=http://fake-idcs:3380/.well-known/openid-configuration

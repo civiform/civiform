@@ -17,11 +17,11 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
-import repository.AmazonS3Client;
-import repository.SignedS3UploadRequest;
 import services.MessageKey;
 import services.applicant.Block;
 import services.applicant.question.ApplicantQuestion;
+import services.aws.SignedS3UploadRequest;
+import services.aws.SimpleStorage;
 import views.BaseHtmlView;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
@@ -169,7 +169,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
     abstract boolean preferredLanguageSupported();
 
-    abstract AmazonS3Client amazonS3Client();
+    abstract SimpleStorage amazonS3Client();
 
     abstract String baseUrl();
 
@@ -191,7 +191,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
       public abstract Builder setPreferredLanguageSupported(boolean preferredLanguageSupported);
 
-      public abstract Builder setAmazonS3Client(AmazonS3Client amazonS3Client);
+      public abstract Builder setAmazonS3Client(SimpleStorage amazonS3Client);
 
       public abstract Builder setBaseUrl(String baseUrl);
 

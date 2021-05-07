@@ -12,22 +12,22 @@ import models.StoredFile;
 import play.Environment;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import repository.AmazonS3Client;
-import repository.SignedS3UploadRequest;
 import repository.StoredFileRepository;
+import services.aws.SignedS3UploadRequest;
+import services.aws.SimpleStorage;
 import views.dev.FileUploadView;
 
 /** Controller for interacting with S3 directly in dev mode. */
 public class FileUploadController extends DevController {
   private final FileUploadView view;
-  private final AmazonS3Client s3Client;
+  private final SimpleStorage s3Client;
   private final StoredFileRepository storedFileRepository;
   private final String baseUrl;
 
   @Inject
   public FileUploadController(
       FileUploadView view,
-      AmazonS3Client s3Client,
+      SimpleStorage s3Client,
       StoredFileRepository storedFileRepository,
       Environment environment,
       Config configuration) {
