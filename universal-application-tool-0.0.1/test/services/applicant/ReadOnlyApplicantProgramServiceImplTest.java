@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.AbstractMap;
 import java.util.Locale;
 import java.util.Optional;
 import models.Applicant;
@@ -388,18 +389,137 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
   @Test
   public void getSummaryData_returnsCompletedData() {
+    // Create a program with lots of questions
+    QuestionDefinition singleSelectQuestionDefinition =
+        testQuestionBank.applicantSeason().getQuestionDefinition();
+    QuestionDefinition multiSelectQuestionDefinition =
+        testQuestionBank.applicantKitchenTools().getQuestionDefinition();
+    QuestionDefinition enumeratorQuestionDefinition =
+        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+    QuestionDefinition repeatedQuestionDefinition =
+        testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withLocalizedName(Locale.GERMAN, "Mein Programm")
+            .withBlock("Block one")
+            .withQuestionDefinitions(
+                ImmutableList.of(
+                    nameQuestion,
+                    colorQuestion,
+                    addressQuestion,
+                    singleSelectQuestionDefinition,
+                    multiSelectQuestionDefinition))
+            .withBlock("enumerator")
+            .withQuestionDefinition(enumeratorQuestionDefinition)
+            .withRepeatedBlock("repeated")
+            .withQuestionDefinition(repeatedQuestionDefinition)
+            .buildDefinition();
     answerNameQuestion(programDefinition.id());
     answerColorQuestion(programDefinition.id());
     answerAddressQuestion(programDefinition.id());
+
+    // Answer the questions
+    QuestionAnswerer.answerSingleSelectQuestion(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(singleSelectQuestionDefinition.getQuestionPathSegment()),
+        1L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(multiSelectQuestionDefinition.getQuestionPathSegment()),
+        0,
+        1L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(multiSelectQuestionDefinition.getQuestionPathSegment()),
+        1,
+        2L);
+    Path enumeratorPath =
+        ApplicantData.APPLICANT_PATH.join(enumeratorQuestionDefinition.getQuestionPathSegment());
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData, enumeratorPath, ImmutableList.of("enum one", "enum two"));
+    QuestionAnswerer.answerNameQuestion(
+        applicantData,
+        enumeratorPath.atIndex(0).join(repeatedQuestionDefinition.getQuestionPathSegment()),
+        "first",
+        "middle",
+        "last");
+    QuestionAnswerer.answerNameQuestion(
+        applicantData,
+        enumeratorPath.atIndex(1).join(repeatedQuestionDefinition.getQuestionPathSegment()),
+        "foo",
+        "bar",
+        "baz");
+
+    // Test the summary data
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
-
     ImmutableList<AnswerData> result = subject.getSummaryData();
 
-    assertEquals(3, result.size());
+    assertEquals(8, result.size());
     assertThat(result.get(0).answerText()).isEqualTo("Alice Middle Last");
     assertThat(result.get(1).answerText()).isEqualTo("mauve");
     assertThat(result.get(2).answerText()).isEqualTo("123 Rhode St.\nSeattle, WA, 12345");
+
+    // Check single and multi select answers
+    assertThat(result.get(3).questionId()).isEqualTo(singleSelectQuestionDefinition.getId());
+    assertThat(result.get(3).scalarAnswersInDefaultLocale())
+        .containsExactly(
+            new AbstractMap.SimpleEntry<>(
+                ApplicantData.APPLICANT_PATH
+                    .join(singleSelectQuestionDefinition.getQuestionPathSegment())
+                    .join(Scalar.SELECTION),
+                "winter"));
+    assertThat(result.get(4).questionId()).isEqualTo(multiSelectQuestionDefinition.getId());
+    assertThat(result.get(4).scalarAnswersInDefaultLocale())
+        .containsExactly(
+            new AbstractMap.SimpleEntry<>(
+                ApplicantData.APPLICANT_PATH
+                    .join(multiSelectQuestionDefinition.getQuestionPathSegment())
+                    .join(Scalar.SELECTION),
+                "toaster, pepper grinder"));
+
+    // check enumerator and repeated answers
+    assertThat(result.get(5).questionId()).isEqualTo(enumeratorQuestionDefinition.getId());
+    assertThat(result.get(5).scalarAnswersInDefaultLocale())
+        .containsExactly(new AbstractMap.SimpleEntry<>(enumeratorPath, "enum one\nenum two"));
+    assertThat(result.get(6).questionId()).isEqualTo(repeatedQuestionDefinition.getId());
+    assertThat(result.get(6).scalarAnswersInDefaultLocale())
+        .containsExactlyEntriesOf(
+            ImmutableMap.of(
+                enumeratorPath
+                    .atIndex(0)
+                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
+                    .join(Scalar.FIRST_NAME),
+                "first",
+                enumeratorPath
+                    .atIndex(0)
+                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
+                    .join(Scalar.MIDDLE_NAME),
+                "middle",
+                enumeratorPath
+                    .atIndex(0)
+                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
+                    .join(Scalar.LAST_NAME),
+                "last"));
+    assertThat(result.get(7).questionId()).isEqualTo(repeatedQuestionDefinition.getId());
+    assertThat(result.get(7).scalarAnswersInDefaultLocale())
+        .containsExactlyEntriesOf(
+            ImmutableMap.of(
+                enumeratorPath
+                    .atIndex(1)
+                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
+                    .join(Scalar.FIRST_NAME),
+                "foo",
+                enumeratorPath
+                    .atIndex(1)
+                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
+                    .join(Scalar.MIDDLE_NAME),
+                "bar",
+                enumeratorPath
+                    .atIndex(1)
+                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
+                    .join(Scalar.LAST_NAME),
+                "baz"));
   }
 
   @Test
@@ -409,7 +529,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
     ImmutableList<AnswerData> result = subject.getSummaryData();
 
-    assertEquals(3, result.size());
+    assertThat(result).hasSize(3);
     assertThat(result.get(0).answerText()).isEqualTo("");
     assertThat(result.get(1).answerText()).isEqualTo("-");
     assertThat(result.get(2).answerText()).isEqualTo("");
