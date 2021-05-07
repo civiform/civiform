@@ -2,6 +2,7 @@ package models;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.annotation.DbJson;
@@ -34,6 +35,9 @@ public class Program extends BaseModel {
   @Constraints.Required private String name;
 
   @Constraints.Required private String description;
+
+  // Not required - will be autofilled if not present.
+  private String slug;
 
   @Constraints.Required @DbJsonB private ImmutableMap<Locale, String> localizedName;
 
@@ -105,6 +109,7 @@ public class Program extends BaseModel {
     localizedDescription = programDefinition.localizedDescription();
     blockDefinitions = programDefinition.blockDefinitions();
     exportDefinitions = programDefinition.exportDefinitions();
+    slug = programDefinition.slug();
   }
 
   /** Populates {@link ProgramDefinition} from column values. */
@@ -130,5 +135,12 @@ public class Program extends BaseModel {
 
   public void addVersion(Version version) {
     this.versions.add(version);
+  }
+
+  public String getSlug() {
+    if (Strings.isNullOrEmpty(this.slug)) {
+      this.slug = this.programDefinition.slug();
+    }
+    return this.slug;
   }
 }

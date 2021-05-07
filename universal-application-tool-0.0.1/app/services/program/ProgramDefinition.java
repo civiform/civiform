@@ -2,6 +2,7 @@ package services.program;
 
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
+import com.github.slugify.Slugify;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
@@ -210,6 +211,10 @@ public abstract class ProgramDefinition {
 
   public int getBlockCount() {
     return blockDefinitions().size();
+  }
+
+  public String slug() {
+    return new Slugify().slugify(this.adminName());
   }
 
   public int getQuestionCount() {

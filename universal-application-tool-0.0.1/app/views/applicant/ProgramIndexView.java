@@ -7,6 +7,7 @@ import static j2html.TagCreator.each;
 import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
+import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import java.util.Locale;
 import java.util.Optional;
@@ -17,6 +18,7 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
+import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
@@ -135,10 +137,12 @@ public class ProgramIndexView extends BaseHtmlView {
             .withText(program.getLocalizedDescriptionOrDefault(preferredLocale));
 
     ContainerTag externalLink =
-        div()
-            .withId(baseId + "-external-link")
-            .withClasses(Styles.TEXT_XS, Styles.UNDERLINE)
-            .withText(messages.at(MessageKey.CONTENT_PROGRAM_DETAILS.getKeyName()));
+        new LinkElement()
+            .setId(baseId + "-external-link")
+            .setStyles(Styles.TEXT_XS, Styles.UNDERLINE)
+            .setText(messages.at(MessageKey.CONTENT_PROGRAM_DETAILS.getKeyName()))
+            .setHref(routes.DeepLinkController.programByName(program.slug()).url())
+            .asAnchorText();
     ContainerTag programData =
         div()
             .withId(baseId + "-data")
