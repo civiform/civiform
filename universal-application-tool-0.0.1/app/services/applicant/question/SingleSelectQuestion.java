@@ -45,6 +45,7 @@ public class SingleSelectQuestion implements PresentsErrors {
     return getSelectedOptionValue().isPresent();
   }
 
+  /** Get the ID of the selected option. */
   public Optional<Long> getSelectedOptionId() {
     return applicantQuestion.getApplicantData().readLong(getSelectionPath());
   }
