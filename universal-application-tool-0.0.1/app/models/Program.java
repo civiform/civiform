@@ -55,8 +55,8 @@ public class Program extends BaseModel {
   private List<Application> applications;
 
   @ManyToMany
-  @JoinTable(name = "program_accounts")
-  private List<Account> adminAccounts;
+  @JoinTable(name = "programs_accounts")
+  private List<Account> accounts;
 
   public ImmutableList<Version> getVersions() {
     return ImmutableList.copyOf(versions);
@@ -69,7 +69,7 @@ public class Program extends BaseModel {
   public Program(ProgramDefinition definition) {
     this.programDefinition = definition;
     this.id = definition.id();
-    this.adminAccounts = definition.programAdminAccounts();
+    this.accounts = definition.programAdminAccounts();
     this.name = definition.adminName();
     this.description = definition.adminDescription();
     this.localizedName = definition.localizedName();
@@ -108,7 +108,7 @@ public class Program extends BaseModel {
   @PreUpdate
   public void persistChangesToProgramDefinition() {
     id = programDefinition.id();
-    adminAccounts = programDefinition.programAdminAccounts();
+    accounts = programDefinition.programAdminAccounts();
     name = programDefinition.adminName();
     description = programDefinition.adminDescription();
     localizedName = programDefinition.localizedName();
@@ -126,7 +126,7 @@ public class Program extends BaseModel {
     this.programDefinition =
         ProgramDefinition.builder()
             .setId(id)
-            .setProgramAdminAccounts(ImmutableList.copyOf(adminAccounts))
+            .setProgramAdminAccounts(ImmutableList.copyOf(accounts))
             .setAdminName(name)
             .setAdminDescription(description)
             .setLocalizedName(localizedName)

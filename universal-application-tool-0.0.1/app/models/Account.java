@@ -25,8 +25,8 @@ public class Account extends BaseModel {
   @ManyToOne private TrustedIntermediaryGroup managedByGroup;
 
   @ManyToMany
-  @JoinTable(name = "program_accounts")
-  private List<Program> administeredPrograms;
+  @JoinTable(name = "programs_accounts")
+  private List<Program> programs;
 
   private String emailAddress;
 
@@ -71,11 +71,11 @@ public class Account extends BaseModel {
   }
 
   public ImmutableList<Program> getAdministeredPrograms() {
-    return ImmutableList.copyOf(this.administeredPrograms);
+    return ImmutableList.copyOf(this.programs);
   }
 
   public void setAdministeredPrograms(ImmutableList<Program> administeredPrograms) {
-    this.administeredPrograms = administeredPrograms;
+    this.programs = administeredPrograms;
   }
 
   /**
