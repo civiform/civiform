@@ -41,25 +41,38 @@ public class DateQuestion implements PresentsErrors {
 
   @Override
   public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
-    // There are no inherent requirements in a date question.
+    // TODO: Need to add some date specific validation.
     return ImmutableSet.of();
   }
 
   @Override
   public boolean isAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getDayPath())
-        && applicantQuestion.getApplicantData().hasPath(getMonthPath())
+    return applicantQuestion.getApplicantData().hasPath(getMonthPath())
+        && applicantQuestion.getApplicantData().hasPath(getDayPath())
         && applicantQuestion.getApplicantData().hasPath(getYearPath());
   }
 
-  public Optional<Long> getDayValue() {
-    if (dayValue != null) {
-      return dayValue;
-    }
+  public Path getMonthPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.MONTH);
+  }
 
-    dayValue = applicantQuestion.getApplicantData().readLong(getDayPath());
+  public Path getDayPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.DAY);
+  }
 
-    return dayValue;
+  public Path getYearPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.YEAR);
+  }
+
+  @Override
+  public String getAnswerString() {
+    String[] parts = {
+            getMonthValue().map(Object::toString).orElse("-"),
+            getDayValue().map(Object::toString).orElse("-"),
+            getYearValue().map(Object::toString).orElse("-")
+    };
+
+    return Arrays.stream(parts).filter(part -> !part.isBlank()).collect(Collectors.joining(" "));
   }
 
   public Optional<Long> getMonthValue() {
@@ -72,6 +85,16 @@ public class DateQuestion implements PresentsErrors {
     return monthValue;
   }
 
+  public Optional<Long> getDayValue() {
+    if (dayValue != null) {
+      return dayValue;
+    }
+
+    dayValue = applicantQuestion.getApplicantData().readLong(getDayPath());
+
+    return dayValue;
+  }
+
   public Optional<Long> getYearValue() {
     if (yearValue != null) {
       return yearValue;
@@ -82,41 +105,19 @@ public class DateQuestion implements PresentsErrors {
     return yearValue;
   }
 
-  public void assertQuestionType() {
-    if (!applicantQuestion.getType().equals(QuestionType.DATE)) {
-      throw new RuntimeException(
-          String.format(
-              "Question is not a DATE question: %s (type: %s)",
-              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
-              applicantQuestion.getQuestionDefinition().getQuestionType()));
-    }
-  }
-
   public DateQuestionDefinition getQuestionDefinition() {
     assertQuestionType();
     return (DateQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 
-  public Path getDayPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.DAY);
+  public void assertQuestionType() {
+    if (!applicantQuestion.getType().equals(QuestionType.DATE)) {
+      throw new RuntimeException(
+              String.format(
+                      "Question is not a DATE question: %s (type: %s)",
+                      applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
+                      applicantQuestion.getQuestionDefinition().getQuestionType()));
+    }
   }
 
-  public Path getMonthPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.MONTH);
-  }
-
-  public Path getYearPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.YEAR);
-  }
-
-  @Override
-  public String getAnswerString() {
-    String[] parts = {
-      getDayValue().map(Object::toString).orElse("-"),
-      getMonthValue().map(Object::toString).orElse("-"),
-      getYearValue().map(Object::toString).orElse("-")
-    };
-
-    return Arrays.stream(parts).filter(part -> part.length() > 0).collect(Collectors.joining(" "));
-  }
 }
