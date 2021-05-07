@@ -4,6 +4,11 @@ on:
   push:
     branches: main
 
+# Two probers running at once can break each other.
+concurrency:
+  group: stagingenvironment
+  cancel-in-progress: true
+
 jobs:
   build_container:
     runs-on: ubuntu-18.04 # for older version of awscli.
