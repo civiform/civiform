@@ -130,9 +130,18 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
                     ImmutableMap.of(Locale.US, "question?"),
                     ImmutableMap.of(Locale.US, "help text"),
                     ImmutableList.of(
-                        QuestionOption.create(1L, ImmutableMap.of(Locale.US, "cat")),
-                        QuestionOption.create(2L, ImmutableMap.of(Locale.US, "dog")),
-                        QuestionOption.create(3L, ImmutableMap.of(Locale.US, "horse")))))
+                        QuestionOption.builder()
+                            .setId(1L)
+                            .setOptionText(ImmutableMap.of(Locale.US, "cat"))
+                            .build(),
+                        QuestionOption.builder()
+                            .setId(2L)
+                            .setOptionText(ImmutableMap.of(Locale.US, "dog"))
+                            .build(),
+                        QuestionOption.builder()
+                            .setId(3L)
+                            .setOptionText(ImmutableMap.of(Locale.US, "horse"))
+                            .build())))
             .getResult();
     createProgram(multiSelectQuestion);
 

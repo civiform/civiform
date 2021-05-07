@@ -31,10 +31,22 @@ public class RadioButtonQuestionRendererTest {
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
           ImmutableList.of(
-              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "chocolate")),
-              QuestionOption.create(2L, ImmutableMap.of(Locale.US, "peanut butter")),
-              QuestionOption.create(3L, ImmutableMap.of(Locale.US, "vanilla")),
-              QuestionOption.create(4L, ImmutableMap.of(Locale.US, "raspberry"))));
+              QuestionOption.builder()
+                  .setId(1L)
+                  .setOptionText(ImmutableMap.of(Locale.US, "chocolate"))
+                  .build(),
+              QuestionOption.builder()
+                  .setId(2L)
+                  .setOptionText(ImmutableMap.of(Locale.US, "peanut butter"))
+                  .build(),
+              QuestionOption.builder()
+                  .setId(3L)
+                  .setOptionText(ImmutableMap.of(Locale.US, "vanilla"))
+                  .build(),
+              QuestionOption.builder()
+                  .setId(4L)
+                  .setOptionText(ImmutableMap.of(Locale.US, "raspberry"))
+                  .build()));
 
   private final Messages messages =
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));

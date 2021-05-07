@@ -37,9 +37,18 @@ public class RadioButtonQuestionFormTest {
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(Locale.US, "help text"),
             ImmutableList.of(
-                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "cat")),
-                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "dog")),
-                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "rabbit"))));
+                QuestionOption.builder()
+                    .setId(1L)
+                    .setOptionText(ImmutableMap.of(Locale.US, "cat"))
+                    .build(),
+                QuestionOption.builder()
+                    .setId(1L)
+                    .setOptionText(ImmutableMap.of(Locale.US, "dog"))
+                    .build(),
+                QuestionOption.builder()
+                    .setId(1L)
+                    .setOptionText(ImmutableMap.of(Locale.US, "rabbit"))
+                    .build()));
 
     assertThat(builder.build()).isEqualTo(expected);
   }
@@ -57,8 +66,14 @@ public class RadioButtonQuestionFormTest {
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(Locale.US, "help text"),
             ImmutableList.of(
-                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "hello")),
-                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "world"))));
+                QuestionOption.builder()
+                    .setId(1L)
+                    .setOptionText(ImmutableMap.of(Locale.US, "hello"))
+                    .build(),
+                QuestionOption.builder()
+                    .setId(1L)
+                    .setOptionText(ImmutableMap.of(Locale.US, "world"))
+                    .build()));
 
     RadioButtonQuestionForm form = new RadioButtonQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder(path);

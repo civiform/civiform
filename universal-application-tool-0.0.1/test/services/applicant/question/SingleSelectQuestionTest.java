@@ -28,10 +28,14 @@ public class SingleSelectQuestionTest {
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
           ImmutableList.of(
-              QuestionOption.create(
-                  1L, ImmutableMap.of(Locale.US, "option 1", Locale.FRANCE, "un")),
-              QuestionOption.create(
-                  2L, ImmutableMap.of(Locale.US, "option 2", Locale.FRANCE, "deux"))));
+              QuestionOption.builder()
+                  .setId(1L)
+                  .setOptionText(ImmutableMap.of(Locale.US, "option 1", Locale.FRANCE, "un"))
+                  .build(),
+              QuestionOption.builder()
+                  .setId(2L)
+                  .setOptionText(ImmutableMap.of(Locale.US, "option 2", Locale.FRANCE, "deux"))
+                  .build()));
 
   private Applicant applicant;
   private ApplicantData applicantData;

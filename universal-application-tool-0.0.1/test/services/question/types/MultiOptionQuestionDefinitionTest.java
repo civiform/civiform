@@ -19,8 +19,14 @@ public class MultiOptionQuestionDefinitionTest {
   public void buildMultiSelectQuestion() throws UnsupportedQuestionTypeException {
     ImmutableList<QuestionOption> options =
         ImmutableList.of(
-            QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1")),
-            QuestionOption.create(2L, ImmutableMap.of(Locale.US, "option 2")));
+            QuestionOption.builder()
+                .setId(1L)
+                .setOptionText(ImmutableMap.of(Locale.US, "option 1"))
+                .build(),
+            QuestionOption.builder()
+                .setId(2L)
+                .setOptionText(ImmutableMap.of(Locale.US, "option 2"))
+                .build());
 
     QuestionDefinition definition =
         new QuestionDefinitionBuilder()
@@ -50,7 +56,11 @@ public class MultiOptionQuestionDefinitionTest {
             .setQuestionText(ImmutableMap.of(Locale.US, "test", Locale.FRANCE, "test"))
             .setQuestionHelpText(ImmutableMap.of(Locale.US, "test", Locale.FRANCE, "test"))
             .setQuestionOptions(
-                ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1"))))
+                ImmutableList.of(
+                    QuestionOption.builder()
+                        .setId(1L)
+                        .setOptionText(ImmutableMap.of(Locale.US, "option 1"))
+                        .build()))
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
@@ -67,7 +77,11 @@ public class MultiOptionQuestionDefinitionTest {
             .setQuestionText(ImmutableMap.of())
             .setQuestionHelpText(ImmutableMap.of())
             .setQuestionOptions(
-                ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1"))))
+                ImmutableList.of(
+                    QuestionOption.builder()
+                        .setId(1L)
+                        .setOptionText(ImmutableMap.of(Locale.US, "option 1"))
+                        .build()))
             .build();
 
     MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
@@ -82,8 +96,14 @@ public class MultiOptionQuestionDefinitionTest {
       throws TranslationNotFoundException, UnsupportedQuestionTypeException {
     ImmutableList<QuestionOption> options =
         ImmutableList.of(
-            QuestionOption.create(1L, ImmutableMap.of(Locale.US, "one", Locale.GERMAN, "eins")),
-            QuestionOption.create(2L, ImmutableMap.of(Locale.US, "two", Locale.GERMAN, "zwei")));
+            QuestionOption.builder()
+                .setId(1L)
+                .setOptionText(ImmutableMap.of(Locale.US, "one", Locale.GERMAN, "eins"))
+                .build(),
+            QuestionOption.builder()
+                .setId(2L)
+                .setOptionText(ImmutableMap.of(Locale.US, "two", Locale.GERMAN, "zwei"))
+                .build());
     QuestionDefinition definition =
         new QuestionDefinitionBuilder()
             .setQuestionType(QuestionType.DROPDOWN)

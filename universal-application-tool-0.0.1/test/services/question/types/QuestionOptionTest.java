@@ -13,7 +13,10 @@ public class QuestionOptionTest {
   @Test
   public void localize_unsupportedLocale_throws() {
     QuestionOption questionOption =
-        QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1"));
+        QuestionOption.builder()
+            .setId(1L)
+            .setOptionText(ImmutableMap.of(Locale.US, "option 1"))
+            .build();
 
     Throwable thrown = catchThrowable(() -> questionOption.localize(Locale.CANADA));
 

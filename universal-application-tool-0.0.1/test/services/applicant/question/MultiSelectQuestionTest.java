@@ -29,10 +29,22 @@ public class MultiSelectQuestionTest {
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
           ImmutableList.of(
-              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "valid")),
-              QuestionOption.create(2L, ImmutableMap.of(Locale.US, "ok")),
-              QuestionOption.create(3L, ImmutableMap.of(Locale.US, "third")),
-              QuestionOption.create(4L, ImmutableMap.of(Locale.US, "fourth"))),
+              QuestionOption.builder()
+                  .setId(1L)
+                  .setOptionText(ImmutableMap.of(Locale.US, "valid"))
+                  .build(),
+              QuestionOption.builder()
+                  .setId(2L)
+                  .setOptionText(ImmutableMap.of(Locale.US, "ok"))
+                  .build(),
+              QuestionOption.builder()
+                  .setId(3L)
+                  .setOptionText(ImmutableMap.of(Locale.US, "third"))
+                  .build(),
+              QuestionOption.builder()
+                  .setId(4L)
+                  .setOptionText(ImmutableMap.of(Locale.US, "fourth"))
+                  .build()),
           MultiOptionQuestionDefinition.MultiOptionValidationPredicates.builder()
               .setMinChoicesRequired(2)
               .setMaxChoicesAllowed(3)

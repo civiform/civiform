@@ -38,7 +38,11 @@ public class MultiOptionQuestionFormTest {
             "description",
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(Locale.US, "help text"),
-            ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option one"))),
+            ImmutableList.of(
+                QuestionOption.builder()
+                    .setId(1L)
+                    .setOptionText(ImmutableMap.of(Locale.US, "option one"))
+                    .build()),
             MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(1, 10));
 
     QuestionDefinition actual = builder.build();
@@ -58,7 +62,11 @@ public class MultiOptionQuestionFormTest {
             "description",
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(Locale.US, "help text"),
-            ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1"))),
+            ImmutableList.of(
+                QuestionOption.builder()
+                    .setId(1L)
+                    .setOptionText(ImmutableMap.of(Locale.US, "option 1"))
+                    .build()),
             MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(1, 10));
 
     MultiOptionQuestionForm form = new CheckboxQuestionForm(originalQd);
@@ -91,7 +99,11 @@ public class MultiOptionQuestionFormTest {
             "description",
             ImmutableMap.of(Locale.US, "What is the question text?"),
             ImmutableMap.of(Locale.US, "help text"),
-            ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option one"))),
+            ImmutableList.of(
+                QuestionOption.builder()
+                    .setId(1L)
+                    .setOptionText(ImmutableMap.of(Locale.US, "option one"))
+                    .build()),
             MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create());
 
     QuestionDefinition actual = builder.build();

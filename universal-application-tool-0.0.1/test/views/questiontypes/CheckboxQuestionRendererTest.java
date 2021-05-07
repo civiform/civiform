@@ -33,9 +33,18 @@ public class CheckboxQuestionRendererTest extends WithPostgresContainer {
           ImmutableMap.of(Locale.US, "question?"),
           ImmutableMap.of(Locale.US, "help text"),
           ImmutableList.of(
-              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "hello")),
-              QuestionOption.create(2L, ImmutableMap.of(Locale.US, "happy")),
-              QuestionOption.create(3L, ImmutableMap.of(Locale.US, "world"))),
+              QuestionOption.builder()
+                  .setId(1L)
+                  .setOptionText(ImmutableMap.of(Locale.US, "hello"))
+                  .build(),
+              QuestionOption.builder()
+                  .setId(2L)
+                  .setOptionText(ImmutableMap.of(Locale.US, "happy"))
+                  .build(),
+              QuestionOption.builder()
+                  .setId(3L)
+                  .setOptionText(ImmutableMap.of(Locale.US, "world"))
+                  .build()),
           MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(1, 2));
 
   private final ApplicantData applicantData = new ApplicantData();
