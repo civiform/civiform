@@ -117,7 +117,7 @@ Resources:
               Value: !Sub '{{resolve:secretsmanager:${DBPassword}}}'
             - Name: SECRET_KEY
               Value: !Sub '{{resolve:secretsmanager:${SecretKey}}}'
-            - Name: AWS_S3_REGION
+            - Name: AWS_REGION
               Value: !Sub '${AWS::Region}'
             - Name: AWS_S3_BUCKET_NAME
               Value: !Ref 'S3BucketName'
