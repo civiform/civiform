@@ -6,9 +6,9 @@ import static j2html.TagCreator.input;
 
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import repository.SignedS3UploadRequest;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
+import services.aws.SignedS3UploadRequest;
 import views.BaseHtmlView;
 import views.style.ReferenceClasses;
 import views.style.Styles;
