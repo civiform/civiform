@@ -159,13 +159,15 @@ public class QuestionBank {
    * <p>Questions that are filtered out:
    *
    * <ul>
-   *   <li>If there is at least one question in the current block, all single-block questions
-   *   <li>If this is a repeated block only show the appropriate repeated questions
-   *   <li>Questions already in the program
+   *   <li>If there is at least one question in the current block, all single-block questions are
+   *       filtered.
+   *   <li>If there is a single block question in the current block, all questions are filtered.
+   *   <li>If this is a repeated block, only the appropriate repeated questions are showed.
+   *   <li>Questions already in the program are filtered.
    * </ul>
    */
   private ImmutableList<QuestionDefinition> filterQuestions() {
-    if (noMoreQuestionsAllowed()) {
+    if (containsSingleBlockQuestion()) {
       return ImmutableList.of();
     }
 
@@ -175,7 +177,7 @@ public class QuestionBank {
   }
 
   /** If a block already contains a single-block question, no more questions can be added. */
-  private boolean noMoreQuestionsAllowed() {
+  private boolean containsSingleBlockQuestion() {
     return blockDefinition.isEnumerator() || blockDefinition.isFileUpload();
   }
 
