@@ -40,7 +40,6 @@ public class SimpleStorage {
     this.region = checkNotNull(region).get();
     this.credentials = checkNotNull(credentials);
     this.bucket = checkNotNull(config).getString(AWS_S3_BUCKET_CONF_PATH);
-    ;
 
     if (environment.isDev()) {
       client = new LocalStackClient(config);
@@ -127,7 +126,6 @@ public class SimpleStorage {
 
     LocalStackClient(Config config) {
       localEndpoint = checkNotNull(config).getString(AWS_LOCAL_ENDPOINT_CONF_PATH);
-      ;
       URI localUri;
       try {
         localUri = new URI(localEndpoint);
