@@ -20,8 +20,4 @@ public class AwsRegion {
   public Region get() {
     return region;
   }
-
-  public String getName() {
-    return region.id();
-  }
 }
