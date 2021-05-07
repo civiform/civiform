@@ -354,6 +354,16 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     assertThat(result.get(2).answerText()).isEqualTo("");
   }
 
+  @Test
+  public void getPercentComplete_returnsExpectedNumbers() {
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+
+    assertThat(subject.getCompletionPercent("1")).isEqualTo(5);
+    assertThat(subject.getCompletionPercent("2")).isEqualTo(50);
+    assertThat(subject.getCompletionPercent("3")).isEqualTo(0);
+  }
+
   private void answerNameQuestion(long programId) {
     Path path = Path.create("applicant.applicant_name");
     QuestionAnswerer.answerNameQuestion(applicantData, path, "Alice", "Middle", "Last");

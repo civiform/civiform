@@ -66,7 +66,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
               params.messages()));
     }
 
-    return layout.render(params.request(), params.messages(), body);
+    return layout.render(params.request(), params.messages(), headerTag, body);
   }
 
   /**
@@ -157,6 +157,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
     abstract Messages messages();
 
+    abstract int percentComplete();
+
     abstract long applicantId();
 
     abstract long programId();
@@ -176,6 +178,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
       public abstract Builder setInReview(boolean inReview);
 
       public abstract Builder setMessages(Messages messages);
+
+      public abstract Builder setPercentComplete(int percentComplete);
 
       public abstract Builder setApplicantId(long applicantId);
 

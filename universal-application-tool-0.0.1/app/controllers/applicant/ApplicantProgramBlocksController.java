@@ -290,6 +290,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           .setApplicantId(applicantId)
                           .setProgramId(programId)
                           .setBlock(thisBlockUpdated)
+                          .setPercentComplete(
+                              roApplicantProgramService.getCompletionPercent(blockId))
                           .setInReview(inReview)
                           .setPreferredLanguageSupported(
                               roApplicantProgramService.preferredLanguageSupported())
