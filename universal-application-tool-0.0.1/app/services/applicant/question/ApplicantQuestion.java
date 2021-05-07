@@ -121,6 +121,10 @@ public class ApplicantQuestion {
     return new AddressQuestion(this);
   }
 
+  public DateQuestion createDateQuestion() {
+    return new DateQuestion(this);
+  }
+
   public FileUploadQuestion createFileUploadQuestion() {
     return new FileUploadQuestion(this);
   }
@@ -155,6 +159,8 @@ public class ApplicantQuestion {
         return createAddressQuestion();
       case CHECKBOX:
         return createMultiSelectQuestion();
+      case DATE:
+        return createDateQuestion();
       case FILEUPLOAD:
         return createFileUploadQuestion();
       case NAME:
