@@ -1,6 +1,5 @@
 package forms.translation;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
@@ -40,7 +39,10 @@ public class MultiOptionQuestionTranslationForm extends QuestionTranslationForm 
     ImmutableList.Builder<QuestionOption> updatedOptionsBuilder = ImmutableList.builder();
     for (int i = 0; i < currentOptions.size(); i++) {
       QuestionOption current = currentOptions.get(i);
-      updatedOptionsBuilder.add(current.toBuilder().updateOptionText(current.optionText(), updatedLocale, this.options.get(i)).build());
+      updatedOptionsBuilder.add(
+          current.toBuilder()
+              .updateOptionText(current.optionText(), updatedLocale, this.options.get(i))
+              .build());
     }
     return builder.setQuestionOptions(updatedOptionsBuilder.build()).build();
   }
