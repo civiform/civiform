@@ -7,6 +7,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -21,6 +23,10 @@ public class Account extends BaseModel {
 
   @ManyToOne private TrustedIntermediaryGroup memberOfGroup;
   @ManyToOne private TrustedIntermediaryGroup managedByGroup;
+
+  @ManyToMany
+  @JoinTable(name = "program_accounts")
+  private List<Program> administeredPrograms;
 
   private String emailAddress;
 
@@ -62,6 +68,10 @@ public class Account extends BaseModel {
 
   public Optional<TrustedIntermediaryGroup> getManagedByGroup() {
     return Optional.ofNullable(this.managedByGroup);
+  }
+
+  public ImmutableList<Program> getAdministeredPrograms() {
+    return ImmutableList.copyOf(this.administeredPrograms);
   }
 
   /**

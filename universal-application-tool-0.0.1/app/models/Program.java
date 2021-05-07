@@ -54,8 +54,20 @@ public class Program extends BaseModel {
   @OneToMany(mappedBy = "program")
   private List<Application> applications;
 
+  @ManyToMany
+  @JoinTable(name = "program_accounts")
+  private List<Account> adminAccounts;
+
+  public long getId() {
+    return this.id;
+  }
+
   public ImmutableList<Version> getVersions() {
     return ImmutableList.copyOf(versions);
+  }
+
+  public ImmutableList<Account> getProgramAdminAccounts() {
+    return ImmutableList.copyOf(this.adminAccounts);
   }
 
   public ProgramDefinition getProgramDefinition() {
