@@ -24,6 +24,7 @@ public class Account extends BaseModel {
 
   @ManyToOne private TrustedIntermediaryGroup memberOfGroup;
   @ManyToOne private TrustedIntermediaryGroup managedByGroup;
+  private boolean globalAdmin;
 
   // This must be a mutable collection so we can add to the list later.
   @DbArray private List<String> adminOf = new ArrayList<>();
@@ -71,7 +72,21 @@ public class Account extends BaseModel {
   }
 
   public ImmutableList<String> getAdministeredProgramNames() {
+    if (this.adminOf == null) {
+      return ImmutableList.of();
+    }
     return ImmutableList.copyOf(this.adminOf);
+  }
+
+  public void setGlobalAdmin(boolean isGlobalAdmin) {
+    this.globalAdmin = isGlobalAdmin;
+    if (this.globalAdmin) {
+      this.adminOf.clear();
+    }
+  }
+
+  public boolean getGlobalAdmin() {
+    return globalAdmin;
   }
 
   /**

@@ -6,6 +6,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import auth.UatProfile;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
@@ -313,11 +314,16 @@ public class UserRepository {
    * @param program the {@link ProgramDefinition} to remove from the given account
    */
   public void removeAdministeredProgram(String accountEmail, ProgramDefinition program) {
-    Optional<Account> maybeAccount = lookupAccount(accountEmail);
-    maybeAccount.ifPresent(
-        account -> {
-          account.removeAdministeredProgram(program);
-          account.save();
-        });
+      Optional<Account> maybeAccount = lookupAccount(accountEmail);
+      maybeAccount.ifPresent(
+              account -> {
+                  account.removeAdministeredProgram(program);
+                  account.save();
+              });
+  }
+
+  public ImmutableSet<Account> getUatAdmins() {
+    return ImmutableSet.copyOf(
+        ebeanServer.find(Account.class).where().eq("global_admin", true).findList());
   }
 }

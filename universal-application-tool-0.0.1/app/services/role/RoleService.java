@@ -31,8 +31,7 @@ public class RoleService {
    * @return an {@link ImmutableSet} of {@link Account}s that are UAT admins.
    */
   public ImmutableSet<Account> getUatAdmins() {
-    // TODO(cdanzi): implement this method
-    return ImmutableSet.of();
+    return userRepository.getUatAdmins();
   }
 
   /**

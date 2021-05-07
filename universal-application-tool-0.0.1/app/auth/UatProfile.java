@@ -69,6 +69,10 @@ public class UatProfile {
     return profileData.getRoles().contains(Roles.ROLE_UAT_ADMIN.toString());
   }
 
+  public boolean isProgramAdmin() {
+    return this.getRoles().contains(Roles.ROLE_PROGRAM_ADMIN.name());
+  }
+
   public String getId() {
     return profileData.getId();
   }
@@ -129,6 +133,20 @@ public class UatProfile {
                         getId(), applicantId));
               }
               return null;
+            });
+  }
+
+  public CompletableFuture<Void> checkProgramAuthorization(String programName) {
+    return this.getAccount()
+        .thenApply(
+            account -> {
+              if (account.getAdministeredProgramNames().stream()
+                  .anyMatch(program -> program.equals(programName))) {
+                return null;
+              }
+              throw new SecurityException(
+                  String.format(
+                      "Account %s is not authorized to access program %s.", getId(), programName));
             });
   }
 }

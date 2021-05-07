@@ -172,7 +172,8 @@ public class SecurityModule extends AbstractModule {
     client.setName("AdClient");
     client.setCallbackUrl(baseUrl + "/callback");
     client.setProfileCreator(
-        new AdfsProfileAdapter(config, client, profileFactory, applicantRepositoryProvider));
+        new AdfsProfileAdapter(
+            config, client, profileFactory, this.configuration, applicantRepositoryProvider));
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     return client;
   }
