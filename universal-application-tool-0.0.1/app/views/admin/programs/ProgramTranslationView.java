@@ -54,8 +54,15 @@ public class ProgramTranslationView extends TranslationFormView {
         renderTranslationForm(
             request, locale, formAction, formFields(localizedName, localizedDescription), errors);
 
-    return layout.render(
-        renderHeader("Manage Program Translations"), renderLanguageLinks(programId, locale), form);
+    // TODO: Set relevant titles with i18n support.
+    String title = "Manage Program Translations";
+    HtmlBundle bundle = new HtmlBundle()
+        .setTitle(title)
+        .addHeaderContentrenderHeader(title))
+        .addMainContent(renderLanguageLinks(programId, locale))
+        .addMainContent(form);
+      
+    return layout.render(bundle);
   }
 
   @Override
