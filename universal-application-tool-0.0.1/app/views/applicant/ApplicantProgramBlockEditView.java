@@ -41,6 +41,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   public Content render(Params params) {
+    ContainerTag headerTag = layout.renderHeader(params.percentComplete());
+
     ContainerTag body =
         body()
             .with(h1(params.block().getName()))
