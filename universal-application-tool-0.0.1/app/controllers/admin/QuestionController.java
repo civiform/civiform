@@ -269,8 +269,8 @@ public class QuestionController extends CiviFormController {
 
   private QuestionDefinitionBuilder mergeLocalizations(
       QuestionDefinition existing, QuestionDefinitionBuilder updated, QuestionForm questionForm) {
-    // Instead of overwriting all localizations, we just want to overwrite the
-    // one for the default locale (the only one possible to change in the form).
+    // Instead of overwriting all localizations, we just want to overwrite the one
+    // for the default locale (the only one possible to change in the edit form).
     ImmutableMap<Locale, String> localizedQuestionText =
         LocalizationUtils.overwriteExistingTranslation(
             existing.getQuestionText(),
@@ -281,8 +281,10 @@ public class QuestionController extends CiviFormController {
             existing.getQuestionHelpText(),
             LocalizationUtils.DEFAULT_LOCALE,
             questionForm.getQuestionHelpText());
+
     updated.setQuestionText(localizedQuestionText);
     updated.setQuestionHelpText(localizedQuestionHelpText);
+
     return updated;
   }
 
