@@ -43,6 +43,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     // TODO: Set relevant titles with i18n support.
     HtmlBundle bundle = new HtmlBundle()
         .setTitle("All Applications - CiviForm")
+        .addHeaderContent(AdminView.renderNavBar())
         .addMainContent(contentDiv);
     return layout.render(bundle);
   }

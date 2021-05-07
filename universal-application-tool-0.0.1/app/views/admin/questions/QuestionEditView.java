@@ -159,7 +159,14 @@ public final class QuestionEditView extends BaseHtmlView {
   private Content renderWithPreview(ContainerTag formContent, QuestionType type) {
     ContainerTag previewContent = QuestionPreview.renderQuestionPreview(type, messages);
     previewContent.with(layout.viewUtils.makeLocalJsTag("preview"));
-    return layout.renderFull(main(formContent, previewContent));
+
+    String title = String.format("%s question", questionType.toString().toLowerCase());
+    HtmlBundle bundle = new HtmlBundle()
+        .setTitle(title)
+        .addHeaderContent(AdminView.renderNavBar())
+        .addMainContent(formContent)
+        .addMainContent(previewContent);
+    return layout.renderFull(bundle);
   }
 
   private ContainerTag buildSubmittableQuestionForm(

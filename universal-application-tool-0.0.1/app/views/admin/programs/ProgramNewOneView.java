@@ -45,8 +45,8 @@ public final class ProgramNewOneView extends BaseHtmlView {
         .addMainContent(mainContent);
 
     if (message.length() > 0) {
-      bundle.addHeaderContent(
-        ToastMessage.error(message).setDismissible(false).getContainerTag()
+      bundle.addToastMessages(
+        ToastMessage.error(message).setDismissible(false)
       );
     }
 
