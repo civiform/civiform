@@ -8,17 +8,17 @@ export class ApplicantQuestions {
   }
 
   async answerAddressQuestion(street: string, line2: string, city: string, state: string, zip: string) {
-    await this.page.fill('[placeholder="Street address"]', street);
-    await this.page.fill('[placeholder="Apartment, suite, unit, building, floor, etc."]', line2);
-    await this.page.fill('[placeholder="City"]', city);
-    await this.page.fill('[placeholder="State"]', state);
-    await this.page.fill('[placeholder="ZIP Code"]', zip);
+    await this.page.fill('input:near(:text("Address line 1"))', street);
+    await this.page.fill('input:near(:text("Address line 2"))', line2);
+    await this.page.fill('input:near(:text("City"))', city);
+    await this.page.fill('input:near(:text("State"))', state);
+    await this.page.fill('input:near(:text("ZIP Code"))', zip);
   }
 
   async answerNameQuestion(firstName: string, lastName: string, middleName = '') {
-    await this.page.fill('[placeholder="First name"]', firstName);
-    await this.page.fill('[placeholder="Middle name"]', middleName);
-    await this.page.fill('[placeholder="Last name"]', lastName);
+    await this.page.fill('input:near(:text("First name"))', firstName);
+    await this.page.fill('input:near(:text("Middle name"))', middleName);
+    await this.page.fill('input:near(:text("Last name"))', lastName);
   }
 
   async answerCheckboxQuestion(checked: Array<string>) {
