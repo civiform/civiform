@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+import models.Account;
 import models.Program;
 import services.LocalizationUtils;
 import services.question.types.QuestionDefinition;
@@ -28,6 +29,9 @@ public abstract class ProgramDefinition {
 
   /** Unique identifier for a ProgramDefinition. */
   public abstract long id();
+
+  /** Which accounts are admins for this programs? */
+  public abstract ImmutableList<Account> programAdminAccounts();
 
   /**
    * Descriptive name of a Program, e.g. Car Tab Rebate Program. Different versions of the same
@@ -284,6 +288,8 @@ public abstract class ProgramDefinition {
   public abstract static class Builder {
 
     public abstract Builder setId(long id);
+
+    public abstract Builder setProgramAdminAccounts(ImmutableList<Account> programAdminAccounts);
 
     public abstract Builder setAdminName(String adminName);
 

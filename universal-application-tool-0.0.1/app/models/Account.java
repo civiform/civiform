@@ -74,6 +74,10 @@ public class Account extends BaseModel {
     return ImmutableList.copyOf(this.administeredPrograms);
   }
 
+  public void setAdministeredPrograms(ImmutableList<Program> administeredPrograms) {
+    this.administeredPrograms = administeredPrograms;
+  }
+
   /**
    * Returns the name, as a string, of the most-recently created Applicant associated with this
    * Account. There is no particular reason for an Account to have more than one Applicant - this

@@ -77,6 +77,7 @@ public class Program extends BaseModel {
   public Program(ProgramDefinition definition) {
     this.programDefinition = definition;
     this.id = definition.id();
+    this.adminAccounts = definition.programAdminAccounts();
     this.name = definition.adminName();
     this.description = definition.adminDescription();
     this.localizedName = definition.localizedName();
@@ -115,6 +116,7 @@ public class Program extends BaseModel {
   @PreUpdate
   public void persistChangesToProgramDefinition() {
     id = programDefinition.id();
+    adminAccounts = programDefinition.programAdminAccounts();
     name = programDefinition.adminName();
     description = programDefinition.adminDescription();
     localizedName = programDefinition.localizedName();
@@ -132,6 +134,7 @@ public class Program extends BaseModel {
     this.programDefinition =
         ProgramDefinition.builder()
             .setId(id)
+            .setProgramAdminAccounts(ImmutableList.copyOf(adminAccounts))
             .setAdminName(name)
             .setAdminDescription(description)
             .setLocalizedName(localizedName)
