@@ -31,28 +31,17 @@ public class BaseHtmlLayout extends BaseHtmlView {
     this.viewUtils = checkNotNull(viewUtils);
   }
 
-  /** Returns HTTP content of type "text/html". */
-  public Content htmlContent(DomContent... domContents) {
-    ArrayList<DomContent> contents = new ArrayList<>(Arrays.asList(domContents));
+  public Content htmlContent(HtmlBundle bundle) {
     ToastMessage privacyBanner =
         ToastMessage.error(BANNER_TEXT).setId("warning-message").setIgnorable(true).setDuration(0);
-    contents.add(0, privacyBanner.getContainerTag());
-    contents.add(viewUtils.makeLocalJsTag("toast"));
-    contents.add(viewUtils.makeLocalJsTag("radio"));
-    return new HtmlResponseContent(contents.toArray(new DomContent[0]));
-  }
+    bundle.addHeaderContent(privacyBanner);
 
-  /**
-   * Returns a script tag that loads Tailwindcss styles and configurations common to all pages in
-   * the CiviForm.
-   *
-   * <p>This should be added to the end of the body of all layouts. Adding it to the end of the body
-   * allows the page to begin rendering before the script is loaded.
-   *
-   * <p>Adding this to a page allows Tailwindcss utility classes to be be usable on that page.
-   */
-  public Tag tailwindStyles() {
-    return viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILENAME);
+    bundle
+      .addStylesheets(TAILWIND_COMPILED_FILENAME)
+      .addFooterScripts("toast")
+      .addFooterScripts("radio");
+    
+    return new HtmlResponseContent(bundle.getContent());
   }
 
   protected static class HtmlResponseContent implements Content {

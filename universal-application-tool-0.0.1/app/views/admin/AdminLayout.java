@@ -26,7 +26,36 @@ public class AdminLayout extends BaseHtmlLayout {
   public AdminLayout(ViewUtils viewUtils) {
     super(viewUtils);
   }
+  String MAIN_STYLES = StyleUtils.joinStyles(Styles.BG_WHITE, Styles.BORDER, Styles.BORDER_GRAY_200, Styles.MT_12, Styles.OVERFLOW_Y_AUTO,
+        Styles.SHADOW_LG, Styles.W_SCREEN);
+  String CENTERED_STYLES = StylesUitls.joinStyles(Styles.PX_2, Styles.MAX_W_SCREEN_XL, Styles.MX_AUTO);
+  String FULL_STYLES = StyleUtils.joinStyles(Styles.FLEX, Styles.FLEX_ROW);
+  String BODY_STYLES = StyleUtils.joinStyles(BaseStyles.BODY_GRADIENT_STYLE, Styles.BOX_BORDER, Styles.H_SCREEN, Styles.W_SCREEN, 
+        Styles.OVERFLOW_HIDDEN, Styles.FLEX);
 
+  // Build bundle...
+  bundle = new HtmlBundle()
+    .setTitle("Page Title")
+    .addHeaderContent(AdminView.renderNavBar())
+    .addMainContent(mainContents)
+    .addMainStyles(mainStyles);
+    
+  protected Content render(HtmlBundle bundle, boolean isCentered) {
+    bundle.addFooterScripts("main");
+    bundle.addMainStyles(MAIN_STYLES, isCentered ? CENTERED_STYLES : FULL_STYLES);
+    bundle.addBodyStyles(...);
+    return htmlContent(bundle);
+  }
+
+  public Content renderCentered(HtmlBundle bundle) {
+    return render(bundle, true);
+  }
+
+  public Content renderFull(HtmlBundle bundle) {
+    return render(bundle, false);
+  }
+
+  /** MOVE TO ADMIN VIEW */
   private ContainerTag renderNavBar() {
     String questionLink = controllers.admin.routes.QuestionController.index().url();
     String programLink = controllers.admin.routes.AdminProgramController.index().url();
@@ -55,50 +84,7 @@ public class AdminLayout extends BaseHtmlLayout {
     return adminHeader;
   }
 
-  public Content renderCentered(ContainerTag mainContent, String... mainStyles) {
-    String mainCenteredStyles =
-        StyleUtils.joinStyles(
-            Styles.PX_2, Styles.MAX_W_SCREEN_XL, Styles.MX_AUTO, StyleUtils.joinStyles(mainStyles));
-    return renderMain(mainContent, mainCenteredStyles);
-  }
-
-  public Content renderFull(ContainerTag mainDomContents, String... mainStyles) {
-    String mainFullStyles =
-        StyleUtils.joinStyles(Styles.FLEX, Styles.FLEX_ROW, StyleUtils.joinStyles(mainStyles));
-    return renderMain(mainDomContents, mainFullStyles);
-  }
-
-  private Content renderMain(ContainerTag mainContent, String... mainStyles) {
-    mainContent.withClasses(
-        Styles.BG_WHITE,
-        Styles.BORDER,
-        Styles.BORDER_GRAY_200,
-        Styles.MT_12,
-        Styles.OVERFLOW_Y_AUTO,
-        Styles.SHADOW_LG,
-        Styles.W_SCREEN,
-        StyleUtils.joinStyles(mainStyles));
-
-    return htmlContent(
-        head(tailwindStyles()),
-        body()
-            .with(renderNavBar())
-            .with(mainContent)
-            .with(viewUtils.makeLocalJsTag("main"))
-            .withClasses(
-                BaseStyles.BODY_GRADIENT_STYLE,
-                Styles.BOX_BORDER,
-                Styles.H_SCREEN,
-                Styles.W_SCREEN,
-                Styles.OVERFLOW_HIDDEN,
-                Styles.FLEX));
-  }
-
-  /** Renders mainDomContents within the main tag, in the context of the admin layout. */
-  public Content render(DomContent... mainDomContents) {
-    return renderCentered(main(mainDomContents));
-  }
-
+  /** MOVE TO ADMIN VIEW */
   public Tag headerLink(String text, String href, String... styles) {
     return a(text)
         .withHref(href)

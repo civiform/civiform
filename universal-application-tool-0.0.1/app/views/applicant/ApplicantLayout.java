@@ -37,20 +37,39 @@ public class ApplicantLayout extends BaseHtmlLayout {
     this.profileUtils = Preconditions.checkNotNull(profileUtils);
   }
 
+  // Build bundle...
+  bundle = new HtmlBundle()
+    .setTitle("Page Title")
+    .addHeaderContent(ApplicantView.renderNavBar(profile, messages))
+    .addMainContent(mainContents);
+    
+  protected Content render(HtmlBundle bundle) {
+    return htmlContent(bundle);
+  }
+
   protected Content render(Http.Request request, Messages messages, DomContent... mainDomContents) {
     return render(profileUtils.currentUserProfile(request), messages, mainDomContents);
   }
+
   /** Renders mainDomContents within the main tag, in the context of the applicant layout. */
   protected Content render(
       Optional<UatProfile> profile, Messages messages, DomContent... mainDomContents) {
     return htmlContent(
-        head().with(title("Applicant layout title")).with(tailwindStyles()),
-        body()
-            .with(renderNavBar(profile, messages))
-            .with(mainDomContents)
-            .with(viewUtils.makeLocalJsTag("main")));
+        head(
+          title("Applicant layout title"), 
+          tailwindStyles()
+        ),      
+        body(
+          renderNavBar(profile, messages),
+          mainDomContents,
+          viewUtils.makeLocalJsTag("main")
+        )
+    );
   }
 
+  /** 
+   * Anything that renders a tag should be in ApplicantView. 
+   */
   private ContainerTag renderNavBar(Optional<UatProfile> profile, Messages messages) {
     return nav()
         .withClasses(
@@ -64,6 +83,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(branding(), status(messages), maybeRenderTiButton(profile), logoutButton(messages));
   }
 
+  /** 
+   * Anything that renders a tag should be in ApplicantView. 
+   */
   private ContainerTag maybeRenderTiButton(Optional<UatProfile> profile) {
     if (profile.isPresent() && profile.get().getRoles().contains(Roles.ROLE_TI.toString())) {
       String tiDashboardLink = routes.TrustedIntermediaryController.dashboard().url();
@@ -75,6 +97,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return div();
   }
 
+  /** 
+   * Anything that renders a tag should be in ApplicantView. 
+   */
   private ContainerTag branding() {
     return div()
         .withId("brand-id")
@@ -83,6 +108,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(span("Form").withClasses(Styles.FONT_THIN));
   }
 
+  /** 
+   * Anything that renders a tag should be in ApplicantView. 
+   */
   private ContainerTag status(Messages messages) {
     return div()
         .withId("application-status")
@@ -90,11 +118,14 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(span(messages.at(MessageKey.LINK_VIEW_APPLICATIONS.getKeyName())));
   }
 
+  /** 
+   * Anything that renders a tag should be in ApplicantView. 
+   */
   private ContainerTag logoutButton(Messages messages) {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     return a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
         .withHref(logoutLink)
         .withClasses(
             Styles.PX_3, Styles.TEXT_SM, Styles.OPACITY_75, StyleUtils.hover(Styles.OPACITY_100));
-  }
+  }  
 }
