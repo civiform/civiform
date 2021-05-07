@@ -3,11 +3,17 @@ package services.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import services.LocalizationUtils;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.question.LocalizedQuestionOption;
 import services.question.types.QuestionDefinition;
 
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
@@ -125,6 +131,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         programDefinition.getNonRepeatedBlockDefinitions(),
         emptyBlockIdSuffix,
         ApplicantData.APPLICANT_PATH,
+        ImmutableList.of(),
         onlyIncludeInProgressBlocks);
   }
 
@@ -133,6 +140,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       ImmutableList<BlockDefinition> blockDefinitions,
       String blockIdSuffix,
       Path contextualizedPath,
+      ImmutableList<RepeatedEntity> repeatedEntities,
       boolean onlyIncludeInProgressBlocks) {
     ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
 
@@ -143,7 +151,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
               blockDefinition.id() + blockIdSuffix,
               blockDefinition,
               applicantData,
-              contextualizedPath);
+              contextualizedPath,
+              repeatedEntities);
       boolean includeAllBlocks = !onlyIncludeInProgressBlocks;
       if (includeAllBlocks
           || !block.isCompleteWithoutErrors()
@@ -159,14 +168,21 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
             blockDefinition.getEnumerationQuestionDefinition();
         Path contextualizedPathForEnumeration =
             contextualizedPath.join(enumerationQuestionDefinition.getQuestionPathSegment());
-        ImmutableList<String> entityNames =
+        ImmutableList<String> repeatedEntityNames =
             applicantData.readRepeatedEntities(contextualizedPathForEnumeration);
 
         // For each repeated entity, recursively build blocks for all of the repeated blocks of this
         // enumeration block.
         ImmutableList<BlockDefinition> repeatedBlockDefinitions =
             programDefinition.getBlockDefinitionsForEnumerator(blockDefinition.id());
-        for (int i = 0; i < entityNames.size(); i++) {
+        for (int i = 0; i < repeatedEntityNames.size(); i++) {
+          ImmutableList<RepeatedEntity> updatedRepeatedEntities =
+              ImmutableList.<RepeatedEntity>builder()
+                  .addAll(repeatedEntities)
+                  .add(
+                      RepeatedEntity.create(
+                          enumerationQuestionDefinition, repeatedEntityNames.get(i)))
+                  .build();
           String nextBlockIdSuffix = String.format("%s-%d", blockIdSuffix, i);
           Path contextualizedPathForEntity = contextualizedPathForEnumeration.atIndex(i);
           blockListBuilder.addAll(
@@ -174,6 +190,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                   repeatedBlockDefinitions,
                   nextBlockIdSuffix,
                   contextualizedPathForEntity,
+                  updatedRepeatedEntities,
                   onlyIncludeInProgressBlocks));
         }
       }
@@ -185,7 +202,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public ImmutableList<AnswerData> getSummaryData() {
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
-    ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<AnswerData>();
+    ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> blocks = getAllBlocks();
     for (Block block : blocks) {
       for (ApplicantQuestion question : block.getQuestions()) {
@@ -199,14 +216,57 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
             AnswerData.builder()
                 .setProgramId(programDefinition.id())
                 .setBlockId(block.getId())
+                .setQuestionId(question.getQuestionDefinition().getId())
                 .setQuestionText(questionText)
                 .setAnswerText(answerText)
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
                 .setIsPreviousResponse(isPreviousResponse)
+                .setScalarAnswersInDefaultLocale(
+                    getScalarAnswers(question, LocalizationUtils.DEFAULT_LOCALE))
                 .build();
         builder.add(data);
       }
     }
     return builder.build();
+  }
+
+  /**
+   * Returns the {@link Path}s and their corresponding scalar answers to a {@link
+   * ApplicantQuestion}. Answers do not include metadata.
+   */
+  private ImmutableMap<Path, String> getScalarAnswers(ApplicantQuestion question, Locale locale) {
+    switch (question.getType()) {
+      case DROPDOWN:
+      case RADIO_BUTTON:
+        return ImmutableMap.of(
+            question.getContextualizedPath().join(Scalar.SELECTION),
+            question
+                .createSingleSelectQuestion()
+                .getSelectedOptionValue(locale)
+                .map(LocalizedQuestionOption::optionText)
+                .orElse(""));
+      case CHECKBOX:
+        return ImmutableMap.of(
+            question.getContextualizedPath().join(Scalar.SELECTION),
+            question
+                .createMultiSelectQuestion()
+                .getSelectedOptionsValue(locale)
+                .map(
+                    selectedOptions ->
+                        selectedOptions.stream()
+                            .map(LocalizedQuestionOption::optionText)
+                            .collect(Collectors.joining(", ")))
+                .orElse(""));
+      case ENUMERATOR:
+        return ImmutableMap.of(
+            question.getContextualizedPath(),
+            question.createEnumeratorQuestion().getAnswerString());
+      default:
+        return question.getContextualizedScalars().keySet().stream()
+            .filter(path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    path -> path, path -> applicantData.readAsString(path).orElse("")));
+    }
   }
 }

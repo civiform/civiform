@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.AbstractMap;
 import java.util.Locale;
 import java.util.Optional;
 import models.Applicant;
@@ -87,21 +88,41 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             .withQuestion(testQuestionBank.applicantHouseholdMembers())
             .withRepeatedBlock("repeated - household members name")
             .withQuestion(testQuestionBank.applicantHouseholdMemberName())
+            .withAnotherRepeatedBlock("repeated - household members jobs")
+            .withQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRepeatedBlock("deeply repeated - household members jobs income")
+            .withQuestion(testQuestionBank.applicantHouseholdMemberJobIncome())
             .buildDefinition();
 
     // Add repeated entities to applicant data
     Path enumerationPath =
-        ApplicantData.APPLICANT_PATH.join("applicant_household_members").asArrayElement();
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank
+                .applicantHouseholdMembers()
+                .getQuestionDefinition()
+                .getQuestionPathSegment());
     applicantData.putString(enumerationPath.atIndex(0).join(Scalar.ENTITY_NAME), "first entity");
     applicantData.putString(enumerationPath.atIndex(1).join(Scalar.ENTITY_NAME), "second entity");
     applicantData.putString(enumerationPath.atIndex(2).join(Scalar.ENTITY_NAME), "third entity");
+    Path deepEnumerationPath =
+        enumerationPath
+            .atIndex(2)
+            .join(
+                testQuestionBank
+                    .applicantHouseholdMemberJobs()
+                    .getQuestionDefinition()
+                    .getQuestionPathSegment());
+    applicantData.putString(
+        deepEnumerationPath.atIndex(0).join(Scalar.ENTITY_NAME), "nested first job");
+    applicantData.putString(
+        deepEnumerationPath.atIndex(1).join(Scalar.ENTITY_NAME), "nested second job");
 
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
 
     ImmutableList<Block> blocks = service.getAllBlocks();
 
-    assertThat(blocks).hasSize(6);
+    assertThat(blocks).hasSize(11);
 
     assertThat(blocks.get(3).getId()).isEqualTo("4-0");
     Path questionPath = enumerationPath.atIndex(0).join("household_members_name");
@@ -114,24 +135,11 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 questionPath.join(Scalar.PROGRAM_UPDATED_IN), ScalarType.LONG,
                 questionPath.join(Scalar.UPDATED_AT), ScalarType.LONG));
 
-    assertThat(blocks.get(4).getId()).isEqualTo("4-1");
-    questionPath = enumerationPath.atIndex(1).join("household_members_name");
-    assertThat(blocks.get(4).getQuestions().get(0).getContextualizedScalars())
-        .containsExactlyInAnyOrderEntriesOf(
-            ImmutableMap.of(
-                questionPath.join(Scalar.FIRST_NAME),
-                ScalarType.STRING,
-                questionPath.join(Scalar.MIDDLE_NAME),
-                ScalarType.STRING,
-                questionPath.join(Scalar.LAST_NAME),
-                ScalarType.STRING,
-                questionPath.join(Scalar.PROGRAM_UPDATED_IN),
-                ScalarType.LONG,
-                questionPath.join(Scalar.UPDATED_AT),
-                ScalarType.LONG));
+    assertThat(blocks.get(4).getId()).isEqualTo("5-0");
+    assertThat(blocks.get(4).isEnumerator()).isTrue();
 
-    assertThat(blocks.get(5).getId()).isEqualTo("4-2");
-    questionPath = enumerationPath.atIndex(2).join("household_members_name");
+    assertThat(blocks.get(5).getId()).isEqualTo("4-1");
+    questionPath = enumerationPath.atIndex(1).join("household_members_name");
     assertThat(blocks.get(5).getQuestions().get(0).getContextualizedScalars())
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(
@@ -145,6 +153,60 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 ScalarType.LONG,
                 questionPath.join(Scalar.UPDATED_AT),
                 ScalarType.LONG));
+
+    assertThat(blocks.get(6).getId()).isEqualTo("5-1");
+    assertThat(blocks.get(6).isEnumerator()).isTrue();
+
+    assertThat(blocks.get(7).getId()).isEqualTo("4-2");
+    questionPath = enumerationPath.atIndex(2).join("household_members_name");
+    assertThat(blocks.get(7).getQuestions().get(0).getContextualizedScalars())
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                questionPath.join(Scalar.FIRST_NAME),
+                ScalarType.STRING,
+                questionPath.join(Scalar.MIDDLE_NAME),
+                ScalarType.STRING,
+                questionPath.join(Scalar.LAST_NAME),
+                ScalarType.STRING,
+                questionPath.join(Scalar.PROGRAM_UPDATED_IN),
+                ScalarType.LONG,
+                questionPath.join(Scalar.UPDATED_AT),
+                ScalarType.LONG));
+
+    assertThat(blocks.get(8).getId()).isEqualTo("5-2");
+    assertThat(blocks.get(8).isEnumerator()).isTrue();
+
+    assertThat(blocks.get(9).getId()).isEqualTo("6-2-0");
+    questionPath = deepEnumerationPath.atIndex(0).join("household_members_jobs_income");
+    assertThat(blocks.get(9).getQuestions().get(0).getContextualizedScalars())
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                questionPath.join(Scalar.NUMBER),
+                ScalarType.LONG,
+                questionPath.join(Scalar.PROGRAM_UPDATED_IN),
+                ScalarType.LONG,
+                questionPath.join(Scalar.UPDATED_AT),
+                ScalarType.LONG));
+
+    assertThat(blocks.get(10).getId()).isEqualTo("6-2-1");
+    questionPath = deepEnumerationPath.atIndex(1).join("household_members_jobs_income");
+    assertThat(blocks.get(10).getQuestions().get(0).getContextualizedScalars())
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                questionPath.join(Scalar.NUMBER),
+                ScalarType.LONG,
+                questionPath.join(Scalar.PROGRAM_UPDATED_IN),
+                ScalarType.LONG,
+                questionPath.join(Scalar.UPDATED_AT),
+                ScalarType.LONG));
+    assertThat(blocks.get(10).getRepeatedEntities())
+        .containsExactly(
+            RepeatedEntity.create(
+                testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+                "third entity"),
+            RepeatedEntity.create(
+                testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
+                "nested second job"));
   }
 
   @Test
@@ -327,18 +389,137 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
   @Test
   public void getSummaryData_returnsCompletedData() {
+    // Create a program with lots of questions
+    QuestionDefinition singleSelectQuestionDefinition =
+        testQuestionBank.applicantSeason().getQuestionDefinition();
+    QuestionDefinition multiSelectQuestionDefinition =
+        testQuestionBank.applicantKitchenTools().getQuestionDefinition();
+    QuestionDefinition enumeratorQuestionDefinition =
+        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+    QuestionDefinition repeatedQuestionDefinition =
+        testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withLocalizedName(Locale.GERMAN, "Mein Programm")
+            .withBlock("Block one")
+            .withQuestionDefinitions(
+                ImmutableList.of(
+                    nameQuestion,
+                    colorQuestion,
+                    addressQuestion,
+                    singleSelectQuestionDefinition,
+                    multiSelectQuestionDefinition))
+            .withBlock("enumerator")
+            .withQuestionDefinition(enumeratorQuestionDefinition)
+            .withRepeatedBlock("repeated")
+            .withQuestionDefinition(repeatedQuestionDefinition)
+            .buildDefinition();
     answerNameQuestion(programDefinition.id());
     answerColorQuestion(programDefinition.id());
     answerAddressQuestion(programDefinition.id());
+
+    // Answer the questions
+    QuestionAnswerer.answerSingleSelectQuestion(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(singleSelectQuestionDefinition.getQuestionPathSegment()),
+        1L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(multiSelectQuestionDefinition.getQuestionPathSegment()),
+        0,
+        1L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(multiSelectQuestionDefinition.getQuestionPathSegment()),
+        1,
+        2L);
+    Path enumeratorPath =
+        ApplicantData.APPLICANT_PATH.join(enumeratorQuestionDefinition.getQuestionPathSegment());
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData, enumeratorPath, ImmutableList.of("enum one", "enum two"));
+    QuestionAnswerer.answerNameQuestion(
+        applicantData,
+        enumeratorPath.atIndex(0).join(repeatedQuestionDefinition.getQuestionPathSegment()),
+        "first",
+        "middle",
+        "last");
+    QuestionAnswerer.answerNameQuestion(
+        applicantData,
+        enumeratorPath.atIndex(1).join(repeatedQuestionDefinition.getQuestionPathSegment()),
+        "foo",
+        "bar",
+        "baz");
+
+    // Test the summary data
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
-
     ImmutableList<AnswerData> result = subject.getSummaryData();
 
-    assertEquals(3, result.size());
+    assertEquals(8, result.size());
     assertThat(result.get(0).answerText()).isEqualTo("Alice Middle Last");
     assertThat(result.get(1).answerText()).isEqualTo("mauve");
     assertThat(result.get(2).answerText()).isEqualTo("123 Rhode St.\nSeattle, WA, 12345");
+
+    // Check single and multi select answers
+    assertThat(result.get(3).questionId()).isEqualTo(singleSelectQuestionDefinition.getId());
+    assertThat(result.get(3).scalarAnswersInDefaultLocale())
+        .containsExactly(
+            new AbstractMap.SimpleEntry<>(
+                ApplicantData.APPLICANT_PATH
+                    .join(singleSelectQuestionDefinition.getQuestionPathSegment())
+                    .join(Scalar.SELECTION),
+                "winter"));
+    assertThat(result.get(4).questionId()).isEqualTo(multiSelectQuestionDefinition.getId());
+    assertThat(result.get(4).scalarAnswersInDefaultLocale())
+        .containsExactly(
+            new AbstractMap.SimpleEntry<>(
+                ApplicantData.APPLICANT_PATH
+                    .join(multiSelectQuestionDefinition.getQuestionPathSegment())
+                    .join(Scalar.SELECTION),
+                "toaster, pepper grinder"));
+
+    // check enumerator and repeated answers
+    assertThat(result.get(5).questionId()).isEqualTo(enumeratorQuestionDefinition.getId());
+    assertThat(result.get(5).scalarAnswersInDefaultLocale())
+        .containsExactly(new AbstractMap.SimpleEntry<>(enumeratorPath, "enum one\nenum two"));
+    assertThat(result.get(6).questionId()).isEqualTo(repeatedQuestionDefinition.getId());
+    assertThat(result.get(6).scalarAnswersInDefaultLocale())
+        .containsExactlyEntriesOf(
+            ImmutableMap.of(
+                enumeratorPath
+                    .atIndex(0)
+                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
+                    .join(Scalar.FIRST_NAME),
+                "first",
+                enumeratorPath
+                    .atIndex(0)
+                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
+                    .join(Scalar.MIDDLE_NAME),
+                "middle",
+                enumeratorPath
+                    .atIndex(0)
+                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
+                    .join(Scalar.LAST_NAME),
+                "last"));
+    assertThat(result.get(7).questionId()).isEqualTo(repeatedQuestionDefinition.getId());
+    assertThat(result.get(7).scalarAnswersInDefaultLocale())
+        .containsExactlyEntriesOf(
+            ImmutableMap.of(
+                enumeratorPath
+                    .atIndex(1)
+                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
+                    .join(Scalar.FIRST_NAME),
+                "foo",
+                enumeratorPath
+                    .atIndex(1)
+                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
+                    .join(Scalar.MIDDLE_NAME),
+                "bar",
+                enumeratorPath
+                    .atIndex(1)
+                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
+                    .join(Scalar.LAST_NAME),
+                "baz"));
   }
 
   @Test
@@ -348,7 +529,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
     ImmutableList<AnswerData> result = subject.getSummaryData();
 
-    assertEquals(3, result.size());
+    assertThat(result).hasSize(3);
     assertThat(result.get(0).answerText()).isEqualTo("");
     assertThat(result.get(1).answerText()).isEqualTo("-");
     assertThat(result.get(2).answerText()).isEqualTo("");

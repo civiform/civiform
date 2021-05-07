@@ -4,6 +4,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import services.MessageKey;
@@ -78,11 +79,17 @@ public class MultiSelectQuestion implements PresentsErrors {
     return applicantQuestion.getApplicantData().hasPath(getSelectionPath());
   }
 
+  /** Get the selected options in the applicant's preferred locale. */
   public Optional<ImmutableList<LocalizedQuestionOption>> getSelectedOptionsValue() {
-    if (selectedOptionsValue != null) {
-      return selectedOptionsValue;
+    if (selectedOptionsValue == null) {
+      selectedOptionsValue =
+          getSelectedOptionsValue(applicantQuestion.getApplicantData().preferredLocale());
     }
+    return selectedOptionsValue;
+  }
 
+  /** Get the selected options in the specified locale. */
+  public Optional<ImmutableList<LocalizedQuestionOption>> getSelectedOptionsValue(Locale locale) {
     Optional<ImmutableList<Long>> maybeOptionIds =
         applicantQuestion.getApplicantData().readList(getSelectionPath());
 
@@ -93,13 +100,10 @@ public class MultiSelectQuestion implements PresentsErrors {
 
     ImmutableList<Long> optionIds = maybeOptionIds.get();
 
-    selectedOptionsValue =
-        Optional.of(
-            getOptions().stream()
-                .filter(option -> optionIds.contains(option.id()))
-                .collect(toImmutableList()));
-
-    return selectedOptionsValue;
+    return Optional.of(
+        getOptions(locale).stream()
+            .filter(option -> optionIds.contains(option.id()))
+            .collect(toImmutableList()));
   }
 
   public boolean optionIsSelected(LocalizedQuestionOption option) {
@@ -135,9 +139,14 @@ public class MultiSelectQuestion implements PresentsErrors {
     return applicantQuestion.getContextualizedPath().join(Scalar.SELECTION);
   }
 
+  /** Get options in the applicant's preferred locale. */
   public ImmutableList<LocalizedQuestionOption> getOptions() {
-    return getQuestionDefinition()
-        .getOptionsForLocaleOrDefault(applicantQuestion.getApplicantData().preferredLocale());
+    return getOptions(applicantQuestion.getApplicantData().preferredLocale());
+  }
+
+  /** Get options in the specified locale. */
+  public ImmutableList<LocalizedQuestionOption> getOptions(Locale locale) {
+    return getQuestionDefinition().getOptionsForLocaleOrDefault(locale);
   }
 
   @Override
