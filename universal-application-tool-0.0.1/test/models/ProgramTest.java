@@ -32,6 +32,7 @@ public class ProgramTest extends WithPostgresContainer {
   @Test
   public void canSaveProgram() throws UnsupportedQuestionTypeException {
     Account account = new Account();
+    account.save();
 
     QuestionDefinition questionDefinition =
         new QuestionDefinitionBuilder()

@@ -24,8 +24,7 @@ public class Account extends BaseModel {
   @ManyToOne private TrustedIntermediaryGroup memberOfGroup;
   @ManyToOne private TrustedIntermediaryGroup managedByGroup;
 
-  @ManyToMany
-  @JoinTable(name = "programs_accounts")
+  @ManyToMany(mappedBy = "accounts")
   private List<Program> programs;
 
   private String emailAddress;
@@ -76,6 +75,10 @@ public class Account extends BaseModel {
 
   public void setAdministeredPrograms(ImmutableList<Program> administeredPrograms) {
     this.programs = administeredPrograms;
+  }
+
+  public void addAdministeredProgram(Program program) {
+    this.programs.add(program);
   }
 
   /**
