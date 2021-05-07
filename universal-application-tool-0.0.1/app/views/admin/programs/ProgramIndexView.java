@@ -47,8 +47,12 @@ public final class ProgramIndexView extends BaseHtmlView {
                             programs.getActiveProgramDefinition(name),
                             programs.getDraftProgramDefinition(name),
                             request)));
-
-    return layout.render(head(layout.tailwindStyles()), body(contentDiv));
+                            
+   // TODO: Set relevant titles with i18n support.
+   HtmlBundle bundle = new HtmlBundle()
+      .setTitle("All Programs")
+      .addMainContent(contentDiv);
+    return layout.render(bundle);
   }
 
   private Tag maybeRenderPublishButton(ActiveAndDraftPrograms programs, Http.Request request) {

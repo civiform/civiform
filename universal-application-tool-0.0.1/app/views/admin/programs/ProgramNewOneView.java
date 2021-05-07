@@ -22,25 +22,11 @@ public final class ProgramNewOneView extends BaseHtmlView {
 
   public Content render(Request request) {
     ProgramForm blankForm = new ProgramForm();
-    return layout.render(
-        body(
-            renderHeader("New program"),
-            div(
-                ProgramFormBuilder.buildProgramForm(
-                        blankForm.getAdminName(),
-                        blankForm.getAdminDescription(),
-                        blankForm.getLocalizedDisplayName(),
-                        blankForm.getLocalizedDisplayDescription(),
-                        false)
-                    .with(makeCsrfTokenInputTag(request))
-                    .withAction(controllers.admin.routes.AdminProgramController.create().url()))));
+    return render(request, blankForm, "");
   }
 
   public Content render(Request request, ProgramForm programForm, String message) {
-    ContainerTag bodyContent =
-        body(
-            renderHeader("New program"),
-            div(
+    ContainerTag mainContent = div(
                 ProgramFormBuilder.buildProgramForm(
                         programForm.getAdminName(),
                         programForm.getAdminDescription(),
@@ -48,10 +34,21 @@ public final class ProgramNewOneView extends BaseHtmlView {
                         programForm.getLocalizedDisplayDescription(),
                         false)
                     .with(makeCsrfTokenInputTag(request))
-                    .withAction(controllers.admin.routes.AdminProgramController.create().url())));
+                    .withAction(controllers.admin.routes.AdminProgramController.create().url()));
+
+    // TODO: Set relevant titles with i18n support.
+    String title = "New Program";
+    HtmlBundle bundle = new HtmlBundle()
+        .setTitle(title)
+        .addMainContent(renderHeader(title))
+        .addMainContent(mainContent);
+
     if (message.length() > 0) {
-      bodyContent.with(ToastMessage.error(message).setDismissible(false).getContainerTag());
+      bundle.addHeaderContent(
+        ToastMessage.error(message).setDismissible(false).getContainerTag()
+      );
     }
-    return layout.render(bodyContent);
+
+    return layout.render(bundle);
   }
 }
