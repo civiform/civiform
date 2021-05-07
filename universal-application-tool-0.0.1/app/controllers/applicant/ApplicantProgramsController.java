@@ -57,7 +57,7 @@ public class ApplicantProgramsController extends CiviFormController {
             programs ->
                 ok(
                     programIndexView.render(
-                        messagesApi.preferred(request), applicantId, programs, banner)),
+                        messagesApi.preferred(request), request, applicantId, programs, banner)),
             httpContext.current())
         .exceptionally(
             ex -> {

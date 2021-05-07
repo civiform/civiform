@@ -167,7 +167,9 @@ public class ApplicantData {
   }
 
   private void putNull(Path path) {
-    put(path, null);
+    if (!path.isArrayElement()) {
+      put(path, null);
+    }
   }
 
   /**
@@ -201,6 +203,13 @@ public class ApplicantData {
   private void putArrayIfMissing(Path path) {
     if (!hasPath(path)) {
       putAt(path, new ArrayList<>());
+    }
+  }
+
+  /** Clears an array in preparation of updates. */
+  public void maybeClearArray(Path path) {
+    if (path.isArrayElement()) {
+      putAt(path.withoutArrayReference(), new ArrayList<>());
     }
   }
 
@@ -507,7 +516,7 @@ public class ApplicantData {
     setUserName(firstName, middleName, lastName);
   }
 
-  private void setUserName(
+  public void setUserName(
       String firstName, @Nullable String middleName, @Nullable String lastName) {
     if (!hasPath(WellKnownPaths.APPLICANT_FIRST_NAME)) {
       putString(WellKnownPaths.APPLICANT_FIRST_NAME, firstName);

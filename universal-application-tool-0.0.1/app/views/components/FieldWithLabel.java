@@ -109,6 +109,11 @@ public class FieldWithLabel {
     return new FieldWithLabel(fieldTag).setFieldType("number");
   }
 
+  public static FieldWithLabel date() {
+    Tag fieldTag = TagCreator.input();
+    return new FieldWithLabel(fieldTag).setFieldType("date");
+  }
+
   public static FieldWithLabel textArea() {
     Tag fieldTag = textarea();
     return new FieldWithLabel(fieldTag).setFieldType("text");
@@ -156,7 +161,9 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setValue(String value) {
-    if (!this.fieldType.equals("text") && !this.fieldType.equals("checkbox")) {
+    if (!this.fieldType.equals("text")
+        && !this.fieldType.equals("checkbox")
+        && !this.fieldType.equals("date")) {
       throw new RuntimeException(
           String.format(
               "setting a String value is not available on fields of type `%s`", this.fieldType));

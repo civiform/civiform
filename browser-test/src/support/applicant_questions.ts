@@ -28,7 +28,11 @@ export class ApplicantQuestions {
   }
 
   async answerFileUploadQuestion(text: string) {
-    await this.page.fill('input[type="text"]', text);
+    await this.page.setInputFiles('input[type=file]', {
+      name: 'file.txt',
+      mimeType: 'text/plain',
+      buffer: Buffer.from(text)
+    });
   }
 
   async answerRadioButtonQuestion(checked: string) {
@@ -63,10 +67,10 @@ export class ApplicantQuestions {
   async saveAndContinue() {
     await this.page.click('text="Save and continue"');
   }
-  
-  async submitFromReviewPage() {
+
+  async submitFromReviewPage(programName: string) {
     // assert that we're on the review page.
-    expect(await this.page.innerText('h1')).toContain('Application review');
+    expect(await this.page.innerText('h1')).toContain('Application review for ' + programName);
 
     // click on submit button.
     await this.page.click('text="Submit"');

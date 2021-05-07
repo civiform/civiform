@@ -6,6 +6,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.p;
+import static j2html.attributes.Attr.ENCTYPE;
 
 import com.google.auto.value.AutoValue;
 import com.google.inject.Inject;
@@ -16,6 +17,8 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
+import repository.AmazonS3Client;
+import repository.SignedS3UploadRequest;
 import services.MessageKey;
 import services.applicant.Block;
 import services.applicant.question.ApplicantQuestion;
@@ -38,32 +41,11 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   public Content render(Params params) {
-    String formAction =
-        routes.ApplicantProgramBlocksController.update(
-                params.applicantId(), params.programId(), params.block().getId(), params.inReview())
-            .url();
-    ApplicantQuestionRendererParams rendererParams =
-        ApplicantQuestionRendererParams.builder()
-            .setMessages(params.messages())
-            .setProgramId(params.programId())
-            .setApplicantId(params.applicantId())
-            .build();
     ContainerTag body =
         body()
             .with(h1(params.block().getName()))
             .with(p(params.block().getDescription()))
-            .with(
-                form()
-                    .withAction(formAction)
-                    .withMethod(HttpVerbs.POST)
-                    .with(makeCsrfTokenInputTag(params.request()))
-                    .with(
-                        each(
-                            params.block().getQuestions(),
-                            question -> renderQuestion(question, rendererParams)))
-                    .with(
-                        submitButton(
-                            params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName()))));
+            .with(renderBlockWithSubmitForm(params));
 
     if (!params.preferredLanguageSupported()) {
       body.with(
@@ -84,7 +66,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
               params.messages()));
     }
 
-    return layout.render(params.messages(), body);
+    return layout.render(params.request(), params.messages(), body);
   }
 
   /**
@@ -105,6 +87,58 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         .setIgnorable(true)
         .setDuration(0)
         .getContainerTag();
+  }
+
+  private Tag renderBlockWithSubmitForm(Params params) {
+    if (params.block().isFileUpload()) {
+      return renderFileUploadBlockSubmitForm(params);
+    }
+    String formAction =
+        routes.ApplicantProgramBlocksController.update(
+                params.applicantId(), params.programId(), params.block().getId(), params.inReview())
+            .url();
+    ApplicantQuestionRendererParams rendererParams =
+        ApplicantQuestionRendererParams.builder().setMessages(params.messages()).build();
+    return form()
+        .withAction(formAction)
+        .withMethod(HttpVerbs.POST)
+        .with(makeCsrfTokenInputTag(params.request()))
+        .with(
+            each(
+                params.block().getQuestions(),
+                question -> renderQuestion(question, rendererParams)))
+        .with(submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName())));
+  }
+
+  private Tag renderFileUploadBlockSubmitForm(Params params) {
+    String key =
+        String.format(
+            "applicant-%d/program-%d/block-%s",
+            params.applicantId(), params.programId(), params.block().getId());
+    String onSuccessRedirectUrl =
+        params.baseUrl()
+            + routes.ApplicantProgramBlocksController.updateFile(
+                    params.applicantId(),
+                    params.programId(),
+                    params.block().getId(),
+                    params.inReview())
+                .url();
+    SignedS3UploadRequest signedRequest =
+        params.amazonS3Client().getSignedUploadRequest(key, onSuccessRedirectUrl);
+    ApplicantQuestionRendererParams rendererParams =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(params.messages())
+            .setSignedFileUploadRequest(signedRequest)
+            .build();
+    return form()
+        .attr(ENCTYPE, "multipart/form-data")
+        .withAction(signedRequest.actionLink())
+        .withMethod(HttpVerbs.POST)
+        .with(
+            each(
+                params.block().getQuestions(),
+                question -> renderQuestion(question, rendererParams)))
+        .with(submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName())));
   }
 
   private Tag renderQuestion(ApplicantQuestion question, ApplicantQuestionRendererParams params) {
@@ -131,6 +165,10 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
     abstract boolean preferredLanguageSupported();
 
+    abstract AmazonS3Client amazonS3Client();
+
+    abstract String baseUrl();
+
     @AutoValue.Builder
     public abstract static class Builder {
       public abstract Builder setRequest(Http.Request request);
@@ -146,6 +184,10 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
       public abstract Builder setBlock(Block block);
 
       public abstract Builder setPreferredLanguageSupported(boolean preferredLanguageSupported);
+
+      public abstract Builder setAmazonS3Client(AmazonS3Client amazonS3Client);
+
+      public abstract Builder setBaseUrl(String baseUrl);
 
       public abstract Params build();
     }

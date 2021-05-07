@@ -78,7 +78,7 @@ Resources:
       LoadBalancerArn: !Ref 'publiclb'
       Port: 443
       Protocol: HTTPS
-      SslPolicy: ELBSecurityPolicy-TLS-1-2-Ext-2018-06
+      SslPolicy: ELBSecurityPolicy-TLS-1-2-2017-01
       Certificates:
         - CertificateArn: !FindInMap [Certificate, !Ref Environment, CertArn]
   lbtarget:

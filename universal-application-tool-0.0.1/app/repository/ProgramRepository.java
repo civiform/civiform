@@ -9,6 +9,7 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.TxScope;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -16,6 +17,7 @@ import models.LifecycleStage;
 import models.Program;
 import models.Version;
 import play.db.ebean.EbeanConfig;
+import services.program.ProgramNotFoundException;
 
 public class ProgramRepository {
 
@@ -109,5 +111,23 @@ public class ProgramRepository {
         return createOrUpdateDraft(existingProgram);
       }
     }
+  }
+
+  public CompletableFuture<Program> getForSlug(String slug) {
+    return supplyAsync(
+        () -> {
+          for (Program program :
+              ebeanServer.find(Program.class).where().isNull("slug").findList()) {
+            program.getSlug();
+            program.save();
+          }
+          Optional<Program> programMaybe =
+              ebeanServer.find(Program.class).where().eq("slug", slug).findOneOrEmpty();
+          if (programMaybe.isPresent()) {
+            return programMaybe.get();
+          }
+          throw new RuntimeException(new ProgramNotFoundException(slug));
+        },
+        executionContext.current());
   }
 }

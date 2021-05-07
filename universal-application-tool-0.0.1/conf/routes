@@ -56,6 +56,9 @@ GET     /admin/tiGroups/:id/edit           controllers.admin.TrustedIntermediary
 POST    /admin/tiGroups/:id/addTi          controllers.admin.TrustedIntermediaryManagementController.addIntermediary(id: Long, request: Request)
 POST    /admin/tiGroups/:id/removeTi       controllers.admin.TrustedIntermediaryManagementController.removeIntermediary(id: Long, request: Request)
 
+GET     /admin/tiDash                      controllers.ti.TrustedIntermediaryController.dashboard(request: Request)
+POST    /admin/tiGroups/:id/addApplicant   controllers.ti.TrustedIntermediaryController.addApplicant(id: Long, request: Request)
+
 # Controller for admins only, related to applications
 GET     /admin/programs/:programId/applications                           controllers.admin.AdminApplicationController.answerList(programId: Long)
 GET     /admin/programs/:programId/applications/all                       controllers.admin.AdminApplicationController.downloadAll(programId: Long)
@@ -73,13 +76,17 @@ GET     /applicants/:applicantId/edit                                       cont
 POST    /applicants/:applicantId                                            controllers.applicant.ApplicantInformationController.update(request: Request, applicantId: Long)
 
 # Program methods for applicants
-GET     /applicants/:applicantId/programs                                       controllers.applicant.ApplicantProgramsController.index(request: Request, applicantId: Long)
-GET     /applicants/:applicantId/programs/:programId/edit                       controllers.applicant.ApplicantProgramsController.edit(request: Request, applicantId: Long, programId: Long)
-GET     /applicants/:applicantId/programs/:programId/review                     controllers.applicant.ApplicantProgramReviewController.review(request: Request, applicantId: Long, programId: Long)
-POST    /applicants/:applicantId/programs/:programId/submit                     controllers.applicant.ApplicantProgramReviewController.submit(request: Request, applicantId: Long, programId: Long)
-GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit       controllers.applicant.ApplicantProgramBlocksController.edit(request: Request, applicantId: Long, programId: Long, blockId: String)
-GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/review     controllers.applicant.ApplicantProgramBlocksController.review(request: Request, applicantId: Long, programId: Long, blockId: String)
-POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview  controllers.applicant.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
+GET     /applicants/:applicantId/programs                                                   controllers.applicant.ApplicantProgramsController.index(request: Request, applicantId: Long)
+GET     /applicants/:applicantId/programs/:programId/edit                                   controllers.applicant.ApplicantProgramsController.edit(request: Request, applicantId: Long, programId: Long)
+GET     /applicants/:applicantId/programs/:programId/review                                 controllers.applicant.ApplicantProgramReviewController.review(request: Request, applicantId: Long, programId: Long)
+POST    /applicants/:applicantId/programs/:programId/submit                                 controllers.applicant.ApplicantProgramReviewController.submit(request: Request, applicantId: Long, programId: Long)
+GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit                   controllers.applicant.ApplicantProgramBlocksController.edit(request: Request, applicantId: Long, programId: Long, blockId: String)
+GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/review                 controllers.applicant.ApplicantProgramBlocksController.review(request: Request, applicantId: Long, programId: Long, blockId: String)
+GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/updateFile/:inReview   controllers.applicant.ApplicantProgramBlocksController.updateFile(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
+POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview              controllers.applicant.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
+
+# Deep-link methods
+GET     /programs/:programName      controllers.applicant.DeepLinkController.programByName(request: Request, programName: String)
 
 # User profile pages
 GET     /users/me                    controllers.ProfileController.myProfile(request: Request)

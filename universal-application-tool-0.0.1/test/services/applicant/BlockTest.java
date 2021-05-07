@@ -332,6 +332,34 @@ public class BlockTest {
     assertThat(enumeratorQuestion.getQuestionDefinition()).isEqualTo(enumeratorQuestionDefinition);
   }
 
+  @Test
+  public void isFileUpload_isTrue() {
+    ApplicantData applicantData = new ApplicantData();
+    BlockDefinition definition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("")
+            .setDescription("")
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    testQuestionBank.applicantFile().getQuestionDefinition()))
+            .build();
+
+    Block block = new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH);
+
+    assertThat(block.isFileUpload()).isTrue();
+  }
+
+  @Test
+  public void isFileUpload_isFalse() {
+    ApplicantData applicantData = new ApplicantData();
+    BlockDefinition definition = setUpBlockWithQuestions();
+
+    Block block = new Block("1", definition, applicantData, ApplicantData.APPLICANT_PATH);
+
+    assertThat(block.isFileUpload()).isFalse();
+  }
+
   private static BlockDefinition setUpBlockWithQuestions() {
     return BlockDefinition.builder()
         .setId(20L)

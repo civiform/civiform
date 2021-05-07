@@ -4,6 +4,11 @@ on:
   push:
     branches: main
 
+# Two probers running at once can break each other.
+concurrency:
+  group: stagingenvironment
+  cancel-in-progress: true
+
 jobs:
   build_container:
     runs-on: ubuntu-18.04 # for older version of awscli.
@@ -51,3 +56,10 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
         run: bin/deploy-staging
+
+      - name: Run prober test
+        run: bin/run-prober
+        env:
+          TEST_USER_LOGIN: ${{ secrets.IDCS_TEST_USER_LOGIN }}
+          TEST_USER_PASSWORD: ${{ secrets.IDCS_TEST_USER_PASSWORD }}
+

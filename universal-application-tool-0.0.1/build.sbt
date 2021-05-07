@@ -70,6 +70,9 @@ lazy val root = (project in file("."))
       // Apache libraries for export
       "org.apache.pdfbox" % "pdfbox" % "2.0.22",
       "org.apache.commons" % "commons-csv" % "1.4",
+
+      // Slugs for deeplinking.
+      "com.github.slugify" % "slugify" % "2.5",
     ),
     javacOptions ++= Seq(
       "-encoding", "UTF-8",

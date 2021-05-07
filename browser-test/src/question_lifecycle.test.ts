@@ -9,12 +9,18 @@ describe('normal question lifecycle', () => {
     const adminQuestions = new AdminQuestions(page);
     const adminPrograms = new AdminPrograms(page);
 
-    const questions = await adminQuestions.addAllQuestionTypes('qlc-');
+    const questions = await adminQuestions.addAllNonSingleBlockQuestionTypes('qlc-');
+    const singleBlockQuestions = await adminQuestions.addAllSingleBlockQuestionTypes('qlc-');
 
     await adminQuestions.updateAllQuestions(questions);
 
     const programName = 'program for question lifecycle';
-    await adminPrograms.addAndPublishProgramWithQuestions(questions, programName);
+    await adminPrograms.addProgram(programName);
+    await adminPrograms.editProgramBlock(programName, 'qlc program description', questions);
+    for (const singleBlockQuestion of singleBlockQuestions) {
+      await adminPrograms.addProgramBlock(programName, 'single-block question', [singleBlockQuestion]);
+    }
+    await adminPrograms.publishProgram(programName);
 
     await adminQuestions.expectActiveQuestions(questions);
 
