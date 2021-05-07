@@ -116,10 +116,15 @@ public class ProgramRepository {
   public CompletableFuture<Program> getForSlug(String slug) {
     return supplyAsync(
         () -> {
-          for (Program program : ebeanServer.find(Program.class).findList()) {
-            if (program.getProgramDefinition().slug().equals(slug)) {
-              return program;
-            }
+          for (Program program :
+              ebeanServer.find(Program.class).where().isNull("slug").findList()) {
+            program.getSlug();
+            program.save();
+          }
+          Optional<Program> programMaybe =
+              ebeanServer.find(Program.class).where().eq("slug", slug).findOneOrEmpty();
+          if (programMaybe.isPresent()) {
+            return programMaybe.get();
           }
           throw new RuntimeException(new ProgramNotFoundException(slug));
         },

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import io.ebean.DB;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -53,6 +54,20 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
     Optional<Program> found = repo.lookupProgram(two.id).toCompletableFuture().join();
 
     assertThat(found).hasValue(two);
+  }
+
+  @Test
+  public void getForSlug_withOldSchema() {
+    DB.sqlUpdate(
+            "insert into programs (name, description, block_definitions, export_definitions,"
+                + " localized_name, localized_description) values ('Old Schema Entry',"
+                + " 'Description', '[]', '[]', '{\"en_us\": \"a\"}', '{\"en_us\": \"b\"}');")
+        .execute();
+
+    Program found = repo.getForSlug("old-schema-entry").toCompletableFuture().join();
+
+    assertThat(found.getProgramDefinition().adminName()).isEqualTo("Old Schema Entry");
+    assertThat(found.getProgramDefinition().adminDescription()).isEqualTo("Description");
   }
 
   @Test
