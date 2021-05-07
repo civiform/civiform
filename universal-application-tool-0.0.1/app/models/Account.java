@@ -3,11 +3,11 @@ package models;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.Entity;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -74,7 +74,9 @@ public class Account extends BaseModel {
   }
 
   public void setAdministeredPrograms(ImmutableList<Program> administeredPrograms) {
-    this.programs = administeredPrograms;
+    // This needs to be a mutable collection so that we can add programs later.
+    this.programs = new ArrayList<>();
+    this.programs.addAll(administeredPrograms);
   }
 
   public void addAdministeredProgram(Program program) {

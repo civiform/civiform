@@ -124,6 +124,7 @@ public class ProgramTest extends WithPostgresContainer {
     ProgramDefinition definition =
         ProgramDefinition.builder()
             .setId(1L)
+            .setProgramAdminAccounts(ImmutableList.of())
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
             .addLocalizedName(Locale.US, "ProgramTest")
