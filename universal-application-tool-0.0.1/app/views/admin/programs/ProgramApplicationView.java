@@ -52,7 +52,11 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     block -> this.renderApplicationBlock(application.getApplicantData(), block)),
                 renderDownloadButton(programId, application.id));
 
-    return layout.render(head(layout.tailwindStyles()), body(contentDiv));
+    // TODO: Set relevant titles with i18n support.
+    HtmlBundle bundle = new HtmlBundle()
+        .setTitle("Application View")
+        .addMainContent(contentDiv);
+    return layout.render(bundle);
   }
 
   private Tag renderDownloadButton(long programId, long applicationId) {

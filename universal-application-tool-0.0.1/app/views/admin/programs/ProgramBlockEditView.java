@@ -98,7 +98,12 @@ public class ProgramBlockEditView extends BaseHtmlView {
       mainContent.with(ToastMessage.error(message).setDismissible(false).getContainerTag());
     }
 
-    return layout.renderCentered(mainContent, Styles.FLEX, Styles.FLEX_COL);
+    // TODO: Set relevant titles with i18n support.
+    HtmlBundle bundle = new HtmlBundle()
+        .setTitle("Program Block - Application View")
+        .addMainContent(contentDiv)
+        .addMainStyles(Styles.FLEX. Styles.FLEX_COL);
+    return layout.renderCentered(bundle);
   }
 
   private Tag addFormEndpoints(Tag csrfTag, long programId, long blockId) {

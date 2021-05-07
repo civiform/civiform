@@ -21,38 +21,47 @@ public class ProgramEditView extends BaseHtmlView {
   }
 
   public Content render(Request request, ProgramDefinition program) {
-    ContainerTag formTag =
+    ContainerTag programForm =
         ProgramFormBuilder.buildProgramForm(
                 program.adminName(),
                 program.adminDescription(),
                 program.getNameForDefaultLocale(),
                 program.getDescriptionForDefaultLocale(),
-                true)
-            .with(makeCsrfTokenInputTag(request))
-            .with(buildManageQuestionLink(program.id()))
-            .withAction(controllers.admin.routes.AdminProgramController.update(program.id()).url());
-    return layout.render(
-        renderHeader(String.format("Edit program: %s", program.adminName())), formTag);
+                true);
+
+    return render(request, id, program.id(), programForm, program.adminName(), "");
   }
 
   public Content render(Request request, long id, ProgramForm program, String message) {
-    ContainerTag formTag =
+    ContainerTag programForm =
         ProgramFormBuilder.buildProgramForm(
                 program.getAdminName(),
                 program.getAdminDescription(),
                 program.getLocalizedDisplayName(),
                 program.getLocalizedDisplayDescription(),
-                true)
-            .with(makeCsrfTokenInputTag(request))
-            .with(buildManageQuestionLink(id))
-            .withAction(controllers.admin.routes.AdminProgramController.update(id).url());
+                true);
 
-    if (!message.isEmpty()) {
-      formTag.with(ToastMessage.error(message).setDismissible(false).getContainerTag());
+    return render(request, id, programForm, message);
+  }
+
+  private Content render(Request request, long id, ContainerTag programForm, String programName, String toastMessage) {
+    programForm
+      .with(makeCsrfTokenInputTag(request))
+      .with(buildManageQuestionLink(id))
+      .withAction(controllers.admin.routes.AdminProgramController.update(id).url());
+
+    if (!toastMessage.isEmpty()) {
+      programForm.with(ToastMessage.error(toastMessage).setDismissible(false).getContainerTag());
     }
 
-    return layout.render(
-        renderHeader(String.format("Edit program: %s", program.getAdminName())), formTag);
+    // TODO: Set relevant titles with i18n support.
+    String title = String.format("Edit program: %s", programName);
+    ContainerTag headerTag = renderHeader(title);
+        HtmlBundle bundle = new HtmlBundle()
+        .setTitle(title)
+        .addHeaderContent(headerTag);
+        .addMainContent(programForm);
+    return layout.render(bundle);
   }
 
   private ContainerTag buildManageQuestionLink(long id) {
