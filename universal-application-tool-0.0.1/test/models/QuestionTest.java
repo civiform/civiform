@@ -158,7 +158,11 @@ public class QuestionTest extends WithPostgresContainer {
             .setQuestionText(ImmutableMap.of())
             .setQuestionHelpText(ImmutableMap.of())
             .setQuestionOptions(
-                ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option"))))
+                ImmutableList.of(
+                    QuestionOption.builder()
+                        .setId(1L)
+                        .setOptionText(ImmutableMap.of(Locale.US, "option"))
+                        .build()))
             .build();
     Question question = new Question(definition);
 
@@ -172,7 +176,11 @@ public class QuestionTest extends WithPostgresContainer {
 
     assertThat(multiOption.getOptions())
         .isEqualTo(
-            ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option"))));
+            ImmutableList.of(
+                QuestionOption.builder()
+                    .setId(1L)
+                    .setOptionText(ImmutableMap.of(Locale.US, "option"))
+                    .build()));
     assertThat(multiOption.getEnumeratorId()).hasValue(123L);
   }
 }

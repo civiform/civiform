@@ -53,15 +53,6 @@ public abstract class QuestionOption {
     public abstract QuestionOption build();
 
     /**
-     * Add a new option text localization. This will fail if a translation for the given locale
-     * already exists.
-     */
-    public Builder addLocalizedOptionText(Locale locale, String text) {
-      optionTextBuilder().put(locale, text);
-      return this;
-    }
-
-    /**
      * Update an existing localization of option text. This will overwrite the old name for that
      * locale.
      */
@@ -70,7 +61,7 @@ public abstract class QuestionOption {
       if (existing.containsKey(locale)) {
         setOptionText(LocalizationUtils.overwriteExistingTranslation(existing, locale, text));
       } else {
-        addLocalizedOptionText(locale, text);
+        optionTextBuilder().put(locale, text);
       }
       return this;
     }
