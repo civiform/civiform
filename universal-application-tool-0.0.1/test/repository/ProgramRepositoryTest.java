@@ -63,6 +63,11 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
                 + " localized_name, localized_description) values ('Old Schema Entry',"
                 + " 'Description', '[]', '[]', '{\"en_us\": \"a\"}', '{\"en_us\": \"b\"}');")
         .execute();
+    DB.sqlUpdate(
+            "insert into versions_programs (versions_id, programs_id) values ("
+                + "(select id from versions where lifecycle_stage = 'active'),"
+                + "(select id from programs where name = 'Old Schema Entry'));")
+        .execute();
 
     Program found = repo.getForSlug("old-schema-entry").toCompletableFuture().join();
 
