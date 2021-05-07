@@ -101,6 +101,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
     // TODO: Set relevant titles with i18n support.
     HtmlBundle bundle = new HtmlBundle()
         .setTitle("Program Block - Application View")
+        .addHeaderContent(AdminView.renderNavBar())
         .addMainContent(contentDiv)
         .addMainStyles(Styles.FLEX. Styles.FLEX_COL);
     return layout.renderCentered(bundle);

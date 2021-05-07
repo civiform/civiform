@@ -59,6 +59,7 @@ public class ProgramEditView extends BaseHtmlView {
     ContainerTag headerTag = renderHeader(title);
         HtmlBundle bundle = new HtmlBundle()
         .setTitle(title)
+        .addHeaderContent(AdminView.renderNavBar())
         .addHeaderContent(headerTag);
         .addMainContent(programForm);
     return layout.render(bundle);

@@ -47,10 +47,11 @@ public final class ProgramIndexView extends BaseHtmlView {
                             programs.getActiveProgramDefinition(name),
                             programs.getDraftProgramDefinition(name),
                             request)));
-                            
+
    // TODO: Set relevant titles with i18n support.
    HtmlBundle bundle = new HtmlBundle()
       .setTitle("All Programs")
+      .addHeaderContent(AdminView.renderNavBar())
       .addMainContent(contentDiv);
     return layout.render(bundle);
   }

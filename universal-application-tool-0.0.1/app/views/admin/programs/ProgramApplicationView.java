@@ -55,6 +55,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     // TODO: Set relevant titles with i18n support.
     HtmlBundle bundle = new HtmlBundle()
         .setTitle("Application View")
+        .addHeaderContent(AdminView.renderNavBar())
         .addMainContent(contentDiv);
     return layout.render(bundle);
   }

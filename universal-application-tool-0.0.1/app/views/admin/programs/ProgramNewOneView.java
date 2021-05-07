@@ -40,6 +40,7 @@ public final class ProgramNewOneView extends BaseHtmlView {
     String title = "New Program";
     HtmlBundle bundle = new HtmlBundle()
         .setTitle(title)
+        .addHeaderContent(AdminView.renderNavBar())
         .addMainContent(renderHeader(title))
         .addMainContent(mainContent);
 

@@ -43,7 +43,7 @@ public class AdminLayout extends BaseHtmlLayout {
   protected Content render(HtmlBundle bundle, boolean isCentered) {
     bundle.addFooterScripts("main");
     bundle.addMainStyles(MAIN_STYLES, isCentered ? CENTERED_STYLES : FULL_STYLES);
-    bundle.addBodyStyles(...);
+    bundle.addBodyStyles(BODY_STYLES);
     return htmlContent(bundle);
   }
 
