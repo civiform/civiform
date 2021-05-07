@@ -1,5 +1,5 @@
-/** 
- * We're trying to keep the JS pretty mimimal for CiviForm, so we're only using it 
+/**
+ * We're trying to keep the JS pretty mimimal for CiviForm, so we're only using it
  * where it's necessary to improve the user experience.
  *
  * Appropriate uses include:
@@ -102,7 +102,7 @@ function removeEnumeratorField(event: Event) {
   enumeratorFieldDiv.parentNode.removeChild(enumeratorFieldDiv);
 }
 
-function init() {
+window.addEventListener('load', (event) => {
   attachDropdown("create-question-button");
 
   // Submit button is disabled by default until program block edit form is changed
@@ -122,5 +122,8 @@ function init() {
   if (enumeratorOptionButton) {
     enumeratorOptionButton.addEventListener("click", addNewEnumeratorField);
   }
-}
-init();
+
+  // Bind click handler for remove options in multi-option edit view
+  Array.from(document.querySelectorAll('.multi-option-question-field-remove-button')).forEach(
+    el => el.addEventListener("click", removeQuestionOption));
+});
