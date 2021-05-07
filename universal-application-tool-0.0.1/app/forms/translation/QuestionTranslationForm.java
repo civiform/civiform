@@ -31,11 +31,11 @@ public class QuestionTranslationForm {
     this.questionHelpText = questionHelpText;
   }
 
-  public QuestionDefinition buildUpdates(QuestionDefinition toUpdate, Locale updatedLocale)
-      throws UnsupportedQuestionTypeException {
+  public QuestionDefinitionBuilder builderWithUpdates(
+      QuestionDefinition toUpdate, Locale updatedLocale) throws UnsupportedQuestionTypeException {
     QuestionDefinitionBuilder builder = new QuestionDefinitionBuilder(toUpdate);
     builder.updateQuestionText(updatedLocale, questionText);
     builder.updateQuestionHelpText(updatedLocale, questionHelpText);
-    return builder.build();
+    return builder;
   }
 }

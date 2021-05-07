@@ -28,10 +28,10 @@ public class MultiOptionQuestionTranslationForm extends QuestionTranslationForm 
   }
 
   @Override
-  public QuestionDefinition buildUpdates(QuestionDefinition definition, Locale updatedLocale)
-      throws UnsupportedQuestionTypeException {
-    QuestionDefinition semiUpdated = super.buildUpdates(definition, updatedLocale);
-    QuestionDefinitionBuilder builder = new QuestionDefinitionBuilder(semiUpdated);
+  public QuestionDefinitionBuilder builderWithUpdates(
+      QuestionDefinition definition, Locale updatedLocale) throws UnsupportedQuestionTypeException {
+    QuestionDefinitionBuilder partiallyUpdated =
+        super.builderWithUpdates(definition, updatedLocale);
     ImmutableList<QuestionOption> currentOptions =
         ((MultiOptionQuestionDefinition) definition).getOptions();
 
@@ -43,6 +43,6 @@ public class MultiOptionQuestionTranslationForm extends QuestionTranslationForm 
               .updateOptionText(current.optionText(), updatedLocale, this.options.get(i))
               .build());
     }
-    return builder.setQuestionOptions(updatedOptionsBuilder.build()).build();
+    return partiallyUpdated.setQuestionOptions(updatedOptionsBuilder.build());
   }
 }
