@@ -61,7 +61,7 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
   public void getForSlug_withOldSchema() {
     DB.sqlUpdate(
             "insert into programs (name, description, block_definitions, export_definitions,"
-                + " localized_name, localized_description) values ('Old Schema Entry',"
+                + " legacy_localized_name, legacy_localized_description) values ('Old Schema Entry',"
                 + " 'Description', '[]', '[]', '{\"en_us\": \"a\"}', '{\"en_us\": \"b\"}');")
         .execute();
     DB.sqlUpdate(
