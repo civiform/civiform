@@ -279,4 +279,11 @@ public class UserRepository {
         .setUserName(form.getFirstName(), form.getMiddleName(), form.getLastName());
     applicant.save();
   }
+
+  public void addAdministeredProgram(String accountEmail, ProgramDefinition program) {
+    Optional<Account> account = lookupAccount(accountEmail);
+    if (account.isPresent()) {
+      account.get().addAdministeredProgram(program);
+    }
+  }
 }
