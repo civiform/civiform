@@ -14,16 +14,28 @@ import services.LocalizedStrings;
 @AutoValue
 public abstract class QuestionOption {
 
-  /** Create a QuestionOption, used for JSON mapping. */
+  /** The id for this option. */
+  @JsonProperty("id")
+  public abstract long id();
+
+  /** The text strings to display to the user, keyed by locale. */
+  @JsonProperty("localizedOptionText")
+  public abstract LocalizedStrings optionText();
+
+  /**
+   * Create a QuestionOption, used for JSON mapping to account for the legacy `optionText`.
+   *
+   * Legacy QuestionOptions from before early May 2021 will not have `localizedOptionText`.
+   */
   @JsonCreator
-  public static QuestionOption createForJsonMapping(
+  public static QuestionOption jsonCreator(
       @JsonProperty("id") long id,
       @JsonProperty("optionText") ImmutableMap<Locale, String> optionText,
       @JsonProperty("localizedOptionText") LocalizedStrings localizedOptionText) {
-    if (!optionText.isEmpty()) {
-      localizedOptionText = LocalizedStrings.create(optionText);
+    if (localizedOptionText != null) {
+      return QuestionOption.create(id, localizedOptionText);
     }
-    return QuestionOption.create(id, localizedOptionText);
+    return QuestionOption.create(id, LocalizedStrings.create(optionText));
   }
 
   /** Create a QuestionOption. */
@@ -40,17 +52,4 @@ public abstract class QuestionOption {
 
     return LocalizedQuestionOption.create(id(), optionText().getOrDefault(locale), locale);
   }
-
-  /** The id for this option. */
-  @JsonProperty("id")
-  public abstract long id();
-
-  /** The text strings to display to the user, keyed by locale. */
-  @JsonProperty("optionText")
-  public ImmutableMap<Locale, String> optionTextForJSON() {
-    return optionText().translations();
-  }
-
-  @JsonProperty("localizedOptionText")
-  public abstract LocalizedStrings optionText();
 }
