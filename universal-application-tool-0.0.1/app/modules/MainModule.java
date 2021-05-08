@@ -9,6 +9,8 @@ import services.program.ProgramService;
 import services.program.ProgramServiceImpl;
 import services.question.QuestionService;
 import services.question.QuestionServiceImpl;
+import services.role.RoleService;
+import services.role.RoleServiceImpl;
 
 /**
  * This class is a Guice module that tells Guice how to bind several different types. This Guice
@@ -27,5 +29,6 @@ public class MainModule extends AbstractModule {
     bind(ProgramService.class).to(ProgramServiceImpl.class);
     bind(QuestionService.class).to(QuestionServiceImpl.class);
     bind(ApplicantService.class).to(ApplicantServiceImpl.class);
+    bind(RoleService.class).to(RoleServiceImpl.class);
   }
 }

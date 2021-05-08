@@ -2,11 +2,11 @@ package controllers.admin;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static play.mvc.Results.badRequest;
-import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 import static play.mvc.Results.redirect;
 
 import auth.Authorizers;
+import com.google.common.collect.ImmutableList;
 import forms.AddProgramAdminForm;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -16,24 +16,19 @@ import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.ProgramRepository;
-import repository.UserRepository;
+import play.mvc.Results;
+import services.role.RoleService;
 
 public class ProgramAdminManagementController {
 
-  private final UserRepository userRepository;
-  private final ProgramRepository programRepository;
+  private final RoleService roleService;
   private final FormFactory formFactory;
   private final HttpExecutionContext httpExecutionContext;
 
   @Inject
   public ProgramAdminManagementController(
-      UserRepository userRepository,
-      ProgramRepository programRepository,
-      FormFactory formFactory,
-      HttpExecutionContext httpExecutionContext) {
-    this.userRepository = userRepository;
-    this.programRepository = programRepository;
+      RoleService roleService, FormFactory formFactory, HttpExecutionContext httpExecutionContext) {
+    this.roleService = roleService;
     this.formFactory = formFactory;
     this.httpExecutionContext = httpExecutionContext;
   }
@@ -45,28 +40,15 @@ public class ProgramAdminManagementController {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public CompletionStage<Result> update(Http.Request request, long programId) {
+  public Result update(Http.Request request, long programId) {
     Form<AddProgramAdminForm> form = formFactory.form(AddProgramAdminForm.class);
     if (form.hasErrors()) {
-      return supplyAsync(() -> badRequest());
+      return badRequest();
     }
     AddProgramAdminForm addAdminForm = form.bindFromRequest(request).get();
 
-    return programRepository
-        .lookupProgram(programId)
-        .thenApplyAsync(
-            program -> {
-              if (program.isEmpty()) {
-                return notFound(String.format("No program with ID %d was found", programId));
-              }
-              addAdminForm
-                  .getAdminEmails()
-                  .forEach(
-                      email ->
-                          userRepository.addAdministeredProgram(
-                              email, program.get().getProgramDefinition()));
-              return redirect(routes.AdminProgramController.index());
-            },
-            httpExecutionContext.current());
+    roleService.makeProgramAdmins(programId, ImmutableList.copyOf(addAdminForm.getAdminEmails()));
+
+    return redirect(routes.AdminProgramController.index());
   }
 }
