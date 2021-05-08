@@ -54,9 +54,7 @@ public class ResourceCreator {
   }
 
   public Program insertActiveProgram(Locale locale, String name) {
-    return ProgramBuilder.newActiveProgram()
-        .withLocalizedName(locale, name)
-        .build();
+    return ProgramBuilder.newActiveProgram().withLocalizedName(locale, name).build();
   }
 
   public Program insertDraftProgram(String name) {

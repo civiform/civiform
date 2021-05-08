@@ -1,7 +1,6 @@
 package support;
 
 import com.google.common.collect.ImmutableList;
-
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -9,7 +8,6 @@ import models.Program;
 import models.Question;
 import play.inject.Injector;
 import repository.VersionRepository;
-import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.ExportDefinition;
 import services.program.Predicate;

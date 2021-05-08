@@ -36,8 +36,7 @@ public abstract class LocalizedStrings {
   /**
    * If this is required, then there must be values. If this is not required, but there are
    * translations, then
-   *
-   * */
+   */
   public static LocalizedStrings create(
       ImmutableMap<Locale, String> translations, boolean canBeEmpty) {
     boolean isRequired = !canBeEmpty || !translations.isEmpty();
@@ -89,8 +88,8 @@ public abstract class LocalizedStrings {
   }
 
   /**
-   * Attempts to get text for the given locale. If there is no text for the given locale,
-   * it will return the text in the default locale.
+   * Attempts to get text for the given locale. If there is no text for the given locale, it will
+   * return the text in the default locale.
    */
   public String getOrDefault(Locale locale) {
     try {
@@ -112,8 +111,8 @@ public abstract class LocalizedStrings {
   }
 
   /**
-   * Return an {@link Optional} containing the text for this locale, or of if this locale
-   * is not supported.
+   * Return an {@link Optional} containing the text for this locale, or of if this locale is not
+   * supported.
    */
   public Optional<String> maybeGet(Locale locale) {
     try {
@@ -124,7 +123,7 @@ public abstract class LocalizedStrings {
   }
 
   /** Get the text for the given locale. */
-  public String get(Locale locale) throws TranslationNotFoundException{
+  public String get(Locale locale) throws TranslationNotFoundException {
     return get(locale, isRequired());
   }
 

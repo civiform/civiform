@@ -25,7 +25,7 @@ public abstract class QuestionOption {
   /**
    * Create a QuestionOption, used for JSON mapping to account for the legacy `optionText`.
    *
-   * Legacy QuestionOptions from before early May 2021 will not have `localizedOptionText`.
+   * <p>Legacy QuestionOptions from before early May 2021 will not have `localizedOptionText`.
    */
   @JsonCreator
   public static QuestionOption jsonCreator(

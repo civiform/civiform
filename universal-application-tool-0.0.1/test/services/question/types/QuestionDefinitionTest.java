@@ -195,8 +195,7 @@ public class QuestionDefinitionTest {
     Throwable thrown = catchThrowable(() -> question.getQuestionText().get(Locale.FRANCE));
 
     assertThat(thrown).isInstanceOf(TranslationNotFoundException.class);
-    assertThat(thrown)
-        .hasMessage("No translation was found for locale fr_FR");
+    assertThat(thrown).hasMessage("No translation was found for locale fr_FR");
   }
 
   @Test
@@ -214,8 +213,7 @@ public class QuestionDefinitionTest {
     Throwable thrown = catchThrowable(() -> question.getQuestionHelpText().get(Locale.FRANCE));
 
     assertThat(thrown).isInstanceOf(TranslationNotFoundException.class);
-    assertThat(thrown)
-        .hasMessage("No translation was found for locale fr_FR");
+    assertThat(thrown).hasMessage("No translation was found for locale fr_FR");
   }
 
   @Test

@@ -2,7 +2,6 @@ package services.program;
 
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
-import akka.actor.ProviderSelection;
 import com.github.slugify.Slugify;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Splitter;

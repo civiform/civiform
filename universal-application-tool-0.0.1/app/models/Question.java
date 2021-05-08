@@ -46,23 +46,37 @@ public class Question extends BaseModel {
 
   private @Constraints.Required String description;
 
-  private @Constraints.Required @DbJsonB ImmutableMap<Locale, String> questionText;
+  /**
+   * legacyQuestionText is the legacy storage column for question text translations. Questions
+   * created before early May 2021 may use this, but all other question should not.
+   */
+  private @DbJsonB ImmutableMap<Locale, String> legacyQuestionText;
 
-  private @Constraints.Required @DbJsonB ImmutableMap<Locale, String> questionHelpText;
+  /** questionText is the current storage column for question text translations. */
+  private @DbJsonB LocalizedStrings questionText;
+
+  /**
+   * legacyQuestionHelpText is the legacy storage column for question help text translations.
+   * Questions created before early May 2021 may use this, but all other question should not.
+   */
+  private @DbJsonB ImmutableMap<Locale, String> legacyQuestionHelpText;
+
+  /** questionHelpText is the current storage column for question help text translations. */
+  private @DbJsonB LocalizedStrings questionHelpText;
 
   private @Constraints.Required String questionType;
 
   private @Constraints.Required @DbJsonB String validationPredicates;
 
-  // questionOptions is the legacy storage column for multi-option questions.
+  // legacyQuestionOptions is the legacy storage column for multi-option questions.
   // A few questions created early on in April 2021 may use this, but all
   // other multi-option questions should not. In practice one can assume only
   // a single locale is present for questions that have values stored in this
   // column.
-  private @DbJsonB ImmutableListMultimap<Locale, String> questionOptions;
+  private @DbJsonB ImmutableListMultimap<Locale, String> legacyQuestionOptions;
 
-  // questionOptionsWithLocales is the current storage column for multi-option questions.
-  private @DbJsonB ImmutableList<QuestionOption> questionOptionsWithLocales;
+  // questionOptions is the current storage column for multi-option questions.
+  private @DbJsonB ImmutableList<QuestionOption> questionOptions;
 
   @ManyToMany
   @JoinTable(name = "versions_questions")
@@ -105,14 +119,33 @@ public class Question extends BaseModel {
             .setPath(Path.create(path))
             .setEnumeratorId(Optional.ofNullable(enumeratorId))
             .setDescription(description)
-            .setQuestionText(LocalizedStrings.create(questionText))
-            .setQuestionHelpText(LocalizedStrings.create(questionHelpText, true))
             .setQuestionType(QuestionType.valueOf(questionType))
             .setValidationPredicatesString(validationPredicates);
 
+    // Build accounting for legacy columns
+    setQuestionText(builder);
+    setQuestionHelpText(builder);
     setQuestionOptions(builder);
 
     this.questionDefinition = builder.build();
+  }
+
+  /** The majority of questions should have `questionText` and not `legacyQuestionText`. */
+  private void setQuestionText(QuestionDefinitionBuilder builder) {
+    if (questionText != null) {
+      builder.setQuestionText(questionText);
+      return;
+    }
+    builder.setQuestionText(LocalizedStrings.create(legacyQuestionText));
+  }
+
+  /** The majority of questions should have `questionHelpText` and not `legacyQuestionHelpText`. */
+  private void setQuestionHelpText(QuestionDefinitionBuilder builder) {
+    if (questionHelpText != null) {
+      builder.setQuestionHelpText(questionHelpText);
+      return;
+    }
+    builder.setQuestionHelpText(LocalizedStrings.create(legacyQuestionHelpText, true));
   }
 
   private void setQuestionOptions(QuestionDefinitionBuilder builder)
@@ -121,21 +154,21 @@ public class Question extends BaseModel {
       return;
     }
 
-    // The majority of multi option questions should have `questionOptionsWithLocales` and not
-    // `questionOptions`.
-    // `questionOptions` is a legacy implementation that only supported a single locale.
-    if (questionOptionsWithLocales != null) {
-      builder.setQuestionOptions(questionOptionsWithLocales);
+    // The majority of multi option questions should have `questionOptions` and not
+    // `legacyQuestionOptions`.
+    // `legacyQuestionOptions` is a legacy implementation that only supported a single locale.
+    if (questionOptions != null) {
+      builder.setQuestionOptions(questionOptions);
       return;
     }
 
-    // If the multi option question does have questionOptions, we can assume there is only one
+    // If the multi option question does have legacyQuestionOptions, we can assume there is only one
     // locale and convert the strings to QuestionOption instances each with a single locale.
-    Locale firstKey = questionOptions.keySet().stream().iterator().next();
+    Locale firstKey = legacyQuestionOptions.keySet().stream().iterator().next();
 
     ImmutableList<QuestionOption> options =
         Streams.mapWithIndex(
-                questionOptions.get(firstKey).stream(),
+                legacyQuestionOptions.get(firstKey).stream(),
                 (optionText, i) ->
                     QuestionOption.create(
                         Long.valueOf(i), LocalizedStrings.of(firstKey, optionText)))
@@ -160,15 +193,15 @@ public class Question extends BaseModel {
     enumeratorId = questionDefinition.getEnumeratorId().orElse(null);
     name = questionDefinition.getName();
     description = questionDefinition.getDescription();
-    questionText = questionDefinition.getQuestionText().translations();
-    questionHelpText = questionDefinition.getQuestionHelpText().translations();
+    questionText = questionDefinition.getQuestionText();
+    questionHelpText = questionDefinition.getQuestionHelpText();
     questionType = questionDefinition.getQuestionType().toString();
     validationPredicates = questionDefinition.getValidationPredicatesAsString();
 
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition multiOption =
           (MultiOptionQuestionDefinition) questionDefinition;
-      questionOptionsWithLocales = multiOption.getOptions();
+      questionOptions = multiOption.getOptions();
     }
   }
 }

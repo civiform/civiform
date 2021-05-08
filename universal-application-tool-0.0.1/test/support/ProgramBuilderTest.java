@@ -2,7 +2,6 @@ package support;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import models.Program;
 import org.junit.Test;
