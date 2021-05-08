@@ -16,16 +16,23 @@ public abstract class LocalizedStrings {
 
   public abstract ImmutableMap<Locale, String> translations();
 
+  public abstract boolean isRequired();
+
   public static LocalizedStrings create(ImmutableMap<Locale, String> translations) {
     return builder().setTranslations(translations).build();
+  }
+
+  public static LocalizedStrings create(ImmutableMap<Locale, String> translations, boolean isRequired) {
+    return builder().setTranslations(translations).setIsRequired(isRequired).build();
   }
 
   public static LocalizedStrings withDefaultValue(String defaultValue) {
     return create(ImmutableMap.of(DEFAULT_LOCALE, defaultValue));
   }
 
+  /** Creating an empty LocalizedStrings means it is not required. */
   public static LocalizedStrings of() {
-    return create(ImmutableMap.of());
+    return create(ImmutableMap.of(), false);
   }
 
   public static LocalizedStrings of(Locale k1, String v1) {
@@ -61,6 +68,8 @@ public abstract class LocalizedStrings {
   public boolean hasEmptyTranslation() {
     return translations().values().stream().anyMatch(String::isBlank);
   }
+
+
 
   /**
    * Attempts to get question text for the given locale. If there is no text for the given locale,
@@ -98,6 +107,10 @@ public abstract class LocalizedStrings {
 
   /** Get the question text for the given locale. */
   public String get(Locale locale) throws TranslationNotFoundException {
+    if (!isRequired() && isEmpty()) {
+      return "";
+    }
+
     if (translations().containsKey(locale)) {
       return translations().get(locale);
     }
@@ -116,26 +129,29 @@ public abstract class LocalizedStrings {
   }
 
   public LocalizedStrings addOrUpdateTranslation(Locale locale, String string) {
-    ImmutableMap.Builder<Locale, String> builder = ImmutableMap.builder();
+    LocalizedStrings.Builder builder = toBuilder().clearTranslations();
     for (Map.Entry<Locale, String> entry : translations().entrySet()) {
       if (!entry.getKey().equals(locale)) {
         builder.put(entry.getKey(), entry.getValue());
       }
     }
     builder.put(locale, string);
-    return LocalizedStrings.create(builder.build());
+    return builder.build();
   }
 
   public abstract Builder toBuilder();
 
   public static Builder builder() {
-    return new AutoValue_LocalizedStrings.Builder();
+    Builder builder = new AutoValue_LocalizedStrings.Builder();
+    return builder.setIsRequired(true);
   }
 
   @AutoValue.Builder
   public abstract static class Builder {
 
     public abstract Builder setTranslations(ImmutableMap<Locale, String> translations);
+
+    public abstract Builder setIsRequired(boolean isRequired);
 
     public abstract ImmutableMap.Builder<Locale, String> translationsBuilder();
 
@@ -144,6 +160,10 @@ public abstract class LocalizedStrings {
     public Builder put(Locale locale, String string) {
       translationsBuilder().put(locale, string);
       return this;
+    }
+
+    public Builder clearTranslations() {
+      return setTranslations(ImmutableMap.of());
     }
   }
 }

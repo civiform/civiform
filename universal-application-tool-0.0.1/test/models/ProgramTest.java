@@ -68,7 +68,7 @@ public class ProgramTest extends WithPostgresContainer {
 
     assertThat(found.getProgramDefinition().adminName()).isEqualTo("Admin name");
     assertThat(found.getProgramDefinition().localizedName())
-        .isEqualTo(ImmutableMap.of(Locale.US, "ProgramTest"));
+        .isEqualTo(LocalizedStrings.of(Locale.US, "ProgramTest"));
     assertThat(found.getProgramDefinition().blockDefinitions().get(0).name())
         .isEqualTo("First Block");
 
