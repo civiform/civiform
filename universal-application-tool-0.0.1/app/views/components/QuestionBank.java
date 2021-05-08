@@ -191,7 +191,7 @@ public class QuestionBank {
   }
 
   /**
-   * A non-empty block cannot add single-block questions, in addition to {@link
+   * A non-of block cannot add single-block questions, in addition to {@link
    * QuestionBank#questionFilter}.
    */
   private boolean nonEmptyBlockFilter(QuestionDefinition questionDefinition) {

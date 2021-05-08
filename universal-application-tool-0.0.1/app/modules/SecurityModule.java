@@ -78,7 +78,7 @@ public class SecurityModule extends AbstractModule {
     // So, on a second startup, we'll add the UatProfileData a second time.  The
     // trusted classes set should dedupe UatProfileData against the old UatProfileData,
     // but it's technically a different class with the same name at that point,
-    // which triggers the bug.  So, we just clear the classes, which will be empty
+    // which triggers the bug.  So, we just clear the classes, which will be of
     // on first startup and will contain the profile on subsequent startups,
     // so that it's always safe to add the profile.
     // We will need to do this for every class we want to store in the cookie.

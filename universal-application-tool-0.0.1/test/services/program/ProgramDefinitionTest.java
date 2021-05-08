@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import org.junit.Test;
+import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
 import support.TestQuestionBank;
 
@@ -25,8 +26,8 @@ public class ProgramDefinitionTest {
         .setId(123L)
         .setAdminName("Admin name")
         .setAdminDescription("Admin description")
-        .addLocalizedName(Locale.US, "The Program")
-        .addLocalizedDescription(Locale.US, "This program is for testing.")
+        .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+        .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
         .addBlockDefinition(blockA)
         .build();
   }
@@ -44,8 +45,8 @@ public class ProgramDefinitionTest {
             .setId(123L)
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
-            .addLocalizedName(Locale.US, "The Program")
-            .addLocalizedDescription(Locale.US, "This program is for testing.")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .addBlockDefinition(blockA)
             .build();
 
@@ -59,8 +60,8 @@ public class ProgramDefinitionTest {
             .setId(123L)
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
-            .addLocalizedName(Locale.US, "The Program")
-            .addLocalizedDescription(Locale.US, "This program is for testing.")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).isEmpty();
@@ -94,8 +95,8 @@ public class ProgramDefinitionTest {
             .setId(123L)
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
-            .addLocalizedName(Locale.US, "The Program")
-            .addLocalizedDescription(Locale.US, "This program is for testing.")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
             .build();
@@ -112,8 +113,8 @@ public class ProgramDefinitionTest {
             .setId(123L)
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
-            .addLocalizedName(Locale.US, "Applicant friendly name")
-            .addLocalizedDescription(Locale.US, "English description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "Applicant friendly name"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "English description"))
             .build();
 
     assertThat(program.adminName()).isEqualTo("Admin name");
@@ -122,13 +123,13 @@ public class ProgramDefinitionTest {
     assertThat(program.localizedDescription())
         .isEqualTo(ImmutableMap.of(Locale.US, "English description"));
 
-    assertThatThrownBy(() -> program.getLocalizedName(Locale.FRANCE))
+    assertThatThrownBy(() -> program.localizedName().get(Locale.FRANCE))
         .isInstanceOf(TranslationNotFoundException.class);
-    assertThatThrownBy(() -> program.getLocalizedDescription(Locale.FRANCE))
+    assertThatThrownBy(() -> program.localizedDescription().get(Locale.FRANCE))
         .isInstanceOf(TranslationNotFoundException.class);
-    assertThat(program.getLocalizedNameOrDefault(Locale.FRANCE))
+    assertThat(program.localizedName().getOrDefault(Locale.FRANCE))
         .isEqualTo("Applicant friendly name");
-    assertThat(program.getLocalizedDescriptionOrDefault(Locale.FRANCE))
+    assertThat(program.localizedDescription().getOrDefault(Locale.FRANCE))
         .isEqualTo("English description");
   }
 
@@ -139,46 +140,50 @@ public class ProgramDefinitionTest {
             .setId(123L)
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
-            .addLocalizedName(Locale.US, "Applicant friendly name")
-            .addLocalizedDescription(Locale.US, "English description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "Applicant friendly name"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "English description"))
             .build();
 
     assertThatThrownBy(
-            () -> program.toBuilder().addLocalizedName(Locale.US, "this already exists").build())
+            () ->
+                program.toBuilder()
+                    .setLocalizedName(LocalizedStrings.of(Locale.US, "this already exists"))
+                    .build())
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Multiple entries with same key");
     assertThatThrownBy(
             () ->
                 program.toBuilder()
-                    .addLocalizedDescription(Locale.US, "this already exists")
+                    .setLocalizedDescription(LocalizedStrings.of(Locale.US, "this already exists"))
                     .build())
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Multiple entries with same key");
   }
 
   @Test
-  public void updateNameAndDescription_replacesExistingValue() throws TranslationNotFoundException {
+  public void updateNameAndDescription_replacesExistingValue() throws Exception {
     ProgramDefinition program =
         ProgramDefinition.builder()
             .setId(123L)
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
-            .addLocalizedName(Locale.US, "existing name")
-            .addLocalizedDescription(Locale.US, "existing description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "existing name"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "existing description"))
             .build();
 
     program =
         program.toBuilder()
-            .updateLocalizedName(program.localizedName(), Locale.US, "new name")
+            .setLocalizedDescription(
+                program.localizedName().addOrUpdateTranslation(Locale.US, "new name"))
             .build();
-    assertThat(program.getLocalizedName(Locale.US)).isEqualTo("new name");
+    assertThat(program.localizedName().get(Locale.US)).isEqualTo("new name");
 
     program =
         program.toBuilder()
-            .updateLocalizedDescription(
-                program.localizedDescription(), Locale.US, "new description")
+            .setLocalizedDescription(
+                program.localizedDescription().addOrUpdateTranslation(Locale.US, "new description"))
             .build();
-    assertThat(program.getLocalizedDescription(Locale.US)).isEqualTo("new description");
+    assertThat(program.localizedDescription().get(Locale.US)).isEqualTo("new description");
   }
 
   @Test
@@ -188,10 +193,10 @@ public class ProgramDefinitionTest {
             .setId(123L)
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
-            .addLocalizedName(Locale.US, "Applicant friendly name")
-            .addLocalizedName(Locale.FRANCE, "test")
-            .addLocalizedDescription(Locale.US, "English description")
-            .addLocalizedDescription(Locale.GERMAN, "test")
+            .setLocalizedName(
+                LocalizedStrings.of(Locale.US, "Applicant friendly name", Locale.FRANCE, "test"))
+            .setLocalizedDescription(
+                LocalizedStrings.of(Locale.US, "English description", Locale.GERMAN, "test"))
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
@@ -224,11 +229,11 @@ public class ProgramDefinitionTest {
             .setId(123L)
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
-            .addLocalizedName(Locale.US, "Applicant friendly name")
-            .addLocalizedName(Locale.FRANCE, "test")
-            .addLocalizedDescription(Locale.US, "English description")
-            .addLocalizedDescription(Locale.GERMAN, "test")
-            .addLocalizedDescription(Locale.FRANCE, "test")
+            .setLocalizedName(
+                LocalizedStrings.of(Locale.US, "Applicant friendly name", Locale.FRANCE, "test"))
+            .setLocalizedDescription(
+                LocalizedStrings.of(
+                    Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
             .build();

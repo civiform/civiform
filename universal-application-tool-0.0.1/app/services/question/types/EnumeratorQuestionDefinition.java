@@ -2,9 +2,9 @@ package services.question.types;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
+import services.LocalizedStrings;
 import services.Path;
 
 /**
@@ -18,14 +18,17 @@ import services.Path;
  */
 public class EnumeratorQuestionDefinition extends QuestionDefinition {
 
+  // TODO(#859): make this admin configurable
+  private final LocalizedStrings entityType = LocalizedStrings.of();
+
   public EnumeratorQuestionDefinition(
       OptionalLong id,
       String name,
       Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText) {
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText) {
     super(
         id,
         name,
@@ -42,8 +45,8 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
       Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText) {
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText) {
     super(
         name,
         path,
@@ -66,6 +69,10 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
   @Override
   public ImmutableMap<Path, ScalarType> getScalarMap() {
     return ImmutableMap.of();
+  }
+
+  public LocalizedStrings getEntityType() {
+    return entityType;
   }
 
   @AutoValue

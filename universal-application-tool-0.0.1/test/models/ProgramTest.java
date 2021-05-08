@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import repository.ProgramRepository;
 import repository.WithPostgresContainer;
+import services.LocalizedStrings;
 import services.Path;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
@@ -38,7 +39,7 @@ public class ProgramTest extends WithPostgresContainer {
             .setName("question")
             .setPath(Path.create("applicant.name"))
             .setDescription("applicant's name")
-            .setQuestionText(ImmutableMap.of(Locale.US, "What is your name?"))
+            .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
             .build();
 
     BlockDefinition blockDefinition =
@@ -55,8 +56,8 @@ public class ProgramTest extends WithPostgresContainer {
             .setId(1L)
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
-            .addLocalizedName(Locale.US, "ProgramTest")
-            .addLocalizedDescription(Locale.US, "desc")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .build();
     Program program = new Program(definition);
@@ -92,7 +93,7 @@ public class ProgramTest extends WithPostgresContainer {
                 .setName("address question")
                 .setPath(Path.create("applicant.address"))
                 .setDescription("applicant's address")
-                .setQuestionText(ImmutableMap.of(Locale.US, "What is your address?"))
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your address?"))
                 .build();
     NameQuestionDefinition nameQuestionDefinition =
         (NameQuestionDefinition)
@@ -102,7 +103,7 @@ public class ProgramTest extends WithPostgresContainer {
                 .setName("name question")
                 .setPath(Path.create("applicant.name"))
                 .setDescription("applicant's name")
-                .setQuestionText(ImmutableMap.of(Locale.US, "What is your name?"))
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
                 .build();
 
     BlockDefinition blockDefinition =
@@ -121,8 +122,8 @@ public class ProgramTest extends WithPostgresContainer {
             .setId(1L)
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
-            .addLocalizedName(Locale.US, "ProgramTest")
-            .addLocalizedDescription(Locale.US, "desc")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .build();
     Program program = new Program(definition);

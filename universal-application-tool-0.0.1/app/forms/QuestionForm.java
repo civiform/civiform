@@ -2,10 +2,9 @@ package forms;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import services.LocalizationUtils;
+import services.LocalizedStrings;
 import services.Path;
 import services.question.exceptions.TranslationNotFoundException;
 import services.question.types.QuestionDefinition;
@@ -33,13 +32,13 @@ public abstract class QuestionForm {
     enumeratorId = qd.getEnumeratorId();
 
     try {
-      questionText = qd.getQuestionText(LocalizationUtils.DEFAULT_LOCALE);
+      questionText = qd.getQuestionText().get(LocalizedStrings.DEFAULT_LOCALE);
     } catch (TranslationNotFoundException e) {
       questionText = "Missing Text";
     }
 
     try {
-      questionHelpText = qd.getQuestionHelpText(LocalizationUtils.DEFAULT_LOCALE);
+      questionHelpText = qd.getQuestionHelpText().get(LocalizedStrings.DEFAULT_LOCALE);
     } catch (TranslationNotFoundException e) {
       questionHelpText = "Missing Text";
     }
@@ -89,12 +88,14 @@ public abstract class QuestionForm {
   }
 
   public QuestionDefinitionBuilder getBuilder(Path path) {
-    ImmutableMap<Locale, String> questionTextMap =
-        questionText.isEmpty() ? ImmutableMap.of() : ImmutableMap.of(Locale.US, questionText);
-    ImmutableMap<Locale, String> questionHelpTextMap =
+    LocalizedStrings questionTextMap =
+        questionText.isEmpty()
+            ? LocalizedStrings.of()
+            : LocalizedStrings.of(Locale.US, questionText);
+    LocalizedStrings questionHelpTextMap =
         questionHelpText.isEmpty()
-            ? ImmutableMap.of()
-            : ImmutableMap.of(Locale.US, questionHelpText);
+            ? LocalizedStrings.of()
+            : LocalizedStrings.of(Locale.US, questionHelpText);
 
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()

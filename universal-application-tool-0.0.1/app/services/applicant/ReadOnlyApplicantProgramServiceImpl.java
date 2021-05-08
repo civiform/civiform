@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import services.LocalizationUtils;
+import services.LocalizedStrings;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
@@ -33,7 +33,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public String getProgramTitle() {
-    return programDefinition.getLocalizedNameOrDefault(applicantData.preferredLocale());
+    return programDefinition.localizedName().getOrDefault(applicantData.preferredLocale());
   }
 
   @Override
@@ -222,7 +222,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
                 .setIsPreviousResponse(isPreviousResponse)
                 .setScalarAnswersInDefaultLocale(
-                    getScalarAnswers(question, LocalizationUtils.DEFAULT_LOCALE))
+                    getScalarAnswers(question, LocalizedStrings.DEFAULT_LOCALE))
                 .build();
         builder.add(data);
       }

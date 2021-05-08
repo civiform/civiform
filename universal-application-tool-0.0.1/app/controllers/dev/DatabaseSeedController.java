@@ -3,7 +3,6 @@ package controllers.dev;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import forms.BlockForm;
@@ -18,6 +17,7 @@ import play.Environment;
 import play.db.ebean.EbeanConfig;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.LocalizedStrings;
 import services.Path;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
@@ -101,12 +101,12 @@ public class DatabaseSeedController extends DevController {
                 Path.create("applicant.name"),
                 Optional.empty(),
                 "description",
-                ImmutableMap.of(
+                LocalizedStrings.of(
                     Locale.US,
                     "What is your name?",
                     Locale.forLanguageTag("es-US"),
                     "¿Cómo se llama?"),
-                ImmutableMap.of(
+                LocalizedStrings.of(
                     Locale.US,
                     "help text",
                     Locale.forLanguageTag("es-US"),
@@ -122,8 +122,8 @@ public class DatabaseSeedController extends DevController {
                 Path.create("applicant.color"),
                 Optional.empty(),
                 "description",
-                ImmutableMap.of(Locale.US, "What is your favorite color?"),
-                ImmutableMap.of(Locale.US, "help text")))
+                LocalizedStrings.of(Locale.US, "What is your favorite color?"),
+                LocalizedStrings.of(Locale.US, "help text")))
         .getResult();
   }
 
@@ -135,8 +135,8 @@ public class DatabaseSeedController extends DevController {
                 Path.create("applicant.address"),
                 Optional.empty(),
                 "description",
-                ImmutableMap.of(Locale.US, "What is your address?"),
-                ImmutableMap.of(Locale.US, "help text")))
+                LocalizedStrings.of(Locale.US, "What is your address?"),
+                LocalizedStrings.of(Locale.US, "help text")))
         .getResult();
   }
 
@@ -148,13 +148,13 @@ public class DatabaseSeedController extends DevController {
                 Path.create("applicant.kitchen"),
                 Optional.empty(),
                 "description",
-                ImmutableMap.of(
+                LocalizedStrings.of(
                     Locale.US, "Which of the following kitchen instruments do you own?"),
-                ImmutableMap.of(Locale.US, "help text"),
+                LocalizedStrings.of(Locale.US, "help text"),
                 ImmutableList.of(
-                    QuestionOption.create(1L, ImmutableMap.of(Locale.US, "toaster")),
-                    QuestionOption.create(2L, ImmutableMap.of(Locale.US, "pepper grinder")),
-                    QuestionOption.create(3L, ImmutableMap.of(Locale.US, "garlic press")))))
+                    QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "toaster")),
+                    QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "pepper grinder")),
+                    QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "garlic press")))))
         .getResult();
   }
 
@@ -166,14 +166,14 @@ public class DatabaseSeedController extends DevController {
                 Path.create("applicant.dropdown"),
                 Optional.empty(),
                 "select your favorite ice cream flavor",
-                ImmutableMap.of(
+                LocalizedStrings.of(
                     Locale.US, "Select your favorite ice cream flavor from the following"),
-                ImmutableMap.of(Locale.US, "this is sample help text"),
+                LocalizedStrings.of(Locale.US, "this is sample help text"),
                 ImmutableList.of(
-                    QuestionOption.create(1L, ImmutableMap.of(Locale.US, "chocolate")),
-                    QuestionOption.create(2L, ImmutableMap.of(Locale.US, "strawberry")),
-                    QuestionOption.create(3L, ImmutableMap.of(Locale.US, "vanilla")),
-                    QuestionOption.create(4L, ImmutableMap.of(Locale.US, "coffee")))))
+                    QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "chocolate")),
+                    QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "strawberry")),
+                    QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "vanilla")),
+                    QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "coffee")))))
         .getResult();
   }
 
@@ -185,13 +185,13 @@ public class DatabaseSeedController extends DevController {
                 Path.create("applicant.radio"),
                 Optional.empty(),
                 "favorite season in the year",
-                ImmutableMap.of(Locale.US, "What is your favorite season?"),
-                ImmutableMap.of(Locale.US, "this is sample help text"),
+                LocalizedStrings.of(Locale.US, "What is your favorite season?"),
+                LocalizedStrings.of(Locale.US, "this is sample help text"),
                 ImmutableList.of(
-                    QuestionOption.create(1L, ImmutableMap.of(Locale.US, "winter")),
-                    QuestionOption.create(2L, ImmutableMap.of(Locale.US, "spring")),
-                    QuestionOption.create(3L, ImmutableMap.of(Locale.US, "summer")),
-                    QuestionOption.create(4L, ImmutableMap.of(Locale.US, "fall")))))
+                    QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "winter")),
+                    QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "spring")),
+                    QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "summer")),
+                    QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "fall")))))
         .getResult();
   }
 

@@ -1,13 +1,13 @@
 package support;
 
 import com.google.common.collect.ImmutableList;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import models.Program;
 import models.Question;
 import play.inject.Injector;
 import repository.VersionRepository;
+import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.ExportDefinition;
 import services.program.Predicate;
@@ -39,15 +39,15 @@ public class ProgramBuilder {
   }
 
   /**
-   * Creates {@link ProgramBuilder} with a new {@link Program} with an empty name and description,
-   * in draft state.
+   * Creates {@link ProgramBuilder} with a new {@link Program} with an of name and description, in
+   * draft state.
    */
   public static ProgramBuilder newDraftProgram() {
     return newDraftProgram("", "");
   }
 
   /**
-   * Creates a {@link ProgramBuilder} with a new {@link Program} with an empty description, in draft
+   * Creates a {@link ProgramBuilder} with a new {@link Program} with an of description, in draft
    * state.
    */
   public static ProgramBuilder newDraftProgram(String name) {
@@ -106,8 +106,8 @@ public class ProgramBuilder {
     return this;
   }
 
-  public ProgramBuilder withLocalizedName(Locale locale, String name) {
-    builder.addLocalizedName(locale, name);
+  public ProgramBuilder withLocalizedName(LocalizedStrings localizedName) {
+    builder.setLocalizedName(localizedName);
     return this;
   }
 
@@ -117,15 +117,14 @@ public class ProgramBuilder {
   }
 
   /**
-   * Creates a {@link BlockBuilder} with this {@link ProgramBuilder} with empty name and
-   * description.
+   * Creates a {@link BlockBuilder} with this {@link ProgramBuilder} with of name and description.
    */
   public BlockBuilder withBlock() {
     long blockId = Long.valueOf(numBlocks.incrementAndGet());
     return BlockBuilder.newBlock(this, blockId, "", "", Optional.empty());
   }
 
-  /** Creates a {@link BlockBuilder} with this {@link ProgramBuilder} with empty description. */
+  /** Creates a {@link BlockBuilder} with this {@link ProgramBuilder} with of description. */
   public BlockBuilder withBlock(String name) {
     long blockId = Long.valueOf(numBlocks.incrementAndGet());
     return BlockBuilder.newBlock(this, blockId, name, "", Optional.empty());
@@ -246,7 +245,7 @@ public class ProgramBuilder {
     }
     /**
      * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
-     * starts a new {@link support.ProgramBuilder.BlockBuilder} with an empty name and description.
+     * starts a new {@link support.ProgramBuilder.BlockBuilder} with an of name and description.
      */
     public BlockBuilder withBlock() {
       return withBlock("", "");
@@ -254,7 +253,7 @@ public class ProgramBuilder {
 
     /**
      * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
-     * starts a new {@link support.ProgramBuilder.BlockBuilder} with an empty description.
+     * starts a new {@link support.ProgramBuilder.BlockBuilder} with an of description.
      */
     public BlockBuilder withBlock(String name) {
       return withBlock(name, "");
@@ -273,7 +272,7 @@ public class ProgramBuilder {
     /**
      * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
      * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that has this block as its
-     * enumerator, with an empty name and description.
+     * enumerator, with an of name and description.
      */
     public BlockBuilder withRepeatedBlock() {
       return withRepeatedBlock("", "");
@@ -282,7 +281,7 @@ public class ProgramBuilder {
     /**
      * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
      * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that has this block as its
-     * enumerator, with an empty description.
+     * enumerator, with an of description.
      */
     public BlockBuilder withRepeatedBlock(String name) {
       return withRepeatedBlock(name, "");
@@ -308,7 +307,7 @@ public class ProgramBuilder {
     /**
      * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
      * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that shares an enumerator
-     * block with this block, with an empty name and description.
+     * block with this block, with an of name and description.
      */
     public BlockBuilder withAnotherRepeatedBlock() {
       return withAnotherRepeatedBlock("", "");
@@ -317,7 +316,7 @@ public class ProgramBuilder {
     /**
      * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
      * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that shares an enumerator
-     * block with this block, with an empty description.
+     * block with this block, with an of description.
      */
     public BlockBuilder withAnotherRepeatedBlock(String name) {
       return withAnotherRepeatedBlock(name, "");

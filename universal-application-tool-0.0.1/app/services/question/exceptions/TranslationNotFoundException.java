@@ -9,4 +9,8 @@ public class TranslationNotFoundException extends Exception {
         String.format(
             "Translation not found for Question at path: %1s\n\tLocale: %2s", path, locale));
   }
+
+  public TranslationNotFoundException(Locale locale) {
+    super(String.format("Translation not found for Locale: %s", locale));
+  }
 }

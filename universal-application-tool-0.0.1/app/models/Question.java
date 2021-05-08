@@ -21,6 +21,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
+import services.LocalizedStrings;
 import services.Path;
 import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
@@ -104,8 +105,8 @@ public class Question extends BaseModel {
             .setPath(Path.create(path))
             .setEnumeratorId(Optional.ofNullable(enumeratorId))
             .setDescription(description)
-            .setQuestionText(questionText)
-            .setQuestionHelpText(questionHelpText)
+            .setQuestionText(LocalizedStrings.create(questionText))
+            .setQuestionHelpText(LocalizedStrings.create(questionHelpText))
             .setQuestionType(QuestionType.valueOf(questionType))
             .setValidationPredicatesString(validationPredicates);
 
@@ -136,7 +137,8 @@ public class Question extends BaseModel {
         Streams.mapWithIndex(
                 questionOptions.get(firstKey).stream(),
                 (optionText, i) ->
-                    QuestionOption.create(Long.valueOf(i), ImmutableMap.of(firstKey, optionText)))
+                    QuestionOption.create(
+                        Long.valueOf(i), LocalizedStrings.of(firstKey, optionText)))
             .collect(toImmutableList());
 
     builder.setQuestionOptions(options);
@@ -158,8 +160,8 @@ public class Question extends BaseModel {
     enumeratorId = questionDefinition.getEnumeratorId().orElse(null);
     name = questionDefinition.getName();
     description = questionDefinition.getDescription();
-    questionText = questionDefinition.getQuestionText();
-    questionHelpText = questionDefinition.getQuestionHelpText();
+    questionText = questionDefinition.getQuestionText().translations();
+    questionHelpText = questionDefinition.getQuestionHelpText().translations();
     questionType = questionDefinition.getQuestionType().toString();
     validationPredicates = questionDefinition.getValidationPredicatesAsString();
 

@@ -255,7 +255,7 @@ public class ApplicantServiceImpl implements ApplicantService {
                                 .withoutArrayReference()))
             .collect(ImmutableSet.toImmutableSet());
 
-    // Early return if it is empty.
+    // Early return if it is of.
     if (entityUpdates.isEmpty()) {
       return entityUpdates;
     }

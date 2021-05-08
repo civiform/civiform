@@ -12,8 +12,8 @@ import models.Account;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
+import services.LocalizedStrings;
 import services.program.ProgramNotFoundException;
-import services.program.TranslationNotFoundException;
 
 public class ProgramRepositoryTest extends WithPostgresContainer {
 
@@ -87,13 +87,13 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
-  public void insertProgramSync() throws TranslationNotFoundException {
+  public void insertProgramSync() throws Exception {
     Program program = new Program("ProgramRepository", "desc", "name", "description");
 
     Program withId = repo.insertProgramSync(program);
 
     Program found = repo.lookupProgram(withId.id).toCompletableFuture().join().get();
-    assertThat(found.getProgramDefinition().getLocalizedName(Locale.US)).isEqualTo("name");
+    assertThat(found.getProgramDefinition().localizedName().get(Locale.US)).isEqualTo("name");
   }
 
   @Test
@@ -102,7 +102,7 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
     Program updates =
         new Program(
             existing.getProgramDefinition().toBuilder()
-                .setLocalizedName(ImmutableMap.of(Locale.US, "new name"))
+                .setLocalizedName(LocalizedStrings.of(Locale.US, "new name"))
                 .build());
 
     Program updated = repo.updateProgramSync(updates);

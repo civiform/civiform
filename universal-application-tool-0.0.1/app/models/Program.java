@@ -19,7 +19,7 @@ import javax.persistence.PostUpdate;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
-import services.LocalizationUtils;
+import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.ExportDefinition;
 import services.program.ProgramDefinition;
@@ -67,14 +67,14 @@ public class Program extends BaseModel {
     this.id = definition.id();
     this.name = definition.adminName();
     this.description = definition.adminDescription();
-    this.localizedName = definition.localizedName();
-    this.localizedDescription = definition.localizedDescription();
+    this.localizedName = definition.localizedName().translations();
+    this.localizedDescription = definition.localizedDescription().translations();
     this.blockDefinitions = definition.blockDefinitions();
     this.exportDefinitions = definition.exportDefinitions();
   }
 
   /**
-   * Construct a new Program object with the given program name and description, and with an empty
+   * Construct a new Program object with the given program name and description, and with an of
    * block named Block 1.
    */
   public Program(
@@ -85,9 +85,9 @@ public class Program extends BaseModel {
     this.name = adminName;
     this.description = adminDescription;
     // A program is always created with the default CiviForm locale first, then localized.
-    this.localizedName = ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, defaultDisplayName);
+    this.localizedName = LocalizedStrings.withDefaultValue(defaultDisplayName).translations();
     this.localizedDescription =
-        ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, defaultDisplayDescription);
+        LocalizedStrings.withDefaultValue(defaultDisplayDescription).translations();
     BlockDefinition emptyBlock =
         BlockDefinition.builder()
             .setId(1L)
@@ -105,8 +105,8 @@ public class Program extends BaseModel {
     id = programDefinition.id();
     name = programDefinition.adminName();
     description = programDefinition.adminDescription();
-    localizedName = programDefinition.localizedName();
-    localizedDescription = programDefinition.localizedDescription();
+    localizedName = programDefinition.localizedName().translations();
+    localizedDescription = programDefinition.localizedDescription().translations();
     blockDefinitions = programDefinition.blockDefinitions();
     exportDefinitions = programDefinition.exportDefinitions();
     slug = programDefinition.slug();
@@ -122,8 +122,8 @@ public class Program extends BaseModel {
             .setId(id)
             .setAdminName(name)
             .setAdminDescription(description)
-            .setLocalizedName(localizedName)
-            .setLocalizedDescription(localizedDescription)
+            .setLocalizedName(LocalizedStrings.create(localizedName))
+            .setLocalizedDescription(LocalizedStrings.create(localizedDescription))
             .setBlockDefinitions(blockDefinitions)
             .setExportDefinitions(exportDefinitions)
             .build();

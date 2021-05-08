@@ -64,7 +64,7 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
             enumeratorFields,
             button(
                 ADD_ELEMENT_BUTTON_ID,
-                messages.at(MessageKey.BUTTON_ADD_ENUMERATOR_ENTITY.getKeyName())),
+                messages.at(MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName())),
             fieldErrors(messages, enumeratorQuestion.getQuestionErrors()));
   }
 
@@ -92,11 +92,11 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
    * Create an enumerator field template for new entries. These come with a button to delete itself.
    */
   public static Tag newEnumeratorFieldTemplate(
-      Path contextualizedPath, String localizedPlaceholder, Messages messages) {
+      Path contextualizedPath, String localizedEntityType, Messages messages) {
     ContainerTag entityNameInput =
         FieldWithLabel.input()
             .setFieldName(contextualizedPath.toString())
-            .setPlaceholderText(localizedPlaceholder)
+            .setPlaceholderText(localizedEntityType)
             .getContainer()
             .withClasses(Styles.FLEX, Styles.ML_2);
     ContainerTag icon =
@@ -109,7 +109,8 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
             .attr(
                 "aria-label",
                 messages.at(
-                    MessageKey.BUTTON_ARIA_LABEL_DELETE_ENTITY.getKeyName(), localizedPlaceholder));
+                    MessageKey.ENUMERATOR_BUTTON_ARIA_LABEL_DELETE_ENTITY.getKeyName(),
+                    localizedEntityType));
     return div()
         .withId(ENUMERATOR_FIELD_TEMPLATE_ID)
         .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, Styles.HIDDEN))

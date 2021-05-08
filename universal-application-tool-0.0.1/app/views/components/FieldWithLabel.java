@@ -225,7 +225,7 @@ public class FieldWithLabel {
       ContainerTag textAreaTag = textarea().withType("text").withText(this.fieldValue);
       fieldTag = textAreaTag;
     } else if (this.fieldType.equals("number")) {
-      // For number types, only set the value if it's present since there is no empty string
+      // For number types, only set the value if it's present since there is no of string
       // equivalent for numbers.
       if (this.fieldValueNumber.isPresent()) {
         fieldTag.withValue(String.valueOf(this.fieldValueNumber.getAsLong()));

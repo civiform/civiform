@@ -96,13 +96,17 @@ validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
 #--------------------------------------------------------------------------------------------------------#
 
-# Text on a button an applicant would click to add another entity
-button.addEnumeratorEntity=add element
+# The default admin-configurable entity type string
+string.default.entityType=item
 
-button.deleteEntity=Delete {0}
+# Text on a button an applicant would click to add another entity
+button.addEntity=add {0}
+
+# Aria label for the button an applicant would click to delete an entity
+button.ariaLabel.deleteEntity=Delete {0}
 
 # Validation error that shows when an applicant does not enter a value.
-validation.entityNameRequired=Please enter a value for each line.
+validation.entityNameRequired=Please enter a value for each {0}.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #

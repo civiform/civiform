@@ -129,12 +129,12 @@ public class ProgramIndexView extends BaseHtmlView {
         div()
             .withId(baseId + "-title")
             .withClasses(Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
-            .withText(program.getLocalizedNameOrDefault(preferredLocale));
+            .withText(program.localizedName().getOrDefault(preferredLocale));
     ContainerTag description =
         div()
             .withId(baseId + "-description")
             .withClasses(Styles.TEXT_XS, Styles.MY_2)
-            .withText(program.getLocalizedDescriptionOrDefault(preferredLocale));
+            .withText(program.localizedDescription().getOrDefault(preferredLocale));
 
     ContainerTag externalLink =
         new LinkElement()

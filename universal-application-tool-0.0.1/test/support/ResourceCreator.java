@@ -1,6 +1,5 @@
 package support;
 
-import com.google.common.collect.ImmutableMap;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Locale;
@@ -13,6 +12,7 @@ import models.Program;
 import models.Question;
 import play.db.ebean.EbeanConfig;
 import play.inject.Injector;
+import services.LocalizedStrings;
 import services.Path;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
@@ -42,8 +42,8 @@ public class ResourceCreator {
             Path.create(pathString),
             Optional.empty(),
             "",
-            ImmutableMap.of(),
-            ImmutableMap.of());
+            LocalizedStrings.of(),
+            LocalizedStrings.of());
     Question question = new Question(definition);
     question.save();
     return question;
@@ -54,7 +54,9 @@ public class ResourceCreator {
   }
 
   public Program insertActiveProgram(Locale locale, String name) {
-    return ProgramBuilder.newActiveProgram().withLocalizedName(locale, name).build();
+    return ProgramBuilder.newActiveProgram()
+        .withLocalizedName(LocalizedStrings.of(locale, name))
+        .build();
   }
 
   public Program insertDraftProgram(String name) {

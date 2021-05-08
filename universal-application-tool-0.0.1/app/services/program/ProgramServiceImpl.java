@@ -148,9 +148,12 @@ public class ProgramServiceImpl implements ProgramService {
     Program program =
         programDefinition.toBuilder()
             .setAdminDescription(adminDescription)
-            .updateLocalizedName(programDefinition.localizedName(), locale, displayName)
-            .updateLocalizedDescription(
-                programDefinition.localizedDescription(), locale, displayDescription)
+            .setLocalizedName(
+                programDefinition.localizedName().addOrUpdateTranslation(locale, displayName))
+            .setLocalizedDescription(
+                programDefinition
+                    .localizedDescription()
+                    .addOrUpdateTranslation(locale, displayDescription))
             .build()
             .toProgram();
     return ErrorAnd.of(
@@ -175,9 +178,12 @@ public class ProgramServiceImpl implements ProgramService {
 
     Program program =
         programDefinition.toBuilder()
-            .updateLocalizedName(programDefinition.localizedName(), locale, displayName)
-            .updateLocalizedDescription(
-                programDefinition.localizedDescription(), locale, displayDescription)
+            .setLocalizedName(
+                programDefinition.localizedName().addOrUpdateTranslation(locale, displayName))
+            .setLocalizedDescription(
+                programDefinition
+                    .localizedDescription()
+                    .addOrUpdateTranslation(locale, displayDescription))
             .build()
             .toProgram();
     return ErrorAnd.of(
@@ -203,7 +209,7 @@ public class ProgramServiceImpl implements ProgramService {
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(
           "The ProgramBlockDefinitionNotFoundException should never be thrown when the enumerator"
-              + " id is empty.");
+              + " id is of.");
     }
   }
 
