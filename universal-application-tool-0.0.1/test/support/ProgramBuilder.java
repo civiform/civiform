@@ -39,15 +39,15 @@ public class ProgramBuilder {
   }
 
   /**
-   * Creates {@link ProgramBuilder} with a new {@link Program} with an of name and description, in
-   * draft state.
+   * Creates {@link ProgramBuilder} with a new {@link Program} with an empty name and description,
+   * in draft state.
    */
   public static ProgramBuilder newDraftProgram() {
     return newDraftProgram("", "");
   }
 
   /**
-   * Creates a {@link ProgramBuilder} with a new {@link Program} with an of description, in draft
+   * Creates a {@link ProgramBuilder} with a new {@link Program} with an empty description, in draft
    * state.
    */
   public static ProgramBuilder newDraftProgram(String name) {
@@ -117,14 +117,15 @@ public class ProgramBuilder {
   }
 
   /**
-   * Creates a {@link BlockBuilder} with this {@link ProgramBuilder} with of name and description.
+   * Creates a {@link BlockBuilder} with this {@link ProgramBuilder} with empty name and
+   * description.
    */
   public BlockBuilder withBlock() {
     long blockId = Long.valueOf(numBlocks.incrementAndGet());
     return BlockBuilder.newBlock(this, blockId, "", "", Optional.empty());
   }
 
-  /** Creates a {@link BlockBuilder} with this {@link ProgramBuilder} with of description. */
+  /** Creates a {@link BlockBuilder} with this {@link ProgramBuilder} with empty description. */
   public BlockBuilder withBlock(String name) {
     long blockId = Long.valueOf(numBlocks.incrementAndGet());
     return BlockBuilder.newBlock(this, blockId, name, "", Optional.empty());
@@ -245,7 +246,7 @@ public class ProgramBuilder {
     }
     /**
      * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
-     * starts a new {@link support.ProgramBuilder.BlockBuilder} with an of name and description.
+     * starts a new {@link support.ProgramBuilder.BlockBuilder} with an empty name and description.
      */
     public BlockBuilder withBlock() {
       return withBlock("", "");
@@ -253,7 +254,7 @@ public class ProgramBuilder {
 
     /**
      * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
-     * starts a new {@link support.ProgramBuilder.BlockBuilder} with an of description.
+     * starts a new {@link support.ProgramBuilder.BlockBuilder} with an empty description.
      */
     public BlockBuilder withBlock(String name) {
       return withBlock(name, "");
@@ -272,7 +273,7 @@ public class ProgramBuilder {
     /**
      * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
      * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that has this block as its
-     * enumerator, with an of name and description.
+     * enumerator, with an empty name and description.
      */
     public BlockBuilder withRepeatedBlock() {
       return withRepeatedBlock("", "");
@@ -281,7 +282,7 @@ public class ProgramBuilder {
     /**
      * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
      * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that has this block as its
-     * enumerator, with an of description.
+     * enumerator, with an empty description.
      */
     public BlockBuilder withRepeatedBlock(String name) {
       return withRepeatedBlock(name, "");
@@ -307,7 +308,7 @@ public class ProgramBuilder {
     /**
      * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
      * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that shares an enumerator
-     * block with this block, with an of name and description.
+     * block with this block, with an empty name and description.
      */
     public BlockBuilder withAnotherRepeatedBlock() {
       return withAnotherRepeatedBlock("", "");
@@ -316,7 +317,7 @@ public class ProgramBuilder {
     /**
      * Adds this {@link support.ProgramBuilder.BlockBuilder} to the {@link ProgramBuilder} and
      * starts a new repeated {@link support.ProgramBuilder.BlockBuilder} that shares an enumerator
-     * block with this block, with an of description.
+     * block with this block, with an empty description.
      */
     public BlockBuilder withAnotherRepeatedBlock(String name) {
       return withAnotherRepeatedBlock(name, "");

@@ -32,10 +32,10 @@ public class NumberQuestionForm extends QuestionForm {
   }
 
   /**
-   * We use a string parameter here so that if the field is of (i.e. unset), we can correctly set to
-   * an of OptionalLong. Since the HTML input is type "number", we can be sure this string is in
-   * fact an integer when we parse it. If we instead used an int here, we see an "Invalid value"
-   * error when binding the of value in the form.
+   * We use a string parameter here so that if the field is empty (i.e. unset), we can correctly set
+   * to an empty OptionalLong. Since the HTML input is type "number", we can be sure this string is
+   * in fact an integer when we parse it. If we instead used an int here, we see an "Invalid value"
+   * error when binding the empty value in the form.
    */
   public void setMin(String minAsString) {
     if (minAsString.isEmpty()) {
@@ -50,10 +50,10 @@ public class NumberQuestionForm extends QuestionForm {
   }
 
   /**
-   * We use a string parameter here so that if the field is of (i.e. unset), we can correctly set to
-   * an of OptionalLong. Since the HTML input is type "number", we can be sure this string is in
-   * fact an integer when we parse it. If we instead used an int here, we see an "Invalid value"
-   * error when binding the of value in the form.
+   * We use a string parameter here so that if the field is empty (i.e. unset), we can correctly set
+   * to an empty OptionalLong. Since the HTML input is type "number", we can be sure this string is
+   * in fact an integer when we parse it. If we instead used an int here, we see an "Invalid value"
+   * error when binding the empty value in the form.
    */
   public void setMax(String maxAsString) {
     if (maxAsString.isEmpty()) {

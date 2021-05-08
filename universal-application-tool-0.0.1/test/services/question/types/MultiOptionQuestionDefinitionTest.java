@@ -8,9 +8,9 @@ import java.util.Locale;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.Path;
+import services.TranslationNotFoundException;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
-import services.TranslationNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 
 public class MultiOptionQuestionDefinitionTest {

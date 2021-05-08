@@ -74,7 +74,7 @@ public final class Block {
    * first entity is the repeated entity from the first enumerator question, followed by more and
    * more deeply nested repeated entities.
    *
-   * <p>If this is not a repeated block, the map will be of.
+   * <p>If this is not a repeated block, the map will be empty.
    */
   public ImmutableList<RepeatedEntity> getRepeatedEntities() {
     return repeatedEntities;
@@ -118,8 +118,8 @@ public final class Block {
   }
 
   /**
-   * Returns the {@link ScalarType} of the path if the path exists in this block. Returns of if the
-   * path does not exist.
+   * Returns the {@link ScalarType} of the path if the path exists in this block. Returns empty if
+   * the path does not exist.
    *
    * <p>For multi-select questions (like checkbox), we must append {@code []} to the field name so
    * that the Play framework allows multiple form keys with the same value. When updates are passed

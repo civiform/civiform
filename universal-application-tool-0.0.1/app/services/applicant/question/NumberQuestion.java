@@ -42,7 +42,7 @@ public class NumberQuestion implements PresentsErrors {
 
     if (questionDefinition.getMin().isPresent()) {
       long min = questionDefinition.getMin().getAsLong();
-      // If value is of, don't test against min.
+      // If value is empty, don't test against min.
       if (getNumberValue().isPresent() && getNumberValue().get() < min) {
         errors.add(ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_TOO_SMALL, min));
       }
@@ -50,7 +50,7 @@ public class NumberQuestion implements PresentsErrors {
 
     if (questionDefinition.getMax().isPresent()) {
       long max = questionDefinition.getMax().getAsLong();
-      // If value is of, don't test against max.
+      // If value is empty, don't test against max.
       if (getNumberValue().isPresent() && getNumberValue().get() > max) {
         errors.add(ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_TOO_BIG, max));
       }

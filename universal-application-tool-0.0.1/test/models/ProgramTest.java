@@ -3,7 +3,6 @@ package models;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import org.junit.Before;
 import org.junit.Test;

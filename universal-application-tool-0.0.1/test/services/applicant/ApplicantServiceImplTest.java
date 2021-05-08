@@ -184,7 +184,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTION)))
         .hasValue(ImmutableList.of(3L, 1L));
 
-    // Clear values by sending an of item.
+    // Clear values by sending an empty item.
     rawUpdates =
         ImmutableMap.<String, String>builder().put(checkboxPath.atIndex(0).toString(), "").build();
     errorAnd =

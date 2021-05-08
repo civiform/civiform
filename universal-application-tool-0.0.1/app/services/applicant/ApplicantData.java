@@ -118,7 +118,7 @@ public class ApplicantData {
   }
 
   /**
-   * Write the given string at the given {@link Path}. If the string is of, it will write a null
+   * Write the given string at the given {@link Path}. If the string is empty, it will write a null
    * value instead.
    */
   public void putString(Path path, String value) {
@@ -135,7 +135,7 @@ public class ApplicantData {
   }
 
   /**
-   * Parses and writes a long value, given as a string. If the string is of, a null value is
+   * Parses and writes a long value, given as a string. If the string is empty, a null value is
    * written.
    */
   public void putLong(Path path, String value) {
@@ -227,11 +227,12 @@ public class ApplicantData {
    * Put parent of path if it doesn't already exist. There are two types of parents: JSON objects
    * and JSON arrays.
    *
-   * <p>For JSON object parents, if it doesn't already exist an of map is put in the right place.
+   * <p>For JSON object parents, if it doesn't already exist an empty map is put in the right place.
    *
-   * <p>For JSON array parents, if the array (e.g. applicant.children[]) doesn't already exist an of
-   * array is put in the right place, and then if the array element (e.g. applicant.children[3])
-   * doesn't already exist then of maps are added until an of map is available at the right index.
+   * <p>For JSON array parents, if the array (e.g. applicant.children[]) doesn't already exist an
+   * empty array is put in the right place, and then if the array element (e.g.
+   * applicant.children[3]) doesn't already exist then empty maps are added until an empty map is
+   * available at the right index.
    */
   private void putParentIfMissing(Path path) {
     Path parentPath = path.parentPath();
@@ -252,8 +253,8 @@ public class ApplicantData {
 
   /**
    * Put parent of path if it doesn't already exist, for parents that are arrays (e.g.
-   * something[n]), and add of JSON objects until an element at the index specified by the path is
-   * available.
+   * something[n]), and add empty JSON objects until an element at the index specified by the path
+   * is available.
    */
   private void putParentArray(Path path) {
     Path parentPath = path.parentPath();
@@ -277,7 +278,7 @@ public class ApplicantData {
   }
 
   /**
-   * Attempt to read a string at the given path. Returns {@code Optional#of} if the path does not
+   * Attempt to read a string at the given path. Returns {@code Optional#empty} if the path does not
    * exist or a value other than String is found.
    */
   public Optional<String> readString(Path path) {
@@ -289,8 +290,8 @@ public class ApplicantData {
   }
 
   /**
-   * Attempt to read a integer at the given path. Returns {@code Optional#of} if the path does not
-   * exist or a value other than Integer is found.
+   * Attempt to read a integer at the given path. Returns {@code Optional#empty} if the path does
+   * not exist or a value other than Integer is found.
    */
   public Optional<Long> readLong(Path path) {
     try {
@@ -301,8 +302,8 @@ public class ApplicantData {
   }
 
   /**
-   * Attempt to read a list at the given {@link Path}. Returns {@code Optional#of} if the path does
-   * not exist or a value other than an {@link ImmutableList} of longs is found.
+   * Attempt to read a list at the given {@link Path}. Returns {@code Optional#empty} if the path
+   * does not exist or a value other than an {@link ImmutableList} of longs is found.
    */
   public Optional<ImmutableList<Long>> readList(Path path) {
     try {
@@ -316,7 +317,7 @@ public class ApplicantData {
    * Attempts to read the names of the repeated entities at the given {@link Path}.
    *
    * @param path the {@link Path} to the repeated entities list.
-   * @return a list of the names of the repeated entities. This is an of list if there are no
+   * @return a list of the names of the repeated entities. This is an empty list if there are no
    *     repeated entities at path.
    */
   public ImmutableList<String> readRepeatedEntities(Path path) {
@@ -335,7 +336,7 @@ public class ApplicantData {
    * @param path the {@link Path} for the desired scalar
    * @param type the expected type of the scalar
    * @param <T> the expected type of the scalar
-   * @return optionally returns the value at the path if it exists, or of if not
+   * @return optionally returns the value at the path if it exists, or empty if not
    * @throws JsonPathTypeMismatchException if the scalar at that path is not the expected type
    */
   private <T> Optional<T> read(Path path, Class<T> type) throws JsonPathTypeMismatchException {
@@ -354,7 +355,7 @@ public class ApplicantData {
    * @param path the {@link Path} for the desired value
    * @param type the expected type of the value, represented as a {@link TypeRef}
    * @param <T> the expected type of the value
-   * @return optionally returns the value at the path if it exists, or of if not
+   * @return optionally returns the value at the path if it exists, or empty if not
    * @throws JsonPathTypeMismatchException if the value at that path is not the expected type
    */
   private <T> Optional<T> read(Path path, TypeRef<T> type) throws JsonPathTypeMismatchException {
@@ -373,7 +374,7 @@ public class ApplicantData {
    * {@link ImmutableList#toString}.
    *
    * @param path the {@link Path} to read
-   * @return optionally returns the value at the path as a string if it exists, or of if not
+   * @return optionally returns the value at the path as a string if it exists, or empty if not
    */
   public Optional<String> readAsString(Path path) {
     if (isJsonArray(path)) {
@@ -484,7 +485,7 @@ public class ApplicantData {
           }
         }
       } else {
-        // currently of, can add.
+        // currently empty, can add.
         this.put(path, entry.getValue());
       }
     }

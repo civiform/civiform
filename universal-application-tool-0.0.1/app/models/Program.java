@@ -74,7 +74,7 @@ public class Program extends BaseModel {
   }
 
   /**
-   * Construct a new Program object with the given program name and description, and with an of
+   * Construct a new Program object with the given program name and description, and with an empty
    * block named Block 1.
    */
   public Program(

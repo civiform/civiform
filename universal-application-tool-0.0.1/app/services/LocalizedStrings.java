@@ -21,7 +21,8 @@ public abstract class LocalizedStrings {
     return builder().setTranslations(translations).build();
   }
 
-  public static LocalizedStrings create(ImmutableMap<Locale, String> translations, boolean isRequired) {
+  public static LocalizedStrings create(
+      ImmutableMap<Locale, String> translations, boolean isRequired) {
     return builder().setTranslations(translations).setIsRequired(isRequired).build();
   }
 
@@ -67,8 +68,6 @@ public abstract class LocalizedStrings {
   public boolean hasEmptyTranslation() {
     return translations().values().stream().anyMatch(String::isBlank);
   }
-
-
 
   /**
    * Attempts to get question text for the given locale. If there is no text for the given locale,

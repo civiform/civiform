@@ -18,9 +18,9 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
 import services.Path;
+import services.TranslationNotFoundException;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
-import services.TranslationNotFoundException;
 
 public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
 

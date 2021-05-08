@@ -175,7 +175,7 @@ public abstract class ProgramDefinition {
   }
 
   /**
-   * Get the block definitions associated with the enumerator id. Returns an of list if there are
+   * Get the block definitions associated with the enumerator id. Returns an empty list if there are
    * none.
    */
   public ImmutableList<BlockDefinition> getBlockDefinitionsForEnumerator(long enumeratorId) {

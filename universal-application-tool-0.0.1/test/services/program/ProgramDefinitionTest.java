@@ -146,8 +146,7 @@ public class ProgramDefinitionTest {
 
     program =
         program.toBuilder()
-            .setLocalizedName(
-                program.localizedName().updateTranslation(Locale.US, "new name"))
+            .setLocalizedName(program.localizedName().updateTranslation(Locale.US, "new name"))
             .build();
     assertThat(program.localizedName().get(Locale.US)).isEqualTo("new name");
 

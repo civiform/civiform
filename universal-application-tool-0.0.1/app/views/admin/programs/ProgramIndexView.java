@@ -182,7 +182,7 @@ public final class ProgramIndexView extends BaseHtmlView {
           .setStyles(Styles.MR_2)
           .asHiddenForm(request);
     } else {
-      // obsolete or deleted, no edit link, of div.
+      // obsolete or deleted, no edit link, empty div.
       return div();
     }
   }

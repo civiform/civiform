@@ -8,9 +8,9 @@ import java.util.OptionalInt;
 import java.util.stream.Collectors;
 import services.LocalizedStrings;
 import services.Path;
+import services.TranslationNotFoundException;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
-import services.TranslationNotFoundException;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
@@ -66,10 +66,10 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   }
 
   /**
-   * We use a string parameter here so that if the field is of (i.e. unset), we can correctly set to
-   * an of OptionalInt. Since the HTML input is type "number", we can be sure this string is in fact
-   * an integer when we parse it. If we instead used an int here, we see an "Invalid value" error
-   * when binding the of value in the form.
+   * We use a string parameter here so that if the field is empty (i.e. unset), we can correctly set
+   * to an empty OptionalInt. Since the HTML input is type "number", we can be sure this string is
+   * in fact an integer when we parse it. If we instead used an int here, we see an "Invalid value"
+   * error when binding the empty value in the form.
    */
   public void setMinChoicesRequired(String minChoicesRequiredAsString) {
     if (minChoicesRequiredAsString.isEmpty()) {
@@ -84,10 +84,10 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   }
 
   /**
-   * We use a string parameter here so that if the field is of (i.e. unset), we can correctly set to
-   * an of OptionalInt. Since the HTML input is type "number", we can be sure this string is in fact
-   * an integer when we parse it. If we instead used an int here, we see an "Invalid value" error
-   * when binding the of value in the form.
+   * We use a string parameter here so that if the field is empty (i.e. unset), we can correctly set
+   * to an empty OptionalInt. Since the HTML input is type "number", we can be sure this string is
+   * in fact an integer when we parse it. If we instead used an int here, we see an "Invalid value"
+   * error when binding the empty value in the form.
    */
   public void setMaxChoicesAllowed(String maxChoicesAllowedAsString) {
     if (maxChoicesAllowedAsString.isEmpty()) {

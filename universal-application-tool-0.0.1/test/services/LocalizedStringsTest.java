@@ -1,12 +1,11 @@
 package services;
 
-import com.google.common.collect.ImmutableMap;
-import org.junit.Test;
-
-import java.util.Locale;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import com.google.common.collect.ImmutableMap;
+import java.util.Locale;
+import org.junit.Test;
 
 public class LocalizedStringsTest {
 
@@ -45,7 +44,8 @@ public class LocalizedStringsTest {
 
     LocalizedStrings subject = strings.updateTranslation(Locale.US, "hello");
 
-    assertThat(subject.translations()).containsExactlyEntriesOf(ImmutableMap.of(Locale.US, "hello"));
+    assertThat(subject.translations())
+        .containsExactlyEntriesOf(ImmutableMap.of(Locale.US, "hello"));
   }
 
   @Test
@@ -61,8 +61,7 @@ public class LocalizedStringsTest {
   public void cannotAddSameLocale() {
     LocalizedStrings strings = LocalizedStrings.of(Locale.US, "existing");
 
-    assertThatThrownBy(
-        () -> strings.toBuilder().put(Locale.US, "new").build())
+    assertThatThrownBy(() -> strings.toBuilder().put(Locale.US, "new").build())
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Multiple entries with same key");
   }

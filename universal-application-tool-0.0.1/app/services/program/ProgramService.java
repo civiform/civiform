@@ -56,7 +56,7 @@ public interface ProgramService {
   CompletionStage<ProgramDefinition> getProgramDefinitionAsync(long id);
 
   /**
-   * Create a new program with an of block.
+   * Create a new program with an empty block.
    *
    * @param adminName a name for this program for internal use by admins - this is immutable once
    *     set
@@ -110,7 +110,7 @@ public interface ProgramService {
       throws ProgramNotFoundException;
 
   /**
-   * Adds an of {@link BlockDefinition} to the given program.
+   * Adds an empty {@link BlockDefinition} to the given program.
    *
    * @param programId the ID of the program to update
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors with
@@ -121,7 +121,7 @@ public interface ProgramService {
       throws ProgramNotFoundException;
 
   /**
-   * Adds an of repeated {@link BlockDefinition} to the given program.
+   * Adds an empty repeated {@link BlockDefinition} to the given program.
    *
    * @param programId the ID of the program to update
    * @param enumeratorBlockId ID of the enumerator block

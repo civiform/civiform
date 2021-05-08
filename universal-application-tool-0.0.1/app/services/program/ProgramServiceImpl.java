@@ -209,7 +209,7 @@ public class ProgramServiceImpl implements ProgramService {
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(
           "The ProgramBlockDefinitionNotFoundException should never be thrown when the enumerator"
-              + " id is of.");
+              + " id is empty.");
     }
   }
 
