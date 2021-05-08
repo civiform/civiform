@@ -14,20 +14,14 @@ import services.LocalizedStrings;
 @AutoValue
 public abstract class QuestionOption {
 
-  /**
-   * Create a QuestionOption, used for JSON mapping.
-   *
-   * <p>The latest field is "localizedOptionText", which is stored as {@link LocalizedStrings}.
-   *
-   * <p>The OLD field is "optionText". If this is present, it is assumed the new field is not.
-   */
+  /** Create a QuestionOption, used for JSON mapping. */
   @JsonCreator
   public static QuestionOption createForJsonMapping(
       @JsonProperty("id") long id,
       @JsonProperty("optionText") ImmutableMap<Locale, String> optionText,
       @JsonProperty("localizedOptionText") LocalizedStrings localizedOptionText) {
     if (!optionText.isEmpty()) {
-      return QuestionOption.create(id, LocalizedStrings.create(optionText));
+      localizedOptionText = LocalizedStrings.create(optionText);
     }
     return QuestionOption.create(id, localizedOptionText);
   }
@@ -52,6 +46,11 @@ public abstract class QuestionOption {
   public abstract long id();
 
   /** The text strings to display to the user, keyed by locale. */
+  @JsonProperty("optionText")
+  public ImmutableMap<Locale, String> optionTextForJSON() {
+    return optionText().translations();
+  }
+
   @JsonProperty("localizedOptionText")
   public abstract LocalizedStrings optionText();
 }

@@ -106,7 +106,7 @@ public class Question extends BaseModel {
             .setEnumeratorId(Optional.ofNullable(enumeratorId))
             .setDescription(description)
             .setQuestionText(LocalizedStrings.create(questionText))
-            .setQuestionHelpText(LocalizedStrings.create(questionHelpText, false))
+            .setQuestionHelpText(LocalizedStrings.create(questionHelpText, true))
             .setQuestionType(QuestionType.valueOf(questionType))
             .setValidationPredicatesString(validationPredicates);
 

@@ -1,5 +1,8 @@
 package services;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -13,16 +16,31 @@ public abstract class LocalizedStrings {
   /** The default locale for CiviForm is US English. */
   public static final Locale DEFAULT_LOCALE = Locale.US;
 
+  @JsonProperty("translations")
   public abstract ImmutableMap<Locale, String> translations();
 
+  @JsonProperty("isRequired")
   public abstract boolean isRequired();
+
+  @JsonCreator
+  public static LocalizedStrings jsonCreator(
+      @JsonProperty("translations") ImmutableMap<Locale, String> translations,
+      @JsonProperty("isRequired") boolean isRequired) {
+    return create(translations, !isRequired);
+  }
 
   public static LocalizedStrings create(ImmutableMap<Locale, String> translations) {
     return builder().setTranslations(translations).build();
   }
 
+  /**
+   * If this is required, then there must be values. If this is not required, but there are
+   * translations, then
+   *
+   * */
   public static LocalizedStrings create(
-      ImmutableMap<Locale, String> translations, boolean isRequired) {
+      ImmutableMap<Locale, String> translations, boolean canBeEmpty) {
+    boolean isRequired = !canBeEmpty || !translations.isEmpty();
     return builder().setTranslations(translations).setIsRequired(isRequired).build();
   }
 
@@ -30,9 +48,9 @@ public abstract class LocalizedStrings {
     return create(ImmutableMap.of(DEFAULT_LOCALE, defaultValue));
   }
 
-  /** Creating an empty LocalizedStrings means it is not required. */
+  /** Creating an empty LocalizedStrings means it can be empty. */
   public static LocalizedStrings of() {
-    return create(ImmutableMap.of(), false);
+    return create(ImmutableMap.of(), true);
   }
 
   public static LocalizedStrings of(Locale k1, String v1) {
@@ -61,6 +79,7 @@ public abstract class LocalizedStrings {
     return translations().keySet();
   }
 
+  @JsonIgnore
   public boolean isEmpty() {
     return translations().isEmpty();
   }
@@ -70,7 +89,7 @@ public abstract class LocalizedStrings {
   }
 
   /**
-   * Attempts to get question text for the given locale. If there is no text for the given locale,
+   * Attempts to get text for the given locale. If there is no text for the given locale,
    * it will return the text in the default locale.
    */
   public String getOrDefault(Locale locale) {
@@ -81,10 +100,11 @@ public abstract class LocalizedStrings {
     }
   }
 
-  /** Gets the question text for CiviForm's default locale. */
+  /** Gets the text for CiviForm's default locale. */
+  @JsonIgnore
   public String getDefault() {
     try {
-      return get(DEFAULT_LOCALE);
+      return get(DEFAULT_LOCALE, true);
     } catch (TranslationNotFoundException e) {
       // This should never happen - US English should always be supported.
       throw new RuntimeException(e);
@@ -92,20 +112,24 @@ public abstract class LocalizedStrings {
   }
 
   /**
-   * Return an {@link Optional} containing the question text for this locale, or of if this locale
+   * Return an {@link Optional} containing the text for this locale, or of if this locale
    * is not supported.
    */
   public Optional<String> maybeGet(Locale locale) {
     try {
-      return Optional.of(get(locale));
+      return Optional.of(get(locale, true));
     } catch (TranslationNotFoundException e) {
       return Optional.empty();
     }
   }
 
-  /** Get the question text for the given locale. */
-  public String get(Locale locale) throws TranslationNotFoundException {
-    if (!isRequired() && isEmpty()) {
+  /** Get the text for the given locale. */
+  public String get(Locale locale) throws TranslationNotFoundException{
+    return get(locale, isRequired());
+  }
+
+  private String get(Locale locale, boolean isRequired) throws TranslationNotFoundException {
+    if (!isRequired && isEmpty()) {
       return "";
     }
 

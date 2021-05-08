@@ -37,7 +37,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     addressQuestion = testQuestionBank.applicantAddress().getQuestionDefinition();
     programDefinition =
         ProgramBuilder.newDraftProgram("My Program")
-            .withLocalizedName(LocalizedStrings.of(Locale.GERMAN, "Mein Programm"))
+            .withLocalizedName(Locale.GERMAN, "Mein Programm")
             .withBlock("Block one")
             .withQuestionDefinition(nameQuestion)
             .withBlock("Block two")
@@ -402,7 +402,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
         testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition();
     programDefinition =
         ProgramBuilder.newDraftProgram("My Program")
-            .withLocalizedName(LocalizedStrings.of(Locale.GERMAN, "Mein Programm"))
+            .withLocalizedName(Locale.GERMAN, "Mein Programm")
             .withBlock("Block one")
             .withQuestionDefinitions(
                 ImmutableList.of(

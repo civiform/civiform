@@ -1,6 +1,8 @@
 package support;
 
 import com.google.common.collect.ImmutableList;
+
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import models.Program;
@@ -106,8 +108,8 @@ public class ProgramBuilder {
     return this;
   }
 
-  public ProgramBuilder withLocalizedName(LocalizedStrings localizedName) {
-    builder.setLocalizedName(localizedName);
+  public ProgramBuilder withLocalizedName(Locale locale, String name) {
+    builder.addLocalizedName(locale, name);
     return this;
   }
 

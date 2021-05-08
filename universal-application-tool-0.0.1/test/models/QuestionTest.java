@@ -6,6 +6,8 @@ import static org.junit.Assert.assertEquals;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
+
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import repository.QuestionRepository;
@@ -39,7 +41,7 @@ public class QuestionTest extends WithPostgresContainer {
             Path.create("my.path"),
             Optional.empty(),
             "",
-            LocalizedStrings.of(),
+            LocalizedStrings.create(ImmutableMap.of()),
             LocalizedStrings.of());
     Question question = new Question(definition);
 
@@ -60,7 +62,7 @@ public class QuestionTest extends WithPostgresContainer {
             Path.create("my.path"),
             Optional.empty(),
             "",
-            LocalizedStrings.of(),
+            LocalizedStrings.create(ImmutableMap.of()),
             LocalizedStrings.of());
     Question question = new Question(questionDefinition);
     question.save();
@@ -78,7 +80,7 @@ public class QuestionTest extends WithPostgresContainer {
             Path.create("my.path"),
             Optional.of(10L),
             "",
-            LocalizedStrings.of(),
+            LocalizedStrings.create(ImmutableMap.of()),
             LocalizedStrings.of());
     Question question = new Question(questionDefinition);
     question.save();

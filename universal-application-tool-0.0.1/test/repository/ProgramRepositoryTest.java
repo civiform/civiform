@@ -109,7 +109,7 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
 
     assertThat(updated.getProgramDefinition().id()).isEqualTo(existing.id);
     assertThat(updated.getProgramDefinition().localizedName())
-        .isEqualTo(ImmutableMap.of(Locale.US, "new name"));
+        .isEqualTo(LocalizedStrings.of(Locale.US, "new name"));
   }
 
   @Test

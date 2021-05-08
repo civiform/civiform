@@ -2,6 +2,7 @@ package services.program;
 
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
+import akka.actor.ProviderSelection;
 import com.github.slugify.Slugify;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Splitter;
@@ -226,6 +227,10 @@ public abstract class ProgramDefinition {
 
     public abstract ImmutableList.Builder<ExportDefinition> exportDefinitionsBuilder();
 
+    public abstract LocalizedStrings.Builder localizedNameBuilder();
+
+    public abstract LocalizedStrings.Builder localizedDescriptionBuilder();
+
     public abstract ProgramDefinition build();
 
     public Builder addBlockDefinition(BlockDefinition blockDefinition) {
@@ -235,6 +240,16 @@ public abstract class ProgramDefinition {
 
     public Builder addExportDefinition(ExportDefinition exportDefinition) {
       exportDefinitionsBuilder().add(exportDefinition);
+      return this;
+    }
+
+    public Builder addLocalizedName(Locale locale, String name) {
+      localizedNameBuilder().put(locale, name);
+      return this;
+    }
+
+    public Builder addLocalizedDescription(Locale locale, String description) {
+      localizedDescriptionBuilder().put(locale, description);
       return this;
     }
   }

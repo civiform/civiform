@@ -35,9 +35,9 @@ public class ProgramBuilderTest extends WithPostgresContainer {
     assertThat(programDefinition.id()).isGreaterThan(0);
     assertThat(programDefinition.adminName()).isEqualTo("a new name");
     assertThat(programDefinition.adminDescription()).isEqualTo("a new description");
-    assertThat(programDefinition.localizedName()).isEqualTo(ImmutableMap.of(Locale.US, "name"));
+    assertThat(programDefinition.localizedName()).isEqualTo(LocalizedStrings.of(Locale.US, "name"));
     assertThat(programDefinition.localizedDescription())
-        .isEqualTo(ImmutableMap.of(Locale.US, "description"));
+        .isEqualTo(LocalizedStrings.of(Locale.US, "description"));
 
     assertThat(programDefinition.blockDefinitions()).hasSize(3);
     assertThat(programDefinition.getBlockDefinitionByIndex(0).get().id()).isEqualTo(1L);

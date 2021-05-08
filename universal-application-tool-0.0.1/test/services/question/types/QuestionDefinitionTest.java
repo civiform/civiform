@@ -189,15 +189,14 @@ public class QuestionDefinitionTest {
             Path.create(questionPath),
             Optional.empty(),
             "",
-            LocalizedStrings.of(),
+            LocalizedStrings.of(Locale.US, "not french"),
             LocalizedStrings.of());
 
     Throwable thrown = catchThrowable(() -> question.getQuestionText().get(Locale.FRANCE));
 
     assertThat(thrown).isInstanceOf(TranslationNotFoundException.class);
     assertThat(thrown)
-        .hasMessage(
-            "Translation not found for Question at path: " + questionPath + "\n\tLocale: fr_FR");
+        .hasMessage("No translation was found for locale fr_FR");
   }
 
   @Test
@@ -216,8 +215,7 @@ public class QuestionDefinitionTest {
 
     assertThat(thrown).isInstanceOf(TranslationNotFoundException.class);
     assertThat(thrown)
-        .hasMessage(
-            "Translation not found for Question at path: " + questionPath + "\n\tLocale: fr_FR");
+        .hasMessage("No translation was found for locale fr_FR");
   }
 
   @Test
