@@ -7,10 +7,10 @@ import java.util.Locale;
 import models.Program;
 import org.junit.Test;
 import repository.WithPostgresContainer;
+import services.LocalizedStrings;
 import services.Path;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
-import services.program.TranslationNotFoundException;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -71,8 +71,8 @@ public class ProgramBuilderTest extends WithPostgresContainer {
             .setPath(Path.create("my.path.name"))
             .setDescription("description")
             .setQuestionType(QuestionType.NAME)
-            .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
+            .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
             .build();
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram("name", "description")
@@ -91,13 +91,13 @@ public class ProgramBuilderTest extends WithPostgresContainer {
   }
 
   @Test
-  public void emptyProgram() throws TranslationNotFoundException {
+  public void emptyProgram() throws Exception {
     Program program = ProgramBuilder.newDraftProgram().build();
 
     assertThat(program.id).isGreaterThan(0);
     assertThat(program.getProgramDefinition().adminName()).isEmpty();
-    assertThat(program.getProgramDefinition().getLocalizedName(Locale.US)).isEmpty();
-    assertThat(program.getProgramDefinition().getLocalizedDescription(Locale.US)).isEmpty();
+    assertThat(program.getProgramDefinition().localizedName().get(Locale.US)).isEmpty();
+    assertThat(program.getProgramDefinition().localizedDescription().get(Locale.US)).isEmpty();
     assertThat(program.getProgramDefinition().getBlockCount()).isEqualTo(1);
   }
 }

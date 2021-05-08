@@ -3,13 +3,13 @@ package repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
+import services.LocalizedStrings;
 import services.Path;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
@@ -163,8 +163,8 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
             Path.create("applicant.name"),
             Optional.empty(),
             "applicant's name",
-            ImmutableMap.of(Locale.US, "What is your name?"),
-            ImmutableMap.of());
+            LocalizedStrings.of(Locale.US, "What is your name?"),
+            LocalizedStrings.of());
     Question question = new Question(questionDefinition);
 
     repo.insertQuestion(question).toCompletableFuture().join();
@@ -182,8 +182,8 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
             Path.create("applicant.name"),
             Optional.empty(),
             "applicant's name",
-            ImmutableMap.of(Locale.US, "What is your name?"),
-            ImmutableMap.of());
+            LocalizedStrings.of(Locale.US, "What is your name?"),
+            LocalizedStrings.of());
     Question question = new Question(questionDefinition);
 
     repo.insertQuestionSync(question);
