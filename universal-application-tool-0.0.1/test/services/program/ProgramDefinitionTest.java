@@ -3,10 +3,10 @@ package services.program;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import org.junit.Test;
 import services.LocalizedStrings;
+import services.TranslationNotFoundException;
 import services.question.types.QuestionDefinition;
 import support.TestQuestionBank;
 
@@ -119,9 +119,9 @@ public class ProgramDefinitionTest {
 
     assertThat(program.adminName()).isEqualTo("Admin name");
     assertThat(program.localizedName())
-        .isEqualTo(ImmutableMap.of(Locale.US, "Applicant friendly name"));
+        .isEqualTo(LocalizedStrings.of(Locale.US, "Applicant friendly name"));
     assertThat(program.localizedDescription())
-        .isEqualTo(ImmutableMap.of(Locale.US, "English description"));
+        .isEqualTo(LocalizedStrings.of(Locale.US, "English description"));
 
     assertThatThrownBy(() -> program.localizedName().get(Locale.FRANCE))
         .isInstanceOf(TranslationNotFoundException.class);
@@ -131,33 +131,6 @@ public class ProgramDefinitionTest {
         .isEqualTo("Applicant friendly name");
     assertThat(program.localizedDescription().getOrDefault(Locale.FRANCE))
         .isEqualTo("English description");
-  }
-
-  @Test
-  public void localizedNameAndDescription_cannotAddSameLocaleTwice() {
-    ProgramDefinition program =
-        ProgramDefinition.builder()
-            .setId(123L)
-            .setAdminName("Admin name")
-            .setAdminDescription("Admin description")
-            .setLocalizedName(LocalizedStrings.of(Locale.US, "Applicant friendly name"))
-            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "English description"))
-            .build();
-
-    assertThatThrownBy(
-            () ->
-                program.toBuilder()
-                    .setLocalizedName(LocalizedStrings.of(Locale.US, "this already exists"))
-                    .build())
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("Multiple entries with same key");
-    assertThatThrownBy(
-            () ->
-                program.toBuilder()
-                    .setLocalizedDescription(LocalizedStrings.of(Locale.US, "this already exists"))
-                    .build())
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("Multiple entries with same key");
   }
 
   @Test
@@ -173,15 +146,15 @@ public class ProgramDefinitionTest {
 
     program =
         program.toBuilder()
-            .setLocalizedDescription(
-                program.localizedName().addOrUpdateTranslation(Locale.US, "new name"))
+            .setLocalizedName(
+                program.localizedName().updateTranslation(Locale.US, "new name"))
             .build();
     assertThat(program.localizedName().get(Locale.US)).isEqualTo("new name");
 
     program =
         program.toBuilder()
             .setLocalizedDescription(
-                program.localizedDescription().addOrUpdateTranslation(Locale.US, "new description"))
+                program.localizedDescription().updateTranslation(Locale.US, "new description"))
             .build();
     assertThat(program.localizedDescription().get(Locale.US)).isEqualTo("new description");
   }

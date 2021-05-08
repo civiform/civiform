@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import services.CiviFormError;
 import services.LocalizedStrings;
 import services.Path;
-import services.question.exceptions.TranslationNotFoundException;
+import services.TranslationNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;

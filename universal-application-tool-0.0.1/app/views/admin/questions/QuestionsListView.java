@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
 import services.question.ActiveAndDraftQuestions;
-import services.question.exceptions.TranslationNotFoundException;
+import services.TranslationNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import views.BaseHtmlView;

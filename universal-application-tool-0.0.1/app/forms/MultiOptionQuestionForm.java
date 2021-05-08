@@ -10,7 +10,7 @@ import services.LocalizedStrings;
 import services.Path;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
-import services.question.exceptions.TranslationNotFoundException;
+import services.TranslationNotFoundException;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 

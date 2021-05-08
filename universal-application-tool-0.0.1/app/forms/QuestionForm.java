@@ -6,7 +6,7 @@ import java.util.Locale;
 import java.util.Optional;
 import services.LocalizedStrings;
 import services.Path;
-import services.question.exceptions.TranslationNotFoundException;
+import services.TranslationNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;

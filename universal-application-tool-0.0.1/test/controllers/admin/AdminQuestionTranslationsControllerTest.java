@@ -22,7 +22,7 @@ import repository.VersionRepository;
 import repository.WithPostgresContainer;
 import services.LocalizedStrings;
 import services.Path;
-import services.question.exceptions.TranslationNotFoundException;
+import services.TranslationNotFoundException;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import support.TestQuestionBank;

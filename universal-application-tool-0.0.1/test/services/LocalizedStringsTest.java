@@ -1,20 +1,19 @@
 package services;
 
 import com.google.common.collect.ImmutableMap;
-import net.jcip.annotations.Immutable;
 import org.junit.Test;
 
 import java.util.Locale;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class LocalizedStringsTest {
 
   @Test
   public void equalsWorks() {
     LocalizedStrings first = LocalizedStrings.of(Locale.US, "hello", Locale.FRENCH, "bonjour");
-    LocalizedStrings second = LocalizedStrings.of(Locale.US, "hello", Locale.FRENCH, "bonjour");
+    LocalizedStrings second = LocalizedStrings.of(Locale.FRENCH, "bonjour", Locale.US, "hello");
 
     assertThat(first).isEqualTo(second);
   }
@@ -30,17 +29,41 @@ public class LocalizedStringsTest {
   }
 
   @Test
-  public void builder_isRequiredByDefault() {
-    LocalizedStrings subject = LocalizedStrings.builder().build();
-
-    assertThat(subject.isRequired()).isTrue();
-    assertThat(subject.isEmpty()).isTrue();
+  public void isRequiredByDefault() {
+    assertThat(LocalizedStrings.create(ImmutableMap.of()).isRequired()).isTrue();
+    assertThat(LocalizedStrings.builder().build().isRequired()).isTrue();
   }
 
   @Test
-  public void builder_clearTranslations() {
-    LocalizedStrings subject = LocalizedStrings.builder().put(Locale.US, "first").clearTranslations().put(Locale.FRENCH, "one").build();
+  public void emptyOf_isNotRequired() {
+    assertThat(LocalizedStrings.of().isRequired()).isFalse();
+  }
 
-    assertThat(subject.translations()).containsExactlyEntriesOf(ImmutableMap.of(Locale.FRENCH, "one"));
+  @Test
+  public void updateTranslation_addsANewOne() {
+    LocalizedStrings strings = LocalizedStrings.of();
+
+    LocalizedStrings subject = strings.updateTranslation(Locale.US, "hello");
+
+    assertThat(subject.translations()).containsExactlyEntriesOf(ImmutableMap.of(Locale.US, "hello"));
+  }
+
+  @Test
+  public void updateTranslation_updatesExistingOne() {
+    LocalizedStrings strings = LocalizedStrings.of(Locale.US, "old");
+
+    LocalizedStrings subject = strings.updateTranslation(Locale.US, "new");
+
+    assertThat(subject.translations()).containsExactlyEntriesOf(ImmutableMap.of(Locale.US, "new"));
+  }
+
+  @Test
+  public void cannotAddSameLocale() {
+    LocalizedStrings strings = LocalizedStrings.of(Locale.US, "existing");
+
+    assertThatThrownBy(
+        () -> strings.toBuilder().put(Locale.US, "new").build())
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Multiple entries with same key");
   }
 }

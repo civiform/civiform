@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import services.question.exceptions.TranslationNotFoundException;
 
 @AutoValue
 public abstract class LocalizedStrings {
@@ -128,8 +127,8 @@ public abstract class LocalizedStrings {
         .orElseThrow(() -> new TranslationNotFoundException(locale));
   }
 
-  public LocalizedStrings addOrUpdateTranslation(Locale locale, String string) {
-    LocalizedStrings.Builder builder = toBuilder().clearTranslations();
+  public LocalizedStrings updateTranslation(Locale locale, String string) {
+    LocalizedStrings.Builder builder = toEmptyBuilder();
     for (Map.Entry<Locale, String> entry : translations().entrySet()) {
       if (!entry.getKey().equals(locale)) {
         builder.put(entry.getKey(), entry.getValue());
@@ -144,6 +143,11 @@ public abstract class LocalizedStrings {
   public static Builder builder() {
     Builder builder = new AutoValue_LocalizedStrings.Builder();
     return builder.setIsRequired(true);
+  }
+
+  private Builder toEmptyBuilder() {
+    Builder builder = new AutoValue_LocalizedStrings.Builder();
+    return builder.setIsRequired(isRequired());
   }
 
   @AutoValue.Builder

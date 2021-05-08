@@ -115,7 +115,7 @@ public class QuestionDefinitionBuilder {
   }
 
   public QuestionDefinitionBuilder updateQuestionText(Locale locale, String text) {
-    questionText = questionText.addOrUpdateTranslation(locale, text);
+    questionText = questionText.updateTranslation(locale, text);
     return this;
   }
 
@@ -125,7 +125,7 @@ public class QuestionDefinitionBuilder {
   }
 
   public QuestionDefinitionBuilder updateQuestionHelpText(Locale locale, String helpText) {
-    questionHelpText = questionHelpText.addOrUpdateTranslation(locale, helpText);
+    questionHelpText = questionHelpText.updateTranslation(locale, helpText);
     return this;
   }
 

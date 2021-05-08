@@ -272,12 +272,12 @@ public class QuestionController extends CiviFormController {
     updated.setQuestionText(
         existing
             .getQuestionText()
-            .addOrUpdateTranslation(
+            .updateTranslation(
                 LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionText()));
     updated.setQuestionHelpText(
         existing
             .getQuestionHelpText()
-            .addOrUpdateTranslation(
+            .updateTranslation(
                 LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionHelpText()));
 
     return updated;

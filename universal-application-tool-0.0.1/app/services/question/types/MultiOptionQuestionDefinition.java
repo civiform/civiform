@@ -20,7 +20,7 @@ import services.LocalizedStrings;
 import services.Path;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
-import services.question.exceptions.TranslationNotFoundException;
+import services.TranslationNotFoundException;
 
 public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
 
@@ -187,7 +187,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
               .collect(toImmutableList());
         }
       }
-      throw new TranslationNotFoundException(getPath(), locale);
+      throw new TranslationNotFoundException(locale);
     }
   }
 

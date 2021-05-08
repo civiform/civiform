@@ -10,7 +10,7 @@ import services.LocalizedStrings;
 import services.Path;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
-import services.question.exceptions.TranslationNotFoundException;
+import services.TranslationNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 
 public class MultiOptionQuestionDefinitionTest {
@@ -80,8 +80,7 @@ public class MultiOptionQuestionDefinitionTest {
   }
 
   @Test
-  public void getOptionsForLocale_returnsAllTranslations()
-      throws TranslationNotFoundException, UnsupportedQuestionTypeException {
+  public void getOptionsForLocale_returnsAllTranslations() throws Exception {
     ImmutableList<QuestionOption> options =
         ImmutableList.of(
             QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "one", Locale.GERMAN, "eins")),
