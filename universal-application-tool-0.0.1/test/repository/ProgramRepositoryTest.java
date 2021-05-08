@@ -120,13 +120,11 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
     assertThat(repo.getProgramAdministrators(withAdmins.id)).isEmpty();
     admin.addAdministeredProgram(withAdmins.getProgramDefinition());
     admin.save();
-    assertThat(repo.getProgramAdministrators(withAdmins.id)).isNotEmpty();
-    assertThat(repo.getProgramAdministrators(withAdmins.id)).contains(admin);
+    assertThat(repo.getProgramAdministrators(withAdmins.id)).containsExactly(admin);
 
     // This draft, despite not existing when the admin association happened, should
     // still have the same admin associated.
     Program newDraft = repo.createOrUpdateDraft(withAdmins);
-    assertThat(repo.getProgramAdministrators(newDraft.id)).isNotEmpty();
-    assertThat(repo.getProgramAdministrators(newDraft.id)).contains(admin);
+    assertThat(repo.getProgramAdministrators(newDraft.id)).containsExactly(admin);
   }
 }
