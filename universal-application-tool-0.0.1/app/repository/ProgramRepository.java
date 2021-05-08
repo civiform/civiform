@@ -14,6 +14,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import models.Account;
 import models.LifecycleStage;
 import models.Program;
 import models.Version;
@@ -136,5 +137,16 @@ public class ProgramRepository {
           throw new RuntimeException(new ProgramNotFoundException(slug));
         },
         executionContext.current());
+  }
+
+  public ImmutableList<Account> getProgramAdministrators(long programId)
+      throws ProgramNotFoundException {
+    Optional<Program> program = ebeanServer.find(Program.class).setId(programId).findOneOrEmpty();
+    if (program.isEmpty()) {
+      throw new ProgramNotFoundException(programId);
+    }
+    String name = program.get().getProgramDefinition().adminName();
+    return ImmutableList.copyOf(
+        ebeanServer.find(Account.class).where().arrayContains("admin_of", name).findList());
   }
 }
