@@ -9,7 +9,7 @@ services:
     ports:
       - 6645:4566
     environment:
-      - SERVICES=s3
+      - SERVICES=s3,ses
 
   db:
     image: postgres:12.5
@@ -40,6 +40,7 @@ services:
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
       - AWS_REGION
+      - AWS_SES_SENDER
       - AWS_S3_BUCKET_NAME
       - IDCS_CLIENT_ID=foo
       - IDCS_SECRET=bar

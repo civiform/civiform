@@ -14,7 +14,7 @@ if [ "$1" ]; then
     CIVIFORM_DIR=browser-test
 fi
 
-purge_s3_cmd="s3 rm s3://civiform-local-s3/ --recursive"
+verify_identity_cmd="ses verify-email-identity --email-address $2"
 
 if ! which aws > /dev/null; then
     docker run --rm -it \
@@ -23,11 +23,11 @@ if ! which aws > /dev/null; then
     -e AWS_SECRET_ACCESS_KEY=test \
     amazon/aws-cli \
         --endpoint-url=http://localstack:4566 \
-        $purge_s3_cmd
+        $verify_identity_cmd
 
     exit $?
 fi
 
-AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test aws --endpoint-url=$localstack_local_endpoint $purge_s3_cmd
+AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test aws --endpoint-url=$localstack_local_endpoint $verify_identity_cmd
 
 popd > /dev/null
