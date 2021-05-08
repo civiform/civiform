@@ -139,12 +139,14 @@ public class ProgramRepository {
         executionContext.current());
   }
 
-  public ImmutableList<Account> getProgramAdministrators(long programId) throws ProgramNotFoundException {
+  public ImmutableList<Account> getProgramAdministrators(long programId)
+      throws ProgramNotFoundException {
     Optional<Program> program = ebeanServer.find(Program.class).setId(programId).findOneOrEmpty();
     if (program.isEmpty()) {
-        throw new ProgramNotFoundException(programId);
+      throw new ProgramNotFoundException(programId);
     }
     String name = program.get().getProgramDefinition().adminName();
-    return ImmutableList.copyOf(ebeanServer.find(Account.class).where().arrayContains("admin_of", name).findList());
+    return ImmutableList.copyOf(
+        ebeanServer.find(Account.class).where().arrayContains("admin_of", name).findList());
   }
 }
