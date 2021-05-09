@@ -76,6 +76,11 @@ public class EnumeratorQuestion implements PresentsErrors {
         .readRepeatedEntities(applicantQuestion.getContextualizedPath());
   }
 
+  /**
+   * Get the admin-configurable entity type this enumerator represents. Examples: "car", "child",
+   * "job", "household member". If the admin did not configure this, it defaults to {@link
+   * MessageKey#ENUMERATOR_STRING_DEFAULT_ENTITY_TYPE}.
+   */
   public String getEntityType(Messages messages, Locale locale) {
     LocalizedStrings translations = getQuestionDefinition().getEntityType();
     if (translations.isEmpty()) {

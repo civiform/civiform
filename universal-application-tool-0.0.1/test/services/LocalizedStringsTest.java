@@ -69,5 +69,8 @@ public class LocalizedStringsTest {
     assertThatThrownBy(() -> strings.toBuilder().put(Locale.US, "new").build())
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Multiple entries with same key");
+
+    assertThat(LocalizedStrings.of(Locale.US, "first", Locale.US, "second").translations())
+        .hasSize(1);
   }
 }

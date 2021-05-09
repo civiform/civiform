@@ -130,7 +130,12 @@ public class Question extends BaseModel {
     this.questionDefinition = builder.build();
   }
 
-  /** The majority of questions should have `questionText` and not `legacyQuestionText`. */
+  /**
+   * Add {@link LocalizedStrings} for question text to the builder, taking into account legacy
+   * columns.
+   *
+   * <p>The majority of questions should have `questionText` and not `legacyQuestionText`.
+   */
   private void setQuestionText(QuestionDefinitionBuilder builder) {
     if (questionText != null) {
       builder.setQuestionText(questionText);
@@ -139,7 +144,12 @@ public class Question extends BaseModel {
     builder.setQuestionText(LocalizedStrings.create(legacyQuestionText));
   }
 
-  /** The majority of questions should have `questionHelpText` and not `legacyQuestionHelpText`. */
+  /**
+   * Add {@link LocalizedStrings} for question help text to the builder, taking into account legacy
+   * columns.
+   *
+   * <p>The majority of questions should have `questionHelpText` and not `legacyQuestionHelpText`.
+   */
   private void setQuestionHelpText(QuestionDefinitionBuilder builder) {
     if (questionHelpText != null) {
       builder.setQuestionHelpText(questionHelpText);
@@ -148,6 +158,11 @@ public class Question extends BaseModel {
     builder.setQuestionHelpText(LocalizedStrings.create(legacyQuestionHelpText, true));
   }
 
+  /**
+   * Add {@link QuestionOption}s to the builder, taking into account legacy columns.
+   *
+   * <p>The majority of questions should have a `questionOptions` and not `legacyQuestionOptions`.
+   */
   private void setQuestionOptions(QuestionDefinitionBuilder builder)
       throws InvalidQuestionTypeException {
     if (!QuestionType.of(questionType).isMultiOptionType()) {

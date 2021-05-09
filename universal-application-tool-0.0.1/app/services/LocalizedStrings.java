@@ -10,18 +10,35 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * A collection of localized strings intended to represent the same message, translated into different locales.
+ *
+ * <p>There is a bit of nuance around {@link #isRequired()}.
+ */
 @AutoValue
 public abstract class LocalizedStrings {
 
   /** The default locale for CiviForm is US English. */
   public static final Locale DEFAULT_LOCALE = Locale.US;
 
+  /** A mapping from {@link Locale} to the translation. */
   @JsonProperty("translations")
   public abstract ImmutableMap<Locale, String> translations();
 
+  /**
+   * The only time it matters whether localized strings are required are when they are no
+   * translations. If there are no translations and the localized strings are NOT required, then
+   * {@link #get(Locale)} returns an empty string. If there are no translations and the localized
+   * strings are required, then {@link #get(Locale)} will throw {@link TranslationNotFoundException}
+   * for every locale.
+   *
+   * <p>The only way to create non-required localized strings is with {@link #create(ImmutableMap,
+   * boolean)}, where the translations are empty and they can be empty.
+   */
   @JsonProperty("isRequired")
   public abstract boolean isRequired();
 
+  /** This factory is intended to be used by Jackson to construct localized strings from storage. */
   @JsonCreator
   public static LocalizedStrings jsonCreator(
       @JsonProperty("translations") ImmutableMap<Locale, String> translations,
@@ -29,13 +46,14 @@ public abstract class LocalizedStrings {
     return create(translations, !isRequired);
   }
 
+  /** Creates required localized strings. */
   public static LocalizedStrings create(ImmutableMap<Locale, String> translations) {
     return builder().setTranslations(translations).build();
   }
 
   /**
-   * If this is required, then there must be values. If this is not required, but there are
-   * translations, then
+   * Creates localized strings, where if the translations are empty and they can be empty, then the
+   * resulting localized strings are NOT required (see {@link #isRequired()}).
    */
   public static LocalizedStrings create(
       ImmutableMap<Locale, String> translations, boolean canBeEmpty) {
@@ -43,56 +61,82 @@ public abstract class LocalizedStrings {
     return builder().setTranslations(translations).setIsRequired(isRequired).build();
   }
 
+  /** Creates localized strings with a translation for the default locale. */
   public static LocalizedStrings withDefaultValue(String defaultValue) {
     return create(ImmutableMap.of(DEFAULT_LOCALE, defaultValue));
   }
 
+  /** Creates localized strings with no translations, that are not required. */
   public static LocalizedStrings empty() {
     return create(ImmutableMap.of(), true);
   }
 
+  /** Creates localized strings with no translations, that are required. */
   public static LocalizedStrings of() {
     return create(ImmutableMap.of());
   }
 
+  /** Create localized strings with one translation. */
   public static LocalizedStrings of(Locale k1, String v1) {
     return LocalizedStrings.create(ImmutableMap.of(k1, v1));
   }
 
+  /**
+   * Create localized strings with two translations.
+   *
+   * @throws IllegalArgumentException for duplicate keys.
+   */
   public static LocalizedStrings of(Locale k1, String v1, Locale k2, String v2) {
     return LocalizedStrings.create(ImmutableMap.of(k1, v1, k2, v2));
   }
 
+  /**
+   * Create localized strings with three translations.
+   *
+   * @throws IllegalArgumentException for duplicate keys.
+   */
   public static LocalizedStrings of(
       Locale k1, String v1, Locale k2, String v2, Locale k3, String v3) {
     return LocalizedStrings.create(ImmutableMap.of(k1, v1, k2, v2, k3, v3));
   }
 
+  /**
+   * Create localized strings with four translations.
+   *
+   * @throws IllegalArgumentException for duplicate keys.
+   */
   public static LocalizedStrings of(
       Locale k1, String v1, Locale k2, String v2, Locale k3, String v3, Locale k4, String v4) {
     return LocalizedStrings.create(ImmutableMap.of(k1, v1, k2, v2, k3, v3, k4, v4));
   }
 
+  /** Returns true if these localized strings have a translation for the locale. */
   public boolean hasTranslationFor(Locale locale) {
     return translations().containsKey(locale);
   }
 
+  /** Returns the set of locales these localized strings support. */
   public ImmutableSet<Locale> locales() {
     return translations().keySet();
   }
 
+  /** Returns true if these localized strings have no translations. */
   @JsonIgnore
   public boolean isEmpty() {
     return translations().isEmpty();
   }
 
+  /** Returns true if any of the translations are blank strings. */
   public boolean hasEmptyTranslation() {
     return translations().values().stream().anyMatch(String::isBlank);
   }
 
   /**
-   * Attempts to get text for the given locale. If there is no text for the given locale, it will
-   * return the text in the default locale.
+   * Attempts to get the translation for the given locale, and falls back on the translation for the
+   * default locale if it is missing.
+   *
+   * @throws RuntimeException if it tries to use the translation for the default locale and it is
+   *     missing.
    */
   public String getOrDefault(Locale locale) {
     try {
@@ -102,7 +146,11 @@ public abstract class LocalizedStrings {
     }
   }
 
-  /** Gets the text for CiviForm's default locale. */
+  /**
+   * Gets the translation for CiviForm's default locale.
+   *
+   * @throws RuntimeException if the translation for the default locale is missing.
+   */
   @JsonIgnore
   public String getDefault() {
     try {
@@ -114,8 +162,8 @@ public abstract class LocalizedStrings {
   }
 
   /**
-   * Return an {@link Optional} containing the text for this locale, or of if this locale is not
-   * supported.
+   * Get an {@link Optional} containing the translation for the locale, or {@link Optional#empty()}
+   * if the locale is not supported.
    */
   public Optional<String> maybeGet(Locale locale) {
     try {
@@ -125,11 +173,30 @@ public abstract class LocalizedStrings {
     }
   }
 
-  /** Get the text for the given locale. */
+  /**
+   * Get the translation for the given locale.
+   *
+   * <p>If the localized strings are not required (see {@link #isRequired()}, and there are no
+   * translations, this will return the empty string.
+   *
+   * @throws TranslationNotFoundException if the locale is not supported.
+   */
   public String get(Locale locale) throws TranslationNotFoundException {
     return get(locale, isRequired());
   }
 
+  /**
+   * Get the translation for the given locale.
+   *
+   * <p>If these localized strings are not required (see {@link #isRequired()}), and there are no
+   * translations, then return the empty string.
+   *
+   * @param isRequired if true, allows the empty string to be thrown if there are no locales
+   *     supported. If there is at least one locale supported, then it still throws {@link
+   *     TranslationNotFoundException} if the locale is not supported.
+   * @throws TranslationNotFoundException if translations are required, but the locale is not
+   *     supported.
+   */
   private String get(Locale locale, boolean isRequired) throws TranslationNotFoundException {
     if (!isRequired && isEmpty()) {
       return "";
@@ -152,8 +219,13 @@ public abstract class LocalizedStrings {
         .orElseThrow(() -> new TranslationNotFoundException(locale));
   }
 
+  /**
+   * Returns a new set of localized strings with a new translation.
+   *
+   * <p>Since this supports at least one locale, it will be required.
+   */
   public LocalizedStrings updateTranslation(Locale locale, String string) {
-    LocalizedStrings.Builder builder = toEmptyBuilder();
+    LocalizedStrings.Builder builder = builder();
     for (Map.Entry<Locale, String> entry : translations().entrySet()) {
       if (!entry.getKey().equals(locale)) {
         builder.put(entry.getKey(), entry.getValue());
@@ -170,13 +242,10 @@ public abstract class LocalizedStrings {
     return builder.setIsRequired(true);
   }
 
-  private Builder toEmptyBuilder() {
-    Builder builder = new AutoValue_LocalizedStrings.Builder();
-    return builder.setIsRequired(isRequired());
-  }
-
   @AutoValue.Builder
   public abstract static class Builder {
+
+    public abstract LocalizedStrings build();
 
     public abstract Builder setTranslations(ImmutableMap<Locale, String> translations);
 
@@ -184,15 +253,9 @@ public abstract class LocalizedStrings {
 
     public abstract ImmutableMap.Builder<Locale, String> translationsBuilder();
 
-    public abstract LocalizedStrings build();
-
     public Builder put(Locale locale, String string) {
       translationsBuilder().put(locale, string);
       return this;
-    }
-
-    public Builder clearTranslations() {
-      return setTranslations(ImmutableMap.of());
     }
   }
 }
