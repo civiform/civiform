@@ -70,7 +70,8 @@ public class LocalizedStringsTest {
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Multiple entries with same key");
 
-    assertThat(LocalizedStrings.of(Locale.US, "first", Locale.US, "second").translations())
-        .hasSize(1);
+    assertThatThrownBy(() -> LocalizedStrings.of(Locale.US, "first", Locale.US, "second"))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Multiple entries with same key");
   }
 }
