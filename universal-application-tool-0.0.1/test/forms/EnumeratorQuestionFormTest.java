@@ -30,7 +30,7 @@ public class EnumeratorQuestionFormTest {
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.of());
+            LocalizedStrings.empty());
 
     QuestionDefinition actual = builder.build();
 
@@ -48,7 +48,7 @@ public class EnumeratorQuestionFormTest {
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.of());
+            LocalizedStrings.empty());
 
     EnumeratorQuestionForm form = new EnumeratorQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder(path);

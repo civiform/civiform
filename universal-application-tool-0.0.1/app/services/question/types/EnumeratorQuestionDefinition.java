@@ -19,7 +19,7 @@ import services.Path;
 public class EnumeratorQuestionDefinition extends QuestionDefinition {
 
   // TODO(#859): make this admin configurable
-  private final LocalizedStrings entityType = LocalizedStrings.of();
+  private final LocalizedStrings entityType = LocalizedStrings.empty();
 
   public EnumeratorQuestionDefinition(
       OptionalLong id,

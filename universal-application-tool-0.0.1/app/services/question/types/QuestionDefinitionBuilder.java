@@ -22,7 +22,7 @@ public class QuestionDefinitionBuilder {
   private Optional<Long> enumeratorId = Optional.empty();
   private String description;
   private LocalizedStrings questionText;
-  private LocalizedStrings questionHelpText = LocalizedStrings.of();
+  private LocalizedStrings questionHelpText = LocalizedStrings.empty();
   private QuestionType questionType = QuestionType.TEXT;
   private String validationPredicatesString = "";
 

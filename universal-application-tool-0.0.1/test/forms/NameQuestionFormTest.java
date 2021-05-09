@@ -30,7 +30,7 @@ public class NameQuestionFormTest {
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.of());
+            LocalizedStrings.empty());
 
     QuestionDefinition actual = builder.build();
 
@@ -48,7 +48,7 @@ public class NameQuestionFormTest {
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.of());
+            LocalizedStrings.empty());
 
     NameQuestionForm form = new NameQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder(path);

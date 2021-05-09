@@ -165,7 +165,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
             Optional.empty(),
             "applicant's name",
             LocalizedStrings.of(Locale.US, "What is your name?"),
-            LocalizedStrings.of());
+            LocalizedStrings.empty());
     Question question = new Question(questionDefinition);
 
     repo.insertQuestion(question).toCompletableFuture().join();
@@ -184,7 +184,7 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
             Optional.empty(),
             "applicant's name",
             LocalizedStrings.of(Locale.US, "What is your name?"),
-            LocalizedStrings.of());
+            LocalizedStrings.empty());
     Question question = new Question(questionDefinition);
 
     repo.insertQuestionSync(question);

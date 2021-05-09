@@ -126,7 +126,12 @@ public class QuestionDefinitionTest {
   public void isEnumerator_false() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "", Path.empty(), Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.of());
+            "",
+            Path.empty(),
+            Optional.empty(),
+            "",
+            LocalizedStrings.of(),
+            LocalizedStrings.empty());
 
     assertThat(question.isEnumerator()).isFalse();
   }
@@ -135,7 +140,12 @@ public class QuestionDefinitionTest {
   public void isEnumerator_true() {
     QuestionDefinition question =
         new EnumeratorQuestionDefinition(
-            "", Path.empty(), Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.of());
+            "",
+            Path.empty(),
+            Optional.empty(),
+            "",
+            LocalizedStrings.of(),
+            LocalizedStrings.empty());
     assertThat(question.isEnumerator()).isTrue();
   }
 
@@ -143,7 +153,12 @@ public class QuestionDefinitionTest {
   public void isRepeated_false() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "", Path.empty(), Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.of());
+            "",
+            Path.empty(),
+            Optional.empty(),
+            "",
+            LocalizedStrings.of(),
+            LocalizedStrings.empty());
 
     assertThat(question.isRepeated()).isFalse();
   }
@@ -152,7 +167,12 @@ public class QuestionDefinitionTest {
   public void isRepeated_true() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "", Path.empty(), Optional.of(123L), "", LocalizedStrings.of(), LocalizedStrings.of());
+            "",
+            Path.empty(),
+            Optional.of(123L),
+            "",
+            LocalizedStrings.of(),
+            LocalizedStrings.empty());
     assertThat(question.isRepeated()).isTrue();
   }
 
@@ -190,7 +210,7 @@ public class QuestionDefinitionTest {
             Optional.empty(),
             "",
             LocalizedStrings.of(Locale.US, "not french"),
-            LocalizedStrings.of());
+            LocalizedStrings.empty());
 
     Throwable thrown = catchThrowable(() -> question.getQuestionText().get(Locale.FRANCE));
 
@@ -225,7 +245,7 @@ public class QuestionDefinitionTest {
             Optional.empty(),
             "",
             LocalizedStrings.of(),
-            LocalizedStrings.of());
+            LocalizedStrings.empty());
     assertThat(question.getQuestionHelpText().get(Locale.FRANCE)).isEqualTo("");
   }
 
@@ -238,7 +258,7 @@ public class QuestionDefinitionTest {
             Optional.empty(),
             "",
             LocalizedStrings.withDefaultValue("default"),
-            LocalizedStrings.of());
+            LocalizedStrings.empty());
 
     assertThat(question.getQuestionText().getOrDefault(Locale.forLanguageTag("und")))
         .isEqualTo("default");
@@ -268,7 +288,7 @@ public class QuestionDefinitionTest {
             Optional.empty(),
             "",
             LocalizedStrings.of(Locale.US, "hello"),
-            LocalizedStrings.of());
+            LocalizedStrings.empty());
 
     assertThat(question.getQuestionText().maybeGet(Locale.US)).hasValue("hello");
   }
@@ -277,7 +297,12 @@ public class QuestionDefinitionTest {
   public void maybeGetQuestionText_returnsEmptyIfLocaleNotFound() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "", Path.empty(), Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.of());
+            "",
+            Path.empty(),
+            Optional.empty(),
+            "",
+            LocalizedStrings.of(),
+            LocalizedStrings.empty());
 
     assertThat(question.getQuestionText().maybeGet(Locale.forLanguageTag("und"))).isEmpty();
   }
@@ -300,7 +325,12 @@ public class QuestionDefinitionTest {
   public void maybeGetQuestionHelpText_returnsEmptyIfLocaleNotFound() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "", Path.empty(), Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.of());
+            "",
+            Path.empty(),
+            Optional.empty(),
+            "",
+            LocalizedStrings.of(),
+            LocalizedStrings.empty());
 
     assertThat(question.getQuestionHelpText().maybeGet(Locale.forLanguageTag("und"))).isEmpty();
   }
@@ -314,7 +344,7 @@ public class QuestionDefinitionTest {
             Optional.empty(),
             "",
             LocalizedStrings.of(),
-            LocalizedStrings.of());
+            LocalizedStrings.empty());
 
     assertThat(question.getQuestionType()).isEqualTo(QuestionType.TEXT);
   }
@@ -328,7 +358,7 @@ public class QuestionDefinitionTest {
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "question?"),
-            LocalizedStrings.of());
+            LocalizedStrings.empty());
     assertThat(question.validate()).isEmpty();
   }
 
@@ -341,7 +371,7 @@ public class QuestionDefinitionTest {
             Optional.empty(),
             "",
             LocalizedStrings.of(),
-            LocalizedStrings.of());
+            LocalizedStrings.empty());
     assertThat(question.validate())
         .containsOnly(
             CiviFormError.of("Name cannot be blank"),
@@ -358,7 +388,7 @@ public class QuestionDefinitionTest {
             Optional.empty(),
             "test",
             LocalizedStrings.of(Locale.US, ""),
-            LocalizedStrings.of());
+            LocalizedStrings.empty());
     assertThat(question.validate()).containsOnly(CiviFormError.of("Question text cannot be blank"));
   }
 

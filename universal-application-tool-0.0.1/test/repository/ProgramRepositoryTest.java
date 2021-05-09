@@ -66,16 +66,15 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
                 + " \"description\"}');")
         .execute();
     DB.sqlUpdate(
-        "insert into versions_programs (versions_id, programs_id) values ("
-            + "(select id from versions where lifecycle_stage = 'active'),"
-            + "(select id from programs where name = 'Old Schema Entry'));")
+            "insert into versions_programs (versions_id, programs_id) values ("
+                + "(select id from versions where lifecycle_stage = 'active'),"
+                + "(select id from programs where name = 'Old Schema Entry'));")
         .execute();
 
     Program found =
         repo.listPrograms().toCompletableFuture().join().stream()
             .filter(
-                program ->
-                    program.getProgramDefinition().adminName().equals("Old Schema Entry"))
+                program -> program.getProgramDefinition().adminName().equals("Old Schema Entry"))
             .findFirst()
             .get();
 
@@ -96,9 +95,9 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
                 + " \"b\"}');")
         .execute();
     DB.sqlUpdate(
-        "insert into versions_programs (versions_id, programs_id) values ("
-            + "(select id from versions where lifecycle_stage = 'active'),"
-            + "(select id from programs where name = 'Old Schema Entry'));")
+            "insert into versions_programs (versions_id, programs_id) values ("
+                + "(select id from versions where lifecycle_stage = 'active'),"
+                + "(select id from programs where name = 'Old Schema Entry'));")
         .execute();
 
     Program found = repo.getForSlug("old-schema-entry").toCompletableFuture().join();

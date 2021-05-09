@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import org.junit.Before;
@@ -40,8 +39,8 @@ public class QuestionTest extends WithPostgresContainer {
             Path.create("my.path"),
             Optional.empty(),
             "",
-            LocalizedStrings.create(ImmutableMap.of()),
-            LocalizedStrings.of());
+            LocalizedStrings.of(),
+            LocalizedStrings.empty());
     Question question = new Question(definition);
 
     question.save();
@@ -61,8 +60,8 @@ public class QuestionTest extends WithPostgresContainer {
             Path.create("my.path"),
             Optional.empty(),
             "",
-            LocalizedStrings.create(ImmutableMap.of()),
-            LocalizedStrings.of());
+            LocalizedStrings.of(),
+            LocalizedStrings.empty());
     Question question = new Question(questionDefinition);
     question.save();
 
@@ -79,8 +78,8 @@ public class QuestionTest extends WithPostgresContainer {
             Path.create("my.path"),
             Optional.of(10L),
             "",
-            LocalizedStrings.create(ImmutableMap.of()),
-            LocalizedStrings.of());
+            LocalizedStrings.of(),
+            LocalizedStrings.empty());
     Question question = new Question(questionDefinition);
     question.save();
 
@@ -120,7 +119,7 @@ public class QuestionTest extends WithPostgresContainer {
             Optional.empty(),
             "",
             LocalizedStrings.of(),
-            LocalizedStrings.of());
+            LocalizedStrings.empty());
     Question question = new Question(address);
 
     question.save();
@@ -139,7 +138,7 @@ public class QuestionTest extends WithPostgresContainer {
             Optional.empty(),
             "",
             LocalizedStrings.of(),
-            LocalizedStrings.of(),
+            LocalizedStrings.empty(),
             TextValidationPredicates.create(0, 128));
     Question question = new Question(definition);
 
@@ -162,7 +161,7 @@ public class QuestionTest extends WithPostgresContainer {
             .setPath(Path.empty())
             .setEnumeratorId(Optional.of(123L))
             .setQuestionText(LocalizedStrings.of())
-            .setQuestionHelpText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
             .setQuestionOptions(
                 ImmutableList.of(
                     QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option"))))

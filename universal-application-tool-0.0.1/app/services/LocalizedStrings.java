@@ -47,9 +47,12 @@ public abstract class LocalizedStrings {
     return create(ImmutableMap.of(DEFAULT_LOCALE, defaultValue));
   }
 
-  /** Creating an empty LocalizedStrings means it can be empty. */
-  public static LocalizedStrings of() {
+  public static LocalizedStrings empty() {
     return create(ImmutableMap.of(), true);
+  }
+
+  public static LocalizedStrings of() {
+    return create(ImmutableMap.of());
   }
 
   public static LocalizedStrings of(Locale k1, String v1) {

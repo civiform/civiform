@@ -33,7 +33,7 @@ public class TextQuestionFormTest {
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.of(),
+            LocalizedStrings.empty(),
             TextQuestionDefinition.TextValidationPredicates.create(4, 6));
 
     QuestionDefinition actual = builder.build();
@@ -52,7 +52,7 @@ public class TextQuestionFormTest {
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.of(),
+            LocalizedStrings.empty(),
             TextQuestionDefinition.TextValidationPredicates.create(4, 6));
 
     TextQuestionForm form = new TextQuestionForm(originalQd);
@@ -83,7 +83,7 @@ public class TextQuestionFormTest {
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.of(),
+            LocalizedStrings.empty(),
             TextQuestionDefinition.TextValidationPredicates.create());
 
     QuestionDefinition actual = builder.build();

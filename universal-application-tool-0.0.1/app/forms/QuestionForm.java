@@ -94,7 +94,7 @@ public abstract class QuestionForm {
             : LocalizedStrings.of(Locale.US, questionText);
     LocalizedStrings questionHelpTextMap =
         questionHelpText.isEmpty()
-            ? LocalizedStrings.of()
+            ? LocalizedStrings.empty()
             : LocalizedStrings.of(Locale.US, questionHelpText);
 
     QuestionDefinitionBuilder builder =

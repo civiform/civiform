@@ -24,7 +24,7 @@ public class PdfMapAssistantTest {
             .setName(name)
             .setDescription("fake question")
             .setQuestionText(LocalizedStrings.of())
-            .setQuestionHelpText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
             .setQuestionType(QuestionType.TEXT)
             .setPath(Path.create("$.applicant.fake.path"))
             .build();

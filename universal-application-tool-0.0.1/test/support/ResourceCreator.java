@@ -1,6 +1,5 @@
 package support;
 
-import com.google.common.collect.ImmutableMap;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Locale;
@@ -43,8 +42,8 @@ public class ResourceCreator {
             Path.create(pathString),
             Optional.empty(),
             "",
-            LocalizedStrings.create(ImmutableMap.of()),
-            LocalizedStrings.of());
+            LocalizedStrings.of(),
+            LocalizedStrings.empty());
     Question question = new Question(definition);
     question.save();
     return question;

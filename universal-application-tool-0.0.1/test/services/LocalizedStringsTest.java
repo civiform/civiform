@@ -34,8 +34,13 @@ public class LocalizedStringsTest {
   }
 
   @Test
-  public void emptyOf_isNotRequired() {
-    assertThat(LocalizedStrings.of().isRequired()).isFalse();
+  public void empty_isNotRequired() {
+    assertThat(LocalizedStrings.empty().isRequired()).isFalse();
+  }
+
+  @Test
+  public void of_isRequired() {
+    assertThat(LocalizedStrings.of().isRequired()).isTrue();
   }
 
   @Test

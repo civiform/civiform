@@ -32,7 +32,7 @@ public class AddressQuestionFormTest {
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.of(),
+            LocalizedStrings.empty(),
             AddressQuestionDefinition.AddressValidationPredicates.create(true));
 
     QuestionDefinition actual = builder.build();
@@ -51,7 +51,7 @@ public class AddressQuestionFormTest {
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.of(),
+            LocalizedStrings.empty(),
             AddressQuestionDefinition.AddressValidationPredicates.create());
 
     AddressQuestionForm form = new AddressQuestionForm(originalQd);

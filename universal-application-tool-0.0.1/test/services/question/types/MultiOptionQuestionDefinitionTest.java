@@ -29,7 +29,7 @@ public class MultiOptionQuestionDefinitionTest {
             .setDescription("")
             .setPath(Path.empty())
             .setQuestionText(LocalizedStrings.of())
-            .setQuestionHelpText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
             .setQuestionOptions(options)
             .build();
 
@@ -66,7 +66,7 @@ public class MultiOptionQuestionDefinitionTest {
             .setDescription("")
             .setPath(Path.empty())
             .setQuestionText(LocalizedStrings.of())
-            .setQuestionHelpText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
             .setQuestionOptions(
                 ImmutableList.of(
                     QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option 1"))))
@@ -93,7 +93,7 @@ public class MultiOptionQuestionDefinitionTest {
             .setDescription("")
             .setPath(Path.empty())
             .setQuestionText(LocalizedStrings.of())
-            .setQuestionHelpText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
             .setQuestionOptions(options)
             .build();
 

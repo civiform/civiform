@@ -33,7 +33,7 @@ public class NumberQuestionFormTest {
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.of(),
+            LocalizedStrings.empty(),
             NumberQuestionDefinition.NumberValidationPredicates.create(2, 8));
 
     QuestionDefinition actual = builder.build();
@@ -52,7 +52,7 @@ public class NumberQuestionFormTest {
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.of(),
+            LocalizedStrings.empty(),
             NumberQuestionDefinition.NumberValidationPredicates.create(2, 8));
 
     NumberQuestionForm form = new NumberQuestionForm(originalQd);
@@ -83,7 +83,7 @@ public class NumberQuestionFormTest {
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.of(),
+            LocalizedStrings.empty(),
             NumberQuestionDefinition.NumberValidationPredicates.create());
 
     QuestionDefinition actual = builder.build();

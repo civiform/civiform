@@ -30,7 +30,7 @@ public class FileUploadQuestionFormTest {
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.of());
+            LocalizedStrings.empty());
 
     QuestionDefinition actual = builder.build();
 
@@ -48,7 +48,7 @@ public class FileUploadQuestionFormTest {
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.of());
+            LocalizedStrings.empty());
 
     FileUploadQuestionForm form = new FileUploadQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder(path);
