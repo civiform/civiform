@@ -12,6 +12,7 @@ public enum MessageKey {
   ADDRESS_PLACEHOLDER_STATE("placeholder.state"),
   ADDRESS_PLACEHOLDER_STREET("placeholder.street"),
   ADDRESS_PLACEHOLDER_ZIPCODE("placeholder.zipcode"),
+  ENUMERATOR_PLACEHOLDER_ENTITY_NAME("placeholder.entityName"),
   ADDRESS_VALIDATION_CITY_REQUIRED("validation.cityRequired"),
   ADDRESS_VALIDATION_INVALID_ZIPCODE("validation.invalidZipcode"),
   ADDRESS_VALIDATION_NO_PO_BOX("validation.noPoBox"),

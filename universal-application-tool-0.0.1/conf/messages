@@ -106,7 +106,10 @@ button.addEntity=add {0}
 button.ariaLabel.deleteEntity=Delete {0}
 
 # Validation error that shows when an applicant does not enter a value.
-validation.entityNameRequired=Please enter a value for each {0}.
+validation.entityNameRequired=Please enter a value for each line.
+
+# The placeholder text for enumerator fields
+placeholder.entityName=Nickname for {0}
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #

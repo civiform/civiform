@@ -42,11 +42,15 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
 
     Messages messages = params.messages();
     EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();
+    String localizedEntityType =
+        enumeratorQuestion.getEntityType(messages, messages.lang().locale());
     ImmutableList<String> entityNames = enumeratorQuestion.getEntityNames();
 
     ContainerTag enumeratorFields = div().withId(ENUMERATOR_FIELDS_ID);
     for (int index = 0; index < entityNames.size(); index++) {
-      enumeratorFields.with(existingEnumeratorField(Optional.of(entityNames.get(index)), index));
+      enumeratorFields.with(
+          existingEnumeratorField(
+              messages, Optional.of(entityNames.get(index)), index, localizedEntityType));
     }
     return div()
         .withClasses(Styles.MX_AUTO, Styles.W_MAX)
@@ -64,7 +68,8 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
             enumeratorFields,
             button(
                 ADD_ELEMENT_BUTTON_ID,
-                messages.at(MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName())),
+                messages.at(
+                    MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(), localizedEntityType)),
             fieldErrors(messages, enumeratorQuestion.getQuestionErrors()));
   }
 
@@ -72,7 +77,8 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
    * Create an enumerator field for existing entries. These come with a checkbox to delete during
    * form submission.
    */
-  private Tag existingEnumeratorField(Optional<String> existingOption, int index) {
+  private Tag existingEnumeratorField(
+      Messages messages, Optional<String> existingOption, int index, String localizedEntityType) {
     ContainerTag entityNameInput =
         FieldWithLabel.input()
             .setFieldName(question.getContextualizedPath().toString())
@@ -83,7 +89,12 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
         FieldWithLabel.checkbox()
             .setFieldName(Path.empty().join(Scalar.DELETE_ENTITY).asArrayElement().toString())
             .setValue(String.valueOf(index))
-            .getContainer();
+            .getContainer()
+            .attr(
+                "aria-label",
+                messages.at(
+                    MessageKey.ENUMERATOR_BUTTON_ARIA_LABEL_DELETE_ENTITY.getKeyName(),
+                    localizedEntityType));
 
     return div().withClasses(ENUMERATOR_FIELD_CLASSES).with(entityNameInput, removeEntityBox);
   }
@@ -96,7 +107,10 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
     ContainerTag entityNameInput =
         FieldWithLabel.input()
             .setFieldName(contextualizedPath.toString())
-            .setPlaceholderText(localizedEntityType)
+            .setPlaceholderText(
+                messages.at(
+                    MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
+                    localizedEntityType))
             .getContainer()
             .withClasses(Styles.FLEX, Styles.ML_2);
     ContainerTag icon =
