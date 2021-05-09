@@ -11,7 +11,8 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * A collection of localized strings intended to represent the same message, translated into different locales.
+ * A collection of localized strings intended to represent the same message, translated into
+ * different locales.
  *
  * <p>There is a bit of nuance around {@link #isRequired()}.
  */
