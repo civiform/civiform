@@ -11,6 +11,8 @@ import org.apache.commons.csv.CSVPrinter;
 import services.program.Column;
 
 public class CsvExporter {
+  private final String EMPTY_VALUE = "COLUMN_EMPTY";
+
   private boolean wroteHeaders;
   private ImmutableList<Column> columns;
 
@@ -29,6 +31,10 @@ public class CsvExporter {
     }
   }
 
+  protected ImmutableList<Column> getColumns() {
+    return columns;
+  }
+
   /**
    * The CSV exporter will write the headers on first call to services.export(). It does not store
    * the writer between calls. Since it is intended for many applications, this function is intended
@@ -39,12 +45,12 @@ public class CsvExporter {
 
     this.writeHeadersOnFirstExport(printer);
 
-    for (Column column : this.columns) {
+    for (Column column : getColumns()) {
       switch (column.columnType()) {
         case APPLICANT:
           Optional<String> value =
               application.getApplicantData().readAsString(column.jsonPath().orElseThrow());
-          printer.print(value.orElse("COLUMN_EMPTY"));
+          printer.print(value.orElse(EMPTY_VALUE));
           break;
         case ID:
           printer.print(application.id);

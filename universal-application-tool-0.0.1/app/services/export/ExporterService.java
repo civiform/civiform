@@ -1,6 +1,7 @@
 package services.export;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -8,30 +9,35 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
 import models.Application;
-import models.Program;
 import services.Path;
-import services.applicant.question.Scalar;
-import services.program.BlockDefinition;
+import services.applicant.AnswerData;
+import services.applicant.ApplicantService;
+import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.Column;
 import services.program.ColumnType;
 import services.program.CsvExportConfig;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
-import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
-import services.question.types.ScalarType;
 
 public class ExporterService {
   private final ExporterFactory exporterFactory;
   private final ProgramService programService;
+  private final ApplicantService applicantService;
 
   @Inject
-  public ExporterService(ExporterFactory exporterFactory, ProgramService programService) {
-    this.exporterFactory = Preconditions.checkNotNull(exporterFactory);
-    this.programService = Preconditions.checkNotNull(programService);
+  public ExporterService(
+      ExporterFactory exporterFactory,
+      ProgramService programService,
+      ApplicantService applicantService) {
+    this.exporterFactory = checkNotNull(exporterFactory);
+    this.programService = checkNotNull(programService);
+    this.applicantService = checkNotNull(applicantService);
   }
 
   /**
@@ -47,7 +53,7 @@ public class ExporterService {
         .anyMatch(exportDefinition -> exportDefinition.csvConfig().isPresent())) {
       csvExporter = exporterFactory.csvExporter(program.toProgram());
     } else {
-      csvExporter = exporterFactory.csvExporter(generateDefaultCsvConfig(program.toProgram()));
+      csvExporter = exporterFactory.csvExporter(generateDefaultCsvConfig(programId));
     }
 
     try {
@@ -69,40 +75,60 @@ public class ExporterService {
    * Produce the default CSV config for a given program. The default config includes all the
    * questions, the application id, and the application submission time.
    */
-  public CsvExportConfig generateDefaultCsvConfig(Program program) {
-    // Need to get the actual program with filled-in blocks.
-    ProgramDefinition programDefinition;
+  private CsvExportConfig generateDefaultCsvConfig(long programId) {
+    ImmutableList<Application> applications;
     try {
-      programDefinition = programService.getProgramDefinition(program.id);
+      applications = programService.getProgramApplications(programId);
     } catch (ProgramNotFoundException e) {
-      // This can't happen because we have the model object already, but maintain the exception
-      // throw so that it's findable / fixable if it does ever happen.
-      throw new RuntimeException(e);
+      throw new RuntimeException("Cannot find a program we are trying to generate CSVs for.", e);
     }
+
+    // Create a map from a key <block id, question id> to an answer with every application. It
+    // doesn't matter which answer ends up in the map, as long as every <block id, question id> is
+    // accounted for.
+    Map<String, AnswerData> answerMap = new HashMap<>();
+    for (Application application : applications) {
+      ReadOnlyApplicantProgramService roApplicantService =
+          applicantService
+              .getReadOnlyApplicantProgramService(application)
+              .toCompletableFuture()
+              .join();
+      for (AnswerData answerData : roApplicantService.getSummaryData()) {
+        answerMap.put(answerDataId(answerData), answerData);
+      }
+    }
+
+    // Get the list of all answers, sorted by answer ID, and generate the default csv config.
+    ImmutableList<AnswerData> answers =
+        answerMap.values().stream()
+            .sorted(Comparator.comparing(ExporterService::answerDataId))
+            .collect(ImmutableList.toImmutableList());
+    return generateDefaultCsvConfig(answers);
+  }
+
+  /**
+   * Produce the default {@link CsvExportConfig} for a list of {@link AnswerData}s. The default
+   * config includes all the questions, the application id, and the application submission time.
+   */
+  private CsvExportConfig generateDefaultCsvConfig(ImmutableList<AnswerData> answerDataList) {
     ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
     // First add the ID and submit time columns.
     columnsBuilder.add(Column.builder().setHeader("ID").setColumnType(ColumnType.ID).build());
     columnsBuilder.add(
         Column.builder().setHeader("Submit time").setColumnType(ColumnType.SUBMIT_TIME).build());
-    // Next add one column for each scalar entry in every column.
-    for (BlockDefinition block : programDefinition.blockDefinitions()) {
-      for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
-        for (Map.Entry<Path, ScalarType> entry :
-            question.getQuestionDefinition().getScalars().entrySet()) {
-          String finalSegment = entry.getKey().keyName();
-          // These are the two metadata fields in every answer - we don't need to report them.
-          if (!Scalar.getMetadataScalars().keySet().stream()
-              .anyMatch(
-                  metadataScalar -> metadataScalar.toString().toLowerCase().equals(finalSegment))) {
-            columnsBuilder.add(
-                Column.builder()
-                    // e.g. "name.first".
-                    .setHeader(question.getQuestionDefinition().getName() + "." + finalSegment)
-                    .setJsonPath(entry.getKey())
-                    .setColumnType(ColumnType.APPLICANT)
-                    .build());
-          }
-        }
+
+    // Add columns for each path to an answer.
+    for (AnswerData answerData : answerDataList) {
+      if (answerData.isEnumeratorAnswer()) {
+        continue; // Do not include Enumerator answers in CSVs.
+      }
+      for (Path path : answerData.scalarAnswersInDefaultLocale().keySet()) {
+        columnsBuilder.add(
+            Column.builder()
+                .setHeader(pathToHeader(path))
+                .setJsonPath(path)
+                .setColumnType(ColumnType.APPLICANT)
+                .build());
       }
     }
     return new CsvExportConfig() {
@@ -111,5 +137,18 @@ public class ExporterService {
         return columnsBuilder.build();
       }
     };
+  }
+
+  /** Convert {@link Path} to a human readable header string. */
+  private static String pathToHeader(Path path) {
+    return path.toString();
+  }
+
+  /**
+   * A useful string that uniquely identifies an answer within a program, is the same across
+   * programs, and can be used to sort a list of answer data.
+   */
+  private static String answerDataId(AnswerData answerData) {
+    return answerData.blockId() + answerData.questionId();
   }
 }

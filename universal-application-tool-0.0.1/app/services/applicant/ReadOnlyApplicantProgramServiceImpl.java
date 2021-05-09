@@ -217,6 +217,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setProgramId(programDefinition.id())
                 .setBlockId(block.getId())
                 .setQuestionId(question.getQuestionDefinition().getId())
+                .setIsEnumeratorAnswer(question.getQuestionDefinition().isEnumerator())
                 .setQuestionText(questionText)
                 .setAnswerText(answerText)
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))

@@ -26,6 +26,12 @@ public abstract class AnswerData {
   /** The {@link models.Question} id this is an answer for. */
   public abstract long questionId();
 
+  /**
+   * Whether this is an answer for an {@link services.question.types.QuestionType#ENUMERATOR}
+   * question.
+   */
+  public abstract boolean isEnumeratorAnswer();
+
   /** The localized question text */
   public abstract String questionText();
 
@@ -51,6 +57,8 @@ public abstract class AnswerData {
     public abstract Builder setBlockId(String blockId);
 
     public abstract Builder setQuestionId(long questionId);
+
+    public abstract Builder setIsEnumeratorAnswer(boolean isEnumeratorAnswer);
 
     public abstract Builder setQuestionText(String questionText);
 
