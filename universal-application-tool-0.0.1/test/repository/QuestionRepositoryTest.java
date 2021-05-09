@@ -3,6 +3,7 @@ package repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.ebean.DB;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
@@ -215,5 +216,27 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
 
     Question q = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
     assertThat(q.getQuestionDefinition()).isEqualTo(questionDefinition);
+  }
+
+  @Test
+  public void loadLegacy() {
+    DB.sqlUpdate(
+            "insert into questions (path, name, description, legacy_question_text,"
+                + " legacy_question_help_text, question_type) values ('a.path', 'old schema"
+                + " entry', 'description', '{\"en_us\": \"text\"}', '{\"en_us\": \"help\"}',"
+                + " 'REPEATER');")
+        .execute();
+
+    Question found =
+        repo.listQuestions().toCompletableFuture().join().stream()
+            .filter(
+                question -> question.getQuestionDefinition().getName().equals("old schema entry"))
+            .findFirst()
+            .get();
+
+    assertThat(found.getQuestionDefinition().getQuestionText())
+        .isEqualTo(LocalizedStrings.of(Locale.US, "text"));
+    assertThat(found.getQuestionDefinition().getQuestionHelpText())
+        .isEqualTo(LocalizedStrings.of(Locale.US, "help"));
   }
 }
