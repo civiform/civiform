@@ -2,10 +2,10 @@ package forms;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
+import services.LocalizedStrings;
 import services.Path;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -32,8 +32,8 @@ public class NumberQuestionFormTest {
             path,
             Optional.empty(),
             "description",
-            ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of(),
+            LocalizedStrings.of(Locale.US, "What is the question text?"),
+            LocalizedStrings.empty(),
             NumberQuestionDefinition.NumberValidationPredicates.create(2, 8));
 
     QuestionDefinition actual = builder.build();
@@ -51,8 +51,8 @@ public class NumberQuestionFormTest {
             path,
             Optional.empty(),
             "description",
-            ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of(),
+            LocalizedStrings.of(Locale.US, "What is the question text?"),
+            LocalizedStrings.empty(),
             NumberQuestionDefinition.NumberValidationPredicates.create(2, 8));
 
     NumberQuestionForm form = new NumberQuestionForm(originalQd);
@@ -82,8 +82,8 @@ public class NumberQuestionFormTest {
             path,
             Optional.empty(),
             "description",
-            ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of(),
+            LocalizedStrings.of(Locale.US, "What is the question text?"),
+            LocalizedStrings.empty(),
             NumberQuestionDefinition.NumberValidationPredicates.create());
 
     QuestionDefinition actual = builder.build();

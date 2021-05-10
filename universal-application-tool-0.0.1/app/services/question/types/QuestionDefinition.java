@@ -14,10 +14,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalLong;
 import services.CiviFormError;
-import services.LocalizationUtils;
+import services.LocalizedStrings;
 import services.Path;
 import services.applicant.question.Scalar;
-import services.question.exceptions.TranslationNotFoundException;
 
 /** Defines a single question. */
 public abstract class QuestionDefinition {
@@ -28,8 +27,8 @@ public abstract class QuestionDefinition {
   private final String description;
   // Note: you must check prefixes anytime you are doing a locale lookup
   // see getQuestionText body comment for explanation.
-  private final ImmutableMap<Locale, String> questionText;
-  private final ImmutableMap<Locale, String> questionHelpText;
+  private final LocalizedStrings questionText;
+  private final LocalizedStrings questionHelpText;
   private final ValidationPredicates validationPredicates;
 
   public QuestionDefinition(
@@ -38,8 +37,8 @@ public abstract class QuestionDefinition {
       Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText,
       ValidationPredicates validationPredicates) {
     this.id = checkNotNull(id);
     this.name = checkNotNull(name);
@@ -56,8 +55,8 @@ public abstract class QuestionDefinition {
       Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText,
       ValidationPredicates validationPredicates) {
     this(
         OptionalLong.empty(),
@@ -166,119 +165,12 @@ public abstract class QuestionDefinition {
     return this.description;
   }
 
-  /**
-   * Attempts to get question text for the given locale. If there is no text for the given locale,
-   * it will return the text in the default locale.
-   */
-  public String getQuestionTextOrDefault(Locale locale) {
-    try {
-      return getQuestionText(locale);
-    } catch (TranslationNotFoundException e) {
-      return getDefaultQuestionText();
-    }
-  }
-
-  /** Gets the question text for CiviForm's default locale. */
-  public String getDefaultQuestionText() {
-    try {
-      return getQuestionText(LocalizationUtils.DEFAULT_LOCALE);
-    } catch (TranslationNotFoundException e) {
-      // This should never happen - US English should always be supported.
-      throw new RuntimeException(e);
-    }
-  }
-
-  /**
-   * Return an {@link Optional} containing the question text for this locale, or empty if this
-   * locale is not supported.
-   */
-  public Optional<String> maybeGetQuestionText(Locale locale) {
-    try {
-      return Optional.of(getQuestionText(locale));
-    } catch (TranslationNotFoundException e) {
-      return Optional.empty();
-    }
-  }
-
-  /** Get the question text for the given locale. */
-  public String getQuestionText(Locale locale) throws TranslationNotFoundException {
-    if (this.questionText.containsKey(locale)) {
-      return this.questionText.get(locale);
-    }
-    // If we don't have the user's preferred locale, check if we have one which
-    // contains their preferred language.  e.g. return "en_US" for "en_CA", or
-    // "es_US" for "es_MX".  This is needed since some of our locale sources
-    // provide only the language (e.g. "en").
-    for (Locale hasLocale : this.questionText.keySet()) {
-      if (hasLocale.getLanguage().equals(locale.getLanguage())) {
-        return this.questionText.get(hasLocale);
-      }
-    }
-    throw new TranslationNotFoundException(this.getPath(), locale);
-  }
-
-  /** Get the question tests for all locales. This is used for serialization. */
-  public ImmutableMap<Locale, String> getQuestionText() {
+  public LocalizedStrings getQuestionText() {
     return questionText;
   }
 
-  /**
-   * Attempts to get the question help text for the given locale. If there is no help text localized
-   * to the given locale, it will return text in the default locale.
-   */
-  public String getQuestionHelpTextOrDefault(Locale locale) {
-    try {
-      return getQuestionHelpText(locale);
-    } catch (TranslationNotFoundException e) {
-      return getDefaultQuestionHelpText();
-    }
-  }
-
-  /**
-   * Return an {@link Optional} containing the question help text for this locale, or empty if this
-   * locale is not supported.
-   */
-  public Optional<String> maybeGetQuestionHelpText(Locale locale) {
-    try {
-      String helpText = getQuestionHelpText(locale);
-      return helpText.isEmpty() ? Optional.empty() : Optional.of(helpText);
-    } catch (TranslationNotFoundException e) {
-      return Optional.empty();
-    }
-  }
-
-  /** Gets the question help text for CiviForm's default locale. */
-  public String getDefaultQuestionHelpText() {
-    try {
-      return getQuestionHelpText(LocalizationUtils.DEFAULT_LOCALE);
-    } catch (TranslationNotFoundException e) {
-      // This should never happen - US English should always be supported.
-      throw new RuntimeException(e);
-    }
-  }
-
-  /** Get the question help text for the given locale. */
-  public String getQuestionHelpText(Locale locale) throws TranslationNotFoundException {
-    if (this.questionHelpText.isEmpty()) {
-      return "";
-    }
-
-    if (this.questionHelpText.containsKey(locale)) {
-      return this.questionHelpText.get(locale);
-    }
-    // As in getQuestionText.
-    for (Locale hasLocale : this.questionHelpText.keySet()) {
-      if (hasLocale.getLanguage().equals(locale.getLanguage())) {
-        return this.questionHelpText.get(hasLocale);
-      }
-    }
-
-    throw new TranslationNotFoundException(this.getPath(), locale);
-  }
-
-  /** Get the question help text for all locales. This is used for serialization. */
-  public ImmutableMap<Locale, String> getQuestionHelpText() {
-    return this.questionHelpText;
+  public LocalizedStrings getQuestionHelpText() {
+    return questionHelpText;
   }
 
   /**
@@ -287,7 +179,7 @@ public abstract class QuestionDefinition {
    */
   public ImmutableSet<Locale> getSupportedLocales() {
     return ImmutableSet.copyOf(
-        Sets.intersection(this.questionText.keySet(), this.questionHelpText.keySet()));
+        Sets.intersection(questionText.locales(), questionHelpText.locales()));
   }
 
   /** Get the validation predicates. */
@@ -348,7 +240,7 @@ public abstract class QuestionDefinition {
     if (questionText.isEmpty()) {
       errors.add(CiviFormError.of("Question text cannot be blank"));
     }
-    if (questionText.values().stream().anyMatch(String::isBlank)) {
+    if (questionText.hasEmptyTranslation()) {
       errors.add(CiviFormError.of("Question text cannot be blank"));
     }
     return errors.build();

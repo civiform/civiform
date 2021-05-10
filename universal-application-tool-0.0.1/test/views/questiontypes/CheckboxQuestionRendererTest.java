@@ -3,7 +3,6 @@ package views.questiontypes;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
 import java.util.Locale;
@@ -14,6 +13,7 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import repository.WithPostgresContainer;
+import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
@@ -30,12 +30,12 @@ public class CheckboxQuestionRendererTest extends WithPostgresContainer {
           Path.create("applicant.my.path"),
           Optional.empty(),
           "description",
-          ImmutableMap.of(Locale.US, "question?"),
-          ImmutableMap.of(Locale.US, "help text"),
+          LocalizedStrings.of(Locale.US, "question?"),
+          LocalizedStrings.of(Locale.US, "help text"),
           ImmutableList.of(
-              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "hello")),
-              QuestionOption.create(2L, ImmutableMap.of(Locale.US, "happy")),
-              QuestionOption.create(3L, ImmutableMap.of(Locale.US, "world"))),
+              QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "hello")),
+              QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "happy")),
+              QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "world"))),
           MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(1, 2));
 
   private final ApplicantData applicantData = new ApplicantData();

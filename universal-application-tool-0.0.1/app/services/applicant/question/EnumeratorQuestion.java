@@ -2,10 +2,10 @@ package services.applicant.question;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
-import services.LocalizationUtils;
+import play.i18n.Messages;
+import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.EnumeratorQuestionDefinition;
@@ -14,10 +14,6 @@ import services.question.types.QuestionType;
 public class EnumeratorQuestion implements PresentsErrors {
 
   private final ApplicantQuestion applicantQuestion;
-
-  // TODO(#859): make this admin-configurable
-  private final ImmutableMap<Locale, String> PLACEHOLDER =
-      ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, "");
 
   public EnumeratorQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
@@ -80,10 +76,17 @@ public class EnumeratorQuestion implements PresentsErrors {
         .readRepeatedEntities(applicantQuestion.getContextualizedPath());
   }
 
-  public String getPlaceholder(Locale locale) {
-    return PLACEHOLDER.containsKey(locale)
-        ? PLACEHOLDER.get(locale)
-        : PLACEHOLDER.get(LocalizationUtils.DEFAULT_LOCALE);
+  /**
+   * Get the admin-configurable entity type this enumerator represents. Examples: "car", "child",
+   * "job", "household member". If the admin did not configure this, it defaults to {@link
+   * MessageKey#ENUMERATOR_STRING_DEFAULT_ENTITY_TYPE}.
+   */
+  public String getEntityType(Messages messages, Locale locale) {
+    LocalizedStrings translations = getQuestionDefinition().getEntityType();
+    if (translations.isEmpty()) {
+      return messages.at(MessageKey.ENUMERATOR_STRING_DEFAULT_ENTITY_TYPE.getKeyName());
+    }
+    return translations.getOrDefault(locale);
   }
 
   @Override

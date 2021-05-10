@@ -1,13 +1,13 @@
 package forms;
 
 import java.util.Locale;
-import services.LocalizationUtils;
+import services.LocalizedStrings;
 
 public class ApplicantInformationForm {
   private Locale locale;
 
   public ApplicantInformationForm() {
-    locale = LocalizationUtils.DEFAULT_LOCALE;
+    locale = LocalizedStrings.DEFAULT_LOCALE;
   }
 
   public Locale getLocale() {

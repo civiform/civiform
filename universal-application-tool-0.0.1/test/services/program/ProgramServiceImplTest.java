@@ -706,8 +706,9 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
     assertThat(result.isError()).isFalse();
     ProgramDefinition definition = result.getResult();
-    assertThat(definition.getLocalizedName(Locale.GERMAN)).isEqualTo("German Name");
-    assertThat(definition.getLocalizedDescription(Locale.GERMAN)).isEqualTo("German Description");
+    assertThat(definition.localizedName().get(Locale.GERMAN)).isEqualTo("German Name");
+    assertThat(definition.localizedDescription().get(Locale.GERMAN))
+        .isEqualTo("German Description");
   }
 
   @Test
@@ -719,8 +720,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
     assertThat(result.isError()).isFalse();
     ProgramDefinition definition = result.getResult();
-    assertThat(definition.getLocalizedName(Locale.US)).isEqualTo("new name");
-    assertThat(definition.getLocalizedDescription(Locale.US)).isEqualTo("new description");
+    assertThat(definition.localizedName().get(Locale.US)).isEqualTo("new name");
+    assertThat(definition.localizedDescription().get(Locale.US)).isEqualTo("new description");
   }
 
   @Test

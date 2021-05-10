@@ -52,8 +52,8 @@ public class AdminProgramTranslationsController extends CiviFormController {
               request,
               localeToEdit,
               program.id(),
-              program.maybeGetLocalizedName(localeToEdit),
-              program.maybeGetLocalizedDescription(localeToEdit),
+              program.localizedName().maybeGet(localeToEdit),
+              program.localizedDescription().maybeGet(localeToEdit),
               Optional.empty()));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", id));
