@@ -22,7 +22,7 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 public class FieldWithLabel {
-  private static final String[] CORE_FIELD_CLASSES = {
+  private static final String[] ADMIN_STYLE_FIELD_CLASSES = {
     BaseStyles.FIELD_BORDER_COLOR,
     Styles.BG_GRAY_50,
     Styles.BLOCK,
@@ -31,15 +31,7 @@ public class FieldWithLabel {
     Styles.W_FULL
   };
 
-  private static final String[] CORE_CHECKBOX_FIELD_CLASSES = {
-    Styles.H_4, Styles.W_4, Styles.MR_3, Styles.MB_2
-  };
-
-  private static final String[] CORE_CHECKBOX_LABEL_CLASSES = {
-    Styles.TEXT_GRAY_600, Styles.ALIGN_TEXT_TOP, Styles.FONT_BOLD, Styles.TEXT_XS, Styles.UPPERCASE
-  };
-
-  private static final String[] CORE_LABEL_CLASSES = {
+  private static final String[] ADMIN_STYLE_LABEL_CLASSES = {
     BaseStyles.LABEL_BACKGROUND_COLOR,
     BaseStyles.LABEL_TEXT_COLOR,
     Styles.BLOCK,
@@ -50,11 +42,11 @@ public class FieldWithLabel {
     Styles.UPPERCASE
   };
 
-  private static final String[] FLOATED_FIELD_CLASSES = {
+  private static final String[] APPLICANT_STYLE_FIELD_CLASSES = {
+    Styles.BLOCK,
     Styles.OUTLINE_NONE,
     Styles.PX_3,
-    Styles.PT_6,
-    Styles.PB_2,
+    Styles.PY_2,
     Styles.M_AUTO,
     Styles.BORDER,
     BaseStyles.FIELD_BORDER_COLOR,
@@ -65,15 +57,16 @@ public class FieldWithLabel {
     StyleUtils.focus(Styles.BORDER_BLUE_500)
   };
 
-  private static final String[] FLOATED_LABEL_CLASSES = {
-    Styles.ABSOLUTE,
-    Styles.POINTER_EVENTS_NONE,
-    Styles.TEXT_GRAY_600,
-    Styles.TOP_1,
-    Styles.LEFT_3,
-    Styles.TEXT_XS,
-    Styles.PX_1,
-    Styles.PY_2
+  private static final String[] APPLICANT_STYLE_LABEL_CLASSES = {
+    Styles.POINTER_EVENTS_NONE, Styles.TEXT_GRAY_600, Styles.TEXT_XS, Styles.PX_1, Styles.PY_2
+  };
+
+  private static final String[] CHECKBOX_FIELD_CLASSES = {
+    Styles.H_4, Styles.W_4, Styles.MR_3, Styles.MB_2
+  };
+
+  private static final String[] CHECKBOX_LABEL_CLASSES = {
+    Styles.TEXT_GRAY_600, Styles.ALIGN_TEXT_TOP, Styles.FONT_BOLD, Styles.TEXT_XS, Styles.UPPERCASE
   };
 
   protected Tag fieldTag;
@@ -91,7 +84,7 @@ public class FieldWithLabel {
   protected Messages messages;
   protected ImmutableSet<ValidationErrorMessage> fieldErrors = ImmutableSet.of();
   protected boolean checked = false;
-  protected boolean floatLabel = false;
+  protected boolean applicantStyle = false;
   protected boolean disabled = false;
 
   public FieldWithLabel(Tag fieldTag) {
@@ -139,8 +132,8 @@ public class FieldWithLabel {
     return this;
   }
 
-  public FieldWithLabel setFloatLabel(boolean floatLabel) {
-    this.floatLabel = floatLabel;
+  public FieldWithLabel setApplicantStyle(boolean applicantStyle) {
+    this.applicantStyle = applicantStyle;
     return this;
   }
 
@@ -234,7 +227,7 @@ public class FieldWithLabel {
       fieldTag.withValue(this.fieldValue);
     }
 
-    String fieldTagClasses = StyleUtils.joinStyles(CORE_FIELD_CLASSES);
+    String fieldTagClasses = StyleUtils.joinStyles(ADMIN_STYLE_FIELD_CLASSES);
     if (!fieldErrors.isEmpty()) {
       fieldTagClasses = StyleUtils.joinStyles(fieldTagClasses, BaseStyles.FIELD_ERROR_BORDER_COLOR);
     }
@@ -256,22 +249,27 @@ public class FieldWithLabel {
     ContainerTag labelTag =
         label()
             .condAttr(!Strings.isNullOrEmpty(this.id), Attr.FOR, this.id)
-            .withClasses(FieldWithLabel.CORE_LABEL_CLASSES)
-            .withText(this.labelText);
+            .withClasses(FieldWithLabel.ADMIN_STYLE_LABEL_CLASSES)
+            .withText(labelText);
 
-    if (this.floatLabel) {
-      fieldTagClasses = StyleUtils.joinStyles(FieldWithLabel.FLOATED_FIELD_CLASSES);
+    if (this.applicantStyle) {
+      fieldTagClasses = StyleUtils.joinStyles(FieldWithLabel.APPLICANT_STYLE_FIELD_CLASSES);
       if (!fieldErrors.isEmpty()) {
         fieldTagClasses =
             StyleUtils.joinStyles(fieldTagClasses, BaseStyles.FIELD_ERROR_BORDER_COLOR);
       }
 
       fieldTag.withClasses(fieldTagClasses);
-      labelTag.withClasses(FieldWithLabel.FLOATED_LABEL_CLASSES);
+
+      // Only add label styles if there is label text. This avoids leaving extra space for a blank
+      // label.
+      if (!labelText.isEmpty()) {
+        labelTag.withClasses(FieldWithLabel.APPLICANT_STYLE_LABEL_CLASSES);
+      }
 
       return div()
           .with(
-              div(fieldTag, labelTag, buildFieldErrorsTag())
+              div(labelTag, fieldTag, buildFieldErrorsTag())
                   .withClasses(ReferenceClasses.FLOATED_LABEL, Styles.MB_4, Styles.RELATIVE));
     }
 
@@ -280,14 +278,14 @@ public class FieldWithLabel {
 
   /** Swaps the order of the label and field, possibly adds, and adds different styles. */
   private ContainerTag getCheckboxContainer() {
-    fieldTag.withClasses(CORE_CHECKBOX_FIELD_CLASSES);
+    fieldTag.withClasses(CHECKBOX_FIELD_CLASSES);
     if (this.checked) {
       fieldTag.attr("checked");
     }
 
     ContainerTag labelTag =
         label()
-            .withClasses(CORE_CHECKBOX_LABEL_CLASSES)
+            .withClasses(CHECKBOX_LABEL_CLASSES)
             .condAttr(!Strings.isNullOrEmpty(this.id), Attr.FOR, this.id)
             .withText(this.labelText);
 
@@ -296,6 +294,6 @@ public class FieldWithLabel {
 
   private Tag buildFieldErrorsTag() {
     return div(each(fieldErrors, error -> div(error.getMessage(messages))))
-        .withClasses(StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT, Styles.PX_2));
+        .withClasses(StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT, Styles.P_1));
   }
 }

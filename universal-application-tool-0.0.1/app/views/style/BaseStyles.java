@@ -43,7 +43,7 @@ public final class BaseStyles {
   public static final String FORM_ERROR_TEXT_COLOR = Styles.TEXT_RED_600;
 
   public static final String FORM_ERROR_TEXT =
-      StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_COLOR, Styles.TEXT_SM);
+      StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_COLOR, Styles.TEXT_XS);
 
   public static final String LINK_TEXT = Styles.TEXT_BLUE_400;
   public static final String LINK_HOVER_TEXT = StyleUtils.hover(Styles.TEXT_BLUE_500);

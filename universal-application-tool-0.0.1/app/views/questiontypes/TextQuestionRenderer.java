@@ -41,7 +41,7 @@ public class TextQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                 .withText(question.getQuestionHelpText()),
             FieldWithLabel.input()
                 .setFieldName(textQuestion.getTextPath().toString())
-                .setFloatLabel(true)
+                .setApplicantStyle(true)
                 .setValue(textQuestion.getTextValue().orElse(""))
                 .setFieldErrors(messages, textQuestion.getQuestionErrors())
                 .getContainer());
