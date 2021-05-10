@@ -1,10 +1,8 @@
 package views.admin.programs;
 
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.head;
 import static j2html.TagCreator.p;
 
 import com.google.common.collect.ImmutableList;
@@ -19,13 +17,14 @@ import services.applicant.Block;
 import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramNotFoundException;
 import services.question.types.QuestionDefinition;
-import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminView;
 import views.components.LinkElement;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
-public final class ProgramApplicationView extends BaseHtmlView {
+public final class ProgramApplicationView extends AdminView {
   private final AdminLayout layout;
   private final ApplicantService applicantService;
 
@@ -52,7 +51,13 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     block -> this.renderApplicationBlock(application.getApplicantData(), block)),
                 renderDownloadButton(programId, application.id));
 
-    return layout.render(head(layout.tailwindStyles()), body(contentDiv));
+    String title = "Program Application View";
+    HtmlBundle htmlBundle =
+        new HtmlBundle()
+            .setTitle(title)
+            .addHeaderContent(renderNavBar())
+            .addMainContent(contentDiv);
+    return layout.renderCentered(htmlBundle);
   }
 
   private Tag renderDownloadButton(long programId, long applicationId) {

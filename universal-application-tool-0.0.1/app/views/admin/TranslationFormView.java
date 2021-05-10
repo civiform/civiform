@@ -13,7 +13,6 @@ import play.i18n.Lang;
 import play.i18n.Langs;
 import play.mvc.Http;
 import services.LocalizationUtils;
-import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.components.ToastMessage;
@@ -24,7 +23,7 @@ import views.style.Styles;
  * Contains helper methods for rendering a form allow an admin to translate a given entity, such as
  * a question or program.
  */
-public abstract class TranslationFormView extends BaseHtmlView {
+public abstract class TranslationFormView extends AdminView {
 
   private final ImmutableList<Locale> supportedLocales;
 

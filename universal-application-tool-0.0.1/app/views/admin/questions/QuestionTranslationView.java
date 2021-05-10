@@ -9,6 +9,7 @@ import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.question.types.QuestionDefinition;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
@@ -68,10 +69,16 @@ public class QuestionTranslationView extends TranslationFormView {
                 existingQuestionHelpText),
             errors);
 
-    return layout.render(
-        renderHeader("Manage Question Translations"),
-        renderLanguageLinks(question.getId(), locale),
-        form);
+    String title = "Manage Question Translations";
+
+    HtmlBundle htmlBundle =
+        new HtmlBundle()
+            .setTitle(title)
+            .addHeaderContent(renderNavBar())
+            .addMainContent(
+                renderHeader(title), renderLanguageLinks(question.getId(), locale), form);
+
+    return layout.renderCentered(htmlBundle);
   }
 
   @Override

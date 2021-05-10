@@ -1,7 +1,6 @@
 package views.admin.questions;
 
 import static j2html.TagCreator.a;
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.p;
@@ -23,8 +22,9 @@ import services.question.ActiveAndDraftQuestions;
 import services.question.exceptions.TranslationNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
-import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminView;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.ToastMessage;
@@ -33,7 +33,7 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
-public final class QuestionsListView extends BaseHtmlView {
+public final class QuestionsListView extends AdminView {
   private final AdminLayout layout;
 
   @Inject
@@ -44,20 +44,22 @@ public final class QuestionsListView extends BaseHtmlView {
   /** Renders a page with a table view of all questions. */
   public Content render(
       ActiveAndDraftQuestions activeAndDraftQuestions, Optional<String> maybeFlash) {
+    String title = "All Questions";
 
-    ContainerTag bodyContent =
-        body(
-            renderHeader("All Questions"),
-            renderAddQuestionLink(),
-            div(renderQuestionTable(activeAndDraftQuestions)).withClasses(Styles.M_4),
-            renderSummary(activeAndDraftQuestions));
+    HtmlBundle htmlBundle =
+        new HtmlBundle()
+            .setTitle(title)
+            .addHeaderContent(renderNavBar(), renderHeader(title))
+            .addMainContent(
+                renderAddQuestionLink(),
+                div(renderQuestionTable(activeAndDraftQuestions)).withClasses(Styles.M_4),
+                renderSummary(activeAndDraftQuestions));
 
     if (maybeFlash.isPresent()) {
-      bodyContent.with(
-          ToastMessage.alert(maybeFlash.get()).setDismissible(false).getContainerTag());
+      htmlBundle.addToastMessages(ToastMessage.error(maybeFlash.get()).setDismissible(false));
     }
 
-    return layout.render(bodyContent);
+    return layout.renderCentered(htmlBundle);
   }
 
   private Tag renderAddQuestionLink() {

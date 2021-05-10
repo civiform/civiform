@@ -1,6 +1,5 @@
 package views.admin.programs;
 
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 
 import com.google.inject.Inject;
@@ -8,11 +7,12 @@ import forms.ProgramForm;
 import j2html.tags.ContainerTag;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminView;
 import views.components.ToastMessage;
 
-public final class ProgramNewOneView extends BaseHtmlView {
+public final class ProgramNewOneView extends AdminView {
   private final AdminLayout layout;
 
   @Inject
@@ -21,37 +21,33 @@ public final class ProgramNewOneView extends BaseHtmlView {
   }
 
   public Content render(Request request) {
-    ProgramForm blankForm = new ProgramForm();
-    return layout.render(
-        body(
-            renderHeader("New program"),
-            div(
-                ProgramFormBuilder.buildProgramForm(
-                        blankForm.getAdminName(),
-                        blankForm.getAdminDescription(),
-                        blankForm.getLocalizedDisplayName(),
-                        blankForm.getLocalizedDisplayDescription(),
-                        false)
-                    .with(makeCsrfTokenInputTag(request))
-                    .withAction(controllers.admin.routes.AdminProgramController.create().url()))));
+    return render(request, new ProgramForm(), "");
   }
 
   public Content render(Request request, ProgramForm programForm, String message) {
-    ContainerTag bodyContent =
-        body(
-            renderHeader("New program"),
-            div(
-                ProgramFormBuilder.buildProgramForm(
-                        programForm.getAdminName(),
-                        programForm.getAdminDescription(),
-                        programForm.getLocalizedDisplayName(),
-                        programForm.getLocalizedDisplayDescription(),
-                        false)
-                    .with(makeCsrfTokenInputTag(request))
-                    .withAction(controllers.admin.routes.AdminProgramController.create().url())));
-    if (message.length() > 0) {
-      bodyContent.with(ToastMessage.error(message).setDismissible(false).getContainerTag());
+    String title = "New program";
+
+    ContainerTag contentDiv =
+        div(
+            ProgramFormBuilder.buildProgramForm(
+                    programForm.getAdminName(),
+                    programForm.getAdminDescription(),
+                    programForm.getLocalizedDisplayName(),
+                    programForm.getLocalizedDisplayDescription(),
+                    false)
+                .with(makeCsrfTokenInputTag(request))
+                .withAction(controllers.admin.routes.AdminProgramController.create().url()));
+
+    HtmlBundle htmlBundle =
+        new HtmlBundle()
+            .setTitle(title)
+            .addHeaderContent(renderNavBar())
+            .addMainContent(renderHeader(title), contentDiv);
+
+    if (!message.isEmpty()) {
+      htmlBundle.addToastMessages(ToastMessage.error(message).setDismissible(false));
     }
-    return layout.render(bodyContent);
+
+    return layout.renderCentered(htmlBundle);
   }
 }

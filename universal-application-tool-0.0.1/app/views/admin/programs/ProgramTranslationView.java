@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
@@ -54,8 +55,14 @@ public class ProgramTranslationView extends TranslationFormView {
         renderTranslationForm(
             request, locale, formAction, formFields(localizedName, localizedDescription), errors);
 
-    return layout.render(
-        renderHeader("Manage Program Translations"), renderLanguageLinks(programId, locale), form);
+    String title = "Manage Program Translations";
+    HtmlBundle htmlBundle =
+        new HtmlBundle()
+            .setTitle(title)
+            .addHeaderContent(renderNavBar())
+            .addMainContent(renderHeader(title), renderLanguageLinks(programId, locale), form);
+
+    return layout.renderCentered(htmlBundle);
   }
 
   @Override

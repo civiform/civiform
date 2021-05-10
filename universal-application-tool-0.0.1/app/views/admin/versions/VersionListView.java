@@ -1,6 +1,5 @@
 package views.admin.versions;
 
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.p;
@@ -14,7 +13,6 @@ import static j2html.TagCreator.tr;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.routes;
-import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.List;
 import java.util.Optional;
@@ -23,15 +21,16 @@ import models.LifecycleStage;
 import models.Version;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminView;
 import views.components.LinkElement;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
-public class VersionListView extends BaseHtmlView {
+public class VersionListView extends AdminView {
 
   private final AdminLayout layout;
 
@@ -53,15 +52,20 @@ public class VersionListView extends BaseHtmlView {
         allVersions.stream()
             .filter(version -> version.getLifecycleStage().equals(LifecycleStage.OBSOLETE))
             .collect(ImmutableList.toImmutableList());
-    ContainerTag bodyContent =
-        body(
-            renderHeader("Current Versions"),
-            renderVersionCard(draftVersion),
-            renderVersionCard(activeVersion),
-            renderHeader("Older Versions"),
-            renderPastVersionTable(olderVersions, request));
 
-    return layout.render(bodyContent);
+    String title = "Program Versions";
+    HtmlBundle htmlBundle =
+        new HtmlBundle()
+            .setTitle(title)
+            .addHeaderContent(renderNavBar())
+            .addMainContent(
+                renderHeader("Current Versions"),
+                renderVersionCard(draftVersion),
+                renderVersionCard(activeVersion),
+                renderHeader("Older Versions"),
+                renderPastVersionTable(olderVersions, request));
+
+    return layout.renderCentered(htmlBundle);
   }
 
   private Tag renderPastVersionTable(ImmutableList<Version> olderVersions, Http.Request request) {

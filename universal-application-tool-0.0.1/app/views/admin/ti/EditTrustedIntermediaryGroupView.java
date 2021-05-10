@@ -19,8 +19,9 @@ import models.Account;
 import models.TrustedIntermediaryGroup;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminView;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.style.BaseStyles;
@@ -28,7 +29,7 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
-public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
+public class EditTrustedIntermediaryGroupView extends AdminView {
   private final AdminLayout layout;
 
   @Inject
@@ -37,17 +38,26 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
   }
 
   public Content render(TrustedIntermediaryGroup tiGroup, Http.Request request) {
-    return layout.render(
-        div().withClasses(Styles.MY_5).with(renderAddNewButton(tiGroup, request)),
-        div(
-            table()
-                .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
-                .with(renderGroupTableHeader())
-                .with(
-                    tbody(
-                        each(
-                            tiGroup.getTrustedIntermediaries(),
-                            account -> renderTIRow(tiGroup, account, request))))));
+    String title = "Trusted Intermediary Groups";
+
+    HtmlBundle htmlBundle =
+        new HtmlBundle()
+            .setTitle(title)
+            .addHeaderContent(renderNavBar())
+            .addMainContent(
+                div().withClasses(Styles.MY_5).with(renderAddNewButton(tiGroup, request)),
+                div(
+                    table()
+                        .withClasses(
+                            Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
+                        .with(renderGroupTableHeader())
+                        .with(
+                            tbody(
+                                each(
+                                    tiGroup.getTrustedIntermediaries(),
+                                    account -> renderTIRow(tiGroup, account, request))))));
+
+    return layout.renderCentered(htmlBundle);
   }
 
   private Tag renderAddNewButton(TrustedIntermediaryGroup tiGroup, Http.Request request) {

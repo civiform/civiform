@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.main;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 import static views.ViewUtils.POST;
@@ -23,8 +22,9 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.question.types.QuestionDefinition;
-import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminView;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.QuestionBank;
@@ -34,7 +34,7 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
-public class ProgramBlockEditView extends BaseHtmlView {
+public class ProgramBlockEditView extends AdminView {
 
   private final AdminLayout layout;
 
@@ -76,29 +76,33 @@ public class ProgramBlockEditView extends BaseHtmlView {
       ImmutableList<QuestionDefinition> questions) {
     Tag csrfTag = makeCsrfTokenInputTag(request);
 
-    ContainerTag mainContent =
-        main(
-            addFormEndpoints(csrfTag, program.id(), blockId),
-            programInfo(program),
-            div()
-                .withId("program-block-info")
-                .withClasses(Styles.FLEX, Styles.FLEX_GROW, Styles._MX_2)
-                .with(blockOrderPanel(program, blockId))
-                .with(
-                    blockEditPanel(
-                        program,
-                        blockId,
-                        blockForm,
-                        blockQuestions,
-                        blockDefinition.isEnumerator(),
-                        csrfTag))
-                .with(questionBankPanel(questions, program, blockDefinition, csrfTag)));
+    HtmlBundle htmlBundle =
+        new HtmlBundle()
+            .setTitle("Block Edit View")
+            .addHeaderContent(renderNavBar())
+            .addMainStyles(Styles.FLEX, Styles.FLEX_COL)
+            .addMainContent(
+                addFormEndpoints(csrfTag, program.id(), blockId),
+                programInfo(program),
+                div()
+                    .withId("program-block-info")
+                    .withClasses(Styles.FLEX, Styles.FLEX_GROW, Styles._MX_2)
+                    .with(blockOrderPanel(program, blockId))
+                    .with(
+                        blockEditPanel(
+                            program,
+                            blockId,
+                            blockForm,
+                            blockQuestions,
+                            blockDefinition.isEnumerator(),
+                            csrfTag))
+                    .with(questionBankPanel(questions, program, blockDefinition, csrfTag)));
 
     if (message.length() > 0) {
-      mainContent.with(ToastMessage.error(message).setDismissible(false).getContainerTag());
+      htmlBundle.addToastMessages(ToastMessage.error(message).setDismissible(false));
     }
 
-    return layout.renderCentered(mainContent, Styles.FLEX, Styles.FLEX_COL);
+    return layout.renderCentered(htmlBundle);
   }
 
   private Tag addFormEndpoints(Tag csrfTag, long programId, long blockId) {
@@ -148,7 +152,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
     return programInfo;
   }
 
-  public ContainerTag blockOrderPanel(ProgramDefinition program, long focusedBlockId) {
+  private ContainerTag blockOrderPanel(ProgramDefinition program, long focusedBlockId) {
     ContainerTag ret =
         div()
             .withClasses(
@@ -278,7 +282,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
     return div().withClasses(Styles.FLEX_AUTO, Styles.PY_6).with(blockInfoForm, questionDeleteForm);
   }
 
-  public ContainerTag renderQuestion(QuestionDefinition definition) {
+  private ContainerTag renderQuestion(QuestionDefinition definition) {
     ContainerTag ret =
         div()
             .withClasses(

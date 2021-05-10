@@ -6,13 +6,14 @@ import j2html.tags.ContainerTag;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
-import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminView;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.Styles;
 
-public class ProgramEditView extends BaseHtmlView {
+public class ProgramEditView extends AdminView {
   private final AdminLayout layout;
 
   @Inject
@@ -31,8 +32,16 @@ public class ProgramEditView extends BaseHtmlView {
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(program.id()))
             .withAction(controllers.admin.routes.AdminProgramController.update(program.id()).url());
-    return layout.render(
-        renderHeader(String.format("Edit program: %s", program.adminName())), formTag);
+
+    String title = String.format("Edit program: %s", program.adminName());
+
+    HtmlBundle htmlBundle =
+        new HtmlBundle()
+            .setTitle(title)
+            .addHeaderContent(renderNavBar())
+            .addMainContent(renderHeader(title), formTag);
+
+    return layout.renderCentered(htmlBundle);
   }
 
   public Content render(Request request, long id, ProgramForm program, String message) {
@@ -47,12 +56,19 @@ public class ProgramEditView extends BaseHtmlView {
             .with(buildManageQuestionLink(id))
             .withAction(controllers.admin.routes.AdminProgramController.update(id).url());
 
+    String title = String.format("Edit program: %s", program.getAdminName());
+
+    HtmlBundle htmlBundle =
+        new HtmlBundle()
+            .setTitle(title)
+            .addHeaderContent(renderNavBar())
+            .addMainContent(renderHeader(title), formTag);
+
     if (!message.isEmpty()) {
-      formTag.with(ToastMessage.error(message).setDismissible(false).getContainerTag());
+      htmlBundle.addToastMessages(ToastMessage.error(message).setDismissible(false));
     }
 
-    return layout.render(
-        renderHeader(String.format("Edit program: %s", program.getAdminName())), formTag);
+    return layout.renderCentered(htmlBundle);
   }
 
   private ContainerTag buildManageQuestionLink(long id) {

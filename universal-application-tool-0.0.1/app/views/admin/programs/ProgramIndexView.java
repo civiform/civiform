@@ -1,10 +1,8 @@
 package views.admin.programs;
 
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.head;
 import static j2html.TagCreator.p;
 
 import com.google.inject.Inject;
@@ -16,14 +14,15 @@ import play.twirl.api.Content;
 import services.LocalizationUtils;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
-import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminView;
 import views.components.LinkElement;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
-public final class ProgramIndexView extends BaseHtmlView {
+public final class ProgramIndexView extends AdminView {
   private final AdminLayout layout;
 
   @Inject
@@ -48,7 +47,12 @@ public final class ProgramIndexView extends BaseHtmlView {
                             programs.getDraftProgramDefinition(name),
                             request)));
 
-    return layout.render(head(layout.tailwindStyles()), body(contentDiv));
+    HtmlBundle htmlBundle =
+        new HtmlBundle()
+            .setTitle("All Programs")
+            .addHeaderContent(renderNavBar())
+            .addMainContent(contentDiv);
+    return layout.renderCentered(htmlBundle);
   }
 
   private Tag maybeRenderPublishButton(ActiveAndDraftPrograms programs, Http.Request request) {

@@ -42,6 +42,24 @@ public class BaseHtmlLayout extends BaseHtmlView {
     return new HtmlResponseContent(contents.toArray(new DomContent[0]));
   }
 
+  public Content htmlContent(HtmlBundle bundle) {
+    // TODO: Need to add a priority to toast messages so that we can specify order.
+    ToastMessage privacyBanner =
+        ToastMessage.error(BANNER_TEXT).setId("warning-message").setIgnorable(true).setDuration(0);
+    bundle.addToastMessages(privacyBanner);
+
+    // Add default stylesheets.
+    bundle.addStylesheets(viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILENAME));
+
+    // Add default scripts.
+    bundle
+        .addFooterScripts(viewUtils.makeLocalJsTag("main"))
+        .addFooterScripts(viewUtils.makeLocalJsTag("radio"))
+        .addFooterScripts(viewUtils.makeLocalJsTag("toast"));
+
+    return new HtmlResponseContent(bundle.getContent());
+  }
+
   /**
    * Returns a script tag that loads Tailwindcss styles and configurations common to all pages in
    * the CiviForm.
