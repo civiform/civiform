@@ -30,12 +30,12 @@ public abstract class QuestionOption {
   @JsonCreator
   public static QuestionOption jsonCreator(
       @JsonProperty("id") long id,
-      @JsonProperty("optionText") ImmutableMap<Locale, String> optionText,
-      @JsonProperty("localizedOptionText") LocalizedStrings localizedOptionText) {
+      @JsonProperty("localizedOptionText") LocalizedStrings localizedOptionText,
+      @JsonProperty("optionText") ImmutableMap<Locale, String> legacyOptionText) {
     if (localizedOptionText != null) {
       return QuestionOption.create(id, localizedOptionText);
     }
-    return QuestionOption.create(id, LocalizedStrings.create(optionText));
+    return QuestionOption.create(id, LocalizedStrings.create(legacyOptionText));
   }
 
   /** Create a QuestionOption. */
