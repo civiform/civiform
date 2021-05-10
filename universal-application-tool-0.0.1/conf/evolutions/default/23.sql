@@ -2,7 +2,7 @@
 
 # --- !Ups
 
-alter table questions drop column question_options jsonb;
+alter table questions drop column if exists question_options;
 alter table questions rename column question_options_with_locales to question_options;
 
 # --- !Downs
