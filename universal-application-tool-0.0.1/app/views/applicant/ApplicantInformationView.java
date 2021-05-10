@@ -25,7 +25,7 @@ import views.components.SelectWithLabel;
  * {@link play.i18n.Messages}, since the applicant has no language set yet. Instead, we use English
  * since this is the CiviForm default language.
  */
-public class ApplicantInformationView extends BaseHtmlView {
+public class ApplicantInformationView extends ApplicantView {
 
   private final ApplicantLayout layout;
   private final ImmutableList<Locale> supportedLanguages;

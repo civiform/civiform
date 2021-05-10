@@ -36,12 +36,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
     super(viewUtils);
     this.profileUtils = Preconditions.checkNotNull(profileUtils);
   }
-
-  // Build bundle...
-  bundle = new HtmlBundle()
-    .setTitle("Page Title")
-    .addHeaderContent(ApplicantView.renderNavBar(profile, messages))
-    .addMainContent(mainContents);
     
   protected Content render(HtmlBundle bundle) {
     return htmlContent(bundle);
@@ -67,65 +61,4 @@ public class ApplicantLayout extends BaseHtmlLayout {
     );
   }
 
-  /** 
-   * Anything that renders a tag should be in ApplicantView. 
-   */
-  private ContainerTag renderNavBar(Optional<UatProfile> profile, Messages messages) {
-    return nav()
-        .withClasses(
-            Styles.PT_8,
-            Styles.PB_4,
-            Styles.MB_12,
-            Styles.FLEX,
-            Styles.ALIGN_MIDDLE,
-            Styles.BORDER_B_4,
-            Styles.BORDER_WHITE)
-        .with(branding(), status(messages), maybeRenderTiButton(profile), logoutButton(messages));
-  }
-
-  /** 
-   * Anything that renders a tag should be in ApplicantView. 
-   */
-  private ContainerTag maybeRenderTiButton(Optional<UatProfile> profile) {
-    if (profile.isPresent() && profile.get().getRoles().contains(Roles.ROLE_TI.toString())) {
-      String tiDashboardLink = routes.TrustedIntermediaryController.dashboard().url();
-      return a("Trusted Intermediary Dashboard")
-          .withHref(tiDashboardLink)
-          .withClasses(
-              Styles.PX_3, Styles.TEXT_SM, Styles.OPACITY_75, StyleUtils.hover(Styles.OPACITY_100));
-    }
-    return div();
-  }
-
-  /** 
-   * Anything that renders a tag should be in ApplicantView. 
-   */
-  private ContainerTag branding() {
-    return div()
-        .withId("brand-id")
-        .withClasses(Styles.W_1_2, ApplicantStyles.LOGO_STYLE)
-        .with(span("Civi"))
-        .with(span("Form").withClasses(Styles.FONT_THIN));
-  }
-
-  /** 
-   * Anything that renders a tag should be in ApplicantView. 
-   */
-  private ContainerTag status(Messages messages) {
-    return div()
-        .withId("application-status")
-        .withClasses(Styles.W_1_4, Styles.TEXT_RIGHT, Styles.TEXT_SM, Styles.UNDERLINE)
-        .with(span(messages.at(MessageKey.LINK_VIEW_APPLICATIONS.getKeyName())));
-  }
-
-  /** 
-   * Anything that renders a tag should be in ApplicantView. 
-   */
-  private ContainerTag logoutButton(Messages messages) {
-    String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
-    return a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
-        .withHref(logoutLink)
-        .withClasses(
-            Styles.PX_3, Styles.TEXT_SM, Styles.OPACITY_75, StyleUtils.hover(Styles.OPACITY_100));
-  }  
 }

@@ -32,9 +32,10 @@ public class BaseHtmlLayout extends BaseHtmlView {
   }
 
   public Content htmlContent(HtmlBundle bundle) {
+    // TODO: Need to add a priority to toast messages so that we can specify order.
     ToastMessage privacyBanner =
         ToastMessage.error(BANNER_TEXT).setId("warning-message").setIgnorable(true).setDuration(0);
-    bundle.addHeaderContent(privacyBanner);
+    bundle.addToastMessages(privacyBanner);
 
     bundle
       .addStylesheets(TAILWIND_COMPILED_FILENAME)

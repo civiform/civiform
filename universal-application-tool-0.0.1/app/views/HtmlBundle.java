@@ -32,6 +32,11 @@ public HtmlBundle {
         return this;
     }
 
+    public HtmlBundle addFooterScripts(String... sources) {
+        footerScripts.addAll(sources);
+        return this;
+    }
+
     public HtmlBundle addFooterStyles(String... styles) {
         footerStyles.addAll(styles);
         return this;
@@ -52,13 +57,23 @@ public HtmlBundle {
         return this;
     }
 
+    public HtmlBundle addHeadScripts(String... sources) {
+        headScripts.addAll(sources);
+        return this;
+    }
+    
     public HtmlBundle addMainStyles(String... styles) {
         mainStyles.addAll(styles);
         return this;
     }
 
+    public HtmlBundle addStylesheets(String... sources) {
+        stylesheets.addAll(sources);
+        return this;
+    }
+
     public HtmlBundle addToastMessages(ToastMessage... messages) {
-        toastMessages.addAll(messages);
+        toastMessages.addAll(messages);        
         return this;
     }
 
@@ -89,7 +104,10 @@ public HtmlBundle {
     }
 
     private ContainerTag renderHeader() {
-        return header(each(headerContent)).withClasses(headerStyles);
+        // TODO: Sort toastMessages by priority before displaying.
+        return header(
+            each(toastMessages, toastMessage -> toastMessage.render()),
+            each(headerContent)).withClasses(headerStyles);
     }
 
     private ContainerTag renderMain() {
@@ -97,7 +115,8 @@ public HtmlBundle {
     }
 
     private ContainerTag renderFooter() {
-        return footer(footerContent,
+        return footer(
+            each(footerContent),
             each(footerScripts, source -> viewUtils.makeLocalJsTag(source))
         ).withClasses(footerStyles);
     }
