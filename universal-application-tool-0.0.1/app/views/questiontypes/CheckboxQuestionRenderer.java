@@ -13,6 +13,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.question.LocalizedQuestionOption;
 import views.BaseHtmlView;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
@@ -64,7 +65,7 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
     String id = "checkbox-" + question.getContextualizedPath() + "-" + option.id();
     ContainerTag labelTag =
         label()
-            .withClasses(Styles.W_FULL, Styles.BLOCK, Styles.P_3)
+            .withClasses(Styles.W_FULL, Styles.BLOCK, Styles.PX_3, Styles.PY_2, Styles.ALIGN_MIDDLE)
             .with(
                 input()
                     .withId(id)
@@ -72,7 +73,8 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
                     .withName(selectionPath)
                     .withValue(String.valueOf(option.id()))
                     .condAttr(isSelected, Attr.CHECKED, "")
-                    .withClasses(ReferenceClasses.RADIO_INPUT, Styles.H_5, Styles.W_5),
+                    .withClasses(
+                        ReferenceClasses.RADIO_INPUT, Styles.H_4, Styles.W_4, Styles.ALIGN_MIDDLE),
                 span(option.optionText()).withClasses(Styles.ML_4, Styles.TEXT_GRAY_700));
 
     return div()
@@ -82,12 +84,12 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
                 .withClasses(
                     ReferenceClasses.RADIO_OPTION,
                     Styles.M_AUTO,
-                    Styles.W_4_5,
-                    Styles.TEXT_2XL,
-                    Styles.BORDER_4,
+                    Styles.TEXT_LG,
+                    Styles.BORDER,
+                    BaseStyles.FIELD_BORDER_COLOR,
                     Styles.BG_WHITE,
-                    Styles.ROUNDED_XL,
+                    Styles.ROUNDED_LG,
                     isSelected ? Styles.BG_BLUE_100 : "",
-                    isSelected ? Styles.BORDER_BLUE_400 : ""));
+                    isSelected ? Styles.BORDER_BLUE_500 : ""));
   }
 }

@@ -227,10 +227,10 @@ public class FieldWithLabel {
       fieldTag.withValue(this.fieldValue);
     }
 
-    String fieldTagClasses = StyleUtils.joinStyles(ADMIN_STYLE_FIELD_CLASSES);
-    if (!fieldErrors.isEmpty()) {
-      fieldTagClasses = StyleUtils.joinStyles(fieldTagClasses, BaseStyles.FIELD_ERROR_BORDER_COLOR);
-    }
+    String fieldTagClasses =
+        StyleUtils.joinStyles(
+            StyleUtils.joinStyles(ADMIN_STYLE_FIELD_CLASSES),
+            !fieldErrors.isEmpty() ? BaseStyles.FIELD_ERROR_BORDER_COLOR : "");
 
     if (Strings.isNullOrEmpty(this.id)) this.id = this.fieldName;
 
@@ -253,11 +253,10 @@ public class FieldWithLabel {
             .withText(labelText);
 
     if (this.applicantStyle) {
-      fieldTagClasses = StyleUtils.joinStyles(FieldWithLabel.APPLICANT_STYLE_FIELD_CLASSES);
-      if (!fieldErrors.isEmpty()) {
-        fieldTagClasses =
-            StyleUtils.joinStyles(fieldTagClasses, BaseStyles.FIELD_ERROR_BORDER_COLOR);
-      }
+      fieldTagClasses =
+          StyleUtils.joinStyles(
+              StyleUtils.joinStyles(FieldWithLabel.APPLICANT_STYLE_FIELD_CLASSES),
+              !fieldErrors.isEmpty() ? BaseStyles.FIELD_ERROR_BORDER_COLOR : "");
 
       fieldTag.withClasses(fieldTagClasses);
 
