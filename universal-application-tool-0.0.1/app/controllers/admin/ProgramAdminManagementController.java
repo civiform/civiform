@@ -1,44 +1,41 @@
 package controllers.admin;
 
-import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static play.mvc.Results.badRequest;
+import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 import static play.mvc.Results.redirect;
 
 import auth.Authorizers;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import forms.AddProgramAdminForm;
-import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
-import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.mvc.Results;
+import services.program.ProgramNotFoundException;
 import services.role.RoleService;
 
 public class ProgramAdminManagementController {
 
   private final RoleService roleService;
   private final FormFactory formFactory;
-  private final HttpExecutionContext httpExecutionContext;
 
   @Inject
-  public ProgramAdminManagementController(
-      RoleService roleService, FormFactory formFactory, HttpExecutionContext httpExecutionContext) {
+  public ProgramAdminManagementController(RoleService roleService, FormFactory formFactory) {
     this.roleService = roleService;
     this.formFactory = formFactory;
-    this.httpExecutionContext = httpExecutionContext;
   }
 
   /** Displays a form for managing program admins of a given program. */
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result edit(long programId) {
+    // TODO: Return a view for editing program admin rights.
     return ok();
   }
 
+  /** Promotes the given account emails to the role of PROGRAM_ADMIN. */
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result update(Http.Request request, long programId) {
     Form<AddProgramAdminForm> form = formFactory.form(AddProgramAdminForm.class);
@@ -47,7 +44,11 @@ public class ProgramAdminManagementController {
     }
     AddProgramAdminForm addAdminForm = form.bindFromRequest(request).get();
 
-    roleService.makeProgramAdmins(programId, ImmutableList.copyOf(addAdminForm.getAdminEmails()));
+    try {
+      roleService.makeProgramAdmins(programId, ImmutableSet.copyOf(addAdminForm.getAdminEmails()));
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program with ID %d was not found", programId));
+    }
 
     return redirect(routes.AdminProgramController.index());
   }

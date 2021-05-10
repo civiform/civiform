@@ -289,8 +289,6 @@ public class UserRepository {
    */
   public void addAdministeredProgram(String accountEmail, ProgramDefinition program) {
     Optional<Account> account = lookupAccount(accountEmail);
-    if (account.isPresent()) {
-      account.get().addAdministeredProgram(program);
-    }
+    account.ifPresent(value -> value.addAdministeredProgram(program));
   }
 }
