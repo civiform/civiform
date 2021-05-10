@@ -15,6 +15,7 @@ import services.question.LocalizedQuestionOption;
 import views.BaseHtmlView;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 import views.style.Styles;
 
 public class RadioButtonQuestionRenderer extends BaseHtmlView implements ApplicantQuestionRenderer {
@@ -60,7 +61,7 @@ public class RadioButtonQuestionRenderer extends BaseHtmlView implements Applica
 
     ContainerTag labelTag =
         label()
-            .withClasses(Styles.W_FULL, Styles.BLOCK, Styles.PX_3, Styles.PY_2, Styles.ALIGN_MIDDLE)
+            .withClasses(Styles.W_FULL, Styles.BLOCK, Styles.ALIGN_MIDDLE)
             .with(
                 input()
                     .withId(id)
@@ -77,14 +78,10 @@ public class RadioButtonQuestionRenderer extends BaseHtmlView implements Applica
         .with(
             div(labelTag)
                 .withClasses(
-                    ReferenceClasses.RADIO_OPTION,
-                    Styles.M_AUTO,
-                    Styles.TEXT_LG,
-                    Styles.BORDER,
-                    BaseStyles.FIELD_BORDER_COLOR,
-                    Styles.BG_WHITE,
-                    Styles.ROUNDED_LG,
-                    checked ? Styles.BG_BLUE_100 : "",
-                    checked ? Styles.BORDER_BLUE_500 : ""));
+                    StyleUtils.joinStyles(
+                        ReferenceClasses.RADIO_OPTION,
+                        BaseStyles.RADIO_OPTION_CONTAINER,
+                        checked ? Styles.BG_BLUE_100 : "",
+                        checked ? Styles.BORDER_BLUE_500 : "")));
   }
 }

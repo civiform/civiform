@@ -22,51 +22,24 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 public class FieldWithLabel {
-  private static final String[] ADMIN_STYLE_FIELD_CLASSES = {
-    BaseStyles.FIELD_BORDER_COLOR,
-    Styles.BG_GRAY_50,
-    Styles.BLOCK,
-    Styles.BORDER,
-    Styles.P_2,
-    Styles.W_FULL
-  };
+  private static final String ADMIN_INPUT_FIELD_CLASSES =
+      StyleUtils.joinStyles(
+          BaseStyles.FIELD_BORDER_COLOR,
+          Styles.BG_GRAY_50,
+          Styles.BLOCK,
+          Styles.BORDER,
+          Styles.P_2,
+          Styles.W_FULL);
 
-  private static final String[] ADMIN_STYLE_LABEL_CLASSES = {
-    BaseStyles.LABEL_BACKGROUND_COLOR,
-    BaseStyles.LABEL_TEXT_COLOR,
-    Styles.BLOCK,
-    Styles.FONT_BOLD,
-    Styles.TEXT_XS,
-    Styles._MX_1,
-    Styles.MB_2,
-    Styles.UPPERCASE
-  };
-
-  private static final String[] APPLICANT_STYLE_FIELD_CLASSES = {
-    Styles.BLOCK,
-    Styles.OUTLINE_NONE,
-    Styles.PX_3,
-    Styles.PY_2,
-    Styles.M_AUTO,
-    Styles.BORDER,
-    BaseStyles.FIELD_BORDER_COLOR,
-    Styles.ROUNDED_LG,
-    Styles.W_FULL,
-    Styles.TEXT_LG,
-    Styles.PLACEHOLDER_GRAY_400,
-    StyleUtils.focus(Styles.BORDER_BLUE_500)
-  };
-
-  private static final String[] APPLICANT_STYLE_LABEL_CLASSES = {
-    Styles.POINTER_EVENTS_NONE, Styles.TEXT_GRAY_600, Styles.TEXT_XS, Styles.PX_1, Styles.PY_2
-  };
+  private static final String ADMIN_INPUT_FIELD_LABEL_CLASSES =
+      StyleUtils.joinStyles(BaseStyles.INPUT_FIELD_LABEL, Styles.TEXT_BASE);
 
   private static final String[] CHECKBOX_FIELD_CLASSES = {
     Styles.H_4, Styles.W_4, Styles.MR_3, Styles.MB_2
   };
 
   private static final String[] CHECKBOX_LABEL_CLASSES = {
-    Styles.TEXT_GRAY_600, Styles.ALIGN_TEXT_TOP, Styles.FONT_BOLD, Styles.TEXT_XS, Styles.UPPERCASE
+    Styles.TEXT_GRAY_600, Styles.ALIGN_TEXT_TOP, Styles.FONT_BOLD, Styles.TEXT_XS
   };
 
   protected Tag fieldTag;
@@ -84,7 +57,7 @@ public class FieldWithLabel {
   protected Messages messages;
   protected ImmutableSet<ValidationErrorMessage> fieldErrors = ImmutableSet.of();
   protected boolean checked = false;
-  protected boolean applicantStyle = false;
+  protected boolean isApplicantStyle = false;
   protected boolean disabled = false;
 
   public FieldWithLabel(Tag fieldTag) {
@@ -133,7 +106,7 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setApplicantStyle(boolean applicantStyle) {
-    this.applicantStyle = applicantStyle;
+    this.isApplicantStyle = applicantStyle;
     return this;
   }
 
@@ -229,8 +202,8 @@ public class FieldWithLabel {
 
     String fieldTagClasses =
         StyleUtils.joinStyles(
-            StyleUtils.joinStyles(ADMIN_STYLE_FIELD_CLASSES),
-            !fieldErrors.isEmpty() ? BaseStyles.FIELD_ERROR_BORDER_COLOR : "");
+            ADMIN_INPUT_FIELD_CLASSES,
+            fieldErrors.isEmpty() ? "" : BaseStyles.FIELD_ERROR_BORDER_COLOR);
 
     if (Strings.isNullOrEmpty(this.id)) this.id = this.fieldName;
 
@@ -249,27 +222,22 @@ public class FieldWithLabel {
     ContainerTag labelTag =
         label()
             .condAttr(!Strings.isNullOrEmpty(this.id), Attr.FOR, this.id)
-            .withClasses(FieldWithLabel.ADMIN_STYLE_LABEL_CLASSES)
+            .withClasses(labelText.isEmpty() ? "" : FieldWithLabel.ADMIN_INPUT_FIELD_LABEL_CLASSES)
             .withText(labelText);
 
-    if (this.applicantStyle) {
-      fieldTagClasses =
+    if (this.isApplicantStyle) {
+      fieldTag.withClasses(
           StyleUtils.joinStyles(
-              StyleUtils.joinStyles(FieldWithLabel.APPLICANT_STYLE_FIELD_CLASSES),
-              !fieldErrors.isEmpty() ? BaseStyles.FIELD_ERROR_BORDER_COLOR : "");
+              BaseStyles.INPUT_FIELD,
+              fieldErrors.isEmpty() ? "" : BaseStyles.FIELD_ERROR_BORDER_COLOR));
 
-      fieldTag.withClasses(fieldTagClasses);
-
-      // Only add label styles if there is label text. This avoids leaving extra space for a blank
-      // label.
-      if (!labelText.isEmpty()) {
-        labelTag.withClasses(FieldWithLabel.APPLICANT_STYLE_LABEL_CLASSES);
-      }
+      labelTag.withClasses(labelText.isEmpty() ? "" : BaseStyles.INPUT_FIELD_LABEL);
 
       return div()
           .with(
               div(labelTag, fieldTag, buildFieldErrorsTag())
-                  .withClasses(ReferenceClasses.FLOATED_LABEL, Styles.MB_4, Styles.RELATIVE));
+                  .withClasses(
+                      ReferenceClasses.APPLICANT_INPUT_LABEL, Styles.MB_4, Styles.RELATIVE));
     }
 
     return div(labelTag, fieldTag, buildFieldErrorsTag()).withClasses(Styles.MX_4, Styles.MB_4);
@@ -293,6 +261,6 @@ public class FieldWithLabel {
 
   private Tag buildFieldErrorsTag() {
     return div(each(fieldErrors, error -> div(error.getMessage(messages))))
-        .withClasses(StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT, Styles.P_1));
+        .withClasses(fieldErrors.isEmpty() ? "" : StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT, Styles.P_1));
   }
 }

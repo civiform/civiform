@@ -15,6 +15,7 @@ import services.question.LocalizedQuestionOption;
 import views.BaseHtmlView;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 import views.style.Styles;
 
 public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQuestionRenderer {
@@ -65,7 +66,7 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
     String id = "checkbox-" + question.getContextualizedPath() + "-" + option.id();
     ContainerTag labelTag =
         label()
-            .withClasses(Styles.W_FULL, Styles.BLOCK, Styles.PX_3, Styles.PY_2, Styles.ALIGN_MIDDLE)
+            .withClasses(Styles.W_FULL, Styles.BLOCK, Styles.ALIGN_MIDDLE)
             .with(
                 input()
                     .withId(id)
@@ -74,7 +75,10 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
                     .withValue(String.valueOf(option.id()))
                     .condAttr(isSelected, Attr.CHECKED, "")
                     .withClasses(
-                        ReferenceClasses.RADIO_INPUT, Styles.H_4, Styles.W_4, Styles.ALIGN_MIDDLE),
+                        ReferenceClasses.CHECKBOX_INPUT,
+                        Styles.H_4,
+                        Styles.W_4,
+                        Styles.ALIGN_MIDDLE),
                 span(option.optionText()).withClasses(Styles.ML_4, Styles.TEXT_GRAY_700));
 
     return div()
@@ -82,14 +86,10 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
         .with(
             div(labelTag)
                 .withClasses(
-                    ReferenceClasses.RADIO_OPTION,
-                    Styles.M_AUTO,
-                    Styles.TEXT_LG,
-                    Styles.BORDER,
-                    BaseStyles.FIELD_BORDER_COLOR,
-                    Styles.BG_WHITE,
-                    Styles.ROUNDED_LG,
-                    isSelected ? Styles.BG_BLUE_100 : "",
-                    isSelected ? Styles.BORDER_BLUE_500 : ""));
+                    StyleUtils.joinStyles(
+                        ReferenceClasses.CHECKBOX_OPTION,
+                        BaseStyles.CHECKBOX_OPTION_CONTAINER,
+                        isSelected ? Styles.BG_BLUE_100 : "",
+                        isSelected ? Styles.BORDER_BLUE_500 : "")));
   }
 }
