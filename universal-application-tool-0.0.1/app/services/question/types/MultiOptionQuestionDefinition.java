@@ -16,11 +16,11 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
-import services.LocalizationUtils;
+import services.LocalizedStrings;
 import services.Path;
+import services.TranslationNotFoundException;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
-import services.question.exceptions.TranslationNotFoundException;
 
 public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
 
@@ -36,8 +36,8 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText,
       ImmutableList<QuestionOption> options,
       MultiOptionValidationPredicates validationPredicates) {
     super(
@@ -58,8 +58,8 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText,
       ImmutableList<QuestionOption> options,
       MultiOptionValidationPredicates validationPredicates) {
     super(
@@ -79,8 +79,8 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText,
       ImmutableList<QuestionOption> options) {
     super(
         name,
@@ -107,11 +107,11 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       throw new RuntimeException("Must have at least one option in MultiOptionQuestionDefinition");
     }
 
-    ImmutableSet<Locale> locales = firstOption.optionText().keySet();
+    ImmutableSet<Locale> locales = firstOption.optionText().locales();
 
     options.forEach(
         option -> {
-          if (!option.optionText().keySet().equals(locales)) {
+          if (!option.optionText().locales().equals(locales)) {
             throw new RuntimeException(
                 "All options for a MultiOptionQuestionDefinition must have the same locales");
           }
@@ -156,7 +156,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
   /** Get question options localized to CiviForm's default locale. */
   public ImmutableList<LocalizedQuestionOption> getOptionsForDefaultLocale() {
     try {
-      return getOptionsForLocale(LocalizationUtils.DEFAULT_LOCALE);
+      return getOptionsForLocale(LocalizedStrings.DEFAULT_LOCALE);
     } catch (TranslationNotFoundException e) {
       // This should never happen - there should always be options localized to the default locale.
       throw new RuntimeException(e);
@@ -187,7 +187,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
               .collect(toImmutableList());
         }
       }
-      throw new TranslationNotFoundException(getPath(), locale);
+      throw new TranslationNotFoundException(locale);
     }
   }
 

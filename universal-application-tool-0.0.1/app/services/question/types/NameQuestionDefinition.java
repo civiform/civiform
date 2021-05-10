@@ -3,9 +3,9 @@ package services.question.types;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
+import services.LocalizedStrings;
 import services.Path;
 
 public class NameQuestionDefinition extends QuestionDefinition {
@@ -16,8 +16,8 @@ public class NameQuestionDefinition extends QuestionDefinition {
       Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText,
       NameValidationPredicates validationPredicates) {
     super(
         id,
@@ -35,8 +35,8 @@ public class NameQuestionDefinition extends QuestionDefinition {
       Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText,
       NameValidationPredicates validationPredicates) {
     super(
         name,
@@ -53,8 +53,8 @@ public class NameQuestionDefinition extends QuestionDefinition {
       Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText) {
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText) {
     super(
         name,
         path,

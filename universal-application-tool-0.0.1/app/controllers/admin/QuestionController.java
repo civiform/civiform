@@ -4,12 +4,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -20,7 +18,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.LocalizationUtils;
+import services.LocalizedStrings;
 import services.Path;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
@@ -271,19 +269,15 @@ public class QuestionController extends CiviFormController {
       QuestionDefinition existing, QuestionDefinitionBuilder updated, QuestionForm questionForm) {
     // Instead of overwriting all localizations, we just want to overwrite the one
     // for the default locale (the only one possible to change in the edit form).
-    ImmutableMap<Locale, String> localizedQuestionText =
-        LocalizationUtils.overwriteExistingTranslation(
-            existing.getQuestionText(),
-            LocalizationUtils.DEFAULT_LOCALE,
-            questionForm.getQuestionText());
-    ImmutableMap<Locale, String> localizedQuestionHelpText =
-        LocalizationUtils.overwriteExistingTranslation(
-            existing.getQuestionHelpText(),
-            LocalizationUtils.DEFAULT_LOCALE,
-            questionForm.getQuestionHelpText());
-
-    updated.setQuestionText(localizedQuestionText);
-    updated.setQuestionHelpText(localizedQuestionHelpText);
+    updated.setQuestionText(
+        existing
+            .getQuestionText()
+            .updateTranslation(LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionText()));
+    updated.setQuestionHelpText(
+        existing
+            .getQuestionHelpText()
+            .updateTranslation(
+                LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionHelpText()));
 
     return updated;
   }

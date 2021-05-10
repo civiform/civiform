@@ -5,9 +5,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
+import services.LocalizedStrings;
 import services.Path;
 
 public class NumberQuestionDefinition extends QuestionDefinition {
@@ -18,8 +18,8 @@ public class NumberQuestionDefinition extends QuestionDefinition {
       Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText,
       NumberQuestionDefinition.NumberValidationPredicates validationPredicates) {
     super(
         id,
@@ -37,8 +37,8 @@ public class NumberQuestionDefinition extends QuestionDefinition {
       Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText,
       NumberQuestionDefinition.NumberValidationPredicates validationPredicates) {
     super(
         name,
@@ -55,8 +55,8 @@ public class NumberQuestionDefinition extends QuestionDefinition {
       Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText) {
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText) {
     super(
         name,
         path,

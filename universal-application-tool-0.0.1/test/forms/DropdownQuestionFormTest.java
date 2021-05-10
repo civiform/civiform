@@ -3,10 +3,10 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
+import services.LocalizedStrings;
 import services.Path;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -34,12 +34,12 @@ public class DropdownQuestionFormTest {
             path,
             Optional.empty(),
             "description",
-            ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of(Locale.US, "help text"),
+            LocalizedStrings.of(Locale.US, "What is the question text?"),
+            LocalizedStrings.of(Locale.US, "help text"),
             ImmutableList.of(
-                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "cat")),
-                QuestionOption.create(2L, ImmutableMap.of(Locale.US, "dog")),
-                QuestionOption.create(3L, ImmutableMap.of(Locale.US, "rabbit"))));
+                QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "cat")),
+                QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "dog")),
+                QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "rabbit"))));
 
     assertThat(builder.build()).isEqualTo(expected);
   }
@@ -54,11 +54,11 @@ public class DropdownQuestionFormTest {
             path,
             Optional.empty(),
             "description",
-            ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of(Locale.US, "help text"),
+            LocalizedStrings.of(Locale.US, "What is the question text?"),
+            LocalizedStrings.of(Locale.US, "help text"),
             ImmutableList.of(
-                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "hello")),
-                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "world"))));
+                QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "hello")),
+                QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "world"))));
 
     DropdownQuestionForm form = new DropdownQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder(path);

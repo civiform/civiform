@@ -1,10 +1,9 @@
 package services.question.types;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
+import services.LocalizedStrings;
 import services.Path;
 import services.question.QuestionOption;
 
@@ -20,8 +19,8 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
       Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText,
       ImmutableList<QuestionOption> options) {
     super(
         id,
@@ -40,8 +39,8 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
       Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText,
       ImmutableList<QuestionOption> options) {
     super(
         name,

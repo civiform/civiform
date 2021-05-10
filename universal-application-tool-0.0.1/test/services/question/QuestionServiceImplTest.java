@@ -3,7 +3,6 @@ package services.question;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -12,6 +11,7 @@ import org.junit.Test;
 import repository.WithPostgresContainer;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.LocalizedStrings;
 import services.Path;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -29,8 +29,8 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
           Path.create("my.path.name"),
           Optional.empty(),
           "description",
-          ImmutableMap.of(Locale.US, "question?"),
-          ImmutableMap.of(Locale.US, "help text"));
+          LocalizedStrings.of(Locale.US, "question?"),
+          LocalizedStrings.of(Locale.US, "help text"));
 
   @Before
   public void setProgramServiceImpl() {

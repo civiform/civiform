@@ -3,7 +3,6 @@ package services.applicant.question;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
@@ -16,6 +15,7 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import repository.WithPostgresContainer;
+import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.question.types.NumberQuestionDefinition;
@@ -30,8 +30,8 @@ public class NumberQuestionTest extends WithPostgresContainer {
           Path.create("applicant.my.path.name"),
           Optional.empty(),
           "description",
-          ImmutableMap.of(Locale.US, "question?"),
-          ImmutableMap.of(Locale.US, "help text"));
+          LocalizedStrings.of(Locale.US, "question?"),
+          LocalizedStrings.of(Locale.US, "help text"));
 
   private static final NumberQuestionDefinition minAndMaxNumberQuestionDefinition =
       new NumberQuestionDefinition(
@@ -39,8 +39,8 @@ public class NumberQuestionTest extends WithPostgresContainer {
           Path.create("applicant.my.path.name"),
           Optional.empty(),
           "description",
-          ImmutableMap.of(Locale.US, "question?"),
-          ImmutableMap.of(Locale.US, "help text"),
+          LocalizedStrings.of(Locale.US, "question?"),
+          LocalizedStrings.of(Locale.US, "help text"),
           NumberQuestionDefinition.NumberValidationPredicates.create(50, 100));
 
   private Applicant applicant;
