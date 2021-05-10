@@ -6,6 +6,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import io.ebean.Transaction;
+import io.ebean.TxScope;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -97,9 +99,11 @@ public class VersionRepository {
     if (version.isPresent()) {
       return version.get();
     } else {
+      Transaction oldTransaction = ebeanServer.currentTransaction();
+      // Suspends any existing transaction if one exists.
+      Transaction transaction = ebeanServer.beginTransaction(TxScope.requiresNew());
+      Preconditions.checkState(oldTransaction == null || !oldTransaction.isActive());
       try {
-        // Suspends any existing transaction if one exists.
-        ebeanServer.beginTransaction();
         Version newDraftVersion = new Version(LifecycleStage.DRAFT);
         ebeanServer.insert(newDraftVersion);
         ebeanServer
@@ -108,10 +112,12 @@ public class VersionRepository {
             .where()
             .eq("lifecycle_stage", LifecycleStage.DRAFT)
             .findOne();
-        ebeanServer.commitTransaction();
+        transaction.commit();
+        Preconditions.checkState(oldTransaction == null || oldTransaction.isActive());
         return newDraftVersion;
       } catch (NonUniqueResultException e) {
-        ebeanServer.endTransaction();
+        transaction.rollback(e);
+        Preconditions.checkState(oldTransaction == null || oldTransaction.isActive());
         return getDraftVersion();
       }
     }
