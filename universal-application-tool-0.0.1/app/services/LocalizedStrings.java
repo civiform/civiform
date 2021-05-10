@@ -164,7 +164,7 @@ public abstract class LocalizedStrings {
 
   /**
    * Get an {@link Optional} containing the translation for the locale, or {@link Optional#empty()}
-   * if the locale is not supported.
+   * if the locale is not supported. This method does not care about {@link #isRequired()}.
    */
   public Optional<String> maybeGet(Locale locale) {
     try {
@@ -191,6 +191,9 @@ public abstract class LocalizedStrings {
    *
    * <p>If these localized strings are not required (see {@link #isRequired()}), and there are no
    * translations, then return the empty string.
+   *
+   * <p>This method exists because {@link #maybeGet(Locale)} needs a {@link #get(Locale, boolean)}
+   * where {@code isRequired} is true, whether or not {@link #isRequired()} is.
    *
    * @param isRequired if true, allows the empty string to be thrown if there are no locales
    *     supported. If there is at least one locale supported, then it still throws {@link
