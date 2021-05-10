@@ -288,7 +288,11 @@ public class UserRepository {
    * @param program the {@link ProgramDefinition} to add to this given account
    */
   public void addAdministeredProgram(String accountEmail, ProgramDefinition program) {
-    Optional<Account> account = lookupAccount(accountEmail);
-    account.ifPresent(value -> value.addAdministeredProgram(program));
+    Optional<Account> maybeAccount = lookupAccount(accountEmail);
+    maybeAccount.ifPresent(
+        account -> {
+          account.addAdministeredProgram(program);
+          account.save();
+        });
   }
 }
