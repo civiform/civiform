@@ -71,10 +71,8 @@ public class QuestionTranslationView extends TranslationFormView {
 
     String title = "Manage Question Translations";
 
-    HtmlBundle htmlBundle =
-        new HtmlBundle()
+    HtmlBundle htmlBundle = getHtmlBundle()
             .setTitle(title)
-            .addHeaderContent(renderNavBar())
             .addMainContent(
                 renderHeader(title), renderLanguageLinks(question.getId(), locale), form);
 

@@ -40,10 +40,8 @@ public class EditTrustedIntermediaryGroupView extends AdminView {
   public Content render(TrustedIntermediaryGroup tiGroup, Http.Request request) {
     String title = "Trusted Intermediary Groups";
 
-    HtmlBundle htmlBundle =
-        new HtmlBundle()
+    HtmlBundle htmlBundle = getHtmlBundle()
             .setTitle(title)
-            .addHeaderContent(renderNavBar())
             .addMainContent(
                 div().withClasses(Styles.MY_5).with(renderAddNewButton(tiGroup, request)),
                 div(

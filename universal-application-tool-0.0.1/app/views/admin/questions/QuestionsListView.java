@@ -46,11 +46,10 @@ public final class QuestionsListView extends AdminView {
       ActiveAndDraftQuestions activeAndDraftQuestions, Optional<String> maybeFlash) {
     String title = "All Questions";
 
-    HtmlBundle htmlBundle =
-        new HtmlBundle()
+    HtmlBundle htmlBundle = getHtmlBundle()
             .setTitle(title)
-            .addHeaderContent(renderNavBar(), renderHeader(title))
             .addMainContent(
+                renderHeader(title),
                 renderAddQuestionLink(),
                 div(renderQuestionTable(activeAndDraftQuestions)).withClasses(Styles.M_4),
                 renderSummary(activeAndDraftQuestions));

@@ -51,11 +51,8 @@ public final class ProgramApplicationView extends AdminView {
                     block -> this.renderApplicationBlock(application.getApplicantData(), block)),
                 renderDownloadButton(programId, application.id));
 
-    String title = "Program Application View";
-    HtmlBundle htmlBundle =
-        new HtmlBundle()
-            .setTitle(title)
-            .addHeaderContent(renderNavBar())
+    HtmlBundle htmlBundle = getHtmlBundle()
+            .setTitle("Program Application View")
             .addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
   }

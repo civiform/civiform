@@ -41,10 +41,8 @@ public class TrustedIntermediaryGroupListView extends AdminView {
   public Content render(List<TrustedIntermediaryGroup> tis, Http.Request request) {
     String title = "Create New Trusted Intermediary";
 
-    HtmlBundle htmlBundle =
-        new HtmlBundle()
+    HtmlBundle htmlBundle = getHtmlBundle()
             .setTitle(title)
-            .addHeaderContent(renderNavBar())
             .addMainContent(
                 renderHeader(title).withClass(Styles.MT_8),
                 renderAddNewButton(request),

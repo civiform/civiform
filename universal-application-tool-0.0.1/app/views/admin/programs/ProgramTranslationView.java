@@ -56,10 +56,8 @@ public class ProgramTranslationView extends TranslationFormView {
             request, locale, formAction, formFields(localizedName, localizedDescription), errors);
 
     String title = "Manage Program Translations";
-    HtmlBundle htmlBundle =
-        new HtmlBundle()
+    HtmlBundle htmlBundle = getHtmlBundle()
             .setTitle(title)
-            .addHeaderContent(renderNavBar())
             .addMainContent(renderHeader(title), renderLanguageLinks(programId, locale), form);
 
     return layout.renderCentered(htmlBundle);

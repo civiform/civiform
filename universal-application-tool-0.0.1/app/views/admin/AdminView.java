@@ -9,13 +9,18 @@ import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
 public class AdminView extends BaseHtmlView {
 
-  protected ContainerTag renderNavBar() {
+  protected HtmlBundle getHtmlBundle() {
+    return new HtmlBundle().addHeaderContent(renderNavBar());
+  }
+
+  private ContainerTag renderNavBar() {
     String questionLink = routes.QuestionController.index().url();
     String programLink = routes.AdminProgramController.index().url();
     String versionLink = routes.AdminVersionController.index().url();

@@ -35,10 +35,8 @@ public class ProgramEditView extends AdminView {
 
     String title = String.format("Edit program: %s", program.adminName());
 
-    HtmlBundle htmlBundle =
-        new HtmlBundle()
+    HtmlBundle htmlBundle = getHtmlBundle()
             .setTitle(title)
-            .addHeaderContent(renderNavBar())
             .addMainContent(renderHeader(title), formTag);
 
     return layout.renderCentered(htmlBundle);
@@ -58,10 +56,8 @@ public class ProgramEditView extends AdminView {
 
     String title = String.format("Edit program: %s", program.getAdminName());
 
-    HtmlBundle htmlBundle =
-        new HtmlBundle()
+    HtmlBundle htmlBundle = getHtmlBundle()
             .setTitle(title)
-            .addHeaderContent(renderNavBar())
             .addMainContent(renderHeader(title), formTag);
 
     if (!message.isEmpty()) {

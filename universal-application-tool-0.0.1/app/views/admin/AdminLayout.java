@@ -1,6 +1,5 @@
 package views.admin;
 
-
 import javax.inject.Inject;
 import play.twirl.api.Content;
 import views.BaseHtmlLayout;

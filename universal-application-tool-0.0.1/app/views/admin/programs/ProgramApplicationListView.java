@@ -41,10 +41,8 @@ public final class ProgramApplicationListView extends AdminView {
                     application -> this.renderApplicationListItem(programId, application)),
                 renderDownloadButton(programId));
 
-    HtmlBundle htmlBundle =
-        new HtmlBundle()
+    HtmlBundle htmlBundle = getHtmlBundle()
             .setTitle(title)
-            .addHeaderContent(renderNavBar())
             .addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
   }

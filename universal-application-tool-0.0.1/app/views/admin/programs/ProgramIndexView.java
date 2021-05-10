@@ -47,10 +47,8 @@ public final class ProgramIndexView extends AdminView {
                             programs.getDraftProgramDefinition(name),
                             request)));
 
-    HtmlBundle htmlBundle =
-        new HtmlBundle()
+    HtmlBundle htmlBundle = getHtmlBundle()
             .setTitle("All Programs")
-            .addHeaderContent(renderNavBar())
             .addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
   }
