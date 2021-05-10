@@ -13,7 +13,7 @@ import repository.WithPostgresContainer;
 import services.program.ProgramNotFoundException;
 import support.ProgramBuilder;
 
-public class RoleServiceImplTest extends WithPostgresContainer {
+public class RoleServiceTest extends WithPostgresContainer {
 
   private UserRepository userRepository;
   private RoleService service;
@@ -21,7 +21,7 @@ public class RoleServiceImplTest extends WithPostgresContainer {
   @Before
   public void setup() {
     userRepository = instanceOf(UserRepository.class);
-    service = instanceOf(RoleServiceImpl.class);
+    service = instanceOf(RoleService.class);
   }
 
   @Test
