@@ -99,10 +99,8 @@ public class VersionRepository {
     if (version.isPresent()) {
       return version.get();
     } else {
-      Transaction oldTransaction = ebeanServer.currentTransaction();
       // Suspends any existing transaction if one exists.
       Transaction transaction = ebeanServer.beginTransaction(TxScope.requiresNew());
-      Preconditions.checkState(oldTransaction == null || !oldTransaction.isActive());
       try {
         Version newDraftVersion = new Version(LifecycleStage.DRAFT);
         ebeanServer.insert(newDraftVersion);
@@ -113,12 +111,13 @@ public class VersionRepository {
             .eq("lifecycle_stage", LifecycleStage.DRAFT)
             .findOne();
         transaction.commit();
-        Preconditions.checkState(oldTransaction == null || oldTransaction.isActive());
         return newDraftVersion;
       } catch (NonUniqueResultException e) {
         transaction.rollback(e);
-        Preconditions.checkState(oldTransaction == null || oldTransaction.isActive());
+        transaction.end();
         return getDraftVersion();
+      } finally {
+        transaction.end();
       }
     }
   }
