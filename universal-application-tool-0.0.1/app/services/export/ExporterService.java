@@ -37,7 +37,6 @@ public class ExporterService {
   private static final String HEADER_SPACER_ENUM = " - ";
   private static final String HEADER_SPACER_SCALAR = " ";
 
-
   @Inject
   public ExporterService(
       ExporterFactory exporterFactory,
@@ -80,8 +79,10 @@ public class ExporterService {
   }
 
   /**
-   * Produce the default CSV config for a given program. The default config includes all the
-   * questions, the application id, and the application submission time.
+   * Produce the default CSV config for a given program. The default config includes the application
+   * id, the application submission time, and all possible scalar values from all of its
+   * applications. This means if one application had a question repeated for N repeated entities,
+   * then there would be N columns for each of that question's scalars.
    */
   private CsvExportConfig generateDefaultCsvConfig(long programId) {
     ImmutableList<Application> applications;
@@ -91,8 +92,9 @@ public class ExporterService {
       throw new RuntimeException("Cannot find a program we are trying to generate CSVs for.", e);
     }
 
-    // Create a map from a key <block id, question id> to an answer with every application. It
-    // doesn't matter which answer ends up in the map, as long as every <block id, question id> is
+    // Create a map from a key <block id, question index> to an answer with every application. It
+    // doesn't matter which answer ends up in the map, as long as every <block id, question index>
+    // is
     // accounted for.
     Map<String, AnswerData> answerMap = new HashMap<>();
     for (Application application : applications) {
@@ -102,14 +104,19 @@ public class ExporterService {
               .toCompletableFuture()
               .join();
       for (AnswerData answerData : roApplicantService.getSummaryData()) {
-        answerMap.put(answerDataId(answerData), answerData);
+        String key = answerDataKey(answerData);
+        if (!answerMap.containsKey(key)) {
+          answerMap.put(key, answerData);
+        }
       }
     }
 
-    // Get the list of all answers, sorted by answer ID, and generate the default csv config.
+    // Get the list of all answers, sorted by block ID and question index, and generate the default
+    // csv config.
     ImmutableList<AnswerData> answers =
         answerMap.values().stream()
-            .sorted(Comparator.comparing(ExporterService::answerDataId))
+            .sorted(
+                Comparator.comparing(AnswerData::blockId).thenComparing(AnswerData::questionIndex))
             .collect(ImmutableList.toImmutableList());
     return generateDefaultCsvConfig(answers);
   }
@@ -150,19 +157,27 @@ public class ExporterService {
   /**
    * Convert {@link Path} to a human readable header string.
    *
-   * The {@link ApplicantData#APPLICANT_PATH} is ignored, and enumerators are space separated.
+   * <p>The {@link ApplicantData#APPLICANT_PATH} is ignored, enumerator references are separated by
+   * {@link #HEADER_SPACER_ENUM} and the scalar is separated by {@link #HEADER_SPACER_SCALAR}.
+   *
+   * <p>Example: "applicant.household_members[3].household_member_name.first_name" becomes
+   * "household members[3] - household member name (first_name)"
    *
    * @param path is a path that ends in a {@link services.applicant.question.Scalar}.
    */
   private static String pathToHeader(Path path) {
-    // The pieces to the header are build in reverse, as we reference path#parentPath().
     String scalarComponent = String.format("(%s)", path.keyName());
     List<String> reversedHeaderComponents = new ArrayList<>(Arrays.asList(scalarComponent));
-    while (!path.parentPath().isEmpty() && !path.parentPath().equals(ApplicantData.APPLICANT_PATH)) {
+    while (!path.parentPath().isEmpty()
+        && !path.parentPath().equals(ApplicantData.APPLICANT_PATH)) {
       path = path.parentPath();
-      String enumeratorComponent = path.keyName().replace("_", " ");
-      reversedHeaderComponents.add(enumeratorComponent);
+      String headerComponent = path.keyName().replace("_", " ");
+      reversedHeaderComponents.add(headerComponent);
     }
+
+    // The pieces to the header are build in reverse, as we reference path#parentPath(), so we build
+    // the header string
+    // going backwards through the list.
     StringBuilder builder = new StringBuilder();
     for (int i = reversedHeaderComponents.size() - 1; i >= 0; i--) {
       builder.append(reversedHeaderComponents.get(i));
@@ -176,10 +191,10 @@ public class ExporterService {
   }
 
   /**
-   * A useful string that uniquely identifies an answer within a program, is the same across
-   * programs, and can be used to sort a list of answer data.
+   * A useful string that uniquely identifies an answer within an applicant program and is shared
+   * across applicant programs.
    */
-  private static String answerDataId(AnswerData answerData) {
-    return answerData.blockId() + answerData.questionId();
+  private static String answerDataKey(AnswerData answerData) {
+    return String.format("%s-%d", answerData.blockId(), answerData.questionIndex());
   }
 }

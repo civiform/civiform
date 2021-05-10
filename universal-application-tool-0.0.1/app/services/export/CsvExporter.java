@@ -11,7 +11,7 @@ import org.apache.commons.csv.CSVPrinter;
 import services.program.Column;
 
 public class CsvExporter {
-  private final String EMPTY_VALUE = "COLUMN_EMPTY";
+  private final String EMPTY_VALUE = "";
 
   private boolean wroteHeaders;
   private ImmutableList<Column> columns;
