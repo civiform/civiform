@@ -5,7 +5,6 @@ import static j2html.TagCreator.body;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.p;
 import static j2html.attributes.Attr.ENCTYPE;
 
 import com.google.auto.value.AutoValue;
@@ -44,10 +43,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     ContainerTag headerTag = layout.renderHeader(params.percentComplete());
 
     ContainerTag body =
-        body()
-            .with(h1(params.block().getName()))
-            .with(p(params.block().getDescription()))
-            .with(renderBlockWithSubmitForm(params));
+        body().with(h1(params.block().getName())).with(renderBlockWithSubmitForm(params));
 
     if (!params.preferredLanguageSupported()) {
       body.with(

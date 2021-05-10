@@ -45,6 +45,11 @@ public class SingleSelectQuestion implements PresentsErrors {
     return getSelectedOptionValue().isPresent();
   }
 
+  /** Get the ID of the selected option. */
+  public Optional<Long> getSelectedOptionId() {
+    return applicantQuestion.getApplicantData().readLong(getSelectionPath());
+  }
+
   /** Get the selected option in the applicant's preferred locale. */
   public Optional<LocalizedQuestionOption> getSelectedOptionValue() {
     if (selectedOptionValue == null) {
@@ -56,8 +61,7 @@ public class SingleSelectQuestion implements PresentsErrors {
 
   /** Get the selected option in the specified locale. */
   public Optional<LocalizedQuestionOption> getSelectedOptionValue(Locale locale) {
-    Optional<Long> selectedOptionId =
-        applicantQuestion.getApplicantData().readLong(getSelectionPath());
+    Optional<Long> selectedOptionId = getSelectedOptionId();
 
     return selectedOptionId.isEmpty()
         ? Optional.empty()
