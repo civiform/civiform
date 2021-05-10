@@ -4,12 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Optional;
 import models.Account;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
 import repository.UserRepository;
 import repository.WithPostgresContainer;
+import services.CiviFormError;
 import services.program.ProgramNotFoundException;
 import support.ProgramBuilder;
 
@@ -38,7 +40,10 @@ public class RoleServiceTest extends WithPostgresContainer {
     String programName = "test program";
     Program program = ProgramBuilder.newDraftProgram(programName).build();
 
-    service.makeProgramAdmins(program.id, ImmutableSet.of(email1, email2));
+    Optional<CiviFormError> result =
+        service.makeProgramAdmins(program.id, ImmutableSet.of(email1, email2));
+
+    assertThat(result).isEmpty();
 
     account1 = userRepository.lookupAccount(email1).get();
     account2 = userRepository.lookupAccount(email2).get();

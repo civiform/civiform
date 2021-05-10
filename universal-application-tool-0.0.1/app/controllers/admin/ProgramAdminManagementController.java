@@ -8,12 +8,14 @@ import static play.mvc.Results.redirect;
 import auth.Authorizers;
 import com.google.common.collect.ImmutableSet;
 import forms.AddProgramAdminForm;
+import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
+import services.CiviFormError;
 import services.program.ProgramNotFoundException;
 import services.role.RoleService;
 
@@ -35,7 +37,10 @@ public class ProgramAdminManagementController {
     return ok();
   }
 
-  /** Promotes the given account emails to the role of PROGRAM_ADMIN. */
+  /**
+   * Promotes the given account emails to the role of PROGRAM_ADMIN. If there are errors, return a
+   * redirect with flashing error message.
+   */
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result update(Http.Request request, long programId) {
     Form<AddProgramAdminForm> form = formFactory.form(AddProgramAdminForm.class);
@@ -45,11 +50,16 @@ public class ProgramAdminManagementController {
     AddProgramAdminForm addAdminForm = form.bindFromRequest(request).get();
 
     try {
-      roleService.makeProgramAdmins(programId, ImmutableSet.copyOf(addAdminForm.getAdminEmails()));
+      Optional<CiviFormError> maybeError =
+          roleService.makeProgramAdmins(
+              programId, ImmutableSet.copyOf(addAdminForm.getAdminEmails()));
+      Result result = redirect(routes.AdminProgramController.index());
+      if (maybeError.isPresent()) {
+        return result.flashing("error", maybeError.get().message());
+      }
+      return result;
     } catch (ProgramNotFoundException e) {
       return notFound(e.getLocalizedMessage());
     }
-
-    return redirect(routes.AdminProgramController.index());
   }
 }
