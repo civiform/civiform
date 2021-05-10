@@ -27,7 +27,7 @@ public abstract class LocalizedStrings {
   public abstract ImmutableMap<Locale, String> translations();
 
   /**
-   * The only time it matters whether localized strings are required are when they are no
+   * The only time it matters whether localized strings are required are when there are no
    * translations. If there are no translations and the localized strings are NOT required, then
    * {@link #get(Locale)} returns an empty string. If there are no translations and the localized
    * strings are required, then {@link #get(Locale)} will throw {@link TranslationNotFoundException}
