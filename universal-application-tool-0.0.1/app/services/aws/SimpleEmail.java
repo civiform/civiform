@@ -53,7 +53,6 @@ public class SimpleEmail {
 
     SendEmailRequest emailRequest =
         SendEmailRequest.builder().destination(destination).message(msg).source(sender).build();
-
     client.get().sendEmail(emailRequest);
   }
 
