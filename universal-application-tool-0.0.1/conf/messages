@@ -97,10 +97,10 @@ validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
 #--------------------------------------------------------------------------------------------------------#
 
 # The default admin-configurable entity type string
-string.default.entityType=item
+string.default.entityType=Item
 
 # Text on a button an applicant would click to add another entity
-button.addEntity=add {0}
+button.addEntity=Add {0}
 
 # Aria label for the button an applicant would click to delete an entity
 button.ariaLabel.deleteEntity=Delete {0}
