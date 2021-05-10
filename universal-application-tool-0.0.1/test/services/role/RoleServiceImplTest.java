@@ -28,13 +28,20 @@ public class RoleServiceImplTest extends WithPostgresContainer {
   public void makeProgramAdmins_allPromoted() throws ProgramNotFoundException {
     String email1 = "fake@email.com";
     String email2 = "fake2@email.com";
+    Account account1 = new Account();
+    account1.setEmailAddress(email1);
+    account1.save();
+    Account account2 = new Account();
+    account2.setEmailAddress(email2);
+    account2.save();
+
     String programName = "test program";
     Program program = ProgramBuilder.newDraftProgram(programName).build();
 
     service.makeProgramAdmins(program.id, ImmutableSet.of(email1, email2));
 
-    Account account1 = userRepository.lookupAccount(email1).get();
-    Account account2 = userRepository.lookupAccount(email2).get();
+    account1 = userRepository.lookupAccount(email1).get();
+    account2 = userRepository.lookupAccount(email2).get();
 
     assertThat(account1.getAdministeredProgramNames()).containsOnly(programName);
     assertThat(account2.getAdministeredProgramNames()).containsOnly(programName);

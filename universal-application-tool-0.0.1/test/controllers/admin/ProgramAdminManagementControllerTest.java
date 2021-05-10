@@ -29,6 +29,15 @@ public class ProgramAdminManagementControllerTest extends WithPostgresContainer 
 
   @Test
   public void update_succeeds() {
+    String email1 = "one";
+    String email2 = "two";
+    Account account1 = new Account();
+    Account account2 = new Account();
+    account1.setEmailAddress(email1);
+    account2.setEmailAddress(email2);
+    account1.save();
+    account2.save();
+
     String programName = "controller test";
     Program program = ProgramBuilder.newDraftProgram(programName).build();
     Http.Request request =
@@ -40,8 +49,8 @@ public class ProgramAdminManagementControllerTest extends WithPostgresContainer 
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
-    Account account1 = userRepository.lookupAccount("one").get();
-    Account account2 = userRepository.lookupAccount("two").get();
+    account1 = userRepository.lookupAccount("one").get();
+    account2 = userRepository.lookupAccount("two").get();
     assertThat(account1.getAdministeredProgramNames()).containsOnly(programName);
     assertThat(account2.getAdministeredProgramNames()).containsOnly(programName);
   }
