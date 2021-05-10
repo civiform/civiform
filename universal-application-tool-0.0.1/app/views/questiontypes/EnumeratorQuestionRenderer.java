@@ -29,7 +29,7 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
 
   public static final String ENUMERATOR_FIELD_CLASSES =
       StyleUtils.joinStyles(
-          ReferenceClasses.ENUMERATOR_FIELD, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4);
+          ReferenceClasses.ENUMERATOR_FIELD, Styles.FLEX, Styles.MB_4);
 
   private final ApplicantQuestion question;
 
@@ -78,8 +78,7 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
             .setApplicantStyle(true)
             .setFieldName(question.getContextualizedPath().toString())
             .setValue(existingOption)
-            .getContainer()
-            .withClasses(Styles.FLEX, Styles.ML_2);
+            .getContainer();
     Tag removeEntityBox =
         FieldWithLabel.checkbox()
             .setFieldName(Path.empty().join(Scalar.DELETE_ENTITY).asArrayElement().toString())
@@ -99,15 +98,14 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
             .setApplicantStyle(true)
             .setFieldName(contextualizedPath.toString())
             .setPlaceholderText(localizedPlaceholder)
-            .getContainer()
-            .withClasses(Styles.FLEX, Styles.ML_2);
+            .getContainer();
     ContainerTag icon =
         Icons.svg(Icons.TRASH_CAN_SVG_PATH, 24)
             .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
     Tag removeEntityButton =
         TagCreator.button(icon)
             .withType("button")
-            .withClasses(Styles.FLEX, Styles.ML_4)
+            .withClasses(Styles.ML_4)
             .attr(
                 "aria-label",
                 messages.at(
