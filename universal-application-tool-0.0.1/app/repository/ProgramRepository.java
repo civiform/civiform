@@ -8,11 +8,13 @@ import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.TxScope;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import models.Account;
 import models.LifecycleStage;
 import models.Program;
 import models.Version;
@@ -121,13 +123,30 @@ public class ProgramRepository {
             program.getSlug();
             program.save();
           }
+          ImmutableList<Program> activePrograms =
+              versionRepository.get().getActiveVersion().getPrograms();
+          List<Program> programsMatchingSlug =
+              ebeanServer.find(Program.class).where().eq("slug", slug).findList();
           Optional<Program> programMaybe =
-              ebeanServer.find(Program.class).where().eq("slug", slug).findOneOrEmpty();
+              activePrograms.stream()
+                  .filter(activeProgram -> programsMatchingSlug.contains(activeProgram))
+                  .findFirst();
           if (programMaybe.isPresent()) {
             return programMaybe.get();
           }
           throw new RuntimeException(new ProgramNotFoundException(slug));
         },
         executionContext.current());
+  }
+
+  public ImmutableList<Account> getProgramAdministrators(long programId)
+      throws ProgramNotFoundException {
+    Optional<Program> program = ebeanServer.find(Program.class).setId(programId).findOneOrEmpty();
+    if (program.isEmpty()) {
+      throw new ProgramNotFoundException(programId);
+    }
+    String name = program.get().getProgramDefinition().adminName();
+    return ImmutableList.copyOf(
+        ebeanServer.find(Account.class).where().arrayContains("admin_of", name).findList());
   }
 }

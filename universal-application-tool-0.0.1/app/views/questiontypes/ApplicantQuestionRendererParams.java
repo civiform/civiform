@@ -3,7 +3,7 @@ package views.questiontypes;
 import com.google.auto.value.AutoValue;
 import java.util.Optional;
 import play.i18n.Messages;
-import repository.SignedS3UploadRequest;
+import services.aws.SignedS3UploadRequest;
 
 @AutoValue
 public abstract class ApplicantQuestionRendererParams {

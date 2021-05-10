@@ -8,9 +8,11 @@ import io.ebean.DB;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import models.Account;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
+import services.program.ProgramNotFoundException;
 import services.program.TranslationNotFoundException;
 
 public class ProgramRepositoryTest extends WithPostgresContainer {
@@ -63,6 +65,11 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
                 + " localized_name, localized_description) values ('Old Schema Entry',"
                 + " 'Description', '[]', '[]', '{\"en_us\": \"a\"}', '{\"en_us\": \"b\"}');")
         .execute();
+    DB.sqlUpdate(
+            "insert into versions_programs (versions_id, programs_id) values ("
+                + "(select id from versions where lifecycle_stage = 'active'),"
+                + "(select id from programs where name = 'Old Schema Entry'));")
+        .execute();
 
     Program found = repo.getForSlug("old-schema-entry").toCompletableFuture().join();
 
@@ -103,5 +110,21 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
     assertThat(updated.getProgramDefinition().id()).isEqualTo(existing.id);
     assertThat(updated.getProgramDefinition().localizedName())
         .isEqualTo(ImmutableMap.of(Locale.US, "new name"));
+  }
+
+  @Test
+  public void returnsAllAdmins() throws ProgramNotFoundException {
+    Program withAdmins = resourceCreator.insertActiveProgram("with admins");
+    Account admin = new Account();
+    admin.save();
+    assertThat(repo.getProgramAdministrators(withAdmins.id)).isEmpty();
+    admin.addAdministeredProgram(withAdmins.getProgramDefinition());
+    admin.save();
+    assertThat(repo.getProgramAdministrators(withAdmins.id)).containsExactly(admin);
+
+    // This draft, despite not existing when the admin association happened, should
+    // still have the same admin associated.
+    Program newDraft = repo.createOrUpdateDraft(withAdmins);
+    assertThat(repo.getProgramAdministrators(newDraft.id)).containsExactly(admin);
   }
 }

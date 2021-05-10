@@ -25,12 +25,12 @@ import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import repository.AmazonS3Client;
 import repository.StoredFileRepository;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ProgramBlockNotFoundException;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.aws.SimpleStorage;
 import services.program.ProgramNotFoundException;
 import services.question.types.QuestionType;
 import views.applicant.ApplicantProgramBlockEditView;
@@ -47,7 +47,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final HttpExecutionContext httpExecutionContext;
   private final ApplicantProgramBlockEditView editView;
   private final FormFactory formFactory;
-  private final AmazonS3Client amazonS3Client;
+  private final SimpleStorage amazonS3Client;
   private final StoredFileRepository storedFileRepository;
   private final ProfileUtils profileUtils;
   private final String baseUrl;
@@ -61,7 +61,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       HttpExecutionContext httpExecutionContext,
       ApplicantProgramBlockEditView editView,
       FormFactory formFactory,
-      AmazonS3Client amazonS3Client,
+      SimpleStorage amazonS3Client,
       StoredFileRepository storedFileRepository,
       ProfileUtils profileUtils,
       Config configuration) {

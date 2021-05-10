@@ -140,6 +140,7 @@ public class SecurityModule extends AbstractModule {
     }
     config.setUseNonce(true);
     config.setWithState(false);
+    config.setScope("openid profile email");
     OidcClient client = new OidcClient(config);
     client.setCallbackUrl(baseUrl + "/callback");
     client.setProfileCreator(
@@ -164,6 +165,7 @@ public class SecurityModule extends AbstractModule {
     config.setDiscoveryURI(this.configuration.getString("adfs.discovery_uri"));
     config.setResponseMode("form_post");
     config.setResponseType("id_token");
+    config.setScope("openid profile email allatclaims");
     config.setUseNonce(true);
     config.setWithState(false);
     OidcClient client = new OidcClient(config);
