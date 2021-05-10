@@ -9,13 +9,17 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 import models.Application;
 import services.Path;
 import services.applicant.AnswerData;
+import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.Column;
@@ -29,6 +33,10 @@ public class ExporterService {
   private final ExporterFactory exporterFactory;
   private final ProgramService programService;
   private final ApplicantService applicantService;
+
+  private static final String HEADER_SPACER_ENUM = " - ";
+  private static final String HEADER_SPACER_SCALAR = " ";
+
 
   @Inject
   public ExporterService(
@@ -139,9 +147,32 @@ public class ExporterService {
     };
   }
 
-  /** Convert {@link Path} to a human readable header string. */
+  /**
+   * Convert {@link Path} to a human readable header string.
+   *
+   * The {@link ApplicantData#APPLICANT_PATH} is ignored, and enumerators are space separated.
+   *
+   * @param path is a path that ends in a {@link services.applicant.question.Scalar}.
+   */
   private static String pathToHeader(Path path) {
-    return path.toString();
+    // The pieces to the header are build in reverse, as we reference path#parentPath().
+    String scalarComponent = String.format("(%s)", path.keyName());
+    List<String> reversedHeaderComponents = new ArrayList<>(Arrays.asList(scalarComponent));
+    while (!path.parentPath().isEmpty() && !path.parentPath().equals(ApplicantData.APPLICANT_PATH)) {
+      path = path.parentPath();
+      String enumeratorComponent = path.keyName().replace("_", " ");
+      reversedHeaderComponents.add(enumeratorComponent);
+    }
+    StringBuilder builder = new StringBuilder();
+    for (int i = reversedHeaderComponents.size() - 1; i >= 0; i--) {
+      builder.append(reversedHeaderComponents.get(i));
+      if (i > 1) {
+        builder.append(HEADER_SPACER_ENUM);
+      } else if (i == 1) {
+        builder.append(HEADER_SPACER_SCALAR);
+      }
+    }
+    return builder.toString();
   }
 
   /**
