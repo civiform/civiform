@@ -148,7 +148,9 @@ public class QuestionConfig {
             .getContainer()
             .withClasses(Styles.FLEX, Styles.ML_2);
     Tag removeOptionButton =
-        button("Remove").withType("button").withClasses(Styles.FLEX, Styles.ML_4);
+        button("Remove")
+            .withType("button")
+            .withClasses(Styles.FLEX, Styles.ML_4, "multi-option-question-field-remove-button");
 
     return div()
         .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4)
