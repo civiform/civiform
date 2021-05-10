@@ -1,5 +1,7 @@
 package services.role;
 
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import javax.inject.Inject;
@@ -31,7 +33,9 @@ public class RoleServiceImpl implements RoleService {
       throws ProgramNotFoundException {
     ProgramDefinition program = programService.getProgramDefinition(programId);
     // Filter out UAT admins from the list of emails - a UAT admin cannot be a program admin.
-    Sets.difference(accountEmails, getUatAdmins())
+    Sets.difference(
+            accountEmails,
+            getUatAdmins().stream().map(Account::getEmailAddress).collect(toImmutableSet()))
         .forEach(email -> userRepository.addAdministeredProgram(email, program));
   }
 }

@@ -47,7 +47,7 @@ public class ProgramAdminManagementController {
     try {
       roleService.makeProgramAdmins(programId, ImmutableSet.copyOf(addAdminForm.getAdminEmails()));
     } catch (ProgramNotFoundException e) {
-      return notFound(String.format("Program with ID %d was not found", programId));
+      return notFound(e.getLocalizedMessage());
     }
 
     return redirect(routes.AdminProgramController.index());
