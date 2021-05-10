@@ -1,7 +1,6 @@
 package services.question;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
@@ -21,7 +20,6 @@ public abstract class QuestionOption {
     return new AutoValue_QuestionOption(id, optionText);
   }
 
-  @JsonIgnore
   public LocalizedQuestionOption localize(Locale locale) {
     if (!optionText().containsKey(locale)) {
       throw new RuntimeException(
