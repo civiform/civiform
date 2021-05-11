@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
@@ -52,8 +51,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     ApplicantData applicantDataBefore = applicant.getApplicantData();
 
     subject
-        .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", ImmutableSet.<Update>builder().build())
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", ImmutableMap.of())
         .toCompletableFuture()
         .join();
 
@@ -69,8 +67,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
-            .put(Path.create("applicant.name").join(Scalar.FIRST_NAME), "Alice")
-            .put(Path.create("applicant.name").join(Scalar.LAST_NAME), "Doe")
+            .put(Path.create("applicant.name").join(Scalar.FIRST_NAME).toString(), "Alice")
+            .put(Path.create("applicant.name").join(Scalar.LAST_NAME).toString(), "Doe")
             .build();
 
     subject
@@ -90,8 +88,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
-            .put(Path.create("applicant.name").join(Scalar.FIRST_NAME), "Alice")
-            .put(Path.create("applicant.name").join(Scalar.LAST_NAME), "Doe")
+            .put(Path.create("applicant.name").join(Scalar.FIRST_NAME).toString(), "Alice")
+            .put(Path.create("applicant.name").join(Scalar.LAST_NAME).toString(), "Doe")
             .build();
 
     subject
@@ -268,8 +266,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     ImmutableMap<String, String> updates =
         ImmutableMap.of(
-            Path.create("applicant.name.first"), "Alice",
-            Path.create("this.is.not.in.block"), "Doe");
+            Path.create("applicant.name.first").toString(), "Alice",
+            Path.create("this.is.not.in.block").toString(), "Doe");
 
     Throwable thrown =
         catchThrowable(
