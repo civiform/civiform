@@ -7,7 +7,6 @@ import models.Program;
 import org.junit.Test;
 import repository.WithPostgresContainer;
 import services.LocalizedStrings;
-import services.Path;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.types.NameQuestionDefinition;
@@ -67,7 +66,6 @@ public class ProgramBuilderTest extends WithPostgresContainer {
         new QuestionDefinitionBuilder()
             .setId(1L)
             .setName("my name")
-            .setPath(Path.create("my.path.name"))
             .setDescription("description")
             .setQuestionType(QuestionType.NAME)
             .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))

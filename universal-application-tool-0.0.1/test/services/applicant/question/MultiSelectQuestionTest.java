@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.MessageKey;
-import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.QuestionOption;
@@ -22,7 +21,6 @@ public class MultiSelectQuestionTest {
   private static final MultiOptionQuestionDefinition CHECKBOX_QUESTION =
       new CheckboxQuestionDefinition(
           "name",
-          Path.create("applicant.path"),
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),

@@ -12,7 +12,6 @@ import repository.WithPostgresContainer;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
-import services.Path;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
@@ -26,7 +25,6 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
   QuestionDefinition questionDefinition =
       new TextQuestionDefinition(
           "my name",
-          Path.create("my.path.name"),
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),

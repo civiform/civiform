@@ -16,7 +16,6 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import repository.WithPostgresContainer;
 import services.LocalizedStrings;
-import services.Path;
 import services.applicant.ApplicantData;
 import services.question.types.TextQuestionDefinition;
 import support.QuestionAnswerer;
@@ -26,7 +25,6 @@ public class TextQuestionTest extends WithPostgresContainer {
   private static final TextQuestionDefinition textQuestionDefinition =
       new TextQuestionDefinition(
           "question name",
-          Path.create("applicant.my.path.name"),
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
@@ -35,7 +33,6 @@ public class TextQuestionTest extends WithPostgresContainer {
   private static final TextQuestionDefinition minAndMaxLengthTextQuestionDefinition =
       new TextQuestionDefinition(
           "question name",
-          Path.create("applicant.my.path.name"),
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),

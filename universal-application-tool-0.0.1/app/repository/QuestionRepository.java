@@ -128,12 +128,6 @@ public class QuestionRepository {
     }
   }
 
-  public CompletionStage<Optional<Question>> lookupQuestionByPath(String path) {
-    return supplyAsync(
-        () -> ebeanServer.find(Question.class).where().eq("path", path).findOneOrEmpty(),
-        executionContext);
-  }
-
   public CompletionStage<Question> insertQuestion(Question question) {
     return supplyAsync(
         () -> {
