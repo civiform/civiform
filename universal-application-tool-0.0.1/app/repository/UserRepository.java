@@ -281,18 +281,23 @@ public class UserRepository {
   }
 
   /**
-   * Adds the given program as an administered program by the given account. Does nothing if the
-   * account does not exist.
+   * Adds the given program as an administered program by the given account. If the account does not
+   * exist, this will create a new account for the given email, so that when a user with that email
+   * signs in for the first time they will be a program admin.
    *
    * @param accountEmail the email of the account that will administer the given program
    * @param program the {@link ProgramDefinition} to add to this given account
    */
   public void addAdministeredProgram(String accountEmail, ProgramDefinition program) {
     Optional<Account> maybeAccount = lookupAccount(accountEmail);
-    maybeAccount.ifPresent(
-        account -> {
-          account.addAdministeredProgram(program);
-          account.save();
-        });
+    Account account =
+        maybeAccount.orElseGet(
+            () -> {
+              Account a = new Account();
+              a.setEmailAddress(accountEmail);
+              return a;
+            });
+    account.addAdministeredProgram(program);
+    account.save();
   }
 }

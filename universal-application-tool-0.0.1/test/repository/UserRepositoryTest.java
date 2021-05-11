@@ -102,12 +102,24 @@ public class UserRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
-  public void addAdministeredProgram_succeeds() {
+  public void addAdministeredProgram_existingAccount_succeeds() {
     String email = "email@email.com";
     Account account = new Account();
     account.setEmailAddress(email);
     account.save();
 
+    String programName = "name";
+    ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
+
+    repo.addAdministeredProgram(email, program);
+
+    assertThat(repo.lookupAccount(email).get().getAdministeredProgramNames())
+        .containsOnly(programName);
+  }
+
+  @Test
+  public void addAdministeredProgram_missingAccount_createsNewAccountForEmail() {
+    String email = "test@test.com";
     String programName = "name";
     ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
 
