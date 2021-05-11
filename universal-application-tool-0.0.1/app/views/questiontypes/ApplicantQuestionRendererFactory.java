@@ -31,6 +31,8 @@ public class ApplicantQuestionRendererFactory {
         return new AddressQuestionRenderer(question);
       case CHECKBOX:
         return new CheckboxQuestionRenderer(question);
+      case DATE:
+        return new DateQuestionRenderer(question);
       case DROPDOWN:
         return new DropdownQuestionRenderer(question);
       case FILEUPLOAD:
