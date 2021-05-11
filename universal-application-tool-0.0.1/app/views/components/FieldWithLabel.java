@@ -229,6 +229,6 @@ public class FieldWithLabel {
   }
 
   private boolean shouldSetLabelFor() {
-    return !this.id.isEmpty() && ! this.labelText.isEmpty();
+    return !this.id.isEmpty() && !this.labelText.isEmpty();
   }
 }
