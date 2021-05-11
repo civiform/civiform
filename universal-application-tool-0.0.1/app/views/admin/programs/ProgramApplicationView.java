@@ -102,13 +102,15 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private Tag renderAnswer(AnswerData answerData) {
     LocalDate date =
         Instant.ofEpochMilli(answerData.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
+    String questionIdentifier =
+        String.format("Question ID: %d", answerData.questionDefinition().getId());
     return div()
         .withClasses(Styles.FLEX)
         .with(
             div()
                 .withClasses(Styles.MB_8)
                 .with(
-                    div(String.format("Question ID: %d", answerData.questionDefinition().getId()))
+                    div(questionIdentifier)
                         .withClasses(
                             Styles.TEXT_GRAY_400, Styles.TEXT_XL, Styles.MB_2, "line-clamp-3"))
                 .with(
