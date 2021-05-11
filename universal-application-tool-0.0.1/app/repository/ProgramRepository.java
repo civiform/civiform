@@ -7,6 +7,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import io.ebean.Transaction;
 import io.ebean.TxScope;
 import java.util.List;
 import java.util.Optional;
@@ -79,8 +80,8 @@ public class ProgramRepository {
       this.updateProgramSync(updatedDraft);
       return updatedDraft;
     } else {
+      Transaction transaction = ebeanServer.beginTransaction(TxScope.requiresNew());
       try {
-        ebeanServer.beginTransaction(TxScope.requiresNew());
         // Program -> builder -> back to program in order to clear any metadata stored
         // in the program (for example, version information).
         Program newDraft = existingProgram.getProgramDefinition().toBuilder().build().toProgram();
@@ -106,11 +107,14 @@ public class ProgramRepository {
                 == 1,
             "Must be exactly one program with this name in the draft.");
         versionRepository.get().updateQuestionVersions(newDraft);
-        ebeanServer.commitTransaction();
+        transaction.commit();
         return newDraft;
       } catch (IllegalStateException e) {
-        ebeanServer.rollbackTransaction();
+        transaction.rollback();
+        transaction.end();
         return createOrUpdateDraft(existingProgram);
+      } finally {
+        transaction.end();
       }
     }
   }

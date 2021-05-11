@@ -50,8 +50,8 @@ public class QuestionRepository {
    * draft if there isn't one.
    */
   public Question updateOrCreateDraft(QuestionDefinition definition) {
+    Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
     try (Transaction transaction = ebeanServer.beginTransaction(TxScope.requiresNew())) {
-      Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
       Optional<Question> existingDraft = draftVersion.getQuestionByName(definition.getName());
       try {
         if (existingDraft.isPresent()) {
