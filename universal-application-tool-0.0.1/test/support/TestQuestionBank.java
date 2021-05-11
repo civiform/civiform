@@ -206,7 +206,8 @@ public class TestQuestionBank {
             Optional.empty(),
             "The applicant's household members",
             LocalizedStrings.of(Locale.US, "Who are your household members?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            LocalizedStrings.of(Locale.US, "This is sample help text."),
+            LocalizedStrings.empty());
     return maybeSave(definition);
   }
 
@@ -219,7 +220,8 @@ public class TestQuestionBank {
             Optional.of(householdMembers.id),
             "The applicant's household member's jobs",
             LocalizedStrings.of(Locale.US, "What are the household member's jobs?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            LocalizedStrings.of(Locale.US, "This is sample help text."),
+            LocalizedStrings.empty());
     return maybeSave(definition);
   }
 

@@ -1,5 +1,7 @@
 package services.question.types;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.auto.value.AutoValue;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -16,8 +18,7 @@ import services.LocalizedStrings;
  */
 public class EnumeratorQuestionDefinition extends QuestionDefinition {
 
-  // TODO(#859): make this admin configurable
-  private final LocalizedStrings entityType = LocalizedStrings.empty();
+  private final LocalizedStrings entityType;
 
   public EnumeratorQuestionDefinition(
       OptionalLong id,
@@ -25,7 +26,8 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
-      LocalizedStrings questionHelpText) {
+      LocalizedStrings questionHelpText,
+      LocalizedStrings entityType) {
     super(
         id,
         name,
@@ -34,6 +36,7 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
         questionText,
         questionHelpText,
         EnumeratorValidationPredicates.create());
+    this.entityType = checkNotNull(entityType);
   }
 
   public EnumeratorQuestionDefinition(
@@ -41,7 +44,8 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
-      LocalizedStrings questionHelpText) {
+      LocalizedStrings questionHelpText,
+      LocalizedStrings entityType) {
     super(
         name,
         enumeratorId,
@@ -49,6 +53,7 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
         questionText,
         questionHelpText,
         EnumeratorValidationPredicates.create());
+    this.entityType = checkNotNull(entityType);
   }
 
   public EnumeratorValidationPredicates getEnumeratorValidationPredicates() {
