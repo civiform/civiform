@@ -128,7 +128,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                 p().withClasses(Styles.FLEX_GROW),
                 maybeRenderViewApplicationsLink(viewApplicationsLinkText, activeProgram),
                 maybeRenderManageTranslationsLink(draftProgram),
-                maybeRenderEditLink(draftProgram, activeProgram, request))
+                maybeRenderEditLink(draftProgram, activeProgram, request),
+                renderManageProgramAdminsLink(draftProgram, activeProgram))
             .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
 
     Tag innerDiv =
@@ -219,5 +220,20 @@ public final class ProgramIndexView extends BaseHtmlView {
     } else {
       return div();
     }
+  }
+
+  Tag renderManageProgramAdminsLink(
+      Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram) {
+    // We can use the ID of either, since we just add the program name and not ID to indicate
+    // ownership.
+    long programId =
+        draftProgram.isPresent() ? draftProgram.get().id() : activeProgram.orElseThrow().id();
+    String adminLink = routes.ProgramAdminManagementController.edit(programId).url();
+    return new LinkElement()
+        .setId("manage-program-admin-link-" + programId)
+        .setHref(adminLink)
+        .setText("Manage admins")
+        .setStyles(Styles.MR_2)
+        .asAnchorText();
   }
 }
