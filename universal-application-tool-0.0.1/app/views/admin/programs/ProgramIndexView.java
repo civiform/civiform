@@ -232,7 +232,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return new LinkElement()
         .setId("manage-program-admin-link-" + programId)
         .setHref(adminLink)
-        .setText("Manage admins")
+        .setText("Manage Admins →")
         .setStyles(Styles.MR_2)
         .asAnchorText();
   }
