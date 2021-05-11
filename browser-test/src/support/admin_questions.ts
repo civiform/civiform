@@ -103,11 +103,10 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, newQuestionText);
   }
 
-  async addAllQuestionTypes(questionNamePrefix: string) {
+  async addAllNonSingleBlockQuestionTypes(questionNamePrefix: string) {
     await this.addAddressQuestion(questionNamePrefix + 'address');
     await this.addCheckboxQuestion(questionNamePrefix + 'checkbox', ['op1', 'op2', 'op3', 'op4']);
     await this.addDropdownQuestion(questionNamePrefix + 'dropdown', ['op1', 'op2', 'op3']);
-    await this.addFileUploadQuestion(questionNamePrefix + 'fileupload');
     await this.addNameQuestion(questionNamePrefix + 'name');
     await this.addNumberQuestion(questionNamePrefix + 'number');
     await this.addRadioButtonQuestion(questionNamePrefix + 'radio', ['one', 'two', 'three']);
@@ -115,11 +114,18 @@ export class AdminQuestions {
     return [questionNamePrefix + 'address',
     questionNamePrefix + 'checkbox',
     questionNamePrefix + 'dropdown',
-    questionNamePrefix + 'fileupload',
     questionNamePrefix + 'name',
     questionNamePrefix + 'number',
     questionNamePrefix + 'radio',
     questionNamePrefix + 'text',
+    ];
+  }
+
+  async addAllSingleBlockQuestionTypes(questionNamePrefix: string) {
+    await this.addEnumeratorQuestion(questionNamePrefix + 'enumerator');
+    await this.addFileUploadQuestion(questionNamePrefix + 'fileupload');
+    return [questionNamePrefix + 'enumerator',
+    questionNamePrefix + 'fileupload',
     ];
   }
 

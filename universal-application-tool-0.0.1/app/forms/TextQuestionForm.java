@@ -1,7 +1,6 @@
 package forms;
 
 import java.util.OptionalInt;
-import services.Path;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
@@ -64,13 +63,13 @@ public class TextQuestionForm extends QuestionForm {
   }
 
   @Override
-  public QuestionDefinitionBuilder getBuilder(Path path) {
+  public QuestionDefinitionBuilder getBuilder() {
     TextQuestionDefinition.TextValidationPredicates.Builder textValidationPredicatesBuilder =
         TextQuestionDefinition.TextValidationPredicates.builder();
 
     textValidationPredicatesBuilder.setMinLength(getMinLength());
     textValidationPredicatesBuilder.setMaxLength(getMaxLength());
 
-    return super.getBuilder(path).setValidationPredicates(textValidationPredicatesBuilder.build());
+    return super.getBuilder().setValidationPredicates(textValidationPredicatesBuilder.build());
   }
 }

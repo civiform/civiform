@@ -2,11 +2,10 @@ package forms;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
-import services.Path;
+import services.LocalizedStrings;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -15,24 +14,21 @@ public class AddressQuestionFormTest {
 
   @Test
   public void getBuilder_returnsCompleteBuilder() throws Exception {
-    Path path = Path.create("my.question.path.name");
-
     AddressQuestionForm form = new AddressQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
     form.setDisallowPoBox(true);
-    QuestionDefinitionBuilder builder = form.getBuilder(path);
+    QuestionDefinitionBuilder builder = form.getBuilder();
 
     AddressQuestionDefinition expected =
         new AddressQuestionDefinition(
             "name",
-            path,
             Optional.empty(),
             "description",
-            ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of(),
+            LocalizedStrings.of(Locale.US, "What is the question text?"),
+            LocalizedStrings.empty(),
             AddressQuestionDefinition.AddressValidationPredicates.create(true));
 
     QuestionDefinition actual = builder.build();
@@ -42,20 +38,17 @@ public class AddressQuestionFormTest {
 
   @Test
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
-    Path path = Path.create("my.question.path.name");
-
     AddressQuestionDefinition originalQd =
         new AddressQuestionDefinition(
             "name",
-            path,
             Optional.empty(),
             "description",
-            ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of(),
+            LocalizedStrings.of(Locale.US, "What is the question text?"),
+            LocalizedStrings.empty(),
             AddressQuestionDefinition.AddressValidationPredicates.create());
 
     AddressQuestionForm form = new AddressQuestionForm(originalQd);
-    QuestionDefinitionBuilder builder = form.getBuilder(path);
+    QuestionDefinitionBuilder builder = form.getBuilder();
 
     QuestionDefinition actual = builder.build();
 

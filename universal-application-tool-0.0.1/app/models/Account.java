@@ -2,14 +2,17 @@ package models;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import io.ebean.annotation.DbArray;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import services.program.ProgramDefinition;
 
 @Entity
 @Table(name = "accounts")
@@ -22,6 +25,9 @@ public class Account extends BaseModel {
   @ManyToOne private TrustedIntermediaryGroup memberOfGroup;
   @ManyToOne private TrustedIntermediaryGroup managedByGroup;
 
+  // This must be a mutable collection so we can add to the list later.
+  @DbArray private List<String> adminOf = new ArrayList<>();
+
   private String emailAddress;
 
   public ImmutableList<Long> ownedApplicantIds() {
@@ -30,6 +36,10 @@ public class Account extends BaseModel {
 
   public List<Applicant> getApplicants() {
     return applicants;
+  }
+
+  public Optional<Applicant> newestApplicant() {
+    return applicants.stream().max(Comparator.comparing(Applicant::getWhenCreated));
   }
 
   public void setApplicants(List<Applicant> applicants) {
@@ -53,11 +63,25 @@ public class Account extends BaseModel {
   }
 
   public Optional<TrustedIntermediaryGroup> getMemberOfGroup() {
-    return Optional.fromNullable(this.memberOfGroup);
+    return Optional.ofNullable(this.memberOfGroup);
   }
 
   public Optional<TrustedIntermediaryGroup> getManagedByGroup() {
-    return Optional.fromNullable(this.managedByGroup);
+    return Optional.ofNullable(this.managedByGroup);
+  }
+
+  public ImmutableList<String> getAdministeredProgramNames() {
+    return ImmutableList.copyOf(this.adminOf);
+  }
+
+  /**
+   * If this account does not already administer this program, add it to the list of administered
+   * programs.
+   */
+  public void addAdministeredProgram(ProgramDefinition program) {
+    if (!this.adminOf.contains(program.adminName())) {
+      this.adminOf.add(program.adminName());
+    }
   }
 
   /**

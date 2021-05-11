@@ -1,9 +1,6 @@
 package services.question;
 
 import com.google.common.collect.ImmutableList;
-import java.util.Optional;
-import services.Path;
-import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -28,13 +25,6 @@ public interface ReadOnlyQuestionService {
 
   /** Get the data object about the questions that are in the active or draft version. */
   ActiveAndDraftQuestions getActiveAndDraftQuestions();
-
-  /**
-   * Create the {@link Path} for a question from the path of the enumerator id (if provided) and the
-   * question name.
-   */
-  Path makePath(Optional<Long> enumeratorId, String questionName, boolean isEnumerator)
-      throws InvalidQuestionTypeException, QuestionNotFoundException;
 
   /**
    * Gets the question definition for a ID.

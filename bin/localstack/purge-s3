@@ -1,12 +1,14 @@
 #!/bin/bash
-pushd $(git rev-parse --show-toplevel)
+pushd $(git rev-parse --show-toplevel) > /dev/null
+
+set -e
 
 localstack_local_endpoint=http://localhost:4566
 
 # find repo root name (currently civiform), also support any names for backward and forward compatibility
 CIVIFORM_DIR=$(basename $(pwd))
 
-if [ "$1" ]; then
+if [ "$1" != "$localstack_local_endpoint" ]; then
     localstack_local_endpoint=$1
     # if we overwrite local endpoint, we intend to run browser tests
     CIVIFORM_DIR=browser-test
@@ -14,7 +16,7 @@ fi
 
 purge_s3_cmd="s3 rm s3://civiform-local-s3/ --recursive"
 
-if ! which aws; then
+if ! which aws > /dev/null; then
     docker run --rm -it \
     --network ${CIVIFORM_DIR}_default \
     -e AWS_ACCESS_KEY_ID=test \
@@ -28,4 +30,4 @@ fi
 
 AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test aws --endpoint-url=$localstack_local_endpoint $purge_s3_cmd
 
-popd
+popd > /dev/null

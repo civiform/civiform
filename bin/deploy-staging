@@ -21,3 +21,11 @@ ECSSERVICE=$(aws cloudformation describe-stacks --region ${REGION} --stack-name 
 ECSCLUSTER=$(aws cloudformation describe-stacks --region ${REGION} --stack-name civiform-staging | jq -r '.Stacks[0].Outputs[] | select(.OutputKey == "ECSCluster") | .OutputValue')
 
 aws ecs update-service --region=${REGION} --cluster "$ECSCLUSTER" --service "$ECSSERVICE" --force-new-deployment
+
+deadline=$(($(date +%s) + 900))
+until aws ecs wait services-stable --region=${REGION} --cluster "$ECSCLUSTER" --services "$ECSSERVICE"; do
+    if (( $(date +%s) > $deadline )); then
+        echo "deadline exceeded waiting for service update to stabilize"
+        exit 1
+    fi
+done

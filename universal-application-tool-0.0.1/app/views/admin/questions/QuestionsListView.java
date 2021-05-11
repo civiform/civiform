@@ -18,9 +18,9 @@ import j2html.tags.Tag;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import play.twirl.api.Content;
-import services.LocalizationUtils;
+import services.LocalizedStrings;
+import services.TranslationNotFoundException;
 import services.question.ActiveAndDraftQuestions;
-import services.question.exceptions.TranslationNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import views.BaseHtmlView;
@@ -79,7 +79,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
     for (QuestionType type : QuestionType.values()) {
       String typeString = type.toString().toLowerCase();
-      String link = controllers.admin.routes.QuestionController.newOne(typeString).url();
+      String link = controllers.admin.routes.AdminQuestionController.newOne(typeString).url();
       ContainerTag linkTag =
           a().withHref(link)
               .withId(String.format("create-%s-question", typeString))
@@ -180,12 +180,12 @@ public final class QuestionsListView extends BaseHtmlView {
     String questionHelpText = "";
 
     try {
-      questionText = definition.getQuestionText(LocalizationUtils.DEFAULT_LOCALE);
+      questionText = definition.getQuestionText().get(LocalizedStrings.DEFAULT_LOCALE);
     } catch (TranslationNotFoundException e) { // Ignore. Leaving blank
     }
 
     try {
-      questionHelpText = definition.getQuestionHelpText(LocalizationUtils.DEFAULT_LOCALE);
+      questionHelpText = definition.getQuestionHelpText().get(LocalizedStrings.DEFAULT_LOCALE);
     } catch (TranslationNotFoundException e) { // Ignore. Leaving blank
     }
 
@@ -201,14 +201,14 @@ public final class QuestionsListView extends BaseHtmlView {
   private Tag renderSupportedLanguages(QuestionDefinition definition) {
     String formattedLanguages =
         definition.getSupportedLocales().stream()
-            .map(locale -> locale.getDisplayLanguage(LocalizationUtils.DEFAULT_LOCALE))
+            .map(locale -> locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE))
             .collect(Collectors.joining(", "));
     return td().with(div(formattedLanguages))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
   private Tag renderQuestionEditLink(QuestionDefinition definition, String linkText) {
-    String link = controllers.admin.routes.QuestionController.edit(definition.getId()).url();
+    String link = controllers.admin.routes.AdminQuestionController.edit(definition.getId()).url();
     return new LinkElement()
         .setId("edit-question-link-" + definition.getId())
         .setHref(link)
@@ -220,7 +220,7 @@ public final class QuestionsListView extends BaseHtmlView {
   private Tag renderQuestionTranslationLink(QuestionDefinition definition, String linkText) {
     String link =
         controllers.admin.routes.AdminQuestionTranslationsController.edit(
-                definition.getId(), LocalizationUtils.DEFAULT_LOCALE.toLanguageTag())
+                definition.getId(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
             .url();
     return new LinkElement()
         .setId("translate-question-link-" + definition.getId())
@@ -231,7 +231,7 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private Tag renderQuestionViewLink(QuestionDefinition definition, String linkText) {
-    String link = controllers.admin.routes.QuestionController.show(definition.getId()).url();
+    String link = controllers.admin.routes.AdminQuestionController.show(definition.getId()).url();
     return new LinkElement()
         .setId("view-question-link-" + definition.getId())
         .setHref(link)

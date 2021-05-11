@@ -6,6 +6,11 @@ Mappings:
       image: public.ecr.aws/t1q6b4h2/universal-application-tool:prod
     staging:
       image: public.ecr.aws/t1q6b4h2/universal-application-tool:latest
+  Notifications:
+    prod:
+      sender: noreply@seattle.civiform.com
+    staging:
+      sender: noreply@staging.seattle.civiform.com
 Parameters:
   Environment:
     Type: String
@@ -117,8 +122,10 @@ Resources:
               Value: !Sub '{{resolve:secretsmanager:${DBPassword}}}'
             - Name: SECRET_KEY
               Value: !Sub '{{resolve:secretsmanager:${SecretKey}}}'
-            - Name: AWS_S3_REGION
+            - Name: AWS_REGION
               Value: !Sub '${AWS::Region}'
+            - Name: AWS_SES_SENDER
+              Value: !FindInMap [Notifications, !Ref Environment, sender]
             - Name: AWS_S3_BUCKET_NAME
               Value: !Ref 'S3BucketName'
             - Name: IDCS_CLIENT_ID

@@ -39,6 +39,7 @@ public final class Block {
   private final BlockDefinition blockDefinition;
   private final ApplicantData applicantData;
   private final Path contextualizedPath;
+  private final ImmutableList<RepeatedEntity> repeatedEntities;
 
   private Optional<ImmutableList<ApplicantQuestion>> questionsMemo = Optional.empty();
   private Optional<ImmutableMap<Path, ScalarType>> scalarsMemo = Optional.empty();
@@ -47,11 +48,13 @@ public final class Block {
       String id,
       BlockDefinition blockDefinition,
       ApplicantData applicantData,
-      Path contextualizedPath) {
+      Path contextualizedPath,
+      ImmutableList<RepeatedEntity> repeatedEntities) {
     this.id = id;
     this.blockDefinition = checkNotNull(blockDefinition);
     this.applicantData = checkNotNull(applicantData);
     this.contextualizedPath = checkNotNull(contextualizedPath);
+    this.repeatedEntities = checkNotNull(repeatedEntities);
   }
 
   public String getId() {
@@ -66,6 +69,17 @@ public final class Block {
     return blockDefinition.description();
   }
 
+  /**
+   * Returns the list of {@link RepeatedEntity}s associated with this repeated block, where the
+   * first entity is the repeated entity from the first enumerator question, followed by more and
+   * more deeply nested repeated entities.
+   *
+   * <p>If this is not a repeated block, the map will be empty.
+   */
+  public ImmutableList<RepeatedEntity> getRepeatedEntities() {
+    return repeatedEntities;
+  }
+
   /** This block is an enumerator block if its {@link BlockDefinition} is an enumerator. */
   public boolean isEnumerator() {
     return blockDefinition.isEnumerator();
@@ -78,6 +92,14 @@ public final class Block {
     }
     throw new RuntimeException(
         "Only an enumerator block can have an enumeration question definition.");
+  }
+
+  /**
+   * This block is a file upload block if its {@link BlockDefinition} contains a file upload
+   * question.
+   */
+  public boolean isFileUpload() {
+    return blockDefinition.isFileUpload();
   }
 
   public ImmutableList<ApplicantQuestion> getQuestions() {

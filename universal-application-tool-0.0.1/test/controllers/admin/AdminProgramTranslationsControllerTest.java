@@ -18,7 +18,6 @@ import play.mvc.Result;
 import repository.ProgramRepository;
 import repository.WithPostgresContainer;
 import services.program.ProgramDefinition;
-import services.program.TranslationNotFoundException;
 import support.ProgramBuilder;
 
 public class AdminProgramTranslationsControllerTest extends WithPostgresContainer {
@@ -51,7 +50,7 @@ public class AdminProgramTranslationsControllerTest extends WithPostgresContaine
   }
 
   @Test
-  public void update_savesNewFields() throws TranslationNotFoundException {
+  public void update_savesNewFields() throws Exception {
     Program program = ProgramBuilder.newDraftProgram().build();
 
     Http.RequestBuilder requestBuilder =
@@ -71,9 +70,9 @@ public class AdminProgramTranslationsControllerTest extends WithPostgresContaine
             .join()
             .get()
             .getProgramDefinition();
-    assertThat(updatedProgram.getLocalizedName(Locale.forLanguageTag("es-US")))
+    assertThat(updatedProgram.localizedName().get(Locale.forLanguageTag("es-US")))
         .isEqualTo("nombre nuevo");
-    assertThat(updatedProgram.getLocalizedDescription(Locale.forLanguageTag("es-US")))
+    assertThat(updatedProgram.localizedDescription().get(Locale.forLanguageTag("es-US")))
         .isEqualTo("este es un programa");
   }
 

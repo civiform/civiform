@@ -45,18 +45,14 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                     FieldWithLabel.input()
                         .setFieldName(nameQuestion.getFirstNamePath().toString())
                         .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
-                        .setPlaceholderText(
-                            messages.at(MessageKey.NAME_PLACEHOLDER_FIRST.getKeyName()))
                         .setFloatLabel(true)
                         .setValue(nameQuestion.getFirstNameValue().orElse(""))
+                        .setFieldErrors(messages, nameQuestion.getFirstNameErrors())
                         .getContainer())
-                .with(fieldErrors(messages, nameQuestion.getFirstNameErrors()))
                 .with(
                     FieldWithLabel.input()
                         .setFieldName(nameQuestion.getMiddleNamePath().toString())
                         .setLabelText(messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName()))
-                        .setPlaceholderText(
-                            messages.at(MessageKey.NAME_PLACEHOLDER_MIDDLE.getKeyName()))
                         .setFloatLabel(true)
                         .setValue(nameQuestion.getMiddleNameValue().orElse(""))
                         .getContainer())
@@ -64,11 +60,9 @@ public class NameQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                     FieldWithLabel.input()
                         .setFieldName(nameQuestion.getLastNamePath().toString())
                         .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
-                        .setPlaceholderText(
-                            messages.at(MessageKey.NAME_PLACEHOLDER_LAST.getKeyName()))
                         .setFloatLabel(true)
                         .setValue(nameQuestion.getLastNameValue().orElse(""))
-                        .getContainer())
-                .with(fieldErrors(messages, nameQuestion.getLastNameErrors())));
+                        .setFieldErrors(messages, nameQuestion.getLastNameErrors())
+                        .getContainer()));
   }
 }

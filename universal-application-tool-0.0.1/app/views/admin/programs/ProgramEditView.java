@@ -25,8 +25,8 @@ public class ProgramEditView extends BaseHtmlView {
         ProgramFormBuilder.buildProgramForm(
                 program.adminName(),
                 program.adminDescription(),
-                program.getNameForDefaultLocale(),
-                program.getDescriptionForDefaultLocale(),
+                program.localizedName().getDefault(),
+                program.localizedDescription().getDefault(),
                 true)
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(program.id()))

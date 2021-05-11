@@ -20,8 +20,8 @@ import play.mvc.Result;
 import repository.QuestionRepository;
 import repository.VersionRepository;
 import repository.WithPostgresContainer;
-import services.Path;
-import services.question.exceptions.TranslationNotFoundException;
+import services.LocalizedStrings;
+import services.TranslationNotFoundException;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import support.TestQuestionBank;
@@ -91,8 +91,8 @@ public class AdminQuestionTranslationsControllerTest extends WithPostgresContain
             .join()
             .get()
             .getQuestionDefinition();
-    assertThat(updatedQuestion.getQuestionText(Locale.FRENCH)).isEqualTo("french");
-    assertThat(updatedQuestion.getQuestionHelpText(Locale.FRENCH)).isEqualTo("french help");
+    assertThat(updatedQuestion.getQuestionText().get(Locale.FRENCH)).isEqualTo("french");
+    assertThat(updatedQuestion.getQuestionHelpText().get(Locale.FRENCH)).isEqualTo("french help");
   }
 
   @Test
@@ -117,8 +117,8 @@ public class AdminQuestionTranslationsControllerTest extends WithPostgresContain
             .join()
             .get()
             .getQuestionDefinition();
-    assertThat(updatedQuestion.getQuestionText(Locale.US)).isEqualTo("new");
-    assertThat(updatedQuestion.getQuestionHelpText(Locale.US)).isEqualTo("new help");
+    assertThat(updatedQuestion.getQuestionText().get(Locale.US)).isEqualTo("new");
+    assertThat(updatedQuestion.getQuestionHelpText().get(Locale.US)).isEqualTo("new help");
   }
 
   @Test
@@ -154,11 +154,10 @@ public class AdminQuestionTranslationsControllerTest extends WithPostgresContain
     QuestionDefinition definition =
         new NameQuestionDefinition(
             "applicant name",
-            Path.create("applicant.applicant_name"),
             Optional.empty(),
             "name of applicant",
-            ImmutableMap.of(Locale.US, "what is your name?"),
-            ImmutableMap.of(Locale.US, "help text"));
+            LocalizedStrings.of(Locale.US, "what is your name?"),
+            LocalizedStrings.of(Locale.US, "help text"));
     Question question = new Question(definition);
     question.addVersion(draftVersion);
     question.save();

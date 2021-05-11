@@ -14,7 +14,7 @@ import play.mvc.Result;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.LocalizationUtils;
+import services.LocalizedStrings;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -114,7 +114,7 @@ public class AdminProgramController extends CiviFormController {
       ErrorAnd<ProgramDefinition, CiviFormError> result =
           service.updateProgramDefinition(
               id,
-              LocalizationUtils.DEFAULT_LOCALE,
+              LocalizedStrings.DEFAULT_LOCALE,
               program.getAdminDescription(),
               program.getLocalizedDisplayName(),
               program.getLocalizedDisplayDescription());

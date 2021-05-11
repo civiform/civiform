@@ -8,17 +8,17 @@ export class ApplicantQuestions {
   }
 
   async answerAddressQuestion(street: string, line2: string, city: string, state: string, zip: string) {
-    await this.page.fill('[placeholder="Street address"]', street);
-    await this.page.fill('[placeholder="Apartment, suite, unit, building, floor, etc."]', line2);
-    await this.page.fill('[placeholder="City"]', city);
-    await this.page.fill('[placeholder="State"]', state);
-    await this.page.fill('[placeholder="ZIP Code"]', zip);
+    await this.page.fill('input:near(:text("Address line 1"))', street);
+    await this.page.fill('input:near(:text("Address line 2"))', line2);
+    await this.page.fill('input:near(:text("City"))', city);
+    await this.page.fill('input:near(:text("State"))', state);
+    await this.page.fill('input:near(:text("ZIP Code"))', zip);
   }
 
   async answerNameQuestion(firstName: string, lastName: string, middleName = '') {
-    await this.page.fill('[placeholder="First name"]', firstName);
-    await this.page.fill('[placeholder="Middle name"]', middleName);
-    await this.page.fill('[placeholder="Last name"]', lastName);
+    await this.page.fill('input:near(:text("First name"))', firstName);
+    await this.page.fill('input:near(:text("Middle name"))', middleName);
+    await this.page.fill('input:near(:text("Last name"))', lastName);
   }
 
   async answerCheckboxQuestion(checked: Array<string>) {
@@ -28,7 +28,11 @@ export class ApplicantQuestions {
   }
 
   async answerFileUploadQuestion(text: string) {
-    await this.page.fill('input[type="text"]', text);
+    await this.page.setInputFiles('input[type=file]', {
+      name: 'file.txt',
+      mimeType: 'text/plain',
+      buffer: Buffer.from(text)
+    });
   }
 
   async answerRadioButtonQuestion(checked: string) {
@@ -48,7 +52,7 @@ export class ApplicantQuestions {
   }
 
   async addEnumeratorAnswer(entityName: string) {
-    await this.page.click('button:text("add element")');
+    await this.page.click('button:text("add item")');
     await this.page.fill('input:above(#enumerator-field-add-button)', entityName)
   }
 
@@ -63,10 +67,10 @@ export class ApplicantQuestions {
   async saveAndContinue() {
     await this.page.click('text="Save and continue"');
   }
-  
-  async submitFromReviewPage() {
+
+  async submitFromReviewPage(programName: string) {
     // assert that we're on the review page.
-    expect(await this.page.innerText('h1')).toContain('Application review');
+    expect(await this.page.innerText('h1')).toContain('Application review for ' + programName);
 
     // click on submit button.
     await this.page.click('text="Submit"');

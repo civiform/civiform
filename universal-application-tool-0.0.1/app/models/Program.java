@@ -2,6 +2,7 @@ package models;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.annotation.DbJson;
@@ -18,7 +19,7 @@ import javax.persistence.PostUpdate;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
-import services.LocalizationUtils;
+import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.ExportDefinition;
 import services.program.ProgramDefinition;
@@ -35,9 +36,24 @@ public class Program extends BaseModel {
 
   @Constraints.Required private String description;
 
-  @Constraints.Required @DbJsonB private ImmutableMap<Locale, String> localizedName;
+  // Not required - will be autofilled if not present.
+  private String slug;
 
-  @Constraints.Required @DbJsonB private ImmutableMap<Locale, String> localizedDescription;
+  @DbJsonB private LocalizedStrings localizedName;
+
+  /**
+   * legacyLocalizedName is the legacy storage column for program name translations. Programs
+   * created before early May 2021 may use this, but all other programs should not.
+   */
+  @DbJsonB private ImmutableMap<Locale, String> legacyLocalizedName;
+
+  @DbJsonB private LocalizedStrings localizedDescription;
+
+  /**
+   * legacyLocalizedDescription is the legacy storage column for program description translations.
+   * Programs created before early May 2021 may use this, but all other programs should not.
+   */
+  @DbJsonB private ImmutableMap<Locale, String> legacyLocalizedDescription;
 
   @Constraints.Required @DbJson private ImmutableList<BlockDefinition> blockDefinitions;
 
@@ -81,9 +97,8 @@ public class Program extends BaseModel {
     this.name = adminName;
     this.description = adminDescription;
     // A program is always created with the default CiviForm locale first, then localized.
-    this.localizedName = ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, defaultDisplayName);
-    this.localizedDescription =
-        ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, defaultDisplayDescription);
+    this.localizedName = LocalizedStrings.withDefaultValue(defaultDisplayName);
+    this.localizedDescription = LocalizedStrings.withDefaultValue(defaultDisplayDescription);
     BlockDefinition emptyBlock =
         BlockDefinition.builder()
             .setId(1L)
@@ -105,6 +120,7 @@ public class Program extends BaseModel {
     localizedDescription = programDefinition.localizedDescription();
     blockDefinitions = programDefinition.blockDefinitions();
     exportDefinitions = programDefinition.exportDefinitions();
+    slug = programDefinition.slug();
   }
 
   /** Populates {@link ProgramDefinition} from column values. */
@@ -112,16 +128,38 @@ public class Program extends BaseModel {
   @PostPersist
   @PostUpdate
   public void loadProgramDefinition() {
-    this.programDefinition =
+    ProgramDefinition.Builder builder =
         ProgramDefinition.builder()
             .setId(id)
             .setAdminName(name)
             .setAdminDescription(description)
-            .setLocalizedName(localizedName)
-            .setLocalizedDescription(localizedDescription)
             .setBlockDefinitions(blockDefinitions)
-            .setExportDefinitions(exportDefinitions)
-            .build();
+            .setExportDefinitions(exportDefinitions);
+
+    setLocalizedName(builder);
+    setLocalizedDescription(builder);
+    this.programDefinition = builder.build();
+  }
+
+  /** The majority of programs should have `localizedName` and not `legacyLocalizedName`. */
+  private void setLocalizedName(ProgramDefinition.Builder builder) {
+    if (localizedName != null) {
+      builder.setLocalizedName(localizedName);
+      return;
+    }
+    builder.setLocalizedName(LocalizedStrings.create(legacyLocalizedName));
+  }
+
+  /**
+   * The majority of programs should have `localizedDescription` and not
+   * `legacyLocalizedDescription`.
+   */
+  private void setLocalizedDescription(ProgramDefinition.Builder builder) {
+    if (localizedDescription != null) {
+      builder.setLocalizedDescription(localizedDescription);
+      return;
+    }
+    builder.setLocalizedDescription(LocalizedStrings.create(legacyLocalizedDescription));
   }
 
   public ImmutableList<Application> getApplications() {
@@ -130,5 +168,12 @@ public class Program extends BaseModel {
 
   public void addVersion(Version version) {
     this.versions.add(version);
+  }
+
+  public String getSlug() {
+    if (Strings.isNullOrEmpty(this.slug)) {
+      this.slug = this.programDefinition.slug();
+    }
+    return this.slug;
   }
 }

@@ -20,7 +20,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import services.LocalizationUtils;
+import services.LocalizedStrings;
 import services.Path;
 import services.WellKnownPaths;
 import services.applicant.question.Scalar;
@@ -66,7 +66,7 @@ public class ApplicantData {
 
   /** Returns this applicant's preferred locale if it is set, or the default locale if not set. */
   public Locale preferredLocale() {
-    return this.preferredLocale.orElse(LocalizationUtils.DEFAULT_LOCALE);
+    return this.preferredLocale.orElse(LocalizedStrings.DEFAULT_LOCALE);
   }
 
   public void setPreferredLocale(Locale locale) {
@@ -167,7 +167,9 @@ public class ApplicantData {
   }
 
   private void putNull(Path path) {
-    put(path, null);
+    if (!path.isArrayElement()) {
+      put(path, null);
+    }
   }
 
   /**
@@ -201,6 +203,13 @@ public class ApplicantData {
   private void putArrayIfMissing(Path path) {
     if (!hasPath(path)) {
       putAt(path, new ArrayList<>());
+    }
+  }
+
+  /** Clears an array in preparation of updates. */
+  public void maybeClearArray(Path path) {
+    if (path.isArrayElement()) {
+      putAt(path.withoutArrayReference(), new ArrayList<>());
     }
   }
 
@@ -507,7 +516,7 @@ public class ApplicantData {
     setUserName(firstName, middleName, lastName);
   }
 
-  private void setUserName(
+  public void setUserName(
       String firstName, @Nullable String middleName, @Nullable String lastName) {
     if (!hasPath(WellKnownPaths.APPLICANT_FIRST_NAME)) {
       putString(WellKnownPaths.APPLICANT_FIRST_NAME, firstName);

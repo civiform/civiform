@@ -1,4 +1,4 @@
-package repository;
+package services.aws;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -229,7 +229,7 @@ public abstract class SignedS3UploadRequest {
               .setExpiration(expiration())
               .setBucket(bucket())
               .setKeyPrefix(key().replace("${filename}", ""))
-              .setContentLengthRange(1, 30 * MB_TO_BYTES)
+              .setContentLengthRange(1, 1024 * MB_TO_BYTES)
               .setSuccessActionRedirect(successActionRedirect())
               .setCredential(credential())
               .setAlgorithm(algorithm())

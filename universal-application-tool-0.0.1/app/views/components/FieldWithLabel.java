@@ -1,10 +1,12 @@
 package views.components;
 
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.each;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.textarea;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
@@ -12,6 +14,8 @@ import j2html.tags.Tag;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import play.i18n.Messages;
+import services.applicant.ValidationErrorMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -19,8 +23,8 @@ import views.style.Styles;
 
 public class FieldWithLabel {
   private static final String[] CORE_FIELD_CLASSES = {
-    BaseStyles.FIELD_BACKGROUND_COLOR,
     BaseStyles.FIELD_BORDER_COLOR,
+    Styles.BG_GRAY_50,
     Styles.BLOCK,
     Styles.BORDER,
     Styles.P_2,
@@ -47,20 +51,18 @@ public class FieldWithLabel {
   };
 
   private static final String[] FLOATED_FIELD_CLASSES = {
-    Styles.FONT_SEMIBOLD,
+    Styles.OUTLINE_NONE,
     Styles.PX_3,
     Styles.PT_6,
     Styles.PB_2,
     Styles.M_AUTO,
-    Styles.BORDER_4,
-    Styles.BG_WHITE,
-    Styles.TEXT_XL,
-    Styles.ROUNDED_XL,
+    Styles.BORDER,
+    BaseStyles.FIELD_BORDER_COLOR,
+    Styles.ROUNDED_LG,
     Styles.W_FULL,
-    Styles.TEXT_BASE,
-    Styles.OUTLINE_NONE,
+    Styles.TEXT_LG,
     Styles.PLACEHOLDER_GRAY_400,
-    StyleUtils.focus(Styles.BORDER_YELLOW_400)
+    StyleUtils.focus(Styles.BORDER_BLUE_500)
   };
 
   private static final String[] FLOATED_LABEL_CLASSES = {
@@ -74,6 +76,9 @@ public class FieldWithLabel {
     Styles.PY_2
   };
 
+  private static final ImmutableSet<String> STRING_TYPES =
+      ImmutableSet.of("text", "checkbox", "date", "email");
+
   protected Tag fieldTag;
   protected String fieldName = "";
   protected String fieldType = "text";
@@ -86,12 +91,14 @@ public class FieldWithLabel {
   protected String id = "";
   protected String labelText = "";
   protected String placeholderText = "";
+  protected Messages messages;
+  protected ImmutableSet<ValidationErrorMessage> fieldErrors = ImmutableSet.of();
   protected boolean checked = false;
   protected boolean floatLabel = false;
   protected boolean disabled = false;
 
   public FieldWithLabel(Tag fieldTag) {
-    this.fieldTag = fieldTag.withClasses(FieldWithLabel.CORE_FIELD_CLASSES);
+    this.fieldTag = fieldTag;
   }
 
   public static FieldWithLabel checkbox() {
@@ -109,9 +116,19 @@ public class FieldWithLabel {
     return new FieldWithLabel(fieldTag).setFieldType("number");
   }
 
+  public static FieldWithLabel date() {
+    Tag fieldTag = TagCreator.input();
+    return new FieldWithLabel(fieldTag).setFieldType("date");
+  }
+
   public static FieldWithLabel textArea() {
     Tag fieldTag = textarea();
     return new FieldWithLabel(fieldTag).setFieldType("text");
+  }
+
+  public static FieldWithLabel email() {
+    Tag fieldTag = TagCreator.input();
+    return new FieldWithLabel(fieldTag).setFieldType("email");
   }
 
   public FieldWithLabel setChecked(boolean checked) {
@@ -156,7 +173,7 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setValue(String value) {
-    if (!this.fieldType.equals("text") && !this.fieldType.equals("checkbox")) {
+    if (!STRING_TYPES.contains(this.fieldType)) {
       throw new RuntimeException(
           String.format(
               "setting a String value is not available on fields of type `%s`", this.fieldType));
@@ -167,7 +184,7 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setValue(Optional<String> value) {
-    if (this.fieldType.equals("number")) {
+    if (!STRING_TYPES.contains(this.fieldType)) {
       throw new RuntimeException(
           "setting a String value is not available on fields of type 'number'");
     }
@@ -201,14 +218,17 @@ public class FieldWithLabel {
     return this;
   }
 
+  public FieldWithLabel setFieldErrors(
+      Messages messages, ImmutableSet<ValidationErrorMessage> errors) {
+    this.messages = messages;
+    this.fieldErrors = errors;
+    return this;
+  }
+
   public ContainerTag getContainer() {
     if (fieldTag.getTagName().equals("textarea")) {
       // Have to recreate the field here in case the value is modified.
-      ContainerTag textAreaTag =
-          textarea()
-              .withType("text")
-              .withClasses(FieldWithLabel.CORE_FIELD_CLASSES)
-              .withText(this.fieldValue);
+      ContainerTag textAreaTag = textarea().withType("text").withText(this.fieldValue);
       fieldTag = textAreaTag;
     } else if (this.fieldType.equals("number")) {
       // For number types, only set the value if it's present since there is no empty string
@@ -220,7 +240,15 @@ public class FieldWithLabel {
       fieldTag.withValue(this.fieldValue);
     }
 
+    String fieldTagClasses = StyleUtils.joinStyles(CORE_FIELD_CLASSES);
+    if (!fieldErrors.isEmpty()) {
+      fieldTagClasses = StyleUtils.joinStyles(fieldTagClasses, BaseStyles.FIELD_ERROR_BORDER_COLOR);
+    }
+
+    if (Strings.isNullOrEmpty(this.id)) this.id = this.fieldName;
+
     fieldTag
+        .withClasses(fieldTagClasses)
         .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
         .withName(this.fieldName)
         .condAttr(this.disabled, "disabled", "true")
@@ -238,15 +266,22 @@ public class FieldWithLabel {
             .withText(this.labelText);
 
     if (this.floatLabel) {
-      fieldTag.withClasses(FieldWithLabel.FLOATED_FIELD_CLASSES);
+      fieldTagClasses = StyleUtils.joinStyles(FieldWithLabel.FLOATED_FIELD_CLASSES);
+      if (!fieldErrors.isEmpty()) {
+        fieldTagClasses =
+            StyleUtils.joinStyles(fieldTagClasses, BaseStyles.FIELD_ERROR_BORDER_COLOR);
+      }
+
+      fieldTag.withClasses(fieldTagClasses);
       labelTag.withClasses(FieldWithLabel.FLOATED_LABEL_CLASSES);
 
       return div()
           .with(
-              div(fieldTag, labelTag)
-                  .withClasses(ReferenceClasses.FLOATED_LABEL, Styles.MY_2, Styles.RELATIVE));
+              div(fieldTag, labelTag, buildFieldErrorsTag())
+                  .withClasses(ReferenceClasses.FLOATED_LABEL, Styles.MB_4, Styles.RELATIVE));
     }
-    return div(labelTag, fieldTag).withClasses(Styles.MX_4, Styles.MB_6);
+
+    return div(labelTag, fieldTag, buildFieldErrorsTag()).withClasses(Styles.MX_4, Styles.MB_4);
   }
 
   /** Swaps the order of the label and field, possibly adds, and adds different styles. */
@@ -263,5 +298,10 @@ public class FieldWithLabel {
             .withText(this.labelText);
 
     return div(fieldTag, labelTag).withClasses(Styles.M_4, Styles.MB_1);
+  }
+
+  private Tag buildFieldErrorsTag() {
+    return div(each(fieldErrors, error -> div(error.getMessage(messages))))
+        .withClasses(StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT, Styles.PX_2));
   }
 }

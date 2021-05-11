@@ -4,63 +4,43 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableMap;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
-import services.Path;
+import services.LocalizedStrings;
 
 public class TextQuestionDefinition extends QuestionDefinition {
 
   public TextQuestionDefinition(
       OptionalLong id,
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText,
       TextValidationPredicates validationPredicates) {
     super(
-        id,
-        name,
-        path,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates);
+        id, name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
   }
 
   public TextQuestionDefinition(
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText,
       TextValidationPredicates validationPredicates) {
-    super(
-        name,
-        path,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates);
+    super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
   }
 
   public TextQuestionDefinition(
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText) {
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText) {
     super(
         name,
-        path,
         enumeratorId,
         description,
         questionText,
@@ -124,19 +104,6 @@ public class TextQuestionDefinition extends QuestionDefinition {
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.TEXT;
-  }
-
-  @Override
-  ImmutableMap<Path, ScalarType> getScalarMap() {
-    return ImmutableMap.of(getTextPath(), getTextType());
-  }
-
-  public Path getTextPath() {
-    return getPath().join("text");
-  }
-
-  public ScalarType getTextType() {
-    return ScalarType.STRING;
   }
 
   public OptionalInt getMinLength() {

@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import repository.WithPostgresContainer;
+import services.LocalizedStrings;
 import services.Path;
 import services.program.ExportDefinition;
 import services.program.ExportEngine;
@@ -40,8 +41,8 @@ public class PdfExporterTest extends WithPostgresContainer {
             .setId(1L)
             .setAdminName("fake program")
             .setAdminDescription("Admin description")
-            .addLocalizedName(Locale.US, "fake program")
-            .addLocalizedDescription(Locale.US, "fake program description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "fake program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "fake program description"))
             .addExportDefinition(
                 ExportDefinition.builder()
                     .setEngine(ExportEngine.PDF)

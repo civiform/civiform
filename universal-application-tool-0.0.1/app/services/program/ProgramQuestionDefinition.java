@@ -18,7 +18,6 @@ public abstract class ProgramQuestionDefinition {
   @JsonProperty("id")
   public abstract long id();
 
-  @JsonIgnore
   abstract Optional<QuestionDefinition> questionDefinition();
 
   @JsonIgnore

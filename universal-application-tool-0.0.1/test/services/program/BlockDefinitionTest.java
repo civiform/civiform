@@ -31,10 +31,17 @@ public class BlockDefinitionTest {
   }
 
   @Test
-  public void isRepeated_isFalse() throws Exception {
+  public void isRepeated_isFalse() {
     BlockDefinition blockDefinition = makeBlockDefinitionWithQuestions();
 
     assertThat(blockDefinition.isRepeated()).isFalse();
+  }
+
+  @Test
+  public void isFileUpload_isFalse() {
+    BlockDefinition blockDefinition = makeBlockDefinitionWithQuestions();
+
+    assertThat(blockDefinition.isFileUpload()).isFalse();
   }
 
   @Test
@@ -58,6 +65,21 @@ public class BlockDefinitionTest {
         makeBlockDefinitionWithQuestions().toBuilder().setEnumeratorId(Optional.of(1L)).build();
 
     assertThat(blockDefinition.isRepeated()).isTrue();
+  }
+
+  @Test
+  public void isFileUpload_isTrue() {
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    testQuestionBank.applicantFile().getQuestionDefinition()))
+            .build();
+
+    assertThat(blockDefinition.isFileUpload()).isTrue();
   }
 
   private BlockDefinition makeBlockDefinitionWithQuestions() {

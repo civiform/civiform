@@ -3,7 +3,10 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import auth.UatProfile;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Comparator;
@@ -21,6 +24,7 @@ import models.Program;
 import models.TrustedIntermediaryGroup;
 import play.db.ebean.EbeanConfig;
 import services.program.ProgramDefinition;
+import services.ti.EmailAddressExistsException;
 import services.ti.NoSuchTrustedIntermediaryError;
 import services.ti.NoSuchTrustedIntermediaryGroupError;
 
@@ -102,10 +106,23 @@ public class UserRepository {
         () -> {
           Optional<Account> accountMaybe = lookupAccount(emailAddress);
           // Return the applicant which was most recently created.
-          return accountMaybe.flatMap(
-              account ->
-                  account.getApplicants().stream()
-                      .max(Comparator.comparing(compared -> compared.getWhenCreated())));
+          // If no applicant exists, this is probably an account waiting for
+          // a trusted intermediary - create one.
+          if (accountMaybe.isEmpty()) {
+            return Optional.empty();
+          }
+          Optional<Applicant> applicantMaybe =
+              accountMaybe.flatMap(
+                  account ->
+                      account.getApplicants().stream()
+                          .max(Comparator.comparing(compared -> compared.getWhenCreated())));
+          if (applicantMaybe.isPresent()) {
+            return applicantMaybe;
+          }
+          Applicant newApplicant = new Applicant();
+          newApplicant.setAccount(accountMaybe.get());
+          newApplicant.save();
+          return Optional.of(newApplicant);
         },
         executionContext);
   }
@@ -230,5 +247,57 @@ public class UserRepository {
 
   private Optional<Account> lookupAccount(long accountId) {
     return ebeanServer.find(Account.class).setId(accountId).findOneOrEmpty();
+  }
+
+  public Optional<TrustedIntermediaryGroup> getTrustedIntermediaryGroup(UatProfile uatProfile) {
+    return uatProfile.getAccount().join().getMemberOfGroup();
+  }
+
+  /**
+   * Create an applicant and add it to the provided trusted intermediary group. Associate it with an
+   * email address if one is provided, but if one is not provided, use an anonymous (guest-style)
+   * account.
+   *
+   * @throws EmailAddressExistsException if the provided email address already exists.
+   */
+  public void createNewApplicantForTrustedIntermediaryGroup(
+      AddApplicantToTrustedIntermediaryGroupForm form, TrustedIntermediaryGroup tiGroup)
+      throws EmailAddressExistsException {
+    Account newAccount = new Account();
+    if (!Strings.isNullOrEmpty(form.getEmailAddress())) {
+      if (lookupAccount(form.getEmailAddress()).isPresent()) {
+        throw new EmailAddressExistsException();
+      }
+      newAccount.setEmailAddress(form.getEmailAddress());
+    }
+    newAccount.setManagedByGroup(tiGroup);
+    newAccount.save();
+    Applicant applicant = new Applicant();
+    applicant.setAccount(newAccount);
+    applicant
+        .getApplicantData()
+        .setUserName(form.getFirstName(), form.getMiddleName(), form.getLastName());
+    applicant.save();
+  }
+
+  /**
+   * Adds the given program as an administered program by the given account. If the account does not
+   * exist, this will create a new account for the given email, so that when a user with that email
+   * signs in for the first time they will be a program admin.
+   *
+   * @param accountEmail the email of the account that will administer the given program
+   * @param program the {@link ProgramDefinition} to add to this given account
+   */
+  public void addAdministeredProgram(String accountEmail, ProgramDefinition program) {
+    Optional<Account> maybeAccount = lookupAccount(accountEmail);
+    Account account =
+        maybeAccount.orElseGet(
+            () -> {
+              Account a = new Account();
+              a.setEmailAddress(accountEmail);
+              return a;
+            });
+    account.addAdministeredProgram(program);
+    account.save();
   }
 }

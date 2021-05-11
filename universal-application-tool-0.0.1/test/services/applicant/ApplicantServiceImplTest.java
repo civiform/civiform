@@ -17,6 +17,7 @@ import org.junit.Test;
 import repository.UserRepository;
 import repository.WithPostgresContainer;
 import services.ErrorAnd;
+import services.LocalizedStrings;
 import services.Path;
 import services.applicant.question.Scalar;
 import services.program.PathNotInBlockException;
@@ -124,14 +125,14 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             .create(
                 new CheckboxQuestionDefinition(
                     "checkbox",
-                    Path.create("applicant.checkbox"),
                     Optional.empty(),
                     "description",
-                    ImmutableMap.of(Locale.US, "question?"),
-                    ImmutableMap.of(Locale.US, "help text"),
+                    LocalizedStrings.of(Locale.US, "question?"),
+                    LocalizedStrings.of(Locale.US, "help text"),
                     ImmutableList.of(
-                        QuestionOption.create(1L, ImmutableMap.of(Locale.US, "cat")),
-                        QuestionOption.create(2L, ImmutableMap.of(Locale.US, "dog")))))
+                        QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "cat")),
+                        QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "dog")),
+                        QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "horse")))))
             .getResult();
     createProgram(multiSelectQuestion);
 
@@ -142,6 +143,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         ImmutableMap.<String, String>builder()
             .put(checkboxPath.atIndex(0).toString(), "1")
             .put(checkboxPath.atIndex(1).toString(), "2")
+            .put(checkboxPath.atIndex(2).toString(), "3")
             .build();
 
     ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
@@ -158,7 +160,46 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     assertThat(
             applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTION)))
-        .hasValue(ImmutableList.of(1L, 2L));
+        .hasValue(ImmutableList.of(1L, 2L, 3L));
+
+    // Ensure that we can successfully overwrite the array.
+    rawUpdates =
+        ImmutableMap.<String, String>builder()
+            .put(checkboxPath.atIndex(0).toString(), "3")
+            .put(checkboxPath.atIndex(1).toString(), "1")
+            .build();
+    errorAnd =
+        subject
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", rawUpdates)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(errorAnd.isError()).isFalse();
+    assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
+
+    applicantDataAfter = userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    assertThat(
+            applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTION)))
+        .hasValue(ImmutableList.of(3L, 1L));
+
+    // Clear values by sending an empty item.
+    rawUpdates =
+        ImmutableMap.<String, String>builder().put(checkboxPath.atIndex(0).toString(), "").build();
+    errorAnd =
+        subject
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", rawUpdates)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(errorAnd.isError()).isFalse();
+    assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
+
+    applicantDataAfter = userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    assertThat(
+            applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTION)))
+        .hasValue(ImmutableList.of());
   }
 
   @Test
@@ -342,11 +383,10 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             .create(
                 new NameQuestionDefinition(
                     "name",
-                    Path.create("applicant.name"),
                     Optional.empty(),
                     "description",
-                    ImmutableMap.of(Locale.US, "question?"),
-                    ImmutableMap.of(Locale.US, "help text")))
+                    LocalizedStrings.of(Locale.US, "question?"),
+                    LocalizedStrings.of(Locale.US, "help text")))
             .getResult();
   }
 
