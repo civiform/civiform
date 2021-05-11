@@ -52,7 +52,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     block -> this.renderApplicationBlock(application.getApplicantData(), block)),
                 renderDownloadButton(programId, application.id));
 
-    return layout.render(head(layout.tailwindStyles()), body(contentDiv));
+    return layout.render(layout.headContent(), body(contentDiv));
   }
 
   private Tag renderDownloadButton(long programId, long applicationId) {

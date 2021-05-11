@@ -3,7 +3,6 @@ package views.admin;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.head;
 import static j2html.TagCreator.main;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
@@ -80,7 +79,7 @@ public class AdminLayout extends BaseHtmlLayout {
         StyleUtils.joinStyles(mainStyles));
 
     return htmlContent(
-        head(tailwindStyles()),
+            headContent(),
         body()
             .with(renderNavBar())
             .with(mainContent)

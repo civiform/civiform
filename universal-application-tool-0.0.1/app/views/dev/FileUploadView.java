@@ -44,15 +44,15 @@ public class FileUploadView extends BaseHtmlView {
       ImmutableList<StoredFile> files,
       Optional<String> maybeFlash) {
     return layout.htmlContent(
-        head(title("Dev File Upload"), layout.tailwindStyles()),
-        body()
-            .with(div(maybeFlash.orElse("")))
-            .with(h1("Dev File Upload"))
-            .with(div().with(fileUploadForm(signedRequest)))
-            .with(
-                div()
-                    .withClasses(Styles.GRID, Styles.GRID_COLS_2)
-                    .with(div().with(h2("Current Files:")).with(pre(renderFiles(files))))));
+            layout.headContent("Dev File Upload"),
+            body()
+                    .with(div(maybeFlash.orElse("")))
+                    .with(h1("Dev File Upload"))
+                    .with(div().with(fileUploadForm(signedRequest)))
+                    .with(
+                            div()
+                                    .withClasses(Styles.GRID, Styles.GRID_COLS_2)
+                                    .with(div().with(h2("Current Files:")).with(pre(renderFiles(files))))));
   }
 
   private ContainerTag renderFiles(ImmutableList<StoredFile> files) {

@@ -49,7 +49,7 @@ public class DatabaseSeedView extends BaseHtmlView {
     String prettyQuestions = getPrettyJson(questionDefinitions);
 
     return layout.htmlContent(
-        head(title("Dev Database Seeder"), layout.tailwindStyles()),
+        layout.headContent("Dev Database Seeder"),
         body()
             .with(div(maybeFlash.orElse("")))
             .with(h1("Dev Database Seeder"))

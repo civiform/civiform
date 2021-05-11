@@ -46,7 +46,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
   protected Content render(
       Optional<UatProfile> profile, Messages messages, DomContent... mainDomContents) {
     return htmlContent(
-        head().with(title("Applicant layout title")).with(tailwindStyles()),
+        headContent("Applicant layout title"),
         body()
             .with(renderNavBar(profile, messages))
             .with(mainDomContents)

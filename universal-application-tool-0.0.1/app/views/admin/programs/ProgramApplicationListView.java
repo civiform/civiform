@@ -40,7 +40,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     application -> this.renderApplicationListItem(programId, application)),
                 renderDownloadButton(programId));
 
-    return layout.render(head(layout.tailwindStyles()), body(contentDiv));
+    return layout.render(layout.headContent(), body(contentDiv));
   }
 
   private Tag renderDownloadButton(long programId) {

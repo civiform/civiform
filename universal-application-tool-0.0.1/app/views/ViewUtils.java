@@ -1,8 +1,10 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.head;
 import static j2html.TagCreator.link;
 import static j2html.TagCreator.script;
+import static j2html.TagCreator.title;
 
 import controllers.AssetsFinder;
 import j2html.tags.Tag;
@@ -27,6 +29,20 @@ public final class ViewUtils {
     return script()
         .withSrc(assetsFinder.path("javascripts/" + filename + ".js"))
         .withType("text/javascript");
+  }
+
+  public Tag makeHead(String cssfile, String trackingtag, String... titlestr) {
+
+    String thetitle = titlestr.length > 0 ? titlestr[0] : "";
+
+    return head(
+            title(thetitle),
+            link().withHref(assetsFinder.path("stylesheets/" + cssfile + ".css")).withRel("stylesheet"),
+            script()
+                    .withSrc("https://www.googletagmanager.com/gtag/js?id=" + trackingtag)
+                    .attr("async", "true")
+                    .withType("text/javascript"),
+            makeLocalJsTag("ga"));
   }
 
   /**

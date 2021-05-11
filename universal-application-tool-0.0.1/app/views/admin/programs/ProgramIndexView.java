@@ -48,7 +48,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                             programs.getDraftProgramDefinition(name),
                             request)));
 
-    return layout.render(head(layout.tailwindStyles()), body(contentDiv));
+    return layout.render(layout.headContent(), body(contentDiv));
   }
 
   private Tag maybeRenderPublishButton(ActiveAndDraftPrograms programs, Http.Request request) {
