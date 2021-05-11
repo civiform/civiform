@@ -14,6 +14,7 @@ import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -156,5 +157,33 @@ public class QuestionTest extends WithPostgresContainer {
         .isEqualTo(
             ImmutableList.of(QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option"))));
     assertThat(multiOption.getEnumeratorId()).hasValue(123L);
+  }
+
+  @Test
+  public void canSerializeAndDeserializeEnumeratorQuestion()
+      throws UnsupportedQuestionTypeException {
+    LocalizedStrings entityType = LocalizedStrings.of(Locale.US, "entity");
+
+    QuestionDefinition definition =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.ENUMERATOR)
+            .setName("")
+            .setDescription("")
+            .setEnumeratorId(Optional.of(123L))
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .setEntityType(entityType)
+            .build();
+    Question question = new Question(definition);
+
+    question.save();
+
+    Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+
+    assertThat(found.getQuestionDefinition().getQuestionType()).isEqualTo(QuestionType.ENUMERATOR);
+    EnumeratorQuestionDefinition enumerator =
+        (EnumeratorQuestionDefinition) found.getQuestionDefinition();
+
+    assertThat(enumerator.getEntityType()).isEqualTo(entityType);
   }
 }

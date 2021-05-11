@@ -1,11 +1,11 @@
 package services.question.types;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.auto.value.AutoValue;
 import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Enumerator questions provide a variable list of user-defined identifiers for some repeated

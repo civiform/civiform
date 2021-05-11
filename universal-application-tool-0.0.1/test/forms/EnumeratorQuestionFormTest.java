@@ -26,6 +26,7 @@ public class EnumeratorQuestionFormTest {
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
+            LocalizedStrings.empty(),
             LocalizedStrings.empty());
 
     QuestionDefinition actual = builder.build();
@@ -41,6 +42,7 @@ public class EnumeratorQuestionFormTest {
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
+            LocalizedStrings.empty(),
             LocalizedStrings.empty());
 
     EnumeratorQuestionForm form = new EnumeratorQuestionForm(originalQd);

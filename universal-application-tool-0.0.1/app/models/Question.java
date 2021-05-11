@@ -193,7 +193,8 @@ public class Question extends BaseModel {
     builder.setQuestionOptions(options);
   }
 
-  private void setEnumeratorEntityType(QuestionDefinitionBuilder builder) throws InvalidQuestionTypeException {
+  private void setEnumeratorEntityType(QuestionDefinitionBuilder builder)
+      throws InvalidQuestionTypeException {
     if (QuestionType.of(questionType).equals(QuestionType.ENUMERATOR)) {
       builder.setEntityType(enumeratorEntityType);
     }
