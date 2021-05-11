@@ -36,6 +36,8 @@ public class Question extends BaseModel {
 
   private QuestionDefinition questionDefinition;
 
+  private @Constraints.Required String path;
+
   /** Different versions of the same question are linked by their immutable name. */
   private @Constraints.Required String name;
 
