@@ -2,6 +2,7 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.body;
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
@@ -12,20 +13,29 @@ import com.google.inject.Inject;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
+import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.Block;
+import services.applicant.EnumeratorContext;
+import services.applicant.RepeatedEntity;
 import services.applicant.question.ApplicantQuestion;
 import services.aws.SignedS3UploadRequest;
 import services.aws.SimpleStorage;
+import services.question.types.EnumeratorQuestionDefinition;
 import views.BaseHtmlView;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.EnumeratorQuestionRenderer;
+import views.style.Styles;
+
+import java.util.Locale;
 
 public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
@@ -43,7 +53,10 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     ContainerTag headerTag = layout.renderHeader(params.percentComplete());
 
     ContainerTag body =
-        body().with(h1(params.block().getName())).with(renderBlockWithSubmitForm(params));
+        body()
+            .with(h1(params.block().getName()))
+            .with(renderEnumeratorContext(params.block().getEnumeratorContext(), params.messages()))
+            .with(renderBlockWithSubmitForm(params));
 
     if (!params.preferredLanguageSupported()) {
       body.with(
@@ -60,7 +73,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
                   .block()
                   .getEnumeratorQuestion()
                   .createEnumeratorQuestion()
-                  .getEntityType(params.messages(), params.messages().lang().toLocale()),
+                  .getEntityType(params.messages()),
               params.messages()));
     }
 
@@ -141,6 +154,39 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
   private Tag renderQuestion(ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     return applicantQuestionRendererFactory.getRenderer(question).render(params);
+  }
+
+  private Tag renderEnumeratorContext(EnumeratorContext enumeratorContext, Messages messages) {
+    ContainerTag contextDiv = div().withClasses(Styles.W_8);
+
+    // Render the ancestors, but not the repeated entity.
+    for (int level = 0; level < enumeratorContext.ancestors().size() - 1; level++) {
+      RepeatedEntity ancestor = enumeratorContext.ancestors().get(level);
+      String ancestorType = getEntityType(messages, ancestor.enumeratorQuestionDefinition().getEntityType());
+      String ancestorString = String.format(
+          "%s: %s", ancestorType, ancestor.entityName());
+      contextDiv.with(div(ancestorString).withClass("pl-" + level * 2));
+    }
+
+    // Render the siblings and the repeated entity.
+    int level = enumeratorContext.ancestors().size();
+    String entityType = getEntityType(messages, enumeratorContext.repeatedEntity().get().enumeratorQuestionDefinition().getEntityType());
+    contextDiv.with(div(entityType).withClasses("pl-" + level * 2));
+    for (RepeatedEntity repeatedEntity : enumeratorContext.siblings()) {
+      if (repeatedEntity.equals(enumeratorContext.repeatedEntity().get())) {
+        contextDiv.with(div(repeatedEntity.entityName()).withClasses("pl-" + (level + 1) * 2, Styles.FONT_BOLD));
+      } else {
+        contextDiv.with(div(repeatedEntity.entityName()).withClasses("pl-" + (level + 1) * 2));
+      }
+    }
+    return contextDiv;
+  }
+
+  private String getEntityType(Messages messages, LocalizedStrings entityTypeTranslations) {
+    if (entityTypeTranslations.isEmpty()) {
+      return messages.at(MessageKey.ENUMERATOR_STRING_DEFAULT_ENTITY_TYPE.getKeyName());
+    }
+    return entityTypeTranslations.getOrDefault(messages.lang().toLocale());
   }
 
   @AutoValue

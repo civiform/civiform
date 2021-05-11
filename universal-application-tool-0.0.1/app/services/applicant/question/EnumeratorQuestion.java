@@ -81,12 +81,12 @@ public class EnumeratorQuestion implements PresentsErrors {
    * "job", "household member". If the admin did not configure this, it defaults to {@link
    * MessageKey#ENUMERATOR_STRING_DEFAULT_ENTITY_TYPE}.
    */
-  public String getEntityType(Messages messages, Locale locale) {
+  public String getEntityType(Messages messages) {
     LocalizedStrings translations = getQuestionDefinition().getEntityType();
     if (translations.isEmpty()) {
       return messages.at(MessageKey.ENUMERATOR_STRING_DEFAULT_ENTITY_TYPE.getKeyName());
     }
-    return translations.getOrDefault(locale);
+    return translations.getOrDefault(messages.lang().toLocale());
   }
 
   @Override

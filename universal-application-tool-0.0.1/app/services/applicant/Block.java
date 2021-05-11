@@ -38,8 +38,7 @@ public final class Block {
 
   private final BlockDefinition blockDefinition;
   private final ApplicantData applicantData;
-  private final Path contextualizedPath;
-  private final ImmutableList<RepeatedEntity> repeatedEntities;
+  private final EnumeratorContext enumeratorContext;
 
   private Optional<ImmutableList<ApplicantQuestion>> questionsMemo = Optional.empty();
   private Optional<ImmutableMap<Path, ScalarType>> scalarsMemo = Optional.empty();
@@ -48,13 +47,11 @@ public final class Block {
       String id,
       BlockDefinition blockDefinition,
       ApplicantData applicantData,
-      Path contextualizedPath,
-      ImmutableList<RepeatedEntity> repeatedEntities) {
+      EnumeratorContext enumeratorContext) {
     this.id = id;
     this.blockDefinition = checkNotNull(blockDefinition);
     this.applicantData = checkNotNull(applicantData);
-    this.contextualizedPath = checkNotNull(contextualizedPath);
-    this.repeatedEntities = checkNotNull(repeatedEntities);
+    this.enumeratorContext = checkNotNull(enumeratorContext);
   }
 
   public String getId() {
@@ -70,6 +67,12 @@ public final class Block {
   }
 
   /**
+   * Returns the context surrounding the {@link RepeatedEntity} for this block.
+   * If this is not a repeated block, the {@link EnumeratorContext} is empty.
+   */
+  public EnumeratorContext getEnumeratorContext() { return enumeratorContext; }
+
+  /**
    * Returns the list of {@link RepeatedEntity}s associated with this repeated block, where the
    * first entity is the repeated entity from the first enumerator question, followed by more and
    * more deeply nested repeated entities.
@@ -77,7 +80,7 @@ public final class Block {
    * <p>If this is not a repeated block, the map will be empty.
    */
   public ImmutableList<RepeatedEntity> getRepeatedEntities() {
-    return repeatedEntities;
+    return enumeratorContext.ancestors();
   }
 
   /** This block is an enumerator block if its {@link BlockDefinition} is an enumerator. */
@@ -111,7 +114,7 @@ public final class Block {
                   .map(
                       questionDefinition ->
                           new ApplicantQuestion(
-                              questionDefinition, applicantData, contextualizedPath))
+                              questionDefinition, applicantData, enumeratorContext.contextualizedPath()))
                   .collect(toImmutableList()));
     }
     return questionsMemo.get();

@@ -204,10 +204,12 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
         .containsExactly(
             RepeatedEntity.create(
                 testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
-                "third entity"),
+                "third entity",
+                2),
             RepeatedEntity.create(
                 testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
-                "nested second job"));
+                "nested second job",
+                1));
   }
 
   @Test

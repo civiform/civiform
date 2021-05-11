@@ -14,6 +14,7 @@ import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.LocalizedQuestionOption;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
@@ -130,8 +131,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return getBlocks(
         programDefinition.getNonRepeatedBlockDefinitions(),
         emptyBlockIdSuffix,
-        ApplicantData.APPLICANT_PATH,
-        ImmutableList.of(),
+        EnumeratorContext.empty(),
         onlyIncludeInProgressBlocks);
   }
 
@@ -139,8 +139,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   private ImmutableList<Block> getBlocks(
       ImmutableList<BlockDefinition> blockDefinitions,
       String blockIdSuffix,
-      Path contextualizedPath,
-      ImmutableList<RepeatedEntity> repeatedEntities,
+      EnumeratorContext enumeratorContext,
       boolean onlyIncludeInProgressBlocks) {
     ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
 
@@ -151,8 +150,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
               blockDefinition.id() + blockIdSuffix,
               blockDefinition,
               applicantData,
-              contextualizedPath,
-              repeatedEntities);
+              enumeratorContext);
       boolean includeAllBlocks = !onlyIncludeInProgressBlocks;
       if (includeAllBlocks
           || !block.isCompleteWithoutErrors()
@@ -164,33 +162,30 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       if (blockDefinition.isEnumerator()) {
 
         // Get all the repeated entities enumerated by this enumeration block.
-        QuestionDefinition enumerationQuestionDefinition =
+        EnumeratorQuestionDefinition enumerationQuestionDefinition =
             blockDefinition.getEnumerationQuestionDefinition();
-        Path contextualizedPathForEnumeration =
-            contextualizedPath.join(enumerationQuestionDefinition.getQuestionPathSegment());
-        ImmutableList<String> repeatedEntityNames =
-            applicantData.readRepeatedEntities(contextualizedPathForEnumeration);
+        Path enumPath =
+            enumeratorContext.contextualizedPath().join(enumerationQuestionDefinition.getQuestionPathSegment());
+        ImmutableList<String> repeatedEntityNames =  applicantData.readRepeatedEntities(enumPath);
+        ImmutableList<RepeatedEntity> repeatedEntities = repeatedEntityNames
+            .stream()
+            .map(entityName -> RepeatedEntity.create(
+                enumerationQuestionDefinition, entityName, repeatedEntityNames.indexOf(entityName)))
+            .collect(ImmutableList.toImmutableList());
 
         // For each repeated entity, recursively build blocks for all of the repeated blocks of this
         // enumeration block.
         ImmutableList<BlockDefinition> repeatedBlockDefinitions =
             programDefinition.getBlockDefinitionsForEnumerator(blockDefinition.id());
-        for (int i = 0; i < repeatedEntityNames.size(); i++) {
-          ImmutableList<RepeatedEntity> updatedRepeatedEntities =
-              ImmutableList.<RepeatedEntity>builder()
-                  .addAll(repeatedEntities)
-                  .add(
-                      RepeatedEntity.create(
-                          enumerationQuestionDefinition, repeatedEntityNames.get(i)))
-                  .build();
-          String nextBlockIdSuffix = String.format("%s-%d", blockIdSuffix, i);
-          Path contextualizedPathForEntity = contextualizedPathForEnumeration.atIndex(i);
+        for (RepeatedEntity repeatedEntity : repeatedEntities) {
+          EnumeratorContext nestedEnumeratorContext = enumeratorContext.append(
+              repeatedEntity, repeatedEntities);
+          String nextBlockIdSuffix = String.format("%s-%d", blockIdSuffix, repeatedEntities.indexOf(repeatedEntity));
           blockListBuilder.addAll(
               getBlocks(
                   repeatedBlockDefinitions,
                   nextBlockIdSuffix,
-                  contextualizedPathForEntity,
-                  updatedRepeatedEntities,
+                  nestedEnumeratorContext,
                   onlyIncludeInProgressBlocks));
         }
       }
