@@ -9,7 +9,7 @@ import services.program.ProgramDefinition;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminView;
-import views.co∂mponents.LinkElement;
+import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.Styles;
 
@@ -22,31 +22,31 @@ public class ProgramEditView extends AdminView {
   }
 
   public Content render(Request request, ProgramDefinition program) {
-    ContainerTag formTag = ProgramFormBuilder.buildProgramForm(program, /* editExistingProgram = */ true)
+    ContainerTag formTag =
+        ProgramFormBuilder.buildProgramForm(program, /* editExistingProgram = */ true)
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(program.id()))
             .withAction(controllers.admin.routes.AdminProgramController.update(program.id()).url());
 
     String title = String.format("Edit program: %s", program.adminName());
 
-    HtmlBundle htmlBundle = getHtmlBundle()
-            .setTitle(title)
-            .addMainContent(renderHeader(title), formTag);
+    HtmlBundle htmlBundle =
+        getHtmlBundle().setTitle(title).addMainContent(renderHeader(title), formTag);
 
     return layout.renderCentered(htmlBundle);
   }
 
   public Content render(Request request, long id, ProgramForm program, String message) {
-    ContainerTag formTag = ProgramFormBuilder.buildProgramForm(program, /* editExistingProgram = */ true)
+    ContainerTag formTag =
+        ProgramFormBuilder.buildProgramForm(program, /* editExistingProgram = */ true)
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(id))
             .withAction(controllers.admin.routes.AdminProgramController.update(id).url());
 
     String title = String.format("Edit program: %s", program.getAdminName());
 
-    HtmlBundle htmlBundle = getHtmlBundle()
-            .setTitle(title)
-            .addMainContent(renderHeader(title), formTag);
+    HtmlBundle htmlBundle =
+        getHtmlBundle().setTitle(title).addMainContent(renderHeader(title), formTag);
 
     if (!message.isEmpty()) {
       htmlBundle.addToastMessages(ToastMessage.error(message).setDismissible(false));

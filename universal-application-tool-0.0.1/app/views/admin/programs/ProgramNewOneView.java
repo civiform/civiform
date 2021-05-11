@@ -29,7 +29,7 @@ public final class ProgramNewOneView extends AdminView {
 
     ContainerTag contentDiv =
         div(
-            ProgramFormBuilder.buildProgramForm(program, /* editExistingProgram = */ false)
+            ProgramFormBuilder.buildProgramForm(programForm, /* editExistingProgram = */ false)
                 .with(makeCsrfTokenInputTag(request))
                 .withAction(controllers.admin.routes.AdminProgramController.create().url()));
 

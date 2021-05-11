@@ -1,6 +1,5 @@
 package views.admin.programs;
 
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -14,15 +13,16 @@ import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
-import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminView;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Renders a form for adding and removing program admins via email for a given program. */
-public class ManageProgramAdminsView extends BaseHtmlView {
+public class ManageProgramAdminsView extends AdminView {
 
   private static final String EMAIL_FIELD_STYLES =
       StyleUtils.joinStyles(Styles.FLEX, Styles.FLEX_ROW);
@@ -46,11 +46,15 @@ public class ManageProgramAdminsView extends BaseHtmlView {
   public Content render(
       Http.Request request, ProgramDefinition program, ImmutableList<String> existingAdminEmails) {
     // Display a form with a list of inputs for adding and removing
-    return layout.render(
-        body(
-            renderHeader(PAGE_TITLE + program.adminName()),
-            adminEmailTemplate(),
-            renderAdminForm(request, program.id(), existingAdminEmails)));
+    String fullTitle = PAGE_TITLE + program.adminName();
+    HtmlBundle htmlBundle =
+        getHtmlBundle()
+            .setTitle(fullTitle)
+            .addMainContent(
+                renderHeader(fullTitle),
+                adminEmailTemplate(),
+                renderAdminForm(request, program.id(), existingAdminEmails));
+    return layout.renderCentered(htmlBundle);
   }
 
   /**

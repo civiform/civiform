@@ -99,23 +99,15 @@ public class HtmlBundle {
   }
 
   /**
-   * The page head contains:
-   *    - page title
-   *    - page metadata 
-   *    - CSS styles
-   *    - javascript that needs to run immediately
+   * The page head contains: - page title - page metadata - CSS styles - javascript that needs to
+   * run immediately
    */
   private ContainerTag renderHead() {
     // TODO: Throw exception if page title is not set.
     return head().with(title(pageTitle)).with(metadata).with(stylesheets).with(headScripts);
   }
 
-  /**
-   * The page body contains:
-   *    - header
-   *    - main
-   *    - footer
-   */
+  /** The page body contains: - header - main - footer */
   private ContainerTag renderBody() {
     return body()
         .with(renderHeader())
