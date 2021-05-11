@@ -19,12 +19,12 @@ import repository.WithPostgresContainer;
 import services.question.types.QuestionDefinition;
 import views.html.helper.CSRF;
 
-public class QuestionControllerTest extends WithPostgresContainer {
-  private QuestionController controller;
+public class AdminQuestionControllerTest extends WithPostgresContainer {
+  private AdminQuestionController controller;
 
   @Before
   public void setup() {
-    controller = app.injector().instanceOf(QuestionController.class);
+    controller = app.injector().instanceOf(AdminQuestionController.class);
   }
 
   @Test
@@ -40,7 +40,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
 
     Result result = controller.create(requestBuilder.build(), "text");
 
-    assertThat(result.redirectLocation()).hasValue(routes.QuestionController.index().url());
+    assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
     assertThat(result.flash().get("message").get()).contains("created");
   }
 
@@ -59,7 +59,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
 
     Result result = controller.create(requestBuilder.build(), "text");
 
-    assertThat(result.redirectLocation()).hasValue(routes.QuestionController.index().url());
+    assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
     assertThat(result.flash().get("message").get()).contains("created");
   }
 
@@ -229,7 +229,7 @@ public class QuestionControllerTest extends WithPostgresContainer {
             nameQuestion.getQuestionType().toString());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation()).hasValue(routes.QuestionController.index().url());
+    assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
     assertThat(result.flash().get("message").get()).contains("updated");
   }
 
