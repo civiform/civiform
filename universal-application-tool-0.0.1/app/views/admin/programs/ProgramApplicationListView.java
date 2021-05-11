@@ -109,7 +109,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
   private Tag renderViewLink(String text, long programId, long applicationId) {
     String viewLink =
-        controllers.admin.routes.AdminApplicationController.view(programId, applicationId).url();
+        controllers.admin.routes.AdminApplicationController.show(programId, applicationId).url();
 
     return new LinkElement()
         .setId("application-view-link-" + applicationId)
