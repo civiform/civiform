@@ -67,10 +67,11 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   public void stageAndUpdateIfValid_withUpdates_isOk() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
 
-    ImmutableSet<Update> updates =
-        ImmutableSet.of(
-            Update.create(Path.create("applicant.name").join(Scalar.FIRST_NAME), "Alice"),
-            Update.create(Path.create("applicant.name").join(Scalar.LAST_NAME), "Doe"));
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(Path.create("applicant.name").join(Scalar.FIRST_NAME), "Alice")
+            .put(Path.create("applicant.name").join(Scalar.LAST_NAME), "Doe")
+            .build();
 
     subject
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
@@ -87,10 +88,11 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   public void stageAndUpdateIfValid_updatesMetadataForQuestionOnce() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
 
-    ImmutableSet<Update> updates =
-        ImmutableSet.of(
-            Update.create(Path.create("applicant.name").join(Scalar.FIRST_NAME), "Alice"),
-            Update.create(Path.create("applicant.name").join(Scalar.LAST_NAME), "Doe"));
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(Path.create("applicant.name").join(Scalar.FIRST_NAME), "Alice")
+            .put(Path.create("applicant.name").join(Scalar.LAST_NAME), "Doe")
+            .build();
 
     subject
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
@@ -107,7 +109,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void stageAndUpdateIfValid_rawUpdatesContainMultiSelectAnswers_isOk() {
+  public void stageAndUpdateIfValid_updatesContainMultiSelectAnswers_isOk() {
     QuestionDefinition multiSelectQuestion =
         questionService
             .create(
@@ -127,7 +129,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
 
     Path checkboxPath = Path.create("applicant.checkbox").join(Scalar.SELECTION).asArrayElement();
-    ImmutableMap<String, String> rawUpdates =
+    ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
             .put(checkboxPath.atIndex(0).toString(), "1")
             .put(checkboxPath.atIndex(1).toString(), "2")
@@ -135,7 +137,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", rawUpdates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
         .toCompletableFuture()
         .join();
 
@@ -147,13 +149,13 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         .hasValue(ImmutableList.of(1L, 2L, 3L));
 
     // Ensure that we can successfully overwrite the array.
-    rawUpdates =
+    updates =
         ImmutableMap.<String, String>builder()
             .put(checkboxPath.atIndex(0).toString(), "3")
             .put(checkboxPath.atIndex(1).toString(), "1")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", rawUpdates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
         .toCompletableFuture()
         .join();
 
@@ -164,10 +166,10 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         .hasValue(ImmutableList.of(3L, 1L));
 
     // Clear values by sending an empty item.
-    rawUpdates =
+    updates =
         ImmutableMap.<String, String>builder().put(checkboxPath.atIndex(0).toString(), "").build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", rawUpdates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
         .toCompletableFuture()
         .join();
 
@@ -189,7 +191,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     Path enumeratorPath =
         ApplicantData.APPLICANT_PATH.join(enumeratorQuestionDefinition.getQuestionPathSegment());
     Path deletionPath = Path.empty().join(Scalar.DELETE_ENTITY).asArrayElement();
-    ImmutableMap<String, String> rawUpdates =
+    ImmutableMap<String, String> updates =
         ImmutableMap.of(
             enumeratorPath.atIndex(0).toString(), "first",
             enumeratorPath.atIndex(1).toString(), "second",
@@ -198,7 +200,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             deletionPath.atIndex(1).toString(), "0");
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", rawUpdates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
         .toCompletableFuture()
         .join();
 
@@ -210,7 +212,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void stageAndUpdateIfValid_hasApplicantNotFoundException() {
-    ImmutableSet<Update> updates = ImmutableSet.of();
+    ImmutableMap<String, String> updates = ImmutableMap.of();
     long badApplicantId = 1L;
 
     assertThatExceptionOfType(CompletionException.class)
@@ -227,7 +229,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   @Test
   public void stageAndUpdateIfValid_hasProgramNotFoundException() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
-    ImmutableSet<Update> updates = ImmutableSet.of();
+    ImmutableMap<String, String> updates = ImmutableMap.of();
     long badProgramId = programDefinition.id() + 1000L;
 
     Throwable thrown =
@@ -245,7 +247,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   @Test
   public void stageAndUpdateIfValid_hasProgramBlockNotFoundException() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
-    ImmutableSet<Update> updates = ImmutableSet.of();
+    ImmutableMap<String, String> updates = ImmutableMap.of();
     String badBlockId = "100";
 
     Throwable thrown =
@@ -264,10 +266,10 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   @Test
   public void stageAndUpdateIfValid_hasPathNotInBlockException() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
-    ImmutableSet<Update> updates =
-        ImmutableSet.of(
-            Update.create(Path.create("applicant.name.first"), "Alice"),
-            Update.create(Path.create("this.is.not.in.block"), "Doe"));
+    ImmutableMap<String, String> updates =
+        ImmutableMap.of(
+            Path.create("applicant.name.first"), "Alice",
+            Path.create("this.is.not.in.block"), "Doe");
 
     Throwable thrown =
         catchThrowable(
