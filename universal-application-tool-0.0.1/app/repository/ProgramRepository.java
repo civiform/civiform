@@ -111,9 +111,16 @@ public class ProgramRepository {
         return newDraft;
       } catch (IllegalStateException e) {
         transaction.rollback();
+        // We must end the transaction here since we are going to recurse and try again.
+        // We cannot have this transaction on the thread-local transaction stack when that
+        // happens.
         transaction.end();
         return createOrUpdateDraft(existingProgram);
       } finally {
+        // This may come after a prior call to `transaction.end` in the event of a
+        // precondition failure - this is okay, since it a double-call to `end` on
+        // a particular transaction.  Only double calls to ebeanServer.endTransaction
+        // must be avoided.
         transaction.end();
       }
     }
