@@ -3,7 +3,9 @@ package views.admin.programs;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 
+import forms.ProgramForm;
 import j2html.tags.ContainerTag;
+import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 
@@ -12,6 +14,24 @@ import views.components.FieldWithLabel;
  * field is disabled, since it cannot be edited once set.
  */
 public class ProgramFormBuilder extends BaseHtmlView {
+
+  public static ContainerTag buildProgramForm(ProgramForm form, boolean editExistingProgram) {
+    return buildProgramForm(
+        program.getAdminName(),
+        program.getAdminDescription(),
+        program.getLocalizedDisplayName(),
+        program.getLocalizedDisplayDescription(),
+        editExistingProgram);
+  }
+
+  public static ContainerTag buildProgramForm(ProgramDefinition definition, boolean editExistingProgram) {
+    return buildProgramForm(
+        program.adminName(),
+        program.adminDescription(),
+        program.getNameForDefaultLocale(),
+        program.getDescriptionForDefaultLocale(),
+        editExistingProgram);
+  }
 
   public static ContainerTag buildProgramForm(
       String adminName,

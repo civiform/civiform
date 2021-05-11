@@ -22,13 +22,7 @@ public class ProgramEditView extends AdminView {
   }
 
   public Content render(Request request, ProgramDefinition program) {
-    ContainerTag formTag =
-        ProgramFormBuilder.buildProgramForm(
-                program.adminName(),
-                program.adminDescription(),
-                program.getNameForDefaultLocale(),
-                program.getDescriptionForDefaultLocale(),
-                true)
+    ContainerTag formTag = ProgramFormBuilder.buildProgramForm(program, /* editExistingProgram = */ true)
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(program.id()))
             .withAction(controllers.admin.routes.AdminProgramController.update(program.id()).url());
@@ -43,13 +37,7 @@ public class ProgramEditView extends AdminView {
   }
 
   public Content render(Request request, long id, ProgramForm program, String message) {
-    ContainerTag formTag =
-        ProgramFormBuilder.buildProgramForm(
-                program.getAdminName(),
-                program.getAdminDescription(),
-                program.getLocalizedDisplayName(),
-                program.getLocalizedDisplayDescription(),
-                true)
+    ContainerTag formTag = ProgramFormBuilder.buildProgramForm(program, /* editExistingProgram = */ true)
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(id))
             .withAction(controllers.admin.routes.AdminProgramController.update(id).url());
