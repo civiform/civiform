@@ -57,7 +57,10 @@ function changeUpdateBlockButtonState(event: Event) {
   }
 }
 
-/** In the admin question form - add a new option input for each new question answer option. */
+/**
+ * Copy the specified hidden template and append it to the end of the parent divContainerId,
+ * above the add button (addButtonId).
+ */
 function addNewInput(inputTemplateId: string, addButtonId: string, divContainerId: string) {
   // Copy the answer template and remove ID and hidden properties.
   const newField = document.getElementById(inputTemplateId).cloneNode(true) as HTMLElement;
@@ -72,7 +75,10 @@ function addNewInput(inputTemplateId: string, addButtonId: string, divContainerI
   document.getElementById(divContainerId).insertBefore(newField, button);
 }
 
-/** In the admin question form - remove an answer option input for multi-option questions. */
+/**
+ * Removes an input field and its associated elements, like the remove button. All
+ * elements must be contained in a parent div.
+ */
 function removeInput(event: Event) {
 
   // Get the parent div, which contains the input field and remove button, and remove it.
