@@ -26,7 +26,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
 
   private static final String EMAIL_FIELD_STYLES =
       StyleUtils.joinStyles(Styles.FLEX, Styles.FLEX_ROW);
-  private static final String PAGE_TITLE = "Manage Admins for Program: %s";
+  private static final String PAGE_TITLE = "Manage Admins for Program: ";
   private static final String ADD_ADMIN_BUTTON = "Add admin";
   private static final String SUBMIT_BUTTON = "Save";
   private static final String INPUT_PLACEHOLDER = "New admin email";
@@ -48,7 +48,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
     // Display a form with a list of inputs for adding and removing
     return layout.render(
         body(
-            renderHeader(String.format(PAGE_TITLE, program.adminName())),
+            renderHeader(PAGE_TITLE + program.adminName()),
             adminEmailTemplate(),
             renderAdminForm(request, program.id(), existingAdminEmails)));
   }
