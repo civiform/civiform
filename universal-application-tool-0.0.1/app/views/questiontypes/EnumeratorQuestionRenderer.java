@@ -83,6 +83,7 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
             .setFieldName(question.getContextualizedPath().toString())
             .setValue(existingOption)
             .getContainer();
+    // TODO: Add "Mark for deletion" label to this checkbox.
     Tag removeEntityBox =
         FieldWithLabel.checkbox()
             .setFieldName(Path.empty().join(Scalar.DELETE_ENTITY).asArrayElement().toString())

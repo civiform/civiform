@@ -62,9 +62,6 @@ public final class BaseStyles {
   /** For use on an `input` of type "checkbox". */
   public static final String CHECKBOX =
       StyleUtils.joinStyles(Styles.H_4, Styles.W_4, Styles.MR_4, Styles.ALIGN_MIDDLE);
-  /** For use on an `input` of type "checkbox" that has no label text. */
-  public static final String CHECKBOX_WITH_NO_LABEL =
-      StyleUtils.joinStyles(Styles.H_4, Styles.W_4, Styles.ALIGN_MIDDLE);
   /** For use on an `input` of type "radio". */
   public static final String RADIO = CHECKBOX;
 }

@@ -193,7 +193,7 @@ public class FieldWithLabel {
 
     ContainerTag labelTag =
         label()
-            .condAttr(shouldSetLabelFor(), Attr.FOR, this.id)
+            .condAttr(shouldSetLabelForAttr(), Attr.FOR, this.id)
             .withClasses(labelText.isEmpty() ? "" : BaseStyles.INPUT_LABEL)
             .withText(labelText);
 
@@ -201,11 +201,8 @@ public class FieldWithLabel {
         .withClasses(BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
   }
 
-  /** Swaps the order of the label and field, possibly adds, and adds different styles. */
+  /** Swaps the order of the label and field, adds different styles, and possibly adds "checked" attribute. */
   private ContainerTag getCheckboxContainer() {
-    fieldTag.withClasses(
-        labelText.isEmpty() ? BaseStyles.CHECKBOX_WITH_NO_LABEL : BaseStyles.CHECKBOX);
-
     if (this.checked) {
       fieldTag.attr("checked");
     }
@@ -215,8 +212,8 @@ public class FieldWithLabel {
             BaseStyles.CHECKBOX_LABEL,
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
             labelText.isEmpty() ? Styles.W_MIN : "")
-        .condAttr(shouldSetLabelFor(), Attr.FOR, this.id)
-        .with(fieldTag)
+        .condAttr(shouldSetLabelForAttr(), Attr.FOR, this.id)
+        .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
         .withText(this.labelText);
   }
 
@@ -228,7 +225,7 @@ public class FieldWithLabel {
                 : StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT, Styles.P_1));
   }
 
-  private boolean shouldSetLabelFor() {
+  private boolean shouldSetLabelForAttr() {
     return !this.id.isEmpty() && !this.labelText.isEmpty();
   }
 }
