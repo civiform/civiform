@@ -474,4 +474,36 @@ public class ApplicantDataTest {
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Cannot change ApplicantData after it has been locked.");
   }
+
+  @Test
+  public void clearArray() {
+    ApplicantData data = new ApplicantData();
+    data.putString(Path.create("applicant.things[0]"), "dog");
+    data.putString(Path.create("applicant.things[1]"), "cat");
+    data.putString(Path.create("applicant.things[2]"), "horse");
+    data.putString(Path.create("applicant.stuff"), "cars");
+
+    String expected = "{\"applicant\":{\"things\":[\"dog\",\"cat\",\"horse\"],\"stuff\":\"cars\"}}";
+    assertThat(data.asJsonString()).isEqualTo(expected);
+
+    data.maybeClearArray(Path.create("applicant.things[0]"));
+
+    String nextExpected = "{\"applicant\":{\"things\":[],\"stuff\":\"cars\"}}";
+    assertThat(data.asJsonString()).isEqualTo(nextExpected);
+  }
+
+  @Test
+  public void clearArray_ignoresScalar() {
+    ApplicantData data = new ApplicantData();
+    data.putString(Path.create("applicant.things[0]"), "dog");
+    data.putString(Path.create("applicant.things[1]"), "cat");
+    data.putString(Path.create("applicant.things[2]"), "horse");
+    data.putString(Path.create("applicant.stuff"), "cars");
+
+    String expected = "{\"applicant\":{\"things\":[\"dog\",\"cat\",\"horse\"],\"stuff\":\"cars\"}}";
+    assertThat(data.asJsonString()).isEqualTo(expected);
+
+    data.maybeClearArray(Path.create("applicant.cars"));
+    assertThat(data.asJsonString()).isEqualTo(expected);
+  }
 }

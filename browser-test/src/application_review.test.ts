@@ -63,7 +63,7 @@ describe('normal application flow', () => {
     await applicantQuestions.saveAndContinue();
 
     // Applicant submits answers from review page.
-    await applicantQuestions.submitFromReviewPage();
+    await applicantQuestions.submitFromReviewPage(programName);
 
     await logout(page);
     await loginAsAdmin(page);
@@ -77,11 +77,11 @@ describe('normal application flow', () => {
     // https://github.com/seattle-uat/civiform/issues/778
     await adminPrograms.expectApplicationAnswers('Block 1', 'radio-q', '2');
     await adminPrograms.expectApplicationAnswers('Block 2', 'ice-cream-q', '2');
-    await adminPrograms.expectApplicationAnswers('Block 2', 'favorite-trees-q', '[3, 4]');
+    await adminPrograms.expectApplicationAnswers('Block 2', 'favorite-trees-q', 'pine cherry');
 
     await adminPrograms.expectApplicationAnswers('Block 2', 'number-q', '42');
     await adminPrograms.expectApplicationAnswers('Block 2', 'text-q', 'some text');
-    await adminPrograms.expectApplicationAnswers('Block 3', 'fileupload-q', 'file key');
+    await adminPrograms.expectApplicationAnswers('Block 3', 'fileupload-q', '-- FILE UPLOADED --');
     await endSession(browser);
   })
 })

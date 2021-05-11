@@ -2,7 +2,6 @@ package views.questiontypes;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
 import java.util.Locale;
@@ -13,7 +12,7 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import repository.WithPostgresContainer;
-import services.Path;
+import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.question.types.TextQuestionDefinition;
@@ -24,11 +23,10 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
   private static final TextQuestionDefinition TEXT_QUESTION_DEFINITION =
       new TextQuestionDefinition(
           "question name",
-          Path.create("applicant.my.path"),
           Optional.empty(),
           "description",
-          ImmutableMap.of(Locale.US, "question?"),
-          ImmutableMap.of(Locale.US, "help text"),
+          LocalizedStrings.of(Locale.US, "question?"),
+          LocalizedStrings.of(Locale.US, "help text"),
           TextValidationPredicates.create(2, 3));
 
   private final ApplicantData applicantData = new ApplicantData();

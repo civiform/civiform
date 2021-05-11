@@ -7,15 +7,18 @@ import static j2html.TagCreator.each;
 import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
+import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
+import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
+import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
@@ -44,6 +47,7 @@ public class ProgramIndexView extends BaseHtmlView {
    */
   public Content render(
       Messages messages,
+      Http.Request request,
       long applicantId,
       ImmutableList<ProgramDefinition> programs,
       Optional<String> banner) {
@@ -58,7 +62,7 @@ public class ProgramIndexView extends BaseHtmlView {
             messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION.getKeyName())),
         mainContent(messages, programs, applicantId, messages.lang().toLocale()));
 
-    return layout.render(messages, body);
+    return layout.render(request, messages, body);
   }
 
   private ContainerTag topContent(String titleText, String infoText) {
@@ -125,18 +129,20 @@ public class ProgramIndexView extends BaseHtmlView {
         div()
             .withId(baseId + "-title")
             .withClasses(Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
-            .withText(program.getLocalizedNameOrDefault(preferredLocale));
+            .withText(program.localizedName().getOrDefault(preferredLocale));
     ContainerTag description =
         div()
             .withId(baseId + "-description")
             .withClasses(Styles.TEXT_XS, Styles.MY_2)
-            .withText(program.getLocalizedDescriptionOrDefault(preferredLocale));
+            .withText(program.localizedDescription().getOrDefault(preferredLocale));
 
     ContainerTag externalLink =
-        div()
-            .withId(baseId + "-external-link")
-            .withClasses(Styles.TEXT_XS, Styles.UNDERLINE)
-            .withText(messages.at(MessageKey.CONTENT_PROGRAM_DETAILS.getKeyName()));
+        new LinkElement()
+            .setId(baseId + "-external-link")
+            .setStyles(Styles.TEXT_XS, Styles.UNDERLINE)
+            .setText(messages.at(MessageKey.CONTENT_PROGRAM_DETAILS.getKeyName()))
+            .setHref(routes.DeepLinkController.programByName(program.slug()).url())
+            .asAnchorText();
     ContainerTag programData =
         div()
             .withId(baseId + "-data")

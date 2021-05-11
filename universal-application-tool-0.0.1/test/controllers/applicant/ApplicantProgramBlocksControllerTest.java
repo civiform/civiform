@@ -13,11 +13,13 @@ import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.stream.Collectors;
 import models.Applicant;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
+import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import services.Path;
 import services.applicant.question.Scalar;
@@ -38,6 +40,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withQuestion(testQuestionBank().applicantName())
+            .withBlock()
+            .withQuestion(testQuestionBank().applicantFile())
             .build();
     applicant = createApplicantWithMockedProfile();
   }
@@ -87,11 +91,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
   @Test
   public void edit_toABlockThatDoesNotExist_returns404() {
     Request request =
-        fakeRequest(routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "2"))
+        fakeRequest(routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "9999"))
             .build();
 
     Result result =
-        subject.edit(request, applicant.id, program.id, "2").toCompletableFuture().join();
+        subject.edit(request, applicant.id, program.id, "9999").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -301,5 +305,185 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Guardar y continuar");
+  }
+
+  @Test
+  public void updateFile_invalidApplicant_returnsUnauthorized() {
+    long badApplicantId = applicant.id + 1000;
+    RequestBuilder request =
+        fakeRequest(
+            routes.ApplicantProgramBlocksController.updateFile(
+                badApplicantId, program.id, /* blockId = */ "2", /* inReview = */ false));
+    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+
+    Result result =
+        subject
+            .updateFile(
+                request.build(),
+                badApplicantId,
+                program.id,
+                /* blockId = */ "2",
+                /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void updateFile_invalidProgram_returnsBadRequest() {
+    long badProgramId = program.id + 1000;
+    RequestBuilder request =
+        fakeRequest(
+            routes.ApplicantProgramBlocksController.updateFile(
+                applicant.id, badProgramId, /* blockId = */ "2", /* inReview = */ false));
+    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+
+    Result result =
+        subject
+            .updateFile(
+                request.build(),
+                applicant.id,
+                badProgramId,
+                /* blockId = */ "2",
+                /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void updateFile_invalidBlock_returnsBadRequest() {
+    String badBlockId = "1000";
+    RequestBuilder request =
+        fakeRequest(
+            routes.ApplicantProgramBlocksController.updateFile(
+                applicant.id, program.id, badBlockId, /* inReview = */ false));
+    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+
+    Result result =
+        subject
+            .updateFile(
+                request.build(), applicant.id, program.id, badBlockId, /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void updateFile_notFileUploadBlock_returnsBadRequest() {
+    String badBlockId = "1";
+    RequestBuilder request =
+        fakeRequest(
+            routes.ApplicantProgramBlocksController.updateFile(
+                applicant.id, program.id, badBlockId, /* inReview = */ false));
+    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+
+    Result result =
+        subject
+            .updateFile(
+                request.build(), applicant.id, program.id, badBlockId, /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void updateFile_missingFileKeyAndBucket_returnsBadRequest() {
+    RequestBuilder request =
+        fakeRequest(
+            routes.ApplicantProgramBlocksController.updateFile(
+                applicant.id, program.id, /* blockId = */ "2", /* inReview = */ false));
+
+    Result result =
+        subject
+            .updateFile(
+                request.build(),
+                applicant.id,
+                program.id,
+                /* blockId = */ "2",
+                /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void updateFile_withNextBlock_redirectsToEdit() {
+    program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock("block 1")
+            .withQuestion(testQuestionBank().applicantFile())
+            .withBlock("block 2")
+            .withQuestion(testQuestionBank().applicantAddress())
+            .build();
+    RequestBuilder request =
+        fakeRequest(
+            routes.ApplicantProgramBlocksController.updateFile(
+                applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false));
+    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+
+    Result result =
+        subject
+            .updateFile(
+                request.build(),
+                applicant.id,
+                program.id,
+                /* blockId = */ "1",
+                /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    String nextBlockEditRoute =
+        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, /* blockId = */ "2")
+            .url();
+    assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
+  }
+
+  @Test
+  public void updateFile_completedProgram_redirectsToReviewPage() {
+    program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock("block 1")
+            .withQuestion(testQuestionBank().applicantFile())
+            .build();
+
+    RequestBuilder request =
+        fakeRequest(
+            routes.ApplicantProgramBlocksController.updateFile(
+                applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false));
+    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+
+    Result result =
+        subject
+            .updateFile(
+                request.build(),
+                applicant.id,
+                program.id,
+                /* blockId = */ "1",
+                /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+
+    String reviewRoute =
+        routes.ApplicantProgramReviewController.review(applicant.id, program.id).url();
+
+    assertThat(result.redirectLocation()).hasValue(reviewRoute);
+  }
+
+  private RequestBuilder addQueryString(
+      RequestBuilder request, ImmutableMap<String, String> query) {
+    String queryString =
+        query.entrySet().stream()
+            .map(entry -> String.format("%s=%s", entry.getKey(), entry.getValue()))
+            .collect(Collectors.joining("&"));
+    return request.uri(request.uri() + "?" + queryString);
   }
 }

@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import models.LifecycleStage;
 import models.Question;
 import models.Version;
-import services.Path;
+import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -34,7 +34,7 @@ import services.question.types.TextQuestionDefinition;
  * tests that do not have a database available (see {@link #maybeSave(QuestionDefinition)}), the
  * question IDs may not be reliable since in production, the IDs are set by the database.
  *
- * <p>The properties of these questions (e.g. question path) are not canonical and may not be
+ * <p>The properties of these questions (e.g. question help text) are not canonical and may not be
  * representative of the properties defined by CiviForm administrators.
  *
  * <p>To add a new {@link Question} to the question bank: create a {@link QuestionEnum} for it,
@@ -103,6 +103,12 @@ public class TestQuestionBank {
         QuestionEnum.APPLICANT_HOUSEHOLD_MEMBERS, this::applicantHouseholdMembers);
   }
 
+  // Nested Enumerator
+  public Question applicantHouseholdMemberJobs() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_JOBS, this::applicantHouseholdMemberJobs);
+  }
+
   // File upload
   public Question applicantFile() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_FILE, this::applicantFile);
@@ -127,6 +133,13 @@ public class TestQuestionBank {
         QuestionEnum.APPLICANT_JUGGLING_NUMBER, this::applicantJugglingNumber);
   }
 
+  // Deeply nested Number
+  public Question applicantHouseholdMemberJobIncome() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_JOB_INCOME,
+        this::applicantHouseholdMemberJobIncome);
+  }
+
   // Radio button
   public Question applicantSeason() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_SEASON, this::applicantSeason);
@@ -143,11 +156,10 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new AddressQuestionDefinition(
             "applicant address",
-            Path.create("applicant.applicant_address"),
             Optional.empty(),
             "The address of applicant",
-            ImmutableMap.of(Locale.US, "What is your address?"),
-            ImmutableMap.of(Locale.US, "This is sample help text."));
+            LocalizedStrings.of(Locale.US, "What is your address?"),
+            LocalizedStrings.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
 
@@ -156,15 +168,15 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new CheckboxQuestionDefinition(
             "kitchen tools",
-            Path.create("applicant.kitchen_tools"),
             Optional.empty(),
             "Kitchen instruments you own",
-            ImmutableMap.of(Locale.US, "Which of the following kitchen instruments do you own?"),
-            ImmutableMap.of(Locale.US, "This is sample help text."),
+            LocalizedStrings.of(
+                Locale.US, "Which of the following kitchen instruments do you own?"),
+            LocalizedStrings.of(Locale.US, "This is sample help text."),
             ImmutableList.of(
-                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "toaster")),
-                QuestionOption.create(2L, ImmutableMap.of(Locale.US, "pepper grinder")),
-                QuestionOption.create(3L, ImmutableMap.of(Locale.US, "garlic press"))));
+                QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "toaster")),
+                QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "pepper grinder")),
+                QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "garlic press"))));
     return maybeSave(definition);
   }
 
@@ -173,16 +185,16 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new DropdownQuestionDefinition(
             "applicant ice cream",
-            Path.create("applicant.applicant_ice_cream"),
             Optional.empty(),
             "Select your favorite ice cream flavor",
-            ImmutableMap.of(Locale.US, "Select your favorite ice cream flavor from the following"),
-            ImmutableMap.of(Locale.US, "This is sample help text."),
+            LocalizedStrings.of(
+                Locale.US, "Select your favorite ice cream flavor from the following"),
+            LocalizedStrings.of(Locale.US, "This is sample help text."),
             ImmutableList.of(
-                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "chocolate")),
-                QuestionOption.create(2L, ImmutableMap.of(Locale.US, "strawberry")),
-                QuestionOption.create(3L, ImmutableMap.of(Locale.US, "vanilla")),
-                QuestionOption.create(4L, ImmutableMap.of(Locale.US, "coffee"))));
+                QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "chocolate")),
+                QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "strawberry")),
+                QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "vanilla")),
+                QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "coffee"))));
     return maybeSave(definition);
   }
 
@@ -191,11 +203,23 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new EnumeratorQuestionDefinition(
             "applicant household members",
-            Path.create("applicant.applicant_household_members[]"),
             Optional.empty(),
             "The applicant's household members",
-            ImmutableMap.of(Locale.US, "Who are your household members?"),
-            ImmutableMap.of(Locale.US, "This is sample help text."));
+            LocalizedStrings.of(Locale.US, "Who are your household members?"),
+            LocalizedStrings.of(Locale.US, "This is sample help text."));
+    return maybeSave(definition);
+  }
+
+  // Nested Enumerator
+  private Question applicantHouseholdMemberJobs(QuestionEnum ignore) {
+    Question householdMembers = applicantHouseholdMembers();
+    QuestionDefinition definition =
+        new EnumeratorQuestionDefinition(
+            "household members jobs",
+            Optional.of(householdMembers.id),
+            "The applicant's household member's jobs",
+            LocalizedStrings.of(Locale.US, "What are the household member's jobs?"),
+            LocalizedStrings.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
 
@@ -204,11 +228,10 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new FileUploadQuestionDefinition(
             "applicant file",
-            Path.create("applicant.applicant_file"),
             Optional.empty(),
             "The file to be uploaded",
-            ImmutableMap.of(Locale.US, "What is the file you want to upload?"),
-            ImmutableMap.of(Locale.US, "This is sample help text."));
+            LocalizedStrings.of(Locale.US, "What is the file you want to upload?"),
+            LocalizedStrings.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
 
@@ -217,11 +240,10 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new NameQuestionDefinition(
             "applicant name",
-            Path.create("applicant.applicant_name"),
             Optional.empty(),
             "name of applicant",
-            ImmutableMap.of(Locale.US, "what is your name?"),
-            ImmutableMap.of(Locale.US, "help text"));
+            LocalizedStrings.of(Locale.US, "what is your name?"),
+            LocalizedStrings.of(Locale.US, "help text"));
     return maybeSave(definition);
   }
 
@@ -231,11 +253,10 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new NameQuestionDefinition(
             "household members name",
-            Path.create("applicant.applicant_household_members[].name"),
             Optional.of(householdMembers.id),
             "The applicant's household member's name",
-            ImmutableMap.of(Locale.US, "What is the household member's name?"),
-            ImmutableMap.of(Locale.US, "This is sample help text."));
+            LocalizedStrings.of(Locale.US, "What is the household member's name?"),
+            LocalizedStrings.of(Locale.US, "This is sample help text."));
 
     return maybeSave(definition);
   }
@@ -245,11 +266,24 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new NumberQuestionDefinition(
             "number of items applicant can juggle",
-            Path.create("applicant.juggling_number"),
             Optional.empty(),
             "The number of items applicant can juggle at once",
-            ImmutableMap.of(Locale.US, "How many items can you juggle at one time?"),
-            ImmutableMap.of(Locale.US, "This is sample help text."));
+            LocalizedStrings.of(Locale.US, "How many items can you juggle at one time?"),
+            LocalizedStrings.of(Locale.US, "This is sample help text."));
+    return maybeSave(definition);
+  }
+
+  // Deeply Nested Number
+  private Question applicantHouseholdMemberJobIncome(QuestionEnum ignore) {
+    Question householdMemberJobs = applicantHouseholdMemberJobs();
+    QuestionDefinition definition =
+        new NumberQuestionDefinition(
+            "household members jobs income",
+            Optional.of(householdMemberJobs.id),
+            "The applicant's household member's job's income",
+            LocalizedStrings.of(Locale.US, "What is the household member's job's income?"),
+            LocalizedStrings.of(Locale.US, "This is sample help text."));
+
     return maybeSave(definition);
   }
 
@@ -258,16 +292,15 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new RadioButtonQuestionDefinition(
             "radio",
-            Path.create("applicant.radio"),
             Optional.empty(),
             "Favorite season in the year",
-            ImmutableMap.of(Locale.US, "What is your favorite season?"),
-            ImmutableMap.of(Locale.US, "This is sample help text."),
+            LocalizedStrings.of(Locale.US, "What is your favorite season?"),
+            LocalizedStrings.of(Locale.US, "This is sample help text."),
             ImmutableList.of(
-                QuestionOption.create(1L, ImmutableMap.of(Locale.US, "winter")),
-                QuestionOption.create(2L, ImmutableMap.of(Locale.US, "spring")),
-                QuestionOption.create(3L, ImmutableMap.of(Locale.US, "summer")),
-                QuestionOption.create(4L, ImmutableMap.of(Locale.US, "fall"))));
+                QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "winter")),
+                QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "spring")),
+                QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "summer")),
+                QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "fall"))));
     return maybeSave(definition);
   }
 
@@ -276,11 +309,10 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new TextQuestionDefinition(
             "applicant favorite color",
-            Path.create("applicant.applicant_favorite_color"),
             Optional.empty(),
             "Favorite color of applicant",
-            ImmutableMap.of(Locale.US, "What is your favorite color?"),
-            ImmutableMap.of(Locale.US, "This is sample help text."));
+            LocalizedStrings.of(Locale.US, "What is your favorite color?"),
+            LocalizedStrings.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
 
@@ -317,6 +349,8 @@ public class TestQuestionBank {
     APPLICANT_FILE,
     APPLICANT_HOUSEHOLD_MEMBERS,
     APPLICANT_HOUSEHOLD_MEMBER_NAME,
+    APPLICANT_HOUSEHOLD_MEMBER_JOBS,
+    APPLICANT_HOUSEHOLD_MEMBER_JOB_INCOME,
     APPLICANT_ICE_CREAM,
     APPLICANT_JUGGLING_NUMBER,
     APPLICANT_KITCHEN_TOOLS,

@@ -3,14 +3,12 @@ package services.applicant.question;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
-import services.LocalizationUtils;
-import services.Path;
+import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
@@ -22,16 +20,15 @@ public class SingleSelectQuestionTest {
   private static final DropdownQuestionDefinition dropdownQuestionDefinition =
       new DropdownQuestionDefinition(
           "question name",
-          Path.create("applicant.my.path.name"),
           Optional.empty(),
           "description",
-          ImmutableMap.of(Locale.US, "question?"),
-          ImmutableMap.of(Locale.US, "help text"),
+          LocalizedStrings.of(Locale.US, "question?"),
+          LocalizedStrings.of(Locale.US, "help text"),
           ImmutableList.of(
               QuestionOption.create(
-                  1L, ImmutableMap.of(Locale.US, "option 1", Locale.FRANCE, "un")),
+                  1L, LocalizedStrings.of(Locale.US, "option 1", Locale.FRANCE, "un")),
               QuestionOption.create(
-                  2L, ImmutableMap.of(Locale.US, "option 2", Locale.FRANCE, "deux"))));
+                  2L, LocalizedStrings.of(Locale.US, "option 2", Locale.FRANCE, "deux"))));
 
   private Applicant applicant;
   private ApplicantData applicantData;
@@ -99,6 +96,6 @@ public class SingleSelectQuestionTest {
 
     assertThat(singleSelectQuestion.getOptions()).isNotEmpty();
     assertThat(singleSelectQuestion.getOptions().get(0).locale())
-        .isEqualTo(LocalizationUtils.DEFAULT_LOCALE);
+        .isEqualTo(LocalizedStrings.DEFAULT_LOCALE);
   }
 }

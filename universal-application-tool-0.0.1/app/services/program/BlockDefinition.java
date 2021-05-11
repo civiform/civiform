@@ -99,6 +99,17 @@ public abstract class BlockDefinition {
         "Only an enumerator block can have an enumeration question definition.");
   }
 
+  @JsonIgnore
+  @Memoized
+  public boolean isFileUpload() {
+    // Though `anyMatch` is used here, fileupload block definitions should only ever have a single
+    // question, which is a fileupload question.
+    return programQuestionDefinitions().stream()
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .map(QuestionDefinition::getQuestionType)
+        .anyMatch(questionType -> questionType.equals(QuestionType.FILEUPLOAD));
+  }
+
   /** A {@link Predicate} that determines whether this is hidden or shown. */
   @JsonProperty("hidePredicate")
   public abstract Optional<Predicate> hidePredicate();

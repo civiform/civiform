@@ -30,14 +30,14 @@ describe('normal application flow', () => {
     await applicantQuestions.saveAndContinue();
 
     // Application submits answers from review page.
-    await applicantQuestions.submitFromReviewPage();
+    await applicantQuestions.submitFromReviewPage(programName);
 
     await logout(page);
     await loginAsAdmin(page);
 
     await adminPrograms.viewApplications(programName);
     const csvContent = await adminPrograms.getCsv();
-    expect(csvContent).toContain('sarah,COLUMN_EMPTY,smith');
+    expect(csvContent).toContain('sarah,,smith');
     await endSession(browser);
   })
 })

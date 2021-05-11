@@ -2,6 +2,8 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.ebean.DB;
+import io.ebean.Transaction;
 import models.LifecycleStage;
 import models.Version;
 import org.junit.Before;
@@ -57,5 +59,18 @@ public class VersionRepositoryTest extends WithPostgresContainer {
     oldDraft.refresh();
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
     assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+  }
+
+  @Test
+  public void testTransactionality() {
+    Transaction outer = DB.getDefault().beginTransaction();
+    assertThat(outer.isActive()).isTrue();
+    Version draft = versionRepository.getDraftVersion();
+    assertThat(outer.isActive()).isTrue();
+    Version draft2 = versionRepository.getDraftVersion();
+    assertThat(outer.isActive()).isTrue();
+    outer.rollback();
+    assertThat(outer.isActive()).isFalse();
+    assertThat(draft).isEqualTo(draft2);
   }
 }

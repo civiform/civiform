@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
@@ -15,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Applicant;
+import models.Application;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.UserRepository;
 import services.ErrorAnd;
@@ -22,6 +24,7 @@ import services.Path;
 import services.applicant.question.Scalar;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
@@ -69,6 +72,19 @@ public class ApplicantServiceImpl implements ApplicantService {
                   applicant.getApplicantData(), programDefinition);
             },
             httpExecutionContext.current());
+  }
+
+  @Override
+  public CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
+      Application application) {
+    try {
+      return CompletableFuture.completedFuture(
+          new ReadOnlyApplicantProgramServiceImpl(
+              application.getApplicantData(),
+              programService.getProgramDefinition(application.getProgram().id)));
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException("Cannot find a program that has applications for it.", e);
+    }
   }
 
   @Override
@@ -276,18 +292,28 @@ public class ApplicantServiceImpl implements ApplicantService {
       ImmutableSet<Update> updates)
       throws UnsupportedScalarTypeException, PathNotInBlockException {
     ImmutableSet.Builder<Path> questionPaths = ImmutableSet.builder();
+    ArrayList<Path> visitedPaths = new ArrayList<>();
     for (Update update : updates) {
+      Path currentPath = update.path();
+
+      // If we're updating an array we need to clear it first.
+      if (currentPath.isArrayElement()
+          && !visitedPaths.contains(currentPath.withoutArrayReference())) {
+        visitedPaths.add(currentPath.withoutArrayReference());
+        applicantData.maybeClearArray(currentPath);
+      }
+
       ScalarType type =
           block
-              .getScalarType(update.path())
-              .orElseThrow(() -> new PathNotInBlockException(block.getId(), update.path()));
-      questionPaths.add(update.path().parentPath());
+              .getScalarType(currentPath)
+              .orElseThrow(() -> new PathNotInBlockException(block.getId(), currentPath));
+      questionPaths.add(currentPath.parentPath());
       switch (type) {
         case STRING:
-          applicantData.putString(update.path(), update.value());
+          applicantData.putString(currentPath, update.value());
           break;
         case LONG:
-          applicantData.putLong(update.path(), update.value());
+          applicantData.putLong(currentPath, update.value());
           break;
         default:
           throw new UnsupportedScalarTypeException(type);

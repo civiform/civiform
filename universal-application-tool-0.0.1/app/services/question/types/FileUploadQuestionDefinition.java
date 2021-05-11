@@ -2,26 +2,22 @@ package services.question.types;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableMap;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
-import services.Path;
+import services.LocalizedStrings;
 
 public class FileUploadQuestionDefinition extends QuestionDefinition {
 
   public FileUploadQuestionDefinition(
       OptionalLong id,
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText) {
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText) {
     super(
         id,
         name,
-        path,
         enumeratorId,
         description,
         questionText,
@@ -31,14 +27,12 @@ public class FileUploadQuestionDefinition extends QuestionDefinition {
 
   public FileUploadQuestionDefinition(
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText) {
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText) {
     super(
         name,
-        path,
         enumeratorId,
         description,
         questionText,
@@ -71,18 +65,5 @@ public class FileUploadQuestionDefinition extends QuestionDefinition {
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.FILEUPLOAD;
-  }
-
-  @Override
-  ImmutableMap<Path, ScalarType> getScalarMap() {
-    return ImmutableMap.of(getFileKeyPath(), getFileKeyType());
-  }
-
-  public Path getFileKeyPath() {
-    return getPath().join("file_key");
-  }
-
-  public ScalarType getFileKeyType() {
-    return ScalarType.STRING;
   }
 }

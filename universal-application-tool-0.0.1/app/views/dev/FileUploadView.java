@@ -25,7 +25,7 @@ import javax.inject.Inject;
 import models.StoredFile;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import repository.SignedS3UploadRequest;
+import services.aws.SignedS3UploadRequest;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.style.Styles;

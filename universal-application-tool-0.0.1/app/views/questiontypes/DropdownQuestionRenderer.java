@@ -1,15 +1,16 @@
 package views.questiontypes;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.each;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
 
-import j2html.attributes.Attr;
 import j2html.tags.Tag;
+import java.util.AbstractMap;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.SingleSelectQuestion;
 import views.BaseHtmlView;
+import views.components.SelectWithLabel;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
@@ -25,6 +26,21 @@ public class DropdownQuestionRenderer extends BaseHtmlView implements ApplicantQ
   public Tag render(ApplicantQuestionRendererParams params) {
     SingleSelectQuestion singleSelectQuestion = question.createSingleSelectQuestion();
 
+    SelectWithLabel select =
+        new SelectWithLabel()
+            .setFieldName(singleSelectQuestion.getSelectionPath().toString())
+            .setOptions(
+                singleSelectQuestion.getOptions().stream()
+                    .map(
+                        option ->
+                            new AbstractMap.SimpleEntry<>(
+                                option.optionText(), String.valueOf(option.id())))
+                    .collect(toImmutableList()));
+
+    if (singleSelectQuestion.getSelectedOptionId().isPresent()) {
+      select.setValue(String.valueOf(singleSelectQuestion.getSelectedOptionId().get()));
+    }
+
     return div()
         .withId(question.getContextualizedPath().toString())
         .withClasses(Styles.MX_AUTO, Styles.W_MAX)
@@ -39,18 +55,7 @@ public class DropdownQuestionRenderer extends BaseHtmlView implements ApplicantQ
                     Styles.FONT_THIN,
                     Styles.MB_2)
                 .withText(question.getQuestionHelpText()),
-            select()
-                .withName(singleSelectQuestion.getSelectionPath().toString())
-                .with(
-                    each(
-                        singleSelectQuestion.getOptions(),
-                        option ->
-                            option(option.optionText())
-                                .withValue(String.valueOf(option.id()))
-                                .condAttr(
-                                    singleSelectQuestion.optionIsSelected(option),
-                                    Attr.SELECTED,
-                                    "selected"))),
+            select.getContainer(),
             fieldErrors(params.messages(), singleSelectQuestion.getQuestionErrors())
                 .withClasses(Styles.ML_2, Styles.TEXT_XS, Styles.TEXT_RED_600, Styles.FONT_BOLD));
   }

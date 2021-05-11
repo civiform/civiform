@@ -20,20 +20,6 @@ import services.question.types.QuestionDefinition;
 public interface ProgramService {
 
   /**
-   * List all programs.
-   *
-   * @return a list of {@link ProgramDefinition}s
-   */
-  ImmutableList<ProgramDefinition> listProgramDefinitions();
-
-  /**
-   * List all programs asynchronously.
-   *
-   * @return a list of {@link ProgramDefinition}s
-   */
-  CompletionStage<ImmutableList<ProgramDefinition>> listProgramDefinitionsAsync();
-
-  /**
    * Get the definition for a given program.
    *
    * @param id the ID of the program to retrieve
