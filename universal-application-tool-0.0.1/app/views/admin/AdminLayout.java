@@ -6,6 +6,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.main;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
+import static j2html.TagCreator.head;
 
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
@@ -79,7 +80,8 @@ public class AdminLayout extends BaseHtmlLayout {
         StyleUtils.joinStyles(mainStyles));
 
     return htmlContent(
-            headContent(),
+            /** head().with(viewUtils.makeHead("tailwind", "G-HXM0Y35TGE")), */
+            /** layout.headContent(), */
         body()
             .with(renderNavBar())
             .with(mainContent)
