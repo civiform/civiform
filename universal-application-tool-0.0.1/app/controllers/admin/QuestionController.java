@@ -127,7 +127,7 @@ public class QuestionController extends CiviFormController {
 
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = getBuilderWithQuestionPath(Optional.empty(), questionForm).build();
+      questionDefinition = getBuilder(Optional.empty(), questionForm).build();
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
       return badRequest(e.getMessage());
@@ -199,8 +199,7 @@ public class QuestionController extends CiviFormController {
 
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition =
-          getBuilderWithQuestionPath(maybeExisting, questionForm).setId(id).build();
+      questionDefinition = getBuilder(maybeExisting, questionForm).setId(id).build();
     } catch (UnsupportedQuestionTypeException e) {
       // Failed while trying to update a question that was already created for the given question
       // type
@@ -235,7 +234,7 @@ public class QuestionController extends CiviFormController {
     return result;
   }
 
-  private QuestionDefinitionBuilder getBuilderWithQuestionPath(
+  private QuestionDefinitionBuilder getBuilder(
       Optional<QuestionDefinition> existing, QuestionForm questionForm) {
     QuestionDefinitionBuilder updated = questionForm.getBuilder();
 
