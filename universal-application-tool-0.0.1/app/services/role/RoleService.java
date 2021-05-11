@@ -91,10 +91,9 @@ public class RoleService {
    */
   public void removeProgramAdmins(long programId, ImmutableSet<String> accountEmails)
       throws ProgramNotFoundException {
-    if (accountEmails.isEmpty() || accountEmails.stream().allMatch(String::isBlank)) {
-      return;
+    if (!accountEmails.isEmpty()) {
+      ProgramDefinition program = programService.getProgramDefinition(programId);
+      accountEmails.forEach(email -> userRepository.removeAdministeredProgram(email, program));
     }
-    ProgramDefinition program = programService.getProgramDefinition(programId);
-    accountEmails.forEach(email -> userRepository.removeAdministeredProgram(email, program));
   }
 }

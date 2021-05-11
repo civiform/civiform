@@ -76,6 +76,10 @@ public class ManageProgramAdminsView extends BaseHtmlView {
   }
 
   private ContainerTag adminEmailInput(Optional<String> existing) {
+    // When there are existing admins, the only option is to remove that admin. The field is
+    // disabled, so that no changes except removal can be made. The form does not submit disabled
+    // fields, so these existing admins will not be removed unless the remove button is clicked,
+    // which sets disabled to false (see TypeScript file).
     String inputFieldName = existing.isPresent() ? REMOVE_EMAIL_FIELD_NAME : ADD_EMAIL_FIELD_NAME;
 
     ContainerTag input =
