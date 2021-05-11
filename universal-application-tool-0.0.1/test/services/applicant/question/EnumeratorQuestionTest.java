@@ -28,7 +28,6 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
   private static final EnumeratorQuestionDefinition enumeratorQuestionDefinition =
       new EnumeratorQuestionDefinition(
           "household members",
-          Path.create("applicant.household_members[]"),
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),

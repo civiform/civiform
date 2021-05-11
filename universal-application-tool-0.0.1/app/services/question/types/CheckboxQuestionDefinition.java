@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
-import services.Path;
 import services.question.QuestionOption;
 
 public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
@@ -12,7 +11,6 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
   public CheckboxQuestionDefinition(
       OptionalLong id,
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
@@ -22,7 +20,6 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
     super(
         id,
         name,
-        path,
         enumeratorId,
         description,
         questionText,
@@ -33,7 +30,6 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
 
   public CheckboxQuestionDefinition(
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
@@ -42,7 +38,6 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
       MultiOptionValidationPredicates validationPredicates) {
     super(
         name,
-        path,
         enumeratorId,
         description,
         questionText,
@@ -53,7 +48,6 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
 
   public CheckboxQuestionDefinition(
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
@@ -61,7 +55,6 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
       ImmutableList<QuestionOption> options) {
     super(
         name,
-        path,
         enumeratorId,
         description,
         questionText,

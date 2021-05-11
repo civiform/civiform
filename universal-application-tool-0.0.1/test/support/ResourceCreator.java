@@ -13,7 +13,6 @@ import models.Question;
 import play.db.ebean.EbeanConfig;
 import play.inject.Injector;
 import services.LocalizedStrings;
-import services.Path;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
@@ -30,20 +29,11 @@ public class ResourceCreator {
     Models.truncate(ebeanServer);
   }
 
-  public Question insertQuestion(String pathString) {
+  public Question insertQuestion() {
     String name = UUID.randomUUID().toString();
-    return insertQuestion(pathString, name);
-  }
-
-  public Question insertQuestion(String pathString, String name) {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            name,
-            Path.create(pathString),
-            Optional.empty(),
-            "",
-            LocalizedStrings.of(),
-            LocalizedStrings.empty());
+            name, Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
     Question question = new Question(definition);
     question.save();
     return question;

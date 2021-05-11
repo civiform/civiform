@@ -113,7 +113,6 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             .create(
                 new CheckboxQuestionDefinition(
                     "checkbox",
-                    Path.create("applicant.checkbox"),
                     Optional.empty(),
                     "description",
                     LocalizedStrings.of(Locale.US, "question?"),
@@ -358,7 +357,6 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             .create(
                 new NameQuestionDefinition(
                     "name",
-                    Path.create("applicant.name"),
                     Optional.empty(),
                     "description",
                     LocalizedStrings.of(Locale.US, "question?"),

@@ -21,7 +21,6 @@ import repository.QuestionRepository;
 import repository.VersionRepository;
 import repository.WithPostgresContainer;
 import services.LocalizedStrings;
-import services.Path;
 import services.TranslationNotFoundException;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -155,7 +154,6 @@ public class AdminQuestionTranslationsControllerTest extends WithPostgresContain
     QuestionDefinition definition =
         new NameQuestionDefinition(
             "applicant name",
-            Path.create("applicant.applicant_name"),
             Optional.empty(),
             "name of applicant",
             LocalizedStrings.of(Locale.US, "what is your name?"),

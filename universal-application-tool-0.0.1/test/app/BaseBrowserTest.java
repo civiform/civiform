@@ -132,7 +132,7 @@ public class BaseBrowserTest extends WithBrowser {
   /** Adds a question through the admin flow. This requires the admin to be logged in. */
   protected void addQuestion(String questionName, String parentPath, QuestionType questionType) {
     // Go to admin question index and click "Create a new question".
-    goTo(controllers.admin.routes.QuestionController.index());
+    goTo(controllers.admin.routes.AdminQuestionController.index());
     browser.$(By.id("create-question-button")).first().click();
 
     String questionTypeButton = String.format("create-%s-question", questionType).toLowerCase();

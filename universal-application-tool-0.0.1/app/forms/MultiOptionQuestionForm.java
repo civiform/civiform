@@ -7,7 +7,6 @@ import java.util.Locale;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
 import services.LocalizedStrings;
-import services.Path;
 import services.TranslationNotFoundException;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
@@ -98,7 +97,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   }
 
   @Override
-  public QuestionDefinitionBuilder getBuilder(Path path) {
+  public QuestionDefinitionBuilder getBuilder() {
     MultiOptionQuestionDefinition.MultiOptionValidationPredicates.Builder predicateBuilder =
         MultiOptionQuestionDefinition.MultiOptionValidationPredicates.builder();
 
@@ -119,7 +118,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
           QuestionOption.create(optionCount++, LocalizedStrings.of(Locale.US, optionText)));
     }
 
-    return super.getBuilder(path)
+    return super.getBuilder()
         .setQuestionOptions(questionOptions.build())
         .setValidationPredicates(predicateBuilder.build());
   }

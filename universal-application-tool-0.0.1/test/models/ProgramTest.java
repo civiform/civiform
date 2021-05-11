@@ -9,7 +9,6 @@ import org.junit.Test;
 import repository.ProgramRepository;
 import repository.WithPostgresContainer;
 import services.LocalizedStrings;
-import services.Path;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
@@ -36,7 +35,6 @@ public class ProgramTest extends WithPostgresContainer {
             .setQuestionType(QuestionType.TEXT)
             .setId(123L)
             .setName("question")
-            .setPath(Path.create("applicant.name"))
             .setDescription("applicant's name")
             .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
             .build();
@@ -90,7 +88,6 @@ public class ProgramTest extends WithPostgresContainer {
                 .setQuestionType(QuestionType.ADDRESS)
                 .setId(456L)
                 .setName("address question")
-                .setPath(Path.create("applicant.address"))
                 .setDescription("applicant's address")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your address?"))
                 .build();
@@ -100,7 +97,6 @@ public class ProgramTest extends WithPostgresContainer {
                 .setQuestionType(QuestionType.NAME)
                 .setId(789L)
                 .setName("name question")
-                .setPath(Path.create("applicant.name"))
                 .setDescription("applicant's name")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
                 .build();

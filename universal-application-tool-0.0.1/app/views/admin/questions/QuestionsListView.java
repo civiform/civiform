@@ -79,7 +79,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
     for (QuestionType type : QuestionType.values()) {
       String typeString = type.toString().toLowerCase();
-      String link = controllers.admin.routes.QuestionController.newOne(typeString).url();
+      String link = controllers.admin.routes.AdminQuestionController.newOne(typeString).url();
       ContainerTag linkTag =
           a().withHref(link)
               .withId(String.format("create-%s-question", typeString))
@@ -208,7 +208,7 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private Tag renderQuestionEditLink(QuestionDefinition definition, String linkText) {
-    String link = controllers.admin.routes.QuestionController.edit(definition.getId()).url();
+    String link = controllers.admin.routes.AdminQuestionController.edit(definition.getId()).url();
     return new LinkElement()
         .setId("edit-question-link-" + definition.getId())
         .setHref(link)
@@ -231,7 +231,7 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private Tag renderQuestionViewLink(QuestionDefinition definition, String linkText) {
-    String link = controllers.admin.routes.QuestionController.show(definition.getId()).url();
+    String link = controllers.admin.routes.AdminQuestionController.show(definition.getId()).url();
     return new LinkElement()
         .setId("view-question-link-" + definition.getId())
         .setHref(link)

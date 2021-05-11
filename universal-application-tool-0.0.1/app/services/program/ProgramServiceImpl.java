@@ -44,34 +44,6 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  public ImmutableList<ProgramDefinition> listProgramDefinitions() {
-    return listProgramDefinitionsAsync().toCompletableFuture().join();
-  }
-
-  @Override
-  public CompletionStage<ImmutableList<ProgramDefinition>> listProgramDefinitionsAsync() {
-    CompletableFuture<ReadOnlyQuestionService> roQuestionServiceFuture =
-        questionService.getReadOnlyQuestionService().toCompletableFuture();
-    CompletableFuture<ImmutableList<Program>> programsFuture =
-        programRepository.listPrograms().toCompletableFuture();
-
-    return CompletableFuture.allOf(roQuestionServiceFuture, programsFuture)
-        .thenApplyAsync(
-            ignore -> {
-              ReadOnlyQuestionService roQuestionService = roQuestionServiceFuture.join();
-              ImmutableList<Program> programs = programsFuture.join();
-
-              return programs.stream()
-                  .map(
-                      program ->
-                          syncProgramDefinitionQuestions(
-                              program.getProgramDefinition(), roQuestionService))
-                  .collect(ImmutableList.toImmutableList());
-            },
-            httpExecutionContext.current());
-  }
-
-  @Override
   public ProgramDefinition getProgramDefinition(long id) throws ProgramNotFoundException {
     try {
       return getProgramDefinitionAsync(id).toCompletableFuture().join();

@@ -13,7 +13,6 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import repository.WithPostgresContainer;
 import services.LocalizedStrings;
-import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.question.types.TextQuestionDefinition;
@@ -24,7 +23,6 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
   private static final TextQuestionDefinition TEXT_QUESTION_DEFINITION =
       new TextQuestionDefinition(
           "question name",
-          Path.create("applicant.my.path"),
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),

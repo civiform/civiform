@@ -34,4 +34,18 @@ public class AccountTest extends WithPostgresContainer {
     Account found = repository.lookupAccount(email).get();
     assertThat(found.getAdministeredProgramNames()).containsExactly("one", "two");
   }
+
+  @Test
+  public void addDuplicateProgram_doesNotAddToList() {
+    Account account = new Account();
+    String programName = "duplicate";
+    ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
+
+    account.addAdministeredProgram(program);
+    assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
+
+    // Try to add again.
+    account.addAdministeredProgram(program);
+    assertThat(account.getAdministeredProgramNames()).containsExactly(programName);
+  }
 }

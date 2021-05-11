@@ -22,7 +22,6 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.LocalizedStrings;
-import services.Path;
 import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -36,8 +35,6 @@ import services.question.types.QuestionType;
 public class Question extends BaseModel {
 
   private QuestionDefinition questionDefinition;
-
-  private @Constraints.Required String path;
 
   /** Different versions of the same question are linked by their immutable name. */
   private @Constraints.Required String name;
@@ -116,7 +113,6 @@ public class Question extends BaseModel {
         new QuestionDefinitionBuilder()
             .setId(id)
             .setName(name)
-            .setPath(Path.create(path))
             .setEnumeratorId(Optional.ofNullable(enumeratorId))
             .setDescription(description)
             .setQuestionType(QuestionType.valueOf(questionType))
@@ -200,11 +196,6 @@ public class Question extends BaseModel {
     if (questionDefinition.isPersisted()) {
       id = questionDefinition.getId();
     }
-
-    // TODO(https://github.com/seattle-uat/civiform/issues/673): delete this when questions don't
-    //  need paths
-    path = questionDefinition.getPath().toString();
-
     enumeratorId = questionDefinition.getEnumeratorId().orElse(null);
     name = questionDefinition.getName();
     description = questionDefinition.getDescription();
