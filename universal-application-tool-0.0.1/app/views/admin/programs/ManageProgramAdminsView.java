@@ -26,6 +26,15 @@ public class ManageProgramAdminsView extends BaseHtmlView {
 
   private static final String EMAIL_FIELD_STYLES =
       StyleUtils.joinStyles(Styles.FLEX, Styles.FLEX_ROW);
+  private static final String PAGE_TITLE = "Manage Admins for Program: %s";
+  private static final String ADD_ADMIN_BUTTON = "Add admin";
+  private static final String SUBMIT_BUTTON = "Save";
+  private static final String INPUT_PLACEHOLDER = "New admin email";
+  private static final String REMOVE_BUTTON = "Remove";
+  private static final String EMAIL_CONTAINER_DIV_ID = "program-admin-emails";
+  private static final String ADD_BUTTON_ID = "add-program-admin-button";
+  private static final String EMAIL_FIELD_NAME = "adminEmails[]";
+  private static final String EMAIL_INPUT_TEMPLATE_ID = "program-admin-email-template";
 
   private final AdminLayout layout;
 
@@ -39,7 +48,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
     // Display a form with a list of inputs for adding and removing
     return layout.render(
         body(
-            renderHeader("Manage Admins for Program: " + program.adminName()),
+            renderHeader(String.format(PAGE_TITLE, program.adminName())),
             adminEmailTemplate(),
             renderAdminForm(request, program.id(), existingAdminEmails)));
   }
@@ -52,29 +61,29 @@ public class ManageProgramAdminsView extends BaseHtmlView {
       Http.Request request, long programId, ImmutableList<String> existingAdminEmails) {
     ContainerTag emailFields =
         div()
-            .withId("program-admin-emails")
+            .withId(EMAIL_CONTAINER_DIV_ID)
             .withClasses(Styles.ML_4)
             .with(each(existingAdminEmails, email -> adminEmailInput(Optional.of(email))))
-            .with(button("Add admin").withId("add-program-admin-button").withClasses(Styles.MY_2));
+            .with(button(ADD_ADMIN_BUTTON).withId(ADD_BUTTON_ID).withClasses(Styles.MY_2));
 
     return form()
         .with(makeCsrfTokenInputTag(request))
         .withAction(routes.ProgramAdminManagementController.update(programId).url())
         .withMethod("POST")
         .with(emailFields)
-        .with(submitButton("Save").withClasses(Styles.MY_4));
+        .with(submitButton(SUBMIT_BUTTON).withClasses(Styles.MY_4));
   }
 
   private ContainerTag adminEmailInput(Optional<String> existing) {
     ContainerTag input =
         FieldWithLabel.email()
-            .setFieldName("adminEmails[]")
-            .setPlaceholderText("New admin email")
+            .setFieldName(EMAIL_FIELD_NAME)
+            .setPlaceholderText(INPUT_PLACEHOLDER)
             .setValue(existing)
             .getContainer()
             .withClasses(Styles.FLEX, Styles.M_2);
     Tag removeAdminButton =
-        button("Remove")
+        button(REMOVE_BUTTON)
             .withClasses(ReferenceClasses.PROGRAM_ADMIN_REMOVE_BUTTON, Styles.FLEX, Styles.M_2);
 
     return div().with(input, removeAdminButton).withClasses(EMAIL_FIELD_STYLES);
@@ -83,7 +92,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
   /** A hidden template for adding and removing admins of a given program. */
   private ContainerTag adminEmailTemplate() {
     return adminEmailInput(Optional.empty())
-        .withId("program-admin-email-template")
+        .withId(EMAIL_INPUT_TEMPLATE_ID)
         .withClasses(Styles.HIDDEN, EMAIL_FIELD_STYLES);
   }
 }
