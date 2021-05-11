@@ -8,13 +8,11 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
-import static j2html.TagCreator.head;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.pre;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
 import static j2html.TagCreator.td;
-import static j2html.TagCreator.title;
 import static j2html.TagCreator.tr;
 import static j2html.attributes.Attr.ENCTYPE;
 
@@ -44,15 +42,15 @@ public class FileUploadView extends BaseHtmlView {
       ImmutableList<StoredFile> files,
       Optional<String> maybeFlash) {
     return layout.htmlContent(
-            layout.headContent("Dev File Upload"),
-            body()
-                    .with(div(maybeFlash.orElse("")))
-                    .with(h1("Dev File Upload"))
-                    .with(div().with(fileUploadForm(signedRequest)))
-                    .with(
-                            div()
-                                    .withClasses(Styles.GRID, Styles.GRID_COLS_2)
-                                    .with(div().with(h2("Current Files:")).with(pre(renderFiles(files))))));
+        layout.headContent("Dev File Upload"),
+        body()
+            .with(div(maybeFlash.orElse("")))
+            .with(h1("Dev File Upload"))
+            .with(div().with(fileUploadForm(signedRequest)))
+            .with(
+                div()
+                    .withClasses(Styles.GRID, Styles.GRID_COLS_2)
+                    .with(div().with(h2("Current Files:")).with(pre(renderFiles(files))))));
   }
 
   private ContainerTag renderFiles(ImmutableList<StoredFile> files) {
