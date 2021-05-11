@@ -148,9 +148,12 @@ public class ProgramServiceImpl implements ProgramService {
     Program program =
         programDefinition.toBuilder()
             .setAdminDescription(adminDescription)
-            .updateLocalizedName(programDefinition.localizedName(), locale, displayName)
-            .updateLocalizedDescription(
-                programDefinition.localizedDescription(), locale, displayDescription)
+            .setLocalizedName(
+                programDefinition.localizedName().updateTranslation(locale, displayName))
+            .setLocalizedDescription(
+                programDefinition
+                    .localizedDescription()
+                    .updateTranslation(locale, displayDescription))
             .build()
             .toProgram();
     return ErrorAnd.of(
@@ -175,9 +178,12 @@ public class ProgramServiceImpl implements ProgramService {
 
     Program program =
         programDefinition.toBuilder()
-            .updateLocalizedName(programDefinition.localizedName(), locale, displayName)
-            .updateLocalizedDescription(
-                programDefinition.localizedDescription(), locale, displayDescription)
+            .setLocalizedName(
+                programDefinition.localizedName().updateTranslation(locale, displayName))
+            .setLocalizedDescription(
+                programDefinition
+                    .localizedDescription()
+                    .updateTranslation(locale, displayDescription))
             .build()
             .toProgram();
     return ErrorAnd.of(

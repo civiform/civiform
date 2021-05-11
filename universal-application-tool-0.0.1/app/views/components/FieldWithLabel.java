@@ -261,6 +261,9 @@ public class FieldWithLabel {
 
   private Tag buildFieldErrorsTag() {
     return div(each(fieldErrors, error -> div(error.getMessage(messages))))
-        .withClasses(fieldErrors.isEmpty() ? "" : StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT, Styles.P_1));
+        .withClasses(
+            fieldErrors.isEmpty()
+                ? ""
+                : StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT, Styles.P_1));
   }
 }

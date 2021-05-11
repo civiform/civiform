@@ -12,6 +12,7 @@ import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
+import services.LocalizedStrings;
 import services.Path;
 import services.applicant.question.Scalar;
 import services.program.ProgramDefinition;
@@ -334,8 +335,9 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 .setId(123L)
                 .setAdminName("Admin program name")
                 .setAdminDescription("Admin description")
-                .addLocalizedName(Locale.US, "The Program")
-                .addLocalizedDescription(Locale.US, "This program is for testing.")
+                .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+                .setLocalizedDescription(
+                    LocalizedStrings.of(Locale.US, "This program is for testing."))
                 .build());
 
     Optional<Block> maybeBlock = subject.getBlockAfter("321");

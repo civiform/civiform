@@ -2,10 +2,10 @@ package forms;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
+import services.LocalizedStrings;
 import services.Path;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -29,8 +29,8 @@ public class EnumeratorQuestionFormTest {
             path,
             Optional.empty(),
             "description",
-            ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of());
+            LocalizedStrings.of(Locale.US, "What is the question text?"),
+            LocalizedStrings.empty());
 
     QuestionDefinition actual = builder.build();
 
@@ -47,8 +47,8 @@ public class EnumeratorQuestionFormTest {
             path,
             Optional.empty(),
             "description",
-            ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of());
+            LocalizedStrings.of(Locale.US, "What is the question text?"),
+            LocalizedStrings.empty());
 
     EnumeratorQuestionForm form = new EnumeratorQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder(path);

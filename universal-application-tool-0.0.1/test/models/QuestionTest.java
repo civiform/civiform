@@ -4,13 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import repository.QuestionRepository;
 import repository.WithPostgresContainer;
+import services.LocalizedStrings;
 import services.Path;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -39,8 +39,8 @@ public class QuestionTest extends WithPostgresContainer {
             Path.create("my.path"),
             Optional.empty(),
             "",
-            ImmutableMap.of(),
-            ImmutableMap.of());
+            LocalizedStrings.of(),
+            LocalizedStrings.empty());
     Question question = new Question(definition);
 
     question.save();
@@ -60,8 +60,8 @@ public class QuestionTest extends WithPostgresContainer {
             Path.create("my.path"),
             Optional.empty(),
             "",
-            ImmutableMap.of(),
-            ImmutableMap.of());
+            LocalizedStrings.of(),
+            LocalizedStrings.empty());
     Question question = new Question(questionDefinition);
     question.save();
 
@@ -78,8 +78,8 @@ public class QuestionTest extends WithPostgresContainer {
             Path.create("my.path"),
             Optional.of(10L),
             "",
-            ImmutableMap.of(),
-            ImmutableMap.of());
+            LocalizedStrings.of(),
+            LocalizedStrings.empty());
     Question question = new Question(questionDefinition);
     question.save();
 
@@ -96,8 +96,8 @@ public class QuestionTest extends WithPostgresContainer {
             Path.empty(),
             Optional.empty(),
             "",
-            ImmutableMap.of(Locale.US, "hello"),
-            ImmutableMap.of(Locale.US, "help"));
+            LocalizedStrings.of(Locale.US, "hello"),
+            LocalizedStrings.of(Locale.US, "help"));
     Question question = new Question(definition);
 
     question.save();
@@ -105,16 +105,21 @@ public class QuestionTest extends WithPostgresContainer {
     Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
     assertThat(found.getQuestionDefinition().getQuestionText())
-        .isEqualTo(ImmutableMap.of(Locale.US, "hello"));
+        .isEqualTo(LocalizedStrings.of(Locale.US, "hello"));
     assertThat(found.getQuestionDefinition().getQuestionHelpText())
-        .isEqualTo(ImmutableMap.of(Locale.US, "help"));
+        .isEqualTo(LocalizedStrings.of(Locale.US, "help"));
   }
 
   @Test
   public void canSerializeDifferentQuestionTypes() {
     AddressQuestionDefinition address =
         new AddressQuestionDefinition(
-            "address", Path.empty(), Optional.empty(), "", ImmutableMap.of(), ImmutableMap.of());
+            "address",
+            Path.empty(),
+            Optional.empty(),
+            "",
+            LocalizedStrings.of(),
+            LocalizedStrings.empty());
     Question question = new Question(address);
 
     question.save();
@@ -132,8 +137,8 @@ public class QuestionTest extends WithPostgresContainer {
             Path.empty(),
             Optional.empty(),
             "",
-            ImmutableMap.of(),
-            ImmutableMap.of(),
+            LocalizedStrings.of(),
+            LocalizedStrings.empty(),
             TextValidationPredicates.create(0, 128));
     Question question = new Question(definition);
 
@@ -155,10 +160,11 @@ public class QuestionTest extends WithPostgresContainer {
             .setDescription("")
             .setPath(Path.empty())
             .setEnumeratorId(Optional.of(123L))
-            .setQuestionText(ImmutableMap.of())
-            .setQuestionHelpText(ImmutableMap.of())
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
             .setQuestionOptions(
-                ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option"))))
+                ImmutableList.of(
+                    QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option"))))
             .build();
     Question question = new Question(definition);
 
@@ -172,7 +178,7 @@ public class QuestionTest extends WithPostgresContainer {
 
     assertThat(multiOption.getOptions())
         .isEqualTo(
-            ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option"))));
+            ImmutableList.of(QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option"))));
     assertThat(multiOption.getEnumeratorId()).hasValue(123L);
   }
 }

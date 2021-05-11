@@ -28,8 +28,7 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
   private static final String ENUMERATOR_FIELD_TEMPLATE_ID = "enumerator-field-template";
 
   public static final String ENUMERATOR_FIELD_CLASSES =
-      StyleUtils.joinStyles(
-          ReferenceClasses.ENUMERATOR_FIELD, Styles.FLEX, Styles.MB_4);
+      StyleUtils.joinStyles(ReferenceClasses.ENUMERATOR_FIELD, Styles.FLEX, Styles.MB_4);
 
   private final ApplicantQuestion question;
 
@@ -42,11 +41,15 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
 
     Messages messages = params.messages();
     EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();
+    String localizedEntityType =
+        enumeratorQuestion.getEntityType(messages, messages.lang().locale());
     ImmutableList<String> entityNames = enumeratorQuestion.getEntityNames();
 
     ContainerTag enumeratorFields = div().withId(ENUMERATOR_FIELDS_ID);
     for (int index = 0; index < entityNames.size(); index++) {
-      enumeratorFields.with(existingEnumeratorField(Optional.of(entityNames.get(index)), index));
+      enumeratorFields.with(
+          existingEnumeratorField(
+              messages, Optional.of(entityNames.get(index)), index, localizedEntityType));
     }
     return div()
         .withClasses(Styles.MX_AUTO, Styles.W_MAX)
@@ -64,7 +67,8 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
             enumeratorFields,
             button(
                 ADD_ELEMENT_BUTTON_ID,
-                messages.at(MessageKey.BUTTON_ADD_ENUMERATOR_ENTITY.getKeyName())),
+                messages.at(
+                    MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(), localizedEntityType)),
             fieldErrors(messages, enumeratorQuestion.getQuestionErrors()));
   }
 
@@ -72,7 +76,8 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
    * Create an enumerator field for existing entries. These come with a checkbox to delete during
    * form submission.
    */
-  private Tag existingEnumeratorField(Optional<String> existingOption, int index) {
+  private Tag existingEnumeratorField(
+      Messages messages, Optional<String> existingOption, int index, String localizedEntityType) {
     ContainerTag entityNameInput =
         FieldWithLabel.input()
             .setApplicantStyle(true)
@@ -83,7 +88,12 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
         FieldWithLabel.checkbox()
             .setFieldName(Path.empty().join(Scalar.DELETE_ENTITY).asArrayElement().toString())
             .setValue(String.valueOf(index))
-            .getContainer();
+            .getContainer()
+            .attr(
+                "aria-label",
+                messages.at(
+                    MessageKey.ENUMERATOR_BUTTON_ARIA_LABEL_DELETE_ENTITY.getKeyName(),
+                    localizedEntityType));
 
     return div().withClasses(ENUMERATOR_FIELD_CLASSES).with(entityNameInput, removeEntityBox);
   }
@@ -92,12 +102,15 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
    * Create an enumerator field template for new entries. These come with a button to delete itself.
    */
   public static Tag newEnumeratorFieldTemplate(
-      Path contextualizedPath, String localizedPlaceholder, Messages messages) {
+      Path contextualizedPath, String localizedEntityType, Messages messages) {
     ContainerTag entityNameInput =
         FieldWithLabel.input()
             .setApplicantStyle(true)
             .setFieldName(contextualizedPath.toString())
-            .setPlaceholderText(localizedPlaceholder)
+            .setPlaceholderText(
+                messages.at(
+                    MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
+                    localizedEntityType))
             .getContainer();
     ContainerTag icon =
         Icons.svg(Icons.TRASH_CAN_SVG_PATH, 24)
@@ -109,7 +122,8 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
             .attr(
                 "aria-label",
                 messages.at(
-                    MessageKey.BUTTON_ARIA_LABEL_DELETE_ENTITY.getKeyName(), localizedPlaceholder));
+                    MessageKey.ENUMERATOR_BUTTON_ARIA_LABEL_DELETE_ENTITY.getKeyName(),
+                    localizedEntityType));
     return div()
         .withId(ENUMERATOR_FIELD_TEMPLATE_ID)
         .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, Styles.HIDDEN))
