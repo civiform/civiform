@@ -205,7 +205,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> blocks = getAllBlocks();
     for (Block block : blocks) {
-      for (ApplicantQuestion question : block.getQuestions()) {
+      ImmutableList<ApplicantQuestion> questions = block.getQuestions();
+      for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
+        ApplicantQuestion question = questions.get(questionIndex);
         String questionText = question.getQuestionText();
         String answerText = question.errorsPresenter().getAnswerString();
         Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
@@ -216,7 +218,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
             AnswerData.builder()
                 .setProgramId(programDefinition.id())
                 .setBlockId(block.getId())
-                .setQuestionId(question.getQuestionDefinition().getId())
+                .setQuestionIndex(questionIndex)
+                .setIsEnumeratorAnswer(question.getQuestionDefinition().isEnumerator())
                 .setQuestionText(questionText)
                 .setAnswerText(answerText)
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))

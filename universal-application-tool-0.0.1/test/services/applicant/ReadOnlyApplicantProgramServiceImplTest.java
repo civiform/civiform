@@ -463,7 +463,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     assertThat(result.get(2).answerText()).isEqualTo("123 Rhode St.\nSeattle, WA, 12345");
 
     // Check single and multi select answers
-    assertThat(result.get(3).questionId()).isEqualTo(singleSelectQuestionDefinition.getId());
+    assertThat(result.get(3).questionIndex()).isEqualTo(3);
     assertThat(result.get(3).scalarAnswersInDefaultLocale())
         .containsExactly(
             new AbstractMap.SimpleEntry<>(
@@ -471,7 +471,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                     .join(singleSelectQuestionDefinition.getQuestionPathSegment())
                     .join(Scalar.SELECTION),
                 "winter"));
-    assertThat(result.get(4).questionId()).isEqualTo(multiSelectQuestionDefinition.getId());
+    assertThat(result.get(4).questionIndex()).isEqualTo(4);
     assertThat(result.get(4).scalarAnswersInDefaultLocale())
         .containsExactly(
             new AbstractMap.SimpleEntry<>(
@@ -481,10 +481,10 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 "toaster, pepper grinder"));
 
     // check enumerator and repeated answers
-    assertThat(result.get(5).questionId()).isEqualTo(enumeratorQuestionDefinition.getId());
+    assertThat(result.get(5).questionIndex()).isEqualTo(0);
     assertThat(result.get(5).scalarAnswersInDefaultLocale())
         .containsExactly(new AbstractMap.SimpleEntry<>(enumeratorPath, "enum one\nenum two"));
-    assertThat(result.get(6).questionId()).isEqualTo(repeatedQuestionDefinition.getId());
+    assertThat(result.get(6).questionIndex()).isEqualTo(0);
     assertThat(result.get(6).scalarAnswersInDefaultLocale())
         .containsExactlyEntriesOf(
             ImmutableMap.of(
@@ -503,7 +503,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                     .join(repeatedQuestionDefinition.getQuestionPathSegment())
                     .join(Scalar.LAST_NAME),
                 "last"));
-    assertThat(result.get(7).questionId()).isEqualTo(repeatedQuestionDefinition.getId());
+    assertThat(result.get(7).questionIndex()).isEqualTo(0);
     assertThat(result.get(7).scalarAnswersInDefaultLocale())
         .containsExactlyEntriesOf(
             ImmutableMap.of(

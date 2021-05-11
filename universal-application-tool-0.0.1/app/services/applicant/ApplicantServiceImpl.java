@@ -24,6 +24,7 @@ import services.Path;
 import services.applicant.question.Scalar;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
@@ -76,9 +77,14 @@ public class ApplicantServiceImpl implements ApplicantService {
   @Override
   public CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
       Application application) {
-    return CompletableFuture.completedFuture(
-        new ReadOnlyApplicantProgramServiceImpl(
-            application.getApplicantData(), application.getProgram().getProgramDefinition()));
+    try {
+      return CompletableFuture.completedFuture(
+          new ReadOnlyApplicantProgramServiceImpl(
+              application.getApplicantData(),
+              programService.getProgramDefinition(application.getProgram().id)));
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException("Cannot find a program that has applications for it.", e);
+    }
   }
 
   @Override

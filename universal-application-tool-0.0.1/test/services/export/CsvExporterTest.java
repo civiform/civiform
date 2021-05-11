@@ -3,8 +3,8 @@ package services.export;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
@@ -14,6 +14,7 @@ import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
 import models.Program;
+import models.Question;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -22,14 +23,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import repository.WithPostgresContainer;
 import services.Path;
+import services.applicant.ApplicantData;
 import services.program.Column;
 import services.program.ColumnType;
 import services.program.CsvExportConfig;
 import services.program.ExportDefinition;
 import services.program.ExportEngine;
-import services.program.ProgramDefinition;
-import services.program.ProgramNotFoundException;
 import support.ProgramBuilder;
+import support.QuestionAnswerer;
 
 public class CsvExporterTest extends WithPostgresContainer {
   private static Program fakeProgramWithCsvExport;
@@ -127,7 +128,7 @@ public class CsvExporterTest extends WithPostgresContainer {
   }
 
   @Test
-  public void fillOutCsv() throws IOException {
+  public void fillOutCsv() throws Exception {
     ExporterFactory exporterFactory = instanceOf(ExporterFactory.class);
     CsvExporter exporter = exporterFactory.csvExporter(fakeProgramWithCsvExport);
     for (Applicant applicant : fakeApplicants) {
@@ -155,33 +156,206 @@ public class CsvExporterTest extends WithPostgresContainer {
   }
 
   @Test
-  public void useExporterService() throws IOException, ProgramNotFoundException {
-    ProgramDefinition definition =
-        ProgramBuilder.newDraftProgram()
+  public void useExporterService() throws Exception {
+    // Define the program
+    Question nameQuestion = testQuestionBank.applicantName();
+    Question colorQuestion = testQuestionBank.applicantFavoriteColor();
+    Question householdMembersQuestion = testQuestionBank.applicantHouseholdMembers();
+    Question hmNameQuestion = testQuestionBank.applicantHouseholdMemberName();
+    Question hmJobsQuestion = testQuestionBank.applicantHouseholdMemberJobs();
+    Question hmJobIncomeQuestion = testQuestionBank.applicantHouseholdMemberJobIncome();
+    Program program =
+        ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withQuestion(testQuestionBank.applicantFavoriteColor())
-            .buildDefinition();
+            .withQuestions(nameQuestion, colorQuestion)
+            .withBlock()
+            .withQuestion(householdMembersQuestion)
+            .withRepeatedBlock()
+            .withQuestion(hmNameQuestion)
+            .withAnotherRepeatedBlock()
+            .withQuestion(hmJobsQuestion)
+            .withRepeatedBlock()
+            .withQuestion(hmJobIncomeQuestion)
+            .build();
     ExporterService exporterService = instanceOf(ExporterService.class);
 
-    for (Applicant applicant : fakeApplicants) {
-      Application application =
-          new Application(applicant, definition.toProgram(), LifecycleStage.ACTIVE);
-      application.save();
-    }
+    // First applicant has two household members, and the second one has one job.
+    Applicant firstApplicant = new Applicant();
+    QuestionAnswerer.answerNameQuestion(
+        firstApplicant.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "Jane",
+        "",
+        "Doe");
+    QuestionAnswerer.answerTextQuestion(
+        firstApplicant.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            colorQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "coquelicot");
+    Path hmPath =
+        ApplicantData.APPLICANT_PATH.join(
+            householdMembersQuestion.getQuestionDefinition().getQuestionPathSegment());
+    QuestionAnswerer.answerEnumeratorQuestion(
+        firstApplicant.getApplicantData(), hmPath, ImmutableList.of("Anne", "Bailey"));
+    QuestionAnswerer.answerNameQuestion(
+        firstApplicant.getApplicantData(),
+        hmPath.atIndex(0).join(hmNameQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "Anne",
+        "",
+        "Anderson");
+    QuestionAnswerer.answerNameQuestion(
+        firstApplicant.getApplicantData(),
+        hmPath.atIndex(1).join(hmNameQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "Bailey",
+        "",
+        "Bailerson");
+    String hmJobPathSegment = hmJobsQuestion.getQuestionDefinition().getQuestionPathSegment();
+    QuestionAnswerer.answerEnumeratorQuestion(
+        firstApplicant.getApplicantData(),
+        hmPath.atIndex(1).join(hmJobPathSegment),
+        ImmutableList.of("Bailey's job"));
+    QuestionAnswerer.answerNumberQuestion(
+        firstApplicant.getApplicantData(),
+        hmPath
+            .atIndex(1)
+            .join(hmJobPathSegment)
+            .atIndex(0)
+            .join(hmJobIncomeQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        100);
+    firstApplicant.save();
+    Application firstApplication = new Application(firstApplicant, program, LifecycleStage.ACTIVE);
+    firstApplication.save();
+
+    // Second applicant has one household member that has two jobs.
+    Applicant secondApplicant = new Applicant();
+    QuestionAnswerer.answerNameQuestion(
+        secondApplicant.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "John",
+        "",
+        "Doe");
+    QuestionAnswerer.answerTextQuestion(
+        secondApplicant.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            colorQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "brown");
+    QuestionAnswerer.answerEnumeratorQuestion(
+        secondApplicant.getApplicantData(), hmPath, ImmutableList.of("James"));
+    QuestionAnswerer.answerNameQuestion(
+        secondApplicant.getApplicantData(),
+        hmPath.atIndex(0).join(hmNameQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "James",
+        "",
+        "Jameson");
+    QuestionAnswerer.answerEnumeratorQuestion(
+        secondApplicant.getApplicantData(),
+        hmPath.atIndex(0).join(hmJobPathSegment),
+        ImmutableList.of("James' first job", "James' second job", "James' third job"));
+    QuestionAnswerer.answerNumberQuestion(
+        secondApplicant.getApplicantData(),
+        hmPath
+            .atIndex(0)
+            .join(hmJobPathSegment)
+            .atIndex(0)
+            .join(hmJobIncomeQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        111);
+    QuestionAnswerer.answerNumberQuestion(
+        secondApplicant.getApplicantData(),
+        hmPath
+            .atIndex(0)
+            .join(hmJobPathSegment)
+            .atIndex(1)
+            .join(hmJobIncomeQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        222);
+    QuestionAnswerer.answerNumberQuestion(
+        secondApplicant.getApplicantData(),
+        hmPath
+            .atIndex(0)
+            .join(hmJobPathSegment)
+            .atIndex(2)
+            .join(hmJobIncomeQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        333);
+    secondApplicant.save();
+    Application secondApplication =
+        new Application(secondApplicant, program, LifecycleStage.ACTIVE);
+    secondApplication.save();
+
+    // Generate default CSV
+    ExporterFactory exporterFactory = instanceOf(ExporterFactory.class);
+    CsvExporter exporter =
+        exporterFactory.csvExporter(exporterService.generateDefaultCsvConfig(program.id));
+    exporter.export(firstApplication, writer);
+    exporter.export(secondApplication, writer);
+    writer.close();
 
     CSVParser parser =
         CSVParser.parse(
-            exporterService.getProgramCsv(definition.id()),
-            CSVFormat.DEFAULT.withFirstRecordAsHeader());
+            exporterService.getProgramCsv(program.id), CSVFormat.DEFAULT.withFirstRecordAsHeader());
 
-    assertThat(parser.getHeaderMap()).hasSize(3);
-    assertThat(parser.getHeaderMap()).containsEntry("ID", 0);
-    assertThat(parser.getHeaderMap()).containsEntry("Submit time", 1);
-    assertThat(parser.getHeaderMap()).containsEntry("applicant favorite color.text", 2);
+    assertThat(parser.getHeaderMap())
+        .containsExactlyEntriesOf(
+            ImmutableMap.<String, Integer>builder()
+                .put("ID", 0)
+                .put("Submit time", 1)
+                .put("applicant name (first_name)", 2)
+                .put("applicant name (middle_name)", 3)
+                .put("applicant name (last_name)", 4)
+                .put("applicant favorite color (text)", 5)
+                .put("applicant household members[0] - household members name (first_name)", 6)
+                .put("applicant household members[0] - household members name (middle_name)", 7)
+                .put("applicant household members[0] - household members name (last_name)", 8)
+                .put("applicant household members[1] - household members name (first_name)", 9)
+                .put("applicant household members[1] - household members name (middle_name)", 10)
+                .put("applicant household members[1] - household members name (last_name)", 11)
+                .put(
+                    "applicant household members[0] - household members jobs[0] - household"
+                        + " members jobs income (number)",
+                    12)
+                .put(
+                    "applicant household members[0] - household members jobs[1] - household"
+                        + " members jobs income (number)",
+                    13)
+                .put(
+                    "applicant household members[0] - household members jobs[2] - household"
+                        + " members jobs income (number)",
+                    14)
+                .put(
+                    "applicant household members[1] - household members jobs[0] - household"
+                        + " members jobs income (number)",
+                    15)
+                .build());
 
     List<CSVRecord> records = parser.getRecords();
     assertThat(records).hasSize(2);
-    assertThat(records.get(0).get("applicant favorite color.text")).isEqualTo("fuchsia");
-    assertThat(records.get(1).get("applicant favorite color.text")).isEqualTo("maroon");
+    assertThat(
+            records
+                .get(0)
+                .get(
+                    "applicant household members[0] - household members jobs[2] - household"
+                        + " members jobs income (number)"))
+        .isEqualTo("");
+    assertThat(
+            records
+                .get(0)
+                .get(
+                    "applicant household members[1] - household members jobs[0] - household"
+                        + " members jobs income (number)"))
+        .isEqualTo("100");
+    assertThat(
+            records
+                .get(1)
+                .get(
+                    "applicant household members[0] - household members jobs[2] - household"
+                        + " members jobs income (number)"))
+        .isEqualTo("333");
+    assertThat(
+            records
+                .get(1)
+                .get(
+                    "applicant household members[1] - household members jobs[0] - household"
+                        + " members jobs income (number)"))
+        .isEqualTo("");
   }
 }
