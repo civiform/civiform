@@ -84,7 +84,7 @@ public class ExporterService {
    * applications. This means if one application had a question repeated for N repeated entities,
    * then there would be N columns for each of that question's scalars.
    */
-  private CsvExportConfig generateDefaultCsvConfig(long programId) {
+  CsvExportConfig generateDefaultCsvConfig(long programId) {
     ImmutableList<Application> applications;
     try {
       applications = programService.getProgramApplications(programId);
