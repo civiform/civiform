@@ -24,7 +24,8 @@ public class ProgramFormBuilder extends BaseHtmlView {
         editExistingProgram);
   }
 
-  public static ContainerTag buildProgramForm(ProgramDefinition definition, boolean editExistingProgram) {
+  public static ContainerTag buildProgramForm(
+      ProgramDefinition definition, boolean editExistingProgram) {
     return buildProgramForm(
         program.adminName(),
         program.adminDescription(),

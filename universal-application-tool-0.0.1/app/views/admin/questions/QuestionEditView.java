@@ -160,9 +160,8 @@ public final class QuestionEditView extends AdminView {
     ContainerTag previewContent = QuestionPreview.renderQuestionPreview(type, messages);
     previewContent.with(layout.viewUtils.makeLocalJsTag("preview"));
 
-    HtmlBundle htmlBundle = getHtmlBundle()
-            .setTitle(title)
-            .addMainContent(formContent, previewContent);
+    HtmlBundle htmlBundle =
+        getHtmlBundle().setTitle(title).addMainContent(formContent, previewContent);
     return layout.renderFull(htmlBundle);
   }
 

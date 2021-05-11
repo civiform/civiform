@@ -54,7 +54,8 @@ public class VersionListView extends AdminView {
             .collect(ImmutableList.toImmutableList());
 
     String title = "Program Versions";
-    HtmlBundle htmlBundle = getHtmlBundle()
+    HtmlBundle htmlBundle =
+        getHtmlBundle()
             .setTitle(title)
             .addMainContent(
                 renderHeader("Current Versions"),

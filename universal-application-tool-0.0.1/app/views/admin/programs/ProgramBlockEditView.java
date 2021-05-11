@@ -76,7 +76,8 @@ public class ProgramBlockEditView extends AdminView {
       ImmutableList<QuestionDefinition> questions) {
     Tag csrfTag = makeCsrfTokenInputTag(request);
 
-    HtmlBundle htmlBundle = getHtmlBundle()
+    HtmlBundle htmlBundle =
+        getHtmlBundle()
             .setTitle("Block Edit View")
             .addMainStyles(Styles.FLEX, Styles.FLEX_COL)
             .addMainContent(

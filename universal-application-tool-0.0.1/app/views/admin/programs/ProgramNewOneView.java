@@ -33,9 +33,8 @@ public final class ProgramNewOneView extends AdminView {
                 .with(makeCsrfTokenInputTag(request))
                 .withAction(controllers.admin.routes.AdminProgramController.create().url()));
 
-    HtmlBundle htmlBundle = getHtmlBundle()
-            .setTitle(title)
-            .addMainContent(renderHeader(title), contentDiv);
+    HtmlBundle htmlBundle =
+        getHtmlBundle().setTitle(title).addMainContent(renderHeader(title), contentDiv);
 
     if (!message.isEmpty()) {
       htmlBundle.addToastMessages(ToastMessage.error(message).setDismissible(false));
