@@ -15,9 +15,6 @@ docker-compose -f browser-test/browser-test-compose.yml -f browser-test/browser-
 # wait till localstack running
 bin/localstack/wait http://localhost:6645
 
-# ensure local s3 created
-bin/localstack/mk-s3 http://localhost:6645
-
 # start everything else
 docker-compose -f browser-test/browser-test-compose.yml -f browser-test/browser-test-compose.dev.yml up
 
