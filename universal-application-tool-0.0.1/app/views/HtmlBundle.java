@@ -20,23 +20,18 @@ import views.components.ToastMessage;
 public class HtmlBundle {
   String pageTitle;
 
+  ArrayList<String> bodyStyles = new ArrayList<String>();
+  ArrayList<Tag> footerContent = new ArrayList<Tag>();
+  ArrayList<Tag> footerScripts = new ArrayList<Tag>();
+  ArrayList<String> footerStyles = new ArrayList<String>();
+  ArrayList<Tag> headScripts = new ArrayList<Tag>();
+  ArrayList<Tag> headerContent = new ArrayList<Tag>();
+  ArrayList<String> headerStyles = new ArrayList<String>();
+  ArrayList<Tag> mainContent = new ArrayList<Tag>();
+  ArrayList<String> mainStyles = new ArrayList<String>();
   ArrayList<EmptyTag> metadata = new ArrayList<EmptyTag>();
   ArrayList<Tag> stylesheets = new ArrayList<Tag>();
   ArrayList<ToastMessage> toastMessages = new ArrayList<ToastMessage>();
-
-  ArrayList<Tag> headScripts = new ArrayList<Tag>();
-  ArrayList<Tag> footerScripts = new ArrayList<Tag>();
-
-  ArrayList<String> bodyStyles = new ArrayList<String>();
-
-  ArrayList<Tag> footerContent = new ArrayList<Tag>();
-  ArrayList<String> footerStyles = new ArrayList<String>();
-
-  ArrayList<Tag> headerContent = new ArrayList<Tag>();
-  ArrayList<String> headerStyles = new ArrayList<String>();
-
-  ArrayList<Tag> mainContent = new ArrayList<Tag>();
-  ArrayList<String> mainStyles = new ArrayList<String>();
 
   public HtmlBundle addBodyStyles(String... styles) {
     bodyStyles.addAll(Arrays.asList(styles));
@@ -58,6 +53,11 @@ public class HtmlBundle {
     return this;
   }
 
+  public HtmlBundle addHeadScripts(Tag... sources) {
+    headScripts.addAll(Arrays.asList(sources));
+    return this;
+  }
+
   public HtmlBundle addHeaderContent(Tag... tags) {
     headerContent.addAll(Arrays.asList(tags));
     return this;
@@ -70,11 +70,6 @@ public class HtmlBundle {
 
   public HtmlBundle addMainContent(Tag... tags) {
     mainContent.addAll(Arrays.asList(tags));
-    return this;
-  }
-
-  public HtmlBundle addHeadScripts(Tag... sources) {
-    headScripts.addAll(Arrays.asList(sources));
     return this;
   }
 
@@ -93,18 +88,13 @@ public class HtmlBundle {
     return this;
   }
 
+  public ContainerTag getContent() {
+    return html(renderHead(), renderBody());
+  }
+
   public HtmlBundle setTitle(String title) {
     pageTitle = title;
     return this;
-  }
-
-  /**
-   * The page head contains: - page title - page metadata - CSS styles - javascript that needs to
-   * run immediately
-   */
-  private ContainerTag renderHead() {
-    // TODO: Throw exception if page title is not set.
-    return head().with(title(pageTitle)).with(metadata).with(stylesheets).with(headScripts);
   }
 
   /** The page body contains: - header - main - footer */
@@ -114,6 +104,22 @@ public class HtmlBundle {
         .with(renderMain())
         .with(renderFooter())
         .withClasses(bodyStyles.toArray(new String[0]));
+  }
+
+  private ContainerTag renderFooter() {
+    return footer()
+        .with(footerContent)
+        .with(footerScripts)
+        .withClasses(footerStyles.toArray(new String[0]));
+  }
+
+  /**
+   * The page head contains: - page title - page metadata - CSS styles - javascript that needs to
+   * run immediately
+   */
+  private ContainerTag renderHead() {
+    // TODO: Throw exception if page title is not set.
+    return head().with(title(pageTitle)).with(metadata).with(stylesheets).with(headScripts);
   }
 
   private ContainerTag renderHeader() {
@@ -126,16 +132,5 @@ public class HtmlBundle {
 
   private ContainerTag renderMain() {
     return main().with(mainContent).withClasses(mainStyles.toArray(new String[0]));
-  }
-
-  private ContainerTag renderFooter() {
-    return footer()
-        .with(footerContent)
-        .with(footerScripts)
-        .withClasses(footerStyles.toArray(new String[0]));
-  }
-
-  public ContainerTag getContent() {
-    return html(renderHead(), renderBody());
   }
 }
