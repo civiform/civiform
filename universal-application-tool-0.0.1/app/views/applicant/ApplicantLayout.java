@@ -25,7 +25,6 @@ import services.MessageKey;
 import views.BaseHtmlLayout;
 import views.ViewUtils;
 import views.style.ApplicantStyles;
-import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
@@ -51,7 +50,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             .with(renderNavBar(profile, messages))
             .with(mainDomContents)
             .with(viewUtils.makeLocalJsTag("main"))
-            .withClasses(BaseStyles.APPLICANT_BG_COLOR));
+            .withClasses(ApplicantStyles.BODY_BG_COLOR));
   }
 
   private ContainerTag renderNavBar(Optional<UatProfile> profile, Messages messages) {

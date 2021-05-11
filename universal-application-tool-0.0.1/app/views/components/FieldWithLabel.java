@@ -210,18 +210,14 @@ public class FieldWithLabel {
       fieldTag.attr("checked");
     }
 
-    ContainerTag labelTag =
-        label()
-            .withClasses(BaseStyles.CHECKBOX_LABEL)
-            .condAttr(!Strings.isNullOrEmpty(this.id), Attr.FOR, this.id)
-            .withText(this.labelText);
-
-    return div(fieldTag, labelTag)
+    return label()
         .withClasses(
-            StyleUtils.joinStyles(
-                BaseStyles.CHECKBOX_OPTION_CONTAINER,
-                BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
-                labelText.isEmpty() ? Styles.W_MIN : ""));
+            BaseStyles.CHECKBOX_LABEL,
+            BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
+            labelText.isEmpty() ? Styles.W_MIN : "")
+        .condAttr(!Strings.isNullOrEmpty(this.id), Attr.FOR, this.id)
+        .with(fieldTag)
+        .withText(this.labelText);
   }
 
   private Tag buildFieldErrorsTag() {

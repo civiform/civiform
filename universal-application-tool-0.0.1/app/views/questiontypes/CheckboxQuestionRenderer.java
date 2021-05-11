@@ -4,7 +4,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
-import static j2html.TagCreator.span;
 
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
@@ -32,7 +31,7 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
 
     return div()
         .withId(question.getContextualizedPath().toString())
-        .withClasses(Styles.MX_AUTO, Styles.PX_16)
+        .withClasses(Styles.MX_AUTO, Styles.PX_16, BaseStyles.FORM_FIELD_MARGIN_BOTTOM)
         .with(
             div()
                 .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, Styles.TEXT_3XL)
@@ -50,15 +49,14 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
                 .withValue("")
                 .condAttr(!multiOptionQuestion.hasValue(), Attr.CHECKED, "")
                 .withClasses(ReferenceClasses.RADIO_DEFAULT, Styles.HIDDEN),
+            fieldErrors(params.messages(), multiOptionQuestion.getQuestionErrors()),
             each(
                 multiOptionQuestion.getOptions(),
                 option ->
                     renderCheckboxQuestion(
                         multiOptionQuestion.getSelectionPathAsArray(),
                         option,
-                        multiOptionQuestion.optionIsSelected(option))),
-            fieldErrors(params.messages(), multiOptionQuestion.getQuestionErrors())
-                .withClasses(Styles.ML_2, Styles.TEXT_XS, Styles.TEXT_RED_600, Styles.FONT_BOLD));
+                        multiOptionQuestion.optionIsSelected(option))));
   }
 
   private Tag renderCheckboxQuestion(
@@ -66,7 +64,11 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
     String id = "checkbox-" + question.getContextualizedPath() + "-" + option.id();
     ContainerTag labelTag =
         label()
-            .withClasses(Styles.W_FULL, Styles.BLOCK, Styles.ALIGN_MIDDLE)
+            .withClasses(
+                ReferenceClasses.RADIO_OPTION,
+                BaseStyles.CHECKBOX_LABEL,
+                isSelected ? Styles.BG_BLUE_100 : "",
+                isSelected ? Styles.BORDER_BLUE_500 : "")
             .with(
                 input()
                     .withId(id)
@@ -75,18 +77,9 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
                     .withValue(String.valueOf(option.id()))
                     .condAttr(isSelected, Attr.CHECKED, "")
                     .withClasses(
-                        ReferenceClasses.RADIO_INPUT, Styles.H_4, Styles.W_4, Styles.ALIGN_MIDDLE),
-                span(option.optionText()).withClasses(Styles.ML_4, Styles.TEXT_GRAY_700));
+                        StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)))
+            .withText(option.optionText());
 
-    return div()
-        .withClasses(Styles.MY_2, Styles.RELATIVE)
-        .with(
-            div(labelTag)
-                .withClasses(
-                    StyleUtils.joinStyles(
-                        ReferenceClasses.RADIO_OPTION,
-                        BaseStyles.CHECKBOX_OPTION_CONTAINER,
-                        isSelected ? Styles.BG_BLUE_100 : "",
-                        isSelected ? Styles.BORDER_BLUE_500 : "")));
+    return div().withClasses(Styles.MY_2, Styles.RELATIVE).with(labelTag);
   }
 }
