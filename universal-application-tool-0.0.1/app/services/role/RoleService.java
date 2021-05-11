@@ -76,4 +76,18 @@ public class RoleService {
                   Joiner.on(", ").join(invalidEmails))));
     }
   }
+
+  /**
+   * For each account (identified by email), remove the given program from the list of programs that
+   * account administers. If an account does not administer the given program, do nothing.
+   *
+   * @param programId the ID of the program to remove
+   * @param accountEmails a list of account emails of program admins for the given program
+   * @throws ProgramNotFoundException if the given program does not exist
+   */
+  public void removeProgramAdmins(long programId, ImmutableSet<String> accountEmails)
+      throws ProgramNotFoundException {
+    ProgramDefinition program = programService.getProgramDefinition(programId);
+    accountEmails.forEach(email -> userRepository.removeAdministeredProgram(email, program));
+  }
 }

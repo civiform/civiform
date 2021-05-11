@@ -87,6 +87,13 @@ function removeInput(event: Event) {
 
 }
 
+/** If we want to remove an existing element, hide the input div and change the field name to remove. */
+function hideInput(clickedButton: Element, removeElementName: string) {
+  const inputDiv = clickedButton.parentElement;
+  inputDiv.querySelector("input").setAttribute("name", removeElementName);
+  inputDiv.classList.add("hidden");
+}
+
 /** In the enumerator form - add a new input field for a repeated entity. */
 function addNewEnumeratorField(event: Event) {
   // Copy the enumerator field template
@@ -139,7 +146,9 @@ window.addEventListener('load', (event) => {
 
   // Bind click handler for removing program admins in the program admin management view
   Array.from(document.querySelectorAll('.cf-program-admin-remove-button')).forEach(
-    el => el.addEventListener("click", removeInput));
+    el => el.addEventListener("click", function() {
+      hideInput(el, "removeAdminEmails[]");
+    }));
 
   // Configure the button on the enumerator question form to add more enumerator field options
   const enumeratorOptionButton = document.getElementById("enumerator-field-add-button");
