@@ -25,6 +25,7 @@ import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -75,6 +76,8 @@ public class Question extends BaseModel {
   // questionOptions is the current storage column for multi-option questions.
   private @DbJsonB ImmutableList<QuestionOption> questionOptions;
 
+  private @DbJsonB LocalizedStrings enumeratorEntityType;
+
   @ManyToMany
   @JoinTable(name = "versions_questions")
   private List<Version> versions;
@@ -117,6 +120,8 @@ public class Question extends BaseModel {
             .setDescription(description)
             .setQuestionType(QuestionType.valueOf(questionType))
             .setValidationPredicatesString(validationPredicates);
+
+    setEnumeratorEntityType(builder);
 
     // Build accounting for legacy columns
     setQuestionText(builder);
@@ -188,6 +193,12 @@ public class Question extends BaseModel {
     builder.setQuestionOptions(options);
   }
 
+  private void setEnumeratorEntityType(QuestionDefinitionBuilder builder) throws InvalidQuestionTypeException {
+    if (QuestionType.of(questionType).equals(QuestionType.ENUMERATOR)) {
+      builder.setEntityType(enumeratorEntityType);
+    }
+  }
+
   public QuestionDefinition getQuestionDefinition() {
     return checkNotNull(questionDefinition);
   }
@@ -208,6 +219,11 @@ public class Question extends BaseModel {
       MultiOptionQuestionDefinition multiOption =
           (MultiOptionQuestionDefinition) questionDefinition;
       questionOptions = multiOption.getOptions();
+    }
+
+    if (questionDefinition.getQuestionType().equals(QuestionType.ENUMERATOR)) {
+      EnumeratorQuestionDefinition enumerator = (EnumeratorQuestionDefinition) questionDefinition;
+      enumeratorEntityType = enumerator.getEntityType();
     }
   }
 }
