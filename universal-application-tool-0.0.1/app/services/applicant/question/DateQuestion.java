@@ -1,9 +1,7 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.Arrays;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.DateQuestionDefinition;
@@ -12,9 +10,8 @@ import services.question.types.QuestionType;
 public class DateQuestion implements PresentsErrors {
 
   private final ApplicantQuestion applicantQuestion;
-  private Optional<Long> dayValue;
-  private Optional<Long> monthValue;
-  private Optional<Long> yearValue;
+
+  private Optional<Long> dateValue;
 
   public DateQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
@@ -47,62 +44,26 @@ public class DateQuestion implements PresentsErrors {
 
   @Override
   public boolean isAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getMonthPath())
-        && applicantQuestion.getApplicantData().hasPath(getDayPath())
-        && applicantQuestion.getApplicantData().hasPath(getYearPath());
+    return applicantQuestion.getApplicantData().hasPath(getDatePath());
   }
 
-  public Path getMonthPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.MONTH);
-  }
-
-  public Path getDayPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.DAY);
-  }
-
-  public Path getYearPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.YEAR);
+  public Path getDatePath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.DATE_TIMESTAMP);
   }
 
   @Override
   public String getAnswerString() {
-    String[] parts = {
-      getMonthValue().map(Object::toString).orElse("-"),
-      getDayValue().map(Object::toString).orElse("-"),
-      getYearValue().map(Object::toString).orElse("-")
-    };
-
-    return Arrays.stream(parts).filter(part -> !part.isBlank()).collect(Collectors.joining(" "));
+    return getDateValue().map(Object::toString).orElse("-");
   }
 
-  public Optional<Long> getMonthValue() {
-    if (monthValue != null) {
-      return monthValue;
+  public Optional<Long> getDateValue() {
+    if (dateValue != null) {
+      return dateValue;
     }
 
-    monthValue = applicantQuestion.getApplicantData().readLong(getMonthPath());
+    dateValue = applicantQuestion.getApplicantData().readLong(getDatePath());
 
-    return monthValue;
-  }
-
-  public Optional<Long> getDayValue() {
-    if (dayValue != null) {
-      return dayValue;
-    }
-
-    dayValue = applicantQuestion.getApplicantData().readLong(getDayPath());
-
-    return dayValue;
-  }
-
-  public Optional<Long> getYearValue() {
-    if (yearValue != null) {
-      return yearValue;
-    }
-
-    yearValue = applicantQuestion.getApplicantData().readLong(getYearPath());
-
-    return yearValue;
+    return dateValue;
   }
 
   public DateQuestionDefinition getQuestionDefinition() {
