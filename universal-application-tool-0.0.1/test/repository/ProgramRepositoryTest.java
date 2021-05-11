@@ -2,9 +2,7 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import models.Account;
@@ -17,27 +15,12 @@ import services.program.ProgramNotFoundException;
 public class ProgramRepositoryTest extends WithPostgresContainer {
 
   private ProgramRepository repo;
+  private VersionRepository versionRepo;
 
   @Before
   public void setupProgramRepository() {
     repo = instanceOf(ProgramRepository.class);
-  }
-
-  @Test
-  public void listPrograms_empty() {
-    List<Program> allPrograms = repo.listPrograms().toCompletableFuture().join();
-
-    assertThat(allPrograms).isEmpty();
-  }
-
-  @Test
-  public void listPrograms() {
-    Program one = resourceCreator.insertActiveProgram("one");
-    Program two = resourceCreator.insertActiveProgram("two");
-
-    ImmutableList<Program> allPrograms = repo.listPrograms().toCompletableFuture().join();
-
-    assertThat(allPrograms).containsExactly(one, two);
+    versionRepo = instanceOf(VersionRepository.class);
   }
 
   @Test
@@ -72,7 +55,7 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
         .execute();
 
     Program found =
-        repo.listPrograms().toCompletableFuture().join().stream()
+        versionRepo.getActiveVersion().getPrograms().stream()
             .filter(
                 program -> program.getProgramDefinition().adminName().equals("Old Schema Entry"))
             .findFirst()

@@ -42,81 +42,6 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void listProgramDefinitions_hasNoResults() {
-    ImmutableList<ProgramDefinition> programDefinitions = ps.listProgramDefinitions();
-
-    assertThat(programDefinitions).isEmpty();
-  }
-
-  @Test
-  public void listProgramDefinitions_hasResults() {
-    ProgramDefinition first = ProgramBuilder.newDraftProgram("first").buildDefinition();
-    ProgramDefinition second = ProgramBuilder.newDraftProgram("second").buildDefinition();
-
-    ImmutableList<ProgramDefinition> programDefinitions = ps.listProgramDefinitions();
-
-    assertThat(programDefinitions).containsExactly(first, second);
-  }
-
-  @Test
-  public void listProgramDefinitions_constructsQuestionDefinitions() throws Exception {
-    QuestionDefinition question = nameQuestion;
-    Program program = ProgramBuilder.newDraftProgram().build();
-    ps.addQuestionsToBlock(program.id, 1L, ImmutableList.of(question.getId()));
-
-    ImmutableList<ProgramDefinition> programDefinitions = ps.listProgramDefinitions();
-
-    QuestionDefinition foundQuestion =
-        programDefinitions
-            .get(0)
-            .blockDefinitions()
-            .get(0)
-            .programQuestionDefinitions()
-            .get(0)
-            .getQuestionDefinition();
-    assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
-  }
-
-  @Test
-  public void listProgramDefinitionsAsync_hasNoResults() {
-    CompletionStage<ImmutableList<ProgramDefinition>> completionStage =
-        ps.listProgramDefinitionsAsync();
-
-    assertThat(completionStage.toCompletableFuture().join()).isEmpty();
-  }
-
-  @Test
-  public void listProgramDefinitionsAsync_hasResults() {
-    ProgramDefinition first = ProgramBuilder.newDraftProgram("first").buildDefinition();
-    ProgramDefinition second = ProgramBuilder.newDraftProgram("second").buildDefinition();
-
-    CompletionStage<ImmutableList<ProgramDefinition>> completionStage =
-        ps.listProgramDefinitionsAsync();
-
-    assertThat(completionStage.toCompletableFuture().join()).containsExactly(first, second);
-  }
-
-  @Test
-  public void listProgramDefinitionsAsync_constructsQuestionDefinitions() throws Exception {
-    QuestionDefinition question = nameQuestion;
-    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
-    ps.addQuestionsToBlock(program.id(), 1L, ImmutableList.of(question.getId()));
-
-    ImmutableList<ProgramDefinition> programDefinitions =
-        ps.listProgramDefinitionsAsync().toCompletableFuture().join();
-
-    QuestionDefinition foundQuestion =
-        programDefinitions
-            .get(0)
-            .blockDefinitions()
-            .get(0)
-            .programQuestionDefinitions()
-            .get(0)
-            .getQuestionDefinition();
-    assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
-  }
-
-  @Test
   public void syncQuestions_constructsAllQuestionDefinitions() throws Exception {
     QuestionDefinition questionOne = nameQuestion;
     QuestionDefinition questionTwo = addressQuestion;
@@ -136,7 +61,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
         .withQuestionDefinition(questionOne)
         .buildDefinition();
 
-    ImmutableList<ProgramDefinition> programDefinitions = ps.listProgramDefinitions();
+    ImmutableList<ProgramDefinition> programDefinitions =
+        ps.getActiveAndDraftPrograms().getDraftPrograms();
 
     QuestionDefinition found = programDefinitions.get(0).getQuestionDefinition(0, 0);
     assertThat(found).isInstanceOf(NameQuestionDefinition.class);
@@ -152,7 +78,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void createProgram_setsId() {
-    assertThat(ps.listProgramDefinitions()).isEmpty();
+    assertThat(ps.getActiveAndDraftPrograms().getActiveSize()).isEqualTo(0);
+    assertThat(ps.getActiveAndDraftPrograms().getDraftSize()).isEqualTo(0);
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition("ProgramService", "description", "name", "description");
@@ -208,7 +135,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
     ProgramDefinition found = ps.getProgramDefinition(updatedProgram.id());
 
-    assertThat(ps.listProgramDefinitions()).hasSize(1);
+    assertThat(ps.getActiveAndDraftPrograms().getDraftSize()).isEqualTo(1);
     assertThat(found).isEqualTo(updatedProgram);
   }
 
