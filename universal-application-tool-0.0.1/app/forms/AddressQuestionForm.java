@@ -1,6 +1,5 @@
 package forms;
 
-import services.Path;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
@@ -32,14 +31,13 @@ public class AddressQuestionForm extends QuestionForm {
   }
 
   @Override
-  public QuestionDefinitionBuilder getBuilder(Path path) {
+  public QuestionDefinitionBuilder getBuilder() {
     AddressQuestionDefinition.AddressValidationPredicates.Builder
         addressValidationPredicatesBuilder =
             AddressQuestionDefinition.AddressValidationPredicates.builder();
 
     addressValidationPredicatesBuilder.setDisallowPoBox(getDisallowPoBox());
 
-    return super.getBuilder(path)
-        .setValidationPredicates(addressValidationPredicatesBuilder.build());
+    return super.getBuilder().setValidationPredicates(addressValidationPredicatesBuilder.build());
   }
 }

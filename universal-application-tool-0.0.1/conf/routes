@@ -17,7 +17,7 @@ POST    /admin/programs/publish                                 controllers.admi
 POST    /admin/programs/:programId                              controllers.admin.AdminProgramController.update(request: Request, programId: Long)
 
 # Routes for a UAT admin to manage program admins for a given program.
-GET     /admin/programs/:programId/admins/edit  controllers.admin.ProgramAdminManagementController.edit(programId: Long)
+GET     /admin/programs/:programId/admins/edit  controllers.admin.ProgramAdminManagementController.edit(request: Request, programId: Long)
 POST    /admin/programs/:programId/admins       controllers.admin.ProgramAdminManagementController.update(request: Request, programId: Long)
 
 # Routes for managing program localization

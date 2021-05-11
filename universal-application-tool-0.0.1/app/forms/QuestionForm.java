@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.Locale;
 import java.util.Optional;
 import services.LocalizedStrings;
-import services.Path;
 import services.TranslationNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -87,7 +86,7 @@ public abstract class QuestionForm {
     this.questionHelpText = checkNotNull(questionHelpText);
   }
 
-  public QuestionDefinitionBuilder getBuilder(Path path) {
+  public QuestionDefinitionBuilder getBuilder() {
     LocalizedStrings questionTextMap =
         questionText.isEmpty()
             ? LocalizedStrings.of()
@@ -101,7 +100,6 @@ public abstract class QuestionForm {
         new QuestionDefinitionBuilder()
             .setQuestionType(getQuestionType())
             .setName(questionName)
-            .setPath(path)
             .setDescription(questionDescription)
             .setEnumeratorId(enumeratorId)
             .setQuestionText(questionTextMap)

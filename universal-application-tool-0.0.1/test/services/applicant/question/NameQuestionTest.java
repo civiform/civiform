@@ -11,7 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.LocalizedStrings;
-import services.Path;
 import services.applicant.ApplicantData;
 import services.question.types.NameQuestionDefinition;
 import support.QuestionAnswerer;
@@ -21,7 +20,6 @@ public class NameQuestionTest {
   private static final NameQuestionDefinition nameQuestionDefinition =
       new NameQuestionDefinition(
           "question name",
-          Path.create("applicant.my.path.name"),
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),

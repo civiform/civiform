@@ -14,7 +14,6 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import repository.WithPostgresContainer;
 import services.LocalizedStrings;
-import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.question.QuestionOption;
@@ -27,7 +26,6 @@ public class CheckboxQuestionRendererTest extends WithPostgresContainer {
   private static final CheckboxQuestionDefinition CHECKBOX_QUESTION =
       new CheckboxQuestionDefinition(
           "question name",
-          Path.create("applicant.my.path"),
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),

@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
-import services.Path;
 import services.question.QuestionOption;
 
 /**
@@ -16,7 +15,6 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
   public DropdownQuestionDefinition(
       OptionalLong id,
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
@@ -25,7 +23,6 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
     super(
         id,
         name,
-        path,
         enumeratorId,
         description,
         questionText,
@@ -36,7 +33,6 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
 
   public DropdownQuestionDefinition(
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
@@ -44,7 +40,6 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
       ImmutableList<QuestionOption> options) {
     super(
         name,
-        path,
         enumeratorId,
         description,
         questionText,

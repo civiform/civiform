@@ -1,17 +1,13 @@
 package services.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
-import java.util.Optional;
 import models.LifecycleStage;
 import models.Question;
 import models.Version;
 import org.junit.Before;
 import org.junit.Test;
-import services.Path;
-import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
@@ -91,59 +87,6 @@ public class ReadOnlyQuestionServiceImplTest {
     assertThat(service.getAllEnumeratorQuestions().get(0)).isEqualTo(enumeratorQuestion);
     assertThat(service.getUpToDateEnumeratorQuestions().size()).isEqualTo(1);
     assertThat(service.getUpToDateEnumeratorQuestions().get(0)).isEqualTo(enumeratorQuestion);
-  }
-
-  @Test
-  public void makePath() throws Exception {
-    Path path = service.makePath(Optional.empty(), "this is foRMA$$$tte34d_we_i!!rd", false);
-    assertThat(path).isEqualTo(Path.create("applicant.this_is_formattedweird"));
-  }
-
-  @Test
-  public void makePath_withEnumerator() throws Exception {
-    QuestionDefinition householdMembers =
-        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
-    service =
-        new ReadOnlyQuestionServiceImpl(
-            new Version(LifecycleStage.ACTIVE) {
-              @Override
-              public ImmutableList<Question> getQuestions() {
-                return ImmutableList.<Question>builder()
-                    .add(new Question(householdMembers))
-                    .build();
-              }
-            },
-            new Version(LifecycleStage.DRAFT));
-
-    Path path = service.makePath(Optional.of(householdMembers.getId()), "some question name", true);
-
-    assertThat(path)
-        .isEqualTo(Path.create("applicant.applicant_household_members[].some_question_name[]"));
-  }
-
-  @Test
-  public void makePath_withBadEnumerator_throws() {
-    QuestionDefinition applicantName = testQuestionBank.applicantName().getQuestionDefinition();
-    service =
-        new ReadOnlyQuestionServiceImpl(
-            new Version(LifecycleStage.ACTIVE) {
-              @Override
-              public ImmutableList<Question> getQuestions() {
-                return ImmutableList.<Question>builder().add(new Question(applicantName)).build();
-              }
-            },
-            new Version(LifecycleStage.DRAFT));
-
-    assertThatThrownBy(
-            () -> service.makePath(Optional.of(applicantName.getId()), "some question name", true))
-        .isInstanceOf(InvalidQuestionTypeException.class)
-        .hasMessage("NAME is not a valid question type.");
-  }
-
-  @Test
-  public void makePath_isRepeated() throws Exception {
-    Path path = service.makePath(Optional.empty(), "this is foRMA$$$tte34d_we_i!!rd", true);
-    assertThat(path).isEqualTo(Path.create("applicant.this_is_formattedweird[]"));
   }
 
   @Test

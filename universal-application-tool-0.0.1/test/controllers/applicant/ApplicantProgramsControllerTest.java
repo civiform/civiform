@@ -17,10 +17,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
+import services.Path;
 import services.applicant.ApplicantData;
-import services.applicant.question.Scalar;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
+import support.QuestionAnswerer;
 
 public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles {
 
@@ -164,13 +165,10 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
             .withQuestion(testQuestionBank().applicantAddress())
             .build();
     // Answer the color question
-    currentApplicant
-        .getApplicantData()
-        .putString(
-            ApplicantData.APPLICANT_PATH.join("applicant_favorite_color").join(Scalar.TEXT),
-            "forest green");
-    currentApplicant.getApplicantData().putLong(colorQuestion.getLastUpdatedTimePath(), 12345L);
-    currentApplicant.getApplicantData().putLong(colorQuestion.getProgramIdPath(), 456L);
+    Path colorPath = ApplicantData.APPLICANT_PATH.join("applicant_favorite_color");
+    QuestionAnswerer.answerTextQuestion(
+        currentApplicant.getApplicantData(), colorPath, "forest green");
+    QuestionAnswerer.addMetadata(currentApplicant.getApplicantData(), colorPath, 456L, 12345L);
     currentApplicant.save();
 
     Result result =

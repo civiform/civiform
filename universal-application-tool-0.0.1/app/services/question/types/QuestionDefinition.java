@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Locale;
@@ -16,13 +15,11 @@ import java.util.OptionalLong;
 import services.CiviFormError;
 import services.LocalizedStrings;
 import services.Path;
-import services.applicant.question.Scalar;
 
 /** Defines a single question. */
 public abstract class QuestionDefinition {
   private final OptionalLong id;
   private final String name;
-  private final Path path;
   private final Optional<Long> enumeratorId;
   private final String description;
   // Note: you must check prefixes anytime you are doing a locale lookup
@@ -34,7 +31,6 @@ public abstract class QuestionDefinition {
   public QuestionDefinition(
       OptionalLong id,
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
@@ -42,7 +38,6 @@ public abstract class QuestionDefinition {
       ValidationPredicates validationPredicates) {
     this.id = checkNotNull(id);
     this.name = checkNotNull(name);
-    this.path = checkNotNull(path);
     this.enumeratorId = checkNotNull(enumeratorId);
     this.description = checkNotNull(description);
     this.questionText = checkNotNull(questionText);
@@ -52,7 +47,6 @@ public abstract class QuestionDefinition {
 
   public QuestionDefinition(
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
@@ -61,7 +55,6 @@ public abstract class QuestionDefinition {
     this(
         OptionalLong.empty(),
         name,
-        path,
         enumeratorId,
         description,
         questionText,
@@ -149,13 +142,6 @@ public abstract class QuestionDefinition {
     return enumeratorId;
   }
 
-  // TODO(https://github.com/seattle-uat/civiform/issues/673): delete this when question definitions
-  //  don't need paths
-  /** Get the full path of this question, in JSON notation. */
-  public Path getPath() {
-    return this.path;
-  }
-
   /**
    * Get a human-readable description for the data this question collects.
    *
@@ -195,39 +181,6 @@ public abstract class QuestionDefinition {
   /** Get the type of this question. */
   public abstract QuestionType getQuestionType();
 
-  public Path getLastUpdatedTimePath() {
-    return getPath().join(Scalar.UPDATED_AT);
-  }
-
-  public ScalarType getLastUpdatedTimeType() {
-    return ScalarType.LONG;
-  }
-
-  public Path getProgramIdPath() {
-    return getPath().join(Scalar.PROGRAM_UPDATED_IN);
-  }
-
-  public ScalarType getProgramIdType() {
-    return ScalarType.LONG;
-  }
-
-  /** Get a map of all scalars stored by this question definition. */
-  public ImmutableMap<Path, ScalarType> getScalars() {
-    return ImmutableMap.<Path, ScalarType>builder()
-        .putAll(getScalarMap())
-        .putAll(getMetadataMap())
-        .build();
-  }
-
-  /** Get a map of question specific scalars stored by this question definition. */
-  abstract ImmutableMap<Path, ScalarType> getScalarMap();
-
-  /** Get a map of metadata stored by all question definitions. */
-  ImmutableMap<Path, ScalarType> getMetadataMap() {
-    return ImmutableMap.of(
-        getLastUpdatedTimePath(), getLastUpdatedTimeType(), getProgramIdPath(), getProgramIdType());
-  }
-
   /** Validate that all required fields are present and valid for the question. */
   public ImmutableSet<CiviFormError> validate() {
     ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
@@ -248,7 +201,7 @@ public abstract class QuestionDefinition {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, path);
+    return Objects.hash(id);
   }
 
   /** Two QuestionDefinitions are considered equal if all of their properties are the same. */
@@ -280,7 +233,6 @@ public abstract class QuestionDefinition {
 
       return this.getQuestionType().equals(o.getQuestionType())
           && this.name.equals(o.getName())
-          && this.path.equals(o.getPath())
           && this.description.equals(o.getDescription())
           && this.questionText.equals(o.getQuestionText())
           && this.questionHelpText.equals(o.getQuestionHelpText())

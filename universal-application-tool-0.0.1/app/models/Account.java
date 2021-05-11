@@ -74,8 +74,14 @@ public class Account extends BaseModel {
     return ImmutableList.copyOf(this.adminOf);
   }
 
+  /**
+   * If this account does not already administer this program, add it to the list of administered
+   * programs.
+   */
   public void addAdministeredProgram(ProgramDefinition program) {
-    this.adminOf.add(program.adminName());
+    if (!this.adminOf.contains(program.adminName())) {
+      this.adminOf.add(program.adminName());
+    }
   }
 
   /**
