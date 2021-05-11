@@ -17,31 +17,10 @@ import java.util.OptionalLong;
 import play.i18n.Messages;
 import services.applicant.ValidationErrorMessage;
 import views.style.BaseStyles;
-import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
 public class FieldWithLabel {
-  private static final String ADMIN_INPUT_FIELD_CLASSES =
-      StyleUtils.joinStyles(
-          BaseStyles.FIELD_BORDER_COLOR,
-          Styles.BG_GRAY_50,
-          Styles.BLOCK,
-          Styles.BORDER,
-          Styles.P_2,
-          Styles.W_FULL);
-
-  private static final String ADMIN_INPUT_FIELD_LABEL_CLASSES =
-      StyleUtils.joinStyles(BaseStyles.INPUT_FIELD_LABEL, Styles.TEXT_BASE);
-
-  private static final String[] CHECKBOX_FIELD_CLASSES = {
-    Styles.H_4, Styles.W_4, Styles.MR_3, Styles.MB_2
-  };
-
-  private static final String[] CHECKBOX_LABEL_CLASSES = {
-    Styles.TEXT_GRAY_600, Styles.ALIGN_TEXT_TOP, Styles.FONT_BOLD, Styles.TEXT_XS
-  };
-
   protected Tag fieldTag;
   protected String fieldName = "";
   protected String fieldType = "text";
@@ -57,7 +36,6 @@ public class FieldWithLabel {
   protected Messages messages;
   protected ImmutableSet<ValidationErrorMessage> fieldErrors = ImmutableSet.of();
   protected boolean checked = false;
-  protected boolean isApplicantStyle = false;
   protected boolean disabled = false;
 
   public FieldWithLabel(Tag fieldTag) {
@@ -102,11 +80,6 @@ public class FieldWithLabel {
   public FieldWithLabel setFieldType(String fieldType) {
     this.fieldTag.withType(fieldType);
     this.fieldType = fieldType;
-    return this;
-  }
-
-  public FieldWithLabel setApplicantStyle(boolean applicantStyle) {
-    this.isApplicantStyle = applicantStyle;
     return this;
   }
 
@@ -200,15 +173,14 @@ public class FieldWithLabel {
       fieldTag.withValue(this.fieldValue);
     }
 
-    String fieldTagClasses =
-        StyleUtils.joinStyles(
-            ADMIN_INPUT_FIELD_CLASSES,
-            fieldErrors.isEmpty() ? "" : BaseStyles.FIELD_ERROR_BORDER_COLOR);
-
+    // Need to assign an ID in order to properly associate the label with this input field.
     if (Strings.isNullOrEmpty(this.id)) this.id = this.fieldName;
 
     fieldTag
-        .withClasses(fieldTagClasses)
+        .withClasses(
+            StyleUtils.joinStyles(
+                BaseStyles.INPUT,
+                fieldErrors.isEmpty() ? "" : BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR))
         .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
         .withName(this.fieldName)
         .condAttr(this.disabled, "disabled", "true")
@@ -222,41 +194,34 @@ public class FieldWithLabel {
     ContainerTag labelTag =
         label()
             .condAttr(!Strings.isNullOrEmpty(this.id), Attr.FOR, this.id)
-            .withClasses(labelText.isEmpty() ? "" : FieldWithLabel.ADMIN_INPUT_FIELD_LABEL_CLASSES)
+            .withClasses(labelText.isEmpty() ? "" : BaseStyles.INPUT_LABEL)
             .withText(labelText);
 
-    if (this.isApplicantStyle) {
-      fieldTag.withClasses(
-          StyleUtils.joinStyles(
-              BaseStyles.INPUT_FIELD,
-              fieldErrors.isEmpty() ? "" : BaseStyles.FIELD_ERROR_BORDER_COLOR));
-
-      labelTag.withClasses(labelText.isEmpty() ? "" : BaseStyles.INPUT_FIELD_LABEL);
-
-      return div()
-          .with(
-              div(labelTag, fieldTag, buildFieldErrorsTag())
-                  .withClasses(
-                      ReferenceClasses.APPLICANT_INPUT_LABEL, Styles.MB_4, Styles.RELATIVE));
-    }
-
-    return div(labelTag, fieldTag, buildFieldErrorsTag()).withClasses(Styles.MX_4, Styles.MB_4);
+    return div(labelTag, fieldTag, buildFieldErrorsTag())
+        .withClasses(BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
   }
 
   /** Swaps the order of the label and field, possibly adds, and adds different styles. */
   private ContainerTag getCheckboxContainer() {
-    fieldTag.withClasses(CHECKBOX_FIELD_CLASSES);
+    fieldTag.withClasses(
+        labelText.isEmpty() ? BaseStyles.CHECKBOX_WITH_NO_LABEL : BaseStyles.CHECKBOX);
+
     if (this.checked) {
       fieldTag.attr("checked");
     }
 
     ContainerTag labelTag =
         label()
-            .withClasses(CHECKBOX_LABEL_CLASSES)
+            .withClasses(BaseStyles.CHECKBOX_LABEL)
             .condAttr(!Strings.isNullOrEmpty(this.id), Attr.FOR, this.id)
             .withText(this.labelText);
 
-    return div(fieldTag, labelTag).withClasses(Styles.M_4, Styles.MB_1);
+    return div(fieldTag, labelTag)
+        .withClasses(
+            StyleUtils.joinStyles(
+                BaseStyles.CHECKBOX_OPTION_CONTAINER,
+                BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
+                labelText.isEmpty() ? Styles.W_MIN : ""));
   }
 
   private Tag buildFieldErrorsTag() {

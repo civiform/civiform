@@ -80,7 +80,6 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
       Messages messages, Optional<String> existingOption, int index, String localizedEntityType) {
     ContainerTag entityNameInput =
         FieldWithLabel.input()
-            .setApplicantStyle(true)
             .setFieldName(question.getContextualizedPath().toString())
             .setValue(existingOption)
             .getContainer();
@@ -105,7 +104,6 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
       Path contextualizedPath, String localizedEntityType, Messages messages) {
     ContainerTag entityNameInput =
         FieldWithLabel.input()
-            .setApplicantStyle(true)
             .setFieldName(contextualizedPath.toString())
             .setPlaceholderText(
                 messages.at(

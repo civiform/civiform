@@ -75,10 +75,7 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
                     .withValue(String.valueOf(option.id()))
                     .condAttr(isSelected, Attr.CHECKED, "")
                     .withClasses(
-                        ReferenceClasses.CHECKBOX_INPUT,
-                        Styles.H_4,
-                        Styles.W_4,
-                        Styles.ALIGN_MIDDLE),
+                        ReferenceClasses.RADIO_INPUT, Styles.H_4, Styles.W_4, Styles.ALIGN_MIDDLE),
                 span(option.optionText()).withClasses(Styles.ML_4, Styles.TEXT_GRAY_700));
 
     return div()
@@ -87,7 +84,7 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
             div(labelTag)
                 .withClasses(
                     StyleUtils.joinStyles(
-                        ReferenceClasses.CHECKBOX_OPTION,
+                        ReferenceClasses.RADIO_OPTION,
                         BaseStyles.CHECKBOX_OPTION_CONTAINER,
                         isSelected ? Styles.BG_BLUE_100 : "",
                         isSelected ? Styles.BORDER_BLUE_500 : "")));

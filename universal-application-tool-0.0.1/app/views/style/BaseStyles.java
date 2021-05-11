@@ -46,25 +46,33 @@ public final class BaseStyles {
           Styles.W_FULL);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
-  // Applicant style classes
+  // Form style classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
   public static final String APPLICANT_BG_COLOR = "bg-beige";
 
-  public static final String FIELD_BORDER_COLOR = Styles.BORDER_GRAY_300;
-  public static final String FIELD_ERROR_BORDER_COLOR = Styles.BORDER_RED_600;
+  public static final String FORM_FIELD_MARGIN_BOTTOM = Styles.MB_4;
 
-  /** Should be used on `label` elements that label non-checkbox and non-radio `input` elements. */
-  public static final String INPUT_FIELD_LABEL =
+  public static final String FORM_FIELD_BORDER_COLOR = Styles.BORDER_GRAY_300;
+  public static final String FORM_FIELD_ERROR_BORDER_COLOR = Styles.BORDER_RED_600;
+
+  public static final String FORM_LABEL_TEXT_COLOR = Styles.TEXT_GRAY_600;
+
+  public static final String FORM_ERROR_TEXT_COLOR = Styles.TEXT_RED_600;
+  public static final String FORM_ERROR_TEXT =
+      StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_COLOR, Styles.TEXT_XS);
+
+  /** For use on `label` elements that label non-checkbox and non-radio `input` elements. */
+  public static final String INPUT_LABEL =
       StyleUtils.joinStyles(
           Styles.POINTER_EVENTS_NONE,
-          Styles.TEXT_GRAY_600,
-          Styles.TEXT_XS,
+          BaseStyles.FORM_LABEL_TEXT_COLOR,
+          Styles.TEXT_BASE,
           Styles.PX_1,
           Styles.PY_2);
 
-  /** Should be used on `input` elements that are not of type "checkbox" or "radio". */
-  public static final String INPUT_FIELD =
+  /** For use on `input` elements that are not of type "checkbox" or "radio". */
+  public static final String INPUT =
       StyleUtils.joinStyles(
           Styles.BLOCK,
           Styles.OUTLINE_NONE,
@@ -72,22 +80,33 @@ public final class BaseStyles {
           Styles.PX_3,
           Styles.PY_2,
           Styles.BORDER,
-          BaseStyles.FIELD_BORDER_COLOR,
+          BaseStyles.FORM_FIELD_BORDER_COLOR,
           Styles.ROUNDED_LG,
           Styles.W_FULL,
           Styles.TEXT_LG,
           Styles.PLACEHOLDER_GRAY_400,
           StyleUtils.focus(Styles.BORDER_BLUE_500));
 
-  /** Should be used on a div that contains an `input` element of type "checkbox. */
-  public static final String CHECKBOX_OPTION_CONTAINER =
-      StyleUtils.joinStyles(INPUT_FIELD, Styles.BG_WHITE);
-  /** Should be used on a `div` that contains an `input` element of type "radio. */
-  public static final String RADIO_OPTION_CONTAINER = CHECKBOX_OPTION_CONTAINER;
+  /** For use on an `input` of type "checkbox". */
+  public static final String CHECKBOX =
+      StyleUtils.joinStyles(Styles.H_4, Styles.W_4, Styles.MR_4, Styles.ALIGN_MIDDLE);
 
-  public static final String FORM_ERROR_TEXT_COLOR = Styles.TEXT_RED_600;
-  public static final String FORM_ERROR_TEXT =
-      StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_COLOR, Styles.TEXT_XS);
+  public static final String CHECKBOX_WITH_NO_LABEL =
+      StyleUtils.joinStyles(Styles.H_4, Styles.W_4, Styles.ALIGN_MIDDLE);
+  /** For use on an `input` of type "radio". */
+  public static final String RADIO = CHECKBOX;
+  /** For use on a `label` that labels a checkbox. */
+  public static final String CHECKBOX_LABEL =
+      StyleUtils.joinStyles(
+          Styles.TEXT_BASE, Styles.ALIGN_MIDDLE, BaseStyles.FORM_LABEL_TEXT_COLOR);
+  /** For use on a `label` that labels a radio button. */
+  public static final String RADIO_LABEL = CHECKBOX_LABEL;
+
+  /** For use on a `div` that contains an `input` element of type "checkbox". */
+  public static final String CHECKBOX_OPTION_CONTAINER =
+      StyleUtils.joinStyles(INPUT, Styles.BG_WHITE);
+  /** For use on a `div` that contains an `input` element of type "radio". */
+  public static final String RADIO_OPTION_CONTAINER = CHECKBOX_OPTION_CONTAINER;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Common style classes

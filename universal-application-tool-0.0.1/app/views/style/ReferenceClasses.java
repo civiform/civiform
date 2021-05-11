@@ -32,17 +32,13 @@ public final class ReferenceClasses {
 
   public static final String APPLY_BUTTON = "cf-apply-button";
 
-  public static final String ENUMERATOR_FIELD = "cf-enumerator-field";
-  public static final String APPLICANT_INPUT_LABEL = "cf-applicant-input-label";
-  public static final String CHECKBOX_INPUT = "cf-checkbox-input";
-  public static final String CHECKBOX_OPTION = "cf-checkbox-input";
-  public static final String RADIO_DEFAULT = "cf-radio-default";
-  public static final String RADIO_INPUT = "cf-radio-input";
-  public static final String RADIO_OPTION = "cf-radio-option";
-
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Common reference classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
   public static final String TOAST_MESSAGE = "cf-toast-data";
+  public static final String ENUMERATOR_FIELD = "cf-enumerator-field";
+  public static final String RADIO_DEFAULT = "cf-radio-default";
+  public static final String RADIO_INPUT = "cf-radio-input";
+  public static final String RADIO_OPTION = "cf-radio-option";
 }
