@@ -222,7 +222,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
   }
 
-  Tag renderManageProgramAdminsLink(
+  private Tag renderManageProgramAdminsLink(
       Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram) {
     // We can use the ID of either, since we just add the program name and not ID to indicate
     // ownership.
