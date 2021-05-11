@@ -38,17 +38,6 @@ public class ProgramRepository {
     this.versionRepository = checkNotNull(versionRepository);
   }
 
-  /** Return all programs in a list. */
-  public CompletionStage<ImmutableList<Program>> listPrograms() {
-    return supplyAsync(
-        () ->
-            new ImmutableList.Builder<Program>()
-                .addAll(versionRepository.get().getActiveVersion().getPrograms())
-                .addAll(versionRepository.get().getDraftVersion().getPrograms())
-                .build(),
-        executionContext);
-  }
-
   public CompletionStage<Optional<Program>> lookupProgram(long id) {
     return supplyAsync(
         () -> ebeanServer.find(Program.class).where().eq("id", id).findOneOrEmpty(),
