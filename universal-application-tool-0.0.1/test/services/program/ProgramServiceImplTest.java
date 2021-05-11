@@ -47,14 +47,14 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     QuestionDefinition questionTwo = addressQuestion;
     QuestionDefinition questionThree = colorQuestion;
 
-    ProgramBuilder.newDraftProgram()
+    ProgramBuilder.newDraftProgram("program1")
         .withBlock()
         .withQuestionDefinition(questionOne)
         .withQuestionDefinition(questionTwo)
         .withBlock()
         .withQuestionDefinition(questionThree)
         .buildDefinition();
-    ProgramBuilder.newDraftProgram()
+    ProgramBuilder.newDraftProgram("program2")
         .withBlock()
         .withQuestionDefinition(questionTwo)
         .withBlock()
