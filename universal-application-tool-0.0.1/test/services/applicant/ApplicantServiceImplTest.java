@@ -16,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 import repository.UserRepository;
 import repository.WithPostgresContainer;
-import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.question.Scalar;
@@ -48,23 +47,20 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void stageAndUpdateIfValid_emptySetOfUpdates_isNotAnErrorAndDoesNotChangeApplicant() {
+  public void stageAndUpdateIfValid_emptySetOfUpdates_doesNotChangeApplicant() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     ApplicantData applicantDataBefore = applicant.getApplicantData();
 
-    ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
-        subject
-            .stageAndUpdateIfValid(
-                applicant.id, programDefinition.id(), "1", ImmutableSet.<Update>builder().build())
-            .toCompletableFuture()
-            .join();
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), "1", ImmutableSet.<Update>builder().build())
+        .toCompletableFuture()
+        .join();
 
     ApplicantData applicantDataAfter =
         userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(applicantDataAfter).isEqualTo(applicantDataBefore);
-    assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
-    assertThat(errorAnd.isError()).isFalse();
   }
 
   @Test
@@ -76,14 +72,10 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             Update.create(Path.create("applicant.name").join(Scalar.FIRST_NAME), "Alice"),
             Update.create(Path.create("applicant.name").join(Scalar.LAST_NAME), "Doe"));
 
-    ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
-        subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
-    assertThat(errorAnd.isError()).isFalse();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .toCompletableFuture()
+        .join();
 
     ApplicantData applicantDataAfter =
         userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
@@ -100,14 +92,10 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             Update.create(Path.create("applicant.name").join(Scalar.FIRST_NAME), "Alice"),
             Update.create(Path.create("applicant.name").join(Scalar.LAST_NAME), "Doe"));
 
-    ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
-        subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(errorAnd.isError()).isFalse();
-    assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .toCompletableFuture()
+        .join();
 
     ApplicantData applicantDataAfter =
         userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
@@ -147,14 +135,10 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             .put(checkboxPath.atIndex(2).toString(), "3")
             .build();
 
-    ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
-        subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", rawUpdates)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(errorAnd.isError()).isFalse();
-    assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", rawUpdates)
+        .toCompletableFuture()
+        .join();
 
     ApplicantData applicantDataAfter =
         userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
@@ -169,14 +153,10 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             .put(checkboxPath.atIndex(0).toString(), "3")
             .put(checkboxPath.atIndex(1).toString(), "1")
             .build();
-    errorAnd =
-        subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", rawUpdates)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(errorAnd.isError()).isFalse();
-    assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", rawUpdates)
+        .toCompletableFuture()
+        .join();
 
     applicantDataAfter = userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
@@ -187,14 +167,10 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     // Clear values by sending an empty item.
     rawUpdates =
         ImmutableMap.<String, String>builder().put(checkboxPath.atIndex(0).toString(), "").build();
-    errorAnd =
-        subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", rawUpdates)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(errorAnd.isError()).isFalse();
-    assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", rawUpdates)
+        .toCompletableFuture()
+        .join();
 
     applicantDataAfter = userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
@@ -222,14 +198,10 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             deletionPath.atIndex(0).toString(), "2",
             deletionPath.atIndex(1).toString(), "0");
 
-    ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
-        subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", rawUpdates)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(errorAnd.isError()).isFalse();
-    assertThat(errorAnd.getResult()).isInstanceOf(ReadOnlyApplicantProgramService.class);
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", rawUpdates)
+        .toCompletableFuture()
+        .join();
 
     ApplicantData applicantDataAfter =
         userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
@@ -242,15 +214,15 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     ImmutableSet<Update> updates = ImmutableSet.of();
     long badApplicantId = 1L;
 
-    ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
-        subject
-            .stageAndUpdateIfValid(badApplicantId, programDefinition.id(), "1", updates)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(errorAnd.hasResult()).isFalse();
-    assertThat(errorAnd.getErrors()).hasSize(1);
-    assertThat(errorAnd.getErrors().asList().get(0)).isInstanceOf(ApplicantNotFoundException.class);
+    assertThatExceptionOfType(CompletionException.class)
+        .isThrownBy(
+            () ->
+                subject
+                    .stageAndUpdateIfValid(badApplicantId, programDefinition.id(), "1", updates)
+                    .toCompletableFuture()
+                    .join())
+        .withCauseInstanceOf(ApplicantNotFoundException.class)
+        .withMessageContaining("Applicant not found for ID 1");
   }
 
   @Test
@@ -277,16 +249,17 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     ImmutableSet<Update> updates = ImmutableSet.of();
     String badBlockId = "100";
 
-    ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
-        subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), badBlockId, updates)
-            .toCompletableFuture()
-            .join();
+    Throwable thrown =
+        catchThrowable(
+            () ->
+                subject
+                    .stageAndUpdateIfValid(
+                        applicant.id, programDefinition.id(), badBlockId, updates)
+                    .toCompletableFuture()
+                    .join());
 
-    assertThat(errorAnd.hasResult()).isFalse();
-    assertThat(errorAnd.getErrors()).hasSize(1);
-    assertThat(errorAnd.getErrors().asList().get(0))
-        .isInstanceOf(ProgramBlockNotFoundException.class);
+    assertThat(thrown).isInstanceOf(CompletionException.class);
+    assertThat(thrown).hasCauseInstanceOf(ProgramBlockNotFoundException.class);
   }
 
   @Test
@@ -297,15 +270,16 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             Update.create(Path.create("applicant.name.first"), "Alice"),
             Update.create(Path.create("this.is.not.in.block"), "Doe"));
 
-    ErrorAnd<ReadOnlyApplicantProgramService, Exception> errorAnd =
-        subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
-            .toCompletableFuture()
-            .join();
+    Throwable thrown =
+        catchThrowable(
+            () ->
+                subject
+                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+                    .toCompletableFuture()
+                    .join());
 
-    assertThat(errorAnd.hasResult()).isFalse();
-    assertThat(errorAnd.getErrors()).hasSize(1);
-    assertThat(errorAnd.getErrors().asList().get(0)).isInstanceOf(PathNotInBlockException.class);
+    assertThat(thrown).isInstanceOf(CompletionException.class);
+    assertThat(thrown).hasCauseInstanceOf(PathNotInBlockException.class);
   }
 
   @Test
