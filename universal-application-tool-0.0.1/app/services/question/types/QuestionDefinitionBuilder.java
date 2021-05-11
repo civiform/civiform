@@ -5,7 +5,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
-import services.Path;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
@@ -18,7 +17,6 @@ public class QuestionDefinitionBuilder {
 
   private OptionalLong id = OptionalLong.empty();
   private String name;
-  private Path path;
   private Optional<Long> enumeratorId = Optional.empty();
   private String description;
   private LocalizedStrings questionText;
@@ -37,7 +35,6 @@ public class QuestionDefinitionBuilder {
       this.id = OptionalLong.of(definitionId);
     }
     name = definition.getName();
-    path = definition.getPath();
     enumeratorId = definition.getEnumeratorId();
     description = definition.getDescription();
     questionText = definition.getQuestionText();
@@ -60,7 +57,6 @@ public class QuestionDefinitionBuilder {
         new QuestionDefinitionBuilder()
             .setName("")
             .setDescription("")
-            .setPath(Path.create("sample.question.path"))
             .setQuestionText(LocalizedStrings.of(Locale.US, "Sample question text"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "Sample question help text"))
             .setQuestionType(questionType);
@@ -91,11 +87,6 @@ public class QuestionDefinitionBuilder {
 
   public QuestionDefinitionBuilder setName(String name) {
     this.name = name;
-    return this;
-  }
-
-  public QuestionDefinitionBuilder setPath(Path path) {
-    this.path = path;
     return this;
   }
 
@@ -163,7 +154,6 @@ public class QuestionDefinitionBuilder {
         return new AddressQuestionDefinition(
             id,
             name,
-            path,
             enumeratorId,
             description,
             questionText,
@@ -179,7 +169,6 @@ public class QuestionDefinitionBuilder {
         return new CheckboxQuestionDefinition(
             id,
             name,
-            path,
             enumeratorId,
             description,
             questionText,
@@ -188,17 +177,10 @@ public class QuestionDefinitionBuilder {
             multiOptionValidationPredicates);
       case DROPDOWN:
         return new DropdownQuestionDefinition(
-            id,
-            name,
-            path,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            questionOptions);
+            id, name, enumeratorId, description, questionText, questionHelpText, questionOptions);
       case FILEUPLOAD:
         return new FileUploadQuestionDefinition(
-            id, name, path, enumeratorId, description, questionText, questionHelpText);
+            id, name, enumeratorId, description, questionText, questionHelpText);
       case NAME:
         NameValidationPredicates nameValidationPredicates = NameValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {
@@ -207,7 +189,6 @@ public class QuestionDefinitionBuilder {
         return new NameQuestionDefinition(
             id,
             name,
-            path,
             enumeratorId,
             description,
             questionText,
@@ -223,7 +204,6 @@ public class QuestionDefinitionBuilder {
         return new NumberQuestionDefinition(
             id,
             name,
-            path,
             enumeratorId,
             description,
             questionText,
@@ -231,17 +211,10 @@ public class QuestionDefinitionBuilder {
             numberValidationPredicates);
       case RADIO_BUTTON:
         return new RadioButtonQuestionDefinition(
-            id,
-            name,
-            path,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            questionOptions);
+            id, name, enumeratorId, description, questionText, questionHelpText, questionOptions);
       case ENUMERATOR:
         return new EnumeratorQuestionDefinition(
-            id, name, path, enumeratorId, description, questionText, questionHelpText);
+            id, name, enumeratorId, description, questionText, questionHelpText);
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {
@@ -250,7 +223,6 @@ public class QuestionDefinitionBuilder {
         return new TextQuestionDefinition(
             id,
             name,
-            path,
             enumeratorId,
             description,
             questionText,

@@ -9,7 +9,6 @@ import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
 import services.LocalizedStrings;
-import services.Path;
 import services.applicant.ApplicantData;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
@@ -21,7 +20,6 @@ public class SingleSelectQuestionTest {
   private static final DropdownQuestionDefinition dropdownQuestionDefinition =
       new DropdownQuestionDefinition(
           "question name",
-          Path.create("applicant.my.path.name"),
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),

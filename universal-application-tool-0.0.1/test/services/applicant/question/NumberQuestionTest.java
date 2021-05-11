@@ -16,7 +16,6 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import repository.WithPostgresContainer;
 import services.LocalizedStrings;
-import services.Path;
 import services.applicant.ApplicantData;
 import services.question.types.NumberQuestionDefinition;
 import support.QuestionAnswerer;
@@ -27,7 +26,6 @@ public class NumberQuestionTest extends WithPostgresContainer {
   private static final NumberQuestionDefinition numberQuestionDefinition =
       new NumberQuestionDefinition(
           "question name",
-          Path.create("applicant.my.path.name"),
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
@@ -36,7 +34,6 @@ public class NumberQuestionTest extends WithPostgresContainer {
   private static final NumberQuestionDefinition minAndMaxNumberQuestionDefinition =
       new NumberQuestionDefinition(
           "question name",
-          Path.create("applicant.my.path.name"),
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),

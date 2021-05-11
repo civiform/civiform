@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.LocalizedStrings;
 import services.MessageKey;
-import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.AddressQuestionDefinition;
@@ -24,7 +23,6 @@ public class AddressQuestionTest {
   private static final AddressQuestionDefinition addressQuestionDefinition =
       new AddressQuestionDefinition(
           "question name",
-          Path.create("applicant.my.path.name"),
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
@@ -33,7 +31,6 @@ public class AddressQuestionTest {
   private static final AddressQuestionDefinition noPoBoxAddressQuestionDefinition =
       new AddressQuestionDefinition(
           "question name",
-          Path.create("applicant.my.path.name"),
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),

@@ -11,7 +11,6 @@ import models.LifecycleStage;
 import models.Question;
 import models.Version;
 import services.LocalizedStrings;
-import services.Path;
 import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -35,7 +34,7 @@ import services.question.types.TextQuestionDefinition;
  * tests that do not have a database available (see {@link #maybeSave(QuestionDefinition)}), the
  * question IDs may not be reliable since in production, the IDs are set by the database.
  *
- * <p>The properties of these questions (e.g. question path) are not canonical and may not be
+ * <p>The properties of these questions (e.g. question help text) are not canonical and may not be
  * representative of the properties defined by CiviForm administrators.
  *
  * <p>To add a new {@link Question} to the question bank: create a {@link QuestionEnum} for it,
@@ -157,7 +156,6 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new AddressQuestionDefinition(
             "applicant address",
-            Path.create("applicant.applicant_address"),
             Optional.empty(),
             "The address of applicant",
             LocalizedStrings.of(Locale.US, "What is your address?"),
@@ -170,7 +168,6 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new CheckboxQuestionDefinition(
             "kitchen tools",
-            Path.create("applicant.kitchen_tools"),
             Optional.empty(),
             "Kitchen instruments you own",
             LocalizedStrings.of(
@@ -188,7 +185,6 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new DropdownQuestionDefinition(
             "applicant ice cream",
-            Path.create("applicant.applicant_ice_cream"),
             Optional.empty(),
             "Select your favorite ice cream flavor",
             LocalizedStrings.of(
@@ -207,7 +203,6 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new EnumeratorQuestionDefinition(
             "applicant household members",
-            Path.create("applicant.applicant_household_members[]"),
             Optional.empty(),
             "The applicant's household members",
             LocalizedStrings.of(Locale.US, "Who are your household members?"),
@@ -221,7 +216,6 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new EnumeratorQuestionDefinition(
             "household members jobs",
-            Path.create("applicant.applicant_household_members[].household_members_jobs[]"),
             Optional.of(householdMembers.id),
             "The applicant's household member's jobs",
             LocalizedStrings.of(Locale.US, "What are the household member's jobs?"),
@@ -234,7 +228,6 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new FileUploadQuestionDefinition(
             "applicant file",
-            Path.create("applicant.applicant_file"),
             Optional.empty(),
             "The file to be uploaded",
             LocalizedStrings.of(Locale.US, "What is the file you want to upload?"),
@@ -247,7 +240,6 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new NameQuestionDefinition(
             "applicant name",
-            Path.create("applicant.applicant_name"),
             Optional.empty(),
             "name of applicant",
             LocalizedStrings.of(Locale.US, "what is your name?"),
@@ -261,7 +253,6 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new NameQuestionDefinition(
             "household members name",
-            Path.create("applicant.applicant_household_members[].name"),
             Optional.of(householdMembers.id),
             "The applicant's household member's name",
             LocalizedStrings.of(Locale.US, "What is the household member's name?"),
@@ -275,7 +266,6 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new NumberQuestionDefinition(
             "number of items applicant can juggle",
-            Path.create("applicant.juggling_number"),
             Optional.empty(),
             "The number of items applicant can juggle at once",
             LocalizedStrings.of(Locale.US, "How many items can you juggle at one time?"),
@@ -289,8 +279,6 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new NumberQuestionDefinition(
             "household members jobs income",
-            Path.create(
-                "applicant.applicant_household_members[].household_members_jobs[].household_members_jobs_income"),
             Optional.of(householdMemberJobs.id),
             "The applicant's household member's job's income",
             LocalizedStrings.of(Locale.US, "What is the household member's job's income?"),
@@ -304,7 +292,6 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new RadioButtonQuestionDefinition(
             "radio",
-            Path.create("applicant.radio"),
             Optional.empty(),
             "Favorite season in the year",
             LocalizedStrings.of(Locale.US, "What is your favorite season?"),
@@ -322,7 +309,6 @@ public class TestQuestionBank {
     QuestionDefinition definition =
         new TextQuestionDefinition(
             "applicant favorite color",
-            Path.create("applicant.applicant_favorite_color"),
             Optional.empty(),
             "Favorite color of applicant",
             LocalizedStrings.of(Locale.US, "What is your favorite color?"),

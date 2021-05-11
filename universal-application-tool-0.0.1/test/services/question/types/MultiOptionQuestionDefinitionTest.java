@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import org.junit.Test;
 import services.LocalizedStrings;
-import services.Path;
 import services.TranslationNotFoundException;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
@@ -27,7 +26,6 @@ public class MultiOptionQuestionDefinitionTest {
             .setQuestionType(QuestionType.DROPDOWN)
             .setName("")
             .setDescription("")
-            .setPath(Path.empty())
             .setQuestionText(LocalizedStrings.of())
             .setQuestionHelpText(LocalizedStrings.empty())
             .setQuestionOptions(options)
@@ -46,7 +44,6 @@ public class MultiOptionQuestionDefinitionTest {
             .setQuestionType(QuestionType.DROPDOWN)
             .setName("")
             .setDescription("")
-            .setPath(Path.empty())
             .setQuestionText(LocalizedStrings.of(Locale.US, "test", Locale.FRANCE, "test"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "test", Locale.FRANCE, "test"))
             .setQuestionOptions(
@@ -64,7 +61,6 @@ public class MultiOptionQuestionDefinitionTest {
             .setQuestionType(QuestionType.DROPDOWN)
             .setName("")
             .setDescription("")
-            .setPath(Path.empty())
             .setQuestionText(LocalizedStrings.of())
             .setQuestionHelpText(LocalizedStrings.empty())
             .setQuestionOptions(
@@ -91,7 +87,6 @@ public class MultiOptionQuestionDefinitionTest {
             .setQuestionType(QuestionType.DROPDOWN)
             .setName("")
             .setDescription("")
-            .setPath(Path.empty())
             .setQuestionText(LocalizedStrings.of())
             .setQuestionHelpText(LocalizedStrings.empty())
             .setQuestionOptions(options)

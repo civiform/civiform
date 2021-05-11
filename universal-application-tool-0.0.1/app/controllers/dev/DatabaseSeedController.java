@@ -18,7 +18,6 @@ import play.db.ebean.EbeanConfig;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.LocalizedStrings;
-import services.Path;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
@@ -98,7 +97,6 @@ public class DatabaseSeedController extends DevController {
         .create(
             new NameQuestionDefinition(
                 "name",
-                Path.create("applicant.name"),
                 Optional.empty(),
                 "description",
                 LocalizedStrings.of(
@@ -119,7 +117,6 @@ public class DatabaseSeedController extends DevController {
         .create(
             new TextQuestionDefinition(
                 "color",
-                Path.create("applicant.color"),
                 Optional.empty(),
                 "description",
                 LocalizedStrings.of(Locale.US, "What is your favorite color?"),
@@ -132,7 +129,6 @@ public class DatabaseSeedController extends DevController {
         .create(
             new AddressQuestionDefinition(
                 "address",
-                Path.create("applicant.address"),
                 Optional.empty(),
                 "description",
                 LocalizedStrings.of(Locale.US, "What is your address?"),
@@ -145,7 +141,6 @@ public class DatabaseSeedController extends DevController {
         .create(
             new CheckboxQuestionDefinition(
                 "kitchen",
-                Path.create("applicant.kitchen"),
                 Optional.empty(),
                 "description",
                 LocalizedStrings.of(
@@ -163,7 +158,6 @@ public class DatabaseSeedController extends DevController {
         .create(
             new DropdownQuestionDefinition(
                 "dropdown",
-                Path.create("applicant.dropdown"),
                 Optional.empty(),
                 "select your favorite ice cream flavor",
                 LocalizedStrings.of(
@@ -182,7 +176,6 @@ public class DatabaseSeedController extends DevController {
         .create(
             new RadioButtonQuestionDefinition(
                 "radio",
-                Path.create("applicant.radio"),
                 Optional.empty(),
                 "favorite season in the year",
                 LocalizedStrings.of(Locale.US, "What is your favorite season?"),

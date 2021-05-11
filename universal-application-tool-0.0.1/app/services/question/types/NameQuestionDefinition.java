@@ -2,62 +2,42 @@ package services.question.types;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
-import services.Path;
 
 public class NameQuestionDefinition extends QuestionDefinition {
 
   public NameQuestionDefinition(
       OptionalLong id,
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
       NameValidationPredicates validationPredicates) {
     super(
-        id,
-        name,
-        path,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates);
+        id, name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
   }
 
   public NameQuestionDefinition(
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
       NameValidationPredicates validationPredicates) {
-    super(
-        name,
-        path,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates);
+    super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
   }
 
   public NameQuestionDefinition(
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText) {
     super(
         name,
-        path,
         enumeratorId,
         description,
         questionText,
@@ -89,40 +69,5 @@ public class NameQuestionDefinition extends QuestionDefinition {
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.NAME;
-  }
-
-  @Override
-  ImmutableMap<Path, ScalarType> getScalarMap() {
-    return ImmutableMap.of(
-        getFirstNamePath(),
-        getFirstNameType(),
-        getMiddleNamePath(),
-        getMiddleNameType(),
-        getLastNamePath(),
-        getLastNameType());
-  }
-
-  public Path getFirstNamePath() {
-    return getPath().join("first_name");
-  }
-
-  public ScalarType getFirstNameType() {
-    return ScalarType.STRING;
-  }
-
-  public Path getMiddleNamePath() {
-    return getPath().join("middle_name");
-  }
-
-  public ScalarType getMiddleNameType() {
-    return ScalarType.STRING;
-  }
-
-  public Path getLastNamePath() {
-    return getPath().join("last_name");
-  }
-
-  public ScalarType getLastNameType() {
-    return ScalarType.STRING;
   }
 }
