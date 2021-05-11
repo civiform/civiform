@@ -31,7 +31,6 @@ public class ManageProgramAdminsView extends BaseHtmlView {
   private static final String SUBMIT_BUTTON = "Save";
   private static final String INPUT_PLACEHOLDER = "New admin email";
   private static final String REMOVE_BUTTON = "Remove";
-  private static final String FORM_ID = "manage-program-admin-form";
   private static final String EMAIL_CONTAINER_DIV_ID = "program-admin-emails";
   private static final String ADD_BUTTON_ID = "add-program-admin-button";
   private static final String ADD_EMAIL_FIELD_NAME = "adminEmails[]";
@@ -69,7 +68,6 @@ public class ManageProgramAdminsView extends BaseHtmlView {
             .with(button(ADD_ADMIN_BUTTON).withId(ADD_BUTTON_ID).withClasses(Styles.MY_2));
 
     return form()
-        .withId(FORM_ID)
         .with(makeCsrfTokenInputTag(request))
         .withAction(routes.ProgramAdminManagementController.update(programId).url())
         .withMethod("POST")
@@ -82,7 +80,6 @@ public class ManageProgramAdminsView extends BaseHtmlView {
 
     ContainerTag input =
         FieldWithLabel.email()
-            .setFormId(FORM_ID)
             .setFieldName(inputFieldName)
             .setPlaceholderText(INPUT_PLACEHOLDER)
             .setValue(existing)

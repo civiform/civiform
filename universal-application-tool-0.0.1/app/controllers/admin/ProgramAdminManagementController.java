@@ -79,8 +79,6 @@ public class ProgramAdminManagementController {
 
     try {
       // Remove first, in case the admin accidentally removed an admin and then re-added them.
-      System.out.println(
-          "CONTROLLER WITH REMOVE EMAILS: " + manageAdminForm.getRemoveAdminEmails());
       roleService.removeProgramAdmins(
           programId, ImmutableSet.copyOf(manageAdminForm.getRemoveAdminEmails()));
       Optional<CiviFormError> maybeError =

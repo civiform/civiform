@@ -87,7 +87,10 @@ function removeInput(event: Event) {
 
 }
 
-/** If we want to remove an existing element, hide the input div and set disabled to false so the field is submitted. */
+/**
+ * If we want to remove an existing element, hide the input div and set disabled to false
+ * so the field is submitted.
+ */
 function hideInput(event: Event) {
   const inputDiv = (event.target as Element).parentElement;
   // Remove 'disabled' so the field is submitted with the form

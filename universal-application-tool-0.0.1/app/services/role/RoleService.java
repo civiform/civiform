@@ -94,7 +94,6 @@ public class RoleService {
     if (accountEmails.isEmpty() || accountEmails.stream().allMatch(String::isBlank)) {
       return;
     }
-    System.out.println("IN REMOVE METHOD: " + accountEmails);
     ProgramDefinition program = programService.getProgramDefinition(programId);
     accountEmails.forEach(email -> userRepository.removeAdministeredProgram(email, program));
   }
