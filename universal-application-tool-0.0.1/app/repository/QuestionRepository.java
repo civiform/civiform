@@ -5,6 +5,8 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import io.ebean.Transaction;
+import io.ebean.TxScope;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
@@ -48,29 +50,33 @@ public class QuestionRepository {
    * draft if there isn't one.
    */
   public Question updateOrCreateDraft(QuestionDefinition definition) {
-    Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
-    Optional<Question> existingDraft = draftVersion.getQuestionByName(definition.getName());
-    try {
-      if (existingDraft.isPresent()) {
-        Question updatedDraft =
-            new Question(
-                new QuestionDefinitionBuilder(definition).setId(existingDraft.get().id).build());
-        this.updateQuestionSync(updatedDraft);
-        return updatedDraft;
-      } else {
-        Question newDraft =
-            new Question(new QuestionDefinitionBuilder(definition).setId(null).build());
-        insertQuestionSync(newDraft);
-        newDraft.addVersion(draftVersion);
-        newDraft.save();
-        versionRepositoryProvider.get().updateProgramsForNewDraftQuestion(definition.getId());
-        return newDraft;
+    try (Transaction transaction = ebeanServer.beginTransaction(TxScope.requiresNew())) {
+      Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
+      Optional<Question> existingDraft = draftVersion.getQuestionByName(definition.getName());
+      try {
+        if (existingDraft.isPresent()) {
+          Question updatedDraft =
+                  new Question(
+                          new QuestionDefinitionBuilder(definition).setId(existingDraft.get().id).build());
+          this.updateQuestionSync(updatedDraft);
+          transaction.commit();
+          return updatedDraft;
+        } else {
+          Question newDraft =
+                  new Question(new QuestionDefinitionBuilder(definition).setId(null).build());
+          insertQuestionSync(newDraft);
+          newDraft.addVersion(draftVersion);
+          newDraft.save();
+          versionRepositoryProvider.get().updateProgramsForNewDraftQuestion(definition.getId());
+          transaction.commit();
+          return newDraft;
+        }
+      } catch (UnsupportedQuestionTypeException e) {
+        // This should not be able to happen since the provided question definition is inherently
+        // valid.
+        // Throw runtime exception so callers don't have to deal with it.
+        throw new RuntimeException(e);
       }
-    } catch (UnsupportedQuestionTypeException e) {
-      // This should not be able to happen since the provided question definition is inherently
-      // valid.
-      // Throw runtime exception so callers don't have to deal with it.
-      throw new RuntimeException(e);
     }
   }
 

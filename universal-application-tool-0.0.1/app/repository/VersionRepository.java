@@ -6,12 +6,15 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
+import io.ebean.annotation.TxIsolation;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.persistence.NonUniqueResultException;
+import javax.persistence.RollbackException;
 import models.LifecycleStage;
 import models.Program;
 import models.Question;
@@ -99,8 +102,18 @@ public class VersionRepository {
     if (version.isPresent()) {
       return version.get();
     } else {
-      // Suspends any existing transaction if one exists.
-      Transaction transaction = ebeanServer.beginTransaction(TxScope.requiresNew());
+      // Suspends any existing thread-local transaction if one exists.
+      // This method is often called by two portions of the same outer transaction,
+      // microseconds apart.  It's extremely important that there only ever be one
+      // draft version, so we need the highest transaction isolation level -
+      // `SERIALIZABLE` means that the two transactions run as if each transaction
+      // was the only transaction running on the whole database.  That is, if any
+      // other code accesses these rows or executes any query which would modify them,
+      // the transaction is rolled back (a RollbackException is thrown).  We
+      // are forced to retry.  This is expensive in relative terms, but new drafts
+      // are very rare.  It is unlikely this will represent a real performance penalty
+      // for any applicant - or even any admin, really.
+      Transaction transaction = ebeanServer.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
       try {
         Version newDraftVersion = new Version(LifecycleStage.DRAFT);
         ebeanServer.insert(newDraftVersion);
@@ -112,7 +125,7 @@ public class VersionRepository {
             .findOne();
         transaction.commit();
         return newDraftVersion;
-      } catch (NonUniqueResultException e) {
+      } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
         transaction.rollback(e);
         transaction.end();
         return getDraftVersion();
