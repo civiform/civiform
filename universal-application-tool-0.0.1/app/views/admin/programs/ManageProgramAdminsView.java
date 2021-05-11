@@ -34,7 +34,8 @@ public class ManageProgramAdminsView extends BaseHtmlView {
   private static final String FORM_ID = "manage-program-admin-form";
   private static final String EMAIL_CONTAINER_DIV_ID = "program-admin-emails";
   private static final String ADD_BUTTON_ID = "add-program-admin-button";
-  private static final String EMAIL_FIELD_NAME = "adminEmails[]";
+  private static final String ADD_EMAIL_FIELD_NAME = "adminEmails[]";
+  private static final String REMOVE_EMAIL_FIELD_NAME = "removeAdminEmails[]";
   private static final String EMAIL_INPUT_TEMPLATE_ID = "program-admin-email-template";
 
   private final AdminLayout layout;
@@ -77,10 +78,12 @@ public class ManageProgramAdminsView extends BaseHtmlView {
   }
 
   private ContainerTag adminEmailInput(Optional<String> existing) {
+    String inputFieldName = existing.isPresent() ? REMOVE_EMAIL_FIELD_NAME : ADD_EMAIL_FIELD_NAME;
+
     ContainerTag input =
         FieldWithLabel.email()
             .setFormId(FORM_ID)
-            .setFieldName(EMAIL_FIELD_NAME)
+            .setFieldName(inputFieldName)
             .setPlaceholderText(INPUT_PLACEHOLDER)
             .setValue(existing)
             // If there is an existing value, do not allow changes in the input field.

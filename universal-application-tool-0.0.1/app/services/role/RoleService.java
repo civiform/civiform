@@ -50,6 +50,10 @@ public class RoleService {
    */
   public Optional<CiviFormError> makeProgramAdmins(
       long programId, ImmutableSet<String> accountEmails) throws ProgramNotFoundException {
+    if (accountEmails.isEmpty() || accountEmails.stream().allMatch(String::isBlank)) {
+      return Optional.empty();
+    }
+
     ProgramDefinition program = programService.getProgramDefinition(programId);
     // Filter out UAT admins from the list of emails - a UAT admin cannot be a program admin.
     ImmutableSet<String> sysAdminEmails =
@@ -87,6 +91,10 @@ public class RoleService {
    */
   public void removeProgramAdmins(long programId, ImmutableSet<String> accountEmails)
       throws ProgramNotFoundException {
+    if (accountEmails.isEmpty() || accountEmails.stream().allMatch(String::isBlank)) {
+      return;
+    }
+    System.out.println("IN REMOVE METHOD: " + accountEmails);
     ProgramDefinition program = programService.getProgramDefinition(programId);
     accountEmails.forEach(email -> userRepository.removeAdministeredProgram(email, program));
   }

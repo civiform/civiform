@@ -87,10 +87,12 @@ function removeInput(event: Event) {
 
 }
 
-/** If we want to remove an existing element, hide the input div and change the field name to remove. */
-function hideInput(clickedButton: Element, removeElementName: string) {
-  const inputDiv = clickedButton.parentElement;
-  inputDiv.querySelector("input").setAttribute("name", removeElementName);
+/** If we want to remove an existing element, hide the input div and set disabled to false so the field is submitted. */
+function hideInput(event: Event) {
+  const inputDiv = (event.target as Element).parentElement;
+  // Remove 'disabled' so the field is submitted with the form
+  inputDiv.querySelector("input").disabled = false;
+  // Hide the entire div from the user
   inputDiv.classList.add("hidden");
 }
 
@@ -146,9 +148,7 @@ window.addEventListener('load', (event) => {
 
   // Bind click handler for removing program admins in the program admin management view
   Array.from(document.querySelectorAll('.cf-program-admin-remove-button')).forEach(
-    el => el.addEventListener("click", function() {
-      hideInput(el, "removeAdminEmails[]");
-    }));
+    el => el.addEventListener("click", hideInput));
 
   // Configure the button on the enumerator question form to add more enumerator field options
   const enumeratorOptionButton = document.getElementById("enumerator-field-add-button");
