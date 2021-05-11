@@ -193,7 +193,7 @@ public class FieldWithLabel {
 
     ContainerTag labelTag =
         label()
-            .condAttr(!Strings.isNullOrEmpty(this.id), Attr.FOR, this.id)
+            .condAttr(shouldSetLabelFor(), Attr.FOR, this.id)
             .withClasses(labelText.isEmpty() ? "" : BaseStyles.INPUT_LABEL)
             .withText(labelText);
 
@@ -215,7 +215,7 @@ public class FieldWithLabel {
             BaseStyles.CHECKBOX_LABEL,
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
             labelText.isEmpty() ? Styles.W_MIN : "")
-        .condAttr(!Strings.isNullOrEmpty(this.id), Attr.FOR, this.id)
+        .condAttr(shouldSetLabelFor(), Attr.FOR, this.id)
         .with(fieldTag)
         .withText(this.labelText);
   }
@@ -226,5 +226,9 @@ public class FieldWithLabel {
             fieldErrors.isEmpty()
                 ? ""
                 : StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT, Styles.P_1));
+  }
+
+  private boolean shouldSetLabelFor() {
+    return !this.id.isEmpty() && ! this.labelText.isEmpty();
   }
 }
