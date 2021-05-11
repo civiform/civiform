@@ -1,17 +1,15 @@
 package forms;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
-import services.LocalizationUtils;
-import services.Path;
+import services.LocalizedStrings;
+import services.TranslationNotFoundException;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
-import services.question.exceptions.TranslationNotFoundException;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
@@ -42,9 +40,9 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     try {
       // TODO: this will need revisiting to support multiple locales
       // https://github.com/seattle-uat/civiform/issues/778
-      if (qd.getSupportedLocales().contains(LocalizationUtils.DEFAULT_LOCALE)) {
+      if (qd.getSupportedLocales().contains(LocalizedStrings.DEFAULT_LOCALE)) {
         List<String> optionStrings =
-            qd.getOptionsForLocale(LocalizationUtils.DEFAULT_LOCALE).stream()
+            qd.getOptionsForLocale(LocalizedStrings.DEFAULT_LOCALE).stream()
                 .map(LocalizedQuestionOption::optionText)
                 .collect(Collectors.toList());
         this.options.addAll(optionStrings);
@@ -99,7 +97,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   }
 
   @Override
-  public QuestionDefinitionBuilder getBuilder(Path path) {
+  public QuestionDefinitionBuilder getBuilder() {
     MultiOptionQuestionDefinition.MultiOptionValidationPredicates.Builder predicateBuilder =
         MultiOptionQuestionDefinition.MultiOptionValidationPredicates.builder();
 
@@ -117,10 +115,10 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
     for (String optionText : getOptions()) {
       questionOptions.add(
-          QuestionOption.create(optionCount++, ImmutableMap.of(Locale.US, optionText)));
+          QuestionOption.create(optionCount++, LocalizedStrings.of(Locale.US, optionText)));
     }
 
-    return super.getBuilder(path)
+    return super.getBuilder()
         .setQuestionOptions(questionOptions.build())
         .setValidationPredicates(predicateBuilder.build());
   }

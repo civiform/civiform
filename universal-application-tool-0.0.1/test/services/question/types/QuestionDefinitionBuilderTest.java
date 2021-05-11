@@ -19,8 +19,8 @@ public class QuestionDefinitionBuilderTest {
     builder.updateQuestionHelpText(Locale.FRENCH, "french help");
     question = builder.build();
 
-    assertThat(question.getQuestionText(Locale.FRENCH)).isEqualTo("french");
-    assertThat(question.getQuestionHelpText(Locale.FRENCH)).isEqualTo("french help");
+    assertThat(question.getQuestionText().get(Locale.FRENCH)).isEqualTo("french");
+    assertThat(question.getQuestionHelpText().get(Locale.FRENCH)).isEqualTo("french help");
   }
 
   @Test
@@ -32,7 +32,7 @@ public class QuestionDefinitionBuilderTest {
     builder.updateQuestionHelpText(Locale.US, "new help text");
     question = builder.build();
 
-    assertThat(question.getQuestionText(Locale.US)).isEqualTo("new text");
-    assertThat(question.getQuestionHelpText(Locale.US)).isEqualTo("new help text");
+    assertThat(question.getQuestionText().get(Locale.US)).isEqualTo("new text");
+    assertThat(question.getQuestionHelpText().get(Locale.US)).isEqualTo("new help text");
   }
 }

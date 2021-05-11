@@ -13,6 +13,8 @@ import play.i18n.Lang;
 import play.i18n.Langs;
 import play.mvc.Http;
 import services.LocalizationUtils;
+import services.LocalizedStrings;
+import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.components.ToastMessage;
@@ -61,7 +63,7 @@ public abstract class TranslationFormView extends AdminView {
     LinkElement link =
         new LinkElement()
             .setHref(linkDestination)
-            .setText(locale.getDisplayLanguage(LocalizationUtils.DEFAULT_LOCALE));
+            .setText(locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE));
 
     if (isCurrentlySelected) {
       link.setStyles(AdminStyles.LANGUAGE_LINK_SELECTED);
@@ -92,7 +94,7 @@ public abstract class TranslationFormView extends AdminView {
                 submitButton(
                         String.format(
                             "Save %s updates",
-                            locale.getDisplayLanguage(LocalizationUtils.DEFAULT_LOCALE)))
+                            locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE)))
                     .withId("update-localizations-button"));
     errors.ifPresent(s -> form.with(ToastMessage.error(s).setDismissible(false).getContainerTag()));
     return form;

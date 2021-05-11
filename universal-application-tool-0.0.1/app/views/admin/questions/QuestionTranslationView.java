@@ -30,8 +30,8 @@ public class QuestionTranslationView extends TranslationFormView {
         request,
         locale,
         question,
-        question.maybeGetQuestionText(locale),
-        question.maybeGetQuestionHelpText(locale),
+        question.getQuestionText().maybeGet(locale),
+        question.getQuestionHelpText().maybeGet(locale),
         Optional.empty());
   }
 
@@ -41,8 +41,8 @@ public class QuestionTranslationView extends TranslationFormView {
         request,
         locale,
         invalidQuestion,
-        invalidQuestion.maybeGetQuestionText(locale),
-        invalidQuestion.maybeGetQuestionHelpText(locale),
+        invalidQuestion.getQuestionText().maybeGet(locale),
+        invalidQuestion.getQuestionHelpText().maybeGet(locale),
         Optional.of(errors));
   }
 
@@ -63,8 +63,8 @@ public class QuestionTranslationView extends TranslationFormView {
             locale,
             formAction,
             formFields(
-                question.getDefaultQuestionText(),
-                question.getDefaultQuestionHelpText(),
+                question.getQuestionText().getDefault(),
+                question.getQuestionHelpText().getDefault(),
                 existingQuestionText,
                 existingQuestionHelpText),
             errors);

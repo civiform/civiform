@@ -1,11 +1,9 @@
 package services.question.types;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
-import services.Path;
+import services.LocalizedStrings;
 import services.question.QuestionOption;
 
 public class RadioButtonQuestionDefinition extends MultiOptionQuestionDefinition {
@@ -13,16 +11,14 @@ public class RadioButtonQuestionDefinition extends MultiOptionQuestionDefinition
   public RadioButtonQuestionDefinition(
       OptionalLong id,
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText,
       ImmutableList<QuestionOption> options) {
     super(
         id,
         name,
-        path,
         enumeratorId,
         description,
         questionText,
@@ -33,15 +29,13 @@ public class RadioButtonQuestionDefinition extends MultiOptionQuestionDefinition
 
   public RadioButtonQuestionDefinition(
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText,
       ImmutableList<QuestionOption> options) {
     super(
         name,
-        path,
         enumeratorId,
         description,
         questionText,

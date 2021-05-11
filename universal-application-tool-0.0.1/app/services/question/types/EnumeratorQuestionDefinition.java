@@ -1,11 +1,9 @@
 package services.question.types;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableMap;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
-import services.Path;
+import services.LocalizedStrings;
 
 /**
  * Enumerator questions provide a variable list of user-defined identifiers for some repeated
@@ -18,18 +16,19 @@ import services.Path;
  */
 public class EnumeratorQuestionDefinition extends QuestionDefinition {
 
+  // TODO(#859): make this admin configurable
+  private final LocalizedStrings entityType = LocalizedStrings.empty();
+
   public EnumeratorQuestionDefinition(
       OptionalLong id,
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText) {
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText) {
     super(
         id,
         name,
-        path,
         enumeratorId,
         description,
         questionText,
@@ -39,14 +38,12 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
 
   public EnumeratorQuestionDefinition(
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText) {
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText) {
     super(
         name,
-        path,
         enumeratorId,
         description,
         questionText,
@@ -63,9 +60,8 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
     return QuestionType.ENUMERATOR;
   }
 
-  @Override
-  public ImmutableMap<Path, ScalarType> getScalarMap() {
-    return ImmutableMap.of();
+  public LocalizedStrings getEntityType() {
+    return entityType;
   }
 
   @AutoValue

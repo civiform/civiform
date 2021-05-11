@@ -29,6 +29,13 @@ public class FieldWithLabelTest {
   }
 
   @Test
+  public void createEmail_rendersEmailInput() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.email();
+    assertThat(fieldWithLabel.getContainer().render()).contains("<input");
+    assertThat(fieldWithLabel.getContainer().render()).contains("type=\"email\"");
+  }
+
+  @Test
   public void number_setsNoValueByDefault() {
     FieldWithLabel fieldWithLabel = FieldWithLabel.number();
     assertThat(fieldWithLabel.getContainer().render()).doesNotContain("value");

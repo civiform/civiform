@@ -6,7 +6,6 @@ import com.github.slugify.Slugify;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Locale;
@@ -14,7 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import models.Program;
-import services.LocalizationUtils;
+import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
 
 @AutoValue
@@ -42,90 +41,16 @@ public abstract class ProgramDefinition {
    * Descriptive name of a Program, e.g. Car Tab Rebate Program, localized for each supported
    * locale.
    */
-  public abstract ImmutableMap<Locale, String> localizedName();
+  public abstract LocalizedStrings localizedName();
 
   /** A human readable description of a Program, localized for each supported locale. */
-  public abstract ImmutableMap<Locale, String> localizedDescription();
+  public abstract LocalizedStrings localizedDescription();
 
   /** The list of {@link BlockDefinition}s that make up the program. */
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
 
   /** The list of {@link ExportDefinition}s that make up the program. */
   public abstract ImmutableList<ExportDefinition> exportDefinitions();
-
-  /**
-   * Returns the localized program name for the given locale. Useful for applicant-facing things.
-   */
-  public String getLocalizedNameOrDefault(Locale locale) {
-    try {
-      return getLocalizedName(locale);
-    } catch (TranslationNotFoundException e) {
-      return getNameForDefaultLocale();
-    }
-  }
-
-  /**
-   * Returns the program name localized in the {@link LocalizationUtils#DEFAULT_LOCALE}. Useful for
-   * admin-facing things.
-   */
-  public String getNameForDefaultLocale() {
-    try {
-      return getLocalizedName(LocalizationUtils.DEFAULT_LOCALE);
-    } catch (TranslationNotFoundException e) {
-      // This should never happen - US English should always be supported.
-      throw new RuntimeException(e);
-    }
-  }
-
-  public Optional<String> maybeGetLocalizedName(Locale locale) {
-    try {
-      return Optional.of(getLocalizedName(locale));
-    } catch (TranslationNotFoundException e) {
-      return Optional.empty();
-    }
-  }
-
-  public String getLocalizedName(Locale locale) throws TranslationNotFoundException {
-    if (localizedName().containsKey(locale)) {
-      return localizedName().get(locale);
-    } else {
-      throw new TranslationNotFoundException(id(), locale);
-    }
-  }
-
-  public String getLocalizedDescriptionOrDefault(Locale locale) {
-    try {
-      return getLocalizedDescription(locale);
-    } catch (TranslationNotFoundException e) {
-      return getDescriptionForDefaultLocale();
-    }
-  }
-
-  /** The default locale for CiviForm is US English. */
-  public String getDescriptionForDefaultLocale() {
-    try {
-      return getLocalizedDescription(LocalizationUtils.DEFAULT_LOCALE);
-    } catch (TranslationNotFoundException e) {
-      // This should never happen - US English should always be supported.
-      throw new RuntimeException(e);
-    }
-  }
-
-  public Optional<String> maybeGetLocalizedDescription(Locale locale) {
-    try {
-      return Optional.of(getLocalizedDescription(locale));
-    } catch (TranslationNotFoundException e) {
-      return Optional.empty();
-    }
-  }
-
-  public String getLocalizedDescription(Locale locale) throws TranslationNotFoundException {
-    if (localizedDescription().containsKey(locale)) {
-      return localizedDescription().get(locale);
-    } else {
-      throw new TranslationNotFoundException(id(), locale);
-    }
-  }
 
   /**
    * Get all the {@link Locale}s this program fully supports. A program fully supports a locale if:
@@ -146,7 +71,7 @@ public abstract class ProgramDefinition {
             .collect(toImmutableSet());
 
     Set<Locale> intersection =
-        Sets.intersection(localizedName().keySet(), localizedDescription().keySet());
+        Sets.intersection(localizedName().locales(), localizedDescription().locales());
     for (ImmutableSet<Locale> set : questionLocales) {
       intersection = Sets.intersection(intersection, set);
     }
@@ -289,14 +214,9 @@ public abstract class ProgramDefinition {
 
     public abstract Builder setAdminDescription(String adminDescription);
 
-    public abstract Builder setLocalizedName(ImmutableMap<Locale, String> localizedName);
+    public abstract Builder setLocalizedName(LocalizedStrings localizedName);
 
-    public abstract ImmutableMap.Builder<Locale, String> localizedNameBuilder();
-
-    public abstract Builder setLocalizedDescription(
-        ImmutableMap<Locale, String> localizedDescription);
-
-    public abstract ImmutableMap.Builder<Locale, String> localizedDescriptionBuilder();
+    public abstract Builder setLocalizedDescription(LocalizedStrings localizedDescription);
 
     public abstract Builder setBlockDefinitions(ImmutableList<BlockDefinition> blockDefinitions);
 
@@ -306,54 +226,11 @@ public abstract class ProgramDefinition {
 
     public abstract ImmutableList.Builder<ExportDefinition> exportDefinitionsBuilder();
 
+    public abstract LocalizedStrings.Builder localizedNameBuilder();
+
+    public abstract LocalizedStrings.Builder localizedDescriptionBuilder();
+
     public abstract ProgramDefinition build();
-
-    /**
-     * Add a new localization for the program name. This will fail if a translation for the given
-     * locale already exists.
-     */
-    public Builder addLocalizedName(Locale locale, String name) {
-      localizedNameBuilder().put(locale, name);
-      return this;
-    }
-
-    /**
-     * Add a new localization for the program description. This will fail if a translation for the
-     * given locale already exists.
-     */
-    public Builder addLocalizedDescription(Locale locale, String name) {
-      localizedDescriptionBuilder().put(locale, name);
-      return this;
-    }
-
-    /**
-     * Update an existing localization for the program name. This will overwrite the old name for
-     * that locale.
-     */
-    public Builder updateLocalizedName(
-        ImmutableMap<Locale, String> existing, Locale locale, String name) {
-      if (existing.containsKey(locale)) {
-        setLocalizedName(LocalizationUtils.overwriteExistingTranslation(existing, locale, name));
-      } else {
-        addLocalizedName(locale, name);
-      }
-      return this;
-    }
-
-    /**
-     * Update an existing localization for the program description. This will overwrite the old
-     * description for that locale.
-     */
-    public Builder updateLocalizedDescription(
-        ImmutableMap<Locale, String> existing, Locale locale, String description) {
-      if (existing.containsKey(locale)) {
-        setLocalizedDescription(
-            LocalizationUtils.overwriteExistingTranslation(existing, locale, description));
-      } else {
-        addLocalizedDescription(locale, description);
-      }
-      return this;
-    }
 
     public Builder addBlockDefinition(BlockDefinition blockDefinition) {
       blockDefinitionsBuilder().add(blockDefinition);
@@ -362,6 +239,16 @@ public abstract class ProgramDefinition {
 
     public Builder addExportDefinition(ExportDefinition exportDefinition) {
       exportDefinitionsBuilder().add(exportDefinition);
+      return this;
+    }
+
+    public Builder addLocalizedName(Locale locale, String name) {
+      localizedNameBuilder().put(locale, name);
+      return this;
+    }
+
+    public Builder addLocalizedDescription(Locale locale, String description) {
+      localizedDescriptionBuilder().put(locale, description);
       return this;
     }
   }

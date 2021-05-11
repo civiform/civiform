@@ -57,23 +57,29 @@ function changeUpdateBlockButtonState(event: Event) {
   }
 }
 
-/** In the admin question form - add a new option input for each new question answer option. */
-function addNewQuestionAnswerOptionForm(event: Event) {
+/**
+ * Copy the specified hidden template and append it to the end of the parent divContainerId,
+ * above the add button (addButtonId).
+ */
+function addNewInput(inputTemplateId: string, addButtonId: string, divContainerId: string) {
   // Copy the answer template and remove ID and hidden properties.
-  const newField = document.getElementById("multi-option-question-answer-template").cloneNode(true) as HTMLElement;
+  const newField = document.getElementById(inputTemplateId).cloneNode(true) as HTMLElement;
   newField.classList.remove("hidden");
   newField.removeAttribute("id");
 
   // Register the click event handler for the remove button.
-  newField.querySelector("[type=button]").addEventListener("click", removeQuestionOption);
+  newField.querySelector("[type=button]").addEventListener("click", removeInput);
 
   // Find the add option button and insert the new option input field before it.
-  const button = document.getElementById("add-new-option");
-  document.getElementById("question-settings").insertBefore(newField, button);
+  const button = document.getElementById(addButtonId);
+  document.getElementById(divContainerId).insertBefore(newField, button);
 }
 
-/** In the admin question form - remove an answer option input for multi-option questions. */
-function removeQuestionOption(event: Event) {
+/**
+ * Removes an input field and its associated elements, like the remove button. All
+ * elements must be contained in a parent div.
+ */
+function removeInput(event: Event) {
 
   // Get the parent div, which contains the input field and remove button, and remove it.
   const optionDiv = (event.target as Element).parentNode;
@@ -83,7 +89,7 @@ function removeQuestionOption(event: Event) {
 
 /** In the enumerator form - add a new input field for a repeated entity. */
 function addNewEnumeratorField(event: Event) {
-  // Copy the enuemrator field template
+  // Copy the enumerator field template
   const newField = document.getElementById("enumerator-field-template").cloneNode(true) as HTMLElement;
   newField.classList.remove("hidden");
   newField.removeAttribute("id");
@@ -114,16 +120,30 @@ window.addEventListener('load', (event) => {
   // Configure the button on the admin question form to add more answer options
   const questionOptionButton = document.getElementById("add-new-option");
   if (questionOptionButton) {
-    questionOptionButton.addEventListener("click", addNewQuestionAnswerOptionForm);
+    questionOptionButton.addEventListener("click", function() {
+      addNewInput("multi-option-question-answer-template", "add-new-option", "question-settings");
+    });
   }
+
+  // Bind click handler for remove options in multi-option edit view
+  Array.from(document.querySelectorAll('.multi-option-question-field-remove-button')).forEach(
+    el => el.addEventListener("click", removeInput));
+
+  // Configure the button on the manage program admins form to add more email inputs
+  const adminEmailButton = document.getElementById("add-program-admin-button");
+  if (adminEmailButton) {
+    adminEmailButton.addEventListener("click", function() {
+      addNewInput("program-admin-email-template", "add-program-admin-button", "program-admin-emails");
+    });
+  }
+
+  // Bind click handler for removing program admins in the program admin management view
+  Array.from(document.querySelectorAll('.cf-program-admin-remove-button')).forEach(
+    el => el.addEventListener("click", removeInput));
 
   // Configure the button on the enumerator question form to add more enumerator field options
   const enumeratorOptionButton = document.getElementById("enumerator-field-add-button");
   if (enumeratorOptionButton) {
     enumeratorOptionButton.addEventListener("click", addNewEnumeratorField);
   }
-
-  // Bind click handler for remove options in multi-option edit view
-  Array.from(document.querySelectorAll('.multi-option-question-field-remove-button')).forEach(
-    el => el.addEventListener("click", removeQuestionOption));
 });

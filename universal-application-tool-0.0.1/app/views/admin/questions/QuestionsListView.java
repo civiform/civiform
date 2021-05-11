@@ -17,9 +17,9 @@ import j2html.tags.Tag;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import play.twirl.api.Content;
-import services.LocalizationUtils;
+import services.LocalizedStrings;
+import services.TranslationNotFoundException;
 import services.question.ActiveAndDraftQuestions;
-import services.question.exceptions.TranslationNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import views.HtmlBundle;
@@ -181,12 +181,12 @@ public final class QuestionsListView extends AdminView {
     String questionHelpText = "";
 
     try {
-      questionText = definition.getQuestionText(LocalizationUtils.DEFAULT_LOCALE);
+      questionText = definition.getQuestionText().get(LocalizedStrings.DEFAULT_LOCALE);
     } catch (TranslationNotFoundException e) { // Ignore. Leaving blank
     }
 
     try {
-      questionHelpText = definition.getQuestionHelpText(LocalizationUtils.DEFAULT_LOCALE);
+      questionHelpText = definition.getQuestionHelpText().get(LocalizedStrings.DEFAULT_LOCALE);
     } catch (TranslationNotFoundException e) { // Ignore. Leaving blank
     }
 
@@ -202,7 +202,7 @@ public final class QuestionsListView extends AdminView {
   private Tag renderSupportedLanguages(QuestionDefinition definition) {
     String formattedLanguages =
         definition.getSupportedLocales().stream()
-            .map(locale -> locale.getDisplayLanguage(LocalizationUtils.DEFAULT_LOCALE))
+            .map(locale -> locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE))
             .collect(Collectors.joining(", "));
     return td().with(div(formattedLanguages))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
@@ -221,7 +221,7 @@ public final class QuestionsListView extends AdminView {
   private Tag renderQuestionTranslationLink(QuestionDefinition definition, String linkText) {
     String link =
         controllers.admin.routes.AdminQuestionTranslationsController.edit(
-                definition.getId(), LocalizationUtils.DEFAULT_LOCALE.toLanguageTag())
+                definition.getId(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
             .url();
     return new LinkElement()
         .setId("translate-question-link-" + definition.getId())

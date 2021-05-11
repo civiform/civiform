@@ -11,7 +11,7 @@ import j2html.tags.Tag;
 import java.util.Optional;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.LocalizationUtils;
+import services.LocalizedStrings;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import views.HtmlBundle;
@@ -130,7 +130,8 @@ public final class ProgramIndexView extends AdminView {
                 p().withClasses(Styles.FLEX_GROW),
                 maybeRenderViewApplicationsLink(viewApplicationsLinkText, activeProgram),
                 maybeRenderManageTranslationsLink(draftProgram),
-                maybeRenderEditLink(draftProgram, activeProgram, request))
+                maybeRenderEditLink(draftProgram, activeProgram, request),
+                renderManageProgramAdminsLink(draftProgram, activeProgram))
             .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
 
     Tag innerDiv =
@@ -194,7 +195,7 @@ public final class ProgramIndexView extends AdminView {
       String linkText = "Manage Translations →";
       String linkDestination =
           routes.AdminProgramTranslationsController.edit(
-                  draftProgram.get().id(), LocalizationUtils.DEFAULT_LOCALE.toLanguageTag())
+                  draftProgram.get().id(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
               .url();
       return new LinkElement()
           .setId("program-translations-link-" + draftProgram.get().id())
@@ -221,5 +222,20 @@ public final class ProgramIndexView extends AdminView {
     } else {
       return div();
     }
+  }
+
+  private Tag renderManageProgramAdminsLink(
+      Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram) {
+    // We can use the ID of either, since we just add the program name and not ID to indicate
+    // ownership.
+    long programId =
+        draftProgram.isPresent() ? draftProgram.get().id() : activeProgram.orElseThrow().id();
+    String adminLink = routes.ProgramAdminManagementController.edit(programId).url();
+    return new LinkElement()
+        .setId("manage-program-admin-link-" + programId)
+        .setHref(adminLink)
+        .setText("Manage Admins →")
+        .setStyles(Styles.MR_2)
+        .asAnchorText();
   }
 }

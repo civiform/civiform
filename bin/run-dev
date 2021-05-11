@@ -1,5 +1,5 @@
 #!/bin/bash
-pushd $(git rev-parse --show-toplevel)
+pushd $(git rev-parse --show-toplevel) > /dev/null
 
 set -e
 
@@ -16,10 +16,7 @@ docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d localstack
 # otherwise other services crash
 bin/localstack/wait
 
-# ensure local s3 created
-bin/localstack/mk-s3
-
 # start everything else
 docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
 
-popd
+popd > /dev/null

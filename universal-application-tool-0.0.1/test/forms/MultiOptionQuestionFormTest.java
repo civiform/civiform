@@ -3,11 +3,10 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
-import services.Path;
+import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -18,8 +17,6 @@ public class MultiOptionQuestionFormTest {
 
   @Test
   public void getBuilder_returnsCompleteBuilder() throws Exception {
-    Path path = Path.create("my.question.path.name");
-
     MultiOptionQuestionForm form = new CheckboxQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
@@ -28,17 +25,17 @@ public class MultiOptionQuestionFormTest {
     form.setMinChoicesRequired("1");
     form.setMaxChoicesAllowed("10");
     form.setOptions(ImmutableList.of("one", "two"));
-    QuestionDefinitionBuilder builder = form.getBuilder(path);
+    QuestionDefinitionBuilder builder = form.getBuilder();
 
     CheckboxQuestionDefinition expected =
         new CheckboxQuestionDefinition(
             "name",
-            path,
             Optional.empty(),
             "description",
-            ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of(Locale.US, "help text"),
-            ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option one"))),
+            LocalizedStrings.of(Locale.US, "What is the question text?"),
+            LocalizedStrings.of(Locale.US, "help text"),
+            ImmutableList.of(
+                QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option one"))),
             MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(1, 10));
 
     QuestionDefinition actual = builder.build();
@@ -48,21 +45,18 @@ public class MultiOptionQuestionFormTest {
 
   @Test
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
-    Path path = Path.create("my.question.path.name");
-
     CheckboxQuestionDefinition originalQd =
         new CheckboxQuestionDefinition(
             "name",
-            path,
             Optional.empty(),
             "description",
-            ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of(Locale.US, "help text"),
-            ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option 1"))),
+            LocalizedStrings.of(Locale.US, "What is the question text?"),
+            LocalizedStrings.of(Locale.US, "help text"),
+            ImmutableList.of(QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option 1"))),
             MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(1, 10));
 
     MultiOptionQuestionForm form = new CheckboxQuestionForm(originalQd);
-    QuestionDefinitionBuilder builder = form.getBuilder(path);
+    QuestionDefinitionBuilder builder = form.getBuilder();
 
     QuestionDefinition actual = builder.build();
 
@@ -71,8 +65,6 @@ public class MultiOptionQuestionFormTest {
 
   @Test
   public void getBuilder_emptyStringMinMax_noPredicateSet() throws Exception {
-    Path path = Path.create("my.question.path.name");
-
     MultiOptionQuestionForm form = new CheckboxQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
@@ -81,17 +73,17 @@ public class MultiOptionQuestionFormTest {
     form.setMinChoicesRequired("");
     form.setMaxChoicesAllowed("");
     form.setOptions(ImmutableList.of("one", "two"));
-    QuestionDefinitionBuilder builder = form.getBuilder(path);
+    QuestionDefinitionBuilder builder = form.getBuilder();
 
     CheckboxQuestionDefinition expected =
         new CheckboxQuestionDefinition(
             "name",
-            path,
             Optional.empty(),
             "description",
-            ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of(Locale.US, "help text"),
-            ImmutableList.of(QuestionOption.create(1L, ImmutableMap.of(Locale.US, "option one"))),
+            LocalizedStrings.of(Locale.US, "What is the question text?"),
+            LocalizedStrings.of(Locale.US, "help text"),
+            ImmutableList.of(
+                QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option one"))),
             MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create());
 
     QuestionDefinition actual = builder.build();

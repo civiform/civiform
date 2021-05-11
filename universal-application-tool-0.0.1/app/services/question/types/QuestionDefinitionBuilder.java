@@ -1,12 +1,10 @@
 package services.question.types;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
-import services.LocalizationUtils;
-import services.Path;
+import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
@@ -19,11 +17,10 @@ public class QuestionDefinitionBuilder {
 
   private OptionalLong id = OptionalLong.empty();
   private String name;
-  private Path path;
   private Optional<Long> enumeratorId = Optional.empty();
   private String description;
-  private ImmutableMap<Locale, String> questionText;
-  private ImmutableMap<Locale, String> questionHelpText = ImmutableMap.of();
+  private LocalizedStrings questionText;
+  private LocalizedStrings questionHelpText = LocalizedStrings.empty();
   private QuestionType questionType = QuestionType.TEXT;
   private String validationPredicatesString = "";
 
@@ -38,7 +35,6 @@ public class QuestionDefinitionBuilder {
       this.id = OptionalLong.of(definitionId);
     }
     name = definition.getName();
-    path = definition.getPath();
     enumeratorId = definition.getEnumeratorId();
     description = definition.getDescription();
     questionText = definition.getQuestionText();
@@ -61,15 +57,14 @@ public class QuestionDefinitionBuilder {
         new QuestionDefinitionBuilder()
             .setName("")
             .setDescription("")
-            .setPath(Path.create("sample.question.path"))
-            .setQuestionText(ImmutableMap.of(Locale.US, "Sample question text"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.US, "Sample question help text"))
+            .setQuestionText(LocalizedStrings.of(Locale.US, "Sample question text"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "Sample question help text"))
             .setQuestionType(questionType);
 
     if (questionType.isMultiOptionType()) {
       builder.setQuestionOptions(
           ImmutableList.of(
-              QuestionOption.create(1L, ImmutableMap.of(Locale.US, "Sample question option"))));
+              QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "Sample question option"))));
     }
 
     return builder;
@@ -95,11 +90,6 @@ public class QuestionDefinitionBuilder {
     return this;
   }
 
-  public QuestionDefinitionBuilder setPath(Path path) {
-    this.path = path;
-    return this;
-  }
-
   public QuestionDefinitionBuilder setEnumeratorId(Optional<Long> enumeratorId) {
     this.enumeratorId = enumeratorId;
     return this;
@@ -110,26 +100,23 @@ public class QuestionDefinitionBuilder {
     return this;
   }
 
-  public QuestionDefinitionBuilder setQuestionText(ImmutableMap<Locale, String> questionText) {
+  public QuestionDefinitionBuilder setQuestionText(LocalizedStrings questionText) {
     this.questionText = questionText;
     return this;
   }
 
   public QuestionDefinitionBuilder updateQuestionText(Locale locale, String text) {
-    this.questionText =
-        LocalizationUtils.overwriteExistingTranslation(this.questionText, locale, text);
+    questionText = questionText.updateTranslation(locale, text);
     return this;
   }
 
-  public QuestionDefinitionBuilder setQuestionHelpText(
-      ImmutableMap<Locale, String> questionHelpText) {
+  public QuestionDefinitionBuilder setQuestionHelpText(LocalizedStrings questionHelpText) {
     this.questionHelpText = questionHelpText;
     return this;
   }
 
   public QuestionDefinitionBuilder updateQuestionHelpText(Locale locale, String helpText) {
-    this.questionHelpText =
-        LocalizationUtils.overwriteExistingTranslation(this.questionHelpText, locale, helpText);
+    questionHelpText = questionHelpText.updateTranslation(locale, helpText);
     return this;
   }
 
@@ -167,7 +154,6 @@ public class QuestionDefinitionBuilder {
         return new AddressQuestionDefinition(
             id,
             name,
-            path,
             enumeratorId,
             description,
             questionText,
@@ -183,7 +169,6 @@ public class QuestionDefinitionBuilder {
         return new CheckboxQuestionDefinition(
             id,
             name,
-            path,
             enumeratorId,
             description,
             questionText,
@@ -192,17 +177,10 @@ public class QuestionDefinitionBuilder {
             multiOptionValidationPredicates);
       case DROPDOWN:
         return new DropdownQuestionDefinition(
-            id,
-            name,
-            path,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            questionOptions);
+            id, name, enumeratorId, description, questionText, questionHelpText, questionOptions);
       case FILEUPLOAD:
         return new FileUploadQuestionDefinition(
-            id, name, path, enumeratorId, description, questionText, questionHelpText);
+            id, name, enumeratorId, description, questionText, questionHelpText);
       case NAME:
         NameValidationPredicates nameValidationPredicates = NameValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {
@@ -211,7 +189,6 @@ public class QuestionDefinitionBuilder {
         return new NameQuestionDefinition(
             id,
             name,
-            path,
             enumeratorId,
             description,
             questionText,
@@ -227,7 +204,6 @@ public class QuestionDefinitionBuilder {
         return new NumberQuestionDefinition(
             id,
             name,
-            path,
             enumeratorId,
             description,
             questionText,
@@ -235,17 +211,10 @@ public class QuestionDefinitionBuilder {
             numberValidationPredicates);
       case RADIO_BUTTON:
         return new RadioButtonQuestionDefinition(
-            id,
-            name,
-            path,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            questionOptions);
+            id, name, enumeratorId, description, questionText, questionHelpText, questionOptions);
       case ENUMERATOR:
         return new EnumeratorQuestionDefinition(
-            id, name, path, enumeratorId, description, questionText, questionHelpText);
+            id, name, enumeratorId, description, questionText, questionHelpText);
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {
@@ -254,7 +223,6 @@ public class QuestionDefinitionBuilder {
         return new TextQuestionDefinition(
             id,
             name,
-            path,
             enumeratorId,
             description,
             questionText,

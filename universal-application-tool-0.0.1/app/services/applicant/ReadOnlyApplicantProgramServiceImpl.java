@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import services.LocalizationUtils;
+import services.LocalizedStrings;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
@@ -33,7 +33,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public String getProgramTitle() {
-    return programDefinition.getLocalizedNameOrDefault(applicantData.preferredLocale());
+    return programDefinition.localizedName().getOrDefault(applicantData.preferredLocale());
   }
 
   @Override
@@ -205,7 +205,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> blocks = getAllBlocks();
     for (Block block : blocks) {
-      for (ApplicantQuestion question : block.getQuestions()) {
+      ImmutableList<ApplicantQuestion> questions = block.getQuestions();
+      for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
+        ApplicantQuestion question = questions.get(questionIndex);
         String questionText = question.getQuestionText();
         String answerText = question.errorsPresenter().getAnswerString();
         Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
@@ -216,13 +218,14 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
             AnswerData.builder()
                 .setProgramId(programDefinition.id())
                 .setBlockId(block.getId())
-                .setQuestionId(question.getQuestionDefinition().getId())
+                .setQuestionIndex(questionIndex)
+                .setIsEnumeratorAnswer(question.getQuestionDefinition().isEnumerator())
                 .setQuestionText(questionText)
                 .setAnswerText(answerText)
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
                 .setIsPreviousResponse(isPreviousResponse)
                 .setScalarAnswersInDefaultLocale(
-                    getScalarAnswers(question, LocalizationUtils.DEFAULT_LOCALE))
+                    getScalarAnswers(question, LocalizedStrings.DEFAULT_LOCALE))
                 .build();
         builder.add(data);
       }

@@ -9,7 +9,7 @@ import services.program.ProgramDefinition;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminView;
-import views.components.LinkElement;
+import views.co∂mponents.LinkElement;
 import views.components.ToastMessage;
 import views.style.Styles;
 

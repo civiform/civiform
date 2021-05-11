@@ -52,7 +52,7 @@ export class ApplicantQuestions {
   }
 
   async addEnumeratorAnswer(entityName: string) {
-    await this.page.click('button:text("add element")');
+    await this.page.click('button:text("add item")');
     await this.page.fill('input:above(#enumerator-field-add-button)', entityName)
   }
 

@@ -17,6 +17,7 @@ import org.junit.Test;
 import repository.UserRepository;
 import repository.WithPostgresContainer;
 import services.ErrorAnd;
+import services.LocalizedStrings;
 import services.Path;
 import services.applicant.question.Scalar;
 import services.program.PathNotInBlockException;
@@ -124,15 +125,14 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             .create(
                 new CheckboxQuestionDefinition(
                     "checkbox",
-                    Path.create("applicant.checkbox"),
                     Optional.empty(),
                     "description",
-                    ImmutableMap.of(Locale.US, "question?"),
-                    ImmutableMap.of(Locale.US, "help text"),
+                    LocalizedStrings.of(Locale.US, "question?"),
+                    LocalizedStrings.of(Locale.US, "help text"),
                     ImmutableList.of(
-                        QuestionOption.create(1L, ImmutableMap.of(Locale.US, "cat")),
-                        QuestionOption.create(2L, ImmutableMap.of(Locale.US, "dog")),
-                        QuestionOption.create(3L, ImmutableMap.of(Locale.US, "horse")))))
+                        QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "cat")),
+                        QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "dog")),
+                        QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "horse")))))
             .getResult();
     createProgram(multiSelectQuestion);
 
@@ -383,11 +383,10 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             .create(
                 new NameQuestionDefinition(
                     "name",
-                    Path.create("applicant.name"),
                     Optional.empty(),
                     "description",
-                    ImmutableMap.of(Locale.US, "question?"),
-                    ImmutableMap.of(Locale.US, "help text")))
+                    LocalizedStrings.of(Locale.US, "question?"),
+                    LocalizedStrings.of(Locale.US, "help text")))
             .getResult();
   }
 

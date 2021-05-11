@@ -23,8 +23,16 @@ public abstract class AnswerData {
   /** The {@link Block} id for where this question resides within the current program. */
   public abstract String blockId();
 
-  /** The {@link models.Question} id this is an answer for. */
-  public abstract long questionId();
+  /** The index of the {@link models.Question} this is an answer for in the block it appeared in. */
+  public abstract int questionIndex();
+
+  /**
+   * Whether this is an answer for an {@link services.question.types.QuestionType#ENUMERATOR}
+   * question.
+   *
+   * <p>The Administrators don't use answers to enumerator questions in the views.
+   */
+  public abstract boolean isEnumeratorAnswer();
 
   /** The localized question text */
   public abstract String questionText();
@@ -50,7 +58,9 @@ public abstract class AnswerData {
 
     public abstract Builder setBlockId(String blockId);
 
-    public abstract Builder setQuestionId(long questionId);
+    public abstract Builder setQuestionIndex(int questionIndex);
+
+    public abstract Builder setIsEnumeratorAnswer(boolean isEnumeratorAnswer);
 
     public abstract Builder setQuestionText(String questionText);
 
