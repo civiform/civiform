@@ -11,7 +11,6 @@ import org.junit.Test;
 import repository.QuestionRepository;
 import repository.WithPostgresContainer;
 import services.LocalizedStrings;
-import services.Path;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
@@ -35,12 +34,7 @@ public class QuestionTest extends WithPostgresContainer {
   public void canSaveQuestion() throws UnsupportedQuestionTypeException {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            "test",
-            Path.create("my.path"),
-            Optional.empty(),
-            "",
-            LocalizedStrings.of(),
-            LocalizedStrings.empty());
+            "test", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
     Question question = new Question(definition);
 
     question.save();
@@ -56,12 +50,7 @@ public class QuestionTest extends WithPostgresContainer {
   public void canSerializeEnumeratorId_EmptyOptionalLong() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            "test",
-            Path.create("my.path"),
-            Optional.empty(),
-            "",
-            LocalizedStrings.of(),
-            LocalizedStrings.empty());
+            "test", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
     Question question = new Question(questionDefinition);
     question.save();
 
@@ -74,12 +63,7 @@ public class QuestionTest extends WithPostgresContainer {
   public void canSerializeEnumeratorId_NonEmptyOptionalLong() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            "test",
-            Path.create("my.path"),
-            Optional.of(10L),
-            "",
-            LocalizedStrings.of(),
-            LocalizedStrings.empty());
+            "test", Optional.of(10L), "", LocalizedStrings.of(), LocalizedStrings.empty());
     Question question = new Question(questionDefinition);
     question.save();
 
@@ -93,7 +77,6 @@ public class QuestionTest extends WithPostgresContainer {
     QuestionDefinition definition =
         new TextQuestionDefinition(
             "",
-            Path.empty(),
             Optional.empty(),
             "",
             LocalizedStrings.of(Locale.US, "hello"),
@@ -114,12 +97,7 @@ public class QuestionTest extends WithPostgresContainer {
   public void canSerializeDifferentQuestionTypes() {
     AddressQuestionDefinition address =
         new AddressQuestionDefinition(
-            "address",
-            Path.empty(),
-            Optional.empty(),
-            "",
-            LocalizedStrings.of(),
-            LocalizedStrings.empty());
+            "address", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
     Question question = new Question(address);
 
     question.save();
@@ -134,7 +112,6 @@ public class QuestionTest extends WithPostgresContainer {
     QuestionDefinition definition =
         new TextQuestionDefinition(
             "",
-            Path.empty(),
             Optional.empty(),
             "",
             LocalizedStrings.of(),
@@ -158,7 +135,6 @@ public class QuestionTest extends WithPostgresContainer {
             .setQuestionType(QuestionType.DROPDOWN)
             .setName("")
             .setDescription("")
-            .setPath(Path.empty())
             .setEnumeratorId(Optional.of(123L))
             .setQuestionText(LocalizedStrings.of())
             .setQuestionHelpText(LocalizedStrings.empty())

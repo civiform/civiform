@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.LocalizedStrings;
-import services.Path;
 import services.applicant.ApplicantData;
 import services.question.types.FileUploadQuestionDefinition;
 import support.QuestionAnswerer;
@@ -20,7 +19,6 @@ public class FileUploadQuestionTest {
   private static final FileUploadQuestionDefinition fileUploadQuestionDefinition =
       new FileUploadQuestionDefinition(
           "question name",
-          Path.create("applicant.my.path.name"),
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),

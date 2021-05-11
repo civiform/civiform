@@ -13,7 +13,6 @@ import org.junit.Test;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import services.LocalizedStrings;
-import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.question.QuestionOption;
@@ -25,7 +24,6 @@ public class RadioButtonQuestionRendererTest {
   private static final RadioButtonQuestionDefinition QUESTION =
       new RadioButtonQuestionDefinition(
           "favorite ice cream",
-          Path.create("applicant.favorite_ice_cream"),
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),

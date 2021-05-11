@@ -19,7 +19,6 @@ import play.mvc.Result;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
-import services.Path;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.InvalidQuestionTypeException;
@@ -33,7 +32,7 @@ import services.question.types.QuestionType;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
 
-public class QuestionController extends CiviFormController {
+public class AdminQuestionController extends CiviFormController {
   private final QuestionService service;
   private final QuestionsListView listView;
   private final QuestionEditView editView;
@@ -41,7 +40,7 @@ public class QuestionController extends CiviFormController {
   private final HttpExecutionContext httpExecutionContext;
 
   @Inject
-  public QuestionController(
+  public AdminQuestionController(
       QuestionService service,
       QuestionsListView listView,
       QuestionEditView editView,
@@ -126,13 +125,9 @@ public class QuestionController extends CiviFormController {
       return badRequest(invalidQuestionTypeMessage(questionType));
     }
 
-    ReadOnlyQuestionService roService =
-        service.getReadOnlyQuestionService().toCompletableFuture().join();
-
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition =
-          getBuilderWithQuestionPath(roService, Optional.empty(), questionForm).build();
+      questionDefinition = getBuilder(Optional.empty(), questionForm).build();
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
       return badRequest(e.getMessage());
@@ -141,6 +136,8 @@ public class QuestionController extends CiviFormController {
     ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(questionDefinition);
     if (result.isError()) {
       String errorMessage = joinErrors(result.getErrors());
+      ReadOnlyQuestionService roService =
+          service.getReadOnlyQuestionService().toCompletableFuture().join();
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
           roService.getUpToDateEnumeratorQuestions();
       return ok(
@@ -149,7 +146,7 @@ public class QuestionController extends CiviFormController {
     }
 
     String successMessage = String.format("question %s created", questionForm.getQuestionName());
-    return withMessage(redirect(routes.QuestionController.index()), successMessage);
+    return withMessage(redirect(routes.AdminQuestionController.index()), successMessage);
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
@@ -202,8 +199,7 @@ public class QuestionController extends CiviFormController {
 
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition =
-          getBuilderWithQuestionPath(roService, maybeExisting, questionForm).setId(id).build();
+      questionDefinition = getBuilder(maybeExisting, questionForm).setId(id).build();
     } catch (UnsupportedQuestionTypeException e) {
       // Failed while trying to update a question that was already created for the given question
       // type
@@ -228,7 +224,7 @@ public class QuestionController extends CiviFormController {
     }
 
     String successMessage = String.format("question %s updated", questionForm.getQuestionName());
-    return withMessage(redirect(routes.QuestionController.index()), successMessage);
+    return withMessage(redirect(routes.AdminQuestionController.index()), successMessage);
   }
 
   private Result withMessage(Result result, String message) {
@@ -238,31 +234,15 @@ public class QuestionController extends CiviFormController {
     return result;
   }
 
-  private QuestionDefinitionBuilder getBuilderWithQuestionPath(
-      ReadOnlyQuestionService roService,
-      Optional<QuestionDefinition> existing,
-      QuestionForm questionForm) {
-    try {
-      Path path =
-          roService.makePath(
-              questionForm.getEnumeratorId(),
-              questionForm.getQuestionName(),
-              questionForm.getQuestionType().equals(QuestionType.ENUMERATOR));
-      QuestionDefinitionBuilder updated = questionForm.getBuilder(path);
+  private QuestionDefinitionBuilder getBuilder(
+      Optional<QuestionDefinition> existing, QuestionForm questionForm) {
+    QuestionDefinitionBuilder updated = questionForm.getBuilder();
 
-      if (existing.isPresent()) {
-        updated = mergeLocalizations(existing.get(), updated, questionForm);
-      }
-
-      return updated;
-    } catch (QuestionNotFoundException | InvalidQuestionTypeException e) {
-      throw new RuntimeException(
-          String.format(
-              "Failed to create a question definition builder because of invalid enumerator id"
-                  + " reference: %s",
-              questionForm),
-          e);
+    if (existing.isPresent()) {
+      updated = mergeLocalizations(existing.get(), updated, questionForm);
     }
+
+    return updated;
   }
 
   private QuestionDefinitionBuilder mergeLocalizations(

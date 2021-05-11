@@ -57,7 +57,6 @@ public class ApplicantQuestionRendererFactory {
         new QuestionDefinitionBuilder()
             .setName("")
             .setDescription("")
-            .setPath(Path.create("sample.question.path"))
             .setQuestionText(LocalizedStrings.of(Locale.US, "Sample question text"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "Sample question help text"))
             .setQuestionType(questionType);

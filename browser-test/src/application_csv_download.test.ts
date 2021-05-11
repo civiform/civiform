@@ -37,7 +37,7 @@ describe('normal application flow', () => {
 
     await adminPrograms.viewApplications(programName);
     const csvContent = await adminPrograms.getCsv();
-    expect(csvContent).toContain('sarah,COLUMN_EMPTY,smith');
+    expect(csvContent).toContain('sarah,,smith');
     await endSession(browser);
   })
 })

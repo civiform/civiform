@@ -7,7 +7,6 @@ import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
 import services.LocalizedStrings;
-import services.Path;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.DropdownQuestionDefinition;
@@ -17,8 +16,6 @@ public class DropdownQuestionFormTest {
 
   @Test
   public void getBuilder_returnsCompleteBuilder() throws UnsupportedQuestionTypeException {
-    Path path = Path.create("my.question.path.name");
-
     DropdownQuestionForm form = new DropdownQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
@@ -26,12 +23,11 @@ public class DropdownQuestionFormTest {
     form.setQuestionHelpText("help text");
     // Unique field
     form.setOptions(ImmutableList.of("cat", "dog", "rabbit"));
-    QuestionDefinitionBuilder builder = form.getBuilder(path);
+    QuestionDefinitionBuilder builder = form.getBuilder();
 
     DropdownQuestionDefinition expected =
         new DropdownQuestionDefinition(
             "name",
-            path,
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
@@ -46,12 +42,9 @@ public class DropdownQuestionFormTest {
 
   @Test
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
-    Path path = Path.create("my.question.path.name");
-
     DropdownQuestionDefinition originalQd =
         new DropdownQuestionDefinition(
             "name",
-            path,
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
@@ -61,7 +54,7 @@ public class DropdownQuestionFormTest {
                 QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "world"))));
 
     DropdownQuestionForm form = new DropdownQuestionForm(originalQd);
-    QuestionDefinitionBuilder builder = form.getBuilder(path);
+    QuestionDefinitionBuilder builder = form.getBuilder();
 
     assertThat(builder.build()).isEqualTo(originalQd);
   }

@@ -4,62 +4,42 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
-import services.Path;
 
 public class AddressQuestionDefinition extends QuestionDefinition {
 
   public AddressQuestionDefinition(
       OptionalLong id,
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
       AddressValidationPredicates validationPredicates) {
     super(
-        id,
-        name,
-        path,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates);
+        id, name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
   }
 
   public AddressQuestionDefinition(
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
       AddressValidationPredicates validationPredicates) {
-    super(
-        name,
-        path,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates);
+    super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
   }
 
   public AddressQuestionDefinition(
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText) {
     super(
         name,
-        path,
         enumeratorId,
         description,
         questionText,
@@ -113,47 +93,6 @@ public class AddressQuestionDefinition extends QuestionDefinition {
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.ADDRESS;
-  }
-
-  @Override
-  ImmutableMap<Path, ScalarType> getScalarMap() {
-    return ImmutableMap.of(
-        getStreetPath(), getStreetType(),
-        getCityPath(), getCityType(),
-        getStatePath(), getStateType(),
-        getZipPath(), getZipType());
-  }
-
-  public Path getStreetPath() {
-    return getPath().join("street");
-  }
-
-  public ScalarType getStreetType() {
-    return ScalarType.STRING;
-  }
-
-  public Path getCityPath() {
-    return getPath().join("city");
-  }
-
-  public ScalarType getCityType() {
-    return ScalarType.STRING;
-  }
-
-  public Path getStatePath() {
-    return getPath().join("state");
-  }
-
-  public ScalarType getStateType() {
-    return ScalarType.STRING;
-  }
-
-  public Path getZipPath() {
-    return getPath().join("zip");
-  }
-
-  public ScalarType getZipType() {
-    return ScalarType.STRING;
   }
 
   public boolean getDisallowPoBox() {

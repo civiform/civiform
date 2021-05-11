@@ -28,7 +28,7 @@ public class AdminLayout extends BaseHtmlLayout {
   }
 
   private ContainerTag renderNavBar() {
-    String questionLink = controllers.admin.routes.QuestionController.index().url();
+    String questionLink = controllers.admin.routes.AdminQuestionController.index().url();
     String programLink = controllers.admin.routes.AdminProgramController.index().url();
     String versionLink = routes.AdminVersionController.index().url();
     String intermediaryLink = routes.TrustedIntermediaryManagementController.index().url();

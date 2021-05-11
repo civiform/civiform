@@ -1,5 +1,9 @@
 #!/bin/bash
 
+pushd $(git rev-parse --show-toplevel) > /dev/null
+
+set -e
+
 localstack_endpoint=http://localhost:4566
 
 if [ "$1" ]; then
@@ -11,9 +15,18 @@ deadline=$(($start_time + 200))
 
 echo "Waiting for localstack to get set up. This may take a minute or two..."
 
-until HEALTHCHECK=$(curl --silent --fail --max-time 2 $localstack_endpoint/health) && [[ $HEALTHCHECK == *'"s3": "running"'* ]]; do
+healthy() {
+    [[ $1 == *'"s3": "running"'* && $1 == *'"ses": "running"'* ]]
+}
+
+until HEALTHCHECK=$(curl --silent --fail --max-time 2 $localstack_endpoint/health) && healthy "$HEALTHCHECK"; do
     if (( $(date +%s) > $deadline )); then
         echo "deadline exceeded waiting for localstack start"
         exit 1
     fi
 done
+
+bin/localstack/mk-s3 $localstack_endpoint
+bin/localstack/ses-verify-identity $localstack_endpoint "noreply@fake.identity"
+
+popd > /dev/null

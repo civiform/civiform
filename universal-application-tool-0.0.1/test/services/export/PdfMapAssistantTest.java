@@ -11,7 +11,6 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.apache.pdfbox.pdmodel.interactive.form.PDListBox;
 import org.junit.Test;
 import services.LocalizedStrings;
-import services.Path;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -26,7 +25,6 @@ public class PdfMapAssistantTest {
             .setQuestionText(LocalizedStrings.of())
             .setQuestionHelpText(LocalizedStrings.empty())
             .setQuestionType(QuestionType.TEXT)
-            .setPath(Path.create("$.applicant.fake.path"))
             .build();
     return new Question(questionDefinition);
   }

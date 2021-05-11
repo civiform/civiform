@@ -21,6 +21,9 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 public class FieldWithLabel {
+  private static final ImmutableSet<String> STRING_TYPES =
+      ImmutableSet.of("text", "checkbox", "date", "email");
+
   protected Tag fieldTag;
   protected String fieldName = "";
   protected String fieldType = "text";
@@ -67,6 +70,11 @@ public class FieldWithLabel {
     return new FieldWithLabel(fieldTag).setFieldType("text");
   }
 
+  public static FieldWithLabel email() {
+    Tag fieldTag = TagCreator.input();
+    return new FieldWithLabel(fieldTag).setFieldType("email");
+  }
+
   public FieldWithLabel setChecked(boolean checked) {
     this.checked = checked;
     return this;
@@ -104,9 +112,7 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setValue(String value) {
-    if (!this.fieldType.equals("text")
-        && !this.fieldType.equals("checkbox")
-        && !this.fieldType.equals("date")) {
+    if (!STRING_TYPES.contains(this.fieldType)) {
       throw new RuntimeException(
           String.format(
               "setting a String value is not available on fields of type `%s`", this.fieldType));
@@ -117,7 +123,7 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setValue(Optional<String> value) {
-    if (this.fieldType.equals("number")) {
+    if (!STRING_TYPES.contains(this.fieldType)) {
       throw new RuntimeException(
           "setting a String value is not available on fields of type 'number'");
     }
@@ -201,7 +207,10 @@ public class FieldWithLabel {
         .withClasses(BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
   }
 
-  /** Swaps the order of the label and field, adds different styles, and possibly adds "checked" attribute. */
+  /**
+   * Swaps the order of the label and field, adds different styles, and possibly adds "checked"
+   * attribute.
+   */
   private ContainerTag getCheckboxContainer() {
     if (this.checked) {
       fieldTag.attr("checked");

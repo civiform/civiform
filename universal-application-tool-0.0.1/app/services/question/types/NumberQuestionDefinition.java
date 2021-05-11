@@ -4,62 +4,42 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
-import services.Path;
 
 public class NumberQuestionDefinition extends QuestionDefinition {
 
   public NumberQuestionDefinition(
       OptionalLong id,
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
       NumberQuestionDefinition.NumberValidationPredicates validationPredicates) {
     super(
-        id,
-        name,
-        path,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates);
+        id, name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
   }
 
   public NumberQuestionDefinition(
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
       NumberQuestionDefinition.NumberValidationPredicates validationPredicates) {
-    super(
-        name,
-        path,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates);
+    super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
   }
 
   public NumberQuestionDefinition(
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText) {
     super(
         name,
-        path,
         enumeratorId,
         description,
         questionText,
@@ -125,19 +105,6 @@ public class NumberQuestionDefinition extends QuestionDefinition {
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.NUMBER;
-  }
-
-  @Override
-  ImmutableMap<Path, ScalarType> getScalarMap() {
-    return ImmutableMap.of(getNumberPath(), getNumberType());
-  }
-
-  public Path getNumberPath() {
-    return getPath().join("number");
-  }
-
-  public ScalarType getNumberType() {
-    return ScalarType.LONG;
   }
 
   public OptionalLong getMin() {

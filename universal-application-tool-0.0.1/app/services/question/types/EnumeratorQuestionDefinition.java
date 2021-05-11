@@ -1,11 +1,9 @@
 package services.question.types;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
-import services.Path;
 
 /**
  * Enumerator questions provide a variable list of user-defined identifiers for some repeated
@@ -24,7 +22,6 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
   public EnumeratorQuestionDefinition(
       OptionalLong id,
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
@@ -32,7 +29,6 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
     super(
         id,
         name,
-        path,
         enumeratorId,
         description,
         questionText,
@@ -42,14 +38,12 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
 
   public EnumeratorQuestionDefinition(
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText) {
     super(
         name,
-        path,
         enumeratorId,
         description,
         questionText,
@@ -64,11 +58,6 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.ENUMERATOR;
-  }
-
-  @Override
-  public ImmutableMap<Path, ScalarType> getScalarMap() {
-    return ImmutableMap.of();
   }
 
   public LocalizedStrings getEntityType() {

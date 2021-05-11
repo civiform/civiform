@@ -4,7 +4,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "test": "jest --testTimeout=120000 --forceExit --maxConcurrency=1 --runInBand",
-    "probe": "jest --testTimeout=60000 --forceExit --maxConcurrency=1 --runInBand"
+    "probe": "jest --testTimeout=120000 --forceExit --maxConcurrency=1 --runInBand"
   },
   "devDependencies": {
     "@types/jest": "^26.0.20",

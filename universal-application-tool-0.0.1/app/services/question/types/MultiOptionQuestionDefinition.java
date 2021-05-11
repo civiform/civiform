@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -17,7 +16,6 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
-import services.Path;
 import services.TranslationNotFoundException;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
@@ -33,7 +31,6 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
   protected MultiOptionQuestionDefinition(
       OptionalLong id,
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
@@ -41,42 +38,26 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       ImmutableList<QuestionOption> options,
       MultiOptionValidationPredicates validationPredicates) {
     super(
-        id,
-        name,
-        path,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates);
+        id, name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
     this.options = checkNotNull(options);
     this.supportedOptionLocales = getSupportedOptionLocales(options);
   }
 
   protected MultiOptionQuestionDefinition(
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
       ImmutableList<QuestionOption> options,
       MultiOptionValidationPredicates validationPredicates) {
-    super(
-        name,
-        path,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates);
+    super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
     this.options = checkNotNull(options);
     this.supportedOptionLocales = getSupportedOptionLocales(options);
   }
 
   protected MultiOptionQuestionDefinition(
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
@@ -84,7 +65,6 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       ImmutableList<QuestionOption> options) {
     super(
         name,
-        path,
         enumeratorId,
         description,
         questionText,
@@ -118,23 +98,6 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
         });
 
     return locales;
-  }
-
-  @Override
-  public ImmutableMap<Path, ScalarType> getScalarMap() {
-    return ImmutableMap.of(getSelectionPath(), getSelectionType());
-  }
-
-  public Path getSelectionPath() {
-    return getPath().join("selection");
-  }
-
-  /**
-   * Multi-option question type answers are longs. For questions that allow multiple answers (e.g.
-   * checkbox questions), the type is still long, though a list is stored in the applicant JSON.
-   */
-  public ScalarType getSelectionType() {
-    return ScalarType.LONG;
   }
 
   public ImmutableList<QuestionOption> getOptions() {
