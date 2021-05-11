@@ -113,7 +113,9 @@ public class VersionRepository {
       // are forced to retry.  This is expensive in relative terms, but new drafts
       // are very rare.  It is unlikely this will represent a real performance penalty
       // for any applicant - or even any admin, really.
-      Transaction transaction = ebeanServer.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
+      Transaction transaction =
+          ebeanServer.beginTransaction(
+              TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
       try {
         Version newDraftVersion = new Version(LifecycleStage.DRAFT);
         ebeanServer.insert(newDraftVersion);

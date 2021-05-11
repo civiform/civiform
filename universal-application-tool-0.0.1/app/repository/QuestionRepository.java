@@ -56,14 +56,14 @@ public class QuestionRepository {
       try {
         if (existingDraft.isPresent()) {
           Question updatedDraft =
-                  new Question(
-                          new QuestionDefinitionBuilder(definition).setId(existingDraft.get().id).build());
+              new Question(
+                  new QuestionDefinitionBuilder(definition).setId(existingDraft.get().id).build());
           this.updateQuestionSync(updatedDraft);
           transaction.commit();
           return updatedDraft;
         } else {
           Question newDraft =
-                  new Question(new QuestionDefinitionBuilder(definition).setId(null).build());
+              new Question(new QuestionDefinitionBuilder(definition).setId(null).build());
           insertQuestionSync(newDraft);
           newDraft.addVersion(draftVersion);
           newDraft.save();
