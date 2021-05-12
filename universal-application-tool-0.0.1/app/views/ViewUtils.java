@@ -5,6 +5,7 @@ import static j2html.TagCreator.head;
 import static j2html.TagCreator.link;
 import static j2html.TagCreator.script;
 import static j2html.TagCreator.title;
+import static j2html.TagCreator.rawHtml;
 
 import controllers.AssetsFinder;
 import j2html.tags.Tag;
@@ -32,14 +33,12 @@ public final class ViewUtils {
   }
 
 
-  private static final String GA_CODE =
-      "window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); }"
-          + " gtag('js', new Date()); gtag('config', '%s');";
-
-
   public Tag makeHead(String cssfile, String trackingTag, String... titlestr) {
 
     String thetitle = titlestr.length > 0 ? titlestr[0] : "";
+    String GA_CODE =
+            "window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); }"
+                    + " gtag('js', new Date()); gtag('config', '%s');";
 
     return head(
         title(thetitle),
@@ -48,7 +47,7 @@ public final class ViewUtils {
             .withSrc("https://www.googletagmanager.com/gtag/js?id=" + trackingTag)
             .attr("async", "true")
             .withType("text/javascript"),
-        script().withValue(String.format(GA_CODE, trackingTag)).withType("text/javascript"));
+        script(rawHtml(String.format(GA_CODE, trackingTag))).withType("text/javascript"));
     /** makeLocalJsTag("ga")); */
   }
 
