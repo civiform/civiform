@@ -184,7 +184,7 @@ public class QuestionDefinitionBuilder {
 
       case DATE:
         return new DateQuestionDefinition(
-            name, enumeratorId, description, questionText, questionHelpText);
+            id, name, enumeratorId, description, questionText, questionHelpText);
 
       case DROPDOWN:
         return new DropdownQuestionDefinition(

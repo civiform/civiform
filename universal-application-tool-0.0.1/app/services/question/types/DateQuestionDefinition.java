@@ -3,6 +3,7 @@ package services.question.types;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
 import java.util.Optional;
+import java.util.OptionalLong;
 import services.LocalizedStrings;
 
 public class DateQuestionDefinition extends QuestionDefinition {
@@ -14,6 +15,23 @@ public class DateQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText) {
     super(
+        name,
+        enumeratorId,
+        description,
+        questionText,
+        questionHelpText,
+        DateValidationPredicates.create());
+  }
+
+  public DateQuestionDefinition(
+      OptionalLong id,
+      String name,
+      Optional<Long> enumeratorId,
+      String description,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText) {
+    super(
+        id,
         name,
         enumeratorId,
         description,
