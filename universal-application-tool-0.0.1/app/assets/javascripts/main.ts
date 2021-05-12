@@ -120,6 +120,10 @@ function removeEnumeratorField(event: Event) {
   enumeratorFieldDiv.parentNode.removeChild(enumeratorFieldDiv);
 }
 
+/**
+ * Enumerator delete buttons for existing entities behave differently than removing fields that
+ * were just added.
+ */
 function removeExistingEnumeratorField(event: Event) {
   // Get the button that was clicked
   const removeButton = event.currentTarget as HTMLElement;

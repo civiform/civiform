@@ -141,6 +141,10 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
         .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, Styles.HIDDEN));
   }
 
+  /**
+   * A hidden template to copy when deleting an existing entity. This will allow us to mark existing
+   * entities for deletion.
+   */
   private static EmptyTag hiddenDeleteInputTemplate() {
     return input()
         .withId(DELETE_ENTITY_TEMPLATE_ID)
