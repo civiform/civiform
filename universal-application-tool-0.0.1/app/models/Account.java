@@ -85,6 +85,14 @@ public class Account extends BaseModel {
   }
 
   /**
+   * If this account administers the provided program, remove it from the list of administered
+   * programs.
+   */
+  public void removeAdministeredProgram(ProgramDefinition program) {
+    this.adminOf.remove(program.adminName());
+  }
+
+  /**
    * Returns the name, as a string, of the most-recently created Applicant associated with this
    * Account. There is no particular reason for an Account to have more than one Applicant - this
    * was a capability we built but did not use - so the ordering is somewhat arbitrary /

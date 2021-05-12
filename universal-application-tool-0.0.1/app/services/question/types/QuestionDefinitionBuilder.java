@@ -23,6 +23,7 @@ public class QuestionDefinitionBuilder {
   private LocalizedStrings questionHelpText = LocalizedStrings.empty();
   private QuestionType questionType = QuestionType.TEXT;
   private String validationPredicatesString = "";
+  private LocalizedStrings entityType;
 
   // Multi-option question types only.
   private ImmutableList<QuestionOption> questionOptions = ImmutableList.of();
@@ -92,6 +93,11 @@ public class QuestionDefinitionBuilder {
 
   public QuestionDefinitionBuilder setEnumeratorId(Optional<Long> enumeratorId) {
     this.enumeratorId = enumeratorId;
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setEntityType(LocalizedStrings entityType) {
+    this.entityType = entityType;
     return this;
   }
 
@@ -213,8 +219,12 @@ public class QuestionDefinitionBuilder {
         return new RadioButtonQuestionDefinition(
             id, name, enumeratorId, description, questionText, questionHelpText, questionOptions);
       case ENUMERATOR:
+        if (entityType == null || entityType.isEmpty()) {
+          entityType =
+              LocalizedStrings.withDefaultValue(EnumeratorQuestionDefinition.DEFAULT_ENTITY_TYPE);
+        }
         return new EnumeratorQuestionDefinition(
-            id, name, enumeratorId, description, questionText, questionHelpText);
+            id, name, enumeratorId, description, questionText, questionHelpText, entityType);
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {

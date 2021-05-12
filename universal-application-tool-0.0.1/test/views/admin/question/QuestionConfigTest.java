@@ -44,6 +44,10 @@ public class QuestionConfigTest {
     assertThat(QuestionConfig.buildQuestionConfig(new RadioButtonQuestionForm()))
         .toString()
         .contains("single-select-question-config");
+
+    assertThat(QuestionConfig.buildQuestionConfig(new EnumeratorQuestionForm()))
+        .toString()
+        .contains("enumerator-question-config");
   }
 
   @Test
@@ -52,9 +56,6 @@ public class QuestionConfigTest {
         .isEqualTo(DEFAULT_CONFIG);
 
     assertThat(QuestionConfig.buildQuestionConfig(new NameQuestionForm()))
-        .isEqualTo(DEFAULT_CONFIG);
-
-    assertThat(QuestionConfig.buildQuestionConfig(new EnumeratorQuestionForm()))
         .isEqualTo(DEFAULT_CONFIG);
   }
 }

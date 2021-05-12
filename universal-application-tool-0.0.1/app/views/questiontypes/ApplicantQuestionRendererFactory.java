@@ -67,6 +67,10 @@ public class ApplicantQuestionRendererFactory {
               QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "Sample question option"))));
     }
 
+    if (questionType.equals(QuestionType.ENUMERATOR)) {
+      builder.setEntityType(LocalizedStrings.withDefaultValue("Sample repeated entity type"));
+    }
+
     return builder.build();
   }
 }

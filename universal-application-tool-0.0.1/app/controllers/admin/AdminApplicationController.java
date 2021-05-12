@@ -13,6 +13,10 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ApplicationRepository;
+import services.applicant.AnswerData;
+import services.applicant.ApplicantService;
+import services.applicant.Block;
+import services.applicant.ReadOnlyApplicantProgramService;
 import services.export.ExporterService;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -23,7 +27,8 @@ import views.admin.programs.ProgramApplicationView;
 /** Controller for admins viewing responses to programs. */
 public class AdminApplicationController extends Controller {
 
-  private final ProgramService service;
+  private final ProgramService programService;
+  private final ApplicantService applicantService;
   private final ApplicationRepository applicationRepository;
   private final ProgramApplicationListView applicationListView;
   private final ProgramApplicationView applicationView;
@@ -32,13 +37,15 @@ public class AdminApplicationController extends Controller {
 
   @Inject
   public AdminApplicationController(
-      ProgramService service,
+      ProgramService programService,
+      ApplicantService applicantService,
       ExporterService exporterService,
       ProgramApplicationListView applicationListView,
       ProgramApplicationView applicationView,
       ApplicationRepository applicationRepository,
       Clock clock) {
-    this.service = checkNotNull(service);
+    this.programService = checkNotNull(programService);
+    this.applicantService = checkNotNull(applicantService);
     this.applicationListView = checkNotNull(applicationListView);
     this.applicationView = checkNotNull(applicationView);
     this.applicationRepository = checkNotNull(applicationRepository);
@@ -49,7 +56,7 @@ public class AdminApplicationController extends Controller {
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result downloadAll(long programId) {
     try {
-      ProgramDefinition program = service.getProgramDefinition(programId);
+      ProgramDefinition program = programService.getProgramDefinition(programId);
       String filename = String.format("%s-%s.csv", program.adminName(), clock.instant().toString());
       String csv = exporterService.getProgramCsv(programId);
       return ok(csv)
@@ -67,23 +74,34 @@ public class AdminApplicationController extends Controller {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public Result view(long programId, long applicationId) {
+  public Result show(long programId, long applicationId) {
     Optional<Application> applicationMaybe =
         this.applicationRepository.getApplication(applicationId).toCompletableFuture().join();
     if (!applicationMaybe.isPresent()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
-    try {
-      return ok(applicationView.render(programId, applicationMaybe.get()));
-    } catch (ProgramNotFoundException e) {
-      return notFound(String.format("Program %d does not exit.", programId));
-    }
+    Application application = applicationMaybe.get();
+
+    ReadOnlyApplicantProgramService roApplicantService =
+        applicantService
+            .getReadOnlyApplicantProgramService(application)
+            .toCompletableFuture()
+            .join();
+    ImmutableList<Block> blocks = roApplicantService.getAllBlocks();
+    ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
+    return ok(
+        applicationView.render(
+            programId,
+            applicationId,
+            application.getApplicantData().getApplicantName(),
+            blocks,
+            answers));
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
-  public Result answerList(long programId) {
+  public Result index(long programId) {
     try {
-      ImmutableList<Application> applications = service.getProgramApplications(programId);
+      ImmutableList<Application> applications = programService.getProgramApplications(programId);
       return ok(applicationListView.render(programId, applications));
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());

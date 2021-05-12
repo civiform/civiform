@@ -206,7 +206,7 @@ public final class QuestionEditView extends BaseHtmlView {
     ContainerTag formTag = buildSubmittableQuestionForm(questionForm, enumerationOptions);
     formTag
         .withAction(
-            controllers.admin.routes.QuestionController.create(
+            controllers.admin.routes.AdminQuestionController.create(
                     questionForm.getQuestionType().toString())
                 .url())
         .with(submitButton("Create").withClass(Styles.ML_2));
@@ -224,7 +224,7 @@ public final class QuestionEditView extends BaseHtmlView {
     ContainerTag formTag = buildSubmittableQuestionForm(questionForm, enumerationOption);
     formTag
         .withAction(
-            controllers.admin.routes.QuestionController.update(
+            controllers.admin.routes.AdminQuestionController.update(
                     id, questionForm.getQuestionType().toString())
                 .url())
         .with(submitButton("Update").withClass(Styles.ML_2));

@@ -208,8 +208,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   Tag maybeRenderViewApplicationsLink(String text, Optional<ProgramDefinition> activeProgram) {
     if (activeProgram.isPresent()) {
-      String editLink =
-          routes.AdminApplicationController.answerList(activeProgram.get().id()).url();
+      String editLink = routes.AdminApplicationController.index(activeProgram.get().id()).url();
 
       return new LinkElement()
           .setId("program-view-apps-link-" + activeProgram.get().id())

@@ -8,6 +8,7 @@ import static j2html.TagCreator.label;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import forms.AddressQuestionForm;
+import forms.EnumeratorQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.NumberQuestionForm;
 import forms.QuestionForm;
@@ -75,6 +76,11 @@ public class QuestionConfig {
             .addMultiOptionQuestionFields(form)
             .addMultiSelectQuestionValidation(form)
             .getContainer();
+      case ENUMERATOR:
+        return config
+            .setId("enumerator-question-config")
+            .addEnumeratorQuestionConfig((EnumeratorQuestionForm) questionForm)
+            .getContainer();
       case NUMBER:
         return config
             .setId("number-question-config")
@@ -93,7 +99,6 @@ public class QuestionConfig {
             .getContainer();
       case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended - no options
-      case ENUMERATOR: // fallthrough intended
       default:
         return div();
     }
@@ -131,6 +136,19 @@ public class QuestionConfig {
             .setFieldName("maxLength")
             .setLabelText("Maximum length")
             .setValue(textQuestionForm.getMaxLength())
+            .getContainer());
+    return this;
+  }
+
+  private QuestionConfig addEnumeratorQuestionConfig(
+      EnumeratorQuestionForm enumeratorQuestionForm) {
+    content.with(
+        FieldWithLabel.input()
+            .setId("enumerator-question-entity-type-input")
+            .setFieldName("entityType")
+            .setLabelText("Repeated entity type")
+            .setPlaceholderText("What are we enumerating?")
+            .setValue(enumeratorQuestionForm.getEntityType())
             .getContainer());
     return this;
   }
