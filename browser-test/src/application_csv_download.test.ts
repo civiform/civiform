@@ -1,4 +1,4 @@
-import { startSession, logout, loginAsTestUser, loginAsAdmin, selectApplicantLanguage, ApplicantQuestions, AdminQuestions, AdminPrograms, endSession } from './support'
+import { startSession, logout, loginAsTestUser, loginAsProgramAdmin, loginAsAdmin, selectApplicantLanguage, ApplicantQuestions, AdminQuestions, AdminPrograms, endSession } from './support'
 
 describe('normal application flow', () => {
   it('all major steps', async () => {
@@ -33,7 +33,7 @@ describe('normal application flow', () => {
     await applicantQuestions.submitFromReviewPage(programName);
 
     await logout(page);
-    await loginAsAdmin(page);
+    await loginAsProgramAdmin(page);
 
     await adminPrograms.viewApplications(programName);
     const csvContent = await adminPrograms.getCsv();

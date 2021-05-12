@@ -32,6 +32,10 @@ export const loginAsAdmin = async (page: Page) => {
   await page.click('#admin');
 }
 
+export const loginAsProgramAdmin = async (page: Page) => {
+  await page.click('#program-admin');
+}
+
 export const loginAsGuest = async (page: Page) => {
   await page.click('#guest');
 }
