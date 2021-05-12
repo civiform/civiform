@@ -69,9 +69,6 @@ GET     /admin/programs/:programId/applications/all                       contro
 GET     /admin/programs/:programId/applications/:applicationId            controllers.admin.AdminApplicationController.show(request: Request, programId: Long, applicationId: Long)
 GET     /admin/programs/:programId/applications/:applicationId/download   controllers.admin.AdminApplicationController.download(request: Request, programId: Long, applicationId: Long)
 
-GET     /demo/new                   controllers.J2HtmlDemoController.newOne(request: Request)
-POST    /demo                       controllers.J2HtmlDemoController.create(request: Request)
-
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(file)
 
@@ -103,6 +100,8 @@ GET     /users/:id                   controllers.ProfileController.profilePage(r
 # Provides client name as url parameter.
 GET     /callback                    controllers.CallbackController.callback(request: Request, client_name: String)
 POST    /callback                    controllers.CallbackController.callback(request: Request, client_name: String)
+GET     /callback                    controllers.CallbackController.fakeAdmin(request: Request, client_name: String, adminType: String)
+POST    /callback                    controllers.CallbackController.fakeAdmin(request: Request, client_name: String, adminType: String)
 
 # Our federated systems can't provide the mandatory CSRF token, but it's okay - the requests
 # are signed by a key, so the requests cannot be forged anyway.

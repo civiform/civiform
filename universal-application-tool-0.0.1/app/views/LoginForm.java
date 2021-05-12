@@ -56,8 +56,16 @@ public class LoginForm extends BaseHtmlView {
               h1("DEBUG MODE: BECOME ADMIN"),
               redirectButton(
                   "admin",
-                  "Continue",
-                  routes.CallbackController.callback(FakeAdminClient.CLIENT_NAME).url())));
+                  "Global",
+                  routes.CallbackController.fakeAdmin(
+                          FakeAdminClient.CLIENT_NAME, FakeAdminClient.GLOBAL_ADMIN)
+                      .url()),
+              redirectButton(
+                  "program-admin",
+                  "Of All Active Programs",
+                  routes.CallbackController.fakeAdmin(
+                          FakeAdminClient.CLIENT_NAME, FakeAdminClient.PROGRAM_ADMIN)
+                      .url())));
     }
 
     return layout.htmlContent(layout.headContent(), bodyTag);
