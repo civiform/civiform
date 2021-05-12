@@ -31,7 +31,7 @@ import views.style.Styles;
 public abstract class BaseHtmlView {
 
   public static Tag renderHeader(String headerText, String... additionalClasses) {
-    return h1(headerText).withClasses(Styles.M_2, StyleUtils.joinStyles(additionalClasses));
+    return h1(headerText).withClasses(Styles.MB_4, StyleUtils.joinStyles(additionalClasses));
   }
 
   protected static ContainerTag fieldErrors(
