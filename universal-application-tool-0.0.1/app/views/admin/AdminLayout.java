@@ -15,7 +15,7 @@ import javax.inject.Inject;
 import play.twirl.api.Content;
 import views.BaseHtmlLayout;
 import views.ViewUtils;
-import views.style.BaseStyles;
+import views.style.AdminStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
@@ -35,7 +35,7 @@ public class AdminLayout extends BaseHtmlLayout {
 
     ContainerTag headerIcon =
         div(span("C"), span("F").withClasses(Styles.FONT_THIN))
-            .withClasses(BaseStyles.ADMIN_NAV_BAR);
+            .withClasses(AdminStyles.ADMIN_NAV_BAR);
     ContainerTag headerTitle =
         div()
             .withClasses(
@@ -50,7 +50,7 @@ public class AdminLayout extends BaseHtmlLayout {
             .with(headerLink("Versions", versionLink))
             .with(headerLink("Intermediaries", intermediaryLink))
             .with(headerLink("Logout", logoutLink, Styles.FLOAT_RIGHT))
-            .withClasses(BaseStyles.NAV_STYLES);
+            .withClasses(AdminStyles.NAV_STYLES);
     return adminHeader;
   }
 
@@ -85,7 +85,7 @@ public class AdminLayout extends BaseHtmlLayout {
             .with(mainContent)
             .with(viewUtils.makeLocalJsTag("main"))
             .withClasses(
-                BaseStyles.BODY_GRADIENT_STYLE,
+                AdminStyles.BODY_GRADIENT_STYLE,
                 Styles.BOX_BORDER,
                 Styles.H_SCREEN,
                 Styles.W_SCREEN,

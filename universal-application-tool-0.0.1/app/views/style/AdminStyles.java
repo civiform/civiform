@@ -11,4 +11,44 @@ public class AdminStyles {
 
   public static final String LANGUAGE_LINK_NOT_SELECTED =
       StyleUtils.joinStyles(ReferenceClasses.ADMIN_LANGUAGE_LINK, Styles.M_2);
+
+  public static final String ADMIN_NAV_BAR =
+      StyleUtils.joinStyles(
+          Styles.ABSOLUTE,
+          Styles.BG_CONTAIN,
+          Styles.BG_GRAY_700,
+          Styles.H_7,
+          Styles.LEFT_5,
+          Styles.M_1,
+          Styles.OPACITY_75,
+          Styles.TEXT_CENTER,
+          Styles.TEXT_LG,
+          Styles.TEXT_WHITE,
+          Styles.TOP_2,
+          Styles.W_7,
+          Styles.ROUNDED);
+
+  public static final String BODY_GRADIENT_STYLE =
+      StyleUtils.joinStyles(
+          Styles.BG_GRADIENT_TO_R, Styles.FROM_GRAY_100, Styles.VIA_WHITE, Styles.TO_GRAY_100);
+
+  public static final String NAV_BACKGROUND_COLOR = Styles.BG_WHITE;
+  public static final String NAV_TEXT_COLOR = Styles.TEXT_GRAY_700;
+  public static final String NAV_HEIGHT = Styles.H_12;
+  public static final String NAV_FIXED =
+      StyleUtils.joinStyles(Styles.FIXED, Styles.TOP_0, Styles.W_SCREEN);
+  public static final String NAV_PADDING = StyleUtils.joinStyles(Styles.PX_4, Styles.PY_3);
+  public static final String NAV_STYLES =
+      StyleUtils.joinStyles(
+          Styles.SHADOW, NAV_BACKGROUND_COLOR, NAV_TEXT_COLOR, NAV_HEIGHT, NAV_FIXED, NAV_PADDING);
+
+  /** Invisible buttons covering an area that are used for form submit. */
+  public static final String CLICK_TARGET_BUTTON =
+      StyleUtils.joinStyles(
+          Styles.ABSOLUTE,
+          Styles.H_FULL,
+          Styles.LEFT_0,
+          Styles.OPACITY_0,
+          Styles.TOP_0,
+          Styles.W_FULL);
 }

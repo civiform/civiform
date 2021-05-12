@@ -51,8 +51,7 @@ public class ProgramIndexView extends BaseHtmlView {
       long applicantId,
       ImmutableList<ProgramDefinition> programs,
       Optional<String> banner) {
-    ContainerTag body =
-        body().withClasses(Styles.RELATIVE, Styles.PX_8, ApplicantStyles.BODY_BACKGROUND);
+    ContainerTag body = body().withClasses(Styles.RELATIVE, Styles.PX_8, ApplicantStyles.BODY);
     if (banner.isPresent()) {
       body.with(ToastMessage.alert(banner.get()).getContainerTag());
     }

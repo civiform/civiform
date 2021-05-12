@@ -4,7 +4,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
-import static j2html.TagCreator.span;
 
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
@@ -13,7 +12,9 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.SingleSelectQuestion;
 import services.question.LocalizedQuestionOption;
 import views.BaseHtmlView;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 import views.style.Styles;
 
 public class RadioButtonQuestionRenderer extends BaseHtmlView implements ApplicantQuestionRenderer {
@@ -30,7 +31,7 @@ public class RadioButtonQuestionRenderer extends BaseHtmlView implements Applica
 
     return div()
         .withId(question.getContextualizedPath().toString())
-        .withClasses(Styles.MX_AUTO, Styles.PX_16)
+        .withClasses(Styles.MX_AUTO, Styles.PX_16, BaseStyles.FORM_FIELD_MARGIN_BOTTOM)
         .with(
             div()
                 .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, Styles.TEXT_3XL)
@@ -42,15 +43,14 @@ public class RadioButtonQuestionRenderer extends BaseHtmlView implements Applica
                     Styles.FONT_THIN,
                     Styles.MB_2)
                 .withText(question.getQuestionHelpText()),
+            fieldErrors(params.messages(), singleOptionQuestion.getQuestionErrors()),
             each(
                 singleOptionQuestion.getOptions(),
                 option ->
                     renderSingleRadioOption(
                         singleOptionQuestion.getSelectionPath().toString(),
                         option,
-                        singleOptionQuestion.optionIsSelected(option))),
-            fieldErrors(params.messages(), singleOptionQuestion.getQuestionErrors())
-                .withClasses(Styles.ML_2, Styles.TEXT_XS, Styles.TEXT_RED_600, Styles.FONT_BOLD));
+                        singleOptionQuestion.optionIsSelected(option))));
   }
 
   private Tag renderSingleRadioOption(
@@ -59,7 +59,11 @@ public class RadioButtonQuestionRenderer extends BaseHtmlView implements Applica
 
     ContainerTag labelTag =
         label()
-            .withClasses(Styles.W_FULL, Styles.BLOCK, Styles.P_3)
+            .withClasses(
+                ReferenceClasses.RADIO_OPTION,
+                BaseStyles.RADIO_LABEL,
+                checked ? Styles.BG_BLUE_100 : "",
+                checked ? Styles.BORDER_BLUE_500 : "")
             .with(
                 input()
                     .withId(id)
@@ -67,22 +71,10 @@ public class RadioButtonQuestionRenderer extends BaseHtmlView implements Applica
                     .withName(selectionPath)
                     .withValue(String.valueOf(option.id()))
                     .condAttr(checked, Attr.CHECKED, "")
-                    .withClasses(ReferenceClasses.RADIO_INPUT, Styles.H_5, Styles.W_5),
-                span(option.optionText()).withClasses(Styles.ML_4, Styles.TEXT_GRAY_700));
+                    .withClasses(
+                        StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO)))
+            .withText(option.optionText());
 
-    return div()
-        .withClasses(Styles.MY_2, Styles.RELATIVE)
-        .with(
-            div(labelTag)
-                .withClasses(
-                    ReferenceClasses.RADIO_OPTION,
-                    Styles.M_AUTO,
-                    Styles.W_4_5,
-                    Styles.TEXT_2XL,
-                    Styles.BORDER_4,
-                    Styles.BG_WHITE,
-                    Styles.ROUNDED_XL,
-                    checked ? Styles.BG_BLUE_100 : "",
-                    checked ? Styles.BORDER_BLUE_400 : ""));
+    return div().withClasses(Styles.MY_2, Styles.RELATIVE).with(labelTag);
   }
 }
