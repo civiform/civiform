@@ -31,8 +31,8 @@ public class RoleService {
    *
    * @return an {@link ImmutableSet} of {@link Account}s that are UAT admins.
    */
-  public ImmutableSet<Account> getUatAdmins() {
-    return userRepository.getUatAdmins();
+  public ImmutableSet<Account> getGlobalAdmins() {
+    return userRepository.getGlobalAdmins();
   }
 
   /**
@@ -57,7 +57,7 @@ public class RoleService {
     ProgramDefinition program = programService.getProgramDefinition(programId);
     // Filter out UAT admins from the list of emails - a UAT admin cannot be a program admin.
     ImmutableSet<String> sysAdminEmails =
-        getUatAdmins().stream()
+        getGlobalAdmins().stream()
             .map(Account::getEmailAddress)
             .filter(address -> !Strings.isNullOrEmpty(address))
             .collect(toImmutableSet());

@@ -78,6 +78,10 @@ public class Account extends BaseModel {
     return ImmutableList.copyOf(this.adminOf);
   }
 
+  /**
+   * Set whether or not the user is a global admin. If they are a global admin, they are cleared of
+   * any program-admin role.
+   */
   public void setGlobalAdmin(boolean isGlobalAdmin) {
     this.globalAdmin = isGlobalAdmin;
     if (this.globalAdmin) {

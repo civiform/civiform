@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import java.time.Clock;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
 import models.Application;
 import org.pac4j.play.java.Secure;
@@ -70,6 +71,8 @@ public class AdminApplicationController extends CiviFormController {
               "Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
+    } catch (CompletionException e) {
+      return unauthorized();
     }
   }
 
@@ -91,6 +94,8 @@ public class AdminApplicationController extends CiviFormController {
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
+    } catch (CompletionException e) {
+      return unauthorized();
     }
     Optional<Application> applicationMaybe =
         this.applicationRepository.getApplication(applicationId).toCompletableFuture().join();
@@ -122,6 +127,8 @@ public class AdminApplicationController extends CiviFormController {
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
+    } catch (CompletionException e) {
+      return unauthorized();
     }
     try {
       ImmutableList<Application> applications = programService.getProgramApplications(programId);

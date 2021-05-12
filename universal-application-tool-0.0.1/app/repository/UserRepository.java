@@ -322,7 +322,7 @@ public class UserRepository {
         });
   }
 
-  public ImmutableSet<Account> getUatAdmins() {
+  public ImmutableSet<Account> getGlobalAdmins() {
     return ImmutableSet.copyOf(
         ebeanServer.find(Account.class).where().eq("global_admin", true).findList());
   }
