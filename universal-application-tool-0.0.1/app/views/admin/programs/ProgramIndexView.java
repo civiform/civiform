@@ -6,10 +6,12 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.p;
 
+import auth.UatProfile;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.Tag;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
@@ -30,7 +32,8 @@ public final class ProgramIndexView extends BaseHtmlView {
     this.layout = layout;
   }
 
-  public Content render(ActiveAndDraftPrograms programs, Http.Request request) {
+  public Content render(
+      ActiveAndDraftPrograms programs, Http.Request request, Optional<UatProfile> profile) {
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
@@ -45,7 +48,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                         this.renderProgramListItem(
                             programs.getActiveProgramDefinition(name),
                             programs.getDraftProgramDefinition(name),
-                            request)));
+                            request,
+                            profile)));
 
     return layout.render(layout.headContent(), body(contentDiv));
   }
@@ -84,10 +88,10 @@ public final class ProgramIndexView extends BaseHtmlView {
   public Tag renderProgramListItem(
       Optional<ProgramDefinition> activeProgram,
       Optional<ProgramDefinition> draftProgram,
-      Http.Request request) {
+      Http.Request request,
+      Optional<UatProfile> profile) {
     String programStatusText = extractProgramStatusText(draftProgram, activeProgram);
     String lastEditText = "Last updated 2 hours ago."; // TODO: Need to generate this.
-    String viewApplicationsLinkText = "Applications →";
 
     ProgramDefinition displayProgram = getDisplayProgram(draftProgram, activeProgram);
 
@@ -125,9 +129,9 @@ public final class ProgramIndexView extends BaseHtmlView {
         div(
                 p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                 p().withClasses(Styles.FLEX_GROW),
-                maybeRenderViewApplicationsLink(viewApplicationsLinkText, activeProgram),
                 maybeRenderManageTranslationsLink(draftProgram),
                 maybeRenderEditLink(draftProgram, activeProgram, request),
+                maybeRenderViewApplicationsLink(activeProgram, profile),
                 renderManageProgramAdminsLink(draftProgram, activeProgram))
             .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
 
@@ -205,19 +209,27 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
   }
 
-  Tag maybeRenderViewApplicationsLink(String text, Optional<ProgramDefinition> activeProgram) {
-    if (activeProgram.isPresent()) {
-      String editLink = routes.AdminApplicationController.index(activeProgram.get().id()).url();
+  private Tag maybeRenderViewApplicationsLink(
+      Optional<ProgramDefinition> activeProgram, Optional<UatProfile> userProfile) {
+    if (activeProgram.isPresent() && userProfile.isPresent()) {
+      boolean userIsAuthorized = true;
+      try {
+        userProfile.get().checkProgramAuthorization(activeProgram.get().adminName()).join();
+      } catch (CompletionException e) {
+        userIsAuthorized = false;
+      }
+      if (userIsAuthorized) {
+        String editLink = routes.AdminApplicationController.index(activeProgram.get().id()).url();
 
-      return new LinkElement()
-          .setId("program-view-apps-link-" + activeProgram.get().id())
-          .setHref(editLink)
-          .setText(text)
-          .setStyles(Styles.MR_2)
-          .asAnchorText();
-    } else {
-      return div();
+        return new LinkElement()
+            .setId("program-view-apps-link-" + activeProgram.get().id())
+            .setHref(editLink)
+            .setText("Applications →")
+            .setStyles(Styles.MR_2)
+            .asAnchorText();
+      }
     }
+    return div();
   }
 
   private Tag renderManageProgramAdminsLink(

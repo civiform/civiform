@@ -1,6 +1,8 @@
 package auth;
 
 import com.google.common.collect.ImmutableSet;
+import com.nimbusds.jose.shaded.json.JSONArray;
+import com.typesafe.config.Config;
 import javax.inject.Provider;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.oidc.client.OidcClient;
@@ -14,13 +16,16 @@ import repository.UserRepository;
  * now.
  */
 public class AdfsProfileAdapter extends UatProfileAdapter {
+  private final String adminGroupName;
 
   public AdfsProfileAdapter(
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
+      Config appConfig,
       Provider<UserRepository> applicantRepositoryProvider) {
     super(configuration, client, profileFactory, applicantRepositoryProvider);
+    this.adminGroupName = appConfig.getString("adfs.admin_group");
   }
 
   @Override
@@ -29,8 +34,20 @@ public class AdfsProfileAdapter extends UatProfileAdapter {
   }
 
   @Override
-  protected ImmutableSet<Roles> roles(UatProfile profile) {
-    return ImmutableSet.of(Roles.ROLE_UAT_ADMIN);
+  protected ImmutableSet<Roles> roles(UatProfile profile, OidcProfile oidcProfile) {
+    JSONArray groups = oidcProfile.getAttribute("group", JSONArray.class);
+    if (groups.contains(this.adminGroupName)) {
+      profile
+          .getAccount()
+          .thenAccept(
+              account -> {
+                account.setGlobalAdmin(true);
+                account.save();
+              })
+          .join();
+      return ImmutableSet.of(Roles.ROLE_UAT_ADMIN);
+    }
+    return ImmutableSet.of(Roles.ROLE_PROGRAM_ADMIN);
   }
 
   @Override
