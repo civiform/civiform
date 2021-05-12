@@ -69,9 +69,6 @@ GET     /admin/programs/:programId/applications/all                       contro
 GET     /admin/programs/:programId/applications/:applicationId            controllers.admin.AdminApplicationController.show(request: Request, programId: Long, applicationId: Long)
 GET     /admin/programs/:programId/applications/:applicationId/download   controllers.admin.AdminApplicationController.download(request: Request, programId: Long, applicationId: Long)
 
-GET     /demo/new                   controllers.J2HtmlDemoController.newOne(request: Request)
-POST    /demo                       controllers.J2HtmlDemoController.create(request: Request)
-
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(file)
 
