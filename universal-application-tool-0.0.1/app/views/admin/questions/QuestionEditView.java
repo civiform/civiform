@@ -1,5 +1,6 @@
 package views.admin.questions;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
@@ -41,7 +42,7 @@ public final class QuestionEditView extends BaseHtmlView {
 
   @Inject
   public QuestionEditView(AdminLayout layout, MessagesApi messagesApi) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
     // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
   }
