@@ -33,7 +33,8 @@ public final class ProgramIndexView extends BaseHtmlView {
     this.layout = layout;
   }
 
-  public Content render(ActiveAndDraftPrograms programs, Http.Request request, UatProfile profile) {
+  public Content render(
+      ActiveAndDraftPrograms programs, Http.Request request, Optional<UatProfile> profile) {
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
@@ -89,7 +90,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       Optional<ProgramDefinition> activeProgram,
       Optional<ProgramDefinition> draftProgram,
       Http.Request request,
-      UatProfile profile) {
+      Optional<UatProfile> profile) {
     String programStatusText = extractProgramStatusText(draftProgram, activeProgram);
     String lastEditText = "Last updated 2 hours ago."; // TODO: Need to generate this.
 
@@ -210,11 +211,11 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private Tag maybeRenderViewApplicationsLink(
-      Optional<ProgramDefinition> activeProgram, UatProfile userProfile) {
-    if (activeProgram.isPresent()) {
+      Optional<ProgramDefinition> activeProgram, Optional<UatProfile> userProfile) {
+    if (activeProgram.isPresent() && userProfile.isPresent()) {
       boolean userIsAuthorized = true;
       try {
-        userProfile.checkProgramAuthorization(activeProgram.get().adminName()).join();
+        userProfile.get().checkProgramAuthorization(activeProgram.get().adminName()).join();
       } catch (CompletionException e) {
         userIsAuthorized = false;
       }

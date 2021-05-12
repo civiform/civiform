@@ -56,13 +56,8 @@ public class AdminProgramController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result index(Request request) {
-    Optional<UatProfile> profile = profileUtils.currentUserProfile(request);
-    if (profile.isEmpty()) {
-      // Should be impossible - can't be a UAT_ADMIN without a profile - but worth
-      // checking just in case.
-      return unauthorized();
-    }
-    return ok(listView.render(this.service.getActiveAndDraftPrograms(), request, profile.get()));
+    Optional<UatProfile> profileMaybe = profileUtils.currentUserProfile(request);
+    return ok(listView.render(this.service.getActiveAndDraftPrograms(), request, profileMaybe));
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
