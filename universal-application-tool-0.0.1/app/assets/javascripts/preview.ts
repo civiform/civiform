@@ -92,7 +92,7 @@ class PreviewController {
 
   static setAllMatchingPlaceholders(selector: string, text: string) {
     const inputFields = document.querySelectorAll(selector + " input");
-    Array.from(inputFields).forEach(function(inputField) { inputField.placeholder = text });
+    Array.from(inputFields).forEach(function(inputField) { (<HTMLInputElement>inputField).placeholder = text });
   }
 }
 
