@@ -3,6 +3,7 @@ package services.role;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -30,9 +31,8 @@ public class RoleService {
    *
    * @return an {@link ImmutableSet} of {@link Account}s that are UAT admins.
    */
-  public ImmutableSet<Account> getUatAdmins() {
-    // TODO(cdanzi): implement this method
-    return ImmutableSet.of();
+  public ImmutableSet<Account> getGlobalAdmins() {
+    return userRepository.getGlobalAdmins();
   }
 
   /**
@@ -50,10 +50,17 @@ public class RoleService {
    */
   public Optional<CiviFormError> makeProgramAdmins(
       long programId, ImmutableSet<String> accountEmails) throws ProgramNotFoundException {
+    if (accountEmails.isEmpty() || accountEmails.stream().allMatch(String::isBlank)) {
+      return Optional.empty();
+    }
+
     ProgramDefinition program = programService.getProgramDefinition(programId);
     // Filter out UAT admins from the list of emails - a UAT admin cannot be a program admin.
     ImmutableSet<String> sysAdminEmails =
-        getUatAdmins().stream().map(Account::getEmailAddress).collect(toImmutableSet());
+        getGlobalAdmins().stream()
+            .map(Account::getEmailAddress)
+            .filter(address -> !Strings.isNullOrEmpty(address))
+            .collect(toImmutableSet());
     ImmutableSet.Builder<String> invalidEmailBuilder = ImmutableSet.builder();
     accountEmails.forEach(
         email -> {
@@ -74,6 +81,22 @@ public class RoleService {
                   "The following are already CiviForm admins and could not be added as"
                       + " program admins: %s",
                   Joiner.on(", ").join(invalidEmails))));
+    }
+  }
+
+  /**
+   * For each account (identified by email), remove the given program from the list of programs that
+   * account administers. If an account does not administer the given program, do nothing.
+   *
+   * @param programId the ID of the program to remove
+   * @param accountEmails a list of account emails of program admins for the given program
+   * @throws ProgramNotFoundException if the given program does not exist
+   */
+  public void removeProgramAdmins(long programId, ImmutableSet<String> accountEmails)
+      throws ProgramNotFoundException {
+    if (!accountEmails.isEmpty()) {
+      ProgramDefinition program = programService.getProgramDefinition(programId);
+      accountEmails.forEach(email -> userRepository.removeAdministeredProgram(email, program));
     }
   }
 }

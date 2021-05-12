@@ -24,6 +24,7 @@ public class Account extends BaseModel {
 
   @ManyToOne private TrustedIntermediaryGroup memberOfGroup;
   @ManyToOne private TrustedIntermediaryGroup managedByGroup;
+  private boolean globalAdmin;
 
   // This must be a mutable collection so we can add to the list later.
   @DbArray private List<String> adminOf = new ArrayList<>();
@@ -71,7 +72,25 @@ public class Account extends BaseModel {
   }
 
   public ImmutableList<String> getAdministeredProgramNames() {
+    if (this.adminOf == null) {
+      return ImmutableList.of();
+    }
     return ImmutableList.copyOf(this.adminOf);
+  }
+
+  /**
+   * Set whether or not the user is a global admin. If they are a global admin, they are cleared of
+   * any program-admin role.
+   */
+  public void setGlobalAdmin(boolean isGlobalAdmin) {
+    this.globalAdmin = isGlobalAdmin;
+    if (this.globalAdmin) {
+      this.adminOf.clear();
+    }
+  }
+
+  public boolean getGlobalAdmin() {
+    return globalAdmin;
   }
 
   /**
@@ -79,9 +98,20 @@ public class Account extends BaseModel {
    * programs.
    */
   public void addAdministeredProgram(ProgramDefinition program) {
+    if (this.adminOf == null) {
+      this.adminOf = new ArrayList<>();
+    }
     if (!this.adminOf.contains(program.adminName())) {
       this.adminOf.add(program.adminName());
     }
+  }
+
+  /**
+   * If this account administers the provided program, remove it from the list of administered
+   * programs.
+   */
+  public void removeAdministeredProgram(ProgramDefinition program) {
+    this.adminOf.remove(program.adminName());
   }
 
   /**

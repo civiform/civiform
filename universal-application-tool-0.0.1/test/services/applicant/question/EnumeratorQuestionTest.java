@@ -31,7 +31,8 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"));
+          LocalizedStrings.of(Locale.US, "help text"),
+          LocalizedStrings.empty());
 
   private Applicant applicant;
   private ApplicantData applicantData;

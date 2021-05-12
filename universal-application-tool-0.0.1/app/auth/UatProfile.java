@@ -14,6 +14,7 @@ import models.Account;
 import models.Applicant;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.DatabaseExecutionContext;
+import repository.ProgramRepository;
 
 /**
  * This is a "pure" wrapper of UatProfileData. Since UatProfileData is the serialized data about a
@@ -24,15 +25,18 @@ public class UatProfile {
   private DatabaseExecutionContext dbContext;
   private HttpExecutionContext httpContext;
   private UatProfileData profileData;
+  private ProgramRepository programRepository;
 
   @Inject
   public UatProfile(
       DatabaseExecutionContext dbContext,
       HttpExecutionContext httpContext,
-      UatProfileData profileData) {
+      UatProfileData profileData,
+      ProgramRepository programRepository) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
     this.httpContext = Preconditions.checkNotNull(httpContext);
     this.profileData = Preconditions.checkNotNull(profileData);
+    this.programRepository = Preconditions.checkNotNull(programRepository);
   }
 
   public CompletableFuture<Applicant> getApplicant() {
@@ -67,6 +71,10 @@ public class UatProfile {
 
   public boolean isUatAdmin() {
     return profileData.getRoles().contains(Roles.ROLE_UAT_ADMIN.toString());
+  }
+
+  public boolean isProgramAdmin() {
+    return this.getRoles().contains(Roles.ROLE_PROGRAM_ADMIN.name());
   }
 
   public String getId() {
@@ -129,6 +137,27 @@ public class UatProfile {
                         getId(), applicantId));
               }
               return null;
+            });
+  }
+
+  public CompletableFuture<Void> checkProgramAuthorization(String programName) {
+    return this.getAccount()
+        .thenApply(
+            account -> {
+              if (account.getAdministeredProgramNames().stream()
+                  .anyMatch(program -> program.equals(programName))) {
+                return null;
+              }
+              if (account.getGlobalAdmin()) {
+                // If there are no administrators for this program, then all global
+                // admins count as administrators.
+                if (this.programRepository.getProgramAdministrators(programName).isEmpty()) {
+                  return null;
+                }
+              }
+              throw new SecurityException(
+                  String.format(
+                      "Account %s is not authorized to access program %s.", getId(), programName));
             });
   }
 }

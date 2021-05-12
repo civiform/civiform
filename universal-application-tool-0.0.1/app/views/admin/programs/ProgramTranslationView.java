@@ -1,5 +1,7 @@
 package views.admin.programs;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
@@ -20,7 +22,7 @@ public class ProgramTranslationView extends TranslationFormView {
   @Inject
   public ProgramTranslationView(AdminLayout layout, Langs langs) {
     super(langs);
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(

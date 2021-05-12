@@ -29,6 +29,7 @@ public class QuestionDefinitionTest {
             .setQuestionType(QuestionType.TEXT)
             .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+            .setEntityType(LocalizedStrings.empty())
             .setValidationPredicates(TextValidationPredicates.builder().setMaxLength(128).build());
   }
 
@@ -133,7 +134,12 @@ public class QuestionDefinitionTest {
   public void isEnumerator_true() {
     QuestionDefinition question =
         new EnumeratorQuestionDefinition(
-            "", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            "",
+            Optional.empty(),
+            "",
+            LocalizedStrings.of(),
+            LocalizedStrings.empty(),
+            LocalizedStrings.empty());
     assertThat(question.isEnumerator()).isTrue();
   }
 

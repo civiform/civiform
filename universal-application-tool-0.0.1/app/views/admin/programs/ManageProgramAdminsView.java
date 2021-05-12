@@ -1,5 +1,6 @@
 package views.admin.programs;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
@@ -33,14 +34,15 @@ public class ManageProgramAdminsView extends BaseHtmlView {
   private static final String REMOVE_BUTTON = "Remove";
   private static final String EMAIL_CONTAINER_DIV_ID = "program-admin-emails";
   private static final String ADD_BUTTON_ID = "add-program-admin-button";
-  private static final String EMAIL_FIELD_NAME = "adminEmails[]";
+  private static final String ADD_EMAIL_FIELD_NAME = "adminEmails[]";
+  private static final String REMOVE_EMAIL_FIELD_NAME = "removeAdminEmails[]";
   private static final String EMAIL_INPUT_TEMPLATE_ID = "program-admin-email-template";
 
   private final AdminLayout layout;
 
   @Inject
   public ManageProgramAdminsView(AdminLayout layout) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(
@@ -75,13 +77,22 @@ public class ManageProgramAdminsView extends BaseHtmlView {
   }
 
   private ContainerTag adminEmailInput(Optional<String> existing) {
+    // When there are existing admins, the only option is to remove that admin. The field is
+    // disabled, so that no changes except removal can be made. The form does not submit disabled
+    // fields, so these existing admins will not be removed unless the remove button is clicked,
+    // which sets disabled to false (see TypeScript file).
+    String inputFieldName = existing.isPresent() ? REMOVE_EMAIL_FIELD_NAME : ADD_EMAIL_FIELD_NAME;
+
     ContainerTag input =
         FieldWithLabel.email()
-            .setFieldName(EMAIL_FIELD_NAME)
+            .setFieldName(inputFieldName)
             .setPlaceholderText(INPUT_PLACEHOLDER)
             .setValue(existing)
+            // If there is an existing value, do not allow changes in the input field.
+            .setDisabled(existing.isPresent())
             .getContainer()
             .withClasses(Styles.FLEX, Styles.M_2);
+
     Tag removeAdminButton =
         button(REMOVE_BUTTON)
             .withClasses(ReferenceClasses.PROGRAM_ADMIN_REMOVE_BUTTON, Styles.FLEX, Styles.M_2);

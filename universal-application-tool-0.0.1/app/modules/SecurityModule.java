@@ -27,6 +27,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import javax.inject.Provider;
 import org.pac4j.core.authorization.authorizer.RequireAllRolesAuthorizer;
+import org.pac4j.core.authorization.authorizer.RequireAnyRoleAuthorizer;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
@@ -41,8 +42,6 @@ import org.pac4j.play.http.PlayHttpActionAdapter;
 import org.pac4j.play.store.PlayCookieSessionStore;
 import org.pac4j.play.store.ShiroAesDataEncrypter;
 import play.Environment;
-import play.libs.concurrent.HttpExecutionContext;
-import repository.DatabaseExecutionContext;
 import repository.UserRepository;
 
 public class SecurityModule extends AbstractModule {
@@ -106,13 +105,6 @@ public class SecurityModule extends AbstractModule {
 
   @Provides
   @Singleton
-  protected ProfileFactory provideProfileFactory(
-      DatabaseExecutionContext dbContext, HttpExecutionContext httpContext) {
-    return new ProfileFactory(dbContext, httpContext);
-  }
-
-  @Provides
-  @Singleton
   protected FakeAdminClient fakeAdminClient(ProfileFactory profileFactory) {
     return new FakeAdminClient(profileFactory);
   }
@@ -172,7 +164,8 @@ public class SecurityModule extends AbstractModule {
     client.setName("AdClient");
     client.setCallbackUrl(baseUrl + "/callback");
     client.setProfileCreator(
-        new AdfsProfileAdapter(config, client, profileFactory, applicantRepositoryProvider));
+        new AdfsProfileAdapter(
+            config, client, profileFactory, this.configuration, applicantRepositoryProvider));
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     return client;
   }
@@ -218,6 +211,10 @@ public class SecurityModule extends AbstractModule {
         new RequireAllRolesAuthorizer(Roles.ROLE_APPLICANT.toString()));
     config.addAuthorizer(
         Authorizers.TI.toString(), new RequireAllRolesAuthorizer(Roles.ROLE_TI.toString()));
+    config.addAuthorizer(
+        Authorizers.ANY_ADMIN.toString(),
+        new RequireAnyRoleAuthorizer(
+            Roles.ROLE_UAT_ADMIN.toString(), Roles.ROLE_PROGRAM_ADMIN.toString()));
 
     config.setHttpActionAdapter(PlayHttpActionAdapter.INSTANCE);
     return config;

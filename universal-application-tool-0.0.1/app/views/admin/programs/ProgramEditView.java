@@ -1,5 +1,7 @@
 package views.admin.programs;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.inject.Inject;
 import forms.ProgramForm;
 import j2html.tags.ContainerTag;
@@ -17,7 +19,7 @@ public class ProgramEditView extends BaseHtmlView {
 
   @Inject
   public ProgramEditView(AdminLayout layout) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(Request request, ProgramDefinition program) {
