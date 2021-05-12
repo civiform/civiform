@@ -4,17 +4,7 @@ import play.data.FormFactory;
 import play.mvc.Http.Request;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.AddressQuestionDefinition;
-import services.question.types.CheckboxQuestionDefinition;
-import services.question.types.DropdownQuestionDefinition;
-import services.question.types.EnumeratorQuestionDefinition;
-import services.question.types.FileUploadQuestionDefinition;
-import services.question.types.NameQuestionDefinition;
-import services.question.types.NumberQuestionDefinition;
-import services.question.types.QuestionDefinition;
-import services.question.types.QuestionType;
-import services.question.types.RadioButtonQuestionDefinition;
-import services.question.types.TextQuestionDefinition;
+import services.question.types.*;
 
 public class QuestionFormBuilder {
   public static QuestionForm createFromRequest(
@@ -25,6 +15,8 @@ public class QuestionFormBuilder {
         return formFactory.form(AddressQuestionForm.class).bindFromRequest(request).get();
       case CHECKBOX:
         return formFactory.form(CheckboxQuestionForm.class).bindFromRequest(request).get();
+      case DATE:
+        return formFactory.form(DateQuestionForm.class).bindFromRequest(request).get();
       case DROPDOWN:
         return formFactory.form(DropdownQuestionForm.class).bindFromRequest(request).get();
       case FILEUPLOAD:
@@ -51,6 +43,8 @@ public class QuestionFormBuilder {
         return new AddressQuestionForm();
       case CHECKBOX:
         return new CheckboxQuestionForm();
+      case DATE:
+        return new DateQuestionForm();
       case DROPDOWN:
         return new DropdownQuestionForm();
       case FILEUPLOAD:
@@ -78,6 +72,8 @@ public class QuestionFormBuilder {
         return new AddressQuestionForm((AddressQuestionDefinition) questionDefinition);
       case CHECKBOX:
         return new CheckboxQuestionForm((CheckboxQuestionDefinition) questionDefinition);
+      case DATE:
+        return new DateQuestionForm((DateQuestionDefinition) questionDefinition);
       case DROPDOWN:
         return new DropdownQuestionForm((DropdownQuestionDefinition) questionDefinition);
       case FILEUPLOAD:

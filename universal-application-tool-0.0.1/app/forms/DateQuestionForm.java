@@ -21,7 +21,7 @@ public class DateQuestionForm extends QuestionForm {
   }
 
   @Override
-  public QuestionDefinitionBuilder getBuilder(Path path) {
+  public QuestionDefinitionBuilder getBuilder() {
     //        DateQuestionDefinition.DateValidationPredicates.Builder
     // dateValidationPredicatesBuilder =
     //                DateQuestionDefinition.DateValidationPredicates.create();

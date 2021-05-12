@@ -94,6 +94,7 @@ public class QuestionConfig {
       case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended - no options
       case ENUMERATOR: // fallthrough intended
+      case DATE: //fallthrough intended
       default:
         return div();
     }

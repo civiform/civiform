@@ -5,20 +5,19 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import services.Path;
+
+import services.LocalizedStrings;
 
 public class DateQuestionDefinition extends QuestionDefinition {
 
   public DateQuestionDefinition(
       String name,
-      Path path,
       Optional<Long> enumeratorId,
       String description,
-      ImmutableMap<Locale, String> questionText,
-      ImmutableMap<Locale, String> questionHelpText) {
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText) {
     super(
         name,
-        path,
         enumeratorId,
         description,
         questionText,
@@ -52,8 +51,4 @@ public class DateQuestionDefinition extends QuestionDefinition {
     return QuestionType.DATE;
   }
 
-  @Override
-  ImmutableMap<Path, ScalarType> getScalarMap() {
-    return ImmutableMap.of();
-  }
 }
