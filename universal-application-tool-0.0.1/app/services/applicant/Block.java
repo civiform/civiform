@@ -67,10 +67,12 @@ public final class Block {
   }
 
   /**
-   * Returns the context surrounding the {@link RepeatedEntity} for this block.
-   * If this is not a repeated block, the {@link EnumeratorContext} is empty.
+   * Returns the context surrounding the {@link RepeatedEntity} for this block. If this is not a
+   * repeated block, the {@link EnumeratorContext} is empty.
    */
-  public EnumeratorContext getEnumeratorContext() { return enumeratorContext; }
+  public EnumeratorContext getEnumeratorContext() {
+    return enumeratorContext;
+  }
 
   /**
    * Returns the list of {@link RepeatedEntity}s associated with this repeated block, where the
@@ -114,7 +116,9 @@ public final class Block {
                   .map(
                       questionDefinition ->
                           new ApplicantQuestion(
-                              questionDefinition, applicantData, enumeratorContext.contextualizedPath()))
+                              questionDefinition,
+                              applicantData,
+                              enumeratorContext.contextualizedPath()))
                   .collect(toImmutableList()));
     }
     return questionsMemo.get();

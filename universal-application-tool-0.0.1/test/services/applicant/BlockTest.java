@@ -32,9 +32,7 @@ public class BlockTest {
   public void createNewBlock() {
     BlockDefinition definition =
         BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
-    Block block =
-        new Block(
-            "1", definition, new ApplicantData(), EnumeratorContext.empty());
+    Block block = new Block("1", definition, new ApplicantData(), EnumeratorContext.empty());
     assertThat(block.getId()).isEqualTo("1");
     assertThat(block.getName()).isEqualTo("name");
     assertThat(block.getDescription()).isEqualTo("description");
@@ -53,27 +51,11 @@ public class BlockTest {
 
     new EqualsTester()
         .addEqualityGroup(
-            new Block(
-                "1",
-                definition,
-                new ApplicantData(),
-                EnumeratorContext.empty()),
-            new Block(
-                "1",
-                definition,
-                new ApplicantData(),
-                EnumeratorContext.empty()))
+            new Block("1", definition, new ApplicantData(), EnumeratorContext.empty()),
+            new Block("1", definition, new ApplicantData(), EnumeratorContext.empty()))
         .addEqualityGroup(
-            new Block(
-                "2",
-                definition,
-                new ApplicantData(),
-                EnumeratorContext.empty()),
-            new Block(
-                "2",
-                definition,
-                new ApplicantData(),
-                EnumeratorContext.empty()))
+            new Block("2", definition, new ApplicantData(), EnumeratorContext.empty()),
+            new Block("2", definition, new ApplicantData(), EnumeratorContext.empty()))
         .addEqualityGroup(
             new Block(
                 "1",
@@ -100,8 +82,7 @@ public class BlockTest {
     BlockDefinition definition = setUpBlockWithQuestions();
     ApplicantData applicantData = new ApplicantData();
 
-    Block block =
-        new Block("1", definition, applicantData, EnumeratorContext.empty());
+    Block block = new Block("1", definition, applicantData, EnumeratorContext.empty());
 
     ImmutableList<ApplicantQuestion> expected =
         ImmutableList.of(
@@ -115,8 +96,7 @@ public class BlockTest {
     BlockDefinition definition = setUpBlockWithQuestions();
     ApplicantData applicantData = new ApplicantData();
 
-    Block block =
-        new Block("1", definition, applicantData, EnumeratorContext.empty());
+    Block block = new Block("1", definition, applicantData, EnumeratorContext.empty());
 
     assertThat(
             block.getScalarType(
@@ -163,8 +143,7 @@ public class BlockTest {
     BlockDefinition definition = setUpBlockWithQuestions();
     ApplicantData applicantData = new ApplicantData();
 
-    Block block =
-        new Block("1", definition, applicantData, EnumeratorContext.empty());
+    Block block = new Block("1", definition, applicantData, EnumeratorContext.empty());
 
     assertThat(block.getScalarType(Path.create("fake.path"))).isEmpty();
   }
@@ -175,9 +154,7 @@ public class BlockTest {
   public void hasErrors_returnsFalseIfBlockHasNoQuestions() {
     BlockDefinition definition =
         BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
-    Block block =
-        new Block(
-            "1", definition, new ApplicantData(), EnumeratorContext.empty());
+    Block block = new Block("1", definition, new ApplicantData(), EnumeratorContext.empty());
 
     assertThat(block.hasErrors()).isFalse();
   }
@@ -185,9 +162,7 @@ public class BlockTest {
   @Test
   public void hasErrors_returnsFalseIfQuestionsHaveNoErrors() {
     BlockDefinition definition = setUpBlockWithQuestions();
-    Block block =
-        new Block(
-            "1", definition, new ApplicantData(), EnumeratorContext.empty());
+    Block block = new Block("1", definition, new ApplicantData(), EnumeratorContext.empty());
 
     assertThat(block.hasErrors()).isFalse();
   }
@@ -196,9 +171,7 @@ public class BlockTest {
   public void isComplete_returnsTrueForBlockWithNoQuestions() {
     BlockDefinition definition =
         BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
-    Block block =
-        new Block(
-            "1", definition, new ApplicantData(), EnumeratorContext.empty());
+    Block block = new Block("1", definition, new ApplicantData(), EnumeratorContext.empty());
 
     assertThat(block.isCompleteWithoutErrors()).isTrue();
   }
@@ -208,8 +181,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block =
-        new Block("1", definition, applicantData, EnumeratorContext.empty());
+    Block block = new Block("1", definition, applicantData, EnumeratorContext.empty());
 
     // No questions filled in yet.
     assertThat(block.isCompleteWithoutErrors()).isFalse();
@@ -222,8 +194,7 @@ public class BlockTest {
     answerColorQuestion(applicantData, UNUSED_PROGRAM_ID);
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block =
-        new Block("1", definition, applicantData, EnumeratorContext.empty());
+    Block block = new Block("1", definition, applicantData, EnumeratorContext.empty());
 
     assertThat(block.isCompleteWithoutErrors()).isFalse();
   }
@@ -236,8 +207,7 @@ public class BlockTest {
     answerColorQuestion(applicantData, UNUSED_PROGRAM_ID);
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block =
-        new Block("1", definition, applicantData, EnumeratorContext.empty());
+    Block block = new Block("1", definition, applicantData, EnumeratorContext.empty());
 
     assertThat(block.isCompleteWithoutErrors()).isTrue();
   }
@@ -247,8 +217,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block =
-        new Block("1", definition, applicantData, EnumeratorContext.empty());
+    Block block = new Block("1", definition, applicantData, EnumeratorContext.empty());
 
     assertThat(block.isCompleteWithoutErrors()).isFalse();
 
@@ -263,8 +232,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block =
-        new Block("1", definition, applicantData, EnumeratorContext.empty());
+    Block block = new Block("1", definition, applicantData, EnumeratorContext.empty());
 
     assertThat(block.wasCompletedInProgram(1L)).isFalse();
   }
@@ -274,8 +242,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block =
-        new Block("1", definition, applicantData, EnumeratorContext.empty());
+    Block block = new Block("1", definition, applicantData, EnumeratorContext.empty());
     // Answer questions in different program.
     answerNameQuestion(applicantData, 567L);
     answerColorQuestion(applicantData, 567L);
@@ -288,8 +255,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block =
-        new Block("1", definition, applicantData, EnumeratorContext.empty());
+    Block block = new Block("1", definition, applicantData, EnumeratorContext.empty());
     answerNameQuestion(applicantData, 1L);
 
     assertThat(block.wasCompletedInProgram(1L)).isFalse();
@@ -300,8 +266,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block =
-        new Block("1", definition, applicantData, EnumeratorContext.empty());
+    Block block = new Block("1", definition, applicantData, EnumeratorContext.empty());
     answerNameQuestion(applicantData, 22L);
     answerColorQuestion(applicantData, 22L);
 
@@ -313,8 +278,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block =
-        new Block("1", definition, applicantData, EnumeratorContext.empty());
+    Block block = new Block("1", definition, applicantData, EnumeratorContext.empty());
     answerNameQuestion(applicantData, 100L);
     answerColorQuestion(applicantData, 200L);
 
@@ -334,8 +298,7 @@ public class BlockTest {
                     testQuestionBank.applicantHouseholdMembers().getQuestionDefinition()))
             .build();
 
-    Block block =
-        new Block("1", definition, applicantData, EnumeratorContext.empty());
+    Block block = new Block("1", definition, applicantData, EnumeratorContext.empty());
 
     assertThat(block.isEnumerator()).isTrue();
   }
@@ -345,8 +308,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block =
-        new Block("1", definition, applicantData, EnumeratorContext.empty());
+    Block block = new Block("1", definition, applicantData, EnumeratorContext.empty());
 
     assertThat(block.isEnumerator()).isFalse();
   }
@@ -363,8 +325,7 @@ public class BlockTest {
             .setDescription("")
             .addQuestion(ProgramQuestionDefinition.create(enumeratorQuestionDefinition))
             .build();
-    Block block =
-        new Block("1", definition, applicantData, EnumeratorContext.empty());
+    Block block = new Block("1", definition, applicantData, EnumeratorContext.empty());
 
     ApplicantQuestion enumeratorQuestion = block.getEnumeratorQuestion();
 
@@ -384,8 +345,7 @@ public class BlockTest {
                     testQuestionBank.applicantFile().getQuestionDefinition()))
             .build();
 
-    Block block =
-        new Block("1", definition, applicantData, EnumeratorContext.empty());
+    Block block = new Block("1", definition, applicantData, EnumeratorContext.empty());
 
     assertThat(block.isFileUpload()).isTrue();
   }
@@ -395,8 +355,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block =
-        new Block("1", definition, applicantData, EnumeratorContext.empty());
+    Block block = new Block("1", definition, applicantData, EnumeratorContext.empty());
 
     assertThat(block.isFileUpload()).isFalse();
   }

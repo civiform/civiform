@@ -2,7 +2,6 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.body;
-import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
@@ -13,29 +12,20 @@ import com.google.inject.Inject;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
-import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.Block;
-import services.applicant.EnumeratorContext;
-import services.applicant.RepeatedEntity;
 import services.applicant.question.ApplicantQuestion;
 import services.aws.SignedS3UploadRequest;
 import services.aws.SimpleStorage;
-import services.question.types.EnumeratorQuestionDefinition;
 import views.BaseHtmlView;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.EnumeratorQuestionRenderer;
-import views.style.Styles;
-
-import java.util.Locale;
 
 public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
@@ -53,9 +43,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     ContainerTag headerTag = layout.renderHeader(params.percentComplete());
 
     ContainerTag body =
-        body()
-            .with(h1(params.block().getName()))
-            .with(renderBlockWithSubmitForm(params));
+        body().with(h1(params.block().getName())).with(renderBlockWithSubmitForm(params));
 
     if (!params.preferredLanguageSupported()) {
       body.with(
@@ -72,7 +60,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
                   .block()
                   .getEnumeratorQuestion()
                   .createEnumeratorQuestion()
-                  .getEntityType().getOrDefault(params.messages().lang().toLocale()),
+                  .getEntityType()
+                  .getOrDefault(params.messages().lang().toLocale()),
               params.messages()));
     }
 

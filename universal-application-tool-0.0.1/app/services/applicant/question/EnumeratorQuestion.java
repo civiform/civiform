@@ -3,8 +3,6 @@ package services.applicant.question;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import java.util.Locale;
-import play.i18n.Messages;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
