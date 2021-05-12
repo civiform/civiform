@@ -1,13 +1,16 @@
-/** The preview controller is responsible for updating quesiton preview text in the question builder. */
+/** The preview controller is responsible for updating question preview text in the question builder. */
 class PreviewController {
   static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea';
   static readonly QUESTION_HELP_TEXT_INPUT_ID = 'question-help-text-textarea';
+  static readonly QUESTION_ENTITY_TYPE_INPUT_ID = 'enumerator-question-entity-type-textarea';
 
   static readonly QUESTION_TEXT_CLASS = '.cf-applicant-question-text';
   static readonly QUESTION_HELP_TEXT_CLASS = '.cf-applicant-question-help-text';
+  static readonly QUESTION_ENTITY_TYPE_BUTTON_ID = '#enumerator-field-add-button';
 
   static readonly DEFAULT_QUESTION_TEXT = "Sample question text";
   static readonly DEFAULT_QUESTION_HELP_TEXT = "Sample question help text";
+  static readonly DEFAULT_ENTITY_TYPE = "Sample repeated entity type";
 
   constructor() {
     const textInput =
@@ -26,6 +29,15 @@ class PreviewController {
       let helpText = (<HTMLInputElement>helpTextInput).value;
       if (helpText.length > 0) {
         PreviewController.setTextContent(PreviewController.QUESTION_HELP_TEXT_CLASS, helpText);
+      }
+    }
+    const entityTypeInput =
+      document.getElementById(PreviewController.QUESTION_ENTITY_TYPE_INPUT_ID);
+    if (entityTypeInput) {
+      entityTypeInput.addEventListener('input', PreviewController.onEntityTypeChanged, false);
+      let entityType = (<HTMLInputElement>entityTypeInput).value;
+      if (entityType.length > 0) {
+        PreviewController.setTextContent(PreviewController.QUESTION_ENTITY_TYPE_BUTTON_ID, entityType);
       }
     }
   }
@@ -50,6 +62,17 @@ class PreviewController {
     PreviewController.setTextContent(
       PreviewController.QUESTION_HELP_TEXT_CLASS,
       text);
+  }
+
+  static onEntityTypeChanged(e: Event) {
+    let entityType = (<HTMLInputElement>e.target).value;
+    if (entityType.length === 0) {
+      entityType = PreviewController.DEFAULT_QUESTION_TEXT;
+    }
+
+    PreviewController.setTextContent(
+      PreviewController.QUESTION_ENTITY_TYPE_BUTTON_ID,
+      "Add " + entityType);
   }
 
   static setTextContent(selector: string, text: string) {

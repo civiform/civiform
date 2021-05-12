@@ -144,7 +144,7 @@ public class QuestionConfig {
       EnumeratorQuestionForm enumeratorQuestionForm) {
     content.with(
         FieldWithLabel.input()
-            .setId("enumerator-question-entity-type-input")
+            .setId("enumerator-question-entity-type-textarea")
             .setFieldName("entityType")
             .setLabelText("Repeated entity type")
             .setPlaceholderText("What are we enumerating?")
