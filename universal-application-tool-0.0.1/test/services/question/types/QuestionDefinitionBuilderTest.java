@@ -39,7 +39,7 @@ public class QuestionDefinitionBuilderTest {
   }
 
   @Test
-  public void builder_enumeratorDefaultsToEmptyEntityType() throws Exception {
+  public void builder_enumeratorWithNull_usesDefaultEntityType() throws Exception {
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setQuestionType(QuestionType.ENUMERATOR)
@@ -51,6 +51,26 @@ public class QuestionDefinitionBuilderTest {
             .setEntityType(null);
 
     EnumeratorQuestionDefinition enumerator = (EnumeratorQuestionDefinition) builder.build();
-    assertThat(enumerator.getEntityType().isEmpty()).isTrue();
+    assertThat(enumerator.getEntityType().isEmpty()).isFalse();
+    assertThat(enumerator.getEntityType().getDefault())
+        .isEqualTo(EnumeratorQuestionDefinition.DEFAULT_ENTITY_TYPE);
+  }
+
+  @Test
+  public void builder_emptyEntityType_usesDefaultEntityType() throws Exception {
+    QuestionDefinitionBuilder builder =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.ENUMERATOR)
+            .setName("")
+            .setDescription("")
+            .setEnumeratorId(Optional.of(123L))
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .setEntityType(LocalizedStrings.empty());
+
+    EnumeratorQuestionDefinition enumerator = (EnumeratorQuestionDefinition) builder.build();
+    assertThat(enumerator.getEntityType().isEmpty()).isFalse();
+    assertThat(enumerator.getEntityType().getDefault())
+        .isEqualTo(EnumeratorQuestionDefinition.DEFAULT_ENTITY_TYPE);
   }
 }
