@@ -3,7 +3,6 @@ package services.applicant.question;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.EnumeratorQuestionDefinition;
@@ -75,11 +74,13 @@ public class EnumeratorQuestion implements PresentsErrors {
   }
 
   /**
-   * Get the admin-configurable entity type this enumerator represents. Examples: "car", "child",
-   * "job", "household member".
+   * Get the localized admin-configurable entity type this enumerator represents. Examples: "car",
+   * "child", "job", "household member".
    */
-  public LocalizedStrings getEntityType() {
-    return getQuestionDefinition().getEntityType();
+  public String getEntityType() {
+    return getQuestionDefinition()
+        .getEntityType()
+        .getOrDefault(applicantQuestion.getApplicantData().preferredLocale());
   }
 
   @Override
