@@ -8,8 +8,9 @@ import services.Path;
 /**
  * The enumerator context contains information about a {@link RepeatedEntity}.
  *
- * <p>When there is no repeated entity in scope, this should be an {@link #empty()} enumerator
- * context.
+ * <p>With no repeated entity in scope, the enumerator context starts empty. This can be created
+ * with the {@link #empty()} factory method. As repeated entities are added to the context, use
+ * {@link #append(RepeatedEntity, ImmutableList)} to append it to the context.
  */
 @AutoValue
 public abstract class EnumeratorContext {
@@ -26,8 +27,13 @@ public abstract class EnumeratorContext {
   /** A fully qualified path to the root of this {@link RepeatedEntity} in {@link ApplicantData}. */
   public abstract Path contextualizedPath();
 
-  /** Create an {@link EnumeratorContext}. */
-  public static EnumeratorContext create(
+  /**
+   * Private factory method to create an enumerator context with any fields.
+   *
+   * <p>Please use {@link #empty()} and {@link #append(RepeatedEntity, ImmutableList)} to create
+   * enumerator contexts.
+   */
+  private static EnumeratorContext create(
       RepeatedEntity repeatedEntity,
       ImmutableList<RepeatedEntity> ancestors,
       ImmutableList<RepeatedEntity> siblings,
