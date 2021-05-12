@@ -340,6 +340,8 @@ export class AdminQuestions {
 
     await this.page.selectOption('#question-enumeration-select', { label: enumeratorName });
 
+    await this.page.fill('text=Repeated Entity Type', 'Entity');
+
     await this.page.click('text=Create');
 
     await this.expectAdminQuestionsPage();
