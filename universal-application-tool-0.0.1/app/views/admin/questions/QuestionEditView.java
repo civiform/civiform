@@ -30,6 +30,7 @@ import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
+import views.questiontypes.EnumeratorQuestionRenderer;
 import views.style.Styles;
 
 public final class QuestionEditView extends BaseHtmlView {
