@@ -251,9 +251,9 @@ public class FieldWithLabel {
         .withClasses(fieldTagClasses)
         .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
         .withName(this.fieldName)
-        .condAttr(this.disabled, "disabled", "true")
+        .condAttr(this.disabled, Attr.DISABLED, "true")
         .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
-        .condAttr(!Strings.isNullOrEmpty(this.formId), "form", formId);
+        .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
 
     if (this.fieldType.equals("checkbox")) {
       return getCheckboxContainer();

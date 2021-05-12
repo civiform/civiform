@@ -2,10 +2,14 @@ package views.questiontypes;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.input;
+import static views.style.ReferenceClasses.ENUMERATOR_EXISTING_DELETE_BUTTON;
 
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
+import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
+import j2html.tags.EmptyTag;
 import j2html.tags.Tag;
 import java.util.Optional;
 import play.i18n.Messages;
@@ -26,6 +30,10 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
   private static final String ENUMERATOR_FIELDS_ID = "enumerator-fields";
   private static final String ADD_ELEMENT_BUTTON_ID = "enumerator-field-add-button";
   private static final String ENUMERATOR_FIELD_TEMPLATE_ID = "enumerator-field-template";
+  private static final String DELETE_ENTITY_TEMPLATE_ID = "enumerator-delete-template";
+  private static final ContainerTag DELETE_ICON =
+      Icons.svg(Icons.TRASH_CAN_SVG_PATH, 24)
+          .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
 
   public static final String ENUMERATOR_FIELD_CLASSES =
       StyleUtils.joinStyles(
@@ -55,6 +63,7 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
     return div()
         .withClasses(Styles.MX_AUTO, Styles.W_MAX)
         .with(
+            hiddenDeleteInputTemplate(),
             div()
                 .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT)
                 .withText(question.getQuestionText()),
@@ -85,18 +94,18 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
             .setValue(existingOption)
             .getContainer()
             .withClasses(Styles.FLEX, Styles.ML_2);
-    Tag removeEntityBox =
-        FieldWithLabel.checkbox()
-            .setFieldName(Path.empty().join(Scalar.DELETE_ENTITY).asArrayElement().toString())
-            .setValue(String.valueOf(index))
-            .getContainer()
+    Tag removeEntityButton =
+        TagCreator.button(DELETE_ICON)
+            .withType("button")
+            .withId(String.valueOf(index))
+            .withClasses(ENUMERATOR_EXISTING_DELETE_BUTTON, Styles.FLEX, Styles.ML_4)
             .attr(
                 "aria-label",
                 messages.at(
                     MessageKey.ENUMERATOR_BUTTON_ARIA_LABEL_DELETE_ENTITY.getKeyName(),
                     localizedEntityType));
 
-    return div().withClasses(ENUMERATOR_FIELD_CLASSES).with(entityNameInput, removeEntityBox);
+    return div().withClasses(ENUMERATOR_FIELD_CLASSES).with(entityNameInput, removeEntityButton);
   }
 
   /**
@@ -129,5 +138,13 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
         .withId(ENUMERATOR_FIELD_TEMPLATE_ID)
         .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, Styles.HIDDEN))
         .with(entityNameInput, removeEntityButton);
+  }
+
+  private static EmptyTag hiddenDeleteInputTemplate() {
+    return input()
+        .withId(DELETE_ENTITY_TEMPLATE_ID)
+        .withName(Path.empty().join(Scalar.DELETE_ENTITY).asArrayElement().toString())
+        .attr(Attr.DISABLED, true) // do not submit this with the form
+        .withClasses(Styles.HIDDEN);
   }
 }
