@@ -18,6 +18,8 @@ import services.LocalizedStrings;
  */
 public class EnumeratorQuestionDefinition extends QuestionDefinition {
 
+  protected static final String DEFAULT_ENTITY_TYPE = "Item";
+
   private final LocalizedStrings entityType;
 
   public EnumeratorQuestionDefinition(

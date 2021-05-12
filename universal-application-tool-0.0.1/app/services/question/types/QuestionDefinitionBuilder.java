@@ -220,7 +220,8 @@ public class QuestionDefinitionBuilder {
             id, name, enumeratorId, description, questionText, questionHelpText, questionOptions);
       case ENUMERATOR:
         if (entityType == null) {
-          entityType = LocalizedStrings.empty();
+          entityType =
+              LocalizedStrings.withDefaultValue(EnumeratorQuestionDefinition.DEFAULT_ENTITY_TYPE);
         }
         return new EnumeratorQuestionDefinition(
             id, name, enumeratorId, description, questionText, questionHelpText, entityType);
