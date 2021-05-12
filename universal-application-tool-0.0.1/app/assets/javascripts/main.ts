@@ -138,6 +138,7 @@ function removeExistingEnumeratorField(event: Event) {
   const deletedEntityInput = document.getElementById("enumerator-delete-template").cloneNode(true) as HTMLInputElement;
   deletedEntityInput.disabled = false;
   deletedEntityInput.setAttribute("value", removeButton.id);
+  deletedEntityInput.removeAttribute("id");
 
   // Add the hidden deleted entity input to the page.
   enumeratorFieldDiv.appendChild(deletedEntityInput);

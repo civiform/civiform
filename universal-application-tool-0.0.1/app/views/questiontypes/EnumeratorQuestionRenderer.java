@@ -62,7 +62,7 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
               localizedEntityType,
               question.getContextualizedPath(),
               Optional.of(entityNames.get(index)),
-              OptionalInt.of(index)));
+              Optional.of(index)));
     }
     return div()
         .withClasses(Styles.MX_AUTO, Styles.W_MAX)
@@ -95,7 +95,7 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
       String localizedEntityType,
       Path contextualizedPath,
       Optional<String> existingEntity,
-      OptionalInt existingIndex) {
+      Optional<Integer> existingIndex) {
     String removeButtonStyles =
         existingEntity.isPresent()
             ? StyleUtils.joinStyles(ENUMERATOR_EXISTING_DELETE_BUTTON, Styles.ML_4)
@@ -113,7 +113,7 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
     Tag removeEntityButton =
         TagCreator.button(DELETE_ICON)
             .withType("button")
-            .withCondId(existingIndex.isPresent(), String.valueOf(existingIndex.orElse(-1)))
+            .withCondId(existingIndex.isPresent(), existingIndex.map(String::valueOf).orElse(""))
             .withClasses(removeButtonStyles)
             .attr(
                 "aria-label",
@@ -134,7 +134,7 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
             localizedEntityType,
             contextualizedPath,
             Optional.empty(),
-            OptionalInt.empty())
+            Optional.empty())
         .withId(ENUMERATOR_FIELD_TEMPLATE_ID)
         .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, Styles.HIDDEN));
   }
