@@ -57,7 +57,7 @@ public class AdminApplicationController extends CiviFormController {
     this.exporterService = checkNotNull(exporterService);
   }
 
-  @Secure(authorizers = Authorizers.Labels.PROGRAM_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result downloadAll(Http.Request request, long programId) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
@@ -73,7 +73,7 @@ public class AdminApplicationController extends CiviFormController {
     }
   }
 
-  @Secure(authorizers = Authorizers.Labels.PROGRAM_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result download(Http.Request request, long programId, long applicationId) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
@@ -84,7 +84,7 @@ public class AdminApplicationController extends CiviFormController {
     }
   }
 
-  @Secure(authorizers = Authorizers.Labels.PROGRAM_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result show(Http.Request request, long programId, long applicationId) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
@@ -115,7 +115,7 @@ public class AdminApplicationController extends CiviFormController {
             answers));
   }
 
-  @Secure(authorizers = Authorizers.Labels.PROGRAM_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result index(Http.Request request, long programId) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);

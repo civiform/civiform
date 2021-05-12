@@ -314,12 +314,12 @@ public class UserRepository {
    * @param program the {@link ProgramDefinition} to remove from the given account
    */
   public void removeAdministeredProgram(String accountEmail, ProgramDefinition program) {
-      Optional<Account> maybeAccount = lookupAccount(accountEmail);
-      maybeAccount.ifPresent(
-              account -> {
-                  account.removeAdministeredProgram(program);
-                  account.save();
-              });
+    Optional<Account> maybeAccount = lookupAccount(accountEmail);
+    maybeAccount.ifPresent(
+        account -> {
+          account.removeAdministeredProgram(program);
+          account.save();
+        });
   }
 
   public ImmutableSet<Account> getUatAdmins() {

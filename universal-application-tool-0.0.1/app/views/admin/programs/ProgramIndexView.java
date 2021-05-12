@@ -7,11 +7,12 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.head;
 import static j2html.TagCreator.p;
 
+import auth.UatProfile;
 import com.google.inject.Inject;
 import controllers.admin.routes;
-import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
@@ -20,7 +21,6 @@ import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.components.LinkElement;
-import views.components.ToastMessage;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -33,8 +33,8 @@ public final class ProgramIndexView extends BaseHtmlView {
     this.layout = layout;
   }
 
-  public Content render(ActiveAndDraftPrograms programs, Http.Request request) {
-    ContainerTag contentDiv =
+  public Content render(ActiveAndDraftPrograms programs, Http.Request request, UatProfile profile) {
+    Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
             .with(
@@ -48,17 +48,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                         this.renderProgramListItem(
                             programs.getActiveProgramDefinition(name),
                             programs.getDraftProgramDefinition(name),
-                            request)));
-
-    Optional<String> errorMessage = request.flash().get("error");
-    if (errorMessage.isPresent()) {
-      contentDiv.with(
-          ToastMessage.error(errorMessage.get())
-              .setId("warning-message-ti-form-fill")
-              .setIgnorable(false)
-              .setDuration(0)
-              .getContainerTag());
-    }
+                            request,
+                            profile)));
 
     return layout.render(head(layout.tailwindStyles()), body(contentDiv));
   }
@@ -97,7 +88,8 @@ public final class ProgramIndexView extends BaseHtmlView {
   public Tag renderProgramListItem(
       Optional<ProgramDefinition> activeProgram,
       Optional<ProgramDefinition> draftProgram,
-      Http.Request request) {
+      Http.Request request,
+      UatProfile profile) {
     String programStatusText = extractProgramStatusText(draftProgram, activeProgram);
     String lastEditText = "Last updated 2 hours ago."; // TODO: Need to generate this.
 
@@ -139,6 +131,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 p().withClasses(Styles.FLEX_GROW),
                 maybeRenderManageTranslationsLink(draftProgram),
                 maybeRenderEditLink(draftProgram, activeProgram, request),
+                maybeRenderViewApplicationsLink(activeProgram, profile),
                 renderManageProgramAdminsLink(draftProgram, activeProgram))
             .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
 
@@ -214,6 +207,29 @@ public final class ProgramIndexView extends BaseHtmlView {
     } else {
       return div();
     }
+  }
+
+  private Tag maybeRenderViewApplicationsLink(
+      Optional<ProgramDefinition> activeProgram, UatProfile userProfile) {
+    if (activeProgram.isPresent()) {
+      boolean userIsAuthorized = true;
+      try {
+        userProfile.checkProgramAuthorization(activeProgram.get().adminName()).join();
+      } catch (CompletionException e) {
+        userIsAuthorized = false;
+      }
+      if (userIsAuthorized) {
+        String editLink = routes.AdminApplicationController.index(activeProgram.get().id()).url();
+
+        return new LinkElement()
+            .setId("program-view-apps-link-" + activeProgram.get().id())
+            .setHref(editLink)
+            .setText("Applications →")
+            .setStyles(Styles.MR_2)
+            .asAnchorText();
+      }
+    }
+    return div();
   }
 
   private Tag renderManageProgramAdminsLink(

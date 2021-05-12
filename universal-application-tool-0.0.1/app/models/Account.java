@@ -94,6 +94,9 @@ public class Account extends BaseModel {
    * programs.
    */
   public void addAdministeredProgram(ProgramDefinition program) {
+    if (this.adminOf == null) {
+      this.adminOf = new ArrayList<>();
+    }
     if (!this.adminOf.contains(program.adminName())) {
       this.adminOf.add(program.adminName());
     }
