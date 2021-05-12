@@ -50,6 +50,10 @@ public class RoleService {
    */
   public Optional<CiviFormError> makeProgramAdmins(
       long programId, ImmutableSet<String> accountEmails) throws ProgramNotFoundException {
+    if (accountEmails.isEmpty() || accountEmails.stream().allMatch(String::isBlank)) {
+      return Optional.empty();
+    }
+
     ProgramDefinition program = programService.getProgramDefinition(programId);
     // Filter out UAT admins from the list of emails - a UAT admin cannot be a program admin.
     ImmutableSet<String> sysAdminEmails =
@@ -74,6 +78,22 @@ public class RoleService {
                   "The following are already CiviForm admins and could not be added as"
                       + " program admins: %s",
                   Joiner.on(", ").join(invalidEmails))));
+    }
+  }
+
+  /**
+   * For each account (identified by email), remove the given program from the list of programs that
+   * account administers. If an account does not administer the given program, do nothing.
+   *
+   * @param programId the ID of the program to remove
+   * @param accountEmails a list of account emails of program admins for the given program
+   * @throws ProgramNotFoundException if the given program does not exist
+   */
+  public void removeProgramAdmins(long programId, ImmutableSet<String> accountEmails)
+      throws ProgramNotFoundException {
+    if (!accountEmails.isEmpty()) {
+      ProgramDefinition program = programService.getProgramDefinition(programId);
+      accountEmails.forEach(email -> userRepository.removeAdministeredProgram(email, program));
     }
   }
 }

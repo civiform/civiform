@@ -55,11 +55,11 @@ public abstract class ProgramDefinition {
   /**
    * Get all the {@link Locale}s this program fully supports. A program fully supports a locale if:
    *
-   * <ol>
+   * <ul>
    *   <li>The publicly-visible display name is localized for the locale
    *   <li>The publicly-visible description is localized for the locale
    *   <li>Every question in this program fully supports this locale
-   * </ol>
+   * </ul>
    *
    * @return an {@link ImmutableSet} of all {@link Locale}s that are fully supported for this
    *     program

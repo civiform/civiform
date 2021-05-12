@@ -63,7 +63,7 @@ public class ProgramAdminManagementControllerTest extends WithPostgresContainer 
   }
 
   @Test
-  public void update_succeeds() {
+  public void update_addOnly_succeeds() {
     String email1 = "one";
     String email2 = "two";
     Account account1 = new Account();
@@ -91,8 +91,41 @@ public class ProgramAdminManagementControllerTest extends WithPostgresContainer 
   }
 
   @Test
+  public void update_withRemovals_succeeds() {
+    String programName = "add remove";
+    Program program = ProgramBuilder.newDraftProgram(programName).build();
+
+    String addEmail = "add me";
+    Account addAccount = new Account();
+    addAccount.setEmailAddress(addEmail);
+    addAccount.save();
+
+    String removeEmail = "remove me";
+    Account removeAccount = new Account();
+    removeAccount.setEmailAddress(removeEmail);
+    removeAccount.addAdministeredProgram(program.getProgramDefinition());
+    removeAccount.save();
+
+    Http.Request request =
+        fakeRequest()
+            .bodyForm(
+                ImmutableMap.of("adminEmails[0]", addEmail, "removeAdminEmails[0]", removeEmail))
+            .build();
+
+    Result result = controller.update(request, program.id);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(userRepository.lookupAccount(addEmail).get().getAdministeredProgramNames())
+        .containsExactly(programName);
+    assertThat(userRepository.lookupAccount(removeEmail).get().getAdministeredProgramNames())
+        .isEmpty();
+  }
+
+  @Test
   public void update_programNotFound_returnsNotFound() {
-    Result result = controller.update(fakeRequest().build(), 1234L);
+    Http.Request request =
+        fakeRequest().bodyForm(ImmutableMap.of("adminEmails[0]", "unused")).build();
+    Result result = controller.update(request, 1234L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }

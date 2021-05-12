@@ -134,7 +134,7 @@ public class ExporterService {
 
     // Add columns for each path to an answer.
     for (AnswerData answerData : answerDataList) {
-      if (answerData.isEnumeratorAnswer()) {
+      if (answerData.questionDefinition().isEnumerator()) {
         continue; // Do not include Enumerator answers in CSVs.
       }
       for (Path path : answerData.scalarAnswersInDefaultLocale().keySet()) {

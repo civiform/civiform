@@ -32,7 +32,7 @@ import services.question.types.QuestionType;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
 
-public class QuestionController extends CiviFormController {
+public class AdminQuestionController extends CiviFormController {
   private final QuestionService service;
   private final QuestionsListView listView;
   private final QuestionEditView editView;
@@ -40,7 +40,7 @@ public class QuestionController extends CiviFormController {
   private final HttpExecutionContext httpExecutionContext;
 
   @Inject
-  public QuestionController(
+  public AdminQuestionController(
       QuestionService service,
       QuestionsListView listView,
       QuestionEditView editView,
@@ -146,7 +146,7 @@ public class QuestionController extends CiviFormController {
     }
 
     String successMessage = String.format("question %s created", questionForm.getQuestionName());
-    return withMessage(redirect(routes.QuestionController.index()), successMessage);
+    return withMessage(redirect(routes.AdminQuestionController.index()), successMessage);
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
@@ -224,7 +224,7 @@ public class QuestionController extends CiviFormController {
     }
 
     String successMessage = String.format("question %s updated", questionForm.getQuestionName());
-    return withMessage(redirect(routes.QuestionController.index()), successMessage);
+    return withMessage(redirect(routes.AdminQuestionController.index()), successMessage);
   }
 
   private Result withMessage(Result result, String message) {

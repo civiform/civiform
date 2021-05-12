@@ -48,4 +48,17 @@ public class AccountTest extends WithPostgresContainer {
     account.addAdministeredProgram(program);
     assertThat(account.getAdministeredProgramNames()).containsExactly(programName);
   }
+
+  @Test
+  public void removeAdministeredProgram() {
+    Account account = new Account();
+    String programName = "remove";
+    ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
+
+    account.addAdministeredProgram(program);
+    assertThat(account.getAdministeredProgramNames()).containsExactly(programName);
+
+    account.removeAdministeredProgram(program);
+    assertThat(account.getAdministeredProgramNames()).isEmpty();
+  }
 }

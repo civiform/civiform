@@ -3,7 +3,9 @@ package services.question.types;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
+import java.util.Optional;
 import org.junit.Test;
+import services.LocalizedStrings;
 import support.TestQuestionBank;
 
 public class QuestionDefinitionBuilderTest {
@@ -34,5 +36,41 @@ public class QuestionDefinitionBuilderTest {
 
     assertThat(question.getQuestionText().get(Locale.US)).isEqualTo("new text");
     assertThat(question.getQuestionHelpText().get(Locale.US)).isEqualTo("new help text");
+  }
+
+  @Test
+  public void builder_enumeratorWithNull_usesDefaultEntityType() throws Exception {
+    QuestionDefinitionBuilder builder =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.ENUMERATOR)
+            .setName("")
+            .setDescription("")
+            .setEnumeratorId(Optional.of(123L))
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .setEntityType(null);
+
+    EnumeratorQuestionDefinition enumerator = (EnumeratorQuestionDefinition) builder.build();
+    assertThat(enumerator.getEntityType().isEmpty()).isFalse();
+    assertThat(enumerator.getEntityType().getDefault())
+        .isEqualTo(EnumeratorQuestionDefinition.DEFAULT_ENTITY_TYPE);
+  }
+
+  @Test
+  public void builder_emptyEntityType_usesDefaultEntityType() throws Exception {
+    QuestionDefinitionBuilder builder =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.ENUMERATOR)
+            .setName("")
+            .setDescription("")
+            .setEnumeratorId(Optional.of(123L))
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .setEntityType(LocalizedStrings.empty());
+
+    EnumeratorQuestionDefinition enumerator = (EnumeratorQuestionDefinition) builder.build();
+    assertThat(enumerator.getEntityType().isEmpty()).isFalse();
+    assertThat(enumerator.getEntityType().getDefault())
+        .isEqualTo(EnumeratorQuestionDefinition.DEFAULT_ENTITY_TYPE);
   }
 }
