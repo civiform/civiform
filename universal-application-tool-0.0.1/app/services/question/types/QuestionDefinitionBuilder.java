@@ -219,7 +219,7 @@ public class QuestionDefinitionBuilder {
         return new RadioButtonQuestionDefinition(
             id, name, enumeratorId, description, questionText, questionHelpText, questionOptions);
       case ENUMERATOR:
-        if (entityType == null) {
+        if (entityType == null || entityType.isEmpty()) {
           entityType =
               LocalizedStrings.withDefaultValue(EnumeratorQuestionDefinition.DEFAULT_ENTITY_TYPE);
         }

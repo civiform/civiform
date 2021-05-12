@@ -46,8 +46,8 @@ public class QuestionConfigTest {
         .contains("single-select-question-config");
 
     assertThat(QuestionConfig.buildQuestionConfig(new EnumeratorQuestionForm()))
-            .toString()
-            .contains("enumerator-question-config");
+        .toString()
+        .contains("enumerator-question-config");
   }
 
   @Test
