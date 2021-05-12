@@ -3,6 +3,7 @@ package services.applicant.question;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import play.i18n.Messages;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
@@ -76,10 +77,15 @@ public class EnumeratorQuestion implements PresentsErrors {
 
   /**
    * Get the admin-configurable entity type this enumerator represents. Examples: "car", "child",
-   * "job", "household member".
+   * "job", "household member". If the admin did not configure this, it defaults to {@link
+   * MessageKey#ENUMERATOR_STRING_DEFAULT_ENTITY_TYPE}.
    */
-  public LocalizedStrings getEntityType() {
-    return getQuestionDefinition().getEntityType();
+  public String getEntityType(Messages messages) {
+    LocalizedStrings translations = getQuestionDefinition().getEntityType();
+    if (translations.isEmpty()) {
+      return messages.at(MessageKey.ENUMERATOR_STRING_DEFAULT_ENTITY_TYPE.getKeyName());
+    }
+    return translations.getOrDefault(messages.lang().toLocale());
   }
 
   @Override

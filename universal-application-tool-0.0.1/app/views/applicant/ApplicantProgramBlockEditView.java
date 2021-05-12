@@ -60,8 +60,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
                   .block()
                   .getEnumeratorQuestion()
                   .createEnumeratorQuestion()
-                  .getEntityType()
-                  .getOrDefault(params.messages().lang().toLocale()),
+                  .getEntityType(params.messages()),
               params.messages()));
     }
 

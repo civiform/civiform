@@ -42,8 +42,7 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
 
     Messages messages = params.messages();
     EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();
-    String localizedEntityType =
-        enumeratorQuestion.getEntityType().getOrDefault(params.messages().lang().toLocale());
+    String localizedEntityType = enumeratorQuestion.getEntityType(messages);
     ImmutableList<String> entityNames = enumeratorQuestion.getEntityNames();
 
     ContainerTag enumeratorFields = div().withId(ENUMERATOR_FIELDS_ID);
