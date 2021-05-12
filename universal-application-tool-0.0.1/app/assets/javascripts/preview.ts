@@ -2,7 +2,7 @@
 class PreviewController {
   static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea';
   static readonly QUESTION_HELP_TEXT_INPUT_ID = 'question-help-text-textarea';
-  static readonly QUESTION_ENTITY_TYPE_INPUT_ID = 'enumerator-question-entity-type-textarea';
+  static readonly QUESTION_ENTITY_TYPE_INPUT_ID = 'enumerator-question-entity-type-input';
 
   static readonly QUESTION_TEXT_CLASS = '.cf-applicant-question-text';
   static readonly QUESTION_HELP_TEXT_CLASS = '.cf-applicant-question-help-text';
