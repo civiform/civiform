@@ -1,5 +1,7 @@
 package views.admin.programs;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
@@ -12,8 +14,6 @@ import play.twirl.api.Content;
 import views.admin.AdminLayout;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /** Renders a list of languages to select from, and a form for updating program information. */
 public class ProgramTranslationView extends TranslationFormView {

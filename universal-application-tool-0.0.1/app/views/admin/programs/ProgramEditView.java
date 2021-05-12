@@ -1,5 +1,7 @@
 package views.admin.programs;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.inject.Inject;
 import forms.ProgramForm;
 import j2html.tags.ContainerTag;
@@ -11,8 +13,6 @@ import views.admin.AdminLayout;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.Styles;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ProgramEditView extends BaseHtmlView {
   private final AdminLayout layout;

@@ -1,5 +1,7 @@
 package views.admin;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
@@ -12,8 +14,6 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Takes in a stream of objects, and a function that extracts a string key from those objects, and

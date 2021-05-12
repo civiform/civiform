@@ -1,5 +1,7 @@
 package views.admin.questions;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableList;
 import j2html.tags.ContainerTag;
 import java.util.Locale;
@@ -12,8 +14,6 @@ import services.question.types.QuestionDefinition;
 import views.admin.AdminLayout;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /** Renders a list of languages to select from, and a form for updating question information. */
 public class QuestionTranslationView extends TranslationFormView {
