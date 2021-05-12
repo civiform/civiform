@@ -3,6 +3,7 @@ package services.applicant.question;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import java.util.Locale;
 import play.i18n.Messages;
 import services.LocalizedStrings;
 import services.MessageKey;
@@ -80,12 +81,12 @@ public class EnumeratorQuestion implements PresentsErrors {
    * "job", "household member". If the admin did not configure this, it defaults to {@link
    * MessageKey#ENUMERATOR_STRING_DEFAULT_ENTITY_TYPE}.
    */
-  public String getEntityType(Messages messages) {
+  public String getEntityType(Messages messages, Locale locale) {
     LocalizedStrings translations = getQuestionDefinition().getEntityType();
     if (translations.isEmpty()) {
       return messages.at(MessageKey.ENUMERATOR_STRING_DEFAULT_ENTITY_TYPE.getKeyName());
     }
-    return translations.getOrDefault(messages.lang().toLocale());
+    return translations.getOrDefault(locale);
   }
 
   @Override

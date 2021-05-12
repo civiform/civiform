@@ -16,6 +16,7 @@ import services.LocalizedStrings;
 import services.Path;
 import services.applicant.question.Scalar;
 import services.program.ProgramDefinition;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.ScalarType;
 import support.ProgramBuilder;
@@ -203,11 +204,13 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     assertThat(blocks.get(10).getRepeatedEntities())
         .containsExactly(
             RepeatedEntity.create(
-                testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+                (EnumeratorQuestionDefinition)
+                    testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
                 "third entity",
                 2),
             RepeatedEntity.create(
-                testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
+                (EnumeratorQuestionDefinition)
+                    testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
                 "nested second job",
                 1));
   }
