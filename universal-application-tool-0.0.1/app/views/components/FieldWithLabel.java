@@ -188,15 +188,12 @@ public class FieldWithLabel {
       fieldTag.withValue(this.fieldValue);
     }
 
-    // Need to assign an ID in order to properly associate the label with this input field.
-    if (Strings.isNullOrEmpty(this.id)) this.id = this.fieldName;
-
     fieldTag
         .withClasses(
             StyleUtils.joinStyles(
                 BaseStyles.INPUT,
                 fieldErrors.isEmpty() ? "" : BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR))
-        .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
+        .withCondId(!this.id.isEmpty(), this.id)
         .withName(this.fieldName)
         .condAttr(this.disabled, "disabled", "true")
         .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
@@ -208,7 +205,7 @@ public class FieldWithLabel {
 
     ContainerTag labelTag =
         label()
-            .condAttr(shouldSetLabelForAttr(), Attr.FOR, this.id)
+            .condAttr(!this.id.isEmpty(), Attr.FOR, this.id)
             .withClasses(labelText.isEmpty() ? "" : BaseStyles.INPUT_LABEL)
             .withText(labelText);
 
@@ -233,7 +230,7 @@ public class FieldWithLabel {
             BaseStyles.CHECKBOX_LABEL,
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
             labelText.isEmpty() ? Styles.W_MIN : "")
-        .condAttr(shouldSetLabelForAttr(), Attr.FOR, this.id)
+        .condAttr(!this.id.isEmpty(), Attr.FOR, this.id)
         .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
         .withText(this.labelText);
   }
@@ -244,9 +241,5 @@ public class FieldWithLabel {
             fieldErrors.isEmpty()
                 ? ""
                 : StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT, Styles.P_1));
-  }
-
-  private boolean shouldSetLabelForAttr() {
-    return !this.id.isEmpty() && !this.labelText.isEmpty();
   }
 }
