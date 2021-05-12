@@ -39,7 +39,7 @@ class PreviewController {
       let entityType = (<HTMLInputElement>entityTypeInput).value;
       if (entityType.length > 0) {
         PreviewController.setAllMatchingPlaceholders(
-          PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS,
+          PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS + " input",
           "Nickname for " + entityType);
         PreviewController.setTextContent(
           PreviewController.QUESTION_ENTITY_TYPE_BUTTON_ID,
@@ -91,7 +91,7 @@ class PreviewController {
   }
 
   static setAllMatchingPlaceholders(selector: string, text: string) {
-    const inputFields = document.querySelectorAll(selector + " input");
+    const inputFields = document.querySelectorAll(selector);
     Array.from(inputFields).forEach(function(inputField) { (<HTMLInputElement>inputField).placeholder = text });
   }
 }

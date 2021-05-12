@@ -29,7 +29,7 @@ import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.QuestionBank;
 import views.components.ToastMessage;
-import views.style.BaseStyles;
+import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -299,7 +299,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withId("block-question-" + definition.getId())
             .withName("block-question-" + definition.getId())
             .withValue(definition.getId() + "")
-            .withClasses(ReferenceClasses.REMOVE_QUESTION_BUTTON, BaseStyles.CLICK_TARGET_BUTTON);
+            .withClasses(ReferenceClasses.REMOVE_QUESTION_BUTTON, AdminStyles.CLICK_TARGET_BUTTON);
 
     ContainerTag icon =
         Icons.questionTypeSvg(definition.getQuestionType(), 24)

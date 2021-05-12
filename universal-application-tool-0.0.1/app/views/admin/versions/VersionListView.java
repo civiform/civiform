@@ -1,5 +1,6 @@
 package views.admin.versions;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
@@ -37,7 +38,7 @@ public class VersionListView extends BaseHtmlView {
 
   @Inject
   public VersionListView(AdminLayout layout) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(List<Version> allVersions, Http.Request request) {

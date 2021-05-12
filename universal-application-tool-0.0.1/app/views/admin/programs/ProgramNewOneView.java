@@ -1,5 +1,6 @@
 package views.admin.programs;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 
@@ -17,7 +18,7 @@ public final class ProgramNewOneView extends BaseHtmlView {
 
   @Inject
   public ProgramNewOneView(AdminLayout layout) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(Request request) {

@@ -49,8 +49,6 @@ public class QuestionConfig {
   private static final String OUTER_DIV_CLASSES =
       StyleUtils.joinStyles(Styles.W_FULL, Styles.PT_0, Styles._MT_4);
 
-  public QuestionConfig() {}
-
   public QuestionConfig setId(String id) {
     this.id = id;
     return this;
