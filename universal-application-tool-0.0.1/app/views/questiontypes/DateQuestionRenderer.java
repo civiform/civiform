@@ -13,6 +13,7 @@ import views.style.ReferenceClasses;
 import views.style.Styles;
 
 public class DateQuestionRenderer extends BaseHtmlView implements ApplicantQuestionRenderer {
+
   private final ApplicantQuestion question;
 
   public DateQuestionRenderer(ApplicantQuestion question) {
@@ -24,9 +25,8 @@ public class DateQuestionRenderer extends BaseHtmlView implements ApplicantQuest
     DateQuestion dateQuestion = question.createDateQuestion();
 
     FieldWithLabel dateField =
-        FieldWithLabel.number()
-            .setFieldName(dateQuestion.getDatePath().toString())
-            .setFloatLabel(true);
+        FieldWithLabel.number().setFieldName(dateQuestion.getDatePath().toString());
+
     if (dateQuestion.getDateValue().isPresent()) {
       // TODO: [Refactor] Oof! Converting Optional<Long> to OptionalLong.
       OptionalLong value = OptionalLong.of(dateQuestion.getDateValue().orElse(0L));
