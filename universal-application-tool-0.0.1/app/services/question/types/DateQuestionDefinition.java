@@ -2,10 +2,7 @@ package services.question.types;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableMap;
-import java.util.Locale;
 import java.util.Optional;
-
 import services.LocalizedStrings;
 
 public class DateQuestionDefinition extends QuestionDefinition {
@@ -50,5 +47,4 @@ public class DateQuestionDefinition extends QuestionDefinition {
   public QuestionType getQuestionType() {
     return QuestionType.DATE;
   }
-
 }

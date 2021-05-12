@@ -9,7 +9,8 @@ public class Icons {
           + " 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z";
   // Check
   public static final String CHECKBOX_SVG_PATH = "M5 13l4 4L19 7";
-  public static final String DATE_SVG_PATH = "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z";
+  public static final String DATE_SVG_PATH =
+      "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z";
   // Menu
   public static final String DROPDOWN_SVG_PATH = "M4 6h16M4 10h16M4 14h16M4 18h16";
   public static final String ENUMERATOR_SVG_PATH =
@@ -71,10 +72,10 @@ public class Icons {
             .attr("stroke-width", "2");
       case DATE:
         return svg(Icons.DATE_SVG_PATH, width, height)
-                .attr("fill", "none")
-                .attr("stroke-linecap", "round")
-                .attr("stroke-linejoin", "round")
-                .attr("stroke-width", "2");
+            .attr("fill", "none")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-width", "2");
       case DROPDOWN:
         return svg(Icons.DROPDOWN_SVG_PATH, width, height)
             .attr("stroke-linecap", "round")
