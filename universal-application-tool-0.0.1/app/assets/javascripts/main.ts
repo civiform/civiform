@@ -122,7 +122,7 @@ function removeEnumeratorField(event: Event) {
 
 /**
  * Enumerator delete buttons for existing entities behave differently than removing fields that
- * were just added.
+ * were just added client-side and were not saved server-side.
  */
 function removeExistingEnumeratorField(event: Event) {
   // Get the button that was clicked
