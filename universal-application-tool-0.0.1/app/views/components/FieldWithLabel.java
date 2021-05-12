@@ -1,5 +1,6 @@
 package views.components;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.label;
@@ -17,65 +18,10 @@ import java.util.OptionalLong;
 import play.i18n.Messages;
 import services.applicant.ValidationErrorMessage;
 import views.style.BaseStyles;
-import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
 public class FieldWithLabel {
-  private static final String[] CORE_FIELD_CLASSES = {
-    BaseStyles.FIELD_BORDER_COLOR,
-    Styles.BG_GRAY_50,
-    Styles.BLOCK,
-    Styles.BORDER,
-    Styles.P_2,
-    Styles.W_FULL
-  };
-
-  private static final String[] CORE_CHECKBOX_FIELD_CLASSES = {
-    Styles.H_4, Styles.W_4, Styles.MR_3, Styles.MB_2
-  };
-
-  private static final String[] CORE_CHECKBOX_LABEL_CLASSES = {
-    Styles.TEXT_GRAY_600, Styles.ALIGN_TEXT_TOP, Styles.FONT_BOLD, Styles.TEXT_XS, Styles.UPPERCASE
-  };
-
-  private static final String[] CORE_LABEL_CLASSES = {
-    BaseStyles.LABEL_BACKGROUND_COLOR,
-    BaseStyles.LABEL_TEXT_COLOR,
-    Styles.BLOCK,
-    Styles.FONT_BOLD,
-    Styles.TEXT_XS,
-    Styles._MX_1,
-    Styles.MB_2,
-    Styles.UPPERCASE
-  };
-
-  private static final String[] FLOATED_FIELD_CLASSES = {
-    Styles.OUTLINE_NONE,
-    Styles.PX_3,
-    Styles.PT_6,
-    Styles.PB_2,
-    Styles.M_AUTO,
-    Styles.BORDER,
-    BaseStyles.FIELD_BORDER_COLOR,
-    Styles.ROUNDED_LG,
-    Styles.W_FULL,
-    Styles.TEXT_LG,
-    Styles.PLACEHOLDER_GRAY_400,
-    StyleUtils.focus(Styles.BORDER_BLUE_500)
-  };
-
-  private static final String[] FLOATED_LABEL_CLASSES = {
-    Styles.ABSOLUTE,
-    Styles.POINTER_EVENTS_NONE,
-    Styles.TEXT_GRAY_600,
-    Styles.TOP_1,
-    Styles.LEFT_3,
-    Styles.TEXT_XS,
-    Styles.PX_1,
-    Styles.PY_2
-  };
-
   private static final ImmutableSet<String> STRING_TYPES =
       ImmutableSet.of("text", "checkbox", "date", "email");
 
@@ -94,11 +40,10 @@ public class FieldWithLabel {
   protected Messages messages;
   protected ImmutableSet<ValidationErrorMessage> fieldErrors = ImmutableSet.of();
   protected boolean checked = false;
-  protected boolean floatLabel = false;
   protected boolean disabled = false;
 
   public FieldWithLabel(Tag fieldTag) {
-    this.fieldTag = fieldTag;
+    this.fieldTag = checkNotNull(fieldTag);
   }
 
   public static FieldWithLabel checkbox() {
@@ -144,11 +89,6 @@ public class FieldWithLabel {
   public FieldWithLabel setFieldType(String fieldType) {
     this.fieldTag.withType(fieldType);
     this.fieldType = fieldType;
-    return this;
-  }
-
-  public FieldWithLabel setFloatLabel(boolean floatLabel) {
-    this.floatLabel = floatLabel;
     return this;
   }
 
@@ -240,15 +180,14 @@ public class FieldWithLabel {
       fieldTag.withValue(this.fieldValue);
     }
 
-    String fieldTagClasses = StyleUtils.joinStyles(CORE_FIELD_CLASSES);
-    if (!fieldErrors.isEmpty()) {
-      fieldTagClasses = StyleUtils.joinStyles(fieldTagClasses, BaseStyles.FIELD_ERROR_BORDER_COLOR);
-    }
-
+    // Need to assign an ID in order to properly associate the label with this input field.
     if (Strings.isNullOrEmpty(this.id)) this.id = this.fieldName;
 
     fieldTag
-        .withClasses(fieldTagClasses)
+        .withClasses(
+            StyleUtils.joinStyles(
+                BaseStyles.INPUT,
+                fieldErrors.isEmpty() ? "" : BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR))
         .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
         .withName(this.fieldName)
         .condAttr(this.disabled, Attr.DISABLED, "true")
@@ -261,47 +200,42 @@ public class FieldWithLabel {
 
     ContainerTag labelTag =
         label()
-            .condAttr(!Strings.isNullOrEmpty(this.id), Attr.FOR, this.id)
-            .withClasses(FieldWithLabel.CORE_LABEL_CLASSES)
-            .withText(this.labelText);
+            .condAttr(shouldSetLabelForAttr(), Attr.FOR, this.id)
+            .withClasses(labelText.isEmpty() ? "" : BaseStyles.INPUT_LABEL)
+            .withText(labelText);
 
-    if (this.floatLabel) {
-      fieldTagClasses = StyleUtils.joinStyles(FieldWithLabel.FLOATED_FIELD_CLASSES);
-      if (!fieldErrors.isEmpty()) {
-        fieldTagClasses =
-            StyleUtils.joinStyles(fieldTagClasses, BaseStyles.FIELD_ERROR_BORDER_COLOR);
-      }
-
-      fieldTag.withClasses(fieldTagClasses);
-      labelTag.withClasses(FieldWithLabel.FLOATED_LABEL_CLASSES);
-
-      return div()
-          .with(
-              div(fieldTag, labelTag, buildFieldErrorsTag())
-                  .withClasses(ReferenceClasses.FLOATED_LABEL, Styles.MB_4, Styles.RELATIVE));
-    }
-
-    return div(labelTag, fieldTag, buildFieldErrorsTag()).withClasses(Styles.MX_4, Styles.MB_4);
+    return div(labelTag, fieldTag, buildFieldErrorsTag())
+        .withClasses(BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
   }
 
-  /** Swaps the order of the label and field, possibly adds, and adds different styles. */
+  /**
+   * Swaps the order of the label and field, adds different styles, and possibly adds "checked"
+   * attribute.
+   */
   private ContainerTag getCheckboxContainer() {
-    fieldTag.withClasses(CORE_CHECKBOX_FIELD_CLASSES);
     if (this.checked) {
       fieldTag.attr("checked");
     }
 
-    ContainerTag labelTag =
-        label()
-            .withClasses(CORE_CHECKBOX_LABEL_CLASSES)
-            .condAttr(!Strings.isNullOrEmpty(this.id), Attr.FOR, this.id)
-            .withText(this.labelText);
-
-    return div(fieldTag, labelTag).withClasses(Styles.M_4, Styles.MB_1);
+    return label()
+        .withClasses(
+            BaseStyles.CHECKBOX_LABEL,
+            BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
+            labelText.isEmpty() ? Styles.W_MIN : "")
+        .condAttr(shouldSetLabelForAttr(), Attr.FOR, this.id)
+        .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
+        .withText(this.labelText);
   }
 
   private Tag buildFieldErrorsTag() {
     return div(each(fieldErrors, error -> div(error.getMessage(messages))))
-        .withClasses(StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT, Styles.PX_2));
+        .withClasses(
+            fieldErrors.isEmpty()
+                ? ""
+                : StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT, Styles.P_1));
+  }
+
+  private boolean shouldSetLabelForAttr() {
+    return !this.id.isEmpty() && !this.labelText.isEmpty();
   }
 }

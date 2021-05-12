@@ -64,10 +64,10 @@ GET     /admin/tiDash                      controllers.ti.TrustedIntermediaryCon
 POST    /admin/tiGroups/:id/addApplicant   controllers.ti.TrustedIntermediaryController.addApplicant(id: Long, request: Request)
 
 # Controller for admins only, related to applications
-GET     /admin/programs/:programId/applications                           controllers.admin.AdminApplicationController.index(programId: Long)
-GET     /admin/programs/:programId/applications/all                       controllers.admin.AdminApplicationController.downloadAll(programId: Long)
-GET     /admin/programs/:programId/applications/:applicationId            controllers.admin.AdminApplicationController.show(programId: Long, applicationId: Long)
-GET     /admin/programs/:programId/applications/:applicationId/download   controllers.admin.AdminApplicationController.download(programId: Long, applicationId: Long)
+GET     /admin/programs/:programId/applications                           controllers.admin.AdminApplicationController.index(request: Request, programId: Long)
+GET     /admin/programs/:programId/applications/all                       controllers.admin.AdminApplicationController.downloadAll(request: Request, programId: Long)
+GET     /admin/programs/:programId/applications/:applicationId            controllers.admin.AdminApplicationController.show(request: Request, programId: Long, applicationId: Long)
+GET     /admin/programs/:programId/applications/:applicationId/download   controllers.admin.AdminApplicationController.download(request: Request, programId: Long, applicationId: Long)
 
 GET     /demo/new                   controllers.J2HtmlDemoController.newOne(request: Request)
 POST    /demo                       controllers.J2HtmlDemoController.create(request: Request)
@@ -88,6 +88,9 @@ GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit       
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/review                 controllers.applicant.ApplicantProgramBlocksController.review(request: Request, applicantId: Long, programId: Long, blockId: String)
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/updateFile/:inReview   controllers.applicant.ApplicantProgramBlocksController.updateFile(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview              controllers.applicant.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
+
+# Methods for program admins
+GET     /programAdmin       controllers.admin.ProgramAdminController.index(request: Request)
 
 # Deep-link methods
 GET     /programs/:programName      controllers.applicant.DeepLinkController.programByName(request: Request, programName: String)

@@ -1,10 +1,10 @@
 package views.admin.programs;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.head;
 import static j2html.TagCreator.p;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -30,7 +30,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
   @Inject
   public ProgramApplicationView(AdminLayout layout) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(
@@ -57,7 +57,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 each(blocks, block -> renderApplicationBlock(block, blockToAnswers.get(block))),
                 renderDownloadButton(programId, applicationId));
 
-    return layout.render(head(layout.tailwindStyles()), body(contentDiv));
+    return layout.render(layout.headContent(), body(contentDiv));
   }
 
   private Tag renderDownloadButton(long programId, long applicationId) {

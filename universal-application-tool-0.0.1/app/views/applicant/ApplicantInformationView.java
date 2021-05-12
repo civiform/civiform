@@ -1,5 +1,6 @@
 package views.applicant;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
@@ -32,7 +33,7 @@ public class ApplicantInformationView extends BaseHtmlView {
 
   @Inject
   public ApplicantInformationView(ApplicantLayout layout, Langs langs) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
     this.supportedLanguages =
         langs.availables().stream().map(Lang::toLocale).collect(toImmutableList());
   }

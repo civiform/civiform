@@ -1,5 +1,7 @@
 package views.admin;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
@@ -26,7 +28,7 @@ public class GroupByKeyCollector<T>
   private final Function<T, String> keyExtractor;
 
   public GroupByKeyCollector(Function<T, String> keyExtractor) {
-    this.keyExtractor = keyExtractor;
+    this.keyExtractor = checkNotNull(keyExtractor);
   }
 
   @Override

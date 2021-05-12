@@ -37,8 +37,7 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
           .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
 
   public static final String ENUMERATOR_FIELD_CLASSES =
-      StyleUtils.joinStyles(
-          ReferenceClasses.ENUMERATOR_FIELD, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4);
+      StyleUtils.joinStyles(ReferenceClasses.ENUMERATOR_FIELD, Styles.FLEX, Styles.MB_4);
 
   private final ApplicantQuestion question;
 
@@ -99,8 +98,8 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
       OptionalInt existingIndex) {
     String removeButtonStyles =
         existingEntity.isPresent()
-            ? StyleUtils.joinStyles(ENUMERATOR_EXISTING_DELETE_BUTTON, Styles.FLEX, Styles.ML_4)
-            : StyleUtils.joinStyles(Styles.FLEX, Styles.ML_4);
+            ? StyleUtils.joinStyles(ENUMERATOR_EXISTING_DELETE_BUTTON, Styles.ML_4)
+            : Styles.ML_4;
 
     ContainerTag entityNameInput =
         FieldWithLabel.input()
@@ -110,8 +109,7 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
                 messages.at(
                     MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
                     localizedEntityType))
-            .getContainer()
-            .withClasses(Styles.FLEX, Styles.ML_2);
+            .getContainer();
     Tag removeEntityButton =
         TagCreator.button(DELETE_ICON)
             .withType("button")

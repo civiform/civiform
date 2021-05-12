@@ -9,7 +9,8 @@ public enum Authorizers {
   APPLICANT(Labels.APPLICANT),
   UAT_ADMIN(Labels.UAT_ADMIN),
   TI(Labels.TI),
-  PROGRAM_ADMIN(Labels.PROGRAM_ADMIN);
+  PROGRAM_ADMIN(Labels.PROGRAM_ADMIN),
+  ANY_ADMIN(Labels.ANY_ADMIN);
 
   /**
    * This Labels class is required to provide references to String constants for {@link
@@ -21,6 +22,7 @@ public enum Authorizers {
     public static final String UAT_ADMIN = "uatadmin";
     public static final String TI = "trustedintermediary";
     public static final String PROGRAM_ADMIN = "programadmin";
+    public static final String ANY_ADMIN = "anyadmin";
   }
 
   private final String label;
