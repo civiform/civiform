@@ -1,5 +1,6 @@
 package views.components;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.label;
@@ -42,7 +43,7 @@ public class FieldWithLabel {
   protected boolean disabled = false;
 
   public FieldWithLabel(Tag fieldTag) {
-    this.fieldTag = fieldTag;
+    this.fieldTag = checkNotNull(fieldTag);
   }
 
   public static FieldWithLabel checkbox() {

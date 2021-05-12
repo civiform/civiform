@@ -13,6 +13,8 @@ import views.admin.AdminLayout;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /** Renders a list of languages to select from, and a form for updating program information. */
 public class ProgramTranslationView extends TranslationFormView {
   private final AdminLayout layout;
@@ -20,7 +22,7 @@ public class ProgramTranslationView extends TranslationFormView {
   @Inject
   public ProgramTranslationView(AdminLayout layout, Langs langs) {
     super(langs);
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(

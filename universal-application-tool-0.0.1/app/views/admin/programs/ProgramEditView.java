@@ -12,12 +12,14 @@ import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.Styles;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class ProgramEditView extends BaseHtmlView {
   private final AdminLayout layout;
 
   @Inject
   public ProgramEditView(AdminLayout layout) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(Request request, ProgramDefinition program) {

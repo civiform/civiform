@@ -13,6 +13,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * Takes in a stream of objects, and a function that extracts a string key from those objects, and
  * returns a map of keys to lists of objects. Implements the Collector interface so can be used on
@@ -26,7 +28,7 @@ public class GroupByKeyCollector<T>
   private final Function<T, String> keyExtractor;
 
   public GroupByKeyCollector(Function<T, String> keyExtractor) {
-    this.keyExtractor = keyExtractor;
+    this.keyExtractor = checkNotNull(keyExtractor);
   }
 
   @Override

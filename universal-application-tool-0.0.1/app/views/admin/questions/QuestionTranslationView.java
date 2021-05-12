@@ -13,6 +13,8 @@ import views.admin.AdminLayout;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /** Renders a list of languages to select from, and a form for updating question information. */
 public class QuestionTranslationView extends TranslationFormView {
 
@@ -20,8 +22,8 @@ public class QuestionTranslationView extends TranslationFormView {
 
   @Inject
   public QuestionTranslationView(AdminLayout layout, Langs langs) {
-    super(langs);
-    this.layout = layout;
+    super(checkNotNull(langs));
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(Http.Request request, Locale locale, QuestionDefinition question) {
