@@ -74,6 +74,7 @@ public final class QuestionEditView extends BaseHtmlView {
       ImmutableList<EnumeratorQuestionDefinition> enumerationQuestionDefinitions,
       Optional<String> message) {
     QuestionType questionType = questionForm.getQuestionType();
+    //    String title = String.format("New %s question", questionType.toString().toLowerCase());
     String title = String.format("New %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
@@ -179,6 +180,7 @@ public final class QuestionEditView extends BaseHtmlView {
         .withClasses(
             Styles.BORDER_GRAY_400,
             Styles.BORDER_R,
+            Styles.P_6,
             Styles.FLEX,
             Styles.FLEX_COL,
             Styles.H_FULL,
@@ -186,7 +188,7 @@ public final class QuestionEditView extends BaseHtmlView {
             Styles.OVERFLOW_Y_AUTO,
             Styles.RELATIVE,
             Styles.W_2_5)
-        .with(renderHeader(title, Styles.CAPITALIZE))
+        .with(renderHeader(title))
         .with(multiOptionQuestionField());
   }
 

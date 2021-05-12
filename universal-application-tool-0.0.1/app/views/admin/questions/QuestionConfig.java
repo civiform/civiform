@@ -25,7 +25,7 @@ import views.style.Styles;
 
 public class QuestionConfig {
   private String id = "";
-  private String headerText = "Question Settings";
+  private String headerText = "Question settings";
   private ContainerTag content = div();
 
   private static final String HEADER_CLASSES =
@@ -33,18 +33,16 @@ public class QuestionConfig {
           Styles.BG_TRANSPARENT,
           Styles.TEXT_GRAY_600,
           Styles.BLOCK,
-          Styles.FONT_BOLD,
-          Styles.TEXT_SM,
+          Styles.TEXT_BASE,
           Styles._MT_1,
           Styles.PB_0,
           Styles.MB_0,
-          Styles.MX_2,
-          Styles.UPPERCASE);
+          Styles.MX_2);
 
   private static final String INNER_DIV_CLASSES =
       StyleUtils.joinStyles(
           Styles.BORDER, Styles.BG_GRAY_100,
-          Styles.PT_4, Styles.M_4);
+          Styles.P_4, Styles.M_4);
 
   private static final String OUTER_DIV_CLASSES =
       StyleUtils.joinStyles(Styles.W_FULL, Styles.PT_0, Styles._MT_4);
@@ -107,7 +105,7 @@ public class QuestionConfig {
         new SelectWithLabel()
             .setId("address-question-default-state-select")
             .setFieldName("defaultState")
-            .setLabelText("Default State")
+            .setLabelText("Default state")
             .setOptions(stateOptions())
             .setValue("-")
             .getContainer(),
