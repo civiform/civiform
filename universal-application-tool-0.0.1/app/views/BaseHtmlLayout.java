@@ -21,7 +21,6 @@ import views.components.ToastMessage;
 public class BaseHtmlLayout extends BaseHtmlView {
   private static final String TAILWIND_COMPILED_FILENAME = "tailwind";
   private static final String TRACKING_TAG_ID = "G-HXM0Y35TGE";
-  /** also exists in ga.ts javascript assets */
   private static final String BANNER_TEXT =
       "Do not enter actual or personal data in this demo site";
 

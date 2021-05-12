@@ -79,7 +79,7 @@ public class AdminLayout extends BaseHtmlLayout {
         StyleUtils.joinStyles(mainStyles));
 
     return htmlContent(
-        /** layout.headContent(), */
+        headContent(),
         body()
             .with(renderNavBar())
             .with(mainContent)

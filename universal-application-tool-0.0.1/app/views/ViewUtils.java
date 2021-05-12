@@ -48,7 +48,6 @@ public final class ViewUtils {
             .attr("async", "true")
             .withType("text/javascript"),
         script(rawHtml(String.format(GA_CODE, trackingTag))).withType("text/javascript"));
-    /** makeLocalJsTag("ga")); */
   }
 
   /**
