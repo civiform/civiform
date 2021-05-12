@@ -43,7 +43,7 @@ public class EnumeratorQuestionFormTest {
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
             LocalizedStrings.empty(),
-            LocalizedStrings.withDefaultValue("entity type"));
+            LocalizedStrings.empty());
 
     EnumeratorQuestionForm form = new EnumeratorQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder();

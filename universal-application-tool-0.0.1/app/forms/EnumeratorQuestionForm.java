@@ -15,7 +15,7 @@ public class EnumeratorQuestionForm extends QuestionForm {
 
   public EnumeratorQuestionForm(EnumeratorQuestionDefinition qd) {
     super(qd);
-    this.entityType = qd.getEntityType().getDefault();
+    this.entityType = qd.getEntityType().isEmpty() ? "" : qd.getEntityType().getDefault();
   }
 
   @Override
