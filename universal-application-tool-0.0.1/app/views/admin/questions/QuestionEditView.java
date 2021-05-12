@@ -20,6 +20,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.Path;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
@@ -160,6 +161,14 @@ public final class QuestionEditView extends BaseHtmlView {
   private Content renderWithPreview(ContainerTag formContent, QuestionType type) {
     ContainerTag previewContent = QuestionPreview.renderQuestionPreview(type, messages);
     previewContent.with(layout.viewUtils.makeLocalJsTag("preview"));
+
+    // Add the hidden enumerator field template
+    if (type.equals(QuestionType.ENUMERATOR)) {
+      previewContent.with(
+          EnumeratorQuestionRenderer.newEnumeratorFieldTemplate(
+              Path.empty(), "Sample repeated entity type", messages));
+    }
+
     return layout.renderFull(main(formContent, previewContent));
   }
 

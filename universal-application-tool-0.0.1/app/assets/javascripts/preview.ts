@@ -7,6 +7,7 @@ class PreviewController {
   static readonly QUESTION_TEXT_CLASS = '.cf-applicant-question-text';
   static readonly QUESTION_HELP_TEXT_CLASS = '.cf-applicant-question-help-text';
   static readonly QUESTION_ENTITY_TYPE_BUTTON_ID = '#enumerator-field-add-button';
+  static readonly QUESTION_ENTITY_NAME_INPUT_CLASS = '.cf-entity-name-input';
 
   static readonly DEFAULT_QUESTION_TEXT = "Sample question text";
   static readonly DEFAULT_QUESTION_HELP_TEXT = "Sample question help text";
@@ -37,7 +38,12 @@ class PreviewController {
       entityTypeInput.addEventListener('input', PreviewController.onEntityTypeChanged, false);
       let entityType = (<HTMLInputElement>entityTypeInput).value;
       if (entityType.length > 0) {
-        PreviewController.setTextContent(PreviewController.QUESTION_ENTITY_TYPE_BUTTON_ID, entityType);
+        PreviewController.setAllMatchingPlaceholders(
+          PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS,
+          "Nickname for " + entityType);
+        PreviewController.setTextContent(
+          PreviewController.QUESTION_ENTITY_TYPE_BUTTON_ID,
+          "Add " + entityType);
       }
     }
   }
@@ -67,9 +73,11 @@ class PreviewController {
   static onEntityTypeChanged(e: Event) {
     let entityType = (<HTMLInputElement>e.target).value;
     if (entityType.length === 0) {
-      entityType = PreviewController.DEFAULT_QUESTION_TEXT;
+      entityType = PreviewController.DEFAULT_ENTITY_TYPE;
     }
-
+    PreviewController.setAllMatchingPlaceholders(
+      PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS,
+      "Nickname for " + entityType);
     PreviewController.setTextContent(
       PreviewController.QUESTION_ENTITY_TYPE_BUTTON_ID,
       "Add " + entityType);
@@ -82,6 +90,10 @@ class PreviewController {
     }
   }
 
+  static setAllMatchingPlaceholders(selector: string, text: string) {
+    const inputFields = document.querySelectorAll(selector + " input");
+    Array.from(inputFields).forEach(function(inputField) { inputField.placeholder = text });
+  }
 }
 
 new PreviewController();

@@ -111,7 +111,7 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
                     MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
                     localizedEntityType))
             .getContainer()
-            .withClasses(Styles.FLEX, Styles.ML_2);
+            .withClasses(Styles.FLEX, Styles.ML_2, ReferenceClasses.ENTITY_NAME_INPUT);
     ContainerTag icon =
         Icons.svg(Icons.TRASH_CAN_SVG_PATH, 24)
             .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
