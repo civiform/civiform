@@ -55,7 +55,6 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     ContainerTag body =
         body()
             .with(h1(params.block().getName()))
-            .with(renderEnumeratorContext(params.block().getEnumeratorContext(), params.messages()))
             .with(renderBlockWithSubmitForm(params));
 
     if (!params.preferredLanguageSupported()) {
@@ -154,39 +153,6 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
   private Tag renderQuestion(ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     return applicantQuestionRendererFactory.getRenderer(question).render(params);
-  }
-
-  private Tag renderEnumeratorContext(EnumeratorContext enumeratorContext, Messages messages) {
-    ContainerTag contextDiv = div().withClasses(Styles.W_8);
-
-    // Render the ancestors, but not the repeated entity.
-    for (int level = 0; level < enumeratorContext.ancestors().size() - 1; level++) {
-      RepeatedEntity ancestor = enumeratorContext.ancestors().get(level);
-      String ancestorType = getEntityType(messages, ancestor.enumeratorQuestionDefinition().getEntityType());
-      String ancestorString = String.format(
-          "%s: %s", ancestorType, ancestor.entityName());
-      contextDiv.with(div(ancestorString).withClass("pl-" + level * 2));
-    }
-
-    // Render the siblings and the repeated entity.
-    int level = enumeratorContext.ancestors().size();
-    String entityType = getEntityType(messages, enumeratorContext.repeatedEntity().get().enumeratorQuestionDefinition().getEntityType());
-    contextDiv.with(div(entityType).withClasses("pl-" + level * 2));
-    for (RepeatedEntity repeatedEntity : enumeratorContext.siblings()) {
-      if (repeatedEntity.equals(enumeratorContext.repeatedEntity().get())) {
-        contextDiv.with(div(repeatedEntity.entityName()).withClasses("pl-" + (level + 1) * 2, Styles.FONT_BOLD));
-      } else {
-        contextDiv.with(div(repeatedEntity.entityName()).withClasses("pl-" + (level + 1) * 2));
-      }
-    }
-    return contextDiv;
-  }
-
-  private String getEntityType(Messages messages, LocalizedStrings entityTypeTranslations) {
-    if (entityTypeTranslations.isEmpty()) {
-      return messages.at(MessageKey.ENUMERATOR_STRING_DEFAULT_ENTITY_TYPE.getKeyName());
-    }
-    return entityTypeTranslations.getOrDefault(messages.lang().toLocale());
   }
 
   @AutoValue
