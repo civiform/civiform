@@ -38,11 +38,9 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
 
   @Override
   public Tag render(ApplicantQuestionRendererParams params) {
-
     Messages messages = params.messages();
     EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();
-    String localizedEntityType =
-        enumeratorQuestion.getEntityType(messages, messages.lang().locale());
+    String localizedEntityType = enumeratorQuestion.getEntityType();
     ImmutableList<String> entityNames = enumeratorQuestion.getEntityNames();
 
     ContainerTag enumeratorFields = div().withId(ENUMERATOR_FIELDS_ID);
@@ -110,6 +108,7 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
                 messages.at(
                     MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
                     localizedEntityType))
+            .addReferenceClass(ReferenceClasses.ENTITY_NAME_INPUT)
             .getContainer();
     ContainerTag icon =
         Icons.svg(Icons.TRASH_CAN_SVG_PATH, 24)

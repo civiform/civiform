@@ -7,6 +7,7 @@ import static j2html.TagCreator.label;
 import static j2html.TagCreator.textarea;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
@@ -41,6 +42,7 @@ public class FieldWithLabel {
   protected ImmutableSet<ValidationErrorMessage> fieldErrors = ImmutableSet.of();
   protected boolean checked = false;
   protected boolean disabled = false;
+  protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.<String>builder();
 
   public FieldWithLabel(Tag fieldTag) {
     this.fieldTag = checkNotNull(fieldTag);
@@ -74,6 +76,12 @@ public class FieldWithLabel {
   public static FieldWithLabel email() {
     Tag fieldTag = TagCreator.input();
     return new FieldWithLabel(fieldTag).setFieldType("email");
+  }
+
+  /** Add a reference class from {@link views.style.ReferenceClasses} to this element. */
+  public FieldWithLabel addReferenceClass(String referenceClass) {
+    referenceClassesBuilder.add(referenceClass);
+    return this;
   }
 
   public FieldWithLabel setChecked(boolean checked) {
@@ -205,7 +213,9 @@ public class FieldWithLabel {
             .withText(labelText);
 
     return div(labelTag, fieldTag, buildFieldErrorsTag())
-        .withClasses(BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
+        .withClasses(
+            StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
+            BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
   }
 
   /**
@@ -219,6 +229,7 @@ public class FieldWithLabel {
 
     return label()
         .withClasses(
+            StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
             BaseStyles.CHECKBOX_LABEL,
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
             labelText.isEmpty() ? Styles.W_MIN : "")
