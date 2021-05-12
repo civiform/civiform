@@ -78,15 +78,10 @@ public class EnumeratorQuestion implements PresentsErrors {
 
   /**
    * Get the admin-configurable entity type this enumerator represents. Examples: "car", "child",
-   * "job", "household member". If the admin did not configure this, it defaults to {@link
-   * MessageKey#ENUMERATOR_STRING_DEFAULT_ENTITY_TYPE}.
+   * "job", "household member".
    */
-  public String getEntityType(Messages messages) {
-    LocalizedStrings translations = getQuestionDefinition().getEntityType();
-    if (translations.isEmpty()) {
-      return messages.at(MessageKey.ENUMERATOR_STRING_DEFAULT_ENTITY_TYPE.getKeyName());
-    }
-    return translations.getOrDefault(messages.lang().toLocale());
+  public LocalizedStrings getEntityType() {
+    return getQuestionDefinition().getEntityType();
   }
 
   @Override

@@ -17,7 +17,7 @@ import services.LocalizedStrings;
 public class EnumeratorQuestionDefinition extends QuestionDefinition {
 
   // TODO(#859): make this admin configurable
-  private final LocalizedStrings entityType = LocalizedStrings.empty();
+  private final LocalizedStrings entityType = LocalizedStrings.withDefaultValue("don't use this");
 
   public EnumeratorQuestionDefinition(
       OptionalLong id,
