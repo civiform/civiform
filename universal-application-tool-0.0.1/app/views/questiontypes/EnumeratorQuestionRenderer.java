@@ -12,7 +12,6 @@ import j2html.tags.ContainerTag;
 import j2html.tags.EmptyTag;
 import j2html.tags.Tag;
 import java.util.Optional;
-import java.util.OptionalInt;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -129,11 +128,7 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
   public static Tag newEnumeratorFieldTemplate(
       Path contextualizedPath, String localizedEntityType, Messages messages) {
     return enumeratorField(
-            messages,
-            localizedEntityType,
-            contextualizedPath,
-            Optional.empty(),
-            Optional.empty())
+            messages, localizedEntityType, contextualizedPath, Optional.empty(), Optional.empty())
         .withId(ENUMERATOR_FIELD_TEMPLATE_ID)
         .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, Styles.HIDDEN));
   }
