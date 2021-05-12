@@ -25,7 +25,7 @@ public final class ProgramApplicationListView extends AdminView {
 
   @Inject
   public ProgramApplicationListView(AdminLayout layout) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(long programId, ImmutableList<Application> applications) {

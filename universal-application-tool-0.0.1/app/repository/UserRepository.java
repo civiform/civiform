@@ -6,6 +6,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import auth.UatProfile;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
@@ -319,5 +320,10 @@ public class UserRepository {
           account.removeAdministeredProgram(program);
           account.save();
         });
+  }
+
+  public ImmutableSet<Account> getGlobalAdmins() {
+    return ImmutableSet.copyOf(
+        ebeanServer.find(Account.class).where().eq("global_admin", true).findList());
   }
 }

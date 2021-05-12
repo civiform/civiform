@@ -44,7 +44,7 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
 
   protected abstract String emailAttributeName();
 
-  protected abstract ImmutableSet<Roles> roles(UatProfile profile);
+  protected abstract ImmutableSet<Roles> roles(UatProfile profile, OidcProfile oidcProfile);
 
   /** Merge the two provided profiles into a new UatProfileData. */
   public UatProfileData mergeUatProfile(UatProfile uatProfile, OidcProfile oidcProfile) {
@@ -52,7 +52,7 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
     uatProfile.setEmailAddress(emailAddress).join();
     uatProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
     // Meaning: whatever you signed in with most recently is the role you have.
-    for (Roles role : roles(uatProfile)) {
+    for (Roles role : roles(uatProfile, oidcProfile)) {
       uatProfile.getProfileData().addRole(role.toString());
     }
     return uatProfile.getProfileData();

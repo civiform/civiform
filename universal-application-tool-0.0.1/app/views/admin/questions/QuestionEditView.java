@@ -1,5 +1,6 @@
 package views.admin.questions;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
@@ -41,7 +42,7 @@ public final class QuestionEditView extends AdminView {
 
   @Inject
   public QuestionEditView(AdminLayout layout, MessagesApi messagesApi) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
     // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
   }
@@ -73,6 +74,7 @@ public final class QuestionEditView extends AdminView {
       ImmutableList<EnumeratorQuestionDefinition> enumerationQuestionDefinitions,
       Optional<String> message) {
     QuestionType questionType = questionForm.getQuestionType();
+    //    String title = String.format("New %s question", questionType.toString().toLowerCase());
     String title = String.format("New %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
@@ -181,6 +183,7 @@ public final class QuestionEditView extends AdminView {
         .withClasses(
             Styles.BORDER_GRAY_400,
             Styles.BORDER_R,
+            Styles.P_6,
             Styles.FLEX,
             Styles.FLEX_COL,
             Styles.H_FULL,
@@ -188,7 +191,7 @@ public final class QuestionEditView extends AdminView {
             Styles.OVERFLOW_Y_AUTO,
             Styles.RELATIVE,
             Styles.W_2_5)
-        .with(renderHeader(title, Styles.CAPITALIZE))
+        .with(renderHeader(title))
         .with(multiOptionQuestionField());
   }
 

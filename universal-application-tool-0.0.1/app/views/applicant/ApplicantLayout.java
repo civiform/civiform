@@ -1,18 +1,16 @@
 package views.applicant;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.head;
 import static j2html.TagCreator.header;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
-import static j2html.TagCreator.title;
 
 import auth.ProfileUtils;
 import auth.Roles;
 import auth.UatProfile;
-import com.google.common.base.Preconditions;
 import controllers.ti.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
@@ -25,7 +23,6 @@ import services.MessageKey;
 import views.BaseHtmlLayout;
 import views.ViewUtils;
 import views.style.ApplicantStyles;
-import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
@@ -36,7 +33,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
   @Inject
   public ApplicantLayout(ViewUtils viewUtils, ProfileUtils profileUtils) {
     super(viewUtils);
-    this.profileUtils = Preconditions.checkNotNull(profileUtils);
+    this.profileUtils = checkNotNull(profileUtils);
   }
 
   protected Content render(Http.Request request, Messages messages, DomContent... mainDomContents) {
@@ -46,12 +43,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
   protected Content render(
       Optional<UatProfile> profile, Messages messages, DomContent... mainDomContents) {
     return htmlContent(
-        head().with(title("Applicant layout title")).with(tailwindStyles()),
+        headContent("Applicant layout title"),
         body()
             .with(renderNavBar(profile, messages))
             .with(mainDomContents)
             .with(viewUtils.makeLocalJsTag("main"))
-            .withClasses(BaseStyles.APPLICANT_BG_COLOR));
+            .withClasses(ApplicantStyles.BODY_BG_COLOR));
   }
 
   private ContainerTag renderNavBar(Optional<UatProfile> profile, Messages messages) {

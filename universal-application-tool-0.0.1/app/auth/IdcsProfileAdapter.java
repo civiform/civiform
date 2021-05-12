@@ -36,7 +36,7 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
   }
 
   @Override
-  protected ImmutableSet<Roles> roles(UatProfile profile) {
+  protected ImmutableSet<Roles> roles(UatProfile profile, OidcProfile oidcProfile) {
     if (profile.getAccount().join().getMemberOfGroup().isPresent()) {
       return ImmutableSet.of(Roles.ROLE_APPLICANT, Roles.ROLE_TI);
     }

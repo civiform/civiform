@@ -20,7 +20,7 @@ import views.components.ToastMessage;
  */
 public class BaseHtmlLayout extends BaseHtmlView {
   private static final String TAILWIND_COMPILED_FILENAME = "tailwind";
-
+  private static final String TRACKING_TAG_ID = "G-HXM0Y35TGE";
   private static final String BANNER_TEXT =
       "Do not enter actual or personal data in this demo site";
 
@@ -71,6 +71,10 @@ public class BaseHtmlLayout extends BaseHtmlView {
    */
   public Tag tailwindStyles() {
     return viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILENAME);
+  }
+
+  public Tag headContent(String... titlestr) {
+    return viewUtils.makeHead(TAILWIND_COMPILED_FILENAME, TRACKING_TAG_ID, titlestr);
   }
 
   protected static class HtmlResponseContent implements Content {

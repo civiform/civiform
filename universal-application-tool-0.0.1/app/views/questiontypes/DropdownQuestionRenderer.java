@@ -1,5 +1,6 @@
 package views.questiontypes;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.option;
@@ -19,7 +20,7 @@ public class DropdownQuestionRenderer extends BaseHtmlView implements ApplicantQ
   private final ApplicantQuestion question;
 
   public DropdownQuestionRenderer(ApplicantQuestion question) {
-    this.question = question;
+    this.question = checkNotNull(question);
   }
 
   @Override

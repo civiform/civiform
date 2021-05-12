@@ -41,7 +41,7 @@ public class ManageProgramAdminsView extends AdminView {
 
   @Inject
   public ManageProgramAdminsView(AdminLayout layout) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(

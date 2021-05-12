@@ -3,6 +3,7 @@ package services.role;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -30,9 +31,8 @@ public class RoleService {
    *
    * @return an {@link ImmutableSet} of {@link Account}s that are UAT admins.
    */
-  public ImmutableSet<Account> getUatAdmins() {
-    // TODO(cdanzi): implement this method
-    return ImmutableSet.of();
+  public ImmutableSet<Account> getGlobalAdmins() {
+    return userRepository.getGlobalAdmins();
   }
 
   /**
@@ -57,7 +57,10 @@ public class RoleService {
     ProgramDefinition program = programService.getProgramDefinition(programId);
     // Filter out UAT admins from the list of emails - a UAT admin cannot be a program admin.
     ImmutableSet<String> sysAdminEmails =
-        getUatAdmins().stream().map(Account::getEmailAddress).collect(toImmutableSet());
+        getGlobalAdmins().stream()
+            .map(Account::getEmailAddress)
+            .filter(address -> !Strings.isNullOrEmpty(address))
+            .collect(toImmutableSet());
     ImmutableSet.Builder<String> invalidEmailBuilder = ImmutableSet.builder();
     accountEmails.forEach(
         email -> {

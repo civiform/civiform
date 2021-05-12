@@ -54,6 +54,9 @@ public class HomeController extends Controller {
     if (profile.isUatAdmin()) {
       return CompletableFuture.completedFuture(
           redirect(controllers.admin.routes.AdminProgramController.index()));
+    } else if (profile.isProgramAdmin()) {
+      return CompletableFuture.completedFuture(
+          redirect(controllers.admin.routes.ProgramAdminController.index()));
     } else {
       return profile
           .getApplicant()

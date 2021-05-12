@@ -32,7 +32,7 @@ public final class ProgramApplicationView extends AdminView {
 
   @Inject
   public ProgramApplicationView(AdminLayout layout) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(

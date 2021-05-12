@@ -1,5 +1,6 @@
 package views.admin.questions;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
@@ -38,7 +39,7 @@ public final class QuestionsListView extends AdminView {
 
   @Inject
   public QuestionsListView(AdminLayout layout) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
   }
 
   /** Renders a page with a table view of all questions. */

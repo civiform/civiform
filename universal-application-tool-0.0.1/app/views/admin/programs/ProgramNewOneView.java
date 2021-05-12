@@ -1,5 +1,10 @@
 package views.admin.programs;
 
+<<<<<<< HEAD
+=======
+import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.body;
+>>>>>>> main
 import static j2html.TagCreator.div;
 
 import com.google.inject.Inject;
@@ -17,7 +22,7 @@ public final class ProgramNewOneView extends AdminView {
 
   @Inject
   public ProgramNewOneView(AdminLayout layout) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(Request request) {

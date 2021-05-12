@@ -5,7 +5,7 @@ import play.twirl.api.Content;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.ViewUtils;
-import views.style.BaseStyles;
+import views.style.AdminStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 

@@ -1,5 +1,6 @@
 package views.admin.ti;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -34,7 +35,7 @@ public class EditTrustedIntermediaryGroupView extends AdminView {
 
   @Inject
   public EditTrustedIntermediaryGroupView(AdminLayout layout) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(TrustedIntermediaryGroup tiGroup, Http.Request request) {
