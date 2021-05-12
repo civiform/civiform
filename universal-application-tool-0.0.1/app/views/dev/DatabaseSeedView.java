@@ -6,9 +6,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
-import static j2html.TagCreator.head;
 import static j2html.TagCreator.pre;
-import static j2html.TagCreator.title;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,7 +47,7 @@ public class DatabaseSeedView extends BaseHtmlView {
     String prettyQuestions = getPrettyJson(questionDefinitions);
 
     return layout.htmlContent(
-        head(title("Dev Database Seeder"), layout.tailwindStyles()),
+        layout.headContent("Dev Database Seeder"),
         body()
             .with(div(maybeFlash.orElse("")))
             .with(h1("Dev Database Seeder"))

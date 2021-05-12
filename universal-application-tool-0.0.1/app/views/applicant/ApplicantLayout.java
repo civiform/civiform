@@ -3,11 +3,9 @@ package views.applicant;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.head;
 import static j2html.TagCreator.header;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
-import static j2html.TagCreator.title;
 
 import auth.ProfileUtils;
 import auth.Roles;
@@ -46,7 +44,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
   protected Content render(
       Optional<UatProfile> profile, Messages messages, DomContent... mainDomContents) {
     return htmlContent(
-        head().with(title("Applicant layout title")).with(tailwindStyles()),
+        headContent("Applicant layout title"),
         body()
             .with(renderNavBar(profile, messages))
             .with(mainDomContents)

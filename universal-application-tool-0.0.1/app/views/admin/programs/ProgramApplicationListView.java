@@ -4,7 +4,6 @@ import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.head;
 import static j2html.TagCreator.p;
 
 import com.google.common.collect.ImmutableList;
@@ -40,7 +39,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     application -> this.renderApplicationListItem(programId, application)),
                 renderDownloadButton(programId));
 
-    return layout.render(head(layout.tailwindStyles()), body(contentDiv));
+    return layout.render(layout.headContent(), body(contentDiv));
   }
 
   private Tag renderDownloadButton(long programId) {

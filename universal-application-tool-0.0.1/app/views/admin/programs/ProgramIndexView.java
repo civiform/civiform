@@ -4,7 +4,6 @@ import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.head;
 import static j2html.TagCreator.p;
 
 import com.google.inject.Inject;
@@ -48,7 +47,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                             programs.getDraftProgramDefinition(name),
                             request)));
 
-    return layout.render(head(layout.tailwindStyles()), body(contentDiv));
+    return layout.render(layout.headContent(), body(contentDiv));
   }
 
   private Tag maybeRenderPublishButton(ActiveAndDraftPrograms programs, Http.Request request) {
