@@ -1,5 +1,7 @@
 package views.admin.questions;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableList;
 import j2html.tags.ContainerTag;
 import java.util.Locale;
@@ -20,8 +22,8 @@ public class QuestionTranslationView extends TranslationFormView {
 
   @Inject
   public QuestionTranslationView(AdminLayout layout, Langs langs) {
-    super(langs);
-    this.layout = layout;
+    super(checkNotNull(langs));
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(Http.Request request, Locale locale, QuestionDefinition question) {

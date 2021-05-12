@@ -1,5 +1,6 @@
 package views.questiontypes;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.input;
@@ -22,7 +23,7 @@ public class RadioButtonQuestionRenderer extends BaseHtmlView implements Applica
   private final ApplicantQuestion question;
 
   public RadioButtonQuestionRenderer(ApplicantQuestion question) {
-    this.question = question;
+    this.question = checkNotNull(question);
   }
 
   @Override

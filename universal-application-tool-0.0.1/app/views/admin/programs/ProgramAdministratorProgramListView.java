@@ -1,5 +1,6 @@
 package views.admin.programs;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
@@ -27,7 +28,7 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
 
   @Inject
   public ProgramAdministratorProgramListView(AdminLayout layout) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(ActiveAndDraftPrograms programs, List<String> authorizedPrograms) {
