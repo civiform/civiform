@@ -120,6 +120,30 @@ function removeEnumeratorField(event: Event) {
   enumeratorFieldDiv.parentNode.removeChild(enumeratorFieldDiv);
 }
 
+/**
+ * Enumerator delete buttons for existing entities behave differently than removing fields that
+ * were just added client-side and were not saved server-side.
+ */
+function removeExistingEnumeratorField(event: Event) {
+  // Get the button that was clicked
+  const removeButton = event.currentTarget as HTMLElement;
+
+  // Hide the field that was removed. We cannot remove it completely, as we need to
+  // submit the input to maintain entity ordering.
+  const enumeratorFieldDiv = removeButton.parentElement;
+  enumeratorFieldDiv.classList.add("hidden");
+
+  // Create a copy of the hidden deleted entity template. Set the value to this
+  // button's ID, and set disabled to false so the data is submitted with the form.
+  const deletedEntityInput = document.getElementById("enumerator-delete-template").cloneNode(true) as HTMLInputElement;
+  deletedEntityInput.disabled = false;
+  deletedEntityInput.setAttribute("value", removeButton.id);
+  deletedEntityInput.removeAttribute("id");
+
+  // Add the hidden deleted entity input to the page.
+  enumeratorFieldDiv.appendChild(deletedEntityInput);
+}
+
 window.addEventListener('load', (event) => {
   attachDropdown("create-question-button");
 
@@ -158,4 +182,8 @@ window.addEventListener('load', (event) => {
   if (enumeratorOptionButton) {
     enumeratorOptionButton.addEventListener("click", addNewEnumeratorField);
   }
+
+  // Configure existing enumerator entity remove buttons
+  Array.from(document.querySelectorAll('.cf-enumerator-delete-button')).forEach(
+    el => el.addEventListener("click", removeExistingEnumeratorField));
 });

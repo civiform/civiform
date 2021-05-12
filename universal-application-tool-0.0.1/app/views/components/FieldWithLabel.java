@@ -195,9 +195,9 @@ public class FieldWithLabel {
                 fieldErrors.isEmpty() ? "" : BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR))
         .withCondId(!this.id.isEmpty(), this.id)
         .withName(this.fieldName)
-        .condAttr(this.disabled, "disabled", "true")
+        .condAttr(this.disabled, Attr.DISABLED, "true")
         .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
-        .condAttr(!Strings.isNullOrEmpty(this.formId), "form", formId);
+        .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
 
     if (this.fieldType.equals("checkbox")) {
       return getCheckboxContainer();
