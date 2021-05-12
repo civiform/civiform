@@ -328,6 +328,22 @@ public class QuestionDefinitionTest {
   }
 
   @Test
+  public void validate_withEnumerator_withEmptyEntityString_returnsErrors() throws Exception {
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder()
+            .setName("name")
+            .setDescription("description")
+            .setQuestionText(LocalizedStrings.withDefaultValue("text"))
+            .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+            .setEntityType(LocalizedStrings.withDefaultValue(""))
+            .setQuestionType(QuestionType.ENUMERATOR)
+            .build();
+
+    assertThat(question.validate())
+        .containsOnly(CiviFormError.of("Enumerator question must have specified entity type"));
+  }
+
+  @Test
   public void validate_localeHasBlankText_returnsError() {
     QuestionDefinition question =
         new TextQuestionDefinition(
