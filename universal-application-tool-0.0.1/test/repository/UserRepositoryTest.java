@@ -129,6 +129,52 @@ public class UserRepositoryTest extends WithPostgresContainer {
         .containsOnly(programName);
   }
 
+  @Test
+  public void addAdministeredProgram_blankEmail_doesNotCreateAccount() {
+    String programName = "name";
+    ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
+    String blankEmail = "    ";
+
+    repo.addAdministeredProgram(blankEmail, program);
+
+    assertThat(repo.lookupAccount(blankEmail)).isEmpty();
+  }
+
+  @Test
+  public void removeAdministeredProgram_succeeds() {
+    String programName = "program";
+    ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
+
+    String email = "happy@test.com";
+    Account account = new Account();
+    account.setEmailAddress(email);
+    account.addAdministeredProgram(program);
+    account.save();
+    assertThat(account.getAdministeredProgramNames()).contains(programName);
+
+    repo.removeAdministeredProgram(email, program);
+
+    assertThat(repo.lookupAccount(email).get().getAdministeredProgramNames())
+        .doesNotContain(programName);
+  }
+
+  @Test
+  public void removeAdministeredProgram_accountNotAdminForProgram_doesNothing() {
+    String programName = "program";
+    ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
+
+    String email = "happy@test.com";
+    Account account = new Account();
+    account.setEmailAddress(email);
+    account.save();
+    assertThat(account.getAdministeredProgramNames()).doesNotContain(programName);
+
+    repo.removeAdministeredProgram(email, program);
+
+    assertThat(repo.lookupAccount(email).get().getAdministeredProgramNames())
+        .doesNotContain(programName);
+  }
+
   private Applicant saveApplicant(String name) {
     Applicant applicant = new Applicant();
     applicant.getApplicantData().putString(Path.create("$.applicant.name"), name);

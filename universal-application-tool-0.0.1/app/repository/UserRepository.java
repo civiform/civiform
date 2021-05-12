@@ -289,6 +289,10 @@ public class UserRepository {
    * @param program the {@link ProgramDefinition} to add to this given account
    */
   public void addAdministeredProgram(String accountEmail, ProgramDefinition program) {
+    if (accountEmail.isBlank()) {
+      return;
+    }
+
     Optional<Account> maybeAccount = lookupAccount(accountEmail);
     Account account =
         maybeAccount.orElseGet(
@@ -299,5 +303,21 @@ public class UserRepository {
             });
     account.addAdministeredProgram(program);
     account.save();
+  }
+
+  /**
+   * If the account identified by the given email administers the given program, remove the program
+   * from the list of programs this account administers.
+   *
+   * @param accountEmail the email of the account
+   * @param program the {@link ProgramDefinition} to remove from the given account
+   */
+  public void removeAdministeredProgram(String accountEmail, ProgramDefinition program) {
+    Optional<Account> maybeAccount = lookupAccount(accountEmail);
+    maybeAccount.ifPresent(
+        account -> {
+          account.removeAdministeredProgram(program);
+          account.save();
+        });
   }
 }

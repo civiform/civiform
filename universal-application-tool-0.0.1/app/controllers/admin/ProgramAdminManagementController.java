@@ -9,7 +9,7 @@ import static play.mvc.Results.redirect;
 import auth.Authorizers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import forms.AddProgramAdminForm;
+import forms.ManageProgramAdminsForm;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Account;
@@ -71,16 +71,19 @@ public class ProgramAdminManagementController {
    */
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result update(Http.Request request, long programId) {
-    Form<AddProgramAdminForm> form = formFactory.form(AddProgramAdminForm.class);
+    Form<ManageProgramAdminsForm> form = formFactory.form(ManageProgramAdminsForm.class);
     if (form.hasErrors()) {
       return badRequest();
     }
-    AddProgramAdminForm addAdminForm = form.bindFromRequest(request).get();
+    ManageProgramAdminsForm manageAdminForm = form.bindFromRequest(request).get();
 
     try {
+      // Remove first, in case the admin accidentally removed an admin and then re-added them.
+      roleService.removeProgramAdmins(
+          programId, ImmutableSet.copyOf(manageAdminForm.getRemoveAdminEmails()));
       Optional<CiviFormError> maybeError =
           roleService.makeProgramAdmins(
-              programId, ImmutableSet.copyOf(addAdminForm.getAdminEmails()));
+              programId, ImmutableSet.copyOf(manageAdminForm.getAdminEmails()));
       Result result = redirect(routes.AdminProgramController.index());
       if (maybeError.isPresent()) {
         return result.flashing("error", maybeError.get().message());
