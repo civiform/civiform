@@ -45,9 +45,8 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
         layout
             .getBundle()
             .setTitle(title)
-            .addHeaderContent(
-                renderHeader("Create New Trusted Intermediary").withClass(Styles.MT_8))
             .addMainContent(
+                renderHeader("Create New Trusted Intermediary").withClass(Styles.MT_8),
                 renderAddNewButton(request),
                 renderHeader("Existing Trusted Intermediaries"),
                 renderTiGroupCards(tis, request));
@@ -62,7 +61,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
               .setIgnorable(false)
               .setDuration(0));
     }
-    return layout.render(htmlBundle);
+    return layout.renderCentered(htmlBundle);
   }
 
   private Tag renderTiGroupCards(List<TrustedIntermediaryGroup> tis, Http.Request request) {

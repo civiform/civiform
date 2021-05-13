@@ -223,18 +223,20 @@ public class ProgramBlockEditView extends BaseHtmlView {
     blockInfoForm
         .withId("block-edit-form")
         .with(
-            FieldWithLabel.input()
-                .setId("block-name-input")
-                .setFieldName("name")
-                .setLabelText("Block name")
-                .setValue(blockForm.getName())
-                .getContainer(),
-            FieldWithLabel.textArea()
-                .setId("block-description-textarea")
-                .setFieldName("description")
-                .setLabelText("Block description")
-                .setValue(blockForm.getDescription())
-                .getContainer(),
+            div(
+                    FieldWithLabel.input()
+                        .setId("block-name-input")
+                        .setFieldName("name")
+                        .setLabelText("Block name")
+                        .setValue(blockForm.getName())
+                        .getContainer(),
+                    FieldWithLabel.textArea()
+                        .setId("block-description-textarea")
+                        .setFieldName("description")
+                        .setLabelText("Block description")
+                        .setValue(blockForm.getDescription())
+                        .getContainer())
+                .withClasses(Styles.MX_4),
             submitButton("Update Metadata")
                 .withId("update-block-button")
                 .withClasses(

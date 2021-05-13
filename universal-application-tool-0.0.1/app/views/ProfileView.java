@@ -28,7 +28,7 @@ public class ProfileView extends BaseHtmlView {
 
     return layout
         .getBundle()
-        .setTitle("CiviForm")
+        .setTitle("Profile View - CiviForm")
         .addMainContent(
             h1(profile.getClientName()),
             h1(String.format("Profile ID: %s", profile.getId())).withId("profile-id"),
