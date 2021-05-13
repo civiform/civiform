@@ -88,7 +88,8 @@ public class AdminQuestionTranslationsController extends CiviFormController {
             readOnlyQuestionService -> {
               try {
                 QuestionDefinition toUpdate = readOnlyQuestionService.getQuestionDefinition(id);
-                QuestionTranslationForm form = buildFormFromRequest(request, toUpdate.getQuestionType());
+                QuestionTranslationForm form =
+                    buildFormFromRequest(request, toUpdate.getQuestionType());
                 QuestionDefinition definitionWithUpdates =
                     form.builderWithUpdates(toUpdate, updatedLocale).build();
                 ErrorAnd<QuestionDefinition, CiviFormError> result =
@@ -114,8 +115,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
             httpExecutionContext.current());
   }
 
-  private QuestionTranslationForm buildFormFromRequest(
-      Http.Request request, QuestionType type) {
+  private QuestionTranslationForm buildFormFromRequest(Http.Request request, QuestionType type) {
     switch (type) {
       case CHECKBOX:
       case DROPDOWN:

@@ -261,11 +261,5 @@ public abstract class LocalizedStrings {
       translationsBuilder().put(locale, string);
       return this;
     }
-
-    public Builder updateTranslation(Locale locale, String string) {
-      LocalizedStrings current = this.build();
-      current.updateTranslation(locale, string);
-      return current.toBuilder();
-    }
   }
 }

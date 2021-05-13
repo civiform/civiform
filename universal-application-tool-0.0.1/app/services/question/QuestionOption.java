@@ -71,14 +71,5 @@ public abstract class QuestionOption {
     public abstract LocalizedStrings.Builder optionTextBuilder();
 
     public abstract QuestionOption build();
-
-    /**
-     * Update an existing localization of option text. This will overwrite the old name for that
-     * locale.
-     */
-    public Builder updateOptionText(Locale locale, String text) {
-      optionTextBuilder().updateTranslation(locale, text);
-      return this;
-    }
   }
 }

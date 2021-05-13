@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -38,8 +40,8 @@ public class MultiOptionQuestionTranslationForm extends QuestionTranslationForm 
     ImmutableList.Builder<QuestionOption> updatedOptionsBuilder = ImmutableList.builder();
     for (int i = 0; i < currentOptions.size(); i++) {
       QuestionOption current = currentOptions.get(i);
-      updatedOptionsBuilder.add(
-          current.toBuilder().updateOptionText(updatedLocale, this.options.get(i)).build());
+      LocalizedStrings translations = current.optionText().updateTranslation(updatedLocale, this.options.get(i));
+      updatedOptionsBuilder.add(current.toBuilder().setOptionText(translations).build());
     }
     return partiallyUpdated.setQuestionOptions(updatedOptionsBuilder.build());
   }
