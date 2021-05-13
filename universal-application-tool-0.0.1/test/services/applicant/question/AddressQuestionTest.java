@@ -182,4 +182,42 @@ public class AddressQuestionTest {
     assertThat(addressQuestion.getQuestionErrors())
         .containsOnly(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_NO_PO_BOX));
   }
+
+  @Test
+  @Parameters
+  public void getAnswerString(
+      String streetValue,
+      String line2Value,
+      String cityValue,
+      String stateValue,
+      String zipValue,
+      String expected) {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            noPoBoxAddressQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+    QuestionAnswerer.answerAddressQuestion(
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        streetValue,
+        line2Value,
+        cityValue,
+        stateValue,
+        zipValue);
+
+    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+
+    assertThat(addressQuestion.getAnswerString()).isEqualTo(expected);
+  }
+
+  private Object[] parametersForGetAnswerString() {
+    return new Object[] {
+      new Object[] {
+        "111 A St", "Unit B", "Seattle", "WA", "98111", "111 A St\nUnit B\nSeattle, WA 98111"
+      },
+      new Object[] {"111 A St", "", "Seattle", "WA", "98111", "111 A St\nSeattle, WA 98111"},
+      new Object[] {"111 A St", "", "", "WA", "98111", "111 A St\nWA 98111"},
+      new Object[] {"111 A St", "", "Seattle", "", "98111", "111 A St\nSeattle, 98111"},
+      new Object[] {"111 A St", "Unit B", "", "", "", "111 A St\nUnit B"}
+    };
+  }
 }

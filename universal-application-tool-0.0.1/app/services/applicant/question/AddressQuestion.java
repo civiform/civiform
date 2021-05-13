@@ -1,7 +1,7 @@
 package services.applicant.question;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -239,14 +239,20 @@ public class AddressQuestion implements PresentsErrors {
 
   @Override
   public String getAnswerString() {
-    String line1 = getStreetValue().orElse("");
-    String[] parts = {
-      getCityValue().orElse(""), getStateValue().orElse(""), getZipValue().orElse("")
-    };
-    String line2 =
-        Arrays.stream(parts).filter(part -> part.length() > 0).collect(Collectors.joining(", "));
+    String displayLine1 = getStreetValue().orElse("");
+    String displayLine2 = getLine2Value().orElse("");
 
-    String[] ret = {line1, line2};
-    return Arrays.stream(ret).filter(part -> part.length() > 0).collect(Collectors.joining("\n"));
+    String cityDisplayString = getCityValue().isPresent() ? getCityValue().get() + "," : "";
+    String stateDisplayString = getStateValue().orElse("");
+    String displayLine3 =
+        stateDisplayString.isEmpty()
+            ? String.format("%s %s", cityDisplayString, getZipValue().orElse("")).trim()
+            : String.format(
+                    "%s %s %s", cityDisplayString, stateDisplayString, getZipValue().orElse(""))
+                .trim();
+
+    return ImmutableList.of(displayLine1, displayLine2, displayLine3).stream()
+        .filter(line -> line.length() > 0)
+        .collect(Collectors.joining("\n"));
   }
 }
