@@ -23,11 +23,15 @@ public class BaseHtmlLayoutTest extends WithPostgresContainer {
     HtmlBundle bundle = layout.getBundle();
     Content content = layout.render(bundle);
 
-    assertThat(content.body()).contains("<!DOCTYPE html><html>");    
-    
-    assertThat(content.body()).contains("<link href=\"/assets/stylesheets/tailwind.css\" rel=\"stylesheet\">");
-    assertThat(content.body()).contains("<script src=\"/assets/javascripts/main.js\" type=\"text/javascript\"></script>");
-    assertThat(content.body()).contains("<script src=\"/assets/javascripts/radio.js\" type=\"text/javascript\"></script>");
+    assertThat(content.body()).contains("<!DOCTYPE html><html>");
+
+    assertThat(content.body())
+        .contains("<link href=\"/assets/stylesheets/tailwind.css\" rel=\"stylesheet\">");
+    assertThat(content.body())
+        .contains("<script src=\"/assets/javascripts/main.js\" type=\"text/javascript\"></script>");
+    assertThat(content.body())
+        .contains(
+            "<script src=\"/assets/javascripts/radio.js\" type=\"text/javascript\"></script>");
 
     assertThat(content.body()).contains("<main></main>");
   }
@@ -44,6 +48,9 @@ public class BaseHtmlLayoutTest extends WithPostgresContainer {
     Content content = layout.render(bundle);
 
     assertThat(content.body()).contains("<!DOCTYPE html><html>");
-    assertThat(content.body()).contains("<link href=\"moose.css\" rel=\"stylesheet\"><link href=\"/assets/stylesheets/tailwind.css\" rel=\"stylesheet\">");
+    assertThat(content.body())
+        .contains(
+            "<link href=\"moose.css\" rel=\"stylesheet\"><link"
+                + " href=\"/assets/stylesheets/tailwind.css\" rel=\"stylesheet\">");
   }
 }
