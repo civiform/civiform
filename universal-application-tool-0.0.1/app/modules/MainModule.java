@@ -3,7 +3,6 @@ package modules;
 import com.google.inject.AbstractModule;
 import java.time.Clock;
 import java.time.ZoneId;
-import repository.AmazonS3Client;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantServiceImpl;
 import services.program.ProgramService;
@@ -28,6 +27,5 @@ public class MainModule extends AbstractModule {
     bind(ProgramService.class).to(ProgramServiceImpl.class);
     bind(QuestionService.class).to(QuestionServiceImpl.class);
     bind(ApplicantService.class).to(ApplicantServiceImpl.class);
-    bind(AmazonS3Client.class).asEagerSingleton();
   }
 }

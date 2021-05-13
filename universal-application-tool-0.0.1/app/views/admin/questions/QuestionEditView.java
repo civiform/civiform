@@ -1,5 +1,6 @@
 package views.admin.questions;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
@@ -20,6 +21,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.Path;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
@@ -30,6 +32,7 @@ import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
+import views.questiontypes.EnumeratorQuestionRenderer;
 import views.style.Styles;
 
 public final class QuestionEditView extends BaseHtmlView {
@@ -41,7 +44,7 @@ public final class QuestionEditView extends BaseHtmlView {
 
   @Inject
   public QuestionEditView(AdminLayout layout, MessagesApi messagesApi) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
     // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
   }
@@ -73,6 +76,7 @@ public final class QuestionEditView extends BaseHtmlView {
       ImmutableList<EnumeratorQuestionDefinition> enumerationQuestionDefinitions,
       Optional<String> message) {
     QuestionType questionType = questionForm.getQuestionType();
+    //    String title = String.format("New %s question", questionType.toString().toLowerCase());
     String title = String.format("New %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
@@ -159,6 +163,14 @@ public final class QuestionEditView extends BaseHtmlView {
   private Content renderWithPreview(ContainerTag formContent, QuestionType type) {
     ContainerTag previewContent = QuestionPreview.renderQuestionPreview(type, messages);
     previewContent.with(layout.viewUtils.makeLocalJsTag("preview"));
+
+    // Add the hidden enumerator field template
+    if (type.equals(QuestionType.ENUMERATOR)) {
+      previewContent.with(
+          EnumeratorQuestionRenderer.newEnumeratorFieldTemplate(
+              Path.empty(), "Sample repeated entity type", messages));
+    }
+
     return layout.renderFull(main(formContent, previewContent));
   }
 
@@ -178,6 +190,7 @@ public final class QuestionEditView extends BaseHtmlView {
         .withClasses(
             Styles.BORDER_GRAY_400,
             Styles.BORDER_R,
+            Styles.P_6,
             Styles.FLEX,
             Styles.FLEX_COL,
             Styles.H_FULL,
@@ -185,7 +198,7 @@ public final class QuestionEditView extends BaseHtmlView {
             Styles.OVERFLOW_Y_AUTO,
             Styles.RELATIVE,
             Styles.W_2_5)
-        .with(renderHeader(title, Styles.CAPITALIZE))
+        .with(renderHeader(title))
         .with(multiOptionQuestionField());
   }
 
@@ -206,7 +219,7 @@ public final class QuestionEditView extends BaseHtmlView {
     ContainerTag formTag = buildSubmittableQuestionForm(questionForm, enumerationOptions);
     formTag
         .withAction(
-            controllers.admin.routes.QuestionController.create(
+            controllers.admin.routes.AdminQuestionController.create(
                     questionForm.getQuestionType().toString())
                 .url())
         .with(submitButton("Create").withClass(Styles.ML_2));
@@ -224,7 +237,7 @@ public final class QuestionEditView extends BaseHtmlView {
     ContainerTag formTag = buildSubmittableQuestionForm(questionForm, enumerationOption);
     formTag
         .withAction(
-            controllers.admin.routes.QuestionController.update(
+            controllers.admin.routes.AdminQuestionController.update(
                     id, questionForm.getQuestionType().toString())
                 .url())
         .with(submitButton("Update").withClass(Styles.ML_2));

@@ -3,6 +3,8 @@ package models;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
+import io.ebean.annotation.DbArray;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import services.program.ProgramDefinition;
 
 @Entity
 @Table(name = "accounts")
@@ -21,6 +24,10 @@ public class Account extends BaseModel {
 
   @ManyToOne private TrustedIntermediaryGroup memberOfGroup;
   @ManyToOne private TrustedIntermediaryGroup managedByGroup;
+  private boolean globalAdmin;
+
+  // This must be a mutable collection so we can add to the list later.
+  @DbArray private List<String> adminOf = new ArrayList<>();
 
   private String emailAddress;
 
@@ -62,6 +69,49 @@ public class Account extends BaseModel {
 
   public Optional<TrustedIntermediaryGroup> getManagedByGroup() {
     return Optional.ofNullable(this.managedByGroup);
+  }
+
+  public ImmutableList<String> getAdministeredProgramNames() {
+    if (this.adminOf == null) {
+      return ImmutableList.of();
+    }
+    return ImmutableList.copyOf(this.adminOf);
+  }
+
+  /**
+   * Set whether or not the user is a global admin. If they are a global admin, they are cleared of
+   * any program-admin role.
+   */
+  public void setGlobalAdmin(boolean isGlobalAdmin) {
+    this.globalAdmin = isGlobalAdmin;
+    if (this.globalAdmin) {
+      this.adminOf.clear();
+    }
+  }
+
+  public boolean getGlobalAdmin() {
+    return globalAdmin;
+  }
+
+  /**
+   * If this account does not already administer this program, add it to the list of administered
+   * programs.
+   */
+  public void addAdministeredProgram(ProgramDefinition program) {
+    if (this.adminOf == null) {
+      this.adminOf = new ArrayList<>();
+    }
+    if (!this.adminOf.contains(program.adminName())) {
+      this.adminOf.add(program.adminName());
+    }
+  }
+
+  /**
+   * If this account administers the provided program, remove it from the list of administered
+   * programs.
+   */
+  public void removeAdministeredProgram(ProgramDefinition program) {
+    this.adminOf.remove(program.adminName());
   }
 
   /**

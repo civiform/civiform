@@ -1,5 +1,5 @@
 #!/bin/bash
-pushd $(git rev-parse --show-toplevel)
+pushd $(git rev-parse --show-toplevel) > /dev/null
 
 set -e
 
@@ -9,14 +9,6 @@ if [ -f ".secrets" ]; then
     . .secrets
 fi
 
-if [ "$DISABLE_LOCALSTACK" ]; then
-  services=$(docker-compose ps --services | grep -v localstack | xargs)
-  echo "localstack is disabled, only starting $services..."
-  docker-compose up $services
-  exit $?
-fi
-echo "Starting localstack... set environment variable DISABLE_LOCALSTACK=1 to skip"
-
 # start localstack
 docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d localstack
 
@@ -24,10 +16,7 @@ docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d localstack
 # otherwise other services crash
 bin/localstack/wait
 
-# ensure local s3 created
-bin/localstack/mk-s3
-
 # start everything else
 docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
 
-popd
+popd > /dev/null

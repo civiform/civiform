@@ -1,12 +1,12 @@
 package views;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
 import auth.UatProfile;
-import com.google.common.base.Preconditions;
 import j2html.tags.Tag;
 import javax.inject.Inject;
 import models.Applicant;
@@ -18,7 +18,7 @@ public class ProfileView extends BaseHtmlView {
 
   @Inject
   public ProfileView(BaseHtmlLayout layout) {
-    this.layout = Preconditions.checkNotNull(layout);
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(UatProfile profile, Applicant applicant) {

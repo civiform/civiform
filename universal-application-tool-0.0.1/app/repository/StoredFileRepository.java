@@ -11,16 +11,17 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.StoredFile;
 import play.db.ebean.EbeanConfig;
+import services.aws.SimpleStorage;
 
 public class StoredFileRepository {
 
   private final EbeanServer ebeanServer;
-  private final AmazonS3Client s3Client;
+  private final SimpleStorage s3Client;
   private final DatabaseExecutionContext executionContext;
 
   @Inject
   public StoredFileRepository(
-      EbeanConfig ebeanConfig, AmazonS3Client s3Client, DatabaseExecutionContext executionContext) {
+      EbeanConfig ebeanConfig, SimpleStorage s3Client, DatabaseExecutionContext executionContext) {
     this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
     this.s3Client = checkNotNull(s3Client);
     this.executionContext = checkNotNull(executionContext);

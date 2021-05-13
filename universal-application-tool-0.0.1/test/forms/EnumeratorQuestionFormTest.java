@@ -2,11 +2,10 @@ package forms;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
-import services.Path;
+import services.LocalizedStrings;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -14,23 +13,21 @@ import services.question.types.QuestionDefinitionBuilder;
 public class EnumeratorQuestionFormTest {
   @Test
   public void getBuilder_returnsCompleteBuilder() throws Exception {
-    Path path = Path.create("my.question.path.name");
-
     EnumeratorQuestionForm form = new EnumeratorQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
-    QuestionDefinitionBuilder builder = form.getBuilder(path);
+    QuestionDefinitionBuilder builder = form.getBuilder();
 
     EnumeratorQuestionDefinition expected =
         new EnumeratorQuestionDefinition(
             "name",
-            path,
             Optional.empty(),
             "description",
-            ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of());
+            LocalizedStrings.of(Locale.US, "What is the question text?"),
+            LocalizedStrings.empty(),
+            LocalizedStrings.empty());
 
     QuestionDefinition actual = builder.build();
 
@@ -39,19 +36,17 @@ public class EnumeratorQuestionFormTest {
 
   @Test
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
-    Path path = Path.create("my.question.path.name");
-
     EnumeratorQuestionDefinition originalQd =
         new EnumeratorQuestionDefinition(
             "name",
-            path,
             Optional.empty(),
             "description",
-            ImmutableMap.of(Locale.US, "What is the question text?"),
-            ImmutableMap.of());
+            LocalizedStrings.of(Locale.US, "What is the question text?"),
+            LocalizedStrings.empty(),
+            LocalizedStrings.empty());
 
     EnumeratorQuestionForm form = new EnumeratorQuestionForm(originalQd);
-    QuestionDefinitionBuilder builder = form.getBuilder(path);
+    QuestionDefinitionBuilder builder = form.getBuilder();
 
     QuestionDefinition actual = builder.build();
 

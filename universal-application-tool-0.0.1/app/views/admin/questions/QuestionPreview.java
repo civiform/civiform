@@ -9,6 +9,7 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
+import views.style.ApplicantStyles;
 import views.style.Styles;
 
 public class QuestionPreview {
@@ -46,7 +47,6 @@ public class QuestionPreview {
     ContainerTag contentContainer = div(innerContentContainer).withId("sample-question");
 
     return div(titleContainer, contentContainer)
-        .withClasses(Styles.W_3_5)
-        .withStyle("background-color: #EEEDE8"); // TODO(NOW): Get this into tailwind config.
+        .withClasses(Styles.W_3_5, ApplicantStyles.BODY_BG_COLOR);
   }
 }

@@ -6,6 +6,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import auth.UatProfile;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
@@ -278,5 +279,51 @@ public class UserRepository {
         .getApplicantData()
         .setUserName(form.getFirstName(), form.getMiddleName(), form.getLastName());
     applicant.save();
+  }
+
+  /**
+   * Adds the given program as an administered program by the given account. If the account does not
+   * exist, this will create a new account for the given email, so that when a user with that email
+   * signs in for the first time they will be a program admin.
+   *
+   * @param accountEmail the email of the account that will administer the given program
+   * @param program the {@link ProgramDefinition} to add to this given account
+   */
+  public void addAdministeredProgram(String accountEmail, ProgramDefinition program) {
+    if (accountEmail.isBlank()) {
+      return;
+    }
+
+    Optional<Account> maybeAccount = lookupAccount(accountEmail);
+    Account account =
+        maybeAccount.orElseGet(
+            () -> {
+              Account a = new Account();
+              a.setEmailAddress(accountEmail);
+              return a;
+            });
+    account.addAdministeredProgram(program);
+    account.save();
+  }
+
+  /**
+   * If the account identified by the given email administers the given program, remove the program
+   * from the list of programs this account administers.
+   *
+   * @param accountEmail the email of the account
+   * @param program the {@link ProgramDefinition} to remove from the given account
+   */
+  public void removeAdministeredProgram(String accountEmail, ProgramDefinition program) {
+    Optional<Account> maybeAccount = lookupAccount(accountEmail);
+    maybeAccount.ifPresent(
+        account -> {
+          account.removeAdministeredProgram(program);
+          account.save();
+        });
+  }
+
+  public ImmutableSet<Account> getGlobalAdmins() {
+    return ImmutableSet.copyOf(
+        ebeanServer.find(Account.class).where().eq("global_admin", true).findList());
   }
 }

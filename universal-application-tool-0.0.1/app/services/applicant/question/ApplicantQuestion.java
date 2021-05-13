@@ -47,11 +47,11 @@ public class ApplicantQuestion {
   }
 
   public String getQuestionText() {
-    return questionDefinition.getQuestionTextOrDefault(applicantData.preferredLocale());
+    return questionDefinition.getQuestionText().getOrDefault(applicantData.preferredLocale());
   }
 
   public String getQuestionHelpText() {
-    return questionDefinition.getQuestionHelpTextOrDefault(applicantData.preferredLocale());
+    return questionDefinition.getQuestionHelpText().getOrDefault(applicantData.preferredLocale());
   }
 
   /**

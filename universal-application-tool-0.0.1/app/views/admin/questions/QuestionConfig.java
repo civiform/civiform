@@ -8,6 +8,7 @@ import static j2html.TagCreator.label;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import forms.AddressQuestionForm;
+import forms.EnumeratorQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.NumberQuestionForm;
 import forms.QuestionForm;
@@ -24,7 +25,7 @@ import views.style.Styles;
 
 public class QuestionConfig {
   private String id = "";
-  private String headerText = "Question Settings";
+  private String headerText = "Question settings";
   private ContainerTag content = div();
 
   private static final String HEADER_CLASSES =
@@ -32,23 +33,19 @@ public class QuestionConfig {
           Styles.BG_TRANSPARENT,
           Styles.TEXT_GRAY_600,
           Styles.BLOCK,
-          Styles.FONT_BOLD,
-          Styles.TEXT_SM,
+          Styles.TEXT_BASE,
           Styles._MT_1,
           Styles.PB_0,
           Styles.MB_0,
-          Styles.MX_2,
-          Styles.UPPERCASE);
+          Styles.MX_2);
 
   private static final String INNER_DIV_CLASSES =
       StyleUtils.joinStyles(
           Styles.BORDER, Styles.BG_GRAY_100,
-          Styles.PT_4, Styles.M_4);
+          Styles.P_4, Styles.M_4);
 
   private static final String OUTER_DIV_CLASSES =
       StyleUtils.joinStyles(Styles.W_FULL, Styles.PT_0, Styles._MT_4);
-
-  public QuestionConfig() {}
 
   public QuestionConfig setId(String id) {
     this.id = id;
@@ -75,6 +72,11 @@ public class QuestionConfig {
             .addMultiOptionQuestionFields(form)
             .addMultiSelectQuestionValidation(form)
             .getContainer();
+      case ENUMERATOR:
+        return config
+            .setId("enumerator-question-config")
+            .addEnumeratorQuestionConfig((EnumeratorQuestionForm) questionForm)
+            .getContainer();
       case NUMBER:
         return config
             .setId("number-question-config")
@@ -93,7 +95,6 @@ public class QuestionConfig {
             .getContainer();
       case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended - no options
-      case ENUMERATOR: // fallthrough intended
       default:
         return div();
     }
@@ -104,7 +105,7 @@ public class QuestionConfig {
         new SelectWithLabel()
             .setId("address-question-default-state-select")
             .setFieldName("defaultState")
-            .setLabelText("Default State")
+            .setLabelText("Default state")
             .setOptions(stateOptions())
             .setValue("-")
             .getContainer(),
@@ -135,6 +136,19 @@ public class QuestionConfig {
     return this;
   }
 
+  private QuestionConfig addEnumeratorQuestionConfig(
+      EnumeratorQuestionForm enumeratorQuestionForm) {
+    content.with(
+        FieldWithLabel.input()
+            .setId("enumerator-question-entity-type-input")
+            .setFieldName("entityType")
+            .setLabelText("Repeated entity type")
+            .setPlaceholderText("What are we enumerating?")
+            .setValue(enumeratorQuestionForm.getEntityType())
+            .getContainer());
+    return this;
+  }
+
   /**
    * Creates an individual text field where an admin can enter a single multi-option question
    * answer, along with a button to remove the option.
@@ -148,7 +162,9 @@ public class QuestionConfig {
             .getContainer()
             .withClasses(Styles.FLEX, Styles.ML_2);
     Tag removeOptionButton =
-        button("Remove").withType("button").withClasses(Styles.FLEX, Styles.ML_4);
+        button("Remove")
+            .withType("button")
+            .withClasses(Styles.FLEX, Styles.ML_4, "multi-option-question-field-remove-button");
 
     return div()
         .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4)

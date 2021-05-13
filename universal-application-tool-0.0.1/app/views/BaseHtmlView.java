@@ -4,8 +4,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
-import static j2html.TagCreator.label;
-import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
 import com.google.common.collect.ImmutableSet;
@@ -20,6 +18,7 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import services.applicant.ValidationErrorMessage;
 import views.html.helper.CSRF;
+import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
@@ -32,20 +31,13 @@ import views.style.Styles;
 public abstract class BaseHtmlView {
 
   public static Tag renderHeader(String headerText, String... additionalClasses) {
-    return h1(headerText).withClasses(Styles.M_2, StyleUtils.joinStyles(additionalClasses));
+    return h1(headerText).withClasses(Styles.MB_4, StyleUtils.joinStyles(additionalClasses));
   }
 
   protected static ContainerTag fieldErrors(
       Messages messages, ImmutableSet<ValidationErrorMessage> errors) {
-    return div(each(errors, error -> span(error.getMessage(messages))));
-  }
-
-  protected static Tag checkboxInputWithLabel(
-      String labelText, String inputId, String inputName, String inputValue) {
-    return label()
-        .with(
-            input().withType("checkbox").withName(inputName).withValue(inputValue).withId(inputId),
-            text(labelText));
+    return div(each(errors, error -> div(error.getMessage(messages))))
+        .withClasses(BaseStyles.FORM_ERROR_TEXT);
   }
 
   protected static Tag button(String textContents) {

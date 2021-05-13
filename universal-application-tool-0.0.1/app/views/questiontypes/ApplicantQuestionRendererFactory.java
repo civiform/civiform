@@ -1,8 +1,8 @@
 package views.questiontypes;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
@@ -57,18 +57,18 @@ public class ApplicantQuestionRendererFactory {
         new QuestionDefinitionBuilder()
             .setName("")
             .setDescription("")
-            .setPath(Path.create("sample.question.path"))
-            .setQuestionText(ImmutableMap.of(Locale.US, "Sample question text"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.US, "Sample question help text"))
+            .setQuestionText(LocalizedStrings.of(Locale.US, "Sample question text"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "Sample question help text"))
             .setQuestionType(questionType);
 
     if (questionType.isMultiOptionType()) {
       builder.setQuestionOptions(
           ImmutableList.of(
-              QuestionOption.builder()
-                  .setId(1L)
-                  .setOptionText(ImmutableMap.of(Locale.US, "Sample question option"))
-                  .build()));
+              QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "Sample question option"))));
+    }
+
+    if (questionType.equals(QuestionType.ENUMERATOR)) {
+      builder.setEntityType(LocalizedStrings.withDefaultValue("Sample repeated entity type"));
     }
 
     return builder.build();

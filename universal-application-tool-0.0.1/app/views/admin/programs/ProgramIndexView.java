@@ -1,19 +1,21 @@
 package views.admin.programs;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.head;
 import static j2html.TagCreator.p;
 
+import auth.UatProfile;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.Tag;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.LocalizationUtils;
+import services.LocalizedStrings;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
@@ -28,10 +30,11 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   @Inject
   public ProgramIndexView(AdminLayout layout) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
   }
 
-  public Content render(ActiveAndDraftPrograms programs, Http.Request request) {
+  public Content render(
+      ActiveAndDraftPrograms programs, Http.Request request, Optional<UatProfile> profile) {
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
@@ -46,9 +49,10 @@ public final class ProgramIndexView extends BaseHtmlView {
                         this.renderProgramListItem(
                             programs.getActiveProgramDefinition(name),
                             programs.getDraftProgramDefinition(name),
-                            request)));
+                            request,
+                            profile)));
 
-    return layout.render(head(layout.tailwindStyles()), body(contentDiv));
+    return layout.render(layout.headContent(), body(contentDiv));
   }
 
   private Tag maybeRenderPublishButton(ActiveAndDraftPrograms programs, Http.Request request) {
@@ -85,10 +89,10 @@ public final class ProgramIndexView extends BaseHtmlView {
   public Tag renderProgramListItem(
       Optional<ProgramDefinition> activeProgram,
       Optional<ProgramDefinition> draftProgram,
-      Http.Request request) {
+      Http.Request request,
+      Optional<UatProfile> profile) {
     String programStatusText = extractProgramStatusText(draftProgram, activeProgram);
     String lastEditText = "Last updated 2 hours ago."; // TODO: Need to generate this.
-    String viewApplicationsLinkText = "Applications →";
 
     ProgramDefinition displayProgram = getDisplayProgram(draftProgram, activeProgram);
 
@@ -126,9 +130,10 @@ public final class ProgramIndexView extends BaseHtmlView {
         div(
                 p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                 p().withClasses(Styles.FLEX_GROW),
-                maybeRenderViewApplicationsLink(viewApplicationsLinkText, activeProgram),
                 maybeRenderManageTranslationsLink(draftProgram),
-                maybeRenderEditLink(draftProgram, activeProgram, request))
+                maybeRenderEditLink(draftProgram, activeProgram, request),
+                maybeRenderViewApplicationsLink(activeProgram, profile),
+                renderManageProgramAdminsLink(draftProgram, activeProgram))
             .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
 
     Tag innerDiv =
@@ -192,7 +197,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       String linkText = "Manage Translations →";
       String linkDestination =
           routes.AdminProgramTranslationsController.edit(
-                  draftProgram.get().id(), LocalizationUtils.DEFAULT_LOCALE.toLanguageTag())
+                  draftProgram.get().id(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
               .url();
       return new LinkElement()
           .setId("program-translations-link-" + draftProgram.get().id())
@@ -205,19 +210,41 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
   }
 
-  Tag maybeRenderViewApplicationsLink(String text, Optional<ProgramDefinition> activeProgram) {
-    if (activeProgram.isPresent()) {
-      String editLink =
-          routes.AdminApplicationController.answerList(activeProgram.get().id()).url();
+  private Tag maybeRenderViewApplicationsLink(
+      Optional<ProgramDefinition> activeProgram, Optional<UatProfile> userProfile) {
+    if (activeProgram.isPresent() && userProfile.isPresent()) {
+      boolean userIsAuthorized = true;
+      try {
+        userProfile.get().checkProgramAuthorization(activeProgram.get().adminName()).join();
+      } catch (CompletionException e) {
+        userIsAuthorized = false;
+      }
+      if (userIsAuthorized) {
+        String editLink = routes.AdminApplicationController.index(activeProgram.get().id()).url();
 
-      return new LinkElement()
-          .setId("program-view-apps-link-" + activeProgram.get().id())
-          .setHref(editLink)
-          .setText(text)
-          .setStyles(Styles.MR_2)
-          .asAnchorText();
-    } else {
-      return div();
+        return new LinkElement()
+            .setId("program-view-apps-link-" + activeProgram.get().id())
+            .setHref(editLink)
+            .setText("Applications →")
+            .setStyles(Styles.MR_2)
+            .asAnchorText();
+      }
     }
+    return div();
+  }
+
+  private Tag renderManageProgramAdminsLink(
+      Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram) {
+    // We can use the ID of either, since we just add the program name and not ID to indicate
+    // ownership.
+    long programId =
+        draftProgram.isPresent() ? draftProgram.get().id() : activeProgram.orElseThrow().id();
+    String adminLink = routes.ProgramAdminManagementController.edit(programId).url();
+    return new LinkElement()
+        .setId("manage-program-admin-link-" + programId)
+        .setHref(adminLink)
+        .setText("Manage Admins →")
+        .setStyles(Styles.MR_2)
+        .asAnchorText();
   }
 }

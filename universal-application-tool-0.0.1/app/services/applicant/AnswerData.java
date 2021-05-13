@@ -1,6 +1,9 @@
 package services.applicant;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableMap;
+import services.Path;
+import services.question.types.QuestionDefinition;
 
 /**
  * This class is a summary of the data for a specific applicant and question. It includes the
@@ -15,13 +18,19 @@ public abstract class AnswerData {
     return new AutoValue_AnswerData.Builder();
   }
 
-  /** The program id that this is currently in the context of. */
+  /** The {@link models.Program} id that this is currently in the context of. */
   public abstract Long programId();
 
-  /** The block id for where this question resides within the current program. */
+  /** The {@link Block} id for where this question resides within the current program. */
   public abstract String blockId();
 
-  /** The question text */
+  /** The {@link models.Question} ID this is an answer for. */
+  public abstract QuestionDefinition questionDefinition();
+
+  /** The index of the {@link models.Question} this is an answer for in the block it appeared in. */
+  public abstract int questionIndex();
+
+  /** The localized question text */
   public abstract String questionText();
 
   /** The applicant's response to the question. */
@@ -33,11 +42,21 @@ public abstract class AnswerData {
   /** Whether the question was answered for another program. */
   public abstract boolean isPreviousResponse();
 
+  /**
+   * Paths and their answers for each scalar (in {@link services.LocalizedStrings#DEFAULT_LOCALE}
+   * for {@link services.question.LocalizedQuestionOption}s based answers) to present to admins.
+   */
+  public abstract ImmutableMap<Path, String> scalarAnswersInDefaultLocale();
+
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setProgramId(Long programId);
 
     public abstract Builder setBlockId(String blockId);
+
+    public abstract Builder setQuestionDefinition(QuestionDefinition questionDefinition);
+
+    public abstract Builder setQuestionIndex(int questionIndex);
 
     public abstract Builder setQuestionText(String questionText);
 
@@ -46,6 +65,8 @@ public abstract class AnswerData {
     public abstract Builder setTimestamp(Long timestamp);
 
     public abstract Builder setIsPreviousResponse(boolean isPreviousResponse);
+
+    public abstract Builder setScalarAnswersInDefaultLocale(ImmutableMap<Path, String> answers);
 
     public abstract AnswerData build();
   }

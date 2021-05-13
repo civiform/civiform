@@ -1,17 +1,16 @@
 package views.applicant;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.head;
+import static j2html.TagCreator.header;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
-import static j2html.TagCreator.title;
 
 import auth.ProfileUtils;
 import auth.Roles;
 import auth.UatProfile;
-import com.google.common.base.Preconditions;
 import controllers.ti.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
@@ -34,7 +33,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
   @Inject
   public ApplicantLayout(ViewUtils viewUtils, ProfileUtils profileUtils) {
     super(viewUtils);
-    this.profileUtils = Preconditions.checkNotNull(profileUtils);
+    this.profileUtils = checkNotNull(profileUtils);
   }
 
   protected Content render(Http.Request request, Messages messages, DomContent... mainDomContents) {
@@ -44,11 +43,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
   protected Content render(
       Optional<UatProfile> profile, Messages messages, DomContent... mainDomContents) {
     return htmlContent(
-        head().with(title("Applicant layout title")).with(tailwindStyles()),
+        headContent("Applicant layout title"),
         body()
             .with(renderNavBar(profile, messages))
             .with(mainDomContents)
-            .with(viewUtils.makeLocalJsTag("main")));
+            .with(viewUtils.makeLocalJsTag("main"))
+            .withClasses(ApplicantStyles.BODY_BG_COLOR));
   }
 
   private ContainerTag renderNavBar(Optional<UatProfile> profile, Messages messages) {
@@ -96,5 +96,35 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .withHref(logoutLink)
         .withClasses(
             Styles.PX_3, Styles.TEXT_SM, Styles.OPACITY_75, StyleUtils.hover(Styles.OPACITY_100));
+  }
+
+  protected ContainerTag renderHeader(int percentComplete) {
+    ContainerTag headerTag = header().withClasses(Styles.FLEX, Styles.FLEX_COL, Styles._MT_12);
+    ContainerTag progressInner =
+        div()
+            .withClasses(
+                Styles.BG_YELLOW_400,
+                Styles.TRANSITION_ALL,
+                Styles.DURATION_300,
+                Styles.H_FULL,
+                Styles.BLOCK,
+                Styles.ABSOLUTE,
+                Styles.LEFT_0,
+                Styles.TOP_0,
+                Styles.W_1,
+                Styles.ROUNDED_R_FULL)
+            .withStyle("width:" + percentComplete + "%");
+    ContainerTag progressIndicator =
+        div(progressInner)
+            .withId("progress-indicator")
+            .withClasses(
+                Styles.BORDER,
+                Styles.FONT_SEMIBOLD,
+                Styles.BG_GRAY_200,
+                Styles.RELATIVE,
+                Styles.H_2);
+
+    headerTag.with(progressIndicator);
+    return headerTag;
   }
 }

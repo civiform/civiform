@@ -3,13 +3,12 @@ package models;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ProgramRepository;
 import repository.WithPostgresContainer;
-import services.Path;
+import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
@@ -36,9 +35,8 @@ public class ProgramTest extends WithPostgresContainer {
             .setQuestionType(QuestionType.TEXT)
             .setId(123L)
             .setName("question")
-            .setPath(Path.create("applicant.name"))
             .setDescription("applicant's name")
-            .setQuestionText(ImmutableMap.of(Locale.US, "What is your name?"))
+            .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
             .build();
 
     BlockDefinition blockDefinition =
@@ -55,8 +53,8 @@ public class ProgramTest extends WithPostgresContainer {
             .setId(1L)
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
-            .addLocalizedName(Locale.US, "ProgramTest")
-            .addLocalizedDescription(Locale.US, "desc")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .build();
     Program program = new Program(definition);
@@ -67,7 +65,7 @@ public class ProgramTest extends WithPostgresContainer {
 
     assertThat(found.getProgramDefinition().adminName()).isEqualTo("Admin name");
     assertThat(found.getProgramDefinition().localizedName())
-        .isEqualTo(ImmutableMap.of(Locale.US, "ProgramTest"));
+        .isEqualTo(LocalizedStrings.of(Locale.US, "ProgramTest"));
     assertThat(found.getProgramDefinition().blockDefinitions().get(0).name())
         .isEqualTo("First Block");
 
@@ -90,9 +88,8 @@ public class ProgramTest extends WithPostgresContainer {
                 .setQuestionType(QuestionType.ADDRESS)
                 .setId(456L)
                 .setName("address question")
-                .setPath(Path.create("applicant.address"))
                 .setDescription("applicant's address")
-                .setQuestionText(ImmutableMap.of(Locale.US, "What is your address?"))
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your address?"))
                 .build();
     NameQuestionDefinition nameQuestionDefinition =
         (NameQuestionDefinition)
@@ -100,9 +97,8 @@ public class ProgramTest extends WithPostgresContainer {
                 .setQuestionType(QuestionType.NAME)
                 .setId(789L)
                 .setName("name question")
-                .setPath(Path.create("applicant.name"))
                 .setDescription("applicant's name")
-                .setQuestionText(ImmutableMap.of(Locale.US, "What is your name?"))
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
                 .build();
 
     BlockDefinition blockDefinition =
@@ -121,8 +117,8 @@ public class ProgramTest extends WithPostgresContainer {
             .setId(1L)
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
-            .addLocalizedName(Locale.US, "ProgramTest")
-            .addLocalizedDescription(Locale.US, "desc")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .build();
     Program program = new Program(definition);

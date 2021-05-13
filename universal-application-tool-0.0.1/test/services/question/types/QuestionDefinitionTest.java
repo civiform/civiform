@@ -3,7 +3,6 @@ package services.question.types;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
@@ -11,9 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.CiviFormError;
-import services.LocalizationUtils;
-import services.Path;
-import services.question.exceptions.TranslationNotFoundException;
+import services.LocalizedStrings;
+import services.TranslationNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
@@ -27,11 +25,11 @@ public class QuestionDefinitionTest {
     builder =
         new QuestionDefinitionBuilder()
             .setName("name")
-            .setPath(Path.create("applicant.name"))
             .setDescription("description")
             .setQuestionType(QuestionType.TEXT)
-            .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
+            .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+            .setEntityType(LocalizedStrings.empty())
             .setValidationPredicates(TextValidationPredicates.builder().setMaxLength(128).build());
   }
 
@@ -67,7 +65,7 @@ public class QuestionDefinitionTest {
 
     QuestionDefinition differentQuestionHelpText =
         new QuestionDefinitionBuilder(question)
-            .setQuestionHelpText(ImmutableMap.of(Locale.US, "different help text"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "different help text"))
             .build();
     assertThat(question.equals(differentQuestionHelpText)).isFalse();
   }
@@ -78,7 +76,7 @@ public class QuestionDefinitionTest {
 
     QuestionDefinition differentQuestionText =
         new QuestionDefinitionBuilder(question)
-            .setQuestionText(ImmutableMap.of(Locale.US, "question text?"))
+            .setQuestionText(LocalizedStrings.of(Locale.US, "question text?"))
             .build();
     assertThat(question.equals(differentQuestionText)).isFalse();
   }
@@ -127,7 +125,7 @@ public class QuestionDefinitionTest {
   public void isEnumerator_false() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "", Path.empty(), Optional.empty(), "", ImmutableMap.of(), ImmutableMap.of());
+            "", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
 
     assertThat(question.isEnumerator()).isFalse();
   }
@@ -136,7 +134,12 @@ public class QuestionDefinitionTest {
   public void isEnumerator_true() {
     QuestionDefinition question =
         new EnumeratorQuestionDefinition(
-            "", Path.empty(), Optional.empty(), "", ImmutableMap.of(), ImmutableMap.of());
+            "",
+            Optional.empty(),
+            "",
+            LocalizedStrings.of(),
+            LocalizedStrings.empty(),
+            LocalizedStrings.empty());
     assertThat(question.isEnumerator()).isTrue();
   }
 
@@ -144,7 +147,7 @@ public class QuestionDefinitionTest {
   public void isRepeated_false() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "", Path.empty(), Optional.empty(), "", ImmutableMap.of(), ImmutableMap.of());
+            "", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
 
     assertThat(question.isRepeated()).isFalse();
   }
@@ -153,7 +156,7 @@ public class QuestionDefinitionTest {
   public void isRepeated_true() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "", Path.empty(), Optional.of(123L), "", ImmutableMap.of(), ImmutableMap.of());
+            "", Optional.of(123L), "", LocalizedStrings.of(), LocalizedStrings.empty());
     assertThat(question.isRepeated()).isTrue();
   }
 
@@ -164,74 +167,59 @@ public class QuestionDefinitionTest {
             .setQuestionType(QuestionType.TEXT)
             .setId(123L)
             .setName("name")
-            .setPath(Path.create("applicant.name"))
             .setDescription("description")
-            .setQuestionText(ImmutableMap.of(Locale.US, "question?"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.US, "help text"))
+            .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
             .setValidationPredicates(TextValidationPredicates.builder().setMinLength(0).build())
             .build();
 
     assertThat(question.getId()).isEqualTo(123L);
     assertThat(question.getName()).isEqualTo("name");
-    assertThat(question.getPath().toString()).isEqualTo("applicant.name");
     assertThat(question.getDescription()).isEqualTo("description");
-    assertThat(question.getQuestionText(Locale.US)).isEqualTo("question?");
-    assertThat(question.getQuestionHelpText(Locale.US)).isEqualTo("help text");
+    assertThat(question.getQuestionText().get(Locale.US)).isEqualTo("question?");
+    assertThat(question.getQuestionHelpText().get(Locale.US)).isEqualTo("help text");
     assertThat(question.getValidationPredicates())
         .isEqualTo(TextValidationPredicates.builder().setMinLength(0).build());
   }
 
   @Test
   public void getQuestionTextForUnknownLocale_throwsException() {
-    String questionPath = "applicant.text";
     QuestionDefinition question =
         new TextQuestionDefinition(
             "text",
-            Path.create(questionPath),
             Optional.empty(),
             "",
-            ImmutableMap.of(),
-            ImmutableMap.of());
+            LocalizedStrings.of(Locale.US, "not french"),
+            LocalizedStrings.empty());
 
-    Throwable thrown = catchThrowable(() -> question.getQuestionText(Locale.FRANCE));
+    Throwable thrown = catchThrowable(() -> question.getQuestionText().get(Locale.FRANCE));
 
     assertThat(thrown).isInstanceOf(TranslationNotFoundException.class);
-    assertThat(thrown)
-        .hasMessage(
-            "Translation not found for Question at path: " + questionPath + "\n\tLocale: fr_FR");
+    assertThat(thrown).hasMessage("No translation was found for locale fr_FR");
   }
 
   @Test
   public void getQuestionHelpTextForUnknownLocale_throwsException() {
-    String questionPath = "applicant.text";
     QuestionDefinition question =
         new TextQuestionDefinition(
             "text",
-            Path.create(questionPath),
             Optional.empty(),
             "",
-            ImmutableMap.of(),
-            ImmutableMap.of(Locale.US, "help text"));
+            LocalizedStrings.of(),
+            LocalizedStrings.of(Locale.US, "help text"));
 
-    Throwable thrown = catchThrowable(() -> question.getQuestionHelpText(Locale.FRANCE));
+    Throwable thrown = catchThrowable(() -> question.getQuestionHelpText().get(Locale.FRANCE));
 
     assertThat(thrown).isInstanceOf(TranslationNotFoundException.class);
-    assertThat(thrown)
-        .hasMessage(
-            "Translation not found for Question at path: " + questionPath + "\n\tLocale: fr_FR");
+    assertThat(thrown).hasMessage("No translation was found for locale fr_FR");
   }
 
   @Test
   public void getEmptyHelpTextForUnknownLocale_succeeds() throws TranslationNotFoundException {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "text",
-            Path.create("applicant.text"),
-            Optional.empty(),
-            "",
-            ImmutableMap.of(),
-            ImmutableMap.of());
-    assertThat(question.getQuestionHelpText(Locale.FRANCE)).isEqualTo("");
+            "text", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+    assertThat(question.getQuestionHelpText().get(Locale.FRANCE)).isEqualTo("");
   }
 
   @Test
@@ -239,13 +227,12 @@ public class QuestionDefinitionTest {
     QuestionDefinition question =
         new TextQuestionDefinition(
             "text",
-            Path.create("applicant.text"),
             Optional.empty(),
             "",
-            ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, "default"),
-            ImmutableMap.of());
+            LocalizedStrings.withDefaultValue("default"),
+            LocalizedStrings.empty());
 
-    assertThat(question.getQuestionTextOrDefault(Locale.forLanguageTag("und")))
+    assertThat(question.getQuestionText().getOrDefault(Locale.forLanguageTag("und")))
         .isEqualTo("default");
   }
 
@@ -254,13 +241,12 @@ public class QuestionDefinitionTest {
     QuestionDefinition question =
         new TextQuestionDefinition(
             "text",
-            Path.create("applicant.text"),
             Optional.empty(),
             "",
-            ImmutableMap.of(),
-            ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, "default"));
+            LocalizedStrings.of(),
+            LocalizedStrings.withDefaultValue("default"));
 
-    assertThat(question.getQuestionHelpTextOrDefault(Locale.forLanguageTag("und")))
+    assertThat(question.getQuestionHelpText().getOrDefault(Locale.forLanguageTag("und")))
         .isEqualTo("default");
   }
 
@@ -269,22 +255,21 @@ public class QuestionDefinitionTest {
     QuestionDefinition question =
         new TextQuestionDefinition(
             "",
-            Path.empty(),
             Optional.empty(),
             "",
-            ImmutableMap.of(Locale.US, "hello"),
-            ImmutableMap.of());
+            LocalizedStrings.of(Locale.US, "hello"),
+            LocalizedStrings.empty());
 
-    assertThat(question.maybeGetQuestionText(Locale.US)).hasValue("hello");
+    assertThat(question.getQuestionText().maybeGet(Locale.US)).hasValue("hello");
   }
 
   @Test
   public void maybeGetQuestionText_returnsEmptyIfLocaleNotFound() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "", Path.empty(), Optional.empty(), "", ImmutableMap.of(), ImmutableMap.of());
+            "", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
 
-    assertThat(question.maybeGetQuestionText(Locale.forLanguageTag("und"))).isEmpty();
+    assertThat(question.getQuestionText().maybeGet(Locale.forLanguageTag("und"))).isEmpty();
   }
 
   @Test
@@ -292,34 +277,28 @@ public class QuestionDefinitionTest {
     QuestionDefinition question =
         new TextQuestionDefinition(
             "",
-            Path.empty(),
             Optional.empty(),
             "",
-            ImmutableMap.of(),
-            ImmutableMap.of(Locale.US, "world"));
+            LocalizedStrings.of(),
+            LocalizedStrings.of(Locale.US, "world"));
 
-    assertThat(question.maybeGetQuestionHelpText(Locale.US)).hasValue("world");
+    assertThat(question.getQuestionHelpText().maybeGet(Locale.US)).hasValue("world");
   }
 
   @Test
   public void maybeGetQuestionHelpText_returnsEmptyIfLocaleNotFound() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "", Path.empty(), Optional.empty(), "", ImmutableMap.of(), ImmutableMap.of());
+            "", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
 
-    assertThat(question.maybeGetQuestionHelpText(Locale.forLanguageTag("und"))).isEmpty();
+    assertThat(question.getQuestionHelpText().maybeGet(Locale.forLanguageTag("und"))).isEmpty();
   }
 
   @Test
   public void newQuestionHasTypeText() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "text",
-            Path.create("applicant.text"),
-            Optional.empty(),
-            "",
-            ImmutableMap.of(),
-            ImmutableMap.of());
+            "text", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
 
     assertThat(question.getQuestionType()).isEqualTo(QuestionType.TEXT);
   }
@@ -329,11 +308,10 @@ public class QuestionDefinitionTest {
     QuestionDefinition question =
         new TextQuestionDefinition(
             "text",
-            Path.create("applicant.text"),
             Optional.empty(),
             "description",
-            ImmutableMap.of(Locale.US, "question?"),
-            ImmutableMap.of());
+            LocalizedStrings.of(Locale.US, "question?"),
+            LocalizedStrings.empty());
     assertThat(question.validate()).isEmpty();
   }
 
@@ -341,12 +319,7 @@ public class QuestionDefinitionTest {
   public void validateBadQuestion_returnsErrors() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "",
-            Path.create("applicant.text"),
-            Optional.empty(),
-            "",
-            ImmutableMap.of(),
-            ImmutableMap.of());
+            "", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
     assertThat(question.validate())
         .containsOnly(
             CiviFormError.of("Name cannot be blank"),
@@ -355,15 +328,30 @@ public class QuestionDefinitionTest {
   }
 
   @Test
+  public void validate_withEnumerator_withEmptyEntityString_returnsErrors() throws Exception {
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder()
+            .setName("name")
+            .setDescription("description")
+            .setQuestionText(LocalizedStrings.withDefaultValue("text"))
+            .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+            .setEntityType(LocalizedStrings.withDefaultValue(""))
+            .setQuestionType(QuestionType.ENUMERATOR)
+            .build();
+
+    assertThat(question.validate())
+        .containsOnly(CiviFormError.of("Enumerator question must have specified entity type"));
+  }
+
+  @Test
   public void validate_localeHasBlankText_returnsError() {
     QuestionDefinition question =
         new TextQuestionDefinition(
             "test",
-            Path.empty(),
             Optional.empty(),
             "test",
-            ImmutableMap.of(Locale.US, ""),
-            ImmutableMap.of());
+            LocalizedStrings.of(Locale.US, ""),
+            LocalizedStrings.empty());
     assertThat(question.validate()).containsOnly(CiviFormError.of("Question text cannot be blank"));
   }
 
@@ -372,17 +360,16 @@ public class QuestionDefinitionTest {
     QuestionDefinition definition =
         new TextQuestionDefinition(
             "test",
-            Path.create("applicant.test"),
             Optional.empty(),
             "test",
-            ImmutableMap.of(
+            LocalizedStrings.of(
                 Locale.US,
                 "question?",
                 Locale.forLanguageTag("es-US"),
                 "pregunta",
                 Locale.FRANCE,
                 "question"),
-            ImmutableMap.of(
+            LocalizedStrings.of(
                 Locale.US,
                 "help",
                 Locale.forLanguageTag("es-US"),

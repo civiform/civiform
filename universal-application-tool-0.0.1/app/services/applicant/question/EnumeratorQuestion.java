@@ -2,10 +2,7 @@ package services.applicant.question;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.util.Locale;
-import services.LocalizationUtils;
 import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.EnumeratorQuestionDefinition;
@@ -14,10 +11,6 @@ import services.question.types.QuestionType;
 public class EnumeratorQuestion implements PresentsErrors {
 
   private final ApplicantQuestion applicantQuestion;
-
-  // TODO(#859): make this admin-configurable
-  private final ImmutableMap<Locale, String> PLACEHOLDER =
-      ImmutableMap.of(LocalizationUtils.DEFAULT_LOCALE, "");
 
   public EnumeratorQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
@@ -80,10 +73,14 @@ public class EnumeratorQuestion implements PresentsErrors {
         .readRepeatedEntities(applicantQuestion.getContextualizedPath());
   }
 
-  public String getPlaceholder(Locale locale) {
-    return PLACEHOLDER.containsKey(locale)
-        ? PLACEHOLDER.get(locale)
-        : PLACEHOLDER.get(LocalizationUtils.DEFAULT_LOCALE);
+  /**
+   * Get the localized admin-configurable entity type this enumerator represents. Examples: "car",
+   * "child", "job", "household member".
+   */
+  public String getEntityType() {
+    return getQuestionDefinition()
+        .getEntityType()
+        .getOrDefault(applicantQuestion.getApplicantData().preferredLocale());
   }
 
   @Override

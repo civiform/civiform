@@ -26,4 +26,12 @@ public class CiviFormController extends Controller {
       ProfileUtils profileUtils, Http.Request request, long applicantId) {
     return profileUtils.currentUserProfile(request).orElseThrow().checkAuthorization(applicantId);
   }
+
+  protected CompletableFuture<Void> checkProgramAdminAuthorization(
+      ProfileUtils profileUtils, Http.Request request, String programName) {
+    return profileUtils
+        .currentUserProfile(request)
+        .orElseThrow()
+        .checkProgramAuthorization(programName);
+  }
 }

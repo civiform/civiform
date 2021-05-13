@@ -25,13 +25,16 @@ import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import repository.AmazonS3Client;
 import repository.StoredFileRepository;
+import services.applicant.ApplicantNotFoundException;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ProgramBlockNotFoundException;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.aws.SimpleStorage;
+import services.program.PathNotInBlockException;
 import services.program.ProgramNotFoundException;
+import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import views.applicant.ApplicantProgramBlockEditView;
 
@@ -47,7 +50,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final HttpExecutionContext httpExecutionContext;
   private final ApplicantProgramBlockEditView editView;
   private final FormFactory formFactory;
-  private final AmazonS3Client amazonS3Client;
+  private final SimpleStorage amazonS3Client;
   private final StoredFileRepository storedFileRepository;
   private final ProfileUtils profileUtils;
   private final String baseUrl;
@@ -61,7 +64,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       HttpExecutionContext httpExecutionContext,
       ApplicantProgramBlockEditView editView,
       FormFactory formFactory,
-      AmazonS3Client amazonS3Client,
+      SimpleStorage amazonS3Client,
       StoredFileRepository storedFileRepository,
       ProfileUtils profileUtils,
       Config configuration) {
@@ -109,6 +112,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             .setProgramId(programId)
                             .setBlock(block.get())
                             .setInReview(inReview)
+                            .setPercentComplete(
+                                roApplicantProgramService.getCompletionPercent(blockId))
                             .setPreferredLanguageSupported(
                                 roApplicantProgramService.preferredLanguageSupported())
                             .setAmazonS3Client(amazonS3Client)
@@ -180,39 +185,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             },
             httpExecutionContext.current())
         .thenComposeAsync(
-            (errorAndROApplicantProgramService) -> {
-              if (errorAndROApplicantProgramService.isError()) {
-                errorAndROApplicantProgramService
-                    .getErrors()
-                    .forEach(e -> logger.error("Exception while updating applicant data", e));
-                return supplyAsync(() -> badRequest("Unable to process this request"));
-              }
-              ReadOnlyApplicantProgramService roApplicantProgramService =
-                  errorAndROApplicantProgramService.getResult();
-
+            (roApplicantProgramService) -> {
               return update(
                   request, applicantId, programId, blockId, inReview, roApplicantProgramService);
             },
             httpExecutionContext.current())
-        .exceptionally(
-            ex -> {
-              if (ex instanceof CompletionException) {
-                Throwable cause = ex.getCause();
-                if (cause instanceof SecurityException) {
-                  return unauthorized();
-                } else if (cause instanceof ProgramNotFoundException) {
-                  return badRequest(cause.toString());
-                } else if (cause instanceof ProgramBlockNotFoundException) {
-                  logger.error("Exception while updating applicant data", cause);
-                  return badRequest("Unable to process this request");
-                } else if (cause instanceof IllegalArgumentException) {
-                  logger.error(cause.getMessage());
-                  return badRequest();
-                }
-                throw new RuntimeException(cause);
-              }
-              throw new RuntimeException(ex);
-            });
+        .exceptionally(ex -> handleUpdateExceptions(ex));
   }
 
   @Secure
@@ -229,39 +207,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             },
             httpExecutionContext.current())
         .thenComposeAsync(
-            (errorAndROApplicantProgramService) -> {
-              if (errorAndROApplicantProgramService.isError()) {
-                errorAndROApplicantProgramService
-                    .getErrors()
-                    .forEach(e -> logger.error("Exception while updating applicant data", e));
-                return supplyAsync(() -> badRequest("Unable to process this request"));
-              }
-              ReadOnlyApplicantProgramService roApplicantProgramService =
-                  errorAndROApplicantProgramService.getResult();
-
+            (roApplicantProgramService) -> {
               return update(
                   request, applicantId, programId, blockId, inReview, roApplicantProgramService);
             },
             httpExecutionContext.current())
-        .exceptionally(
-            ex -> {
-              if (ex instanceof CompletionException) {
-                Throwable cause = ex.getCause();
-                if (cause instanceof SecurityException) {
-                  return unauthorized();
-                } else if (cause instanceof ProgramNotFoundException) {
-                  return badRequest(cause.toString());
-                } else if (cause instanceof ProgramBlockNotFoundException) {
-                  logger.error("Exception while updating applicant data", cause);
-                  return badRequest("Unable to process this request");
-                } else if (cause instanceof IllegalArgumentException) {
-                  logger.error(cause.getMessage());
-                  return badRequest();
-                }
-                throw new RuntimeException(cause);
-              }
-              throw new RuntimeException(ex);
-            });
+        .exceptionally(ex -> handleUpdateExceptions(ex));
   }
 
   private CompletionStage<Result> update(
@@ -290,6 +241,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           .setApplicantId(applicantId)
                           .setProgramId(programId)
                           .setBlock(thisBlockUpdated)
+                          .setPercentComplete(
+                              roApplicantProgramService.getCompletionPercent(blockId))
                           .setInReview(inReview)
                           .setPreferredLanguageSupported(
                               roApplicantProgramService.preferredLanguageSupported())
@@ -320,5 +273,24 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     StoredFile storedFile = new StoredFile();
     storedFile.setName(key);
     storedFileRepository.insert(storedFile);
+  }
+
+  private Result handleUpdateExceptions(Throwable throwable) {
+    if (throwable instanceof CompletionException) {
+      Throwable cause = throwable.getCause();
+      if (cause instanceof SecurityException) {
+        return unauthorized();
+      } else if (cause instanceof ApplicantNotFoundException
+          || cause instanceof IllegalArgumentException
+          || cause instanceof PathNotInBlockException
+          || cause instanceof ProgramBlockNotFoundException
+          || cause instanceof ProgramNotFoundException
+          || cause instanceof UnsupportedScalarTypeException) {
+        logger.error("Exception while updating applicant data", cause);
+        return badRequest("Unable to process this request");
+      }
+      throw new RuntimeException(cause);
+    }
+    throw new RuntimeException(throwable);
   }
 }

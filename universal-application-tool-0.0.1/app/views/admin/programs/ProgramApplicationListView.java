@@ -1,10 +1,10 @@
 package views.admin.programs;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.head;
 import static j2html.TagCreator.p;
 
 import com.google.common.collect.ImmutableList;
@@ -26,7 +26,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
   @Inject
   public ProgramApplicationListView(AdminLayout layout) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(long programId, ImmutableList<Application> applications) {
@@ -40,7 +40,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     application -> this.renderApplicationListItem(programId, application)),
                 renderDownloadButton(programId));
 
-    return layout.render(head(layout.tailwindStyles()), body(contentDiv));
+    return layout.render(layout.headContent(), body(contentDiv));
   }
 
   private Tag renderDownloadButton(long programId) {
@@ -109,7 +109,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
   private Tag renderViewLink(String text, long programId, long applicationId) {
     String viewLink =
-        controllers.admin.routes.AdminApplicationController.view(programId, applicationId).url();
+        controllers.admin.routes.AdminApplicationController.show(programId, applicationId).url();
 
     return new LinkElement()
         .setId("application-view-link-" + applicationId)

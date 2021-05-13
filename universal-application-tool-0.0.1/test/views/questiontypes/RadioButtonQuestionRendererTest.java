@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
 import java.util.Locale;
@@ -13,7 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
 import play.i18n.Messages;
-import services.Path;
+import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.question.QuestionOption;
@@ -25,28 +24,15 @@ public class RadioButtonQuestionRendererTest {
   private static final RadioButtonQuestionDefinition QUESTION =
       new RadioButtonQuestionDefinition(
           "favorite ice cream",
-          Path.create("applicant.favorite_ice_cream"),
           Optional.empty(),
           "description",
-          ImmutableMap.of(Locale.US, "question?"),
-          ImmutableMap.of(Locale.US, "help text"),
+          LocalizedStrings.of(Locale.US, "question?"),
+          LocalizedStrings.of(Locale.US, "help text"),
           ImmutableList.of(
-              QuestionOption.builder()
-                  .setId(1L)
-                  .setOptionText(ImmutableMap.of(Locale.US, "chocolate"))
-                  .build(),
-              QuestionOption.builder()
-                  .setId(2L)
-                  .setOptionText(ImmutableMap.of(Locale.US, "peanut butter"))
-                  .build(),
-              QuestionOption.builder()
-                  .setId(3L)
-                  .setOptionText(ImmutableMap.of(Locale.US, "vanilla"))
-                  .build(),
-              QuestionOption.builder()
-                  .setId(4L)
-                  .setOptionText(ImmutableMap.of(Locale.US, "raspberry"))
-                  .build()));
+              QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "chocolate")),
+              QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "peanut butter")),
+              QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "vanilla")),
+              QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "raspberry"))));
 
   private final Messages messages =
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));

@@ -114,8 +114,8 @@ describe('End to end enumerator test', () => {
 
     // Go back to delete enumerator answers
     await page.click('.cf-applicant-summary-row:has(div:has-text("enumerator-ete-question")) a:has-text("Edit")');
-    await applicantQuestions.selectEnumeratorAnswerForDelete("enum one");
-    await applicantQuestions.selectEnumeratorAnswerForDelete("enum two");
+    await applicantQuestions.deleteEnumeratorEntity("enum one");
+    await applicantQuestions.deleteEnumeratorEntity("enum two");
     await applicantQuestions.saveAndContinue();
 
     // Make sure there are no enumerators or repeated things in the review page

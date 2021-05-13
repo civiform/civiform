@@ -19,11 +19,11 @@ import models.Applicant;
 import models.Application;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.UserRepository;
-import services.ErrorAnd;
 import services.Path;
 import services.applicant.question.Scalar;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
@@ -76,18 +76,19 @@ public class ApplicantServiceImpl implements ApplicantService {
   @Override
   public CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
       Application application) {
-    return CompletableFuture.completedFuture(
-        new ReadOnlyApplicantProgramServiceImpl(
-            application.getApplicantData(), application.getProgram().getProgramDefinition()));
+    try {
+      return CompletableFuture.completedFuture(
+          new ReadOnlyApplicantProgramServiceImpl(
+              application.getApplicantData(),
+              programService.getProgramDefinition(application.getProgram().id)));
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException("Cannot find a program that has applications for it.", e);
+    }
   }
 
   @Override
-  public CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>>
-      stageAndUpdateIfValid(
-          long applicantId,
-          long programId,
-          String blockId,
-          ImmutableMap<String, String> updateMap) {
+  public CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
+      long applicantId, long programId, String blockId, ImmutableMap<String, String> updateMap) {
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
@@ -107,9 +108,8 @@ public class ApplicantServiceImpl implements ApplicantService {
     return stageAndUpdateIfValid(applicantId, programId, blockId, updates);
   }
 
-  protected CompletionStage<ErrorAnd<ReadOnlyApplicantProgramService, Exception>>
-      stageAndUpdateIfValid(
-          long applicantId, long programId, String blockId, ImmutableSet<Update> updates) {
+  private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
+      long applicantId, long programId, String blockId, ImmutableSet<Update> updates) {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
         userRepository.lookupApplicant(applicantId).toCompletableFuture();
 
@@ -121,8 +121,7 @@ public class ApplicantServiceImpl implements ApplicantService {
             (v) -> {
               Optional<Applicant> applicantMaybe = applicantCompletableFuture.join();
               if (applicantMaybe.isEmpty()) {
-                return CompletableFuture.completedFuture(
-                    ErrorAnd.error(ImmutableSet.of(new ApplicantNotFoundException(applicantId))));
+                return CompletableFuture.failedFuture(new ApplicantNotFoundException(applicantId));
               }
               Applicant applicant = applicantMaybe.get();
 
@@ -134,9 +133,8 @@ public class ApplicantServiceImpl implements ApplicantService {
               Optional<Block> maybeBlockBeforeUpdate =
                   readOnlyApplicantProgramServiceBeforeUpdate.getBlock(blockId);
               if (maybeBlockBeforeUpdate.isEmpty()) {
-                return CompletableFuture.completedFuture(
-                    ErrorAnd.error(
-                        ImmutableSet.of(new ProgramBlockNotFoundException(programId, blockId))));
+                return CompletableFuture.failedFuture(
+                    new ProgramBlockNotFoundException(programId, blockId));
               }
               Block blockBeforeUpdate = maybeBlockBeforeUpdate.get();
 
@@ -145,7 +143,7 @@ public class ApplicantServiceImpl implements ApplicantService {
                 stageUpdates(
                     applicant.getApplicantData(), blockBeforeUpdate, updateMetadata, updates);
               } catch (UnsupportedScalarTypeException | PathNotInBlockException e) {
-                return CompletableFuture.completedFuture(ErrorAnd.error(ImmutableSet.of(e)));
+                return CompletableFuture.failedFuture(e);
               }
 
               ReadOnlyApplicantProgramService roApplicantProgramService =
@@ -157,11 +155,11 @@ public class ApplicantServiceImpl implements ApplicantService {
                 return userRepository
                     .updateApplicant(applicant)
                     .thenApplyAsync(
-                        (finishedSaving) -> ErrorAnd.of(roApplicantProgramService),
+                        (finishedSaving) -> roApplicantProgramService,
                         httpExecutionContext.current());
               }
 
-              return CompletableFuture.completedFuture(ErrorAnd.of(roApplicantProgramService));
+              return CompletableFuture.completedFuture(roApplicantProgramService);
             },
             httpExecutionContext.current());
   }
@@ -175,6 +173,7 @@ public class ApplicantServiceImpl implements ApplicantService {
    * In-place update of {@link ApplicantData}. Adds program id and timestamp metadata with updates.
    *
    * @throws PathNotInBlockException if there are updates for questions that aren't in the block.
+   * @throws UnsupportedScalarTypeException if there are updates for unsupported scalar types.
    */
   private void stageUpdates(
       ApplicantData applicantData,
@@ -219,8 +218,7 @@ public class ApplicantServiceImpl implements ApplicantService {
     }
 
     // Add and change entity names BEFORE deleting, because if deletes happened first, then changed
-    // entity names
-    // may not match the intended entities.
+    // entity names may not match the intended entities.
     for (Update update : addsAndChanges) {
       applicantData.putString(update.path().join(Scalar.ENTITY_NAME), update.value());
       writeMetadataForPath(update.path(), applicantData, updateMetadata);
@@ -278,6 +276,7 @@ public class ApplicantServiceImpl implements ApplicantService {
    * In-place update of {@link ApplicantData}. Adds program id and timestamp metadata with updates.
    *
    * @throws PathNotInBlockException if there are updates for questions that aren't in the block.
+   * @throws UnsupportedScalarTypeException if there are updates for unsupported scalar types.
    */
   private void stageNormalUpdates(
       ApplicantData applicantData,

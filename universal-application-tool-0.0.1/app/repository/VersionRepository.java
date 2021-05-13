@@ -6,10 +6,15 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import io.ebean.SerializableConflictException;
+import io.ebean.Transaction;
+import io.ebean.TxScope;
+import io.ebean.annotation.TxIsolation;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.persistence.NonUniqueResultException;
+import javax.persistence.RollbackException;
 import models.LifecycleStage;
 import models.Program;
 import models.Question;
@@ -97,9 +102,21 @@ public class VersionRepository {
     if (version.isPresent()) {
       return version.get();
     } else {
+      // Suspends any existing thread-local transaction if one exists.
+      // This method is often called by two portions of the same outer transaction,
+      // microseconds apart.  It's extremely important that there only ever be one
+      // draft version, so we need the highest transaction isolation level -
+      // `SERIALIZABLE` means that the two transactions run as if each transaction
+      // was the only transaction running on the whole database.  That is, if any
+      // other code accesses these rows or executes any query which would modify them,
+      // the transaction is rolled back (a RollbackException is thrown).  We
+      // are forced to retry.  This is expensive in relative terms, but new drafts
+      // are very rare.  It is unlikely this will represent a real performance penalty
+      // for any applicant - or even any admin, really.
+      Transaction transaction =
+          ebeanServer.beginTransaction(
+              TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
       try {
-        // Suspends any existing transaction if one exists.
-        ebeanServer.beginTransaction();
         Version newDraftVersion = new Version(LifecycleStage.DRAFT);
         ebeanServer.insert(newDraftVersion);
         ebeanServer
@@ -108,11 +125,21 @@ public class VersionRepository {
             .where()
             .eq("lifecycle_stage", LifecycleStage.DRAFT)
             .findOne();
-        ebeanServer.commitTransaction();
+        transaction.commit();
         return newDraftVersion;
-      } catch (NonUniqueResultException e) {
-        ebeanServer.endTransaction();
+      } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
+        transaction.rollback(e);
+        // We must end the transaction here since we are going to recurse and try again.
+        // We cannot have this transaction on the thread-local transaction stack when that
+        // happens.
+        transaction.end();
         return getDraftVersion();
+      } finally {
+        // This may come after a prior call to `transaction.end` in the event of a
+        // precondition failure - this is okay, since it a double-call to `end` on
+        // a particular transaction.  Only double calls to ebeanServer.endTransaction
+        // must be avoided.
+        transaction.end();
       }
     }
   }

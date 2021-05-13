@@ -39,9 +39,7 @@ public class MultiOptionQuestionTranslationForm extends QuestionTranslationForm 
     for (int i = 0; i < currentOptions.size(); i++) {
       QuestionOption current = currentOptions.get(i);
       updatedOptionsBuilder.add(
-          current.toBuilder()
-              .updateOptionText(current.optionText(), updatedLocale, this.options.get(i))
-              .build());
+          current.toBuilder().updateOptionText(updatedLocale, this.options.get(i)).build());
     }
     return partiallyUpdated.setQuestionOptions(updatedOptionsBuilder.build());
   }

@@ -2,12 +2,10 @@ package forms;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import services.LocalizationUtils;
-import services.Path;
-import services.question.exceptions.TranslationNotFoundException;
+import services.LocalizedStrings;
+import services.TranslationNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
@@ -33,13 +31,13 @@ public abstract class QuestionForm {
     enumeratorId = qd.getEnumeratorId();
 
     try {
-      questionText = qd.getQuestionText(LocalizationUtils.DEFAULT_LOCALE);
+      questionText = qd.getQuestionText().get(LocalizedStrings.DEFAULT_LOCALE);
     } catch (TranslationNotFoundException e) {
       questionText = "Missing Text";
     }
 
     try {
-      questionHelpText = qd.getQuestionHelpText(LocalizationUtils.DEFAULT_LOCALE);
+      questionHelpText = qd.getQuestionHelpText().get(LocalizedStrings.DEFAULT_LOCALE);
     } catch (TranslationNotFoundException e) {
       questionHelpText = "Missing Text";
     }
@@ -88,19 +86,20 @@ public abstract class QuestionForm {
     this.questionHelpText = checkNotNull(questionHelpText);
   }
 
-  public QuestionDefinitionBuilder getBuilder(Path path) {
-    ImmutableMap<Locale, String> questionTextMap =
-        questionText.isEmpty() ? ImmutableMap.of() : ImmutableMap.of(Locale.US, questionText);
-    ImmutableMap<Locale, String> questionHelpTextMap =
+  public QuestionDefinitionBuilder getBuilder() {
+    LocalizedStrings questionTextMap =
+        questionText.isEmpty()
+            ? LocalizedStrings.of()
+            : LocalizedStrings.of(Locale.US, questionText);
+    LocalizedStrings questionHelpTextMap =
         questionHelpText.isEmpty()
-            ? ImmutableMap.of()
-            : ImmutableMap.of(Locale.US, questionHelpText);
+            ? LocalizedStrings.empty()
+            : LocalizedStrings.of(Locale.US, questionHelpText);
 
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setQuestionType(getQuestionType())
             .setName(questionName)
-            .setPath(path)
             .setDescription(questionDescription)
             .setEnumeratorId(enumeratorId)
             .setQuestionText(questionTextMap)

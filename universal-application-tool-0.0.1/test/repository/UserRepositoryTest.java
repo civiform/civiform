@@ -4,10 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 import java.util.Set;
+import models.Account;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
 import services.Path;
+import services.program.ProgramDefinition;
+import support.ProgramBuilder;
 
 public class UserRepositoryTest extends WithPostgresContainer {
 
@@ -96,6 +99,80 @@ public class UserRepositoryTest extends WithPostgresContainer {
     Optional<Applicant> found = repo.lookupApplicantSync(two.id);
 
     assertThat(found).hasValue(two);
+  }
+
+  @Test
+  public void addAdministeredProgram_existingAccount_succeeds() {
+    String email = "email@email.com";
+    Account account = new Account();
+    account.setEmailAddress(email);
+    account.save();
+
+    String programName = "name";
+    ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
+
+    repo.addAdministeredProgram(email, program);
+
+    assertThat(repo.lookupAccount(email).get().getAdministeredProgramNames())
+        .containsOnly(programName);
+  }
+
+  @Test
+  public void addAdministeredProgram_missingAccount_createsNewAccountForEmail() {
+    String email = "test@test.com";
+    String programName = "name";
+    ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
+
+    repo.addAdministeredProgram(email, program);
+
+    assertThat(repo.lookupAccount(email).get().getAdministeredProgramNames())
+        .containsOnly(programName);
+  }
+
+  @Test
+  public void addAdministeredProgram_blankEmail_doesNotCreateAccount() {
+    String programName = "name";
+    ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
+    String blankEmail = "    ";
+
+    repo.addAdministeredProgram(blankEmail, program);
+
+    assertThat(repo.lookupAccount(blankEmail)).isEmpty();
+  }
+
+  @Test
+  public void removeAdministeredProgram_succeeds() {
+    String programName = "program";
+    ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
+
+    String email = "happy@test.com";
+    Account account = new Account();
+    account.setEmailAddress(email);
+    account.addAdministeredProgram(program);
+    account.save();
+    assertThat(account.getAdministeredProgramNames()).contains(programName);
+
+    repo.removeAdministeredProgram(email, program);
+
+    assertThat(repo.lookupAccount(email).get().getAdministeredProgramNames())
+        .doesNotContain(programName);
+  }
+
+  @Test
+  public void removeAdministeredProgram_accountNotAdminForProgram_doesNothing() {
+    String programName = "program";
+    ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
+
+    String email = "happy@test.com";
+    Account account = new Account();
+    account.setEmailAddress(email);
+    account.save();
+    assertThat(account.getAdministeredProgramNames()).doesNotContain(programName);
+
+    repo.removeAdministeredProgram(email, program);
+
+    assertThat(repo.lookupAccount(email).get().getAdministeredProgramNames())
+        .doesNotContain(programName);
   }
 
   private Applicant saveApplicant(String name) {

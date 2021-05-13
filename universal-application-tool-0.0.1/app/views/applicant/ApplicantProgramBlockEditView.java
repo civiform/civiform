@@ -5,7 +5,6 @@ import static j2html.TagCreator.body;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.p;
 import static j2html.attributes.Attr.ENCTYPE;
 
 import com.google.auto.value.AutoValue;
@@ -17,11 +16,11 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
-import repository.AmazonS3Client;
-import repository.SignedS3UploadRequest;
 import services.MessageKey;
 import services.applicant.Block;
 import services.applicant.question.ApplicantQuestion;
+import services.aws.SignedS3UploadRequest;
+import services.aws.SimpleStorage;
 import views.BaseHtmlView;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
@@ -41,11 +40,10 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   public Content render(Params params) {
+    ContainerTag headerTag = layout.renderHeader(params.percentComplete());
+
     ContainerTag body =
-        body()
-            .with(h1(params.block().getName()))
-            .with(p(params.block().getDescription()))
-            .with(renderBlockWithSubmitForm(params));
+        body().with(h1(params.block().getName())).with(renderBlockWithSubmitForm(params));
 
     if (!params.preferredLanguageSupported()) {
       body.with(
@@ -58,15 +56,11 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
       body.with(
           EnumeratorQuestionRenderer.newEnumeratorFieldTemplate(
               params.block().getEnumeratorQuestion().getContextualizedPath(),
-              params
-                  .block()
-                  .getEnumeratorQuestion()
-                  .createEnumeratorQuestion()
-                  .getPlaceholder(params.messages().lang().toLocale()),
+              params.block().getEnumeratorQuestion().createEnumeratorQuestion().getEntityType(),
               params.messages()));
     }
 
-    return layout.render(params.request(), params.messages(), body);
+    return layout.render(params.request(), params.messages(), headerTag, body);
   }
 
   /**
@@ -157,6 +151,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
     abstract Messages messages();
 
+    abstract int percentComplete();
+
     abstract long applicantId();
 
     abstract long programId();
@@ -165,7 +161,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
     abstract boolean preferredLanguageSupported();
 
-    abstract AmazonS3Client amazonS3Client();
+    abstract SimpleStorage amazonS3Client();
 
     abstract String baseUrl();
 
@@ -177,6 +173,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
       public abstract Builder setMessages(Messages messages);
 
+      public abstract Builder setPercentComplete(int percentComplete);
+
       public abstract Builder setApplicantId(long applicantId);
 
       public abstract Builder setProgramId(long programId);
@@ -185,7 +183,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
       public abstract Builder setPreferredLanguageSupported(boolean preferredLanguageSupported);
 
-      public abstract Builder setAmazonS3Client(AmazonS3Client amazonS3Client);
+      public abstract Builder setAmazonS3Client(SimpleStorage amazonS3Client);
 
       public abstract Builder setBaseUrl(String baseUrl);
 

@@ -1,5 +1,6 @@
 package views.applicant;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
@@ -44,7 +45,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
 
   @Inject
   public TrustedIntermediaryDashboardView(ApplicantLayout layout) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(TrustedIntermediaryGroup tiGroup, Http.Request request, Messages messages) {

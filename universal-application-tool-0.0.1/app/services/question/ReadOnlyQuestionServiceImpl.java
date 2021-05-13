@@ -7,18 +7,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import models.LifecycleStage;
 import models.Question;
 import models.Version;
-import services.Path;
-import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
-import services.question.types.QuestionType;
 
 public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionService {
 
@@ -94,29 +90,6 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
 
   // TODO(https://github.com/seattle-uat/civiform/issues/673): delete this when question definitions
   //  don't need paths
-
-  @Override
-  public Path makePath(Optional<Long> maybeEnumeratorId, String questionName, boolean isEnumerator)
-      throws QuestionNotFoundException, InvalidQuestionTypeException {
-    String questionNameFormattedForPath =
-        questionName.replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
-    if (isEnumerator) {
-      questionNameFormattedForPath += Path.ARRAY_SUFFIX;
-    }
-
-    // No enumerator, then use "applicant" as root.
-    if (maybeEnumeratorId.isEmpty()) {
-      return Path.create("applicant").join(questionNameFormattedForPath);
-    }
-
-    QuestionDefinition enumeratorQuestionDefinition =
-        getQuestionDefinition(maybeEnumeratorId.get());
-    if (!enumeratorQuestionDefinition.getQuestionType().equals(QuestionType.ENUMERATOR)) {
-      throw new InvalidQuestionTypeException(enumeratorQuestionDefinition.getQuestionType().name());
-    }
-
-    return enumeratorQuestionDefinition.getPath().join(questionNameFormattedForPath);
-  }
 
   @Override
   public QuestionDefinition getQuestionDefinition(long id) throws QuestionNotFoundException {

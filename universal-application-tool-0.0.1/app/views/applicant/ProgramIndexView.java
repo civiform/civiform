@@ -1,5 +1,6 @@
 package views.applicant;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
@@ -32,7 +33,7 @@ public class ProgramIndexView extends BaseHtmlView {
 
   @Inject
   public ProgramIndexView(ApplicantLayout layout) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
   }
 
   /**
@@ -51,8 +52,7 @@ public class ProgramIndexView extends BaseHtmlView {
       long applicantId,
       ImmutableList<ProgramDefinition> programs,
       Optional<String> banner) {
-    ContainerTag body =
-        body().withClasses(Styles.RELATIVE, Styles.PX_8, ApplicantStyles.BODY_BACKGROUND);
+    ContainerTag body = body().withClasses(Styles.RELATIVE, Styles.PX_8, ApplicantStyles.BODY);
     if (banner.isPresent()) {
       body.with(ToastMessage.alert(banner.get()).getContainerTag());
     }
@@ -129,12 +129,12 @@ public class ProgramIndexView extends BaseHtmlView {
         div()
             .withId(baseId + "-title")
             .withClasses(Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
-            .withText(program.getLocalizedNameOrDefault(preferredLocale));
+            .withText(program.localizedName().getOrDefault(preferredLocale));
     ContainerTag description =
         div()
             .withId(baseId + "-description")
             .withClasses(Styles.TEXT_XS, Styles.MY_2)
-            .withText(program.getLocalizedDescriptionOrDefault(preferredLocale));
+            .withText(program.localizedDescription().getOrDefault(preferredLocale));
 
     ContainerTag externalLink =
         new LinkElement()

@@ -7,12 +7,15 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import io.ebean.Transaction;
 import io.ebean.TxScope;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import models.Account;
 import models.LifecycleStage;
 import models.Program;
 import models.Version;
@@ -33,17 +36,6 @@ public class ProgramRepository {
     this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
     this.executionContext = checkNotNull(executionContext);
     this.versionRepository = checkNotNull(versionRepository);
-  }
-
-  /** Return all programs in a list. */
-  public CompletionStage<ImmutableList<Program>> listPrograms() {
-    return supplyAsync(
-        () ->
-            new ImmutableList.Builder<Program>()
-                .addAll(versionRepository.get().getActiveVersion().getPrograms())
-                .addAll(versionRepository.get().getDraftVersion().getPrograms())
-                .build(),
-        executionContext);
   }
 
   public CompletionStage<Optional<Program>> lookupProgram(long id) {
@@ -77,8 +69,8 @@ public class ProgramRepository {
       this.updateProgramSync(updatedDraft);
       return updatedDraft;
     } else {
+      Transaction transaction = ebeanServer.beginTransaction(TxScope.requiresNew());
       try {
-        ebeanServer.beginTransaction(TxScope.requiresNew());
         // Program -> builder -> back to program in order to clear any metadata stored
         // in the program (for example, version information).
         Program newDraft = existingProgram.getProgramDefinition().toBuilder().build().toProgram();
@@ -104,11 +96,21 @@ public class ProgramRepository {
                 == 1,
             "Must be exactly one program with this name in the draft.");
         versionRepository.get().updateQuestionVersions(newDraft);
-        ebeanServer.commitTransaction();
+        transaction.commit();
         return newDraft;
       } catch (IllegalStateException e) {
-        ebeanServer.rollbackTransaction();
+        transaction.rollback();
+        // We must end the transaction here since we are going to recurse and try again.
+        // We cannot have this transaction on the thread-local transaction stack when that
+        // happens.
+        transaction.end();
         return createOrUpdateDraft(existingProgram);
+      } finally {
+        // This may come after a prior call to `transaction.end` in the event of a
+        // precondition failure - this is okay, since it a double-call to `end` on
+        // a particular transaction.  Only double calls to ebeanServer.endTransaction
+        // must be avoided.
+        transaction.end();
       }
     }
   }
@@ -121,13 +123,33 @@ public class ProgramRepository {
             program.getSlug();
             program.save();
           }
+          ImmutableList<Program> activePrograms =
+              versionRepository.get().getActiveVersion().getPrograms();
+          List<Program> programsMatchingSlug =
+              ebeanServer.find(Program.class).where().eq("slug", slug).findList();
           Optional<Program> programMaybe =
-              ebeanServer.find(Program.class).where().eq("slug", slug).findOneOrEmpty();
+              activePrograms.stream()
+                  .filter(activeProgram -> programsMatchingSlug.contains(activeProgram))
+                  .findFirst();
           if (programMaybe.isPresent()) {
             return programMaybe.get();
           }
           throw new RuntimeException(new ProgramNotFoundException(slug));
         },
         executionContext.current());
+  }
+
+  public ImmutableList<Account> getProgramAdministrators(String programName) {
+    return ImmutableList.copyOf(
+        ebeanServer.find(Account.class).where().arrayContains("admin_of", programName).findList());
+  }
+
+  public ImmutableList<Account> getProgramAdministrators(long programId)
+      throws ProgramNotFoundException {
+    Optional<Program> program = ebeanServer.find(Program.class).setId(programId).findOneOrEmpty();
+    if (program.isEmpty()) {
+      throw new ProgramNotFoundException(programId);
+    }
+    return getProgramAdministrators(program.get().getProgramDefinition().adminName());
   }
 }

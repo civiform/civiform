@@ -100,7 +100,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
                           request, updatedLocale, definitionWithUpdates, errorMessage));
                 }
 
-                return redirect(routes.QuestionController.index().url());
+                return redirect(routes.AdminQuestionController.index().url());
 
               } catch (QuestionNotFoundException e) {
                 return notFound(e.getMessage());

@@ -1,5 +1,6 @@
 package views.admin.questions;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
@@ -10,7 +11,6 @@ import javax.inject.Inject;
 import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.LocalizationUtils;
 import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -25,8 +25,8 @@ public class QuestionTranslationView extends TranslationFormView {
 
   @Inject
   public QuestionTranslationView(AdminLayout layout, Langs langs) {
-    super(langs);
-    this.layout = layout;
+    super(checkNotNull(langs));
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(Http.Request request, Locale locale, QuestionDefinition question) {
@@ -34,8 +34,8 @@ public class QuestionTranslationView extends TranslationFormView {
         request,
         locale,
         question,
-        question.maybeGetQuestionText(locale),
-        question.maybeGetQuestionHelpText(locale),
+        question.getQuestionText().maybeGet(locale),
+        question.getQuestionHelpText().maybeGet(locale),
         Optional.empty());
   }
 
@@ -45,8 +45,8 @@ public class QuestionTranslationView extends TranslationFormView {
         request,
         locale,
         invalidQuestion,
-        invalidQuestion.maybeGetQuestionText(locale),
-        invalidQuestion.maybeGetQuestionHelpText(locale),
+        invalidQuestion.getQuestionText().maybeGet(locale),
+        invalidQuestion.getQuestionHelpText().maybeGet(locale),
         Optional.of(errors));
   }
 
@@ -67,8 +67,8 @@ public class QuestionTranslationView extends TranslationFormView {
     ImmutableList.Builder<FieldWithLabel> inputFields = ImmutableList.builder();
     inputFields.addAll(
         questionTextFields(
-            question.getDefaultQuestionText(),
-            question.getDefaultQuestionHelpText(),
+            question.getQuestionText().getDefault(),
+            question.getQuestionHelpText().getDefault(),
             existingQuestionText,
             existingQuestionHelpText));
     inputFields.addAll(getQuestionTypeSpecificFields(question, locale));
@@ -136,10 +136,9 @@ public class QuestionTranslationView extends TranslationFormView {
                 FieldWithLabel.input()
                     .setId("localize-question-help-text")
                     .setFieldName("options[]")
-                    .setLabelText(
-                        option.optionText().getOrDefault(LocalizationUtils.DEFAULT_LOCALE, ""))
+                    .setLabelText(option.optionText().getDefault())
                     .setPlaceholderText("Answer option")
-                    .setValue(option.optionText().getOrDefault(toUpdate, "")))
+                    .setValue(option.optionText().translations().getOrDefault(toUpdate, "")))
         .collect(toImmutableList());
   }
 }

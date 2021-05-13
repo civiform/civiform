@@ -3,7 +3,6 @@ package services.export;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
 import models.Question;
@@ -11,7 +10,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.apache.pdfbox.pdmodel.interactive.form.PDListBox;
 import org.junit.Test;
-import services.Path;
+import services.LocalizedStrings;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -23,10 +22,9 @@ public class PdfMapAssistantTest {
         new QuestionDefinitionBuilder()
             .setName(name)
             .setDescription("fake question")
-            .setQuestionText(ImmutableMap.of())
-            .setQuestionHelpText(ImmutableMap.of())
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
             .setQuestionType(QuestionType.TEXT)
-            .setPath(Path.create("$.applicant.fake.path"))
             .build();
     return new Question(questionDefinition);
   }

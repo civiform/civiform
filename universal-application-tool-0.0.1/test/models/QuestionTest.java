@@ -4,17 +4,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import repository.QuestionRepository;
 import repository.WithPostgresContainer;
-import services.Path;
+import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -35,12 +35,7 @@ public class QuestionTest extends WithPostgresContainer {
   public void canSaveQuestion() throws UnsupportedQuestionTypeException {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            "test",
-            Path.create("my.path"),
-            Optional.empty(),
-            "",
-            ImmutableMap.of(),
-            ImmutableMap.of());
+            "test", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
     Question question = new Question(definition);
 
     question.save();
@@ -56,12 +51,7 @@ public class QuestionTest extends WithPostgresContainer {
   public void canSerializeEnumeratorId_EmptyOptionalLong() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            "test",
-            Path.create("my.path"),
-            Optional.empty(),
-            "",
-            ImmutableMap.of(),
-            ImmutableMap.of());
+            "test", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
     Question question = new Question(questionDefinition);
     question.save();
 
@@ -74,12 +64,7 @@ public class QuestionTest extends WithPostgresContainer {
   public void canSerializeEnumeratorId_NonEmptyOptionalLong() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            "test",
-            Path.create("my.path"),
-            Optional.of(10L),
-            "",
-            ImmutableMap.of(),
-            ImmutableMap.of());
+            "test", Optional.of(10L), "", LocalizedStrings.of(), LocalizedStrings.empty());
     Question question = new Question(questionDefinition);
     question.save();
 
@@ -93,11 +78,10 @@ public class QuestionTest extends WithPostgresContainer {
     QuestionDefinition definition =
         new TextQuestionDefinition(
             "",
-            Path.empty(),
             Optional.empty(),
             "",
-            ImmutableMap.of(Locale.US, "hello"),
-            ImmutableMap.of(Locale.US, "help"));
+            LocalizedStrings.of(Locale.US, "hello"),
+            LocalizedStrings.of(Locale.US, "help"));
     Question question = new Question(definition);
 
     question.save();
@@ -105,16 +89,16 @@ public class QuestionTest extends WithPostgresContainer {
     Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
     assertThat(found.getQuestionDefinition().getQuestionText())
-        .isEqualTo(ImmutableMap.of(Locale.US, "hello"));
+        .isEqualTo(LocalizedStrings.of(Locale.US, "hello"));
     assertThat(found.getQuestionDefinition().getQuestionHelpText())
-        .isEqualTo(ImmutableMap.of(Locale.US, "help"));
+        .isEqualTo(LocalizedStrings.of(Locale.US, "help"));
   }
 
   @Test
   public void canSerializeDifferentQuestionTypes() {
     AddressQuestionDefinition address =
         new AddressQuestionDefinition(
-            "address", Path.empty(), Optional.empty(), "", ImmutableMap.of(), ImmutableMap.of());
+            "address", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
     Question question = new Question(address);
 
     question.save();
@@ -129,11 +113,10 @@ public class QuestionTest extends WithPostgresContainer {
     QuestionDefinition definition =
         new TextQuestionDefinition(
             "",
-            Path.empty(),
             Optional.empty(),
             "",
-            ImmutableMap.of(),
-            ImmutableMap.of(),
+            LocalizedStrings.of(),
+            LocalizedStrings.empty(),
             TextValidationPredicates.create(0, 128));
     Question question = new Question(definition);
 
@@ -153,16 +136,12 @@ public class QuestionTest extends WithPostgresContainer {
             .setQuestionType(QuestionType.DROPDOWN)
             .setName("")
             .setDescription("")
-            .setPath(Path.empty())
             .setEnumeratorId(Optional.of(123L))
-            .setQuestionText(ImmutableMap.of())
-            .setQuestionHelpText(ImmutableMap.of())
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
             .setQuestionOptions(
                 ImmutableList.of(
-                    QuestionOption.builder()
-                        .setId(1L)
-                        .setOptionText(ImmutableMap.of(Locale.US, "option"))
-                        .build()))
+                    QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option"))))
             .build();
     Question question = new Question(definition);
 
@@ -176,11 +155,35 @@ public class QuestionTest extends WithPostgresContainer {
 
     assertThat(multiOption.getOptions())
         .isEqualTo(
-            ImmutableList.of(
-                QuestionOption.builder()
-                    .setId(1L)
-                    .setOptionText(ImmutableMap.of(Locale.US, "option"))
-                    .build()));
+            ImmutableList.of(QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option"))));
     assertThat(multiOption.getEnumeratorId()).hasValue(123L);
+  }
+
+  @Test
+  public void canSerializeAndDeserializeEnumeratorQuestion()
+      throws UnsupportedQuestionTypeException {
+    LocalizedStrings entityType = LocalizedStrings.of(Locale.US, "entity");
+
+    QuestionDefinition definition =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.ENUMERATOR)
+            .setName("")
+            .setDescription("")
+            .setEnumeratorId(Optional.of(123L))
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .setEntityType(entityType)
+            .build();
+    Question question = new Question(definition);
+
+    question.save();
+
+    Question found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+
+    assertThat(found.getQuestionDefinition().getQuestionType()).isEqualTo(QuestionType.ENUMERATOR);
+    EnumeratorQuestionDefinition enumerator =
+        (EnumeratorQuestionDefinition) found.getQuestionDefinition();
+
+    assertThat(enumerator.getEntityType()).isEqualTo(entityType);
   }
 }

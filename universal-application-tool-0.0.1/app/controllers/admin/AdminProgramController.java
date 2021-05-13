@@ -3,8 +3,11 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
+import auth.ProfileUtils;
+import auth.UatProfile;
 import controllers.CiviFormController;
 import forms.ProgramForm;
+import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -14,7 +17,7 @@ import play.mvc.Result;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.LocalizationUtils;
+import services.LocalizedStrings;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -31,6 +34,7 @@ public class AdminProgramController extends CiviFormController {
   private final ProgramEditView editView;
   private final FormFactory formFactory;
   private final VersionRepository versionRepository;
+  private final ProfileUtils profileUtils;
 
   @Inject
   public AdminProgramController(
@@ -39,18 +43,21 @@ public class AdminProgramController extends CiviFormController {
       ProgramNewOneView newOneView,
       ProgramEditView editView,
       VersionRepository versionRepository,
+      ProfileUtils profileUtils,
       FormFactory formFactory) {
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);
     this.newOneView = checkNotNull(newOneView);
     this.editView = checkNotNull(editView);
     this.versionRepository = checkNotNull(versionRepository);
+    this.profileUtils = checkNotNull(profileUtils);
     this.formFactory = checkNotNull(formFactory);
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result index(Request request) {
-    return ok(listView.render(this.service.getActiveAndDraftPrograms(), request));
+    Optional<UatProfile> profileMaybe = profileUtils.currentUserProfile(request);
+    return ok(listView.render(this.service.getActiveAndDraftPrograms(), request, profileMaybe));
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
@@ -114,7 +121,7 @@ public class AdminProgramController extends CiviFormController {
       ErrorAnd<ProgramDefinition, CiviFormError> result =
           service.updateProgramDefinition(
               id,
-              LocalizationUtils.DEFAULT_LOCALE,
+              LocalizedStrings.DEFAULT_LOCALE,
               program.getAdminDescription(),
               program.getLocalizedDisplayName(),
               program.getLocalizedDisplayDescription());

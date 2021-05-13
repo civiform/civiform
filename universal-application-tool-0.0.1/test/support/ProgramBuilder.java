@@ -226,6 +226,10 @@ public class ProgramBuilder {
       return this;
     }
 
+    public BlockBuilder withQuestions(Question... questions) {
+      return withQuestions(ImmutableList.copyOf(questions));
+    }
+
     public BlockBuilder withQuestions(ImmutableList<Question> questions) {
       ImmutableList<ProgramQuestionDefinition> pqds =
           questions.stream()

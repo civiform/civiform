@@ -2,7 +2,6 @@ package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
@@ -10,7 +9,7 @@ import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import services.Path;
+import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.question.types.FileUploadQuestionDefinition;
 import support.QuestionAnswerer;
@@ -20,11 +19,10 @@ public class FileUploadQuestionTest {
   private static final FileUploadQuestionDefinition fileUploadQuestionDefinition =
       new FileUploadQuestionDefinition(
           "question name",
-          Path.create("applicant.my.path.name"),
           Optional.empty(),
           "description",
-          ImmutableMap.of(Locale.US, "question?"),
-          ImmutableMap.of(Locale.US, "help text"));
+          LocalizedStrings.of(Locale.US, "question?"),
+          LocalizedStrings.of(Locale.US, "help text"));
 
   private Applicant applicant;
   private ApplicantData applicantData;

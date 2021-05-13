@@ -4,13 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import org.junit.Test;
-import services.Path;
+import services.LocalizedStrings;
+import services.TranslationNotFoundException;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
-import services.question.exceptions.TranslationNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 
 public class MultiOptionQuestionDefinitionTest {
@@ -19,23 +18,16 @@ public class MultiOptionQuestionDefinitionTest {
   public void buildMultiSelectQuestion() throws UnsupportedQuestionTypeException {
     ImmutableList<QuestionOption> options =
         ImmutableList.of(
-            QuestionOption.builder()
-                .setId(1L)
-                .setOptionText(ImmutableMap.of(Locale.US, "option 1"))
-                .build(),
-            QuestionOption.builder()
-                .setId(2L)
-                .setOptionText(ImmutableMap.of(Locale.US, "option 2"))
-                .build());
+            QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option 1")),
+            QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "option 2")));
 
     QuestionDefinition definition =
         new QuestionDefinitionBuilder()
             .setQuestionType(QuestionType.DROPDOWN)
             .setName("")
             .setDescription("")
-            .setPath(Path.empty())
-            .setQuestionText(ImmutableMap.of())
-            .setQuestionHelpText(ImmutableMap.of())
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
             .setQuestionOptions(options)
             .build();
 
@@ -52,15 +44,11 @@ public class MultiOptionQuestionDefinitionTest {
             .setQuestionType(QuestionType.DROPDOWN)
             .setName("")
             .setDescription("")
-            .setPath(Path.empty())
-            .setQuestionText(ImmutableMap.of(Locale.US, "test", Locale.FRANCE, "test"))
-            .setQuestionHelpText(ImmutableMap.of(Locale.US, "test", Locale.FRANCE, "test"))
+            .setQuestionText(LocalizedStrings.of(Locale.US, "test", Locale.FRANCE, "test"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "test", Locale.FRANCE, "test"))
             .setQuestionOptions(
                 ImmutableList.of(
-                    QuestionOption.builder()
-                        .setId(1L)
-                        .setOptionText(ImmutableMap.of(Locale.US, "option 1"))
-                        .build()))
+                    QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option 1"))))
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
@@ -73,15 +61,11 @@ public class MultiOptionQuestionDefinitionTest {
             .setQuestionType(QuestionType.DROPDOWN)
             .setName("")
             .setDescription("")
-            .setPath(Path.empty())
-            .setQuestionText(ImmutableMap.of())
-            .setQuestionHelpText(ImmutableMap.of())
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
             .setQuestionOptions(
                 ImmutableList.of(
-                    QuestionOption.builder()
-                        .setId(1L)
-                        .setOptionText(ImmutableMap.of(Locale.US, "option 1"))
-                        .build()))
+                    QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option 1"))))
             .build();
 
     MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
@@ -92,26 +76,19 @@ public class MultiOptionQuestionDefinitionTest {
   }
 
   @Test
-  public void getOptionsForLocale_returnsAllTranslations()
-      throws TranslationNotFoundException, UnsupportedQuestionTypeException {
+  public void getOptionsForLocale_returnsAllTranslations() throws Exception {
     ImmutableList<QuestionOption> options =
         ImmutableList.of(
-            QuestionOption.builder()
-                .setId(1L)
-                .setOptionText(ImmutableMap.of(Locale.US, "one", Locale.GERMAN, "eins"))
-                .build(),
-            QuestionOption.builder()
-                .setId(2L)
-                .setOptionText(ImmutableMap.of(Locale.US, "two", Locale.GERMAN, "zwei"))
-                .build());
+            QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "one", Locale.GERMAN, "eins")),
+            QuestionOption.create(
+                2L, LocalizedStrings.of(Locale.US, "two", Locale.GERMAN, "zwei")));
     QuestionDefinition definition =
         new QuestionDefinitionBuilder()
             .setQuestionType(QuestionType.DROPDOWN)
             .setName("")
             .setDescription("")
-            .setPath(Path.empty())
-            .setQuestionText(ImmutableMap.of())
-            .setQuestionHelpText(ImmutableMap.of())
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
             .setQuestionOptions(options)
             .build();
 
