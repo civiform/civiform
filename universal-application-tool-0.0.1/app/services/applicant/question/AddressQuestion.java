@@ -243,12 +243,15 @@ public class AddressQuestion implements PresentsErrors {
     String displayLine2 = getLine2Value().orElse("");
 
     String cityDisplayString = getCityValue().isPresent() ? getCityValue().get() + "," : "";
+    String stateDisplayString = getStateValue().orElse("");
     String displayLine3 =
-        String.format(
-            "%s %s %s", cityDisplayString, getStateValue().orElse(""), getZipValue().orElse(""));
+        stateDisplayString.isEmpty()
+            ? String.format("%s %s", cityDisplayString, getZipValue().orElse("")).trim()
+            : String.format(
+                    "%s %s %s", cityDisplayString, stateDisplayString, getZipValue().orElse(""))
+                .trim();
 
     return ImmutableList.of(displayLine1, displayLine2, displayLine3).stream()
-        .map(line -> line.trim())
         .filter(line -> line.length() > 0)
         .collect(Collectors.joining("\n"));
   }

@@ -216,6 +216,7 @@ public class AddressQuestionTest {
       },
       new Object[] {"111 A St", "", "Seattle", "WA", "98111", "111 A St\nSeattle, WA 98111"},
       new Object[] {"111 A St", "", "", "WA", "98111", "111 A St\nWA 98111"},
+      new Object[] {"111 A St", "", "Seattle", "", "98111", "111 A St\nSeattle, 98111"},
       new Object[] {"111 A St", "Unit B", "", "", "", "111 A St\nUnit B"}
     };
   }
