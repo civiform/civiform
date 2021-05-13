@@ -71,7 +71,10 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     if (banner.isPresent()) {
       bundle.addToastMessages(ToastMessage.error(banner.get()));
     }
-    bundle.addMainContent(layout.renderHeader(100), content);
+    bundle.addMainContent(
+      layout.renderHeader(100),
+      h1("Application review for " + programTitle).withClasses(Styles.PX_16, Styles.PY_4),
+      content);
 
     return layout.renderWithNav(request, messages, bundle);
   }
