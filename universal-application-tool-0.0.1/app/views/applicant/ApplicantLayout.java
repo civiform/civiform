@@ -8,11 +8,10 @@ import static j2html.TagCreator.header;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
 
-import com.typesafe.config.Config;
-
 import auth.ProfileUtils;
 import auth.Roles;
 import auth.UatProfile;
+import com.typesafe.config.Config;
 import controllers.ti.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;

@@ -8,7 +8,6 @@ import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
 
 import com.typesafe.config.Config;
-
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;

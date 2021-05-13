@@ -2,8 +2,8 @@ package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.document;
-import com.typesafe.config.Config;
 
+import com.typesafe.config.Config;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.Tag;
