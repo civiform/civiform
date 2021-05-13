@@ -19,6 +19,7 @@ import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import views.admin.questions.QuestionTranslationView;
 
 /** Provides controller methods for editing and updating question translations. */
@@ -87,7 +88,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
             readOnlyQuestionService -> {
               try {
                 QuestionDefinition toUpdate = readOnlyQuestionService.getQuestionDefinition(id);
-                QuestionTranslationForm form = buildFormFromRequest(request, toUpdate);
+                QuestionTranslationForm form = buildFormFromRequest(request, toUpdate.getQuestionType());
                 QuestionDefinition definitionWithUpdates =
                     form.builderWithUpdates(toUpdate, updatedLocale).build();
                 ErrorAnd<QuestionDefinition, CiviFormError> result =
@@ -114,8 +115,8 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   }
 
   private QuestionTranslationForm buildFormFromRequest(
-      Http.Request request, QuestionDefinition definition) {
-    switch (definition.getQuestionType()) {
+      Http.Request request, QuestionType type) {
+    switch (type) {
       case CHECKBOX:
       case DROPDOWN:
       case RADIO_BUTTON:
