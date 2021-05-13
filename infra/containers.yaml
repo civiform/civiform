@@ -65,6 +65,9 @@ Parameters:
   DomainName:
     Description: The domain name to use as the base URL.
     Type: String
+  MeasurementId:
+    Description: The Google Analytics measurement ID.
+    Type: String
 Resources:
   ecscluster:
     Type: AWS::ECS::Cluster
