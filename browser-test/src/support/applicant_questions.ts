@@ -47,6 +47,10 @@ export class ApplicantQuestions {
     await this.page.fill('input[type="number"]', number);
   }
 
+  async answerDateQuestion(number: string) {
+    await this.page.fill('input[type="number"]', number);
+  }
+
   async answerTextQuestion(text: string) {
     await this.page.fill('input[type="text"]', text);
   }
