@@ -17,6 +17,8 @@ import repository.UserRepository;
 import repository.WithPostgresContainer;
 import services.LocalizedStrings;
 import services.Path;
+import services.applicant.exception.ApplicantNotFoundException;
+import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.Scalar;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;

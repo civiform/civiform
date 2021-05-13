@@ -17,7 +17,7 @@ import models.Program;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.db.ebean.EbeanConfig;
-import services.applicant.ApplicantNotFoundException;
+import services.applicant.exception.ApplicantNotFoundException;
 import services.program.ProgramNotFoundException;
 
 public class ApplicationRepository {

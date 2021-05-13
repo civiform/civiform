@@ -23,7 +23,7 @@ import play.mvc.Result;
 import play.mvc.Results;
 import repository.UserRepository;
 import services.applicant.ApplicantData;
-import services.applicant.ApplicantNotFoundException;
+import services.applicant.exception.ApplicantNotFoundException;
 import views.applicant.ApplicantInformationView;
 
 /**
