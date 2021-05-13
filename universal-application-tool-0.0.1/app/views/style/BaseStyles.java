@@ -1,10 +1,20 @@
 package views.style;
 
 public final class BaseStyles {
+
   public static final String LINK_TEXT = Styles.TEXT_BLUE_400;
   public static final String LINK_HOVER_TEXT = StyleUtils.hover(Styles.TEXT_BLUE_500);
 
   public static final String TABLE_CELL_STYLES = StyleUtils.joinStyles(Styles.PX_4, Styles.PY_2);
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // CiviForm color classes
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
+  public static final String BG_SEATTLE_BLUE = "bg-seattleBlue";
+  public static final String BG_CIVIFORM_BLUE_60 = "bg-civiformBlue-60";
+  public static final String BG_CIVIFORM_BLUE_80 = "bg-civiformBlue-80";
+  public static final String BG_CIVIFORM_BLUE_100 = "bg-civiformBlue-100";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Form style classes
