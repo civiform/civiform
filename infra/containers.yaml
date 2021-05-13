@@ -147,6 +147,8 @@ Resources:
               Value: !FindInMap [AdminGroup, !Ref Environment, group]
             - Name: BASE_URL
               Value: !Sub "https://${DomainName}"
+            - Name: MEASUREMENT_ID
+              Value: !Sub "https://${MeasurementId}"
           Cpu: 1024
           Memory: 8192
           PortMappings:

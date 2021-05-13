@@ -7,6 +7,8 @@ import static j2html.TagCreator.main;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
 
+import com.typesafe.config.Config;
+
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
@@ -22,8 +24,8 @@ import views.style.Styles;
 public class AdminLayout extends BaseHtmlLayout {
 
   @Inject
-  public AdminLayout(ViewUtils viewUtils) {
-    super(viewUtils);
+  public AdminLayout(ViewUtils viewUtils, Config configuration) {
+    super(viewUtils, configuration);
   }
 
   private ContainerTag renderNavBar() {
