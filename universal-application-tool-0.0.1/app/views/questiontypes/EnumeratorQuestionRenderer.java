@@ -2,10 +2,14 @@ package views.questiontypes;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.input;
+import static views.style.ReferenceClasses.ENUMERATOR_EXISTING_DELETE_BUTTON;
 
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
+import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
+import j2html.tags.EmptyTag;
 import j2html.tags.Tag;
 import java.util.Optional;
 import play.i18n.Messages;
@@ -26,6 +30,10 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
   private static final String ENUMERATOR_FIELDS_ID = "enumerator-fields";
   private static final String ADD_ELEMENT_BUTTON_ID = "enumerator-field-add-button";
   private static final String ENUMERATOR_FIELD_TEMPLATE_ID = "enumerator-field-template";
+  private static final String DELETE_ENTITY_TEMPLATE_ID = "enumerator-delete-template";
+  private static final ContainerTag DELETE_ICON =
+      Icons.svg(Icons.TRASH_CAN_SVG_PATH, 24)
+          .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
 
   public static final String ENUMERATOR_FIELD_CLASSES =
       StyleUtils.joinStyles(ReferenceClasses.ENUMERATOR_FIELD, Styles.FLEX, Styles.MB_4);
@@ -38,22 +46,25 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
 
   @Override
   public Tag render(ApplicantQuestionRendererParams params) {
-
     Messages messages = params.messages();
     EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();
-    String localizedEntityType =
-        enumeratorQuestion.getEntityType(messages, messages.lang().locale());
+    String localizedEntityType = enumeratorQuestion.getEntityType();
     ImmutableList<String> entityNames = enumeratorQuestion.getEntityNames();
 
     ContainerTag enumeratorFields = div().withId(ENUMERATOR_FIELDS_ID);
     for (int index = 0; index < entityNames.size(); index++) {
       enumeratorFields.with(
-          existingEnumeratorField(
-              messages, Optional.of(entityNames.get(index)), index, localizedEntityType));
+          enumeratorField(
+              messages,
+              localizedEntityType,
+              question.getContextualizedPath(),
+              Optional.of(entityNames.get(index)),
+              Optional.of(index)));
     }
     return div()
         .withClasses(Styles.MX_AUTO, Styles.W_MAX)
         .with(
+            hiddenDeleteInputTemplate(),
             div()
                 .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT)
                 .withText(question.getQuestionText()),
@@ -76,26 +87,39 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
    * Create an enumerator field for existing entries. These come with a checkbox to delete during
    * form submission.
    */
-  private Tag existingEnumeratorField(
-      Messages messages, Optional<String> existingOption, int index, String localizedEntityType) {
+  private static Tag enumeratorField(
+      Messages messages,
+      String localizedEntityType,
+      Path contextualizedPath,
+      Optional<String> existingEntity,
+      Optional<Integer> existingIndex) {
+    String removeButtonStyles =
+        existingEntity.isPresent()
+            ? StyleUtils.joinStyles(ENUMERATOR_EXISTING_DELETE_BUTTON, Styles.ML_4)
+            : Styles.ML_4;
+
     ContainerTag entityNameInput =
         FieldWithLabel.input()
-            .setFieldName(question.getContextualizedPath().toString())
-            .setValue(existingOption)
+            .setFieldName(contextualizedPath.toString())
+            .setValue(existingEntity)
+            .setPlaceholderText(
+                messages.at(
+                    MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
+                    localizedEntityType))
+            .addReferenceClass(ReferenceClasses.ENTITY_NAME_INPUT)
             .getContainer();
-    // TODO: Add "Mark for deletion" label to this checkbox.
-    Tag removeEntityBox =
-        FieldWithLabel.checkbox()
-            .setFieldName(Path.empty().join(Scalar.DELETE_ENTITY).asArrayElement().toString())
-            .setValue(String.valueOf(index))
-            .getContainer()
+    Tag removeEntityButton =
+        TagCreator.button(DELETE_ICON)
+            .withType("button")
+            .withCondId(existingIndex.isPresent(), existingIndex.map(String::valueOf).orElse(""))
+            .withClasses(removeButtonStyles)
             .attr(
                 "aria-label",
                 messages.at(
                     MessageKey.ENUMERATOR_BUTTON_ARIA_LABEL_DELETE_ENTITY.getKeyName(),
                     localizedEntityType));
 
-    return div().withClasses(ENUMERATOR_FIELD_CLASSES).with(entityNameInput, removeEntityBox);
+    return div().withClasses(ENUMERATOR_FIELD_CLASSES).with(entityNameInput, removeEntityButton);
   }
 
   /**
@@ -103,29 +127,21 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
    */
   public static Tag newEnumeratorFieldTemplate(
       Path contextualizedPath, String localizedEntityType, Messages messages) {
-    ContainerTag entityNameInput =
-        FieldWithLabel.input()
-            .setFieldName(contextualizedPath.toString())
-            .setPlaceholderText(
-                messages.at(
-                    MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
-                    localizedEntityType))
-            .getContainer();
-    ContainerTag icon =
-        Icons.svg(Icons.TRASH_CAN_SVG_PATH, 24)
-            .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
-    Tag removeEntityButton =
-        TagCreator.button(icon)
-            .withType("button")
-            .withClasses(Styles.ML_4)
-            .attr(
-                "aria-label",
-                messages.at(
-                    MessageKey.ENUMERATOR_BUTTON_ARIA_LABEL_DELETE_ENTITY.getKeyName(),
-                    localizedEntityType));
-    return div()
+    return enumeratorField(
+            messages, localizedEntityType, contextualizedPath, Optional.empty(), Optional.empty())
         .withId(ENUMERATOR_FIELD_TEMPLATE_ID)
-        .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, Styles.HIDDEN))
-        .with(entityNameInput, removeEntityButton);
+        .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, Styles.HIDDEN));
+  }
+
+  /**
+   * A hidden template to copy when deleting an existing entity. This will allow us to mark existing
+   * entities for deletion.
+   */
+  private static EmptyTag hiddenDeleteInputTemplate() {
+    return input()
+        .withId(DELETE_ENTITY_TEMPLATE_ID)
+        .withName(Path.empty().join(Scalar.DELETE_ENTITY).asArrayElement().toString())
+        .attr(Attr.DISABLED, true) // do not submit this with the form
+        .withClasses(Styles.HIDDEN);
   }
 }

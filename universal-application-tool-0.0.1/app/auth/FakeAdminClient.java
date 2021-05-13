@@ -12,6 +12,8 @@ import org.pac4j.core.util.HttpActionHelper;
 public class FakeAdminClient extends IndirectClient {
 
   public static final String CLIENT_NAME = "FakeAdminClient";
+  public static final String GLOBAL_ADMIN = "GLOBAL";
+  public static final String PROGRAM_ADMIN = "PROGRAM";
 
   public static final ImmutableSet<String> ACCEPTED_HOSTS =
       ImmutableSet.of("localhost", "civiform", "staging.seattle.civiform.com");
@@ -40,7 +42,20 @@ public class FakeAdminClient extends IndirectClient {
           return Optional.of(new AnonymousCredentials());
         });
     defaultAuthenticator(
-        (cred, ctx, store) -> cred.setUserProfile(profileFactory.createNewAdmin()));
+        (cred, ctx, store) -> {
+          Optional<String> adminType = ctx.getRequestParameter("adminType");
+          if (adminType.isEmpty()) {
+            throw new IllegalArgumentException("no admin type provided.");
+          }
+          if (adminType.get().equals(GLOBAL_ADMIN)) {
+            cred.setUserProfile(profileFactory.createNewAdmin());
+          } else if (adminType.get().equals(PROGRAM_ADMIN)) {
+            cred.setUserProfile(profileFactory.createNewProgramAdmin());
+          } else {
+            throw new IllegalArgumentException(
+                String.format("admin type %s not recognized", adminType.get()));
+          }
+        });
     defaultRedirectionActionBuilder(
         (ctx, store) ->
             Optional.of(

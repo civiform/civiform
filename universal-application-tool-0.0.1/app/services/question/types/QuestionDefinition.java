@@ -196,6 +196,10 @@ public abstract class QuestionDefinition {
     if (questionText.hasEmptyTranslation()) {
       errors.add(CiviFormError.of("Question text cannot be blank"));
     }
+    if (getQuestionType().equals(QuestionType.ENUMERATOR)
+        && ((EnumeratorQuestionDefinition) this).getEntityType().hasEmptyTranslation()) {
+      errors.add(CiviFormError.of("Enumerator question must have specified entity type"));
+    }
     return errors.build();
   }
 

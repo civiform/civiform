@@ -18,4 +18,9 @@ public class CallbackController extends Controller {
   public CompletionStage<Result> callback(Http.Request request, String clientName) {
     return wrappedController.callback(request);
   }
+
+  public CompletionStage<Result> fakeAdmin(
+      Http.Request request, String clientName, String adminType) {
+    return wrappedController.callback(request);
+  }
 }
