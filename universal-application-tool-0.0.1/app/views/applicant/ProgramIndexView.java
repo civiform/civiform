@@ -2,7 +2,6 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.attributes.Attr.HREF;
@@ -19,6 +18,7 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
@@ -52,17 +52,21 @@ public class ProgramIndexView extends BaseHtmlView {
       long applicantId,
       ImmutableList<ProgramDefinition> programs,
       Optional<String> banner) {
-    ContainerTag body = body().withClasses(Styles.RELATIVE, Styles.PX_8, ApplicantStyles.BODY);
+    HtmlBundle bundle =
+        layout
+            .getBundle()
+            .setTitle("CiviForm")
+            .addBodyStyles(Styles.RELATIVE, Styles.PX_8, ApplicantStyles.BODY);
     if (banner.isPresent()) {
-      body.with(ToastMessage.alert(banner.get()).getContainerTag());
+      bundle.addToastMessages(ToastMessage.alert(banner.get()));
     }
-    body.with(
+    bundle.addMainContent(
         topContent(
             messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()),
             messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION.getKeyName())),
         mainContent(messages, programs, applicantId, messages.lang().toLocale()));
 
-    return layout.render(request, messages, body);
+    return layout.renderWithNav(request, messages, bundle);
   }
 
   private ContainerTag topContent(String titleText, String infoText) {

@@ -1,7 +1,6 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
@@ -19,6 +18,7 @@ import services.LocalizedStrings;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.LinkElement;
 import views.style.ReferenceClasses;
@@ -52,7 +52,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                             request,
                             profile)));
 
-    return layout.render(layout.headContent(), body(contentDiv));
+    HtmlBundle htmlBundle = layout.getBundle().setTitle("All Programs").addMainContent(contentDiv);
+    return layout.renderCentered(htmlBundle);
   }
 
   private Tag maybeRenderPublishButton(ActiveAndDraftPrograms programs, Http.Request request) {

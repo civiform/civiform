@@ -1,19 +1,17 @@
 package views.admin;
 
 import static j2html.TagCreator.a;
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.main;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
 
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
-import j2html.tags.DomContent;
 import j2html.tags.Tag;
 import javax.inject.Inject;
 import play.twirl.api.Content;
 import views.BaseHtmlLayout;
+import views.HtmlBundle;
 import views.ViewUtils;
 import views.style.AdminStyles;
 import views.style.StyleUtils;
@@ -24,6 +22,35 @@ public class AdminLayout extends BaseHtmlLayout {
   @Inject
   public AdminLayout(ViewUtils viewUtils) {
     super(viewUtils);
+  }
+
+  @Override
+  public HtmlBundle getBundle() {
+    return getBundle(new HtmlBundle());
+  }
+
+  public Content renderCentered(HtmlBundle bundle) {
+    return render(bundle, /* isCentered = */ true);
+  }
+
+  @Override
+  public Content render(HtmlBundle bundle) {
+    return render(bundle, /* isCentered = */ false);
+  }
+
+  protected Content render(HtmlBundle bundle, boolean isCentered) {
+    bundle.addMainStyles(AdminStyles.MAIN, isCentered ? AdminStyles.CENTERED : AdminStyles.FULL);
+    bundle.addBodyStyles(AdminStyles.BODY);
+    String currentTitle = bundle.getTitle();
+    if (currentTitle != null && !currentTitle.isEmpty()) {
+      bundle.setTitle(currentTitle + " - CiviForm Admin Console");
+    }
+    return super.render(bundle);
+  }
+
+  @Override
+  public HtmlBundle getBundle(HtmlBundle bundle) {
+    return super.getBundle(bundle).addHeaderContent(renderNavBar());
   }
 
   private ContainerTag renderNavBar() {
@@ -52,50 +79,6 @@ public class AdminLayout extends BaseHtmlLayout {
             .with(headerLink("Logout", logoutLink, Styles.FLOAT_RIGHT))
             .withClasses(AdminStyles.NAV_STYLES);
     return adminHeader;
-  }
-
-  public Content renderCentered(ContainerTag mainContent, String... mainStyles) {
-    String mainCenteredStyles =
-        StyleUtils.joinStyles(
-            Styles.PX_2, Styles.MAX_W_SCREEN_XL, Styles.MX_AUTO, StyleUtils.joinStyles(mainStyles));
-    return renderMain(mainContent, mainCenteredStyles);
-  }
-
-  public Content renderFull(ContainerTag mainDomContents, String... mainStyles) {
-    String mainFullStyles =
-        StyleUtils.joinStyles(Styles.FLEX, Styles.FLEX_ROW, StyleUtils.joinStyles(mainStyles));
-    return renderMain(mainDomContents, mainFullStyles);
-  }
-
-  private Content renderMain(ContainerTag mainContent, String... mainStyles) {
-    mainContent.withClasses(
-        Styles.BG_WHITE,
-        Styles.BORDER,
-        Styles.BORDER_GRAY_200,
-        Styles.MT_12,
-        Styles.OVERFLOW_Y_AUTO,
-        Styles.SHADOW_LG,
-        Styles.W_SCREEN,
-        StyleUtils.joinStyles(mainStyles));
-
-    return htmlContent(
-        headContent(),
-        body()
-            .with(renderNavBar())
-            .with(mainContent)
-            .with(viewUtils.makeLocalJsTag("main"))
-            .withClasses(
-                AdminStyles.BODY_GRADIENT_STYLE,
-                Styles.BOX_BORDER,
-                Styles.H_SCREEN,
-                Styles.W_SCREEN,
-                Styles.OVERFLOW_HIDDEN,
-                Styles.FLEX));
-  }
-
-  /** Renders mainDomContents within the main tag, in the context of the admin layout. */
-  public Content render(DomContent... mainDomContents) {
-    return renderCentered(main(mainDomContents));
   }
 
   public Tag headerLink(String text, String href, String... styles) {

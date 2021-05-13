@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.main;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 import static views.ViewUtils.POST;
@@ -24,6 +23,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.Icons;
@@ -75,30 +75,34 @@ public class ProgramBlockEditView extends BaseHtmlView {
       String message,
       ImmutableList<QuestionDefinition> questions) {
     Tag csrfTag = makeCsrfTokenInputTag(request);
-
-    ContainerTag mainContent =
-        main(
-            addFormEndpoints(csrfTag, program.id(), blockId),
-            programInfo(program),
-            div()
-                .withId("program-block-info")
-                .withClasses(Styles.FLEX, Styles.FLEX_GROW, Styles._MX_2)
-                .with(blockOrderPanel(program, blockId))
-                .with(
-                    blockEditPanel(
-                        program,
-                        blockId,
-                        blockForm,
-                        blockQuestions,
-                        blockDefinition.isEnumerator(),
-                        csrfTag))
-                .with(questionBankPanel(questions, program, blockDefinition, csrfTag)));
+    String title = "Block edit view";
+    HtmlBundle htmlBundle =
+        layout
+            .getBundle()
+            .setTitle(title)
+            .addMainStyles(Styles.FLEX, Styles.FLEX_COL)
+            .addMainContent(
+                addFormEndpoints(csrfTag, program.id(), blockId),
+                programInfo(program),
+                div()
+                    .withId("program-block-info")
+                    .withClasses(Styles.FLEX, Styles.FLEX_GROW, Styles._MX_2)
+                    .with(blockOrderPanel(program, blockId))
+                    .with(
+                        blockEditPanel(
+                            program,
+                            blockId,
+                            blockForm,
+                            blockQuestions,
+                            blockDefinition.isEnumerator(),
+                            csrfTag))
+                    .with(questionBankPanel(questions, program, blockDefinition, csrfTag)));
 
     if (message.length() > 0) {
-      mainContent.with(ToastMessage.error(message).setDismissible(false).getContainerTag());
+      htmlBundle.addToastMessages(ToastMessage.error(message).setDismissible(false));
     }
 
-    return layout.renderCentered(mainContent, Styles.FLEX, Styles.FLEX_COL);
+    return layout.renderCentered(htmlBundle);
   }
 
   private Tag addFormEndpoints(Tag csrfTag, long programId, long blockId) {

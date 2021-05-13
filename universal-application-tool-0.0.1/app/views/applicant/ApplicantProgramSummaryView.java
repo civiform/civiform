@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.h1;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -21,6 +20,7 @@ import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.applicant.AnswerData;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.ReferenceClasses;
@@ -48,14 +48,9 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       ImmutableList<AnswerData> data,
       Messages messages,
       Optional<String> banner) {
-    ContainerTag headerTag = layout.renderHeader(100);
+    HtmlBundle bundle = layout.getBundle().setTitle("Program summary");
 
     ContainerTag content = div().withClasses(Styles.MX_16);
-
-    if (banner.isPresent()) {
-      content.with(ToastMessage.error(banner.get()).getContainerTag());
-    }
-
     ContainerTag applicationSummary = div().withId("application-summary");
     for (AnswerData questionData : data) {
       applicationSummary.with(renderQuestionSummary(questionData, applicantId));
@@ -73,12 +68,12 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
             .with(submitButton("Submit"));
     content.with(actions);
 
-    return layout.render(
-        request,
-        messages,
-        headerTag,
-        h1("Application review for " + programTitle).withClasses(Styles.PX_16, Styles.PY_4),
-        content);
+    if (banner.isPresent()) {
+      bundle.addToastMessages(ToastMessage.error(banner.get()));
+    }
+    bundle.addMainContent(layout.renderHeader(100), content);
+
+    return layout.renderWithNav(request, messages, bundle);
   }
 
   private ContainerTag renderQuestionSummary(AnswerData data, Long applicantId) {

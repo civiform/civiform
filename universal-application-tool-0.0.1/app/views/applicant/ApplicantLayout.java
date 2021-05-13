@@ -2,7 +2,6 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.header;
 import static j2html.TagCreator.nav;
@@ -13,7 +12,6 @@ import auth.Roles;
 import auth.UatProfile;
 import controllers.ti.routes;
 import j2html.tags.ContainerTag;
-import j2html.tags.DomContent;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
@@ -21,6 +19,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
 import views.BaseHtmlLayout;
+import views.HtmlBundle;
 import views.ViewUtils;
 import views.style.ApplicantStyles;
 import views.style.StyleUtils;
@@ -36,19 +35,34 @@ public class ApplicantLayout extends BaseHtmlLayout {
     this.profileUtils = checkNotNull(profileUtils);
   }
 
-  protected Content render(Http.Request request, Messages messages, DomContent... mainDomContents) {
-    return render(profileUtils.currentUserProfile(request), messages, mainDomContents);
+  @Override
+  public HtmlBundle getBundle() {
+    return getBundle(new HtmlBundle());
   }
-  /** Renders mainDomContents within the main tag, in the context of the applicant layout. */
-  protected Content render(
-      Optional<UatProfile> profile, Messages messages, DomContent... mainDomContents) {
-    return htmlContent(
-        headContent("Applicant layout title"),
-        body()
-            .with(renderNavBar(profile, messages))
-            .with(mainDomContents)
-            .with(viewUtils.makeLocalJsTag("main"))
-            .withClasses(ApplicantStyles.BODY_BG_COLOR));
+
+  @Override
+  public HtmlBundle getBundle(HtmlBundle bundle) {
+    return super.getBundle(bundle);
+  }
+
+  @Override
+  public Content render(HtmlBundle bundle) {
+    bundle.addBodyStyles(ApplicantStyles.BODY_BG_COLOR);
+    String currentTitle = bundle.getTitle();
+    if (currentTitle != null && !currentTitle.isEmpty()) {
+      bundle.setTitle(currentTitle + " - CiviForm");
+    }
+    return super.render(bundle);
+  }
+
+  public Content renderWithNav(Http.Request request, Messages messages, HtmlBundle bundle) {
+    bundle.addHeaderContent(renderNavBar(request, messages));
+    return render(bundle);
+  }
+
+  private ContainerTag renderNavBar(Http.Request request, Messages messages) {
+    Optional<UatProfile> profile = profileUtils.currentUserProfile(request);
+    return renderNavBar(profile, messages);
   }
 
   private ContainerTag renderNavBar(Optional<UatProfile> profile, Messages messages) {
@@ -58,16 +72,15 @@ public class ApplicantLayout extends BaseHtmlLayout {
             Styles.PB_4,
             Styles.MB_12,
             Styles.FLEX,
-            Styles.ALIGN_MIDDLE,
-            Styles.BORDER_B_4,
-            Styles.BORDER_WHITE)
+            Styles.ALIGN_MIDDLE)
         .with(branding(), status(messages), maybeRenderTiButton(profile), logoutButton(messages));
   }
 
   private ContainerTag maybeRenderTiButton(Optional<UatProfile> profile) {
     if (profile.isPresent() && profile.get().getRoles().contains(Roles.ROLE_TI.toString())) {
+      String tiDashboardText = "Trusted intermediary dashboard";
       String tiDashboardLink = routes.TrustedIntermediaryController.dashboard().url();
-      return a("Trusted Intermediary Dashboard")
+      return a(tiDashboardText)
           .withHref(tiDashboardLink)
           .withClasses(
               Styles.PX_3, Styles.TEXT_SM, Styles.OPACITY_75, StyleUtils.hover(Styles.OPACITY_100));

@@ -13,6 +13,7 @@ import java.util.Locale;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
+import views.components.ToastMessage;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ProgramRepository;
@@ -94,7 +95,7 @@ public class AdminProgramTranslationsControllerTest extends WithPostgresContaine
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
         .contains(
-            "Manage Program Translations",
+            "Manage program translations",
             "program display name cannot be blank",
             "program display description cannot be blank");
   }

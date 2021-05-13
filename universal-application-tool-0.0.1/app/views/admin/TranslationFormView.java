@@ -81,8 +81,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
       Http.Request request,
       Locale locale,
       String formAction,
-      ImmutableList<FieldWithLabel> formFields,
-      Optional<String> errors) {
+      ImmutableList<FieldWithLabel> formFields) {
     ContainerTag form =
         form()
             .withMethod("POST")
@@ -95,7 +94,6 @@ public abstract class TranslationFormView extends BaseHtmlView {
                             "Save %s updates",
                             locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE)))
                     .withId("update-localizations-button"));
-    errors.ifPresent(s -> form.with(ToastMessage.error(s).setDismissible(false).getContainerTag()));
     return form;
   }
 }

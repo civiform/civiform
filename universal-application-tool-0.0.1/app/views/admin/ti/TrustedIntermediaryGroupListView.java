@@ -1,7 +1,6 @@
 package views.admin.ti;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -22,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
@@ -40,24 +40,29 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
   }
 
   public Content render(List<TrustedIntermediaryGroup> tis, Http.Request request) {
-    ContainerTag body =
-        body(
-            renderHeader("Create New Trusted Intermediary").withClass(Styles.MT_8),
-            renderAddNewButton(request),
-            renderHeader("Existing Trusted Intermediaries"),
-            renderTiGroupCards(tis, request));
+    String title = "Manage trusted intermediaries";
+    HtmlBundle htmlBundle =
+        layout
+            .getBundle()
+            .setTitle(title)
+            .addHeaderContent(
+                renderHeader("Create New Trusted Intermediary").withClass(Styles.MT_8))
+            .addMainContent(
+                renderAddNewButton(request),
+                renderHeader("Existing Trusted Intermediaries"),
+                renderTiGroupCards(tis, request));
+
     if (request.flash().get("error").isPresent()) {
       LoggerFactory.getLogger(TrustedIntermediaryGroupListView.class)
           .info(request.flash().get("error").get());
       String error = request.flash().get("error").get();
-      body.with(
+      htmlBundle.addToastMessages(
           ToastMessage.error(error)
               .setId("warning-message-ti-form-fill")
               .setIgnorable(false)
-              .setDuration(0)
-              .getContainerTag());
+              .setDuration(0));
     }
-    return layout.render(body);
+    return layout.render(htmlBundle);
   }
 
   private Tag renderTiGroupCards(List<TrustedIntermediaryGroup> tis, Http.Request request) {

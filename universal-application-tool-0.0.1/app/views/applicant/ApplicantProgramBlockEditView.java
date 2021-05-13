@@ -1,7 +1,6 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
@@ -22,6 +21,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.aws.SignedS3UploadRequest;
 import services.aws.SimpleStorage;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
@@ -40,27 +40,31 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   public Content render(Params params) {
-    ContainerTag headerTag = layout.renderHeader(params.percentComplete());
-
-    ContainerTag body =
-        body().with(h1(params.block().getName())).with(renderBlockWithSubmitForm(params));
+    HtmlBundle bundle =
+        layout
+            .getBundle()
+            .setTitle("CiviForm")
+            .addMainContent(
+                layout.renderHeader(params.percentComplete()),
+                h1(params.block().getName()),
+                renderBlockWithSubmitForm(params));
 
     if (!params.preferredLanguageSupported()) {
-      body.with(
+      bundle.addMainContent(
           renderLocaleNotSupportedToast(
               params.applicantId(), params.programId(), params.messages()));
     }
 
     // Add the hidden enumerator field template
     if (params.block().isEnumerator()) {
-      body.with(
+      bundle.addMainContent(
           EnumeratorQuestionRenderer.newEnumeratorFieldTemplate(
               params.block().getEnumeratorQuestion().getContextualizedPath(),
               params.block().getEnumeratorQuestion().createEnumeratorQuestion().getEntityType(),
               params.messages()));
     }
 
-    return layout.render(params.request(), params.messages(), headerTag, body);
+    return layout.renderWithNav(params.request(), params.messages(), bundle);
   }
 
   /**

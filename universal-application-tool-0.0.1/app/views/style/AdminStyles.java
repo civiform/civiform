@@ -51,4 +51,28 @@ public class AdminStyles {
           Styles.OPACITY_0,
           Styles.TOP_0,
           Styles.W_FULL);
+
+  public static final String BODY =
+      StyleUtils.joinStyles(
+          BODY_GRADIENT_STYLE,
+          Styles.BOX_BORDER,
+          Styles.H_SCREEN,
+          Styles.W_SCREEN,
+          Styles.OVERFLOW_HIDDEN,
+          Styles.FLEX);
+
+  public static final String CENTERED =
+      StyleUtils.joinStyles(Styles.PX_2, Styles.MAX_W_SCREEN_XL, Styles.MX_AUTO);
+
+  public static final String FULL = StyleUtils.joinStyles(Styles.FLEX, Styles.FLEX_ROW);
+
+  public static final String MAIN =
+      StyleUtils.joinStyles(
+          Styles.BG_WHITE,
+          Styles.BORDER,
+          Styles.BORDER_GRAY_200,
+          Styles.MT_12,
+          Styles.OVERFLOW_Y_AUTO,
+          Styles.SHADOW_LG,
+          Styles.W_SCREEN);
 }
