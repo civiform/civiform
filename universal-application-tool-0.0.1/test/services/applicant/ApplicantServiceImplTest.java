@@ -11,6 +11,8 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import models.Applicant;
+import models.Application;
+import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import repository.UserRepository;
@@ -18,6 +20,7 @@ import repository.WithPostgresContainer;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.exception.ApplicantNotFoundException;
+import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.Scalar;
 import services.program.PathNotInBlockException;
@@ -351,6 +354,89 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
             .join();
 
     assertThat(roApplicantProgramService).isInstanceOf(ReadOnlyApplicantProgramService.class);
+  }
+
+  @Test
+  public void submitApplication_returnsSavedApplication() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(Path.create("applicant.name").join(Scalar.FIRST_NAME).toString(), "Alice")
+            .put(Path.create("applicant.name").join(Scalar.LAST_NAME).toString(), "Doe")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .toCompletableFuture()
+        .join();
+
+    Application application =
+        subject
+            .submitApplication(applicant.id, programDefinition.id())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(application.getApplicant()).isEqualTo(applicant);
+    assertThat(application.getProgram().getProgramDefinition().id())
+        .isEqualTo(programDefinition.id());
+    assertThat(application.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+    assertThat(application.getApplicantData().asJsonString()).contains("Alice", "Doe");
+  }
+
+  @Test
+  public void submitApplication_obsoletesOldApplication() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(Path.create("applicant.name").join(Scalar.FIRST_NAME).toString(), "Alice")
+            .put(Path.create("applicant.name").join(Scalar.LAST_NAME).toString(), "Doe")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .toCompletableFuture()
+        .join();
+
+    Application oldApplication =
+        subject
+            .submitApplication(applicant.id, programDefinition.id())
+            .toCompletableFuture()
+            .join();
+
+    updates =
+        ImmutableMap.<String, String>builder()
+            .put(Path.create("applicant.name").join(Scalar.FIRST_NAME).toString(), "Bob")
+            .put(Path.create("applicant.name").join(Scalar.LAST_NAME).toString(), "Elisa")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .toCompletableFuture()
+        .join();
+
+    Application newApplication =
+        subject
+            .submitApplication(applicant.id, programDefinition.id())
+            .toCompletableFuture()
+            .join();
+
+    oldApplication.refresh();
+    assertThat(oldApplication.getApplicant()).isEqualTo(applicant);
+    assertThat(oldApplication.getProgram().getProgramDefinition().id())
+        .isEqualTo(programDefinition.id());
+    assertThat(oldApplication.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
+    assertThat(oldApplication.getApplicantData().asJsonString()).contains("Alice", "Doe");
+
+    assertThat(newApplication.getApplicant()).isEqualTo(applicant);
+    assertThat(newApplication.getProgram().getProgramDefinition().id())
+        .isEqualTo(programDefinition.id());
+    assertThat(newApplication.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+    assertThat(newApplication.getApplicantData().asJsonString()).contains("Bob", "Elisa");
+  }
+
+  @Test
+  public void submitApplication_failsWithApplicationSubmissionException() {
+    assertThatExceptionOfType(CompletionException.class)
+        .isThrownBy(() -> subject.submitApplication(9999L, 9999L).toCompletableFuture().join())
+        .withCauseInstanceOf(ApplicationSubmissionException.class)
+        .withMessageContaining("Application", "failed to save");
   }
 
   private void createQuestions() {
