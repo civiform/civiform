@@ -87,7 +87,7 @@ export class AdminPrograms {
   }
 
   async expectProgramManageTranslationsPage() {
-    expect(await this.page.innerText('h1')).toContain('Manage Program Translations');
+    expect(await this.page.innerText('h1')).toContain('Manage program translations');
   }
 
   async expectManageProgramAdminsPage() {
