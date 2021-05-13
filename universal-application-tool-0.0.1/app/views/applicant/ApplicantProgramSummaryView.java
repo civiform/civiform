@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.h1;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -72,9 +73,9 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       bundle.addToastMessages(ToastMessage.error(banner.get()));
     }
     bundle.addMainContent(
-      layout.renderHeader(100),
-      h1("Application review for " + programTitle).withClasses(Styles.PX_16, Styles.PY_4),
-      content);
+        layout.renderHeader(100),
+        h1("Application review for " + programTitle).withClasses(Styles.PX_16, Styles.PY_4),
+        content);
 
     return layout.renderWithNav(request, messages, bundle);
   }
