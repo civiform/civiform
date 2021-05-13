@@ -11,11 +11,11 @@ import javax.inject.Inject;
 import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import views.components.ToastMessage;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
+import views.components.ToastMessage;
 
 /** Renders a list of languages to select from, and a form for updating program information. */
 public class ProgramTranslationView extends TranslationFormView {
@@ -65,7 +65,7 @@ public class ProgramTranslationView extends TranslationFormView {
             .getBundle()
             .setTitle(title)
             .addMainContent(renderHeader(title), renderLanguageLinks(programId, locale), form);
-                      
+
     errors.ifPresent(s -> htmlBundle.addToastMessages(ToastMessage.error(s).setDismissible(false)));
 
     return layout.renderCentered(htmlBundle);

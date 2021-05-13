@@ -1,7 +1,6 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
 
 import auth.FakeAdminClient;
@@ -26,17 +25,23 @@ public class LoginForm extends BaseHtmlView {
   public Content render(Http.Request request, Optional<String> message) {
     String title = "Login";
 
-    HtmlBundle htmlBundle = this.layout.getBundle().setTitle(title).addBodyStyles(Styles.P_4).addMainContent(
-      h1("Log In"),
-      redirectButton(
-          "idcs", "Login with IDCS (user)", routes.LoginController.idcsLogin().url()),
-      redirectButton(
-          "adfs", "Login with ADFS (admin)", routes.LoginController.adfsLogin().url()),
-      h1("Or, continue as guest."),
-      redirectButton(
-          "guest", "Continue", routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
-    );
-    
+    HtmlBundle htmlBundle =
+        this.layout
+            .getBundle()
+            .setTitle(title)
+            .addBodyStyles(Styles.P_4)
+            .addMainContent(
+                h1("Log In"),
+                redirectButton(
+                    "idcs", "Login with IDCS (user)", routes.LoginController.idcsLogin().url()),
+                redirectButton(
+                    "adfs", "Login with ADFS (admin)", routes.LoginController.adfsLogin().url()),
+                h1("Or, continue as guest."),
+                redirectButton(
+                    "guest",
+                    "Continue",
+                    routes.CallbackController.callback(GuestClient.CLIENT_NAME).url()));
+
     if (message.isPresent()) {
       String errorString = "Error: You are not logged in. " + message.get();
       htmlBundle.addToastMessages(ToastMessage.error(errorString));
@@ -46,19 +51,19 @@ public class LoginForm extends BaseHtmlView {
     // won't show up except when running in an acceptable environment.
     if (FakeAdminClient.canEnable(request.host())) {
       htmlBundle.addMainContent(
-              h1("DEBUG MODE: BECOME ADMIN"),
-              redirectButton(
-                  "admin",
-                  "Global",
-                  routes.CallbackController.fakeAdmin(
-                          FakeAdminClient.CLIENT_NAME, FakeAdminClient.GLOBAL_ADMIN)
-                      .url()),
-              redirectButton(
-                  "program-admin",
-                  "Of All Active Programs",
-                  routes.CallbackController.fakeAdmin(
-                          FakeAdminClient.CLIENT_NAME, FakeAdminClient.PROGRAM_ADMIN)
-                      .url()));
+          h1("DEBUG MODE: BECOME ADMIN"),
+          redirectButton(
+              "admin",
+              "Global",
+              routes.CallbackController.fakeAdmin(
+                      FakeAdminClient.CLIENT_NAME, FakeAdminClient.GLOBAL_ADMIN)
+                  .url()),
+          redirectButton(
+              "program-admin",
+              "Of All Active Programs",
+              routes.CallbackController.fakeAdmin(
+                      FakeAdminClient.CLIENT_NAME, FakeAdminClient.PROGRAM_ADMIN)
+                  .url()));
     }
 
     return layout.render(htmlBundle);

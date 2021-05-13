@@ -12,10 +12,10 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.question.types.QuestionDefinition;
 import views.HtmlBundle;
-import views.components.ToastMessage;
 import views.admin.AdminLayout;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
+import views.components.ToastMessage;
 
 /** Renders a list of languages to select from, and a form for updating question information. */
 public class QuestionTranslationView extends TranslationFormView {
@@ -79,7 +79,7 @@ public class QuestionTranslationView extends TranslationFormView {
             .setTitle(title)
             .addMainContent(
                 renderHeader(title), renderLanguageLinks(question.getId(), locale), form);
-                errors.ifPresent(s -> htmlBundle.addToastMessages(ToastMessage.error(s).setDismissible(false)));
+    errors.ifPresent(s -> htmlBundle.addToastMessages(ToastMessage.error(s).setDismissible(false)));
 
     return layout.renderCentered(htmlBundle);
   }

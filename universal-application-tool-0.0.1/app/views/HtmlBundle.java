@@ -114,11 +114,9 @@ public class HtmlBundle {
   }
 
   private ContainerTag renderFooter() {
-    ContainerTag footerTag = footer()
-        .with(footerContent)
-        .with(footerScripts);
+    ContainerTag footerTag = footer().with(footerContent).with(footerScripts);
 
-    if (footerStyles.size() > 0 ) {
+    if (footerStyles.size() > 0) {
       footerTag.withClasses(footerStyles.toArray(new String[0]));
     }
 
@@ -136,24 +134,25 @@ public class HtmlBundle {
 
   private ContainerTag renderHeader() {
     // TODO: Sort toastMessages by priority before displaying.
-    ContainerTag headerTag = header()
-        .with(each(toastMessages, toastMessage -> toastMessage.getContainerTag()))
-        .with(headerContent);
-      
+    ContainerTag headerTag =
+        header()
+            .with(each(toastMessages, toastMessage -> toastMessage.getContainerTag()))
+            .with(headerContent);
+
     if (headerStyles.size() > 0) {
       headerTag.withClasses(headerStyles.toArray(new String[0]));
     }
-    
+
     return headerTag;
   }
 
   private ContainerTag renderMain() {
     ContainerTag mainTag = main().with(mainContent);
-    
+
     if (mainStyles.size() > 0) {
       mainTag.withClasses(mainStyles.toArray(new String[0]));
     }
-    
+
     return mainTag;
   }
 

@@ -67,12 +67,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   private ContainerTag renderNavBar(Optional<UatProfile> profile, Messages messages) {
     return nav()
-        .withClasses(
-            Styles.PT_8,
-            Styles.PB_4,
-            Styles.MB_12,
-            Styles.FLEX,
-            Styles.ALIGN_MIDDLE)
+        .withClasses(Styles.PT_8, Styles.PB_4, Styles.MB_12, Styles.FLEX, Styles.ALIGN_MIDDLE)
         .with(branding(), status(messages), maybeRenderTiButton(profile), logoutButton(messages));
   }
 

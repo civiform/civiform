@@ -8,7 +8,6 @@ import static j2html.TagCreator.form;
 import com.google.common.collect.ImmutableList;
 import j2html.tags.ContainerTag;
 import java.util.Locale;
-import java.util.Optional;
 import play.i18n.Lang;
 import play.i18n.Langs;
 import play.mvc.Http;
@@ -16,7 +15,6 @@ import services.LocalizedStrings;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
-import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.Styles;
 
