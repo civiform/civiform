@@ -65,10 +65,8 @@ public abstract class QuestionOption {
     @JsonProperty("id")
     public abstract Builder setId(long id);
 
-    @JsonProperty("optionText")
+    @JsonProperty("localizedOptionText")
     public abstract Builder setOptionText(LocalizedStrings optionText);
-
-    public abstract LocalizedStrings.Builder optionTextBuilder();
 
     public abstract QuestionOption build();
   }
