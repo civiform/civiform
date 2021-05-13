@@ -25,11 +25,12 @@ public class DateQuestionRenderer extends BaseHtmlView implements ApplicantQuest
     DateQuestion dateQuestion = question.createDateQuestion();
 
     FieldWithLabel dateField =
-        FieldWithLabel.number().setFieldName(dateQuestion.getDatePath().toString());
+        FieldWithLabel.date().setFieldName(dateQuestion.getDatePath().toString());
 
     if (dateQuestion.getDateValue().isPresent()) {
       // TODO: [Refactor] Oof! Converting Optional<Long> to OptionalLong.
       OptionalLong value = OptionalLong.of(dateQuestion.getDateValue().orElse(0L));
+      // TODO: Convert value from long --> a date string that is compatible with <input type=date>
       dateField.setValue(value);
     }
 
