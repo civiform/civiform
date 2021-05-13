@@ -11,6 +11,7 @@ import static j2html.TagCreator.span;
 import auth.ProfileUtils;
 import auth.Roles;
 import auth.UatProfile;
+import com.typesafe.config.Config;
 import controllers.ti.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
@@ -31,8 +32,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private final ProfileUtils profileUtils;
 
   @Inject
-  public ApplicantLayout(ViewUtils viewUtils, ProfileUtils profileUtils) {
-    super(viewUtils);
+  public ApplicantLayout(ViewUtils viewUtils, Config configuration, ProfileUtils profileUtils) {
+    super(viewUtils, configuration);
     this.profileUtils = checkNotNull(profileUtils);
   }
 

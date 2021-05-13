@@ -3,6 +3,7 @@ package views;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.document;
 
+import com.typesafe.config.Config;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.Tag;
@@ -20,15 +21,16 @@ import views.components.ToastMessage;
  */
 public class BaseHtmlLayout extends BaseHtmlView {
   private static final String TAILWIND_COMPILED_FILENAME = "tailwind";
-  private static final String TRACKING_TAG_ID = "G-HXM0Y35TGE";
   private static final String BANNER_TEXT =
       "Do not enter actual or personal data in this demo site";
 
   public final ViewUtils viewUtils;
+  public final String measurementId;
 
   @Inject
-  public BaseHtmlLayout(ViewUtils viewUtils) {
+  public BaseHtmlLayout(ViewUtils viewUtils, Config configuration) {
     this.viewUtils = checkNotNull(viewUtils);
+    this.measurementId = checkNotNull(configuration).getString("measurement_id");
   }
 
   /** Returns HTTP content of type "text/html". */
@@ -56,7 +58,7 @@ public class BaseHtmlLayout extends BaseHtmlView {
   }
 
   public Tag headContent(String... titlestr) {
-    return viewUtils.makeHead(TAILWIND_COMPILED_FILENAME, TRACKING_TAG_ID, titlestr);
+    return viewUtils.makeHead(TAILWIND_COMPILED_FILENAME, measurementId, titlestr);
   }
 
   protected static class HtmlResponseContent implements Content {
