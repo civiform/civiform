@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.Application;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
@@ -19,6 +20,7 @@ import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramNotFoundException;
+import views.applicant.ApplicantProgramConfirmationView;
 import views.applicant.ApplicantProgramSummaryView;
 
 /**
@@ -34,6 +36,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final ApplicantProgramSummaryView summaryView;
   private final ProfileUtils profileUtils;
+  private final ApplicantProgramConfirmationView confirmationView;
 
   @Inject
   public ApplicantProgramReviewController(
@@ -41,12 +44,14 @@ public class ApplicantProgramReviewController extends CiviFormController {
       HttpExecutionContext httpExecutionContext,
       MessagesApi messagesApi,
       ApplicantProgramSummaryView summaryView,
+      ApplicantProgramConfirmationView applicantProgramConfirmationView,
       ProfileUtils profileUtils) {
     this.applicantService = checkNotNull(applicantService);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.messagesApi = checkNotNull(messagesApi);
     this.summaryView = checkNotNull(summaryView);
     this.profileUtils = checkNotNull(profileUtils);
+    this.confirmationView = checkNotNull(applicantProgramConfirmationView);
   }
 
   @Secure
@@ -111,16 +116,59 @@ public class ApplicantProgramReviewController extends CiviFormController {
             });
   }
 
+  @Secure
+  public CompletionStage<Result> confirmation(
+      Request request, long applicantId, long programId, long applicationId) {
+    return checkApplicantAuthorization(profileUtils, request, applicantId)
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            httpExecutionContext.current())
+        .thenApplyAsync(
+            (roApplicantProgramService) -> {
+              String programTitle = roApplicantProgramService.getProgramTitle();
+              Optional<String> banner = request.flash().get("banner");
+              return ok(
+                  confirmationView.render(
+                      request,
+                      applicantId,
+                      applicationId,
+                      programTitle,
+                      messagesApi.preferred(request),
+                      banner));
+            },
+            httpExecutionContext.current())
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                Throwable cause = ex.getCause();
+                if (cause instanceof SecurityException) {
+                  return unauthorized();
+                }
+                if (cause instanceof ProgramNotFoundException) {
+                  return notFound(cause.toString());
+                }
+                throw new RuntimeException(cause);
+              }
+              throw new RuntimeException(ex);
+            });
+  }
+
   private CompletionStage<Result> submit(long applicantId, long programId) {
-    return applicantService
-        .submitApplication(applicantId, programId)
+    CompletionStage<Application> submitApp =
+        applicantService.submitApplication(applicantId, programId);
+    return submitApp
         .thenComposeAsync(
             application -> applicantService.getReadOnlyApplicantProgramService(application),
             httpExecutionContext.current())
         .thenApplyAsync(
             roApplicantProgramService -> {
+              // This must already be done since we are behind it in the promise chain
+              Long applicationId = submitApp.toCompletableFuture().join().id;
+              Call endOfProgramSubmission =
+                  routes.ApplicantProgramReviewController.confirmation(
+                      applicantId, programId, applicationId);
               String programTitle = roApplicantProgramService.getProgramTitle();
-              return found(routes.ApplicantProgramsController.index(applicantId))
+              return found(endOfProgramSubmission)
                   .flashing(
                       "banner", String.format("Successfully saved application: %s", programTitle));
             },
