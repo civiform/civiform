@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
+import java.net.URI;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -35,12 +36,16 @@ import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
 
 public class ApplicantServiceImpl implements ApplicantService {
+  private static final String STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST =
+      "seattle-civiform-program-admins-notify@google.com";
+
   private final ApplicationRepository applicationRepository;
   private final UserRepository userRepository;
   private final ProgramService programService;
   private final SimpleEmail amazonSESClient;
   private final Clock clock;
   private final String baseUrl;
+  private final boolean isStaging;
   private final HttpExecutionContext httpExecutionContext;
 
   @Inject
@@ -58,6 +63,7 @@ public class ApplicantServiceImpl implements ApplicantService {
     this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
+    this.isStaging = URI.create(baseUrl).getHost().equals("staging.seattle.civiform.com");
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
 
@@ -213,8 +219,12 @@ public class ApplicantServiceImpl implements ApplicantService {
         String.format(
             "Applicant %d submitted a new application to program %s. View the application at %s.",
             applicantId, programName, viewLink);
-    amazonSESClient.send(
-        programService.getNotificationEmailAddresses(programName), subject, message);
+    if (isStaging) {
+      amazonSESClient.send(STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST, subject, message);
+    } else {
+      amazonSESClient.send(
+          programService.getNotificationEmailAddresses(programName), subject, message);
+    }
   }
 
   /**
