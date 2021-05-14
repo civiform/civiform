@@ -8,11 +8,12 @@ public final class ApplicantStyles {
   public static final String LOGO_STYLE = StyleUtils.joinStyles(Styles.TEXT_2XL);
 
   public static final String QUESTION_TEXT =
-      StyleUtils.joinStyles(
-          Styles.TEXT_BLACK, Styles.TEXT_XL, Styles.FONT_BOLD, Styles.MB_2);
+      StyleUtils.joinStyles(Styles.TEXT_BLACK, Styles.TEXT_XL, Styles.FONT_BOLD, Styles.MB_2);
   public static final String QUESTION_HELP_TEXT =
       StyleUtils.joinStyles(Styles.TEXT_BLACK, Styles.TEXT_XL, Styles.MB_4);
 
+  public static final String BLOCK_HEADING =
+      StyleUtils.joinStyles(Styles.TEXT_3XL, Styles.TEXT_BLACK, Styles.FONT_BOLD);
   public static final String BUTTON_BLOCK_NEXT =
       StyleUtils.joinStyles(
           BaseStyles.BG_SEATTLE_BLUE,
