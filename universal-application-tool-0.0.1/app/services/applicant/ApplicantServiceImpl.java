@@ -15,10 +15,12 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.Account;
 import models.Applicant;
 import models.Application;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicationRepository;
+import repository.ProgramRepository;
 import repository.UserRepository;
 import services.Path;
 import services.applicant.exception.ApplicantNotFoundException;
@@ -34,11 +36,8 @@ import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
 
 public class ApplicantServiceImpl implements ApplicantService {
-  // TODO: use program admin emails instead
-  private static final String PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST =
-      "seattle-civiform-program-admins-notify@google.com";
-
   private final ApplicationRepository applicationRepository;
+  private final ProgramRepository programRepository;
   private final UserRepository userRepository;
   private final ProgramService programService;
   private final SimpleEmail amazonSESClient;
@@ -48,12 +47,14 @@ public class ApplicantServiceImpl implements ApplicantService {
   @Inject
   public ApplicantServiceImpl(
       ApplicationRepository applicationRepository,
+      ProgramRepository programRepository,
       UserRepository userRepository,
       ProgramService programService,
       SimpleEmail amazonSESClient,
       Clock clock,
       HttpExecutionContext httpExecutionContext) {
     this.applicationRepository = checkNotNull(applicationRepository);
+    this.programRepository = checkNotNull(programRepository);
     this.userRepository = checkNotNull(userRepository);
     this.programService = checkNotNull(programService);
     this.amazonSESClient = checkNotNull(amazonSESClient);
@@ -189,8 +190,8 @@ public class ApplicantServiceImpl implements ApplicantService {
                     new ApplicationSubmissionException(applicantId, programId));
               }
               Application application = applicationMaybe.get();
-              String programTitle = application.getProgram().getProgramDefinition().adminName();
-              notifyProgramAdmins(applicantId, programId, programTitle);
+              String programName = application.getProgram().getProgramDefinition().adminName();
+              notifyProgramAdmins(applicantId, programId, programName);
               return CompletableFuture.completedFuture(application);
             },
             httpExecutionContext.current());
@@ -201,12 +202,20 @@ public class ApplicantServiceImpl implements ApplicantService {
     return userRepository.programsForApplicant(applicantId);
   }
 
-  private void notifyProgramAdmins(long applicantId, long programId, String programTitle) {
-    String subject = String.format("New application submitted for %s", programTitle);
+  private void notifyProgramAdmins(long applicantId, long programId, String programName) {
+    String subject = String.format("New application submitted for %s", programName);
     String message =
         String.format(
             "Applicant %d submitted a new application to program %d", applicantId, programId);
-    amazonSESClient.send(PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST, subject, message);
+    ImmutableList<Account> programAdmins = programRepository.getProgramAdministrators(programName);
+    programAdmins.forEach(
+        programAdmin -> amazonSESClient.send(programAdmin.getEmailAddress(), subject, message));
+    if (programAdmins.isEmpty()) {
+      userRepository
+          .getGlobalAdmins()
+          .forEach(
+              globalAdmin -> amazonSESClient.send(globalAdmin.getEmailAddress(), subject, message));
+    }
   }
 
   /**
