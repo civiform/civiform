@@ -46,6 +46,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
   public Content render(
       Request request,
       Long applicantId,
+      String userName,
       Long programId,
       String programTitle,
       ImmutableList<AnswerData> data,
@@ -88,7 +89,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         content);
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
-    return layout.renderWithNav(request, messages, bundle);
+    return layout.renderWithNav(request, userName, messages, bundle);
   }
 
   private ContainerTag renderQuestionSummary(AnswerData data, Long applicantId) {

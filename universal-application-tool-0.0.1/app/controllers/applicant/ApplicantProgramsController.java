@@ -49,15 +49,22 @@ public class ApplicantProgramsController extends CiviFormController {
   @Secure
   public CompletionStage<Result> index(Request request, long applicantId) {
     Optional<String> banner = request.flash().get("banner");
+    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
 
-    return checkApplicantAuthorization(profileUtils, request, applicantId)
+    return applicantStage
+        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
         .thenComposeAsync(
             v -> applicantService.relevantPrograms(applicantId), httpContext.current())
         .thenApplyAsync(
             programs ->
                 ok(
                     programIndexView.render(
-                        messagesApi.preferred(request), request, applicantId, programs, banner)),
+                        messagesApi.preferred(request),
+                        request,
+                        applicantId,
+                        applicantStage.toCompletableFuture().join(),
+                        programs,
+                        banner)),
             httpContext.current())
         .exceptionally(
             ex -> {

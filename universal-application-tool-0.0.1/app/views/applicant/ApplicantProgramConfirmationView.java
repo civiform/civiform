@@ -31,6 +31,7 @@ public final class ApplicantProgramConfirmationView extends BaseHtmlView {
   public Content render(
       Http.Request request,
       Long applicantId,
+      String userName,
       Long applicationId,
       String programTitle,
       Messages messages,
@@ -59,6 +60,6 @@ public final class ApplicantProgramConfirmationView extends BaseHtmlView {
             content)
         .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
-    return layout.renderWithNav(request, messages, bundle);
+    return layout.renderWithNav(request, userName, messages, bundle);
   }
 }

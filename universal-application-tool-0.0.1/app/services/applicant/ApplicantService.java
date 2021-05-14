@@ -78,4 +78,7 @@ public interface ApplicantService {
    * program, plus any program where they have an application in the draft stage.
    */
   CompletionStage<ImmutableList<ProgramDefinition>> relevantPrograms(long applicantId);
+
+  /** Returns the name of the given applicant id. */
+  CompletionStage<String> getName(long applicantId);
 }
