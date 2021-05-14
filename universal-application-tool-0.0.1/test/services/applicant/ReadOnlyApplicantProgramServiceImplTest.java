@@ -538,13 +538,13 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   @Test
-  public void getPercentComplete_returnsExpectedNumbers() {
+  public void getBlockIndex() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
 
-    assertThat(subject.getCompletionPercent("1")).isEqualTo(5);
-    assertThat(subject.getCompletionPercent("2")).isEqualTo(50);
-    assertThat(subject.getCompletionPercent("3")).isEqualTo(0);
+    assertThat(subject.getBlockIndex("1")).isEqualTo(0);
+    assertThat(subject.getBlockIndex("2")).isEqualTo(1);
+    assertThat(subject.getBlockIndex("not a real block id")).isEqualTo(-1);
   }
 
   private void answerNameQuestion(long programId) {
