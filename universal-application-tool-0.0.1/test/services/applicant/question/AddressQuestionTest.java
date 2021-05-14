@@ -187,8 +187,7 @@ public class AddressQuestionTest {
       String zipValue,
       String expected) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            noPoBoxAddressQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(noPoBoxAddressQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerAddressQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
