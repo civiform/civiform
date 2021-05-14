@@ -43,14 +43,12 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   public Content render(Params params) {
-    Tag blockHeading =
-        div().with(h1(params.block().getName()).withClasses(ApplicantStyles.BLOCK_HEADING));
-    Tag blockFormDiv = div(renderBlockWithSubmitForm(params)).withClasses(Styles.MY_8);
     Tag blockDiv =
         div()
-            .with(blockHeading)
-            .with(blockFormDiv)
+            .with(h1(params.block().getName()).withClasses(ApplicantStyles.BLOCK_HEADING))
+            .with(div(renderBlockWithSubmitForm(params)).withClasses(Styles.MY_8))
             .withClasses(Styles.MY_8, Styles.W_1_3, Styles.M_AUTO);
+
     HtmlBundle bundle =
         layout
             .getBundle()
@@ -58,7 +56,6 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             .addMainContent(
                 layout.renderHeader(
                     getPercentComplete(params.blockIndex(), params.totalBlockCount())),
-                blockHeading,
                 blockDiv);
 
     if (!params.preferredLanguageSupported()) {
