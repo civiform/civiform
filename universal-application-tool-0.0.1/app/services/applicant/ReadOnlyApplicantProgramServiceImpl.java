@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import services.LocalizedStrings;
 import services.Path;
@@ -39,7 +40,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public ImmutableList<Block> getAllBlocks() {
     if (allBlockList == null) {
-      allBlockList = getBlocks(false);
+      allBlockList = getBlocks(block -> true);
     }
     return allBlockList;
   }
@@ -47,7 +48,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public ImmutableList<Block> getInProgressBlocks() {
     if (currentBlockList == null) {
-      currentBlockList = getBlocks(true);
+      currentBlockList =
+          getBlocks(
+              block ->
+                  !block.isCompleteWithoutErrors()
+                      || block.wasCompletedInProgram(programDefinition.id()));
     }
     return currentBlockList;
   }
@@ -58,23 +63,14 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-  public Optional<Block> getBlockAfter(String blockId) {
+  public Optional<Block> getInProgressBlockAfter(String blockId) {
     ImmutableList<Block> blocks = getInProgressBlocks();
-
     for (int i = 0; i < blocks.size() - 1; i++) {
-      if (!blocks.get(i).getId().equals(blockId)) {
-        continue;
+      if (blocks.get(i).getId().equals(blockId)) {
+        return Optional.of(blocks.get(i + 1));
       }
-
-      return Optional.of(blocks.get(i + 1));
     }
-
     return Optional.empty();
-  }
-
-  @Override
-  public Optional<Block> getBlockAfter(Block block) {
-    return getBlockAfter(block.getId());
   }
 
   @Override
@@ -125,23 +121,25 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
    * has yet to be filled out by the applicant, or if it was filled out in the context of this
    * program.
    */
-  private ImmutableList<Block> getBlocks(boolean onlyIncludeInProgressBlocks) {
+  private ImmutableList<Block> getBlocks(Predicate<Block> includeBlockIfTrue) {
     String emptyBlockIdSuffix = "";
     return getBlocks(
         programDefinition.getNonRepeatedBlockDefinitions(),
         emptyBlockIdSuffix,
         ApplicantData.APPLICANT_PATH,
         ImmutableList.of(),
-        onlyIncludeInProgressBlocks);
+        includeBlockIfTrue);
   }
 
-  /** Recursive helper method for {@link ReadOnlyApplicantProgramServiceImpl#getBlocks(boolean)}. */
+  /**
+   * Recursive helper method for {@link ReadOnlyApplicantProgramServiceImpl#getBlocks(Predicate)}.
+   */
   private ImmutableList<Block> getBlocks(
       ImmutableList<BlockDefinition> blockDefinitions,
       String blockIdSuffix,
       Path contextualizedPath,
       ImmutableList<RepeatedEntity> repeatedEntities,
-      boolean onlyIncludeInProgressBlocks) {
+      Predicate<Block> includeBlockIfTrue) {
     ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
 
     for (BlockDefinition blockDefinition : blockDefinitions) {
@@ -153,10 +151,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
               applicantData,
               contextualizedPath,
               repeatedEntities);
-      boolean includeAllBlocks = !onlyIncludeInProgressBlocks;
-      if (includeAllBlocks
-          || !block.isCompleteWithoutErrors()
-          || block.wasCompletedInProgram(programDefinition.id())) {
+      if (includeBlockIfTrue.test(block)) {
         blockListBuilder.add(block);
       }
 
@@ -191,7 +186,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                   nextBlockIdSuffix,
                   contextualizedPathForEntity,
                   updatedRepeatedEntities,
-                  onlyIncludeInProgressBlocks));
+                  includeBlockIfTrue));
         }
       }
     }
