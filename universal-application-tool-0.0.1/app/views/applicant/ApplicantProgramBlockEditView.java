@@ -1,11 +1,7 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-<<<<<<< HEAD
-=======
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
->>>>>>> 1cd88e9 (Add some basic Block styles for heading and margins)
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
@@ -48,13 +44,13 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
   public Content render(Params params) {
     Tag blockHeading =
-            div().with(h1(params.block().getName()).withClasses(ApplicantStyles.BLOCK_HEADING));
+        div().with(h1(params.block().getName()).withClasses(ApplicantStyles.BLOCK_HEADING));
     Tag blockFormDiv = div(renderBlockWithSubmitForm(params)).withClasses(Styles.MY_8);
     Tag blockDiv =
-            div()
-                    .with(blockHeading)
-                    .with(blockFormDiv)
-                    .withClasses(Styles.MY_8, Styles.W_1_3, Styles.M_AUTO);
+        div()
+            .with(blockHeading)
+            .with(blockFormDiv)
+            .withClasses(Styles.MY_8, Styles.W_1_3, Styles.M_AUTO);
     HtmlBundle bundle =
         layout
             .getBundle()
