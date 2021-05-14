@@ -2,6 +2,7 @@ package services.aws;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -46,8 +47,13 @@ public class SimpleEmail {
   }
 
   public void send(String toAddress, String subject, String bodyText) {
+    send(ImmutableList.of(toAddress), subject, bodyText);
+  }
 
-    Destination destination = Destination.builder().toAddresses(toAddress).build();
+  public void send(ImmutableList<String> toAddresses, String subject, String bodyText) {
+
+    Destination destination =
+        Destination.builder().toAddresses(toAddresses.toArray(new String[0])).build();
 
     Body body = Body.builder().text(Content.builder().data(bodyText).build()).build();
 
