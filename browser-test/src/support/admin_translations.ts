@@ -17,9 +17,17 @@ export class AdminTranslations {
     await this.page.click('#update-localizations-button');
   }
 
-  async editQuestionTranslations(text: string, helpText: string) {
+  async editQuestionTranslations(text: string, helpText: string, configText = []) {
     await this.page.fill('#localize-question-text', text);
     await this.page.fill('#localize-question-help-text', helpText);
+
+    // If there are multi-option inputs to translate, fill them in 
+    // with the provided translations in configText
+    const optionInputs = await this.page.$$('[name="options[]"]');
+    for (var index = 0; index < optionInputs.length; index++) {
+      await optionInputs[index].fill(configText[index]);
+    }
+
     await this.page.click('#update-localizations-button');
   }
 }

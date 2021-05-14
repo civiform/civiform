@@ -66,6 +66,42 @@ describe('Admin can manage translations', () => {
     await endSession(browser);
   });
 
+  it('create a multi-option question and add translations for options', async () => {
+    const { browser, page } = await startSession();
+
+    await loginAsAdmin(page);
+    const adminQuestions = new AdminQuestions(page);
+
+    // Add a new question to be translated
+    const questionName = 'multi-option-translated';
+    await adminQuestions.addRadioButtonQuestion(questionName, ['one', 'two', 'three']);
+
+    // Go to the question translation page and add a translation for Spanish
+    await adminQuestions.goToQuestionTranslationPage(questionName);
+    const adminTranslations = new AdminTranslations(page);
+    await adminTranslations.selectLanguage('Spanish');
+    await adminTranslations.editQuestionTranslations('hola', 'mundo', ['uno', 'dos', 'tres']);
+
+    // Add the question to a program and publish
+    const adminPrograms = new AdminPrograms(page);
+    const programName = 'spanish question';
+    await adminPrograms.addProgram(programName);
+    await adminPrograms.editProgramBlock(programName, 'block', [questionName]);
+    await adminPrograms.publishProgram(programName);
+    await logout(page);
+
+    // Log in as an applicant and view the translated question
+    await loginAsGuest(page);
+    await selectApplicantLanguage(page, 'Español');
+    const applicantQuestions = new ApplicantQuestions(page);
+    await applicantQuestions.applyProgram(programName);
+
+    expect(await page.innerText('form')).toContain('uno');
+    expect(await page.innerText('form')).toContain('dos');
+    expect(await page.innerText('form')).toContain('tres');
+    await endSession(browser);
+  });
+
   it('updating a question does not clobber translations', async () => {
     const { browser, page } = await startSession();
 

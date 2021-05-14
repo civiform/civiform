@@ -134,7 +134,6 @@ public class QuestionTranslationView extends TranslationFormView {
         .map(
             option ->
                 FieldWithLabel.input()
-                    .setId("localize-question-help-text")
                     .setFieldName("options[]")
                     .setLabelText(option.optionText().getDefault())
                     .setPlaceholderText("Answer option")
