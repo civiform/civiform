@@ -38,8 +38,7 @@ public final class Block {
 
   private final BlockDefinition blockDefinition;
   private final ApplicantData applicantData;
-  private final Path contextualizedPath;
-  private final ImmutableList<RepeatedEntity> repeatedEntities;
+  private final Optional<RepeatedEntity> repeatedEntity;
 
   private Optional<ImmutableList<ApplicantQuestion>> questionsMemo = Optional.empty();
   private Optional<ImmutableMap<Path, ScalarType>> scalarsMemo = Optional.empty();
@@ -48,13 +47,11 @@ public final class Block {
       String id,
       BlockDefinition blockDefinition,
       ApplicantData applicantData,
-      Path contextualizedPath,
-      ImmutableList<RepeatedEntity> repeatedEntities) {
+      Optional<RepeatedEntity> repeatedEntity) {
     this.id = id;
     this.blockDefinition = checkNotNull(blockDefinition);
     this.applicantData = checkNotNull(applicantData);
-    this.contextualizedPath = checkNotNull(contextualizedPath);
-    this.repeatedEntities = checkNotNull(repeatedEntities);
+    this.repeatedEntity = checkNotNull(repeatedEntity);
   }
 
   public String getId() {
@@ -70,14 +67,11 @@ public final class Block {
   }
 
   /**
-   * Returns the list of {@link RepeatedEntity}s associated with this repeated block, where the
-   * first entity is the repeated entity from the first enumerator question, followed by more and
-   * more deeply nested repeated entities.
-   *
-   * <p>If this is not a repeated block, the map will be empty.
+   * Returns the {@link RepeatedEntity} associated with this block, if this is a repeated block.
+   * Otherwise, return empty.
    */
-  public ImmutableList<RepeatedEntity> getRepeatedEntities() {
-    return repeatedEntities;
+  public Optional<RepeatedEntity> getRepeatedEntity() {
+    return repeatedEntity;
   }
 
   /** This block is an enumerator block if its {@link BlockDefinition} is an enumerator. */
@@ -104,6 +98,10 @@ public final class Block {
 
   public ImmutableList<ApplicantQuestion> getQuestions() {
     if (questionsMemo.isEmpty()) {
+      Path contextualizedPath =
+          repeatedEntity
+              .map(RepeatedEntity::contextualizedPath)
+              .orElse(ApplicantData.APPLICANT_PATH);
       this.questionsMemo =
           Optional.of(
               blockDefinition.programQuestionDefinitions().stream()

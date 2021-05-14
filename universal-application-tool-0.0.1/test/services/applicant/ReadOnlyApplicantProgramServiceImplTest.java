@@ -200,14 +200,12 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 ScalarType.LONG,
                 questionPath.join(Scalar.UPDATED_AT),
                 ScalarType.LONG));
-    assertThat(blocks.get(10).getRepeatedEntities())
-        .containsExactly(
-            RepeatedEntity.create(
-                testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
-                "third entity"),
-            RepeatedEntity.create(
-                testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
-                "nested second job"));
+
+    RepeatedEntity repeatedEntity = blocks.get(10).getRepeatedEntity().get();
+    assertThat(repeatedEntity.index()).isEqualTo(1);
+    assertThat(repeatedEntity.entityName()).isEqualTo("nested second job");
+    assertThat(repeatedEntity.parent().get().index()).isEqualTo(2);
+    assertThat(repeatedEntity.parent().get().entityName()).isEqualTo("third entity");
   }
 
   @Test
