@@ -202,7 +202,7 @@ public class ProgramServiceImpl implements ProgramService {
   @Override
   public ImmutableList<String> getNotificationEmailAddresses(String programName) {
     ImmutableList<String> explicitProgramAdmins =
-        this.programRepository.getProgramAdministrators(programName).stream()
+        programRepository.getProgramAdministrators(programName).stream()
             .map(Account::getEmailAddress)
             .filter(address -> !Strings.isNullOrEmpty(address))
             .collect(ImmutableList.toImmutableList());
@@ -211,7 +211,7 @@ public class ProgramServiceImpl implements ProgramService {
       return explicitProgramAdmins;
     }
     // Return all the global admins email addresses.
-    return this.userRepository.getGlobalAdmins().stream()
+    return userRepository.getGlobalAdmins().stream()
         .map(Account::getEmailAddress)
         .filter(address -> !Strings.isNullOrEmpty(address))
         .collect(ImmutableList.toImmutableList());
