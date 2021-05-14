@@ -11,9 +11,11 @@ import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.question.types.QuestionDefinition;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
+import views.components.ToastMessage;
 
 /** Renders a list of languages to select from, and a form for updating question information. */
 public class QuestionTranslationView extends TranslationFormView {
@@ -67,13 +69,19 @@ public class QuestionTranslationView extends TranslationFormView {
                 question.getQuestionText().getDefault(),
                 question.getQuestionHelpText().getDefault(),
                 existingQuestionText,
-                existingQuestionHelpText),
-            errors);
+                existingQuestionHelpText));
 
-    return layout.render(
-        renderHeader("Manage Question Translations"),
-        renderLanguageLinks(question.getId(), locale),
-        form);
+    String title = "Manage Question Translations";
+
+    HtmlBundle htmlBundle =
+        layout
+            .getBundle()
+            .setTitle(title)
+            .addMainContent(
+                renderHeader(title), renderLanguageLinks(question.getId(), locale), form);
+    errors.ifPresent(s -> htmlBundle.addToastMessages(ToastMessage.error(s).setDismissible(false)));
+
+    return layout.renderCentered(htmlBundle);
   }
 
   @Override

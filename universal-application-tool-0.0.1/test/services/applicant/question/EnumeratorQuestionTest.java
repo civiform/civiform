@@ -88,12 +88,33 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
     EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
 
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
-    assertThat(enumeratorQuestion.getEntityNames()).contains(value);
+    assertThat(enumeratorQuestion.getEntityNames()).containsExactly(value);
     assertThat(enumeratorQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(enumeratorQuestion.hasQuestionErrors()).isTrue();
     assertThat(enumeratorQuestion.getQuestionErrors()).hasSize(1);
     assertThat(enumeratorQuestion.getQuestionErrors().asList().get(0).getMessage(messages))
         .isEqualTo("Please enter a value for each line.");
+  }
+
+  @Test
+  public void withDuplicateNames_hasValidationErrors() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            enumeratorQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        ImmutableList.of("hello", "hello"));
+
+    EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
+
+    assertThat(enumeratorQuestion.isAnswered()).isTrue();
+    assertThat(enumeratorQuestion.getEntityNames()).containsExactly("hello", "hello");
+    assertThat(enumeratorQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(enumeratorQuestion.hasQuestionErrors()).isTrue();
+    assertThat(enumeratorQuestion.getQuestionErrors()).hasSize(1);
+    assertThat(enumeratorQuestion.getQuestionErrors().asList().get(0).getMessage(messages))
+        .isEqualTo("Please enter a unique value for each line.");
   }
 
   @Test

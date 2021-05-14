@@ -1,7 +1,6 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
@@ -15,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.LinkElement;
 import views.style.ReferenceClasses;
@@ -30,17 +30,19 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   }
 
   public Content render(long programId, ImmutableList<Application> applications) {
+    String title = "All Applications";
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
             .with(
-                h1("All Applications").withClasses(Styles.MY_4),
+                h1(title).withClasses(Styles.MY_4),
                 each(
                     applications,
                     application -> this.renderApplicationListItem(programId, application)),
                 renderDownloadButton(programId));
 
-    return layout.render(layout.headContent(), body(contentDiv));
+    HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
+    return layout.renderCentered(htmlBundle);
   }
 
   private Tag renderDownloadButton(long programId) {

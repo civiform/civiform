@@ -57,7 +57,9 @@ public abstract class BaseHtmlView {
   }
 
   protected static Tag redirectButton(String id, String text, String redirectUrl) {
-    return button(id, text).attr("onclick", String.format("window.location = '%s';", redirectUrl));
+    return button(id, text)
+        .attr("onclick", String.format("window.location = '%s';", redirectUrl))
+        .withClasses(Styles.M_2);
   }
 
   /**

@@ -1,7 +1,6 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
@@ -20,6 +19,7 @@ import play.twirl.api.Content;
 import services.applicant.AnswerData;
 import services.applicant.Block;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.LinkElement;
 import views.style.ReferenceClasses;
@@ -39,6 +39,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       String applicantName,
       ImmutableList<Block> blocks,
       ImmutableList<AnswerData> answers) {
+    String title = "Program Application View";
     ListMultimap<Block, AnswerData> blockToAnswers = ArrayListMultimap.create();
     for (AnswerData answer : answers) {
       Block answerBlock =
@@ -57,7 +58,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 each(blocks, block -> renderApplicationBlock(block, blockToAnswers.get(block))),
                 renderDownloadButton(programId, applicationId));
 
-    return layout.render(layout.headContent(), body(contentDiv));
+    HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
+    return layout.renderCentered(htmlBundle);
   }
 
   private Tag renderDownloadButton(long programId, long applicationId) {
