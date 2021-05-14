@@ -100,7 +100,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
   public void withDuplicateNames_hasValidationErrors() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
-            enumeratorQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+            enumeratorQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
