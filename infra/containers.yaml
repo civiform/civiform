@@ -13,9 +13,9 @@ Mappings:
       sender: noreply@staging.seattle.civiform.com
   AdminGroup:
     prod:
-      group: ad\\ITD_CiviForm_Admins_Test
-    staging:
       group: ad\\ITD_CiviForm_Admins
+    staging:
+      group: ad\\ITD_CiviForm_Admins_Test
 Parameters:
   Environment:
     Type: String
@@ -64,6 +64,9 @@ Parameters:
     Type: String
   DomainName:
     Description: The domain name to use as the base URL.
+    Type: String
+  MeasurementId:
+    Description: The Google Analytics measurement ID.
     Type: String
 Resources:
   ecscluster:
@@ -147,6 +150,8 @@ Resources:
               Value: !FindInMap [AdminGroup, !Ref Environment, group]
             - Name: BASE_URL
               Value: !Sub "https://${DomainName}"
+            - Name: MEASUREMENT_ID
+              Value: !Sub "${MeasurementId}"
           Cpu: 1024
           Memory: 8192
           PortMappings:

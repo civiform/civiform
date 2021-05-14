@@ -18,9 +18,14 @@ import javax.inject.Inject;
 import models.Applicant;
 import models.Application;
 import play.libs.concurrent.HttpExecutionContext;
+import repository.ApplicationRepository;
 import repository.UserRepository;
 import services.Path;
+import services.applicant.exception.ApplicantNotFoundException;
+import services.applicant.exception.ApplicationSubmissionException;
+import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.Scalar;
+import services.aws.SimpleEmail;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -29,20 +34,29 @@ import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
 
 public class ApplicantServiceImpl implements ApplicantService {
+  // TODO: use program admin emails instead
+  private static final String PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST =
+      "seattle-civiform-program-admins-notify@google.com";
 
+  private final ApplicationRepository applicationRepository;
   private final UserRepository userRepository;
   private final ProgramService programService;
+  private final SimpleEmail amazonSESClient;
   private final Clock clock;
   private final HttpExecutionContext httpExecutionContext;
 
   @Inject
   public ApplicantServiceImpl(
+      ApplicationRepository applicationRepository,
       UserRepository userRepository,
       ProgramService programService,
+      SimpleEmail amazonSESClient,
       Clock clock,
       HttpExecutionContext httpExecutionContext) {
+    this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
     this.programService = checkNotNull(programService);
+    this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
@@ -165,8 +179,34 @@ public class ApplicantServiceImpl implements ApplicantService {
   }
 
   @Override
+  public CompletionStage<Application> submitApplication(long applicantId, long programId) {
+    return applicationRepository
+        .submitApplication(applicantId, programId)
+        .thenComposeAsync(
+            applicationMaybe -> {
+              if (applicationMaybe.isEmpty()) {
+                return CompletableFuture.failedFuture(
+                    new ApplicationSubmissionException(applicantId, programId));
+              }
+              Application application = applicationMaybe.get();
+              String programTitle = application.getProgram().getProgramDefinition().adminName();
+              notifyProgramAdmins(applicantId, programId, programTitle);
+              return CompletableFuture.completedFuture(application);
+            },
+            httpExecutionContext.current());
+  }
+
+  @Override
   public CompletionStage<ImmutableList<ProgramDefinition>> relevantPrograms(long applicantId) {
     return userRepository.programsForApplicant(applicantId);
+  }
+
+  private void notifyProgramAdmins(long applicantId, long programId, String programTitle) {
+    String subject = String.format("New application submitted for %s", programTitle);
+    String message =
+        String.format(
+            "Applicant %d submitted a new application to program %d", applicantId, programId);
+    amazonSESClient.send(PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST, subject, message);
   }
 
   /**

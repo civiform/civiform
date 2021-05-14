@@ -1,11 +1,9 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.head;
 import static j2html.TagCreator.p;
 
 import controllers.admin.routes;
@@ -17,6 +15,7 @@ import play.twirl.api.Content;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.LinkElement;
 import views.style.ReferenceClasses;
@@ -32,11 +31,12 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
   }
 
   public Content render(ActiveAndDraftPrograms programs, List<String> authorizedPrograms) {
+    String title = "Your programs";
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
             .with(
-                h1("Your Programs").withClasses(Styles.MY_4),
+                h1(title).withClasses(Styles.MY_4),
                 each(
                     programs.getProgramNames().stream()
                         .filter(programName -> authorizedPrograms.contains(programName))
@@ -46,7 +46,8 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
                                     programs.getActiveProgramDefinition(name),
                                     programs.getDraftProgramDefinition(name)))));
 
-    return layout.render(head(layout.tailwindStyles()), body(contentDiv));
+    HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
+    return layout.renderCentered(htmlBundle);
   }
 
   public ProgramDefinition getDisplayProgram(

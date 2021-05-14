@@ -1,4 +1,4 @@
-package services.applicant;
+package services.applicant.exception;
 
 public class ApplicantNotFoundException extends Exception {
   public ApplicantNotFoundException(long applicantId) {

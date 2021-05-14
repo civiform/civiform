@@ -1,7 +1,6 @@
 package views.dev;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
@@ -12,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import controllers.dev.routes;
+import j2html.tags.ContainerTag;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.mvc.Http.Request;
@@ -21,6 +21,7 @@ import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.style.Styles;
 
 public class DatabaseSeedView extends BaseHtmlView {
@@ -46,11 +47,12 @@ public class DatabaseSeedView extends BaseHtmlView {
     String prettyActivePrograms = getPrettyJson(activePrograms);
     String prettyQuestions = getPrettyJson(questionDefinitions);
 
-    return layout.htmlContent(
-        layout.headContent("Dev Database Seeder"),
-        body()
+    String title = "Dev database seeder";
+
+    ContainerTag content =
+        div()
             .with(div(maybeFlash.orElse("")))
-            .with(h1("Dev Database Seeder"))
+            .with(h1(title))
             .with(
                 div()
                     .with(
@@ -72,7 +74,10 @@ public class DatabaseSeedView extends BaseHtmlView {
                     .with(
                         div().with(h2("Current Active Programs:")).with(pre(prettyActivePrograms)))
                     .with(div().with(h2("Current Questions:")).with(pre(prettyQuestions))))
-            .withClasses(Styles.PX_6, Styles.PY_6));
+            .withClasses(Styles.PX_6, Styles.PY_6);
+
+    HtmlBundle bundle = layout.getBundle().setTitle(title).addMainContent(content);
+    return layout.render(bundle);
   }
 
   private <T> String getPrettyJson(ImmutableList<T> list) {

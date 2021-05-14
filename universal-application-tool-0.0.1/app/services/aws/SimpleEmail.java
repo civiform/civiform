@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.mockito.Mockito;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
 import software.amazon.awssdk.services.ses.SesClient;
@@ -31,6 +32,8 @@ public class SimpleEmail {
 
     if (environment.isDev()) {
       client = new LocalStackClient(region, config);
+    } else if (environment.isTest()) {
+      client = new NullClient();
     } else {
       client = new AwsClient(region);
     }
@@ -106,5 +109,21 @@ public class SimpleEmail {
     public void close() {
       client.close();
     }
+  }
+
+  static class NullClient implements Client {
+    private final SesClient client;
+
+    NullClient() {
+      client = Mockito.mock(SesClient.class);
+    }
+
+    @Override
+    public SesClient get() {
+      return client;
+    }
+
+    @Override
+    public void close() {}
   }
 }
