@@ -33,14 +33,24 @@ public class EnumeratorQuestion implements PresentsErrors {
     return ImmutableSet.of();
   }
 
-  /** No blank values are allowed. */
+  /** No blank values are allowed. No duplicated entity names are allowed. */
   @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    if (isAnswered() && getEntityNames().stream().anyMatch(String::isBlank)) {
-      return ImmutableSet.of(
+    if (!isAnswered()) {
+      return ImmutableSet.of();
+    }
+
+    ImmutableSet.Builder<ValidationErrorMessage> errorsBuilder = ImmutableSet.builder();
+    ImmutableList<String> entityNames = getEntityNames();
+    if (entityNames.stream().anyMatch(String::isBlank)) {
+      errorsBuilder.add(
           ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_ENTITY_REQUIRED));
     }
-    return ImmutableSet.of();
+    if (entityNames.stream().collect(ImmutableSet.toImmutableSet()).size() != entityNames.size()) {
+      errorsBuilder.add(
+          ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME));
+    }
+    return errorsBuilder.build();
   }
 
   public void assertQuestionType() {

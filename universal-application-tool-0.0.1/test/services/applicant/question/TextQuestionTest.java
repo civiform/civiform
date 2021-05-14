@@ -53,7 +53,7 @@ public class TextQuestionTest extends WithPostgresContainer {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(textQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(textQuestionDefinition, applicantData, Optional.empty());
 
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
@@ -64,7 +64,7 @@ public class TextQuestionTest extends WithPostgresContainer {
   @Test
   public void withApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(textQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(textQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerTextQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "hello");
 
@@ -80,7 +80,7 @@ public class TextQuestionTest extends WithPostgresContainer {
   public void withMinAndMaxLength_withValidApplicantData_passesValidation(String value) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
-            minAndMaxLengthTextQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+            minAndMaxLengthTextQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerTextQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 
@@ -101,7 +101,7 @@ public class TextQuestionTest extends WithPostgresContainer {
       String value, String expectedErrorMessage) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
-            minAndMaxLengthTextQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+            minAndMaxLengthTextQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerTextQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 

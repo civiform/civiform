@@ -45,8 +45,7 @@ public class CheckboxQuestionRendererTest extends WithPostgresContainer {
 
   @Before
   public void setup() {
-    question =
-        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, ApplicantData.APPLICANT_PATH);
+    question = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty());
     messages = instanceOf(MessagesApi.class).preferred(ImmutableSet.of(Lang.defaultLang()));
     params = ApplicantQuestionRendererParams.sample(messages);
     renderer = new CheckboxQuestionRenderer(question);

@@ -3,7 +3,9 @@ package views.admin.programs;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 
+import forms.ProgramForm;
 import j2html.tags.ContainerTag;
+import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 
@@ -13,7 +15,28 @@ import views.components.FieldWithLabel;
  */
 public class ProgramFormBuilder extends BaseHtmlView {
 
+  /** Builds the form using program form data. */
+  public static ContainerTag buildProgramForm(ProgramForm program, boolean editExistingProgram) {
+    return buildProgramForm(
+        program.getAdminName(),
+        program.getAdminDescription(),
+        program.getLocalizedDisplayName(),
+        program.getLocalizedDisplayDescription(),
+        editExistingProgram);
+  }
+
+  /** Builds the form using program definition data. */
   public static ContainerTag buildProgramForm(
+      ProgramDefinition program, boolean editExistingProgram) {
+    return buildProgramForm(
+        program.adminName(),
+        program.adminDescription(),
+        program.localizedName().getDefault(),
+        program.localizedDescription().getDefault(),
+        editExistingProgram);
+  }
+
+  private static ContainerTag buildProgramForm(
       String adminName,
       String adminDescription,
       String displayName,

@@ -36,8 +36,8 @@ public interface ReadOnlyApplicantProgramService {
    */
   Optional<Block> getInProgressBlockAfter(String blockId);
 
-  /** Gets the completion percent based on current block index. */
-  int getCompletionPercent(String blockId);
+  /** Returns the index of the given block in the context of all blocks of the program. */
+  int getBlockIndex(String blockId);
 
   /** Get the program block with the lowest index that has missing answer data if there is one. */
   Optional<Block> getFirstIncompleteBlock();

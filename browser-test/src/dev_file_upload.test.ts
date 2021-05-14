@@ -11,7 +11,7 @@ describe('the dev file upload page', () => {
 
     await page.goto(BASE_URL + '/dev/fileUpload');
 
-    expect(await page.textContent('h1')).toContain('Dev File Upload');
+    expect(await page.textContent('h1')).toContain('Dev file upload');
 
     await page.setInputFiles('input[type=file]', {
       name: 'file.txt',
@@ -21,7 +21,7 @@ describe('the dev file upload page', () => {
 
     await page.click('button');
 
-    expect(await page.textContent('h1')).toContain('Dev File Upload');
+    expect(await page.textContent('h1')).toContain('Dev file upload');
 
     await endSession(browser);
   })
