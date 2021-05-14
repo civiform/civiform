@@ -7,8 +7,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;

@@ -1,7 +1,6 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
@@ -22,6 +21,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.aws.SignedS3UploadRequest;
 import services.aws.SimpleStorage;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
@@ -40,30 +40,35 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   public Content render(Params params) {
-    ContainerTag headerTag = layout.renderHeader(getPercentComplete(params.blockIndex(), params.totalBlockCount()));
-
-    ContainerTag body =
-        body().with(h1(params.block().getName())).with(renderBlockWithSubmitForm(params));
+    HtmlBundle bundle =
+        layout
+            .getBundle()
+            .setTitle("CiviForm")
+            .addMainContent(
+                layout.renderHeader(
+                    getPercentComplete(params.blockIndex(), params.totalBlockCount())),
+                h1(params.block().getName()),
+                renderBlockWithSubmitForm(params));
 
     if (!params.preferredLanguageSupported()) {
-      body.with(
+      bundle.addMainContent(
           renderLocaleNotSupportedToast(
               params.applicantId(), params.programId(), params.messages()));
     }
 
     // Add the hidden enumerator field template
     if (params.block().isEnumerator()) {
-      body.with(
+      bundle.addMainContent(
           EnumeratorQuestionRenderer.newEnumeratorFieldTemplate(
               params.block().getEnumeratorQuestion().getContextualizedPath(),
               params.block().getEnumeratorQuestion().createEnumeratorQuestion().getEntityType(),
               params.messages()));
     }
 
-    return layout.render(params.request(), params.messages(), headerTag, body);
+    return layout.renderWithNav(params.request(), params.messages(), bundle);
   }
 
-  private double getPercentComplete(int blockIndex, int totalBlockCount) {
+  private int getPercentComplete(int blockIndex, int totalBlockCount) {
     if (totalBlockCount == 0) return 100;
 
     // Block doesn't exist.
@@ -72,7 +77,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     // TODO: See if I need to cast to doubles.
 
     // Add one to blockIndex for 1-based indexing.
-    // Add one to totalBlockCount so that even when the applicant is on the last block (but hasn't yet submitted it),
+    // Add one to totalBlockCount so that even when the applicant is on the last block (but hasn't
+    // yet submitted it),
     // they're still "in progress". Save 100% for the application review page.
     return (int) (((blockIndex + 1) / (totalBlockCount + 1)) * 100.0);
   }
@@ -160,32 +166,55 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     }
 
     abstract boolean inReview();
+
     abstract Http.Request request();
+
     abstract Messages messages();
+
     abstract int blockIndex();
+
     abstract int totalBlockCount();
+
     abstract int percentComplete();
+
     abstract long applicantId();
+
     abstract long programId();
+
     abstract Block block();
+
     abstract boolean preferredLanguageSupported();
+
     abstract SimpleStorage amazonS3Client();
+
     abstract String baseUrl();
 
     @AutoValue.Builder
     public abstract static class Builder {
       public abstract Builder setRequest(Http.Request request);
+
       public abstract Builder setInReview(boolean inReview);
+
       public abstract Builder setMessages(Messages messages);
+
       public abstract Builder setBlockIndex(int blockIndex);
+
       public abstract Builder setTotalBlockCount(int blockIndex);
+
       public abstract Builder setPercentComplete(int percentComplete);
+
       public abstract Builder setApplicantId(long applicantId);
+
       public abstract Builder setProgramId(long programId);
+
       public abstract Builder setBlock(Block block);
+
       public abstract Builder setPreferredLanguageSupported(boolean preferredLanguageSupported);
+
       public abstract Builder setAmazonS3Client(SimpleStorage amazonS3Client);
+
       public abstract Builder setBaseUrl(String baseUrl);
+
       public abstract Params build();
     }
   }

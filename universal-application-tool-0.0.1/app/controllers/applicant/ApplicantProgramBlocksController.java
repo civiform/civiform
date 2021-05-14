@@ -243,8 +243,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           .setApplicantId(applicantId)
                           .setProgramId(programId)
                           .setBlock(thisBlockUpdated)
-                              .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
-                              .setTotalBlockCount(roApplicantProgramService.getAllBlocks().size())
+                          .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
+                          .setTotalBlockCount(roApplicantProgramService.getAllBlocks().size())
                           .setPercentComplete(
                               roApplicantProgramService.getCompletionPercent(blockId))
                           .setInReview(inReview)

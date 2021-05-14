@@ -539,7 +539,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
   @Test
   public void getBlockIndex() {
-    ReadOnlyApplicantProgramService subject = new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
 
     assertThat(subject.getBlockIndex("1")).isEqualTo(0);
     assertThat(subject.getBlockIndex("2")).isEqualTo(1);

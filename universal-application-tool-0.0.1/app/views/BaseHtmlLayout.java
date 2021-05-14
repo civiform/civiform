@@ -1,14 +1,12 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.document;
+import static j2html.TagCreator.rawHtml;
+import static j2html.TagCreator.script;
 
+import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
-import j2html.tags.ContainerTag;
-import j2html.tags.DomContent;
 import j2html.tags.Tag;
-import java.util.ArrayList;
-import java.util.Arrays;
 import javax.inject.Inject;
 import play.twirl.api.Content;
 import views.components.ToastMessage;
@@ -16,16 +14,18 @@ import views.components.ToastMessage;
 /**
  * Base class for all layout classes.
  *
- * <p>A layout class should describe the DOM contents of the head, header, nav, and footer. It
- * should have a `render` method that takes the DOM contents for the main tag.
+ * <p>A layout class should describe the DOM contents of the head, header, nav, and footer. It acts
+ * on an HtmlBundle and returns {@link Content} for rendered page using the {@link
+ * #render(HtmlBundle)} method.
  */
-public class BaseHtmlLayout extends BaseHtmlView {
+public class BaseHtmlLayout {
   private static final String TAILWIND_COMPILED_FILENAME = "tailwind";
+  private static final String[] FOOTER_SCRIPTS = {"main", "radio", "toast"};
   private static final String BANNER_TEXT =
       "Do not enter actual or personal data in this demo site";
 
   public final ViewUtils viewUtils;
-  public final String measurementId;
+  private final String measurementId;
 
   @Inject
   public BaseHtmlLayout(ViewUtils viewUtils, Config configuration) {
@@ -33,49 +33,72 @@ public class BaseHtmlLayout extends BaseHtmlView {
     this.measurementId = checkNotNull(configuration).getString("measurement_id");
   }
 
-  /** Returns HTTP content of type "text/html". */
-  public Content htmlContent(DomContent... domContents) {
-    ArrayList<DomContent> contents = new ArrayList<>(Arrays.asList(domContents));
-    ToastMessage privacyBanner =
-        ToastMessage.error(BANNER_TEXT).setId("warning-message").setIgnorable(true).setDuration(0);
-    contents.add(0, privacyBanner.getContainerTag());
-    contents.add(viewUtils.makeLocalJsTag("toast"));
-    contents.add(viewUtils.makeLocalJsTag("radio"));
-    return new HtmlResponseContent(contents.toArray(new DomContent[0]));
+  /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */
+  public HtmlBundle getBundle() {
+    return getBundle(new HtmlBundle());
   }
 
   /**
-   * Returns a script tag that loads Tailwindcss styles and configurations common to all pages in
-   * the CiviForm.
+   * The reason for two getBundle methods here is that order occasionally matters, but this method
+   * should only be used if you know what you're doing.
    *
-   * <p>This should be added to the end of the body of all layouts. Adding it to the end of the body
-   * allows the page to begin rendering before the script is loaded.
+   * <p>Most of the time you'll want to use {@link admin.AdminLayout} or {@link
+   * applicant.ApplicantLayout} instead.
    *
-   * <p>Adding this to a page allows Tailwindcss utility classes to be be usable on that page.
+   * <pre>
+   *  Example: If we want to add specific styles before the core tailwind styles we
+   *  could use:
+   *
+   *   HtmlBundle bundle = new HtmlBundle().addStylesheets(someStylesheet);
+   *   bundle = getBundle(bundle);
+   * </pre>
    */
-  public Tag tailwindStyles() {
-    return viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILENAME);
+  public HtmlBundle getBundle(HtmlBundle bundle) {
+    // Add the warning toast.
+    ToastMessage privacyBanner =
+        ToastMessage.error(BANNER_TEXT).setId("warning-message").setIgnorable(true).setDuration(0);
+    bundle.addToastMessages(privacyBanner);
+
+    // Add default stylesheets.
+    bundle.addStylesheets(viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILENAME));
+
+    // Add Google analytics scripts.
+    bundle.addFooterScripts(getAnalyticsScripts(measurementId).toArray(new Tag[0]));
+
+    // Add default scripts.
+    for (String source : FOOTER_SCRIPTS) {
+      bundle.addFooterScripts(viewUtils.makeLocalJsTag(source));
+    }
+
+    return bundle;
   }
 
-  public Tag headContent(String... titlestr) {
-    return viewUtils.makeHead(TAILWIND_COMPILED_FILENAME, measurementId, titlestr);
+  /**
+   * Render should add any additional styles, scripts, and tags and then return the fully rendered
+   * page.
+   */
+  public Content render(HtmlBundle bundle) {
+    return bundle.render();
   }
 
-  protected static class HtmlResponseContent implements Content {
-    private final DomContent[] domContents;
-
-    protected HtmlResponseContent(DomContent... domContents) {
-      this.domContents = checkNotNull(domContents);
-    }
-
-    @Override
-    public String body() {
-      return document(new ContainerTag("html").with(domContents));
-    }
-
-    @Override
-    public String contentType() {
-      return "text/html";
-    }
+  /** Creates Google Analytics scripts for the site. */
+  private ImmutableList<Tag> getAnalyticsScripts(String trackingTag) {
+    Tag scriptImport =
+        script()
+            .withSrc("https://www.googletagmanager.com/gtag/js?id=" + trackingTag)
+            .attr("async", "true")
+            .withType("text/javascript");
+    String googleAnalyticsCode =
+        "window.dataLayer = window.dataLayer || [];"
+            + "\nfunction gtag() {"
+            + "\n\tdataLayer.push(arguments);"
+            + "\n}"
+            + "\ngtag('js', new Date());"
+            + "\ngtag('config', '%s');";
+    Tag rawScript =
+        script()
+            .with(rawHtml(String.format(googleAnalyticsCode, trackingTag)))
+            .withType("text/javascript");
+    return new ImmutableList.Builder<Tag>().add(scriptImport).add(rawScript).build();
   }
 }
