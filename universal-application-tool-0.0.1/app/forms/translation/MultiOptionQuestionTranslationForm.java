@@ -13,6 +13,7 @@ import services.question.types.QuestionDefinitionBuilder;
 
 public class MultiOptionQuestionTranslationForm extends QuestionTranslationForm {
 
+  // These will be in the same order as the default translations.
   private List<String> options;
 
   public MultiOptionQuestionTranslationForm() {
@@ -33,18 +34,19 @@ public class MultiOptionQuestionTranslationForm extends QuestionTranslationForm 
       QuestionDefinition definition, Locale updatedLocale) throws UnsupportedQuestionTypeException {
     QuestionDefinitionBuilder partiallyUpdated =
         super.builderWithUpdates(definition, updatedLocale);
+    ImmutableList.Builder<QuestionOption> updatedOptionsBuilder = ImmutableList.builder();
 
+    // For each current option, add or update translations for the given locale.
     ImmutableList<QuestionOption> currentOptions =
         ((MultiOptionQuestionDefinition) definition).getOptions();
 
-    // For each current option, add or update translations for the given locale.
-    ImmutableList.Builder<QuestionOption> updatedOptionsBuilder = ImmutableList.builder();
     for (int i = 0; i < currentOptions.size(); i++) {
       QuestionOption current = currentOptions.get(i);
-      LocalizedStrings translations =
+      LocalizedStrings updatedTranslations =
           current.optionText().updateTranslation(updatedLocale, this.options.get(i));
-      updatedOptionsBuilder.add(current.toBuilder().setOptionText(translations).build());
+      updatedOptionsBuilder.add(current.toBuilder().setOptionText(updatedTranslations).build());
     }
+
     return partiallyUpdated.setQuestionOptions(updatedOptionsBuilder.build());
   }
 }

@@ -15,6 +15,27 @@ import services.question.types.RadioButtonQuestionDefinition;
 public class MultiOptionQuestionTranslationFormTest {
 
   @Test
+  public void buildsQuestion_newLocale_savesUpdates() throws Exception {
+    QuestionDefinition question =
+        new RadioButtonQuestionDefinition(
+            "test",
+            Optional.empty(),
+            "desc",
+            LocalizedStrings.empty(),
+            LocalizedStrings.empty(),
+            ImmutableList.of(
+                QuestionOption.create(1L, LocalizedStrings.withDefaultValue("other"))));
+
+    MultiOptionQuestionTranslationForm form = new MultiOptionQuestionTranslationForm();
+    form.setOptions(ImmutableList.of("new"));
+    RadioButtonQuestionDefinition updated =
+        (RadioButtonQuestionDefinition) form.builderWithUpdates(question, Locale.CHINA).build();
+
+    assertThat(updated.getOptionsForLocale(Locale.CHINA))
+        .containsExactly(LocalizedQuestionOption.create(1L, "new", Locale.CHINA));
+  }
+
+  @Test
   public void buildsQuestion_existingLocale_savesUpdates() throws Exception {
     QuestionDefinition question =
         new RadioButtonQuestionDefinition(
