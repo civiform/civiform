@@ -68,19 +68,16 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     return layout.renderWithNav(params.request(), params.messages(), bundle);
   }
 
+  /** Returns whole number out of 100 representing the completion percent of this program. */
   private int getPercentComplete(int blockIndex, int totalBlockCount) {
     if (totalBlockCount == 0) return 100;
-
-    // Block doesn't exist.
     if (blockIndex == -1) return 0;
 
-    // TODO: See if I need to cast to doubles.
-
-    // Add one to blockIndex for 1-based indexing.
-    // Add one to totalBlockCount so that even when the applicant is on the last block (but hasn't
-    // yet submitted it),
-    // they're still "in progress". Save 100% for the application review page.
-    return (int) (((blockIndex + 1) / (totalBlockCount + 1)) * 100.0);
+    // Add one to blockIndex for 1-based indexing, so that when applicant is on first block, we show
+    // some amount of progress.
+    // Add one to totalBlockCount so that when applicant is on the last block, we show that they're
+    // still in progress. Save showing "100% completion" for the application review page.
+    return (int) (((blockIndex + 1.0) / (totalBlockCount + 1.0)) * 100.0);
   }
 
   /**
@@ -175,8 +172,6 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
     abstract int totalBlockCount();
 
-    abstract int percentComplete();
-
     abstract long applicantId();
 
     abstract long programId();
@@ -200,8 +195,6 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
       public abstract Builder setBlockIndex(int blockIndex);
 
       public abstract Builder setTotalBlockCount(int blockIndex);
-
-      public abstract Builder setPercentComplete(int percentComplete);
 
       public abstract Builder setApplicantId(long applicantId);
 
