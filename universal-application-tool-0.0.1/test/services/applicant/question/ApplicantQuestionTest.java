@@ -3,19 +3,23 @@ package services.applicant.question;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.RepeatedEntity;
 import services.question.exceptions.InvalidQuestionTypeException;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
+import support.QuestionAnswerer;
 import support.TestQuestionBank;
 
 @RunWith(JUnitParamsRunner.class)
@@ -219,5 +223,52 @@ public class ApplicantQuestionTest {
                 dataWithAnswers,
                 Optional.empty()))
         .testEquals();
+  }
+
+  @Test
+  public void questionTextAndHelpText_areContextualizedByRepeatedEntity() {
+    ApplicantData applicantData = new ApplicantData();
+    Path householdMembersPath =
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank
+                .applicantHouseholdMembers()
+                .getQuestionDefinition()
+                .getQuestionPathSegment());
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData, householdMembersPath, ImmutableList.of("Jonathan"));
+    Path householdMembersJobsPath =
+        householdMembersPath
+            .atIndex(0)
+            .join(
+                testQuestionBank
+                    .applicantHouseholdMemberJobs()
+                    .getQuestionDefinition()
+                    .getQuestionPathSegment());
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData, householdMembersJobsPath, ImmutableList.of("JonCo"));
+    RepeatedEntity jonathan =
+        RepeatedEntity.createRepeatedEntities(
+                (EnumeratorQuestionDefinition)
+                    testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+                applicantData)
+            .get(0);
+    RepeatedEntity jonCo =
+        jonathan
+            .createNestedRepeatedEntities(
+                (EnumeratorQuestionDefinition)
+                    testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
+                applicantData)
+            .get(0);
+
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            testQuestionBank.applicantHouseholdMemberJobIncome().getQuestionDefinition(),
+            applicantData,
+            Optional.of(jonCo));
+
+    assertThat(applicantQuestion.getQuestionText())
+        .isEqualTo("What is Jonathan's income at JonCo?");
+    assertThat(applicantQuestion.getQuestionHelpText())
+        .isEqualTo("What is the monthly income of Jonathan at JonCo?");
   }
 }

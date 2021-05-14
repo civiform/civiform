@@ -54,12 +54,24 @@ public class ApplicantQuestion {
     return questionDefinition.getQuestionType();
   }
 
+  /**
+   * Get the question text localized to the applicant's preferred locale, contextualized with {@link
+   * RepeatedEntity}.
+   */
   public String getQuestionText() {
-    return questionDefinition.getQuestionText().getOrDefault(applicantData.preferredLocale());
+    String text =
+        questionDefinition.getQuestionText().getOrDefault(applicantData.preferredLocale());
+    return repeatedEntity.map(r -> r.contextualize(text)).orElse(text);
   }
 
+  /**
+   * Get the question help text localized to the applicant's preferred locale, contextualized with
+   * {@link RepeatedEntity}.
+   */
   public String getQuestionHelpText() {
-    return questionDefinition.getQuestionHelpText().getOrDefault(applicantData.preferredLocale());
+    String helpText =
+        questionDefinition.getQuestionHelpText().getOrDefault(applicantData.preferredLocale());
+    return repeatedEntity.map(r -> r.contextualize(helpText)).orElse(helpText);
   }
 
   /**
