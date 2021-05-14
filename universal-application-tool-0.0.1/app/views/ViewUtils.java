@@ -2,6 +2,7 @@ package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.link;
+import static j2html.TagCreator.script;
 
 import controllers.AssetsFinder;
 import j2html.tags.Tag;

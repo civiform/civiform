@@ -13,6 +13,7 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.Styles;
@@ -33,8 +34,9 @@ public final class ApplicantProgramConfirmationView extends BaseHtmlView {
       Long applicationId,
       String programTitle,
       Messages messages,
-      Optional<String> banner) {
-    ContainerTag headerTag = layout.renderHeader(100);
+      Optional<String> banner) {        
+    String title = "Application Confirmation for " + programTitle;
+    HtmlBundle bundle = layout.getBundle().setTitle(title);
 
     ContainerTag content = div().withClasses(Styles.MX_16);
     content.with(h2(messages.at("content.confirmed", programTitle, applicationId)));
@@ -45,14 +47,14 @@ public final class ApplicantProgramConfirmationView extends BaseHtmlView {
             .asAnchorText());
 
     if (banner.isPresent()) {
-      content.with(ToastMessage.error(banner.get()).getContainerTag());
+      bundle.addToastMessages(ToastMessage.error(banner.get()));
     }
 
-    return layout.render(
-        request,
-        messages,
-        headerTag,
-        h1("Application Confirmation for " + programTitle).withClasses(Styles.PX_16, Styles.PY_4),
+    bundle.addMainContent(
+        layout.renderHeader(100),
+        h1(title).withClasses(Styles.PX_16, Styles.PY_4),
         content);
+
+    return layout.renderWithNav(request, messages, bundle);
   }
 }
