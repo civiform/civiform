@@ -22,6 +22,7 @@ import views.HtmlBundle;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -108,26 +109,6 @@ public class ProgramIndexView extends BaseHtmlView {
   private ContainerTag programCard(
       Messages messages, ProgramDefinition program, Long applicantId, Locale preferredLocale) {
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
-    ContainerTag category =
-        div()
-            .withId(baseId + "-category")
-            .withClasses(Styles.TEXT_XS, Styles.PB_2)
-            .with(
-                div()
-                    .withClasses(
-                        Styles.BG_TEAL_400,
-                        Styles.H_3,
-                        Styles.W_3,
-                        Styles.ROUNDED_FULL,
-                        Styles.INLINE_BLOCK,
-                        Styles.ALIGN_MIDDLE),
-                div(messages.at(MessageKey.CONTENT_NO_CATEGORY.getKeyName()))
-                    .withClasses(
-                        Styles.ML_2,
-                        Styles.INLINE,
-                        Styles.ALIGN_BOTTOM,
-                        Styles.ALIGN_TEXT_BOTTOM,
-                        Styles.LEADING_3));
 
     ContainerTag title =
         div()
@@ -151,7 +132,7 @@ public class ProgramIndexView extends BaseHtmlView {
         div()
             .withId(baseId + "-data")
             .withClasses(Styles.PX_4)
-            .with(category, title, description, externalLink);
+            .with(title, description, externalLink);
 
     String applyUrl =
         controllers.applicant.routes.ApplicantProgramsController.edit(applicantId, program.id())
@@ -160,41 +141,17 @@ public class ProgramIndexView extends BaseHtmlView {
         a().attr(HREF, applyUrl)
             .withText(messages.at(MessageKey.BUTTON_APPLY.getKeyName()))
             .withId(baseId + "-apply")
-            .withClasses(
-                ReferenceClasses.APPLY_BUTTON,
-                Styles.BLOCK,
-                Styles.UPPERCASE,
-                Styles.ROUNDED_3XL,
-                Styles.PY_2,
-                Styles.PX_6,
-                Styles.W_MIN,
-                Styles.MX_AUTO,
-                Styles.BG_GRAY_200,
-                StyleUtils.hover(Styles.BG_GRAY_300));
+            .withClasses(ReferenceClasses.APPLY_BUTTON, ApplicantStyles.PROGRAM_APPLY_BUTTON);
 
     ContainerTag applyDiv =
         div(applyButton).withClasses(Styles.ABSOLUTE, Styles.BOTTOM_6, Styles.W_FULL);
     return div()
         .withId(baseId)
-        .withClasses(
-            ReferenceClasses.APPLICATION_CARD,
-            Styles.RELATIVE,
-            Styles.INLINE_BLOCK,
-            Styles.MR_4,
-            Styles.MB_4,
-            Styles.W_64,
-            Styles.H_72,
-            Styles.BG_WHITE,
-            Styles.ROUNDED_XL,
-            Styles.SHADOW_SM)
+        .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
         .with(
             div()
                 .withClasses(
-                    Styles.BG_TEAL_400,
-                    Styles.BG_OPACITY_60,
-                    Styles.H_3,
-                    Styles.ROUNDED_T_XL,
-                    Styles.MB_4))
+                    BaseStyles.BG_SEATTLE_BLUE, Styles.H_3, Styles.ROUNDED_T_XL, Styles.MB_4))
         .with(programData)
         .with(applyDiv);
   }

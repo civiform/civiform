@@ -78,8 +78,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return div()
         .withId("brand-id")
         .withClasses(Styles.W_1_2, ApplicantStyles.LOGO_STYLE)
-        .with(span("Civi"))
-        .with(span("Form").withClasses(Styles.FONT_THIN));
+        .withText("CiviForm");
   }
 
   private ContainerTag status(Messages messages) {

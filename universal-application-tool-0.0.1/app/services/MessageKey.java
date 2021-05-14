@@ -31,6 +31,7 @@ public enum MessageKey {
   ENUMERATOR_BUTTON_ARIA_LABEL_DELETE_ENTITY("button.ariaLabel.deleteEntity"),
   ENUMERATOR_PLACEHOLDER_ENTITY_NAME("placeholder.entityName"),
   ENUMERATOR_VALIDATION_ENTITY_REQUIRED("validation.entityNameRequired"),
+  ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME("validation.duplicateEntityName"),
   LINK_VIEW_APPLICATIONS("link.viewApplications"),
   MULTI_SELECT_VALIDATION_TOO_FEW("validation.tooFewSelections"),
   MULTI_SELECT_VALIDATION_TOO_MANY("validation.tooManySelections"),

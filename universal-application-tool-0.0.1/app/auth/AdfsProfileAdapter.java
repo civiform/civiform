@@ -36,8 +36,6 @@ public class AdfsProfileAdapter extends UatProfileAdapter {
   @Override
   protected ImmutableSet<Roles> roles(UatProfile profile, OidcProfile oidcProfile) {
     JSONArray groups = oidcProfile.getAttribute("group", JSONArray.class);
-    System.out.println(oidcProfile.getAttributes());
-    System.out.println(groups);
     if (groups.contains(this.adminGroupName)) {
       profile
           .getAccount()
