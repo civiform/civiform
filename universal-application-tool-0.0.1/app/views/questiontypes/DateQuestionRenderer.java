@@ -4,7 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
 import j2html.tags.Tag;
-import java.util.OptionalLong;
+import java.time.LocalDate;
+import java.util.Optional;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.DateQuestion;
 import views.BaseHtmlView;
@@ -29,7 +30,7 @@ public class DateQuestionRenderer extends BaseHtmlView implements ApplicantQuest
 
     if (dateQuestion.getDateValue().isPresent()) {
       // TODO: [Refactor] Oof! Converting Optional<Long> to OptionalLong.
-      OptionalLong value = OptionalLong.of(dateQuestion.getDateValue().orElse(0L));
+      Optional<String> value = dateQuestion.getDateValue().map(LocalDate::toString);
       // TODO: Convert value from long --> a date string that is compatible with <input type=date>
       dateField.setValue(value);
     }

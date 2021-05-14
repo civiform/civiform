@@ -1,6 +1,7 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableSet;
+import java.time.LocalDate;
 import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -11,7 +12,7 @@ public class DateQuestion implements PresentsErrors {
 
   private final ApplicantQuestion applicantQuestion;
 
-  private Optional<Long> dateValue;
+  private Optional<LocalDate> dateValue;
 
   public DateQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
@@ -48,20 +49,20 @@ public class DateQuestion implements PresentsErrors {
   }
 
   public Path getDatePath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.DATE_TIMESTAMP);
+    return applicantQuestion.getContextualizedPath().join(Scalar.DATE);
   }
 
   @Override
   public String getAnswerString() {
-    return getDateValue().map(Object::toString).orElse("-");
+    return getDateValue().map(LocalDate::toString).orElse("-");
   }
 
-  public Optional<Long> getDateValue() {
+  public Optional<LocalDate> getDateValue() {
     if (dateValue != null) {
       return dateValue;
     }
 
-    dateValue = applicantQuestion.getApplicantData().readLong(getDatePath());
+    dateValue = applicantQuestion.getApplicantData().readDate(getDatePath());
 
     return dateValue;
   }
