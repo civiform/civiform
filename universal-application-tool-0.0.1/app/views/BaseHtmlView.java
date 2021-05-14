@@ -34,17 +34,17 @@ public abstract class BaseHtmlView {
     return h1(headerText).withClasses(Styles.MB_4, StyleUtils.joinStyles(additionalClasses));
   }
 
-  protected static ContainerTag fieldErrors(
+  public static ContainerTag fieldErrors(
       Messages messages, ImmutableSet<ValidationErrorMessage> errors) {
     return div(each(errors, error -> div(error.getMessage(messages))))
         .withClasses(BaseStyles.FORM_ERROR_TEXT);
   }
 
-  protected static Tag button(String textContents) {
+  public static Tag button(String textContents) {
     return TagCreator.button(text(textContents)).withType("button");
   }
 
-  protected static Tag button(String id, String textContents) {
+  public static Tag button(String id, String textContents) {
     return button(textContents).withId(id);
   }
 
