@@ -3,6 +3,7 @@ package services.applicant.question;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -10,6 +11,7 @@ import javax.annotation.Nullable;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.RepeatedEntity;
+import services.applicant.ValidationErrorMessage;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
@@ -97,6 +99,10 @@ public class ApplicantQuestion {
     } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+    return errorsPresenter().getQuestionErrors();
   }
 
   public boolean hasErrors() {
