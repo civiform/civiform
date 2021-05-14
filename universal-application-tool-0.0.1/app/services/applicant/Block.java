@@ -98,18 +98,13 @@ public final class Block {
 
   public ImmutableList<ApplicantQuestion> getQuestions() {
     if (questionsMemo.isEmpty()) {
-      Path contextualizedPath =
-          repeatedEntity
-              .map(RepeatedEntity::contextualizedPath)
-              .orElse(ApplicantData.APPLICANT_PATH);
       this.questionsMemo =
           Optional.of(
               blockDefinition.programQuestionDefinitions().stream()
                   .map(ProgramQuestionDefinition::getQuestionDefinition)
                   .map(
                       questionDefinition ->
-                          new ApplicantQuestion(
-                              questionDefinition, applicantData, contextualizedPath))
+                          new ApplicantQuestion(questionDefinition, applicantData, repeatedEntity))
                   .collect(toImmutableList()));
     }
     return questionsMemo.get();

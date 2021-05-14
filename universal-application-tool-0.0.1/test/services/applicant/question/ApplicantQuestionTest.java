@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.testing.EqualsTester;
+import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Test;
@@ -28,7 +29,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(
             testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
             new ApplicantData(),
-            ApplicantData.APPLICANT_PATH);
+            Optional.empty());
 
     ImmutableMap<Path, ScalarType> expected =
         ImmutableMap.of(
@@ -49,7 +50,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(
             testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
             new ApplicantData(),
-            ApplicantData.APPLICANT_PATH);
+            Optional.empty());
 
     assertThatThrownBy(() -> enumerationApplicantQuestion.getContextualizedScalars())
         .isInstanceOf(RuntimeException.class)
@@ -62,7 +63,7 @@ public class ApplicantQuestionTest {
     QuestionDefinition definition =
         testQuestionBank.getSampleQuestionsForAllTypes().get(questionType).getQuestionDefinition();
     ApplicantQuestion question =
-        new ApplicantQuestion(definition, new ApplicantData(), ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(definition, new ApplicantData(), Optional.empty());
 
     assertThat(question.errorsPresenter().hasTypeSpecificErrors()).isFalse();
   }
@@ -73,7 +74,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(
             testQuestionBank.applicantAddress().getQuestionDefinition(),
             new ApplicantData(),
-            ApplicantData.APPLICANT_PATH);
+            Optional.empty());
     assertThat(addressApplicantQuestion.createAddressQuestion())
         .isInstanceOf(AddressQuestion.class);
 
@@ -81,7 +82,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(
             testQuestionBank.applicantKitchenTools().getQuestionDefinition(),
             new ApplicantData(),
-            ApplicantData.APPLICANT_PATH);
+            Optional.empty());
     assertThat(checkboxApplicantQuestion.createMultiSelectQuestion())
         .isInstanceOf(MultiSelectQuestion.class);
 
@@ -89,7 +90,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(
             testQuestionBank.applicantIceCream().getQuestionDefinition(),
             new ApplicantData(),
-            ApplicantData.APPLICANT_PATH);
+            Optional.empty());
     assertThat(dropdownApplicantQuestion.createSingleSelectQuestion())
         .isInstanceOf(SingleSelectQuestion.class);
 
@@ -97,7 +98,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(
             testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
             new ApplicantData(),
-            ApplicantData.APPLICANT_PATH);
+            Optional.empty());
     assertThat(enumeratorApplicantQuestion.createEnumeratorQuestion())
         .isInstanceOf(EnumeratorQuestion.class);
 
@@ -105,21 +106,21 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(
             testQuestionBank.applicantName().getQuestionDefinition(),
             new ApplicantData(),
-            ApplicantData.APPLICANT_PATH);
+            Optional.empty());
     assertThat(nameApplicantQuestion.createNameQuestion()).isInstanceOf(NameQuestion.class);
 
     ApplicantQuestion numberApplicantQuestion =
         new ApplicantQuestion(
             testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
             new ApplicantData(),
-            ApplicantData.APPLICANT_PATH);
+            Optional.empty());
     assertThat(numberApplicantQuestion.createNumberQuestion()).isInstanceOf(NumberQuestion.class);
 
     ApplicantQuestion radioApplicantQuestion =
         new ApplicantQuestion(
             testQuestionBank.applicantSeason().getQuestionDefinition(),
             new ApplicantData(),
-            ApplicantData.APPLICANT_PATH);
+            Optional.empty());
     assertThat(radioApplicantQuestion.createSingleSelectQuestion())
         .isInstanceOf(SingleSelectQuestion.class);
 
@@ -127,7 +128,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(
             testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
             new ApplicantData(),
-            ApplicantData.APPLICANT_PATH);
+            Optional.empty());
     assertThat(textApplicantQuestion.createTextQuestion()).isInstanceOf(TextQuestion.class);
   }
 
@@ -142,81 +143,81 @@ public class ApplicantQuestionTest {
             new ApplicantQuestion(
                 testQuestionBank.applicantAddress().getQuestionDefinition(),
                 new ApplicantData(),
-                ApplicantData.APPLICANT_PATH),
+                Optional.empty()),
             new ApplicantQuestion(
                 testQuestionBank.applicantAddress().getQuestionDefinition(),
                 new ApplicantData(),
-                ApplicantData.APPLICANT_PATH))
+                Optional.empty()))
         .addEqualityGroup(
             // Checkbox
             new ApplicantQuestion(
                 testQuestionBank.applicantKitchenTools().getQuestionDefinition(),
                 new ApplicantData(),
-                ApplicantData.APPLICANT_PATH),
+                Optional.empty()),
             new ApplicantQuestion(
                 testQuestionBank.applicantKitchenTools().getQuestionDefinition(),
                 new ApplicantData(),
-                ApplicantData.APPLICANT_PATH))
+                Optional.empty()))
         .addEqualityGroup(
             // Dropdown
             new ApplicantQuestion(
                 testQuestionBank.applicantIceCream().getQuestionDefinition(),
                 new ApplicantData(),
-                ApplicantData.APPLICANT_PATH),
+                Optional.empty()),
             new ApplicantQuestion(
                 testQuestionBank.applicantIceCream().getQuestionDefinition(),
                 new ApplicantData(),
-                ApplicantData.APPLICANT_PATH))
+                Optional.empty()))
         .addEqualityGroup(
             // Name
             new ApplicantQuestion(
                 testQuestionBank.applicantName().getQuestionDefinition(),
                 new ApplicantData(),
-                ApplicantData.APPLICANT_PATH),
+                Optional.empty()),
             new ApplicantQuestion(
                 testQuestionBank.applicantName().getQuestionDefinition(),
                 new ApplicantData(),
-                ApplicantData.APPLICANT_PATH))
+                Optional.empty()))
         .addEqualityGroup(
             // Number
             new ApplicantQuestion(
                 testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
                 new ApplicantData(),
-                ApplicantData.APPLICANT_PATH),
+                Optional.empty()),
             new ApplicantQuestion(
                 testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
                 new ApplicantData(),
-                ApplicantData.APPLICANT_PATH))
+                Optional.empty()))
         .addEqualityGroup(
             // Radio button
             new ApplicantQuestion(
                 testQuestionBank.applicantSeason().getQuestionDefinition(),
                 new ApplicantData(),
-                ApplicantData.APPLICANT_PATH),
+                Optional.empty()),
             new ApplicantQuestion(
                 testQuestionBank.applicantSeason().getQuestionDefinition(),
                 new ApplicantData(),
-                ApplicantData.APPLICANT_PATH))
+                Optional.empty()))
         .addEqualityGroup(
             // Text
             new ApplicantQuestion(
                 testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
                 new ApplicantData(),
-                ApplicantData.APPLICANT_PATH),
+                Optional.empty()),
             new ApplicantQuestion(
                 testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
                 new ApplicantData(),
-                ApplicantData.APPLICANT_PATH))
+                Optional.empty()))
         .addEqualityGroup(
             // Text with answered data
             new ApplicantQuestion(
                 testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
                 dataWithAnswers,
-                ApplicantData.APPLICANT_PATH),
+                Optional.empty()),
             new ApplicantQuestion(
                 testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
                 dataWithAnswers,
-                ApplicantData.APPLICANT_PATH))
+                Optional.empty()))
         .testEquals();
   }
 }
