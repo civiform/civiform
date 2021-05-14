@@ -36,16 +36,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   @Override
-  public HtmlBundle getBundle() {
-    return getBundle(new HtmlBundle());
-  }
-
-  @Override
-  public HtmlBundle getBundle(HtmlBundle bundle) {
-    return super.getBundle(bundle);
-  }
-
-  @Override
   public Content render(HtmlBundle bundle) {
     bundle.addBodyStyles(ApplicantStyles.BODY_BG_COLOR);
     String currentTitle = bundle.getTitle();

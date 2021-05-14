@@ -35,11 +35,12 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   public Content render(
       ActiveAndDraftPrograms programs, Http.Request request, Optional<UatProfile> profile) {
+    String pageTitle = "All programs";
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
             .with(
-                h1("All Programs").withClasses(Styles.MY_4),
+                h1(pageTitle).withClasses(Styles.MY_4),
                 div()
                     .withClasses(Styles.INLINE_BLOCK)
                     .with(renderNewProgramButton(), maybeRenderPublishButton(programs, request)),
@@ -52,7 +53,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                             request,
                             profile)));
 
-    HtmlBundle htmlBundle = layout.getBundle().setTitle("All Programs").addMainContent(contentDiv);
+    HtmlBundle htmlBundle = layout.getBundle().setTitle(pageTitle).addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
   }
 

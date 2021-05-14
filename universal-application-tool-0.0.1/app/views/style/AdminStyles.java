@@ -61,10 +61,10 @@ public class AdminStyles {
           Styles.OVERFLOW_HIDDEN,
           Styles.FLEX);
 
-  public static final String CENTERED =
+  public static final String MAIN_CENTERED =
       StyleUtils.joinStyles(Styles.PX_2, Styles.MAX_W_SCREEN_XL, Styles.MX_AUTO);
 
-  public static final String FULL = StyleUtils.joinStyles(Styles.FLEX, Styles.FLEX_ROW);
+  public static final String MAIN_FULL = StyleUtils.joinStyles(Styles.FLEX, Styles.FLEX_ROW);
 
   public static final String MAIN =
       StyleUtils.joinStyles(

@@ -31,7 +31,7 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
   }
 
   public Content render(ActiveAndDraftPrograms programs, List<String> authorizedPrograms) {
-    String title = "Your Programs";
+    String title = "Your programs";
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)

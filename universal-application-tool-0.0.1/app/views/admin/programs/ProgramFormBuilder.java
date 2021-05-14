@@ -15,6 +15,7 @@ import views.components.FieldWithLabel;
  */
 public class ProgramFormBuilder extends BaseHtmlView {
 
+  /** Builds the form using program form data. */
   public static ContainerTag buildProgramForm(ProgramForm program, boolean editExistingProgram) {
     return buildProgramForm(
         program.getAdminName(),
@@ -24,6 +25,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
         editExistingProgram);
   }
 
+  /** Builds the form using program definition data. */
   public static ContainerTag buildProgramForm(
       ProgramDefinition program, boolean editExistingProgram) {
     return buildProgramForm(
@@ -34,7 +36,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
         editExistingProgram);
   }
 
-  public static ContainerTag buildProgramForm(
+  private static ContainerTag buildProgramForm(
       String adminName,
       String adminDescription,
       String displayName,

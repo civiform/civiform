@@ -24,11 +24,6 @@ public class AdminLayout extends BaseHtmlLayout {
     super(viewUtils);
   }
 
-  @Override
-  public HtmlBundle getBundle() {
-    return getBundle(new HtmlBundle());
-  }
-
   public Content renderCentered(HtmlBundle bundle) {
     return render(bundle, /* isCentered = */ true);
   }
@@ -39,7 +34,8 @@ public class AdminLayout extends BaseHtmlLayout {
   }
 
   protected Content render(HtmlBundle bundle, boolean isCentered) {
-    bundle.addMainStyles(AdminStyles.MAIN, isCentered ? AdminStyles.CENTERED : AdminStyles.FULL);
+    bundle.addMainStyles(
+        AdminStyles.MAIN, isCentered ? AdminStyles.MAIN_CENTERED : AdminStyles.MAIN_FULL);
     bundle.addBodyStyles(AdminStyles.BODY);
     String currentTitle = bundle.getTitle();
     if (currentTitle != null && !currentTitle.isEmpty()) {

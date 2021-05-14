@@ -14,7 +14,8 @@ import views.components.ToastMessage;
  * Base class for all layout classes.
  *
  * <p>A layout class should describe the DOM contents of the head, header, nav, and footer. It acts
- * on an HtmlBundle and returns a rendered page.
+ * on an HtmlBundle and returns {@link Content} for rendered page using the {@link
+ * #render(HtmlBundle)} method.
  */
 public class BaseHtmlLayout {
   private static final String TAILWIND_COMPILED_FILENAME = "tailwind";
@@ -38,6 +39,9 @@ public class BaseHtmlLayout {
   /**
    * The reason for two getBundle methods here is that order occasionally matters, but this method
    * should only be used if you know what you're doing.
+   *
+   * <p>Most of the time you'll want to use {@link admin.AdminLayout} or {@link
+   * applicant.ApplicantLayout} instead.
    *
    * <pre>
    *  Example: If we want to add specific styles before the core tailwind styles we

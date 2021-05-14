@@ -124,8 +124,14 @@ public class HtmlBundle {
   }
 
   /**
-   * The page head contains: - page title - page metadata - CSS styles - javascript that needs to
-   * run immediately
+   * The page head contains:
+   *
+   * <ul>
+   *   <li>page title
+   *   <li>page metadata
+   *   <li>CSS styles
+   *   <li>javascript that needs to run immediately
+   * </ul>
    */
   private ContainerTag renderHead() {
     // TODO: Throw exception if page title is not set.
