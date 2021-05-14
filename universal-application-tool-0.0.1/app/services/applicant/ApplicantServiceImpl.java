@@ -7,12 +7,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import controllers.admin.routes;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Applicant;
@@ -190,7 +192,13 @@ public class ApplicantServiceImpl implements ApplicantService {
               }
               Application application = applicationMaybe.get();
               String programTitle = application.getProgram().getProgramDefinition().adminName();
-              notifyProgramAdmins(applicantId, programId, programTitle);
+              try {
+                notifyProgramAdmins(applicantId, programId, application.id, programTitle);
+              } catch (ProgramNotFoundException e) {
+                // If we got this far, we this is not going to happen - submitApplication will have
+                // failed.
+                throw new CompletionException(e);
+              }
               return CompletableFuture.completedFuture(application);
             },
             httpExecutionContext.current());
@@ -201,12 +209,17 @@ public class ApplicantServiceImpl implements ApplicantService {
     return userRepository.programsForApplicant(applicantId);
   }
 
-  private void notifyProgramAdmins(long applicantId, long programId, String programTitle) {
+  private void notifyProgramAdmins(
+      long applicantId, long programId, long applicationId, String programTitle)
+      throws ProgramNotFoundException {
     String subject = String.format("New application submitted for %s", programTitle);
     String message =
         String.format(
-            "Applicant %d submitted a new application to program %d", applicantId, programId);
-    amazonSESClient.send(PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST, subject, message);
+            "Applicant %d submitted a new application to %s.  View the application at %s.",
+            applicantId,
+            programTitle,
+            routes.AdminApplicationController.show(programId, applicationId).url());
+    amazonSESClient.send(programService.getNotificationEmailAddresses(programId), subject, message);
   }
 
   /**

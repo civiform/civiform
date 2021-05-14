@@ -242,4 +242,11 @@ public interface ProgramService {
 
   /** Create a new draft starting from the program specified by `id`. */
   ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException;
+
+  /**
+   * Get the email addresses to send a notification to - the program admins if there are any, or the
+   * global admins if none.
+   */
+  ImmutableList<String> getNotificationEmailAddresses(long programId)
+      throws ProgramNotFoundException;
 }
