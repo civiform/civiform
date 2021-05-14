@@ -117,7 +117,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
     assertThat(enumeratorQuestion.hasQuestionErrors()).isTrue();
     assertThat(enumeratorQuestion.getQuestionErrors()).hasSize(1);
     assertThat(enumeratorQuestion.getQuestionErrors().asList().get(0).getMessage(messages))
-        .isEqualTo("Please use unique names.");
+        .isEqualTo("Please enter a unique value for each line.");
   }
 
   @Test
