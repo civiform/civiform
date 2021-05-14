@@ -19,7 +19,7 @@ public final class ViewUtils {
     this.assetsFinder = checkNotNull(assetsFinder);
   }
 
- /**
+  /**
    * Generates an HTML script tag for loading the javascript file found at
    * public/javascripts/[filename].js.
    */

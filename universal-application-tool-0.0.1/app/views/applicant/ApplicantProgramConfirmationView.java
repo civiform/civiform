@@ -34,7 +34,7 @@ public final class ApplicantProgramConfirmationView extends BaseHtmlView {
       Long applicationId,
       String programTitle,
       Messages messages,
-      Optional<String> banner) {        
+      Optional<String> banner) {
     String title = "Application Confirmation for " + programTitle;
     HtmlBundle bundle = layout.getBundle().setTitle(title);
 
@@ -51,9 +51,7 @@ public final class ApplicantProgramConfirmationView extends BaseHtmlView {
     }
 
     bundle.addMainContent(
-        layout.renderHeader(100),
-        h1(title).withClasses(Styles.PX_16, Styles.PY_4),
-        content);
+        layout.renderHeader(100), h1(title).withClasses(Styles.PX_16, Styles.PY_4), content);
 
     return layout.renderWithNav(request, messages, bundle);
   }
