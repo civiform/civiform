@@ -54,8 +54,7 @@ public class NumberQuestionTest extends WithPostgresContainer {
   @Test
   public void withEmptyApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            numberQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(numberQuestionDefinition, applicantData, Optional.empty());
 
     NumberQuestion numberQuestion = new NumberQuestion(applicantQuestion);
 
@@ -66,8 +65,7 @@ public class NumberQuestionTest extends WithPostgresContainer {
   @Test
   public void withEmptyValueAtPath_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            numberQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(numberQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "");
 
@@ -80,8 +78,7 @@ public class NumberQuestionTest extends WithPostgresContainer {
   @Test
   public void withValidValue_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            numberQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(numberQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 800);
 
@@ -95,8 +92,7 @@ public class NumberQuestionTest extends WithPostgresContainer {
   @Parameters({"50", "75", "100"})
   public void withMinAndMaxValue_withValidValue_passesValidation(long value) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            minAndMaxNumberQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 
@@ -118,8 +114,7 @@ public class NumberQuestionTest extends WithPostgresContainer {
   public void withMinAndMaxValue_withInvalidValue_failsValidation(
       long value, String expectedErrorMessage) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            minAndMaxNumberQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 
@@ -135,8 +130,7 @@ public class NumberQuestionTest extends WithPostgresContainer {
   @Test
   public void withMinAndMaxValue_withEmptyValueAtPath_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            minAndMaxNumberQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "");
 
