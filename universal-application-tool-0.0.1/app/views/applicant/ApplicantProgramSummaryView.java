@@ -57,8 +57,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     }
 
     ContainerTag applicationSummary = div().withId("application-summary");
-    for (AnswerData questionData : data) {
-      applicationSummary.with(renderQuestionSummary(questionData, applicantId));
+    for (AnswerData answerData : data) {
+      applicationSummary.with(renderQuestionSummary(answerData, applicantId));
     }
     content.with(applicationSummary);
 

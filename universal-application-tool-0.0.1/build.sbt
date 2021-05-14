@@ -34,10 +34,9 @@ lazy val root = (project in file("."))
       // Parameterized testing
       "pl.pragmatists" % "JUnitParams" % "1.1.0" % Test,
 
-      // Testing libraries for dealing with CompletionStage...
+      // Testing libraries
       "org.assertj" % "assertj-core" % "3.14.0" % Test,
-      "org.awaitility" % "awaitility" % "4.0.1" % Test,
-      "org.mockito" % "mockito-core" % "3.1.0" % Test,
+      "org.mockito" % "mockito-core" % "3.1.0",
 
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
