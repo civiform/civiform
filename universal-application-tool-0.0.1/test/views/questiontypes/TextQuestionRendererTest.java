@@ -38,9 +38,7 @@ public class TextQuestionRendererTest extends WithPostgresContainer {
 
   @Before
   public void setUp() {
-    question =
-        new ApplicantQuestion(
-            TEXT_QUESTION_DEFINITION, applicantData, ApplicantData.APPLICANT_PATH);
+    question = new ApplicantQuestion(TEXT_QUESTION_DEFINITION, applicantData, Optional.empty());
     messages = instanceOf(MessagesApi.class).preferred(ImmutableSet.of(Lang.defaultLang()));
     params = ApplicantQuestionRendererParams.sample(messages);
     renderer = new TextQuestionRenderer(question);

@@ -1,7 +1,6 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -16,6 +15,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
@@ -45,14 +45,21 @@ public class ManageProgramAdminsView extends BaseHtmlView {
     this.layout = checkNotNull(layout);
   }
 
+  /** Display a form with a list of inputs for adding and removing admins. */
   public Content render(
       Http.Request request, ProgramDefinition program, ImmutableList<String> existingAdminEmails) {
-    // Display a form with a list of inputs for adding and removing
-    return layout.render(
-        body(
-            renderHeader(PAGE_TITLE + program.adminName()),
-            adminEmailTemplate(),
-            renderAdminForm(request, program.id(), existingAdminEmails)));
+
+    String fullTitle = PAGE_TITLE + program.adminName();
+
+    HtmlBundle htmlBundle =
+        layout
+            .getBundle()
+            .setTitle(fullTitle)
+            .addMainContent(
+                renderHeader(fullTitle),
+                adminEmailTemplate(),
+                renderAdminForm(request, program.id(), existingAdminEmails));
+    return layout.renderCentered(htmlBundle);
   }
 
   /**

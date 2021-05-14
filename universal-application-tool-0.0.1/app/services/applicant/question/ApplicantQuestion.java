@@ -9,6 +9,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.RepeatedEntity;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
@@ -24,14 +25,21 @@ import services.question.types.ScalarType;
 public class ApplicantQuestion {
 
   private final QuestionDefinition questionDefinition;
-  private final Path contextualizedPath;
   private final ApplicantData applicantData;
+  private final Optional<RepeatedEntity> repeatedEntity;
 
+  /**
+   * If this is a repeated question, it should be created with the repeated entity associated with
+   * this question. If this is not a repeated question, then it should be created with an {@code
+   * Optional.empty()} repeated entity.
+   */
   public ApplicantQuestion(
-      QuestionDefinition questionDefinition, ApplicantData applicantData, Path contextualizedPath) {
+      QuestionDefinition questionDefinition,
+      ApplicantData applicantData,
+      Optional<RepeatedEntity> repeatedEntity) {
     this.questionDefinition = checkNotNull(questionDefinition);
     this.applicantData = checkNotNull(applicantData);
-    this.contextualizedPath = checkNotNull(contextualizedPath);
+    this.repeatedEntity = checkNotNull(repeatedEntity);
   }
 
   protected ApplicantData getApplicantData() {
@@ -63,7 +71,10 @@ public class ApplicantQuestion {
    * "applicant.household_member[3].name".
    */
   public Path getContextualizedPath() {
-    return contextualizedPath.join(questionDefinition.getQuestionPathSegment());
+    return repeatedEntity
+        .map(RepeatedEntity::contextualizedPath)
+        .orElse(ApplicantData.APPLICANT_PATH)
+        .join(questionDefinition.getQuestionPathSegment());
   }
 
   /**

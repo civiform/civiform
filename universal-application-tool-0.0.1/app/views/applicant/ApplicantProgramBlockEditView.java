@@ -1,7 +1,6 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
@@ -22,6 +21,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.aws.SignedS3UploadRequest;
 import services.aws.SimpleStorage;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
@@ -40,27 +40,44 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   public Content render(Params params) {
-    ContainerTag headerTag = layout.renderHeader(params.percentComplete());
-
-    ContainerTag body =
-        body().with(h1(params.block().getName())).with(renderBlockWithSubmitForm(params));
+    HtmlBundle bundle =
+        layout
+            .getBundle()
+            .setTitle("CiviForm")
+            .addMainContent(
+                layout.renderHeader(
+                    getPercentComplete(params.blockIndex(), params.totalBlockCount())),
+                h1(params.block().getName()),
+                renderBlockWithSubmitForm(params));
 
     if (!params.preferredLanguageSupported()) {
-      body.with(
+      bundle.addMainContent(
           renderLocaleNotSupportedToast(
               params.applicantId(), params.programId(), params.messages()));
     }
 
     // Add the hidden enumerator field template
     if (params.block().isEnumerator()) {
-      body.with(
+      bundle.addMainContent(
           EnumeratorQuestionRenderer.newEnumeratorFieldTemplate(
               params.block().getEnumeratorQuestion().getContextualizedPath(),
               params.block().getEnumeratorQuestion().createEnumeratorQuestion().getEntityType(),
               params.messages()));
     }
 
-    return layout.render(params.request(), params.messages(), headerTag, body);
+    return layout.renderWithNav(params.request(), params.messages(), bundle);
+  }
+
+  /** Returns whole number out of 100 representing the completion percent of this program. */
+  private int getPercentComplete(int blockIndex, int totalBlockCount) {
+    if (totalBlockCount == 0) return 100;
+    if (blockIndex == -1) return 0;
+
+    // Add one to blockIndex for 1-based indexing, so that when applicant is on first block, we show
+    // some amount of progress.
+    // Add one to totalBlockCount so that when applicant is on the last block, we show that they're
+    // still in progress. Save showing "100% completion" for the application review page.
+    return (int) (((blockIndex + 1.0) / (totalBlockCount + 1.0)) * 100.0);
   }
 
   /**
@@ -151,7 +168,9 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
     abstract Messages messages();
 
-    abstract int percentComplete();
+    abstract int blockIndex();
+
+    abstract int totalBlockCount();
 
     abstract long applicantId();
 
@@ -173,7 +192,9 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
       public abstract Builder setMessages(Messages messages);
 
-      public abstract Builder setPercentComplete(int percentComplete);
+      public abstract Builder setBlockIndex(int blockIndex);
+
+      public abstract Builder setTotalBlockCount(int blockIndex);
 
       public abstract Builder setApplicantId(long applicantId);
 

@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
-import static j2html.TagCreator.main;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -21,18 +20,17 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import services.Path;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
-import views.questiontypes.EnumeratorQuestionRenderer;
 import views.style.Styles;
 
 public final class QuestionEditView extends BaseHtmlView {
@@ -89,7 +87,7 @@ public final class QuestionEditView extends BaseHtmlView {
       formContent.with(ToastMessage.error(message.get()).setDismissible(false).getContainerTag());
     }
 
-    return renderWithPreview(formContent, questionType);
+    return renderWithPreview(formContent, questionType, title);
   }
 
   /** Render a fresh Edit Question Form. */
@@ -138,7 +136,7 @@ public final class QuestionEditView extends BaseHtmlView {
       formContent.with(ToastMessage.error(message.get()).setDismissible(false).getContainerTag());
     }
 
-    return renderWithPreview(formContent, questionType);
+    return renderWithPreview(formContent, questionType, title);
   }
 
   /** Render a read-only non-submittable question form. */
@@ -157,21 +155,16 @@ public final class QuestionEditView extends BaseHtmlView {
         buildQuestionContainer(title)
             .with(buildViewOnlyQuestionForm(questionForm, enumerationOption));
 
-    return renderWithPreview(formContent, questionType);
+    return renderWithPreview(formContent, questionType, title);
   }
 
-  private Content renderWithPreview(ContainerTag formContent, QuestionType type) {
+  private Content renderWithPreview(ContainerTag formContent, QuestionType type, String title) {
     ContainerTag previewContent = QuestionPreview.renderQuestionPreview(type, messages);
     previewContent.with(layout.viewUtils.makeLocalJsTag("preview"));
 
-    // Add the hidden enumerator field template
-    if (type.equals(QuestionType.ENUMERATOR)) {
-      previewContent.with(
-          EnumeratorQuestionRenderer.newEnumeratorFieldTemplate(
-              Path.empty(), "Sample repeated entity type", messages));
-    }
-
-    return layout.renderFull(main(formContent, previewContent));
+    HtmlBundle htmlBundle =
+        layout.getBundle().setTitle(title).addMainContent(formContent, previewContent);
+    return layout.render(htmlBundle);
   }
 
   private ContainerTag buildSubmittableQuestionForm(

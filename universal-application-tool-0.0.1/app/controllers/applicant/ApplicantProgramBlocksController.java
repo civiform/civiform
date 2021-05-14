@@ -112,8 +112,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             .setProgramId(programId)
                             .setBlock(block.get())
                             .setInReview(inReview)
-                            .setPercentComplete(
-                                roApplicantProgramService.getCompletionPercent(blockId))
+                            .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
+                            .setTotalBlockCount(roApplicantProgramService.getAllBlocks().size())
                             .setPreferredLanguageSupported(
                                 roApplicantProgramService.preferredLanguageSupported())
                             .setAmazonS3Client(amazonS3Client)
@@ -241,8 +241,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           .setApplicantId(applicantId)
                           .setProgramId(programId)
                           .setBlock(thisBlockUpdated)
-                          .setPercentComplete(
-                              roApplicantProgramService.getCompletionPercent(blockId))
+                          .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
+                          .setTotalBlockCount(roApplicantProgramService.getAllBlocks().size())
                           .setInReview(inReview)
                           .setPreferredLanguageSupported(
                               roApplicantProgramService.preferredLanguageSupported())

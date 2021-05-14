@@ -1,7 +1,6 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -17,7 +16,6 @@ import static j2html.TagCreator.tr;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import controllers.ti.routes;
-import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Comparator;
@@ -31,6 +29,7 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.admin.ti.TrustedIntermediaryGroupListView;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
@@ -49,33 +48,37 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   }
 
   public Content render(TrustedIntermediaryGroup tiGroup, Http.Request request, Messages messages) {
-    ContainerTag mainBody =
-        TagCreator.main(
-                body(
-                    renderHeader(tiGroup.getName()),
-                    h2(tiGroup.getDescription()).withClasses(Styles.ML_2),
-                    hr(),
-                    renderHeader("Add Client"),
-                    renderAddNewForm(tiGroup, request),
-                    hr().withClasses(Styles.MT_6),
-                    renderHeader("Clients"),
-                    renderTIApplicantsTable(tiGroup),
-                    hr().withClasses(Styles.MT_6),
-                    renderHeader("Trusted Intermediary Members"),
-                    renderTIMembersTable(tiGroup).withClasses(Styles.ML_2)))
-            .withClasses(Styles.PX_2, Styles.MAX_W_SCREEN_XL, Styles.MX_AUTO);
+
+    HtmlBundle bundle =
+        layout
+            .getBundle()
+            .setTitle("CiviForm")
+            .addMainContent(
+                renderHeader(tiGroup.getName()),
+                h2(tiGroup.getDescription()).withClasses(Styles.ML_2),
+                hr(),
+                renderHeader("Add Client"),
+                renderAddNewForm(tiGroup, request),
+                hr().withClasses(Styles.MT_6),
+                renderHeader("Clients"),
+                renderTIApplicantsTable(tiGroup),
+                hr().withClasses(Styles.MT_6),
+                renderHeader("Trusted Intermediary Members"),
+                renderTIMembersTable(tiGroup).withClasses(Styles.ML_2))
+            .addMainStyles(Styles.PX_2, Styles.MAX_W_SCREEN_XL, Styles.MX_AUTO);
+
     if (request.flash().get("error").isPresent()) {
       LoggerFactory.getLogger(TrustedIntermediaryGroupListView.class)
           .info(request.flash().get("error").get());
       String error = request.flash().get("error").get();
-      mainBody.with(
+      bundle.addToastMessages(
           ToastMessage.error(error)
               .setId("warning-message-ti-add-fill")
               .setIgnorable(false)
-              .setDuration(0)
-              .getContainerTag());
+              .setDuration(0));
     }
-    return layout.render(request, messages, mainBody);
+
+    return layout.renderWithNav(request, messages, bundle);
   }
 
   private ContainerTag renderTIApplicantsTable(TrustedIntermediaryGroup tiGroup) {
