@@ -37,7 +37,10 @@ public interface ReadOnlyApplicantProgramService {
   /** Get the block that comes after the given block if there is one. */
   Optional<Block> getBlockAfter(Block block);
 
-  /** Gets the completion percent based on current block index. */
+  /** Returns the index of the given block in the context of all blocks of the program. */
+  int getBlockIndex(String blockId);
+
+  /** Gets the completion percent based on the given block's index. */
   int getCompletionPercent(String blockId);
 
   /** Get the program block with the lowest index that has missing answer data if there is one. */

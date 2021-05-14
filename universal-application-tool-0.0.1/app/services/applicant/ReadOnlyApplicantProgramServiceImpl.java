@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
@@ -78,6 +80,17 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
+  public int getBlockIndex(String blockId) {
+    ImmutableList<Block> allBlocks = getAllBlocks();
+
+    for (int i = 0; i < allBlocks.size(); i++) {
+      if (allBlocks.get(i).getId().equals(blockId)) return i;
+    }
+
+    return -1;
+  }
+
+  @Override
   public int getCompletionPercent(String blockId) {
     ImmutableList<Block> blocks = getAllBlocks();
 
@@ -87,12 +100,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       return 100;
     }
 
-    double blockIndex = -1;
-    for (int i = 0; i < blocks.size() && blockIndex == -1; i++) {
-      if (blocks.get(i).getId().equals(blockId)) {
-        blockIndex = i;
-      }
-    }
+    double blockIndex = getBlockIndex(blockId);
 
     // If the block doesn't exist then return 0.
     if (blockIndex == -1) {
