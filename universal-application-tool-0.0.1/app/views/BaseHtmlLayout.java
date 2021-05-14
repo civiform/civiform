@@ -5,6 +5,7 @@ import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.script;
 
 import com.google.common.collect.ImmutableList;
+import com.typesafe.config.Config;
 import j2html.tags.Tag;
 import javax.inject.Inject;
 import play.twirl.api.Content;
@@ -25,10 +26,12 @@ public class BaseHtmlLayout {
       "Do not enter actual or personal data in this demo site";
 
   public final ViewUtils viewUtils;
+  public final String measurementId;
 
   @Inject
-  public BaseHtmlLayout(ViewUtils viewUtils) {
+  public BaseHtmlLayout(ViewUtils viewUtils, Config configuration) {
     this.viewUtils = checkNotNull(viewUtils);
+    this.measurementId = checkNotNull(configuration).getString("measurement_id");
   }
 
   /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */
@@ -61,7 +64,7 @@ public class BaseHtmlLayout {
     bundle.addStylesheets(viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILENAME));
 
     // Add Google analytics scripts.
-    bundle.addFooterScripts(getAnalyticsScripts(TRACKING_TAG_ID).toArray(new Tag[0]));
+    bundle.addFooterScripts(getAnalyticsScripts(measurementId).toArray(new Tag[0]));
 
     // Add default scripts.
     for (String source : FOOTER_SCRIPTS) {
