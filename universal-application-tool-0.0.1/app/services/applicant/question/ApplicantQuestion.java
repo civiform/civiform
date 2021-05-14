@@ -28,6 +28,11 @@ public class ApplicantQuestion {
   private final ApplicantData applicantData;
   private final Optional<RepeatedEntity> repeatedEntity;
 
+  /**
+   * If this is a repeated question, it should be created with the repeated entity associated with
+   * this question. If this is not a repeated question, then it should be created with an {@code
+   * Optional.empty()} repeated entity.
+   */
   public ApplicantQuestion(
       QuestionDefinition questionDefinition,
       ApplicantData applicantData,
