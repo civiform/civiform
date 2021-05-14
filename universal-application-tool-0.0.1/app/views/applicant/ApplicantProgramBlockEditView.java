@@ -40,7 +40,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   public Content render(Params params) {
-    ContainerTag headerTag = layout.renderHeader(params.percentComplete());
+    ContainerTag headerTag = layout.renderHeader(getPercentComplete(params.blockIndex(), params.totalBlockCount()));
 
     ContainerTag body =
         body().with(h1(params.block().getName())).with(renderBlockWithSubmitForm(params));
@@ -61,6 +61,20 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     }
 
     return layout.render(params.request(), params.messages(), headerTag, body);
+  }
+
+  private double getPercentComplete(int blockIndex, int totalBlockCount) {
+    if (totalBlockCount == 0) return 100;
+
+    // Block doesn't exist.
+    if (blockIndex == -1) return 0;
+
+    // TODO: See if I need to cast to doubles.
+
+    // Add one to blockIndex for 1-based indexing.
+    // Add one to totalBlockCount so that even when the applicant is on the last block (but hasn't yet submitted it),
+    // they're still "in progress". Save 100% for the application review page.
+    return (int) (((blockIndex + 1) / (totalBlockCount + 1)) * 100.0);
   }
 
   /**
