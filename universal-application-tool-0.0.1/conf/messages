@@ -105,6 +105,9 @@ button.ariaLabel.deleteEntity=Delete {0}
 # Validation error that shows when an applicant does not enter a value.
 validation.entityNameRequired=Please enter a value for each line.
 
+# Validation error that shows when an applicant uses a duplicate entity name
+validation.duplicateEntityName=Please use unique names.
+
 # The placeholder text for enumerator fields
 placeholder.entityName=Nickname for {0}
 
