@@ -164,8 +164,12 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         EnumeratorQuestionDefinition enumeratorQuestionDefinition =
             blockDefinition.getEnumerationQuestionDefinition();
         ImmutableList<RepeatedEntity> repeatedEntities =
-            RepeatedEntity.createRepeatedEntities(
-                maybeRepeatedEntity, enumeratorQuestionDefinition, applicantData);
+            maybeRepeatedEntity.isPresent()
+                ? maybeRepeatedEntity
+                    .get()
+                    .createNestedRepeatedEntities(enumeratorQuestionDefinition, applicantData)
+                : RepeatedEntity.createRepeatedEntities(
+                    enumeratorQuestionDefinition, applicantData);
 
         // For each repeated entity, recursively build blocks for all of the repeated blocks of this
         // enumerator block.

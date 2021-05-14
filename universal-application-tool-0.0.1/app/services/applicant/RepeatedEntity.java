@@ -10,8 +10,26 @@ import services.question.types.EnumeratorQuestionDefinition;
 @AutoValue
 public abstract class RepeatedEntity {
 
-  /** Create all the repeated entities associated with the enumerator question. */
+  /**
+   * Create all the non-nested repeated entities associated with the enumerator question, with no
+   * parent.
+   */
   public static ImmutableList<RepeatedEntity> createRepeatedEntities(
+      EnumeratorQuestionDefinition enumeratorQuestionDefinition, ApplicantData applicantData) {
+    return RepeatedEntity.createRepeatedEntities(
+        Optional.empty(), enumeratorQuestionDefinition, applicantData);
+  }
+  /**
+   * Create all the nested repeated entities associated with the enumerator question, with this
+   * repeated entity as their parent.
+   */
+  public ImmutableList<RepeatedEntity> createNestedRepeatedEntities(
+      EnumeratorQuestionDefinition enumeratorQuestionDefinition, ApplicantData applicantData) {
+    return RepeatedEntity.createRepeatedEntities(
+        Optional.of(this), enumeratorQuestionDefinition, applicantData);
+  }
+
+  private static ImmutableList<RepeatedEntity> createRepeatedEntities(
       Optional<RepeatedEntity> parent,
       EnumeratorQuestionDefinition enumeratorQuestionDefinition,
       ApplicantData applicantData) {
