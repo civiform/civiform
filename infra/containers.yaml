@@ -13,9 +13,9 @@ Mappings:
       sender: noreply@staging.seattle.civiform.com
   AdminGroup:
     prod:
-      group: ad\\ITD_CiviForm_Admins_Test
-    staging:
       group: ad\\ITD_CiviForm_Admins
+    staging:
+      group: ad\\ITD_CiviForm_Admins_Test
 Parameters:
   Environment:
     Type: String
