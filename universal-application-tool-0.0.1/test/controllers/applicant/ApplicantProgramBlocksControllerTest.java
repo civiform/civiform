@@ -304,7 +304,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantPro
         subject.edit(request, applicant.id, program.id, "1").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Guardar y continuar");
+    assertThat(contentAsString(result)).contains("Próximo");
   }
 
   @Test
