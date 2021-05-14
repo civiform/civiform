@@ -76,7 +76,7 @@ export class ApplicantQuestions {
     await this.page.click('text="Submit"');
 
     // Ensure that we redirected to the programs list page.
-    expect(await this.page.url().split('/').pop()).toEqual('programs');
+    expect(await this.page.url().split('/').pop()).toEqual('confirmation');
 
     // And grab the toast message to verify that the app was submitted.
   }
