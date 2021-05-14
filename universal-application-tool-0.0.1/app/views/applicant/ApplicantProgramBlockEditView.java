@@ -146,47 +146,32 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     }
 
     abstract boolean inReview();
-
     abstract Http.Request request();
-
     abstract Messages messages();
-
+    abstract int blockIndex();
+    abstract int totalBlockCount();
     abstract int percentComplete();
-
     abstract long applicantId();
-
     abstract long programId();
-
     abstract Block block();
-
     abstract boolean preferredLanguageSupported();
-
     abstract SimpleStorage amazonS3Client();
-
     abstract String baseUrl();
 
     @AutoValue.Builder
     public abstract static class Builder {
       public abstract Builder setRequest(Http.Request request);
-
       public abstract Builder setInReview(boolean inReview);
-
       public abstract Builder setMessages(Messages messages);
-
+      public abstract Builder setBlockIndex(int blockIndex);
+      public abstract Builder setTotalBlockCount(int blockIndex);
       public abstract Builder setPercentComplete(int percentComplete);
-
       public abstract Builder setApplicantId(long applicantId);
-
       public abstract Builder setProgramId(long programId);
-
       public abstract Builder setBlock(Block block);
-
       public abstract Builder setPreferredLanguageSupported(boolean preferredLanguageSupported);
-
       public abstract Builder setAmazonS3Client(SimpleStorage amazonS3Client);
-
       public abstract Builder setBaseUrl(String baseUrl);
-
       public abstract Params build();
     }
   }
