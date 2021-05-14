@@ -240,6 +240,6 @@ public class FieldWithLabel {
         .withClasses(
             fieldErrors.isEmpty()
                 ? ""
-                : StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT, Styles.P_1));
+                : StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_XS, Styles.P_1));
   }
 }

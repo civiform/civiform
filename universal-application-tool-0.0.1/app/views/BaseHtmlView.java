@@ -37,7 +37,7 @@ public abstract class BaseHtmlView {
   public static ContainerTag fieldErrors(
       Messages messages, ImmutableSet<ValidationErrorMessage> errors) {
     return div(each(errors, error -> div(error.getMessage(messages))))
-        .withClasses(BaseStyles.FORM_ERROR_TEXT);
+        .withClasses(BaseStyles.FORM_ERROR_TEXT_BASE);
   }
 
   public static Tag button(String textContents) {

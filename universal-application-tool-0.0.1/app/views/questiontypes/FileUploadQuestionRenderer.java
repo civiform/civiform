@@ -1,6 +1,5 @@
 package views.questiontypes;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 
@@ -13,12 +12,10 @@ import views.BaseHtmlView;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
-public class FileUploadQuestionRenderer extends BaseHtmlView implements ApplicantQuestionRenderer {
-
-  private final ApplicantQuestion question;
+public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
 
   public FileUploadQuestionRenderer(ApplicantQuestion question) {
-    this.question = checkNotNull(question);
+    super(question);
   }
 
   @Override
@@ -40,7 +37,7 @@ public class FileUploadQuestionRenderer extends BaseHtmlView implements Applican
                     Styles.MB_2)
                 .withText(question.getQuestionHelpText()),
             fileUploadFields(params),
-            fieldErrors(params.messages(), fileUploadQuestion.getQuestionErrors()));
+            BaseHtmlView.fieldErrors(params.messages(), fileUploadQuestion.getQuestionErrors()));
   }
 
   private ContainerTag fileUploadFields(ApplicantQuestionRendererParams params) {

@@ -10,7 +10,7 @@ public final class ApplicantStyles {
   public static final String QUESTION_TEXT =
       StyleUtils.joinStyles(Styles.TEXT_BLACK, Styles.TEXT_XL, Styles.FONT_BOLD, Styles.MB_2);
   public static final String QUESTION_HELP_TEXT =
-      StyleUtils.joinStyles(Styles.TEXT_BLACK, Styles.TEXT_XL, Styles.MB_4);
+      StyleUtils.joinStyles(Styles.TEXT_BLACK, Styles.TEXT_XL);
 
   public static final String BLOCK_HEADING =
       StyleUtils.joinStyles(Styles.TEXT_3XL, Styles.TEXT_BLACK, Styles.FONT_BOLD);
