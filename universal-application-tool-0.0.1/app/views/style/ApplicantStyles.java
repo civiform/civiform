@@ -19,7 +19,6 @@ public final class ApplicantStyles {
   public static final String H1_PROGRAM_APPLICATION =
       StyleUtils.joinStyles(
           Styles.TEXT_3XL, Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.MT_8, Styles.MB_4);
-  public static final String BLOCK_HEADING = H1_PROGRAM_APPLICATION;
 
   public static final String BUTTON_BLOCK_NEXT =
       StyleUtils.joinStyles(
@@ -33,8 +32,7 @@ public final class ApplicantStyles {
           Styles.FLOAT_RIGHT);
 
   public static final String PROGRAM_TITLE_HEADING =
-      StyleUtils.joinStyles(
-          BaseStyles.TEXT_SEATTLE_BLUE, Styles.TEXT_LG, Styles.FONT_BOLD, Styles.MB_4);
+      StyleUtils.joinStyles(BaseStyles.TEXT_SEATTLE_BLUE, Styles.TEXT_LG, Styles.FONT_BOLD);
 
   public static final String PROGRAM_CARD =
       StyleUtils.joinStyles(

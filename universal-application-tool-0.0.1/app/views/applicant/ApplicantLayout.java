@@ -13,6 +13,7 @@ import auth.UatProfile;
 import com.typesafe.config.Config;
 import controllers.ti.routes;
 import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
@@ -101,8 +102,17 @@ public class ApplicantLayout extends BaseHtmlLayout {
             Styles.PX_3, Styles.TEXT_SM, Styles.OPACITY_75, StyleUtils.hover(Styles.OPACITY_100));
   }
 
+  /**
+   * Use this one when the application is already complete, to show a complete progress indicator.
+   */
+  protected ContainerTag renderProgramApplicationProgressIndicator(String programTitle) {
+    return renderProgramApplicationProgressIndicator(programTitle, 0, 0);
+  }
+
   protected ContainerTag renderProgramApplicationProgressIndicator(
-      String programTitle, int percentComplete) {
+      String programTitle, int blockIndex, int totalBlockCount) {
+    int percentComplete = getPercentComplete(blockIndex, totalBlockCount);
+
     ContainerTag progressInner =
         div()
             .withClasses(
@@ -126,10 +136,34 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 Styles.FONT_SEMIBOLD,
                 Styles.BG_WHITE,
                 Styles.RELATIVE,
-                Styles.H_4);
+                Styles.H_4,
+                Styles.MT_4);
 
-    return div()
-        .with(h2(programTitle).withClasses(ApplicantStyles.PROGRAM_TITLE_HEADING))
-        .with(progressIndicator);
+    ContainerTag blockNumberTag = div();
+    if (percentComplete != 100) {
+      blockNumberTag
+          .withText(String.format("%d of %d", blockIndex + 1, totalBlockCount))
+          .withClasses(Styles.TEXT_GRAY_500, Styles.TEXT_RIGHT);
+    }
+
+    Tag programTitleDiv =
+        div()
+            .with(h2(programTitle).withClasses(ApplicantStyles.PROGRAM_TITLE_HEADING))
+            .with(blockNumberTag)
+            .withClasses(Styles.GRID, Styles.GRID_COLS_2);
+
+    return div().with(programTitleDiv).with(progressIndicator);
+  }
+
+  /** Returns whole number out of 100 representing the completion percent of this program. */
+  private int getPercentComplete(int blockIndex, int totalBlockCount) {
+    if (totalBlockCount == 0) return 100;
+    if (blockIndex == -1) return 0;
+
+    // Add one to blockIndex for 1-based indexing, so that when applicant is on first block, we show
+    // some amount of progress.
+    // Add one to totalBlockCount so that when applicant is on the last block, we show that they're
+    // still in progress. Save showing "100% completion" for the application review page.
+    return (int) (((blockIndex + 1.0) / (totalBlockCount + 1.0)) * 100.0);
   }
 }
