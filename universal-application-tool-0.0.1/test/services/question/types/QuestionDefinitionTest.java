@@ -344,6 +344,40 @@ public class QuestionDefinitionTest {
   }
 
   @Test
+  public void validate_withRepeatedQuestion_missingEntityNameFormatString_returnsErrors()
+      throws Exception {
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder()
+            .setName("name")
+            .setDescription("description")
+            .setQuestionText(LocalizedStrings.withDefaultValue("text"))
+            .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+            .setEnumeratorId(Optional.of(1L))
+            .setQuestionType(QuestionType.TEXT)
+            .build();
+
+    assertThat(question.validate())
+        .containsOnly(
+            CiviFormError.of(
+                "Repeated questions must reference '$this' in the text and help text (if"
+                    + " present)"));
+  }
+
+  @Test
+  public void validate_withRepeatedQuestion_withNoHelpText_returnsNoErrors() throws Exception {
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder()
+            .setName("name")
+            .setDescription("description")
+            .setQuestionText(LocalizedStrings.withDefaultValue("something with $this"))
+            .setEnumeratorId(Optional.of(1L))
+            .setQuestionType(QuestionType.TEXT)
+            .build();
+
+    assertThat(question.validate()).isEmpty();
+  }
+
+  @Test
   public void validate_localeHasBlankText_returnsError() {
     QuestionDefinition question =
         new TextQuestionDefinition(
