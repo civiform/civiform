@@ -9,6 +9,7 @@ import static j2html.attributes.Attr.HREF;
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
+import j2html.tags.DomContent;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -111,11 +112,13 @@ public class ProgramIndexView extends BaseHtmlView {
             .withId(baseId + "-title")
             .withClasses(Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
             .withText(program.localizedName().getOrDefault(preferredLocale));
+    ImmutableList<DomContent> descriptionContent =
+        createLinksAndEscapeText(program.localizedDescription().getOrDefault(preferredLocale));
     ContainerTag description =
         div()
             .withId(baseId + "-description")
             .withClasses(Styles.TEXT_XS, Styles.MY_2)
-            .withText(program.localizedDescription().getOrDefault(preferredLocale));
+            .with(descriptionContent);
 
     ContainerTag externalLink =
         new LinkElement()
