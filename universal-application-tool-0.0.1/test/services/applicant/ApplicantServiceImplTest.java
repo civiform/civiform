@@ -233,7 +233,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     ApplicantData applicantDataAfter =
         userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
-    assertThat(applicantDataAfter.hasPath(enumeratorPath)).isTrue();
+    assertThat(applicantDataAfter.hasPath(enumeratorPath.withoutArrayReference())).isTrue();
     assertThat(applicantDataAfter.readRepeatedEntities(enumeratorPath)).isEmpty();
   }
 
