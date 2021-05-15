@@ -199,24 +199,6 @@ public class ProgramServiceImpl implements ProgramService {
     return addBlockToProgram(programId, Optional.of(enumeratorBlockId));
   }
 
-  @Override
-  public ImmutableList<String> getNotificationEmailAddresses(String programName) {
-    ImmutableList<String> explicitProgramAdmins =
-        programRepository.getProgramAdministrators(programName).stream()
-            .map(Account::getEmailAddress)
-            .filter(address -> !Strings.isNullOrEmpty(address))
-            .collect(ImmutableList.toImmutableList());
-    // If there are any program admins, return them.
-    if (explicitProgramAdmins.size() > 0) {
-      return explicitProgramAdmins;
-    }
-    // Return all the global admins email addresses.
-    return userRepository.getGlobalAdmins().stream()
-        .map(Account::getEmailAddress)
-        .filter(address -> !Strings.isNullOrEmpty(address))
-        .collect(ImmutableList.toImmutableList());
-  }
-
   private ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(
       long programId, Optional<Long> enumeratorBlockId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
@@ -448,6 +430,24 @@ public class ProgramServiceImpl implements ProgramService {
     return programRepository
         .createOrUpdateDraft(this.getProgramDefinition(id).toProgram())
         .getProgramDefinition();
+  }
+
+  @Override
+  public ImmutableList<String> getNotificationEmailAddresses(String programName) {
+    ImmutableList<String> explicitProgramAdmins =
+        programRepository.getProgramAdministrators(programName).stream()
+            .map(Account::getEmailAddress)
+            .filter(address -> !Strings.isNullOrEmpty(address))
+            .collect(ImmutableList.toImmutableList());
+    // If there are any program admins, return them.
+    if (explicitProgramAdmins.size() > 0) {
+      return explicitProgramAdmins;
+    }
+    // Return all the global admins email addresses.
+    return userRepository.getGlobalAdmins().stream()
+        .map(Account::getEmailAddress)
+        .filter(address -> !Strings.isNullOrEmpty(address))
+        .collect(ImmutableList.toImmutableList());
   }
 
   private ProgramDefinition updateProgramDefinitionWithBlockDefinition(
