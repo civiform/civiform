@@ -52,7 +52,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     HtmlBundle bundle =
         layout
             .getBundle()
-            .setTitle("CiviForm")
+            .setTitle(String.format("%s — %s", params.block().getName(), params.programTitle()))
             .addMainContent(
                 layout.renderHeader(
                     getPercentComplete(params.blockIndex(), params.totalBlockCount())),
@@ -184,6 +184,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
     abstract long applicantId();
 
+    abstract String programTitle();
+
     abstract long programId();
 
     abstract Block block();
@@ -207,6 +209,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
       public abstract Builder setTotalBlockCount(int blockIndex);
 
       public abstract Builder setApplicantId(long applicantId);
+
+      public abstract Builder setProgramTitle(String programTitle);
 
       public abstract Builder setProgramId(long programId);
 

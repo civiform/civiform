@@ -49,7 +49,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       ImmutableList<AnswerData> data,
       Messages messages,
       Optional<String> banner) {
-    HtmlBundle bundle = layout.getBundle().setTitle("Program summary");
+    HtmlBundle bundle =
+        layout.getBundle().setTitle(String.format("Application summary — %s", programTitle));
 
     ContainerTag content = div().withClasses(Styles.MX_16);
     ContainerTag applicationSummary = div().withId("application-summary");
@@ -74,7 +75,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     }
     bundle.addMainContent(
         layout.renderHeader(100),
-        h1("Application review for " + programTitle).withClasses(Styles.PX_16, Styles.PY_4),
+        h1(String.format("%s application summary", programTitle)),
         content);
 
     return layout.renderWithNav(request, messages, bundle);

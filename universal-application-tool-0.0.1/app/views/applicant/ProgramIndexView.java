@@ -53,7 +53,7 @@ public class ProgramIndexView extends BaseHtmlView {
       long applicantId,
       ImmutableList<ProgramDefinition> programs,
       Optional<String> banner) {
-    HtmlBundle bundle = layout.getBundle().setTitle("CiviForm");
+    HtmlBundle bundle = layout.getBundle();
     if (banner.isPresent()) {
       bundle.addToastMessages(ToastMessage.alert(banner.get()));
     }

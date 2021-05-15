@@ -42,7 +42,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
     bundle.addMainStyles(Styles.M_12);
     String currentTitle = bundle.getTitle();
     if (currentTitle != null && !currentTitle.isEmpty()) {
-      bundle.setTitle(currentTitle + " - CiviForm");
+      bundle.setTitle(String.format("%s — CiviForm", currentTitle));
+    } else {
+      bundle.setTitle("CiviForm");
     }
     return super.render(bundle);
   }
