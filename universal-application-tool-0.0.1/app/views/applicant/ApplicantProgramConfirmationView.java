@@ -35,8 +35,8 @@ public final class ApplicantProgramConfirmationView extends BaseHtmlView {
       String programTitle,
       Messages messages,
       Optional<String> banner) {
-    String title = "Application Confirmation for " + programTitle;
-    HtmlBundle bundle = layout.getBundle().setTitle(title);
+    HtmlBundle bundle =
+        layout.getBundle().setTitle(String.format("Application confirmation — %s", programTitle));
 
     ContainerTag content = div().withClasses(Styles.MX_16);
     content.with(h2(messages.at("content.confirmed", programTitle, applicationId)));
@@ -51,7 +51,10 @@ public final class ApplicantProgramConfirmationView extends BaseHtmlView {
     }
 
     bundle.addMainContent(
-        layout.renderHeader(100), h1(title).withClasses(Styles.PX_16, Styles.PY_4), content);
+        layout.renderHeader(100),
+        h1(String.format("%s application confirmation", programTitle))
+            .withClasses(Styles.PX_16, Styles.PY_4),
+        content);
 
     return layout.renderWithNav(request, messages, bundle);
   }
