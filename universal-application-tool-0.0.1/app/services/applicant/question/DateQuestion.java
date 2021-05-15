@@ -2,6 +2,7 @@ package services.applicant.question;
 
 import com.google.common.collect.ImmutableSet;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -54,7 +55,7 @@ public class DateQuestion implements PresentsErrors {
 
   @Override
   public String getAnswerString() {
-    return getDateValue().map(LocalDate::toString).orElse("-");
+    return getDateValue().map(localDate -> localDate.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"))).orElse("-");
   }
 
   public Optional<LocalDate> getDateValue() {
