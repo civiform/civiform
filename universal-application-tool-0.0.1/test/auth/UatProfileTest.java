@@ -1,8 +1,10 @@
 package auth;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.fail;
 
 import com.google.common.collect.ImmutableList;
+import java.util.concurrent.CompletionException;
 import models.Account;
 import models.Applicant;
 import org.junit.Before;
@@ -19,11 +21,16 @@ public class UatProfileTest extends WithPostgresContainer {
   }
 
   @Test
-  public void checkAuthorization_admin_passesForAnyId() {
+  public void checkAuthorization_admin_failsForApplicantId() {
     UatProfileData data = profileFactory.createNewAdmin();
     UatProfile profile = profileFactory.wrapProfileData(data);
 
-    profile.checkAuthorization(1234L).join();
+    try {
+      profile.checkAuthorization(1234L).join();
+      fail("Should not have successfully authorized admin.");
+    } catch (CompletionException e) {
+      // pass.
+    }
   }
 
   @Test

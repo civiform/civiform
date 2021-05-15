@@ -27,7 +27,7 @@ button.untranslatedSubmit=Submit
 #--------------------------------------------------------------------------#
 
 # The button text for saving the current applicant-entered data and continuing to the next block in the form.
-button.nextBlock=Save and continue
+button.nextBlock=Next
 
 # The aria text on the button used by an applicant to mark an entity for deletion.
 button.ariaLabel.deleteEntity=Delete {0}

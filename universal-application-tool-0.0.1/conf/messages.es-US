@@ -2,7 +2,7 @@
 
 button.logout=Cerrar Sesión
 button.apply=Solicitar
-button.nextBlock=Guardar y continuar
+button.nextBlock=Próximo
 button.deleteEntity=Eliminar {0}
 toast.localeNotSupported=Lo siento, este programa no está completamente traducido al español.
 toast.programCompleted=Ya completó esta solicitud

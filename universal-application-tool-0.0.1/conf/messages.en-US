@@ -2,7 +2,7 @@
 
 button.logout=Logout
 button.apply=Apply
-button.nextBlock=Save and continue
+button.nextBlock=Next
 button.deleteEntity=Delete {0}
 toast.localeNotSupported=We're sorry, this program is not fully translated to English.
 toast.programCompleted=Application was already completed.

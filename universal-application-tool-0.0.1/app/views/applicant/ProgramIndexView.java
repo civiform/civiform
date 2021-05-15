@@ -141,7 +141,7 @@ public class ProgramIndexView extends BaseHtmlView {
         a().attr(HREF, applyUrl)
             .withText(messages.at(MessageKey.BUTTON_APPLY.getKeyName()))
             .withId(baseId + "-apply")
-            .withClasses(ReferenceClasses.APPLY_BUTTON, ApplicantStyles.PROGRAM_APPLY_BUTTON);
+            .withClasses(ReferenceClasses.APPLY_BUTTON, ApplicantStyles.BUTTON_PROGRAM_APPLY);
 
     ContainerTag applyDiv =
         div(applyButton).withClasses(Styles.ABSOLUTE, Styles.BOTTOM_6, Styles.W_FULL);

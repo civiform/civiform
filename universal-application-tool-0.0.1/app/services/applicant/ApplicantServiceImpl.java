@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.typesafe.config.Config;
+import java.net.URI;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -34,8 +36,7 @@ import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
 
 public class ApplicantServiceImpl implements ApplicantService {
-  // TODO: use program admin emails instead
-  private static final String PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST =
+  private static final String STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST =
       "seattle-civiform-program-admins-notify@google.com";
 
   private final ApplicationRepository applicationRepository;
@@ -43,6 +44,8 @@ public class ApplicantServiceImpl implements ApplicantService {
   private final ProgramService programService;
   private final SimpleEmail amazonSESClient;
   private final Clock clock;
+  private final String baseUrl;
+  private final boolean isStaging;
   private final HttpExecutionContext httpExecutionContext;
 
   @Inject
@@ -52,12 +55,15 @@ public class ApplicantServiceImpl implements ApplicantService {
       ProgramService programService,
       SimpleEmail amazonSESClient,
       Clock clock,
+      Config configuration,
       HttpExecutionContext httpExecutionContext) {
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
     this.programService = checkNotNull(programService);
     this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
+    this.baseUrl = checkNotNull(configuration).getString("base_url");
+    this.isStaging = URI.create(baseUrl).getHost().equals("staging.seattle.civiform.com");
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
 
@@ -189,8 +195,8 @@ public class ApplicantServiceImpl implements ApplicantService {
                     new ApplicationSubmissionException(applicantId, programId));
               }
               Application application = applicationMaybe.get();
-              String programTitle = application.getProgram().getProgramDefinition().adminName();
-              notifyProgramAdmins(applicantId, programId, programTitle);
+              String programName = application.getProgram().getProgramDefinition().adminName();
+              notifyProgramAdmins(applicantId, programId, application.id, programName);
               return CompletableFuture.completedFuture(application);
             },
             httpExecutionContext.current());
@@ -201,12 +207,24 @@ public class ApplicantServiceImpl implements ApplicantService {
     return userRepository.programsForApplicant(applicantId);
   }
 
-  private void notifyProgramAdmins(long applicantId, long programId, String programTitle) {
-    String subject = String.format("New application submitted for %s", programTitle);
+  private void notifyProgramAdmins(
+      long applicantId, long programId, long applicationId, String programName) {
+    String viewLink =
+        baseUrl
+            + controllers.admin.routes.AdminApplicationController.show(programId, applicationId)
+                .url();
+    System.out.println(viewLink);
+    String subject = String.format("New application submitted for %s", programName);
     String message =
         String.format(
-            "Applicant %d submitted a new application to program %d", applicantId, programId);
-    amazonSESClient.send(PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST, subject, message);
+            "Applicant %d submitted a new application to program %s. View the application at %s.",
+            applicantId, programName, viewLink);
+    if (isStaging) {
+      amazonSESClient.send(STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST, subject, message);
+    } else {
+      amazonSESClient.send(
+          programService.getNotificationEmailAddresses(programName), subject, message);
+    }
   }
 
   /**

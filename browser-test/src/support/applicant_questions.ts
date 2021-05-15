@@ -64,8 +64,8 @@ export class ApplicantQuestions {
     await this.page.click(`.cf-application-card:has-text("${programName}") .cf-apply-button`);
   }
 
-  async saveAndContinue() {
-    await this.page.click('text="Save and continue"');
+  async clickNext() {
+    await this.page.click('text="Next"');
   }
 
   async submitFromReviewPage(programName: string) {
