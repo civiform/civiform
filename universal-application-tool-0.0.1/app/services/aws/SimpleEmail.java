@@ -55,6 +55,10 @@ public class SimpleEmail {
   }
 
   public void send(ImmutableList<String> toAddresses, String subject, String bodyText) {
+    if (toAddresses.isEmpty()) {
+      return;
+    }
+
     try {
       Destination destination =
           Destination.builder().toAddresses(toAddresses.toArray(new String[0])).build();
