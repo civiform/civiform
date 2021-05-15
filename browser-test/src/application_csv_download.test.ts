@@ -27,7 +27,7 @@ describe('normal application flow', () => {
 
     // Applicant fills out first application block.
     await applicantQuestions.answerNameQuestion('sarah', 'smith');
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.clickNext();
 
     // Application submits answers from review page.
     await applicantQuestions.submitFromReviewPage(programName);
