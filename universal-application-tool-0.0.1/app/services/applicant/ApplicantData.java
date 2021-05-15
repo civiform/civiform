@@ -168,9 +168,7 @@ public class ApplicantData {
   }
 
   private void putNull(Path path) {
-    if (!path.isArrayElement()) {
-      put(path, null);
-    }
+    put(path, null);
   }
 
   /**
@@ -190,7 +188,9 @@ public class ApplicantData {
     putParentIfMissing(path);
     if (path.isArrayElement()) {
       putArrayIfMissing(path.withoutArrayReference());
-      addAt(path, value);
+      if (value != null) {
+        addAt(path, value);
+      }
     } else {
       putAt(path, value);
     }
