@@ -70,7 +70,7 @@ export class ApplicantQuestions {
 
   async submitFromReviewPage(programName: string) {
     // assert that we're on the review page.
-    expect(await this.page.innerText('h1')).toContain('Application review for ' + programName);
+    expect(await this.page.innerText('h1')).toContain('Application summary');
 
     // click on submit button.
     await this.page.click('text="Submit"');

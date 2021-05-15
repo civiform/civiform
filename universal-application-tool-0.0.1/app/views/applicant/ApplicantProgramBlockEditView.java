@@ -45,16 +45,17 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     Tag blockDiv =
         div()
             .with(div(renderBlockWithSubmitForm(params)).withClasses(Styles.MY_8))
-            .withClasses(Styles.MY_8, Styles.W_1_3, Styles.M_AUTO);
+            .withClasses(Styles.MY_8, Styles.M_AUTO);
 
     HtmlBundle bundle =
         layout
             .getBundle()
-            .setTitle("CiviForm")
+            .setTitle(params.programTitle())
             .addMainContent(
-                layout.renderHeader(
-                    getPercentComplete(params.blockIndex(), params.totalBlockCount())),
-                blockDiv);
+                layout.renderProgramApplicationTitleAndProgressIndicator(
+                    params.programTitle(), params.blockIndex(), params.totalBlockCount()),
+                blockDiv)
+            .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
     if (!params.preferredLanguageSupported()) {
       bundle.addMainContent(
@@ -72,18 +73,6 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     }
 
     return layout.renderWithNav(params.request(), params.messages(), bundle);
-  }
-
-  /** Returns whole number out of 100 representing the completion percent of this program. */
-  private int getPercentComplete(int blockIndex, int totalBlockCount) {
-    if (totalBlockCount == 0) return 100;
-    if (blockIndex == -1) return 0;
-
-    // Add one to blockIndex for 1-based indexing, so that when applicant is on first block, we show
-    // some amount of progress.
-    // Add one to totalBlockCount so that when applicant is on the last block, we show that they're
-    // still in progress. Save showing "100% completion" for the application review page.
-    return (int) (((blockIndex + 1.0) / (totalBlockCount + 1.0)) * 100.0);
   }
 
   /**
@@ -182,6 +171,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
     abstract long applicantId();
 
+    abstract String programTitle();
+
     abstract long programId();
 
     abstract Block block();
@@ -205,6 +196,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
       public abstract Builder setTotalBlockCount(int blockIndex);
 
       public abstract Builder setApplicantId(long applicantId);
+
+      public abstract Builder setProgramTitle(String programTitle);
 
       public abstract Builder setProgramId(long programId);
 

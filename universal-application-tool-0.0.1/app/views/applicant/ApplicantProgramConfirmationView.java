@@ -16,7 +16,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.LinkElement;
 import views.components.ToastMessage;
-import views.style.Styles;
+import views.style.ApplicantStyles;
 
 public final class ApplicantProgramConfirmationView extends BaseHtmlView {
 
@@ -35,23 +35,29 @@ public final class ApplicantProgramConfirmationView extends BaseHtmlView {
       String programTitle,
       Messages messages,
       Optional<String> banner) {
-    String title = "Application Confirmation for " + programTitle;
-    HtmlBundle bundle = layout.getBundle().setTitle(title);
+    String pageTitle = "Application confirmation";
+    HtmlBundle bundle =
+        layout.getBundle().setTitle(String.format("%s — %s", pageTitle, programTitle));
 
-    ContainerTag content = div().withClasses(Styles.MX_16);
-    content.with(h2(messages.at("content.confirmed", programTitle, applicationId)));
-    content.with(
-        new LinkElement()
-            .setHref(routes.ApplicantProgramsController.index(applicantId).url())
-            .setText(messages.at("content.returnToDash"))
-            .asAnchorText());
+    ContainerTag content =
+        div()
+            .with(h2(messages.at("content.confirmed", programTitle, applicationId)))
+            .with(
+                new LinkElement()
+                    .setHref(routes.ApplicantProgramsController.index(applicantId).url())
+                    .setText(messages.at("content.returnToDash"))
+                    .asAnchorText());
 
     if (banner.isPresent()) {
       bundle.addToastMessages(ToastMessage.error(banner.get()));
     }
 
-    bundle.addMainContent(
-        layout.renderHeader(100), h1(title).withClasses(Styles.PX_16, Styles.PY_4), content);
+    bundle
+        .addMainContent(
+            layout.renderProgramApplicationTitleAndProgressIndicator(programTitle),
+            h1(pageTitle).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION),
+            content)
+        .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
     return layout.renderWithNav(request, messages, bundle);
   }
