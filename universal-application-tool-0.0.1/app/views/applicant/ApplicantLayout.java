@@ -38,7 +38,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   @Override
   public Content render(HtmlBundle bundle) {
-    bundle.addBodyStyles(ApplicantStyles.BODY_BG_COLOR);
+    bundle.addBodyStyles(ApplicantStyles.BODY);
+    bundle.addMainStyles(Styles.M_12);
     String currentTitle = bundle.getTitle();
     if (currentTitle != null && !currentTitle.isEmpty()) {
       bundle.setTitle(currentTitle + " - CiviForm");
