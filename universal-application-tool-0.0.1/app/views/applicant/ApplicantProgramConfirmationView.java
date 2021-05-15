@@ -54,7 +54,7 @@ public final class ApplicantProgramConfirmationView extends BaseHtmlView {
 
     bundle
         .addMainContent(
-            layout.renderProgramApplicationProgressIndicator(programTitle),
+            layout.renderProgramApplicationTitleAndProgressIndicator(programTitle),
             h1(pageTitle).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION),
             content)
         .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);

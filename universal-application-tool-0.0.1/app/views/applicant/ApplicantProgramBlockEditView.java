@@ -52,7 +52,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             .getBundle()
             .setTitle(params.programTitle())
             .addMainContent(
-                layout.renderProgramApplicationProgressIndicator(
+                layout.renderProgramApplicationTitleAndProgressIndicator(
                     params.programTitle(), params.blockIndex(), params.totalBlockCount()),
                 blockDiv)
             .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);

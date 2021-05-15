@@ -75,7 +75,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       bundle.addToastMessages(ToastMessage.error(banner.get()));
     }
     bundle.addMainContent(
-        layout.renderProgramApplicationProgressIndicator(programTitle),
+        layout.renderProgramApplicationTitleAndProgressIndicator(programTitle),
         h1(pageTitle).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION),
         content);
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);

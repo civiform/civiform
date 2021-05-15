@@ -105,11 +105,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
   /**
    * Use this one when the application is already complete, to show a complete progress indicator.
    */
-  protected ContainerTag renderProgramApplicationProgressIndicator(String programTitle) {
-    return renderProgramApplicationProgressIndicator(programTitle, 0, 0);
+  protected ContainerTag renderProgramApplicationTitleAndProgressIndicator(String programTitle) {
+    return renderProgramApplicationTitleAndProgressIndicator(programTitle, 0, 0);
   }
 
-  protected ContainerTag renderProgramApplicationProgressIndicator(
+  protected ContainerTag renderProgramApplicationTitleAndProgressIndicator(
       String programTitle, int blockIndex, int totalBlockCount) {
     int percentComplete = getPercentComplete(blockIndex, totalBlockCount);
 
