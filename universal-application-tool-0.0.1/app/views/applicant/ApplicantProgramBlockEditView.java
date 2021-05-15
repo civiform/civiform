@@ -1,10 +1,9 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.body;
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.h1;
 import static j2html.attributes.Attr.ENCTYPE;
 
 import com.google.auto.value.AutoValue;
@@ -22,10 +21,13 @@ import services.applicant.question.ApplicantQuestion;
 import services.aws.SignedS3UploadRequest;
 import services.aws.SimpleStorage;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.EnumeratorQuestionRenderer;
+import views.style.ApplicantStyles;
+import views.style.Styles;
 
 public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
@@ -40,31 +42,37 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   public Content render(Params params) {
-    ContainerTag headerTag = layout.renderHeader(params.percentComplete());
+    Tag blockDiv =
+        div()
+            .with(div(renderBlockWithSubmitForm(params)).withClasses(Styles.MY_8))
+            .withClasses(Styles.MY_8, Styles.M_AUTO);
 
-    ContainerTag body =
-        body().with(h1(params.block().getName())).with(renderBlockWithSubmitForm(params));
+    HtmlBundle bundle =
+        layout
+            .getBundle()
+            .setTitle(params.programTitle())
+            .addMainContent(
+                layout.renderProgramApplicationTitleAndProgressIndicator(
+                    params.programTitle(), params.blockIndex(), params.totalBlockCount()),
+                blockDiv)
+            .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
     if (!params.preferredLanguageSupported()) {
-      body.with(
+      bundle.addMainContent(
           renderLocaleNotSupportedToast(
               params.applicantId(), params.programId(), params.messages()));
     }
 
     // Add the hidden enumerator field template
     if (params.block().isEnumerator()) {
-      body.with(
+      bundle.addMainContent(
           EnumeratorQuestionRenderer.newEnumeratorFieldTemplate(
               params.block().getEnumeratorQuestion().getContextualizedPath(),
-              params
-                  .block()
-                  .getEnumeratorQuestion()
-                  .createEnumeratorQuestion()
-                  .getEntityType(params.messages(), params.messages().lang().toLocale()),
+              params.block().getEnumeratorQuestion().createEnumeratorQuestion().getEntityType(),
               params.messages()));
     }
 
-    return layout.render(params.request(), params.messages(), headerTag, body);
+    return layout.renderWithNav(params.request(), params.messages(), bundle);
   }
 
   /**
@@ -105,7 +113,9 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             each(
                 params.block().getQuestions(),
                 question -> renderQuestion(question, rendererParams)))
-        .with(submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName())));
+        .with(
+            submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName()))
+                .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT));
   }
 
   private Tag renderFileUploadBlockSubmitForm(Params params) {
@@ -155,9 +165,13 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
     abstract Messages messages();
 
-    abstract int percentComplete();
+    abstract int blockIndex();
+
+    abstract int totalBlockCount();
 
     abstract long applicantId();
+
+    abstract String programTitle();
 
     abstract long programId();
 
@@ -177,9 +191,13 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
       public abstract Builder setMessages(Messages messages);
 
-      public abstract Builder setPercentComplete(int percentComplete);
+      public abstract Builder setBlockIndex(int blockIndex);
+
+      public abstract Builder setTotalBlockCount(int blockIndex);
 
       public abstract Builder setApplicantId(long applicantId);
+
+      public abstract Builder setProgramTitle(String programTitle);
 
       public abstract Builder setProgramId(long programId);
 

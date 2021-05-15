@@ -2,6 +2,7 @@ package services.applicant;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
 import services.Path;
 import services.question.types.QuestionDefinition;
 
@@ -26,6 +27,9 @@ public abstract class AnswerData {
 
   /** The {@link models.Question} ID this is an answer for. */
   public abstract QuestionDefinition questionDefinition();
+
+  /** The repeated entity if this is an answer to a repeated question. Otherwise, empty. */
+  public abstract Optional<RepeatedEntity> repeatedEntity();
 
   /** The index of the {@link models.Question} this is an answer for in the block it appeared in. */
   public abstract int questionIndex();
@@ -55,6 +59,8 @@ public abstract class AnswerData {
     public abstract Builder setBlockId(String blockId);
 
     public abstract Builder setQuestionDefinition(QuestionDefinition questionDefinition);
+
+    public abstract Builder setRepeatedEntity(Optional<RepeatedEntity> repeatedEntity);
 
     public abstract Builder setQuestionIndex(int questionIndex);
 

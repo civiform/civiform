@@ -52,18 +52,19 @@ describe('normal application flow', () => {
     await applicantQuestions.answerNameQuestion('Queen', 'Hearts', 'of');
     await applicantQuestions.answerRadioButtonQuestion('two');
     await applicantQuestions.answerDateQuestion('05/10/2021');
-    await applicantQuestions.saveAndContinue();
+    //await applicantQuestions.saveAndContinue();
+    await applicantQuestions.clickNext();
 
     // Applicant fills out second application block.
     await applicantQuestions.answerDropdownQuestion('banana');
     await applicantQuestions.answerCheckboxQuestion(['cherry', 'pine']);
     await applicantQuestions.answerNumberQuestion('42');
     await applicantQuestions.answerTextQuestion('some text');
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.clickNext();
 
     // Applicant fills out third application block.
     await applicantQuestions.answerFileUploadQuestion('file key');
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.clickNext();
 
     // Applicant submits answers from review page.
     await applicantQuestions.submitFromReviewPage(programName);

@@ -3,9 +3,6 @@ package services.applicant.question;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import java.util.Locale;
-import play.i18n.Messages;
-import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.EnumeratorQuestionDefinition;
@@ -36,14 +33,24 @@ public class EnumeratorQuestion implements PresentsErrors {
     return ImmutableSet.of();
   }
 
-  /** No blank values are allowed. */
+  /** No blank values are allowed. No duplicated entity names are allowed. */
   @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    if (isAnswered() && getEntityNames().stream().anyMatch(String::isBlank)) {
-      return ImmutableSet.of(
+    if (!isAnswered()) {
+      return ImmutableSet.of();
+    }
+
+    ImmutableSet.Builder<ValidationErrorMessage> errorsBuilder = ImmutableSet.builder();
+    ImmutableList<String> entityNames = getEntityNames();
+    if (entityNames.stream().anyMatch(String::isBlank)) {
+      errorsBuilder.add(
           ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_ENTITY_REQUIRED));
     }
-    return ImmutableSet.of();
+    if (entityNames.stream().collect(ImmutableSet.toImmutableSet()).size() != entityNames.size()) {
+      errorsBuilder.add(
+          ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME));
+    }
+    return errorsBuilder.build();
   }
 
   public void assertQuestionType() {
@@ -77,16 +84,13 @@ public class EnumeratorQuestion implements PresentsErrors {
   }
 
   /**
-   * Get the admin-configurable entity type this enumerator represents. Examples: "car", "child",
-   * "job", "household member". If the admin did not configure this, it defaults to {@link
-   * MessageKey#ENUMERATOR_STRING_DEFAULT_ENTITY_TYPE}.
+   * Get the localized admin-configurable entity type this enumerator represents. Examples: "car",
+   * "child", "job", "household member".
    */
-  public String getEntityType(Messages messages, Locale locale) {
-    LocalizedStrings translations = getQuestionDefinition().getEntityType();
-    if (translations.isEmpty()) {
-      return messages.at(MessageKey.ENUMERATOR_STRING_DEFAULT_ENTITY_TYPE.getKeyName());
-    }
-    return translations.getOrDefault(locale);
+  public String getEntityType() {
+    return getQuestionDefinition()
+        .getEntityType()
+        .getOrDefault(applicantQuestion.getApplicantData().preferredLocale());
   }
 
   @Override

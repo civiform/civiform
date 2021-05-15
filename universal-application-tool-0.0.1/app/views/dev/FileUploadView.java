@@ -2,7 +2,6 @@ package views.dev;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
-import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -26,6 +25,7 @@ import play.twirl.api.Content;
 import services.aws.SignedS3UploadRequest;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.style.Styles;
 
 public class FileUploadView extends BaseHtmlView {
@@ -41,16 +41,21 @@ public class FileUploadView extends BaseHtmlView {
       SignedS3UploadRequest signedRequest,
       ImmutableList<StoredFile> files,
       Optional<String> maybeFlash) {
-    return layout.htmlContent(
-        layout.headContent("Dev File Upload"),
-        body()
-            .with(div(maybeFlash.orElse("")))
-            .with(h1("Dev File Upload"))
-            .with(div().with(fileUploadForm(signedRequest)))
-            .with(
+    String title = "Dev file upload";
+    HtmlBundle bundle =
+        layout
+            .getBundle()
+            .setTitle(title)
+            .addMainContent(
                 div()
-                    .withClasses(Styles.GRID, Styles.GRID_COLS_2)
-                    .with(div().with(h2("Current Files:")).with(pre(renderFiles(files))))));
+                    .with(div(maybeFlash.orElse("")))
+                    .with(h1(title))
+                    .with(div().with(fileUploadForm(signedRequest)))
+                    .with(
+                        div()
+                            .withClasses(Styles.GRID, Styles.GRID_COLS_2)
+                            .with(div().with(h2("Current Files:")).with(pre(renderFiles(files))))));
+    return layout.render(bundle);
   }
 
   private ContainerTag renderFiles(ImmutableList<StoredFile> files) {

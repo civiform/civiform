@@ -20,9 +20,12 @@ import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.applicant.AnswerData;
+import services.applicant.RepeatedEntity;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.components.LinkElement;
 import views.components.ToastMessage;
+import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
@@ -48,19 +51,22 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       ImmutableList<AnswerData> data,
       Messages messages,
       Optional<String> banner) {
-    ContainerTag headerTag = layout.renderHeader(100);
-
-    ContainerTag content = div().withClasses(Styles.MX_16);
-
-    if (banner.isPresent()) {
-      content.with(ToastMessage.error(banner.get()).getContainerTag());
-    }
+    String pageTitle = "Application summary";
+    HtmlBundle bundle =
+        layout.getBundle().setTitle(String.format("%s — %s", pageTitle, programTitle));
 
     ContainerTag applicationSummary = div().withId("application-summary");
-    for (AnswerData questionData : data) {
-      applicationSummary.with(renderQuestionSummary(questionData, applicantId));
+    Optional<RepeatedEntity> previousRepeatedEntity = Optional.empty();
+    for (AnswerData answerData : data) {
+      Optional<RepeatedEntity> currentRepeatedEntity = answerData.repeatedEntity();
+      if (!currentRepeatedEntity.equals(previousRepeatedEntity)
+          && currentRepeatedEntity.isPresent()) {
+        applicationSummary.with(renderRepeatedEntitySection(currentRepeatedEntity.get(), messages));
+      }
+      applicationSummary.with(renderQuestionSummary(answerData, applicantId));
+      previousRepeatedEntity = currentRepeatedEntity;
     }
-    content.with(applicationSummary);
+    ContainerTag content = div().with(applicationSummary);
 
     // Add submit action (POST).
     String submitLink =
@@ -73,12 +79,16 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
             .with(submitButton("Submit"));
     content.with(actions);
 
-    return layout.render(
-        request,
-        messages,
-        headerTag,
-        h1("Application review for " + programTitle).withClasses(Styles.PX_16, Styles.PY_4),
+    if (banner.isPresent()) {
+      bundle.addToastMessages(ToastMessage.error(banner.get()));
+    }
+    bundle.addMainContent(
+        layout.renderProgramApplicationTitleAndProgressIndicator(programTitle),
+        h1(pageTitle).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION),
         content);
+    bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
+
+    return layout.renderWithNav(request, messages, bundle);
   }
 
   private ContainerTag renderQuestionSummary(AnswerData data, Long applicantId) {
@@ -133,10 +143,37 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     return div(questionContent, answerDiv)
         .withClasses(
+            marginIndentClass(data.repeatedEntity().map(RepeatedEntity::depth).orElse(0)),
             Styles.MY_2,
             Styles.PY_2,
             Styles.BORDER_B,
             Styles.BORDER_GRAY_300,
             ReferenceClasses.APPLICANT_SUMMARY_ROW);
+  }
+
+  private ContainerTag renderRepeatedEntitySection(
+      RepeatedEntity repeatedEntity, Messages messages) {
+    String content =
+        String.format(
+            "%s: %s",
+            repeatedEntity
+                .enumeratorQuestionDefinition()
+                .getEntityType()
+                .getOrDefault(messages.lang().toLocale()),
+            repeatedEntity.entityName());
+    return div(content)
+        .withClasses(
+            marginIndentClass(repeatedEntity.depth() - 1),
+            Styles.MY_2,
+            Styles.PY_2,
+            Styles.PL_4,
+            Styles.FLEX_AUTO,
+            Styles.BG_ORANGE_200,
+            Styles.FONT_SEMIBOLD,
+            Styles.ROUNDED_LG);
+  }
+
+  private String marginIndentClass(int depth) {
+    return "ml-" + (depth * 4);
   }
 }

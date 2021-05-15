@@ -8,9 +8,14 @@ Mappings:
       image: public.ecr.aws/t1q6b4h2/universal-application-tool:latest
   Notifications:
     prod:
-      sender: noreply@seattle.civiform.com
+      sender: civiform-notification@seattle.gov
     staging:
       sender: noreply@staging.seattle.civiform.com
+  AdminGroup:
+    prod:
+      group: ad\\ITD_CiviForm_Admins
+    staging:
+      group: ad\\ITD_CiviForm_Admins_Test
 Parameters:
   Environment:
     Type: String
@@ -59,6 +64,9 @@ Parameters:
     Type: String
   DomainName:
     Description: The domain name to use as the base URL.
+    Type: String
+  MeasurementId:
+    Description: The Google Analytics measurement ID.
     Type: String
 Resources:
   ecscluster:
@@ -138,8 +146,12 @@ Resources:
               Value: !Sub '{{resolve:secretsmanager:${Environment}-oidc-secrets:SecretString:ADFS_CLIENT_ID}}'
             - Name: ADFS_SECRET
               Value: !Sub '{{resolve:secretsmanager:${Environment}-oidc-secrets:SecretString:ADFS_SECRET}}'
+            - Name: ADFS_GLOBAL_ADMIN_GROUP
+              Value: !FindInMap [AdminGroup, !Ref Environment, group]
             - Name: BASE_URL
               Value: !Sub "https://${DomainName}"
+            - Name: MEASUREMENT_ID
+              Value: !Sub "${MeasurementId}"
           Cpu: 1024
           Memory: 8192
           PortMappings:

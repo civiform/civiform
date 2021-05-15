@@ -27,7 +27,7 @@ button.untranslatedSubmit=Submit
 #--------------------------------------------------------------------------#
 
 # The button text for saving the current applicant-entered data and continuing to the next block in the form.
-button.nextBlock=Save and continue
+button.nextBlock=Next
 
 # The aria text on the button used by an applicant to mark an entity for deletion.
 button.ariaLabel.deleteEntity=Delete {0}
@@ -96,9 +96,6 @@ validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
 #--------------------------------------------------------------------------------------------------------#
 
-# The default admin-configurable entity type string
-string.default.entityType=Item
-
 # Text on a button an applicant would click to add another entity
 button.addEntity=Add {0}
 
@@ -107,6 +104,9 @@ button.ariaLabel.deleteEntity=Delete {0}
 
 # Validation error that shows when an applicant does not enter a value.
 validation.entityNameRequired=Please enter a value for each line.
+
+# Validation error that shows when an applicant uses a duplicate entity name
+validation.duplicateEntityName=Please enter a unique value for each line.
 
 # The placeholder text for enumerator fields
 placeholder.entityName=Nickname for {0}

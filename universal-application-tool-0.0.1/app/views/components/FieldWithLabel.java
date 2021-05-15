@@ -7,6 +7,7 @@ import static j2html.TagCreator.label;
 import static j2html.TagCreator.textarea;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
@@ -41,6 +42,7 @@ public class FieldWithLabel {
   protected ImmutableSet<ValidationErrorMessage> fieldErrors = ImmutableSet.of();
   protected boolean checked = false;
   protected boolean disabled = false;
+  protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.<String>builder();
 
   public FieldWithLabel(Tag fieldTag) {
     this.fieldTag = checkNotNull(fieldTag);
@@ -74,6 +76,12 @@ public class FieldWithLabel {
   public static FieldWithLabel email() {
     Tag fieldTag = TagCreator.input();
     return new FieldWithLabel(fieldTag).setFieldType("email");
+  }
+
+  /** Add a reference class from {@link views.style.ReferenceClasses} to this element. */
+  public FieldWithLabel addReferenceClass(String referenceClass) {
+    referenceClassesBuilder.add(referenceClass);
+    return this;
   }
 
   public FieldWithLabel setChecked(boolean checked) {
@@ -180,19 +188,16 @@ public class FieldWithLabel {
       fieldTag.withValue(this.fieldValue);
     }
 
-    // Need to assign an ID in order to properly associate the label with this input field.
-    if (Strings.isNullOrEmpty(this.id)) this.id = this.fieldName;
-
     fieldTag
         .withClasses(
             StyleUtils.joinStyles(
                 BaseStyles.INPUT,
                 fieldErrors.isEmpty() ? "" : BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR))
-        .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
+        .withCondId(!this.id.isEmpty(), this.id)
         .withName(this.fieldName)
-        .condAttr(this.disabled, "disabled", "true")
+        .condAttr(this.disabled, Attr.DISABLED, "true")
         .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
-        .condAttr(!Strings.isNullOrEmpty(this.formId), "form", formId);
+        .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
 
     if (this.fieldType.equals("checkbox")) {
       return getCheckboxContainer();
@@ -200,12 +205,14 @@ public class FieldWithLabel {
 
     ContainerTag labelTag =
         label()
-            .condAttr(shouldSetLabelForAttr(), Attr.FOR, this.id)
+            .condAttr(!this.id.isEmpty(), Attr.FOR, this.id)
             .withClasses(labelText.isEmpty() ? "" : BaseStyles.INPUT_LABEL)
             .withText(labelText);
 
     return div(labelTag, fieldTag, buildFieldErrorsTag())
-        .withClasses(BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
+        .withClasses(
+            StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
+            BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
   }
 
   /**
@@ -219,10 +226,11 @@ public class FieldWithLabel {
 
     return label()
         .withClasses(
+            StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
             BaseStyles.CHECKBOX_LABEL,
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
             labelText.isEmpty() ? Styles.W_MIN : "")
-        .condAttr(shouldSetLabelForAttr(), Attr.FOR, this.id)
+        .condAttr(!this.id.isEmpty(), Attr.FOR, this.id)
         .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
         .withText(this.labelText);
   }
@@ -232,10 +240,6 @@ public class FieldWithLabel {
         .withClasses(
             fieldErrors.isEmpty()
                 ? ""
-                : StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT, Styles.P_1));
-  }
-
-  private boolean shouldSetLabelForAttr() {
-    return !this.id.isEmpty() && !this.labelText.isEmpty();
+                : StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_XS, Styles.P_1));
   }
 }

@@ -9,6 +9,7 @@ import static j2html.TagCreator.p;
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 import java.util.AbstractMap;
 import java.util.Locale;
 import javax.inject.Inject;
@@ -19,6 +20,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.components.SelectWithLabel;
 
 /**
@@ -40,15 +42,17 @@ public class ApplicantInformationView extends BaseHtmlView {
 
   public Content render(Http.Request request, Messages messages, long applicantId) {
     String formAction = routes.ApplicantInformationController.update(applicantId).url();
-    return layout.render(
-        request,
-        messages,
+    Tag formContent =
         form()
             .withAction(formAction)
             .withMethod(Http.HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(request))
             .with(selectLanguageDropdown(messages))
-            .with(submitButton(messages.at(MessageKey.BUTTON_UNTRANSLATED_SUBMIT.getKeyName()))));
+            .with(submitButton(messages.at(MessageKey.BUTTON_UNTRANSLATED_SUBMIT.getKeyName())));
+
+    HtmlBundle bundle =
+        layout.getBundle().setTitle("Applicant information").addMainContent(formContent);
+    return layout.renderWithNav(request, messages, bundle);
   }
 
   private ContainerTag selectLanguageDropdown(Messages messages) {

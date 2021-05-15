@@ -51,8 +51,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            enumeratorQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(enumeratorQuestionDefinition, applicantData, Optional.empty());
 
     EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
 
@@ -64,8 +63,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
   @Test
   public void withApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            enumeratorQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(enumeratorQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
@@ -83,20 +81,39 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
   @Parameters({"", " "})
   public void withBlankStrings_hasValidationErrors(String value) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            enumeratorQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(enumeratorQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.of(value));
 
     EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
 
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
-    assertThat(enumeratorQuestion.getEntityNames()).contains(value);
+    assertThat(enumeratorQuestion.getEntityNames()).containsExactly(value);
     assertThat(enumeratorQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(enumeratorQuestion.hasQuestionErrors()).isTrue();
     assertThat(enumeratorQuestion.getQuestionErrors()).hasSize(1);
     assertThat(enumeratorQuestion.getQuestionErrors().asList().get(0).getMessage(messages))
         .isEqualTo("Please enter a value for each line.");
+  }
+
+  @Test
+  public void withDuplicateNames_hasValidationErrors() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(enumeratorQuestionDefinition, applicantData, Optional.empty());
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        ImmutableList.of("hello", "hello"));
+
+    EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
+
+    assertThat(enumeratorQuestion.isAnswered()).isTrue();
+    assertThat(enumeratorQuestion.getEntityNames()).containsExactly("hello", "hello");
+    assertThat(enumeratorQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(enumeratorQuestion.hasQuestionErrors()).isTrue();
+    assertThat(enumeratorQuestion.getQuestionErrors()).hasSize(1);
+    assertThat(enumeratorQuestion.getQuestionErrors().asList().get(0).getMessage(messages))
+        .isEqualTo("Please enter a unique value for each line.");
   }
 
   @Test
@@ -110,8 +127,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
     applicantData.putLong(enumeratorPath.atIndex(0).join(Scalar.PROGRAM_UPDATED_IN), 5L);
 
     ApplicantQuestion question =
-        new ApplicantQuestion(
-            enumeratorQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(enumeratorQuestionDefinition, applicantData, Optional.empty());
 
     assertThat(question.getLastUpdatedTimeMetadata()).contains(123L);
     assertThat(question.getUpdatedInProgramMetadata()).contains(5L);

@@ -77,14 +77,15 @@ GET     /applicants/:applicantId/edit                                       cont
 POST    /applicants/:applicantId                                            controllers.applicant.ApplicantInformationController.update(request: Request, applicantId: Long)
 
 # Program methods for applicants
-GET     /applicants/:applicantId/programs                                                   controllers.applicant.ApplicantProgramsController.index(request: Request, applicantId: Long)
-GET     /applicants/:applicantId/programs/:programId/edit                                   controllers.applicant.ApplicantProgramsController.edit(request: Request, applicantId: Long, programId: Long)
-GET     /applicants/:applicantId/programs/:programId/review                                 controllers.applicant.ApplicantProgramReviewController.review(request: Request, applicantId: Long, programId: Long)
-POST    /applicants/:applicantId/programs/:programId/submit                                 controllers.applicant.ApplicantProgramReviewController.submit(request: Request, applicantId: Long, programId: Long)
-GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit                   controllers.applicant.ApplicantProgramBlocksController.edit(request: Request, applicantId: Long, programId: Long, blockId: String)
-GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/review                 controllers.applicant.ApplicantProgramBlocksController.review(request: Request, applicantId: Long, programId: Long, blockId: String)
-GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/updateFile/:inReview   controllers.applicant.ApplicantProgramBlocksController.updateFile(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
-POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview              controllers.applicant.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
+GET     /applicants/:applicantId/programs                                                      controllers.applicant.ApplicantProgramsController.index(request: Request, applicantId: Long)
+GET     /applicants/:applicantId/programs/:programId/edit                                      controllers.applicant.ApplicantProgramsController.edit(request: Request, applicantId: Long, programId: Long)
+GET     /applicants/:applicantId/programs/:programId/review                                    controllers.applicant.ApplicantProgramReviewController.review(request: Request, applicantId: Long, programId: Long)
+POST    /applicants/:applicantId/programs/:programId/submit                                    controllers.applicant.ApplicantProgramReviewController.submit(request: Request, applicantId: Long, programId: Long)
+GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit                      controllers.applicant.ApplicantProgramBlocksController.edit(request: Request, applicantId: Long, programId: Long, blockId: String)
+GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/review                    controllers.applicant.ApplicantProgramBlocksController.review(request: Request, applicantId: Long, programId: Long, blockId: String)
+GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/updateFile/:inReview      controllers.applicant.ApplicantProgramBlocksController.updateFile(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
+POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview                 controllers.applicant.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
+GET     /applicants/:applicantId/programs/:programId/applications/:applicationId/confirmation  controllers.applicant.ApplicantProgramReviewController.confirmation(request: Request, applicantId: Long, programId: Long, applicationId: Long)
 
 # Methods for program admins
 GET     /programAdmin       controllers.admin.ProgramAdminController.index(request: Request)
@@ -100,6 +101,8 @@ GET     /users/:id                   controllers.ProfileController.profilePage(r
 # Provides client name as url parameter.
 GET     /callback                    controllers.CallbackController.callback(request: Request, client_name: String)
 POST    /callback                    controllers.CallbackController.callback(request: Request, client_name: String)
+GET     /callback                    controllers.CallbackController.fakeAdmin(request: Request, client_name: String, adminType: String)
+POST    /callback                    controllers.CallbackController.fakeAdmin(request: Request, client_name: String, adminType: String)
 
 # Our federated systems can't provide the mandatory CSRF token, but it's okay - the requests
 # are signed by a key, so the requests cannot be forged anyway.

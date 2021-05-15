@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import services.LocalizedStrings;
 import services.Path;
 import services.WellKnownPaths;
+import services.applicant.exception.JsonPathTypeMismatchException;
 import services.applicant.question.Scalar;
 
 public class ApplicantData {

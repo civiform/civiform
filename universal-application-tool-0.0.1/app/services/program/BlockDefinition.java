@@ -7,6 +7,7 @@ import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 
@@ -91,9 +92,9 @@ public abstract class BlockDefinition {
   }
 
   @JsonIgnore
-  public QuestionDefinition getEnumerationQuestionDefinition() {
+  public EnumeratorQuestionDefinition getEnumerationQuestionDefinition() {
     if (isEnumerator()) {
-      return getQuestionDefinition(0);
+      return (EnumeratorQuestionDefinition) getQuestionDefinition(0);
     }
     throw new RuntimeException(
         "Only an enumerator block can have an enumeration question definition.");

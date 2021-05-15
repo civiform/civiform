@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
-import static j2html.TagCreator.main;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -27,6 +26,7 @@ import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import views.BaseHtmlView;
+import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
@@ -74,6 +74,7 @@ public final class QuestionEditView extends BaseHtmlView {
       ImmutableList<EnumeratorQuestionDefinition> enumerationQuestionDefinitions,
       Optional<String> message) {
     QuestionType questionType = questionForm.getQuestionType();
+    //    String title = String.format("New %s question", questionType.toString().toLowerCase());
     String title = String.format("New %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
@@ -86,7 +87,7 @@ public final class QuestionEditView extends BaseHtmlView {
       formContent.with(ToastMessage.error(message.get()).setDismissible(false).getContainerTag());
     }
 
-    return renderWithPreview(formContent, questionType);
+    return renderWithPreview(formContent, questionType, title);
   }
 
   /** Render a fresh Edit Question Form. */
@@ -135,7 +136,7 @@ public final class QuestionEditView extends BaseHtmlView {
       formContent.with(ToastMessage.error(message.get()).setDismissible(false).getContainerTag());
     }
 
-    return renderWithPreview(formContent, questionType);
+    return renderWithPreview(formContent, questionType, title);
   }
 
   /** Render a read-only non-submittable question form. */
@@ -154,13 +155,16 @@ public final class QuestionEditView extends BaseHtmlView {
         buildQuestionContainer(title)
             .with(buildViewOnlyQuestionForm(questionForm, enumerationOption));
 
-    return renderWithPreview(formContent, questionType);
+    return renderWithPreview(formContent, questionType, title);
   }
 
-  private Content renderWithPreview(ContainerTag formContent, QuestionType type) {
+  private Content renderWithPreview(ContainerTag formContent, QuestionType type, String title) {
     ContainerTag previewContent = QuestionPreview.renderQuestionPreview(type, messages);
     previewContent.with(layout.viewUtils.makeLocalJsTag("preview"));
-    return layout.renderFull(main(formContent, previewContent));
+
+    HtmlBundle htmlBundle =
+        layout.getBundle().setTitle(title).addMainContent(formContent, previewContent);
+    return layout.render(htmlBundle);
   }
 
   private ContainerTag buildSubmittableQuestionForm(
@@ -179,6 +183,7 @@ public final class QuestionEditView extends BaseHtmlView {
         .withClasses(
             Styles.BORDER_GRAY_400,
             Styles.BORDER_R,
+            Styles.P_6,
             Styles.FLEX,
             Styles.FLEX_COL,
             Styles.H_FULL,
@@ -186,7 +191,7 @@ public final class QuestionEditView extends BaseHtmlView {
             Styles.OVERFLOW_Y_AUTO,
             Styles.RELATIVE,
             Styles.W_2_5)
-        .with(renderHeader(title, Styles.CAPITALIZE))
+        .with(renderHeader(title))
         .with(multiOptionQuestionField());
   }
 

@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import services.LocalizedStrings;
 import services.Path;
@@ -14,7 +15,7 @@ import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.LocalizedQuestionOption;
-import services.question.types.QuestionDefinition;
+import services.question.types.EnumeratorQuestionDefinition;
 
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
 
@@ -39,7 +40,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public ImmutableList<Block> getAllBlocks() {
     if (allBlockList == null) {
-      allBlockList = getBlocks(false);
+      allBlockList = getBlocks(block -> true);
     }
     return allBlockList;
   }
@@ -47,7 +48,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public ImmutableList<Block> getInProgressBlocks() {
     if (currentBlockList == null) {
-      currentBlockList = getBlocks(true);
+      currentBlockList =
+          getBlocks(
+              block ->
+                  !block.isCompleteWithoutErrors()
+                      || block.wasCompletedInProgram(programDefinition.id()));
     }
     return currentBlockList;
   }
@@ -58,53 +63,25 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-  public Optional<Block> getBlockAfter(String blockId) {
+  public Optional<Block> getInProgressBlockAfter(String blockId) {
     ImmutableList<Block> blocks = getInProgressBlocks();
-
     for (int i = 0; i < blocks.size() - 1; i++) {
-      if (!blocks.get(i).getId().equals(blockId)) {
-        continue;
+      if (blocks.get(i).getId().equals(blockId)) {
+        return Optional.of(blocks.get(i + 1));
       }
-
-      return Optional.of(blocks.get(i + 1));
     }
-
     return Optional.empty();
   }
 
   @Override
-  public Optional<Block> getBlockAfter(Block block) {
-    return getBlockAfter(block.getId());
-  }
+  public int getBlockIndex(String blockId) {
+    ImmutableList<Block> allBlocks = getAllBlocks();
 
-  @Override
-  public int getCompletionPercent(String blockId) {
-    ImmutableList<Block> blocks = getAllBlocks();
-
-    double blockCount = blocks.size();
-    // If there aren't any blocks then I guess we're done.
-    if (blockCount == 0) {
-      return 100;
+    for (int i = 0; i < allBlocks.size(); i++) {
+      if (allBlocks.get(i).getId().equals(blockId)) return i;
     }
 
-    double blockIndex = -1;
-    for (int i = 0; i < blocks.size() && blockIndex == -1; i++) {
-      if (blocks.get(i).getId().equals(blockId)) {
-        blockIndex = i;
-      }
-    }
-
-    // If the block doesn't exist then return 0.
-    if (blockIndex == -1) {
-      return 0;
-    }
-
-    // If we're on the first block, move the needle a little.
-    if (blockIndex == 0) {
-      blockIndex = 0.1;
-    }
-
-    return (int) ((blockIndex / blockCount) * 100.0);
+    return -1;
   }
 
   @Override
@@ -125,23 +102,23 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
    * has yet to be filled out by the applicant, or if it was filled out in the context of this
    * program.
    */
-  private ImmutableList<Block> getBlocks(boolean onlyIncludeInProgressBlocks) {
+  private ImmutableList<Block> getBlocks(Predicate<Block> includeBlockIfTrue) {
     String emptyBlockIdSuffix = "";
     return getBlocks(
         programDefinition.getNonRepeatedBlockDefinitions(),
         emptyBlockIdSuffix,
-        ApplicantData.APPLICANT_PATH,
-        ImmutableList.of(),
-        onlyIncludeInProgressBlocks);
+        Optional.empty(),
+        includeBlockIfTrue);
   }
 
-  /** Recursive helper method for {@link ReadOnlyApplicantProgramServiceImpl#getBlocks(boolean)}. */
+  /**
+   * Recursive helper method for {@link ReadOnlyApplicantProgramServiceImpl#getBlocks(Predicate)}.
+   */
   private ImmutableList<Block> getBlocks(
       ImmutableList<BlockDefinition> blockDefinitions,
       String blockIdSuffix,
-      Path contextualizedPath,
-      ImmutableList<RepeatedEntity> repeatedEntities,
-      boolean onlyIncludeInProgressBlocks) {
+      Optional<RepeatedEntity> maybeRepeatedEntity,
+      Predicate<Block> includeBlockIfTrue) {
     ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
 
     for (BlockDefinition blockDefinition : blockDefinitions) {
@@ -151,47 +128,37 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
               blockDefinition.id() + blockIdSuffix,
               blockDefinition,
               applicantData,
-              contextualizedPath,
-              repeatedEntities);
-      boolean includeAllBlocks = !onlyIncludeInProgressBlocks;
-      if (includeAllBlocks
-          || !block.isCompleteWithoutErrors()
-          || block.wasCompletedInProgram(programDefinition.id())) {
+              maybeRepeatedEntity);
+      if (includeBlockIfTrue.test(block)) {
         blockListBuilder.add(block);
       }
 
       // For an enumeration block definition, build blocks for its repeated questions
       if (blockDefinition.isEnumerator()) {
 
-        // Get all the repeated entities enumerated by this enumeration block.
-        QuestionDefinition enumerationQuestionDefinition =
+        // Get all the repeated entities enumerated by this enumerator question.
+        EnumeratorQuestionDefinition enumeratorQuestionDefinition =
             blockDefinition.getEnumerationQuestionDefinition();
-        Path contextualizedPathForEnumeration =
-            contextualizedPath.join(enumerationQuestionDefinition.getQuestionPathSegment());
-        ImmutableList<String> repeatedEntityNames =
-            applicantData.readRepeatedEntities(contextualizedPathForEnumeration);
+        ImmutableList<RepeatedEntity> repeatedEntities =
+            maybeRepeatedEntity.isPresent()
+                ? maybeRepeatedEntity
+                    .get()
+                    .createNestedRepeatedEntities(enumeratorQuestionDefinition, applicantData)
+                : RepeatedEntity.createRepeatedEntities(
+                    enumeratorQuestionDefinition, applicantData);
 
         // For each repeated entity, recursively build blocks for all of the repeated blocks of this
-        // enumeration block.
+        // enumerator block.
         ImmutableList<BlockDefinition> repeatedBlockDefinitions =
             programDefinition.getBlockDefinitionsForEnumerator(blockDefinition.id());
-        for (int i = 0; i < repeatedEntityNames.size(); i++) {
-          ImmutableList<RepeatedEntity> updatedRepeatedEntities =
-              ImmutableList.<RepeatedEntity>builder()
-                  .addAll(repeatedEntities)
-                  .add(
-                      RepeatedEntity.create(
-                          enumerationQuestionDefinition, repeatedEntityNames.get(i)))
-                  .build();
+        for (int i = 0; i < repeatedEntities.size(); i++) {
           String nextBlockIdSuffix = String.format("%s-%d", blockIdSuffix, i);
-          Path contextualizedPathForEntity = contextualizedPathForEnumeration.atIndex(i);
           blockListBuilder.addAll(
               getBlocks(
                   repeatedBlockDefinitions,
                   nextBlockIdSuffix,
-                  contextualizedPathForEntity,
-                  updatedRepeatedEntities,
-                  onlyIncludeInProgressBlocks));
+                  Optional.of(repeatedEntities.get(i)),
+                  includeBlockIfTrue));
         }
       }
     }
@@ -219,6 +186,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setProgramId(programDefinition.id())
                 .setBlockId(block.getId())
                 .setQuestionDefinition(question.getQuestionDefinition())
+                .setRepeatedEntity(block.getRepeatedEntity())
                 .setQuestionIndex(questionIndex)
                 .setQuestionText(questionText)
                 .setAnswerText(answerText)

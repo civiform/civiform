@@ -31,20 +31,20 @@ import views.style.Styles;
 public abstract class BaseHtmlView {
 
   public static Tag renderHeader(String headerText, String... additionalClasses) {
-    return h1(headerText).withClasses(Styles.M_2, StyleUtils.joinStyles(additionalClasses));
+    return h1(headerText).withClasses(Styles.MB_4, StyleUtils.joinStyles(additionalClasses));
   }
 
-  protected static ContainerTag fieldErrors(
+  public static ContainerTag fieldErrors(
       Messages messages, ImmutableSet<ValidationErrorMessage> errors) {
     return div(each(errors, error -> div(error.getMessage(messages))))
-        .withClasses(BaseStyles.FORM_ERROR_TEXT);
+        .withClasses(BaseStyles.FORM_ERROR_TEXT_BASE);
   }
 
-  protected static Tag button(String textContents) {
+  public static Tag button(String textContents) {
     return TagCreator.button(text(textContents)).withType("button");
   }
 
-  protected static Tag button(String id, String textContents) {
+  public static Tag button(String id, String textContents) {
     return button(textContents).withId(id);
   }
 
@@ -57,7 +57,9 @@ public abstract class BaseHtmlView {
   }
 
   protected static Tag redirectButton(String id, String text, String redirectUrl) {
-    return button(id, text).attr("onclick", String.format("window.location = '%s';", redirectUrl));
+    return button(id, text)
+        .attr("onclick", String.format("window.location = '%s';", redirectUrl))
+        .withClasses(Styles.M_2);
   }
 
   /**

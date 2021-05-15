@@ -11,8 +11,11 @@ module.exports = {
       colors: {
         orange: colors.orange,
         teal: colors.teal,
-        beige: {
-          DEFAULT: "#eeede8",
+        civiformWhite: {
+          DEFAULT: '#f8f9fa',
+        },
+        seattleBlue: {
+          DEFAULT: '#113f9f',
         },
       },
     },

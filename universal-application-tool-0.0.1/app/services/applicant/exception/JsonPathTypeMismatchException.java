@@ -1,4 +1,4 @@
-package services.applicant;
+package services.applicant.exception;
 
 import services.Path;
 

@@ -302,8 +302,8 @@ public class TestQuestionBank {
             "household members jobs income",
             Optional.of(householdMemberJobs.id),
             "The applicant's household member's job's income",
-            LocalizedStrings.of(Locale.US, "What is the household member's job's income?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            LocalizedStrings.of(Locale.US, "What is $this.parent's income at $this?"),
+            LocalizedStrings.of(Locale.US, "What is the monthly income of $this.parent at $this?"));
 
     return maybeSave(definition);
   }

@@ -16,11 +16,11 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import repository.ApplicationRepository;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
-import services.applicant.ReadOnlyApplicantProgramService;
+import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramNotFoundException;
+import views.applicant.ApplicantProgramConfirmationView;
 import views.applicant.ApplicantProgramSummaryView;
 
 /**
@@ -32,26 +32,26 @@ import views.applicant.ApplicantProgramSummaryView;
 public class ApplicantProgramReviewController extends CiviFormController {
 
   private final ApplicantService applicantService;
-  private final ApplicationRepository applicationRepository;
   private final HttpExecutionContext httpExecutionContext;
   private final MessagesApi messagesApi;
   private final ApplicantProgramSummaryView summaryView;
   private final ProfileUtils profileUtils;
+  private final ApplicantProgramConfirmationView confirmationView;
 
   @Inject
   public ApplicantProgramReviewController(
       ApplicantService applicantService,
-      ApplicationRepository applicationRepository,
       HttpExecutionContext httpExecutionContext,
       MessagesApi messagesApi,
       ApplicantProgramSummaryView summaryView,
+      ApplicantProgramConfirmationView applicantProgramConfirmationView,
       ProfileUtils profileUtils) {
     this.applicantService = checkNotNull(applicantService);
-    this.applicationRepository = checkNotNull(applicationRepository);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.messagesApi = checkNotNull(messagesApi);
     this.summaryView = checkNotNull(summaryView);
     this.profileUtils = checkNotNull(profileUtils);
+    this.confirmationView = checkNotNull(applicantProgramConfirmationView);
   }
 
   @Secure
@@ -116,25 +116,75 @@ public class ApplicantProgramReviewController extends CiviFormController {
             });
   }
 
-  private CompletionStage<Result> submit(long applicantId, long programId) {
-    CompletionStage<java.util.Optional<Application>> submitApp =
-        applicationRepository.submitApplication(applicantId, programId);
-    CompletionStage<ReadOnlyApplicantProgramService> service =
-        applicantService.getReadOnlyApplicantProgramService(applicantId, programId);
+  @Secure
+  public CompletionStage<Result> confirmation(
+      Request request, long applicantId, long programId, long applicationId) {
+    return checkApplicantAuthorization(profileUtils, request, applicantId)
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            httpExecutionContext.current())
+        .thenApplyAsync(
+            (roApplicantProgramService) -> {
+              String programTitle = roApplicantProgramService.getProgramTitle();
+              Optional<String> banner = request.flash().get("banner");
+              return ok(
+                  confirmationView.render(
+                      request,
+                      applicantId,
+                      applicationId,
+                      programTitle,
+                      messagesApi.preferred(request),
+                      banner));
+            },
+            httpExecutionContext.current())
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                Throwable cause = ex.getCause();
+                if (cause instanceof SecurityException) {
+                  return unauthorized();
+                }
+                if (cause instanceof ProgramNotFoundException) {
+                  return notFound(cause.toString());
+                }
+                throw new RuntimeException(cause);
+              }
+              throw new RuntimeException(ex);
+            });
+  }
 
-    return submitApp.thenCombineAsync(
-        service,
-        (applicationMaybe, roApplicantProgramService) -> {
-          if (applicationMaybe.isEmpty()) {
-            Call reviewPage =
-                routes.ApplicantProgramReviewController.review(applicantId, programId);
-            return found(reviewPage).flashing("banner", "Error saving application.");
-          }
-          Call endOfProgramSubmission = routes.ApplicantProgramsController.index(applicantId);
-          String programTitle = roApplicantProgramService.getProgramTitle();
-          return found(endOfProgramSubmission)
-              .flashing(
-                  "banner", String.format("Successfully saved application: %s", programTitle));
-        });
+  private CompletionStage<Result> submit(long applicantId, long programId) {
+    CompletionStage<Application> submitApp =
+        applicantService.submitApplication(applicantId, programId);
+    return submitApp
+        .thenComposeAsync(
+            application -> applicantService.getReadOnlyApplicantProgramService(application),
+            httpExecutionContext.current())
+        .thenApplyAsync(
+            roApplicantProgramService -> {
+              // This must already be done since we are behind it in the promise chain
+              Long applicationId = submitApp.toCompletableFuture().join().id;
+              Call endOfProgramSubmission =
+                  routes.ApplicantProgramReviewController.confirmation(
+                      applicantId, programId, applicationId);
+              String programTitle = roApplicantProgramService.getProgramTitle();
+              return found(endOfProgramSubmission)
+                  .flashing(
+                      "banner", String.format("Successfully saved application: %s", programTitle));
+            },
+            httpExecutionContext.current())
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                Throwable cause = ex.getCause();
+                if (cause instanceof ApplicationSubmissionException) {
+                  Call reviewPage =
+                      routes.ApplicantProgramReviewController.review(applicantId, programId);
+                  return found(reviewPage).flashing("banner", "Error saving application.");
+                }
+                throw new RuntimeException(cause);
+              }
+              throw new RuntimeException(ex);
+            });
   }
 }

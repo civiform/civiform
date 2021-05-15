@@ -40,7 +40,9 @@ public final class ReferenceClasses {
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
   public static final String TOAST_MESSAGE = "cf-toast-data";
+  public static final String ENTITY_NAME_INPUT = "cf-entity-name-input";
   public static final String ENUMERATOR_FIELD = "cf-enumerator-field";
+  public static final String ENUMERATOR_EXISTING_DELETE_BUTTON = "cf-enumerator-delete-button";
   public static final String RADIO_DEFAULT = "cf-radio-default";
   public static final String RADIO_INPUT = "cf-radio-input";
   public static final String RADIO_OPTION = "cf-radio-option";

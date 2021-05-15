@@ -8,6 +8,7 @@ import forms.BlockForm;
 import java.util.Locale;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import models.Account;
 import models.Program;
 import models.Question;
 import org.junit.Before;
@@ -670,5 +671,33 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThatThrownBy(() -> ps.updateLocalization(1000L, Locale.US, "", ""))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessageContaining("Program not found for ID: 1000");
+  }
+
+  @Test
+  public void getNotificationEmailAddresses() {
+    String programName = "administered program";
+    Program program = resourceCreator.insertActiveProgram(programName);
+    program.save();
+
+    // If there are no admins (uncommon), return empty.
+    assertThat(ps.getNotificationEmailAddresses(programName)).isEmpty();
+
+    String globalAdminEmail = "global@admin";
+    Account globalAdmin = new Account();
+    globalAdmin.setEmailAddress(globalAdminEmail);
+    globalAdmin.setGlobalAdmin(true);
+    globalAdmin.save();
+
+    // If there are no program admins, return global admins.
+    assertThat(ps.getNotificationEmailAddresses(programName)).containsExactly(globalAdminEmail);
+
+    String programAdminEmail = "program@admin";
+    Account programAdmin = new Account();
+    programAdmin.setEmailAddress(programAdminEmail);
+    programAdmin.addAdministeredProgram(program.getProgramDefinition());
+    programAdmin.save();
+
+    // Return program admins when there are.
+    assertThat(ps.getNotificationEmailAddresses(programName)).containsExactly(programAdminEmail);
   }
 }

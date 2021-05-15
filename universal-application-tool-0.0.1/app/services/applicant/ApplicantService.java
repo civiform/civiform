@@ -17,7 +17,7 @@ import services.program.ProgramDefinition;
 public interface ApplicantService {
 
   /**
-   * Attempts to perform a set of updates to the applicant's {@link ApplicantData}. If updates are
+   * Attempt to perform a set of updates to the applicant's {@link ApplicantData}. If updates are
    * valid, they are saved to storage. If not, a set of errors are returned along with the modified
    * {@link ApplicantData}, but none of the updates are persisted to storage.
    *
@@ -45,7 +45,18 @@ public interface ApplicantService {
   CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
       long applicantId, long programId, String blockId, ImmutableMap<String, String> updateMap);
 
-  /** Creates a new {@link models.Applicant} at for latest application version for a given user. */
+  /**
+   * Create a new active {@link Application} for the applicant applying to the program.
+   *
+   * <p>An application is a snapshot of all the answers the applicant has filled in so far, along
+   * with association with the applicant and a program that the applicant is applying to.
+   *
+   * @return the saved {@link Application}. If the submission failed, a {@link
+   *     ApplictionSubmissionException} is thrown and wrapped in a `CompletionException`.
+   */
+  CompletionStage<Application> submitApplication(long applicantId, long programId);
+
+  /** Create a new {@link Applicant} for a given user. */
   CompletionStage<Applicant> createApplicant(long userId);
 
   /**
@@ -63,7 +74,7 @@ public interface ApplicantService {
       Application application);
 
   /**
-   * Returns all programs that are appropriate to serve to an applicant - which is any active
+   * Return all programs that are appropriate to serve to an applicant - which is any active
    * program, plus any program where they have an application in the draft stage.
    */
   CompletionStage<ImmutableList<ProgramDefinition>> relevantPrograms(long applicantId);
