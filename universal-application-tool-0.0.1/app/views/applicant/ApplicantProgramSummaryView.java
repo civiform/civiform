@@ -20,6 +20,7 @@ import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.applicant.AnswerData;
+import services.applicant.RepeatedEntity;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.LinkElement;
@@ -53,8 +54,15 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     ContainerTag content = div().withClasses(Styles.MX_16);
     ContainerTag applicationSummary = div().withId("application-summary");
+    Optional<RepeatedEntity> previousRepeatedEntity = Optional.empty();
     for (AnswerData answerData : data) {
+      Optional<RepeatedEntity> currentRepeatedEntity = answerData.repeatedEntity();
+      if (!currentRepeatedEntity.equals(previousRepeatedEntity)
+          && currentRepeatedEntity.isPresent()) {
+        applicationSummary.with(renderRepeatedEntitySection(currentRepeatedEntity.get(), messages));
+      }
       applicationSummary.with(renderQuestionSummary(answerData, applicantId));
+      previousRepeatedEntity = currentRepeatedEntity;
     }
     content.with(applicationSummary);
 
@@ -132,10 +140,37 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     return div(questionContent, answerDiv)
         .withClasses(
+            marginIndentClass(data.repeatedEntity().map(RepeatedEntity::depth).orElse(0)),
             Styles.MY_2,
             Styles.PY_2,
             Styles.BORDER_B,
             Styles.BORDER_GRAY_300,
             ReferenceClasses.APPLICANT_SUMMARY_ROW);
+  }
+
+  private ContainerTag renderRepeatedEntitySection(
+      RepeatedEntity repeatedEntity, Messages messages) {
+    String content =
+        String.format(
+            "%s: %s",
+            repeatedEntity
+                .enumeratorQuestionDefinition()
+                .getEntityType()
+                .getOrDefault(messages.lang().toLocale()),
+            repeatedEntity.entityName());
+    return div(content)
+        .withClasses(
+            marginIndentClass(repeatedEntity.depth() - 1),
+            Styles.MY_2,
+            Styles.PY_2,
+            Styles.PL_4,
+            Styles.FLEX_AUTO,
+            Styles.BG_ORANGE_200,
+            Styles.FONT_SEMIBOLD,
+            Styles.ROUNDED_LG);
+  }
+
+  private String marginIndentClass(int depth) {
+    return "ml-" + (depth * 4);
   }
 }
