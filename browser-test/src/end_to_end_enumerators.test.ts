@@ -69,36 +69,36 @@ describe('End to end enumerator test', () => {
 
     // Fill in name question
     await applicantQuestions.answerNameQuestion("first name", "last name");
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.clickNext();
 
     // Put in two things in the enumerator question
     await applicantQuestions.addEnumeratorAnswer("enum one");
     await applicantQuestions.addEnumeratorAnswer("enum two");
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.clickNext();
 
     // FIRST REPEATED ENTITY
     // Answer name
     await applicantQuestions.answerNameQuestion("enum one first", "enum one last");
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.clickNext();
 
     // Put nothing in the first nested enumerator
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.clickNext();
 
     // SECOND REPEATED ENTITY
     // Answer name
     await applicantQuestions.answerNameQuestion("enum two first", "enum two last");
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.clickNext();
 
     // Put two things in the second nested enumerator
     await applicantQuestions.addEnumeratorAnswer("thing one");
     await applicantQuestions.addEnumeratorAnswer("thing two");
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.clickNext();
 
     // Answer two nested repeated text questions
     await applicantQuestions.answerTextQuestion("hello");
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.clickNext();
     await applicantQuestions.answerTextQuestion("world");
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.clickNext();
 
     // Make sure the enumerator answers are in the review page
     expect(await page.innerText("#application-summary")).toContain("first name");
@@ -116,7 +116,7 @@ describe('End to end enumerator test', () => {
     await page.click('.cf-applicant-summary-row:has(div:has-text("enumerator-ete-question")) a:has-text("Edit")');
     await applicantQuestions.deleteEnumeratorEntity("enum one");
     await applicantQuestions.deleteEnumeratorEntity("enum two");
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.clickNext();
 
     // Make sure there are no enumerators or repeated things in the review page
     expect(await page.innerText("#application-summary")).toContain("first name");
