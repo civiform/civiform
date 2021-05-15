@@ -125,11 +125,7 @@ export class AdminPrograms {
 
     await this.page.click('#add-block-button');
 
-    await this.page.fill('textarea', blockDescription);
-    // Tab away to enable the update-block button - this is flaky in tests since
-    // playwright fills these in without emitting the usual keypress events.
-    await this.page.press('textarea', 'Tab');
-    await this.page.screenshot({path: 'tmp/filled.png', fullPage: true});
+    await this.page.type('textarea', blockDescription);
     await this.page.click('#update-block-button');
 
     for (const questionName of questionNames) {

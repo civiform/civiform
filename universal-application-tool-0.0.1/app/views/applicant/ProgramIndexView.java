@@ -138,7 +138,7 @@ public class ProgramIndexView extends BaseHtmlView {
             .setId(baseId + "-external-link")
             .setStyles(Styles.TEXT_XS, Styles.UNDERLINE)
             .setText(messages.at(MessageKey.CONTENT_PROGRAM_DETAILS.getKeyName()))
-            .setHref(routes.DeepLinkController.programByName(program.slug()).url())
+            .setHref(routes.RedirectController.programByName(program.slug()).url())
             .asAnchorText();
     ContainerTag programData =
         div()
