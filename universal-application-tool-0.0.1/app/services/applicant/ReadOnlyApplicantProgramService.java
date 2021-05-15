@@ -31,11 +31,10 @@ public interface ReadOnlyApplicantProgramService {
   /** Get the block with the given block ID */
   Optional<Block> getBlock(String blockId);
 
-  /** Get the block that comes after the block with the given ID if there is one. */
-  Optional<Block> getBlockAfter(String blockId);
-
-  /** Get the block that comes after the given block if there is one. */
-  Optional<Block> getBlockAfter(Block block);
+  /**
+   * Get the next in-progress block that comes after the block with the given ID if there is one.
+   */
+  Optional<Block> getInProgressBlockAfter(String blockId);
 
   /** Returns the index of the given block in the context of all blocks of the program. */
   int getBlockIndex(String blockId);

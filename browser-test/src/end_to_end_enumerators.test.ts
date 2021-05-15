@@ -81,17 +81,22 @@ describe('End to end enumerator test', () => {
     await applicantQuestions.answerNameQuestion("enum one first", "enum one last");
     await applicantQuestions.clickNext();
 
-    // Put nothing in the first nested enumerator
+    // Put one thing in the nested enumerator for enum one
+    await applicantQuestions.addEnumeratorAnswer("enum one's first thing");
     await applicantQuestions.clickNext();
+
+    // Answer the nested repeated question
+    await applicantQuestions.answerTextQuestion("hello world");
+    await applicantQuestions.clickNext()
 
     // SECOND REPEATED ENTITY
     // Answer name
     await applicantQuestions.answerNameQuestion("enum two first", "enum two last");
     await applicantQuestions.clickNext();
 
-    // Put two things in the second nested enumerator
-    await applicantQuestions.addEnumeratorAnswer("thing one");
-    await applicantQuestions.addEnumeratorAnswer("thing two");
+    // Put two things in the nested enumerator for enum two
+    await applicantQuestions.addEnumeratorAnswer("enum two's first thing");
+    await applicantQuestions.addEnumeratorAnswer("enum two's second thing");
     await applicantQuestions.clickNext();
 
     // Answer two nested repeated text questions
@@ -107,8 +112,10 @@ describe('End to end enumerator test', () => {
     expect(await page.innerText("#application-summary")).toContain("enum one last");
     expect(await page.innerText("#application-summary")).toContain("enum two first");
     expect(await page.innerText("#application-summary")).toContain("enum two last");
-    expect(await page.innerText("#application-summary")).toContain("thing one");
-    expect(await page.innerText("#application-summary")).toContain("thing two");
+    expect(await page.innerText("#application-summary")).toContain("enum one's first thing");
+    expect(await page.innerText("#application-summary")).toContain("hello world");
+    expect(await page.innerText("#application-summary")).toContain("enum two's first thing");
+    expect(await page.innerText("#application-summary")).toContain("enum two's second thing");
     expect(await page.innerText("#application-summary")).toContain("hello");
     expect(await page.innerText("#application-summary")).toContain("world");
 
@@ -121,6 +128,28 @@ describe('End to end enumerator test', () => {
     // Make sure there are no enumerators or repeated things in the review page
     expect(await page.innerText("#application-summary")).toContain("first name");
     expect(await page.innerText("#application-summary")).toContain("last name");
+    expect(await page.innerText("#application-summary")).not.toContain("enum one first");
+    expect(await page.innerText("#application-summary")).not.toContain("enum one last");
+    expect(await page.innerText("#application-summary")).not.toContain("enum two first");
+    expect(await page.innerText("#application-summary")).not.toContain("enum two last");
+    expect(await page.innerText("#application-summary")).not.toContain("thing one");
+    expect(await page.innerText("#application-summary")).not.toContain("thing two");
+    expect(await page.innerText("#application-summary")).not.toContain("hello");
+    expect(await page.innerText("#application-summary")).not.toContain("world");
+
+    // Go back and add an enumerator answer.
+    await page.click('.cf-applicant-summary-row:has(div:has-text("enumerator-ete-question")) a:has-text("Edit")');
+    await applicantQuestions.addEnumeratorAnswer("enum three");
+    await applicantQuestions.clickNext();
+    await applicantQuestions.answerNameQuestion("enum three first", "enum three last");
+    await applicantQuestions.clickNext();
+    await applicantQuestions.clickNext();
+
+    // Make sure there are no enumerators or repeated things in the review page
+    expect(await page.innerText("#application-summary")).toContain("first name");
+    expect(await page.innerText("#application-summary")).toContain("last name");
+    expect(await page.innerText("#application-summary")).toContain("enum three first");
+    expect(await page.innerText("#application-summary")).toContain("enum three last");
     expect(await page.innerText("#application-summary")).not.toContain("enum one first");
     expect(await page.innerText("#application-summary")).not.toContain("enum one last");
     expect(await page.innerText("#application-summary")).not.toContain("enum two first");
