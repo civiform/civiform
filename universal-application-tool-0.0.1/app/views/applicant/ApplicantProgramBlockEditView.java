@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.h1;
 import static j2html.attributes.Attr.ENCTYPE;
 
 import com.google.auto.value.AutoValue;
@@ -45,7 +44,6 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   public Content render(Params params) {
     Tag blockDiv =
         div()
-            .with(h1(params.block().getName()).withClasses(ApplicantStyles.BLOCK_HEADING))
             .with(div(renderBlockWithSubmitForm(params)).withClasses(Styles.MY_8))
             .withClasses(Styles.MY_8, Styles.M_AUTO);
 
