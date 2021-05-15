@@ -11,16 +11,17 @@ public final class BaseStyles {
   // CiviForm color classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
+  public static final String BG_CIVIFORM_WHITE = "bg-civiformWhite";
+
   public static final String BG_SEATTLE_BLUE = "bg-seattleBlue";
-  public static final String BG_CIVIFORM_BLUE_60 = "bg-civiformBlue-60";
-  public static final String BG_CIVIFORM_BLUE_80 = "bg-civiformBlue-80";
-  public static final String BG_CIVIFORM_BLUE_100 = "bg-civiformBlue-100";
+  public static final String TEXT_SEATTLE_BLUE = "text-seattleBlue";
+  public static final String BORDER_SEATTLE_BLUE = "border-seattleBlue";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Form style classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
-  public static final String FORM_FIELD_MARGIN_BOTTOM = Styles.MB_4;
+  public static final String FORM_FIELD_MARGIN_BOTTOM = Styles.MB_2;
 
   public static final String FORM_FIELD_BORDER_COLOR = Styles.BORDER_GRAY_300;
   public static final String FORM_FIELD_ERROR_BORDER_COLOR = Styles.BORDER_RED_600;
@@ -28,8 +29,10 @@ public final class BaseStyles {
   public static final String FORM_LABEL_TEXT_COLOR = Styles.TEXT_GRAY_600;
 
   public static final String FORM_ERROR_TEXT_COLOR = Styles.TEXT_RED_600;
-  public static final String FORM_ERROR_TEXT =
+  public static final String FORM_ERROR_TEXT_XS =
       StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_COLOR, Styles.TEXT_XS);
+  public static final String FORM_ERROR_TEXT_BASE =
+      StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_COLOR, Styles.TEXT_BASE);
 
   private static final String INPUT_BASE =
       StyleUtils.joinStyles(
@@ -43,11 +46,12 @@ public final class BaseStyles {
           Styles.ROUNDED_LG,
           Styles.W_FULL,
           Styles.BG_WHITE,
-          StyleUtils.focus(Styles.BORDER_BLUE_500));
+          StyleUtils.focus(BORDER_SEATTLE_BLUE),
+          Styles.TEXT_BLACK,
+          Styles.TEXT_LG);
 
   /** For use on `input` elements that are not of type "checkbox" or "radio". */
-  public static final String INPUT =
-      StyleUtils.joinStyles(INPUT_BASE, Styles.TEXT_LG, Styles.PLACEHOLDER_GRAY_400);
+  public static final String INPUT = StyleUtils.joinStyles(INPUT_BASE, Styles.PLACEHOLDER_GRAY_400);
 
   /** For use on `label` elements that label non-checkbox and non-radio `input` elements. */
   public static final String INPUT_LABEL =
@@ -64,8 +68,7 @@ public final class BaseStyles {
    * text.</label>
    */
   public static final String CHECKBOX_LABEL =
-      StyleUtils.joinStyles(
-          INPUT_BASE, Styles.TEXT_BASE, Styles.ALIGN_MIDDLE, BaseStyles.FORM_LABEL_TEXT_COLOR);
+      StyleUtils.joinStyles(INPUT_BASE, Styles.ALIGN_MIDDLE);
   /** Same as the above but for radio buttons. */
   public static final String RADIO_LABEL = CHECKBOX_LABEL;
 

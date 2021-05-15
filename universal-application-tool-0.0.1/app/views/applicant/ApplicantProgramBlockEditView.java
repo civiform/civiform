@@ -1,6 +1,7 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
@@ -26,6 +27,8 @@ import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.EnumeratorQuestionRenderer;
+import views.style.ApplicantStyles;
+import views.style.Styles;
 
 public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
@@ -40,6 +43,12 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   public Content render(Params params) {
+    Tag blockDiv =
+        div()
+            .with(h1(params.block().getName()).withClasses(ApplicantStyles.BLOCK_HEADING))
+            .with(div(renderBlockWithSubmitForm(params)).withClasses(Styles.MY_8))
+            .withClasses(Styles.MY_8, Styles.W_1_3, Styles.M_AUTO);
+
     HtmlBundle bundle =
         layout
             .getBundle()
@@ -47,8 +56,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             .addMainContent(
                 layout.renderHeader(
                     getPercentComplete(params.blockIndex(), params.totalBlockCount())),
-                h1(params.block().getName()),
-                renderBlockWithSubmitForm(params));
+                blockDiv);
 
     if (!params.preferredLanguageSupported()) {
       bundle.addMainContent(
@@ -118,7 +126,9 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             each(
                 params.block().getQuestions(),
                 question -> renderQuestion(question, rendererParams)))
-        .with(submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName())));
+        .with(
+            submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName()))
+                .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT));
   }
 
   private Tag renderFileUploadBlockSubmitForm(Params params) {
