@@ -47,16 +47,18 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         div()
             .with(h1(params.block().getName()).withClasses(ApplicantStyles.BLOCK_HEADING))
             .with(div(renderBlockWithSubmitForm(params)).withClasses(Styles.MY_8))
-            .withClasses(Styles.MY_8, Styles.W_1_3, Styles.M_AUTO);
+            .withClasses(Styles.MY_8, Styles.M_AUTO);
 
     HtmlBundle bundle =
         layout
             .getBundle()
             .setTitle(String.format("%s — %s", params.block().getName(), params.programTitle()))
             .addMainContent(
-                layout.renderHeader(
+                layout.renderProgramApplicationProgressIndicator(
+                    params.programTitle(),
                     getPercentComplete(params.blockIndex(), params.totalBlockCount())),
-                blockDiv);
+                blockDiv)
+            .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
     if (!params.preferredLanguageSupported()) {
       bundle.addMainContent(

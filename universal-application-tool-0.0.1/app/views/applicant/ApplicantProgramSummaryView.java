@@ -24,6 +24,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.LinkElement;
 import views.components.ToastMessage;
+import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
@@ -49,15 +50,15 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       ImmutableList<AnswerData> data,
       Messages messages,
       Optional<String> banner) {
+    String pageTitle = "Application summary";
     HtmlBundle bundle =
-        layout.getBundle().setTitle(String.format("Application summary — %s", programTitle));
+        layout.getBundle().setTitle(String.format("%s — %s", pageTitle, programTitle));
 
-    ContainerTag content = div().withClasses(Styles.MX_16);
     ContainerTag applicationSummary = div().withId("application-summary");
     for (AnswerData answerData : data) {
       applicationSummary.with(renderQuestionSummary(answerData, applicantId));
     }
-    content.with(applicationSummary);
+    ContainerTag content = div().with(applicationSummary);
 
     // Add submit action (POST).
     String submitLink =
@@ -74,9 +75,10 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       bundle.addToastMessages(ToastMessage.error(banner.get()));
     }
     bundle.addMainContent(
-        layout.renderHeader(100),
-        h1(String.format("%s application summary", programTitle)),
+        layout.renderProgramApplicationProgressIndicator(programTitle, 100),
+        h1(pageTitle).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION),
         content);
+    bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
     return layout.renderWithNav(request, messages, bundle);
   }
