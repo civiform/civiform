@@ -55,7 +55,9 @@ public class DateQuestion implements PresentsErrors {
 
   @Override
   public String getAnswerString() {
-    return getDateValue().map(localDate -> localDate.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"))).orElse("-");
+    return getDateValue()
+        .map(localDate -> localDate.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")))
+        .orElse("-");
   }
 
   public Optional<LocalDate> getDateValue() {
