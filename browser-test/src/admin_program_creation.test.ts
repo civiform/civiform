@@ -13,7 +13,7 @@ describe('Create program with enumerator and repeated questions', () => {
     await adminQuestions.addNameQuestion('apc-name');
     await adminQuestions.addTextQuestion('apc-text');
     await adminQuestions.addEnumeratorQuestion('apc-enumerator');
-    await adminQuestions.addTextQuestion('apc-repeated', 'description', 'text', 'helptext', 'apc-enumerator');
+    await adminQuestions.addTextQuestion('apc-repeated', 'description', '\$this text', '\$this help text', 'apc-enumerator');
 
     const programName = 'apc program';
     await adminPrograms.addProgram(programName);
