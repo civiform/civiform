@@ -2,6 +2,7 @@ package services.aws;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -9,6 +10,8 @@ import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
 import software.amazon.awssdk.services.ses.SesClient;
@@ -17,10 +20,12 @@ import software.amazon.awssdk.services.ses.model.Content;
 import software.amazon.awssdk.services.ses.model.Destination;
 import software.amazon.awssdk.services.ses.model.Message;
 import software.amazon.awssdk.services.ses.model.SendEmailRequest;
+import software.amazon.awssdk.services.ses.model.SesException;
 
 @Singleton
 public class SimpleEmail {
   public static final String AWS_SES_SENDER_CONF_PATH = "aws.ses.sender";
+  private static final Logger LOG = LoggerFactory.getLogger(SimpleEmail.class);
 
   private final String sender;
   private final Client client;
@@ -46,17 +51,30 @@ public class SimpleEmail {
   }
 
   public void send(String toAddress, String subject, String bodyText) {
+    send(ImmutableList.of(toAddress), subject, bodyText);
+  }
 
-    Destination destination = Destination.builder().toAddresses(toAddress).build();
+  public void send(ImmutableList<String> toAddresses, String subject, String bodyText) {
+    if (toAddresses.isEmpty()) {
+      return;
+    }
 
-    Body body = Body.builder().text(Content.builder().data(bodyText).build()).build();
+    try {
+      Destination destination =
+          Destination.builder().toAddresses(toAddresses.toArray(new String[0])).build();
 
-    Message msg =
-        Message.builder().subject(Content.builder().data(subject).build()).body(body).build();
+      Body body = Body.builder().text(Content.builder().data(bodyText).build()).build();
 
-    SendEmailRequest emailRequest =
-        SendEmailRequest.builder().destination(destination).message(msg).source(sender).build();
-    client.get().sendEmail(emailRequest);
+      Message msg =
+          Message.builder().subject(Content.builder().data(subject).build()).body(body).build();
+
+      SendEmailRequest emailRequest =
+          SendEmailRequest.builder().destination(destination).message(msg).source(sender).build();
+      client.get().sendEmail(emailRequest);
+    } catch (SesException e) {
+      LOG.error(e.toString());
+      e.printStackTrace();
+    }
   }
 
   interface Client {

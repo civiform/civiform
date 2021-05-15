@@ -11,13 +11,11 @@ module.exports = {
       colors: {
         orange: colors.orange,
         teal: colors.teal,
-        civiformBlue: {
-          60: '#B3D1E3',
-          80: '#72ACDB',
-          100: '#1D5497',
+        civiformWhite: {
+          DEFAULT: '#f8f9fa',
         },
         seattleBlue: {
-          DEFAULT: '#113F9F',
+          DEFAULT: '#113f9f',
         },
       },
     },

@@ -109,6 +109,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             .setRequest(request)
                             .setMessages(messagesApi.preferred(request))
                             .setApplicantId(applicantId)
+                            .setProgramTitle(roApplicantProgramService.getProgramTitle())
                             .setProgramId(programId)
                             .setBlock(block.get())
                             .setInReview(inReview)
@@ -239,6 +240,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           .setRequest(request)
                           .setMessages(applicantMessages)
                           .setApplicantId(applicantId)
+                          .setProgramTitle(roApplicantProgramService.getProgramTitle())
                           .setProgramId(programId)
                           .setBlock(thisBlockUpdated)
                           .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
@@ -251,16 +253,37 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           .build())));
     }
 
-    Optional<String> nextBlockIdMaybe =
-        roApplicantProgramService.getBlockAfter(blockId).map(Block::getId);
-    return nextBlockIdMaybe.isEmpty() || inReview
-        ? supplyAsync(
-            () -> redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)))
-        : supplyAsync(
-            () ->
-                redirect(
-                    routes.ApplicantProgramBlocksController.edit(
-                        applicantId, programId, nextBlockIdMaybe.get())));
+    if (inReview) {
+      // TODO(https://github.com/seattle-uat/civiform/issues/1141): the filter here is because empty
+      //  enumerators are always incomplete and applicants can get stuck in a review loop if we
+      //  didn't have this here. This can be removed once #1141 is done.
+      Optional<String> nextBlockIdMaybe =
+          roApplicantProgramService
+              .getFirstIncompleteBlock()
+              .map(Block::getId)
+              .filter(nextBlockId -> !nextBlockId.equals(blockId));
+      return nextBlockIdMaybe.isEmpty()
+          ? supplyAsync(
+              () ->
+                  redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)))
+          : supplyAsync(
+              () ->
+                  redirect(
+                      routes.ApplicantProgramBlocksController.review(
+                          applicantId, programId, nextBlockIdMaybe.get())));
+    } else {
+      Optional<String> nextBlockIdMaybe =
+          roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
+      return nextBlockIdMaybe.isEmpty()
+          ? supplyAsync(
+              () ->
+                  redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)))
+          : supplyAsync(
+              () ->
+                  redirect(
+                      routes.ApplicantProgramBlocksController.edit(
+                          applicantId, programId, nextBlockIdMaybe.get())));
+    }
   }
 
   private ImmutableMap<String, String> cleanForm(Map<String, String> formData) {

@@ -308,7 +308,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
 
-    Optional<Block> maybeBlock = subject.getBlockAfter("1");
+    Optional<Block> maybeBlock = subject.getInProgressBlockAfter("1");
 
     assertThat(maybeBlock).isPresent();
     assertThat(maybeBlock.get().getId()).isEqualTo("2");
@@ -319,7 +319,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
 
-    Optional<Block> maybeBlock = subject.getBlockAfter("321");
+    Optional<Block> maybeBlock = subject.getInProgressBlockAfter("321");
 
     assertThat(maybeBlock).isEmpty();
   }
@@ -338,7 +338,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                     LocalizedStrings.of(Locale.US, "This program is for testing."))
                 .build());
 
-    Optional<Block> maybeBlock = subject.getBlockAfter("321");
+    Optional<Block> maybeBlock = subject.getInProgressBlockAfter("321");
 
     assertThat(maybeBlock).isEmpty();
   }
