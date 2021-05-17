@@ -364,6 +364,26 @@ public class QuestionDefinitionTest {
   }
 
   @Test
+  public void validate_withRepeatedQuestion_oneTranslationMissingEntityNameFormatString_returnsErrors()
+      throws Exception {
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder()
+            .setName("name")
+            .setDescription("description")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "$this is present", Locale.FRANCE, "$this is also present"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "$this is present", Locale.FRANCE, "this is not present"))
+            .setEnumeratorId(Optional.of(1L))
+            .setQuestionType(QuestionType.TEXT)
+            .build();
+
+    assertThat(question.validate())
+        .containsOnly(
+            CiviFormError.of(
+                "Repeated questions must reference '$this' in the text and help text (if"
+                    + " present)"));
+  }
+
+  @Test
   public void validate_withRepeatedQuestion_withNoHelpText_returnsNoErrors() throws Exception {
     QuestionDefinition question =
         new QuestionDefinitionBuilder()
