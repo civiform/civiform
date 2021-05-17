@@ -1,6 +1,5 @@
 package views.questiontypes;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
 import j2html.tags.Tag;
@@ -8,17 +7,14 @@ import java.time.LocalDate;
 import java.util.Optional;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.DateQuestion;
-import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
-public class DateQuestionRenderer extends BaseHtmlView implements ApplicantQuestionRenderer {
-
-  private final ApplicantQuestion question;
+public class DateQuestionRenderer extends ApplicantQuestionRenderer {
 
   public DateQuestionRenderer(ApplicantQuestion question) {
-    this.question = checkNotNull(question);
+    super(question);
   }
 
   @Override
@@ -49,7 +45,6 @@ public class DateQuestionRenderer extends BaseHtmlView implements ApplicantQuest
                     Styles.FONT_THIN,
                     Styles.MB_2)
                 .withText(question.getQuestionHelpText()),
-            dateField.getContainer(),
-            fieldErrors(params.messages(), dateQuestion.getQuestionErrors()));
+            dateField.getContainer());
   }
 }
