@@ -1,6 +1,7 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.meta;
 import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.script;
 
@@ -54,6 +55,11 @@ public class BaseHtmlLayout {
    * </pre>
    */
   public HtmlBundle getBundle(HtmlBundle bundle) {
+    // Add basic page metadata.
+    bundle.addMetadata(meta()
+      .attr("name", "viewport")
+      .attr("content", "width=device-width, initial-scale=1"));
+
     // Add the warning toast.
     ToastMessage privacyBanner =
         ToastMessage.error(BANNER_TEXT).setId("warning-message").setIgnorable(true).setDuration(0);
