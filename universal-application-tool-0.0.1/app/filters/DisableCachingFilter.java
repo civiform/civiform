@@ -23,7 +23,7 @@ public class DisableCachingFilter extends EssentialFilter {
                 next.apply(request)
                     .map(
                         result -> 
-                            result.withHeader("Cache-Control", "no-cache, no-store, must-revalidate")
+                            result.withHeader("Cache-Control", "no-cache, must-revalidate")
                                 .withHeader("Pragma", "no-cache")
                                 .withHeader("Expires", "0"),
                                 exec));
