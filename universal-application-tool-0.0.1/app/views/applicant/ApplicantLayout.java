@@ -77,7 +77,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private ContainerTag branding() {
     // TODO(https://github.com/seattle-uat/civiform/issues/1165): Link to "home page" here.
     return a().with(
-            div().withId("brand-id").withClasses(ApplicantStyles.LOGO_STYLE).withText("CiviForm"));
+            div()
+                .withId("brand-id")
+                .withClasses(ApplicantStyles.CIVIFORM_LOGO)
+                .withText("CiviForm"));
   }
 
   private ContainerTag maybeRenderTiButton(Optional<UatProfile> profile) {
@@ -97,11 +100,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     return a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
         .withHref(logoutLink)
-        .withClasses(
-            Styles.TEXT_BASE,
-            Styles.FONT_EXTRABOLD,
-            Styles.OPACITY_75,
-            StyleUtils.hover(Styles.OPACITY_100));
+        .withClasses(ApplicantStyles.LINK_LOGOUT);
   }
 
   /**
@@ -150,7 +149,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     Tag programTitleDiv =
         div()
-            .with(h2(programTitle).withClasses(ApplicantStyles.PROGRAM_TITLE_HEADING))
+            .with(h2(programTitle).withClasses(ApplicantStyles.H2_PROGRAM_TITLE))
             .with(blockNumberTag)
             .withClasses(Styles.GRID, Styles.GRID_COLS_2);
 
