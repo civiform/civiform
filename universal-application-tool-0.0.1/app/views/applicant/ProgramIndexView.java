@@ -88,9 +88,8 @@ public class ProgramIndexView extends BaseHtmlView {
     return div()
         .withId("main-content")
         .withClasses(Styles.P_8)
-        // TODO(natsid): Add message for "Programs and services" and add the count.
         .with(
-            h2().withText("Programs & services")
+            h2().withText(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName()))
                 .withClasses(Styles.BLOCK, Styles.MB_4, Styles.TEXT_LG, Styles.FONT_SEMIBOLD))
         .with(
             div()
