@@ -8,7 +8,7 @@ toast.localeNotSupported=Lo siento, este programa no está completamente traduci
 toast.programCompleted=Ya completó esta solicitud
 toast.applicationSaved=Solicitud guardada con ID: {0}
 
-title.programs=Programas
+title.programs=Programas y servicios
 link.viewApplications=ver mis applicaciones
 content.noCategory=Sin Categoría
 link.programDetails=Detalles del programa

@@ -39,7 +39,7 @@ toast.localeNotSupported=We''re sorry, this program is not fully translated to y
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
 #----------------------------------------------------------------------------#
 
-# The text on the button an applicant clicks to apply to a specific program.
+# The text on the button an applicant clicks to apply to a specific rogram.
 button.apply=Apply
 
 # "Get benefits" floating text
@@ -61,7 +61,7 @@ link.programDetails=Program details
 link.viewApplications=view my applications
 
 # The title of the page for the list of programs.
-title.programs=Programs
+title.programs=Programs & services
 
 # A toast message that displays when an applicant submits an application.
 toast.applicationSaved=Successfully saved application: application ID {0}
