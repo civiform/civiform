@@ -262,8 +262,9 @@ public class ApplicantServiceImpl implements ApplicantService {
     // The applicant has seen this question, but has not supplied any entities.
     // We need to still write this path so we can tell they have seen this question.
     if (updates.isEmpty()) {
-      applicantData.putArrayIfMissing(
-          block.getEnumeratorQuestion().getContextualizedPath().withoutArrayReference());
+      applicantData.putRepeatedEntities(
+          block.getEnumeratorQuestion().getContextualizedPath().withoutArrayReference(),
+          ImmutableList.of());
     }
 
     ImmutableSet<Update> addsAndChanges = validateEnumeratorAddsAndChanges(block, updates);

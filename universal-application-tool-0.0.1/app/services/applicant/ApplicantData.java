@@ -201,7 +201,7 @@ public class ApplicantData {
    *
    * @param path the path to the new array - must not end with array suffix [] or [index]
    */
-  public void putArrayIfMissing(Path path) {
+  private void putArrayIfMissing(Path path) {
     if (!hasPath(path)) {
       putAt(path, new ArrayList<>());
     }
