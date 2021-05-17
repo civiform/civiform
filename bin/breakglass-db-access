@@ -6,6 +6,14 @@ export AWS_DEFAULT_REGION=us-west-2
 TIMESTAMP=$(date +%s)
 ENVIRONMENT=staging
 STAGING_DB_PASSWORD_ID=arn:aws:secretsmanager:us-west-2:405662711265:secret:staging-databasepassword-rh1wfF
+PROD_DB_PASSWORD_ID=arn:aws:secretsmanager:us-west-2:405662711265:secret:prod-databasepassword-OM7x4q
+DB_PASSWORD_ID=$STAGING_DB_PASSWORD_ID
+
+if [ "$1" = "prod" ]; then
+    ENVIRONMENT="prod"
+    DB_PASSWORD_ID=$PROD_DB_PASSWORD_ID
+fi
+echo "Connecting to $ENVIRONMENT DB..."
 
 VPC_ID=$(aws ec2 describe-vpcs \
     --filters Name=tag:Name,Values=$ENVIRONMENT.civiform.vpc \
@@ -84,7 +92,7 @@ DB_ADDRESS=$(aws rds describe-db-instances \
 
 # Get the DB password
 DB_PASSWORD=$(aws secretsmanager get-secret-value \
-    --secret-id $STAGING_DB_PASSWORD_ID \
+    --secret-id $DB_PASSWORD_ID \
     --query 'SecretString' \
     --output text)
 
