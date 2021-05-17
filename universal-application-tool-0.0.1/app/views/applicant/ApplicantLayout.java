@@ -5,13 +5,11 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.nav;
-import static j2html.TagCreator.span;
 
 import auth.ProfileUtils;
 import auth.Roles;
 import auth.UatProfile;
 import com.typesafe.config.Config;
-import controllers.ti.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
@@ -64,14 +62,29 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   private ContainerTag renderNavBar(Optional<UatProfile> profile, Messages messages) {
     return nav()
-        .withClasses(Styles.PT_8, Styles.PB_4, Styles.MB_12, Styles.FLEX, Styles.ALIGN_MIDDLE)
-        .with(branding(), status(messages), maybeRenderTiButton(profile), logoutButton(messages));
+        .withClasses(
+            Styles.BG_WHITE,
+            Styles.BORDER_B,
+            Styles.ALIGN_MIDDLE,
+            Styles.P_6,
+            Styles.GRID,
+            Styles.GRID_COLS_3)
+        .with(branding())
+        .with(maybeRenderTiButton(profile))
+        .with(div(logoutButton(messages)).withClasses(Styles.JUSTIFY_SELF_END));
+  }
+
+  private ContainerTag branding() {
+    // TODO(https://github.com/seattle-uat/civiform/issues/1165): Link to "home page" here.
+    return a().with(
+            div().withId("brand-id").withClasses(ApplicantStyles.LOGO_STYLE).withText("CiviForm"));
   }
 
   private ContainerTag maybeRenderTiButton(Optional<UatProfile> profile) {
     if (profile.isPresent() && profile.get().getRoles().contains(Roles.ROLE_TI.toString())) {
       String tiDashboardText = "Trusted intermediary dashboard";
-      String tiDashboardLink = routes.TrustedIntermediaryController.dashboard().url();
+      String tiDashboardLink =
+          controllers.ti.routes.TrustedIntermediaryController.dashboard().url();
       return a(tiDashboardText)
           .withHref(tiDashboardLink)
           .withClasses(
@@ -80,26 +93,15 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return div();
   }
 
-  private ContainerTag branding() {
-    return div()
-        .withId("brand-id")
-        .withClasses(Styles.W_1_2, ApplicantStyles.LOGO_STYLE)
-        .withText("CiviForm");
-  }
-
-  private ContainerTag status(Messages messages) {
-    return div()
-        .withId("application-status")
-        .withClasses(Styles.W_1_4, Styles.TEXT_RIGHT, Styles.TEXT_SM, Styles.UNDERLINE)
-        .with(span(messages.at(MessageKey.LINK_VIEW_APPLICATIONS.getKeyName())));
-  }
-
   private ContainerTag logoutButton(Messages messages) {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     return a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
         .withHref(logoutLink)
         .withClasses(
-            Styles.PX_3, Styles.TEXT_SM, Styles.OPACITY_75, StyleUtils.hover(Styles.OPACITY_100));
+            Styles.TEXT_BASE,
+            Styles.FONT_EXTRABOLD,
+            Styles.OPACITY_75,
+            StyleUtils.hover(Styles.OPACITY_100));
   }
 
   /**

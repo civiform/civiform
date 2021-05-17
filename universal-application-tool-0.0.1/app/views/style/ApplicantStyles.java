@@ -7,7 +7,7 @@ public final class ApplicantStyles {
 
   public static final String MAIN = StyleUtils.joinStyles();
   public static final String MAIN_PROGRAM_APPLICATION =
-      StyleUtils.joinStyles(Styles.W_2_3, Styles.M_AUTO);
+      StyleUtils.joinStyles(Styles.W_2_3, Styles.MX_AUTO, Styles.MY_12);
 
   public static final String LOGO_STYLE = StyleUtils.joinStyles(Styles.TEXT_2XL);
 
