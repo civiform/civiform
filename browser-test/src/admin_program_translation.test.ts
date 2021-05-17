@@ -59,7 +59,7 @@ describe('Admin can manage translations', () => {
     await loginAsGuest(page);
     await selectApplicantLanguage(page, 'Español');
     const applicantQuestions = new ApplicantQuestions(page);
-    applicantQuestions.validateHeader('es-US');
+    await applicantQuestions.validateHeader('es-US');
 
     await applicantQuestions.applyProgram(programName);
 
