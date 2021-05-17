@@ -6,7 +6,12 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(BODY_BG_COLOR, Styles.H_FULL, Styles.W_FULL);
 
   public static final String MAIN_PROGRAM_APPLICATION =
-      StyleUtils.joinStyles(Styles.W_2_3, Styles.MX_AUTO, Styles.MY_12);
+      StyleUtils.joinStyles(
+          Styles.W_5_6,
+          StyleUtils.responsiveSmall(Styles.W_2_3),
+          Styles.MX_AUTO,
+          Styles.MY_8,
+          StyleUtils.responsiveSmall(Styles.MY_12));
 
   public static final String PROGRAM_INDEX_TOP_CONTENT =
       StyleUtils.joinStyles(
@@ -71,7 +76,7 @@ public final class ApplicantStyles {
   public static final String BUTTON_PROGRAM_APPLY =
       StyleUtils.joinStyles(BUTTON_BASE, Styles.TEXT_SM, Styles.MX_AUTO);
   public static final String BUTTON_BLOCK_NEXT =
-      StyleUtils.joinStyles(BUTTON_BASE, Styles.TEXT_BASE, Styles.FLOAT_RIGHT);
+      StyleUtils.joinStyles(BUTTON_BASE, Styles.TEXT_BASE, Styles.MR_0, Styles.ML_AUTO);
   public static final String BUTTON_SUBMIT_APPLICATION =
       StyleUtils.joinStyles(BUTTON_BASE, Styles.TEXT_BASE, Styles.MX_AUTO);
 }
