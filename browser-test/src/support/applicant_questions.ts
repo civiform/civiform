@@ -64,13 +64,13 @@ export class ApplicantQuestions {
     await this.page.click(`.cf-application-card:has-text("${programName}") .cf-apply-button`);
   }
 
-  async saveAndContinue() {
-    await this.page.click('text="Save and continue"');
+  async clickNext() {
+    await this.page.click('text="Next"');
   }
 
   async submitFromReviewPage(programName: string) {
     // assert that we're on the review page.
-    expect(await this.page.innerText('h1')).toContain('Application review for ' + programName);
+    expect(await this.page.innerText('h1')).toContain('Application summary');
 
     // click on submit button.
     await this.page.click('text="Submit"');

@@ -3,6 +3,7 @@ package services.applicant.question;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -10,6 +11,7 @@ import javax.annotation.Nullable;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.RepeatedEntity;
+import services.applicant.ValidationErrorMessage;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
@@ -54,12 +56,24 @@ public class ApplicantQuestion {
     return questionDefinition.getQuestionType();
   }
 
+  /**
+   * Get the question text localized to the applicant's preferred locale, contextualized with {@link
+   * RepeatedEntity}.
+   */
   public String getQuestionText() {
-    return questionDefinition.getQuestionText().getOrDefault(applicantData.preferredLocale());
+    String text =
+        questionDefinition.getQuestionText().getOrDefault(applicantData.preferredLocale());
+    return repeatedEntity.map(r -> r.contextualize(text)).orElse(text);
   }
 
+  /**
+   * Get the question help text localized to the applicant's preferred locale, contextualized with
+   * {@link RepeatedEntity}.
+   */
   public String getQuestionHelpText() {
-    return questionDefinition.getQuestionHelpText().getOrDefault(applicantData.preferredLocale());
+    String helpText =
+        questionDefinition.getQuestionHelpText().getOrDefault(applicantData.preferredLocale());
+    return repeatedEntity.map(r -> r.contextualize(helpText)).orElse(helpText);
   }
 
   /**
@@ -97,6 +111,10 @@ public class ApplicantQuestion {
     } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+    return errorsPresenter().getQuestionErrors();
   }
 
   public boolean hasErrors() {

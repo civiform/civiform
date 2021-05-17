@@ -1,6 +1,5 @@
 package views.questiontypes;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.input;
@@ -12,55 +11,44 @@ import j2html.tags.Tag;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.question.LocalizedQuestionOption;
-import views.BaseHtmlView;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
-public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQuestionRenderer {
-
-  private final ApplicantQuestion question;
+public class CheckboxQuestionRenderer extends ApplicantQuestionRenderer {
 
   public CheckboxQuestionRenderer(ApplicantQuestion question) {
-    this.question = checkNotNull(question);
+    super(question);
   }
 
   @Override
   public Tag render(ApplicantQuestionRendererParams params) {
     MultiSelectQuestion multiOptionQuestion = question.createMultiSelectQuestion();
 
-    return div()
-        .withId(question.getContextualizedPath().toString())
-        .withClasses(Styles.MX_AUTO, Styles.PX_16, BaseStyles.FORM_FIELD_MARGIN_BOTTOM)
-        .with(
-            div()
-                .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, Styles.TEXT_3XL)
-                .withText(question.getQuestionText()),
-            div()
-                .withClasses(
-                    ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
-                    Styles.TEXT_BASE,
-                    Styles.FONT_THIN,
-                    Styles.MB_2)
-                .withText(question.getQuestionHelpText()),
-            input() // Hidden input that's always selected to allow for clearing mutli-select data.
-                .withType("checkbox")
-                .withName(multiOptionQuestion.getSelectionPathAsArray())
-                .withValue("")
-                .condAttr(!multiOptionQuestion.hasValue(), Attr.CHECKED, "")
-                .withClasses(ReferenceClasses.RADIO_DEFAULT, Styles.HIDDEN),
-            fieldErrors(params.messages(), multiOptionQuestion.getQuestionErrors()),
-            each(
-                multiOptionQuestion.getOptions(),
-                option ->
-                    renderCheckboxQuestion(
-                        multiOptionQuestion.getSelectionPathAsArray(),
-                        option,
-                        multiOptionQuestion.optionIsSelected(option))));
+    Tag checkboxQuestionFormContent =
+        div()
+            // Hidden input that's always selected to allow for clearing mutli-select data.
+            .with(
+                input()
+                    .withType("checkbox")
+                    .withName(multiOptionQuestion.getSelectionPathAsArray())
+                    .withValue("")
+                    .condAttr(!multiOptionQuestion.hasValue(), Attr.CHECKED, "")
+                    .withClasses(ReferenceClasses.RADIO_DEFAULT, Styles.HIDDEN))
+            .with(
+                each(
+                    multiOptionQuestion.getOptions(),
+                    option ->
+                        renderCheckboxOption(
+                            multiOptionQuestion.getSelectionPathAsArray(),
+                            option,
+                            multiOptionQuestion.optionIsSelected(option))));
+
+    return renderInternal(params.messages(), checkboxQuestionFormContent);
   }
 
-  private Tag renderCheckboxQuestion(
+  private Tag renderCheckboxOption(
       String selectionPath, LocalizedQuestionOption option, boolean isSelected) {
     String id = "checkbox-" + question.getContextualizedPath() + "-" + option.id();
     ContainerTag labelTag =
@@ -68,8 +56,7 @@ public class CheckboxQuestionRenderer extends BaseHtmlView implements ApplicantQ
             .withClasses(
                 ReferenceClasses.RADIO_OPTION,
                 BaseStyles.CHECKBOX_LABEL,
-                isSelected ? Styles.BG_BLUE_100 : "",
-                isSelected ? Styles.BORDER_BLUE_500 : "")
+                isSelected ? BaseStyles.BORDER_SEATTLE_BLUE : "")
             .with(
                 input()
                     .withId(id)

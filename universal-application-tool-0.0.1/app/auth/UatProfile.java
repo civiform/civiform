@@ -110,10 +110,6 @@ public class UatProfile {
   }
 
   public CompletableFuture<Void> checkAuthorization(long applicantId) {
-    if (isUatAdmin()) {
-      return CompletableFuture.completedFuture(null);
-    }
-
     return getAccount()
         .thenApplyAsync(
             account ->

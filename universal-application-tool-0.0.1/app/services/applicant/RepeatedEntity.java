@@ -10,6 +10,9 @@ import services.question.types.EnumeratorQuestionDefinition;
 @AutoValue
 public abstract class RepeatedEntity {
 
+  private static final String REPLACEMENT_STRING = "$this";
+  private static final String REPLACEMENT_PARENT_STRING = "parent";
+
   /**
    * Create all the non-nested repeated entities associated with the enumerator question, with no
    * parent.
@@ -82,5 +85,34 @@ public abstract class RepeatedEntity {
     return parentPath
         .join(enumeratorQuestionDefinition().getQuestionPathSegment())
         .atIndex(index());
+  }
+
+  /** The depth is how deeply nested this repeated entity is. */
+  public int depth() {
+    return 1 + parent().map(RepeatedEntity::depth).orElse(0);
+  }
+
+  /**
+   * Contextualize the text with repeated entity names.
+   *
+   * <p>Replaces "$this" with this repeated entity's name. "$this.parent" and "$this.parent.parent"
+   * (ad infinitum) are replaced with the names of the ancestors of this repeated entity.
+   */
+  public String contextualize(String text) {
+    return contextualize(text, REPLACEMENT_STRING);
+  }
+
+  /**
+   * Recursive helper method for {@link #contextualize(String)}.
+   *
+   * <p>Recursively do the parents FIRST, because {@link String#replace} is eager and will replace
+   * "$this" first and mess up "$this.parent".
+   */
+  private String contextualize(String text, String target) {
+    String updatedText =
+        parent()
+            .map(p -> p.contextualize(text, target + "." + REPLACEMENT_PARENT_STRING))
+            .orElse(text);
+    return updatedText.replace(target, entityName());
   }
 }
