@@ -72,7 +72,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             Styles.BG_WHITE,
             Styles.BORDER_B,
             Styles.ALIGN_MIDDLE,
-            Styles.P_6,
+            Styles.P_4,
             Styles.GRID,
             Styles.GRID_COLS_3)
         .with(branding())

@@ -26,6 +26,7 @@ import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Returns a list of programs that an applicant can browse, with buttons for applying. */
@@ -69,15 +70,27 @@ public class ProgramIndexView extends BaseHtmlView {
   }
 
   private ContainerTag topContent(String titleText, String infoTextLine1, String infoTextLine2) {
-    ContainerTag civiformH1 =
-        h1().withText(titleText).withClasses(Styles.TEXT_5XL, Styles.FONT_SEMIBOLD, Styles.MB_6);
-    ContainerTag infoLine1Div = div().withText(infoTextLine1).withClasses(Styles.TEXT_BASE);
-    ContainerTag infoLine2Div = div().withText(infoTextLine2).withClasses(Styles.TEXT_BASE);
+    // "Get benefits"
+    ContainerTag programIndexH1 =
+        h1().withText(titleText)
+            .withClasses(
+                Styles.TEXT_4XL,
+                StyleUtils.responsiveSmall(Styles.TEXT_5XL),
+                Styles.FONT_SEMIBOLD,
+                Styles.MB_6);
+    ContainerTag infoLine1Div =
+        div()
+            .withText(infoTextLine1)
+            .withClasses(Styles.TEXT_SM, StyleUtils.responsiveSmall(Styles.TEXT_BASE));
+    ContainerTag infoLine2Div =
+        div()
+            .withText(infoTextLine2)
+            .withClasses(Styles.TEXT_SM, StyleUtils.responsiveSmall(Styles.TEXT_BASE));
 
     return div()
         .withId("top-content")
         .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT)
-        .with(civiformH1, infoLine1Div, infoLine2Div);
+        .with(programIndexH1, infoLine1Div, infoLine2Div);
   }
 
   private ContainerTag mainContent(
@@ -87,7 +100,7 @@ public class ProgramIndexView extends BaseHtmlView {
       Locale preferredLocale) {
     return div()
         .withId("main-content")
-        .withClasses(Styles.P_10)
+        .withClasses(Styles.M_10)
         .with(
             h2().withText(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName()))
                 .withClasses(Styles.BLOCK, Styles.MB_4, Styles.TEXT_LG, Styles.FONT_SEMIBOLD))
