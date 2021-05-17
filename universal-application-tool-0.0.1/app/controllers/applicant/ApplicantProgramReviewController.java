@@ -57,7 +57,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
   @Secure
   public CompletionStage<Result> review(Request request, long applicantId, long programId) {
     Optional<String> banner = request.flash().get("banner");
-    return checkApplicantAuthorization(profileUtils, request, applicantId)
+    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+
+    return applicantStage
+        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             httpExecutionContext.current())
@@ -69,6 +72,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   summaryView.render(
                       request,
                       applicantId,
+                      applicantStage.toCompletableFuture().join(),
                       programId,
                       programTitle,
                       summaryData,
@@ -119,7 +123,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
   @Secure
   public CompletionStage<Result> confirmation(
       Request request, long applicantId, long programId, long applicationId) {
-    return checkApplicantAuthorization(profileUtils, request, applicantId)
+    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+
+    return applicantStage
+        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             httpExecutionContext.current())
@@ -131,6 +138,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   confirmationView.render(
                       request,
                       applicantId,
+                      applicantStage.toCompletableFuture().join(),
                       applicationId,
                       programTitle,
                       messagesApi.preferred(request),

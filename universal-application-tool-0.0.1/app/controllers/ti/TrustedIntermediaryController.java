@@ -59,7 +59,10 @@ public class TrustedIntermediaryController {
     }
     return ok(
         tiDashboardView.render(
-            trustedIntermediaryGroup.get(), request, messagesApi.preferred(request)));
+            trustedIntermediaryGroup.get(),
+            uatProfile.get().getApplicant().join().getApplicantData().getApplicantName(),
+            request,
+            messagesApi.preferred(request)));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)

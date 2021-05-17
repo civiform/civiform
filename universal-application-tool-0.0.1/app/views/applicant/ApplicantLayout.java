@@ -49,7 +49,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return super.render(bundle);
   }
 
-  public Content renderWithNav(Http.Request request, Messages messages, HtmlBundle bundle) {
+  public Content renderWithNav(
+      Http.Request request, String userName, Messages messages, HtmlBundle bundle) {
     // TODO: This will set the html lang attribute to the requested language when we actually want
     // the rendered language.
     Optional<Http.Cookie> language = request.cookies().get("PLAY_LANG");
@@ -57,16 +58,17 @@ public class ApplicantLayout extends BaseHtmlLayout {
       bundle.setLanguage(language.get().value());
     }
 
-    bundle.addHeaderContent(renderNavBar(request, messages));
+    bundle.addHeaderContent(renderNavBar(request, userName, messages));
     return render(bundle);
   }
 
-  private ContainerTag renderNavBar(Http.Request request, Messages messages) {
+  private ContainerTag renderNavBar(Http.Request request, String userName, Messages messages) {
     Optional<UatProfile> profile = profileUtils.currentUserProfile(request);
-    return renderNavBar(profile, messages);
+    return renderNavBar(profile, messages, userName);
   }
 
-  private ContainerTag renderNavBar(Optional<UatProfile> profile, Messages messages) {
+  private ContainerTag renderNavBar(
+      Optional<UatProfile> profile, Messages messages, String userName) {
     return nav()
         .withClasses(
             Styles.BG_WHITE,
@@ -76,7 +78,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             Styles.GRID,
             Styles.GRID_COLS_3)
         .with(branding())
-        .with(maybeRenderTiButton(profile))
+        .with(maybeRenderTiButton(profile, userName))
         .with(div(logoutButton(messages)).withClasses(Styles.JUSTIFY_SELF_END));
   }
 
@@ -85,15 +87,21 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return div().withId("brand-id").withClasses(ApplicantStyles.CIVIFORM_LOGO).withText("CiviForm");
   }
 
-  private ContainerTag maybeRenderTiButton(Optional<UatProfile> profile) {
+  private ContainerTag maybeRenderTiButton(Optional<UatProfile> profile, String userName) {
     if (profile.isPresent() && profile.get().getRoles().contains(Roles.ROLE_TI.toString())) {
       String tiDashboardText = "Trusted intermediary dashboard";
       String tiDashboardLink =
           controllers.ti.routes.TrustedIntermediaryController.dashboard().url();
-      return a(tiDashboardText)
-          .withHref(tiDashboardLink)
-          .withClasses(
-              Styles.PX_3, Styles.TEXT_SM, Styles.OPACITY_75, StyleUtils.hover(Styles.OPACITY_100));
+      return div(
+          a(tiDashboardText)
+              .withHref(tiDashboardLink)
+              .withClasses(
+                  Styles.PX_3,
+                  Styles.TEXT_SM,
+                  Styles.OPACITY_75,
+                  StyleUtils.hover(Styles.OPACITY_100)),
+          div("(applying as: " + userName + ")")
+              .withClasses(Styles.TEXT_SM, Styles.PX_3, Styles.OPACITY_75));
     }
     return div();
   }

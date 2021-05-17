@@ -54,6 +54,7 @@ public class ProgramIndexView extends BaseHtmlView {
       Messages messages,
       Http.Request request,
       long applicantId,
+      String userName,
       ImmutableList<ProgramDefinition> programs,
       Optional<String> banner) {
     HtmlBundle bundle = layout.getBundle();
@@ -67,7 +68,7 @@ public class ProgramIndexView extends BaseHtmlView {
             messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION_2.getKeyName())),
         mainContent(messages, programs, applicantId, messages.lang().toLocale()));
 
-    return layout.renderWithNav(request, messages, bundle);
+    return layout.renderWithNav(request, userName, messages, bundle);
   }
 
   private ContainerTag topContent(String titleText, String infoTextLine1, String infoTextLine2) {

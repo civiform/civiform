@@ -227,6 +227,19 @@ public class ApplicantServiceImpl implements ApplicantService {
     }
   }
 
+  @Override
+  public CompletionStage<String> getName(long applicantId) {
+    return userRepository
+        .lookupApplicant(applicantId)
+        .thenApplyAsync(
+            applicant -> {
+              if (applicant.isEmpty()) {
+                return "<Anonymous Applicant>";
+              }
+              return applicant.get().getApplicantData().getApplicantName();
+            });
+  }
+
   /**
    * In-place update of {@link ApplicantData}. Adds program id and timestamp metadata with updates.
    *
