@@ -10,7 +10,6 @@ import auth.ProfileUtils;
 import auth.Roles;
 import auth.UatProfile;
 import com.typesafe.config.Config;
-import controllers.ti.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
@@ -92,7 +91,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private ContainerTag maybeRenderTiButton(Optional<UatProfile> profile, String userName) {
     if (profile.isPresent() && profile.get().getRoles().contains(Roles.ROLE_TI.toString())) {
       String tiDashboardText = "Trusted intermediary dashboard";
-      String tiDashboardLink = routes.TrustedIntermediaryController.dashboard().url();
+      String tiDashboardLink =
+          controllers.ti.routes.TrustedIntermediaryController.dashboard().url();
       return div(
           a(tiDashboardText)
               .withHref(tiDashboardLink)
