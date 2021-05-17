@@ -77,7 +77,8 @@ public class ProgramIndexView extends BaseHtmlView {
                 Styles.TEXT_4XL,
                 StyleUtils.responsiveSmall(Styles.TEXT_5XL),
                 Styles.FONT_SEMIBOLD,
-                Styles.MB_6);
+                Styles.MB_2,
+                StyleUtils.responsiveSmall(Styles.MB_6));
     ContainerTag infoLine1Div =
         div()
             .withText(infoTextLine1)
