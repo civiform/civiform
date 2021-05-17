@@ -5,9 +5,16 @@ public final class ApplicantStyles {
   public static final String BODY =
       StyleUtils.joinStyles(BODY_BG_COLOR, Styles.H_FULL, Styles.W_FULL);
 
-  public static final String MAIN = StyleUtils.joinStyles();
   public static final String MAIN_PROGRAM_APPLICATION =
       StyleUtils.joinStyles(Styles.W_2_3, Styles.MX_AUTO, Styles.MY_12);
+
+  public static final String PROGRAM_INDEX_TOP_CONTENT =
+      StyleUtils.joinStyles(
+          BaseStyles.BG_SEATTLE_BLUE,
+          Styles.TEXT_WHITE,
+          Styles.TEXT_CENTER,
+          Styles.W_FULL,
+          Styles.P_12);
 
   public static final String CIVIFORM_LOGO = StyleUtils.joinStyles(Styles.TEXT_2XL);
   public static final String LINK_LOGOUT =
@@ -27,8 +34,9 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(
           Styles.RELATIVE,
           Styles.INLINE_BLOCK,
-          Styles.M_4,
-          Styles.W_64,
+          Styles.MR_4,
+          Styles.MB_4,
+          Styles.W_72,
           Styles.H_72,
           Styles.BG_WHITE,
           Styles.ROUNDED_XL,

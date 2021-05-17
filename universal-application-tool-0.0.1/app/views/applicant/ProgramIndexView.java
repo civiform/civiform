@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
 import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
@@ -24,7 +26,6 @@ import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
-import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Returns a list of programs that an applicant can browse, with buttons for applying. */
@@ -60,33 +61,23 @@ public class ProgramIndexView extends BaseHtmlView {
     bundle.addMainContent(
         topContent(
             messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()),
-            messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION.getKeyName())),
+            messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION_1.getKeyName()),
+            messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION_2.getKeyName())),
         mainContent(messages, programs, applicantId, messages.lang().toLocale()));
 
     return layout.renderWithNav(request, messages, bundle);
   }
 
-  private ContainerTag topContent(String titleText, String infoText) {
-    ContainerTag floatTitle =
-        div()
-            .withId("float-title")
-            .withText(titleText)
-            .withClasses(
-                Styles.RELATIVE, Styles.W_0, Styles.TEXT_6XL, Styles.FONT_SERIF, Styles.FONT_THIN);
-    ContainerTag floatText =
-        div()
-            .withId("float-text")
-            .withText(infoText)
-            .withClasses(Styles.MY_4, Styles.TEXT_SM, Styles.W_FULL);
+  private ContainerTag topContent(String titleText, String infoTextLine1, String infoTextLine2) {
+    ContainerTag civiformH1 =
+        h1().withText(titleText).withClasses(Styles.TEXT_5XL, Styles.FONT_SEMIBOLD, Styles.MB_6);
+    ContainerTag infoLine1Div = div().withText(infoTextLine1).withClasses(Styles.TEXT_BASE);
+    ContainerTag infoLine2Div = div().withText(infoTextLine2).withClasses(Styles.TEXT_BASE);
 
     return div()
         .withId("top-content")
-        .withClasses(
-            Styles.RELATIVE,
-            Styles.W_FULL,
-            Styles.MB_10,
-            StyleUtils.responsiveMedium(Styles.GRID, Styles.GRID_COLS_2))
-        .with(floatTitle, floatText);
+        .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT)
+        .with(civiformH1, infoLine1Div, infoLine2Div);
   }
 
   private ContainerTag mainContent(
@@ -96,10 +87,18 @@ public class ProgramIndexView extends BaseHtmlView {
       Locale preferredLocale) {
     return div()
         .withId("main-content")
-        .withClasses(Styles.RELATIVE, Styles.W_FULL, Styles.FLEX, Styles.FLEX_WRAP, Styles.PB_8)
+        .withClasses(Styles.P_8)
+        // TODO(natsid): Add message for "Programs and services" and add the count.
         .with(
-            each(
-                programs, program -> programCard(messages, program, applicantId, preferredLocale)));
+            h2().withText("Programs & services")
+                .withClasses(Styles.BLOCK, Styles.MB_4, Styles.TEXT_LG, Styles.FONT_SEMIBOLD))
+        .with(
+            div()
+                .withClasses(Styles.W_FULL, Styles.FLEX, Styles.FLEX_WRAP)
+                .with(
+                    each(
+                        programs,
+                        program -> programCard(messages, program, applicantId, preferredLocale))));
   }
 
   private ContainerTag programCard(
