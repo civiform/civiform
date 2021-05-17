@@ -12,7 +12,7 @@ title.programs=Programas
 link.viewApplications=ver mis applicaciones
 content.noCategory=Sin Categoría
 link.programDetails=Detalles del programa
-content.benefits=obtener beneficios
+content.benefits=Obtener beneficios
 content.description=CiviForm le permite solicitar muchos beneficios a la vez reutilizando información. Usted se encarga de entrar y nosotros nos encargaremos de enviarlo a los lugares correctos. Seleccione una aplicación para comenzar.
 
 label.street=Calle
