@@ -8,12 +8,13 @@ toast.localeNotSupported=We're sorry, this program is not fully translated to En
 toast.programCompleted=Application was already completed.
 toast.applicationSaved=Successfully saved application: application ID {0}
 
-title.programs=Programs
+title.programs=Programs & services
 link.viewApplications=view my applications
 content.noCategory=No Category
 content.programDetails=Program details
-content.benefits=get benefits
-content.description=CiviForm lets you apply for many benefits at once by reusing information. You handle getting into it and we'll handle sending it to the right places. Select an application to get started.
+content.benefits=Get benefits
+content.description1=CiviForm lets you apply for many benefits at once by reusing information.
+content.description2=Get started by choosing an application below.
 content.confirmed=Thank you for applying to {0}.  Your application has been received, and your application ID is {1}.
 content.returnToDash=Return to All Programs
 

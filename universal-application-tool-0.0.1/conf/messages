@@ -39,14 +39,17 @@ toast.localeNotSupported=We''re sorry, this program is not fully translated to y
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
 #----------------------------------------------------------------------------#
 
-# The text on the button an applicant clicks to apply to a specific program.
+# The text on the button an applicant clicks to apply to a specific rogram.
 button.apply=Apply
 
-# "get benefits" floating text
-content.benefits=get benefits
+# "Get benefits" floating text
+content.benefits=Get benefits
 
-# Long form description of the CiviForm site shown to the applicant.
-content.description=CiviForm lets you apply for many benefits at once by reusing information. You handle getting into it and we''ll handle sending it to the right places. Select an application to get started.
+# Long form description of the CiviForm site shown to the applicant. Line 1.
+content.description1=CiviForm lets you apply for many benefits at once by reusing information.
+
+# Long form description of the CiviForm site shown to the applicant. Line 2.
+content.description2=Get started by choosing an application below.
 
 # Text indicating a particular program does not belong to any category.
 content.noCategory=No Category
@@ -58,7 +61,7 @@ link.programDetails=Program details
 link.viewApplications=view my applications
 
 # The title of the page for the list of programs.
-title.programs=Programs
+title.programs=Programs & services
 
 # A toast message that displays when an applicant submits an application.
 toast.applicationSaved=Successfully saved application: application ID {0}

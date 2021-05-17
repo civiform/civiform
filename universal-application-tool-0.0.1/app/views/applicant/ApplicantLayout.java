@@ -40,7 +40,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
   @Override
   public Content render(HtmlBundle bundle) {
     bundle.addBodyStyles(ApplicantStyles.BODY);
-    bundle.addMainStyles(ApplicantStyles.MAIN);
     String currentTitle = bundle.getTitle();
     if (currentTitle != null && !currentTitle.isEmpty()) {
       bundle.setTitle(String.format("%s — %s", currentTitle, CIVIFORM_TITLE));
@@ -73,7 +72,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             Styles.BG_WHITE,
             Styles.BORDER_B,
             Styles.ALIGN_MIDDLE,
-            Styles.P_6,
+            Styles.P_4,
             Styles.GRID,
             Styles.GRID_COLS_3)
         .with(branding())
