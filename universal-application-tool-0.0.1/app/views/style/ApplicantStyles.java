@@ -35,32 +35,32 @@ public final class ApplicantStyles {
           Styles.SHADOW_MD,
           Styles.BORDER,
           Styles.BORDER_GRAY_200);
-  public static final String BUTTON_PROGRAM_APPLY =
-      StyleUtils.joinStyles(
-          Styles.BLOCK,
-          Styles.UPPERCASE,
-          Styles.ROUNDED_FULL,
-          Styles.PY_2,
-          Styles.PX_6,
-          Styles.W_MIN,
-          Styles.MX_AUTO,
-          Styles.FONT_SEMIBOLD,
-          Styles.TEXT_WHITE,
-          BaseStyles.BG_SEATTLE_BLUE);
-
   public static final String QUESTION_TEXT =
       StyleUtils.joinStyles(Styles.TEXT_BLACK, Styles.TEXT_XL, Styles.FONT_BOLD, Styles.MB_2);
   public static final String QUESTION_HELP_TEXT =
       StyleUtils.joinStyles(Styles.TEXT_BLACK, Styles.TEXT_XL);
 
-  public static final String BUTTON_BLOCK_NEXT =
+  /**
+   * Base styles for buttons in the applicant UI. This is missing a specified text size, so that
+   * should be added by other button style constants that use this as a base.
+   */
+  private static final String BUTTON_BASE =
       StyleUtils.joinStyles(
           BaseStyles.BG_SEATTLE_BLUE,
+          Styles.BLOCK,
+          Styles.W_MIN,
+          Styles.PX_8,
+          Styles.PY_2,
+          Styles.TEXT_CENTER,
           Styles.TEXT_WHITE,
           Styles.FONT_SEMIBOLD,
-          Styles.TEXT_LG,
           Styles.UPPERCASE,
-          Styles.ROUNDED_FULL,
-          Styles.W_36,
-          Styles.FLOAT_RIGHT);
+          Styles.ROUNDED_FULL);
+
+  public static final String BUTTON_PROGRAM_APPLY =
+      StyleUtils.joinStyles(BUTTON_BASE, Styles.TEXT_SM, Styles.MX_AUTO);
+  public static final String BUTTON_BLOCK_NEXT =
+      StyleUtils.joinStyles(BUTTON_BASE, Styles.TEXT_BASE, Styles.FLOAT_RIGHT);
+  public static final String BUTTON_SUBMIT_APPLICATION =
+      StyleUtils.joinStyles(BUTTON_BASE, Styles.TEXT_BASE, Styles.MX_AUTO);
 }
