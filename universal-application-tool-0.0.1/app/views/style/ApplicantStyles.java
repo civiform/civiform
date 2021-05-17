@@ -14,7 +14,7 @@ public final class ApplicantStyles {
           Styles.TEXT_WHITE,
           Styles.TEXT_CENTER,
           Styles.W_FULL,
-          Styles.P_12);
+          Styles.P_10);
 
   public static final String CIVIFORM_LOGO = StyleUtils.joinStyles(Styles.TEXT_2XL);
   public static final String LINK_LOGOUT =
