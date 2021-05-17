@@ -87,6 +87,11 @@ public abstract class RepeatedEntity {
         .atIndex(index());
   }
 
+  /** The depth is how deeply nested this repeated entity is. */
+  public int depth() {
+    return 1 + parent().map(RepeatedEntity::depth).orElse(0);
+  }
+
   /**
    * Contextualize the text with repeated entity names.
    *

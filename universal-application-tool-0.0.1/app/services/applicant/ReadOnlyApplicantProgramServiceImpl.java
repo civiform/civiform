@@ -186,6 +186,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setProgramId(programDefinition.id())
                 .setBlockId(block.getId())
                 .setQuestionDefinition(question.getQuestionDefinition())
+                .setRepeatedEntity(block.getRepeatedEntity())
                 .setQuestionIndex(questionIndex)
                 .setQuestionText(questionText)
                 .setAnswerText(answerText)
