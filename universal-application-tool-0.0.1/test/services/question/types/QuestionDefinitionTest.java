@@ -364,14 +364,19 @@ public class QuestionDefinitionTest {
   }
 
   @Test
-  public void validate_withRepeatedQuestion_oneTranslationMissingEntityNameFormatString_returnsErrors()
-      throws Exception {
+  public void
+      validate_withRepeatedQuestion_oneTranslationMissingEntityNameFormatString_returnsErrors()
+          throws Exception {
     QuestionDefinition question =
         new QuestionDefinitionBuilder()
             .setName("name")
             .setDescription("description")
-            .setQuestionText(LocalizedStrings.of(Locale.US, "$this is present", Locale.FRANCE, "$this is also present"))
-            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "$this is present", Locale.FRANCE, "this is not present"))
+            .setQuestionText(
+                LocalizedStrings.of(
+                    Locale.US, "$this is present", Locale.FRANCE, "$this is also present"))
+            .setQuestionHelpText(
+                LocalizedStrings.of(
+                    Locale.US, "$this is present", Locale.FRANCE, "this is not present"))
             .setEnumeratorId(Optional.of(1L))
             .setQuestionType(QuestionType.TEXT)
             .build();
