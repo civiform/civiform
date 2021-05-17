@@ -1,9 +1,11 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 import auth.Authorizers;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
@@ -263,34 +265,31 @@ public class AdminQuestionController extends CiviFormController {
             .updateTranslation(
                 LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionHelpText()));
 
-    // TODO: how to handle adding new options (i.e. option lengths are different)
     if (existing.getQuestionType().isMultiOptionType()) {
+      ImmutableMap<String, QuestionOption> existingTranslations =
+          ((MultiOptionQuestionDefinition) existing)
+              .getOptions().stream()
+                  .collect(toImmutableMap(o -> o.optionText().getDefault(), o -> o));
+      List<String> updatedDefaultOptions = ((MultiOptionQuestionForm) questionForm).getOptions();
+
+      // If there are existing translations for a given default locale string, keep those
+      // translations. If we do not have existing translations for a given string, create
+      // a new, empty set of translations.
       ImmutableList.Builder<QuestionOption> updatedOptionsBuilder = ImmutableList.builder();
-      ImmutableList<QuestionOption> currentOptions =
-              ((MultiOptionQuestionDefinition) existing).getOptions();
-      List<String> defaultLocaleOptions = ((MultiOptionQuestionForm) questionForm).getOptions();
-
-      for (int i = 0; i < currentOptions.size(); i++) {
-        QuestionOption current = currentOptions.get(i);
-        LocalizedStrings mergedTranslations;
-        if (current.localize(LocalizedStrings.DEFAULT_LOCALE).optionText().equals(defaultLocaleOptions.get(i))) {
-          // If the options was not updated, keep existing translations.
-          mergedTranslations =
-                  current.optionText().updateTranslation(LocalizedStrings.DEFAULT_LOCALE, defaultLocaleOptions.get(i));
+      for (int i = 0; i < updatedDefaultOptions.size(); i++) {
+        String updatedDefaultOption = updatedDefaultOptions.get(i);
+        if (existingTranslations.containsKey(updatedDefaultOption)) {
+          updatedOptionsBuilder.add(
+              existingTranslations.get(updatedDefaultOption).toBuilder().setId(i).build());
         } else {
-          mergedTranslations = LocalizedStrings.withDefaultValue(defaultLocaleOptions.get(i));
+          updatedOptionsBuilder.add(
+              QuestionOption.create(i, LocalizedStrings.withDefaultValue(updatedDefaultOption)));
         }
-        updatedOptionsBuilder.add(current.toBuilder().setOptionText(mergedTranslations).build());
       }
-
       updated.setQuestionOptions(updatedOptionsBuilder.build());
     }
 
     return updated;
-  }
-
-  private ImmutableList<QuestionOption> mergeQuestionOptionLocalizations(ImmutableList<QuestionOption> existing, List<String> updatedDefaultOptions) {
-
   }
 
   private String invalidQuestionTypeMessage(String questionType) {

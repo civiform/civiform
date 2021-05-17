@@ -107,12 +107,12 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     }
 
     ImmutableList.Builder<QuestionOption> questionOptions = ImmutableList.builder();
-    long optionCount = 1L;
+    long optionIndex = 0L;
 
     // Note: the question edit form only sets or updates the default locale.
     for (String optionText : getOptions()) {
       questionOptions.add(
-          QuestionOption.create(optionCount++, LocalizedStrings.withDefaultValue(optionText)));
+          QuestionOption.create(optionIndex++, LocalizedStrings.withDefaultValue(optionText)));
     }
 
     return super.getBuilder()

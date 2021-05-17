@@ -7,7 +7,10 @@ import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Locale;
+import java.util.Optional;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,16 +18,23 @@ import play.mvc.Http.Request;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import play.test.Helpers;
+import repository.QuestionRepository;
 import repository.WithPostgresContainer;
+import services.LocalizedStrings;
+import services.question.QuestionOption;
+import services.question.types.DropdownQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.html.helper.CSRF;
 
 public class AdminQuestionControllerTest extends WithPostgresContainer {
+  private QuestionRepository questionRepo;
   private AdminQuestionController controller;
 
   @Before
   public void setup() {
-    controller = app.injector().instanceOf(AdminQuestionController.class);
+    questionRepo = instanceOf(QuestionRepository.class);
+    controller = instanceOf(AdminQuestionController.class);
   }
 
   @Test
@@ -231,6 +241,59 @@ public class AdminQuestionControllerTest extends WithPostgresContainer {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
     assertThat(result.flash().get("message").get()).contains("updated");
+  }
+
+  @Test
+  public void update_mergesTranslations() {
+    QuestionDefinition question =
+        new DropdownQuestionDefinition(
+            "applicant ice cream",
+            Optional.empty(),
+            "Select your favorite ice cream flavor",
+            LocalizedStrings.of(
+                Locale.US, "Select your favorite ice cream flavor from the following"),
+            LocalizedStrings.of(Locale.US, "This is sample help text."),
+            ImmutableList.of(
+                QuestionOption.create(
+                    1L, LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
+                QuestionOption.create(
+                    2L, LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")),
+                QuestionOption.create(
+                    3L, LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
+                QuestionOption.create(
+                    4L, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café"))));
+    Question toSave = new Question(question);
+    toSave.save();
+
+    ImmutableMap<String, String> formData =
+        ImmutableMap.<String, String>builder()
+            .put("questionName", question.getName())
+            .put("questionDescription", question.getDescription())
+            .put("questionType", question.getQuestionType().name())
+            .put("questionText", "new question text")
+            .put("questionHelpText", "new help text")
+            .put("options[0]", "coffee") // Unchanged but out of order
+            .put("options[1]", "lavender") // New flavor
+            .put("options[2]", "vanilla") // Unchanged and in order
+            // Has one fewer than the original question
+            .build();
+    RequestBuilder requestBuilder = addCSRFToken(Helpers.fakeRequest().bodyForm(formData));
+
+    Result result =
+        controller.update(
+            requestBuilder.build(), question.getId(), question.getQuestionType().toString());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    Question found = questionRepo.lookupQuestion(toSave.id).toCompletableFuture().join().get();
+    ImmutableList<QuestionOption> expectedOptions =
+        ImmutableList.of(
+            QuestionOption.create(
+                0, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café")),
+            QuestionOption.create(1, LocalizedStrings.withDefaultValue("lavender")),
+            QuestionOption.create(
+                2, LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")));
+    assertThat(((MultiOptionQuestionDefinition) found.getQuestionDefinition()).getOptions())
+        .isEqualTo(expectedOptions);
   }
 
   @Test
