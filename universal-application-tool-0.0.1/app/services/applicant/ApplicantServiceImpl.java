@@ -258,6 +258,14 @@ public class ApplicantServiceImpl implements ApplicantService {
       UpdateMetadata updateMetadata,
       ImmutableSet<Update> updates)
       throws PathNotInBlockException {
+    Path enumeratorPath = block.getEnumeratorQuestion().getContextualizedPath();
+
+    // The applicant has seen this question, but has not supplied any entities.
+    // We need to still write this path so we can tell they have seen this question.
+    if (!applicantData.hasPath(enumeratorPath.withoutArrayReference())) {
+      applicantData.putRepeatedEntities(enumeratorPath.withoutArrayReference(), ImmutableList.of());
+    }
+
     ImmutableSet<Update> addsAndChanges = validateEnumeratorAddsAndChanges(block, updates);
     ImmutableSet<Update> deletes =
         updates.stream()
@@ -287,8 +295,7 @@ public class ApplicantServiceImpl implements ApplicantService {
             .map(Update::value)
             .map(Integer::valueOf)
             .collect(ImmutableList.toImmutableList());
-    applicantData.deleteRepeatedEntities(
-        block.getEnumeratorQuestion().getContextualizedPath(), deleteIndices);
+    applicantData.deleteRepeatedEntities(enumeratorPath, deleteIndices);
   }
 
   /**

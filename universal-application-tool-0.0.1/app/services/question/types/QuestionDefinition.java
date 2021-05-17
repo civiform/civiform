@@ -200,6 +200,11 @@ public abstract class QuestionDefinition {
         && ((EnumeratorQuestionDefinition) this).getEntityType().hasEmptyTranslation()) {
       errors.add(CiviFormError.of("Enumerator question must have specified entity type"));
     }
+    if (isRepeated() && !questionTextAndHelpTextContainsRepeatedEntityNameFormatString()) {
+      errors.add(
+          CiviFormError.of(
+              "Repeated questions must reference '$this' in the text and help text (if present)"));
+    }
     return errors.build();
   }
 
@@ -243,5 +248,14 @@ public abstract class QuestionDefinition {
           && this.validationPredicates.equals(o.getValidationPredicates());
     }
     return false;
+  }
+
+  private boolean questionTextAndHelpTextContainsRepeatedEntityNameFormatString() {
+    boolean textMissingFormatString =
+        questionText.translations().values().stream().anyMatch(text -> !text.contains("$this"));
+    boolean helpTextMissingFormatString =
+        questionHelpText.translations().values().stream()
+            .anyMatch(helpText -> !helpText.contains("$this"));
+    return !textMissingFormatString && !helpTextMissingFormatString;
   }
 }

@@ -254,14 +254,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     if (inReview) {
-      // TODO(https://github.com/seattle-uat/civiform/issues/1141): the filter here is because empty
-      //  enumerators are always incomplete and applicants can get stuck in a review loop if we
-      //  didn't have this here. This can be removed once #1141 is done.
       Optional<String> nextBlockIdMaybe =
-          roApplicantProgramService
-              .getFirstIncompleteBlock()
-              .map(Block::getId)
-              .filter(nextBlockId -> !nextBlockId.equals(blockId));
+          roApplicantProgramService.getFirstIncompleteBlock().map(Block::getId);
       return nextBlockIdMaybe.isEmpty()
           ? supplyAsync(
               () ->

@@ -131,6 +131,8 @@ public class QuestionServiceImplTest extends WithPostgresContainer {
             .setName("this is a new name")
             .setEnumeratorId(Optional.of(100L))
             .setQuestionType(QuestionType.ADDRESS)
+            .setQuestionText(LocalizedStrings.withDefaultValue("$this new name"))
+            .setQuestionHelpText(LocalizedStrings.withDefaultValue("$this again"))
             .build();
 
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult = questionService.update(toUpdate);
