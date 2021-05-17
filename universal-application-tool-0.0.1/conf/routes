@@ -2,6 +2,9 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+# Untrail trailing slashes
+GET /*path/ controllers.UntrailingController.untrail(path: String)
+
 # The landing page
 GET     /                           controllers.HomeController.index(request: Request)
 GET     /playIndex                  controllers.HomeController.playIndex()
