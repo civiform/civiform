@@ -52,9 +52,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return super.render(bundle);
   }
 
-  public Content renderWithNav(Http.Request request, Messages messages, HtmlBundle bundle) {    
-    // TODO: This will set the html lang attribute to the requested language when we actually want the rendered language.
-    Optional<Http.Cookie> language = request.cookies().get("PLAY_LANG");    
+  public Content renderWithNav(Http.Request request, Messages messages, HtmlBundle bundle) {
+    // TODO: This will set the html lang attribute to the requested language when we actually want
+    // the rendered language.
+    Optional<Http.Cookie> language = request.cookies().get("PLAY_LANG");
     if (language.isPresent()) {
       bundle.setLanguage(language.get().value());
     }

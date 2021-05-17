@@ -56,9 +56,8 @@ public class BaseHtmlLayout {
    */
   public HtmlBundle getBundle(HtmlBundle bundle) {
     // Add basic page metadata.
-    bundle.addMetadata(meta()
-      .attr("name", "viewport")
-      .attr("content", "width=device-width, initial-scale=1"));
+    bundle.addMetadata(
+        meta().attr("name", "viewport").attr("content", "width=device-width, initial-scale=1"));
 
     // Add the warning toast.
     ToastMessage privacyBanner =

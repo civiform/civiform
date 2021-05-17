@@ -103,7 +103,6 @@ public class HtmlBundle {
     return pageTitle;
   }
 
-  
   public HtmlBundle setLanguage(String lang) {
     language = lang;
     return this;
