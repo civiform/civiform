@@ -68,6 +68,12 @@ export class ApplicantQuestions {
     await this.page.click('text="Next"');
   }
 
+  async validateHeader() {
+    expect(await this.page.content()).toContain('<html lang="en-US">');
+    expect(await this.page.innerHTML('head'))
+      .toContain('<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">');
+  }
+
   async submitFromReviewPage(programName: string) {
     // assert that we're on the review page.
     expect(await this.page.innerText('h1')).toContain('Application summary');
