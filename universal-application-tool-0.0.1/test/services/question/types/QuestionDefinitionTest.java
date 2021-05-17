@@ -3,6 +3,7 @@ package services.question.types;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
@@ -12,6 +13,7 @@ import org.junit.runner.RunWith;
 import services.CiviFormError;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
+import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
@@ -412,6 +414,36 @@ public class QuestionDefinitionTest {
             LocalizedStrings.of(Locale.US, ""),
             LocalizedStrings.empty());
     assertThat(question.validate()).containsOnly(CiviFormError.of("Question text cannot be blank"));
+  }
+
+  @Test
+  public void validate_multiOptionQuestion_withoutOptions_returnsError() {
+    QuestionDefinition question =
+        new CheckboxQuestionDefinition(
+            "test",
+            Optional.empty(),
+            "test",
+            LocalizedStrings.withDefaultValue("test"),
+            LocalizedStrings.empty(),
+            ImmutableList.of(),
+            MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create());
+    assertThat(question.validate())
+        .containsOnly(CiviFormError.of("Multi-option questions must have at least one option"));
+  }
+
+  @Test
+  public void validate_multiOptionQuestion_withBlankOption_returnsError() {
+    QuestionDefinition question =
+        new CheckboxQuestionDefinition(
+            "test",
+            Optional.empty(),
+            "test",
+            LocalizedStrings.withDefaultValue("test"),
+            LocalizedStrings.empty(),
+            ImmutableList.of(QuestionOption.create(1L, LocalizedStrings.withDefaultValue(""))),
+            MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create());
+    assertThat(question.validate())
+        .containsOnly(CiviFormError.of("Multi-option questions cannot have blank options"));
   }
 
   @Test

@@ -81,12 +81,11 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   private ImmutableSet<Locale> getSupportedOptionLocales(ImmutableList<QuestionOption> options) {
-    QuestionOption firstOption = Iterables.getFirst(options, null);
-
-    if (firstOption == null) {
-      throw new RuntimeException("Must have at least one option in MultiOptionQuestionDefinition");
+    if (options.isEmpty()) {
+      return ImmutableSet.of();
     }
 
+    QuestionOption firstOption = Iterables.getFirst(options, null);
     ImmutableSet<Locale> locales = firstOption.optionText().locales();
 
     options.forEach(
