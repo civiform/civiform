@@ -10,6 +10,7 @@ import auth.ProfileUtils;
 import auth.Roles;
 import auth.UatProfile;
 import com.typesafe.config.Config;
+import controllers.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
@@ -83,8 +84,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private ContainerTag branding() {
-    // TODO(https://github.com/seattle-uat/civiform/issues/1165): Link to "home page" here.
-    return div().withId("brand-id").withClasses(ApplicantStyles.CIVIFORM_LOGO).withText("CiviForm");
+    return a().withHref(routes.HomeController.index().url())
+        .with(
+            div()
+                .withId("brand-id")
+                .withClasses(ApplicantStyles.CIVIFORM_LOGO)
+                .withText("CiviForm"));
   }
 
   private ContainerTag maybeRenderTiButton(Optional<UatProfile> profile, String userName) {
