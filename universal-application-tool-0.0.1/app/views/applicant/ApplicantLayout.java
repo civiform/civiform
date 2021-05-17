@@ -76,11 +76,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   private ContainerTag branding() {
     // TODO(https://github.com/seattle-uat/civiform/issues/1165): Link to "home page" here.
-    return a().with(
-            div()
-                .withId("brand-id")
-                .withClasses(ApplicantStyles.CIVIFORM_LOGO)
-                .withText("CiviForm"));
+    return div().withId("brand-id").withClasses(ApplicantStyles.CIVIFORM_LOGO).withText("CiviForm");
   }
 
   private ContainerTag maybeRenderTiButton(Optional<UatProfile> profile) {
