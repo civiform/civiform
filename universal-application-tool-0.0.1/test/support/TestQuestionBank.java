@@ -318,7 +318,7 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
-  private Question maybeSave(QuestionDefinition questionDefinition) {
+  public Question maybeSave(QuestionDefinition questionDefinition) {
     Question question = new Question(questionDefinition);
     if (canSave) {
       // This odd way of finding the active version is because this class

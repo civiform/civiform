@@ -245,14 +245,14 @@ public class AdminQuestionControllerTest extends WithPostgresContainer {
 
   @Test
   public void update_mergesTranslations() {
-    QuestionDefinition question =
+    QuestionDefinition definition =
         new DropdownQuestionDefinition(
             "applicant ice cream",
             Optional.empty(),
             "Select your favorite ice cream flavor",
             LocalizedStrings.of(
-                Locale.US, "Select your favorite ice cream flavor from the following"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."),
+                Locale.US, "Ice cream?", Locale.FRENCH, "crème glacée?"),
+            LocalizedStrings.of(Locale.US, "help", Locale.FRENCH, "aider"),
             ImmutableList.of(
                 QuestionOption.create(
                     1L, LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
@@ -262,14 +262,13 @@ public class AdminQuestionControllerTest extends WithPostgresContainer {
                     3L, LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
                 QuestionOption.create(
                     4L, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café"))));
-    Question toSave = new Question(question);
-    toSave.save();
+    Question question = testQuestionBank.maybeSave(definition);
 
     ImmutableMap<String, String> formData =
         ImmutableMap.<String, String>builder()
-            .put("questionName", question.getName())
-            .put("questionDescription", question.getDescription())
-            .put("questionType", question.getQuestionType().name())
+            .put("questionName", definition.getName())
+            .put("questionDescription", definition.getDescription())
+            .put("questionType", definition.getQuestionType().name())
             .put("questionText", "new question text")
             .put("questionHelpText", "new help text")
             .put("options[0]", "coffee") // Unchanged but out of order
@@ -281,10 +280,11 @@ public class AdminQuestionControllerTest extends WithPostgresContainer {
 
     Result result =
         controller.update(
-            requestBuilder.build(), question.getId(), question.getQuestionType().toString());
+            requestBuilder.build(), question.id, definition.getQuestionType().toString());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    Question found = questionRepo.lookupQuestion(toSave.id).toCompletableFuture().join().get();
+    Question found = questionRepo.lookupQuestion(question.id).toCompletableFuture().join().get();
+
     ImmutableList<QuestionOption> expectedOptions =
         ImmutableList.of(
             QuestionOption.create(

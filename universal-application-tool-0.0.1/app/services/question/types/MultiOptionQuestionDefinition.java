@@ -87,15 +87,8 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       throw new RuntimeException("Must have at least one option in MultiOptionQuestionDefinition");
     }
 
+    // TODO(cdanzi): This should be the smallest set of locales, not the first
     ImmutableSet<Locale> locales = firstOption.optionText().locales();
-
-    options.forEach(
-        option -> {
-          if (!option.optionText().locales().equals(locales)) {
-            throw new RuntimeException(
-                "All options for a MultiOptionQuestionDefinition must have the same locales");
-          }
-        });
 
     return locales;
   }
