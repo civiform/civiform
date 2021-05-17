@@ -56,10 +56,6 @@ export class ApplicantQuestions {
     await this.page.fill('input:above(#enumerator-field-add-button)', entityName)
   }
 
-  async deleteEnumeratorEntity(entityName: string) {
-    await this.page.click(`.cf-enumerator-field:has(input[value="${entityName}"]) button`);
-  }
-
   async applyProgram(programName: string) {
     await this.page.click(`.cf-application-card:has-text("${programName}") .cf-apply-button`);
   }
@@ -68,10 +64,8 @@ export class ApplicantQuestions {
     await this.page.click('text="Next"');
   }
 
-  async validateHeader() {
-    expect(await this.page.content()).toContain('<html lang="en-US">');
-    expect(await this.page.innerHTML('head'))
-      .toContain('<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">');
+  async deleteEnumeratorEntity(entityName: string) {
+    await this.page.click(`.cf-enumerator-field:has(input[value="${entityName}"]) button`);
   }
 
   async submitFromReviewPage(programName: string) {
@@ -86,4 +80,10 @@ export class ApplicantQuestions {
 
     // And grab the toast message to verify that the app was submitted.
   }
+
+  async validateHeader(lang: string) {
+    expect(await this.page.content()).toContain('<html lang="' + lang + '">');
+    expect(await this.page.innerHTML('head'))
+      .toContain('<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">');
+  }  
 }
