@@ -30,12 +30,12 @@ public final class ApplicantStyles {
   public static final String H2_PROGRAM_TITLE =
       StyleUtils.joinStyles(BaseStyles.TEXT_SEATTLE_BLUE, Styles.TEXT_LG, Styles.FONT_BOLD);
 
+  public static final String PROGRAM_CARDS_CONTAINER =
+      StyleUtils.joinStyles(Styles.FLEX, Styles.FLEX_WRAP, Styles.GAP_4);
   public static final String PROGRAM_CARD =
       StyleUtils.joinStyles(
           Styles.RELATIVE,
           Styles.INLINE_BLOCK,
-          Styles.MR_4,
-          Styles.MB_4,
           Styles.W_72,
           Styles.H_72,
           Styles.BG_WHITE,
@@ -43,6 +43,7 @@ public final class ApplicantStyles {
           Styles.SHADOW_MD,
           Styles.BORDER,
           Styles.BORDER_GRAY_200);
+
   public static final String QUESTION_TEXT =
       StyleUtils.joinStyles(Styles.TEXT_BLACK, Styles.TEXT_XL, Styles.FONT_BOLD, Styles.MB_2);
   public static final String QUESTION_HELP_TEXT =

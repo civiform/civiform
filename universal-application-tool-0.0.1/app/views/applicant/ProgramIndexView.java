@@ -93,7 +93,7 @@ public class ProgramIndexView extends BaseHtmlView {
                 .withClasses(Styles.BLOCK, Styles.MB_4, Styles.TEXT_LG, Styles.FONT_SEMIBOLD))
         .with(
             div()
-                .withClasses(Styles.W_FULL, Styles.FLEX, Styles.FLEX_WRAP)
+                .withClasses(ApplicantStyles.PROGRAM_CARDS_CONTAINER)
                 .with(
                     each(
                         programs,
