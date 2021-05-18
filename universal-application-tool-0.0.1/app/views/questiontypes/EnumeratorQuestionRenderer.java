@@ -2,7 +2,6 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
-import static views.style.ReferenceClasses.ENUMERATOR_EXISTING_DELETE_BUTTON;
 
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
@@ -105,7 +104,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
             .withCondId(existingIndex.isPresent(), existingIndex.map(String::valueOf).orElse(""))
             .withClasses(
                 existingEntity.isPresent()
-                    ? StyleUtils.joinStyles(ENUMERATOR_EXISTING_DELETE_BUTTON)
+                    ? StyleUtils.joinStyles(ReferenceClasses.ENUMERATOR_EXISTING_DELETE_BUTTON)
                     : "",
                 ApplicantStyles.BUTTON_ENUMERATOR_REMOVE_ENTITY)
             .withText(
