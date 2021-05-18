@@ -143,7 +143,7 @@ public class ProgramIndexView extends BaseHtmlView {
     ContainerTag programData =
         div()
             .withId(baseId + "-data")
-            .withClasses(Styles.W_FULL, Styles.PX_4, Styles.OVERFLOW_AUTO, Styles.SELF_START)
+            .withClasses(Styles.W_FULL, Styles.PX_4, Styles.OVERFLOW_AUTO)
             .with(title, description, externalLink);
 
     String applyUrl =
@@ -163,6 +163,7 @@ public class ProgramIndexView extends BaseHtmlView {
         .withId(baseId)
         .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
         .with(
+            // The visual bar at the top of each program card.
             div()
                 .withClasses(
                     Styles.BLOCK,
