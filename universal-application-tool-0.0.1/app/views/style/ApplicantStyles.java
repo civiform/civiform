@@ -68,7 +68,11 @@ public final class ApplicantStyles {
   /** Base styles for buttons with a solid background color. */
   private static final String BUTTON_BASE_SOLID =
       StyleUtils.joinStyles(
-          BUTTON_BASE, BaseStyles.BG_SEATTLE_BLUE, StyleUtils.hover(Styles.BG_BLUE_700), Styles.TEXT_WHITE, Styles.ROUNDED_FULL);
+          BUTTON_BASE,
+          BaseStyles.BG_SEATTLE_BLUE,
+          StyleUtils.hover(Styles.BG_BLUE_700),
+          Styles.TEXT_WHITE,
+          Styles.ROUNDED_FULL);
 
   /** Base styles for semibold, upper case buttons with a solid background. */
   private static final String BUTTON_BASE_SOLID_UPPERCASE =
@@ -90,7 +94,8 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(
           BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MR_0, Styles.ML_AUTO);
   public static final String BUTTON_REVIEW =
-      StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MR_0, Styles.ML_AUTO);
+      StyleUtils.joinStyles(
+          BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MR_0, Styles.ML_AUTO);
   public static final String BUTTON_SUBMIT_APPLICATION =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MX_AUTO);
   public static final String BUTTON_ENUMERATOR_ADD_ENTITY =
