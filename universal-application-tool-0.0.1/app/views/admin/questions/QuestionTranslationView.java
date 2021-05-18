@@ -30,33 +30,16 @@ public class QuestionTranslationView extends TranslationFormView {
   }
 
   public Content render(Http.Request request, Locale locale, QuestionDefinition question) {
-    return render(
-        request,
-        locale,
-        question,
-        question.getQuestionText().maybeGet(locale),
-        question.getQuestionHelpText().maybeGet(locale),
-        Optional.empty());
+    return render(request, locale, question, Optional.empty());
   }
 
   public Content renderErrors(
       Http.Request request, Locale locale, QuestionDefinition invalidQuestion, String errors) {
-    return render(
-        request,
-        locale,
-        invalidQuestion,
-        invalidQuestion.getQuestionText().maybeGet(locale),
-        invalidQuestion.getQuestionHelpText().maybeGet(locale),
-        Optional.of(errors));
+    return render(request, locale, invalidQuestion, Optional.of(errors));
   }
 
   private Content render(
-      Http.Request request,
-      Locale locale,
-      QuestionDefinition question,
-      Optional<String> existingQuestionText,
-      Optional<String> existingQuestionHelpText,
-      Optional<String> errors) {
+      Http.Request request, Locale locale, QuestionDefinition question, Optional<String> errors) {
     String formAction =
         controllers.admin.routes.AdminQuestionTranslationsController.update(
                 question.getId(), locale.toLanguageTag())
