@@ -32,7 +32,7 @@ public enum MessageKey {
   CONTENT_PROGRAM_DETAILS("content.programDetails"),
   CONTENT_SELECT_LANGUAGE("content.selectLanguage"),
   ENUMERATOR_BUTTON_ADD_ENTITY("button.addEntity"),
-  ENUMERATOR_BUTTON_ARIA_LABEL_DELETE_ENTITY("button.ariaLabel.deleteEntity"),
+  ENUMERATOR_BUTTON_REMOVE_ENTITY("button.removeEntity"),
   ENUMERATOR_PLACEHOLDER_ENTITY_NAME("placeholder.entityName"),
   ENUMERATOR_VALIDATION_ENTITY_REQUIRED("validation.entityNameRequired"),
   ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME("validation.duplicateEntityName"),

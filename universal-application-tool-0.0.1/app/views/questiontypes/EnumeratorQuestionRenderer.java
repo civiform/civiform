@@ -2,7 +2,6 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
-import static views.style.ReferenceClasses.ENUMERATOR_EXISTING_DELETE_BUTTON;
 
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
@@ -19,7 +18,7 @@ import services.applicant.question.EnumeratorQuestion;
 import services.applicant.question.Scalar;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
-import views.components.Icons;
+import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -30,12 +29,14 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
   private static final String ADD_ELEMENT_BUTTON_ID = "enumerator-field-add-button";
   private static final String ENUMERATOR_FIELD_TEMPLATE_ID = "enumerator-field-template";
   private static final String DELETE_ENTITY_TEMPLATE_ID = "enumerator-delete-template";
-  private static final ContainerTag DELETE_ICON =
-      Icons.svg(Icons.TRASH_CAN_SVG_PATH, 24)
-          .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
 
   public static final String ENUMERATOR_FIELD_CLASSES =
-      StyleUtils.joinStyles(ReferenceClasses.ENUMERATOR_FIELD, Styles.FLEX, Styles.MB_4);
+      StyleUtils.joinStyles(
+          ReferenceClasses.ENUMERATOR_FIELD,
+          Styles.GRID,
+          Styles.GRID_COLS_2,
+          Styles.GAP_4,
+          Styles.MB_4);
 
   public EnumeratorQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -65,10 +66,13 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
             .with(enumeratorFields)
             .with(
                 BaseHtmlView.button(
-                    ADD_ELEMENT_BUTTON_ID,
-                    messages.at(
-                        MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(),
-                        localizedEntityType)));
+                        ADD_ELEMENT_BUTTON_ID,
+                        String.format(
+                            "＋ %s",
+                            messages.at(
+                                MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(),
+                                localizedEntityType)))
+                    .withClasses(ApplicantStyles.BUTTON_ENUMERATOR_ADD_ENTITY));
 
     return renderInternal(messages, enumeratorQuestionFormContent);
   }
@@ -83,10 +87,6 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
       Path contextualizedPath,
       Optional<String> existingEntity,
       Optional<Integer> existingIndex) {
-    String removeButtonStyles =
-        existingEntity.isPresent()
-            ? StyleUtils.joinStyles(ENUMERATOR_EXISTING_DELETE_BUTTON, Styles.ML_4)
-            : Styles.ML_4;
 
     ContainerTag entityNameInput =
         FieldWithLabel.input()
@@ -99,15 +99,17 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
             .addReferenceClass(ReferenceClasses.ENTITY_NAME_INPUT)
             .getContainer();
     Tag removeEntityButton =
-        TagCreator.button(DELETE_ICON)
+        TagCreator.button()
             .withType("button")
             .withCondId(existingIndex.isPresent(), existingIndex.map(String::valueOf).orElse(""))
-            .withClasses(removeButtonStyles)
-            .attr(
-                "aria-label",
+            .withClasses(
+                existingEntity.isPresent()
+                    ? StyleUtils.joinStyles(ReferenceClasses.ENUMERATOR_EXISTING_DELETE_BUTTON)
+                    : "",
+                ApplicantStyles.BUTTON_ENUMERATOR_REMOVE_ENTITY)
+            .withText(
                 messages.at(
-                    MessageKey.ENUMERATOR_BUTTON_ARIA_LABEL_DELETE_ENTITY.getKeyName(),
-                    localizedEntityType));
+                    MessageKey.ENUMERATOR_BUTTON_REMOVE_ENTITY.getKeyName(), localizedEntityType));
 
     return div().withClasses(ENUMERATOR_FIELD_CLASSES).with(entityNameInput, removeEntityButton);
   }
