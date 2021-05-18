@@ -23,6 +23,7 @@ import play.mvc.Result;
 import play.mvc.Results;
 import repository.UserRepository;
 import services.applicant.ApplicantData;
+import services.applicant.ApplicantService;
 import services.applicant.exception.ApplicantNotFoundException;
 import views.applicant.ApplicantInformationView;
 
@@ -38,6 +39,7 @@ public final class ApplicantInformationController extends CiviFormController {
   private final UserRepository repository;
   private final FormFactory formFactory;
   private final ProfileUtils profileUtils;
+  private final ApplicantService applicantService;
 
   @Inject
   public ApplicantInformationController(
@@ -46,6 +48,7 @@ public final class ApplicantInformationController extends CiviFormController {
       ApplicantInformationView informationView,
       UserRepository repository,
       FormFactory formFactory,
+      ApplicantService applicantService,
       ProfileUtils profileUtils) {
     this.httpExecutionContext = httpExecutionContext;
     this.messagesApi = messagesApi;
@@ -53,11 +56,15 @@ public final class ApplicantInformationController extends CiviFormController {
     this.repository = repository;
     this.formFactory = formFactory;
     this.profileUtils = profileUtils;
+    this.applicantService = applicantService;
   }
 
   @Secure
   public CompletionStage<Result> edit(Http.Request request, long applicantId) {
-    return checkApplicantAuthorization(profileUtils, request, applicantId)
+    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+
+    return applicantStage
+        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
         .thenApplyAsync(
             // Since this is before we set the applicant's preferred language, use
             // the default language for now.
@@ -65,6 +72,7 @@ public final class ApplicantInformationController extends CiviFormController {
                 ok(
                     informationView.render(
                         request,
+                        applicantStage.toCompletableFuture().join(),
                         messagesApi.preferred(ImmutableSet.of(Lang.defaultLang())),
                         applicantId)),
             httpExecutionContext.current())

@@ -46,6 +46,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
   public Content render(
       Request request,
       Long applicantId,
+      String userName,
       Long programId,
       String programTitle,
       ImmutableList<AnswerData> data,
@@ -55,7 +56,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     HtmlBundle bundle =
         layout.getBundle().setTitle(String.format("%s — %s", pageTitle, programTitle));
 
-    ContainerTag applicationSummary = div().withId("application-summary");
+    ContainerTag applicationSummary = div().withId("application-summary").withClasses(Styles.MB_8);
     Optional<RepeatedEntity> previousRepeatedEntity = Optional.empty();
     for (AnswerData answerData : data) {
       Optional<RepeatedEntity> currentRepeatedEntity = answerData.repeatedEntity();
@@ -66,18 +67,21 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       applicationSummary.with(renderQuestionSummary(answerData, applicantId));
       previousRepeatedEntity = currentRepeatedEntity;
     }
-    ContainerTag content = div().with(applicationSummary);
 
     // Add submit action (POST).
     String submitLink =
         routes.ApplicantProgramReviewController.submit(applicantId, programId).url();
-    ContainerTag actions =
-        form()
-            .withAction(submitLink)
-            .withMethod(HttpVerbs.POST)
-            .with(makeCsrfTokenInputTag(request))
-            .with(submitButton("Submit"));
-    content.with(actions);
+    ContainerTag content =
+        div()
+            .with(applicationSummary)
+            .with(
+                form()
+                    .withAction(submitLink)
+                    .withMethod(HttpVerbs.POST)
+                    .with(makeCsrfTokenInputTag(request))
+                    .with(
+                        submitButton("Submit")
+                            .withClasses(ApplicantStyles.BUTTON_SUBMIT_APPLICATION)));
 
     if (banner.isPresent()) {
       bundle.addToastMessages(ToastMessage.error(banner.get()));
@@ -88,7 +92,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         content);
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
-    return layout.renderWithNav(request, messages, bundle);
+    return layout.renderWithNav(request, userName, messages, bundle);
   }
 
   private ContainerTag renderQuestionSummary(AnswerData data, Long applicantId) {

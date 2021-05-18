@@ -47,8 +47,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     this.layout = checkNotNull(layout);
   }
 
-  public Content render(TrustedIntermediaryGroup tiGroup, Http.Request request, Messages messages) {
-
+  public Content render(
+      TrustedIntermediaryGroup tiGroup, String userName, Http.Request request, Messages messages) {
     HtmlBundle bundle =
         layout
             .getBundle()
@@ -77,8 +77,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
               .setIgnorable(false)
               .setDuration(0));
     }
-
-    return layout.renderWithNav(request, messages, bundle);
+    return layout.renderWithNav(request, userName, messages, bundle);
   }
 
   private ContainerTag renderTIApplicantsTable(TrustedIntermediaryGroup tiGroup) {

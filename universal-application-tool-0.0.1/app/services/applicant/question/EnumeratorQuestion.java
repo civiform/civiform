@@ -68,12 +68,12 @@ public class EnumeratorQuestion implements PresentsErrors {
     return (EnumeratorQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 
-  /** This is answered if there is at least one entity name stored. */
+  /** This is answered if the the path to the enumerator question answer array exists. */
   @Override
   public boolean isAnswered() {
     return applicantQuestion
         .getApplicantData()
-        .hasPath(applicantQuestion.getContextualizedPath().atIndex(0).join(Scalar.ENTITY_NAME));
+        .hasPath(applicantQuestion.getContextualizedPath().withoutArrayReference());
   }
 
   /** Return the repeated entity names associated with this enumerator question. */

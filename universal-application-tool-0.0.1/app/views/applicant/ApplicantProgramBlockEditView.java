@@ -72,7 +72,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
               params.messages()));
     }
 
-    return layout.renderWithNav(params.request(), params.messages(), bundle);
+    return layout.renderWithNav(
+        params.request(), params.applicantName(), params.messages(), bundle);
   }
 
   /**
@@ -183,6 +184,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
     abstract String baseUrl();
 
+    abstract String applicantName();
+
     @AutoValue.Builder
     public abstract static class Builder {
       public abstract Builder setRequest(Http.Request request);
@@ -208,6 +211,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
       public abstract Builder setAmazonS3Client(SimpleStorage amazonS3Client);
 
       public abstract Builder setBaseUrl(String baseUrl);
+
+      public abstract Builder setApplicantName(String applicantName);
 
       public abstract Params build();
     }

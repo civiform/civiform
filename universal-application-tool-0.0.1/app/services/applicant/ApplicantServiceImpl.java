@@ -213,11 +213,10 @@ public class ApplicantServiceImpl implements ApplicantService {
         baseUrl
             + controllers.admin.routes.AdminApplicationController.show(programId, applicationId)
                 .url();
-    System.out.println(viewLink);
-    String subject = String.format("New application submitted for %s", programName);
+    String subject = String.format("Applicant %d submitted a new application", applicantId);
     String message =
         String.format(
-            "Applicant %d submitted a new application to program %s. View the application at %s.",
+            "Applicant %d submitted a new application to program %s.\nView the application at %s.",
             applicantId, programName, viewLink);
     if (isStaging) {
       amazonSESClient.send(STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST, subject, message);
@@ -225,6 +224,19 @@ public class ApplicantServiceImpl implements ApplicantService {
       amazonSESClient.send(
           programService.getNotificationEmailAddresses(programName), subject, message);
     }
+  }
+
+  @Override
+  public CompletionStage<String> getName(long applicantId) {
+    return userRepository
+        .lookupApplicant(applicantId)
+        .thenApplyAsync(
+            applicant -> {
+              if (applicant.isEmpty()) {
+                return "<Anonymous Applicant>";
+              }
+              return applicant.get().getApplicantData().getApplicantName();
+            });
   }
 
   /**
@@ -258,6 +270,14 @@ public class ApplicantServiceImpl implements ApplicantService {
       UpdateMetadata updateMetadata,
       ImmutableSet<Update> updates)
       throws PathNotInBlockException {
+    Path enumeratorPath = block.getEnumeratorQuestion().getContextualizedPath();
+
+    // The applicant has seen this question, but has not supplied any entities.
+    // We need to still write this path so we can tell they have seen this question.
+    if (!applicantData.hasPath(enumeratorPath.withoutArrayReference())) {
+      applicantData.putRepeatedEntities(enumeratorPath.withoutArrayReference(), ImmutableList.of());
+    }
+
     ImmutableSet<Update> addsAndChanges = validateEnumeratorAddsAndChanges(block, updates);
     ImmutableSet<Update> deletes =
         updates.stream()
@@ -287,8 +307,7 @@ public class ApplicantServiceImpl implements ApplicantService {
             .map(Update::value)
             .map(Integer::valueOf)
             .collect(ImmutableList.toImmutableList());
-    applicantData.deleteRepeatedEntities(
-        block.getEnumeratorQuestion().getContextualizedPath(), deleteIndices);
+    applicantData.deleteRepeatedEntities(enumeratorPath, deleteIndices);
   }
 
   /**

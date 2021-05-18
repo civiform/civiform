@@ -125,7 +125,7 @@ export class AdminPrograms {
 
     await this.page.click('#add-block-button');
 
-    await this.page.fill('textarea', blockDescription);
+    await this.page.type('textarea', blockDescription);
     await this.page.click('#update-block-button');
 
     for (const questionName of questionNames) {

@@ -45,6 +45,7 @@ describe('normal application flow', () => {
     await selectApplicantLanguage(page, 'English');
 
     const applicantQuestions = new ApplicantQuestions(page);
+    await applicantQuestions.validateHeader('en-US');
 
     // Applicant fills out first application block.
     await applicantQuestions.applyProgram(programName);

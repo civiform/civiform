@@ -94,7 +94,8 @@ public class QuestionRepository {
     ConflictDetector conflictDetector =
         new ConflictDetector(
             newQuestionDefinition.getEnumeratorId(),
-            newQuestionDefinition.getQuestionPathSegment());
+            newQuestionDefinition.getQuestionPathSegment(),
+            newQuestionDefinition.getName());
     ebeanServer
         .find(Question.class)
         .findEachWhile(question -> !conflictDetector.hasConflict(question));
@@ -105,10 +106,13 @@ public class QuestionRepository {
     private Optional<Question> conflictedQuestion = Optional.empty();
     private final Optional<Long> enumeratorId;
     private final String questionPathSegment;
+    private final String questionName;
 
-    private ConflictDetector(Optional<Long> enumeratorId, String questionPathSegment) {
+    private ConflictDetector(
+        Optional<Long> enumeratorId, String questionPathSegment, String questionName) {
       this.enumeratorId = checkNotNull(enumeratorId);
       this.questionPathSegment = checkNotNull(questionPathSegment);
+      this.questionName = checkNotNull(questionName);
     }
 
     private Optional<Question> getConflictedQuestion() {
@@ -116,11 +120,12 @@ public class QuestionRepository {
     }
 
     private boolean hasConflict(Question question) {
-      if (question.getQuestionDefinition().getEnumeratorId().equals(enumeratorId)
-          && question
-              .getQuestionDefinition()
-              .getQuestionPathSegment()
-              .equals(questionPathSegment)) {
+      if (question.getQuestionDefinition().getName().equals(questionName)
+          || (question.getQuestionDefinition().getEnumeratorId().equals(enumeratorId)
+              && question
+                  .getQuestionDefinition()
+                  .getQuestionPathSegment()
+                  .equals(questionPathSegment))) {
         conflictedQuestion = Optional.of(question);
         return true;
       }

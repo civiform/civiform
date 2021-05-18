@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -35,8 +36,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
   public Content render(
       long programId,
+      String programName,
       long applicationId,
-      String applicantName,
+      String applicantNameWithId,
       ImmutableList<Block> blocks,
       ImmutableList<AnswerData> answers) {
     String title = "Program Application View";
@@ -54,7 +56,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
         div()
             .withClasses(Styles.PX_20)
             .with(
-                h1(applicantName).withClasses(Styles.MY_4),
+                h2("Program: " + programName).withClasses(Styles.MY_4),
+                h1(applicantNameWithId).withClasses(Styles.MY_4),
                 each(blocks, block -> renderApplicationBlock(block, blockToAnswers.get(block))),
                 renderDownloadButton(programId, applicationId));
 

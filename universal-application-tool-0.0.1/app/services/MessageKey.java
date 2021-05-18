@@ -22,7 +22,8 @@ public enum MessageKey {
   BUTTON_LOGOUT("button.logout"),
   BUTTON_NEXT_BLOCK("button.nextBlock"),
   BUTTON_UNTRANSLATED_SUBMIT("button.untranslatedSubmit"),
-  CONTENT_CIVIFORM_DESCRIPTION("content.description"),
+  CONTENT_CIVIFORM_DESCRIPTION_1("content.description1"),
+  CONTENT_CIVIFORM_DESCRIPTION_2("content.description2"),
   CONTENT_GET_BENEFITS("content.benefits"),
   CONTENT_NO_CATEGORY("content.noCategory"),
   CONTENT_PROGRAM_DETAILS("content.programDetails"),
@@ -50,7 +51,10 @@ public enum MessageKey {
   TITLE_PROGRAMS("title.programs"),
   TOAST_APPLICATION_SAVED("toast.applicationSaved"),
   TOAST_LOCALE_NOT_SUPPORTED("toast.localeNotSupported"),
-  TOAST_PROGRAM_COMPLETED("toast.programCompleted");
+  TOAST_PROGRAM_COMPLETED("toast.programCompleted"),
+  CONTENT_PLEASE_SIGN_IN("content.pleaseCreateAccount"),
+  CONTENT_DO_SIGN_IN("content.doCreateAccount"),
+  CONTENT_DONT_SIGN_IN("content.dontCreateAccount");
 
   private final String keyName;
 
