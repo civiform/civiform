@@ -49,7 +49,9 @@ public final class ApplicantStyles {
           Styles.ROUNDED_XL,
           Styles.SHADOW_MD,
           Styles.BORDER,
-          Styles.BORDER_GRAY_200);
+          Styles.BORDER_GRAY_200,
+          Styles.GRID,
+          Styles.AUTO_ROWS_MIN);
 
   public static final String QUESTION_TEXT =
       StyleUtils.joinStyles(Styles.TEXT_BLACK, Styles.TEXT_XL, Styles.FONT_BOLD, Styles.MB_2);
