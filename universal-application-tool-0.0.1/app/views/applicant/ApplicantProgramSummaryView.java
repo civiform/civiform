@@ -108,7 +108,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     }
     bundle.addMainContent(
         layout.renderProgramApplicationTitleAndProgressIndicator(
-            programTitle, completedBlockCount, totalBlockCount),
+            programTitle, completedBlockCount, totalBlockCount, true),
         h1(pageTitle).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION),
         content);
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);

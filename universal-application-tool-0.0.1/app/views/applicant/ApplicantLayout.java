@@ -122,12 +122,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
    * Use this one when the application is already complete, to show a complete progress indicator.
    */
   protected ContainerTag renderProgramApplicationTitleAndProgressIndicator(String programTitle) {
-    return renderProgramApplicationTitleAndProgressIndicator(programTitle, 0, 0);
+    return renderProgramApplicationTitleAndProgressIndicator(programTitle, 0, 0, true);
   }
 
   protected ContainerTag renderProgramApplicationTitleAndProgressIndicator(
-      String programTitle, int blockIndex, int totalBlockCount) {
-    int percentComplete = getPercentComplete(blockIndex, totalBlockCount);
+      String programTitle, int blockIndex, int totalBlockCount, boolean forSummary) {
+    int percentComplete = getPercentComplete(blockIndex, totalBlockCount, forSummary);
 
     ContainerTag progressInner =
         div()
@@ -155,10 +155,16 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 Styles.H_4,
                 Styles.MT_4);
 
+    // While applicant is filling out the application, include the block they are on as part of
+    // their progress.
+    if (!forSummary) {
+      blockIndex++;
+    }
+
     ContainerTag blockNumberTag = div();
     if (percentComplete != 100) {
       blockNumberTag
-          .withText(String.format("%d of %d", blockIndex + 1, totalBlockCount))
+          .withText(String.format("%d of %d", blockIndex, totalBlockCount))
           .withClasses(Styles.TEXT_GRAY_500, Styles.TEXT_RIGHT);
     }
 
@@ -172,7 +178,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   /** Returns whole number out of 100 representing the completion percent of this program. */
-  private int getPercentComplete(int blockIndex, int totalBlockCount) {
+  private int getPercentComplete(int blockIndex, int totalBlockCount, boolean forSummary) {
     if (totalBlockCount == 0) return 100;
     if (blockIndex == -1) return 0;
 
@@ -180,6 +186,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
     // some amount of progress.
     // Add one to totalBlockCount so that when applicant is on the last block, we show that they're
     // still in progress. Save showing "100% completion" for the application review page.
-    return (int) (((blockIndex + 1.0) / (totalBlockCount + 1.0)) * 100.0);
+
+    double numerator = forSummary ? blockIndex : blockIndex + 1;
+    double denominator = forSummary ? totalBlockCount : totalBlockCount + 1;
+
+    return (int) (numerator / denominator * 100.0);
   }
 }
