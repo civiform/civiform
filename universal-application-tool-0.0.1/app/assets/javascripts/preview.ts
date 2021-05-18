@@ -37,6 +37,9 @@ class PreviewController {
     const enumeratorSelector = document.getElementById(PreviewController.QUESTION_ENUMERATOR_INPUT_ID);
     if (enumeratorSelector) {
       enumeratorSelector.addEventListener('input', PreviewController.onEnumeratorSelectorChanged, false);
+      let enumerator = (<HTMLInputElement>enumeratorSelector).value;
+      const repeatedQuestionInformation = document.querySelector(PreviewController.REPEATED_QUESTION_INFORMATION_ID);
+      repeatedQuestionInformation.classList.toggle("hidden", enumerator === "");
     }
     const entityTypeInput =
       document.getElementById(PreviewController.QUESTION_ENTITY_TYPE_INPUT_ID);
