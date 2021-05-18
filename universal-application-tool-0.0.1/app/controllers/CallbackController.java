@@ -1,5 +1,6 @@
 package controllers;
 
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import play.mvc.Controller;
@@ -16,7 +17,27 @@ public class CallbackController extends Controller {
   @Inject private org.pac4j.play.CallbackController wrappedController;
 
   public CompletionStage<Result> callback(Http.Request request, String clientName) {
-    return wrappedController.callback(request);
+    return wrappedController
+        .callback(request)
+        .thenApplyAsync(
+            result -> {
+              Optional<String> redirectTo = request.session().get("redirectTo");
+              if (redirectTo.isPresent()) {
+                Result redirect = redirect(redirectTo.get());
+                if (result.session() != null) {
+                  redirect = redirect.withSession(result.session());
+                  redirect = redirect.removingFromSession(request, "redirectTo");
+                }
+                if (result.flash() != null) {
+                  redirect = redirect.withFlash(result.flash());
+                }
+                for (Http.Cookie cookie : result.cookies()) {
+                  redirect.withCookies(cookie);
+                }
+                return redirect;
+              }
+              return result;
+            });
   }
 
   public CompletionStage<Result> fakeAdmin(

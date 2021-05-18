@@ -56,28 +56,39 @@ export class ApplicantQuestions {
     await this.page.fill('input:above(#enumerator-field-add-button)', entityName)
   }
 
-  async deleteEnumeratorEntity(entityName: string) {
-    await this.page.click(`.cf-enumerator-field:has(input[value="${entityName}"]) button`);
-  }
-
   async applyProgram(programName: string) {
     await this.page.click(`.cf-application-card:has-text("${programName}") .cf-apply-button`);
   }
 
-  async saveAndContinue() {
-    await this.page.click('text="Save and continue"');
+  async clickNext() {
+    await this.page.click('text="Next"');
+  }
+
+  async deleteEnumeratorEntity(entityName: string) {
+    await this.page.click(`.cf-enumerator-field:has(input[value="${entityName}"]) button`);
   }
 
   async submitFromReviewPage(programName: string) {
     // assert that we're on the review page.
-    expect(await this.page.innerText('h1')).toContain('Application review for ' + programName);
+    expect(await this.page.innerText('h1')).toContain('Application summary');
 
     // click on submit button.
     await this.page.click('text="Submit"');
+    const pleaseLogInPageRegex = /considerSignIn\?redirectTo=/;
+    const maybePleaseLogInPage = await this.page.url();
+    if (maybePleaseLogInPage.match(pleaseLogInPageRegex)) {
+       await this.page.click('text="Not Right Now"');
+    }
 
     // Ensure that we redirected to the programs list page.
     expect(await this.page.url().split('/').pop()).toEqual('confirmation');
 
     // And grab the toast message to verify that the app was submitted.
+  }
+
+  async validateHeader(lang: string) {
+    expect(await this.page.getAttribute('html', 'lang')).toEqual(lang);
+    expect(await this.page.innerHTML('head'))
+      .toContain('<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">');
   }
 }

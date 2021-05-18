@@ -2,18 +2,19 @@
 
 button.logout=Cerrar Sesión
 button.apply=Solicitar
-button.nextBlock=Guardar y continuar
+button.nextBlock=Próximo
 button.deleteEntity=Eliminar {0}
 toast.localeNotSupported=Lo siento, este programa no está completamente traducido al español.
 toast.programCompleted=Ya completó esta solicitud
 toast.applicationSaved=Solicitud guardada con ID: {0}
 
-title.programs=Programas
+title.programs=Programas y servicios
 link.viewApplications=ver mis applicaciones
 content.noCategory=Sin Categoría
 link.programDetails=Detalles del programa
-content.benefits=obtener beneficios
-content.description=CiviForm le permite solicitar muchos beneficios a la vez reutilizando información. Usted se encarga de entrar y nosotros nos encargaremos de enviarlo a los lugares correctos. Seleccione una aplicación para comenzar.
+content.benefits=Obtener beneficios
+content.description1=CiviForm le permite solicitar muchos beneficios a la vez reutilizando información.
+content.description2=Comience eligiendo una aplicación a continuación.
 
 label.street=Calle
 placeholder.street=Nombre de la calle

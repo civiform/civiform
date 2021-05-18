@@ -72,6 +72,9 @@ lazy val root = (project in file("."))
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "2.5",
+
+      // Url detector for program descriptions.
+      "com.linkedin.urls" % "url-detector" % "0.1.17"
     ),
     javacOptions ++= Seq(
       "-encoding", "UTF-8",

@@ -81,6 +81,9 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   private ImmutableSet<Locale> getSupportedOptionLocales(ImmutableList<QuestionOption> options) {
+    if (options.isEmpty()) {
+      return ImmutableSet.of();
+    }
     ImmutableSet<ImmutableSet<Locale>> supportedLocales =
         options.stream()
             .map(option -> option.optionText().translations().keySet())
@@ -90,7 +93,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
         supportedLocales.stream().reduce((a, b) -> a.size() < b.size() ? a : b);
 
     if (smallestSet.isEmpty()) {
-      throw new RuntimeException("Must have at least one option in MultiOptionQuestionDefinition");
+      throw new RuntimeException("Could not determine supported option locales for question");
     }
 
     return smallestSet.get();

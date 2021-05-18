@@ -2,8 +2,8 @@ package views.questiontypes;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
+import java.util.Optional;
 import services.LocalizedStrings;
-import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.question.QuestionOption;
@@ -14,14 +14,11 @@ import services.question.types.QuestionType;
 
 public class ApplicantQuestionRendererFactory {
 
-  /** This is just used in creating samples, and they don't need real contextualized paths. */
-  private static final Path FAKE_CONTEXTUALIZED_PATH = Path.create("fake");
-
   public ApplicantQuestionRenderer getSampleRenderer(QuestionType questionType)
       throws UnsupportedQuestionTypeException {
     QuestionDefinition questionDefinition = questionDefinitionSample(questionType);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(questionDefinition, new ApplicantData(), FAKE_CONTEXTUALIZED_PATH);
+        new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty());
     return getRenderer(applicantQuestion);
   }
 

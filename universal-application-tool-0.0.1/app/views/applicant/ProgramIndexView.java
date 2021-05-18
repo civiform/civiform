@@ -4,11 +4,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
 import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
+import j2html.tags.DomContent;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -51,46 +54,46 @@ public class ProgramIndexView extends BaseHtmlView {
       Messages messages,
       Http.Request request,
       long applicantId,
+      String userName,
       ImmutableList<ProgramDefinition> programs,
       Optional<String> banner) {
-    HtmlBundle bundle =
-        layout
-            .getBundle()
-            .setTitle("CiviForm")
-            .addBodyStyles(Styles.RELATIVE, Styles.PX_8, ApplicantStyles.BODY);
+    HtmlBundle bundle = layout.getBundle();
     if (banner.isPresent()) {
       bundle.addToastMessages(ToastMessage.alert(banner.get()));
     }
     bundle.addMainContent(
         topContent(
             messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()),
-            messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION.getKeyName())),
+            messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION_1.getKeyName()),
+            messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION_2.getKeyName())),
         mainContent(messages, programs, applicantId, messages.lang().toLocale()));
 
-    return layout.renderWithNav(request, messages, bundle);
+    return layout.renderWithNav(request, userName, messages, bundle);
   }
 
-  private ContainerTag topContent(String titleText, String infoText) {
-    ContainerTag floatTitle =
-        div()
-            .withId("float-title")
-            .withText(titleText)
+  private ContainerTag topContent(String titleText, String infoTextLine1, String infoTextLine2) {
+    // "Get benefits"
+    ContainerTag programIndexH1 =
+        h1().withText(titleText)
             .withClasses(
-                Styles.RELATIVE, Styles.W_0, Styles.TEXT_6XL, Styles.FONT_SERIF, Styles.FONT_THIN);
-    ContainerTag floatText =
+                Styles.TEXT_4XL,
+                StyleUtils.responsiveSmall(Styles.TEXT_5XL),
+                Styles.FONT_SEMIBOLD,
+                Styles.MB_2,
+                StyleUtils.responsiveSmall(Styles.MB_6));
+    ContainerTag infoLine1Div =
         div()
-            .withId("float-text")
-            .withText(infoText)
-            .withClasses(Styles.MY_4, Styles.TEXT_SM, Styles.W_FULL);
+            .withText(infoTextLine1)
+            .withClasses(Styles.TEXT_SM, StyleUtils.responsiveSmall(Styles.TEXT_BASE));
+    ContainerTag infoLine2Div =
+        div()
+            .withText(infoTextLine2)
+            .withClasses(Styles.TEXT_SM, StyleUtils.responsiveSmall(Styles.TEXT_BASE));
 
     return div()
         .withId("top-content")
-        .withClasses(
-            Styles.RELATIVE,
-            Styles.W_FULL,
-            Styles.MB_10,
-            StyleUtils.responsiveMedium(Styles.GRID, Styles.GRID_COLS_2))
-        .with(floatTitle, floatText);
+        .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT)
+        .with(programIndexH1, infoLine1Div, infoLine2Div);
   }
 
   private ContainerTag mainContent(
@@ -100,10 +103,17 @@ public class ProgramIndexView extends BaseHtmlView {
       Locale preferredLocale) {
     return div()
         .withId("main-content")
-        .withClasses(Styles.RELATIVE, Styles.W_FULL, Styles.FLEX, Styles.FLEX_WRAP, Styles.PB_8)
+        .withClasses(Styles.M_10)
         .with(
-            each(
-                programs, program -> programCard(messages, program, applicantId, preferredLocale)));
+            h2().withText(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName()))
+                .withClasses(Styles.BLOCK, Styles.MB_4, Styles.TEXT_LG, Styles.FONT_SEMIBOLD))
+        .with(
+            div()
+                .withClasses(ApplicantStyles.PROGRAM_CARDS_CONTAINER)
+                .with(
+                    each(
+                        programs,
+                        program -> programCard(messages, program, applicantId, preferredLocale))));
   }
 
   private ContainerTag programCard(
@@ -115,18 +125,20 @@ public class ProgramIndexView extends BaseHtmlView {
             .withId(baseId + "-title")
             .withClasses(Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
             .withText(program.localizedName().getOrDefault(preferredLocale));
+    ImmutableList<DomContent> descriptionContent =
+        createLinksAndEscapeText(program.localizedDescription().getOrDefault(preferredLocale));
     ContainerTag description =
         div()
             .withId(baseId + "-description")
             .withClasses(Styles.TEXT_XS, Styles.MY_2)
-            .withText(program.localizedDescription().getOrDefault(preferredLocale));
+            .with(descriptionContent);
 
     ContainerTag externalLink =
         new LinkElement()
             .setId(baseId + "-external-link")
             .setStyles(Styles.TEXT_XS, Styles.UNDERLINE)
             .setText(messages.at(MessageKey.CONTENT_PROGRAM_DETAILS.getKeyName()))
-            .setHref(routes.DeepLinkController.programByName(program.slug()).url())
+            .setHref(routes.RedirectController.programByName(program.slug()).url())
             .asAnchorText();
     ContainerTag programData =
         div()
@@ -141,7 +153,7 @@ public class ProgramIndexView extends BaseHtmlView {
         a().attr(HREF, applyUrl)
             .withText(messages.at(MessageKey.BUTTON_APPLY.getKeyName()))
             .withId(baseId + "-apply")
-            .withClasses(ReferenceClasses.APPLY_BUTTON, ApplicantStyles.PROGRAM_APPLY_BUTTON);
+            .withClasses(ReferenceClasses.APPLY_BUTTON, ApplicantStyles.BUTTON_PROGRAM_APPLY);
 
     ContainerTag applyDiv =
         div(applyButton).withClasses(Styles.ABSOLUTE, Styles.BOTTOM_6, Styles.W_FULL);

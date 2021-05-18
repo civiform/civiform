@@ -43,24 +43,25 @@ describe('normal application flow', () => {
     await selectApplicantLanguage(page, 'English');
 
     const applicantQuestions = new ApplicantQuestions(page);
+    await applicantQuestions.validateHeader('en-US');
 
     // Applicant fills out first application block.
     await applicantQuestions.applyProgram(programName);
     await applicantQuestions.answerAddressQuestion('1234 St', 'Unit B', 'Sim', 'Ames', '54321');
     await applicantQuestions.answerNameQuestion('Queen', 'Hearts', 'of');
     await applicantQuestions.answerRadioButtonQuestion('two');
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.clickNext();
 
     // Applicant fills out second application block.
     await applicantQuestions.answerDropdownQuestion('banana');
     await applicantQuestions.answerCheckboxQuestion(['cherry', 'pine']);
     await applicantQuestions.answerNumberQuestion('42');
     await applicantQuestions.answerTextQuestion('some text');
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.clickNext();
 
     // Applicant fills out third application block.
     await applicantQuestions.answerFileUploadQuestion('file key');
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.clickNext();
 
     // Applicant submits answers from review page.
     await applicantQuestions.submitFromReviewPage(programName);

@@ -1,6 +1,5 @@
 package views.questiontypes;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 import static views.style.ReferenceClasses.ENUMERATOR_EXISTING_DELETE_BUTTON;
@@ -25,7 +24,7 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
-public class EnumeratorQuestionRenderer extends BaseHtmlView implements ApplicantQuestionRenderer {
+public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
 
   private static final String ENUMERATOR_FIELDS_ID = "enumerator-fields";
   private static final String ADD_ELEMENT_BUTTON_ID = "enumerator-field-add-button";
@@ -38,10 +37,8 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
   public static final String ENUMERATOR_FIELD_CLASSES =
       StyleUtils.joinStyles(ReferenceClasses.ENUMERATOR_FIELD, Styles.FLEX, Styles.MB_4);
 
-  private final ApplicantQuestion question;
-
   public EnumeratorQuestionRenderer(ApplicantQuestion question) {
-    this.question = checkNotNull(question);
+    super(question);
   }
 
   @Override
@@ -61,26 +58,19 @@ public class EnumeratorQuestionRenderer extends BaseHtmlView implements Applican
               Optional.of(entityNames.get(index)),
               Optional.of(index)));
     }
-    return div()
-        .withClasses(Styles.MX_AUTO, Styles.W_MAX)
-        .with(
-            hiddenDeleteInputTemplate(),
-            div()
-                .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT)
-                .withText(question.getQuestionText()),
-            div()
-                .withClasses(
-                    ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
-                    Styles.TEXT_BASE,
-                    Styles.FONT_THIN,
-                    Styles.MB_2)
-                .withText(question.getQuestionHelpText()),
-            enumeratorFields,
-            button(
-                ADD_ELEMENT_BUTTON_ID,
-                messages.at(
-                    MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(), localizedEntityType)),
-            fieldErrors(messages, enumeratorQuestion.getQuestionErrors()));
+
+    Tag enumeratorQuestionFormContent =
+        div()
+            .with(hiddenDeleteInputTemplate())
+            .with(enumeratorFields)
+            .with(
+                BaseHtmlView.button(
+                    ADD_ELEMENT_BUTTON_ID,
+                    messages.at(
+                        MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(),
+                        localizedEntityType)));
+
+    return renderInternal(messages, enumeratorQuestionFormContent);
   }
 
   /**

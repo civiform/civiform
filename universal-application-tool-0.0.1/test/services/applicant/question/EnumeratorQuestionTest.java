@@ -51,8 +51,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            enumeratorQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(enumeratorQuestionDefinition, applicantData, Optional.empty());
 
     EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
 
@@ -64,8 +63,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
   @Test
   public void withApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            enumeratorQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(enumeratorQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
@@ -83,8 +81,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
   @Parameters({"", " "})
   public void withBlankStrings_hasValidationErrors(String value) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            enumeratorQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(enumeratorQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.of(value));
 
@@ -102,8 +99,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
   @Test
   public void withDuplicateNames_hasValidationErrors() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            enumeratorQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(enumeratorQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
@@ -131,8 +127,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
     applicantData.putLong(enumeratorPath.atIndex(0).join(Scalar.PROGRAM_UPDATED_IN), 5L);
 
     ApplicantQuestion question =
-        new ApplicantQuestion(
-            enumeratorQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(enumeratorQuestionDefinition, applicantData, Optional.empty());
 
     assertThat(question.getLastUpdatedTimeMetadata()).contains(123L);
     assertThat(question.getUpdatedInProgramMetadata()).contains(5L);

@@ -219,8 +219,8 @@ public class TestQuestionBank {
             "household members jobs",
             Optional.of(householdMembers.id),
             "The applicant's household member's jobs",
-            LocalizedStrings.of(Locale.US, "What are the household member's jobs?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."),
+            LocalizedStrings.of(Locale.US, "What are the $this's jobs?"),
+            LocalizedStrings.of(Locale.US, "Where does $this work?"),
             LocalizedStrings.empty());
     return maybeSave(definition);
   }
@@ -257,8 +257,8 @@ public class TestQuestionBank {
             "household members name",
             Optional.of(householdMembers.id),
             "The applicant's household member's name",
-            LocalizedStrings.of(Locale.US, "What is the household member's name?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            LocalizedStrings.of(Locale.US, "What is the $this's name?"),
+            LocalizedStrings.of(Locale.US, "Please provide full name for $this."));
 
     return maybeSave(definition);
   }
@@ -283,8 +283,8 @@ public class TestQuestionBank {
             "household members jobs income",
             Optional.of(householdMemberJobs.id),
             "The applicant's household member's job's income",
-            LocalizedStrings.of(Locale.US, "What is the household member's job's income?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            LocalizedStrings.of(Locale.US, "What is $this.parent's income at $this?"),
+            LocalizedStrings.of(Locale.US, "What is the monthly income of $this.parent at $this?"));
 
     return maybeSave(definition);
   }

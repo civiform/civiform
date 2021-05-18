@@ -72,6 +72,20 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   }
 
   @Test
+  public void findConflictingQuestion_sameName_hasConflict() throws Exception {
+    Question applicantAddress = testQuestionBank.applicantAddress();
+    QuestionDefinition newQuestionDefinition =
+        new QuestionDefinitionBuilder(applicantAddress.getQuestionDefinition())
+            .clearId()
+            .setEnumeratorId(Optional.of(1L))
+            .build();
+
+    Optional<Question> maybeConflict = repo.findConflictingQuestion(newQuestionDefinition);
+
+    assertThat(maybeConflict).contains(applicantAddress);
+  }
+
+  @Test
   public void findConflictingQuestion_sameQuestionPathSegment_hasConflict() throws Exception {
     Question applicantAddress = testQuestionBank.applicantAddress();
     QuestionDefinition newQuestionDefinition =

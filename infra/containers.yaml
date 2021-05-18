@@ -8,14 +8,14 @@ Mappings:
       image: public.ecr.aws/t1q6b4h2/universal-application-tool:latest
   Notifications:
     prod:
-      sender: noreply@seattle.civiform.com
+      sender: civiform-notification@seattle.gov
     staging:
       sender: noreply@staging.seattle.civiform.com
   AdminGroup:
     prod:
-      group: ad\\ITD_CiviForm_Admins
+      group: ad\ITD_CiviForm_Admins
     staging:
-      group: ad\\ITD_CiviForm_Admins_Test
+      group: ad\ITD_CiviForm_Admins_Test
 Parameters:
   Environment:
     Type: String

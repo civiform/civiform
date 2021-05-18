@@ -59,6 +59,8 @@ describe('Admin can manage translations', () => {
     await loginAsGuest(page);
     await selectApplicantLanguage(page, 'Español');
     const applicantQuestions = new ApplicantQuestions(page);
+    await applicantQuestions.validateHeader('es-US');
+
     await applicantQuestions.applyProgram(programName);
 
     expect(await page.innerText('.cf-applicant-question-text')).toContain('Spanish question text');

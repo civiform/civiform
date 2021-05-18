@@ -200,14 +200,12 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 ScalarType.LONG,
                 questionPath.join(Scalar.UPDATED_AT),
                 ScalarType.LONG));
-    assertThat(blocks.get(10).getRepeatedEntities())
-        .containsExactly(
-            RepeatedEntity.create(
-                testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
-                "third entity"),
-            RepeatedEntity.create(
-                testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
-                "nested second job"));
+
+    RepeatedEntity repeatedEntity = blocks.get(10).getRepeatedEntity().get();
+    assertThat(repeatedEntity.index()).isEqualTo(1);
+    assertThat(repeatedEntity.entityName()).isEqualTo("nested second job");
+    assertThat(repeatedEntity.parent().get().index()).isEqualTo(2);
+    assertThat(repeatedEntity.parent().get().entityName()).isEqualTo("third entity");
   }
 
   @Test
@@ -310,7 +308,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
 
-    Optional<Block> maybeBlock = subject.getBlockAfter("1");
+    Optional<Block> maybeBlock = subject.getInProgressBlockAfter("1");
 
     assertThat(maybeBlock).isPresent();
     assertThat(maybeBlock.get().getId()).isEqualTo("2");
@@ -321,7 +319,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
 
-    Optional<Block> maybeBlock = subject.getBlockAfter("321");
+    Optional<Block> maybeBlock = subject.getInProgressBlockAfter("321");
 
     assertThat(maybeBlock).isEmpty();
   }
@@ -340,7 +338,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                     LocalizedStrings.of(Locale.US, "This program is for testing."))
                 .build());
 
-    Optional<Block> maybeBlock = subject.getBlockAfter("321");
+    Optional<Block> maybeBlock = subject.getInProgressBlockAfter("321");
 
     assertThat(maybeBlock).isEmpty();
   }
@@ -538,13 +536,13 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   @Test
-  public void getPercentComplete_returnsExpectedNumbers() {
+  public void getBlockIndex() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
 
-    assertThat(subject.getCompletionPercent("1")).isEqualTo(5);
-    assertThat(subject.getCompletionPercent("2")).isEqualTo(50);
-    assertThat(subject.getCompletionPercent("3")).isEqualTo(0);
+    assertThat(subject.getBlockIndex("1")).isEqualTo(0);
+    assertThat(subject.getBlockIndex("2")).isEqualTo(1);
+    assertThat(subject.getBlockIndex("not a real block id")).isEqualTo(-1);
   }
 
   private void answerNameQuestion(long programId) {

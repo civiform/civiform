@@ -33,7 +33,9 @@ public class LoginForm extends BaseHtmlView {
             .addMainContent(
                 h1("Log In"),
                 redirectButton(
-                    "idcs", "Login with IDCS (user)", routes.LoginController.idcsLogin().url()),
+                    "idcs",
+                    "Login with IDCS (user)",
+                    routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url()),
                 redirectButton(
                     "adfs", "Login with ADFS (admin)", routes.LoginController.adfsLogin().url()),
                 h1("Or, continue as guest."),

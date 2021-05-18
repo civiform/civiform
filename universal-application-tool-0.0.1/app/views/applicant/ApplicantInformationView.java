@@ -40,7 +40,8 @@ public class ApplicantInformationView extends BaseHtmlView {
         langs.availables().stream().map(Lang::toLocale).collect(toImmutableList());
   }
 
-  public Content render(Http.Request request, Messages messages, long applicantId) {
+  public Content render(
+      Http.Request request, String userName, Messages messages, long applicantId) {
     String formAction = routes.ApplicantInformationController.update(applicantId).url();
     Tag formContent =
         form()
@@ -52,7 +53,7 @@ public class ApplicantInformationView extends BaseHtmlView {
 
     HtmlBundle bundle =
         layout.getBundle().setTitle("Applicant information").addMainContent(formContent);
-    return layout.renderWithNav(request, messages, bundle);
+    return layout.renderWithNav(request, userName, messages, bundle);
   }
 
   private ContainerTag selectLanguageDropdown(Messages messages) {

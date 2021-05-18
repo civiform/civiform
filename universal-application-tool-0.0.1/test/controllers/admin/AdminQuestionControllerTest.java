@@ -63,8 +63,8 @@ public class AdminQuestionControllerTest extends WithPostgresContainer {
         .put("questionDescription", "desc")
         .put("enumeratorId", String.valueOf(enumeratorQuestion.id))
         .put("questionType", "TEXT")
-        .put("questionText", "Hi mom!")
-        .put("questionHelpText", ":-)");
+        .put("questionText", "$this is required")
+        .put("questionHelpText", "$this is also required");
     RequestBuilder requestBuilder = Helpers.fakeRequest().bodyForm(formData.build());
 
     Result result = controller.create(requestBuilder.build(), "text");

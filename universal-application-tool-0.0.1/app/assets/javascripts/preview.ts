@@ -2,10 +2,12 @@
 class PreviewController {
   static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea';
   static readonly QUESTION_HELP_TEXT_INPUT_ID = 'question-help-text-textarea';
+  static readonly QUESTION_ENUMERATOR_INPUT_ID = 'question-enumerator-select';
   static readonly QUESTION_ENTITY_TYPE_INPUT_ID = 'enumerator-question-entity-type-input';
 
   static readonly QUESTION_TEXT_CLASS = '.cf-applicant-question-text';
   static readonly QUESTION_HELP_TEXT_CLASS = '.cf-applicant-question-help-text';
+  static readonly REPEATED_QUESTION_INFORMATION_ID = '#repeated-question-information';
   static readonly QUESTION_ENTITY_TYPE_BUTTON_ID = '#enumerator-field-add-button';
   static readonly QUESTION_ENTITY_NAME_INPUT_CLASS = '.cf-entity-name-input';
 
@@ -31,6 +33,13 @@ class PreviewController {
       if (helpText.length > 0) {
         PreviewController.setTextContent(PreviewController.QUESTION_HELP_TEXT_CLASS, helpText);
       }
+    }
+    const enumeratorSelector = document.getElementById(PreviewController.QUESTION_ENUMERATOR_INPUT_ID);
+    if (enumeratorSelector) {
+      enumeratorSelector.addEventListener('input', PreviewController.onEnumeratorSelectorChanged, false);
+      let enumerator = (<HTMLInputElement>enumeratorSelector).value;
+      const repeatedQuestionInformation = document.querySelector(PreviewController.REPEATED_QUESTION_INFORMATION_ID);
+      repeatedQuestionInformation.classList.toggle("hidden", enumerator === "");
     }
     const entityTypeInput =
       document.getElementById(PreviewController.QUESTION_ENTITY_TYPE_INPUT_ID);
@@ -68,6 +77,12 @@ class PreviewController {
     PreviewController.setTextContent(
       PreviewController.QUESTION_HELP_TEXT_CLASS,
       text);
+  }
+
+  static onEnumeratorSelectorChanged(e: Event) {
+    const repeatedQuestionInformation = document.querySelector(PreviewController.REPEATED_QUESTION_INFORMATION_ID);
+    let enumerator = (<HTMLInputElement>e.target).value;
+    repeatedQuestionInformation.classList.toggle("hidden", enumerator === "");
   }
 
   static onEntityTypeChanged(e: Event) {
