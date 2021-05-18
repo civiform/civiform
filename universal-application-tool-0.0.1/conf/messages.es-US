@@ -1,9 +1,11 @@
 # Spanish (US)
 
-button.logout=Cerrar Sesión
 button.apply=Solicitar
+button.continue=Seguir
+button.logout=Cerrar Sesión
 button.nextBlock=Próximo
-button.deleteEntity=Eliminar {0}
+button.review=Revisar
+button.submit=Enviar
 toast.localeNotSupported=Lo siento, este programa no está completamente traducido al español.
 toast.programCompleted=Ya completó esta solicitud
 toast.applicationSaved=Solicitud guardada con ID: {0}
@@ -16,8 +18,6 @@ content.benefits=Obtener beneficios
 content.description1=CiviForm le permite solicitar muchos beneficios a la vez reutilizando información.
 content.description2=Comience eligiendo una aplicación a continuación.
 
-label.street=Calle
-placeholder.street=Nombre de la calle
 label.street=Dirección Línea 1
 placeholder.street=Dirección
 label.addressLine2=Línea de dirección 2
@@ -34,6 +34,7 @@ label.middleName=Segundo nombre
 placeholder.middleName=Segundo nombre
 label.lastName=Apellido
 placeholder.lastName=Apellido
+placeholder.entityName=Apodo para {0}
 button.addEntity=Agrega otro {0}
 button.removeEntity=Eliminar {0}
 
