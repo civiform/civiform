@@ -318,20 +318,31 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
-  public Question maybeSave(QuestionDefinition questionDefinition) {
+  private Question maybeSave(QuestionDefinition questionDefinition) {
+    return maybeSave(questionDefinition, LifecycleStage.ACTIVE);
+  }
+
+  public Question maybeSave(QuestionDefinition questionDefinition, LifecycleStage desiredStage) {
     Question question = new Question(questionDefinition);
     if (canSave) {
       // This odd way of finding the active version is because this class
       // doesn't have access to the Version repository, because it needs to
       // work without the database.
-      question.addVersion(
+      Version versionToAdd;
+      Optional<Version> existingVersion =
           question
               .db()
               .find(Version.class)
               .where()
-              .eq("lifecycle_stage", LifecycleStage.ACTIVE)
-              .findOneOrEmpty()
-              .get());
+              .eq("lifecycle_stage", desiredStage)
+              .findOneOrEmpty();
+      if (existingVersion.isEmpty()) {
+        versionToAdd = new Version(desiredStage);
+        versionToAdd.save();
+      } else {
+        versionToAdd = existingVersion.get();
+      }
+      question.addVersion(versionToAdd);
       question.save();
     } else {
       question.id = nextId.getAndIncrement();

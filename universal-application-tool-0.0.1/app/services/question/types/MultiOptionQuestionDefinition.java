@@ -94,6 +94,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
         supportedLocales.stream().reduce((a, b) -> a.size() < b.size() ? a : b);
 
     if (smallestSet.isEmpty()) {
+      // This should never happen - we should always have at least one option at this point.
       throw new RuntimeException("Could not determine supported option locales for question");
     }
 

@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import models.LifecycleStage;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
@@ -261,7 +262,8 @@ public class AdminQuestionControllerTest extends WithPostgresContainer {
                     3L, LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
                 QuestionOption.create(
                     4L, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café"))));
-    Question question = testQuestionBank.maybeSave(definition);
+    // We can only update draft questions, so save this in the DRAFT version.
+    Question question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
 
     ImmutableMap<String, String> formData =
         ImmutableMap.<String, String>builder()
