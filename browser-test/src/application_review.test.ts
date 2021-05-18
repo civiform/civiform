@@ -53,7 +53,6 @@ describe('normal application flow', () => {
     await applicantQuestions.answerNameQuestion('Queen', 'Hearts', 'of');
     await applicantQuestions.answerRadioButtonQuestion('two');
     await applicantQuestions.answerDateQuestion('05/10/2021');
-    //await applicantQuestions.saveAndContinue();
     await applicantQuestions.clickNext();
 
     // Applicant fills out second application block.
