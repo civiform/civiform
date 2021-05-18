@@ -2,6 +2,7 @@ package services.question.types;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -9,7 +10,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import java.util.Locale;
 import java.util.Optional;
@@ -81,16 +81,19 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   private ImmutableSet<Locale> getSupportedOptionLocales(ImmutableList<QuestionOption> options) {
-    QuestionOption firstOption = Iterables.getFirst(options, null);
+    ImmutableSet<ImmutableSet<Locale>> supportedLocales =
+        options.stream()
+            .map(option -> option.optionText().translations().keySet())
+            .collect(toImmutableSet());
 
-    if (firstOption == null) {
+    Optional<ImmutableSet<Locale>> smallestSet =
+        supportedLocales.stream().reduce((a, b) -> a.size() < b.size() ? a : b);
+
+    if (smallestSet.isEmpty()) {
       throw new RuntimeException("Must have at least one option in MultiOptionQuestionDefinition");
     }
 
-    // TODO(cdanzi): This should be the smallest set of locales, not the first
-    ImmutableSet<Locale> locales = firstOption.optionText().locales();
-
-    return locales;
+    return smallestSet.get();
   }
 
   public ImmutableList<QuestionOption> getOptions() {

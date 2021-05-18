@@ -250,8 +250,7 @@ public class AdminQuestionControllerTest extends WithPostgresContainer {
             "applicant ice cream",
             Optional.empty(),
             "Select your favorite ice cream flavor",
-            LocalizedStrings.of(
-                Locale.US, "Ice cream?", Locale.FRENCH, "crème glacée?"),
+            LocalizedStrings.of(Locale.US, "Ice cream?", Locale.FRENCH, "crème glacée?"),
             LocalizedStrings.of(Locale.US, "help", Locale.FRENCH, "aider"),
             ImmutableList.of(
                 QuestionOption.create(

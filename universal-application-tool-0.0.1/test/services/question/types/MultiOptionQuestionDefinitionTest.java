@@ -1,6 +1,7 @@
 package services.question.types;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.google.common.collect.ImmutableList;
@@ -52,6 +53,49 @@ public class MultiOptionQuestionDefinitionTest {
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
+  }
+
+  @Test
+  public void getSupportedLocales_selectsSmallestSetOfLocalesFromOptions()
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinition definition =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.DROPDOWN)
+            .setName("")
+            .setDescription("")
+            .setQuestionText(
+                LocalizedStrings.of(Locale.US, "test", Locale.FRANCE, "test", Locale.UK, "test"))
+            .setQuestionHelpText(
+                LocalizedStrings.of(Locale.US, "test", Locale.FRANCE, "test", Locale.UK, "test"))
+            .setQuestionOptions(
+                ImmutableList.of(
+                    QuestionOption.create(
+                        1L,
+                        LocalizedStrings.of(Locale.US, "1", Locale.FRANCE, "1", Locale.UK, "1")),
+                    QuestionOption.create(
+                        1L, LocalizedStrings.of(Locale.US, "2", Locale.FRANCE, "2"))))
+            .build();
+
+    assertThat(definition.getSupportedLocales()).containsExactly(Locale.US, Locale.FRANCE);
+  }
+
+  @Test
+  public void getSupportedLocales_missingOptions_throws() throws UnsupportedQuestionTypeException {
+    QuestionDefinition definition =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.DROPDOWN)
+            .setName("")
+            .setDescription("")
+            .setQuestionText(
+                LocalizedStrings.of(Locale.US, "test", Locale.FRANCE, "test", Locale.UK, "test"))
+            .setQuestionHelpText(
+                LocalizedStrings.of(Locale.US, "test", Locale.FRANCE, "test", Locale.UK, "test"))
+            .setQuestionOptions(ImmutableList.of())
+            .build();
+
+    assertThatThrownBy(definition::getSupportedLocales)
+        .isInstanceOf(RuntimeException.class)
+        .hasMessageContaining("Must have at least one option in MultiOptionQuestionDefinition");
   }
 
   @Test
