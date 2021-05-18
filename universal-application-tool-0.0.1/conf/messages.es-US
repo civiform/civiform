@@ -34,6 +34,7 @@ label.middleName=Segundo nombre
 placeholder.middleName=Segundo nombre
 label.lastName=Apellido
 placeholder.lastName=Apellido
-button.addEnumeratorEntity=Agrega otro
+button.addEntity=Agrega otro {0}
+button.removeEntity=Eliminar {0}
 
 validation.entityNameRequired=Ingrese un valor para cada línea.
