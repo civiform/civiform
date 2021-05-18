@@ -158,7 +158,7 @@ public class ProgramIndexView extends BaseHtmlView {
     ContainerTag applyDiv =
         div(applyButton)
             .withClasses(
-                Styles.W_FULL, Styles.MT_4, Styles.MB_6, Styles.SELF_END, Styles.FLEX_GROW);
+                Styles.W_FULL, Styles.MB_6, Styles.SELF_END, Styles.FLEX_GROW);
     return div()
         .withId(baseId)
         .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
@@ -168,8 +168,7 @@ public class ProgramIndexView extends BaseHtmlView {
                     BaseStyles.BG_SEATTLE_BLUE,
                     Styles.ROUNDED_T_XL,
                     Styles.SELF_START,
-                    Styles.H_3,
-                    Styles.MB_4))
+                    Styles.H_3))
         .with(programData)
         .with(applyDiv);
   }

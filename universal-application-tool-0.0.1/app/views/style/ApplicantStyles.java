@@ -51,6 +51,7 @@ public final class ApplicantStyles {
           Styles.BORDER,
           Styles.BORDER_GRAY_200,
           Styles.GRID,
+          Styles.GAP_4,
           Styles.AUTO_ROWS_MIN);
 
   public static final String QUESTION_TEXT =
