@@ -74,6 +74,11 @@ export class ApplicantQuestions {
 
     // click on submit button.
     await this.page.click('text="Submit"');
+    const pleaseLogInPageRegex = /considerSignIn\?redirectTo=/;
+    const maybePleaseLogInPage = await this.page.url();
+    if (maybePleaseLogInPage.match(pleaseLogInPageRegex)) {
+       await this.page.click('text="Not Right Now"');
+    }
 
     // Ensure that we redirected to the programs list page.
     expect(await this.page.url().split('/').pop()).toEqual('confirmation');
@@ -82,8 +87,8 @@ export class ApplicantQuestions {
   }
 
   async validateHeader(lang: string) {
-    expect(await this.page.content()).toContain('<html lang="' + lang + '">');
+    expect(await this.page.getAttribute('html', 'lang')).toEqual(lang);
     expect(await this.page.innerHTML('head'))
       .toContain('<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">');
-  }  
+  }
 }

@@ -51,7 +51,10 @@ public enum MessageKey {
   TITLE_PROGRAMS("title.programs"),
   TOAST_APPLICATION_SAVED("toast.applicationSaved"),
   TOAST_LOCALE_NOT_SUPPORTED("toast.localeNotSupported"),
-  TOAST_PROGRAM_COMPLETED("toast.programCompleted");
+  TOAST_PROGRAM_COMPLETED("toast.programCompleted"),
+  CONTENT_PLEASE_SIGN_IN("content.pleaseCreateAccount"),
+  CONTENT_DO_SIGN_IN("content.doCreateAccount"),
+  CONTENT_DONT_SIGN_IN("content.dontCreateAccount");
 
   private final String keyName;
 

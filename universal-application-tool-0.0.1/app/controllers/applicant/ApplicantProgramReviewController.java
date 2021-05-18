@@ -165,20 +165,15 @@ public class ApplicantProgramReviewController extends CiviFormController {
     CompletionStage<Application> submitApp =
         applicantService.submitApplication(applicantId, programId);
     return submitApp
-        .thenComposeAsync(
-            application -> applicantService.getReadOnlyApplicantProgramService(application),
-            httpExecutionContext.current())
         .thenApplyAsync(
-            roApplicantProgramService -> {
-              // This must already be done since we are behind it in the promise chain
-              Long applicationId = submitApp.toCompletableFuture().join().id;
+            application -> {
+              Long applicationId = application.id;
               Call endOfProgramSubmission =
-                  routes.ApplicantProgramReviewController.confirmation(
-                      applicantId, programId, applicationId);
-              String programTitle = roApplicantProgramService.getProgramTitle();
-              return found(endOfProgramSubmission)
-                  .flashing(
-                      "banner", String.format("Successfully saved application: %s", programTitle));
+                  routes.RedirectController.considerRegister(
+                      routes.ApplicantProgramReviewController.confirmation(
+                              applicantId, programId, applicationId)
+                          .url());
+              return found(endOfProgramSubmission);
             },
             httpExecutionContext.current())
         .exceptionally(
