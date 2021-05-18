@@ -85,6 +85,8 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       return ImmutableSet.of();
     }
 
+    // The set of locales supported by a question's options is the smallest set of supported locales
+    // for a single option
     ImmutableSet<ImmutableSet<Locale>> supportedLocales =
         options.stream()
             .map(option -> option.optionText().translations().keySet())
