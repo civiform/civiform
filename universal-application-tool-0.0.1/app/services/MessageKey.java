@@ -22,6 +22,7 @@ public enum MessageKey {
   BUTTON_CONTINUE("button.continue"),
   BUTTON_LOGOUT("button.logout"),
   BUTTON_NEXT_BLOCK("button.nextBlock"),
+  BUTTON_REVIEW("button.review"),
   BUTTON_SUBMIT("button.submit"),
   BUTTON_UNTRANSLATED_SUBMIT("button.untranslatedSubmit"),
   CONTENT_CIVIFORM_DESCRIPTION_1("content.description1"),

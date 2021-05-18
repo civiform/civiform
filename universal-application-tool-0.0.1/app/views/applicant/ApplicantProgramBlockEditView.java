@@ -1,10 +1,12 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.attributes.Attr.ENCTYPE;
+import static j2html.attributes.Attr.HREF;
 
 import com.google.auto.value.AutoValue;
 import com.google.inject.Inject;
@@ -27,6 +29,7 @@ import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.EnumeratorQuestionRenderer;
 import views.style.ApplicantStyles;
+import views.style.ReferenceClasses;
 import views.style.Styles;
 
 public final class ApplicantProgramBlockEditView extends BaseHtmlView {
@@ -47,6 +50,15 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             .with(div(renderBlockWithSubmitForm(params)).withClasses(Styles.MY_8))
             .withClasses(Styles.MY_8, Styles.M_AUTO);
 
+    String reviewUrl =
+        routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
+            .url();
+    Tag gotoReviewButton =
+        a().attr(HREF, reviewUrl)
+            .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
+            .withId("continue-application-button")
+            .withClasses(ReferenceClasses.CONTINUE_BUTTON, ApplicantStyles.BUTTON_PROGRAM_APPLY);
+
     HtmlBundle bundle =
         layout
             .getBundle()
@@ -54,6 +66,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             .addMainContent(
                 layout.renderProgramApplicationTitleAndProgressIndicator(
                     params.programTitle(), params.blockIndex(), params.totalBlockCount()),
+                gotoReviewButton,
                 blockDiv)
             .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
