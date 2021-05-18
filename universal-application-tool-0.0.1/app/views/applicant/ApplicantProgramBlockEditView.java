@@ -29,7 +29,6 @@ import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.EnumeratorQuestionRenderer;
 import views.style.ApplicantStyles;
-import views.style.ReferenceClasses;
 import views.style.Styles;
 
 public final class ApplicantProgramBlockEditView extends BaseHtmlView {
@@ -57,8 +56,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         a().attr(HREF, reviewUrl)
             .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
             .withId("review-application-button")
-            .withClasses(
-                ApplicantStyles.BUTTON_REVIEW);
+            .withClasses(ApplicantStyles.BUTTON_REVIEW);
 
     HtmlBundle bundle =
         layout

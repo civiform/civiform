@@ -90,7 +90,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
           a().attr(HREF, applyUrl)
               .withText(messages.at(MessageKey.BUTTON_CONTINUE.getKeyName()))
               .withId("continue-application-button")
-              .withClasses(ReferenceClasses.CONTINUE_BUTTON, ApplicantStyles.BUTTON_SUBMIT_APPLICATION);
+              .withClasses(
+                  ReferenceClasses.CONTINUE_BUTTON, ApplicantStyles.BUTTON_SUBMIT_APPLICATION);
     }
 
     ContainerTag content =
