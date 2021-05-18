@@ -361,7 +361,7 @@ public final class QuestionEditView extends BaseHtmlView {
             + " is asked for each repeated entity enumerated by the applicant. Please"
             + " reference the applicant-defined repeated entity name to give the applicant"
             + " context on which repeated entity they are answering the question for by"
-            + " using \"$this\" in the question text and help text. To reference the"
+            + " using \"$this\" in the question's text and help text. To reference the"
             + " repeated entities containing this one, use \"$this.parent\","
             + " \"this.parent.parent\", etc.")
         .withId("repeated-question-information")
