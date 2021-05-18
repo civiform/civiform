@@ -68,7 +68,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
         .thenApplyAsync(
             (roApplicantProgramService) -> {
               ImmutableList<AnswerData> summaryData = roApplicantProgramService.getSummaryData();
-              int allBlockCount = roApplicantProgramService.getAllBlocks().size();
+              int totalBlockCount = roApplicantProgramService.getAllBlocks().size();
               int completedBlockCount =
                   roApplicantProgramService.getAllBlocks().stream()
                       .filter(Block::isCompleteWithoutErrors)
@@ -84,7 +84,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                       programTitle,
                       summaryData,
                       completedBlockCount,
-                      allBlockCount,
+                      totalBlockCount,
                       messagesApi.preferred(request),
                       banner));
             },
