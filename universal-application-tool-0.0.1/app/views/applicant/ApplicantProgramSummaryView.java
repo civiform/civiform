@@ -1,15 +1,18 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -19,6 +22,7 @@ import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.RepeatedEntity;
 import views.BaseHtmlView;
@@ -51,7 +55,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       String programTitle,
       ImmutableList<AnswerData> data,
       int completedBlockCount,
-      int allBlockCount,
+      int totalBlockCount,
       Messages messages,
       Optional<String> banner) {
     String pageTitle = "Application summary";
@@ -73,6 +77,22 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     // Add submit action (POST).
     String submitLink =
         routes.ApplicantProgramReviewController.submit(applicantId, programId).url();
+
+    Tag continueOrSubmitButton;
+    if (completedBlockCount == totalBlockCount) {
+      continueOrSubmitButton =
+          submitButton(messages.at(MessageKey.BUTTON_SUBMIT.getKeyName()))
+              .withClasses(
+                  ReferenceClasses.SUBMIT_BUTTON, ApplicantStyles.BUTTON_SUBMIT_APPLICATION);
+    } else {
+      String applyUrl = routes.ApplicantProgramsController.edit(applicantId, programId).url();
+      continueOrSubmitButton =
+          a().attr(HREF, applyUrl)
+              .withText(messages.at(MessageKey.BUTTON_CONTINUE.getKeyName()))
+              .withId("continue-application-button")
+              .withClasses(ReferenceClasses.CONTINUE_BUTTON, ApplicantStyles.BUTTON_PROGRAM_APPLY);
+    }
+
     ContainerTag content =
         div()
             .with(applicationSummary)
@@ -81,16 +101,14 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                     .withAction(submitLink)
                     .withMethod(HttpVerbs.POST)
                     .with(makeCsrfTokenInputTag(request))
-                    .with(
-                        submitButton("Submit")
-                            .withClasses(ApplicantStyles.BUTTON_SUBMIT_APPLICATION)));
+                    .with(continueOrSubmitButton));
 
     if (banner.isPresent()) {
       bundle.addToastMessages(ToastMessage.error(banner.get()));
     }
     bundle.addMainContent(
         layout.renderProgramApplicationTitleAndProgressIndicator(
-            programTitle, completedBlockCount, allBlockCount),
+            programTitle, completedBlockCount, totalBlockCount),
         h1(pageTitle).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION),
         content);
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);

@@ -69,6 +69,16 @@ toast.applicationSaved=Successfully saved application: application ID {0}
 # A toast message that displays when an applicant tries to apply to a previously completed program.
 toast.programCompleted=Application was already completed.
 
+#------------------------------------------------------------------------#
+# APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
+#------------------------------------------------------------------------#
+
+# Submit application button
+button.submit=Submit Application
+
+# Continue application button
+button.continue=Continue Application
+
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
