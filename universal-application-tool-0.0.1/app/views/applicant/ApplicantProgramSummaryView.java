@@ -50,6 +50,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       Long programId,
       String programTitle,
       ImmutableList<AnswerData> data,
+      int completedBlockCount,
+      int allBlockCount,
       Messages messages,
       Optional<String> banner) {
     String pageTitle = "Application summary";
@@ -87,7 +89,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       bundle.addToastMessages(ToastMessage.error(banner.get()));
     }
     bundle.addMainContent(
-        layout.renderProgramApplicationTitleAndProgressIndicator(programTitle),
+        layout.renderProgramApplicationTitleAndProgressIndicator(
+            programTitle, completedBlockCount, allBlockCount),
         h1(pageTitle).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION),
         content);
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
