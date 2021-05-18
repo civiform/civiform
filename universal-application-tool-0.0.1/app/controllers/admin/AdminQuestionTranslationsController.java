@@ -117,19 +117,19 @@ public class AdminQuestionTranslationsController extends CiviFormController {
 
   private QuestionTranslationForm buildFormFromRequest(Http.Request request, QuestionType type) {
     switch (type) {
-      case CHECKBOX:
-      case DROPDOWN:
+      case CHECKBOX: // fallthrough intended
+      case DROPDOWN: // fallthrough intended
       case RADIO_BUTTON:
         return formFactory
             .form(MultiOptionQuestionTranslationForm.class)
             .bindFromRequest(request)
             .get();
-      case ADDRESS:
-      case ENUMERATOR:
-      case FILEUPLOAD:
-      case NAME:
-      case NUMBER:
-      case TEXT:
+      case ADDRESS: // fallthrough intended
+      case ENUMERATOR: // fallthrough intended
+      case FILEUPLOAD: // fallthrough intended
+      case NAME: // fallthrough intended
+      case NUMBER: // fallthrough intended
+      case TEXT: // fallthrough intended
       default:
         return formFactory.form(QuestionTranslationForm.class).bindFromRequest(request).get();
     }

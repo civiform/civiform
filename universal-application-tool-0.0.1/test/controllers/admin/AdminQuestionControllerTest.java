@@ -284,6 +284,13 @@ public class AdminQuestionControllerTest extends WithPostgresContainer {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     Question found = questionRepo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
+    assertThat(found.getQuestionDefinition().getQuestionText().translations())
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(Locale.US, "new question text", Locale.FRENCH, "crème glacée?"));
+    assertThat(found.getQuestionDefinition().getQuestionHelpText().translations())
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(Locale.US, "new help text", Locale.FRENCH, "aider"));
+
     ImmutableList<QuestionOption> expectedOptions =
         ImmutableList.of(
             QuestionOption.create(

@@ -100,17 +100,17 @@ public class QuestionTranslationView extends TranslationFormView {
   private ImmutableList<FieldWithLabel> getQuestionTypeSpecificFields(
       QuestionDefinition question, Locale toUpdate) {
     switch (question.getQuestionType()) {
-      case CHECKBOX:
-      case DROPDOWN:
+      case CHECKBOX: // fallthrough intended
+      case DROPDOWN: // fallthrough intended
       case RADIO_BUTTON:
         MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) question;
         return multiOptionQuestionFields(multiOption.getOptions(), toUpdate);
-      case ADDRESS:
-      case ENUMERATOR:
-      case FILEUPLOAD:
-      case NAME:
-      case NUMBER:
-      case TEXT:
+      case ADDRESS: // fallthrough intended
+      case ENUMERATOR: // fallthrough intended
+      case FILEUPLOAD: // fallthrough intended
+      case NAME: // fallthrough intended
+      case NUMBER: // fallthrough intended
+      case TEXT: // fallthrough intended
       default:
         return ImmutableList.of();
     }

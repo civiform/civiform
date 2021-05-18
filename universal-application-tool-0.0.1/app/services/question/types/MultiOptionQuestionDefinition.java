@@ -84,6 +84,7 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
     if (options.isEmpty()) {
       return ImmutableSet.of();
     }
+
     ImmutableSet<ImmutableSet<Locale>> supportedLocales =
         options.stream()
             .map(option -> option.optionText().translations().keySet())
