@@ -73,7 +73,8 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
                     ADD_ELEMENT_BUTTON_ID,
                     messages.at(
                         MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(),
-                        localizedEntityType)));
+                        localizedEntityType))
+                        .withClasses(StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400)));
 
     return renderInternal(messages, enumeratorQuestionFormContent);
   }

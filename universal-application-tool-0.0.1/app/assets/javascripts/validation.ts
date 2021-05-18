@@ -28,7 +28,26 @@ class ValidationController {
       });
 
       // Whenever an input is added, we need to add a change listener.
-      // mutationObserver.observe(enumeratorQuestion)
+      let mutationObserver = new MutationObserver((records: MutationRecord[]) => {
+        for (const record of records) {
+          for (const newNode of Array.from(record.addedNodes)) {
+            const newInputs = Array.from((<Element> newNode).querySelectorAll('input'));
+            newInputs.forEach(newInput => {
+              newInput.addEventListener("input", () => {
+                this.onEnumeratorChanged();
+              });
+            });
+          }
+        }
+        this.onEnumeratorChanged();
+      });
+
+      mutationObserver.observe(enumeratorQuestion, 
+        {
+          childList: true,
+          subtree: true,
+          characterDataOldValue: true
+        });
     }
   }
 
@@ -94,7 +113,11 @@ class ValidationController {
 
       // validate that there are no empty inputs.
       const hasEmptyInputs = enumeratorInputValues.includes("");
-      // if we have empty inputs then disable the add input button.
+      // if we have empty inputs then disable the add input button. (We don't need two blank inputs.)
+      const addButton = <HTMLInputElement>document.getElementById('enumerator-field-add-button');
+      if (addButton) {
+        addButton.disabled = hasEmptyInputs;
+      }
 
       // validate that there are no duplicate entries.
       const hasDupes = (new Set(enumeratorInputValues)).size !== enumeratorInputValues.length;
