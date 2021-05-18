@@ -88,7 +88,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(
             div()
                 .withId("brand-id")
-                .withClasses(ApplicantStyles.CIVIFORM_LOGO)
+                .withClasses(
+                    ApplicantStyles.CIVIFORM_LOGO,
+                    Styles.OPACITY_75,
+                    StyleUtils.hover(Styles.OPACITY_100))
                 .withText("CiviForm"));
   }
 
