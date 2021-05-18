@@ -50,6 +50,14 @@ public abstract class QuestionOption {
           String.format("Locale %s not supported for question option %s", locale, this));
     }
 
+    return localizeOrDefault(locale);
+  }
+
+  /**
+   * Localize this question option for the given locale. If we cannot localize, use the default
+   * locale.
+   */
+  public LocalizedQuestionOption localizeOrDefault(Locale locale) {
     return LocalizedQuestionOption.create(id(), optionText().getOrDefault(locale), locale);
   }
 

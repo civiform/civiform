@@ -110,11 +110,9 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
    * locale, it will return the options for the default locale.
    */
   public ImmutableList<LocalizedQuestionOption> getOptionsForLocaleOrDefault(Locale locale) {
-    try {
-      return getOptionsForLocale(locale);
-    } catch (TranslationNotFoundException e) {
-      return getOptionsForDefaultLocale();
-    }
+    return options.stream()
+        .map(option -> option.localizeOrDefault(locale))
+        .collect(toImmutableList());
   }
 
   /** Get question options localized to CiviForm's default locale. */

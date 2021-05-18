@@ -123,4 +123,30 @@ public class MultiOptionQuestionDefinitionTest {
             LocalizedQuestionOption.create(1L, "one", Locale.US),
             LocalizedQuestionOption.create(2L, "two", Locale.US));
   }
+
+  @Test
+  public void getOptionsForLocaleOrDefault_returnsBothLocalizedAndDefault() throws Exception {
+    ImmutableList<QuestionOption> options =
+        ImmutableList.of(
+            QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "one", Locale.GERMAN, "eins")),
+            QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "two", Locale.GERMAN, "zwei")),
+            QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "three")));
+    QuestionDefinition definition =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.DROPDOWN)
+            .setName("")
+            .setDescription("")
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .setQuestionOptions(options)
+            .build();
+
+    MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
+
+    assertThat(multiOption.getOptionsForLocaleOrDefault(Locale.GERMAN))
+        .containsExactly(
+            LocalizedQuestionOption.create(1L, "one", Locale.GERMAN),
+            LocalizedQuestionOption.create(2L, "two", Locale.GERMAN),
+            LocalizedQuestionOption.create(3L, "three", Locale.US));
+  }
 }
