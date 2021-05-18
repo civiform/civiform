@@ -143,7 +143,7 @@ public class ProgramIndexView extends BaseHtmlView {
     ContainerTag programData =
         div()
             .withId(baseId + "-data")
-            .withClasses(Styles.MX_4, Styles.OVERFLOW_AUTO, Styles.SELF_START)
+            .withClasses(Styles.W_FULL, Styles.PX_4, Styles.OVERFLOW_AUTO, Styles.SELF_START)
             .with(title, description, externalLink);
 
     String applyUrl =
@@ -158,16 +158,17 @@ public class ProgramIndexView extends BaseHtmlView {
     ContainerTag applyDiv =
         div(applyButton)
             .withClasses(
-                Styles.W_FULL, Styles.MB_6, Styles.SELF_END, Styles.FLEX_GROW);
+                Styles.W_FULL, Styles.MB_6, Styles.FLEX_GROW, Styles.FLEX, Styles.ITEMS_END);
     return div()
         .withId(baseId)
         .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
         .with(
             div()
                 .withClasses(
+                    Styles.BLOCK,
+                    Styles.FLEX_SHRINK_0,
                     BaseStyles.BG_SEATTLE_BLUE,
                     Styles.ROUNDED_T_XL,
-                    Styles.SELF_START,
                     Styles.H_3))
         .with(programData)
         .with(applyDiv);
