@@ -119,7 +119,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   /**
-   * Use this one when the application is already complete, to show a complete progress indicator.
+   * Use this one after the application has been submitted, to show a complete progress indicator.
    */
   protected ContainerTag renderProgramApplicationTitleAndProgressIndicator(String programTitle) {
     return renderProgramApplicationTitleAndProgressIndicator(programTitle, 0, 0, true);
