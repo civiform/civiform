@@ -3,7 +3,6 @@
 button.logout=Logout
 button.apply=Apply
 button.nextBlock=Next
-button.deleteEntity=Delete {0}
 toast.localeNotSupported=We''re sorry, this program is not fully translated to English.
 toast.programCompleted=Application was already completed.
 toast.applicationSaved=Successfully saved application: application ID {0}
@@ -38,6 +37,7 @@ placeholder.middleName=Middle name
 label.lastName=Last name
 placeholder.lastName=Last name
 button.addEntity=Add {0}
+button.removeEntity=Remove {0}
 validation.firstNameRequired=Please enter your first name.
 validation.lastNameRequired=Please enter your last name.
 validation.textTooShort=Must contain at least {0} characters.
