@@ -17,7 +17,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import services.applicant.ApplicantData;
 import views.LoginForm;
-import views.html.index;
 
 public class HomeController extends Controller {
 
