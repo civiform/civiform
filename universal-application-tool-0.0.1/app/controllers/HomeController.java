@@ -21,7 +21,6 @@ import views.html.index;
 
 public class HomeController extends Controller {
 
-  private final AssetsFinder assetsFinder;
   private final LoginForm loginForm;
   private final ProfileUtils profileUtils;
   private final MessagesApi messagesApi;
@@ -29,12 +28,10 @@ public class HomeController extends Controller {
 
   @Inject
   public HomeController(
-      AssetsFinder assetsFinder,
       LoginForm form,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
       HttpExecutionContext httpExecutionContext) {
-    this.assetsFinder = checkNotNull(assetsFinder);
     this.loginForm = checkNotNull(form);
     this.profileUtils = checkNotNull(profileUtils);
     this.messagesApi = checkNotNull(messagesApi);
@@ -86,11 +83,11 @@ public class HomeController extends Controller {
   }
 
   public Result playIndex() {
-    return ok(index.render("public index", assetsFinder));
+    return ok("public index");
   }
 
   @Secure
   public Result securePlayIndex() {
-    return ok(index.render("You are logged in.", assetsFinder));
+    return ok("You are logged in.");
   }
 }
