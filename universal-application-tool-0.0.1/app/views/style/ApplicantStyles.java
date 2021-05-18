@@ -78,6 +78,8 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(BUTTON_BASE, Styles.TEXT_SM, Styles.MX_AUTO);
   public static final String BUTTON_BLOCK_NEXT =
       StyleUtils.joinStyles(BUTTON_BASE, Styles.TEXT_BASE, Styles.MR_0, Styles.ML_AUTO);
+  public static final String BUTTON_REVIEW =
+      StyleUtils.joinStyles(BUTTON_BASE, Styles.TEXT_BASE, Styles.MR_0, Styles.ML_AUTO);
   public static final String BUTTON_SUBMIT_APPLICATION =
       StyleUtils.joinStyles(BUTTON_BASE, Styles.TEXT_BASE, Styles.MX_AUTO);
 }

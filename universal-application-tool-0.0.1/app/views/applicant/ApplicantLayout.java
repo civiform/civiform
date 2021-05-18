@@ -125,6 +125,14 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return renderProgramApplicationTitleAndProgressIndicator(programTitle, 0, 0, true);
   }
 
+  /**
+   * The progress indicator is a bit different while an application is being filled out vs for the summary view.
+   *
+   * While in progress, the current incomplete block is counted towards progress, but will not show full
+   * progress while filling out the last block of the program.
+   *
+   * For the summary view, there is no "current" block, and full progress can be shown.
+   */
   protected ContainerTag renderProgramApplicationTitleAndProgressIndicator(
       String programTitle, int blockIndex, int totalBlockCount, boolean forSummary) {
     int percentComplete = getPercentComplete(blockIndex, totalBlockCount, forSummary);
