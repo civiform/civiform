@@ -22,6 +22,14 @@ public class QuestionOptionTest {
   }
 
   @Test
+  public void localizeOrDefault_returnsDefaultForUnsupportedLocale() {
+    QuestionOption option = QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "default"));
+
+    assertThat(option.localizeOrDefault(Locale.CHINESE))
+        .isEqualTo(LocalizedQuestionOption.create(1L, "default", Locale.US));
+  }
+
+  @Test
   public void builder_builds() {
     QuestionOption option =
         QuestionOption.builder()

@@ -7,6 +7,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import services.LocalizedStrings;
+import services.TranslationNotFoundException;
 
 /**
  * Represents a single option in a {@link services.question.types.MultiOptionQuestionDefinition}.
@@ -58,7 +59,13 @@ public abstract class QuestionOption {
    * locale.
    */
   public LocalizedQuestionOption localizeOrDefault(Locale locale) {
-    return LocalizedQuestionOption.create(id(), optionText().getOrDefault(locale), locale);
+    try {
+      String localizedText = optionText().get(locale);
+      return LocalizedQuestionOption.create(id(), localizedText, locale);
+    } catch (TranslationNotFoundException e) {
+      return LocalizedQuestionOption.create(
+          id(), optionText().getDefault(), LocalizedStrings.DEFAULT_LOCALE);
+    }
   }
 
   public abstract Builder toBuilder();
