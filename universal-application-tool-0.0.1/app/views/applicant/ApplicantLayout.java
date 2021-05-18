@@ -171,7 +171,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     }
 
     ContainerTag blockNumberTag = div();
-    if (percentComplete != 100) {
+    if (!forSummary) {
       blockNumberTag
           .withText(String.format("%d of %d", blockIndex, totalBlockCount))
           .withClasses(Styles.TEXT_GRAY_500, Styles.TEXT_RIGHT);
