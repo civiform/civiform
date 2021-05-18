@@ -20,6 +20,8 @@ public abstract class ApplicantQuestionRenderer {
     this.question = checkNotNull(question);
   }
 
+  public abstract String getQuestionType();
+  
   public abstract Tag render(ApplicantQuestionRendererParams params);
 
   Tag renderInternal(Messages messages, Tag questionFormContent) {
@@ -60,7 +62,7 @@ public abstract class ApplicantQuestionRenderer {
 
     return div()
         .withId(question.getContextualizedPath().toString())
-        .withClasses(Styles.MX_AUTO, Styles.MB_8)
+        .withClasses(Styles.MX_AUTO, Styles.MB_8, this.getQuestionType())
         .with(questionTextDiv)
         .with(questionFormContent);
   }

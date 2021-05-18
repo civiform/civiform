@@ -69,6 +69,7 @@ public final class ApplicantStyles {
           Styles.PY_2,
           Styles.TEXT_CENTER,
           Styles.TEXT_WHITE,
+          StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400),
           Styles.FONT_SEMIBOLD,
           Styles.UPPERCASE,
           Styles.ROUNDED_FULL);

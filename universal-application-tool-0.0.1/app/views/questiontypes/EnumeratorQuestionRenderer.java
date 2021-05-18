@@ -42,6 +42,11 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
+  public String getQuestionType() {
+      return "cf-question-enumerator";
+  }
+
+  @Override
   public Tag render(ApplicantQuestionRendererParams params) {
     Messages messages = params.messages();
     EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();

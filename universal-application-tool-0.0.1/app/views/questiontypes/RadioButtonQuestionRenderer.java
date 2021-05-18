@@ -23,6 +23,11 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
+  public String getQuestionType() {
+      return "cf-question-radio";
+  }
+
+  @Override
   public Tag render(ApplicantQuestionRendererParams params) {
     SingleSelectQuestion singleOptionQuestion = question.createSingleSelectQuestion();
 

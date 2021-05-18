@@ -172,7 +172,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
             Styles.PY_2,
             Styles.PL_4,
             Styles.FLEX_AUTO,
-            Styles.BG_ORANGE_200,
+            Styles.BG_GRAY_200,
             Styles.FONT_SEMIBOLD,
             Styles.ROUNDED_LG);
   }

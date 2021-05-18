@@ -16,6 +16,11 @@ public class NameQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
+  public String getQuestionType() {
+      return "cf-question-name";
+  }
+
+  @Override
   public Tag render(ApplicantQuestionRendererParams params) {
     Messages messages = params.messages();
     NameQuestion nameQuestion = question.createNameQuestion();

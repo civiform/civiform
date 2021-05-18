@@ -17,6 +17,11 @@ public class AddressQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
+  public String getQuestionType() {
+      return "cf-question-address";
+  }
+
+  @Override
   public Tag render(ApplicantQuestionRendererParams params) {
     Messages messages = params.messages();
     AddressQuestion addressQuestion = question.createAddressQuestion();

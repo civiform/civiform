@@ -72,8 +72,11 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
               params.messages()));
     }
 
+    // Add question validation scripts.
+    bundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("validation"));
+
     return layout.renderWithNav(
-        params.request(), params.applicantName(), params.messages(), bundle);
+      params.request(), params.applicantName(), params.messages(), bundle);
   }
 
   /**
@@ -116,7 +119,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
                 question -> renderQuestion(question, rendererParams)))
         .with(
             submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName()))
-                .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT));
+                .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
+                .withId("cf-block-submit"));
   }
 
   private Tag renderFileUploadBlockSubmitForm(Params params) {
