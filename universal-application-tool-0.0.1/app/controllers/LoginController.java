@@ -45,6 +45,13 @@ public class LoginController extends Controller {
     return login(request, idcsClient);
   }
 
+  public Result idcsLoginWithRedirect(Http.Request request, Optional<String> redirectTo) {
+    if (redirectTo.isEmpty()) {
+      return idcsLogin(request);
+    }
+    return login(request, idcsClient).addingToSession(request, "redirectTo", redirectTo.get());
+  }
+
   public Result adfsLogin(Http.Request request) {
     return login(request, adClient);
   }

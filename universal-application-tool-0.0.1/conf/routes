@@ -94,7 +94,8 @@ GET     /applicants/:applicantId/programs/:programId/applications/:applicationId
 GET     /programAdmin       controllers.admin.ProgramAdminController.index(request: Request)
 
 # Deep-link methods
-GET     /programs/:programName      controllers.applicant.DeepLinkController.programByName(request: Request, programName: String)
+GET     /programs/:programName      controllers.applicant.RedirectController.programByName(request: Request, programName: String)
+GET     /considerSignIn             controllers.applicant.RedirectController.considerRegister(request: Request, redirectTo: String)
 
 # User profile pages
 GET     /users/me                    controllers.ProfileController.myProfile(request: Request)
@@ -117,7 +118,7 @@ POST    /callback/:client_name       controllers.CallbackController.callback(req
 
 # Log into application
 GET     /loginForm                   controllers.HomeController.loginForm(request: Request, message: java.util.Optional[String])
-GET     /idcsLogin                   controllers.LoginController.idcsLogin(request: Request)
+GET     /idcsLogin                   controllers.LoginController.idcsLoginWithRedirect(request: Request, redirectTo: java.util.Optional[String])
 GET     /adfsLogin                   controllers.LoginController.adfsLogin(request: Request)
 
 # Log out of application
