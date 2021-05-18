@@ -63,6 +63,7 @@ public final class ApplicantStyles {
   private static final String BUTTON_BASE =
       StyleUtils.joinStyles(
           BaseStyles.BG_SEATTLE_BLUE,
+          StyleUtils.hover(Styles.BG_BLUE_700),
           Styles.BLOCK,
           Styles.W_MIN,
           Styles.PX_8,

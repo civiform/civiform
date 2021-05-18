@@ -57,7 +57,10 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         a().attr(HREF, reviewUrl)
             .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
             .withId("continue-application-button")
-            .withClasses(ReferenceClasses.CONTINUE_BUTTON, ApplicantStyles.BUTTON_PROGRAM_APPLY);
+            .withClasses(
+                ReferenceClasses.CONTINUE_BUTTON,
+                ApplicantStyles.BUTTON_PROGRAM_APPLY,
+                Styles.MR_0);
 
     HtmlBundle bundle =
         layout
