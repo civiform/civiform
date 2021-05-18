@@ -82,7 +82,7 @@ export class ApplicantQuestions {
   }
 
   async validateHeader(lang: string) {
-    expect(await this.page.content()).toContain('<html lang="' + lang + '">');
+    expect(await this.page.getAttribute('html', 'lang')).toEqual(lang);
     expect(await this.page.innerHTML('head'))
       .toContain('<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">');
   }  
