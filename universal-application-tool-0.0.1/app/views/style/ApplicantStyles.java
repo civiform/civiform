@@ -22,7 +22,9 @@ public final class ApplicantStyles {
           Styles.P_6,
           StyleUtils.responsiveSmall(Styles.P_10));
 
-  public static final String CIVIFORM_LOGO = StyleUtils.joinStyles(Styles.TEXT_2XL);
+  public static final String CIVIFORM_LOGO =
+      StyleUtils.joinStyles(
+          Styles.TEXT_2XL, Styles.OPACITY_75, StyleUtils.hover(Styles.OPACITY_100));
   public static final String LINK_LOGOUT =
       StyleUtils.joinStyles(
           Styles.TEXT_BASE,
