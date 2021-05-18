@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -65,11 +66,7 @@ public class QuestionTranslationView extends TranslationFormView {
             request,
             locale,
             formAction,
-            formFields(
-                question.getQuestionText().getDefault(),
-                question.getQuestionHelpText().getDefault(),
-                existingQuestionText,
-                existingQuestionHelpText));
+            formFields(locale, question.getQuestionText(), question.getQuestionHelpText()));
 
     String title = "Manage Question Translations";
 
@@ -92,22 +89,27 @@ public class QuestionTranslationView extends TranslationFormView {
   }
 
   private ImmutableList<FieldWithLabel> formFields(
-      String defaultText,
-      String defaultHelpText,
-      Optional<String> questionText,
-      Optional<String> questionHelpText) {
-    return ImmutableList.of(
+      Locale locale, LocalizedStrings questionText, LocalizedStrings helpText) {
+    ImmutableList.Builder<FieldWithLabel> fields = ImmutableList.builder();
+    fields.add(
         FieldWithLabel.input()
             .setId("localize-question-text")
             .setFieldName("questionText")
-            .setLabelText(defaultText)
+            .setLabelText(questionText.getDefault())
             .setPlaceholderText("Question text")
-            .setValue(questionText),
-        FieldWithLabel.input()
-            .setId("localize-question-help-text")
-            .setFieldName("questionHelpText")
-            .setLabelText(defaultHelpText)
-            .setPlaceholderText("Question help text")
-            .setValue(questionHelpText));
+            .setValue(questionText.maybeGet(locale)));
+
+    // Help text is optional - only show if present.
+    if (!helpText.isEmpty()) {
+      fields.add(
+          FieldWithLabel.input()
+              .setId("localize-question-help-text")
+              .setFieldName("questionHelpText")
+              .setLabelText(helpText.getDefault())
+              .setPlaceholderText("Question help text")
+              .setValue(helpText.maybeGet(locale)));
+    }
+
+    return fields.build();
   }
 }
