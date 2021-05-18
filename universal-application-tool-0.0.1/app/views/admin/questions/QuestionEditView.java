@@ -51,27 +51,27 @@ public final class QuestionEditView extends BaseHtmlView {
   public Content renderNewQuestionForm(
       Request request,
       QuestionType questionType,
-      ImmutableList<EnumeratorQuestionDefinition> enumerationQuestionDefinitions)
+      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions)
       throws UnsupportedQuestionTypeException {
     QuestionForm questionForm = QuestionFormBuilder.create(questionType);
     return renderNewQuestionForm(
-        request, questionForm, enumerationQuestionDefinitions, Optional.empty());
+        request, questionForm, enumeratorQuestionDefinitions, Optional.empty());
   }
 
   /** Render a New Question Form with a partially filled form and an error message. */
   public Content renderNewQuestionForm(
       Request request,
       QuestionForm questionForm,
-      ImmutableList<EnumeratorQuestionDefinition> enumerationQuestionDefinitions,
+      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
       String errorMessage) {
     return renderNewQuestionForm(
-        request, questionForm, enumerationQuestionDefinitions, Optional.of(errorMessage));
+        request, questionForm, enumeratorQuestionDefinitions, Optional.of(errorMessage));
   }
 
   private Content renderNewQuestionForm(
       Request request,
       QuestionForm questionForm,
-      ImmutableList<EnumeratorQuestionDefinition> enumerationQuestionDefinitions,
+      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
       Optional<String> message) {
     QuestionType questionType = questionForm.getQuestionType();
     //    String title = String.format("New %s question", questionType.toString().toLowerCase());
@@ -80,7 +80,7 @@ public final class QuestionEditView extends BaseHtmlView {
     ContainerTag formContent =
         buildQuestionContainer(title)
             .with(
-                buildNewQuestionForm(questionForm, enumerationQuestionDefinitions)
+                buildNewQuestionForm(questionForm, enumeratorQuestionDefinitions)
                     .with(makeCsrfTokenInputTag(request)));
 
     if (message.isPresent()) {
@@ -148,12 +148,11 @@ public final class QuestionEditView extends BaseHtmlView {
     QuestionType questionType = questionForm.getQuestionType();
     String title = String.format("View %s question", questionType.toString().toLowerCase());
 
-    SelectWithLabel enumerationOption =
-        enumerationOptionsFromMaybeEnumerationQuestionDefinition(
-            maybeEnumerationQuestionDefinition);
+    SelectWithLabel enumeratorOption =
+        enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
     ContainerTag formContent =
         buildQuestionContainer(title)
-            .with(buildViewOnlyQuestionForm(questionForm, enumerationOption));
+            .with(buildViewOnlyQuestionForm(questionForm, enumeratorOption));
 
     return renderWithPreview(formContent, questionType, title);
   }
@@ -168,13 +167,13 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private ContainerTag buildSubmittableQuestionForm(
-      QuestionForm questionForm, SelectWithLabel enumerationOptions) {
-    return buildQuestionForm(questionForm, enumerationOptions, true);
+      QuestionForm questionForm, SelectWithLabel enumeratorOptions) {
+    return buildQuestionForm(questionForm, enumeratorOptions, true);
   }
 
   private ContainerTag buildViewOnlyQuestionForm(
-      QuestionForm questionForm, SelectWithLabel enumerationOptions) {
-    return buildQuestionForm(questionForm, enumerationOptions, false);
+      QuestionForm questionForm, SelectWithLabel enumeratorOptions) {
+    return buildQuestionForm(questionForm, enumeratorOptions, false);
   }
 
   private ContainerTag buildQuestionContainer(String title) {
@@ -205,11 +204,11 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private ContainerTag buildNewQuestionForm(
       QuestionForm questionForm,
-      ImmutableList<EnumeratorQuestionDefinition> enumerationQuestionDefinitions) {
-    SelectWithLabel enumerationOptions =
-        enumerationOptionsFromEnumerationQuestionDefinitions(
-            questionForm, enumerationQuestionDefinitions);
-    ContainerTag formTag = buildSubmittableQuestionForm(questionForm, enumerationOptions);
+      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions) {
+    SelectWithLabel enumeratorOptions =
+        enumeratorOptionsFromEnumerationQuestionDefinitions(
+            questionForm, enumeratorQuestionDefinitions);
+    ContainerTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions);
     formTag
         .withAction(
             controllers.admin.routes.AdminQuestionController.create(
@@ -224,10 +223,9 @@ public final class QuestionEditView extends BaseHtmlView {
       long id,
       QuestionForm questionForm,
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition) {
-    SelectWithLabel enumerationOption =
-        enumerationOptionsFromMaybeEnumerationQuestionDefinition(
-            maybeEnumerationQuestionDefinition);
-    ContainerTag formTag = buildSubmittableQuestionForm(questionForm, enumerationOption);
+    SelectWithLabel enumeratorOption =
+        enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
+    ContainerTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOption);
     formTag
         .withAction(
             controllers.admin.routes.AdminQuestionController.update(
@@ -238,7 +236,7 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private ContainerTag buildQuestionForm(
-      QuestionForm questionForm, SelectWithLabel enumerationOptions, boolean submittable) {
+      QuestionForm questionForm, SelectWithLabel enumeratorOptions, boolean submittable) {
     QuestionType questionType = questionForm.getQuestionType();
     ContainerTag formTag = form().withMethod("POST");
     FieldWithLabel nameField =
@@ -269,7 +267,8 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setDisabled(!submittable)
                 .setValue(questionForm.getQuestionDescription())
                 .getContainer(),
-            enumerationOptions.setDisabled(!submittable).getContainer(),
+            enumeratorOptions.setDisabled(!submittable).getContainer(),
+            repeatedQuestionInformation(),
             FieldWithLabel.textArea()
                 .setId("question-text-textarea")
                 .setFieldName("questionText")
@@ -309,51 +308,70 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   /**
-   * Generate a {@link SelectWithLabel} enumeration selector with all the available enumeration
+   * Generate a {@link SelectWithLabel} enumerator selector with all the available enumerator
    * question definitions.
    */
-  private SelectWithLabel enumerationOptionsFromEnumerationQuestionDefinitions(
+  private SelectWithLabel enumeratorOptionsFromEnumerationQuestionDefinitions(
       QuestionForm questionForm,
-      ImmutableList<EnumeratorQuestionDefinition> enumerationQuestionDefinitions) {
+      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions) {
     ImmutableList.Builder<SimpleEntry<String, String>> optionsBuilder = ImmutableList.builder();
     optionsBuilder.add(new SimpleEntry<>(NO_ENUMERATOR_DISPLAY_STRING, NO_ENUMERATOR_ID_STRING));
     optionsBuilder.addAll(
-        enumerationQuestionDefinitions.stream()
+        enumeratorQuestionDefinitions.stream()
             .map(
-                enumerationQuestionDefinition ->
+                enumeratorQuestionDefinition ->
                     new SimpleEntry<>(
-                        enumerationQuestionDefinition.getName(),
-                        String.valueOf(enumerationQuestionDefinition.getId())))
+                        enumeratorQuestionDefinition.getName(),
+                        String.valueOf(enumeratorQuestionDefinition.getId())))
             .collect(ImmutableList.toImmutableList()));
-    return enumerationOptions(
+    return enumeratorOptions(
         optionsBuilder.build(),
         questionForm.getEnumeratorId().map(String::valueOf).orElse(NO_ENUMERATOR_ID_STRING));
   }
 
   /**
-   * Generate a {@link SelectWithLabel} enumeration selector with one value from an enumeration
-   * question definition if available, or with just the no-enumeration option.
+   * Generate a {@link SelectWithLabel} enumerator selector with one value from an enumerator
+   * question definition if available, or with just the no-enumerator option.
    */
-  private SelectWithLabel enumerationOptionsFromMaybeEnumerationQuestionDefinition(
+  private SelectWithLabel enumeratorOptionsFromMaybeEnumerationQuestionDefinition(
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition) {
-    SimpleEntry<String, String> enumerationOption =
+    SimpleEntry<String, String> enumeratorOption =
         maybeEnumerationQuestionDefinition
             .map(
-                enumerationQuestionDefinition ->
+                enumeratorQuestionDefinition ->
                     new SimpleEntry<>(
-                        enumerationQuestionDefinition.getName(),
-                        String.valueOf(enumerationQuestionDefinition.getId())))
+                        enumeratorQuestionDefinition.getName(),
+                        String.valueOf(enumeratorQuestionDefinition.getId())))
             .orElse(new SimpleEntry<>(NO_ENUMERATOR_DISPLAY_STRING, NO_ENUMERATOR_ID_STRING));
-    return enumerationOptions(ImmutableList.of(enumerationOption), enumerationOption.getValue());
+    return enumeratorOptions(ImmutableList.of(enumeratorOption), enumeratorOption.getValue());
   }
 
-  private SelectWithLabel enumerationOptions(
+  private SelectWithLabel enumeratorOptions(
       ImmutableList<SimpleEntry<String, String>> options, String selected) {
     return new SelectWithLabel()
-        .setId("question-enumeration-select")
+        .setId("question-enumerator-select")
         .setFieldName("enumeratorId")
-        .setLabelText("Question enumeration")
+        .setLabelText("Question enumerator")
         .setOptions(options)
         .setValue(selected);
+  }
+
+  private ContainerTag repeatedQuestionInformation() {
+    return div("By selecting an enumerator, you are creating a repeated question - a question that"
+            + " is asked for each repeated entity enumerated by the applicant. Please"
+            + " reference the applicant-defined repeated entity name to give the applicant"
+            + " context on which repeated entity they are answering the question for by"
+            + " using \"$this\" in the question's text and help text. To reference the"
+            + " repeated entities containing this one, use \"$this.parent\","
+            + " \"this.parent.parent\", etc.")
+        .withId("repeated-question-information")
+        .withClasses(
+            Styles.HIDDEN,
+            Styles.TEXT_BLUE_500,
+            Styles.TEXT_SM,
+            Styles.P_2,
+            Styles.FONT_MONO,
+            Styles.BORDER_4,
+            Styles.BORDER_BLUE_400);
   }
 }

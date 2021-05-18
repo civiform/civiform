@@ -28,7 +28,7 @@ export class AdminQuestions {
     await this.page.fill('text=Description', description);
     await this.page.fill('text=Question Text', questionText);
     await this.page.fill('text=Question help text', helpText);
-    await this.page.selectOption('#question-enumeration-select', { label: enumeratorName });
+    await this.page.selectOption('#question-enumerator-select', { label: enumeratorName });
   }
 
   async updateQuestionText(updateText: string) {
@@ -337,8 +337,6 @@ export class AdminQuestions {
     await this.page.click('#create-enumerator-question');
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
-
-    await this.page.selectOption('#question-enumeration-select', { label: enumeratorName });
 
     await this.page.fill('text=Repeated Entity Type', 'Entity');
 
