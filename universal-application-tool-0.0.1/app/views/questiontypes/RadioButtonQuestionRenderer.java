@@ -23,8 +23,8 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
-  public String getQuestionType() {
-      return "cf-question-radio";
+  public String getReferenceClass() {
+    return "cf-question-radio";
   }
 
   @Override

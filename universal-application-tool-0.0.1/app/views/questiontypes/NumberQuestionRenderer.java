@@ -15,8 +15,8 @@ public class NumberQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
-  public String getQuestionType() {
-      return "cf-question-number";
+  public String getReferenceClass() {
+    return "cf-question-number";
   }
 
   @Override

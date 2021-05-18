@@ -18,8 +18,8 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
-  public String getQuestionType() {
-      return "cf-question-dropdown";
+  public String getReferenceClass() {
+    return "cf-question-dropdown";
   }
 
   @Override

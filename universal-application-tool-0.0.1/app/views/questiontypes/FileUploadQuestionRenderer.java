@@ -20,8 +20,8 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
-  public String getQuestionType() {
-      return "cf-question-file";
+  public String getReferenceClass() {
+    return "cf-question-file";
   }
 
   private ContainerTag fileUploadFields(ApplicantQuestionRendererParams params) {

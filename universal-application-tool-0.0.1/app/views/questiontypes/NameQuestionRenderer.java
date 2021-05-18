@@ -16,8 +16,8 @@ public class NameQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
-  public String getQuestionType() {
-      return "cf-question-name";
+  public String getReferenceClass() {
+    return "cf-question-name";
   }
 
   @Override

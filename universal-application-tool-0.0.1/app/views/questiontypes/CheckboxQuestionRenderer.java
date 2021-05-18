@@ -19,8 +19,8 @@ import views.style.Styles;
 public class CheckboxQuestionRenderer extends ApplicantQuestionRenderer {
 
   @Override
-  public String getQuestionType() {
-      return "cf-question-checkbox";
+  public String getReferenceClass() {
+    return "cf-question-checkbox";
   }
 
   public CheckboxQuestionRenderer(ApplicantQuestion question) {

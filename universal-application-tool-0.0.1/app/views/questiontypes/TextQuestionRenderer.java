@@ -12,8 +12,8 @@ public class TextQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
-  public String getQuestionType() {
-      return "cf-question-text";
+  public String getReferenceClass() {
+    return "cf-question-text";
   }
 
   @Override

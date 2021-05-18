@@ -42,8 +42,8 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
-  public String getQuestionType() {
-      return "cf-question-enumerator";
+  public String getReferenceClass() {
+    return "cf-question-enumerator";
   }
 
   @Override

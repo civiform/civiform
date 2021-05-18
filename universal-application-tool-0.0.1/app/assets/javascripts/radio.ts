@@ -24,7 +24,7 @@ class RadioController {
         const container = radio.closest(RadioController.radioOptionClass);
         const radioChecked = (radio as HTMLInputElement).checked;
         if (container) {
-          RadioController.selectedRadioClasses.forEach(selectedClass => 
+          RadioController.selectedRadioClasses.forEach(selectedClass =>
             container.classList.toggle(selectedClass, radioChecked));
         }
       }
@@ -49,7 +49,7 @@ class RadioController {
             checkCount += isChecked ? 1 : 0;
             const radioContainer = radioButton.closest(RadioController.radioOptionClass);
             if (radioContainer) {
-              RadioController.selectedRadioClasses.forEach(selectedClass => 
+              RadioController.selectedRadioClasses.forEach(selectedClass =>
                 radioContainer.classList.toggle(selectedClass, isChecked));
             }
           }

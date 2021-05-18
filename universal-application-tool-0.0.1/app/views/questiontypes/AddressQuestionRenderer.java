@@ -17,8 +17,8 @@ public class AddressQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
-  public String getQuestionType() {
-      return "cf-question-address";
+  public String getReferenceClass() {
+    return "cf-question-address";
   }
 
   @Override
