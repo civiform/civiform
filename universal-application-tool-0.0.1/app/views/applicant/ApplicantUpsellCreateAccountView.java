@@ -12,6 +12,7 @@ import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.MessageKey;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.LinkElement;
@@ -26,22 +27,23 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
     this.layout = checkNotNull(layout);
   }
 
-  /** Renders a confirmation page for the applicant's submission. */
-  public Content render(Http.Request request, String redirectTo, Messages messages) {
+  /** Renders a sign-up page with a baked-in redirect. */
+  public Content render(
+      Http.Request request, String redirectTo, Messages messages, String userName) {
     String title = "Account Creation Interstitial";
     HtmlBundle bundle = layout.getBundle().setTitle(title);
 
     ContainerTag content = div().withClasses(Styles.MX_16);
-    content.with(h2(messages.at("content.pleaseCreateAccount")));
+    content.with(h2(messages.at(MessageKey.CONTENT_PLEASE_SIGN_IN.getKeyName())));
     content.with(
         new LinkElement()
             .setHref(routes.LoginController.idcsLoginWithRedirect(Optional.of(redirectTo)).url())
-            .setText(messages.at("content.doCreateAccount"))
+            .setText(messages.at(MessageKey.CONTENT_DO_SIGN_IN.getKeyName()))
             .asButton());
     content.with(
         new LinkElement()
             .setHref(redirectTo)
-            .setText(messages.at("content.dontCreateAccount"))
+            .setText(messages.at(MessageKey.CONTENT_DONT_SIGN_IN.getKeyName()))
             .asButton());
 
     bundle.addMainContent(
@@ -49,6 +51,6 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
         h1(title).withClasses(Styles.PX_16, Styles.PY_4),
         content);
 
-    return layout.renderWithNav(request, messages, bundle);
+    return layout.renderWithNav(request, userName, messages, bundle);
   }
 }

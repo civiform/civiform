@@ -167,10 +167,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
     return submitApp
         .thenApplyAsync(
             application -> {
-              // This must already be done since we are behind it in the promise chain
               Long applicationId = application.id;
               Call endOfProgramSubmission =
-                  routes.RedirectController.considerSignIn(
+                  routes.RedirectController.considerRegister(
                       routes.ApplicantProgramReviewController.confirmation(
                               applicantId, programId, applicationId)
                           .url());

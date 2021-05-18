@@ -60,7 +60,7 @@ public class RedirectController extends CiviFormController {
   }
 
   @Secure
-  public CompletableFuture<Result> considerSignIn(Http.Request request, String redirectTo) {
+  public CompletableFuture<Result> considerRegister(Http.Request request, String redirectTo) {
     Optional<UatProfile> profile = profileUtils.currentUserProfile(request);
     if (profile.isEmpty()) {
       // should definitely never happen.
@@ -79,10 +79,12 @@ public class RedirectController extends CiviFormController {
                 return redirect(redirectTo);
               }
 
-              // To make this happen we really need to be pretty sure we are able to redirect
-              // correctly
-              // after a login!
-              return ok(upsellView.render(request, redirectTo, messagesApi.preferred(request)));
+              return ok(
+                  upsellView.render(
+                      request,
+                      redirectTo,
+                      messagesApi.preferred(request),
+                      account.getApplicantName()));
             });
   }
 }
