@@ -3,8 +3,7 @@
 button.logout=Logout
 button.apply=Apply
 button.nextBlock=Next
-button.deleteEntity=Delete {0}
-toast.localeNotSupported=We're sorry, this program is not fully translated to English.
+toast.localeNotSupported=We''re sorry, this program is not fully translated to English.
 toast.programCompleted=Application was already completed.
 toast.applicationSaved=Successfully saved application: application ID {0}
 
@@ -17,7 +16,7 @@ content.description1=CiviForm lets you apply for many benefits at once by reusin
 content.description2=Get started by choosing an application below.
 content.confirmed=Thank you for applying to {0}.  Your application has been received, and your application ID is {1}.
 content.returnToDash=Return to All Programs
-content.pleaseCreateAccount=If you sign into a city account now, your information will be saved and you'll be able to return at any time to complete future applications.  If you do not already have an account, the login page will allow you to register.  You won't lose any data you've already entered.
+content.pleaseCreateAccount=If you sign into a city account now, your information will be saved and you''ll be able to return at any time to complete future applications.  If you do not already have an account, the login page will allow you to register.  You won''t lose any data you''ve already entered.
 content.doCreateAccount=Create Account (Sign In or Register)
 content.dontCreateAccount=Not Right Now
 
@@ -38,6 +37,7 @@ placeholder.middleName=Middle name
 label.lastName=Last name
 placeholder.lastName=Last name
 button.addEntity=Add {0}
+button.removeEntity=Remove {0}
 validation.firstNameRequired=Please enter your first name.
 validation.lastNameRequired=Please enter your last name.
 validation.textTooShort=Must contain at least {0} characters.

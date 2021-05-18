@@ -64,22 +64,44 @@ public final class ApplicantStyles {
    * should be added by other button style constants that use this as a base.
    */
   private static final String BUTTON_BASE =
+      StyleUtils.joinStyles(Styles.BLOCK, Styles.PY_2, Styles.TEXT_CENTER, Styles.ROUNDED_FULL);
+
+  /** Base styles for buttons with a solid background color. */
+  private static final String BUTTON_BASE_SOLID =
       StyleUtils.joinStyles(
-          BaseStyles.BG_SEATTLE_BLUE,
-          Styles.BLOCK,
-          Styles.W_MIN,
-          Styles.PX_8,
-          Styles.PY_2,
-          Styles.TEXT_CENTER,
-          Styles.TEXT_WHITE,
-          Styles.FONT_SEMIBOLD,
-          Styles.UPPERCASE,
-          Styles.ROUNDED_FULL);
+          BUTTON_BASE, BaseStyles.BG_SEATTLE_BLUE, Styles.TEXT_WHITE, Styles.ROUNDED_FULL);
+
+  /** Base styles for semibold, upper case buttons with a solid background. */
+  private static final String BUTTON_BASE_SOLID_UPPERCASE =
+      StyleUtils.joinStyles(
+          BUTTON_BASE_SOLID, Styles.UPPERCASE, Styles.FONT_SEMIBOLD, Styles.W_MIN, Styles.PX_8);
+
+  /** Base styles for buttons with a transparent background and an outline. */
+  private static final String BUTTON_BASE_OUTLINE =
+      StyleUtils.joinStyles(
+          BUTTON_BASE,
+          Styles.BG_TRANSPARENT,
+          BaseStyles.TEXT_SEATTLE_BLUE,
+          Styles.BORDER,
+          BaseStyles.BORDER_SEATTLE_BLUE);
 
   public static final String BUTTON_PROGRAM_APPLY =
-      StyleUtils.joinStyles(BUTTON_BASE, Styles.TEXT_SM, Styles.MX_AUTO);
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_SM, Styles.MX_AUTO);
   public static final String BUTTON_BLOCK_NEXT =
-      StyleUtils.joinStyles(BUTTON_BASE, Styles.TEXT_BASE, Styles.MR_0, Styles.ML_AUTO);
+      StyleUtils.joinStyles(
+          BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MR_0, Styles.ML_AUTO);
   public static final String BUTTON_SUBMIT_APPLICATION =
-      StyleUtils.joinStyles(BUTTON_BASE, Styles.TEXT_BASE, Styles.MX_AUTO);
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MX_AUTO);
+  public static final String BUTTON_ENUMERATOR_ADD_ENTITY =
+      StyleUtils.joinStyles(
+          BUTTON_BASE_SOLID, Styles.TEXT_BASE, Styles.NORMAL_CASE, Styles.FONT_NORMAL, Styles.PX_4);
+  public static final String BUTTON_ENUMERATOR_REMOVE_ENTITY =
+      StyleUtils.joinStyles(
+          BUTTON_BASE_OUTLINE,
+          Styles.TEXT_BASE,
+          Styles.NORMAL_CASE,
+          Styles.FONT_NORMAL,
+          Styles.JUSTIFY_SELF_END,
+          Styles.SELF_CENTER,
+          StyleUtils.hover(Styles.BG_BLUE_100));
 }
