@@ -9,12 +9,27 @@ class ValidationController {
     this.addQuestionListeners();
   }
 
-  addQuestionListeners() {
+  /** attach listeners so that we know when to update validations. */
+  private addQuestionListeners() {
+    this.addAddressListeners();
     this.addEnumeratorListeners();
-
+    this.addNameListeners();
   }
 
-  addEnumeratorListeners() {
+  /** Add listeners to all address inputs to update validation on changes. */
+  private addAddressListeners() {
+    const addressQuestions = Array.from(document.querySelectorAll('.cf-question-address'));
+    for (const question of addressQuestions) {
+      const addressInputs = Array.from(question.querySelectorAll('input'));
+      // Whenever an input changes we need to revalidate.
+      addressInputs.forEach(addressInput => {
+        addressInput.addEventListener("input", () => { this.onAddressChanged(); });
+      });
+    }
+  }
+
+  /** Add listeners to all enumerator inputs to update validation on changes. */
+  private addEnumeratorListeners() {
     // Assumption: There is only ever zero or one enumerators per block.
     const enumeratorQuestion = document.querySelector('.cf-question-enumerator');
     if (enumeratorQuestion) {
@@ -51,15 +66,28 @@ class ValidationController {
     }
   }
 
-  isValid() {
-    return this.isAddressValid && this.isEnumeratorValid && this.isNameValid;
+  /** Add listeners to all address inputs to update validation on changes. */
+  private addNameListeners() {
+    const addressQuestions = Array.from(document.querySelectorAll('.cf-question-name'));
+    for (const question of addressQuestions) {
+      const addressInputs = Array.from(question.querySelectorAll('input'));
+      // Whenever an input changes we need to revalidate.
+      addressInputs.forEach(addressInput => {
+        addressInput.addEventListener("input", () => { this.onNameChanged(); });
+      });
+    }
   }
+
 
   checkAllQuestionTypes() {
     this.isAddressValid = this.validateAddressQuestion();
     this.isEnumeratorValid = this.validateEnumeratorQuestion();
     this.isNameValid = this.validateNameQuestion();
     this.updateSubmitButton();
+  }
+
+  isValid() {
+    return this.isAddressValid && this.isEnumeratorValid && this.isNameValid;
   }
 
   onAddressChanged() {
@@ -87,18 +115,31 @@ class ValidationController {
     }
   }
 
-  /** Validates that the zip code is in a valid format (5 digit number) */
+  /** Validates all address questions. */
   validateAddressQuestion(): boolean {
     let isValid = true;
-    // for each address question {
-    //      validate zip code.
-    //      if (zip invalid) { 
-    //          // show error message
-    //          // isValid = false;
-    //      } else {
-    //          // hide error message
-    //      }
-    // }
+    const addressQuestions = Array.from(document.querySelectorAll('.cf-question-address'));
+    for (const question of addressQuestions) {
+      // validate address line 1 not empty.
+      const addressLine1 = <HTMLInputElement> question.querySelector(".cf-address-street-1 input");
+      const addressLine1Valid = addressLine1.value.length > 0;
+      
+      // validate city not empty.
+      const city = <HTMLInputElement> question.querySelector(".cf-address-city input");
+      const cityValid = city.value.length > 0;
+
+      // validate state.
+      const state  = <HTMLInputElement> question.querySelector(".cf-address-state input");
+      const stateValid = state.value.length > 0;
+
+      // validate zip code.
+      const zipCode = <HTMLInputElement> question.querySelector(".cf-address-zip input");
+
+      const hasEmptyInputs = !(addressLine1Valid && cityValid && stateValid && zipCode.value.length > 0);
+      const hasValidZip = zipCode.value.length == 5 && /^\d+$/.test(zipCode.value);
+      
+      isValid = !hasEmptyInputs && hasValidZip;
+    }
     return isValid;
   }
 
@@ -129,23 +170,18 @@ class ValidationController {
   /** Validates that first and last name are not empty. */
   validateNameQuestion(): boolean {
     let isValid = true;
-    // for each name question {
-    // Validate first name.
-    //      if (first name is empty) { 
-    //          // show error message
-    //          // isValid = false;
-    //      } else {
-    //          // hide error message
-    //      }
-    //
-    // Validate last name.
-    //      if (last name is empty) { 
-    //          // show error message
-    //          // isValid = false;
-    //      } else {
-    //          // hide error message
-    //      }
-    // }
+    const nameQuestions = Array.from(document.querySelectorAll('.cf-question-name'));
+    for (const question of nameQuestions) {
+      // validate first name is not empty.
+      const firstNameInput = <HTMLInputElement> question.querySelector(".cf-name-first input");
+      const firstNameValid = firstNameInput.value.length > 0;
+      
+      // validate last name is not empty.
+      const lastNameInput = <HTMLInputElement> question.querySelector(".cf-name-last input");
+      const lastNameValid = lastNameInput.value.length > 0;
+      
+      isValid = firstNameValid && lastNameValid;
+    }
     return isValid;
   }
 }

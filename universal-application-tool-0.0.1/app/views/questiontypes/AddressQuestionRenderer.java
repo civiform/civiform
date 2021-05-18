@@ -37,6 +37,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRenderer {
                         messages.at(MessageKey.ADDRESS_PLACEHOLDER_STREET.getKeyName()))
                     .setValue(addressQuestion.getStreetValue().orElse(""))
                     .setFieldErrors(messages, addressQuestion.getStreetErrors())
+                    .addReferenceClass("cf-address-street-1")
                     .getContainer(),
                 /** Second line of address entry: Address line 2 AKA apartment, unit, etc. */
                 FieldWithLabel.input()
@@ -45,6 +46,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRenderer {
                     .setPlaceholderText(
                         messages.at(MessageKey.ADDRESS_PLACEHOLDER_LINE_2.getKeyName()))
                     .setValue(addressQuestion.getLine2Value().orElse(""))
+                    .addReferenceClass("cf-address-street-2")
                     .getContainer(),
                 /** Third line of address entry: City, State, Zip */
                 div()
@@ -54,6 +56,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRenderer {
                             .setFieldName(addressQuestion.getCityPath().toString())
                             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_CITY.getKeyName()))
                             .setValue(addressQuestion.getCityValue().orElse(""))
+                            .addReferenceClass("cf-address-city")
                             .setFieldErrors(messages, addressQuestion.getCityErrors())
                             .getContainer(),
                         FieldWithLabel.input()
@@ -61,6 +64,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRenderer {
                             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STATE.getKeyName()))
                             .setValue(addressQuestion.getStateValue().orElse(""))
                             .setFieldErrors(messages, addressQuestion.getStateErrors())
+                            .addReferenceClass("cf-address-state")
                             .getContainer(),
                         FieldWithLabel.input()
                             .setFieldName(addressQuestion.getZipPath().toString())
@@ -68,6 +72,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRenderer {
                                 messages.at(MessageKey.ADDRESS_LABEL_ZIPCODE.getKeyName()))
                             .setValue(addressQuestion.getZipValue().orElse(""))
                             .setFieldErrors(messages, addressQuestion.getZipErrors())
+                            .addReferenceClass("cf-address-zip")
                             .getContainer()));
 
     return renderInternal(messages, addressQuestionFormContent);

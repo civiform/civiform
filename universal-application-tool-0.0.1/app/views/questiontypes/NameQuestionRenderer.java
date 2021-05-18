@@ -33,6 +33,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRenderer {
                     .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
                     .setValue(nameQuestion.getFirstNameValue().orElse(""))
                     .setFieldErrors(messages, nameQuestion.getFirstNameErrors())
+                    .addReferenceClass("cf-name-first")
                     .getContainer())
             .with(
                 FieldWithLabel.input()
@@ -46,6 +47,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRenderer {
                     .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
                     .setValue(nameQuestion.getLastNameValue().orElse(""))
                     .setFieldErrors(messages, nameQuestion.getLastNameErrors())
+                    .addReferenceClass("cf-name-last")
                     .getContainer());
 
     return renderInternal(messages, nameQuestionFormContent);
