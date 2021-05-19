@@ -11,11 +11,11 @@ public final class BaseStyles {
   // CiviForm color classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
-  public static final String BG_CIVIFORM_WHITE = "bg-civiformWhite";
+  public static final String BG_CIVIFORM_WHITE = "bg-civiform-white";
 
-  public static final String BG_SEATTLE_BLUE = "bg-seattleBlue";
-  public static final String TEXT_SEATTLE_BLUE = "text-seattleBlue";
-  public static final String BORDER_SEATTLE_BLUE = "border-seattleBlue";
+  public static final String BG_SEATTLE_BLUE = "bg-seattle-blue";
+  public static final String TEXT_SEATTLE_BLUE = "text-seattle-blue";
+  public static final String BORDER_SEATTLE_BLUE = "border-seattle-blue";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Form style classes

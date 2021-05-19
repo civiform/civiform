@@ -12,6 +12,7 @@ import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.MessageKey;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.LinkElement;
@@ -42,11 +43,14 @@ public final class ApplicantProgramConfirmationView extends BaseHtmlView {
 
     ContainerTag content =
         div()
-            .with(h2(messages.at("content.confirmed", programTitle, applicationId)))
+            .with(
+                h2(
+                    messages.at(
+                        MessageKey.CONTENT_CONFIRMED.getKeyName(), programTitle, applicationId)))
             .with(
                 new LinkElement()
                     .setHref(routes.ApplicantProgramsController.index(applicantId).url())
-                    .setText(messages.at("content.returnToDash"))
+                    .setText(messages.at(MessageKey.LINK_RETURN_TO_DASH.getKeyName()))
                     .asAnchorText());
 
     if (banner.isPresent()) {
