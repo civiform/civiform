@@ -2,7 +2,10 @@ package controllers.admin;
 
 import auth.Authorizers;
 import controllers.CiviFormController;
+<<<<<<< HEAD
 import forms.translation.EnumeratorQuestionTranslationForm;
+=======
+>>>>>>> d7305a1549187deef0630049410cd31e4c989fdf
 import forms.translation.MultiOptionQuestionTranslationForm;
 import forms.translation.QuestionTranslationForm;
 import java.util.Locale;
