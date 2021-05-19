@@ -38,12 +38,12 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
     content.with(
         new LinkElement()
             .setHref(routes.LoginController.idcsLoginWithRedirect(Optional.of(redirectTo)).url())
-            .setText(messages.at(MessageKey.CONTENT_DO_SIGN_IN.getKeyName()))
+            .setText(messages.at(MessageKey.LINK_DO_SIGN_IN.getKeyName()))
             .asButton());
     content.with(
         new LinkElement()
             .setHref(redirectTo)
-            .setText(messages.at(MessageKey.CONTENT_DONT_SIGN_IN.getKeyName()))
+            .setText(messages.at(MessageKey.LINK_DONT_SIGN_IN.getKeyName()))
             .asButton());
 
     bundle.addMainContent(
