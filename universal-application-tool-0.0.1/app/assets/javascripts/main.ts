@@ -156,12 +156,12 @@ function removeLineClamp(event: Event) {
 
 function attachLineClampListeners() {
   const applicationCardDescriptions = Array.from(document.querySelectorAll('.cf-application-card-description'));
-  applicationCardDescriptions.forEach(el => el.addEventListener("click", removeLineClamp));  
+  applicationCardDescriptions.forEach(el => el.addEventListener("click", removeLineClamp));
 }
 
 window.addEventListener('load', (event) => {
   attachDropdown("create-question-button");
-  
+
   attachLineClampListeners();
 
   // Submit button is disabled by default until program block edit form is changed

@@ -27,7 +27,7 @@ public final class ReferenceClasses {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Applicant reference classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
-  
+
   public static final String APPLICANT_QUESTION_HELP_TEXT = "cf-applicant-question-help-text";
   public static final String APPLICANT_QUESTION_TEXT = "cf-applicant-question-text";
   public static final String APPLICANT_SUMMARY_ROW = "cf-applicant-summary-row";
