@@ -1,5 +1,12 @@
 /** The validation controller provides basic client-side validation of form fields. */
 class ValidationController {
+  static readonly ADDRESS_QUESTION_CLASS = '.cf-question-address';
+  static readonly ENUMERATOR_QUESTION_CLASS = '.cf-question-enumerator';
+  static readonly NAME_QUESTION_CLASS = '.cf-question-name';
+
+  static readonly ENUMERATOR_DELETE_TEMPLATE = 'enumerator-delete-template';
+  static readonly BLOCK_SUBMIT_BUTTON_ID = 'cf-block-submit';
+
   isAddressValid = true;
   isEnumeratorValid = true;
   isNameValid = true;
@@ -18,7 +25,7 @@ class ValidationController {
 
   /** Add listeners to all address inputs to update validation on changes. */
   private addAddressListeners() {
-    const addressQuestions = Array.from(document.querySelectorAll('.cf-question-address'));
+    const addressQuestions = Array.from(document.querySelectorAll(ValidationController.ADDRESS_QUESTION_CLASS));
     for (const question of addressQuestions) {
       const addressInputs = Array.from(question.querySelectorAll('input'));
       // Whenever an input changes we need to revalidate.
@@ -31,10 +38,10 @@ class ValidationController {
   /** Add listeners to all enumerator inputs to update validation on changes. */
   private addEnumeratorListeners() {
     // Assumption: There is only ever zero or one enumerators per block.
-    const enumeratorQuestion = document.querySelector('.cf-question-enumerator');
+    const enumeratorQuestion = document.querySelector(ValidationController.ENUMERATOR_QUESTION_CLASS);
     if (enumeratorQuestion) {
       const enumeratorInputs = Array.from(enumeratorQuestion.querySelectorAll('input'))
-        .filter(item => item.id !== 'enumerator-delete-template');
+        .filter(item => item.id !== ValidationController.ENUMERATOR_DELETE_TEMPLATE);
       // Whenever an input changes we need to revalidate.
       enumeratorInputs.forEach(enumeratorInput => {
         enumeratorInput.addEventListener("input", () => {
@@ -68,7 +75,7 @@ class ValidationController {
 
   /** Add listeners to all address inputs to update validation on changes. */
   private addNameListeners() {
-    const addressQuestions = Array.from(document.querySelectorAll('.cf-question-name'));
+    const addressQuestions = Array.from(document.querySelectorAll(ValidationController.NAME_QUESTION_CLASS));
     for (const question of addressQuestions) {
       const addressInputs = Array.from(question.querySelectorAll('input'));
       // Whenever an input changes we need to revalidate.
@@ -107,9 +114,8 @@ class ValidationController {
 
   updateSubmitButton() {
     const submitEnabled = this.isValid();
-    console.log("Setting submit button to: " + (submitEnabled ? "enabled" : "disabled"));
     const submitButton =
-      <HTMLInputElement>document.getElementById('cf-block-submit');
+      <HTMLInputElement>document.getElementById(ValidationController.BLOCK_SUBMIT_BUTTON_ID);
     if (submitButton) {
       submitButton.disabled = !submitEnabled;
     }
@@ -118,7 +124,7 @@ class ValidationController {
   /** Validates all address questions. */
   validateAddressQuestion(): boolean {
     let isValid = true;
-    const addressQuestions = Array.from(document.querySelectorAll('.cf-question-address'));
+    const addressQuestions = Array.from(document.querySelectorAll(ValidationController.ADDRESS_QUESTION_CLASS));
     for (const question of addressQuestions) {
       // validate address line 1 not empty.
       const addressLine1 = <HTMLInputElement>question.querySelector(".cf-address-street-1 input");
@@ -146,10 +152,10 @@ class ValidationController {
   /** Validates that there are no empty or indentical items in the list. */
   validateEnumeratorQuestion(): boolean {
     let isValid = true;
-    const enumeratorQuestion = document.querySelector('.cf-question-enumerator');
+    const enumeratorQuestion = document.querySelector(ValidationController.ENUMERATOR_QUESTION_CLASS);
     if (enumeratorQuestion) {
       const enumeratorInputValues = Array.from(enumeratorQuestion.querySelectorAll('input'))
-        .filter(item => item.id !== 'enumerator-delete-template')
+        .filter(item => item.id !== ValidationController.ENUMERATOR_DELETE_TEMPLATE)
         .map(item => item.value);
 
       // validate that there are no empty inputs.
@@ -170,7 +176,7 @@ class ValidationController {
   /** Validates that first and last name are not empty. */
   validateNameQuestion(): boolean {
     let isValid = true;
-    const nameQuestions = Array.from(document.querySelectorAll('.cf-question-name'));
+    const nameQuestions = Array.from(document.querySelectorAll(ValidationController.NAME_QUESTION_CLASS));
     for (const question of nameQuestions) {
       // validate first name is not empty.
       const firstNameInput = <HTMLInputElement>question.querySelector(".cf-name-first input");
