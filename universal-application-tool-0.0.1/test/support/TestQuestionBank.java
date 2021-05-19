@@ -16,6 +16,7 @@ import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
+import services.question.types.DateQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
@@ -71,6 +72,7 @@ public class TestQuestionBank {
     return new ImmutableMap.Builder<QuestionType, Question>()
         .put(QuestionType.ADDRESS, applicantAddress())
         .put(QuestionType.CHECKBOX, applicantKitchenTools())
+        .put(QuestionType.DATE, applicantDate())
         .put(QuestionType.DROPDOWN, applicantIceCream())
         .put(QuestionType.FILEUPLOAD, applicantFile())
         .put(QuestionType.NAME, applicantName())
@@ -90,6 +92,11 @@ public class TestQuestionBank {
   public Question applicantKitchenTools() {
     return questionCache.computeIfAbsent(
         QuestionEnum.APPLICANT_KITCHEN_TOOLS, this::applicantKitchenTools);
+  }
+
+  // Date
+  public Question applicantDate() {
+    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_BIRTHDATE, this::applicantDate);
   }
 
   // Dropdown
@@ -275,6 +282,18 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  // Date
+  private Question applicantDate(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new DateQuestionDefinition(
+            "applicant birth date",
+            Optional.empty(),
+            "The applicant birth date",
+            LocalizedStrings.of(Locale.US, "What is your birthdate?"),
+            LocalizedStrings.of(Locale.US, "This is sample help text."));
+    return maybeSave(definition);
+  }
+
   // Deeply Nested Number
   private Question applicantHouseholdMemberJobIncome(QuestionEnum ignore) {
     Question householdMemberJobs = applicantHouseholdMemberJobs();
@@ -368,6 +387,7 @@ public class TestQuestionBank {
     APPLICANT_JUGGLING_NUMBER,
     APPLICANT_KITCHEN_TOOLS,
     APPLICANT_NAME,
+    APPLICANT_BIRTHDATE,
     APPLICANT_SEASON
   }
 }

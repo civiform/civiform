@@ -44,6 +44,11 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
   }
 
   @Override
+  protected void adaptForRole(UatProfile profile, ImmutableSet<Roles> roles) {
+    // not needed
+  }
+
+  @Override
   public UatProfileData mergeUatProfile(UatProfile uatProfile, OidcProfile oidcProfile) {
     String locale = oidcProfile.getAttribute("user_locale", String.class);
     ImmutableList.Builder<CompletionStage<Void>> dbOperations =

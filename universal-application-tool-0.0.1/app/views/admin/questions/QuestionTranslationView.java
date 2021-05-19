@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -32,34 +33,16 @@ public class QuestionTranslationView extends TranslationFormView {
   }
 
   public Content render(Http.Request request, Locale locale, QuestionDefinition question) {
-    return render(
-        request,
-        locale,
-        question,
-        question.getQuestionText().maybeGet(locale),
-        question.getQuestionHelpText().maybeGet(locale),
-        Optional.empty());
+    return render(request, locale, question, Optional.empty());
   }
 
   public Content renderErrors(
       Http.Request request, Locale locale, QuestionDefinition invalidQuestion, String errors) {
-    return render(
-        request,
-        locale,
-        invalidQuestion,
-        invalidQuestion.getQuestionText().maybeGet(locale),
-        invalidQuestion.getQuestionHelpText().maybeGet(locale),
-        Optional.of(errors));
+    return render(request, locale, invalidQuestion, Optional.of(errors));
   }
 
   private Content render(
-      Http.Request request,
-      Locale locale,
-      QuestionDefinition question,
-      Optional<String> existingQuestionText,
-      Optional<String> existingQuestionHelpText,
-      Optional<String> errors) {
-
+      Http.Request request, Locale locale, QuestionDefinition question, Optional<String> errors) {
     String formAction =
         controllers.admin.routes.AdminQuestionTranslationsController.update(
                 question.getId(), locale.toLanguageTag())
@@ -68,11 +51,7 @@ public class QuestionTranslationView extends TranslationFormView {
     // Add form fields for questions.
     ImmutableList.Builder<FieldWithLabel> inputFields = ImmutableList.builder();
     inputFields.addAll(
-        questionTextFields(
-            question.getQuestionText().getDefault(),
-            question.getQuestionHelpText().getDefault(),
-            existingQuestionText,
-            existingQuestionHelpText));
+        questionTextFields(locale, question.getQuestionText(), question.getQuestionHelpText()));
     inputFields.addAll(getQuestionTypeSpecificFields(question, locale));
 
     ContainerTag form = renderTranslationForm(request, locale, formAction, inputFields.build());
@@ -117,23 +96,28 @@ public class QuestionTranslationView extends TranslationFormView {
   }
 
   private ImmutableList<FieldWithLabel> questionTextFields(
-      String defaultText,
-      String defaultHelpText,
-      Optional<String> questionText,
-      Optional<String> questionHelpText) {
-    return ImmutableList.of(
+      Locale locale, LocalizedStrings questionText, LocalizedStrings helpText) {
+    ImmutableList.Builder<FieldWithLabel> fields = ImmutableList.builder();
+    fields.add(
         FieldWithLabel.input()
             .setId("localize-question-text")
             .setFieldName("questionText")
-            .setLabelText(defaultText)
+            .setLabelText(questionText.getDefault())
             .setPlaceholderText("Question text")
-            .setValue(questionText),
-        FieldWithLabel.input()
-            .setId("localize-question-help-text")
-            .setFieldName("questionHelpText")
-            .setLabelText(defaultHelpText)
-            .setPlaceholderText("Question help text")
-            .setValue(questionHelpText));
+            .setValue(questionText.maybeGet(locale)));
+
+    // Help text is optional - only show if present.
+    if (!helpText.isEmpty()) {
+      fields.add(
+          FieldWithLabel.input()
+              .setId("localize-question-help-text")
+              .setFieldName("questionHelpText")
+              .setLabelText(helpText.getDefault())
+              .setPlaceholderText("Question help text")
+              .setValue(helpText.maybeGet(locale)));
+    }
+
+    return fields.build();
   }
 
   private ImmutableList<FieldWithLabel> multiOptionQuestionFields(

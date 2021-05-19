@@ -35,7 +35,10 @@ public class QuestionTranslationForm {
       QuestionDefinition toUpdate, Locale updatedLocale) throws UnsupportedQuestionTypeException {
     QuestionDefinitionBuilder builder = new QuestionDefinitionBuilder(toUpdate);
     builder.updateQuestionText(updatedLocale, questionText);
-    builder.updateQuestionHelpText(updatedLocale, questionHelpText);
+    // Help text is optional
+    if (!questionHelpText.isBlank()) {
+      builder.updateQuestionHelpText(updatedLocale, questionHelpText);
+    }
     return builder;
   }
 }

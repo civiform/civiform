@@ -69,7 +69,9 @@ public class ProgramRepository {
       this.updateProgramSync(updatedDraft);
       return updatedDraft;
     } else {
-      Transaction transaction = ebeanServer.beginTransaction(TxScope.requiresNew());
+      // Inside a question update, this will be a savepoint rather than a
+      // full transaction.  Otherwise it will be creating a new transaction.
+      Transaction transaction = ebeanServer.beginTransaction(TxScope.required());
       try {
         // Program -> builder -> back to program in order to clear any metadata stored
         // in the program (for example, version information).

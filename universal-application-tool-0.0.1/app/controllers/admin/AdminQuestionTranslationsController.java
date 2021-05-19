@@ -92,6 +92,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
                     buildFormFromRequest(request, toUpdate.getQuestionType());
                 QuestionDefinition definitionWithUpdates =
                     form.builderWithUpdates(toUpdate, updatedLocale).build();
+
                 ErrorAnd<QuestionDefinition, CiviFormError> result =
                     questionService.update(definitionWithUpdates);
 
