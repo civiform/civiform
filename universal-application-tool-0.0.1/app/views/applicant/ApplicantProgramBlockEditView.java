@@ -99,15 +99,6 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   private Tag renderBlockWithSubmitForm(Params params) {
-    String reviewUrl =
-        routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
-            .url();
-    Tag gotoReviewButton =
-        a().attr(HREF, reviewUrl)
-            .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
-            .withId("review-application-button")
-            .withClasses(ApplicantStyles.BUTTON_REVIEW);
-
     if (params.block().isFileUpload()) {
       return renderFileUploadBlockSubmitForm(params);
     }
@@ -117,6 +108,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             .url();
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder().setMessages(params.messages()).build();
+
     return form()
         .withAction(formAction)
         .withMethod(HttpVerbs.POST)
@@ -125,20 +117,9 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             each(
                 params.block().getQuestions(),
                 question -> renderQuestion(question, rendererParams)))
-        .with(
-            div()
-                .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
-                // An empty div to take up the space to the left of the buttons.
-                .with(div().withClasses(Styles.FLEX_GROW))
-                .with(gotoReviewButton)
-                .with(
-                    submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName()))
-                        .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)));
+        .with(renderBottomNavButtons(params));
   }
 
-  // TODO(natsid): Render review and next buttons the same way we do in the other render submit form
-  // method above.
-  //  Preferably do this via a refactor that shares code.
   private Tag renderFileUploadBlockSubmitForm(Params params) {
     String key =
         String.format(
@@ -159,6 +140,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             .setMessages(params.messages())
             .setSignedFileUploadRequest(signedRequest)
             .build();
+
     return form()
         .attr(ENCTYPE, "multipart/form-data")
         .withAction(signedRequest.actionLink())
@@ -167,11 +149,35 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             each(
                 params.block().getQuestions(),
                 question -> renderQuestion(question, rendererParams)))
-        .with(submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName())));
+        .with(renderBottomNavButtons(params));
   }
 
   private Tag renderQuestion(ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     return applicantQuestionRendererFactory.getRenderer(question).render(params);
+  }
+
+  private Tag renderBottomNavButtons(Params params) {
+    return div()
+        .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
+        // An empty div to take up the space to the left of the buttons.
+        .with(div().withClasses(Styles.FLEX_GROW))
+        .with(renderReviewButton(params))
+        .with(renderNextButton(params));
+  }
+
+  private Tag renderReviewButton(Params params) {
+    String reviewUrl =
+        routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
+            .url();
+    return a().attr(HREF, reviewUrl)
+        .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
+        .withId("review-application-button")
+        .withClasses(ApplicantStyles.BUTTON_REVIEW);
+  }
+
+  private Tag renderNextButton(Params params) {
+    return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName()))
+        .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT);
   }
 
   @AutoValue
