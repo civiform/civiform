@@ -35,8 +35,15 @@ public class AdfsProfileAdapter extends UatProfileAdapter {
 
   @Override
   protected ImmutableSet<Roles> roles(UatProfile profile, OidcProfile oidcProfile) {
-    JSONArray groups = oidcProfile.getAttribute("group", JSONArray.class);
-    if (groups.contains(this.adminGroupName)) {
+    if (this.isGlobalAdmin(oidcProfile)) {
+      return ImmutableSet.of(Roles.ROLE_UAT_ADMIN);
+    }
+    return ImmutableSet.of(Roles.ROLE_PROGRAM_ADMIN);
+  }
+
+  @Override
+  protected void adaptForRole(UatProfile profile, ImmutableSet<Roles> roles) {
+    if (roles.contains(Roles.ROLE_UAT_ADMIN)) {
       profile
           .getAccount()
           .thenAccept(
@@ -45,15 +52,22 @@ public class AdfsProfileAdapter extends UatProfileAdapter {
                 account.save();
               })
           .join();
-      return ImmutableSet.of(Roles.ROLE_UAT_ADMIN);
     }
-    return ImmutableSet.of(Roles.ROLE_PROGRAM_ADMIN);
+  }
+
+  private boolean isGlobalAdmin(OidcProfile profile) {
+    JSONArray groups = profile.getAttribute("group", JSONArray.class);
+    return groups.contains(this.adminGroupName);
   }
 
   @Override
   public UatProfileData uatProfileFromOidcProfile(OidcProfile profile) {
+    if (this.isGlobalAdmin(profile)) {
+      return mergeUatProfile(
+          profileFactory.wrapProfileData(profileFactory.createNewAdmin()), profile);
+    }
     return mergeUatProfile(
-        profileFactory.wrapProfileData(profileFactory.createNewAdmin()), profile);
+        profileFactory.wrapProfileData(profileFactory.createNewProgramAdmin()), profile);
   }
 
   @Override

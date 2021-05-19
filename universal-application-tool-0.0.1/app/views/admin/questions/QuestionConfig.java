@@ -95,6 +95,7 @@ public class QuestionConfig {
             .getContainer();
       case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended - no options
+      case DATE: // fallthrough intended
       default:
         return div();
     }

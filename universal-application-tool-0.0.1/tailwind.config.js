@@ -9,12 +9,10 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        orange: colors.orange,
-        teal: colors.teal,
-        civiformWhite: {
+        'civiform-white': {
           DEFAULT: '#f8f9fa',
         },
-        seattleBlue: {
+        'seattle-blue': {
           DEFAULT: '#113f9f',
         },
       },

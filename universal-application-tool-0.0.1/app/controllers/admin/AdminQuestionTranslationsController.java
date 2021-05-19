@@ -101,7 +101,10 @@ public class AdminQuestionTranslationsController extends CiviFormController {
                 QuestionDefinition toUpdate = readOnlyQuestionService.getQuestionDefinition(id);
                 QuestionDefinitionBuilder builder = new QuestionDefinitionBuilder(toUpdate);
                 builder.updateQuestionText(updatedLocale, questionText);
-                builder.updateQuestionHelpText(updatedLocale, questionHelpText);
+                // Help text is optional
+                if (!questionHelpText.isBlank()) {
+                  builder.updateQuestionHelpText(updatedLocale, questionHelpText);
+                }
                 QuestionDefinition definitionWithUpdates = builder.build();
                 ErrorAnd<QuestionDefinition, CiviFormError> result =
                     questionService.update(definitionWithUpdates);

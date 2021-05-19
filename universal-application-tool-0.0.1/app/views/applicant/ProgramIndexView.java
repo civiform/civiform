@@ -137,13 +137,13 @@ public class ProgramIndexView extends BaseHtmlView {
         new LinkElement()
             .setId(baseId + "-external-link")
             .setStyles(Styles.TEXT_XS, Styles.UNDERLINE)
-            .setText(messages.at(MessageKey.CONTENT_PROGRAM_DETAILS.getKeyName()))
+            .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
             .setHref(routes.RedirectController.programByName(program.slug()).url())
             .asAnchorText();
     ContainerTag programData =
         div()
             .withId(baseId + "-data")
-            .withClasses(Styles.PX_4)
+            .withClasses(Styles.W_FULL, Styles.PX_4, Styles.OVERFLOW_AUTO)
             .with(title, description, externalLink);
 
     String applyUrl =
@@ -156,14 +156,21 @@ public class ProgramIndexView extends BaseHtmlView {
             .withClasses(ReferenceClasses.APPLY_BUTTON, ApplicantStyles.BUTTON_PROGRAM_APPLY);
 
     ContainerTag applyDiv =
-        div(applyButton).withClasses(Styles.ABSOLUTE, Styles.BOTTOM_6, Styles.W_FULL);
+        div(applyButton)
+            .withClasses(
+                Styles.W_FULL, Styles.MB_6, Styles.FLEX_GROW, Styles.FLEX, Styles.ITEMS_END);
     return div()
         .withId(baseId)
         .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
         .with(
+            // The visual bar at the top of each program card.
             div()
                 .withClasses(
-                    BaseStyles.BG_SEATTLE_BLUE, Styles.H_3, Styles.ROUNDED_T_XL, Styles.MB_4))
+                    Styles.BLOCK,
+                    Styles.FLEX_SHRINK_0,
+                    BaseStyles.BG_SEATTLE_BLUE,
+                    Styles.ROUNDED_T_XL,
+                    Styles.H_3))
         .with(programData)
         .with(applyDiv);
   }
