@@ -103,7 +103,7 @@ public class ProgramIndexView extends BaseHtmlView {
       Locale preferredLocale) {
     return div()
         .withId("main-content")
-        .withClasses(Styles.M_10)
+        .withClasses(Styles.MX_6, Styles.MY_4, StyleUtils.responsiveSmall(Styles.M_10))
         .with(
             h2().withText(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName()))
                 .withClasses(Styles.BLOCK, Styles.MB_4, Styles.TEXT_LG, Styles.FONT_SEMIBOLD))
