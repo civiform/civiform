@@ -13,6 +13,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.HtmlBundle;
@@ -84,8 +85,10 @@ public class QuestionTranslationView extends TranslationFormView {
       case RADIO_BUTTON:
         MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) question;
         return multiOptionQuestionFields(multiOption.getOptions(), toUpdate);
+      case ENUMERATOR:
+        EnumeratorQuestionDefinition enumerator = (EnumeratorQuestionDefinition) question;
+        return enumeratorQuestionFields(enumerator.getEntityType(), toUpdate);
       case ADDRESS: // fallthrough intended
-      case ENUMERATOR: // fallthrough intended
       case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended
       case NUMBER: // fallthrough intended
@@ -131,5 +134,15 @@ public class QuestionTranslationView extends TranslationFormView {
                     .setPlaceholderText("Answer option")
                     .setValue(option.optionText().translations().getOrDefault(toUpdate, "")))
         .collect(toImmutableList());
+  }
+
+  private ImmutableList<FieldWithLabel> enumeratorQuestionFields(
+      LocalizedStrings entityType, Locale toUpdate) {
+    return ImmutableList.of(
+        FieldWithLabel.input()
+            .setFieldName("entityType")
+            .setLabelText(entityType.getDefault())
+            .setPlaceholderText("What are we enumerating?")
+            .setValue(entityType.maybeGet(toUpdate).orElse("")));
   }
 }

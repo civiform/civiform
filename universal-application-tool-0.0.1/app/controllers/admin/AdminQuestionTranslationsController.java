@@ -2,6 +2,7 @@ package controllers.admin;
 
 import auth.Authorizers;
 import controllers.CiviFormController;
+import forms.translation.EnumeratorQuestionTranslationForm;
 import forms.translation.MultiOptionQuestionTranslationForm;
 import forms.translation.QuestionTranslationForm;
 import java.util.Locale;
@@ -125,8 +126,12 @@ public class AdminQuestionTranslationsController extends CiviFormController {
             .form(MultiOptionQuestionTranslationForm.class)
             .bindFromRequest(request)
             .get();
+      case ENUMERATOR:
+        return formFactory
+            .form(EnumeratorQuestionTranslationForm.class)
+            .bindFromRequest(request)
+            .get();
       case ADDRESS: // fallthrough intended
-      case ENUMERATOR: // fallthrough intended
       case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended
       case NUMBER: // fallthrough intended
