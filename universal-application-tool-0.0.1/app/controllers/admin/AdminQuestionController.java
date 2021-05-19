@@ -1,13 +1,17 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 import auth.Authorizers;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
+import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -19,6 +23,7 @@ import play.mvc.Result;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
+import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.InvalidQuestionTypeException;
@@ -26,6 +31,7 @@ import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
@@ -239,13 +245,13 @@ public class AdminQuestionController extends CiviFormController {
     QuestionDefinitionBuilder updated = questionForm.getBuilder();
 
     if (existing.isPresent()) {
-      updated = mergeLocalizations(existing.get(), updated, questionForm);
+      mergeLocalizations(existing.get(), updated, questionForm);
     }
 
     return updated;
   }
 
-  private QuestionDefinitionBuilder mergeLocalizations(
+  private void mergeLocalizations(
       QuestionDefinition existing, QuestionDefinitionBuilder updated, QuestionForm questionForm) {
     // Instead of overwriting all localizations, we just want to overwrite the one
     // for the default locale (the only one possible to change in the edit form).
@@ -259,7 +265,37 @@ public class AdminQuestionController extends CiviFormController {
             .updateTranslation(
                 LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionHelpText()));
 
-    return updated;
+    if (existing.getQuestionType().isMultiOptionType()) {
+      mergeLocalizationsForOptions(
+          updated,
+          (MultiOptionQuestionDefinition) existing,
+          ((MultiOptionQuestionForm) questionForm).getOptions());
+    }
+  }
+
+  private void mergeLocalizationsForOptions(
+      QuestionDefinitionBuilder updated,
+      MultiOptionQuestionDefinition existing,
+      List<String> updatedDefaultOptions) {
+
+    ImmutableMap<String, QuestionOption> existingTranslations =
+        existing.getOptions().stream()
+            .collect(toImmutableMap(o -> o.optionText().getDefault(), o -> o));
+    // If there are existing translations for an unchanged default locale string, keep those
+    // translations. If we do not have existing translations for a given string, create
+    // a new, empty set of translations.
+    ImmutableList.Builder<QuestionOption> updatedOptionsBuilder = ImmutableList.builder();
+    for (int i = 0; i < updatedDefaultOptions.size(); i++) {
+      String updatedDefaultOption = updatedDefaultOptions.get(i);
+      if (existingTranslations.containsKey(updatedDefaultOption)) {
+        updatedOptionsBuilder.add(
+            existingTranslations.get(updatedDefaultOption).toBuilder().setId(i).build());
+      } else {
+        updatedOptionsBuilder.add(
+            QuestionOption.create(i, LocalizedStrings.withDefaultValue(updatedDefaultOption)));
+      }
+    }
+    updated.setQuestionOptions(updatedOptionsBuilder.build());
   }
 
   private String invalidQuestionTypeMessage(String questionType) {

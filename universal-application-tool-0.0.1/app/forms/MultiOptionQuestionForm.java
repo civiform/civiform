@@ -3,7 +3,6 @@ package forms;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
 import services.LocalizedStrings;
@@ -14,8 +13,6 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
 public abstract class MultiOptionQuestionForm extends QuestionForm {
-  // TODO(https://github.com/seattle-uat/civiform/issues/354): Handle other locales besides
-  //  Locale.US
   // Caution: This must be a mutable list type, or else Play's form binding cannot add elements to
   // the list. This means the constructors MUST set this field to a mutable List type, NOT
   // ImmutableList.
@@ -38,8 +35,8 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.options = new ArrayList<>();
 
     try {
-      // TODO: this will need revisiting to support multiple locales
-      // https://github.com/seattle-uat/civiform/issues/778
+      // The first time a question is created, we only create for the default locale. The admin can
+      // localize the options later.
       if (qd.getSupportedLocales().contains(LocalizedStrings.DEFAULT_LOCALE)) {
         List<String> optionStrings =
             qd.getOptionsForLocale(LocalizedStrings.DEFAULT_LOCALE).stream()
@@ -109,13 +106,13 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
       predicateBuilder.setMaxChoicesAllowed(getMaxChoicesAllowed());
     }
 
-    // TODO: this will need to be revisited to support multiple locales
     ImmutableList.Builder<QuestionOption> questionOptions = ImmutableList.builder();
-    long optionCount = 1L;
+    long optionIndex = 0L;
 
+    // Note: the question edit form only sets or updates the default locale.
     for (String optionText : getOptions()) {
       questionOptions.add(
-          QuestionOption.create(optionCount++, LocalizedStrings.of(Locale.US, optionText)));
+          QuestionOption.create(optionIndex++, LocalizedStrings.withDefaultValue(optionText)));
     }
 
     return super.getBuilder()

@@ -1,6 +1,7 @@
 package views.admin.questions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.ContainerTag;
@@ -11,6 +12,8 @@ import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
+import services.question.QuestionOption;
+import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -44,12 +47,14 @@ public class QuestionTranslationView extends TranslationFormView {
         controllers.admin.routes.AdminQuestionTranslationsController.update(
                 question.getId(), locale.toLanguageTag())
             .url();
-    ContainerTag form =
-        renderTranslationForm(
-            request,
-            locale,
-            formAction,
-            formFields(locale, question.getQuestionText(), question.getQuestionHelpText()));
+
+    // Add form fields for questions.
+    ImmutableList.Builder<FieldWithLabel> inputFields = ImmutableList.builder();
+    inputFields.addAll(
+        questionTextFields(locale, question.getQuestionText(), question.getQuestionHelpText()));
+    inputFields.addAll(getQuestionTypeSpecificFields(question, locale));
+
+    ContainerTag form = renderTranslationForm(request, locale, formAction, inputFields.build());
 
     String title = "Manage Question Translations";
 
@@ -71,7 +76,26 @@ public class QuestionTranslationView extends TranslationFormView {
         .url();
   }
 
-  private ImmutableList<FieldWithLabel> formFields(
+  private ImmutableList<FieldWithLabel> getQuestionTypeSpecificFields(
+      QuestionDefinition question, Locale toUpdate) {
+    switch (question.getQuestionType()) {
+      case CHECKBOX: // fallthrough intended
+      case DROPDOWN: // fallthrough intended
+      case RADIO_BUTTON:
+        MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) question;
+        return multiOptionQuestionFields(multiOption.getOptions(), toUpdate);
+      case ADDRESS: // fallthrough intended
+      case ENUMERATOR: // fallthrough intended
+      case FILEUPLOAD: // fallthrough intended
+      case NAME: // fallthrough intended
+      case NUMBER: // fallthrough intended
+      case TEXT: // fallthrough intended
+      default:
+        return ImmutableList.of();
+    }
+  }
+
+  private ImmutableList<FieldWithLabel> questionTextFields(
       Locale locale, LocalizedStrings questionText, LocalizedStrings helpText) {
     ImmutableList.Builder<FieldWithLabel> fields = ImmutableList.builder();
     fields.add(
@@ -94,5 +118,18 @@ public class QuestionTranslationView extends TranslationFormView {
     }
 
     return fields.build();
+  }
+
+  private ImmutableList<FieldWithLabel> multiOptionQuestionFields(
+      ImmutableList<QuestionOption> options, Locale toUpdate) {
+    return options.stream()
+        .map(
+            option ->
+                FieldWithLabel.input()
+                    .setFieldName("options[]")
+                    .setLabelText(option.optionText().getDefault())
+                    .setPlaceholderText("Answer option")
+                    .setValue(option.optionText().translations().getOrDefault(toUpdate, "")))
+        .collect(toImmutableList());
   }
 }
