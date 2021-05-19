@@ -27,11 +27,12 @@ public final class ReferenceClasses {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Applicant reference classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
-
+  
   public static final String APPLICANT_QUESTION_HELP_TEXT = "cf-applicant-question-help-text";
   public static final String APPLICANT_QUESTION_TEXT = "cf-applicant-question-text";
   public static final String APPLICANT_SUMMARY_ROW = "cf-applicant-summary-row";
   public static final String APPLICATION_CARD = "cf-application-card";
+  public static final String APPLICATION_CARD_DESCRIPTION = "cf-application-card-description";
 
   public static final String APPLY_BUTTON = "cf-apply-button";
   public static final String CONTINUE_BUTTON = "cf-continue-button";

@@ -80,7 +80,6 @@ function addNewInput(inputTemplateId: string, addButtonId: string, divContainerI
  * elements must be contained in a parent div.
  */
 function removeInput(event: Event) {
-
   // Get the parent div, which contains the input field and remove button, and remove it.
   const optionDiv = (event.target as Element).parentNode;
   optionDiv.parentNode.removeChild(optionDiv);
@@ -144,8 +143,26 @@ function removeExistingEnumeratorField(event: Event) {
   enumeratorFieldDiv.appendChild(deletedEntityInput);
 }
 
+/**
+ * Remove line-clamp from div on click.
+ * 
+ * NOTE: This is in no way discoverable, but it's just a temporary fix until we have a program
+ * landing page.
+ */
+function removeLineClamp(event: Event) {
+  const target = event.target as HTMLElement;
+  target.classList.add("line-clamp-none");
+}
+
+function attachLineClampListeners() {
+  const applicationCardDescriptions = Array.from(document.querySelectorAll('.cf-application-card-description'));
+  applicationCardDescriptions.forEach(el => el.addEventListener("click", removeLineClamp));  
+}
+
 window.addEventListener('load', (event) => {
   attachDropdown("create-question-button");
+  
+  attachLineClampListeners();
 
   // Submit button is disabled by default until program block edit form is changed
   const blockEditForm = document.getElementById("block-edit-form");
