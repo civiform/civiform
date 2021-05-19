@@ -15,6 +15,9 @@ class PreviewController {
   static readonly DEFAULT_QUESTION_HELP_TEXT = "Sample question help text";
   static readonly DEFAULT_ENTITY_TYPE = "Sample repeated entity type";
 
+  static readonly THIS_REGEX = /(\$this(\.parent)*)/g;
+  static readonly THIS_REPLACEMENT_STRING = '<span class="bg-yellow-300">$1</span>';
+
   constructor() {
     const textInput =
       document.getElementById(PreviewController.QUESTION_TEXT_INPUT_ID);
@@ -100,8 +103,9 @@ class PreviewController {
 
   static setTextContent(selector: string, text: string) {
     const previewDiv = document.querySelector(selector);
+    text = text.replace(PreviewController.THIS_REGEX, PreviewController.THIS_REPLACEMENT_STRING);
     if (previewDiv) {
-      previewDiv.textContent = text;
+      previewDiv.innerHTML = text;
     }
   }
 
