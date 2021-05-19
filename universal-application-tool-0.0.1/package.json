@@ -13,5 +13,7 @@
     "@tsconfig/recommended": "^1.0.1",
     "tailwindcss": "^2.0.3"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@tailwindcss/line-clamp": "^0.2.0"
+  }
 }

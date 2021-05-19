@@ -117,14 +117,14 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 .with(
                     div(questionIdentifier)
                         .withClasses(
-                            Styles.TEXT_GRAY_400, Styles.TEXT_XL, Styles.MB_2, "line-clamp-3"))
+                            Styles.TEXT_GRAY_400, Styles.TEXT_XL, Styles.MB_2, Styles.LINE_CLAMP_3))
                 .with(
                     div(answerData.questionDefinition().getName())
-                        .withClasses(Styles.TEXT_GRAY_400, Styles.TEXT_BASE, "line-clamp-3")))
+                        .withClasses(Styles.TEXT_GRAY_400, Styles.TEXT_BASE, Styles.LINE_CLAMP_3)))
         .with(p().withClasses(Styles.W_8))
         .with(
             div(answerData.answerText())
-                .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_BASE, "line-clamp-3"))
+                .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_BASE, Styles.LINE_CLAMP_3))
         .with(p().withClasses(Styles.FLEX_GROW))
         .with(
             div("Answered on " + date)

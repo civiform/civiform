@@ -148,7 +148,7 @@ public class VersionListView extends BaseHtmlView {
                 Styles.TEXT_GRAY_700,
                 Styles.TEXT_BASE,
                 Styles.MB_8,
-                "line-clamp-3" /* TODO: Add tailwind plugin for line clamping. */);
+                Styles.LINE_CLAMP_3);
 
     Tag bottomContent =
         div(

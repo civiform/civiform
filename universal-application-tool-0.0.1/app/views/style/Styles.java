@@ -3011,4 +3011,13 @@ public final class Styles {
   public static final String ANIMATE_PING = "animate-ping";
   public static final String ANIMATE_PULSE = "animate-pulse";
   public static final String ANIMATE_BOUNCE = "animate-bounce";
+
+  // Line clamp support via @tailwindcss/line-clamp
+  public static final String LINE_CLAMP_1 = "line_clamp-1";
+  public static final String LINE_CLAMP_2 = "line_clamp-2";
+  public static final String LINE_CLAMP_3 = "line_clamp-3";
+  public static final String LINE_CLAMP_4 = "line_clamp-4";
+  public static final String LINE_CLAMP_5 = "line_clamp-5";
+  public static final String LINE_CLAMP_6 = "line_clamp-6";
+  public static final String LINE_CLAMP_NONE = "line_clamp-none";
 }
