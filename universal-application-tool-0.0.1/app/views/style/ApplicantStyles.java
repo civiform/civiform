@@ -86,16 +86,19 @@ public final class ApplicantStyles {
           Styles.BG_TRANSPARENT,
           BaseStyles.TEXT_SEATTLE_BLUE,
           Styles.BORDER,
-          BaseStyles.BORDER_SEATTLE_BLUE);
+          BaseStyles.BORDER_SEATTLE_BLUE,
+          StyleUtils.hover(Styles.BG_BLUE_100));
+
+  private static final String BUTTON_BASE_OUTLINE_UPPERCASE =
+      StyleUtils.joinStyles(
+          BUTTON_BASE_OUTLINE, Styles.UPPERCASE, Styles.FONT_SEMIBOLD, Styles.W_MIN, Styles.PX_8);
 
   public static final String BUTTON_PROGRAM_APPLY =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_SM, Styles.MX_AUTO);
   public static final String BUTTON_BLOCK_NEXT =
-      StyleUtils.joinStyles(
-          BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MR_0, Styles.ML_AUTO);
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE);
   public static final String BUTTON_REVIEW =
-      StyleUtils.joinStyles(
-          BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MR_0, Styles.ML_AUTO);
+      StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_UPPERCASE, Styles.TEXT_BASE);
   public static final String BUTTON_SUBMIT_APPLICATION =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MX_AUTO);
   public static final String BUTTON_ENUMERATOR_ADD_ENTITY =
@@ -108,6 +111,5 @@ public final class ApplicantStyles {
           Styles.NORMAL_CASE,
           Styles.FONT_NORMAL,
           Styles.JUSTIFY_SELF_END,
-          Styles.SELF_CENTER,
-          StyleUtils.hover(Styles.BG_BLUE_100));
+          Styles.SELF_CENTER);
 }

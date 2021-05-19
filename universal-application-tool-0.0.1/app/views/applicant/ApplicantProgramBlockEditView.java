@@ -49,15 +49,6 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             .with(div(renderBlockWithSubmitForm(params)).withClasses(Styles.MY_8))
             .withClasses(Styles.MY_8, Styles.M_AUTO);
 
-    String reviewUrl =
-        routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
-            .url();
-    Tag gotoReviewButton =
-        a().attr(HREF, reviewUrl)
-            .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
-            .withId("review-application-button")
-            .withClasses(ApplicantStyles.BUTTON_REVIEW);
-
     HtmlBundle bundle =
         layout
             .getBundle()
@@ -65,7 +56,6 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             .addMainContent(
                 layout.renderProgramApplicationTitleAndProgressIndicator(
                     params.programTitle(), params.blockIndex(), params.totalBlockCount(), false),
-                gotoReviewButton,
                 blockDiv)
             .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
@@ -109,6 +99,15 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   private Tag renderBlockWithSubmitForm(Params params) {
+    String reviewUrl =
+        routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
+            .url();
+    Tag gotoReviewButton =
+        a().attr(HREF, reviewUrl)
+            .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
+            .withId("review-application-button")
+            .withClasses(ApplicantStyles.BUTTON_REVIEW);
+
     if (params.block().isFileUpload()) {
       return renderFileUploadBlockSubmitForm(params);
     }
@@ -127,10 +126,19 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
                 params.block().getQuestions(),
                 question -> renderQuestion(question, rendererParams)))
         .with(
-            submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName()))
-                .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT));
+            div()
+                .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
+                // An empty div to take up the space to the left of the buttons.
+                .with(div().withClasses(Styles.FLEX_GROW))
+                .with(gotoReviewButton)
+                .with(
+                    submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName()))
+                        .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)));
   }
 
+  // TODO(natsid): Render review and next buttons the same way we do in the other render submit form
+  // method above.
+  //  Preferably do this via a refactor that shares code.
   private Tag renderFileUploadBlockSubmitForm(Params params) {
     String key =
         String.format(
