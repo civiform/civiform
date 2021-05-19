@@ -46,7 +46,7 @@ class ValidationController {
       let mutationObserver = new MutationObserver((records: MutationRecord[]) => {
         for (const record of records) {
           for (const newNode of Array.from(record.addedNodes)) {
-            const newInputs = Array.from((<Element> newNode).querySelectorAll('input'));
+            const newInputs = Array.from((<Element>newNode).querySelectorAll('input'));
             newInputs.forEach(newInput => {
               newInput.addEventListener("input", () => {
                 this.onEnumeratorChanged();
@@ -57,7 +57,7 @@ class ValidationController {
         this.onEnumeratorChanged();
       });
 
-      mutationObserver.observe(enumeratorQuestion, 
+      mutationObserver.observe(enumeratorQuestion,
         {
           childList: true,
           subtree: true,
@@ -121,23 +121,23 @@ class ValidationController {
     const addressQuestions = Array.from(document.querySelectorAll('.cf-question-address'));
     for (const question of addressQuestions) {
       // validate address line 1 not empty.
-      const addressLine1 = <HTMLInputElement> question.querySelector(".cf-address-street-1 input");
+      const addressLine1 = <HTMLInputElement>question.querySelector(".cf-address-street-1 input");
       const addressLine1Valid = addressLine1.value.length > 0;
-      
+
       // validate city not empty.
-      const city = <HTMLInputElement> question.querySelector(".cf-address-city input");
+      const city = <HTMLInputElement>question.querySelector(".cf-address-city input");
       const cityValid = city.value.length > 0;
 
       // validate state.
-      const state  = <HTMLInputElement> question.querySelector(".cf-address-state input");
+      const state = <HTMLInputElement>question.querySelector(".cf-address-state input");
       const stateValid = state.value.length > 0;
 
       // validate zip code.
-      const zipCode = <HTMLInputElement> question.querySelector(".cf-address-zip input");
+      const zipCode = <HTMLInputElement>question.querySelector(".cf-address-zip input");
 
       const hasEmptyInputs = !(addressLine1Valid && cityValid && stateValid && zipCode.value.length > 0);
       const hasValidZip = zipCode.value.length == 5 && /^\d+$/.test(zipCode.value);
-      
+
       isValid = !hasEmptyInputs && hasValidZip;
     }
     return isValid;
@@ -173,13 +173,13 @@ class ValidationController {
     const nameQuestions = Array.from(document.querySelectorAll('.cf-question-name'));
     for (const question of nameQuestions) {
       // validate first name is not empty.
-      const firstNameInput = <HTMLInputElement> question.querySelector(".cf-name-first input");
+      const firstNameInput = <HTMLInputElement>question.querySelector(".cf-name-first input");
       const firstNameValid = firstNameInput.value.length > 0;
-      
+
       // validate last name is not empty.
-      const lastNameInput = <HTMLInputElement> question.querySelector(".cf-name-last input");
+      const lastNameInput = <HTMLInputElement>question.querySelector(".cf-name-last input");
       const lastNameValid = lastNameInput.value.length > 0;
-      
+
       isValid = firstNameValid && lastNameValid;
     }
     return isValid;

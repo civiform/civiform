@@ -66,7 +66,10 @@ public final class ApplicantStyles {
   /** Base styles for buttons with a solid background color. */
   private static final String BUTTON_BASE_SOLID =
       StyleUtils.joinStyles(
-          BUTTON_BASE, BaseStyles.BG_SEATTLE_BLUE, Styles.TEXT_WHITE, Styles.ROUNDED_FULL,
+          BUTTON_BASE,
+          BaseStyles.BG_SEATTLE_BLUE,
+          Styles.TEXT_WHITE,
+          Styles.ROUNDED_FULL,
           StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400));
 
   /** Base styles for semibold, upper case buttons with a solid background. */
