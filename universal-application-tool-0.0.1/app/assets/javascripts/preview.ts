@@ -15,6 +15,8 @@ class PreviewController {
   static readonly DEFAULT_QUESTION_HELP_TEXT = "Sample question help text";
   static readonly DEFAULT_ENTITY_TYPE = "Sample repeated entity type";
 
+  // This regex is used to match $this and $this.parent (etc) strings so we can
+  // highlight them in the question preview.
   static readonly THIS_REGEX = /(\$this(?:\.parent)*)/g;
 
   constructor() {
