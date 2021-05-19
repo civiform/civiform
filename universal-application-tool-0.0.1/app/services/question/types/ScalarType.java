@@ -1,7 +1,5 @@
 package services.question.types;
 
-import java.util.Optional;
-
 /**
  * An enum defining the scalar types supported by {@link QuestionDefinition}s and {@link
  * services.applicant.ApplicantService}. Individual inputs in the applicant forms generally
@@ -9,16 +7,7 @@ import java.util.Optional;
  * models.Applicant} JSON column and serialized using {@link services.applicant.ApplicantData}.
  */
 public enum ScalarType {
-  LONG(long.class),
-  STRING(String.class);
-
-  private final Class classOf;
-
-  ScalarType(Class classOf) {
-    this.classOf = classOf;
-  }
-
-  public Optional<Class> getClassFor() {
-    return Optional.ofNullable(classOf);
-  }
+  DATE,
+  LONG,
+  STRING;
 }

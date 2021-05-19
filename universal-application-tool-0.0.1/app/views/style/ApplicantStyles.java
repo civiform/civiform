@@ -22,7 +22,9 @@ public final class ApplicantStyles {
           Styles.P_6,
           StyleUtils.responsiveSmall(Styles.P_10));
 
-  public static final String CIVIFORM_LOGO = StyleUtils.joinStyles(Styles.TEXT_2XL);
+  public static final String CIVIFORM_LOGO =
+      StyleUtils.joinStyles(
+          Styles.TEXT_2XL, Styles.OPACITY_75, StyleUtils.hover(Styles.OPACITY_100));
   public static final String LINK_LOGOUT =
       StyleUtils.joinStyles(
           Styles.TEXT_BASE,
@@ -70,6 +72,7 @@ public final class ApplicantStyles {
           BaseStyles.BG_SEATTLE_BLUE,
           Styles.TEXT_WHITE,
           Styles.ROUNDED_FULL,
+          StyleUtils.hover(Styles.BG_BLUE_700),
           StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400));
 
   /** Base styles for semibold, upper case buttons with a solid background. */
@@ -89,6 +92,9 @@ public final class ApplicantStyles {
   public static final String BUTTON_PROGRAM_APPLY =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_SM, Styles.MX_AUTO);
   public static final String BUTTON_BLOCK_NEXT =
+      StyleUtils.joinStyles(
+          BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MR_0, Styles.ML_AUTO);
+  public static final String BUTTON_REVIEW =
       StyleUtils.joinStyles(
           BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MR_0, Styles.ML_AUTO);
   public static final String BUTTON_SUBMIT_APPLICATION =

@@ -34,6 +34,8 @@ public final class ReferenceClasses {
   public static final String APPLICATION_CARD = "cf-application-card";
 
   public static final String APPLY_BUTTON = "cf-apply-button";
+  public static final String CONTINUE_BUTTON = "cf-continue-button";
+  public static final String SUBMIT_BUTTON = "cf-submit-button";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Common reference classes
