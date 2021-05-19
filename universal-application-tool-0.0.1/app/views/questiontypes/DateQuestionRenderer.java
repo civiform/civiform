@@ -18,6 +18,11 @@ public class DateQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
+  public String getReferenceClass() {
+    return "cf-question-date";
+  }
+
+  @Override
   public Tag render(ApplicantQuestionRendererParams params) {
     DateQuestion dateQuestion = question.createDateQuestion();
 
