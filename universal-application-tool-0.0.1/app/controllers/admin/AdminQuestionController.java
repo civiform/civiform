@@ -7,6 +7,7 @@ import auth.Authorizers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
+import forms.EnumeratorQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
@@ -265,12 +266,29 @@ public class AdminQuestionController extends CiviFormController {
             .updateTranslation(
                 LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionHelpText()));
 
+    if (existing.getQuestionType().equals(QuestionType.ENUMERATOR)) {
+      mergeLocalizationsForEntityType(
+          updated,
+          (EnumeratorQuestionDefinition) existing,
+          ((EnumeratorQuestionForm) questionForm).getEntityType());
+    }
+
     if (existing.getQuestionType().isMultiOptionType()) {
       mergeLocalizationsForOptions(
           updated,
           (MultiOptionQuestionDefinition) existing,
           ((MultiOptionQuestionForm) questionForm).getOptions());
     }
+  }
+
+  private void mergeLocalizationsForEntityType(
+      QuestionDefinitionBuilder updated,
+      EnumeratorQuestionDefinition existing,
+      String updatedEntityType) {
+    updated.setEntityType(
+        existing
+            .getEntityType()
+            .updateTranslation(LocalizedStrings.DEFAULT_LOCALE, updatedEntityType));
   }
 
   private void mergeLocalizationsForOptions(
