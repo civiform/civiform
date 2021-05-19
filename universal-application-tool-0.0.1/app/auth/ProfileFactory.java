@@ -5,7 +5,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import models.Account;
 import models.Applicant;
-import org.pac4j.core.profile.UserProfile;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.DatabaseExecutionContext;
 import repository.ProgramRepository;
@@ -66,7 +65,7 @@ public class ProfileFactory {
     return wrapProfileData(new UatProfileData(applicant.getAccount().id));
   }
 
-  public UserProfile createNewProgramAdmin() {
+  public UatProfileData createNewProgramAdmin() {
     UatProfileData p = create(Roles.ROLE_PROGRAM_ADMIN);
     wrapProfileData(p)
         .getAccount()

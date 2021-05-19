@@ -106,6 +106,7 @@ export class AdminQuestions {
   async addAllNonSingleBlockQuestionTypes(questionNamePrefix: string) {
     await this.addAddressQuestion(questionNamePrefix + 'address');
     await this.addCheckboxQuestion(questionNamePrefix + 'checkbox', ['op1', 'op2', 'op3', 'op4']);
+    await this.addDateQuestion(questionNamePrefix + 'date');
     await this.addDropdownQuestion(questionNamePrefix + 'dropdown', ['op1', 'op2', 'op3']);
     await this.addNameQuestion(questionNamePrefix + 'name');
     await this.addNumberQuestion(questionNamePrefix + 'number');
@@ -113,6 +114,7 @@ export class AdminQuestions {
     await this.addTextQuestion(questionNamePrefix + 'text');
     return [questionNamePrefix + 'address',
     questionNamePrefix + 'checkbox',
+    questionNamePrefix + 'date',
     questionNamePrefix + 'dropdown',
     questionNamePrefix + 'name',
     questionNamePrefix + 'number',
@@ -162,6 +164,25 @@ export class AdminQuestions {
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-address-question');
+
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
+
+    await this.page.click('text=Create');
+
+    await this.expectAdminQuestionsPage();
+
+    await this.expectDraftQuestionExist(questionName, questionText);
+  }
+
+  async addDateQuestion(questionName: string,
+                           description = 'date description',
+                           questionText = 'date question text',
+                           helpText = 'date question help text',
+                           enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
+    await this.gotoAdminQuestionsPage();
+    await this.page.click('#create-question-button');
+
+    await this.page.click('#create-date-question');
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 

@@ -379,6 +379,9 @@ public class ApplicantServiceImpl implements ApplicantService {
               .orElseThrow(() -> new PathNotInBlockException(block.getId(), currentPath));
       questionPaths.add(currentPath.parentPath());
       switch (type) {
+        case DATE:
+          applicantData.putDate(currentPath, update.value());
+          break;
         case STRING:
           applicantData.putString(currentPath, update.value());
           break;

@@ -42,7 +42,6 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(Styles.FLEX, Styles.FLEX_WRAP, Styles.GAP_4);
   public static final String PROGRAM_CARD =
       StyleUtils.joinStyles(
-          Styles.RELATIVE,
           Styles.INLINE_BLOCK,
           Styles.W_FULL,
           StyleUtils.responsiveSmall(Styles.W_72),
@@ -51,7 +50,10 @@ public final class ApplicantStyles {
           Styles.ROUNDED_XL,
           Styles.SHADOW_MD,
           Styles.BORDER,
-          Styles.BORDER_GRAY_200);
+          Styles.BORDER_GRAY_200,
+          Styles.FLEX,
+          Styles.FLEX_COL,
+          Styles.GAP_4);
 
   public static final String QUESTION_TEXT =
       StyleUtils.joinStyles(Styles.TEXT_BLACK, Styles.TEXT_XL, Styles.FONT_BOLD, Styles.MB_2);
