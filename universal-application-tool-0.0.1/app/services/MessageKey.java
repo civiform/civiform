@@ -27,8 +27,10 @@ public enum MessageKey {
   BUTTON_UNTRANSLATED_SUBMIT("button.untranslatedSubmit"),
   CONTENT_CIVIFORM_DESCRIPTION_1("content.description1"),
   CONTENT_CIVIFORM_DESCRIPTION_2("content.description2"),
+  CONTENT_CONFIRMED("content.confirmed"),
   CONTENT_GET_BENEFITS("content.benefits"),
   CONTENT_NO_CATEGORY("content.noCategory"),
+  CONTENT_PLEASE_SIGN_IN("content.pleaseCreateAccount"),
   CONTENT_PROGRAM_DETAILS("content.programDetails"),
   CONTENT_SELECT_LANGUAGE("content.selectLanguage"),
   ENUMERATOR_BUTTON_ADD_ENTITY("button.addEntity"),
@@ -36,6 +38,9 @@ public enum MessageKey {
   ENUMERATOR_PLACEHOLDER_ENTITY_NAME("placeholder.entityName"),
   ENUMERATOR_VALIDATION_ENTITY_REQUIRED("validation.entityNameRequired"),
   ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME("validation.duplicateEntityName"),
+  LINK_DO_SIGN_IN("link.doCreateAccount"),
+  LINK_DONT_SIGN_IN("link.dontCreateAccount"),
+  LINK_RETURN_TO_DASH("link.returnToDash"),
   LINK_VIEW_APPLICATIONS("link.viewApplications"),
   MULTI_SELECT_VALIDATION_TOO_FEW("validation.tooFewSelections"),
   MULTI_SELECT_VALIDATION_TOO_MANY("validation.tooManySelections"),
@@ -54,10 +59,7 @@ public enum MessageKey {
   TITLE_PROGRAMS("title.programs"),
   TOAST_APPLICATION_SAVED("toast.applicationSaved"),
   TOAST_LOCALE_NOT_SUPPORTED("toast.localeNotSupported"),
-  TOAST_PROGRAM_COMPLETED("toast.programCompleted"),
-  CONTENT_PLEASE_SIGN_IN("content.pleaseCreateAccount"),
-  CONTENT_DO_SIGN_IN("content.doCreateAccount"),
-  CONTENT_DONT_SIGN_IN("content.dontCreateAccount");
+  TOAST_PROGRAM_COMPLETED("toast.programCompleted");
 
   private final String keyName;
 
