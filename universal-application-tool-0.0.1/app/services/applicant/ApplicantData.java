@@ -8,6 +8,11 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.TypeRef;
 import com.jayway.jsonpath.spi.mapper.MappingException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -115,6 +120,20 @@ public class ApplicantData {
       return read(path, Object.class).isPresent();
     } catch (JsonPathTypeMismatchException e) {
       return false;
+    }
+  }
+
+  /**
+   * Stores the date string as a millisecond timestamp at the given {@link Path}.
+   *
+   * <p>This method requires the input string to be in "yyyy-MM-dd" format.
+   */
+  public void putDate(Path path, String dateString) {
+    if (dateString.isEmpty()) {
+      putNull(path);
+    } else {
+      LocalDate localDate = LocalDate.parse(dateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+      put(path, localDate.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli());
     }
   }
 
@@ -278,6 +297,10 @@ public class ApplicantData {
     }
   }
 
+  public Optional<LocalDate> readDate(Path path) {
+    return readLong(path)
+        .map(epoch -> Instant.ofEpochMilli(epoch).atZone(ZoneId.systemDefault()).toLocalDate());
+  }
   /**
    * Attempt to read a string at the given path. Returns {@code Optional#empty} if the path does not
    * exist or a value other than String is found.
