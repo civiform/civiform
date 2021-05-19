@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import auth.AccountNonexistentException;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -138,6 +139,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 }
                 if (cause instanceof ProgramNotFoundException) {
                   return notFound(cause.toString());
+                }
+                if (cause instanceof AccountNonexistentException) {
+                  return redirect(org.pac4j.play.routes.LogoutController.logout());
                 }
                 throw new RuntimeException(cause);
               }
@@ -321,7 +325,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Throwable cause = throwable.getCause();
       if (cause instanceof SecurityException) {
         return unauthorized();
-      } else if (cause instanceof ApplicantNotFoundException
+      }
+      if (cause instanceof AccountNonexistentException) {
+        return redirect(org.pac4j.play.routes.LogoutController.logout());
+      }
+      if (cause instanceof ApplicantNotFoundException
           || cause instanceof IllegalArgumentException
           || cause instanceof PathNotInBlockException
           || cause instanceof ProgramBlockNotFoundException

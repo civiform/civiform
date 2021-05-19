@@ -37,6 +37,11 @@ public class ProfileController extends Controller {
       return CompletableFuture.completedFuture(ok(profileView.renderNoProfile()));
     }
 
+    if (!profileUtils.validUatProfile(maybeProfile.get())) {
+      return CompletableFuture.completedFuture(
+          redirect(org.pac4j.play.routes.LogoutController.logout()));
+    }
+
     return maybeProfile
         .get()
         .getApplicant()

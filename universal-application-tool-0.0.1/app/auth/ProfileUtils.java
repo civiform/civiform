@@ -2,6 +2,7 @@ package auth;
 
 import com.google.common.base.Preconditions;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
@@ -39,5 +40,18 @@ public class ProfileUtils {
       return Optional.empty();
     }
     return Optional.of(profileFactory.wrapProfileData(p.get()));
+  }
+
+  /** Return true if the account referenced by the profile exists. */
+  public boolean validUatProfile(UatProfile profile) {
+    try {
+      profile.getAccount().join();
+      return true;
+    } catch (CompletionException e) {
+      if (e.getCause() instanceof AccountNonexistentException) {
+        return false;
+      }
+      throw new RuntimeException(e);
+    }
   }
 }

@@ -2,6 +2,7 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.AccountNonexistentException;
 import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
@@ -72,7 +73,13 @@ public class AdminApplicationController extends CiviFormController {
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     } catch (CompletionException e) {
-      return unauthorized();
+      if (e.getCause() instanceof SecurityException) {
+        return unauthorized();
+      }
+      if (e.getCause() instanceof AccountNonexistentException) {
+        return redirect(org.pac4j.play.routes.LogoutController.logout());
+      }
+      return badRequest();
     }
   }
 
@@ -84,6 +91,14 @@ public class AdminApplicationController extends CiviFormController {
       throw new UnsupportedOperationException("Not yet implemented.");
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
+    } catch (CompletionException e) {
+      if (e.getCause() instanceof SecurityException) {
+        return unauthorized();
+      }
+      if (e.getCause() instanceof AccountNonexistentException) {
+        return redirect(org.pac4j.play.routes.LogoutController.logout());
+      }
+      return badRequest();
     }
   }
 
@@ -97,7 +112,13 @@ public class AdminApplicationController extends CiviFormController {
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     } catch (CompletionException e) {
-      return unauthorized();
+      if (e.getCause() instanceof SecurityException) {
+        return unauthorized();
+      }
+      if (e.getCause() instanceof AccountNonexistentException) {
+        return redirect(org.pac4j.play.routes.LogoutController.logout());
+      }
+      return badRequest();
     }
     Optional<Application> applicationMaybe =
         this.applicationRepository.getApplication(applicationId).toCompletableFuture().join();
@@ -130,7 +151,13 @@ public class AdminApplicationController extends CiviFormController {
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     } catch (CompletionException e) {
-      return unauthorized();
+      if (e.getCause() instanceof SecurityException) {
+        return unauthorized();
+      }
+      if (e.getCause() instanceof AccountNonexistentException) {
+        return redirect(org.pac4j.play.routes.LogoutController.logout());
+      }
+      return badRequest();
     }
     try {
       ImmutableList<Application> applications = programService.getProgramApplications(programId);

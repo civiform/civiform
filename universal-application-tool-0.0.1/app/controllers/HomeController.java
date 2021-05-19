@@ -47,6 +47,10 @@ public class HomeController extends Controller {
 
     UatProfile profile = maybeProfile.get();
 
+    if (!profileUtils.validUatProfile(profile)) {
+      return CompletableFuture.completedFuture(
+          redirect(org.pac4j.play.routes.LogoutController.logout()));
+    }
     if (profile.isUatAdmin()) {
       return CompletableFuture.completedFuture(
           redirect(controllers.admin.routes.AdminProgramController.index()));

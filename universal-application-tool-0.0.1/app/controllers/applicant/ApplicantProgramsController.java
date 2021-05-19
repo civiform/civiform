@@ -3,6 +3,7 @@ package controllers.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import auth.AccountNonexistentException;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
 import java.util.Optional;
@@ -72,6 +73,9 @@ public class ApplicantProgramsController extends CiviFormController {
                 if (ex.getCause() instanceof SecurityException) {
                   return unauthorized();
                 }
+                if (ex.getCause() instanceof AccountNonexistentException) {
+                  return redirect(org.pac4j.play.routes.LogoutController.logout());
+                }
               }
               throw new RuntimeException(ex);
             });
@@ -113,6 +117,9 @@ public class ApplicantProgramsController extends CiviFormController {
                 Throwable cause = ex.getCause();
                 if (cause instanceof SecurityException) {
                   return unauthorized();
+                }
+                if (cause instanceof AccountNonexistentException) {
+                  return redirect(org.pac4j.play.routes.LogoutController.logout());
                 }
                 if (cause instanceof ProgramNotFoundException) {
                   return badRequest(cause.toString());

@@ -52,6 +52,9 @@ public class TrustedIntermediaryController {
     if (uatProfile.isEmpty()) {
       return unauthorized();
     }
+    if (!profileUtils.validUatProfile(uatProfile.get())) {
+      return redirect(org.pac4j.play.routes.LogoutController.logout());
+    }
     Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
         userRepository.getTrustedIntermediaryGroup(uatProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
@@ -70,6 +73,9 @@ public class TrustedIntermediaryController {
     Optional<UatProfile> uatProfile = profileUtils.currentUserProfile(request);
     if (uatProfile.isEmpty()) {
       return unauthorized();
+    }
+    if (!profileUtils.validUatProfile(uatProfile.get())) {
+      return redirect(org.pac4j.play.routes.LogoutController.logout());
     }
     Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
         userRepository.getTrustedIntermediaryGroup(uatProfile.get());

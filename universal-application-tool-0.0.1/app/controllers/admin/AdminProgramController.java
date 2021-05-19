@@ -57,6 +57,9 @@ public class AdminProgramController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result index(Request request) {
     Optional<UatProfile> profileMaybe = profileUtils.currentUserProfile(request);
+    if (!profileUtils.validUatProfile(profileMaybe.get())) {
+      return redirect(org.pac4j.play.routes.LogoutController.logout());
+    }
     return ok(listView.render(this.service.getActiveAndDraftPrograms(), request, profileMaybe));
   }
 

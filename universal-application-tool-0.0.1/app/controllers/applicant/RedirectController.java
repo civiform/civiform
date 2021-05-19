@@ -43,6 +43,10 @@ public class RedirectController extends CiviFormController {
       return CompletableFuture.completedFuture(
           redirect(routes.CallbackController.callback("GuestClient")));
     }
+    if (!profileUtils.validUatProfile(profile.get())) {
+      return CompletableFuture.completedFuture(
+          redirect(org.pac4j.play.routes.LogoutController.logout()));
+    }
     CompletableFuture<Applicant> applicant = profile.get().getApplicant();
     CompletableFuture<Program> program = programRepository.getForSlug(programName);
     return CompletableFuture.allOf(applicant, program)
@@ -66,6 +70,10 @@ public class RedirectController extends CiviFormController {
       // should definitely never happen.
       return CompletableFuture.completedFuture(
           badRequest("You are not signed in - you cannot perform this action."));
+    }
+    if (!profileUtils.validUatProfile(profile.get())) {
+      return CompletableFuture.completedFuture(
+          redirect(org.pac4j.play.routes.LogoutController.logout()));
     }
     return profile
         .get()

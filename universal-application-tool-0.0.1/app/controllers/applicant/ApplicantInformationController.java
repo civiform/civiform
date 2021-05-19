@@ -2,6 +2,7 @@ package controllers.applicant;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import auth.AccountNonexistentException;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
@@ -82,6 +83,9 @@ public final class ApplicantInformationController extends CiviFormController {
                 if (ex.getCause() instanceof SecurityException) {
                   return unauthorized();
                 }
+                if (ex.getCause() instanceof AccountNonexistentException) {
+                  return redirect(org.pac4j.play.routes.LogoutController.logout());
+                }
               }
               throw new RuntimeException(ex);
             });
@@ -129,6 +133,9 @@ public final class ApplicantInformationController extends CiviFormController {
                 }
                 if (ex.getCause() instanceof ApplicantNotFoundException) {
                   return badRequest(ex.getCause().getMessage());
+                }
+                if (ex.getCause() instanceof AccountNonexistentException) {
+                  return redirect(org.pac4j.play.routes.LogoutController.logout());
                 }
               }
               throw new RuntimeException(ex);

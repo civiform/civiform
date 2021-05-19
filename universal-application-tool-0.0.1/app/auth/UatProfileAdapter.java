@@ -101,6 +101,12 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
         // This will be the most common.
         existingProfile = Optional.of(profileFactory.wrap(existingApplicant.get()));
       } else {
+        if (!profileUtils.validUatProfile(existingProfile.get())) {
+          LOG.warn(
+              "The account (id: %d) referenced in the browser cookie is nonexistent.",
+              existingProfile.get().getId());
+          return Optional.empty();
+        }
         // Merge the two applicants and prefer the newer one.
         // For account, use the existing account and ignore the guest account.
         Applicant guestApplicant = existingProfile.get().getApplicant().join();

@@ -33,7 +33,9 @@ public class ProgramAdminController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.PROGRAM_ADMIN)
   public Result index(Http.Request request) {
     Optional<UatProfile> profile = profileUtils.currentUserProfile(request);
-    profile.get();
+    if (!profileUtils.validUatProfile(profile.get())) {
+      return redirect(org.pac4j.play.routes.LogoutController.logout());
+    }
     ImmutableList<String> administeredPrograms =
         profile.get().getAccount().join().getAdministeredProgramNames();
     ActiveAndDraftPrograms activeAndDraftPrograms = this.programService.getActiveAndDraftPrograms();
