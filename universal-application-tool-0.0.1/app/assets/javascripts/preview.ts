@@ -26,7 +26,7 @@ class PreviewController {
       textInput.addEventListener('input', PreviewController.onTextChanged, false);
       let text = (<HTMLInputElement>textInput).value;
       if (text.length > 0) {
-        PreviewController.setChildrenTextNodes(PreviewController.QUESTION_TEXT_CLASS, text);
+        PreviewController.setTextAndHighlightEnumeratorReferences(PreviewController.QUESTION_TEXT_CLASS, text);
       }
     }
     const helpTextInput =
@@ -35,7 +35,7 @@ class PreviewController {
       helpTextInput.addEventListener('input', PreviewController.onHelpTextChanged, false);
       let helpText = (<HTMLInputElement>helpTextInput).value;
       if (helpText.length > 0) {
-        PreviewController.setChildrenTextNodes(PreviewController.QUESTION_HELP_TEXT_CLASS, helpText);
+        PreviewController.setTextAndHighlightEnumeratorReferences(PreviewController.QUESTION_HELP_TEXT_CLASS, helpText);
       }
     }
     const enumeratorSelector = document.getElementById(PreviewController.QUESTION_ENUMERATOR_INPUT_ID);
@@ -67,7 +67,7 @@ class PreviewController {
       text = PreviewController.DEFAULT_QUESTION_TEXT;
     }
 
-    PreviewController.setChildrenTextNodes(
+    PreviewController.setTextAndHighlightEnumeratorReferences(
       PreviewController.QUESTION_TEXT_CLASS,
       text);
   }
@@ -78,7 +78,7 @@ class PreviewController {
       text = PreviewController.DEFAULT_QUESTION_HELP_TEXT;
     }
 
-    PreviewController.setChildrenTextNodes(
+    PreviewController.setTextAndHighlightEnumeratorReferences(
       PreviewController.QUESTION_HELP_TEXT_CLASS,
       text);
   }
@@ -110,7 +110,7 @@ class PreviewController {
    * This will only work when the selected div is only supposed to contain
    * text and has no other child nodes.
    */
-  static setChildrenTextNodes(selector: string, text: string) {
+  static setTextAndHighlightEnumeratorReferences(selector: string, text: string) {
     const previewDiv = document.querySelector(selector);
     const pieces = text.split(PreviewController.THIS_REGEX);
 
