@@ -137,11 +137,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 if (cause instanceof SecurityException) {
                   return unauthorized();
                 }
-                if (cause instanceof ProgramNotFoundException) {
-                  return notFound(cause.toString());
-                }
                 if (cause instanceof AccountNonexistentException) {
                   return redirect(org.pac4j.play.routes.LogoutController.logout());
+                }
+                if (cause instanceof ProgramNotFoundException) {
+                  return notFound(cause.toString());
                 }
                 throw new RuntimeException(cause);
               }

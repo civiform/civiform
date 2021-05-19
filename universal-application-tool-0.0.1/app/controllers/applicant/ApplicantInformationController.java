@@ -131,11 +131,11 @@ public final class ApplicantInformationController extends CiviFormController {
                 if (ex.getCause() instanceof SecurityException) {
                   return unauthorized();
                 }
-                if (ex.getCause() instanceof ApplicantNotFoundException) {
-                  return badRequest(ex.getCause().getMessage());
-                }
                 if (ex.getCause() instanceof AccountNonexistentException) {
                   return redirect(org.pac4j.play.routes.LogoutController.logout());
+                }
+                if (ex.getCause() instanceof ApplicantNotFoundException) {
+                  return badRequest(ex.getCause().getMessage());
                 }
               }
               throw new RuntimeException(ex);
