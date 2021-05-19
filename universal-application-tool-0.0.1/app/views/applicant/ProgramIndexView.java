@@ -130,7 +130,7 @@ public class ProgramIndexView extends BaseHtmlView {
     ContainerTag description =
         div()
             .withId(baseId + "-description")
-            .withClasses(Styles.TEXT_XS, Styles.MY_2,  Styles.LINE_CLAMP_6)
+            .withClasses(Styles.TEXT_XS, Styles.MY_2, Styles.LINE_CLAMP_6)
             .with(descriptionContent);
 
     ContainerTag externalLink =
