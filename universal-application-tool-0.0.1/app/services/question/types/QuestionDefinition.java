@@ -164,8 +164,13 @@ public abstract class QuestionDefinition {
    * it provides translations for all applicant-visible text in that locale.
    */
   public ImmutableSet<Locale> getSupportedLocales() {
-    return ImmutableSet.copyOf(
-        Sets.intersection(questionText.locales(), questionHelpText.locales()));
+    // Question help text is optional
+    if (questionHelpText.isEmpty()) {
+      return questionText.locales();
+    } else {
+      return ImmutableSet.copyOf(
+          Sets.intersection(questionText.locales(), questionHelpText.locales()));
+    }
   }
 
   /** Get the validation predicates. */

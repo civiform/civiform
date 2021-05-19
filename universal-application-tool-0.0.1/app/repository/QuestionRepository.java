@@ -67,6 +67,7 @@ public class QuestionRepository {
           insertQuestionSync(newDraft);
           newDraft.addVersion(draftVersion);
           newDraft.save();
+          transaction.setNestedUseSavepoint();
           versionRepositoryProvider.get().updateProgramsForNewDraftQuestion(definition.getId());
           transaction.commit();
           return newDraft;

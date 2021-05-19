@@ -19,6 +19,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
+import services.applicant.Block;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramConfirmationView;
@@ -68,6 +69,12 @@ public class ApplicantProgramReviewController extends CiviFormController {
         .thenApplyAsync(
             (roApplicantProgramService) -> {
               ImmutableList<AnswerData> summaryData = roApplicantProgramService.getSummaryData();
+              int totalBlockCount = roApplicantProgramService.getAllBlocks().size();
+              int completedBlockCount =
+                  roApplicantProgramService.getAllBlocks().stream()
+                      .filter(Block::isCompleteWithoutErrors)
+                      .mapToInt(b -> 1)
+                      .sum();
               String programTitle = roApplicantProgramService.getProgramTitle();
               return ok(
                   summaryView.render(
@@ -77,6 +84,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
                       programId,
                       programTitle,
                       summaryData,
+                      completedBlockCount,
+                      totalBlockCount,
                       messagesApi.preferred(request),
                       banner));
             },

@@ -181,6 +181,11 @@ public class QuestionDefinitionBuilder {
             questionHelpText,
             questionOptions,
             multiOptionValidationPredicates);
+
+      case DATE:
+        return new DateQuestionDefinition(
+            id, name, enumeratorId, description, questionText, questionHelpText);
+
       case DROPDOWN:
         return new DropdownQuestionDefinition(
             id, name, enumeratorId, description, questionText, questionHelpText, questionOptions);

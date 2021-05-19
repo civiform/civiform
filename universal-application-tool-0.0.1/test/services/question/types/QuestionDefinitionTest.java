@@ -471,4 +471,24 @@ public class QuestionDefinitionTest {
     assertThat(definition.getSupportedLocales())
         .containsExactly(Locale.US, Locale.forLanguageTag("es-US"));
   }
+
+  @Test
+  public void getSupportedLocales_emptyHelpText_returnsLocalesForQuestionText() {
+    QuestionDefinition definition =
+        new TextQuestionDefinition(
+            "test",
+            Optional.empty(),
+            "test",
+            LocalizedStrings.of(
+                Locale.US,
+                "question?",
+                Locale.forLanguageTag("es-US"),
+                "pregunta",
+                Locale.FRANCE,
+                "question"),
+            LocalizedStrings.empty());
+
+    assertThat(definition.getSupportedLocales())
+        .containsExactly(Locale.US, Locale.forLanguageTag("es-US"), Locale.FRANCE);
+  }
 }

@@ -29,8 +29,8 @@ button.untranslatedSubmit=Submit
 # The button text for saving the current applicant-entered data and continuing to the next block in the form.
 button.nextBlock=Next
 
-# The aria text on the button used by an applicant to mark an entity for deletion.
-button.ariaLabel.deleteEntity=Delete {0}
+# The text on the button an applicant clicks to jump to the review page.
+button.review=Review
 
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=We''re sorry, this program is not fully translated to your preferred language.
@@ -68,6 +68,16 @@ toast.applicationSaved=Successfully saved application: application ID {0}
 
 # A toast message that displays when an applicant tries to apply to a previously completed program.
 toast.programCompleted=Application was already completed.
+
+#------------------------------------------------------------------------#
+# APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
+#------------------------------------------------------------------------#
+
+# Submit application button
+button.submit=Submit
+
+# Continue application button
+button.continue=Continue
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
