@@ -25,9 +25,7 @@ public class DateQuestionRenderer extends ApplicantQuestionRenderer {
         FieldWithLabel.date().setFieldName(dateQuestion.getDatePath().toString());
 
     if (dateQuestion.getDateValue().isPresent()) {
-      // TODO: [Refactor] Oof! Converting Optional<Long> to OptionalLong.
       Optional<String> value = dateQuestion.getDateValue().map(LocalDate::toString);
-      // TODO: Convert value from long --> a date string that is compatible with <input type=date>
       dateField.setValue(value);
     }
 

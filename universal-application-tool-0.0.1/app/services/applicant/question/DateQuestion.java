@@ -27,9 +27,6 @@ public class DateQuestion implements PresentsErrors {
 
   @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    if (!isAnswered()) {
-      return ImmutableSet.of();
-    }
     return ImmutableSet.of();
   }
 

@@ -123,15 +123,20 @@ public class ApplicantData {
     }
   }
 
+  /**
+   * Stores the date string as a millisecond timestamp at the given {@link Path}.
+   *
+   * <p>This method requires the input string to be in "yyyy-MM-dd" format.
+   */
   public void putDate(Path path, String dateString) {
     if (dateString.isEmpty()) {
       putNull(path);
     } else {
       LocalDate localDate = LocalDate.parse(dateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-      logger.error(localDate.toString());
       put(path, localDate.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli());
     }
   }
+
   /**
    * Write the given string at the given {@link Path}. If the string is empty, it will write a null
    * value instead.
