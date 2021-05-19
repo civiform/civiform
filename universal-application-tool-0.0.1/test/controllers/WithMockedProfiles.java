@@ -1,4 +1,4 @@
-package controllers.applicant;
+package controllers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -26,7 +26,7 @@ import support.ResourceCreator;
 import support.TestConstants;
 import support.TestQuestionBank;
 
-public class WithMockedApplicantProfiles {
+public class WithMockedProfiles {
 
   private static final ProfileUtils MOCK_UTILS = Mockito.mock(ProfileUtils.class);
 
@@ -94,5 +94,6 @@ public class WithMockedApplicantProfiles {
 
   private void mockProfile(UatProfile profile) {
     when(MOCK_UTILS.currentUserProfile(any(Http.Request.class))).thenReturn(Optional.of(profile));
+    when(MOCK_UTILS.validUatProfile(any(UatProfile.class))).thenReturn(true);
   }
 }

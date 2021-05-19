@@ -8,6 +8,7 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 
 import com.google.common.collect.ImmutableMap;
+import controllers.WithMockedProfiles;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,17 +16,18 @@ import play.mvc.Http.Request;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import play.test.Helpers;
-import repository.WithPostgresContainer;
 import support.ProgramBuilder;
 import views.html.helper.CSRF;
 
-public class AdminProgramControllerTest extends WithPostgresContainer {
+public class AdminProgramControllerTest extends WithMockedProfiles {
 
   private AdminProgramController controller;
 
   @Before
   public void setup() {
+    resetDatabase();
     controller = instanceOf(AdminProgramController.class);
+    createApplicantWithMockedProfile();
   }
 
   @Test

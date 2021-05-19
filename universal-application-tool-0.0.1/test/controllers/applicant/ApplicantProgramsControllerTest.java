@@ -9,6 +9,7 @@ import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.stubMessagesApi;
 
+import controllers.WithMockedProfiles;
 import java.util.Locale;
 import models.Applicant;
 import models.Program;
@@ -23,7 +24,7 @@ import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 import support.QuestionAnswerer;
 
-public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles {
+public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   private Applicant currentApplicant;
   private ApplicantProgramsController controller;
