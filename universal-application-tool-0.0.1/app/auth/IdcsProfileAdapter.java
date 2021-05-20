@@ -104,6 +104,10 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
     // we need to slighly abuse the notion of a resource retriever.  We create our
     // own modified resource retriever which has access to the required token.
 
+    if (((OidcCredentials) cred).getAccessToken() == null) {
+      return;
+    }
+
     // Note that there would normally be a significant thread-safety issue here - but
     // we actually don't need to match up signing key tokens with actual tokens, because
     // any valid token is sufficient.
@@ -113,9 +117,6 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
           @Override
           public Map<String, List<String>> getHeaders() {
             Map<String, List<String>> headers = super.getHeaders();
-            if (((OidcCredentials) cred).getAccessToken() == null) {
-              return headers;
-            }
             if (headers == null) {
               headers = new HashMap<>();
             }
