@@ -73,4 +73,24 @@ public class QuestionDefinitionBuilderTest {
     assertThat(enumerator.getEntityType().getDefault())
         .isEqualTo(EnumeratorQuestionDefinition.DEFAULT_ENTITY_TYPE);
   }
+
+  @Test
+  public void builder_withEnumeratorQuestion_keepsEntityType() throws Exception {
+    QuestionDefinition questionDefinition =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.ENUMERATOR)
+            .setName("")
+            .setDescription("")
+            .setEnumeratorId(Optional.of(123L))
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .setEntityType(LocalizedStrings.withDefaultValue("household member"))
+            .build();
+
+    EnumeratorQuestionDefinition enumerator =
+        (EnumeratorQuestionDefinition) new QuestionDefinitionBuilder(questionDefinition).build();
+
+    assertThat(enumerator.getEntityType().isEmpty()).isFalse();
+    assertThat(enumerator.getEntityType().getDefault()).isEqualTo("household member");
+  }
 }
