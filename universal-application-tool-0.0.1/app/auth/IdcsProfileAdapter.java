@@ -14,6 +14,8 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
 import org.pac4j.oidc.profile.OidcProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import repository.UserRepository;
 
 /**
@@ -21,6 +23,7 @@ import repository.UserRepository;
  * profile.
  */
 public class IdcsProfileAdapter extends UatProfileAdapter {
+  public static final Logger LOG = LoggerFactory.getLogger(IdcsProfileAdapter.class);
 
   public IdcsProfileAdapter(
       OidcConfiguration configuration,
@@ -104,6 +107,11 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
     // we need to slighly abuse the notion of a resource retriever.  We create our
     // own modified resource retriever which has access to the required token.
 
+    if (((OidcCredentials) cred).getAccessToken() == null) {
+      LOG.debug("No access token in the credentials.");
+      return;
+    }
+
     // Note that there would normally be a significant thread-safety issue here - but
     // we actually don't need to match up signing key tokens with actual tokens, because
     // any valid token is sufficient.
@@ -113,13 +121,11 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
           @Override
           public Map<String, List<String>> getHeaders() {
             Map<String, List<String>> headers = super.getHeaders();
-            if (((OidcCredentials) cred).getAccessToken() == null) {
-              return headers;
-            }
             if (headers == null) {
               headers = new HashMap<>();
             }
             String authHeader = ((OidcCredentials) cred).getAccessToken().toAuthorizationHeader();
+            LOG.debug("Auth header in the resource retriever: {}", authHeader);
             headers.put("Authorization", List.of(authHeader));
             return headers;
           }

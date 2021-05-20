@@ -90,11 +90,7 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
 
     Tag midContent =
         div(programDescriptionText)
-            .withClasses(
-                Styles.TEXT_GRAY_700,
-                Styles.TEXT_BASE,
-                Styles.MB_8,
-                "line-clamp-3" /* TODO: Add tailwind plugin for line clamping. */);
+            .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_BASE, Styles.MB_8, Styles.LINE_CLAMP_3);
 
     Tag bottomContent =
         div(
