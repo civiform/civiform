@@ -43,6 +43,11 @@ public class QuestionDefinitionBuilder {
     questionType = definition.getQuestionType();
     validationPredicatesString = definition.getValidationPredicatesAsString();
 
+    if (definition.getQuestionType().equals(QuestionType.ENUMERATOR)) {
+      EnumeratorQuestionDefinition enumerator = (EnumeratorQuestionDefinition) definition;
+      entityType = enumerator.getEntityType();
+    }
+
     if (definition.getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
       questionOptions = multiOption.getOptions();
