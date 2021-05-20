@@ -1,4 +1,5 @@
-/** The question bank controller is responsible for manipulating the question question bank. */
+/** The question bank controller is responsible for manipulating the question bank. */
+
 class QuestionBankController {
   static readonly FILTER_ID = 'question-bank-filter';
   static readonly QUESTION_CLASS = 'cf-question-bank-element';
