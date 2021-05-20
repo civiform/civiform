@@ -28,7 +28,7 @@ export class AdminTranslations {
       await optionInputs[index].fill(configText[index]);
     }
 
-    const enumeratorInput = await this.page.$('[name="entityType"');
+    const enumeratorInput = await this.page.$('[name="entityType"]');
     if (enumeratorInput) {
       await enumeratorInput.fill(configText[0]);
     }
