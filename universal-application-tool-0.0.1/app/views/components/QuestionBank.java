@@ -33,6 +33,7 @@ public class QuestionBank {
   private ImmutableList<QuestionDefinition> questions = ImmutableList.of();
   private Tag csrfTag = div();
   private String questionAction = "";
+  private Tag questionBankJsTag;
 
   public QuestionBank setProgram(ProgramDefinition program) {
     this.program = program;
@@ -56,6 +57,11 @@ public class QuestionBank {
 
   public QuestionBank setQuestions(ImmutableList<QuestionDefinition> questionDefinitions) {
     this.questions = questionDefinitions;
+    return this;
+  }
+
+  public QuestionBank setQuestionBankJsTag(Tag questionBankJsTag) {
+    this.questionBankJsTag = questionBankJsTag;
     return this;
   }
 
@@ -100,7 +106,10 @@ public class QuestionBank {
         Icons.svg(Icons.SEARCH_SVG_PATH, 56).withClasses(Styles.H_4, Styles.W_4);
     ContainerTag filterIconDiv =
         div().withClasses(Styles.ABSOLUTE, Styles.ML_4, Styles.MT_3, Styles.MR_4).with(filterIcon);
-    ContainerTag filterDiv = div(filterIconDiv, filterInput).withClasses(Styles.RELATIVE);
+    ContainerTag filterDiv = div().withClasses(Styles.RELATIVE)
+        .with(filterIconDiv)
+        .with(filterInput)
+        .with(questionBankJsTag);
 
     contentDiv.with(filterDiv);
 
@@ -121,6 +130,7 @@ public class QuestionBank {
         div()
             .withId("add-question-" + definition.getId())
             .withClasses(
+                ReferenceClasses.QUESTION_BANK_ELEMENT,
                 Styles.RELATIVE,
                 Styles._M_3,
                 Styles.P_3,
