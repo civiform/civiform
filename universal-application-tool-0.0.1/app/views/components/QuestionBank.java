@@ -100,7 +100,8 @@ public class QuestionBank {
         Icons.svg(Icons.SEARCH_SVG_PATH, 56).withClasses(Styles.H_4, Styles.W_4);
     ContainerTag filterIconDiv =
         div().withClasses(Styles.ABSOLUTE, Styles.ML_4, Styles.MT_3, Styles.MR_4).with(filterIcon);
-    ContainerTag filterDiv = div(filterIconDiv, filterInput).withClasses(Styles.RELATIVE);
+    ContainerTag filterDiv =
+        div().withClasses(Styles.RELATIVE).with(filterIconDiv).with(filterInput);
 
     contentDiv.with(filterDiv);
 
@@ -121,6 +122,7 @@ public class QuestionBank {
         div()
             .withId("add-question-" + definition.getId())
             .withClasses(
+                ReferenceClasses.QUESTION_BANK_ELEMENT,
                 Styles.RELATIVE,
                 Styles._M_3,
                 Styles.P_3,
