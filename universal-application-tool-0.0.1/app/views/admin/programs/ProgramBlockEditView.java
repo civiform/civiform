@@ -334,7 +334,6 @@ public class ProgramBlockEditView extends BaseHtmlView {
         new QuestionBank()
             .setQuestionAction(addQuestionAction)
             .setCsrfTag(csrfTag)
-            .setQuestionBankJsTag(layout.viewUtils.makeLocalJsTag("questionBank"))
             .setQuestions(questionDefinitions)
             .setProgram(program)
             .setBlockDefinition(blockDefinition);

@@ -33,7 +33,6 @@ public class QuestionBank {
   private ImmutableList<QuestionDefinition> questions = ImmutableList.of();
   private Tag csrfTag = div();
   private String questionAction = "";
-  private Tag questionBankJsTag;
 
   public QuestionBank setProgram(ProgramDefinition program) {
     this.program = program;
@@ -57,11 +56,6 @@ public class QuestionBank {
 
   public QuestionBank setQuestions(ImmutableList<QuestionDefinition> questionDefinitions) {
     this.questions = questionDefinitions;
-    return this;
-  }
-
-  public QuestionBank setQuestionBankJsTag(Tag questionBankJsTag) {
-    this.questionBankJsTag = questionBankJsTag;
     return this;
   }
 
@@ -110,8 +104,7 @@ public class QuestionBank {
         div()
             .withClasses(Styles.RELATIVE)
             .with(filterIconDiv)
-            .with(filterInput)
-            .with(questionBankJsTag);
+            .with(filterInput);
 
     contentDiv.with(filterDiv);
 
