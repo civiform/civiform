@@ -44,16 +44,15 @@ public class AdminLayout extends BaseHtmlLayout {
     if (currentTitle != null && !currentTitle.isEmpty()) {
       bundle.setTitle(currentTitle + " - CiviForm Admin Console");
     }
+    for (String source : FOOTER_SCRIPTS) {
+      bundle.addFooterScripts(viewUtils.makeLocalJsTag(source));
+    }
     return super.render(bundle);
   }
 
   @Override
   public HtmlBundle getBundle(HtmlBundle bundle) {
-    bundle = super.getBundle(bundle).addHeaderContent(renderNavBar());
-    for (String source : FOOTER_SCRIPTS) {
-      bundle.addFooterScripts(viewUtils.makeLocalJsTag(source));
-    }
-    return bundle;
+    return super.getBundle(bundle).addHeaderContent(renderNavBar());
   }
 
   private ContainerTag renderNavBar() {
