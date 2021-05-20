@@ -108,8 +108,8 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
     // own modified resource retriever which has access to the required token.
 
     if (((OidcCredentials) cred).getAccessToken() == null) {
-        LOG.debug("No access token in the credentials.");
-        return;
+      LOG.debug("No access token in the credentials.");
+      return;
     }
 
     // Note that there would normally be a significant thread-safety issue here - but
