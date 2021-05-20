@@ -101,10 +101,7 @@ public class QuestionBank {
     ContainerTag filterIconDiv =
         div().withClasses(Styles.ABSOLUTE, Styles.ML_4, Styles.MT_3, Styles.MR_4).with(filterIcon);
     ContainerTag filterDiv =
-        div()
-            .withClasses(Styles.RELATIVE)
-            .with(filterIconDiv)
-            .with(filterInput);
+        div().withClasses(Styles.RELATIVE).with(filterIconDiv).with(filterInput);
 
     contentDiv.with(filterDiv);
 
