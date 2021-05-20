@@ -5,7 +5,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import forms.QuestionForm;
@@ -166,13 +165,13 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private ContainerTag buildSubmittableQuestionForm(
-      QuestionForm questionForm, SelectWithLabel enumeratorOptions) {
-    return buildQuestionForm(questionForm, enumeratorOptions, true);
+      QuestionForm questionForm, SelectWithLabel enumeratorOptions, boolean forCreate) {
+    return buildQuestionForm(questionForm, enumeratorOptions, true, forCreate);
   }
 
   private ContainerTag buildViewOnlyQuestionForm(
       QuestionForm questionForm, SelectWithLabel enumeratorOptions) {
-    return buildQuestionForm(questionForm, enumeratorOptions, false);
+    return buildQuestionForm(questionForm, enumeratorOptions, false, false);
   }
 
   private ContainerTag buildQuestionContainer(String title) {
@@ -207,7 +206,7 @@ public final class QuestionEditView extends BaseHtmlView {
     SelectWithLabel enumeratorOptions =
         enumeratorOptionsFromEnumerationQuestionDefinitions(
             questionForm, enumeratorQuestionDefinitions);
-    ContainerTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions);
+    ContainerTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions, true);
     formTag
         .withAction(
             controllers.admin.routes.AdminQuestionController.create(
@@ -224,7 +223,7 @@ public final class QuestionEditView extends BaseHtmlView {
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition) {
     SelectWithLabel enumeratorOption =
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
-    ContainerTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOption);
+    ContainerTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOption, false);
     formTag
         .withAction(
             controllers.admin.routes.AdminQuestionController.update(
@@ -235,7 +234,10 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private ContainerTag buildQuestionForm(
-      QuestionForm questionForm, SelectWithLabel enumeratorOptions, boolean submittable) {
+      QuestionForm questionForm,
+      SelectWithLabel enumeratorOptions,
+      boolean submittable,
+      boolean forCreate) {
     QuestionType questionType = questionForm.getQuestionType();
     ContainerTag formTag = form().withMethod("POST");
     FieldWithLabel nameField =
@@ -246,11 +248,11 @@ public final class QuestionEditView extends BaseHtmlView {
             .setDisabled(!submittable)
             .setPlaceholderText("The name displayed in the question builder")
             .setValue(questionForm.getQuestionName());
-    if (Strings.isNullOrEmpty(questionForm.getQuestionName())) {
+    if (forCreate) {
       formTag.with(nameField.getContainer());
     } else {
-      // If there is already a name, we need to disable the `name` field but we
-      // need to add a hidden input to send the same name as well.
+      // If not for question creation, the question name field should be disabled,
+      // and a hidden input to send name is added.
       formTag.with(
           nameField.setDisabled(true).getContainer(),
           input().isHidden().withValue(questionForm.getQuestionName()).withName("questionName"));
