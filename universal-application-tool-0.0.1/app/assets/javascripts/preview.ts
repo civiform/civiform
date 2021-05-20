@@ -123,7 +123,8 @@ class PreviewController {
         previewDiv.appendChild(thisSpan);
       } else {
         previewDiv.appendChild(document.createTextNode(piece));
-      }})
+      }
+    })
   }
 
   static setTextContent(selector: string, text: string) {

@@ -16,7 +16,7 @@ class QuestionBankController {
    */
   static filterQuestions() {
     const filterString = (document.getElementById(QuestionBankController.FILTER_ID) as HTMLInputElement)
-        .value.toUpperCase();
+      .value.toUpperCase();
     const questions = Array.from(document.getElementsByClassName(QuestionBankController.QUESTION_CLASS));
     questions.forEach(question => {
       const questionElement = question as HTMLElement;
