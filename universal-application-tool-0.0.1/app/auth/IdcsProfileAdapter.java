@@ -133,7 +133,7 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
     }
   }
 
-  private class CredentialedResourceRetriever extends DefaultResourceRetriever {
+  private static class CredentialedResourceRetriever extends DefaultResourceRetriever {
     private final Credentials cred;
 
     public CredentialedResourceRetriever(OidcConfiguration configuration, Credentials cred) {
@@ -154,7 +154,7 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
     }
   }
 
-  private class CachedResourceRetriever extends DefaultResourceRetriever {
+  private static class CachedResourceRetriever extends DefaultResourceRetriever {
     private final ImmutableMap<URL, Resource> resources;
 
     public CachedResourceRetriever(
