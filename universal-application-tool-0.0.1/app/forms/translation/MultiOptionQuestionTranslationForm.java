@@ -31,14 +31,13 @@ public class MultiOptionQuestionTranslationForm extends QuestionTranslationForm 
 
   @Override
   public QuestionDefinitionBuilder builderWithUpdates(
-      QuestionDefinition definition, Locale updatedLocale) throws UnsupportedQuestionTypeException {
-    QuestionDefinitionBuilder partiallyUpdated =
-        super.builderWithUpdates(definition, updatedLocale);
+      QuestionDefinition toUpdate, Locale updatedLocale) throws UnsupportedQuestionTypeException {
+    QuestionDefinitionBuilder partiallyUpdated = super.builderWithUpdates(toUpdate, updatedLocale);
     ImmutableList.Builder<QuestionOption> updatedOptionsBuilder = ImmutableList.builder();
 
     // For each current option, add or update translations for the given locale.
     ImmutableList<QuestionOption> currentOptions =
-        ((MultiOptionQuestionDefinition) definition).getOptions();
+        ((MultiOptionQuestionDefinition) toUpdate).getOptions();
 
     for (int i = 0; i < currentOptions.size(); i++) {
       QuestionOption current = currentOptions.get(i);
