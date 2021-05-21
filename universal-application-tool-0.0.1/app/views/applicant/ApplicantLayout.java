@@ -79,6 +79,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             Styles.GRID,
             Styles.GRID_COLS_3)
         .with(branding())
+        // maybe render language switcher.
         .with(maybeRenderTiButton(profile, userName))
         .with(div(logoutButton(messages)).withClasses(Styles.JUSTIFY_SELF_END));
   }

@@ -4,10 +4,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.p;
+import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
 
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.routes;
+import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.AbstractMap;
@@ -22,6 +24,11 @@ import services.MessageKey;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.SelectWithLabel;
+import views.style.ApplicantStyles;
+import views.style.BaseStyles;
+import views.style.ReferenceClasses;
+import views.style.StyleUtils;
+import views.style.Styles;
 
 /**
  * Provides a form for selecting an applicant's preferred language. Note that we cannot use Play's
@@ -43,20 +50,64 @@ public class ApplicantInformationView extends BaseHtmlView {
   public Content render(
       Http.Request request, String userName, Messages messages, long applicantId) {
     String formAction = routes.ApplicantInformationController.update(applicantId).url();
-    Tag formContent =
+
+    ContainerTag questionText =
+        div()
+            .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT)
+            .withText(messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName()));
+    ContainerTag formContent =
         form()
             .withAction(formAction)
             .withMethod(Http.HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(request))
-            .with(selectLanguageDropdown(messages))
-            .with(submitButton(messages.at(MessageKey.BUTTON_UNTRANSLATED_SUBMIT.getKeyName())));
+            .with(questionText);
+
+    boolean useRadio = true;
+    if (useRadio) {
+      formContent.with(selectLanguageRadios());
+    } else {
+      formContent.with(selectLanguageDropdown());
+    }
+
+    formContent.with(submitButton(messages.at(MessageKey.BUTTON_UNTRANSLATED_SUBMIT.getKeyName())));
 
     HtmlBundle bundle =
         layout.getBundle().setTitle("Applicant information").addMainContent(formContent);
     return layout.renderWithNav(request, userName, messages, bundle);
+    // We probably don't want the nav bar here (or we need it somewhat different.)
   }
 
-  private ContainerTag selectLanguageDropdown(Messages messages) {
+  private ContainerTag selectLanguageRadios() {
+    ContainerTag options = div();
+    this.supportedLanguages.stream()
+        .forEach(
+            locale ->
+                options.with(
+                    renderRadioOption(formatLabel(locale), locale.toLanguageTag(), false)));
+    return options;
+  }
+
+  private Tag renderRadioOption(String text, String value, boolean checked) {
+    ContainerTag labelTag =
+        label()
+            .withClasses(
+                ReferenceClasses.RADIO_OPTION,
+                BaseStyles.RADIO_LABEL,
+                checked ? BaseStyles.BORDER_SEATTLE_BLUE : "")
+            .with(
+                input()
+                    .withType("radio")
+                    .withName("locale")
+                    .withValue(value)
+                    .condAttr(checked, Attr.CHECKED, "")
+                    .withClasses(
+                        StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO)))
+            .withText(text);
+
+    return div().withClasses(Styles.MY_2, Styles.RELATIVE).with(labelTag);
+  }
+
+  private ContainerTag selectLanguageDropdown() {
     SelectWithLabel languageSelect =
         new SelectWithLabel()
             .setId("select-language")
@@ -71,9 +122,7 @@ public class ApplicantInformationView extends BaseHtmlView {
                                 formatLabel(locale), locale.toLanguageTag()))
                     .collect(toImmutableList()));
 
-    return div()
-        .with(p(messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName())))
-        .with(languageSelect.getContainer());
+    return languageSelect.getContainer();
   }
 
   /**
