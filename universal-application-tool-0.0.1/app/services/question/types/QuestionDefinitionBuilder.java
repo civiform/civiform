@@ -226,6 +226,8 @@ public class QuestionDefinitionBuilder {
             questionText,
             questionHelpText,
             numberValidationPredicates);
+      case PHONENUMBER:
+        return new PhoneNumberQuestionDefinition(id, name, enumeratorId, description, questionText, questionHelpText)
       case RADIO_BUTTON:
         return new RadioButtonQuestionDefinition(
             id, name, enumeratorId, description, questionText, questionHelpText, questionOptions);
