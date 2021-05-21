@@ -21,6 +21,7 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
+import views.LanguageUtils;
 import views.ViewUtils;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
@@ -31,11 +32,17 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private static final String CIVIFORM_TITLE = "CiviForm";
 
   private final ProfileUtils profileUtils;
+  public final LanguageUtils languageUtils;
 
   @Inject
-  public ApplicantLayout(ViewUtils viewUtils, Config configuration, ProfileUtils profileUtils) {
+  public ApplicantLayout(
+      ViewUtils viewUtils,
+      Config configuration,
+      ProfileUtils profileUtils,
+      LanguageUtils languageUtils) {
     super(viewUtils, configuration);
     this.profileUtils = checkNotNull(profileUtils);
+    this.languageUtils = checkNotNull(languageUtils);
   }
 
   @Override
@@ -54,22 +61,21 @@ public class ApplicantLayout extends BaseHtmlLayout {
       Http.Request request, String userName, Messages messages, HtmlBundle bundle) {
     // TODO: This will set the html lang attribute to the requested language when we actually want
     // the rendered language.
-    Optional<Http.Cookie> language = request.cookies().get("PLAY_LANG");
+    Optional<String> language = languageUtils.getPreferredLangage(request);
     if (language.isPresent()) {
-      bundle.setLanguage(language.get().value());
+      bundle.setLanguage(language.get());
     }
-
     bundle.addHeaderContent(renderNavBar(request, userName, messages));
     return render(bundle);
   }
 
   private ContainerTag renderNavBar(Http.Request request, String userName, Messages messages) {
-    Optional<UatProfile> profile = profileUtils.currentUserProfile(request);
-    return renderNavBar(profile, messages, userName);
-  }
+    Optional<UatProfile> profile = profileUtils.currentUserProfile(request);    
 
-  private ContainerTag renderNavBar(
-      Optional<UatProfile> profile, Messages messages, String userName) {
+    // Create language switcher.
+    String preferredLanguage = languageUtils.getPreferredLangage(request).orElse("en");
+    Tag languageDropdown = languageUtils.renderDropdown(preferredLanguage);
+
     return nav()
         .withClasses(
             Styles.BG_WHITE,
@@ -79,9 +85,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
             Styles.GRID,
             Styles.GRID_COLS_3)
         .with(branding())
-        // maybe render language switcher.
         .with(maybeRenderTiButton(profile, userName))
-        .with(div(logoutButton(messages)).withClasses(Styles.JUSTIFY_SELF_END));
+        .with(div(languageDropdown, logoutButton(messages)).withClasses(Styles.JUSTIFY_SELF_END,
+        Styles.FLEX, Styles.FLEX_ROW));
   }
 
   private ContainerTag branding() {

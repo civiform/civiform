@@ -6,8 +6,7 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(BODY_BG_COLOR, Styles.H_FULL, Styles.W_FULL);
 
   public static final String MAIN_APPLICANT_INFO =
-      StyleUtils.joinStyles(
-          Styles.W_5_6, Styles.MAX_W_SCREEN_SM, Styles.MX_AUTO, Styles.MY_8);
+      StyleUtils.joinStyles(Styles.W_5_6, Styles.MAX_W_SCREEN_SM, Styles.MX_AUTO, Styles.MY_8);
   public static final String MAIN_PROGRAM_APPLICATION =
       StyleUtils.joinStyles(
           Styles.W_5_6,

@@ -1,34 +1,21 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.input;
-import static j2html.TagCreator.label;
 
-import com.google.common.collect.ImmutableList;
 import controllers.applicant.routes;
-import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.util.AbstractMap;
-import java.util.Locale;
 import javax.inject.Inject;
-import play.i18n.Lang;
-import play.i18n.Langs;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
 import views.BaseHtmlView;
 import views.HtmlBundle;
-import views.components.SelectWithLabel;
 import views.style.ApplicantStyles;
-import views.style.BaseStyles;
 import views.style.ReferenceClasses;
-import views.style.StyleUtils;
-import views.style.Styles;
 
 /**
  * Provides a form for selecting an applicant's preferred language. Note that we cannot use Play's
@@ -38,13 +25,10 @@ import views.style.Styles;
 public class ApplicantInformationView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
-  public final ImmutableList<Locale> supportedLanguages;
 
   @Inject
-  public ApplicantInformationView(ApplicantLayout layout, Langs langs) {
+  public ApplicantInformationView(ApplicantLayout layout) {
     this.layout = checkNotNull(layout);
-    this.supportedLanguages =
-        langs.availables().stream().map(Lang::toLocale).collect(toImmutableList());
   }
 
   public Content render(
@@ -52,26 +36,23 @@ public class ApplicantInformationView extends BaseHtmlView {
     String formAction = routes.ApplicantInformationController.update(applicantId).url();
 
     String questionText = messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName());
-    ContainerTag questionTextDiv = div(questionText)
+    ContainerTag questionTextDiv =
+        div(questionText)
             .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT);
+    String preferredLanguage = layout.languageUtils.getPreferredLangage(request).orElse("");
     ContainerTag formContent =
         form()
             .withAction(formAction)
             .withMethod(Http.HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(request))
-            .with(questionTextDiv);
+            .with(questionTextDiv)
+            .with(layout.languageUtils.renderRadios(preferredLanguage));
 
-    boolean useRadio = true;
-    String selectedLanguage = "";
-    if (useRadio) {
-      formContent.with(selectLanguageRadios(selectedLanguage));
-    } else {
-      String labelText = messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName());
-      formContent.with(selectLanguageDropdown(labelText, selectedLanguage));
-    }
+    // String labelText = messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName());
+    // formContent.with(selectLanguageDropdown(labelText, selectedLanguage));
 
     String submitText = messages.at(MessageKey.BUTTON_UNTRANSLATED_SUBMIT.getKeyName());
-    Tag formSubmit = submitButton(submitText).withClasses(ApplicantStyles.BUTTON_SELECT_LANGUAGE);    
+    Tag formSubmit = submitButton(submitText).withClasses(ApplicantStyles.BUTTON_SELECT_LANGUAGE);
     formContent.with(formSubmit);
 
     HtmlBundle bundle =
@@ -83,72 +64,5 @@ public class ApplicantInformationView extends BaseHtmlView {
 
     // We probably don't want the nav bar here (or we need it somewhat different - no dropdown.)
     return layout.renderWithNav(request, userName, messages, bundle);
-  }
-
-  private ContainerTag selectLanguageRadios(String lang) {
-    ContainerTag options = div();
-    this.supportedLanguages.stream()
-        .forEach(
-            locale ->
-                options.with(
-                    renderRadioOption(formatLabel(locale),
-                      locale.toLanguageTag(), locale.toLanguageTag().equals(lang)
-                    ))
-        );
-    return options;
-  }
-
-  private Tag renderRadioOption(String text, String value, boolean checked) {
-    ContainerTag labelTag =
-        label()
-            .withClasses(
-                ReferenceClasses.RADIO_OPTION,
-                BaseStyles.RADIO_LABEL,
-                checked ? BaseStyles.BORDER_SEATTLE_BLUE : "")
-            .with(
-                input()
-                    .withType("radio")
-                    .withName("locale")
-                    .withValue(value)
-                    .condAttr(checked, Attr.CHECKED, "")
-                    .withClasses(
-                        StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO)))
-            .withText(text);
-
-    return div().withClasses(Styles.MY_2, Styles.RELATIVE).with(labelTag);
-  }
-
-  private ContainerTag selectLanguageDropdown(String labelText, String lang) {
-    SelectWithLabel languageSelect =
-        new SelectWithLabel()
-            .setId("select-language")
-            .setFieldName("locale")
-            .setLabelText(labelText)
-            .setValue(lang)
-            .setOptions(
-                // An option consists of the language (localized to that language - for example,
-                // this would display 'Español' for es-US), and the value is the ISO code.
-                this.supportedLanguages.stream()
-                    .map(
-                        locale ->
-                            new AbstractMap.SimpleEntry<>(
-                                formatLabel(locale), locale.toLanguageTag()))
-                    .collect(toImmutableList()));
-
-    return languageSelect.getContainer();
-  }
-
-  /**
-   * The dropdown option label should be the language name localized to that language - for example,
-   * "español" for "es-US". We capitalize the first letter, since some locales do not capitalize
-   * languages.
-   */
-  private String formatLabel(Locale locale) {
-    // The default for Java is 中文, but the City of Seattle prefers 繁體中文
-    if (locale.equals(Locale.TRADITIONAL_CHINESE)) {
-      return "繁體中文";
-    }
-    String language = locale.getDisplayLanguage(locale);
-    return language.substring(0, 1).toUpperCase(locale) + language.substring(1);
   }
 }
