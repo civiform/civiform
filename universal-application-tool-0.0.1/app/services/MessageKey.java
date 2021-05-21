@@ -31,7 +31,7 @@ public enum MessageKey {
   CONTENT_GET_BENEFITS("content.benefits"),
   CONTENT_NO_CATEGORY("content.noCategory"),
   CONTENT_PLEASE_SIGN_IN("content.pleaseCreateAccount"),
-  CONTENT_SELECT_LANGUAGE("content.selectLanguage"),
+  CONTENT_SELECT_LANGUAGE("label.selectLanguage"),
   ENUMERATOR_BUTTON_ADD_ENTITY("button.addEntity"),
   ENUMERATOR_BUTTON_REMOVE_ENTITY("button.removeEntity"),
   ENUMERATOR_PLACEHOLDER_ENTITY_NAME("placeholder.entityName"),

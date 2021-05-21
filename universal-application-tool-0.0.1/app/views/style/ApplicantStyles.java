@@ -5,6 +5,9 @@ public final class ApplicantStyles {
   public static final String BODY =
       StyleUtils.joinStyles(BODY_BG_COLOR, Styles.H_FULL, Styles.W_FULL);
 
+  public static final String MAIN_APPLICANT_INFO =
+      StyleUtils.joinStyles(
+          Styles.W_5_6, StyleUtils.responsiveSmall(Styles.W_1_3), Styles.MX_AUTO, Styles.MY_8);
   public static final String MAIN_PROGRAM_APPLICATION =
       StyleUtils.joinStyles(
           Styles.W_5_6,
@@ -95,6 +98,8 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(
           BUTTON_BASE_OUTLINE, Styles.UPPERCASE, Styles.FONT_SEMIBOLD, Styles.W_MIN, Styles.PX_8);
 
+  public static final String BUTTON_SELECT_LANGUAGE =
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MX_AUTO);
   public static final String BUTTON_PROGRAM_APPLY =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_SM, Styles.MX_AUTO);
   public static final String BUTTON_BLOCK_NEXT =
