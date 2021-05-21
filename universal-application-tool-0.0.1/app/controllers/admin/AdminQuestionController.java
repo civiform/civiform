@@ -7,6 +7,7 @@ import auth.Authorizers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
+import forms.EnumeratorQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
@@ -245,13 +246,17 @@ public class AdminQuestionController extends CiviFormController {
     QuestionDefinitionBuilder updated = questionForm.getBuilder();
 
     if (existing.isPresent()) {
-      mergeLocalizations(existing.get(), updated, questionForm);
+      updateDefaultLocalizations(existing.get(), updated, questionForm);
     }
 
     return updated;
   }
 
-  private void mergeLocalizations(
+  /**
+   * The edit form can change the default locale's text - we want to only change the default locale
+   * text, instead of overwriting all localizations.
+   */
+  private void updateDefaultLocalizations(
       QuestionDefinition existing, QuestionDefinitionBuilder updated, QuestionForm questionForm) {
     // Instead of overwriting all localizations, we just want to overwrite the one
     // for the default locale (the only one possible to change in the edit form).
@@ -265,15 +270,34 @@ public class AdminQuestionController extends CiviFormController {
             .updateTranslation(
                 LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionHelpText()));
 
+    if (existing.getQuestionType().equals(QuestionType.ENUMERATOR)) {
+      updateDefaultLocalizationForEntityType(
+          updated,
+          (EnumeratorQuestionDefinition) existing,
+          ((EnumeratorQuestionForm) questionForm).getEntityType());
+    }
+
     if (existing.getQuestionType().isMultiOptionType()) {
-      mergeLocalizationsForOptions(
+      updateDefaultLocalizationForOptions(
           updated,
           (MultiOptionQuestionDefinition) existing,
           ((MultiOptionQuestionForm) questionForm).getOptions());
     }
   }
 
-  private void mergeLocalizationsForOptions(
+  /** Update the default locale text for an enumerator question's entity type name. */
+  private void updateDefaultLocalizationForEntityType(
+      QuestionDefinitionBuilder updated,
+      EnumeratorQuestionDefinition existing,
+      String updatedEntityType) {
+    updated.setEntityType(
+        existing
+            .getEntityType()
+            .updateTranslation(LocalizedStrings.DEFAULT_LOCALE, updatedEntityType));
+  }
+
+  /** Update the default locale text only for a multi-option question's option text. */
+  private void updateDefaultLocalizationForOptions(
       QuestionDefinitionBuilder updated,
       MultiOptionQuestionDefinition existing,
       List<String> updatedDefaultOptions) {

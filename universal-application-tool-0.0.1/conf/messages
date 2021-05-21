@@ -17,7 +17,7 @@
 button.logout=Logout
 
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
-content.selectLanguage=Please select your preferred language from the following:
+label.selectLanguage=Please select your preferred language.
 
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit

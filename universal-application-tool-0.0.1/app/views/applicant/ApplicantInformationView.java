@@ -69,10 +69,15 @@ public class ApplicantInformationView extends BaseHtmlView {
       formContent.with(selectLanguageDropdown());
     }
 
-    formContent.with(submitButton(messages.at(MessageKey.BUTTON_UNTRANSLATED_SUBMIT.getKeyName())));
+    formContent.with(submitButton(messages.at(MessageKey.BUTTON_UNTRANSLATED_SUBMIT.getKeyName())
+        .withClasses(ApplicantStyles.BUTTON_SELECT_LANGUAGE));
 
     HtmlBundle bundle =
-        layout.getBundle().setTitle("Applicant information").addMainContent(formContent);
+        layout
+            .getBundle()
+            .setTitle("Applicant information")
+            .addMainStyles(ApplicantStyles.MAIN_APPLICANT_INFO)
+            .addMainContent(formContent);
     return layout.renderWithNav(request, userName, messages, bundle);
     // We probably don't want the nav bar here (or we need it somewhat different.)
   }
@@ -112,6 +117,7 @@ public class ApplicantInformationView extends BaseHtmlView {
         new SelectWithLabel()
             .setId("select-language")
             .setFieldName("locale")
+            .setLabelText(messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName()))
             .setOptions(
                 // An option consists of the language (localized to that language - for example,
                 // this would display 'Español' for es-US), and the value is the ISO code.

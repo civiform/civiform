@@ -20,6 +20,8 @@ import views.style.Styles;
 
 public class AdminLayout extends BaseHtmlLayout {
 
+  private static final String[] FOOTER_SCRIPTS = {"preview", "questionBank"};
+
   @Inject
   public AdminLayout(ViewUtils viewUtils, Config configuration) {
     super(viewUtils, configuration);
@@ -41,6 +43,9 @@ public class AdminLayout extends BaseHtmlLayout {
     String currentTitle = bundle.getTitle();
     if (currentTitle != null && !currentTitle.isEmpty()) {
       bundle.setTitle(currentTitle + " - CiviForm Admin Console");
+    }
+    for (String source : FOOTER_SCRIPTS) {
+      bundle.addFooterScripts(viewUtils.makeLocalJsTag(source));
     }
     return super.render(bundle);
   }

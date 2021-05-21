@@ -158,6 +158,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             .withId("progress-indicator")
             .withClasses(
                 Styles.BORDER,
+                BaseStyles.BORDER_SEATTLE_BLUE,
                 Styles.ROUNDED_FULL,
                 Styles.FONT_SEMIBOLD,
                 Styles.BG_WHITE,
