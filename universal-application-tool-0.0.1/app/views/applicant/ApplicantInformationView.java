@@ -38,7 +38,7 @@ import views.style.Styles;
 public class ApplicantInformationView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
-  private final ImmutableList<Locale> supportedLanguages;
+  public final ImmutableList<Locale> supportedLanguages;
 
   @Inject
   public ApplicantInformationView(ApplicantLayout layout, Langs langs) {
@@ -51,27 +51,28 @@ public class ApplicantInformationView extends BaseHtmlView {
       Http.Request request, String userName, Messages messages, long applicantId) {
     String formAction = routes.ApplicantInformationController.update(applicantId).url();
 
-    ContainerTag questionText =
-        div()
-            .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT)
-            .withText(messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName()));
+    String questionText = messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName());
+    ContainerTag questionTextDiv = div(questionText)
+            .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT);
     ContainerTag formContent =
         form()
             .withAction(formAction)
             .withMethod(Http.HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(request))
-            .with(questionText);
+            .with(questionTextDiv);
 
     boolean useRadio = true;
-    String selectedLanguage = "so";
+    String selectedLanguage = "";
     if (useRadio) {
       formContent.with(selectLanguageRadios(selectedLanguage));
     } else {
-      formContent.with(selectLanguageDropdown(selectedLanguage));
+      String labelText = messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName());
+      formContent.with(selectLanguageDropdown(labelText, selectedLanguage));
     }
 
-    formContent.with(submitButton(messages.at(MessageKey.BUTTON_UNTRANSLATED_SUBMIT.getKeyName())
-        .withClasses(ApplicantStyles.BUTTON_SELECT_LANGUAGE));
+    String submitText = messages.at(MessageKey.BUTTON_UNTRANSLATED_SUBMIT.getKeyName());
+    Tag formSubmit = submitButton(submitText).withClasses(ApplicantStyles.BUTTON_SELECT_LANGUAGE);    
+    formContent.with(formSubmit);
 
     HtmlBundle bundle =
         layout
@@ -79,8 +80,9 @@ public class ApplicantInformationView extends BaseHtmlView {
             .setTitle("Applicant information")
             .addMainStyles(ApplicantStyles.MAIN_APPLICANT_INFO)
             .addMainContent(formContent);
+
+    // We probably don't want the nav bar here (or we need it somewhat different - no dropdown.)
     return layout.renderWithNav(request, userName, messages, bundle);
-    // We probably don't want the nav bar here (or we need it somewhat different.)
   }
 
   private ContainerTag selectLanguageRadios(String lang) {
@@ -89,11 +91,14 @@ public class ApplicantInformationView extends BaseHtmlView {
         .forEach(
             locale ->
                 options.with(
-                    renderRadioOption(formatLabel(locale), locale.toLanguageTag(), locale.toLanguageTag().equals(lang))));
+                    renderRadioOption(formatLabel(locale),
+                      locale.toLanguageTag(), locale.toLanguageTag().equals(lang)
+                    ))
+        );
     return options;
   }
 
-  public Tag renderRadioOption(String text, String value, boolean checked) {
+  private Tag renderRadioOption(String text, String value, boolean checked) {
     ContainerTag labelTag =
         label()
             .withClasses(
@@ -113,13 +118,13 @@ public class ApplicantInformationView extends BaseHtmlView {
     return div().withClasses(Styles.MY_2, Styles.RELATIVE).with(labelTag);
   }
 
-  public ContainerTag selectLanguageDropdown(String lang) {
+  private ContainerTag selectLanguageDropdown(String labelText, String lang) {
     SelectWithLabel languageSelect =
         new SelectWithLabel()
             .setId("select-language")
             .setFieldName("locale")
+            .setLabelText(labelText)
             .setValue(lang)
-            .setLabelText(messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName()))
             .setOptions(
                 // An option consists of the language (localized to that language - for example,
                 // this would display 'Español' for es-US), and the value is the ISO code.
