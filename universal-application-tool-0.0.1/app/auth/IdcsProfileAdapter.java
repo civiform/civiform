@@ -6,6 +6,8 @@ import com.google.common.collect.ImmutableSet;
 import com.nimbusds.jose.util.DefaultResourceRetriever;
 import com.nimbusds.jose.util.Resource;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -122,11 +124,12 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
     }
 
     try {
-      URL jwkSetUrl = this.configuration.getProviderMetadata().getJWKSetURI().toURL();
-      ImmutableMap<URL, Resource> jwkCache =
+      URI jwkSetUri = this.configuration.getProviderMetadata().getJWKSetURI();
+      ImmutableMap<URI, Resource> jwkCache =
           ImmutableMap.of(
-              jwkSetUrl,
-              new CredentialedResourceRetriever(configuration, cred).retrieveResource(jwkSetUrl));
+              jwkSetUri,
+              new CredentialedResourceRetriever(configuration, cred)
+                  .retrieveResource(jwkSetUri.toURL()));
       this.configuration.setResourceRetriever(new CachedResourceRetriever(configuration, jwkCache));
     } catch (IOException | NullPointerException e) {
       LOG.error("Failed to fetch JWK", e);
@@ -155,10 +158,10 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
   }
 
   private static class CachedResourceRetriever extends DefaultResourceRetriever {
-    private final ImmutableMap<URL, Resource> resources;
+    private final ImmutableMap<URI, Resource> resources;
 
     public CachedResourceRetriever(
-        OidcConfiguration configuration, ImmutableMap<URL, Resource> resources) {
+        OidcConfiguration configuration, ImmutableMap<URI, Resource> resources) {
       super(configuration.getConnectTimeout(), configuration.getReadTimeout());
       this.resources = resources;
     }
@@ -166,9 +169,13 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
     @Override
     public Resource retrieveResource(URL url) throws IOException {
       LOG.debug("Attempting to fetch {}", url.toString());
-      if (resources.containsKey(url)) {
-        LOG.debug("Cached: {}", url.toString());
-        return resources.get(url);
+      try {
+        if (resources.containsKey(url.toURI())) {
+          LOG.debug("Cached: {}", url.toString());
+          return resources.get(url.toURI());
+        }
+      } catch (URISyntaxException e) {
+        LOG.debug("failed to convert to URI", e);
       }
       return super.retrieveResource(url);
     }
