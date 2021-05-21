@@ -63,10 +63,11 @@ public class ApplicantInformationView extends BaseHtmlView {
             .with(questionText);
 
     boolean useRadio = true;
+    String selectedLanguage = "so";
     if (useRadio) {
-      formContent.with(selectLanguageRadios());
+      formContent.with(selectLanguageRadios(selectedLanguage));
     } else {
-      formContent.with(selectLanguageDropdown());
+      formContent.with(selectLanguageDropdown(selectedLanguage));
     }
 
     formContent.with(submitButton(messages.at(MessageKey.BUTTON_UNTRANSLATED_SUBMIT.getKeyName())
@@ -82,17 +83,17 @@ public class ApplicantInformationView extends BaseHtmlView {
     // We probably don't want the nav bar here (or we need it somewhat different.)
   }
 
-  private ContainerTag selectLanguageRadios() {
+  private ContainerTag selectLanguageRadios(String lang) {
     ContainerTag options = div();
     this.supportedLanguages.stream()
         .forEach(
             locale ->
                 options.with(
-                    renderRadioOption(formatLabel(locale), locale.toLanguageTag(), false)));
+                    renderRadioOption(formatLabel(locale), locale.toLanguageTag(), locale.toLanguageTag().equals(lang))));
     return options;
   }
 
-  private Tag renderRadioOption(String text, String value, boolean checked) {
+  public Tag renderRadioOption(String text, String value, boolean checked) {
     ContainerTag labelTag =
         label()
             .withClasses(
@@ -112,11 +113,12 @@ public class ApplicantInformationView extends BaseHtmlView {
     return div().withClasses(Styles.MY_2, Styles.RELATIVE).with(labelTag);
   }
 
-  private ContainerTag selectLanguageDropdown() {
+  public ContainerTag selectLanguageDropdown(String lang) {
     SelectWithLabel languageSelect =
         new SelectWithLabel()
             .setId("select-language")
             .setFieldName("locale")
+            .setValue(lang)
             .setLabelText(messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName()))
             .setOptions(
                 // An option consists of the language (localized to that language - for example,
