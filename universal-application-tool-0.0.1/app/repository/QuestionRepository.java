@@ -67,6 +67,12 @@ public class QuestionRepository {
           insertQuestionSync(newDraft);
           newDraft.addVersion(draftVersion);
           newDraft.save();
+
+          if (definition.isEnumerator()) {
+            transaction.setNestedUseSavepoint();
+            updateAllRepeatedQuestions(newDraft.id, definition.getId());
+          }
+
           transaction.setNestedUseSavepoint();
           versionRepositoryProvider.get().updateProgramsForNewDraftQuestion(definition.getId());
           transaction.commit();
@@ -79,6 +85,35 @@ public class QuestionRepository {
         throw new RuntimeException(e);
       }
     }
+  }
+
+  private void updateAllRepeatedQuestions(long newEnumeratorId, long oldEnumeratorId) {
+    versionRepositoryProvider.get().getDraftVersion().getQuestions().stream()
+        .filter(
+            question ->
+                question
+                    .getQuestionDefinition()
+                    .getEnumeratorId()
+                    .equals(Optional.of(oldEnumeratorId)))
+        .forEach(
+            question ->
+                updateOrCreateDraft(
+                    new QuestionDefinitionBuilder(question.getQuestionDefinition())
+                        .setEnumeratorId(Optional.of(newEnumeratorId))
+                        .build()));
+    versionRepositoryProvider.get().getActiveVersion().getQuestions().stream()
+        .filter(
+            question ->
+                question
+                    .getQuestionDefinition()
+                    .getEnumeratorId()
+                    .equals(Optional.of(oldEnumeratorId)))
+        .forEach(
+            question ->
+                updateOrCreateDraft(
+                    new QuestionDefinitionBuilder(question.getQuestionDefinition())
+                        .setEnumeratorId(Optional.of(newEnumeratorId))
+                        .build()));
   }
 
   /**
