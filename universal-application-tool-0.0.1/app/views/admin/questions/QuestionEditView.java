@@ -38,6 +38,8 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private static final String NO_ENUMERATOR_DISPLAY_STRING = "does not repeat";
   private static final String NO_ENUMERATOR_ID_STRING = "";
+  private static final String QUESTION_NAME_FIELD = "questionName";
+  private static final String QUESTION_ENUMERATOR_FIELD = "enumeratorId";
 
   @Inject
   public QuestionEditView(AdminLayout layout, MessagesApi messagesApi) {
@@ -240,22 +242,36 @@ public final class QuestionEditView extends BaseHtmlView {
       boolean forCreate) {
     QuestionType questionType = questionForm.getQuestionType();
     ContainerTag formTag = form().withMethod("POST");
+
+    // The question enumerator and name fields should not be changed after the question is created.
+    // If this form is not for creation, the fields are disabled, and hidden fields to pass
+    // enumerator
+    // and name data are added.
+    formTag.with(enumeratorOptions.setDisabled(!forCreate).getContainer());
+    formTag.with(repeatedQuestionInformation());
     FieldWithLabel nameField =
         FieldWithLabel.input()
             .setId("question-name-input")
-            .setFieldName("questionName")
+            .setFieldName(QUESTION_NAME_FIELD)
             .setLabelText("Name")
             .setDisabled(!submittable)
             .setPlaceholderText("The name displayed in the question builder")
             .setValue(questionForm.getQuestionName());
-    if (forCreate) {
-      formTag.with(nameField.getContainer());
-    } else {
-      // If not for question creation, the question name field should be disabled,
-      // and a hidden input to send name is added.
+    formTag.with(nameField.setDisabled(!forCreate).getContainer());
+    if (!forCreate) {
       formTag.with(
-          nameField.setDisabled(true).getContainer(),
-          input().isHidden().withValue(questionForm.getQuestionName()).withName("questionName"));
+          input()
+              .isHidden()
+              .withName(QUESTION_NAME_FIELD)
+              .withValue(questionForm.getQuestionName()),
+          input()
+              .isHidden()
+              .withName(QUESTION_ENUMERATOR_FIELD)
+              .withValue(
+                  questionForm
+                      .getEnumeratorId()
+                      .map(String::valueOf)
+                      .orElse(NO_ENUMERATOR_ID_STRING)));
     }
 
     formTag
@@ -268,8 +284,6 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setDisabled(!submittable)
                 .setValue(questionForm.getQuestionDescription())
                 .getContainer(),
-            enumeratorOptions.setDisabled(!submittable).getContainer(),
-            repeatedQuestionInformation(),
             FieldWithLabel.textArea()
                 .setId("question-text-textarea")
                 .setFieldName("questionText")
@@ -351,7 +365,7 @@ public final class QuestionEditView extends BaseHtmlView {
       ImmutableList<SimpleEntry<String, String>> options, String selected) {
     return new SelectWithLabel()
         .setId("question-enumerator-select")
-        .setFieldName("enumeratorId")
+        .setFieldName(QUESTION_ENUMERATOR_FIELD)
         .setLabelText("Question enumerator")
         .setOptions(options)
         .setValue(selected);
