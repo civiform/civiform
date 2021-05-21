@@ -7,7 +7,7 @@ public final class ApplicantStyles {
 
   public static final String MAIN_APPLICANT_INFO =
       StyleUtils.joinStyles(
-          Styles.W_5_6, StyleUtils.responsiveSmall(Styles.W_1_3), Styles.MX_AUTO, Styles.MY_8);
+          Styles.W_5_6, Styles.MAX_W_SCREEN_SM, Styles.MX_AUTO, Styles.MY_8);
   public static final String MAIN_PROGRAM_APPLICATION =
       StyleUtils.joinStyles(
           Styles.W_5_6,
