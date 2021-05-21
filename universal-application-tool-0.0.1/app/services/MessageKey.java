@@ -30,7 +30,7 @@ public enum MessageKey {
   CONTENT_CONFIRMED("content.confirmed"),
   CONTENT_GET_BENEFITS("content.benefits"),
   CONTENT_NO_CATEGORY("content.noCategory"),
-  CONTENT_PLEASE_SIGN_IN("content.pleaseCreateAccount"),
+  CONTENT_PLEASE_CREATE_ACCOUNT("content.pleaseCreateAccount"),
   CONTENT_SELECT_LANGUAGE("label.selectLanguage"),
   ENUMERATOR_BUTTON_ADD_ENTITY("button.addEntity"),
   ENUMERATOR_BUTTON_REMOVE_ENTITY("button.removeEntity"),

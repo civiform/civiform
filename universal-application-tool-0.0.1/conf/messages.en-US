@@ -18,9 +18,9 @@ toast.programCompleted=Application was already completed.
 toast.applicationSaved=Successfully saved application: application ID {0}
 content.confirmed=Thank you for applying to {0}.  Your application has been received, and your application ID is {1}.
 content.pleaseCreateAccount=If you sign into a city account now, your information will be saved and you''ll be able to return at any time to complete future applications.  If you do not already have an account, the login page will allow you to register.  You won''t lose any data you''ve already entered.
-link.returnToDash=Return to All Programs
-link.doCreateAccount=Create Account (Sign In or Register)
-link.dontCreateAccount=Not Right Now
+link.returnToDash=Return to all programs
+link.doCreateAccount=Create account or sign in
+link.dontCreateAccount=Not right now
 
 title.programs=Programs & services
 link.programDetails=Program details
