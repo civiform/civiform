@@ -66,15 +66,14 @@ public class PhoneNumberQuestionDefinition extends QuestionDefinition {
             return builder().build();
         }
         // Only validation predicate would be that entry contains all numbers/digits
+        // But if you use <input type="tel"> you could do client side validation so is it redundant to
+        // have a validation check here? No because you cannot rely on client-side validation
+        // since users can potentially put malformed inputs for malicious reasons
+        // Every form value is a string in HTML so you would have to do a type conversion when
+        // saving phone number to database
         public static PhoneNumberValidationPredicates create(int minLength, int maxLength) {
             return builder().setMinLength(minLength).setMaxLength(maxLength).build();
         }
-
-        @JsonProperty("minLength")
-        public abstract OptionalInt minLength();
-
-        @JsonProperty("maxLength")
-        public abstract OptionalInt maxLength();
 
         public static Builder builder() {
             return new AutoValue_PhoneNumberQuestionDefinition_PhoneNumberValidationPredicates.Builder();
@@ -82,35 +81,16 @@ public class PhoneNumberQuestionDefinition extends QuestionDefinition {
 
         @AutoValue.Builder
         public abstract static class Builder {
-
-            @JsonProperty("minLength")
-            public abstract Builder setMinLength(OptionalInt minLength);
-
-            public abstract Builder setMinLength(int minLength);
-
-            @JsonProperty("maxLength")
-            public abstract Builder setMaxLength(OptionalInt maxLength);
-
-            public abstract Builder setMaxLength(int maxLength);
-
-            public abstract TextValidationPredicates build();
+            public abstract PhoneNumberValidationPredicates build();
         }
     }
 
     public PhoneNumberValidationPredicates getPhoneNumberValidationPredicates() {
-        return (TextValidationPredicates) getValidationPredicates();
+        return (PhoneNumberValidationPredicates) getValidationPredicates();
     }
 
     @Override
     public QuestionType getQuestionType() {
         return QuestionType.TEXT;
-    }
-
-    public OptionalInt getMinLength() {
-        return getTextValidationPredicates().minLength();
-    }
-
-    public OptionalInt getMaxLength() {
-        return getTextValidationPredicates().maxLength();
     }
 }
