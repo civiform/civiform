@@ -186,6 +186,7 @@ public class VersionRepository {
     draftProgram = new Program(updatedDefinition.build());
     LOG.trace("Submitting update.");
     ebeanServer.update(draftProgram);
+    draftProgram.refresh();
   }
 
   public boolean isInactive(Question question) {

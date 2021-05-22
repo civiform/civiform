@@ -67,6 +67,7 @@ public class QuestionRepository {
           insertQuestionSync(newDraft);
           newDraft.addVersion(draftVersion);
           newDraft.save();
+          draftVersion.refresh();
 
           if (definition.isEnumerator()) {
             transaction.setNestedUseSavepoint();
@@ -88,39 +89,48 @@ public class QuestionRepository {
   }
 
   private void updateAllRepeatedQuestions(long newEnumeratorId, long oldEnumeratorId) {
-    try {
-      versionRepositoryProvider.get().getDraftVersion().getQuestions().stream()
-          .filter(
-              question ->
-                  question
-                      .getQuestionDefinition()
-                      .getEnumeratorId()
-                      .equals(Optional.of(oldEnumeratorId)))
-          .forEach(
-              question ->
-                  updateOrCreateDraft(
-                      new QuestionDefinitionBuilder(question.getQuestionDefinition())
-                          .setEnumeratorId(Optional.of(newEnumeratorId))
-                          .build()));
-      versionRepositoryProvider.get().getActiveVersion().getQuestions().stream()
-          .filter(
-              question ->
-                  question
-                      .getQuestionDefinition()
-                      .getEnumeratorId()
-                      .equals(Optional.of(oldEnumeratorId)))
-          .forEach(
-              question ->
-                  updateOrCreateDraft(
-                      new QuestionDefinitionBuilder(question.getQuestionDefinition())
-                          .setEnumeratorId(Optional.of(newEnumeratorId))
-                          .build()));
-    } catch (UnsupportedQuestionTypeException e) {
-      // This should not be able to happen since the provided question definition is inherently
-      // valid.
-      // Throw runtime exception so callers don't have to deal with it.
-      throw new RuntimeException(e);
-    }
+    versionRepositoryProvider.get().getDraftVersion().getQuestions().stream()
+        .filter(
+            question ->
+                question
+                    .getQuestionDefinition()
+                    .getEnumeratorId()
+                    .equals(Optional.of(oldEnumeratorId)))
+        .forEach(
+            question -> {
+              try {
+                updateOrCreateDraft(
+                    new QuestionDefinitionBuilder(question.getQuestionDefinition())
+                        .setEnumeratorId(Optional.of(newEnumeratorId))
+                        .build());
+              } catch (UnsupportedQuestionTypeException e) {
+                // This should not be able to happen since the provided question definition is
+                // inherently valid.
+                // Throw runtime exception so callers don't have to deal with it.
+                throw new RuntimeException(e);
+              }
+            });
+    versionRepositoryProvider.get().getActiveVersion().getQuestions().stream()
+        .filter(
+            question ->
+                question
+                    .getQuestionDefinition()
+                    .getEnumeratorId()
+                    .equals(Optional.of(oldEnumeratorId)))
+        .forEach(
+            question -> {
+              try {
+                updateOrCreateDraft(
+                    new QuestionDefinitionBuilder(question.getQuestionDefinition())
+                        .setEnumeratorId(Optional.of(newEnumeratorId))
+                        .build());
+              } catch (UnsupportedQuestionTypeException e) {
+                // This should not be able to happen since the provided question definition is
+                // inherently valid.
+                // Throw runtime exception so callers don't have to deal with it.
+                throw new RuntimeException(e);
+              }
+            });
   }
 
   /**
