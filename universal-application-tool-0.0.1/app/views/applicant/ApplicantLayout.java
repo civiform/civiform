@@ -3,6 +3,8 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.form;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.nav;
 
@@ -14,12 +16,14 @@ import controllers.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
+import j2html.TagCreator;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
 import views.BaseHtmlLayout;
+import views.html.helper.CSRF;
 import views.HtmlBundle;
 import views.LanguageUtils;
 import views.ViewUtils;
@@ -70,11 +74,27 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private ContainerTag renderNavBar(Http.Request request, String userName, Messages messages) {
-    Optional<UatProfile> profile = profileUtils.currentUserProfile(request);    
+    Optional<UatProfile> profile = profileUtils.currentUserProfile(request);
 
-    // Create language switcher.
-    String preferredLanguage = languageUtils.getPreferredLangage(request).orElse("en");
-    Tag languageDropdown = languageUtils.renderDropdown(preferredLanguage);
+    String csrfToken =  CSRF.getToken(request.asScala()).value();
+    Tag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");
+  
+    ContainerTag languageForm = div();
+    if (profile.isPresent()) { // Show language switcher.
+      long userId = Long.parseLong(profile.get().getId());
+      String updateLanguageAction = controllers.applicant.routes.ApplicantInformationController
+            .updateWithRedirect(userId, request.uri())
+            .url();    
+      String preferredLanguage = languageUtils.getPreferredLangage(request).orElse("en");
+      ContainerTag languageDropdown = languageUtils.renderDropdown(preferredLanguage)
+          .attr("onchange", "this.form.submit()");
+      languageForm = form()
+        .withAction(updateLanguageAction)
+        .withMethod(Http.HttpVerbs.POST)
+        .with(csrfInput)
+        .with(languageDropdown)
+        .with(TagCreator.button().withId("cf-update-lang").withType("submit").isHidden());
+    }
 
     return nav()
         .withClasses(
@@ -86,8 +106,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
             Styles.GRID_COLS_3)
         .with(branding())
         .with(maybeRenderTiButton(profile, userName))
-        .with(div(languageDropdown, logoutButton(messages)).withClasses(Styles.JUSTIFY_SELF_END,
-        Styles.FLEX, Styles.FLEX_ROW));
+        .with(
+            div(languageForm, logoutButton(messages))
+                .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
   }
 
   private ContainerTag branding() {

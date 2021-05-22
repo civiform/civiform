@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableList;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.util.AbstractMap;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -19,9 +18,9 @@ import play.i18n.Lang;
 import play.i18n.Langs;
 import play.mvc.Http;
 import views.style.BaseStyles;
+import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
-import views.style.ReferenceClasses;
 
 public class LanguageUtils {
 
@@ -42,23 +41,37 @@ public class LanguageUtils {
   }
 
   public ContainerTag renderDropdown(String preferredLanguage) {
-    ContainerTag dropdownTag  = select().withId("select-language")
-        .withName("locale")
-        .withValue(preferredLanguage)
-        .withClasses("block outline-none px-3 mx-3 py-1 border border-gray-500 rounded-full w-full bg-white focus:border-seattle-blue text-xs");
+    ContainerTag dropdownTag =
+        select()
+            .withId("select-language")
+            .withName("locale")
+            .withValue(preferredLanguage)
+            .withClasses(
+                Styles.BLOCK,
+                Styles.OUTLINE_NONE,
+                Styles.PX_3,
+                Styles.MX_3,
+                Styles.PY_1,
+                Styles.BORDER,
+                Styles.BORDER_GRAY_500,
+                Styles.ROUNDED_FULL,
+                Styles.BG_WHITE,
+                Styles.TEXT_XS,
+                StyleUtils.focus(BaseStyles.BORDER_SEATTLE_BLUE));
 
     // An option consists of the language (localized to that language - for example,
     // this would display 'Español' for es-US), and the value is the ISO code.
-    this.supportedLanguages.stream().forEach(
+    this.supportedLanguages.stream()
+        .forEach(
             locale -> {
-                String value = locale.toLanguageTag();
-                String label = formatLabel(locale);
-             Tag optionTag = option(label).withValue(value);
-             if (value.equals(preferredLanguage)) {
+              String value = locale.toLanguageTag();
+              String label = formatLabel(locale);
+              Tag optionTag = option(label).withValue(value);
+              if (value.equals(preferredLanguage)) {
                 optionTag.attr(Attr.SELECTED);
               }
-            dropdownTag.with(optionTag);
-        });
+              dropdownTag.with(optionTag);
+            });
     return dropdownTag;
   }
 

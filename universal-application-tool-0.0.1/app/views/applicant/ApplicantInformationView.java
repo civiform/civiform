@@ -48,9 +48,6 @@ public class ApplicantInformationView extends BaseHtmlView {
             .with(questionTextDiv)
             .with(layout.languageUtils.renderRadios(preferredLanguage));
 
-    // String labelText = messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName());
-    // formContent.with(selectLanguageDropdown(labelText, selectedLanguage));
-
     String submitText = messages.at(MessageKey.BUTTON_UNTRANSLATED_SUBMIT.getKeyName());
     Tag formSubmit = submitButton(submitText).withClasses(ApplicantStyles.BUTTON_SELECT_LANGUAGE);
     formContent.with(formSubmit);

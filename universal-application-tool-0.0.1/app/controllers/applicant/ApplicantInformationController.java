@@ -41,6 +41,7 @@ public final class ApplicantInformationController extends CiviFormController {
   private final ProfileUtils profileUtils;
   private final ApplicantService applicantService;
 
+
   @Inject
   public ApplicantInformationController(
       HttpExecutionContext httpExecutionContext,
@@ -89,6 +90,11 @@ public final class ApplicantInformationController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> update(Http.Request request, long applicantId) {
+    return updateWithRedirect(request, applicantId, "");
+  }
+
+  @Secure
+  public CompletionStage<Result> updateWithRedirect(Http.Request request, long applicantId, String withRedirect) {
     Form<ApplicantInformationForm> form = formFactory.form(ApplicantInformationForm.class);
     if (form.hasErrors()) {
       return supplyAsync(Results::badRequest);
@@ -116,9 +122,13 @@ public final class ApplicantInformationController extends CiviFormController {
             httpExecutionContext.current())
         .thenApplyAsync(
             applicant -> {
-              Locale preferredLocale = applicant.getApplicantData().preferredLocale();
-              return redirect(routes.ApplicantProgramsController.index(applicantId))
-                  .withLang(preferredLocale, messagesApi);
+              Locale preferredLocale = applicant.getApplicantData().preferredLocale();              
+              // If we're in onboarding then redirect to the programs view.
+              // Otherwise redirect to current page.
+              if (withRedirect.isEmpty()) {
+                return redirect(routes.ApplicantProgramsController.index(applicantId)).withLang(preferredLocale, messagesApi);                
+              }
+              return redirect(withRedirect).withLang(preferredLocale, messagesApi);
             },
             httpExecutionContext.current())
         .exceptionally(
