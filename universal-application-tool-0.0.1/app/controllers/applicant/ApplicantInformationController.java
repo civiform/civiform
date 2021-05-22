@@ -89,7 +89,8 @@ public final class ApplicantInformationController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> update(Http.Request request, long applicantId) {
-    return updateWithRedirect(request, applicantId, routes.ApplicantProgramsController.index(applicantId).url());
+    return updateWithRedirect(
+        request, applicantId, routes.ApplicantProgramsController.index(applicantId).url());
   }
 
   @Secure
