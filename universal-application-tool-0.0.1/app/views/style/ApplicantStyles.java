@@ -81,8 +81,7 @@ public final class ApplicantStyles {
 
   /** Base styles for semibold, upper case buttons with a solid background. */
   private static final String BUTTON_BASE_SOLID_UPPERCASE =
-      StyleUtils.joinStyles(
-          BUTTON_BASE_SOLID, Styles.UPPERCASE, Styles.FONT_SEMIBOLD, Styles.W_MIN, Styles.PX_8);
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID, Styles.UPPERCASE, Styles.FONT_SEMIBOLD, Styles.PX_8);
 
   /** Base styles for buttons with a transparent background and an outline. */
   private static final String BUTTON_BASE_OUTLINE =
@@ -96,7 +95,7 @@ public final class ApplicantStyles {
 
   private static final String BUTTON_BASE_OUTLINE_UPPERCASE =
       StyleUtils.joinStyles(
-          BUTTON_BASE_OUTLINE, Styles.UPPERCASE, Styles.FONT_SEMIBOLD, Styles.W_MIN, Styles.PX_8);
+          BUTTON_BASE_OUTLINE, Styles.UPPERCASE, Styles.FONT_SEMIBOLD, Styles.PX_8);
 
   public static final String BUTTON_SELECT_LANGUAGE =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MX_AUTO);
@@ -119,4 +118,8 @@ public final class ApplicantStyles {
           Styles.FONT_NORMAL,
           Styles.JUSTIFY_SELF_END,
           Styles.SELF_CENTER);
+  public static final String BUTTON_CREATE_ACCOUNT =
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE);
+  public static final String BUTTON_NOT_RIGHT_NOW =
+      StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_UPPERCASE, Styles.TEXT_BASE);
 }
