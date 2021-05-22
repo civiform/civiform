@@ -73,7 +73,7 @@ export const selectApplicantLanguage = async (page: Page, language: string) => {
   const maybeSelectLanguagePage = await page.url();
   if (maybeSelectLanguagePage.match(infoPageRegex)) {
     await page.selectOption('select', { label: language });
-    await page.click('button');
+    await page.click('button:visible');
   }
 
   const programIndexRegex = /applicants\/\d+\/programs/;

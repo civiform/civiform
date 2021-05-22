@@ -19,7 +19,7 @@ describe('the dev file upload page', () => {
       buffer: Buffer.from('this is test')
     });
 
-    await page.click('button');
+    await page.click('button:visible');
 
     expect(await page.textContent('h1')).toContain('Dev file upload');
 
