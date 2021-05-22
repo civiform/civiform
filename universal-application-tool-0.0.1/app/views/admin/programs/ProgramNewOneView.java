@@ -26,7 +26,7 @@ public final class ProgramNewOneView extends BaseHtmlView {
   }
 
   public Content render(Request request, ProgramForm programForm, String message) {
-    String title = "New program";
+    String title = "New program information";
 
     ContainerTag contentDiv =
         div(

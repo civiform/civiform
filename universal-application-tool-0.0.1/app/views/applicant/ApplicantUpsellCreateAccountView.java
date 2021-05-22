@@ -3,7 +3,6 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.h2;
 
 import com.google.inject.Inject;
 import controllers.routes;
@@ -16,6 +15,7 @@ import services.MessageKey;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.LinkElement;
+import views.style.ApplicantStyles;
 import views.style.Styles;
 
 public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
@@ -30,26 +30,40 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
   /** Renders a sign-up page with a baked-in redirect. */
   public Content render(
       Http.Request request, String redirectTo, Messages messages, String userName) {
-    String title = "Account Creation Interstitial";
+    // TODO(natsid): Either i18n this title, or move the content of this page to the application
+    // confirmation page.
+    String title = "Create an account or sign in";
     HtmlBundle bundle = layout.getBundle().setTitle(title);
 
-    ContainerTag content = div().withClasses(Styles.MX_16);
-    content.with(h2(messages.at(MessageKey.CONTENT_PLEASE_SIGN_IN.getKeyName())));
-    content.with(
-        new LinkElement()
-            .setHref(routes.LoginController.idcsLoginWithRedirect(Optional.of(redirectTo)).url())
-            .setText(messages.at(MessageKey.LINK_DO_SIGN_IN.getKeyName()))
-            .asButton());
-    content.with(
-        new LinkElement()
-            .setHref(redirectTo)
-            .setText(messages.at(MessageKey.LINK_DONT_SIGN_IN.getKeyName()))
-            .asButton());
+    ContainerTag content =
+        div()
+            .with(
+                div(messages.at(MessageKey.CONTENT_PLEASE_CREATE_ACCOUNT.getKeyName()))
+                    .withClasses(Styles.MB_4))
+            .with(
+                div()
+                    .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
+                    // Empty div to push buttons to the right.
+                    .with(div().withClasses(Styles.FLEX_GROW))
+                    .with(
+                        new LinkElement()
+                            .setHref(redirectTo)
+                            .setText(messages.at(MessageKey.LINK_DONT_SIGN_IN.getKeyName()))
+                            .asButton()
+                            .withClasses(ApplicantStyles.BUTTON_NOT_RIGHT_NOW))
+                    .with(
+                        new LinkElement()
+                            .setHref(
+                                routes.LoginController.idcsLoginWithRedirect(
+                                        Optional.of(redirectTo))
+                                    .url())
+                            .setText(messages.at(MessageKey.LINK_DO_SIGN_IN.getKeyName()))
+                            .asButton()
+                            .withClasses(ApplicantStyles.BUTTON_CREATE_ACCOUNT)));
 
-    bundle.addMainContent(
-        layout.renderProgramApplicationTitleAndProgressIndicator(title),
-        h1(title).withClasses(Styles.PX_16, Styles.PY_4),
-        content);
+    bundle
+        .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION)
+        .addMainContent(h1(title).withClasses(Styles.MB_4), content);
 
     return layout.renderWithNav(request, userName, messages, bundle);
   }
