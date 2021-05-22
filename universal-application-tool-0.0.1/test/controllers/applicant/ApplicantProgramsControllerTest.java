@@ -1,7 +1,7 @@
 package controllers.applicant;
 
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static org.assertj.core.api.Assertions.assertThat;
+import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.OK;
@@ -40,19 +40,14 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
   @Test
   public void index_differentApplicant_returnsUnauthorizedResult() {
     Request request = addCSRFToken(fakeRequest()).build();
-    Result result =
-        controller
-            .index(request, currentApplicant.id + 1)
-            .toCompletableFuture()
-            .join();
+    Result result = controller.index(request, currentApplicant.id + 1).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
   @Test
   public void index_withNoPrograms_returnsEmptyResult() {
     Request request = addCSRFToken(fakeRequest()).build();
-    Result result =
-        controller.index(request, currentApplicant.id).toCompletableFuture().join();
+    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
@@ -67,8 +62,7 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
     resourceCreator().insertDraftProgram("three");
 
     Request request = addCSRFToken(fakeRequest()).build();
-    Result result =
-        controller.index(request, currentApplicant.id).toCompletableFuture().join();
+    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("one");
@@ -81,8 +75,7 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
     Program program = resourceCreator().insertActiveProgram("program");
 
     Request request = addCSRFToken(fakeRequest()).build();
-    Result result =
-        controller.index(request, currentApplicant.id).toCompletableFuture().join();
+    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -93,7 +86,9 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
   public void index_usesMessagesForUserPreferredLocale() {
     // Set the PLAY_LANG cookie
     Http.Request request =
-      addCSRFToken(fakeRequest()).langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()).build();
+        addCSRFToken(fakeRequest())
+            .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
+            .build();
 
     Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
 
@@ -108,7 +103,9 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
 
     // Set the PLAY_LANG cookie
     Http.Request request =
-      addCSRFToken(fakeRequest()).langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()).build();
+        addCSRFToken(fakeRequest())
+            .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
+            .build();
 
     Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
 
@@ -121,10 +118,7 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
   public void edit_differentApplicant_returnsUnauthorizedResult() {
     Request request = addCSRFToken(fakeRequest()).build();
     Result result =
-        controller
-            .edit(request, currentApplicant.id + 1, 1L)
-            .toCompletableFuture()
-            .join();
+        controller.edit(request, currentApplicant.id + 1, 1L).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
@@ -149,10 +143,7 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
 
     Request request = addCSRFToken(fakeRequest()).build();
     Result result =
-        controller
-            .edit(request, currentApplicant.id, program.id)
-            .toCompletableFuture()
-            .join();
+        controller.edit(request, currentApplicant.id, program.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
@@ -181,10 +172,7 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
 
     Request request = addCSRFToken(fakeRequest()).build();
     Result result =
-        controller
-            .edit(request, currentApplicant.id, program.id)
-            .toCompletableFuture()
-            .join();
+        controller.edit(request, currentApplicant.id, program.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
@@ -201,10 +189,7 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
 
     Request request = addCSRFToken(fakeRequest()).build();
     Result result =
-        controller
-            .edit(request, currentApplicant.id, program.id)
-            .toCompletableFuture()
-            .join();
+        controller.edit(request, currentApplicant.id, program.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
