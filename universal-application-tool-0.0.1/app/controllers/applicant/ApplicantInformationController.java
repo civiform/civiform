@@ -89,7 +89,7 @@ public final class ApplicantInformationController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> update(Http.Request request, long applicantId) {
-    return updateWithRedirect(request, applicantId, "");
+    return updateWithRedirect(request, applicantId, routes.ApplicantProgramsController.index(applicantId).url());
   }
 
   @Secure
@@ -123,12 +123,6 @@ public final class ApplicantInformationController extends CiviFormController {
         .thenApplyAsync(
             applicant -> {
               Locale preferredLocale = applicant.getApplicantData().preferredLocale();
-              // If we're in onboarding then redirect to the programs view.
-              // Otherwise redirect to current page.
-              if (withRedirect.isEmpty()) {
-                return redirect(routes.ApplicantProgramsController.index(applicantId))
-                    .withLang(preferredLocale, messagesApi);
-              }
               return redirect(withRedirect).withLang(preferredLocale, messagesApi);
             },
             httpExecutionContext.current())
