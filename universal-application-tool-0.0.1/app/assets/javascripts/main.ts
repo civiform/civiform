@@ -159,10 +159,34 @@ function attachLineClampListeners() {
   applicationCardDescriptions.forEach(el => el.addEventListener("click", removeLineClamp));
 }
 
+function attachModalListeners() {
+  const modalContainer = document.querySelector('#modal-container');
+  const modalGlassPane = document.querySelector('#modal-glass-pane');
+  // Find and connect each modal to its button
+  const modals = Array.from(document.querySelectorAll('.cf-modal'));
+  modals.forEach(modal => {
+    const modalButton = document.querySelector(`#${modal.id}-button`);
+    modalButton.addEventListener("click", function() {
+      modalContainer.classList.toggle('hidden');
+      modalGlassPane.classList.toggle('hidden');
+      modal.classList.toggle('hidden');
+    });
+
+    const modalClose = document.querySelector(`#${modal.id}-close`);
+    modalClose.addEventListener("click", function() {
+      modalContainer.classList.toggle('hidden');
+      modalGlassPane.classList.toggle('hidden');
+      modal.classList.toggle('hidden');
+    });
+  });
+}
+
 window.addEventListener('load', (event) => {
   attachDropdown("create-question-button");
 
   attachLineClampListeners();
+
+  attachModalListeners();
 
   // Submit button is disabled by default until program block edit form is changed
   const blockEditForm = document.getElementById("block-edit-form");

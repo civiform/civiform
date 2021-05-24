@@ -1,5 +1,6 @@
 package views;
 
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.document;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.footer;
@@ -8,6 +9,7 @@ import static j2html.TagCreator.header;
 import static j2html.TagCreator.html;
 import static j2html.TagCreator.main;
 import static j2html.TagCreator.title;
+import static views.BaseHtmlView.button;
 
 import j2html.tags.ContainerTag;
 import j2html.tags.EmptyTag;
@@ -15,25 +17,28 @@ import j2html.tags.Tag;
 import java.util.ArrayList;
 import java.util.Arrays;
 import play.twirl.api.Content;
+import views.components.Modal;
 import views.components.ToastMessage;
+import views.style.BaseStyles;
 
 /** The HtmlBundle class stores all of the data necessary for rendering a page. */
 public class HtmlBundle {
   private String pageTitle;
   private String language = "en";
 
-  private ArrayList<String> bodyStyles = new ArrayList<String>();
-  private ArrayList<Tag> footerContent = new ArrayList<Tag>();
-  private ArrayList<Tag> footerScripts = new ArrayList<Tag>();
-  private ArrayList<String> footerStyles = new ArrayList<String>();
-  private ArrayList<Tag> headScripts = new ArrayList<Tag>();
-  private ArrayList<Tag> headerContent = new ArrayList<Tag>();
-  private ArrayList<String> headerStyles = new ArrayList<String>();
-  private ArrayList<Tag> mainContent = new ArrayList<Tag>();
-  private ArrayList<String> mainStyles = new ArrayList<String>();
-  private ArrayList<EmptyTag> metadata = new ArrayList<EmptyTag>();
-  private ArrayList<Tag> stylesheets = new ArrayList<Tag>();
-  private ArrayList<ToastMessage> toastMessages = new ArrayList<ToastMessage>();
+  private ArrayList<String> bodyStyles = new ArrayList<>();
+  private ArrayList<Tag> footerContent = new ArrayList<>();
+  private ArrayList<Tag> footerScripts = new ArrayList<>();
+  private ArrayList<String> footerStyles = new ArrayList<>();
+  private ArrayList<Tag> headScripts = new ArrayList<>();
+  private ArrayList<Tag> headerContent = new ArrayList<>();
+  private ArrayList<String> headerStyles = new ArrayList<>();
+  private ArrayList<Tag> mainContent = new ArrayList<>();
+  private ArrayList<String> mainStyles = new ArrayList<>();
+  private ArrayList<EmptyTag> metadata = new ArrayList<>();
+  private ArrayList<Tag> stylesheets = new ArrayList<>();
+  private ArrayList<ToastMessage> toastMessages = new ArrayList<>();
+  private ArrayList<Modal> modals = new ArrayList<>();
 
   public HtmlBundle addBodyStyles(String... styles) {
     bodyStyles.addAll(Arrays.asList(styles));
@@ -95,6 +100,11 @@ public class HtmlBundle {
     return this;
   }
 
+  public HtmlBundle addModals(Modal... modalTags) {
+    modals.addAll(Arrays.asList(modalTags));
+    return this;
+  }
+
   private ContainerTag getContent() {
     return html(renderHead(), renderBody()).attr("lang", language);
   }
@@ -115,7 +125,8 @@ public class HtmlBundle {
 
   /** The page body contains: - header - main - footer */
   private ContainerTag renderBody() {
-    ContainerTag bodyTag = j2html.TagCreator.body(renderHeader(), renderMain(), renderFooter());
+    ContainerTag bodyTag =
+        j2html.TagCreator.body(renderHeader(), renderMain(), renderFooter(), renderModals());
 
     if (bodyStyles.size() > 0) {
       bodyTag.withClasses(bodyStyles.toArray(new String[0]));
@@ -172,6 +183,24 @@ public class HtmlBundle {
     }
 
     return mainTag;
+  }
+
+  private ContainerTag renderModals() {
+    ContainerTag modalContainer =
+        div()
+            .withId("modal-container")
+            .withClasses(BaseStyles.MODAL_CONTAINER)
+            .with(div().withId("modal-glass-pane").withClasses(BaseStyles.MODAL_GLASS_PANE));
+    modals.forEach(
+        modal ->
+            modalContainer.with(
+                div()
+                    .with(
+                        button("x")
+                            .withId(modal.modalId() + "-close")
+                            .withClasses(BaseStyles.MODAL_CLOSE_BUTTON))
+                    .with(modal.getContainerTag())));
+    return modalContainer;
   }
 
   public Content render() {
