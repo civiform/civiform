@@ -67,6 +67,11 @@ public abstract class Path {
     return isEmpty() ? JSON_PATH_START_TOKEN : JSON_JOINER.join(segments());
   }
 
+  @Memoized
+  public String predicateFormat() {
+    return JSON_PATH_START + toString();
+  }
+
   /**
    * The {@link Path} of the parent. For example, a path {@code applicant.favorite_color.text} would
    * return {@code applicant.favorite_color}.
