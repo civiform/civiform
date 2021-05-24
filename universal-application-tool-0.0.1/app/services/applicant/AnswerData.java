@@ -2,6 +2,7 @@ package services.applicant;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
+import java.net.URL;
 import java.util.Optional;
 import services.Path;
 import services.question.types.QuestionDefinition;
@@ -40,6 +41,9 @@ public abstract class AnswerData {
   /** The applicant's response to the question. */
   public abstract String answerText();
 
+  /** The link to the applicant's response if applicable. */
+  public abstract Optional<URL> answerLink();
+
   /** The timestamp of when the answer was saved. */
   public abstract Long timestamp();
 
@@ -67,6 +71,8 @@ public abstract class AnswerData {
     public abstract Builder setQuestionText(String questionText);
 
     public abstract Builder setAnswerText(String answerText);
+
+    public abstract Builder setAnswerLink(Optional<URL> answerLink);
 
     public abstract Builder setTimestamp(Long timestamp);
 

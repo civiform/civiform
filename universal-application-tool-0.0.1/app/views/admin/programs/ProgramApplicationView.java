@@ -1,6 +1,7 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
@@ -109,6 +110,12 @@ public final class ProgramApplicationView extends BaseHtmlView {
         Instant.ofEpochMilli(answerData.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
     String questionIdentifier =
         String.format("Question ID: %d", answerData.questionDefinition().getId());
+    Tag answerContent;
+    if (answerData.answerLink().isPresent()) {
+      answerContent = a(answerData.answerText()).withHref(answerData.answerLink().get().toString());
+    } else {
+      answerContent = div(answerData.answerText());
+    }
     return div()
         .withClasses(Styles.FLEX)
         .with(
@@ -123,8 +130,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         .withClasses(Styles.TEXT_GRAY_400, Styles.TEXT_BASE, Styles.LINE_CLAMP_3)))
         .with(p().withClasses(Styles.W_8))
         .with(
-            div(answerData.answerText())
-                .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_BASE, Styles.LINE_CLAMP_3))
+            answerContent.withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_BASE, Styles.LINE_CLAMP_3))
         .with(p().withClasses(Styles.FLEX_GROW))
         .with(
             div("Answered on " + date)
