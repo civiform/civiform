@@ -1,5 +1,6 @@
 package services.applicant.predicate;
 
+/** Represents a JsonPath operator (https://github.com/json-path/JsonPath#filter-operators). */
 public enum Operator {
   ANY_OF("anyof"),
   EQUAL_TO("=="),

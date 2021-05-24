@@ -2,6 +2,11 @@ package services.applicant.predicate;
 
 import com.google.auto.value.AutoValue;
 
+/**
+ * Represents the value on the right side of a JsonPath (https://github.com/json-path/JsonPath)
+ * predicate expression. This value is usually a defined constant, such as a number, string, or
+ * array.
+ */
 @AutoValue
 public abstract class PredicateValue {
 
