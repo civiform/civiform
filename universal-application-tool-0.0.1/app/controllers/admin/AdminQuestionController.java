@@ -264,11 +264,15 @@ public class AdminQuestionController extends CiviFormController {
         existing
             .getQuestionText()
             .updateTranslation(LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionText()));
-    updated.setQuestionHelpText(
-        existing
-            .getQuestionHelpText()
-            .updateTranslation(
-                LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionHelpText()));
+
+    // Question help text is optional, so only update it if there is a real value here.
+    if (!questionForm.getQuestionHelpText().isEmpty()) {
+      updated.setQuestionHelpText(
+          existing
+              .getQuestionHelpText()
+              .updateTranslation(
+                  LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionHelpText()));
+    }
 
     if (existing.getQuestionType().equals(QuestionType.ENUMERATOR)) {
       updateDefaultLocalizationForEntityType(
