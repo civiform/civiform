@@ -540,11 +540,18 @@ public class ApplicantDataTest {
   public void evalPredicate_numberComparison() {
     ApplicantData data = new ApplicantData();
     data.putLong(Path.create("applicant.one"), 1L);
+    data.putLong(Path.create("applicant.two"), 2L);
 
     assertThat(data.evalPredicate(JsonPathPredicate.create("$.applicant[?(@.one > 0)]"))).isTrue();
     assertThat(data.evalPredicate(JsonPathPredicate.create("$.applicant[?(@.one < 2)]"))).isTrue();
     assertThat(data.evalPredicate(JsonPathPredicate.create("$.applicant[?(@.one == 1)]"))).isTrue();
     assertThat(data.evalPredicate(JsonPathPredicate.create("$.applicant[?(@.one == 2)]")))
+        .isFalse();
+    assertThat(
+            data.evalPredicate(JsonPathPredicate.create("$.applicant[?(@.one < $.applicant.two)]")))
+        .isTrue();
+    assertThat(
+            data.evalPredicate(JsonPathPredicate.create("$.applicant[?(@.one > $.applicant.two)]")))
         .isFalse();
   }
 

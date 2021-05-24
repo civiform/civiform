@@ -1,6 +1,5 @@
 package services.applicant.predicate;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 
