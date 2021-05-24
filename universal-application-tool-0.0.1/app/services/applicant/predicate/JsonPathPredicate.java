@@ -1,6 +1,5 @@
 package services.applicant.predicate;
 
-
 import com.google.auto.value.AutoValue;
 
 /** Holds a JsonPath (https://github.com/json-path/JsonPath) path containing a query predicate. */
