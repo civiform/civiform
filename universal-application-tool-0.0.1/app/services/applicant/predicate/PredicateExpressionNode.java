@@ -1,13 +1,26 @@
-package services.program.predicate;
+package services.applicant.predicate;
 
-import com.google.auto.value.AutoValue;
+import javax.annotation.Nullable;
 
-@AutoValue
-public abstract class PredicateExpressionNode {
+public class PredicateExpressionNode {
 
-  public static PredicateExpressionNode create() {
-    return new AutoValue_PredicateExpressionNode();
+  private final PredicateExpressionNodeType type;
+  private final LeafOperationExpressionNode leafNode;
+
+  public PredicateExpressionNode(
+      PredicateExpressionNodeType type, @Nullable LeafOperationExpressionNode leafNode) {
+    this.type = type;
+    this.leafNode = leafNode;
   }
 
-  public abstract PredicateExpressionNodeType getType();
+  public PredicateExpressionNodeType getType() {
+    return this.type;
+  }
+
+  public LeafOperationExpressionNode getLeafNode() {
+    if (leafNode == null) {
+      throw new RuntimeException("Tried to get a leaf node but no node exists");
+    }
+    return this.leafNode;
+  }
 }
