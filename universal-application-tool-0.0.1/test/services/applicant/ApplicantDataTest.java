@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
 import services.Path;
+import services.applicant.predicate.JsonPathPredicate;
 
 public class ApplicantDataTest {
 

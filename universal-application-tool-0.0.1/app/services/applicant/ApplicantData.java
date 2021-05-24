@@ -29,6 +29,7 @@ import services.LocalizedStrings;
 import services.Path;
 import services.WellKnownPaths;
 import services.applicant.exception.JsonPathTypeMismatchException;
+import services.applicant.predicate.JsonPathPredicate;
 import services.applicant.question.Scalar;
 
 public class ApplicantData {
@@ -454,7 +455,7 @@ public class ApplicantData {
    */
   public boolean evalPredicate(JsonPathPredicate jsonPathPredicate) {
     try {
-      return jsonData.read(jsonPathPredicate.getPathPredicate(), LIST_OF_OBJECTS_TYPE).size() > 0;
+      return jsonData.read(jsonPathPredicate.pathPredicate(), LIST_OF_OBJECTS_TYPE).size() > 0;
     } catch (PathNotFoundException e) {
       return false;
     }
