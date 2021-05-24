@@ -527,6 +527,36 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   @Test
+  public void getSummaryData_returnsLinkForUploadedFile() {
+    // Create a program with a fileupload question and a non-fileupload question
+    QuestionDefinition fileUploadQuestionDefinition =
+        testQuestionBank.applicantFile().getQuestionDefinition();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withBlock("Block one")
+            .withQuestionDefinition(nameQuestion)
+            .withQuestionDefinition(fileUploadQuestionDefinition)
+            .buildDefinition();
+    // Answer the questions
+    answerNameQuestion(programDefinition.id());
+    QuestionAnswerer.answerFileQuestion(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(fileUploadQuestionDefinition.getQuestionPathSegment()),
+        "test-file-key");
+
+    // Test the summary data
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
+    ImmutableList<AnswerData> result = subject.getSummaryData();
+
+    assertEquals(2, result.size());
+    // Non-fileupload question does not have a link
+    assertThat(result.get(0).answerLink()).isEmpty();
+    // Fileupload question has a link
+    assertThat(result.get(1).answerLink()).isNotEmpty();
+  }
+
+  @Test
   public void getSummaryData_returnsWithEmptyData() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);

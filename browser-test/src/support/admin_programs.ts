@@ -168,6 +168,10 @@ export class AdminPrograms {
     return `.cf-admin-application-block-card:has-text("${blockName}")`;
   }
 
+  selectWithinApplicationBlock(blockName: string, selector: string) {
+    return this.selectApplicationBlock(blockName) + ' ' + selector;
+  }
+
   async viewApplicationForApplicant(applicantName: string) {
     await this.page.click(this.selectWithinApplicationForApplicant(applicantName, ':text("View")'));
   }
@@ -175,6 +179,11 @@ export class AdminPrograms {
   async expectApplicationAnswers(blockName: string, questionName: string, answer: string) {
     expect(await this.page.innerText(this.selectApplicationBlock(blockName))).toContain(questionName);
     expect(await this.page.innerText(this.selectApplicationBlock(blockName))).toContain(answer);
+  }
+
+  async expectApplicationAnswerLinks(blockName: string, questionName: string) {
+    expect(await this.page.innerText(this.selectApplicationBlock(blockName))).toContain(questionName);
+    expect(await this.page.getAttribute(this.selectWithinApplicationBlock(blockName, 'a'), 'href')).toBeDefined();
   }
 
   async getCsv() {
