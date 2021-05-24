@@ -12,11 +12,10 @@ import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Locale;
-import java.util.Optional;
 import javax.inject.Inject;
-import play.i18n.MessagesApi;
 import play.i18n.Lang;
 import play.i18n.Langs;
+import play.i18n.MessagesApi;
 import play.mvc.Http;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -29,8 +28,7 @@ public class LanguageSelector {
   private final MessagesApi messagesApi;
 
   @Inject
-  public LanguageSelector(Langs langs,
-  MessagesApi messagesApi) {
+  public LanguageSelector(Langs langs, MessagesApi messagesApi) {
     this.messagesApi = messagesApi;
     this.supportedLanguages =
         langs.availables().stream().map(Lang::toLocale).collect(toImmutableList());

@@ -62,8 +62,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   public Content renderWithNav(
-      Http.Request request, String userName, Messages messages, HtmlBundle bundle) {    
-    String language = languageSelector.getPreferredLangage(request).code();    
+      Http.Request request, String userName, Messages messages, HtmlBundle bundle) {
+    String language = languageSelector.getPreferredLangage(request).code();
     bundle.setLanguage(language);
     bundle.addHeaderContent(renderNavBar(request, userName, messages));
     return render(bundle);
@@ -84,7 +84,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
               .url();
       String preferredLanguage = languageSelector.getPreferredLangage(request).code();
       ContainerTag languageDropdown =
-      languageSelector.renderDropdown(preferredLanguage).attr("onchange", "this.form.submit()");
+          languageSelector.renderDropdown(preferredLanguage).attr("onchange", "this.form.submit()");
       languageForm =
           form()
               .withAction(updateLanguageAction)
