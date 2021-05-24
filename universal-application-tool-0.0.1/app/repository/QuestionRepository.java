@@ -10,6 +10,7 @@ import io.ebean.TxScope;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.Question;
@@ -89,7 +90,9 @@ public class QuestionRepository {
   }
 
   private void updateAllRepeatedQuestions(long newEnumeratorId, long oldEnumeratorId) {
-    versionRepositoryProvider.get().getDraftVersion().getQuestions().stream()
+    Stream.concat(
+            versionRepositoryProvider.get().getDraftVersion().getQuestions().stream(),
+            versionRepositoryProvider.get().getActiveVersion().getQuestions().stream())
         .filter(
             question ->
                 question
@@ -104,30 +107,7 @@ public class QuestionRepository {
                         .setEnumeratorId(Optional.of(newEnumeratorId))
                         .build());
               } catch (UnsupportedQuestionTypeException e) {
-                // This should not be able to happen since the provided question definition is
-                // inherently valid.
-                // Throw runtime exception so callers don't have to deal with it.
-                throw new RuntimeException(e);
-              }
-            });
-    versionRepositoryProvider.get().getActiveVersion().getQuestions().stream()
-        .filter(
-            question ->
-                question
-                    .getQuestionDefinition()
-                    .getEnumeratorId()
-                    .equals(Optional.of(oldEnumeratorId)))
-        .forEach(
-            question -> {
-              try {
-                updateOrCreateDraft(
-                    new QuestionDefinitionBuilder(question.getQuestionDefinition())
-                        .setEnumeratorId(Optional.of(newEnumeratorId))
-                        .build());
-              } catch (UnsupportedQuestionTypeException e) {
-                // This should not be able to happen since the provided question definition is
-                // inherently valid.
-                // Throw runtime exception so callers don't have to deal with it.
+                // All question definitions are looked up and should be valid.
                 throw new RuntimeException(e);
               }
             });
