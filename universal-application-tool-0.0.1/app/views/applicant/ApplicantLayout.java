@@ -24,7 +24,7 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
-import views.LanguageUtils;
+import views.LanguageSelector;
 import views.ViewUtils;
 import views.html.helper.CSRF;
 import views.style.ApplicantStyles;
@@ -36,17 +36,17 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private static final String CIVIFORM_TITLE = "CiviForm";
 
   private final ProfileUtils profileUtils;
-  public final LanguageUtils languageUtils;
+  public final LanguageSelector languageSelector;
 
   @Inject
   public ApplicantLayout(
       ViewUtils viewUtils,
       Config configuration,
       ProfileUtils profileUtils,
-      LanguageUtils languageUtils) {
+      LanguageSelector languageSelector) {
     super(viewUtils, configuration);
     this.profileUtils = checkNotNull(profileUtils);
-    this.languageUtils = checkNotNull(languageUtils);
+    this.languageSelector = checkNotNull(languageSelector);
   }
 
   @Override
@@ -62,13 +62,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   public Content renderWithNav(
-      Http.Request request, String userName, Messages messages, HtmlBundle bundle) {
-    // TODO: This will set the html lang attribute to the requested language when we actually want
-    // the rendered language.
-    Optional<String> language = languageUtils.getPreferredLangage(request);
-    if (language.isPresent()) {
-      bundle.setLanguage(language.get());
-    }
+      Http.Request request, String userName, Messages messages, HtmlBundle bundle) {    
+    String language = languageSelector.getPreferredLangage(request).code();    
+    bundle.setLanguage(language);
     bundle.addHeaderContent(renderNavBar(request, userName, messages));
     return render(bundle);
   }
@@ -86,9 +82,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
           controllers.applicant.routes.ApplicantInformationController.updateWithRedirect(
                   userId, request.uri())
               .url();
-      String preferredLanguage = languageUtils.getPreferredLangage(request).orElse("en");
+      String preferredLanguage = languageSelector.getPreferredLangage(request).code();
       ContainerTag languageDropdown =
-          languageUtils.renderDropdown(preferredLanguage).attr("onchange", "this.form.submit()");
+      languageSelector.renderDropdown(preferredLanguage).attr("onchange", "this.form.submit()");
       languageForm =
           form()
               .withAction(updateLanguageAction)

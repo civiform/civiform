@@ -39,14 +39,14 @@ public class ApplicantInformationView extends BaseHtmlView {
     ContainerTag questionTextDiv =
         div(questionText)
             .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT);
-    String preferredLanguage = layout.languageUtils.getPreferredLangage(request).orElse("");
+    String preferredLanguage = layout.languageSelector.getPreferredLangage(request).code();
     ContainerTag formContent =
         form()
             .withAction(formAction)
             .withMethod(Http.HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(request))
             .with(questionTextDiv)
-            .with(layout.languageUtils.renderRadios(preferredLanguage));
+            .with(layout.languageSelector.renderRadios(preferredLanguage));
 
     String submitText = messages.at(MessageKey.BUTTON_UNTRANSLATED_SUBMIT.getKeyName());
     Tag formSubmit = submitButton(submitText).withClasses(ApplicantStyles.BUTTON_SELECT_LANGUAGE);

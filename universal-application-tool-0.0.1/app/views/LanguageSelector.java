@@ -14,6 +14,7 @@ import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
+import play.i18n.MessagesApi;
 import play.i18n.Lang;
 import play.i18n.Langs;
 import play.mvc.Http;
@@ -22,22 +23,21 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
-public class LanguageUtils {
+public class LanguageSelector {
 
   public final ImmutableList<Locale> supportedLanguages;
+  private final MessagesApi messagesApi;
 
   @Inject
-  public LanguageUtils(Langs langs) {
+  public LanguageSelector(Langs langs,
+  MessagesApi messagesApi) {
+    this.messagesApi = messagesApi;
     this.supportedLanguages =
         langs.availables().stream().map(Lang::toLocale).collect(toImmutableList());
   }
 
-  public Optional<String> getPreferredLangage(Http.Request request) {
-    Optional<Http.Cookie> language = request.cookies().get("PLAY_LANG");
-    if (language.isPresent()) {
-      return Optional.of(language.get().value());
-    }
-    return Optional.empty();
+  public Lang getPreferredLangage(Http.Request request) {
+    return messagesApi.preferred(request).lang();
   }
 
   public ContainerTag renderDropdown(String preferredLanguage) {
