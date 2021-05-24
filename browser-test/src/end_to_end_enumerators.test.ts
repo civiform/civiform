@@ -155,4 +155,25 @@ describe('End to end enumerator test', () => {
 
     await endSession(browser);
   });
+
+  it('Create new version of enumerator and update repeated questions and programs', async () => {
+    const { browser, page } = await startSession();
+    page.setDefaultTimeout(4000);
+
+    await loginAsAdmin(page);
+    const adminQuestions = new AdminQuestions(page);
+    const adminPrograms = new AdminPrograms(page);
+
+    await adminQuestions.createNewVersion('enumerator-ete-householdmembers');
+
+    // Repeated questions are updated.
+    await adminQuestions.expectDraftQuestionExist('enumerator-ete-repeated-name');
+    await adminQuestions.expectDraftQuestionExist('enumerator-ete-repeated-jobs');
+    await adminQuestions.expectDraftQuestionExist('enumerator-ete-repeated-jobs-income');
+
+    // Assert publish does not cause problem, i.e. no program refers to old questions.
+    await adminPrograms.publishProgram(programName);
+
+    await endSession(browser);
+  });
 })
