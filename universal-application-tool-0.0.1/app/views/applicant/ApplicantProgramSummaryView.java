@@ -133,9 +133,15 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       questionContent.with(timestampContent);
     }
 
+    ContainerTag answerContent;
+    if (data.answerLink().isPresent()) {
+      answerContent = a().withHref(data.answerLink().get().toString());
+    } else {
+      answerContent = div();
+    }
+    answerContent.withClasses(
+        Styles.FLEX_AUTO, Styles.TEXT_LEFT, Styles.FONT_LIGHT, Styles.TEXT_SM);
     // Add answer text, converting newlines to <br/> tags.
-    ContainerTag answerContent =
-        div().withClasses(Styles.FLEX_AUTO, Styles.TEXT_LEFT, Styles.FONT_LIGHT, Styles.TEXT_SM);
     String[] texts = data.answerText().split("\n");
     texts = Arrays.stream(texts).filter(text -> text.length() > 0).toArray(String[]::new);
     for (int i = 0; i < texts.length; i++) {
