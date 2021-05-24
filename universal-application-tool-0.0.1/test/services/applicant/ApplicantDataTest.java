@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
 import services.Path;
+import services.applicant.predicate.JsonPathPredicate;
 
 public class ApplicantDataTest {
 
@@ -505,5 +506,76 @@ public class ApplicantDataTest {
 
     data.maybeClearArray(Path.create("applicant.cars"));
     assertThat(data.asJsonString()).isEqualTo(expected);
+  }
+
+  @Test
+  public void evalPredicate_pathDoesNotExist() {
+    ApplicantData data = new ApplicantData();
+    JsonPathPredicate predicate = JsonPathPredicate.create("$.applicant.things[0][?(@.one)]");
+
+    assertThat(data.evalPredicate(predicate)).isFalse();
+  }
+
+  @Test
+  public void evalPredicate_stringComparison() {
+    ApplicantData data = new ApplicantData();
+    data.putString(Path.create("applicant.one"), "test");
+    data.putString(Path.create("applicant.two[0].three"), "three");
+
+    assertThat(data.evalPredicate(JsonPathPredicate.create("$.applicant[?(@.one == \"test\")]")))
+        .isTrue();
+    assertThat(data.evalPredicate(JsonPathPredicate.create("$.applicant[?(@.one == \"fail\")]")))
+        .isFalse();
+    assertThat(
+            data.evalPredicate(
+                JsonPathPredicate.create("$.applicant.two[0][?(@.three == \"three\")]")))
+        .isTrue();
+    assertThat(
+            data.evalPredicate(
+                JsonPathPredicate.create("$.applicant.two[1][?(@.three == \"other\")]")))
+        .isFalse();
+  }
+
+  @Test
+  public void evalPredicate_numberComparison() {
+    ApplicantData data = new ApplicantData();
+    data.putLong(Path.create("applicant.one"), 1L);
+    data.putLong(Path.create("applicant.two"), 2L);
+
+    assertThat(data.evalPredicate(JsonPathPredicate.create("$.applicant[?(@.one > 0)]"))).isTrue();
+    assertThat(data.evalPredicate(JsonPathPredicate.create("$.applicant[?(@.one < 2)]"))).isTrue();
+    assertThat(data.evalPredicate(JsonPathPredicate.create("$.applicant[?(@.one == 1)]"))).isTrue();
+    assertThat(data.evalPredicate(JsonPathPredicate.create("$.applicant[?(@.one == 2)]")))
+        .isFalse();
+    assertThat(
+            data.evalPredicate(JsonPathPredicate.create("$.applicant[?(@.one < $.applicant.two)]")))
+        .isTrue();
+    assertThat(
+            data.evalPredicate(JsonPathPredicate.create("$.applicant[?(@.one > $.applicant.two)]")))
+        .isFalse();
+  }
+
+  @Test
+  public void evalPredicate_anyOf() {
+    ApplicantData data = new ApplicantData();
+    data.putLong(Path.create("applicant.one[0]"), 2L);
+
+    assertThat(data.evalPredicate(JsonPathPredicate.create("$.applicant[?(@.one anyof [1, 2])]")))
+        .isTrue();
+    assertThat(data.evalPredicate(JsonPathPredicate.create("$.applicant[?(@.one anyof [3, 4])]")))
+        .isFalse();
+  }
+
+  @Test
+  public void evalPredicate_in() {
+    ApplicantData data = new ApplicantData();
+    data.putString(Path.create("applicant.one"), "test");
+
+    assertThat(
+            data.evalPredicate(
+                JsonPathPredicate.create("$.applicant[?(@.one in [\"test\", \"other\"])]")))
+        .isTrue();
+    assertThat(data.evalPredicate(JsonPathPredicate.create("$.applicant[?(@.one in [\"other\"])]")))
+        .isFalse();
   }
 }

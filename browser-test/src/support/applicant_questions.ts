@@ -81,7 +81,7 @@ export class ApplicantQuestions {
     const pleaseLogInPageRegex = /considerSignIn\?redirectTo=/;
     const maybePleaseLogInPage = await this.page.url();
     if (maybePleaseLogInPage.match(pleaseLogInPageRegex)) {
-       await this.page.click('text="Not right now"');
+      await this.page.click('text="Not right now"');
     }
 
     // Ensure that we redirected to the programs list page.
