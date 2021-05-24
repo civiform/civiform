@@ -75,18 +75,18 @@ public class PhoneNumberQuestion implements PresentsErrors {
     }
 
     public void assertQuestionType() {
-        if (!applicantQuestion.getType().equals(QuestionType.TEXT)) {
+        if (!applicantQuestion.getType().equals(QuestionType.PHONENUMBER)) {
             throw new RuntimeException(
                     String.format(
-                            "Question is not a TEXT question: %s (type: %s)",
+                            "Question is not a PHONENUMBER question: %s (type: %s)",
                             applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
                             applicantQuestion.getQuestionDefinition().getQuestionType()));
         }
     }
 
-    public TextQuestionDefinition getQuestionDefinition() {
+    public PhoneNumberQuestionDefinition getQuestionDefinition() {
         assertQuestionType();
-        return (TextQuestionDefinition) applicantQuestion.getQuestionDefinition();
+        return (PhoneNumberQuestionDefinition) applicantQuestion.getQuestionDefinition();
     }
 
     public Path getTextPath() {

@@ -18,7 +18,7 @@ public class PhoneNumberQuestionDefinition extends QuestionDefinition {
             String description,
             LocalizedStrings questionText,
             LocalizedStrings questionHelpText,
-            TextValidationPredicates validationPredicates) {
+            PhoneNumberValidationPredicates validationPredicates) {
         super(
                 id, name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
     }
@@ -29,7 +29,7 @@ public class PhoneNumberQuestionDefinition extends QuestionDefinition {
             String description,
             LocalizedStrings questionText,
             LocalizedStrings questionHelpText,
-            TextValidationPredicates validationPredicates) {
+            PhoneNumberValidationPredicates validationPredicates) {
         super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
     }
 
@@ -45,7 +45,7 @@ public class PhoneNumberQuestionDefinition extends QuestionDefinition {
                 description,
                 questionText,
                 questionHelpText,
-                TextValidationPredicates.create());
+                PhoneNumberValidationPredicates.create());
     }
 
     @JsonDeserialize(
@@ -65,14 +65,9 @@ public class PhoneNumberQuestionDefinition extends QuestionDefinition {
         public static PhoneNumberValidationPredicates create() {
             return builder().build();
         }
-        // Only validation predicate would be that entry contains all numbers/digits
-        // But if you use <input type="tel"> you could do client side validation so is it redundant to
-        // have a validation check here? No because you cannot rely on client-side validation
-        // since users can potentially put malformed inputs for malicious reasons
-        // Every form value is a string in HTML so you would have to do a type conversion when
-        // saving phone number to database
-        public static PhoneNumberValidationPredicates create(int minLength, int maxLength) {
-            return builder().setMinLength(minLength).setMaxLength(maxLength).build();
+
+        public static PhoneNumberValidationPredicates create() {
+            return builder().build();
         }
 
         public static Builder builder() {
