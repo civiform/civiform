@@ -175,10 +175,10 @@ export class AdminQuestions {
   }
 
   async addDateQuestion(questionName: string,
-    description = 'date description',
-    questionText = 'date question text',
-    helpText = 'date question help text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
+                           description = 'date description',
+                           questionText = 'date question text',
+                           helpText = 'date question help text',
+                           enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
 
