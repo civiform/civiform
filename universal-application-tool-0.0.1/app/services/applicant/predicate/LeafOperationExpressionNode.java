@@ -9,7 +9,7 @@ import services.applicant.question.Scalar;
  * the format ${json_key} ${operator} ${value}. The expression must be in the context of a single
  * question.
  *
- * <p>Example: @.zip in ['12345', '12344']
+ * <p>Example: {@code @.zip in ['12345', '12344']}
  */
 @AutoValue
 public abstract class LeafOperationExpressionNode {
@@ -39,7 +39,7 @@ public abstract class LeafOperationExpressionNode {
   /**
    * Formats this expression in JsonPath format: path[?(expression)]
    *
-   * <p>Example: $.applicant.address[?(@.zip in ['12345', '56789'])]
+   * <p>Example: {@code $.applicant.address[?(@.zip in ['12345', '56789'])]}
    */
   public JsonPathPredicate toJsonPathPredicate(Path questionPath) {
     return JsonPathPredicate.create(
