@@ -1,5 +1,6 @@
 package services.applicant;
 
+import auth.UatProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.concurrent.CompletionStage;
@@ -54,7 +55,8 @@ public interface ApplicantService {
    * @return the saved {@link Application}. If the submission failed, a {@link
    *     ApplictionSubmissionException} is thrown and wrapped in a `CompletionException`.
    */
-  CompletionStage<Application> submitApplication(long applicantId, long programId);
+  CompletionStage<Application> submitApplication(
+      long applicantId, long programId, UatProfile submittingProfile);
 
   /** Create a new {@link Applicant} for a given user. */
   CompletionStage<Applicant> createApplicant(long userId);
