@@ -70,7 +70,7 @@ public abstract class Path {
   /**
    * Returns this path in JsonPath predicate format, which must start with {@code \$.}
    *
-   * <p>Example: {@code \$.applicant.address.zip}
+   * <p>Example: {@code $$.applicant.address.zip}
    */
   @Memoized
   public String predicateFormat() {

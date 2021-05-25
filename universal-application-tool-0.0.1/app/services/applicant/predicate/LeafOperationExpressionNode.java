@@ -6,10 +6,10 @@ import services.applicant.question.Scalar;
 
 /**
  * Represents a JsonPath (https://github.com/json-path/JsonPath) expression for a single scalar in
- * the format: {@code \[json_key\]\[operator\]\[value\]} The expression must be in the context of a single
+ * the format:  The expression must be in the context of a single
  * question.
  *
- * <p>Example: {@code \$.applicant.address\[?(@.zip in \["12345", "56789"\])\]}
+ * <p>Example: {@code $$.applicant.address}
  */
 @AutoValue
 public abstract class LeafOperationExpressionNode implements ConcretePredicateExpressionNode {
@@ -39,9 +39,9 @@ public abstract class LeafOperationExpressionNode implements ConcretePredicateEx
   }
 
   /**
-   * Formats this expression in JsonPath format: {@code path\[?(expression)\]}
+   * Formats this expression in JsonPath format:
    *
-   * <p>Example: {@code \$.applicant.address\[?(@.zip in \["12345", "56789"\])\]}
+   * <p>Example: {@code $$.applicant.address}
    */
   public JsonPathPredicate toJsonPathPredicate(Path questionPath) {
     return JsonPathPredicate.create(
