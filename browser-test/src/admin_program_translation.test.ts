@@ -98,9 +98,9 @@ describe('Admin can manage translations', () => {
     const applicantQuestions = new ApplicantQuestions(page);
     await applicantQuestions.applyProgram(programName);
 
-    expect(await page.innerText('form')).toContain('uno');
-    expect(await page.innerText('form')).toContain('dos');
-    expect(await page.innerText('form')).toContain('tres');
+    expect(await page.innerText('main form')).toContain('uno');
+    expect(await page.innerText('main form')).toContain('dos');
+    expect(await page.innerText('main form')).toContain('tres');
     await endSession(browser);
   });
 
@@ -134,7 +134,7 @@ describe('Admin can manage translations', () => {
     const applicantQuestions = new ApplicantQuestions(page);
     await applicantQuestions.applyProgram(programName);
 
-    expect(await page.innerText('form')).toContain('family member');
+    expect(await page.innerText('main form')).toContain('family member');
     await endSession(browser);
   });
 

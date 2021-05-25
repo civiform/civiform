@@ -72,28 +72,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private ContainerTag renderNavBar(Http.Request request, String userName, Messages messages) {
     Optional<UatProfile> profile = profileUtils.currentUserProfile(request);
 
-    String csrfToken = CSRF.getToken(request.asScala()).value();
-    Tag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");
-
-    ContainerTag languageForm = div();
-    if (profile.isPresent()) { // Show language switcher.
-      long userId = Long.parseLong(profile.get().getId());
-      String updateLanguageAction =
-          controllers.applicant.routes.ApplicantInformationController.updateWithRedirect(
-                  userId, request.uri())
-              .url();
-      String preferredLanguage = languageSelector.getPreferredLangage(request).code();
-      ContainerTag languageDropdown =
-          languageSelector.renderDropdown(preferredLanguage).attr("onchange", "this.form.submit()");
-      languageForm =
-          form()
-              .withAction(updateLanguageAction)
-              .withMethod(Http.HttpVerbs.POST)
-              .with(csrfInput)
-              .with(languageDropdown)
-              .with(TagCreator.button().withId("cf-update-lang").withType("submit").isHidden());
-    }
-
     return nav()
         .withClasses(
             Styles.BG_WHITE,
@@ -105,8 +83,42 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(branding())
         .with(maybeRenderTiButton(profile, userName))
         .with(
-            div(languageForm, logoutButton(messages))
+            div(getLanguageForm(request, profile), logoutButton(messages))
                 .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
+  }
+
+  private ContainerTag getLanguageForm(Http.Request request, Optional<UatProfile> profile) {
+    ContainerTag languageForm = div();
+    if (profile.isPresent()) { // Show language switcher.
+      long userId = Long.parseLong(profile.get().getId());
+
+      String applicantInfoUrl = 
+        controllers.applicant.routes.ApplicantInformationController.edit(userId).url();
+      String updateLanguageAction =
+        controllers.applicant.routes.ApplicantInformationController.updateWithRedirect(
+                userId, request.uri())
+            .url();
+
+      // Show language switcher if we're not on the applicant info page.
+      boolean showLanguageSwitcher = !request.uri().equals(applicantInfoUrl);
+      if (showLanguageSwitcher) {
+        String csrfToken = CSRF.getToken(request.asScala()).value();
+        Tag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");
+       
+        String preferredLanguage = languageSelector.getPreferredLangage(request).code();
+        ContainerTag languageDropdown =
+          languageSelector.renderDropdown(preferredLanguage)
+              .attr("onchange", "this.form.submit()");
+        languageForm =
+          form()
+              .withAction(updateLanguageAction)
+              .withMethod(Http.HttpVerbs.POST)
+              .with(csrfInput)
+              .with(languageDropdown)
+              .with(TagCreator.button().withId("cf-update-lang").withType("submit").isHidden());
+      }
+    }
+    return languageForm;
   }
 
   private ContainerTag branding() {
