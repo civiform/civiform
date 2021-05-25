@@ -1,6 +1,5 @@
 package services.applicant.predicate;
 
-
 /** Represents a predicate that can be evaluated over {@link services.applicant.ApplicantData}. */
 public class PredicateExpressionNode {
 
