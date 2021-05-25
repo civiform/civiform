@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.net.URL;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -11,7 +12,9 @@ import java.util.stream.Collectors;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.Scalar;
+import services.aws.SimpleStorage;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.LocalizedQuestionOption;
@@ -19,13 +22,17 @@ import services.question.types.EnumeratorQuestionDefinition;
 
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
 
+  private final SimpleStorage amazonS3Client;
   private final ApplicantData applicantData;
   private final ProgramDefinition programDefinition;
   private ImmutableList<Block> allBlockList;
   private ImmutableList<Block> currentBlockList;
 
   protected ReadOnlyApplicantProgramServiceImpl(
-      ApplicantData applicantData, ProgramDefinition programDefinition) {
+      SimpleStorage amazonS3Client,
+      ApplicantData applicantData,
+      ProgramDefinition programDefinition) {
+    this.amazonS3Client = checkNotNull(amazonS3Client);
     this.applicantData = new ApplicantData(checkNotNull(applicantData).asJsonString());
     this.applicantData.setPreferredLocale(applicantData.preferredLocale());
     this.applicantData.lock();
@@ -190,6 +197,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setQuestionIndex(questionIndex)
                 .setQuestionText(questionText)
                 .setAnswerText(answerText)
+                .setAnswerLink(getAnswerLink(question))
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
                 .setIsPreviousResponse(isPreviousResponse)
                 .setScalarAnswersInDefaultLocale(
@@ -199,6 +207,21 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       }
     }
     return builder.build();
+  }
+
+  /** Returns a link to answer content if applicable, e.g. an uploaded file. */
+  private Optional<URL> getAnswerLink(ApplicantQuestion question) {
+    switch (question.getType()) {
+      case FILEUPLOAD:
+        FileUploadQuestion fileUploadQuestion = question.createFileUploadQuestion();
+        if (!fileUploadQuestion.isAnswered() || fileUploadQuestion.getFileKeyValue().isEmpty()) {
+          return Optional.empty();
+        }
+        return Optional.of(
+            amazonS3Client.getPresignedUrl(fileUploadQuestion.getFileKeyValue().get()));
+      default:
+        return Optional.empty();
+    }
   }
 
   /**
