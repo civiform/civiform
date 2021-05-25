@@ -265,8 +265,11 @@ public class AdminQuestionController extends CiviFormController {
             .getQuestionText()
             .updateTranslation(LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionText()));
 
-    // Question help text is optional, so only update it if there is a real value here.
-    if (!questionForm.getQuestionHelpText().isEmpty()) {
+    // Question help text is optional. If the admin submits an empty string, delete
+    // all translations of it.
+    if (questionForm.getQuestionHelpText().isEmpty()) {
+      updated.setQuestionHelpText(LocalizedStrings.empty());
+    } else {
       updated.setQuestionHelpText(
           existing
               .getQuestionHelpText()
