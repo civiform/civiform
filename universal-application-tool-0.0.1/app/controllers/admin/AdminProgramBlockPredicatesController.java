@@ -5,7 +5,6 @@ import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 
 import auth.Authorizers;
-import com.google.common.collect.ImmutableList;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.mvc.Http.Request;
@@ -16,31 +15,37 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
+import services.question.ReadOnlyQuestionService;
 import views.admin.programs.ProgramBlockPredicatesEditView;
 
 public class AdminProgramBlockPredicatesController {
   private final ProgramService programService;
-//  private final QuestionService questionService;
+  private final QuestionService questionService;
   private final ProgramBlockPredicatesEditView predicatesEditView;
 
   @Inject
   public AdminProgramBlockPredicatesController(
       ProgramService programService,
-//      QuestionService questionService,
+      QuestionService questionService,
       ProgramBlockPredicatesEditView predicatesEditView) {
     this.programService = checkNotNull(programService);
-//    this.questionService = checkNotNull(questionService);
+    this.questionService = checkNotNull(questionService);
     this.predicatesEditView = checkNotNull(predicatesEditView);
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result edit(Request request, long programId, long blockDefinitionId) {
+    ReadOnlyQuestionService readOnlyQuestionService =
+        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
     try {
       ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
       return ok(
           predicatesEditView.render(
-              request, programDefinition, blockDefinition, ImmutableList.of()));
+              request,
+              programDefinition,
+              blockDefinition,
+              readOnlyQuestionService.getAllQuestions()));
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
     }
