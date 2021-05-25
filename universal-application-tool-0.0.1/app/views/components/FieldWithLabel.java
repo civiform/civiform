@@ -198,8 +198,7 @@ public class FieldWithLabel {
     fieldTag
         .withClasses(
             StyleUtils.joinStyles(
-                BaseStyles.INPUT,
-                hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
+                BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
         .withCondId(!this.id.isEmpty(), this.id)
         .withName(this.fieldName)
         .condAttr(this.disabled, Attr.DISABLED, "true")
@@ -243,15 +242,14 @@ public class FieldWithLabel {
   }
 
   private Tag buildFieldErrorsTag() {
-    String[] referenceClasses = 
-      referenceClassesBuilder.build()
-        .stream()
-        .map(ref -> (ref + "-error").toString())
-        .toArray(String[]::new);
+    String[] referenceClasses =
+        referenceClassesBuilder.build().stream()
+            .map(ref -> (ref + "-error").toString())
+            .toArray(String[]::new);
     return div(each(fieldErrors, error -> div(error.getMessage(messages))))
-        .withClasses(StyleUtils.joinStyles(referenceClasses), 
-          StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_XS, Styles.P_1),
-            fieldErrors.isEmpty() || !showFieldErrors
-                ? Styles.HIDDEN : "");
+        .withClasses(
+            StyleUtils.joinStyles(referenceClasses),
+            StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_XS, Styles.P_1),
+            fieldErrors.isEmpty() || !showFieldErrors ? Styles.HIDDEN : "");
   }
 }

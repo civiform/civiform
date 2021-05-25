@@ -85,9 +85,9 @@ public class AddressQuestion implements PresentsErrors {
     return ImmutableSet.of();
   }
 
-  public ImmutableSet<ValidationErrorMessage> getStreetErrorMessage() {  
+  public ImmutableSet<ValidationErrorMessage> getStreetErrorMessage() {
     return ImmutableSet.of(
-      ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STREET_REQUIRED));
+        ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STREET_REQUIRED));
   }
 
   public ImmutableSet<ValidationErrorMessage> getCityErrors() {
@@ -98,9 +98,9 @@ public class AddressQuestion implements PresentsErrors {
     return ImmutableSet.of();
   }
 
-  public ImmutableSet<ValidationErrorMessage> getCityErrorMessage() {  
+  public ImmutableSet<ValidationErrorMessage> getCityErrorMessage() {
     return ImmutableSet.of(
-    ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_CITY_REQUIRED));
+        ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_CITY_REQUIRED));
   }
 
   public ImmutableSet<ValidationErrorMessage> getStateErrors() {
@@ -111,9 +111,10 @@ public class AddressQuestion implements PresentsErrors {
 
     return ImmutableSet.of();
   }
-  
-  public ImmutableSet<ValidationErrorMessage> getStateErrorMessage() {  
-    return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STATE_REQUIRED));
+
+  public ImmutableSet<ValidationErrorMessage> getStateErrorMessage() {
+    return ImmutableSet.of(
+        ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STATE_REQUIRED));
   }
 
   public ImmutableSet<ValidationErrorMessage> getZipErrors() {
@@ -134,10 +135,9 @@ public class AddressQuestion implements PresentsErrors {
     return ImmutableSet.of();
   }
 
-  public ImmutableSet<ValidationErrorMessage> getZipErrorMessage() {  
+  public ImmutableSet<ValidationErrorMessage> getZipErrorMessage() {
     return ImmutableSet.of(
-    ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_INVALID_ZIPCODE)
-    );
+        ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_INVALID_ZIPCODE));
   }
 
   public Optional<String> getStreetValue() {

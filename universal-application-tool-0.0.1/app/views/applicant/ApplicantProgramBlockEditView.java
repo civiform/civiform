@@ -113,6 +113,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         ApplicantQuestionRendererParams.builder().setMessages(params.messages()).build();
 
     return form()
+        .withId("cf-block-form")
         .withAction(formAction)
         .withMethod(HttpVerbs.POST)
         .with(makeCsrfTokenInputTag(params.request()))
@@ -180,7 +181,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
   private Tag renderNextButton(Params params) {
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName()))
-        .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT).withId("cf-block-submit");
+        .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
+        .withId("cf-block-submit");
   }
 
   @AutoValue

@@ -1,19 +1,35 @@
 /** The validation controller provides basic client-side validation of form fields. */
-class ValidationController {  
+class ValidationController {
   static readonly ADDRESS_QUESTION_CLASS = '.cf-question-address';
   static readonly ENUMERATOR_QUESTION_CLASS = '.cf-question-enumerator';
   static readonly NAME_QUESTION_CLASS = '.cf-question-name';
 
   static readonly ENUMERATOR_DELETE_TEMPLATE = 'enumerator-delete-template';
   static readonly BLOCK_SUBMIT_BUTTON_ID = 'cf-block-submit';
-  
+
   isAddressValid = true;
   isEnumeratorValid = true;
   isNameValid = true;
 
+  /** 
+   * Validating on input will call the validators whenever a field is updated.
+   * The default behavior is to only attempt to validate on submit.
+   * 
+   * Validate on input will also disable the submit button when errors are detected.
+   */
+  validateOnInput = false;
+
   constructor() {
+    // attach listener to block form.
+    const blockForm = document.getElementById("cf-block-form");
+    if (blockForm) {
+      blockForm.addEventListener("submit", (event) => { return this.attemptSubmit(event); });
+    }
+
     // attach listeners to all form fields.
-    this.addQuestionListeners();
+    if (this.validateOnInput) {
+      this.addQuestionListeners();
+    }
   }
 
   /** attach listeners so that we know when to update validations. */
@@ -21,6 +37,15 @@ class ValidationController {
     this.addAddressListeners();
     this.addEnumeratorListeners();
     this.addNameListeners();
+  }
+
+  private attemptSubmit(event: Event): boolean {
+    this.checkAllQuestionTypes();
+    if (!this.isValid()) {
+      event.preventDefault();
+      return false;
+    }
+    return true;
   }
 
   /** Add listeners to all address inputs to update validation on changes. */
@@ -115,7 +140,7 @@ class ValidationController {
     const submitEnabled = this.isValid();
     const submitButton =
       <HTMLInputElement>document.getElementById(ValidationController.BLOCK_SUBMIT_BUTTON_ID);
-    if (submitButton) {
+    if (submitButton && this.validateOnInput) {
       submitButton.disabled = !submitEnabled;
     }
   }
@@ -143,7 +168,7 @@ class ValidationController {
       const cityValid = city.value.length > 0;
       // Change styling of '.cf-address-city-error' as necessary.
       this.updateFieldErrorState(question, '.cf-address-city', cityValid);
-      
+
       // validate state.
       const state = <HTMLInputElement>question.querySelector(".cf-address-state input");
       const stateValid = state.value.length > 0;
@@ -156,7 +181,7 @@ class ValidationController {
       // Change styling of '.cf-address-zip-error' as necessary.
       this.updateFieldErrorState(question, '.cf-address-zip', hasValidZip);
 
-      const hasEmptyInputs = !(addressLine1Valid && cityValid && stateValid && zipCode.value.length > 0);      
+      const hasEmptyInputs = !(addressLine1Valid && cityValid && stateValid && zipCode.value.length > 0);
 
       isValid = !hasEmptyInputs && hasValidZip;
     }
@@ -174,11 +199,12 @@ class ValidationController {
 
       // validate that there are no empty inputs.
       const hasEmptyInputs = enumeratorInputValues.includes("");
+
       // if we have empty inputs then disable the add input button. (We don't need two blank inputs.)
-      const addButton = <HTMLInputElement>document.getElementById('enumerator-field-add-button');
-      if (addButton) {
-        addButton.disabled = hasEmptyInputs;
-      }
+      // const addButton = <HTMLInputElement>document.getElementById('enumerator-field-add-button');
+      // if (addButton) {
+      //   addButton.disabled = hasEmptyInputs;
+      // }
 
       // validate that there are no duplicate entries.
       const hasDupes = (new Set(enumeratorInputValues)).size !== enumeratorInputValues.length;
@@ -208,5 +234,4 @@ class ValidationController {
 
 window.addEventListener('pageshow', () => {
   const validationController = new ValidationController();
-  validationController.checkAllQuestionTypes();
 });
