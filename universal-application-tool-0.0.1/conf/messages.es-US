@@ -1,4 +1,10 @@
+# ------------------------------------------------------------------------------- #
 # Spanish (US)
+#
+# CAUTION: Apostrophes are used as escape characters
+# To type an apostrophe in a message, please type two. Example: can't -> can''t
+# https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
+# ------------------------------------------------------------------------------- #
 
 button.apply=Solicitar
 button.continue=Seguir
@@ -17,6 +23,9 @@ link.programDetails=Detalles del programa
 content.benefits=Obtener beneficios
 content.description1=CiviForm le permite solicitar muchos beneficios a la vez reutilizando información.
 content.description2=Comience eligiendo una aplicación a continuación.
+link.returnToDash=Regresar a todos los programas
+link.doCreateAccount=Crea una cuenta o inicia sesión
+link.dontCreateAccount=No ahora
 
 label.street=Dirección Línea 1
 placeholder.street=Dirección

@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.p;
 
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.routes;
@@ -22,6 +21,7 @@ import services.MessageKey;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.SelectWithLabel;
+import views.style.ApplicantStyles;
 
 /**
  * Provides a form for selecting an applicant's preferred language. Note that we cannot use Play's
@@ -49,10 +49,16 @@ public class ApplicantInformationView extends BaseHtmlView {
             .withMethod(Http.HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(request))
             .with(selectLanguageDropdown(messages))
-            .with(submitButton(messages.at(MessageKey.BUTTON_UNTRANSLATED_SUBMIT.getKeyName())));
+            .with(
+                submitButton(messages.at(MessageKey.BUTTON_UNTRANSLATED_SUBMIT.getKeyName()))
+                    .withClasses(ApplicantStyles.BUTTON_SELECT_LANGUAGE));
 
     HtmlBundle bundle =
-        layout.getBundle().setTitle("Applicant information").addMainContent(formContent);
+        layout
+            .getBundle()
+            .setTitle("Applicant information")
+            .addMainStyles(ApplicantStyles.MAIN_APPLICANT_INFO)
+            .addMainContent(formContent);
     return layout.renderWithNav(request, userName, messages, bundle);
   }
 
@@ -61,6 +67,7 @@ public class ApplicantInformationView extends BaseHtmlView {
         new SelectWithLabel()
             .setId("select-language")
             .setFieldName("locale")
+            .setLabelText(messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName()))
             .setOptions(
                 // An option consists of the language (localized to that language - for example,
                 // this would display 'Español' for es-US), and the value is the ISO code.
@@ -71,9 +78,7 @@ public class ApplicantInformationView extends BaseHtmlView {
                                 formatLabel(locale), locale.toLanguageTag()))
                     .collect(toImmutableList()));
 
-    return div()
-        .with(p(messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName())))
-        .with(languageSelect.getContainer());
+    return div().with(languageSelect.getContainer());
   }
 
   /**

@@ -10,6 +10,7 @@ import io.ebean.TxScope;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.Question;
@@ -67,6 +68,13 @@ public class QuestionRepository {
           insertQuestionSync(newDraft);
           newDraft.addVersion(draftVersion);
           newDraft.save();
+          draftVersion.refresh();
+
+          if (definition.isEnumerator()) {
+            transaction.setNestedUseSavepoint();
+            updateAllRepeatedQuestions(newDraft.id, definition.getId());
+          }
+
           transaction.setNestedUseSavepoint();
           versionRepositoryProvider.get().updateProgramsForNewDraftQuestion(definition.getId());
           transaction.commit();
@@ -79,6 +87,30 @@ public class QuestionRepository {
         throw new RuntimeException(e);
       }
     }
+  }
+
+  private void updateAllRepeatedQuestions(long newEnumeratorId, long oldEnumeratorId) {
+    Stream.concat(
+            versionRepositoryProvider.get().getDraftVersion().getQuestions().stream(),
+            versionRepositoryProvider.get().getActiveVersion().getQuestions().stream())
+        .filter(
+            question ->
+                question
+                    .getQuestionDefinition()
+                    .getEnumeratorId()
+                    .equals(Optional.of(oldEnumeratorId)))
+        .forEach(
+            question -> {
+              try {
+                updateOrCreateDraft(
+                    new QuestionDefinitionBuilder(question.getQuestionDefinition())
+                        .setEnumeratorId(Optional.of(newEnumeratorId))
+                        .build());
+              } catch (UnsupportedQuestionTypeException e) {
+                // All question definitions are looked up and should be valid.
+                throw new RuntimeException(e);
+              }
+            });
   }
 
   /**

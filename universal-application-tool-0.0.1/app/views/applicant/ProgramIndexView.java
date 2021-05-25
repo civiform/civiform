@@ -103,7 +103,7 @@ public class ProgramIndexView extends BaseHtmlView {
       Locale preferredLocale) {
     return div()
         .withId("main-content")
-        .withClasses(Styles.M_10)
+        .withClasses(Styles.MX_6, Styles.MY_4, StyleUtils.responsiveSmall(Styles.M_10))
         .with(
             h2().withText(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName()))
                 .withClasses(Styles.BLOCK, Styles.MB_4, Styles.TEXT_LG, Styles.FONT_SEMIBOLD))
@@ -130,20 +130,24 @@ public class ProgramIndexView extends BaseHtmlView {
     ContainerTag description =
         div()
             .withId(baseId + "-description")
-            .withClasses(Styles.TEXT_XS, Styles.MY_2)
+            .withClasses(
+                ReferenceClasses.APPLICATION_CARD_DESCRIPTION,
+                Styles.TEXT_XS,
+                Styles.MY_2,
+                Styles.LINE_CLAMP_5)
             .with(descriptionContent);
 
     ContainerTag externalLink =
         new LinkElement()
             .setId(baseId + "-external-link")
             .setStyles(Styles.TEXT_XS, Styles.UNDERLINE)
-            .setText(messages.at(MessageKey.CONTENT_PROGRAM_DETAILS.getKeyName()))
+            .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
             .setHref(routes.RedirectController.programByName(program.slug()).url())
             .asAnchorText();
     ContainerTag programData =
         div()
             .withId(baseId + "-data")
-            .withClasses(Styles.PX_4)
+            .withClasses(Styles.W_FULL, Styles.PX_4, Styles.OVERFLOW_AUTO)
             .with(title, description, externalLink);
 
     String applyUrl =
@@ -156,14 +160,21 @@ public class ProgramIndexView extends BaseHtmlView {
             .withClasses(ReferenceClasses.APPLY_BUTTON, ApplicantStyles.BUTTON_PROGRAM_APPLY);
 
     ContainerTag applyDiv =
-        div(applyButton).withClasses(Styles.ABSOLUTE, Styles.BOTTOM_6, Styles.W_FULL);
+        div(applyButton)
+            .withClasses(
+                Styles.W_FULL, Styles.MB_6, Styles.FLEX_GROW, Styles.FLEX, Styles.ITEMS_END);
     return div()
         .withId(baseId)
         .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
         .with(
+            // The visual bar at the top of each program card.
             div()
                 .withClasses(
-                    BaseStyles.BG_SEATTLE_BLUE, Styles.H_3, Styles.ROUNDED_T_XL, Styles.MB_4))
+                    Styles.BLOCK,
+                    Styles.FLEX_SHRINK_0,
+                    BaseStyles.BG_SEATTLE_BLUE,
+                    Styles.ROUNDED_T_XL,
+                    Styles.H_3))
         .with(programData)
         .with(applyDiv);
   }

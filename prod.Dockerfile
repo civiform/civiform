@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11:alpine-slim AS stage1
+FROM adoptopenjdk/openjdk11:jdk-11.0.10_9-alpine-slim AS stage1
 
 # sbt
 
@@ -38,9 +38,9 @@ RUN cd $PROJECT_HOME/$PROJECT_NAME && npm install && \
 
 # This is a common trick to shrink container sizes.  we just throw away all that build stuff and use only the jars
 # we built with sbt dist.
-FROM adoptopenjdk/openjdk11:alpine-slim AS stage2
-COPY --from=stage1 /usr/src/universal-application-tool-0.0.1/target/universal/universal-application-tool-0.0.1.zip ./civiform.zip
+FROM adoptopenjdk/openjdk11:jdk-11.0.10_9-alpine-slim AS stage2
+COPY --from=stage1 /usr/src/universal-application-tool-0.0.1/target/universal/universal-application-tool-0.0.1.zip /civiform.zip
 RUN apk add bash nodejs npm
-RUN unzip ./civiform.zip; chmod +x ./universal-application-tool-0.0.1/bin/universal-application-tool
+RUN unzip /civiform.zip; chmod +x /universal-application-tool-0.0.1/bin/universal-application-tool
 
-CMD ["./universal-application-tool-0.0.1/bin/universal-application-tool"]
+CMD ["/universal-application-tool-0.0.1/bin/universal-application-tool", "-Dconfig.file=/universal-application-tool-0.0.1/conf/application.conf"]

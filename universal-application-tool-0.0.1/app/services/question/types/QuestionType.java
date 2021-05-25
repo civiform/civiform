@@ -7,11 +7,11 @@ public enum QuestionType {
   CHECKBOX(true),
   DATE(false),
   DROPDOWN(true),
+  ENUMERATOR(false),
   FILEUPLOAD(false),
   NAME(false),
   NUMBER(false),
   RADIO_BUTTON(true),
-  ENUMERATOR(false),
   TEXT(false);
 
   private final boolean isMultiOptionType;

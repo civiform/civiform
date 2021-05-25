@@ -43,6 +43,12 @@ public class QuestionDefinitionBuilder {
     questionType = definition.getQuestionType();
     validationPredicatesString = definition.getValidationPredicatesAsString();
 
+    if (definition.getQuestionType().equals(QuestionType.ENUMERATOR)) {
+      EnumeratorQuestionDefinition enumeratorQuestionDefinition =
+          (EnumeratorQuestionDefinition) definition;
+      entityType = enumeratorQuestionDefinition.getEntityType();
+    }
+
     if (definition.getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
       questionOptions = multiOption.getOptions();
@@ -224,6 +230,8 @@ public class QuestionDefinitionBuilder {
         return new RadioButtonQuestionDefinition(
             id, name, enumeratorId, description, questionText, questionHelpText, questionOptions);
       case ENUMERATOR:
+        // This shouldn't happen, but protects us in case there are enumerator questions in the prod
+        // database that don't have entity type specified.
         if (entityType == null || entityType.isEmpty()) {
           entityType =
               LocalizedStrings.withDefaultValue(EnumeratorQuestionDefinition.DEFAULT_ENTITY_TYPE);

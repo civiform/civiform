@@ -32,8 +32,8 @@ diff_messages() {
   if [[ ! -z $2 ]]
   then
     echo "Missing translations in $3:";
-    difference="$(diff -BZbw --strip-trailing-cr <(echo "$1") <(echo "$2"))";
-    echo "${difference}" | grep "<" | grep -o "[^<]*" | sed "s/^/    /";
+    difference="$(diff -b --strip-trailing-cr <(echo "$1") <(echo "$2"))";
+    echo "${difference}" | grep "<" | grep -o "[^<][a-zA-Z.]*" | sed "s/^/    /";
 
     extra=$(echo "${difference}" | grep ">" | grep -o "[^>]*");
     if [[ ! -z "${extra}" ]];

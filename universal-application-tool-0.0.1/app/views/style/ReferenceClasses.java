@@ -15,6 +15,8 @@ public final class ReferenceClasses {
   public static final String ADMIN_VERSION_CARD = "cf-admin-version-card";
   public static final String QUESTION_CONFIG = "cf-question-config";
 
+  public static final String QUESTION_BANK_ELEMENT = "cf-question-bank-element";
+
   public static final String ADD_QUESTION_BUTTON = "cf-add-question-button";
   public static final String REMOVE_QUESTION_BUTTON = "cf-remove-question-button";
 
@@ -32,6 +34,7 @@ public final class ReferenceClasses {
   public static final String APPLICANT_QUESTION_TEXT = "cf-applicant-question-text";
   public static final String APPLICANT_SUMMARY_ROW = "cf-applicant-summary-row";
   public static final String APPLICATION_CARD = "cf-application-card";
+  public static final String APPLICATION_CARD_DESCRIPTION = "cf-application-card-description";
 
   public static final String APPLY_BUTTON = "cf-apply-button";
   public static final String CONTINUE_BUTTON = "cf-continue-button";
