@@ -40,8 +40,14 @@ describe('End to end enumerator test', () => {
     expect(await page.innerText('id=question-bank-questions')).toContain('enumerator-ete-repeated-name');
     expect(await page.innerText('id=question-bank-questions')).toContain('enumerator-ete-repeated-jobs');
 
+    // Go back to the enumerator block, and with a repeated block, it cannot be deleted now. The enumerator question cannot be removed, either.
+    await page.click('p:text("Block 2")');
+    expect(await page.getAttribute('#delete-block-button', 'disabled')).not.toBeNull();
+    expect(await page.getAttribute('button:text("enumerator-ete-householdmembers")', 'disabled')).not.toBeNull();
+
     // Create the rest of the program.
     // Add repeated name question
+    await page.click('p:text("Block 3")');
     await page.click('button:text("enumerator-ete-repeated-name")');
 
     // Create another repeated block and add the nested enumerator question
@@ -152,6 +158,27 @@ describe('End to end enumerator test', () => {
     expect(await page.innerText("#application-summary")).not.toContain("Painter");
     expect(await page.innerText("#application-summary")).not.toContain("31");
     expect(await page.innerText("#application-summary")).not.toContain("12");
+
+    await endSession(browser);
+  });
+
+  it('Create new version of enumerator and update repeated questions and programs', async () => {
+    const { browser, page } = await startSession();
+    page.setDefaultTimeout(4000);
+
+    await loginAsAdmin(page);
+    const adminQuestions = new AdminQuestions(page);
+    const adminPrograms = new AdminPrograms(page);
+
+    await adminQuestions.createNewVersion('enumerator-ete-householdmembers');
+
+    // Repeated questions are updated.
+    await adminQuestions.expectDraftQuestionExist('enumerator-ete-repeated-name');
+    await adminQuestions.expectDraftQuestionExist('enumerator-ete-repeated-jobs');
+    await adminQuestions.expectDraftQuestionExist('enumerator-ete-repeated-jobs-income');
+
+    // Assert publish does not cause problem, i.e. no program refers to old questions.
+    await adminPrograms.publishProgram(programName);
 
     await endSession(browser);
   });
