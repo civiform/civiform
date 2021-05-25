@@ -6,10 +6,9 @@ import services.applicant.question.Scalar;
 
 /**
  * Represents a JsonPath (https://github.com/json-path/JsonPath) expression for a single scalar in
- * the format [json_key][operator][value]. The expression must be in the context of a single
- * question.
+ * the format: The expression must be in the context of a single question.
  *
- * <p>Example: {@literal @.zip in ['12345', '12344']}
+ * <p>Example:
  */
 @AutoValue
 public abstract class LeafOperationExpressionNode implements ConcretePredicateExpressionNode {
@@ -28,7 +27,7 @@ public abstract class LeafOperationExpressionNode implements ConcretePredicateEx
   public abstract Scalar scalar();
 
   /**
-   * The JsonPath operator (https://github.com/json-path/JsonPath#filter-operators) for this
+   * The JsonPath operator (https://github.com/json-path/JsonPath) for this
    * expression
    */
   public abstract Operator operator();
@@ -42,9 +41,9 @@ public abstract class LeafOperationExpressionNode implements ConcretePredicateEx
   }
 
   /**
-   * Formats this expression in JsonPath format: path[?(expression)]
+   * Formats this expression in JsonPath format:
    *
-   * <p>Example: {@literal $.applicant.address[?(@.zip in ['12345', '56789'])]}
+   * <p>Example:
    */
   public JsonPathPredicate toJsonPathPredicate(Path questionPath) {
     return JsonPathPredicate.create(
