@@ -38,21 +38,21 @@ public class QuestionTranslationView extends TranslationFormView {
   }
 
   public Content renderErrors(
-      Http.Request request, Locale locale, QuestionDefinition invalidQuestion, String errors) {
+          Http.Request request, Locale locale, QuestionDefinition invalidQuestion, String errors) {
     return render(request, locale, invalidQuestion, Optional.of(errors));
   }
 
   private Content render(
-      Http.Request request, Locale locale, QuestionDefinition question, Optional<String> errors) {
+          Http.Request request, Locale locale, QuestionDefinition question, Optional<String> errors) {
     String formAction =
-        controllers.admin.routes.AdminQuestionTranslationsController.update(
-                question.getId(), locale.toLanguageTag())
-            .url();
+            controllers.admin.routes.AdminQuestionTranslationsController.update(
+                    question.getId(), locale.toLanguageTag())
+                    .url();
 
     // Add form fields for questions.
     ImmutableList.Builder<FieldWithLabel> inputFields = ImmutableList.builder();
     inputFields.addAll(
-        questionTextFields(locale, question.getQuestionText(), question.getQuestionHelpText()));
+            questionTextFields(locale, question.getQuestionText(), question.getQuestionHelpText()));
     inputFields.addAll(getQuestionTypeSpecificFields(question, locale));
 
     ContainerTag form = renderTranslationForm(request, locale, formAction, inputFields.build());
@@ -60,11 +60,11 @@ public class QuestionTranslationView extends TranslationFormView {
     String title = "Manage Question Translations";
 
     HtmlBundle htmlBundle =
-        layout
-            .getBundle()
-            .setTitle(title)
-            .addMainContent(
-                renderHeader(title), renderLanguageLinks(question.getId(), locale), form);
+            layout
+                    .getBundle()
+                    .setTitle(title)
+                    .addMainContent(
+                            renderHeader(title), renderLanguageLinks(question.getId(), locale), form);
     errors.ifPresent(s -> htmlBundle.addToastMessages(ToastMessage.error(s).setDismissible(false)));
 
     return layout.renderCentered(htmlBundle);
@@ -74,11 +74,11 @@ public class QuestionTranslationView extends TranslationFormView {
   protected String languageLinkDestination(long questionId, Locale locale) {
     return controllers.admin.routes.AdminQuestionTranslationsController.edit(
             questionId, locale.toLanguageTag())
-        .url();
+            .url();
   }
 
   private ImmutableList<FieldWithLabel> getQuestionTypeSpecificFields(
-      QuestionDefinition question, Locale toUpdate) {
+          QuestionDefinition question, Locale toUpdate) {
     switch (question.getQuestionType()) {
       case CHECKBOX: // fallthrough intended
       case DROPDOWN: // fallthrough intended
@@ -99,50 +99,50 @@ public class QuestionTranslationView extends TranslationFormView {
   }
 
   private ImmutableList<FieldWithLabel> questionTextFields(
-      Locale locale, LocalizedStrings questionText, LocalizedStrings helpText) {
+          Locale locale, LocalizedStrings questionText, LocalizedStrings helpText) {
     ImmutableList.Builder<FieldWithLabel> fields = ImmutableList.builder();
     fields.add(
-        FieldWithLabel.input()
-            .setId("localize-question-text")
-            .setFieldName("questionText")
-            .setLabelText(questionText.getDefault())
-            .setPlaceholderText("Question text")
-            .setValue(questionText.maybeGet(locale)));
+            FieldWithLabel.input()
+                    .setId("localize-question-text")
+                    .setFieldName("questionText")
+                    .setLabelText(questionText.getDefault())
+                    .setPlaceholderText("Question text")
+                    .setValue(questionText.maybeGet(locale)));
 
     // Help text is optional - only show if present.
     if (!helpText.isEmpty()) {
       fields.add(
-          FieldWithLabel.input()
-              .setId("localize-question-help-text")
-              .setFieldName("questionHelpText")
-              .setLabelText(helpText.getDefault())
-              .setPlaceholderText("Question help text")
-              .setValue(helpText.maybeGet(locale)));
+              FieldWithLabel.input()
+                      .setId("localize-question-help-text")
+                      .setFieldName("questionHelpText")
+                      .setLabelText(helpText.getDefault())
+                      .setPlaceholderText("Question help text")
+                      .setValue(helpText.maybeGet(locale)));
     }
 
     return fields.build();
   }
 
   private ImmutableList<FieldWithLabel> multiOptionQuestionFields(
-      ImmutableList<QuestionOption> options, Locale toUpdate) {
+          ImmutableList<QuestionOption> options, Locale toUpdate) {
     return options.stream()
-        .map(
-            option ->
-                FieldWithLabel.input()
-                    .setFieldName("options[]")
-                    .setLabelText(option.optionText().getDefault())
-                    .setPlaceholderText("Answer option")
-                    .setValue(option.optionText().translations().getOrDefault(toUpdate, "")))
-        .collect(toImmutableList());
+            .map(
+                    option ->
+                            FieldWithLabel.input()
+                                    .setFieldName("options[]")
+                                    .setLabelText(option.optionText().getDefault())
+                                    .setPlaceholderText("Answer option")
+                                    .setValue(option.optionText().translations().getOrDefault(toUpdate, "")))
+            .collect(toImmutableList());
   }
 
   private ImmutableList<FieldWithLabel> enumeratorQuestionFields(
-      LocalizedStrings entityType, Locale toUpdate) {
+          LocalizedStrings entityType, Locale toUpdate) {
     return ImmutableList.of(
-        FieldWithLabel.input()
-            .setFieldName("entityType")
-            .setLabelText(entityType.getDefault())
-            .setPlaceholderText("What are we enumerating?")
-            .setValue(entityType.maybeGet(toUpdate).orElse("")));
+            FieldWithLabel.input()
+                    .setFieldName("entityType")
+                    .setLabelText(entityType.getDefault())
+                    .setPlaceholderText("What are we enumerating?")
+                    .setValue(entityType.maybeGet(toUpdate).orElse("")));
   }
 }
