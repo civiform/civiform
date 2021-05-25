@@ -135,7 +135,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
     if (profile.isPresent() && profile.get().getRoles().contains(Roles.ROLE_TI.toString())) {
       String tiDashboardText = "Trusted intermediary dashboard";
       String tiDashboardLink =
-          controllers.ti.routes.TrustedIntermediaryController.dashboard().url();
+          controllers.ti.routes.TrustedIntermediaryController.dashboard(
+                  Optional.empty(), Optional.empty())
+              .url();
       return div(
           a(tiDashboardText)
               .withHref(tiDashboardLink)
