@@ -5,7 +5,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.h2;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.Tag;
@@ -40,7 +39,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
             .setTitle(title)
             .addMainContent(
                 form().with(csrfTag),
-                h2().withText(programDefinition.adminName()),
+                layout.renderProgramInfo(programDefinition),
                 h1().withText(
                         String.format("Add show/hide predicates for %s", blockDefinition.name())),
                 div()
