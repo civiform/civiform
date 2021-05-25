@@ -92,30 +92,31 @@ public class ApplicantLayout extends BaseHtmlLayout {
     if (profile.isPresent()) { // Show language switcher.
       long userId = Long.parseLong(profile.get().getId());
 
-      String applicantInfoUrl = 
-        controllers.applicant.routes.ApplicantInformationController.edit(userId).url();
+      String applicantInfoUrl =
+          controllers.applicant.routes.ApplicantInformationController.edit(userId).url();
       String updateLanguageAction =
-        controllers.applicant.routes.ApplicantInformationController.updateWithRedirect(
-                userId, request.uri())
-            .url();
+          controllers.applicant.routes.ApplicantInformationController.updateWithRedirect(
+                  userId, request.uri())
+              .url();
 
       // Show language switcher if we're not on the applicant info page.
       boolean showLanguageSwitcher = !request.uri().equals(applicantInfoUrl);
       if (showLanguageSwitcher) {
         String csrfToken = CSRF.getToken(request.asScala()).value();
         Tag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");
-       
+
         String preferredLanguage = languageSelector.getPreferredLangage(request).code();
         ContainerTag languageDropdown =
-          languageSelector.renderDropdown(preferredLanguage)
-              .attr("onchange", "this.form.submit()");
+            languageSelector
+                .renderDropdown(preferredLanguage)
+                .attr("onchange", "this.form.submit()");
         languageForm =
-          form()
-              .withAction(updateLanguageAction)
-              .withMethod(Http.HttpVerbs.POST)
-              .with(csrfInput)
-              .with(languageDropdown)
-              .with(TagCreator.button().withId("cf-update-lang").withType("submit").isHidden());
+            form()
+                .withAction(updateLanguageAction)
+                .withMethod(Http.HttpVerbs.POST)
+                .with(csrfInput)
+                .with(languageDropdown)
+                .with(TagCreator.button().withId("cf-update-lang").withType("submit").isHidden());
       }
     }
     return languageForm;
