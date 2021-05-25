@@ -67,11 +67,7 @@ public abstract class Path {
     return isEmpty() ? JSON_PATH_START_TOKEN : JSON_JOINER.join(segments());
   }
 
-  /**
-   * Returns this path in JsonPath predicate format, which must start with
-   *
-   * <p>Example:
-   */
+  /** Returns this path in JsonPath predicate format, which must start with \$. */
   @Memoized
   public String predicateFormat() {
     return JSON_PATH_START + toString();
