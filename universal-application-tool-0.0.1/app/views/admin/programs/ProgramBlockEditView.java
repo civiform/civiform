@@ -245,7 +245,11 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     Styles.INLINE,
                     Styles.OPACITY_100,
                     StyleUtils.disabled(Styles.OPACITY_50))
-                .attr("disabled", ""));
+                .attr(Attr.DISABLED, ""));
+
+    // A block can only be deleted when it has no repeated blocks. Same is true for removing the
+    // enumerator question from the block.
+    final boolean canDelete = !blockDefinitionIsEnumerator || hasNoRepeatedBlocks(program, blockId);
 
     // TODO: Maybe add alpha variants to button color on hover over so we do not have
     // to hard code what the color will be when button is in hover state?
@@ -254,12 +258,18 @@ public class ProgramBlockEditView extends BaseHtmlView {
           submitButton("Delete Block")
               .withId("delete-block-button")
               .attr(Attr.FORM, DELETE_BLOCK_FORM_ID)
+              .condAttr(!canDelete, Attr.DISABLED, "")
+              .condAttr(
+                  !canDelete,
+                  Attr.TITLE,
+                  "A block can only be deleted when it has no repeated blocks.")
               .withClasses(
                   Styles.MX_4,
                   Styles.MY_1,
                   Styles.BG_RED_500,
                   StyleUtils.hover(Styles.BG_RED_700),
-                  Styles.INLINE));
+                  Styles.INLINE,
+                  StyleUtils.disabled(Styles.OPACITY_50)));
     }
 
     if (blockDefinitionIsEnumerator) {
@@ -279,12 +289,12 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withMethod(POST)
             .withAction(deleteQuestionAction);
     blockQuestions.forEach(
-        pqd -> questionDeleteForm.with(renderQuestion(pqd.getQuestionDefinition())));
+        pqd -> questionDeleteForm.with(renderQuestion(pqd.getQuestionDefinition(), canDelete)));
 
     return div().withClasses(Styles.FLEX_AUTO, Styles.PY_6).with(blockInfoForm, questionDeleteForm);
   }
 
-  public ContainerTag renderQuestion(QuestionDefinition definition) {
+  private ContainerTag renderQuestion(QuestionDefinition definition, boolean canRemove) {
     ContainerTag ret =
         div()
             .withClasses(
@@ -297,6 +307,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 Styles.PY_2,
                 Styles.FLEX,
                 Styles.ITEMS_START,
+                canRemove ? "" : Styles.OPACITY_50,
                 StyleUtils.hover(Styles.TEXT_GRAY_800, Styles.BG_GRAY_100));
 
     Tag removeButton =
@@ -305,6 +316,12 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withId("block-question-" + definition.getId())
             .withName("block-question-" + definition.getId())
             .withValue(definition.getId() + "")
+            .condAttr(!canRemove, Attr.DISABLED, "")
+            .condAttr(
+                !canRemove,
+                Attr.TITLE,
+                "An enumerator question can only be removed from the block when the block has no"
+                    + " repeated blocks.")
             .withClasses(ReferenceClasses.REMOVE_QUESTION_BUTTON, AdminStyles.CLICK_TARGET_BUTTON);
 
     ContainerTag icon =
@@ -338,5 +355,9 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .setProgram(program)
             .setBlockDefinition(blockDefinition);
     return qb.getContainer();
+  }
+
+  private boolean hasNoRepeatedBlocks(ProgramDefinition programDefinition, long blockId) {
+    return programDefinition.getBlockDefinitionsForEnumerator(blockId).isEmpty();
   }
 }
