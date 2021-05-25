@@ -66,6 +66,10 @@ public final class Block {
     return blockDefinition.description();
   }
 
+  public ApplicantData getApplicantData() {
+    return applicantData;
+  }
+
   /**
    * Returns the {@link RepeatedEntity} associated with this block, if this is a repeated block.
    * Otherwise, return empty.

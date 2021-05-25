@@ -68,6 +68,16 @@ public abstract class Path {
   }
 
   /**
+   * Returns this path in JsonPath predicate format, which must start with "$."
+   *
+   * <p>Example: {@code "$.applicant.address"}>
+   */
+  @Memoized
+  public String predicateFormat() {
+    return JSON_PATH_START + toString();
+  }
+
+  /**
    * The {@link Path} of the parent. For example, a path {@code applicant.favorite_color.text} would
    * return {@code applicant.favorite_color}.
    */

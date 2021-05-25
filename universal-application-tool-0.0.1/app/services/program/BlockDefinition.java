@@ -7,6 +7,7 @@ import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import services.program.predicate.PredicateDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -113,7 +114,7 @@ public abstract class BlockDefinition {
 
   /** A {@link Predicate} that determines whether this is hidden or shown. */
   @JsonProperty("hidePredicate")
-  public abstract Optional<Predicate> hidePredicate();
+  public abstract Optional<PredicateDefinition> predicate();
 
   /** A {@link Predicate} that determines whether this is optional or required. */
   @JsonProperty("optionalPredicate")
@@ -155,10 +156,10 @@ public abstract class BlockDefinition {
     public abstract Builder setEnumeratorId(Optional<Long> enumeratorId);
 
     @JsonProperty("hidePredicate")
-    public abstract Builder setHidePredicate(Optional<Predicate> hide);
+    public abstract Builder setPredicate(Optional<PredicateDefinition> predicate);
 
-    public Builder setHidePredicate(Predicate hide) {
-      return this.setHidePredicate(Optional.of(hide));
+    public Builder setPredicate(PredicateDefinition predicate) {
+      return this.setPredicate(Optional.of(predicate));
     }
 
     @JsonProperty("optionalPredicate")
