@@ -175,7 +175,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   /** Return a list of all {@link ApplicantQuestion}s in this program. */
-  public ImmutableList<ApplicantQuestion> getAllQuestions() {
+  private ImmutableList<ApplicantQuestion> getAllQuestions() {
     return getAllBlocks().stream()
         .flatMap(b -> b.getQuestions().stream())
         .collect(toImmutableList());
