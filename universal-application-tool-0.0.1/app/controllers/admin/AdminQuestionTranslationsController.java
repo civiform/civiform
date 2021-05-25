@@ -1,20 +1,18 @@
 package controllers.admin;
 
-import static java.util.concurrent.CompletableFuture.supplyAsync;
-
 import auth.Authorizers;
 import controllers.CiviFormController;
-import forms.QuestionTranslationForm;
+import forms.translation.EnumeratorQuestionTranslationForm;
+import forms.translation.MultiOptionQuestionTranslationForm;
+import forms.translation.QuestionTranslationForm;
 import java.util.Locale;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
-import play.data.Form;
 import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.mvc.Results;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.question.QuestionService;
@@ -22,7 +20,7 @@ import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
-import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
 import views.admin.questions.QuestionTranslationView;
 
 /** Provides controller methods for editing and updating question translations. */
@@ -83,15 +81,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public CompletionStage<Result> update(Http.Request request, long id, String locale) {
-    Form<QuestionTranslationForm> translationForm = formFactory.form(QuestionTranslationForm.class);
-    if (translationForm.hasErrors()) {
-      return supplyAsync(Results::badRequest);
-    }
-
-    QuestionTranslationForm translations = translationForm.bindFromRequest(request).get();
     Locale updatedLocale = Locale.forLanguageTag(locale);
-    String questionText = translations.getQuestionText();
-    String questionHelpText = translations.getQuestionHelpText();
 
     return questionService
         .getReadOnlyQuestionService()
@@ -99,13 +89,11 @@ public class AdminQuestionTranslationsController extends CiviFormController {
             readOnlyQuestionService -> {
               try {
                 QuestionDefinition toUpdate = readOnlyQuestionService.getQuestionDefinition(id);
-                QuestionDefinitionBuilder builder = new QuestionDefinitionBuilder(toUpdate);
-                builder.updateQuestionText(updatedLocale, questionText);
-                // Help text is optional
-                if (!questionHelpText.isBlank()) {
-                  builder.updateQuestionHelpText(updatedLocale, questionHelpText);
-                }
-                QuestionDefinition definitionWithUpdates = builder.build();
+                QuestionTranslationForm form =
+                    buildFormFromRequest(request, toUpdate.getQuestionType());
+                QuestionDefinition definitionWithUpdates =
+                    form.builderWithUpdates(toUpdate, updatedLocale).build();
+
                 ErrorAnd<QuestionDefinition, CiviFormError> result =
                     questionService.update(definitionWithUpdates);
 
@@ -125,6 +113,31 @@ public class AdminQuestionTranslationsController extends CiviFormController {
               } catch (InvalidUpdateException e) {
                 return internalServerError(e.getMessage());
               }
-            });
+            },
+            httpExecutionContext.current());
+  }
+
+  private QuestionTranslationForm buildFormFromRequest(Http.Request request, QuestionType type) {
+    switch (type) {
+      case CHECKBOX: // fallthrough intended
+      case DROPDOWN: // fallthrough intended
+      case RADIO_BUTTON:
+        return formFactory
+            .form(MultiOptionQuestionTranslationForm.class)
+            .bindFromRequest(request)
+            .get();
+      case ENUMERATOR:
+        return formFactory
+            .form(EnumeratorQuestionTranslationForm.class)
+            .bindFromRequest(request)
+            .get();
+      case ADDRESS: // fallthrough intended
+      case FILEUPLOAD: // fallthrough intended
+      case NAME: // fallthrough intended
+      case NUMBER: // fallthrough intended
+      case TEXT: // fallthrough intended
+      default:
+        return formFactory.form(QuestionTranslationForm.class).bindFromRequest(request).get();
+    }
   }
 }

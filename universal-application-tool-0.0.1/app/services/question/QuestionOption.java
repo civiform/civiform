@@ -2,14 +2,17 @@ package services.question;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import services.LocalizedStrings;
+import services.TranslationNotFoundException;
 
 /**
  * Represents a single option in a {@link services.question.types.MultiOptionQuestionDefinition}.
  */
+@JsonDeserialize(builder = AutoValue_QuestionOption.Builder.class)
 @AutoValue
 public abstract class QuestionOption {
 
@@ -39,7 +42,7 @@ public abstract class QuestionOption {
 
   /** Create a QuestionOption. */
   public static QuestionOption create(long id, LocalizedStrings optionText) {
-    return new AutoValue_QuestionOption(id, optionText);
+    return QuestionOption.builder().setId(id).setOptionText(optionText).build();
   }
 
   public LocalizedQuestionOption localize(Locale locale) {
@@ -48,6 +51,38 @@ public abstract class QuestionOption {
           String.format("Locale %s not supported for question option %s", locale, this));
     }
 
-    return LocalizedQuestionOption.create(id(), optionText().getOrDefault(locale), locale);
+    return localizeOrDefault(locale);
+  }
+
+  /**
+   * Localize this question option for the given locale. If we cannot localize, use the default
+   * locale.
+   */
+  public LocalizedQuestionOption localizeOrDefault(Locale locale) {
+    try {
+      String localizedText = optionText().get(locale);
+      return LocalizedQuestionOption.create(id(), localizedText, locale);
+    } catch (TranslationNotFoundException e) {
+      return LocalizedQuestionOption.create(
+          id(), optionText().getDefault(), LocalizedStrings.DEFAULT_LOCALE);
+    }
+  }
+
+  public abstract Builder toBuilder();
+
+  public static QuestionOption.Builder builder() {
+    return new AutoValue_QuestionOption.Builder();
+  }
+
+  @AutoValue.Builder
+  public abstract static class Builder {
+
+    @JsonProperty("id")
+    public abstract Builder setId(long id);
+
+    @JsonProperty("localizedOptionText")
+    public abstract Builder setOptionText(LocalizedStrings optionText);
+
+    public abstract QuestionOption build();
   }
 }

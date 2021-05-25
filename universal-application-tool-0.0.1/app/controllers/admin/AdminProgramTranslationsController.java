@@ -2,7 +2,7 @@ package controllers.admin;
 
 import auth.Authorizers;
 import controllers.CiviFormController;
-import forms.ProgramTranslationForm;
+import forms.translation.ProgramTranslationForm;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;

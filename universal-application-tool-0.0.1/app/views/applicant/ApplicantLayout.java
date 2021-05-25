@@ -53,7 +53,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
   public Content renderWithNav(
       Http.Request request, String userName, Messages messages, HtmlBundle bundle) {
     // TODO: This will set the html lang attribute to the requested language when we actually want
-    // the rendered language.
+    //  the rendered language.
     Optional<Http.Cookie> language = request.cookies().get("PLAY_LANG");
     if (language.isPresent()) {
       bundle.setLanguage(language.get().value());
@@ -157,6 +157,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             .withId("progress-indicator")
             .withClasses(
                 Styles.BORDER,
+                BaseStyles.BORDER_SEATTLE_BLUE,
                 Styles.ROUNDED_FULL,
                 Styles.FONT_SEMIBOLD,
                 Styles.BG_WHITE,

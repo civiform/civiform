@@ -2,6 +2,7 @@ package services.question.types;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -9,7 +10,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import java.util.Locale;
 import java.util.Optional;
@@ -85,18 +85,22 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       return ImmutableSet.of();
     }
 
-    QuestionOption firstOption = Iterables.getFirst(options, null);
-    ImmutableSet<Locale> locales = firstOption.optionText().locales();
+    // The set of locales supported by a question's options is the smallest set of supported locales
+    // for a single option
+    ImmutableSet<ImmutableSet<Locale>> supportedLocales =
+        options.stream()
+            .map(option -> option.optionText().translations().keySet())
+            .collect(toImmutableSet());
 
-    options.forEach(
-        option -> {
-          if (!option.optionText().locales().equals(locales)) {
-            throw new RuntimeException(
-                "All options for a MultiOptionQuestionDefinition must have the same locales");
-          }
-        });
+    Optional<ImmutableSet<Locale>> smallestSet =
+        supportedLocales.stream().reduce((a, b) -> a.size() < b.size() ? a : b);
 
-    return locales;
+    if (smallestSet.isEmpty()) {
+      // This should never happen - we should always have at least one option at this point.
+      throw new RuntimeException("Could not determine supported option locales for question");
+    }
+
+    return smallestSet.get();
   }
 
   public ImmutableList<QuestionOption> getOptions() {
@@ -108,11 +112,9 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
    * locale, it will return the options for the default locale.
    */
   public ImmutableList<LocalizedQuestionOption> getOptionsForLocaleOrDefault(Locale locale) {
-    try {
-      return getOptionsForLocale(locale);
-    } catch (TranslationNotFoundException e) {
-      return getOptionsForDefaultLocale();
-    }
+    return options.stream()
+        .map(option -> option.localizeOrDefault(locale))
+        .collect(toImmutableList());
   }
 
   /** Get question options localized to CiviForm's default locale. */

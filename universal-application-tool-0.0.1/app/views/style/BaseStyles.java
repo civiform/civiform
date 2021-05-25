@@ -11,11 +11,11 @@ public final class BaseStyles {
   // CiviForm color classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
-  public static final String BG_CIVIFORM_WHITE = "bg-civiformWhite";
+  public static final String BG_CIVIFORM_WHITE = "bg-civiform-white";
 
-  public static final String BG_SEATTLE_BLUE = "bg-seattleBlue";
-  public static final String TEXT_SEATTLE_BLUE = "text-seattleBlue";
-  public static final String BORDER_SEATTLE_BLUE = "border-seattleBlue";
+  public static final String BG_SEATTLE_BLUE = "bg-seattle-blue";
+  public static final String TEXT_SEATTLE_BLUE = "text-seattle-blue";
+  public static final String BORDER_SEATTLE_BLUE = "border-seattle-blue";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Form style classes
@@ -23,7 +23,7 @@ public final class BaseStyles {
 
   public static final String FORM_FIELD_MARGIN_BOTTOM = Styles.MB_2;
 
-  public static final String FORM_FIELD_BORDER_COLOR = Styles.BORDER_GRAY_300;
+  public static final String FORM_FIELD_BORDER_COLOR = Styles.BORDER_GRAY_500;
   public static final String FORM_FIELD_ERROR_BORDER_COLOR = Styles.BORDER_RED_600;
 
   public static final String FORM_LABEL_TEXT_COLOR = Styles.TEXT_GRAY_600;
@@ -51,7 +51,7 @@ public final class BaseStyles {
           Styles.TEXT_LG);
 
   /** For use on `input` elements that are not of type "checkbox" or "radio". */
-  public static final String INPUT = StyleUtils.joinStyles(INPUT_BASE, Styles.PLACEHOLDER_GRAY_400);
+  public static final String INPUT = StyleUtils.joinStyles(INPUT_BASE, Styles.PLACEHOLDER_GRAY_500);
 
   /** For use on `label` elements that label non-checkbox and non-radio `input` elements. */
   public static final String INPUT_LABEL =
