@@ -16,7 +16,7 @@ public abstract class PredicateValue {
 
   public static PredicateValue of(String value) {
     // Escape the string value
-    return create("'" + value + "'");
+    return create("\"" + value + "\"");
   }
 
   private static PredicateValue create(String value) {
