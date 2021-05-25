@@ -1,11 +1,4 @@
 /**
- * We're trying to keep the JS pretty mimimal for CiviForm, so we're only using it
- * where it's necessary to improve the user experience.
- *
- * Appropriate uses include:
- *  - Visual transitions that aren't possible with just CSS.
- *  - Rare instances in which we need to update a page without refreshing.
- *  - TBD
  */
 
 class ModalController {

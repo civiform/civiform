@@ -9,7 +9,6 @@ import static j2html.TagCreator.header;
 import static j2html.TagCreator.html;
 import static j2html.TagCreator.main;
 import static j2html.TagCreator.title;
-import static views.BaseHtmlView.button;
 
 import j2html.tags.ContainerTag;
 import j2html.tags.EmptyTag;
@@ -126,7 +125,7 @@ public class HtmlBundle {
   /** The page body contains: - header - main - footer */
   private ContainerTag renderBody() {
     ContainerTag bodyTag =
-        j2html.TagCreator.body(renderHeader(), renderMain(), renderFooter(), renderModals());
+        j2html.TagCreator.body(renderHeader(), renderMain(), renderModals(), renderFooter());
 
     if (bodyStyles.size() > 0) {
       bodyTag.withClasses(bodyStyles.toArray(new String[0]));
@@ -191,15 +190,7 @@ public class HtmlBundle {
             .withId("modal-container")
             .withClasses(BaseStyles.MODAL_CONTAINER)
             .with(div().withId("modal-glass-pane").withClasses(BaseStyles.MODAL_GLASS_PANE));
-    modals.forEach(
-        modal ->
-            modalContainer.with(
-                div()
-                    .with(
-                        button("x")
-                            .withId(modal.modalId() + "-close")
-                            .withClasses(BaseStyles.MODAL_CLOSE_BUTTON))
-                    .with(modal.getContainerTag())));
+    modals.forEach(modal -> modalContainer.with(modal.getContainerTag()));
     return modalContainer;
   }
 

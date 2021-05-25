@@ -7,6 +7,7 @@ import com.google.auto.value.AutoValue;
 import j2html.tags.Tag;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
+import views.style.Styles;
 
 @AutoValue
 public abstract class Modal {
@@ -14,17 +15,29 @@ public abstract class Modal {
 
   public abstract String displayName();
 
-  public abstract Tag modal();
+  public abstract Tag content();
 
-  public static Modal create(String modalId, String displayName, Tag modal) {
-    return new AutoValue_Modal(modalId, displayName, modal);
+  public static Modal create(String modalId, String displayName, Tag content) {
+    return new AutoValue_Modal(modalId, displayName, content);
   }
 
   public Tag getContainerTag() {
-    return div(modal()).withId(modalId()).withClasses(ReferenceClasses.MODAL, BaseStyles.MODAL);
+    return div()
+        .withId(modalId())
+        .withClasses(ReferenceClasses.MODAL, BaseStyles.MODAL)
+        .with(getDeleteButton())
+        .with(getContent());
   }
 
   public Tag getButton() {
     return button(modalId() + "-button", displayName()).withClasses(BaseStyles.MODAL_BUTTON);
+  }
+
+  private Tag getContent() {
+    return div(content()).withClasses(BaseStyles.MODAL_CONTENT);
+  }
+
+  private Tag getDeleteButton() {
+    return div("x").withId(modalId() + "-close").withClasses(BaseStyles.MODAL_CLOSE_BUTTON);
   }
 }
