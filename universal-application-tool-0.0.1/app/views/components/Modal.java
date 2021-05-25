@@ -25,7 +25,7 @@ public abstract class Modal {
     return div()
         .withId(modalId())
         .withClasses(ReferenceClasses.MODAL, BaseStyles.MODAL)
-        .with(getDeleteButton())
+        .with(getModalHeader())
         .with(getContent());
   }
 
@@ -37,7 +37,10 @@ public abstract class Modal {
     return div(content()).withClasses(BaseStyles.MODAL_CONTENT);
   }
 
-  private Tag getDeleteButton() {
-    return div("x").withId(modalId() + "-close").withClasses(BaseStyles.MODAL_CLOSE_BUTTON);
+  private Tag getModalHeader() {
+    return div()
+      .withClasses(BaseStyles.MODAL_HEADER)
+        .with(div(displayName()).withClasses(Styles.TEXT_LG))
+    .with(div("x").withId(modalId() + "-close").withClasses(BaseStyles.MODAL_CLOSE_BUTTON));
   }
 }

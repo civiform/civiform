@@ -100,9 +100,13 @@ public final class BaseStyles {
           Styles._TRANSLATE_X_1_2,
           Styles._TRANSLATE_Y_1_2,
           Styles.ROUNDED_XL,
-          Styles.P_2,
+          Styles.SHADOW_XL,
+          Styles.BG_WHITE,
           Styles.W_1_3,
-          Styles.BG_WHITE);
+          Styles.MAX_H_SCREEN,
+          Styles.OVERFLOW_Y_AUTO);
+  public static final String MODAL_HEADER =
+      StyleUtils.joinStyles(Styles.STICKY, Styles.TOP_0, Styles.BG_GRAY_200, Styles.P_2);
   /** Generic style for for the button for the modal. */
   public static final String MODAL_BUTTON =
       StyleUtils.joinStyles(
