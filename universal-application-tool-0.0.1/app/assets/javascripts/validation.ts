@@ -1,12 +1,12 @@
 /** The validation controller provides basic client-side validation of form fields. */
-class ValidationController {
+class ValidationController {  
   static readonly ADDRESS_QUESTION_CLASS = '.cf-question-address';
   static readonly ENUMERATOR_QUESTION_CLASS = '.cf-question-enumerator';
   static readonly NAME_QUESTION_CLASS = '.cf-question-name';
 
   static readonly ENUMERATOR_DELETE_TEMPLATE = 'enumerator-delete-template';
   static readonly BLOCK_SUBMIT_BUTTON_ID = 'cf-block-submit';
-
+  
   isAddressValid = true;
   isEnumeratorValid = true;
   isNameValid = true;
@@ -85,7 +85,6 @@ class ValidationController {
     }
   }
 
-
   checkAllQuestionTypes() {
     this.isAddressValid = this.validateAddressQuestion();
     this.isEnumeratorValid = this.validateEnumeratorQuestion();
@@ -121,6 +120,13 @@ class ValidationController {
     }
   }
 
+  updateFieldErrorState(question: Element, fieldName: string, isValid: boolean) {
+    const errorDiv = question.querySelector(fieldName + '-error');
+    if (errorDiv) {
+      errorDiv.classList.toggle('hidden', isValid);
+    }
+  }
+
   /** Validates all address questions. */
   validateAddressQuestion(): boolean {
     let isValid = true;
@@ -129,20 +135,28 @@ class ValidationController {
       // validate address line 1 not empty.
       const addressLine1 = <HTMLInputElement>question.querySelector(".cf-address-street-1 input");
       const addressLine1Valid = addressLine1.value.length > 0;
+      // Change styling of '.cf-address-street-1-error' as necessary.
+      this.updateFieldErrorState(question, '.cf-address-street-1', addressLine1Valid);
 
       // validate city not empty.
       const city = <HTMLInputElement>question.querySelector(".cf-address-city input");
       const cityValid = city.value.length > 0;
-
+      // Change styling of '.cf-address-city-error' as necessary.
+      this.updateFieldErrorState(question, '.cf-address-city', cityValid);
+      
       // validate state.
       const state = <HTMLInputElement>question.querySelector(".cf-address-state input");
       const stateValid = state.value.length > 0;
+      // Change styling of '.cf-address-state-error' as necessary.
+      this.updateFieldErrorState(question, '.cf-address-state', stateValid);
 
       // validate zip code.
       const zipCode = <HTMLInputElement>question.querySelector(".cf-address-zip input");
-
-      const hasEmptyInputs = !(addressLine1Valid && cityValid && stateValid && zipCode.value.length > 0);
       const hasValidZip = zipCode.value.length == 5 && /^\d+$/.test(zipCode.value);
+      // Change styling of '.cf-address-zip-error' as necessary.
+      this.updateFieldErrorState(question, '.cf-address-zip', hasValidZip);
+
+      const hasEmptyInputs = !(addressLine1Valid && cityValid && stateValid && zipCode.value.length > 0);      
 
       isValid = !hasEmptyInputs && hasValidZip;
     }
