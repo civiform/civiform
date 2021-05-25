@@ -84,12 +84,7 @@ public final class BaseStyles {
   /** The modal container for the modal glass pane. */
   public static final String MODAL_GLASS_PANE =
       StyleUtils.joinStyles(
-          Styles.HIDDEN,
-          Styles.FIXED,
-          Styles.H_SCREEN,
-          Styles.W_SCREEN,
-          Styles.BG_GRAY_400,
-          Styles.OPACITY_75);
+          Styles.FIXED, Styles.H_SCREEN, Styles.W_SCREEN, Styles.BG_GRAY_400, Styles.OPACITY_75);
   /** The styles for each modal. This should be centered. */
   public static final String MODAL =
       StyleUtils.joinStyles(
