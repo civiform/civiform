@@ -1,28 +1,25 @@
 package services.applicant.predicate;
 
-import javax.annotation.Nullable;
 
 /** Represents a predicate that can be evaluated over {@link services.applicant.ApplicantData}. */
 public class PredicateExpressionNode {
 
-  private final PredicateExpressionNodeType type;
-  private final LeafOperationExpressionNode leafNode;
+  private final ConcretePredicateExpressionNode node;
 
-  public PredicateExpressionNode(
-      PredicateExpressionNodeType type, @Nullable LeafOperationExpressionNode leafNode) {
-    this.type = type;
-    this.leafNode = leafNode;
+  public PredicateExpressionNode(ConcretePredicateExpressionNode node) {
+    this.node = node;
   }
 
   public PredicateExpressionNodeType getType() {
-    return this.type;
+    return node.getType();
   }
 
   /** Get a leaf node if it exists, or throw if this is not a leaf node. */
   public LeafOperationExpressionNode getLeafNode() {
-    if (leafNode == null) {
-      throw new RuntimeException("Tried to get a predicate leaf node but no node exists");
+    if (!(node instanceof LeafOperationExpressionNode)) {
+      throw new RuntimeException(
+          String.format("Expected a leaf node but received %s node", getType()));
     }
-    return this.leafNode;
+    return (LeafOperationExpressionNode) node;
   }
 }

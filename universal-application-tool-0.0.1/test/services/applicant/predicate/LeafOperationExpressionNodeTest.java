@@ -15,12 +15,13 @@ public class LeafOperationExpressionNodeTest {
         LeafOperationExpressionNode.create(
             1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Seattle"));
 
+    assertThat(node.getType()).isEqualTo(PredicateExpressionNodeType.LEAF_OPERATION);
     assertThat(node.questionId()).isEqualTo(1L);
     assertThat(node.scalar()).isEqualTo(Scalar.CITY);
     assertThat(node.operator()).isEqualTo(Operator.EQUAL_TO);
     assertThat(node.comparedValue()).isEqualTo(PredicateValue.of("Seattle"));
     assertThat(node.toJsonPathPredicate(Path.create("applicant.address")))
-        .isEqualTo(JsonPathPredicate.create("$.applicant.address[?(@.city == 'Seattle')]"));
+        .isEqualTo(JsonPathPredicate.create("$.applicant.address[?(@.city == \"Seattle\")]"));
   }
 
   @Test

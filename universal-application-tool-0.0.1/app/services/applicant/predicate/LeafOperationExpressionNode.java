@@ -12,7 +12,7 @@ import services.applicant.question.Scalar;
  * <p>Example: {@code {@literal @}.zip in ['12345', '12344']}
  */
 @AutoValue
-public abstract class LeafOperationExpressionNode {
+public abstract class LeafOperationExpressionNode implements ConcretePredicateExpressionNode {
 
   public static LeafOperationExpressionNode create(
       long questionId, Scalar scalar, Operator operator, PredicateValue comparedValue) {
@@ -36,6 +36,11 @@ public abstract class LeafOperationExpressionNode {
   /** The value to compare the question key to using the operator, represented as a string. */
   public abstract PredicateValue comparedValue();
 
+  @Override
+  public PredicateExpressionNodeType getType() {
+    return PredicateExpressionNodeType.LEAF_OPERATION;
+  }
+
   /**
    * Formats this expression in JsonPath format: path[?(expression)]
    *
@@ -43,13 +48,11 @@ public abstract class LeafOperationExpressionNode {
    */
   public JsonPathPredicate toJsonPathPredicate(Path questionPath) {
     return JsonPathPredicate.create(
-        questionPath.predicateFormat()
-            + "[?(@."
-            + scalar().name().toLowerCase()
-            + " "
-            + operator().toJsonPathOperator()
-            + " "
-            + comparedValue().value()
-            + ")]");
+        String.format(
+            "%s[?(@.%s %s %s)]",
+            questionPath.predicateFormat(),
+            scalar().name().toLowerCase(),
+            operator().toJsonPathOperator(),
+            comparedValue().value()));
   }
 }
