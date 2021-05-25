@@ -66,15 +66,15 @@ public class TrustedIntermediaryController {
     ImmutableList<Account> managedAccounts =
         trustedIntermediaryGroup.get().getManagedAccounts(search);
     int endOfListIndex = page.get() * PAGE_SIZE;
-    boolean hasNextTab = true;
-    if (managedAccounts.size() <= page.get() * PAGE_SIZE) {
+    int totalPageCount = (int) Math.ceil((double) managedAccounts.size() / PAGE_SIZE);
+    if (managedAccounts.size() <= endOfListIndex) {
       endOfListIndex = managedAccounts.size();
-      hasNextTab = false;
     }
     if (managedAccounts.size() <= (page.get() - 1) * PAGE_SIZE) {
       managedAccounts = ImmutableList.of();
       if (managedAccounts.size() == 0) {
-        hasNextTab = false;
+        // Display 1 page (which is empty)
+        totalPageCount = 1;
       } else {
         // If for some reason we're way past the end of the list, make sure the "previous"
         // button goes to the end of the list.
@@ -88,7 +88,7 @@ public class TrustedIntermediaryController {
             trustedIntermediaryGroup.get(),
             uatProfile.get().getApplicant().join().getApplicantData().getApplicantName(),
             managedAccounts,
-            hasNextTab,
+            totalPageCount,
             page.get(),
             search,
             request,

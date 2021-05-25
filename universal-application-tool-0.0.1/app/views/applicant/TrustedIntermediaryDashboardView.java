@@ -52,7 +52,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       TrustedIntermediaryGroup tiGroup,
       String userName,
       ImmutableList<Account> managedAccounts,
-      boolean hasNextTab,
+      int totalPageCount,
       int page,
       Optional<String> search,
       Http.Request request,
@@ -70,7 +70,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 hr().withClasses(Styles.MT_6),
                 renderHeader("Clients"),
                 renderSearchForm(request, search),
-                renderTIApplicantsTable(managedAccounts, search, page, hasNextTab),
+                renderTIApplicantsTable(managedAccounts, search, page, totalPageCount),
                 hr().withClasses(Styles.MT_6),
                 renderHeader("Trusted Intermediary Members"),
                 renderTIMembersTable(tiGroup).withClasses(Styles.ML_2))
@@ -112,7 +112,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       ImmutableList<Account> managedAccounts,
       Optional<String> search,
       int page,
-      boolean hasNextTab) {
+      int totalPageCount) {
     ContainerTag main =
         div(table()
                 .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_3_4)
@@ -137,8 +137,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                       .url())
               .asButton());
     }
-    div.with(new LinkElement().setText("Page " + page).asButton());
-    if (hasNextTab) {
+    div.with(new LinkElement().setText("Page " + page + " of " + totalPageCount).asButton());
+    if (totalPageCount > page) {
       div.with(
           new LinkElement()
               .setText("→")
