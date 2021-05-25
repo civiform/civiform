@@ -36,9 +36,9 @@ public class HtmlBundle {
   private ArrayList<Tag> mainContent = new ArrayList<>();
   private ArrayList<String> mainStyles = new ArrayList<>();
   private ArrayList<EmptyTag> metadata = new ArrayList<>();
+  private ArrayList<Modal> modals = new ArrayList<>();
   private ArrayList<Tag> stylesheets = new ArrayList<>();
   private ArrayList<ToastMessage> toastMessages = new ArrayList<>();
-  private ArrayList<Modal> modals = new ArrayList<>();
 
   public HtmlBundle addBodyStyles(String... styles) {
     bodyStyles.addAll(Arrays.asList(styles));
