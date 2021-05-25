@@ -40,8 +40,14 @@ describe('End to end enumerator test', () => {
     expect(await page.innerText('id=question-bank-questions')).toContain('enumerator-ete-repeated-name');
     expect(await page.innerText('id=question-bank-questions')).toContain('enumerator-ete-repeated-jobs');
 
+    // Go back to the enumerator block, and with a repeated block, it cannot be deleted now. The enumerator question cannot be removed, either.
+    await page.click('p:text("Block 2")');
+    expect(await page.getAttribute('#delete-block-button', 'disabled')).not.toBeNull();
+    expect(await page.getAttribute('button:text("enumerator-ete-householdmembers")', 'disabled')).not.toBeNull();
+
     // Create the rest of the program.
     // Add repeated name question
+    await page.click('p:text("Block 3")');
     await page.click('button:text("enumerator-ete-repeated-name")');
 
     // Create another repeated block and add the nested enumerator question
