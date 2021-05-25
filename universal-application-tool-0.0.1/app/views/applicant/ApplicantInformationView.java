@@ -3,6 +3,7 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.input;
 
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
@@ -34,6 +35,8 @@ public class ApplicantInformationView extends BaseHtmlView {
   public Content render(
       Http.Request request, String userName, Messages messages, long applicantId) {
     String formAction = routes.ApplicantInformationController.update(applicantId).url();
+    String redirectLink = routes.ApplicantProgramsController.index(applicantId).url();
+    Tag redirectInput = input().isHidden().withValue(redirectLink).withName("redirectLink");
 
     String questionText = messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName());
     ContainerTag questionTextDiv =
@@ -45,6 +48,7 @@ public class ApplicantInformationView extends BaseHtmlView {
             .withAction(formAction)
             .withMethod(Http.HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(request))
+            .with(redirectInput)
             .with(questionTextDiv)
             .with(layout.languageSelector.renderRadios(preferredLanguage));
 

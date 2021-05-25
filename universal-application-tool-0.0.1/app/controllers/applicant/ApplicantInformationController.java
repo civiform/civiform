@@ -89,18 +89,16 @@ public final class ApplicantInformationController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> update(Http.Request request, long applicantId) {
-    return updateWithRedirect(
-        request, applicantId, routes.ApplicantProgramsController.index(applicantId).url());
-  }
-
-  @Secure
-  public CompletionStage<Result> updateWithRedirect(
-      Http.Request request, long applicantId, String withRedirect) {
     Form<ApplicantInformationForm> form = formFactory.form(ApplicantInformationForm.class);
     if (form.hasErrors()) {
       return supplyAsync(Results::badRequest);
     }
     ApplicantInformationForm infoForm = form.bindFromRequest(request).get();
+    String postRedirect = infoForm.getRedirectLink();
+    String redirectLink =
+        postRedirect.isEmpty()
+            ? routes.ApplicantProgramsController.index(applicantId).url()
+            : postRedirect;
 
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
@@ -124,7 +122,7 @@ public final class ApplicantInformationController extends CiviFormController {
         .thenApplyAsync(
             applicant -> {
               Locale preferredLocale = applicant.getApplicantData().preferredLocale();
-              return redirect(withRedirect).withLang(preferredLocale, messagesApi);
+              return redirect(redirectLink).withLang(preferredLocale, messagesApi);
             },
             httpExecutionContext.current())
         .exceptionally(

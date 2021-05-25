@@ -90,21 +90,19 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private ContainerTag getLanguageForm(Http.Request request, Optional<UatProfile> profile) {
     ContainerTag languageForm = div();
     if (profile.isPresent()) { // Show language switcher.
-      long userId = Long.parseLong(profile.get().getId());
+      long userId = profile.get().getApplicant().join().id;
 
       String applicantInfoUrl =
           controllers.applicant.routes.ApplicantInformationController.edit(userId).url();
       String updateLanguageAction =
-          controllers.applicant.routes.ApplicantInformationController.updateWithRedirect(
-                  userId, request.uri())
-              .url();
+          controllers.applicant.routes.ApplicantInformationController.update(userId).url();
 
       // Show language switcher if we're not on the applicant info page.
       boolean showLanguageSwitcher = !request.uri().equals(applicantInfoUrl);
       if (showLanguageSwitcher) {
         String csrfToken = CSRF.getToken(request.asScala()).value();
         Tag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");
-
+        Tag redirectInput = input().isHidden().withValue(request.uri()).withName("redirectLink");
         String preferredLanguage = languageSelector.getPreferredLangage(request).code();
         ContainerTag languageDropdown =
             languageSelector
@@ -115,6 +113,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .withAction(updateLanguageAction)
                 .withMethod(Http.HttpVerbs.POST)
                 .with(csrfInput)
+                .with(redirectInput)
                 .with(languageDropdown)
                 .with(TagCreator.button().withId("cf-update-lang").withType("submit").isHidden());
       }
