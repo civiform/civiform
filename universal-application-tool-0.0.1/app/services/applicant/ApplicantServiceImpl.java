@@ -28,7 +28,6 @@ import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.Scalar;
 import services.aws.SimpleEmail;
-import services.aws.SimpleStorage;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -44,7 +43,6 @@ public class ApplicantServiceImpl implements ApplicantService {
   private final UserRepository userRepository;
   private final ProgramService programService;
   private final SimpleEmail amazonSESClient;
-  private final SimpleStorage amazonS3Client;
   private final Clock clock;
   private final String baseUrl;
   private final boolean isStaging;
@@ -56,7 +54,6 @@ public class ApplicantServiceImpl implements ApplicantService {
       UserRepository userRepository,
       ProgramService programService,
       SimpleEmail amazonSESClient,
-      SimpleStorage amazonS3Client,
       Clock clock,
       Config configuration,
       HttpExecutionContext httpExecutionContext) {
@@ -64,7 +61,6 @@ public class ApplicantServiceImpl implements ApplicantService {
     this.userRepository = checkNotNull(userRepository);
     this.programService = checkNotNull(programService);
     this.amazonSESClient = checkNotNull(amazonSESClient);
-    this.amazonS3Client = checkNotNull(amazonS3Client);
     this.clock = checkNotNull(clock);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.isStaging = URI.create(baseUrl).getHost().equals("staging.seattle.civiform.com");
@@ -92,7 +88,7 @@ public class ApplicantServiceImpl implements ApplicantService {
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
 
               return new ReadOnlyApplicantProgramServiceImpl(
-                  amazonS3Client, applicant.getApplicantData(), programDefinition);
+                  applicant.getApplicantData(), programDefinition);
             },
             httpExecutionContext.current());
   }
@@ -103,7 +99,6 @@ public class ApplicantServiceImpl implements ApplicantService {
     try {
       return CompletableFuture.completedFuture(
           new ReadOnlyApplicantProgramServiceImpl(
-              amazonS3Client,
               application.getApplicantData(),
               programService.getProgramDefinition(application.getProgram().id)));
     } catch (ProgramNotFoundException e) {
@@ -154,7 +149,7 @@ public class ApplicantServiceImpl implements ApplicantService {
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
               ReadOnlyApplicantProgramService readOnlyApplicantProgramServiceBeforeUpdate =
                   new ReadOnlyApplicantProgramServiceImpl(
-                      amazonS3Client, applicant.getApplicantData(), programDefinition);
+                      applicant.getApplicantData(), programDefinition);
               Optional<Block> maybeBlockBeforeUpdate =
                   readOnlyApplicantProgramServiceBeforeUpdate.getBlock(blockId);
               if (maybeBlockBeforeUpdate.isEmpty()) {
@@ -173,7 +168,7 @@ public class ApplicantServiceImpl implements ApplicantService {
 
               ReadOnlyApplicantProgramService roApplicantProgramService =
                   new ReadOnlyApplicantProgramServiceImpl(
-                      amazonS3Client, applicant.getApplicantData(), programDefinition);
+                      applicant.getApplicantData(), programDefinition);
 
               Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
               if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {

@@ -59,7 +59,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .with(
                 h2("Program: " + programName).withClasses(Styles.MY_4),
                 h1(applicantNameWithId).withClasses(Styles.MY_4),
-                each(blocks, block -> renderApplicationBlock(block, blockToAnswers.get(block))),
+                each(
+                    blocks,
+                    block -> renderApplicationBlock(programId, block, blockToAnswers.get(block))),
                 renderDownloadButton(programId, applicationId));
 
     HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
@@ -77,7 +79,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .asButton();
   }
 
-  private Tag renderApplicationBlock(Block block, Collection<AnswerData> answers) {
+  private Tag renderApplicationBlock(long programId, Block block, Collection<AnswerData> answers) {
     Tag topContent =
         div()
             .withClasses(Styles.FLEX)
@@ -90,7 +92,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .with(p(block.getDescription()).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC));
 
     Tag mainContent =
-        div().withClasses(Styles.W_FULL).with(each(answers, answer -> renderAnswer(answer)));
+        div()
+            .withClasses(Styles.W_FULL)
+            .with(each(answers, answer -> renderAnswer(programId, answer)));
 
     Tag innerDiv =
         div(topContent, mainContent)
@@ -105,14 +109,16 @@ public final class ProgramApplicationView extends BaseHtmlView {
             Styles.MB_4);
   }
 
-  private Tag renderAnswer(AnswerData answerData) {
+  private Tag renderAnswer(long programId, AnswerData answerData) {
     LocalDate date =
         Instant.ofEpochMilli(answerData.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
     String questionIdentifier =
         String.format("Question ID: %d", answerData.questionDefinition().getId());
     Tag answerContent;
-    if (answerData.answerLink().isPresent()) {
-      answerContent = a(answerData.answerText()).withHref(answerData.answerLink().get().toString());
+    if (answerData.fileKey().isPresent()) {
+      String fileLink =
+          controllers.routes.FileController.adminShow(programId, answerData.fileKey().get()).url();
+      answerContent = a(answerData.answerText()).withHref(fileLink);
     } else {
       answerContent = div(answerData.answerText());
     }
