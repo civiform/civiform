@@ -3,7 +3,6 @@ package services.program.predicate;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
-import services.applicant.predicate.PredicateExpressionNode;
 
 @AutoValue
 public abstract class PredicateDefinition {

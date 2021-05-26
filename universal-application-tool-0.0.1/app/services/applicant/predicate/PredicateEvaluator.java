@@ -3,6 +3,8 @@ package services.applicant.predicate;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import services.applicant.question.ApplicantQuestion;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.PredicateExpressionNode;
 
 public class PredicateEvaluator {
 
