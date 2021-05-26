@@ -556,68 +556,6 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void setBlockOptionalPredicate_updatesBlock() throws Exception {
-    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
-    Long programId = programDefinition.id();
-    PredicateDefinition predicate =
-        PredicateDefinition.create(
-            new PredicateExpressionNode(
-                LeafOperationExpressionNode.create(
-                    1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
-            PredicateAction.HIDE_BLOCK);
-    ps.setBlockOptionalPredicate(programId, 1L, predicate);
-
-    ProgramDefinition found = ps.getProgramDefinition(programId);
-
-    assertThat(found.blockDefinitions().get(0).optionalPredicate()).hasValue(predicate);
-  }
-
-  @Test
-  public void
-      setBlockOptionalPredicate_withBogusBlockId_throwsProgramBlockDefinitionNotFoundException() {
-    Program program = ProgramBuilder.newDraftProgram().build();
-    assertThatThrownBy(
-            () ->
-                ps.setBlockOptionalPredicate(
-                    program.id,
-                    100L,
-                    PredicateDefinition.create(
-                        new PredicateExpressionNode(
-                            LeafOperationExpressionNode.create(
-                                1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
-                        PredicateAction.HIDE_BLOCK)))
-        .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
-        .hasMessage(
-            String.format(
-                "Block not found in Program (ID %d) for block definition ID 100", program.id));
-  }
-
-  @Test
-  public void setBlockOptionalPredicate_constructsQuestionDefinitions() throws Exception {
-    QuestionDefinition question = nameQuestion;
-    ProgramDefinition programDefinition =
-        ProgramBuilder.newDraftProgram()
-            .withBlock()
-            .withQuestionDefinition(question)
-            .buildDefinition();
-    Long programId = programDefinition.id();
-
-    ProgramDefinition found =
-        ps.setBlockOptionalPredicate(
-            programId,
-            1L,
-            PredicateDefinition.create(
-                new PredicateExpressionNode(
-                    LeafOperationExpressionNode.create(
-                        1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
-                PredicateAction.HIDE_BLOCK));
-
-    QuestionDefinition foundQuestion =
-        found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
-    assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
-  }
-
-  @Test
   public void deleteBlock_invalidProgram_throwsProgramNotfoundException() {
     assertThatThrownBy(() -> ps.deleteBlock(1L, 2L))
         .isInstanceOf(ProgramNotFoundException.class)

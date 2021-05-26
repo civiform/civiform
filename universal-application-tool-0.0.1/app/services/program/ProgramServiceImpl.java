@@ -380,21 +380,6 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
-  public ProgramDefinition setBlockOptionalPredicate(
-      long programId, long blockDefinitionId, PredicateDefinition predicate)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
-
-    BlockDefinition blockDefinition =
-        programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
-            .setOptionalPredicate(Optional.of(predicate))
-            .build();
-
-    return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
-  }
-
-  @Override
-  @Transactional
   public ProgramDefinition deleteBlock(long programId, long blockDefinitionId)
       throws ProgramNotFoundException, ProgramNeedsABlockException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);

@@ -207,23 +207,6 @@ public interface ProgramService {
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
 
   /**
-   * Set the optional {@link PredicateDefinition} for a block. This predicate describes under what
-   * conditions the block should be optional when filling out the program form.
-   *
-   * @param programId the ID of the program to update
-   * @param blockDefinitionId the ID of the block to update
-   * @param predicate the {@link PredicateDefinition} for making the block optional
-   * @return the updated {@link ProgramDefinition}
-   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
-   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
-   *     real Block.
-   */
-  @Deprecated
-  ProgramDefinition setBlockOptionalPredicate(
-      long programId, long blockDefinitionId, PredicateDefinition predicate)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
-
-  /**
    * Delete a block from a program if the block ID is present. Otherwise, does nothing.
    *
    * @return the updated {@link ProgramDefinition}

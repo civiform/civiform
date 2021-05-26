@@ -124,7 +124,6 @@ public abstract class BlockDefinition {
    * kept for serialization consistency.
    */
   @JsonProperty("optionalPredicate")
-  @Deprecated
   public abstract Optional<PredicateDefinition> optionalPredicate();
 
   /** The list of {@link ProgramQuestionDefinition}s that make up this block. */
@@ -170,13 +169,7 @@ public abstract class BlockDefinition {
     }
 
     @JsonProperty("optionalPredicate")
-    @Deprecated
     public abstract Builder setOptionalPredicate(Optional<PredicateDefinition> optional);
-
-    @Deprecated
-    public Builder setOptionalPredicate(PredicateDefinition optional) {
-      return this.setOptionalPredicate(Optional.of(optional));
-    }
 
     @JsonProperty("questionDefinitions")
     public abstract Builder setProgramQuestionDefinitions(

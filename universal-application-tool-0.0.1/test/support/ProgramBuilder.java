@@ -200,11 +200,6 @@ public class ProgramBuilder {
       return this;
     }
 
-    public BlockBuilder withOptionalPredicate(PredicateDefinition predicate) {
-      blockDefBuilder.setOptionalPredicate(predicate);
-      return this;
-    }
-
     public BlockBuilder withQuestion(Question question) {
       blockDefBuilder.addQuestion(
           ProgramQuestionDefinition.create(question.getQuestionDefinition()));
