@@ -14,8 +14,9 @@ describe('normal question lifecycle', () => {
     const repeatedQuestion = 'qlc-repeated-number';
     await adminQuestions.addNumberQuestion(
       repeatedQuestion, 'description', '$this\'s favorite number', '', 'qlc-enumerator');
-    const allQuestions = questions.concat(singleBlockQuestions);
 
+    // Combine all the questions that were made so we can update them all together.
+    const allQuestions = questions.concat(singleBlockQuestions);
     // Add to the front of the list because creating a new version of the enumerator question will
     // automatically create a new version of the repeated question.
     allQuestions.unshift(repeatedQuestion);
