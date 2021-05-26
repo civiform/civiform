@@ -1,7 +1,6 @@
 package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -172,13 +171,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     }
 
     return blockListBuilder.build();
-  }
-
-  /** Return a list of all {@link ApplicantQuestion}s in this program. */
-  private ImmutableList<ApplicantQuestion> getAllQuestions() {
-    return getAllBlocks().stream()
-        .flatMap(b -> b.getQuestions().stream())
-        .collect(toImmutableList());
   }
 
   @Override
