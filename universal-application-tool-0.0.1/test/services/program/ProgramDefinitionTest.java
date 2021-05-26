@@ -214,7 +214,8 @@ public class ProgramDefinitionTest {
   }
 
   @Test
-  public void getAvailablePredicateQuestionDefinitions() {
+  public void getAvailablePredicateQuestionDefinitions()
+      throws ProgramBlockDefinitionNotFoundException {
     QuestionDefinition questionA = testQuestionBank.applicantName().getQuestionDefinition();
     QuestionDefinition questionB = testQuestionBank.applicantAddress().getQuestionDefinition();
     QuestionDefinition questionC =
@@ -266,5 +267,85 @@ public class ProgramDefinitionTest {
     // blockC
     assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(3L))
         .containsExactly(questionA, questionB, questionC);
+  }
+
+  @Test
+  public void
+      getAvailablePredicateQuestionDefinitions_withRepeatedBlock_onlyIncludesQuestionsInSameRepeatedContext()
+          throws ProgramBlockDefinitionNotFoundException {
+    QuestionDefinition questionA = testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition questionB =
+        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+    QuestionDefinition questionC =
+        testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition();
+    QuestionDefinition questionD =
+        testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition();
+    QuestionDefinition questionE =
+        testQuestionBank.applicantHouseholdMemberJobIncome().getQuestionDefinition();
+
+    BlockDefinition blockA =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .addQuestion(ProgramQuestionDefinition.create(questionA))
+            .build();
+    BlockDefinition blockB =
+        BlockDefinition.builder()
+            .setId(2L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .addQuestion(ProgramQuestionDefinition.create(questionB))
+            .build();
+    BlockDefinition blockC =
+        BlockDefinition.builder()
+            .setId(3L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .addQuestion(ProgramQuestionDefinition.create(questionC))
+            .build();
+    BlockDefinition blockD =
+        BlockDefinition.builder()
+            .setId(4L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .addQuestion(ProgramQuestionDefinition.create(questionD))
+            .build();
+    BlockDefinition blockE =
+        BlockDefinition.builder()
+            .setId(5L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .addQuestion(ProgramQuestionDefinition.create(questionE))
+            .build();
+    ProgramDefinition programDefinition =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(
+                LocalizedStrings.of(Locale.US, "Applicant friendly name", Locale.FRANCE, "test"))
+            .setLocalizedDescription(
+                LocalizedStrings.of(
+                    Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
+            .addBlockDefinition(blockA)
+            .addBlockDefinition(blockB)
+            .addBlockDefinition(blockC)
+            .addBlockDefinition(blockD)
+            .addBlockDefinition(blockE)
+            .build();
+
+    // blockA (applicantName)
+    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(1L)).isEmpty();
+    // blockB (applicantHouseholdMembers)
+    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(2L))
+        .containsExactly(questionA);
+    // blockC (applicantHouseholdMembers.householdMemberName)
+    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(3L)).isEmpty();
+    // blockD (applicantHouseholdMembers.householdMemberJobs)
+    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(4L))
+        .containsExactly(questionC);
+    // blockE (applicantHouseholdMembers.householdMemberJobs.householdMemberJobIncome)
+    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(5L)).isEmpty();
   }
 }

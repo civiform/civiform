@@ -194,22 +194,39 @@ public abstract class ProgramDefinition {
 
   /**
    * Returns a list of the question definitions that may be used to define predicates on the block
-   * definition with the given ID. In general, these are question definitions that are in block
-   * definitions that come sequentially before the given block definition.
+   * definition with the given ID.
+   *
+   * <p>The available question definitions for predicates satisfy BOTH of the following:
+   *
+   * <ul>
+   *   <li>In a block definition that comes sequentially before the block definition with the given
+   *       ID.
+   *   <li>In a block definition that has the same enumerator ID as the block definition with the
+   *       given ID.
+   * </ul>
    */
-  public ImmutableList<QuestionDefinition> getAvailablePredicateQuestionDefinitions(long blockId) {
-    ImmutableList.Builder<QuestionDefinition> builder = new ImmutableList.Builder<>();
+  public ImmutableList<QuestionDefinition> getAvailablePredicateQuestionDefinitions(long blockId)
+      throws ProgramBlockDefinitionNotFoundException {
 
-    for (BlockDefinition blockDefinition : getNonRepeatedBlockDefinitions()) {
+    Optional<Long> maybeEnumeratorId = getBlockDefinition(blockId).enumeratorId();
+    ImmutableList<BlockDefinition> blockDefinitionsWithSameEnumerator =
+        maybeEnumeratorId.isPresent()
+            ? getBlockDefinitionsForEnumerator(maybeEnumeratorId.get())
+            : getNonRepeatedBlockDefinitions();
+
+    ImmutableList.Builder<QuestionDefinition> resultBuilder = new ImmutableList.Builder<>();
+
+    for (BlockDefinition blockDefinition : blockDefinitionsWithSameEnumerator) {
+      // Stop adding questions once we reach this block.
       if (blockDefinition.id() == blockId) break;
 
-      builder.addAll(
+      resultBuilder.addAll(
           blockDefinition.programQuestionDefinitions().stream()
               .map(ProgramQuestionDefinition::getQuestionDefinition)
               .collect(Collectors.toList()));
     }
 
-    return builder.build();
+    return resultBuilder.build();
   }
 
   public Program toProgram() {
