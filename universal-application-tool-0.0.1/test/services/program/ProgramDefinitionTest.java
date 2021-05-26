@@ -271,7 +271,7 @@ public class ProgramDefinitionTest {
 
   @Test
   public void
-      getAvailablePredicateQuestionDefinitions_withRepeatedBlock_onlyIncludesQuestionsInSameRepeatedContext()
+      getAvailablePredicateQuestionDefinitions_withRepeatedBlocks_onlyIncludesQuestionsWithSameEnumeratorId()
           throws ProgramBlockDefinitionNotFoundException {
     QuestionDefinition questionA = testQuestionBank.applicantName().getQuestionDefinition();
     QuestionDefinition questionB =
