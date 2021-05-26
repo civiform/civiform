@@ -508,7 +508,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
     ProgramDefinition found = ps.getProgramDefinition(program.id);
 
-    assertThat(found.blockDefinitions().get(0).predicate()).hasValue(predicate);
+    assertThat(found.blockDefinitions().get(0).visibilityPredicate()).hasValue(predicate);
   }
 
   @Test

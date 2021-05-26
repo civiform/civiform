@@ -156,7 +156,7 @@ public class ProgramTest extends WithPostgresContainer {
             .setName("Test predicates")
             .setDescription("set hide and deprecated optional")
             .setProgramQuestionDefinitions(ImmutableList.of())
-            .setPredicate(predicate)
+            .setVisibilityPredicate(predicate)
             .build();
 
     ProgramDefinition definition =
@@ -175,7 +175,7 @@ public class ProgramTest extends WithPostgresContainer {
 
     assertThat(found.getProgramDefinition().blockDefinitions()).hasSize(1);
     BlockDefinition block = found.getProgramDefinition().getBlockDefinition(1L);
-    assertThat(block.predicate()).hasValue(predicate);
+    assertThat(block.visibilityPredicate()).hasValue(predicate);
     assertThat(block.optionalPredicate()).isEmpty();
   }
 }

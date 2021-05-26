@@ -112,9 +112,9 @@ public abstract class BlockDefinition {
         .anyMatch(questionType -> questionType.equals(QuestionType.FILEUPLOAD));
   }
 
-  /** A {@link PredicateDefinition} that determines whether this is hidden or shown. */
+  /** A {@link PredicateDefinition} that determines whether this block is hidden or shown. */
   @JsonProperty("hidePredicate")
-  public abstract Optional<PredicateDefinition> predicate();
+  public abstract Optional<PredicateDefinition> visibilityPredicate();
 
   /**
    * A {@link PredicateDefinition} that determines whether this is optional or required.
@@ -162,10 +162,10 @@ public abstract class BlockDefinition {
     public abstract Builder setEnumeratorId(Optional<Long> enumeratorId);
 
     @JsonProperty("hidePredicate")
-    public abstract Builder setPredicate(Optional<PredicateDefinition> predicate);
+    public abstract Builder setVisibilityPredicate(Optional<PredicateDefinition> predicate);
 
-    public Builder setPredicate(PredicateDefinition predicate) {
-      return this.setPredicate(Optional.of(predicate));
+    public Builder setVisibilityPredicate(PredicateDefinition predicate) {
+      return this.setVisibilityPredicate(Optional.of(predicate));
     }
 
     @JsonProperty("optionalPredicate")

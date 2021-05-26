@@ -372,7 +372,7 @@ public class ProgramServiceImpl implements ProgramService {
 
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
-            .setPredicate(Optional.of(predicate))
+            .setVisibilityPredicate(Optional.of(predicate))
             .build();
 
     return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);

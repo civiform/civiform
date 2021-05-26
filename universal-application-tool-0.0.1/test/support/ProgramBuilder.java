@@ -196,7 +196,7 @@ public class ProgramBuilder {
     }
 
     public BlockBuilder withPredicate(PredicateDefinition predicate) {
-      blockDefBuilder.setPredicate(predicate);
+      blockDefBuilder.setVisibilityPredicate(predicate);
       return this;
     }
 
