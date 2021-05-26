@@ -34,7 +34,7 @@ class ValidationController {
   private addQuestionListeners() {
     // Always at least add basic listener for enumerators.
     this.addEnumeratorListeners();
-    
+
     if (this.validateOnInput) {
       this.addAddressListeners();
       this.addNameListeners();
@@ -73,8 +73,8 @@ class ValidationController {
       enumeratorInputs.forEach(enumeratorInput => {
         enumeratorInput.addEventListener("input", () => {
           this.validateOnInput ?
-          this.onEnumeratorChanged() :
-          this.maybeHideEnumeratorAddButton();
+            this.onEnumeratorChanged() :
+            this.maybeHideEnumeratorAddButton();
         });
       });
 
@@ -86,15 +86,15 @@ class ValidationController {
             newInputs.forEach(newInput => {
               newInput.addEventListener("input", () => {
                 this.validateOnInput ?
-                this.onEnumeratorChanged() :
-                this.maybeHideEnumeratorAddButton();
+                  this.onEnumeratorChanged() :
+                  this.maybeHideEnumeratorAddButton();
               });
             });
           }
         }
         this.validateOnInput ?
-        this.onEnumeratorChanged() :
-        this.maybeHideEnumeratorAddButton();
+          this.onEnumeratorChanged() :
+          this.maybeHideEnumeratorAddButton();
       });
 
       mutationObserver.observe(enumeratorQuestion,
@@ -199,7 +199,7 @@ class ValidationController {
   }
 
   /** if we have empty inputs then disable the add input button. (We don't need two blank inputs.) */
-  maybeHideEnumeratorAddButton() : boolean {
+  maybeHideEnumeratorAddButton(): boolean {
     let hasEmptyInputs = false;
     const enumeratorQuestion =
       document.querySelector(ValidationController.ENUMERATOR_QUESTION_CLASS);
@@ -247,7 +247,7 @@ class ValidationController {
     for (const question of nameQuestions) {
       // validate first name is not empty.
       const firstNameInput = <HTMLInputElement>question.querySelector(".cf-name-first input");
-      const firstNameValid = firstNameInput.value.length > 0;      
+      const firstNameValid = firstNameInput.value.length > 0;
       this.updateFieldErrorState(question, '.cf-name-first', firstNameValid);
 
       // validate last name is not empty.
