@@ -303,6 +303,7 @@ public class ProgramDefinitionTest {
             .setName("Block Name")
             .setDescription("Block Description")
             .addQuestion(ProgramQuestionDefinition.create(questionC))
+            .setEnumeratorId(questionC.getEnumeratorId())
             .build();
     BlockDefinition blockD =
         BlockDefinition.builder()
@@ -310,6 +311,7 @@ public class ProgramDefinitionTest {
             .setName("Block Name")
             .setDescription("Block Description")
             .addQuestion(ProgramQuestionDefinition.create(questionD))
+            .setEnumeratorId(questionD.getEnumeratorId())
             .build();
     BlockDefinition blockE =
         BlockDefinition.builder()
@@ -317,6 +319,7 @@ public class ProgramDefinitionTest {
             .setName("Block Name")
             .setDescription("Block Description")
             .addQuestion(ProgramQuestionDefinition.create(questionE))
+            .setEnumeratorId(questionE.getEnumeratorId())
             .build();
     ProgramDefinition programDefinition =
         ProgramDefinition.builder()
