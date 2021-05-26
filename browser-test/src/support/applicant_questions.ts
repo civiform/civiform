@@ -8,11 +8,11 @@ export class ApplicantQuestions {
   }
 
   async answerAddressQuestion(street: string, line2: string, city: string, state: string, zip: string) {
-    await this.page.fill('input:near(:text("Address line 1"))', street);
-    await this.page.fill('input:near(:text("Address line 2"))', line2);
-    await this.page.fill('input:near(:text("City"))', city);
-    await this.page.fill('input:near(:text("State"))', state);
-    await this.page.fill('input:near(:text("ZIP Code"))', zip);
+    await this.page.fill('.cf-address-street-1 input', street);
+    await this.page.fill('.cf-address-street-2 input', line2);
+    await this.page.fill('.cf-address-city input', city);
+    await this.page.fill('.cf-address-state input', state);
+    await this.page.fill('.cf-address-zip input', zip);
   }
 
   async answerNameQuestion(firstName: string, lastName: string, middleName = '') {
