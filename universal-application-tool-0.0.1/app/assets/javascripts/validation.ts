@@ -235,7 +235,11 @@ class ValidationController {
       const hasDupes = (new Set(enumeratorInputValues)).size !== enumeratorInputValues.length;
       isValid = isValid && !hasEmptyInputs && !hasDupes;
 
-      // this.updateFieldErrorState(enumeratorQuestion, '.cf-enumerator', isValid);
+
+      const errorDiv = enumeratorQuestion.querySelector('.cf-enumerator-error');
+      if (errorDiv) {
+        errorDiv.classList.toggle('hidden', isValid);
+      }
     }
     return isValid;
   }

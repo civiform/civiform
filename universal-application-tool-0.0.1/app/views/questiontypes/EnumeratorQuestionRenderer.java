@@ -65,8 +65,16 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
               Optional.of(index)));
     }
 
+    ContainerTag errorContent =
+        div(enumeratorQuestion.getQuestionErrorMessage().getMessage(messages))
+            .withClasses(
+                "cf-enumerator-error",
+                Styles.TEXT_RED_600,
+                enumeratorQuestion.hasQuestionErrors() ? "" : Styles.HIDDEN);
+
     Tag enumeratorQuestionFormContent =
         div()
+            .with(errorContent)
             .with(hiddenDeleteInputTemplate())
             .with(enumeratorFields)
             .with(
@@ -81,7 +89,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
                         ApplicantStyles.BUTTON_ENUMERATOR_ADD_ENTITY,
                         StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400)));
 
-    return renderInternal(messages, enumeratorQuestionFormContent);
+    return renderInternal(messages, enumeratorQuestionFormContent, false);
   }
 
   /**

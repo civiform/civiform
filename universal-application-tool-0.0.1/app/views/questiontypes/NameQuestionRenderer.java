@@ -32,7 +32,8 @@ public class NameQuestionRenderer extends ApplicantQuestionRenderer {
                     .setFieldName(nameQuestion.getFirstNamePath().toString())
                     .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
                     .setValue(nameQuestion.getFirstNameValue().orElse(""))
-                    .setFieldErrors(messages, nameQuestion.getFirstNameErrors())
+                    .setFieldErrors(messages, nameQuestion.getFirstNameErrorMessage())
+                    .showFieldErrors(!nameQuestion.getFirstNameErrors().isEmpty())
                     .addReferenceClass("cf-name-first")
                     .getContainer())
             .with(
@@ -40,13 +41,15 @@ public class NameQuestionRenderer extends ApplicantQuestionRenderer {
                     .setFieldName(nameQuestion.getMiddleNamePath().toString())
                     .setLabelText(messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName()))
                     .setValue(nameQuestion.getMiddleNameValue().orElse(""))
+                    .addReferenceClass("cf-name-middle")
                     .getContainer())
             .with(
                 FieldWithLabel.input()
                     .setFieldName(nameQuestion.getLastNamePath().toString())
                     .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
                     .setValue(nameQuestion.getLastNameValue().orElse(""))
-                    .setFieldErrors(messages, nameQuestion.getLastNameErrors())
+                    .setFieldErrors(messages, nameQuestion.getLastNameErrorMessage())
+                    .showFieldErrors(!nameQuestion.getLastNameErrors().isEmpty())
                     .addReferenceClass("cf-name-last")
                     .getContainer());
 

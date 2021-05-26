@@ -16,9 +16,9 @@ export class ApplicantQuestions {
   }
 
   async answerNameQuestion(firstName: string, lastName: string, middleName = '') {
-    await this.page.fill('input:near(:text("First name"))', firstName);
-    await this.page.fill('input:near(:text("Middle name"))', middleName);
-    await this.page.fill('input:near(:text("Last name"))', lastName);
+    await this.page.fill('.cf-name-first input', firstName);
+    await this.page.fill('.cf-name-middle input', middleName);
+    await this.page.fill('.cf-name-last input', lastName);
   }
 
   async answerCheckboxQuestion(checked: Array<string>) {
