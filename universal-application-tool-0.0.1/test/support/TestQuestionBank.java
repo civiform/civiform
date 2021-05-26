@@ -304,12 +304,12 @@ public class TestQuestionBank {
   // Email
   private Question applicantEmail(QuestionEnum ignore) {
     QuestionDefinition definition =
-            new EmailQuestionDefinition(
-                    "applicant Email address",
-                    Optional.empty(),
-                    "The applicant Email address",
-                    LocalizedStrings.of(Locale.US, "What is your Email?"),
-                    LocalizedStrings.of(Locale.US, "This is sample help text."));
+        new EmailQuestionDefinition(
+            "applicant Email address",
+            Optional.empty(),
+            "The applicant Email address",
+            LocalizedStrings.of(Locale.US, "What is your Email?"),
+            LocalizedStrings.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
   // Deeply Nested Number
