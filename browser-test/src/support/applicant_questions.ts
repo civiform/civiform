@@ -40,7 +40,7 @@ export class ApplicantQuestions {
   }
 
   async answerDropdownQuestion(selected: string) {
-    await this.page.selectOption('select', { label: selected });
+    await this.page.selectOption('.cf-dropdown-question select', { label: selected });
   }
 
   async answerNumberQuestion(number: string) {

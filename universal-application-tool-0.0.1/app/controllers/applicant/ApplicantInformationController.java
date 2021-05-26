@@ -94,6 +94,11 @@ public final class ApplicantInformationController extends CiviFormController {
       return supplyAsync(Results::badRequest);
     }
     ApplicantInformationForm infoForm = form.bindFromRequest(request).get();
+    String postRedirect = infoForm.getRedirectLink();
+    String redirectLink =
+        postRedirect.isEmpty()
+            ? routes.ApplicantProgramsController.index(applicantId).url()
+            : postRedirect;
 
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
@@ -117,8 +122,7 @@ public final class ApplicantInformationController extends CiviFormController {
         .thenApplyAsync(
             applicant -> {
               Locale preferredLocale = applicant.getApplicantData().preferredLocale();
-              return redirect(routes.ApplicantProgramsController.index(applicantId))
-                  .withLang(preferredLocale, messagesApi);
+              return redirect(redirectLink).withLang(preferredLocale, messagesApi);
             },
             httpExecutionContext.current())
         .exceptionally(

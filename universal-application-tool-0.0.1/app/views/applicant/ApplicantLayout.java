@@ -3,7 +3,9 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.nav;
 
 import auth.ProfileUtils;
@@ -11,6 +13,7 @@ import auth.Roles;
 import auth.UatProfile;
 import com.typesafe.config.Config;
 import controllers.routes;
+import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
@@ -21,7 +24,9 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
+import views.LanguageSelector;
 import views.ViewUtils;
+import views.html.helper.CSRF;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
@@ -31,11 +36,17 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private static final String CIVIFORM_TITLE = "CiviForm";
 
   private final ProfileUtils profileUtils;
+  public final LanguageSelector languageSelector;
 
   @Inject
-  public ApplicantLayout(ViewUtils viewUtils, Config configuration, ProfileUtils profileUtils) {
+  public ApplicantLayout(
+      ViewUtils viewUtils,
+      Config configuration,
+      ProfileUtils profileUtils,
+      LanguageSelector languageSelector) {
     super(viewUtils, configuration);
     this.profileUtils = checkNotNull(profileUtils);
+    this.languageSelector = checkNotNull(languageSelector);
   }
 
   @Override
@@ -52,24 +63,15 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   public Content renderWithNav(
       Http.Request request, String userName, Messages messages, HtmlBundle bundle) {
-    // TODO: This will set the html lang attribute to the requested language when we actually want
-    //  the rendered language.
-    Optional<Http.Cookie> language = request.cookies().get("PLAY_LANG");
-    if (language.isPresent()) {
-      bundle.setLanguage(language.get().value());
-    }
-
+    String language = languageSelector.getPreferredLangage(request).code();
+    bundle.setLanguage(language);
     bundle.addHeaderContent(renderNavBar(request, userName, messages));
     return render(bundle);
   }
 
   private ContainerTag renderNavBar(Http.Request request, String userName, Messages messages) {
     Optional<UatProfile> profile = profileUtils.currentUserProfile(request);
-    return renderNavBar(profile, messages, userName);
-  }
 
-  private ContainerTag renderNavBar(
-      Optional<UatProfile> profile, Messages messages, String userName) {
     return nav()
         .withClasses(
             Styles.BG_WHITE,
@@ -80,7 +82,43 @@ public class ApplicantLayout extends BaseHtmlLayout {
             Styles.GRID_COLS_3)
         .with(branding())
         .with(maybeRenderTiButton(profile, userName))
-        .with(div(logoutButton(messages)).withClasses(Styles.JUSTIFY_SELF_END));
+        .with(
+            div(getLanguageForm(request, profile), logoutButton(messages))
+                .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
+  }
+
+  private ContainerTag getLanguageForm(Http.Request request, Optional<UatProfile> profile) {
+    ContainerTag languageForm = div();
+    if (profile.isPresent()) { // Show language switcher.
+      long userId = profile.get().getApplicant().join().id;
+
+      String applicantInfoUrl =
+          controllers.applicant.routes.ApplicantInformationController.edit(userId).url();
+      String updateLanguageAction =
+          controllers.applicant.routes.ApplicantInformationController.update(userId).url();
+
+      // Show language switcher if we're not on the applicant info page.
+      boolean showLanguageSwitcher = !request.uri().equals(applicantInfoUrl);
+      if (showLanguageSwitcher) {
+        String csrfToken = CSRF.getToken(request.asScala()).value();
+        Tag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");
+        Tag redirectInput = input().isHidden().withValue(request.uri()).withName("redirectLink");
+        String preferredLanguage = languageSelector.getPreferredLangage(request).code();
+        ContainerTag languageDropdown =
+            languageSelector
+                .renderDropdown(preferredLanguage)
+                .attr("onchange", "this.form.submit()");
+        languageForm =
+            form()
+                .withAction(updateLanguageAction)
+                .withMethod(Http.HttpVerbs.POST)
+                .with(csrfInput)
+                .with(redirectInput)
+                .with(languageDropdown)
+                .with(TagCreator.button().withId("cf-update-lang").withType("submit").isHidden());
+      }
+    }
+    return languageForm;
   }
 
   private ContainerTag branding() {
@@ -96,7 +134,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
     if (profile.isPresent() && profile.get().getRoles().contains(Roles.ROLE_TI.toString())) {
       String tiDashboardText = "Trusted intermediary dashboard";
       String tiDashboardLink =
-          controllers.ti.routes.TrustedIntermediaryController.dashboard().url();
+          controllers.ti.routes.TrustedIntermediaryController.dashboard(
+                  Optional.empty(), Optional.empty())
+              .url();
       return div(
           a(tiDashboardText)
               .withHref(tiDashboardLink)
