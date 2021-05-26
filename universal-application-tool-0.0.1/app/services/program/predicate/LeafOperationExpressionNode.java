@@ -1,7 +1,6 @@
-package services.applicant.predicate;
+package services.program.predicate;
 
 import com.google.auto.value.AutoValue;
-import services.Path;
 import services.applicant.question.Scalar;
 
 /**
@@ -34,20 +33,5 @@ public abstract class LeafOperationExpressionNode implements ConcretePredicateEx
   @Override
   public PredicateExpressionNodeType getType() {
     return PredicateExpressionNodeType.LEAF_OPERATION;
-  }
-
-  /**
-   * Formats this expression in JsonPath format: {@code path[?(expression)]}
-   *
-   * <p>Example: \$.applicant.address[?(@.zip in ["12345", "56789"])]
-   */
-  public JsonPathPredicate toJsonPathPredicate(Path questionPath) {
-    return JsonPathPredicate.create(
-        String.format(
-            "%s[?(@.%s %s %s)]",
-            questionPath.predicateFormat(),
-            scalar().name().toLowerCase(),
-            operator().toJsonPathOperator(),
-            comparedValue().value()));
   }
 }

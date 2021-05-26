@@ -6,6 +6,10 @@ import org.junit.Test;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.Scalar;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.Operator;
+import services.program.predicate.PredicateExpressionNodeType;
+import services.program.predicate.PredicateValue;
 
 public class LeafOperationExpressionNodeTest {
 

@@ -44,7 +44,7 @@ public class ApplicantQuestion {
     this.repeatedEntity = checkNotNull(repeatedEntity);
   }
 
-  protected ApplicantData getApplicantData() {
+  public ApplicantData getApplicantData() {
     return this.applicantData;
   }
 

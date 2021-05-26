@@ -7,6 +7,7 @@ import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import services.program.predicate.PredicateDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -113,10 +114,16 @@ public abstract class BlockDefinition {
 
   /** A {@link Predicate} that determines whether this is hidden or shown. */
   @JsonProperty("hidePredicate")
-  public abstract Optional<Predicate> hidePredicate();
+  public abstract Optional<PredicateDefinition> predicate();
 
-  /** A {@link Predicate} that determines whether this is optional or required. */
+  /**
+   * A {@link Predicate} that determines whether this is optional or required. Note as of
+   * 2021-05-25: We no longer consider blocks to be required or optional - a block is required if
+   * shown. Instead, individual questions can be optional or required. This field is kept for
+   * serialization consistency.
+   */
   @JsonProperty("optionalPredicate")
+  @Deprecated
   public abstract Optional<Predicate> optionalPredicate();
 
   /** The list of {@link ProgramQuestionDefinition}s that make up this block. */
@@ -155,15 +162,17 @@ public abstract class BlockDefinition {
     public abstract Builder setEnumeratorId(Optional<Long> enumeratorId);
 
     @JsonProperty("hidePredicate")
-    public abstract Builder setHidePredicate(Optional<Predicate> hide);
+    public abstract Builder setPredicate(Optional<PredicateDefinition> predicate);
 
-    public Builder setHidePredicate(Predicate hide) {
-      return this.setHidePredicate(Optional.of(hide));
+    public Builder setPredicate(PredicateDefinition predicate) {
+      return this.setPredicate(Optional.of(predicate));
     }
 
     @JsonProperty("optionalPredicate")
+    @Deprecated
     public abstract Builder setOptionalPredicate(Optional<Predicate> optional);
 
+    @Deprecated
     public Builder setOptionalPredicate(Predicate optional) {
       return this.setOptionalPredicate(Optional.of(optional));
     }

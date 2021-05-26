@@ -1,4 +1,4 @@
-package services.applicant.predicate;
+package services.program.predicate;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
