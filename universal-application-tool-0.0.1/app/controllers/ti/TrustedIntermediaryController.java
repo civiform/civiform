@@ -23,6 +23,7 @@ import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.UserRepository;
+import services.PaginationInfo;
 import services.ti.EmailAddressExistsException;
 import views.applicant.TrustedIntermediaryDashboardView;
 
@@ -65,31 +66,15 @@ public class TrustedIntermediaryController {
     }
     ImmutableList<Account> managedAccounts =
         trustedIntermediaryGroup.get().getManagedAccounts(search);
-    int endOfListIndex = page.get() * PAGE_SIZE;
-    int totalPageCount = (int) Math.ceil((double) managedAccounts.size() / PAGE_SIZE);
-    if (managedAccounts.size() <= endOfListIndex) {
-      endOfListIndex = managedAccounts.size();
-    }
-    if (managedAccounts.size() <= (page.get() - 1) * PAGE_SIZE) {
-      managedAccounts = ImmutableList.of();
-      if (managedAccounts.size() == 0) {
-        // Display 1 page (which is empty)
-        totalPageCount = 1;
-      } else {
-        // If for some reason we're way past the end of the list, make sure the "previous"
-        // button goes to the end of the list.
-        page = Optional.of(Math.floorDiv(managedAccounts.size(), PAGE_SIZE) + 2);
-      }
-    } else {
-      managedAccounts = managedAccounts.subList((page.get() - 1) * PAGE_SIZE, endOfListIndex);
-    }
+    PaginationInfo<Account> pageInfo =
+        PaginationInfo.paginate(managedAccounts, PAGE_SIZE, page.get());
     return ok(
         tiDashboardView.render(
             trustedIntermediaryGroup.get(),
             uatProfile.get().getApplicant().join().getApplicantData().getApplicantName(),
-            managedAccounts,
-            totalPageCount,
-            page.get(),
+            pageInfo.getPageItems(),
+            pageInfo.getPageCount(),
+            pageInfo.getPage(),
             search,
             request,
             messagesApi.preferred(request)));

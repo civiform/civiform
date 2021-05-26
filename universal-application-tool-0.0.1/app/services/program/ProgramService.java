@@ -3,8 +3,10 @@ package services.program;
 import com.google.common.collect.ImmutableList;
 import forms.BlockForm;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Application;
+import models.Program;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.question.exceptions.QuestionNotFoundException;
@@ -240,6 +242,9 @@ public interface ProgramService {
    */
   ImmutableList<Application> getProgramApplications(long programId) throws ProgramNotFoundException;
 
+  ImmutableList<Application> getProgramApplications(long programId, Optional<String> search)
+      throws ProgramNotFoundException;
+
   /** Create a new draft starting from the program specified by `id`. */
   ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException;
 
@@ -248,4 +253,7 @@ public interface ProgramService {
    * global admins if none.
    */
   ImmutableList<String> getNotificationEmailAddresses(String programName);
+
+  /** Get all other programs with the same name. */
+  ImmutableList<Program> getOtherProgramVersions(long programId);
 }

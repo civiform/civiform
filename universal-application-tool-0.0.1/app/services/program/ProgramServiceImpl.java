@@ -426,6 +426,20 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
+  public ImmutableList<Application> getProgramApplications(long programId, Optional<String> search)
+      throws ProgramNotFoundException {
+    return getProgramApplications(programId).stream()
+        .filter(
+            application ->
+                application
+                    .getApplicantData()
+                    .getApplicantName()
+                    .toLowerCase(Locale.ROOT)
+                    .contains(search.orElse("").toLowerCase(Locale.ROOT)))
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  @Override
   public ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException {
     return programRepository
         .createOrUpdateDraft(this.getProgramDefinition(id).toProgram())
@@ -448,6 +462,11 @@ public class ProgramServiceImpl implements ProgramService {
         .map(Account::getEmailAddress)
         .filter(address -> !Strings.isNullOrEmpty(address))
         .collect(ImmutableList.toImmutableList());
+  }
+
+  @Override
+  public ImmutableList<Program> getOtherProgramVersions(long programId) {
+    return programRepository.getOtherProgramVersions(programId);
   }
 
   private ProgramDefinition updateProgramDefinitionWithBlockDefinition(
