@@ -26,17 +26,19 @@ class ValidationController {
       blockForm.addEventListener("submit", (event) => { return this.attemptSubmit(event); });
     }
 
-    // attach listeners to all form fields.
-    if (this.validateOnInput) {
-      this.addQuestionListeners();
-    }
+    // Maybe attach listeners to all form fields.
+    this.addQuestionListeners();
   }
 
   /** attach listeners so that we know when to update validations. */
   private addQuestionListeners() {
-    this.addAddressListeners();
+    // Always at least add basic listener for enumerators.
     this.addEnumeratorListeners();
-    this.addNameListeners();
+    
+    if (this.validateOnInput) {
+      this.addAddressListeners();
+      this.addNameListeners();
+    }
   }
 
   private attemptSubmit(event: Event): boolean {
@@ -70,7 +72,9 @@ class ValidationController {
       // Whenever an input changes we need to revalidate.
       enumeratorInputs.forEach(enumeratorInput => {
         enumeratorInput.addEventListener("input", () => {
-          this.onEnumeratorChanged();
+          this.validateOnInput ?
+          this.onEnumeratorChanged() :
+          this.maybeHideEnumeratorAddButton();
         });
       });
 
@@ -81,12 +85,16 @@ class ValidationController {
             const newInputs = Array.from((<Element>newNode).querySelectorAll('input'));
             newInputs.forEach(newInput => {
               newInput.addEventListener("input", () => {
-                this.onEnumeratorChanged();
+                this.validateOnInput ?
+                this.onEnumeratorChanged() :
+                this.maybeHideEnumeratorAddButton();
               });
             });
           }
         }
-        this.onEnumeratorChanged();
+        this.validateOnInput ?
+        this.onEnumeratorChanged() :
+        this.maybeHideEnumeratorAddButton();
       });
 
       mutationObserver.observe(enumeratorQuestion,
@@ -150,6 +158,8 @@ class ValidationController {
     if (errorDiv) {
       errorDiv.classList.toggle('hidden', isValid);
     }
+
+    // Also toggle the border on error inputs (if applicable).
   }
 
   /** Validates all address questions. */
@@ -188,6 +198,27 @@ class ValidationController {
     return isValid;
   }
 
+  /** if we have empty inputs then disable the add input button. (We don't need two blank inputs.) */
+  maybeHideEnumeratorAddButton() : boolean {
+    let hasEmptyInputs = false;
+    const enumeratorQuestion =
+      document.querySelector(ValidationController.ENUMERATOR_QUESTION_CLASS);
+    if (enumeratorQuestion) {
+      const enumeratorInputValues = Array.from(enumeratorQuestion.querySelectorAll('input'))
+        .filter(item => item.id !== ValidationController.ENUMERATOR_DELETE_TEMPLATE)
+        .map(item => item.value);
+
+      // validate that there are no empty inputs.
+      hasEmptyInputs = enumeratorInputValues.includes("");
+      const addButton =
+        <HTMLInputElement>document.getElementById('enumerator-field-add-button');
+      if (addButton) {
+        addButton.disabled = hasEmptyInputs;
+      }
+    }
+    return hasEmptyInputs;
+  }
+
   /** Validates that there are no empty or indentical items in the list. */
   validateEnumeratorQuestion(): boolean {
     let isValid = true;
@@ -198,17 +229,13 @@ class ValidationController {
         .map(item => item.value);
 
       // validate that there are no empty inputs.
-      const hasEmptyInputs = enumeratorInputValues.includes("");
-
-      // if we have empty inputs then disable the add input button. (We don't need two blank inputs.)
-      // const addButton = <HTMLInputElement>document.getElementById('enumerator-field-add-button');
-      // if (addButton) {
-      //   addButton.disabled = hasEmptyInputs;
-      // }
+      const hasEmptyInputs = this.maybeHideEnumeratorAddButton();
 
       // validate that there are no duplicate entries.
       const hasDupes = (new Set(enumeratorInputValues)).size !== enumeratorInputValues.length;
       isValid = isValid && !hasEmptyInputs && !hasDupes;
+
+      // this.updateFieldErrorState(enumeratorQuestion, '.cf-enumerator', isValid);
     }
     return isValid;
   }
@@ -220,11 +247,13 @@ class ValidationController {
     for (const question of nameQuestions) {
       // validate first name is not empty.
       const firstNameInput = <HTMLInputElement>question.querySelector(".cf-name-first input");
-      const firstNameValid = firstNameInput.value.length > 0;
+      const firstNameValid = firstNameInput.value.length > 0;      
+      this.updateFieldErrorState(question, '.cf-name-first', firstNameValid);
 
       // validate last name is not empty.
       const lastNameInput = <HTMLInputElement>question.querySelector(".cf-name-last input");
       const lastNameValid = lastNameInput.value.length > 0;
+      this.updateFieldErrorState(question, '.cf-name-last', lastNameValid);
 
       isValid = firstNameValid && lastNameValid;
     }
