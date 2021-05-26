@@ -1,12 +1,14 @@
 package services.applicant.predicate;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /** Represents a predicate that can be evaluated over {@link services.applicant.ApplicantData}. */
 public class PredicateExpressionNode {
 
   private final ConcretePredicateExpressionNode node;
 
   public PredicateExpressionNode(ConcretePredicateExpressionNode node) {
-    this.node = node;
+    this.node = checkNotNull(node);
   }
 
   public PredicateExpressionNodeType getType() {

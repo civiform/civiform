@@ -183,7 +183,7 @@ export class AdminPrograms {
 
   async expectApplicationAnswerLinks(blockName: string, questionName: string) {
     expect(await this.page.innerText(this.selectApplicationBlock(blockName))).toContain(questionName);
-    expect(await this.page.getAttribute(this.selectWithinApplicationBlock(blockName, 'a'), 'href')).toBeDefined();
+    expect(await this.page.getAttribute(this.selectWithinApplicationBlock(blockName, 'a'), 'href')).not.toBeNull();
   }
 
   async getCsv() {

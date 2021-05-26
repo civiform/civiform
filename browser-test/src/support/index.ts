@@ -72,8 +72,9 @@ export const selectApplicantLanguage = async (page: Page, language: string) => {
   const infoPageRegex = /applicants\/\d+\/edit/;
   const maybeSelectLanguagePage = await page.url();
   if (maybeSelectLanguagePage.match(infoPageRegex)) {
-    await page.selectOption('select', { label: language });
-    await page.click('button');
+    const languageOption = `.cf-radio-option:has-text("${language}")`;
+    await page.click(languageOption + ' input');
+    await page.click('button:visible');
   }
 
   const programIndexRegex = /applicants\/\d+\/programs/;
