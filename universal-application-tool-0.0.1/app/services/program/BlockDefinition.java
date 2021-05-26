@@ -181,8 +181,6 @@ public abstract class BlockDefinition {
     public abstract BlockDefinition build();
 
     public Builder addQuestion(ProgramQuestionDefinition question) {
-      // If this question has an enumerator ID, the block should inherit it.
-      this.setEnumeratorId(question.getQuestionDefinition().getEnumeratorId());
       programQuestionDefinitionsBuilder().add(question);
       return this;
     }
