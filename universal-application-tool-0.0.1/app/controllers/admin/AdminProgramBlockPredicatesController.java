@@ -14,29 +14,21 @@ import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.question.QuestionService;
-import services.question.ReadOnlyQuestionService;
 import views.admin.programs.ProgramBlockPredicatesEditView;
 
 public class AdminProgramBlockPredicatesController {
   private final ProgramService programService;
-  private final QuestionService questionService;
   private final ProgramBlockPredicatesEditView predicatesEditView;
 
   @Inject
   public AdminProgramBlockPredicatesController(
-      ProgramService programService,
-      QuestionService questionService,
-      ProgramBlockPredicatesEditView predicatesEditView) {
+      ProgramService programService, ProgramBlockPredicatesEditView predicatesEditView) {
     this.programService = checkNotNull(programService);
-    this.questionService = checkNotNull(questionService);
     this.predicatesEditView = checkNotNull(predicatesEditView);
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result edit(Request request, long programId, long blockDefinitionId) {
-    ReadOnlyQuestionService readOnlyQuestionService =
-        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
     try {
       ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
@@ -45,7 +37,7 @@ public class AdminProgramBlockPredicatesController {
               request,
               programDefinition,
               blockDefinition,
-              readOnlyQuestionService.getAllQuestions()));
+              programDefinition.getAvailablePredicateQuestionDefinitions(blockDefinitionId)));
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
     }
