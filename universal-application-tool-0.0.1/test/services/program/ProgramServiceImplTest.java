@@ -500,7 +500,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
     PredicateDefinition predicate =
         PredicateDefinition.create(
-            new PredicateExpressionNode(
+            PredicateExpressionNode.create(
                 LeafOperationExpressionNode.create(
                     1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
             PredicateAction.HIDE_BLOCK);
@@ -520,7 +520,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     p.id(),
                     100L,
                     PredicateDefinition.create(
-                        new PredicateExpressionNode(
+                        PredicateExpressionNode.create(
                             LeafOperationExpressionNode.create(
                                 1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
                         PredicateAction.HIDE_BLOCK)))
@@ -545,7 +545,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
             programId,
             1L,
             PredicateDefinition.create(
-                new PredicateExpressionNode(
+                PredicateExpressionNode.create(
                     LeafOperationExpressionNode.create(
                         1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
                 PredicateAction.HIDE_BLOCK));
