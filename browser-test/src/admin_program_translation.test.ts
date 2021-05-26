@@ -181,10 +181,11 @@ describe('Admin can manage translations', () => {
     await adminTranslations.editQuestionTranslations('something different', 'help text different');
 
     // Edit the question and delete the help text.
-    await adminQuestions.changeQuestionHelpText(questionName, "");
+    await adminQuestions.changeQuestionHelpText(questionName, '');
 
     // Edit the question and add help text back
-    await adminQuestions.changeQuestionHelpText(questionName, "a new help text");
+    await adminQuestions.changeQuestionHelpText(questionName, 'a new help text');
+
 
     // View the question translations and check that the Spanish translations for question help text are gone.
     await adminQuestions.goToQuestionTranslationPage(questionName);
