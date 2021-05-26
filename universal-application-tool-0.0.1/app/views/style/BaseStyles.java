@@ -105,6 +105,7 @@ public final class BaseStyles {
           Styles.W_1_3,
           Styles.MAX_H_SCREEN,
           Styles.OVERFLOW_Y_AUTO);
+
   public static final String MODAL_HEADER =
       StyleUtils.joinStyles(Styles.STICKY, Styles.TOP_0, Styles.BG_GRAY_200, Styles.P_2);
   /** Generic style for for the button for the modal. */
@@ -128,7 +129,9 @@ public final class BaseStyles {
           Styles.CURSOR_POINTER,
           Styles.OPACITY_60,
           StyleUtils.hover(Styles.OPACITY_100));
-  /** Simple styling for the div that holds the custom modal content. Should just have decent margins and sizing. */
-  public static final String MODAL_CONTENT =
-      StyleUtils.joinStyles(Styles.MY_4);
+  /**
+   * Simple styling for the div that holds the custom modal content. Should just have decent margins
+   * and sizing.
+   */
+  public static final String MODAL_CONTENT = StyleUtils.joinStyles(Styles.MY_4);
 }

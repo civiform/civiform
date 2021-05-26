@@ -354,6 +354,9 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     Styles.OPACITY_100,
                     StyleUtils.disabled(Styles.OPACITY_50))
                 .attr("disabled", ""));
-    return Modal.create("block-description-modal", "Edit Block Info", blockDescriptionForm);
+    return Modal.builder("block-description-modal", blockDescriptionForm)
+        .setModalTitle("Block Name and Description")
+        .setButtonText("Edit Name and Description")
+        .build();
   }
 }
