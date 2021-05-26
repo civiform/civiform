@@ -20,6 +20,7 @@ import services.question.types.ScalarType;
 public enum Scalar {
   CITY,
   DATE,
+  EMAIL,
   FILE_KEY,
   FIRST_NAME,
   LAST_NAME,
@@ -50,6 +51,9 @@ public enum Scalar {
 
   private static final ImmutableMap<Scalar, ScalarType> DATE_SCALARS =
       ImmutableMap.of(DATE, ScalarType.DATE);
+
+  private static final ImmutableMap<Scalar, ScalarType> EMAIL_SCALARS =
+      ImmutableMap.of(EMAIL, ScalarType.STRING);
 
   private static final ImmutableMap<Scalar, ScalarType> FILE_UPLOAD_SCALARS =
       ImmutableMap.of(FILE_KEY, ScalarType.STRING);
@@ -92,6 +96,8 @@ public enum Scalar {
         return ADDRESS_SCALARS;
       case DATE:
         return DATE_SCALARS;
+      case EMAIL:
+        return EMAIL_SCALARS;
       case FILEUPLOAD:
         return FILE_UPLOAD_SCALARS;
       case NAME:

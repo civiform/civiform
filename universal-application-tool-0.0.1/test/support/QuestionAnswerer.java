@@ -80,6 +80,11 @@ public class QuestionAnswerer {
     applicantData.putDate(contextualizedPath.join(Scalar.DATE), value);
   }
 
+  public static void answerEmailQuestion(
+      ApplicantData applicantData, Path contextualizedPath, String value) {
+    applicantData.putString(contextualizedPath.join(Scalar.TEXT), value);
+  }
+
   public static void addMetadata(
       ApplicantData applicantData, Path contextualizedPath, long programId, long timestamp) {
     applicantData.putLong(contextualizedPath.join(Scalar.PROGRAM_UPDATED_IN), programId);
