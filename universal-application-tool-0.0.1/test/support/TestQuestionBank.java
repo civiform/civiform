@@ -18,6 +18,7 @@ import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.DateQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
+import services.question.types.EmailQuestionDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
@@ -74,6 +75,7 @@ public class TestQuestionBank {
         .put(QuestionType.CHECKBOX, applicantKitchenTools())
         .put(QuestionType.DATE, applicantDate())
         .put(QuestionType.DROPDOWN, applicantIceCream())
+        .put(QuestionType.EMAIL, applicantEmail())
         .put(QuestionType.FILEUPLOAD, applicantFile())
         .put(QuestionType.NAME, applicantName())
         .put(QuestionType.NUMBER, applicantJugglingNumber())
@@ -102,6 +104,11 @@ public class TestQuestionBank {
   // Dropdown
   public Question applicantIceCream() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ICE_CREAM, this::applicantIceCream);
+  }
+
+  // Email
+  public Question applicantEmail() {
+    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_EMAIL, this::applicantEmail);
   }
 
   // Enumerator
@@ -294,6 +301,17 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  // Email
+  private Question applicantEmail(QuestionEnum ignore) {
+    QuestionDefinition definition =
+            new EmailQuestionDefinition(
+                    "applicant Email address",
+                    Optional.empty(),
+                    "The applicant Email address",
+                    LocalizedStrings.of(Locale.US, "What is your Email?"),
+                    LocalizedStrings.of(Locale.US, "This is sample help text."));
+    return maybeSave(definition);
+  }
   // Deeply Nested Number
   private Question applicantHouseholdMemberJobIncome(QuestionEnum ignore) {
     Question householdMemberJobs = applicantHouseholdMemberJobs();
@@ -388,6 +406,7 @@ public class TestQuestionBank {
     APPLICANT_KITCHEN_TOOLS,
     APPLICANT_NAME,
     APPLICANT_BIRTHDATE,
-    APPLICANT_SEASON
+    APPLICANT_SEASON,
+    APPLICANT_EMAIL
   }
 }
