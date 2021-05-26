@@ -22,6 +22,7 @@ import repository.UserRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
@@ -364,29 +365,14 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
-  public ProgramDefinition setBlockHidePredicate(
-      long programId, long blockDefinitionId, Predicate predicate)
+  public ProgramDefinition setBlockPredicate(
+      long programId, long blockDefinitionId, PredicateDefinition predicate)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
-            .setHidePredicate(Optional.of(predicate))
-            .build();
-
-    return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
-  }
-
-  @Override
-  @Transactional
-  public ProgramDefinition setBlockOptionalPredicate(
-      long programId, long blockDefinitionId, Predicate predicate)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
-
-    BlockDefinition blockDefinition =
-        programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
-            .setOptionalPredicate(Optional.of(predicate))
+            .setVisibilityPredicate(Optional.of(predicate))
             .build();
 
     return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);

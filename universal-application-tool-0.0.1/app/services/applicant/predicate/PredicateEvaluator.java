@@ -1,17 +1,22 @@
 package services.applicant.predicate;
 
 import com.google.common.collect.ImmutableList;
-import java.util.Optional;
+import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.PredicateExpressionNode;
 
 public class PredicateEvaluator {
 
+  private final ApplicantData applicantData;
   private final ImmutableList<ApplicantQuestion> applicantQuestions;
+  private final JsonPathPredicateGenerator predicateGenerator;
 
-  public PredicateEvaluator(ImmutableList<ApplicantQuestion> applicantQuestions) {
+  public PredicateEvaluator(
+      ApplicantData applicantData, ImmutableList<ApplicantQuestion> applicantQuestions) {
+    this.applicantData = applicantData;
     this.applicantQuestions = applicantQuestions;
+    this.predicateGenerator = new JsonPathPredicateGenerator(applicantQuestions);
   }
 
   public boolean evaluate(PredicateExpressionNode node) {
@@ -26,14 +31,7 @@ public class PredicateEvaluator {
   }
 
   boolean evaluateLeafNode(LeafOperationExpressionNode node) {
-    Optional<ApplicantQuestion> question =
-        applicantQuestions.stream()
-            .filter(q -> q.getQuestionDefinition().getId() == node.questionId())
-            .findFirst();
-    if (question.isEmpty()) {
-      return false;
-    }
-    JsonPathPredicate predicate = node.toJsonPathPredicate(question.get().getContextualizedPath());
-    return question.get().getApplicantData().evalPredicate(predicate);
+    JsonPathPredicate predicate = predicateGenerator.fromLeafNode(node);
+    return applicantData.evalPredicate(predicate);
   }
 }

@@ -112,19 +112,19 @@ public abstract class BlockDefinition {
         .anyMatch(questionType -> questionType.equals(QuestionType.FILEUPLOAD));
   }
 
-  /** A {@link Predicate} that determines whether this is hidden or shown. */
+  /** A {@link PredicateDefinition} that determines whether this block is hidden or shown. */
   @JsonProperty("hidePredicate")
-  public abstract Optional<PredicateDefinition> predicate();
+  public abstract Optional<PredicateDefinition> visibilityPredicate();
 
   /**
-   * A {@link Predicate} that determines whether this is optional or required. Note as of
-   * 2021-05-25: We no longer consider blocks to be required or optional - a block is required if
-   * shown. Instead, individual questions can be optional or required. This field is kept for
-   * serialization consistency.
+   * A {@link PredicateDefinition} that determines whether this is optional or required.
+   *
+   * <p>Note as of 2021-05-25: We no longer consider blocks to be required or optional - a block is
+   * required if shown. Instead, individual questions can be optional or required. This field is
+   * kept for serialization consistency.
    */
   @JsonProperty("optionalPredicate")
-  @Deprecated
-  public abstract Optional<Predicate> optionalPredicate();
+  public abstract Optional<PredicateDefinition> optionalPredicate();
 
   /** The list of {@link ProgramQuestionDefinition}s that make up this block. */
   @JsonProperty("questionDefinitions")
@@ -162,20 +162,14 @@ public abstract class BlockDefinition {
     public abstract Builder setEnumeratorId(Optional<Long> enumeratorId);
 
     @JsonProperty("hidePredicate")
-    public abstract Builder setPredicate(Optional<PredicateDefinition> predicate);
+    public abstract Builder setVisibilityPredicate(Optional<PredicateDefinition> predicate);
 
-    public Builder setPredicate(PredicateDefinition predicate) {
-      return this.setPredicate(Optional.of(predicate));
+    public Builder setVisibilityPredicate(PredicateDefinition predicate) {
+      return this.setVisibilityPredicate(Optional.of(predicate));
     }
 
     @JsonProperty("optionalPredicate")
-    @Deprecated
-    public abstract Builder setOptionalPredicate(Optional<Predicate> optional);
-
-    @Deprecated
-    public Builder setOptionalPredicate(Predicate optional) {
-      return this.setOptionalPredicate(Optional.of(optional));
-    }
+    public abstract Builder setOptionalPredicate(Optional<PredicateDefinition> optional);
 
     @JsonProperty("questionDefinitions")
     public abstract Builder setProgramQuestionDefinitions(

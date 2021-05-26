@@ -1,5 +1,7 @@
 package services.program.predicate;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 
 /**
@@ -19,9 +21,11 @@ public abstract class PredicateValue {
     return create("\"" + value + "\"");
   }
 
-  private static PredicateValue create(String value) {
+  @JsonCreator
+  private static PredicateValue create(@JsonProperty("value") String value) {
     return new AutoValue_PredicateValue(value);
   }
 
+  @JsonProperty("value")
   public abstract String value();
 }

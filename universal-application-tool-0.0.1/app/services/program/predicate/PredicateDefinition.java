@@ -9,7 +9,8 @@ public abstract class PredicateDefinition {
 
   @JsonCreator
   public static PredicateDefinition create(
-      PredicateExpressionNode rootNode, PredicateAction action) {
+      @JsonProperty("rootNode") PredicateExpressionNode rootNode,
+      @JsonProperty("action") PredicateAction action) {
     return new AutoValue_PredicateDefinition(rootNode, action);
   }
 
