@@ -10,9 +10,11 @@ import auth.ProfileUtils;
 import auth.UatProfile;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import java.util.Optional;
 import javax.inject.Inject;
+import models.Account;
 import models.TrustedIntermediaryGroup;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -26,6 +28,7 @@ import views.applicant.TrustedIntermediaryDashboardView;
 
 public class TrustedIntermediaryController {
 
+  private static final int PAGE_SIZE = 10;
   private final TrustedIntermediaryDashboardView tiDashboardView;
   private final ProfileUtils profileUtils;
   private final UserRepository userRepository;
@@ -47,7 +50,10 @@ public class TrustedIntermediaryController {
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
-  public Result dashboard(Http.Request request) {
+  public Result dashboard(Http.Request request, Optional<String> search, Optional<Integer> page) {
+    if (page.isEmpty()) {
+      return redirect(routes.TrustedIntermediaryController.dashboard(search, Optional.of(1)));
+    }
     Optional<UatProfile> uatProfile = profileUtils.currentUserProfile(request);
     if (uatProfile.isEmpty()) {
       return unauthorized();
@@ -57,9 +63,36 @@ public class TrustedIntermediaryController {
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
+    ImmutableList<Account> managedAccounts =
+        trustedIntermediaryGroup.get().getManagedAccounts(search);
+    int endOfListIndex = page.get() * PAGE_SIZE;
+    int totalPageCount = (int) Math.ceil((double) managedAccounts.size() / PAGE_SIZE);
+    if (managedAccounts.size() <= endOfListIndex) {
+      endOfListIndex = managedAccounts.size();
+    }
+    if (managedAccounts.size() <= (page.get() - 1) * PAGE_SIZE) {
+      managedAccounts = ImmutableList.of();
+      if (managedAccounts.size() == 0) {
+        // Display 1 page (which is empty)
+        totalPageCount = 1;
+      } else {
+        // If for some reason we're way past the end of the list, make sure the "previous"
+        // button goes to the end of the list.
+        page = Optional.of(Math.floorDiv(managedAccounts.size(), PAGE_SIZE) + 2);
+      }
+    } else {
+      managedAccounts = managedAccounts.subList((page.get() - 1) * PAGE_SIZE, endOfListIndex);
+    }
     return ok(
         tiDashboardView.render(
-            trustedIntermediaryGroup.get(), request, messagesApi.preferred(request)));
+            trustedIntermediaryGroup.get(),
+            uatProfile.get().getApplicant().join().getApplicantData().getApplicantName(),
+            managedAccounts,
+            totalPageCount,
+            page.get(),
+            search,
+            request,
+            messagesApi.preferred(request)));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -90,7 +123,8 @@ public class TrustedIntermediaryController {
     try {
       userRepository.createNewApplicantForTrustedIntermediaryGroup(
           form.get(), trustedIntermediaryGroup.get());
-      return redirect(routes.TrustedIntermediaryController.dashboard());
+      return redirect(
+          routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty()));
     } catch (EmailAddressExistsException e) {
       return redirectToDashboardWithError(
           "Email address already in use.  Cannot create applicant if an account already exists. "
@@ -102,7 +136,8 @@ public class TrustedIntermediaryController {
 
   private Result redirectToDashboardWithError(
       String errorMessage, Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
-    return redirect(routes.TrustedIntermediaryController.dashboard())
+    return redirect(
+            routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty()))
         .flashing("error", errorMessage)
         .flashing("providedFirstName", form.get().getFirstName())
         .flashing("providedMiddleName", form.get().getMiddleName())

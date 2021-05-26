@@ -8,14 +8,19 @@ Mappings:
       image: public.ecr.aws/t1q6b4h2/universal-application-tool:latest
   Notifications:
     prod:
-      sender: noreply@seattle.civiform.com
+      sender: civiform-notification@seattle.gov
     staging:
       sender: noreply@staging.seattle.civiform.com
   AdminGroup:
     prod:
-      group: ad\\ITD_CiviForm_Admins
+      group: ad\ITD_CiviForm_Admins
     staging:
-      group: ad\\ITD_CiviForm_Admins_Test
+      group: ad\ITD_CiviForm_Admins_Test
+  Registration:
+    prod:
+      uri: https://login.seattle.gov/#/registration
+    staging:
+      uri: ''
 Parameters:
   Environment:
     Type: String
@@ -146,6 +151,8 @@ Resources:
               Value: !Sub '{{resolve:secretsmanager:${Environment}-oidc-secrets:SecretString:ADFS_CLIENT_ID}}'
             - Name: ADFS_SECRET
               Value: !Sub '{{resolve:secretsmanager:${Environment}-oidc-secrets:SecretString:ADFS_SECRET}}'
+            - Name: IDCS_REGISTER_URI
+              Value: !FindInMap [Registration, !Ref Environment, uri]
             - Name: ADFS_GLOBAL_ADMIN_GROUP
               Value: !FindInMap [AdminGroup, !Ref Environment, group]
             - Name: BASE_URL

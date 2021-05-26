@@ -9,9 +9,16 @@ import org.junit.Test;
 import repository.ProgramRepository;
 import repository.WithPostgresContainer;
 import services.LocalizedStrings;
+import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.Operator;
+import services.program.predicate.PredicateAction;
+import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
+import services.program.predicate.PredicateValue;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
@@ -132,5 +139,43 @@ public class ProgramTest extends WithPostgresContainer {
     ProgramQuestionDefinition nameQuestion =
         found.getProgramDefinition().blockDefinitions().get(0).programQuestionDefinitions().get(1);
     assertThat(nameQuestion.id()).isEqualTo(nameQuestionDefinition.getId());
+  }
+
+  @Test
+  public void blockPredicates_serializedCorrectly() throws Exception {
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+            PredicateAction.HIDE_BLOCK);
+
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("Test predicates")
+            .setDescription("set hide and deprecated optional")
+            .setProgramQuestionDefinitions(ImmutableList.of())
+            .setVisibilityPredicate(predicate)
+            .build();
+
+    ProgramDefinition definition =
+        ProgramDefinition.builder()
+            .setId(1L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
+            .setBlockDefinitions(ImmutableList.of(blockDefinition))
+            .build();
+    Program program = new Program(definition);
+    program.save();
+
+    Program found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
+
+    assertThat(found.getProgramDefinition().blockDefinitions()).hasSize(1);
+    BlockDefinition block = found.getProgramDefinition().getBlockDefinition(1L);
+    assertThat(block.visibilityPredicate()).hasValue(predicate);
+    assertThat(block.optionalPredicate()).isEmpty();
   }
 }

@@ -1,12 +1,14 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.meta;
 import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.script;
 
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import j2html.tags.Tag;
+import java.net.URI;
 import javax.inject.Inject;
 import play.twirl.api.Content;
 import views.components.ToastMessage;
@@ -19,6 +21,7 @@ import views.components.ToastMessage;
  * #render(HtmlBundle)} method.
  */
 public class BaseHtmlLayout {
+  private static final String STAGING_HOST_NAME = "staging.seattle.civiform.com";
   private static final String TAILWIND_COMPILED_FILENAME = "tailwind";
   private static final String[] FOOTER_SCRIPTS = {"main", "radio", "toast"};
   private static final String BANNER_TEXT =
@@ -26,11 +29,15 @@ public class BaseHtmlLayout {
 
   public final ViewUtils viewUtils;
   private final String measurementId;
+  private final String hostName;
 
   @Inject
   public BaseHtmlLayout(ViewUtils viewUtils, Config configuration) {
     this.viewUtils = checkNotNull(viewUtils);
     this.measurementId = checkNotNull(configuration).getString("measurement_id");
+
+    String baseUrl = checkNotNull(configuration).getString("base_url");
+    this.hostName = URI.create(baseUrl).getHost();
   }
 
   /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */
@@ -54,10 +61,19 @@ public class BaseHtmlLayout {
    * </pre>
    */
   public HtmlBundle getBundle(HtmlBundle bundle) {
-    // Add the warning toast.
-    ToastMessage privacyBanner =
-        ToastMessage.error(BANNER_TEXT).setId("warning-message").setIgnorable(true).setDuration(0);
-    bundle.addToastMessages(privacyBanner);
+    // Add basic page metadata.
+    bundle.addMetadata(
+        meta().attr("name", "viewport").attr("content", "width=device-width, initial-scale=1"));
+
+    // Add the warning toast, only for staging
+    if (STAGING_HOST_NAME.equals(hostName)) {
+      ToastMessage privacyBanner =
+          ToastMessage.error(BANNER_TEXT)
+              .setId("warning-message")
+              .setIgnorable(true)
+              .setDuration(0);
+      bundle.addToastMessages(privacyBanner);
+    }
 
     // Add default stylesheets.
     bundle.addStylesheets(viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILENAME));

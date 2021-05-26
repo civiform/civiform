@@ -12,46 +12,52 @@ describe('End to end enumerator test', () => {
     const adminPrograms = new AdminPrograms(page);
 
     await adminQuestions.addNameQuestion('enumerator-ete-name');
-    await adminQuestions.addEnumeratorQuestion('enumerator-ete-enumerator', 'desc', 'enumerator-ete-question');
-    await adminQuestions.addNameQuestion('enumerator-ete-enumerator-name', 'desc', 'text', 'helptext', 'enumerator-ete-enumerator');
-    await adminQuestions.addEnumeratorQuestion('enumerator-ete-enumerator-enumerator', 'desc', 'text', 'helptext', 'enumerator-ete-enumerator');
-    await adminQuestions.addTextQuestion('enumerator-ete-enumerator-enumerator-text', 'desc', 'text', 'helptext', 'enumerator-ete-enumerator-enumerator');
+    await adminQuestions.addEnumeratorQuestion('enumerator-ete-householdmembers', 'desc', 'Household members', 'list household members');
+    await adminQuestions.addNameQuestion('enumerator-ete-repeated-name', 'desc', 'Name for \$this', 'full name for \$this', 'enumerator-ete-householdmembers');
+    await adminQuestions.addEnumeratorQuestion('enumerator-ete-repeated-jobs', 'desc', 'Jobs for \$this', '\$this\'s jobs', 'enumerator-ete-householdmembers');
+    await adminQuestions.addNumberQuestion('enumerator-ete-repeated-jobs-income', 'desc', 'Income for \$this.parent\'s job at \$this', 'Monthly income at \$this', 'enumerator-ete-repeated-jobs');
 
     await adminPrograms.addProgram(programName);
     await adminPrograms.editProgramBlock(programName, 'ete enumerator program description');
 
     // All non-repeated questions should be available in the question bank.
     expect(await page.innerText('id=question-bank-questions')).toContain('enumerator-ete-name');
-    expect(await page.innerText('id=question-bank-questions')).toContain('enumerator-ete-enumerator');
+    expect(await page.innerText('id=question-bank-questions')).toContain('enumerator-ete-householdmembers');
 
     // Add an enumerator question. All options should go away.
-    await page.click('button:text("enumerator-ete-enumerator")');
+    await page.click('button:text("enumerator-ete-householdmembers")');
     expect(await page.innerText('id=question-bank-questions')).toBe('Question bank');
 
     // Remove the enumerator question and add a non-enumerator question, and the enumerator option should not be in the bank.
-    await page.click('button:text("enumerator-ete-enumerator")');
+    await page.click('button:text("enumerator-ete-householdmembers")');
     await page.click('button:text("enumerator-ete-name")');
-    expect(await page.innerText('id=question-bank-questions')).not.toContain('enumerator-ete-enumerator');
+    expect(await page.innerText('id=question-bank-questions')).not.toContain('enumerator-ete-householdmembers');
 
-    // Create a new block with the first enumerator question, and then create a repeated block. The repeated questions should be the only option.
+    // Create a new block with the first enumerator question, and then create a repeated block. The repeated questions should be the only options.
     await page.click('#add-block-button');
-    await page.click('button:text("enumerator-ete-enumerator")');
+    await page.click('button:text("enumerator-ete-householdmembers")');
     await page.click('#create-repeated-block-button');
-    expect(await page.innerText('id=question-bank-questions')).toContain('enumerator-ete-enumerator-name');
-    expect(await page.innerText('id=question-bank-questions')).toContain('enumerator-ete-enumerator-enumerator');
+    expect(await page.innerText('id=question-bank-questions')).toContain('enumerator-ete-repeated-name');
+    expect(await page.innerText('id=question-bank-questions')).toContain('enumerator-ete-repeated-jobs');
+
+    // Go back to the enumerator block, and with a repeated block, it cannot be deleted now. The enumerator question cannot be removed, either.
+    await page.click('p:text("Block 2")');
+    expect(await page.getAttribute('#delete-block-button', 'disabled')).not.toBeNull();
+    expect(await page.getAttribute('button:text("enumerator-ete-householdmembers")', 'disabled')).not.toBeNull();
 
     // Create the rest of the program.
     // Add repeated name question
-    await page.click('button:text("enumerator-ete-enumerator-name")');
+    await page.click('p:text("Block 3")');
+    await page.click('button:text("enumerator-ete-repeated-name")');
 
     // Create another repeated block and add the nested enumerator question
     await page.click('p:text("Block 2")');
     await page.click('#create-repeated-block-button');
-    await page.click('button:text("enumerator-ete-enumerator-enumerator")');
+    await page.click('button:text("enumerator-ete-repeated-jobs")');
 
     // Create a nested repeated block and add the nested text question
     await page.click('#create-repeated-block-button');
-    await page.click('button:text("enumerator-ete-enumerator-enumerator-text")');
+    await page.click('button:text("enumerator-ete-repeated-jobs-income")');
 
     // Publish!
     await adminPrograms.publishProgram(programName);
@@ -68,67 +74,111 @@ describe('End to end enumerator test', () => {
     await applicantQuestions.applyProgram(programName);
 
     // Fill in name question
-    await applicantQuestions.answerNameQuestion("first name", "last name");
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.answerNameQuestion("Porky", "Pig");
+    await applicantQuestions.clickNext();
 
     // Put in two things in the enumerator question
-    await applicantQuestions.addEnumeratorAnswer("enum one");
-    await applicantQuestions.addEnumeratorAnswer("enum two");
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.addEnumeratorAnswer("Bugs");
+    await applicantQuestions.addEnumeratorAnswer("Daffy");
+    await applicantQuestions.clickNext();
 
     // FIRST REPEATED ENTITY
     // Answer name
-    await applicantQuestions.answerNameQuestion("enum one first", "enum one last");
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.answerNameQuestion("Bugs", "Bunny");
+    await applicantQuestions.clickNext();
 
-    // Put nothing in the first nested enumerator
-    await applicantQuestions.saveAndContinue();
+    // Put one thing in the nested enumerator for enum one
+    await applicantQuestions.addEnumeratorAnswer("Cartoon Character");
+    await applicantQuestions.clickNext();
+
+    // Answer the nested repeated question
+    await applicantQuestions.answerNumberQuestion("100");
+    await applicantQuestions.clickNext()
 
     // SECOND REPEATED ENTITY
     // Answer name
-    await applicantQuestions.answerNameQuestion("enum two first", "enum two last");
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.answerNameQuestion("Daffy", "Duck");
+    await applicantQuestions.clickNext();
 
-    // Put two things in the second nested enumerator
-    await applicantQuestions.addEnumeratorAnswer("thing one");
-    await applicantQuestions.addEnumeratorAnswer("thing two");
-    await applicantQuestions.saveAndContinue();
+    // Put two things in the nested enumerator for enum two
+    await applicantQuestions.addEnumeratorAnswer("Banker");
+    await applicantQuestions.addEnumeratorAnswer("Painter");
+    await applicantQuestions.clickNext();
 
     // Answer two nested repeated text questions
-    await applicantQuestions.answerTextQuestion("hello");
-    await applicantQuestions.saveAndContinue();
-    await applicantQuestions.answerTextQuestion("world");
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.answerNumberQuestion("31");
+    await applicantQuestions.clickNext();
+    await applicantQuestions.answerNumberQuestion("12");
+    await applicantQuestions.clickNext();
 
     // Make sure the enumerator answers are in the review page
-    expect(await page.innerText("#application-summary")).toContain("first name");
-    expect(await page.innerText("#application-summary")).toContain("last name");
-    expect(await page.innerText("#application-summary")).toContain("enum one first");
-    expect(await page.innerText("#application-summary")).toContain("enum one last");
-    expect(await page.innerText("#application-summary")).toContain("enum two first");
-    expect(await page.innerText("#application-summary")).toContain("enum two last");
-    expect(await page.innerText("#application-summary")).toContain("thing one");
-    expect(await page.innerText("#application-summary")).toContain("thing two");
-    expect(await page.innerText("#application-summary")).toContain("hello");
-    expect(await page.innerText("#application-summary")).toContain("world");
+    expect(await page.innerText("#application-summary")).toContain("Porky Pig");
+    expect(await page.innerText("#application-summary")).toContain("Bugs Bunny");
+    expect(await page.innerText("#application-summary")).toContain("Cartoon Character");
+    expect(await page.innerText("#application-summary")).toContain("100");
+    expect(await page.innerText("#application-summary")).toContain("Daffy Duck");
+    expect(await page.innerText("#application-summary")).toContain("Banker");
+    expect(await page.innerText("#application-summary")).toContain("Painter");
+    expect(await page.innerText("#application-summary")).toContain("31");
+    expect(await page.innerText("#application-summary")).toContain("12");
 
     // Go back to delete enumerator answers
-    await page.click('.cf-applicant-summary-row:has(div:has-text("enumerator-ete-question")) a:has-text("Edit")');
-    await applicantQuestions.deleteEnumeratorEntity("enum one");
-    await applicantQuestions.deleteEnumeratorEntity("enum two");
-    await applicantQuestions.saveAndContinue();
+    await page.click('.cf-applicant-summary-row:has(div:has-text("Household members")) a:has-text("Edit")');
+    await applicantQuestions.deleteEnumeratorEntity("Bugs");
+    await applicantQuestions.deleteEnumeratorEntity("Daffy");
+    await applicantQuestions.clickNext();
 
     // Make sure there are no enumerators or repeated things in the review page
-    expect(await page.innerText("#application-summary")).toContain("first name");
-    expect(await page.innerText("#application-summary")).toContain("last name");
-    expect(await page.innerText("#application-summary")).not.toContain("enum one first");
-    expect(await page.innerText("#application-summary")).not.toContain("enum one last");
-    expect(await page.innerText("#application-summary")).not.toContain("enum two first");
-    expect(await page.innerText("#application-summary")).not.toContain("enum two last");
-    expect(await page.innerText("#application-summary")).not.toContain("thing one");
-    expect(await page.innerText("#application-summary")).not.toContain("thing two");
-    expect(await page.innerText("#application-summary")).not.toContain("hello");
-    expect(await page.innerText("#application-summary")).not.toContain("world");
+    expect(await page.innerText("#application-summary")).toContain("Porky Pig");
+    expect(await page.innerText("#application-summary")).not.toContain("Bugs Bunny");
+    expect(await page.innerText("#application-summary")).not.toContain("Cartoon Character");
+    expect(await page.innerText("#application-summary")).not.toContain("100");
+    expect(await page.innerText("#application-summary")).not.toContain("Daffy Duck");
+    expect(await page.innerText("#application-summary")).not.toContain("Banker");
+    expect(await page.innerText("#application-summary")).not.toContain("Painter");
+    expect(await page.innerText("#application-summary")).not.toContain("31");
+    expect(await page.innerText("#application-summary")).not.toContain("12");
+
+    // Go back and add an enumerator answer.
+    await page.click('.cf-applicant-summary-row:has(div:has-text("Household members")) a:has-text("Edit")');
+    await applicantQuestions.addEnumeratorAnswer("Tweety");
+    await applicantQuestions.clickNext();
+    await applicantQuestions.answerNameQuestion("Tweety", "Bird");
+    await applicantQuestions.clickNext();
+    await applicantQuestions.clickNext();
+
+    // Make sure there are no enumerators or repeated things in the review page
+    expect(await page.innerText("#application-summary")).toContain("Porky Pig");
+    expect(await page.innerText("#application-summary")).toContain("Tweety Bird");
+    expect(await page.innerText("#application-summary")).not.toContain("Bugs Bunny");
+    expect(await page.innerText("#application-summary")).not.toContain("Cartoon Character");
+    expect(await page.innerText("#application-summary")).not.toContain("100");
+    expect(await page.innerText("#application-summary")).not.toContain("Daffy Duck");
+    expect(await page.innerText("#application-summary")).not.toContain("Banker");
+    expect(await page.innerText("#application-summary")).not.toContain("Painter");
+    expect(await page.innerText("#application-summary")).not.toContain("31");
+    expect(await page.innerText("#application-summary")).not.toContain("12");
+
+    await endSession(browser);
+  });
+
+  it('Create new version of enumerator and update repeated questions and programs', async () => {
+    const { browser, page } = await startSession();
+    page.setDefaultTimeout(4000);
+
+    await loginAsAdmin(page);
+    const adminQuestions = new AdminQuestions(page);
+    const adminPrograms = new AdminPrograms(page);
+
+    await adminQuestions.createNewVersion('enumerator-ete-householdmembers');
+
+    // Repeated questions are updated.
+    await adminQuestions.expectDraftQuestionExist('enumerator-ete-repeated-name');
+    await adminQuestions.expectDraftQuestionExist('enumerator-ete-repeated-jobs');
+    await adminQuestions.expectDraftQuestionExist('enumerator-ete-repeated-jobs-income');
+
+    // Assert publish does not cause problem, i.e. no program refers to old questions.
+    await adminPrograms.publishProgram(programName);
 
     await endSession(browser);
   });

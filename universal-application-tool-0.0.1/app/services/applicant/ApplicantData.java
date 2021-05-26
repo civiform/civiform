@@ -8,6 +8,11 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.TypeRef;
 import com.jayway.jsonpath.spi.mapper.MappingException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,23 +29,21 @@ import services.LocalizedStrings;
 import services.Path;
 import services.WellKnownPaths;
 import services.applicant.exception.JsonPathTypeMismatchException;
+import services.applicant.predicate.JsonPathPredicate;
 import services.applicant.question.Scalar;
 
 public class ApplicantData {
+
   private static final String APPLICANT = "applicant";
+  public static final Path APPLICANT_PATH = Path.create(APPLICANT);
   private static final String EMPTY_APPLICANT_DATA_JSON =
       String.format("{ \"%s\": {} }", APPLICANT);
-
+  private static final TypeRef<List<Object>> LIST_OF_OBJECTS_TYPE = new TypeRef<>() {};
   private static final TypeRef<ImmutableList<Long>> IMMUTABLE_LIST_LONG_TYPE = new TypeRef<>() {};
-
-  private boolean locked = false;
-
-  private Optional<Locale> preferredLocale;
   private final DocumentContext jsonData;
-
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-  public static final Path APPLICANT_PATH = Path.create(APPLICANT);
+  private boolean locked = false;
+  private Optional<Locale> preferredLocale;
 
   public ApplicantData() {
     this(EMPTY_APPLICANT_DATA_JSON);
@@ -96,7 +99,7 @@ public class ApplicantData {
    */
   public boolean hasPath(Path path) {
     try {
-      this.jsonData.read(path.toString());
+      jsonData.read(path.toString());
     } catch (PathNotFoundException e) {
       return false;
     }
@@ -115,6 +118,20 @@ public class ApplicantData {
       return read(path, Object.class).isPresent();
     } catch (JsonPathTypeMismatchException e) {
       return false;
+    }
+  }
+
+  /**
+   * Stores the date string as a millisecond timestamp at the given {@link Path}.
+   *
+   * <p>This method requires the input string to be in "yyyy-MM-dd" format.
+   */
+  public void putDate(Path path, String dateString) {
+    if (dateString.isEmpty()) {
+      putNull(path);
+    } else {
+      LocalDate localDate = LocalDate.parse(dateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+      put(path, localDate.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli());
     }
   }
 
@@ -278,6 +295,11 @@ public class ApplicantData {
     }
   }
 
+  public Optional<LocalDate> readDate(Path path) {
+    return readLong(path)
+        .map(epoch -> Instant.ofEpochMilli(epoch).atZone(ZoneId.systemDefault()).toLocalDate());
+  }
+
   /**
    * Attempt to read a string at the given path. Returns {@code Optional#empty} if the path does not
    * exist or a value other than String is found.
@@ -342,7 +364,7 @@ public class ApplicantData {
    */
   private <T> Optional<T> read(Path path, Class<T> type) throws JsonPathTypeMismatchException {
     try {
-      return Optional.ofNullable(this.jsonData.read(path.toString(), type));
+      return Optional.ofNullable(jsonData.read(path.toString(), type));
     } catch (PathNotFoundException e) {
       return Optional.empty();
     } catch (MappingException e) {
@@ -361,7 +383,7 @@ public class ApplicantData {
    */
   private <T> Optional<T> read(Path path, TypeRef<T> type) throws JsonPathTypeMismatchException {
     try {
-      return Optional.ofNullable(this.jsonData.read(path.toString(), type));
+      return Optional.ofNullable(jsonData.read(path.toString(), type));
     } catch (PathNotFoundException e) {
       return Optional.empty();
     } catch (MappingException e) {
@@ -428,8 +450,19 @@ public class ApplicantData {
     }
   }
 
+  /**
+   * Evaluates a {@code JsonPathPredicate} query string returning true if there is matching data.
+   */
+  public boolean evalPredicate(JsonPathPredicate jsonPathPredicate) {
+    try {
+      return jsonData.read(jsonPathPredicate.pathPredicate(), LIST_OF_OBJECTS_TYPE).size() > 0;
+    } catch (PathNotFoundException e) {
+      return false;
+    }
+  }
+
   public String asJsonString() {
-    return this.jsonData.jsonString();
+    return jsonData.jsonString();
   }
 
   @Override
@@ -438,7 +471,7 @@ public class ApplicantData {
       ApplicantData that = (ApplicantData) object;
       // Need to compare the JSON strings rather than the DocumentContexts themselves since
       // DocumentContext does not override equals.
-      return this.jsonData.jsonString().equals(that.jsonData.jsonString());
+      return jsonData.jsonString().equals(that.jsonData.jsonString());
     }
     return false;
   }
@@ -473,7 +506,7 @@ public class ApplicantData {
           // Add items from lists.
           // TODO(github.com/seattle-uat/civiform/issues/405): improve merge for repeated fields.
           for (Object item : (List) entry.getValue()) {
-            this.jsonData.add(path.toString(), item);
+            jsonData.add(path.toString(), item);
           }
         } else {
           try {

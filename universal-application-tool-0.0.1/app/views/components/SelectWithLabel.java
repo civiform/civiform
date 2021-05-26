@@ -17,6 +17,12 @@ public class SelectWithLabel extends FieldWithLabel {
     super(select());
   }
 
+  @Override
+  public SelectWithLabel addReferenceClass(String referenceClass) {
+    referenceClassesBuilder.add(referenceClass);
+    return this;
+  }
+
   public SelectWithLabel setOptions(ImmutableList<SimpleEntry<String, String>> options) {
     this.options = options;
     return this;

@@ -59,10 +59,82 @@ describe('Admin can manage translations', () => {
     await loginAsGuest(page);
     await selectApplicantLanguage(page, 'Español');
     const applicantQuestions = new ApplicantQuestions(page);
+    await applicantQuestions.validateHeader('es-US');
+
     await applicantQuestions.applyProgram(programName);
 
     expect(await page.innerText('.cf-applicant-question-text')).toContain('Spanish question text');
     expect(await page.innerText('.cf-applicant-question-help-text')).toContain('Spanish help text');
+    await endSession(browser);
+  });
+
+  it('create a multi-option question and add translations for options', async () => {
+    const { browser, page } = await startSession();
+
+    await loginAsAdmin(page);
+    const adminQuestions = new AdminQuestions(page);
+
+    // Add a new question to be translated
+    const questionName = 'multi-option-translated';
+    await adminQuestions.addRadioButtonQuestion(questionName, ['one', 'two', 'three']);
+
+    // Go to the question translation page and add a translation for Spanish
+    await adminQuestions.goToQuestionTranslationPage(questionName);
+    const adminTranslations = new AdminTranslations(page);
+    await adminTranslations.selectLanguage('Spanish');
+    await adminTranslations.editQuestionTranslations('hola', 'mundo', ['uno', 'dos', 'tres']);
+
+    // Add the question to a program and publish
+    const adminPrograms = new AdminPrograms(page);
+    const programName = 'spanish question';
+    await adminPrograms.addProgram(programName);
+    await adminPrograms.editProgramBlock(programName, 'block', [questionName]);
+    await adminPrograms.publishProgram(programName);
+    await logout(page);
+
+    // Log in as an applicant and view the translated question
+    await loginAsGuest(page);
+    await selectApplicantLanguage(page, 'Español');
+    const applicantQuestions = new ApplicantQuestions(page);
+    await applicantQuestions.applyProgram(programName);
+
+    expect(await page.innerText('main form')).toContain('uno');
+    expect(await page.innerText('main form')).toContain('dos');
+    expect(await page.innerText('main form')).toContain('tres');
+    await endSession(browser);
+  });
+
+  it('create an enumerator question and add translations for entity type', async () => {
+    const { browser, page } = await startSession();
+
+    await loginAsAdmin(page);
+    const adminQuestions = new AdminQuestions(page);
+
+    // Add a new question to be translated
+    const questionName = 'enumerator-translated';
+    await adminQuestions.addEnumeratorQuestion(questionName);
+
+    // Go to the question translation page and add a translation for Spanish
+    await adminQuestions.goToQuestionTranslationPage(questionName);
+    const adminTranslations = new AdminTranslations(page);
+    await adminTranslations.selectLanguage('Spanish');
+    await adminTranslations.editQuestionTranslations('test', 'enumerator', ['family member']);
+
+    // Add the question to a program and publish
+    const adminPrograms = new AdminPrograms(page);
+    const programName = 'spanish question';
+    await adminPrograms.addProgram(programName);
+    await adminPrograms.editProgramBlock(programName, 'block', [questionName]);
+    await adminPrograms.publishProgram(programName);
+    await logout(page);
+
+    // Log in as an applicant and view the translated question
+    await loginAsGuest(page);
+    await selectApplicantLanguage(page, 'Español');
+    const applicantQuestions = new ApplicantQuestions(page);
+    await applicantQuestions.applyProgram(programName);
+
+    expect(await page.innerText('main form')).toContain('family member');
     await endSession(browser);
   });
 

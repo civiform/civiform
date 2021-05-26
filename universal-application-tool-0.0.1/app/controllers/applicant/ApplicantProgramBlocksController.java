@@ -94,7 +94,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   private CompletionStage<Result> editOrReview(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
-    return checkApplicantAuthorization(profileUtils, request, applicantId)
+    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+
+    return applicantStage
+        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             httpExecutionContext.current())
@@ -109,11 +112,13 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             .setRequest(request)
                             .setMessages(messagesApi.preferred(request))
                             .setApplicantId(applicantId)
+                            .setProgramTitle(roApplicantProgramService.getProgramTitle())
                             .setProgramId(programId)
                             .setBlock(block.get())
                             .setInReview(inReview)
-                            .setPercentComplete(
-                                roApplicantProgramService.getCompletionPercent(blockId))
+                            .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
+                            .setTotalBlockCount(roApplicantProgramService.getAllBlocks().size())
+                            .setApplicantName(applicantStage.toCompletableFuture().join())
                             .setPreferredLanguageSupported(
                                 roApplicantProgramService.preferredLanguageSupported())
                             .setAmazonS3Client(amazonS3Client)
@@ -149,7 +154,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> updateFile(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
-    return checkApplicantAuthorization(profileUtils, request, applicantId)
+    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+
+    return applicantStage
+        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             httpExecutionContext.current())
@@ -187,7 +195,13 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenComposeAsync(
             (roApplicantProgramService) -> {
               return update(
-                  request, applicantId, programId, blockId, inReview, roApplicantProgramService);
+                  request,
+                  applicantId,
+                  programId,
+                  blockId,
+                  applicantStage.toCompletableFuture().join(),
+                  inReview,
+                  roApplicantProgramService);
             },
             httpExecutionContext.current())
         .exceptionally(ex -> handleUpdateExceptions(ex));
@@ -196,7 +210,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> update(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
-    return checkApplicantAuthorization(profileUtils, request, applicantId)
+    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+
+    return applicantStage
+        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
         .thenComposeAsync(
             v -> {
               DynamicForm form = formFactory.form().bindFromRequest(request);
@@ -209,7 +226,13 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenComposeAsync(
             (roApplicantProgramService) -> {
               return update(
-                  request, applicantId, programId, blockId, inReview, roApplicantProgramService);
+                  request,
+                  applicantId,
+                  programId,
+                  blockId,
+                  applicantStage.toCompletableFuture().join(),
+                  inReview,
+                  roApplicantProgramService);
             },
             httpExecutionContext.current())
         .exceptionally(ex -> handleUpdateExceptions(ex));
@@ -220,6 +243,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       long programId,
       String blockId,
+      String applicantName,
       boolean inReview,
       ReadOnlyApplicantProgramService roApplicantProgramService) {
     Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getBlock(blockId);
@@ -239,10 +263,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           .setRequest(request)
                           .setMessages(applicantMessages)
                           .setApplicantId(applicantId)
+                          .setProgramTitle(roApplicantProgramService.getProgramTitle())
                           .setProgramId(programId)
                           .setBlock(thisBlockUpdated)
-                          .setPercentComplete(
-                              roApplicantProgramService.getCompletionPercent(blockId))
+                          .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
+                          .setTotalBlockCount(roApplicantProgramService.getAllBlocks().size())
+                          .setApplicantName(applicantName)
                           .setInReview(inReview)
                           .setPreferredLanguageSupported(
                               roApplicantProgramService.preferredLanguageSupported())
@@ -251,16 +277,31 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           .build())));
     }
 
-    Optional<String> nextBlockIdMaybe =
-        roApplicantProgramService.getBlockAfter(blockId).map(Block::getId);
-    return nextBlockIdMaybe.isEmpty() || inReview
-        ? supplyAsync(
-            () -> redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)))
-        : supplyAsync(
-            () ->
-                redirect(
-                    routes.ApplicantProgramBlocksController.edit(
-                        applicantId, programId, nextBlockIdMaybe.get())));
+    if (inReview) {
+      Optional<String> nextBlockIdMaybe =
+          roApplicantProgramService.getFirstIncompleteBlock().map(Block::getId);
+      return nextBlockIdMaybe.isEmpty()
+          ? supplyAsync(
+              () ->
+                  redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)))
+          : supplyAsync(
+              () ->
+                  redirect(
+                      routes.ApplicantProgramBlocksController.review(
+                          applicantId, programId, nextBlockIdMaybe.get())));
+    } else {
+      Optional<String> nextBlockIdMaybe =
+          roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
+      return nextBlockIdMaybe.isEmpty()
+          ? supplyAsync(
+              () ->
+                  redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)))
+          : supplyAsync(
+              () ->
+                  redirect(
+                      routes.ApplicantProgramBlocksController.edit(
+                          applicantId, programId, nextBlockIdMaybe.get())));
+    }
   }
 
   private ImmutableMap<String, String> cleanForm(Map<String, String> formData) {

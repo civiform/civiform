@@ -10,9 +10,9 @@ import play.inject.Injector;
 import repository.VersionRepository;
 import services.program.BlockDefinition;
 import services.program.ExportDefinition;
-import services.program.Predicate;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -195,23 +195,8 @@ public class ProgramBuilder {
       return this;
     }
 
-    public BlockBuilder withHidePredicate(Predicate predicate) {
-      blockDefBuilder.setHidePredicate(predicate);
-      return this;
-    }
-
-    public BlockBuilder withHidePredicate(String predicate) {
-      blockDefBuilder.setHidePredicate(Predicate.create(predicate));
-      return this;
-    }
-
-    public BlockBuilder withOptionalPredicate(Predicate predicate) {
-      blockDefBuilder.setOptionalPredicate(predicate);
-      return this;
-    }
-
-    public BlockBuilder withOptionalPredicate(String predicate) {
-      blockDefBuilder.setOptionalPredicate(Predicate.create(predicate));
+    public BlockBuilder withPredicate(PredicateDefinition predicate) {
+      blockDefBuilder.setVisibilityPredicate(predicate);
       return this;
     }
 

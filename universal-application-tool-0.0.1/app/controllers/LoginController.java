@@ -3,6 +3,9 @@ package controllers;
 import auth.AdOidcClient;
 import auth.IdcsOidcClient;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -30,19 +33,49 @@ public class LoginController extends Controller {
 
   private final HttpActionAdapter httpActionAdapter;
 
+  private final Config config;
+
   @Inject
   public LoginController(
       @AdOidcClient @Nullable OidcClient adClient,
       @IdcsOidcClient @Nullable OidcClient idcsClient,
-      SessionStore sessionStore) {
+      SessionStore sessionStore,
+      Config config) {
     this.idcsClient = idcsClient;
     this.adClient = adClient;
     this.sessionStore = Preconditions.checkNotNull(sessionStore);
     this.httpActionAdapter = PlayHttpActionAdapter.INSTANCE;
+    this.config = config;
   }
 
   public Result idcsLogin(Http.Request request) {
     return login(request, idcsClient);
+  }
+
+  public Result idcsLoginWithRedirect(Http.Request request, Optional<String> redirectTo) {
+    if (redirectTo.isEmpty()) {
+      return idcsLogin(request);
+    }
+    return login(request, idcsClient).addingToSession(request, "redirectTo", redirectTo.get());
+  }
+
+  public Result register(Http.Request request) {
+    String registerUrl = null;
+    try {
+      registerUrl = config.getString("idcs.register_uri");
+    } catch (ConfigException.Missing e) {
+      // leave it as null / empty.
+    }
+    if (Strings.isNullOrEmpty(registerUrl)) {
+      return badRequest("Registration is not enabled.");
+    }
+    // Redirect to the registration URL - then, when the user visits the site again, automatically
+    // log them in.
+    return redirect(registerUrl)
+        .addingToSession(
+            request,
+            "redirectTo",
+            routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url());
   }
 
   public Result adfsLogin(Http.Request request) {

@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.typesafe.config.Config;
+import java.net.URI;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -26,6 +28,7 @@ import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.Scalar;
 import services.aws.SimpleEmail;
+import services.aws.SimpleStorage;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -34,15 +37,17 @@ import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
 
 public class ApplicantServiceImpl implements ApplicantService {
-  // TODO: use program admin emails instead
-  private static final String PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST =
+  private static final String STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST =
       "seattle-civiform-program-admins-notify@google.com";
 
   private final ApplicationRepository applicationRepository;
   private final UserRepository userRepository;
   private final ProgramService programService;
   private final SimpleEmail amazonSESClient;
+  private final SimpleStorage amazonS3Client;
   private final Clock clock;
+  private final String baseUrl;
+  private final boolean isStaging;
   private final HttpExecutionContext httpExecutionContext;
 
   @Inject
@@ -51,13 +56,18 @@ public class ApplicantServiceImpl implements ApplicantService {
       UserRepository userRepository,
       ProgramService programService,
       SimpleEmail amazonSESClient,
+      SimpleStorage amazonS3Client,
       Clock clock,
+      Config configuration,
       HttpExecutionContext httpExecutionContext) {
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
     this.programService = checkNotNull(programService);
     this.amazonSESClient = checkNotNull(amazonSESClient);
+    this.amazonS3Client = checkNotNull(amazonS3Client);
     this.clock = checkNotNull(clock);
+    this.baseUrl = checkNotNull(configuration).getString("base_url");
+    this.isStaging = URI.create(baseUrl).getHost().equals("staging.seattle.civiform.com");
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
 
@@ -82,7 +92,7 @@ public class ApplicantServiceImpl implements ApplicantService {
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
 
               return new ReadOnlyApplicantProgramServiceImpl(
-                  applicant.getApplicantData(), programDefinition);
+                  amazonS3Client, applicant.getApplicantData(), programDefinition);
             },
             httpExecutionContext.current());
   }
@@ -93,6 +103,7 @@ public class ApplicantServiceImpl implements ApplicantService {
     try {
       return CompletableFuture.completedFuture(
           new ReadOnlyApplicantProgramServiceImpl(
+              amazonS3Client,
               application.getApplicantData(),
               programService.getProgramDefinition(application.getProgram().id)));
     } catch (ProgramNotFoundException e) {
@@ -143,7 +154,7 @@ public class ApplicantServiceImpl implements ApplicantService {
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
               ReadOnlyApplicantProgramService readOnlyApplicantProgramServiceBeforeUpdate =
                   new ReadOnlyApplicantProgramServiceImpl(
-                      applicant.getApplicantData(), programDefinition);
+                      amazonS3Client, applicant.getApplicantData(), programDefinition);
               Optional<Block> maybeBlockBeforeUpdate =
                   readOnlyApplicantProgramServiceBeforeUpdate.getBlock(blockId);
               if (maybeBlockBeforeUpdate.isEmpty()) {
@@ -162,7 +173,7 @@ public class ApplicantServiceImpl implements ApplicantService {
 
               ReadOnlyApplicantProgramService roApplicantProgramService =
                   new ReadOnlyApplicantProgramServiceImpl(
-                      applicant.getApplicantData(), programDefinition);
+                      amazonS3Client, applicant.getApplicantData(), programDefinition);
 
               Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
               if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
@@ -189,8 +200,8 @@ public class ApplicantServiceImpl implements ApplicantService {
                     new ApplicationSubmissionException(applicantId, programId));
               }
               Application application = applicationMaybe.get();
-              String programTitle = application.getProgram().getProgramDefinition().adminName();
-              notifyProgramAdmins(applicantId, programId, programTitle);
+              String programName = application.getProgram().getProgramDefinition().adminName();
+              notifyProgramAdmins(applicantId, programId, application.id, programName);
               return CompletableFuture.completedFuture(application);
             },
             httpExecutionContext.current());
@@ -201,12 +212,36 @@ public class ApplicantServiceImpl implements ApplicantService {
     return userRepository.programsForApplicant(applicantId);
   }
 
-  private void notifyProgramAdmins(long applicantId, long programId, String programTitle) {
-    String subject = String.format("New application submitted for %s", programTitle);
+  private void notifyProgramAdmins(
+      long applicantId, long programId, long applicationId, String programName) {
+    String viewLink =
+        baseUrl
+            + controllers.admin.routes.AdminApplicationController.show(programId, applicationId)
+                .url();
+    String subject = String.format("Applicant %d submitted a new application", applicantId);
     String message =
         String.format(
-            "Applicant %d submitted a new application to program %d", applicantId, programId);
-    amazonSESClient.send(PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST, subject, message);
+            "Applicant %d submitted a new application to program %s.\nView the application at %s.",
+            applicantId, programName, viewLink);
+    if (isStaging) {
+      amazonSESClient.send(STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST, subject, message);
+    } else {
+      amazonSESClient.send(
+          programService.getNotificationEmailAddresses(programName), subject, message);
+    }
+  }
+
+  @Override
+  public CompletionStage<String> getName(long applicantId) {
+    return userRepository
+        .lookupApplicant(applicantId)
+        .thenApplyAsync(
+            applicant -> {
+              if (applicant.isEmpty()) {
+                return "<Anonymous Applicant>";
+              }
+              return applicant.get().getApplicantData().getApplicantName();
+            });
   }
 
   /**
@@ -240,6 +275,14 @@ public class ApplicantServiceImpl implements ApplicantService {
       UpdateMetadata updateMetadata,
       ImmutableSet<Update> updates)
       throws PathNotInBlockException {
+    Path enumeratorPath = block.getEnumeratorQuestion().getContextualizedPath();
+
+    // The applicant has seen this question, but has not supplied any entities.
+    // We need to still write this path so we can tell they have seen this question.
+    if (!applicantData.hasPath(enumeratorPath.withoutArrayReference())) {
+      applicantData.putRepeatedEntities(enumeratorPath.withoutArrayReference(), ImmutableList.of());
+    }
+
     ImmutableSet<Update> addsAndChanges = validateEnumeratorAddsAndChanges(block, updates);
     ImmutableSet<Update> deletes =
         updates.stream()
@@ -269,8 +312,7 @@ public class ApplicantServiceImpl implements ApplicantService {
             .map(Update::value)
             .map(Integer::valueOf)
             .collect(ImmutableList.toImmutableList());
-    applicantData.deleteRepeatedEntities(
-        block.getEnumeratorQuestion().getContextualizedPath(), deleteIndices);
+    applicantData.deleteRepeatedEntities(enumeratorPath, deleteIndices);
   }
 
   /**
@@ -342,6 +384,9 @@ public class ApplicantServiceImpl implements ApplicantService {
               .orElseThrow(() -> new PathNotInBlockException(block.getId(), currentPath));
       questionPaths.add(currentPath.parentPath());
       switch (type) {
+        case DATE:
+          applicantData.putDate(currentPath, update.value());
+          break;
         case STRING:
           applicantData.putString(currentPath, update.value());
           break;
