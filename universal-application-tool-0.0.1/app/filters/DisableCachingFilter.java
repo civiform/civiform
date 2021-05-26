@@ -16,16 +16,17 @@ public class DisableCachingFilter extends EssentialFilter {
     this.exec = checkNotNull(exec);
   }
 
-    @Override
-    public EssentialAction apply(EssentialAction next) {
-        return EssentialAction.of(
-            request ->
-                next.apply(request)
-                    .map(
-                        result -> 
-                            result.withHeader("Cache-Control", "no-cache, must-revalidate")
-                                .withHeader("Pragma", "no-cache")
-                                .withHeader("Expires", "0"),
-                                exec));
-    }
+  @Override
+  public EssentialAction apply(EssentialAction next) {
+    return EssentialAction.of(
+        request ->
+            next.apply(request)
+                .map(
+                    result ->
+                        result
+                            .withHeader("Cache-Control", "no-cache, must-revalidate")
+                            .withHeader("Pragma", "no-cache")
+                            .withHeader("Expires", "0"),
+                    exec));
+  }
 }
