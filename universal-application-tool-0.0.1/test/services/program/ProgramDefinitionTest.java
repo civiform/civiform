@@ -212,4 +212,59 @@ public class ProgramDefinitionTest {
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
   }
+
+  @Test
+  public void getAvailablePredicateQuestionDefinitions() {
+    QuestionDefinition questionA = testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition questionB = testQuestionBank.applicantAddress().getQuestionDefinition();
+    QuestionDefinition questionC =
+        testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+    QuestionDefinition questionD = testQuestionBank.applicantSeason().getQuestionDefinition();
+
+    BlockDefinition blockA =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .addQuestion(ProgramQuestionDefinition.create(questionA))
+            .build();
+    BlockDefinition blockB =
+        BlockDefinition.builder()
+            .setId(2L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .addQuestion(ProgramQuestionDefinition.create(questionB))
+            .addQuestion(ProgramQuestionDefinition.create(questionC))
+            .build();
+    BlockDefinition blockC =
+        BlockDefinition.builder()
+            .setId(3L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .addQuestion(ProgramQuestionDefinition.create(questionD))
+            .build();
+    ProgramDefinition programDefinition =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(
+                LocalizedStrings.of(Locale.US, "Applicant friendly name", Locale.FRANCE, "test"))
+            .setLocalizedDescription(
+                LocalizedStrings.of(
+                    Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
+            .addBlockDefinition(blockA)
+            .addBlockDefinition(blockB)
+            .addBlockDefinition(blockC)
+            .build();
+
+    // blockA
+    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(1L)).isEmpty();
+    // blockB
+    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(2L))
+        .containsExactly(questionA);
+    // blockC
+    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(3L))
+        .containsExactly(questionA, questionB, questionC);
+  }
 }

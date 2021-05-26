@@ -11,6 +11,7 @@ import com.google.common.collect.Sets;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import models.Program;
 import services.LocalizedStrings;
@@ -189,6 +190,26 @@ public abstract class ProgramDefinition {
     return blockDefinitions().stream()
         .filter(blockDefinition -> blockDefinition.enumeratorId().isEmpty())
         .collect(ImmutableList.toImmutableList());
+  }
+
+  /**
+   * Returns a list of the question definitions that may be used to define predicates on the block
+   * definition with the given ID. In general, these are question definitions that are in block
+   * definitions that come sequentially before the given block definition.
+   */
+  public ImmutableList<QuestionDefinition> getAvailablePredicateQuestionDefinitions(long blockId) {
+    ImmutableList.Builder<QuestionDefinition> builder = new ImmutableList.Builder<>();
+
+    for (BlockDefinition blockDefinition : getNonRepeatedBlockDefinitions()) {
+      if (blockDefinition.id() == blockId) break;
+
+      builder.addAll(
+          blockDefinition.programQuestionDefinitions().stream()
+              .map(ProgramQuestionDefinition::getQuestionDefinition)
+              .collect(Collectors.toList()));
+    }
+
+    return builder.build();
   }
 
   public Program toProgram() {
