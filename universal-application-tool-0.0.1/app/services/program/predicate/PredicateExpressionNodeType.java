@@ -1,4 +1,4 @@
-package services.applicant.predicate;
+package services.program.predicate;
 
 public enum PredicateExpressionNodeType {
   AND,

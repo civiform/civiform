@@ -6,33 +6,33 @@ import org.junit.Test;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.Scalar;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.Operator;
+import services.program.predicate.PredicateValue;
 
-public class LeafOperationExpressionNodeTest {
+public class JsonPathPredicateGeneratorTest {
+
+  private final JsonPathPredicateGenerator generator = new JsonPathPredicateGenerator();
 
   @Test
-  public void create() {
+  public void fromLeafNode_generatesCorrectFormat() {
     LeafOperationExpressionNode node =
         LeafOperationExpressionNode.create(
             1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Seattle"));
 
-    assertThat(node.getType()).isEqualTo(PredicateExpressionNodeType.LEAF_OPERATION);
-    assertThat(node.questionId()).isEqualTo(1L);
-    assertThat(node.scalar()).isEqualTo(Scalar.CITY);
-    assertThat(node.operator()).isEqualTo(Operator.EQUAL_TO);
-    assertThat(node.comparedValue()).isEqualTo(PredicateValue.of("Seattle"));
-    assertThat(node.toJsonPathPredicate(Path.create("applicant.address")))
+    assertThat(generator.fromLeafNode(node, Path.create("applicant.address")))
         .isEqualTo(JsonPathPredicate.create("$.applicant.address[?(@.city == \"Seattle\")]"));
   }
 
   @Test
-  public void toJsonPathPredicate_canBeEvaluated() {
+  public void fromLeafNode_canBeEvaluated() {
     ApplicantData data = new ApplicantData();
     data.putString(Path.create("applicant.address.city"), "Chicago");
-
     LeafOperationExpressionNode node =
         LeafOperationExpressionNode.create(
             1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Chicago"));
-    JsonPathPredicate predicate = node.toJsonPathPredicate(Path.create("applicant.address"));
+
+    JsonPathPredicate predicate = generator.fromLeafNode(node, Path.create("applicant.address"));
 
     assertThat(data.evalPredicate(predicate)).isTrue();
   }
