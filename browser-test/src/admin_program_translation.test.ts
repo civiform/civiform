@@ -164,6 +164,38 @@ describe('Admin can manage translations', () => {
     await endSession(browser);
   });
 
+  it('deleting help text in question edit view deletes all help text translations', async () => {
+    const { browser, page } = await startSession();
+
+    await loginAsAdmin(page);
+    const adminQuestions = new AdminQuestions(page);
+
+    // Add a new question with help text
+    const questionName = 'translate-help-text-deletion';
+    await adminQuestions.addNumberQuestion(questionName);
+
+    // Add a translation for a non-English language.
+    await adminQuestions.goToQuestionTranslationPage(questionName);
+    const adminTranslations = new AdminTranslations(page);
+    await adminTranslations.selectLanguage('Spanish');
+    await adminTranslations.editQuestionTranslations('something different', 'help text different');
+
+    // Edit the question and delete the help text.
+    await adminQuestions.changeQuestionHelpText(questionName, '');
+
+    // Edit the question and add help text back
+    await adminQuestions.changeQuestionHelpText(questionName, 'a new help text');
+
+
+    // View the question translations and check that the Spanish translations for question help text are gone.
+    await adminQuestions.goToQuestionTranslationPage(questionName);
+    await adminTranslations.selectLanguage('Spanish');
+    expect(await page.getAttribute('#localize-question-text', 'value')).toContain('something different');
+    expect(await page.getAttribute('#localize-question-help-text', 'value')).toEqual('');
+
+    await endSession(browser);
+  });
+
   it('Applicant sees toast message warning translation is not complete', async () => {
     const { browser, page } = await startSession();
 
