@@ -94,6 +94,13 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, newQuestionText);
   }
 
+  async changeQuestionHelpText(questionName: string, questionHelpText: string) {
+    await this.gotoQuestionEditPage(questionName);
+    await this.page.fill('text=Question Help Text', questionHelpText);
+    await this.page.click('button:text("Update")');
+    await this.expectDraftQuestionExist(questionName);
+  }
+
   async createNewVersion(questionName: string) {
     await this.gotoAdminQuestionsPage();
     await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("New Version")'));
