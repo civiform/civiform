@@ -15,6 +15,7 @@ import repository.WithPostgresContainer;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.question.Scalar;
+import services.aws.SimpleStorage;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.ScalarType;
@@ -26,11 +27,13 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   private QuestionDefinition nameQuestion;
   private QuestionDefinition colorQuestion;
   private QuestionDefinition addressQuestion;
+  private SimpleStorage amazonS3Client;
   private ApplicantData applicantData;
   private ProgramDefinition programDefinition;
 
   @Before
   public void setUp() {
+    amazonS3Client = instanceOf(SimpleStorage.class);
     applicantData = new ApplicantData();
     nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
     colorQuestion = testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
@@ -49,7 +52,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void getProgramTitle_returnsProgramTitleInDefaultLocale() {
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
 
     assertThat(subject.getProgramTitle()).isEqualTo("My Program");
   }
@@ -58,7 +61,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   public void getProgramTitle_returnsProgramTitleForPreferredLocale() {
     applicantData.setPreferredLocale(Locale.GERMAN);
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
 
     assertThat(subject.getProgramTitle()).isEqualTo("Mein Programm");
   }
@@ -69,7 +72,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     answerNameQuestion(programDefinition.id() + 1);
 
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
     ImmutableList<Block> allBlocks = subject.getAllBlocks();
 
     assertThat(allBlocks).hasSize(2);
@@ -119,7 +122,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
         deepEnumerationPath.atIndex(1).join(Scalar.ENTITY_NAME), "nested second job");
 
     ReadOnlyApplicantProgramService service =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
 
     ImmutableList<Block> blocks = service.getAllBlocks();
 
@@ -200,20 +203,18 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 ScalarType.LONG,
                 questionPath.join(Scalar.UPDATED_AT),
                 ScalarType.LONG));
-    assertThat(blocks.get(10).getRepeatedEntities())
-        .containsExactly(
-            RepeatedEntity.create(
-                testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
-                "third entity"),
-            RepeatedEntity.create(
-                testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
-                "nested second job"));
+
+    RepeatedEntity repeatedEntity = blocks.get(10).getRepeatedEntity().get();
+    assertThat(repeatedEntity.index()).isEqualTo(1);
+    assertThat(repeatedEntity.entityName()).isEqualTo("nested second job");
+    assertThat(repeatedEntity.parent().get().index()).isEqualTo(2);
+    assertThat(repeatedEntity.parent().get().entityName()).isEqualTo("third entity");
   }
 
   @Test
   public void getInProgressBlocks_getsTheApplicantSpecificBlocksForTheProgram() {
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
     ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     assertThat(blockList).hasSize(2);
@@ -227,7 +228,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     answerNameQuestion(programDefinition.id() + 1);
 
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
     ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     assertThat(blockList).hasSize(1);
@@ -242,7 +243,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     answerAddressQuestion(programDefinition.id() + 1);
 
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
     ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     assertThat(blockList).isEmpty();
@@ -254,7 +255,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     answerNameQuestion(programDefinition.id());
 
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
     ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     // Block 1 should still be there
@@ -272,7 +273,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     answerColorQuestion(programDefinition.id());
 
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
 
     ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
@@ -287,7 +288,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void getBlock_blockExists_returnsTheBlock() {
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
 
     Optional<Block> maybeBlock = subject.getBlock("1");
 
@@ -298,7 +299,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void getBlock_blockNotInList_returnsEmpty() {
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
 
     Optional<Block> maybeBlock = subject.getBlock("111");
 
@@ -308,9 +309,9 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void getBlockAfter_thereExistsABlockAfter_returnsTheBlockAfterTheGivenBlock() {
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
 
-    Optional<Block> maybeBlock = subject.getBlockAfter("1");
+    Optional<Block> maybeBlock = subject.getInProgressBlockAfter("1");
 
     assertThat(maybeBlock).isPresent();
     assertThat(maybeBlock.get().getId()).isEqualTo("2");
@@ -319,9 +320,9 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void getBlockAfter_argIsLastBlock_returnsEmpty() {
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
 
-    Optional<Block> maybeBlock = subject.getBlockAfter("321");
+    Optional<Block> maybeBlock = subject.getInProgressBlockAfter("321");
 
     assertThat(maybeBlock).isEmpty();
   }
@@ -330,6 +331,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   public void getBlockAfter_emptyBlocks_returnsEmpty() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
+            amazonS3Client,
             new Applicant().getApplicantData(),
             ProgramDefinition.builder()
                 .setId(123L)
@@ -340,7 +342,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                     LocalizedStrings.of(Locale.US, "This program is for testing."))
                 .build());
 
-    Optional<Block> maybeBlock = subject.getBlockAfter("321");
+    Optional<Block> maybeBlock = subject.getInProgressBlockAfter("321");
 
     assertThat(maybeBlock).isEmpty();
   }
@@ -348,7 +350,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void getFirstIncompleteBlock_firstIncompleteBlockReturned() {
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
 
     Optional<Block> maybeBlock = subject.getFirstIncompleteBlock();
 
@@ -362,7 +364,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     answerNameQuestion(programDefinition.id());
 
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
 
     assertThat(subject.getInProgressBlocks().get(0).getName()).isEqualTo("Block one");
 
@@ -375,7 +377,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void preferredLanguageSupported_returnsTrueForDefaults() {
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
     assertThat(subject.preferredLanguageSupported()).isTrue();
   }
 
@@ -384,7 +386,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     applicantData.setPreferredLocale(Locale.CHINESE);
 
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
 
     assertThat(subject.preferredLanguageSupported()).isFalse();
   }
@@ -454,7 +456,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
     ImmutableList<AnswerData> result = subject.getSummaryData();
 
     assertEquals(8, result.size());
@@ -525,9 +527,39 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   @Test
+  public void getSummaryData_returnsLinkForUploadedFile() {
+    // Create a program with a fileupload question and a non-fileupload question
+    QuestionDefinition fileUploadQuestionDefinition =
+        testQuestionBank.applicantFile().getQuestionDefinition();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withBlock("Block one")
+            .withQuestionDefinition(nameQuestion)
+            .withQuestionDefinition(fileUploadQuestionDefinition)
+            .buildDefinition();
+    // Answer the questions
+    answerNameQuestion(programDefinition.id());
+    QuestionAnswerer.answerFileQuestion(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(fileUploadQuestionDefinition.getQuestionPathSegment()),
+        "test-file-key");
+
+    // Test the summary data
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
+    ImmutableList<AnswerData> result = subject.getSummaryData();
+
+    assertEquals(2, result.size());
+    // Non-fileupload question does not have a link
+    assertThat(result.get(0).answerLink()).isEmpty();
+    // Fileupload question has a link
+    assertThat(result.get(1).answerLink()).isNotEmpty();
+  }
+
+  @Test
   public void getSummaryData_returnsWithEmptyData() {
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
 
     ImmutableList<AnswerData> result = subject.getSummaryData();
 
@@ -538,13 +570,13 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   @Test
-  public void getPercentComplete_returnsExpectedNumbers() {
+  public void getBlockIndex() {
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, programDefinition);
 
-    assertThat(subject.getCompletionPercent("1")).isEqualTo(5);
-    assertThat(subject.getCompletionPercent("2")).isEqualTo(50);
-    assertThat(subject.getCompletionPercent("3")).isEqualTo(0);
+    assertThat(subject.getBlockIndex("1")).isEqualTo(0);
+    assertThat(subject.getBlockIndex("2")).isEqualTo(1);
+    assertThat(subject.getBlockIndex("not a real block id")).isEqualTo(-1);
   }
 
   private void answerNameQuestion(long programId) {

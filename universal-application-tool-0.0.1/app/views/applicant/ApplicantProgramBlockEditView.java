@@ -1,10 +1,12 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.h1;
 import static j2html.attributes.Attr.ENCTYPE;
+import static j2html.attributes.Attr.HREF;
 
 import com.google.auto.value.AutoValue;
 import com.google.inject.Inject;
@@ -26,6 +28,8 @@ import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.EnumeratorQuestionRenderer;
+import views.style.ApplicantStyles;
+import views.style.Styles;
 
 public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
@@ -40,14 +44,20 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   public Content render(Params params) {
+    Tag blockDiv =
+        div()
+            .with(div(renderBlockWithSubmitForm(params)).withClasses(Styles.MY_8))
+            .withClasses(Styles.MY_8, Styles.M_AUTO);
+
     HtmlBundle bundle =
         layout
             .getBundle()
-            .setTitle("CiviForm")
+            .setTitle(params.programTitle())
             .addMainContent(
-                layout.renderHeader(params.percentComplete()),
-                h1(params.block().getName()),
-                renderBlockWithSubmitForm(params));
+                layout.renderProgramApplicationTitleAndProgressIndicator(
+                    params.programTitle(), params.blockIndex(), params.totalBlockCount(), false),
+                blockDiv)
+            .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
     if (!params.preferredLanguageSupported()) {
       bundle.addMainContent(
@@ -64,7 +74,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
               params.messages()));
     }
 
-    return layout.renderWithNav(params.request(), params.messages(), bundle);
+    return layout.renderWithNav(
+        params.request(), params.applicantName(), params.messages(), bundle);
   }
 
   /**
@@ -97,6 +108,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             .url();
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder().setMessages(params.messages()).build();
+
     return form()
         .withAction(formAction)
         .withMethod(HttpVerbs.POST)
@@ -105,7 +117,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             each(
                 params.block().getQuestions(),
                 question -> renderQuestion(question, rendererParams)))
-        .with(submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName())));
+        .with(renderBottomNavButtons(params));
   }
 
   private Tag renderFileUploadBlockSubmitForm(Params params) {
@@ -128,6 +140,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             .setMessages(params.messages())
             .setSignedFileUploadRequest(signedRequest)
             .build();
+
     return form()
         .attr(ENCTYPE, "multipart/form-data")
         .withAction(signedRequest.actionLink())
@@ -136,11 +149,35 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             each(
                 params.block().getQuestions(),
                 question -> renderQuestion(question, rendererParams)))
-        .with(submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName())));
+        .with(renderBottomNavButtons(params));
   }
 
   private Tag renderQuestion(ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     return applicantQuestionRendererFactory.getRenderer(question).render(params);
+  }
+
+  private Tag renderBottomNavButtons(Params params) {
+    return div()
+        .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
+        // An empty div to take up the space to the left of the buttons.
+        .with(div().withClasses(Styles.FLEX_GROW))
+        .with(renderReviewButton(params))
+        .with(renderNextButton(params));
+  }
+
+  private Tag renderReviewButton(Params params) {
+    String reviewUrl =
+        routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
+            .url();
+    return a().attr(HREF, reviewUrl)
+        .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
+        .withId("review-application-button")
+        .withClasses(ApplicantStyles.BUTTON_REVIEW);
+  }
+
+  private Tag renderNextButton(Params params) {
+    return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName()))
+        .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT);
   }
 
   @AutoValue
@@ -155,9 +192,13 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
     abstract Messages messages();
 
-    abstract int percentComplete();
+    abstract int blockIndex();
+
+    abstract int totalBlockCount();
 
     abstract long applicantId();
+
+    abstract String programTitle();
 
     abstract long programId();
 
@@ -169,6 +210,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
     abstract String baseUrl();
 
+    abstract String applicantName();
+
     @AutoValue.Builder
     public abstract static class Builder {
       public abstract Builder setRequest(Http.Request request);
@@ -177,9 +220,13 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
       public abstract Builder setMessages(Messages messages);
 
-      public abstract Builder setPercentComplete(int percentComplete);
+      public abstract Builder setBlockIndex(int blockIndex);
+
+      public abstract Builder setTotalBlockCount(int blockIndex);
 
       public abstract Builder setApplicantId(long applicantId);
+
+      public abstract Builder setProgramTitle(String programTitle);
 
       public abstract Builder setProgramId(long programId);
 
@@ -190,6 +237,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
       public abstract Builder setAmazonS3Client(SimpleStorage amazonS3Client);
 
       public abstract Builder setBaseUrl(String baseUrl);
+
+      public abstract Builder setApplicantName(String applicantName);
 
       public abstract Params build();
     }

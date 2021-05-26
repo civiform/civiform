@@ -1,9 +1,11 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -35,8 +37,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
   public Content render(
       long programId,
+      String programName,
       long applicationId,
-      String applicantName,
+      String applicantNameWithId,
       ImmutableList<Block> blocks,
       ImmutableList<AnswerData> answers) {
     String title = "Program Application View";
@@ -54,7 +57,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
         div()
             .withClasses(Styles.PX_20)
             .with(
-                h1(applicantName).withClasses(Styles.MY_4),
+                h2("Program: " + programName).withClasses(Styles.MY_4),
+                h1(applicantNameWithId).withClasses(Styles.MY_4),
                 each(blocks, block -> renderApplicationBlock(block, blockToAnswers.get(block))),
                 renderDownloadButton(programId, applicationId));
 
@@ -106,6 +110,12 @@ public final class ProgramApplicationView extends BaseHtmlView {
         Instant.ofEpochMilli(answerData.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
     String questionIdentifier =
         String.format("Question ID: %d", answerData.questionDefinition().getId());
+    Tag answerContent;
+    if (answerData.answerLink().isPresent()) {
+      answerContent = a(answerData.answerText()).withHref(answerData.answerLink().get().toString());
+    } else {
+      answerContent = div(answerData.answerText());
+    }
     return div()
         .withClasses(Styles.FLEX)
         .with(
@@ -114,14 +124,13 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 .with(
                     div(questionIdentifier)
                         .withClasses(
-                            Styles.TEXT_GRAY_400, Styles.TEXT_XL, Styles.MB_2, "line-clamp-3"))
+                            Styles.TEXT_GRAY_400, Styles.TEXT_XL, Styles.MB_2, Styles.LINE_CLAMP_3))
                 .with(
                     div(answerData.questionDefinition().getName())
-                        .withClasses(Styles.TEXT_GRAY_400, Styles.TEXT_BASE, "line-clamp-3")))
+                        .withClasses(Styles.TEXT_GRAY_400, Styles.TEXT_BASE, Styles.LINE_CLAMP_3)))
         .with(p().withClasses(Styles.W_8))
         .with(
-            div(answerData.answerText())
-                .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_BASE, "line-clamp-3"))
+            answerContent.withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_BASE, Styles.LINE_CLAMP_3))
         .with(p().withClasses(Styles.FLEX_GROW))
         .with(
             div("Answered on " + date)

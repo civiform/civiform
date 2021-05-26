@@ -89,8 +89,10 @@ public class AdminApplicationController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result show(Http.Request request, long programId, long applicationId) {
+    String programName;
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
+      programName = program.adminName();
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
@@ -103,6 +105,10 @@ public class AdminApplicationController extends CiviFormController {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
     Application application = applicationMaybe.get();
+    String applicantNameWithId =
+        String.format(
+            "%s (%d)",
+            application.getApplicantData().getApplicantName(), application.getApplicant().id);
 
     ReadOnlyApplicantProgramService roApplicantService =
         applicantService
@@ -113,11 +119,7 @@ public class AdminApplicationController extends CiviFormController {
     ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
     return ok(
         applicationView.render(
-            programId,
-            applicationId,
-            application.getApplicantData().getApplicantName(),
-            blocks,
-            answers));
+            programId, programName, applicationId, applicantNameWithId, blocks, answers));
   }
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)

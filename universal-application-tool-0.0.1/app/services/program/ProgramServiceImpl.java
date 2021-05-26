@@ -2,6 +2,7 @@ package services.program;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
@@ -11,14 +12,17 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import models.Account;
 import models.Application;
 import models.Program;
 import play.db.ebean.Transactional;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ProgramRepository;
+import repository.UserRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
@@ -29,17 +33,20 @@ public class ProgramServiceImpl implements ProgramService {
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
   private final HttpExecutionContext httpExecutionContext;
+  private final UserRepository userRepository;
   private final VersionRepository versionRepository;
 
   @Inject
   public ProgramServiceImpl(
       ProgramRepository programRepository,
       QuestionService questionService,
+      UserRepository userRepository,
       VersionRepository versionRepository,
       HttpExecutionContext ec) {
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
     this.httpExecutionContext = checkNotNull(ec);
+    this.userRepository = checkNotNull(userRepository);
     this.versionRepository = checkNotNull(versionRepository);
   }
 
@@ -358,29 +365,14 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
-  public ProgramDefinition setBlockHidePredicate(
-      long programId, long blockDefinitionId, Predicate predicate)
+  public ProgramDefinition setBlockPredicate(
+      long programId, long blockDefinitionId, PredicateDefinition predicate)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
-            .setHidePredicate(Optional.of(predicate))
-            .build();
-
-    return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
-  }
-
-  @Override
-  @Transactional
-  public ProgramDefinition setBlockOptionalPredicate(
-      long programId, long blockDefinitionId, Predicate predicate)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
-
-    BlockDefinition blockDefinition =
-        programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
-            .setOptionalPredicate(Optional.of(predicate))
+            .setVisibilityPredicate(Optional.of(predicate))
             .build();
 
     return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
@@ -424,6 +416,24 @@ public class ProgramServiceImpl implements ProgramService {
     return programRepository
         .createOrUpdateDraft(this.getProgramDefinition(id).toProgram())
         .getProgramDefinition();
+  }
+
+  @Override
+  public ImmutableList<String> getNotificationEmailAddresses(String programName) {
+    ImmutableList<String> explicitProgramAdmins =
+        programRepository.getProgramAdministrators(programName).stream()
+            .map(Account::getEmailAddress)
+            .filter(address -> !Strings.isNullOrEmpty(address))
+            .collect(ImmutableList.toImmutableList());
+    // If there are any program admins, return them.
+    if (explicitProgramAdmins.size() > 0) {
+      return explicitProgramAdmins;
+    }
+    // Return all the global admins email addresses.
+    return userRepository.getGlobalAdmins().stream()
+        .map(Account::getEmailAddress)
+        .filter(address -> !Strings.isNullOrEmpty(address))
+        .collect(ImmutableList.toImmutableList());
   }
 
   private ProgramDefinition updateProgramDefinitionWithBlockDefinition(

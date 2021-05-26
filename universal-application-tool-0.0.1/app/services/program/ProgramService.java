@@ -7,6 +7,7 @@ import java.util.concurrent.CompletionStage;
 import models.Application;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.program.predicate.PredicateDefinition;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 
@@ -190,35 +191,19 @@ public interface ProgramService {
           QuestionNotFoundException;
 
   /**
-   * Set the hide {@link Predicate} for a block. This predicate describes under what conditions the
-   * block should be hidden from an applicant filling out the program form.
+   * Set the hide {@link PredicateDefinition} for a block. This predicate describes under what
+   * conditions the block should be hidden from an applicant filling out the program form.
    *
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
-   * @param predicate the {@link Predicate} for hiding the block
+   * @param predicate the {@link PredicateDefinition} for hiding the block
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
    *     real Block.
    */
-  ProgramDefinition setBlockHidePredicate(
-      long programId, long blockDefinitionId, Predicate predicate)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
-
-  /**
-   * Set the optional {@link Predicate} for a block. This predicate describes under what conditions
-   * the block should be optional when filling out the program form.
-   *
-   * @param programId the ID of the program to update
-   * @param blockDefinitionId the ID of the block to update
-   * @param predicate the {@link Predicate} for making the block optional
-   * @return the updated {@link ProgramDefinition}
-   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
-   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
-   *     real Block.
-   */
-  ProgramDefinition setBlockOptionalPredicate(
-      long programId, long blockDefinitionId, Predicate predicate)
+  ProgramDefinition setBlockPredicate(
+      long programId, long blockDefinitionId, PredicateDefinition predicate)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
 
   /**
@@ -242,4 +227,10 @@ public interface ProgramService {
 
   /** Create a new draft starting from the program specified by `id`. */
   ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException;
+
+  /**
+   * Get the email addresses to send a notification to - the program admins if there are any, or the
+   * global admins if none.
+   */
+  ImmutableList<String> getNotificationEmailAddresses(String programName);
 }

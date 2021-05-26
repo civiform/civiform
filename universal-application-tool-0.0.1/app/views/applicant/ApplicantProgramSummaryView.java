@@ -1,15 +1,18 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -19,11 +22,14 @@ import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.MessageKey;
 import services.applicant.AnswerData;
+import services.applicant.RepeatedEntity;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.LinkElement;
 import views.components.ToastMessage;
+import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
@@ -44,40 +50,71 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
   public Content render(
       Request request,
       Long applicantId,
+      String userName,
       Long programId,
       String programTitle,
       ImmutableList<AnswerData> data,
+      int completedBlockCount,
+      int totalBlockCount,
       Messages messages,
       Optional<String> banner) {
-    HtmlBundle bundle = layout.getBundle().setTitle("Program summary");
+    String pageTitle = "Application summary";
+    HtmlBundle bundle =
+        layout.getBundle().setTitle(String.format("%s — %s", pageTitle, programTitle));
 
-    ContainerTag content = div().withClasses(Styles.MX_16);
-    ContainerTag applicationSummary = div().withId("application-summary");
+    ContainerTag applicationSummary = div().withId("application-summary").withClasses(Styles.MB_8);
+    Optional<RepeatedEntity> previousRepeatedEntity = Optional.empty();
     for (AnswerData answerData : data) {
+      Optional<RepeatedEntity> currentRepeatedEntity = answerData.repeatedEntity();
+      if (!currentRepeatedEntity.equals(previousRepeatedEntity)
+          && currentRepeatedEntity.isPresent()) {
+        applicationSummary.with(renderRepeatedEntitySection(currentRepeatedEntity.get(), messages));
+      }
       applicationSummary.with(renderQuestionSummary(answerData, applicantId));
+      previousRepeatedEntity = currentRepeatedEntity;
     }
-    content.with(applicationSummary);
 
     // Add submit action (POST).
     String submitLink =
         routes.ApplicantProgramReviewController.submit(applicantId, programId).url();
-    ContainerTag actions =
-        form()
-            .withAction(submitLink)
-            .withMethod(HttpVerbs.POST)
-            .with(makeCsrfTokenInputTag(request))
-            .with(submitButton("Submit"));
-    content.with(actions);
+
+    Tag continueOrSubmitButton;
+    if (completedBlockCount == totalBlockCount) {
+      continueOrSubmitButton =
+          submitButton(messages.at(MessageKey.BUTTON_SUBMIT.getKeyName()))
+              .withClasses(
+                  ReferenceClasses.SUBMIT_BUTTON, ApplicantStyles.BUTTON_SUBMIT_APPLICATION);
+    } else {
+      String applyUrl = routes.ApplicantProgramsController.edit(applicantId, programId).url();
+      continueOrSubmitButton =
+          a().attr(HREF, applyUrl)
+              .withText(messages.at(MessageKey.BUTTON_CONTINUE.getKeyName()))
+              .withId("continue-application-button")
+              .withClasses(
+                  ReferenceClasses.CONTINUE_BUTTON, ApplicantStyles.BUTTON_SUBMIT_APPLICATION);
+    }
+
+    ContainerTag content =
+        div()
+            .with(applicationSummary)
+            .with(
+                form()
+                    .withAction(submitLink)
+                    .withMethod(HttpVerbs.POST)
+                    .with(makeCsrfTokenInputTag(request))
+                    .with(continueOrSubmitButton));
 
     if (banner.isPresent()) {
       bundle.addToastMessages(ToastMessage.error(banner.get()));
     }
     bundle.addMainContent(
-        layout.renderHeader(100),
-        h1("Application review for " + programTitle).withClasses(Styles.PX_16, Styles.PY_4),
+        layout.renderProgramApplicationTitleAndProgressIndicator(
+            programTitle, completedBlockCount, totalBlockCount, true),
+        h1(pageTitle).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION),
         content);
+    bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
-    return layout.renderWithNav(request, messages, bundle);
+    return layout.renderWithNav(request, userName, messages, bundle);
   }
 
   private ContainerTag renderQuestionSummary(AnswerData data, Long applicantId) {
@@ -96,9 +133,15 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       questionContent.with(timestampContent);
     }
 
+    ContainerTag answerContent;
+    if (data.answerLink().isPresent()) {
+      answerContent = a().withHref(data.answerLink().get().toString());
+    } else {
+      answerContent = div();
+    }
+    answerContent.withClasses(
+        Styles.FLEX_AUTO, Styles.TEXT_LEFT, Styles.FONT_LIGHT, Styles.TEXT_SM);
     // Add answer text, converting newlines to <br/> tags.
-    ContainerTag answerContent =
-        div().withClasses(Styles.FLEX_AUTO, Styles.TEXT_LEFT, Styles.FONT_LIGHT, Styles.TEXT_SM);
     String[] texts = data.answerText().split("\n");
     texts = Arrays.stream(texts).filter(text -> text.length() > 0).toArray(String[]::new);
     for (int i = 0; i < texts.length; i++) {
@@ -132,10 +175,37 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     return div(questionContent, answerDiv)
         .withClasses(
+            marginIndentClass(data.repeatedEntity().map(RepeatedEntity::depth).orElse(0)),
             Styles.MY_2,
             Styles.PY_2,
             Styles.BORDER_B,
             Styles.BORDER_GRAY_300,
             ReferenceClasses.APPLICANT_SUMMARY_ROW);
+  }
+
+  private ContainerTag renderRepeatedEntitySection(
+      RepeatedEntity repeatedEntity, Messages messages) {
+    String content =
+        String.format(
+            "%s: %s",
+            repeatedEntity
+                .enumeratorQuestionDefinition()
+                .getEntityType()
+                .getOrDefault(messages.lang().toLocale()),
+            repeatedEntity.entityName());
+    return div(content)
+        .withClasses(
+            marginIndentClass(repeatedEntity.depth() - 1),
+            Styles.MY_2,
+            Styles.PY_2,
+            Styles.PL_4,
+            Styles.FLEX_AUTO,
+            Styles.BG_ORANGE_200,
+            Styles.FONT_SEMIBOLD,
+            Styles.ROUNDED_LG);
+  }
+
+  private String marginIndentClass(int depth) {
+    return "ml-" + (depth * 4);
   }
 }

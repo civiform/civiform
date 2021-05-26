@@ -55,6 +55,30 @@ public class MultiOptionQuestionDefinitionTest {
   }
 
   @Test
+  public void getSupportedLocales_selectsSmallestSetOfLocalesFromOptions()
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinition definition =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.DROPDOWN)
+            .setName("")
+            .setDescription("")
+            .setQuestionText(
+                LocalizedStrings.of(Locale.US, "test", Locale.FRANCE, "test", Locale.UK, "test"))
+            .setQuestionHelpText(
+                LocalizedStrings.of(Locale.US, "test", Locale.FRANCE, "test", Locale.UK, "test"))
+            .setQuestionOptions(
+                ImmutableList.of(
+                    QuestionOption.create(
+                        1L,
+                        LocalizedStrings.of(Locale.US, "1", Locale.FRANCE, "1", Locale.UK, "1")),
+                    QuestionOption.create(
+                        1L, LocalizedStrings.of(Locale.US, "2", Locale.FRANCE, "2"))))
+            .build();
+
+    assertThat(definition.getSupportedLocales()).containsExactly(Locale.US, Locale.FRANCE);
+  }
+
+  @Test
   public void getOptionsForLocale_failsForMissingLocale() throws UnsupportedQuestionTypeException {
     QuestionDefinition definition =
         new QuestionDefinitionBuilder()
@@ -98,5 +122,31 @@ public class MultiOptionQuestionDefinitionTest {
         .containsExactly(
             LocalizedQuestionOption.create(1L, "one", Locale.US),
             LocalizedQuestionOption.create(2L, "two", Locale.US));
+  }
+
+  @Test
+  public void getOptionsForLocaleOrDefault_returnsBothLocalizedAndDefault() throws Exception {
+    ImmutableList<QuestionOption> options =
+        ImmutableList.of(
+            QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "one", Locale.GERMAN, "eins")),
+            QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "two", Locale.GERMAN, "zwei")),
+            QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "three")));
+    QuestionDefinition definition =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.DROPDOWN)
+            .setName("")
+            .setDescription("")
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .setQuestionOptions(options)
+            .build();
+
+    MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
+
+    assertThat(multiOption.getOptionsForLocaleOrDefault(Locale.GERMAN))
+        .containsExactly(
+            LocalizedQuestionOption.create(1L, "eins", Locale.GERMAN),
+            LocalizedQuestionOption.create(2L, "zwei", Locale.GERMAN),
+            LocalizedQuestionOption.create(3L, "three", Locale.US));
   }
 }

@@ -214,6 +214,30 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
+  public void stageAndUpdateIfValid_enumeratorNotAnswered_stillWritesPathToApplicantData() {
+    QuestionDefinition enumeratorQuestionDefinition =
+        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+    createProgram(enumeratorQuestionDefinition);
+
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+
+    Path enumeratorPath =
+        ApplicantData.APPLICANT_PATH.join(enumeratorQuestionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> updates = ImmutableMap.of();
+
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantDataAfter =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    assertThat(applicantDataAfter.hasPath(enumeratorPath.withoutArrayReference())).isTrue();
+    assertThat(applicantDataAfter.readRepeatedEntities(enumeratorPath)).isEmpty();
+  }
+
+  @Test
   public void stageAndUpdateIfValid_hasApplicantNotFoundException() {
     ImmutableMap<String, String> updates = ImmutableMap.of();
     long badApplicantId = 1L;

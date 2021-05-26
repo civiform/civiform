@@ -1,6 +1,8 @@
 package services.aws;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import com.typesafe.config.Config;
 import java.net.URI;
@@ -10,6 +12,7 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.mockito.Mockito;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
@@ -43,6 +46,8 @@ public class SimpleStorage {
 
     if (environment.isDev()) {
       client = new LocalStackClient(config);
+    } else if (environment.isTest()) {
+      client = new NullClient();
     } else {
       client = new AwsClient();
     }
@@ -149,5 +154,37 @@ public class SimpleStorage {
     public void close() {
       presigner.close();
     }
+  }
+
+  static class NullClient implements Client {
+    private final S3Presigner presigner;
+
+    NullClient() {
+      presigner = Mockito.mock(S3Presigner.class);
+      PresignedGetObjectRequest presignedGetObjectRequest =
+          Mockito.mock(PresignedGetObjectRequest.class);
+      URL fakeUrl;
+      try {
+        fakeUrl = new URL("http://fake-url");
+      } catch (java.net.MalformedURLException e) {
+        throw new RuntimeException(e);
+      }
+      when(presignedGetObjectRequest.url()).thenReturn(fakeUrl);
+      when(presigner.presignGetObject(any(GetObjectPresignRequest.class)))
+          .thenReturn(presignedGetObjectRequest);
+    }
+
+    @Override
+    public S3Presigner getPresigner() {
+      return presigner;
+    }
+
+    @Override
+    public String bucketAddress() {
+      return "fake-bucket-address";
+    }
+
+    @Override
+    public void close() {}
   }
 }

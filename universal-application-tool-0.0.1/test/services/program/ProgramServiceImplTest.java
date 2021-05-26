@@ -8,6 +8,7 @@ import forms.BlockForm;
 import java.util.Locale;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import models.Account;
 import models.Program;
 import models.Question;
 import org.junit.Before;
@@ -15,6 +16,13 @@ import org.junit.Test;
 import repository.WithPostgresContainer;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.applicant.question.Scalar;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.Operator;
+import services.program.predicate.PredicateAction;
+import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
+import services.program.predicate.PredicateValue;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
@@ -487,22 +495,35 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void setBlockHidePredicate_updatesBlock() throws Exception {
+  public void setBlockPredicate_updatesBlock() throws Exception {
     Program program = ProgramBuilder.newDraftProgram().build();
 
-    Predicate predicate = Predicate.create("hide predicate");
-    ps.setBlockHidePredicate(program.id, 1L, predicate);
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+            PredicateAction.HIDE_BLOCK);
+    ps.setBlockPredicate(program.id, 1L, predicate);
 
     ProgramDefinition found = ps.getProgramDefinition(program.id);
 
-    assertThat(found.blockDefinitions().get(0).hidePredicate()).hasValue(predicate);
+    assertThat(found.blockDefinitions().get(0).visibilityPredicate()).hasValue(predicate);
   }
 
   @Test
-  public void
-      setBlockHidePredicate_withBogusBlockId_throwsProgramBlockDefinitionNotFoundException() {
+  public void setBlockPredicate_withBogusBlockId_throwsProgramBlockDefinitionNotFoundException() {
     ProgramDefinition p = ProgramBuilder.newDraftProgram().buildDefinition();
-    assertThatThrownBy(() -> ps.setBlockHidePredicate(p.id(), 100L, Predicate.create("")))
+    assertThatThrownBy(
+            () ->
+                ps.setBlockPredicate(
+                    p.id(),
+                    100L,
+                    PredicateDefinition.create(
+                        PredicateExpressionNode.create(
+                            LeafOperationExpressionNode.create(
+                                1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+                        PredicateAction.HIDE_BLOCK)))
         .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
         .hasMessage(
             String.format(
@@ -510,7 +531,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void setBlockHidePredicate_constructsQuestionDefinitions() throws Exception {
+  public void setBlockPredicate_constructsQuestionDefinitions() throws Exception {
     QuestionDefinition question = nameQuestion;
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram()
@@ -520,48 +541,14 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     Long programId = programDefinition.id();
 
     ProgramDefinition found =
-        ps.setBlockHidePredicate(programId, 1L, Predicate.create("predicate"));
-
-    QuestionDefinition foundQuestion =
-        found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
-    assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
-  }
-
-  @Test
-  public void setBlockOptionalPredicate_updatesBlock() throws Exception {
-    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
-    Long programId = programDefinition.id();
-    Predicate predicate = Predicate.create("hide predicate");
-    ps.setBlockOptionalPredicate(programId, 1L, predicate);
-
-    ProgramDefinition found = ps.getProgramDefinition(programId);
-
-    assertThat(found.blockDefinitions().get(0).optionalPredicate()).hasValue(predicate);
-  }
-
-  @Test
-  public void
-      setBlockOptionalPredicate_withBogusBlockId_throwsProgramBlockDefinitionNotFoundException() {
-    Program program = ProgramBuilder.newDraftProgram().build();
-    assertThatThrownBy(() -> ps.setBlockOptionalPredicate(program.id, 100L, Predicate.create("")))
-        .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
-        .hasMessage(
-            String.format(
-                "Block not found in Program (ID %d) for block definition ID 100", program.id));
-  }
-
-  @Test
-  public void setBlockOptionalPredicate_constructsQuestionDefinitions() throws Exception {
-    QuestionDefinition question = nameQuestion;
-    ProgramDefinition programDefinition =
-        ProgramBuilder.newDraftProgram()
-            .withBlock()
-            .withQuestionDefinition(question)
-            .buildDefinition();
-    Long programId = programDefinition.id();
-
-    ProgramDefinition found =
-        ps.setBlockOptionalPredicate(programId, 1L, Predicate.create("predicate"));
+        ps.setBlockPredicate(
+            programId,
+            1L,
+            PredicateDefinition.create(
+                PredicateExpressionNode.create(
+                    LeafOperationExpressionNode.create(
+                        1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+                PredicateAction.HIDE_BLOCK));
 
     QuestionDefinition foundQuestion =
         found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
@@ -670,5 +657,33 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThatThrownBy(() -> ps.updateLocalization(1000L, Locale.US, "", ""))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessageContaining("Program not found for ID: 1000");
+  }
+
+  @Test
+  public void getNotificationEmailAddresses() {
+    String programName = "administered program";
+    Program program = resourceCreator.insertActiveProgram(programName);
+    program.save();
+
+    // If there are no admins (uncommon), return empty.
+    assertThat(ps.getNotificationEmailAddresses(programName)).isEmpty();
+
+    String globalAdminEmail = "global@admin";
+    Account globalAdmin = new Account();
+    globalAdmin.setEmailAddress(globalAdminEmail);
+    globalAdmin.setGlobalAdmin(true);
+    globalAdmin.save();
+
+    // If there are no program admins, return global admins.
+    assertThat(ps.getNotificationEmailAddresses(programName)).containsExactly(globalAdminEmail);
+
+    String programAdminEmail = "program@admin";
+    Account programAdmin = new Account();
+    programAdmin.setEmailAddress(programAdminEmail);
+    programAdmin.addAdministeredProgram(program.getProgramDefinition());
+    programAdmin.save();
+
+    // Return program admins when there are.
+    assertThat(ps.getNotificationEmailAddresses(programName)).containsExactly(programAdminEmail);
   }
 }

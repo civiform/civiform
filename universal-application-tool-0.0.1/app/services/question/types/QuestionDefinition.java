@@ -164,8 +164,13 @@ public abstract class QuestionDefinition {
    * it provides translations for all applicant-visible text in that locale.
    */
   public ImmutableSet<Locale> getSupportedLocales() {
-    return ImmutableSet.copyOf(
-        Sets.intersection(questionText.locales(), questionHelpText.locales()));
+    // Question help text is optional
+    if (questionHelpText.isEmpty()) {
+      return questionText.locales();
+    } else {
+      return ImmutableSet.copyOf(
+          Sets.intersection(questionText.locales(), questionHelpText.locales()));
+    }
   }
 
   /** Get the validation predicates. */
@@ -196,9 +201,28 @@ public abstract class QuestionDefinition {
     if (questionText.hasEmptyTranslation()) {
       errors.add(CiviFormError.of("Question text cannot be blank"));
     }
-    if (getQuestionType().equals(QuestionType.ENUMERATOR)
-        && ((EnumeratorQuestionDefinition) this).getEntityType().hasEmptyTranslation()) {
-      errors.add(CiviFormError.of("Enumerator question must have specified entity type"));
+    if (getQuestionType().equals(QuestionType.ENUMERATOR)) {
+      EnumeratorQuestionDefinition enumeratorQuestionDefinition =
+          (EnumeratorQuestionDefinition) this;
+      if (enumeratorQuestionDefinition.getEntityType().hasEmptyTranslation()) {
+        errors.add(CiviFormError.of("Enumerator question must have specified entity type"));
+      }
+    }
+    if (isRepeated() && !questionTextAndHelpTextContainsRepeatedEntityNameFormatString()) {
+      errors.add(
+          CiviFormError.of(
+              "Repeated questions must reference '$this' in the text and help text (if present)"));
+    }
+    if (getQuestionType().isMultiOptionType()) {
+      MultiOptionQuestionDefinition multiOptionQuestionDefinition =
+          (MultiOptionQuestionDefinition) this;
+      if (multiOptionQuestionDefinition.getOptions().isEmpty()) {
+        errors.add(CiviFormError.of("Multi-option questions must have at least one option"));
+      }
+      if (multiOptionQuestionDefinition.getOptions().stream()
+          .anyMatch(option -> option.optionText().hasEmptyTranslation())) {
+        errors.add(CiviFormError.of("Multi-option questions cannot have blank options"));
+      }
     }
     return errors.build();
   }
@@ -243,5 +267,14 @@ public abstract class QuestionDefinition {
           && this.validationPredicates.equals(o.getValidationPredicates());
     }
     return false;
+  }
+
+  private boolean questionTextAndHelpTextContainsRepeatedEntityNameFormatString() {
+    boolean textMissingFormatString =
+        questionText.translations().values().stream().anyMatch(text -> !text.contains("$this"));
+    boolean helpTextMissingFormatString =
+        questionHelpText.translations().values().stream()
+            .anyMatch(helpText -> !helpText.contains("$this"));
+    return !textMissingFormatString && !helpTextMissingFormatString;
   }
 }

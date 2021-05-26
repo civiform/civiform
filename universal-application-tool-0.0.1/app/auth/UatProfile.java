@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 import javax.inject.Inject;
+import javax.persistence.EntityNotFoundException;
 import models.Account;
 import models.Applicant;
 import play.libs.concurrent.HttpExecutionContext;
@@ -55,7 +56,11 @@ public class UatProfile {
         () -> {
           Account account = new Account();
           account.id = Long.valueOf(this.profileData.getId());
-          account.refresh();
+          try {
+            account.refresh();
+          } catch (EntityNotFoundException e) {
+            throw new AccountNonexistentException(e.getMessage());
+          }
           return account;
         },
         dbContext);
@@ -110,10 +115,6 @@ public class UatProfile {
   }
 
   public CompletableFuture<Void> checkAuthorization(long applicantId) {
-    if (isUatAdmin()) {
-      return CompletableFuture.completedFuture(null);
-    }
-
     return getAccount()
         .thenApplyAsync(
             account ->

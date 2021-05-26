@@ -4,6 +4,7 @@ class RadioController {
   static radioDefaultClass = '.cf-radio-default';
   static radioInputClass = '.cf-radio-input';
   static radioOptionClass = '.cf-radio-option';
+  static selectedRadioClasses = ['border-seattle-blue', 'bg-blue-200'];
 
   constructor() {
     this.addRadioListeners();
@@ -23,8 +24,8 @@ class RadioController {
         const container = radio.closest(RadioController.radioOptionClass);
         const radioChecked = (radio as HTMLInputElement).checked;
         if (container) {
-          container.classList.toggle("bg-blue-100", radioChecked);
-          container.classList.toggle("border-blue-400", radioChecked);
+          RadioController.selectedRadioClasses.forEach(selectedClass =>
+            container.classList.toggle(selectedClass, radioChecked));
         }
       }
     );
@@ -48,8 +49,8 @@ class RadioController {
             checkCount += isChecked ? 1 : 0;
             const radioContainer = radioButton.closest(RadioController.radioOptionClass);
             if (radioContainer) {
-              radioContainer.classList.toggle("bg-blue-100", isChecked);
-              radioContainer.classList.toggle("border-blue-400", isChecked);
+              RadioController.selectedRadioClasses.forEach(selectedClass =>
+                radioContainer.classList.toggle(selectedClass, isChecked));
             }
           }
           // If this is a checkbox we need to check or uncheck the "None selected" option.

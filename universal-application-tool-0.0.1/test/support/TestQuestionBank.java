@@ -16,6 +16,7 @@ import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
+import services.question.types.DateQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
@@ -71,6 +72,7 @@ public class TestQuestionBank {
     return new ImmutableMap.Builder<QuestionType, Question>()
         .put(QuestionType.ADDRESS, applicantAddress())
         .put(QuestionType.CHECKBOX, applicantKitchenTools())
+        .put(QuestionType.DATE, applicantDate())
         .put(QuestionType.DROPDOWN, applicantIceCream())
         .put(QuestionType.FILEUPLOAD, applicantFile())
         .put(QuestionType.NAME, applicantName())
@@ -90,6 +92,11 @@ public class TestQuestionBank {
   public Question applicantKitchenTools() {
     return questionCache.computeIfAbsent(
         QuestionEnum.APPLICANT_KITCHEN_TOOLS, this::applicantKitchenTools);
+  }
+
+  // Date
+  public Question applicantDate() {
+    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_BIRTHDATE, this::applicantDate);
   }
 
   // Dropdown
@@ -219,8 +226,8 @@ public class TestQuestionBank {
             "household members jobs",
             Optional.of(householdMembers.id),
             "The applicant's household member's jobs",
-            LocalizedStrings.of(Locale.US, "What are the household member's jobs?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."),
+            LocalizedStrings.of(Locale.US, "What are the $this's jobs?"),
+            LocalizedStrings.of(Locale.US, "Where does $this work?"),
             LocalizedStrings.empty());
     return maybeSave(definition);
   }
@@ -257,8 +264,8 @@ public class TestQuestionBank {
             "household members name",
             Optional.of(householdMembers.id),
             "The applicant's household member's name",
-            LocalizedStrings.of(Locale.US, "What is the household member's name?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            LocalizedStrings.of(Locale.US, "What is the $this's name?"),
+            LocalizedStrings.of(Locale.US, "Please provide full name for $this."));
 
     return maybeSave(definition);
   }
@@ -275,6 +282,18 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  // Date
+  private Question applicantDate(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new DateQuestionDefinition(
+            "applicant birth date",
+            Optional.empty(),
+            "The applicant birth date",
+            LocalizedStrings.of(Locale.US, "What is your birthdate?"),
+            LocalizedStrings.of(Locale.US, "This is sample help text."));
+    return maybeSave(definition);
+  }
+
   // Deeply Nested Number
   private Question applicantHouseholdMemberJobIncome(QuestionEnum ignore) {
     Question householdMemberJobs = applicantHouseholdMemberJobs();
@@ -283,8 +302,8 @@ public class TestQuestionBank {
             "household members jobs income",
             Optional.of(householdMemberJobs.id),
             "The applicant's household member's job's income",
-            LocalizedStrings.of(Locale.US, "What is the household member's job's income?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            LocalizedStrings.of(Locale.US, "What is $this.parent's income at $this?"),
+            LocalizedStrings.of(Locale.US, "What is the monthly income of $this.parent at $this?"));
 
     return maybeSave(definition);
   }
@@ -319,19 +338,30 @@ public class TestQuestionBank {
   }
 
   private Question maybeSave(QuestionDefinition questionDefinition) {
+    return maybeSave(questionDefinition, LifecycleStage.ACTIVE);
+  }
+
+  public Question maybeSave(QuestionDefinition questionDefinition, LifecycleStage desiredStage) {
     Question question = new Question(questionDefinition);
     if (canSave) {
       // This odd way of finding the active version is because this class
       // doesn't have access to the Version repository, because it needs to
       // work without the database.
-      question.addVersion(
+      Version versionToAdd;
+      Optional<Version> existingVersion =
           question
               .db()
               .find(Version.class)
               .where()
-              .eq("lifecycle_stage", LifecycleStage.ACTIVE)
-              .findOneOrEmpty()
-              .get());
+              .eq("lifecycle_stage", desiredStage)
+              .findOneOrEmpty();
+      if (existingVersion.isEmpty()) {
+        versionToAdd = new Version(desiredStage);
+        versionToAdd.save();
+      } else {
+        versionToAdd = existingVersion.get();
+      }
+      question.addVersion(versionToAdd);
       question.save();
     } else {
       question.id = nextId.getAndIncrement();
@@ -357,6 +387,7 @@ public class TestQuestionBank {
     APPLICANT_JUGGLING_NUMBER,
     APPLICANT_KITCHEN_TOOLS,
     APPLICANT_NAME,
+    APPLICANT_BIRTHDATE,
     APPLICANT_SEASON
   }
 }

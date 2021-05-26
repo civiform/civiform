@@ -36,8 +36,7 @@ public class FileUploadQuestionTest {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            fileUploadQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
 
     FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
 
@@ -48,8 +47,7 @@ public class FileUploadQuestionTest {
   @Test
   public void withApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            fileUploadQuestionDefinition, applicantData, ApplicantData.APPLICANT_PATH);
+        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerFileQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "file-key");
 

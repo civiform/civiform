@@ -9,6 +9,7 @@ describe('normal application flow', () => {
     const adminQuestions = new AdminQuestions(page);
     const adminPrograms = new AdminPrograms(page);
 
+    await adminQuestions.addDateQuestion('date-q');
     await adminQuestions.addDropdownQuestion('ice-cream-q', ['chocolate', 'banana', 'black raspberry']);
     await adminQuestions.addCheckboxQuestion('favorite-trees-q', ['oak', 'maple', 'pine', 'cherry']);
     await adminQuestions.addAddressQuestion('address-q');
@@ -20,7 +21,7 @@ describe('normal application flow', () => {
 
     const programName = 'a shiny new program';
     await adminPrograms.addProgram(programName);
-    await adminPrograms.editProgramBlock(programName, 'block description', ['address-q', 'name-q', 'radio-q']);
+    await adminPrograms.editProgramBlock(programName, 'block description', ['date-q', 'address-q', 'name-q', 'radio-q']);
     await adminPrograms.addProgramBlock(programName, 'another description', ['ice-cream-q', 'favorite-trees-q', 'number-q', 'text-q']);
     await adminPrograms.addProgramBlock(programName, 'third description', ['fileupload-q']);
 
@@ -34,6 +35,7 @@ describe('normal application flow', () => {
     await adminQuestions.expectActiveQuestionExist('favorite-trees-q');
     await adminQuestions.expectActiveQuestionExist('address-q');
     await adminQuestions.expectActiveQuestionExist('name-q');
+    await adminQuestions.expectActiveQuestionExist('date-q');
     await adminQuestions.expectActiveQuestionExist('number-q');
     await adminQuestions.expectActiveQuestionExist('text-q');
     await adminQuestions.expectActiveQuestionExist('radio-q');
@@ -43,24 +45,26 @@ describe('normal application flow', () => {
     await selectApplicantLanguage(page, 'English');
 
     const applicantQuestions = new ApplicantQuestions(page);
+    await applicantQuestions.validateHeader('en-US');
 
     // Applicant fills out first application block.
     await applicantQuestions.applyProgram(programName);
     await applicantQuestions.answerAddressQuestion('1234 St', 'Unit B', 'Sim', 'Ames', '54321');
     await applicantQuestions.answerNameQuestion('Queen', 'Hearts', 'of');
     await applicantQuestions.answerRadioButtonQuestion('two');
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.answerDateQuestion('2021-05-10');
+    await applicantQuestions.clickNext();
 
     // Applicant fills out second application block.
     await applicantQuestions.answerDropdownQuestion('banana');
     await applicantQuestions.answerCheckboxQuestion(['cherry', 'pine']);
     await applicantQuestions.answerNumberQuestion('42');
     await applicantQuestions.answerTextQuestion('some text');
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.clickNext();
 
     // Applicant fills out third application block.
     await applicantQuestions.answerFileUploadQuestion('file key');
-    await applicantQuestions.saveAndContinue();
+    await applicantQuestions.clickNext();
 
     // Applicant submits answers from review page.
     await applicantQuestions.submitFromReviewPage(programName);
@@ -76,12 +80,14 @@ describe('normal application flow', () => {
     // TODO: display the string values of selects instead of integer IDs
     // https://github.com/seattle-uat/civiform/issues/778
     await adminPrograms.expectApplicationAnswers('Block 1', 'radio-q', '2');
+    await adminPrograms.expectApplicationAnswers('Block 1', 'date-q', '05/10/2021');
+
     await adminPrograms.expectApplicationAnswers('Block 2', 'ice-cream-q', '2');
     await adminPrograms.expectApplicationAnswers('Block 2', 'favorite-trees-q', 'pine cherry');
 
     await adminPrograms.expectApplicationAnswers('Block 2', 'number-q', '42');
     await adminPrograms.expectApplicationAnswers('Block 2', 'text-q', 'some text');
-    await adminPrograms.expectApplicationAnswers('Block 3', 'fileupload-q', '-- FILE UPLOADED --');
+    await adminPrograms.expectApplicationAnswerLinks('Block 3', 'fileupload-q');
     await endSession(browser);
   })
 })

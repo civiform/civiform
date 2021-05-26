@@ -10,6 +10,7 @@ import io.ebean.TxScope;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.Question;
@@ -67,6 +68,14 @@ public class QuestionRepository {
           insertQuestionSync(newDraft);
           newDraft.addVersion(draftVersion);
           newDraft.save();
+          draftVersion.refresh();
+
+          if (definition.isEnumerator()) {
+            transaction.setNestedUseSavepoint();
+            updateAllRepeatedQuestions(newDraft.id, definition.getId());
+          }
+
+          transaction.setNestedUseSavepoint();
           versionRepositoryProvider.get().updateProgramsForNewDraftQuestion(definition.getId());
           transaction.commit();
           return newDraft;
@@ -78,6 +87,30 @@ public class QuestionRepository {
         throw new RuntimeException(e);
       }
     }
+  }
+
+  private void updateAllRepeatedQuestions(long newEnumeratorId, long oldEnumeratorId) {
+    Stream.concat(
+            versionRepositoryProvider.get().getDraftVersion().getQuestions().stream(),
+            versionRepositoryProvider.get().getActiveVersion().getQuestions().stream())
+        .filter(
+            question ->
+                question
+                    .getQuestionDefinition()
+                    .getEnumeratorId()
+                    .equals(Optional.of(oldEnumeratorId)))
+        .forEach(
+            question -> {
+              try {
+                updateOrCreateDraft(
+                    new QuestionDefinitionBuilder(question.getQuestionDefinition())
+                        .setEnumeratorId(Optional.of(newEnumeratorId))
+                        .build());
+              } catch (UnsupportedQuestionTypeException e) {
+                // All question definitions are looked up and should be valid.
+                throw new RuntimeException(e);
+              }
+            });
   }
 
   /**
@@ -94,7 +127,8 @@ public class QuestionRepository {
     ConflictDetector conflictDetector =
         new ConflictDetector(
             newQuestionDefinition.getEnumeratorId(),
-            newQuestionDefinition.getQuestionPathSegment());
+            newQuestionDefinition.getQuestionPathSegment(),
+            newQuestionDefinition.getName());
     ebeanServer
         .find(Question.class)
         .findEachWhile(question -> !conflictDetector.hasConflict(question));
@@ -105,10 +139,13 @@ public class QuestionRepository {
     private Optional<Question> conflictedQuestion = Optional.empty();
     private final Optional<Long> enumeratorId;
     private final String questionPathSegment;
+    private final String questionName;
 
-    private ConflictDetector(Optional<Long> enumeratorId, String questionPathSegment) {
+    private ConflictDetector(
+        Optional<Long> enumeratorId, String questionPathSegment, String questionName) {
       this.enumeratorId = checkNotNull(enumeratorId);
       this.questionPathSegment = checkNotNull(questionPathSegment);
+      this.questionName = checkNotNull(questionName);
     }
 
     private Optional<Question> getConflictedQuestion() {
@@ -116,11 +153,12 @@ public class QuestionRepository {
     }
 
     private boolean hasConflict(Question question) {
-      if (question.getQuestionDefinition().getEnumeratorId().equals(enumeratorId)
-          && question
-              .getQuestionDefinition()
-              .getQuestionPathSegment()
-              .equals(questionPathSegment)) {
+      if (question.getQuestionDefinition().getName().equals(questionName)
+          || (question.getQuestionDefinition().getEnumeratorId().equals(enumeratorId)
+              && question
+                  .getQuestionDefinition()
+                  .getQuestionPathSegment()
+                  .equals(questionPathSegment))) {
         conflictedQuestion = Optional.of(question);
         return true;
       }

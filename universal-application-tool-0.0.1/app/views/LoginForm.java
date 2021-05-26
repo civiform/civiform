@@ -6,6 +6,7 @@ import static j2html.TagCreator.h1;
 import auth.FakeAdminClient;
 import auth.GuestClient;
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import controllers.routes;
 import java.util.Optional;
 import play.mvc.Http;
@@ -16,10 +17,12 @@ import views.style.Styles;
 public class LoginForm extends BaseHtmlView {
 
   private final BaseHtmlLayout layout;
+  private final Config config;
 
   @Inject
-  public LoginForm(BaseHtmlLayout layout) {
+  public LoginForm(BaseHtmlLayout layout, Config config) {
     this.layout = checkNotNull(layout);
+    this.config = config;
   }
 
   public Content render(Http.Request request, Optional<String> message) {
@@ -33,14 +36,22 @@ public class LoginForm extends BaseHtmlView {
             .addMainContent(
                 h1("Log In"),
                 redirectButton(
-                    "idcs", "Login with IDCS (user)", routes.LoginController.idcsLogin().url()),
+                    "idcs",
+                    "Login with IDCS (user)",
+                    routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url()),
                 redirectButton(
-                    "adfs", "Login with ADFS (admin)", routes.LoginController.adfsLogin().url()),
-                h1("Or, continue as guest."),
-                redirectButton(
-                    "guest",
-                    "Continue",
-                    routes.CallbackController.callback(GuestClient.CLIENT_NAME).url()));
+                    "adfs", "Login with ADFS (admin)", routes.LoginController.adfsLogin().url()));
+    if (config.hasPath("idcs.register_uri")) {
+      htmlBundle.addMainContent(
+          h1("Register"),
+          redirectButton("register", "Register", routes.LoginController.register().url()));
+    }
+    htmlBundle.addMainContent(
+        h1("Or, continue as guest."),
+        redirectButton(
+            "guest",
+            "Continue",
+            routes.CallbackController.callback(GuestClient.CLIENT_NAME).url()));
 
     if (message.isPresent()) {
       String errorString = "Error: You are not logged in. " + message.get();

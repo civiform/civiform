@@ -20,6 +20,7 @@ import views.components.ToastMessage;
 /** The HtmlBundle class stores all of the data necessary for rendering a page. */
 public class HtmlBundle {
   private String pageTitle;
+  private String language = "en";
 
   private ArrayList<String> bodyStyles = new ArrayList<String>();
   private ArrayList<Tag> footerContent = new ArrayList<Tag>();
@@ -79,6 +80,11 @@ public class HtmlBundle {
     return this;
   }
 
+  public HtmlBundle addMetadata(EmptyTag... tags) {
+    metadata.addAll(Arrays.asList(tags));
+    return this;
+  }
+
   public HtmlBundle addStylesheets(Tag... sources) {
     stylesheets.addAll(Arrays.asList(sources));
     return this;
@@ -90,11 +96,16 @@ public class HtmlBundle {
   }
 
   private ContainerTag getContent() {
-    return html(renderHead(), renderBody());
+    return html(renderHead(), renderBody()).attr("lang", language);
   }
 
   public String getTitle() {
     return pageTitle;
+  }
+
+  public HtmlBundle setLanguage(String lang) {
+    language = lang;
+    return this;
   }
 
   public HtmlBundle setTitle(String title) {
@@ -143,6 +154,7 @@ public class HtmlBundle {
     ContainerTag headerTag =
         header()
             .with(each(toastMessages, toastMessage -> toastMessage.getContainerTag()))
+            .with(metadata)
             .with(headerContent);
 
     if (headerStyles.size() > 0) {

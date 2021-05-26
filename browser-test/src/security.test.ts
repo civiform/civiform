@@ -12,12 +12,12 @@ describe('applicant security', () => {
     await endSession(browser);
   });
 
-  it('admin can access applicant pages', async () => {
+  it('admin cannot access applicant pages', async () => {
     const { browser, page } = await startSession();
 
     await loginAsAdmin(page);
     const response = await gotoEndpoint(page, '/applicants/1234567/programs');
-    expect(response.status()).toBe(200);
+    expect(response.status()).toBe(401);
 
     await endSession(browser);
   });
