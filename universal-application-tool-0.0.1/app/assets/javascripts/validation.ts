@@ -160,6 +160,10 @@ class ValidationController {
     }
 
     // Also toggle the border on error inputs (if applicable).
+    const field = question.querySelector(fieldName + ' input');
+    if (field) {
+      field.classList.toggle('border-red-600', !isValid);
+    }
   }
 
   /** Validates all address questions. */
