@@ -5,6 +5,7 @@ import services.applicant.exception.InvalidPredicateException;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.PredicateExpressionNode;
 
+/** Evaluates complex predicates based on the given {@link ApplicantData}. */
 public class PredicateEvaluator {
 
   private final ApplicantData applicantData;
@@ -16,6 +17,11 @@ public class PredicateEvaluator {
     this.predicateGenerator = predicateGenerator;
   }
 
+  /**
+   * Evaluate an expression tree rooted at the given {@link PredicateExpressionNode}. Will return
+   * true if and only if the entire tree evaluates to true based on the {@link ApplicantData} used
+   * to create this generator.
+   */
   public boolean evaluate(PredicateExpressionNode node) {
     switch (node.getType()) {
       case LEAF_OPERATION:
