@@ -20,7 +20,7 @@ public class PredicateEvaluator {
   /**
    * Evaluate an expression tree rooted at the given {@link PredicateExpressionNode}. Will return
    * true if and only if the entire tree evaluates to true based on the {@link ApplicantData} used
-   * to create this generator.
+   * to create this evaluator.
    */
   public boolean evaluate(PredicateExpressionNode node) {
     switch (node.getType()) {
