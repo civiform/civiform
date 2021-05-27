@@ -149,7 +149,7 @@ class ValidationController {
     const submitEnabled = this.isValid();
     const submitButton =
       <HTMLInputElement>document.getElementById(ValidationController.BLOCK_SUBMIT_BUTTON_ID);
-    if (submitButton && this.validateOnInput) {
+    if (submitButton && ValidationController.VALIDATE_ON_INPUT) {
       submitButton.disabled = !submitEnabled;
     }
   }
