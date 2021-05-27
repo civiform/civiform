@@ -10,7 +10,7 @@ import services.question.types.PhoneNumberQuestionDefinition;
 public class PhoneNumberQuestion implements PresentsErrors {
 
   private final ApplicantQuestion applicantQuestion;
-  private Optional<String> textValue;
+  private Optional<String> phoneNumberValue;
 
   public PhoneNumberQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
@@ -29,7 +29,7 @@ public class PhoneNumberQuestion implements PresentsErrors {
     }
 
     PhoneNumberQuestionDefinition definition = getQuestionDefinition();
-    int textLength = getTextValue().map(s -> s.length()).orElse(0);
+
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
     return errors.build();
@@ -50,12 +50,12 @@ public class PhoneNumberQuestion implements PresentsErrors {
     return applicantQuestion.getApplicantData().hasPath(getTextPath());
   }
 
-  public Optional<String> getTextValue() {
-    if (textValue != null) {
-      return textValue;
+  public Optional<String> getPhoneNumberValue() {
+    if (phoneNumberValue != null) {
+      return phoneNumberValue;
     }
-    textValue = applicantQuestion.getApplicantData().readString(getTextPath());
-    return textValue;
+    phoneNumberValue = applicantQuestion.getApplicantData().readString(getTextPath());
+    return phoneNumberValue;
   }
 
   public void assertQuestionType() {
@@ -79,6 +79,6 @@ public class PhoneNumberQuestion implements PresentsErrors {
 
   @Override
   public String getAnswerString() {
-    return getTextValue().orElse("-");
+    return getPhoneNumberValue().orElse("-");
   }
 }

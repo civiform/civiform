@@ -18,7 +18,7 @@ public class PhoneNumberQuestionRenderer extends ApplicantQuestionRenderer {
     Tag questionFormContent =
         FieldWithLabel.input()
             .setFieldName(phoneNumberQuestion.getTextPath().toString())
-            .setValue(phoneNumberQuestion.getTextValue().orElse(""))
+            .setValue(phoneNumberQuestion.getPhoneNumberValue().orElse(""))
             .setFieldErrors(params.messages(), phoneNumberQuestion.getQuestionErrors())
             .getContainer();
 
