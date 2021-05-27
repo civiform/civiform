@@ -8,6 +8,7 @@ import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.NameQuestion;
 import views.components.FieldWithLabel;
+import views.style.ReferenceClasses;
 
 public class NameQuestionRenderer extends ApplicantQuestionRenderer {
 
@@ -17,7 +18,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRenderer {
 
   @Override
   public String getReferenceClass() {
-    return "cf-question-name";
+    return ReferenceClasses.NAME_QUESTION;
   }
 
   @Override
@@ -34,14 +35,14 @@ public class NameQuestionRenderer extends ApplicantQuestionRenderer {
                     .setValue(nameQuestion.getFirstNameValue().orElse(""))
                     .setFieldErrors(messages, nameQuestion.getFirstNameErrorMessage())
                     .showFieldErrors(!nameQuestion.getFirstNameErrors().isEmpty())
-                    .addReferenceClass("cf-name-first")
+                    .addReferenceClass(ReferenceClasses.NAME_FIRST)
                     .getContainer())
             .with(
                 FieldWithLabel.input()
                     .setFieldName(nameQuestion.getMiddleNamePath().toString())
                     .setLabelText(messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName()))
                     .setValue(nameQuestion.getMiddleNameValue().orElse(""))
-                    .addReferenceClass("cf-name-middle")
+                    .addReferenceClass(ReferenceClasses.NAME_MIDDLE)
                     .getContainer())
             .with(
                 FieldWithLabel.input()
@@ -50,7 +51,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRenderer {
                     .setValue(nameQuestion.getLastNameValue().orElse(""))
                     .setFieldErrors(messages, nameQuestion.getLastNameErrorMessage())
                     .showFieldErrors(!nameQuestion.getLastNameErrors().isEmpty())
-                    .addReferenceClass("cf-name-last")
+                    .addReferenceClass(ReferenceClasses.NAME_LAST)
                     .getContainer());
 
     return renderInternal(messages, nameQuestionFormContent);

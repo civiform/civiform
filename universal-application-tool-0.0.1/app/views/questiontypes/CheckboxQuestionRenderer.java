@@ -20,7 +20,7 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRenderer {
 
   @Override
   public String getReferenceClass() {
-    return "cf-question-checkbox";
+    return ReferenceClasses.CHECKBOX_QUESTION;
   }
 
   public CheckboxQuestionRenderer(ApplicantQuestion question) {

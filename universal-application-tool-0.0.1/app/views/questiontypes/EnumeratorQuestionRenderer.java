@@ -44,7 +44,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
 
   @Override
   public String getReferenceClass() {
-    return "cf-question-enumerator";
+    return ReferenceClasses.ENUMERATOR_QUESTION;
   }
 
   @Override
@@ -68,7 +68,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
     ContainerTag errorContent =
         div(enumeratorQuestion.getQuestionErrorMessage().getMessage(messages))
             .withClasses(
-                "cf-enumerator-error",
+                ReferenceClasses.ENUMERATOR_ERROR,
                 Styles.TEXT_RED_600,
                 enumeratorQuestion.hasQuestionErrors() ? "" : Styles.HIDDEN);
 
