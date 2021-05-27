@@ -1,91 +1,67 @@
 package services.question.types;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
 
 public class PhoneNumberQuestionDefinition extends QuestionDefinition {
 
-    public PhoneNumberQuestionDefinition(
-            OptionalLong id,
-            String name,
-            Optional<Long> enumeratorId,
-            String description,
-            LocalizedStrings questionText,
-            LocalizedStrings questionHelpText,
-            PhoneNumberValidationPredicates validationPredicates) {
-        super(
-                id, name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
+  public PhoneNumberQuestionDefinition(
+      OptionalLong id,
+      String name,
+      Optional<Long> enumeratorId,
+      String description,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText) {
+    super(
+        id,
+        name,
+        enumeratorId,
+        description,
+        questionText,
+        questionHelpText,
+        PhoneNumberValidationPredicates.create());
+  }
+
+  @JsonDeserialize(
+      builder =
+          AutoValue_PhoneNumberQuestionDefinition_PhoneNumberValidationPredicates.Builder.class)
+  @AutoValue
+  public abstract static class PhoneNumberValidationPredicates extends ValidationPredicates {
+
+    public static PhoneNumberValidationPredicates parse(String jsonString) {
+      try {
+        return mapper.readValue(
+            jsonString,
+            AutoValue_PhoneNumberQuestionDefinition_PhoneNumberValidationPredicates.class);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
     }
 
-    public PhoneNumberQuestionDefinition(
-            String name,
-            Optional<Long> enumeratorId,
-            String description,
-            LocalizedStrings questionText,
-            LocalizedStrings questionHelpText,
-            PhoneNumberValidationPredicates validationPredicates) {
-        super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
+    public static PhoneNumberValidationPredicates create() {
+      return builder().build();
     }
 
-    public PhoneNumberQuestionDefinition(
-            String name,
-            Optional<Long> enumeratorId,
-            String description,
-            LocalizedStrings questionText,
-            LocalizedStrings questionHelpText) {
-        super(
-                name,
-                enumeratorId,
-                description,
-                questionText,
-                questionHelpText,
-                PhoneNumberValidationPredicates.create());
+    public static Builder builder() {
+      return new AutoValue_PhoneNumberQuestionDefinition_PhoneNumberValidationPredicates.Builder();
     }
 
-    @JsonDeserialize(
-            builder = AutoValue_PhoneNumberQuestionDefinition_PhoneNumberValidationPredicates.Builder.class)
-    @AutoValue
-    public abstract static class PhoneNumberValidationPredicates extends ValidationPredicates {
-
-        public static PhoneNumberValidationPredicates parse(String jsonString) {
-            try {
-                return mapper.readValue(
-                        jsonString, AutoValue_PhoneNumberQuestionDefinition_PhoneNumberValidationPredicates.class);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public static PhoneNumberValidationPredicates create() {
-            return builder().build();
-        }
-
-        public static PhoneNumberValidationPredicates create() {
-            return builder().build();
-        }
-
-        public static Builder builder() {
-            return new AutoValue_PhoneNumberQuestionDefinition_PhoneNumberValidationPredicates.Builder();
-        }
-
-        @AutoValue.Builder
-        public abstract static class Builder {
-            public abstract PhoneNumberValidationPredicates build();
-        }
+    @AutoValue.Builder
+    public abstract static class Builder {
+      public abstract PhoneNumberValidationPredicates build();
     }
+  }
 
-    public PhoneNumberValidationPredicates getPhoneNumberValidationPredicates() {
-        return (PhoneNumberValidationPredicates) getValidationPredicates();
-    }
+  public PhoneNumberValidationPredicates getPhoneNumberValidationPredicates() {
+    return (PhoneNumberValidationPredicates) getValidationPredicates();
+  }
 
-    @Override
-    public QuestionType getQuestionType() {
-        return QuestionType.TEXT;
-    }
+  @Override
+  public QuestionType getQuestionType() {
+    return QuestionType.TEXT;
+  }
 }
