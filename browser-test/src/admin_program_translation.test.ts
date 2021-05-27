@@ -86,7 +86,7 @@ describe('Admin can manage translations', () => {
 
     // Add the question to a program and publish
     const adminPrograms = new AdminPrograms(page);
-    const programName = 'spanish question';
+    const programName = 'spanish question multi-option';
     await adminPrograms.addProgram(programName);
     await adminPrograms.editProgramBlock(programName, 'block', [questionName]);
     await adminPrograms.publishProgram(programName);
@@ -122,7 +122,7 @@ describe('Admin can manage translations', () => {
 
     // Add the question to a program and publish
     const adminPrograms = new AdminPrograms(page);
-    const programName = 'spanish question';
+    const programName = 'spanish question enumerator';
     await adminPrograms.addProgram(programName);
     await adminPrograms.editProgramBlock(programName, 'block', [questionName]);
     await adminPrograms.publishProgram(programName);
