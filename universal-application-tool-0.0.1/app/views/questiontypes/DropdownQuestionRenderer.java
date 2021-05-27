@@ -23,6 +23,7 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRenderer {
 
     SelectWithLabel select =
         new SelectWithLabel()
+            .addReferenceClass("cf-dropdown-question")
             .setFieldName(singleSelectQuestion.getSelectionPath().toString())
             .setOptions(
                 singleSelectQuestion.getOptions().stream()

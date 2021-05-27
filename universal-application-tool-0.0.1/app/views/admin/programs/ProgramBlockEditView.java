@@ -224,6 +224,41 @@ public class ProgramBlockEditView extends BaseHtmlView {
       boolean blockDefinitionIsEnumerator,
       Tag csrfTag,
       Tag blockDescriptionModalButton) {
+    String blockUpdateAction =
+        controllers.admin.routes.AdminProgramBlocksController.update(program.id(), blockId).url();
+
+    ContainerTag blockInfoForm = form(csrfTag).withMethod(POST).withAction(blockUpdateAction);
+
+    blockInfoForm
+        .withId("block-edit-form")
+        .with(
+            div(
+                    FieldWithLabel.input()
+                        .setId("block-name-input")
+                        .setFieldName("name")
+                        .setLabelText("Block name")
+                        .setValue(blockForm.getName())
+                        .getContainer(),
+                    FieldWithLabel.textArea()
+                        .setId("block-description-textarea")
+                        .setFieldName("description")
+                        .setLabelText("Block description")
+                        .setValue(blockForm.getDescription())
+                        .getContainer())
+                .withClasses(Styles.MX_4),
+            submitButton("Update Metadata")
+                .withId("update-block-button")
+                .withClasses(
+                    Styles.MX_4,
+                    Styles.MY_1,
+                    Styles.INLINE,
+                    Styles.OPACITY_100,
+                    StyleUtils.disabled(Styles.OPACITY_50))
+                .attr(Attr.DISABLED, ""));
+
+    // A block can only be deleted when it has no repeated blocks. Same is true for removing the
+    // enumerator question from the block.
+    final boolean canDelete = !blockDefinitionIsEnumerator || hasNoRepeatedBlocks(program, blockId);
 
     ContainerTag blockInfoDisplay =
         div()
@@ -250,7 +285,26 @@ public class ProgramBlockEditView extends BaseHtmlView {
           submitButton("Delete Block")
               .withId("delete-block-button")
               .attr(Attr.FORM, DELETE_BLOCK_FORM_ID)
-              .withClasses(Styles.BG_RED_500, StyleUtils.hover(Styles.BG_RED_700)));
+              .condAttr(!canDelete, Attr.DISABLED, "")
+              .condAttr(
+                  !canDelete,
+                  Attr.TITLE,
+                  "A block can only be deleted when it has no repeated blocks.")
+              .withClasses(
+                  Styles.MX_4,
+                  Styles.MY_1,
+                  Styles.BG_RED_500,
+                  StyleUtils.hover(Styles.BG_RED_700),
+                  Styles.INLINE,
+                  StyleUtils.disabled(Styles.OPACITY_50)));
+    }
+
+    if (blockDefinitionIsEnumerator) {
+      blockInfoForm.with(
+          submitButton("Create Repeated Block")
+              .withId("create-repeated-block-button")
+              .attr(Attr.FORM, CREATE_REPEATED_BLOCK_FORM_ID)
+              .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
     }
 
     String deleteQuestionAction =
@@ -262,14 +316,14 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withMethod(POST)
             .withAction(deleteQuestionAction);
     blockQuestions.forEach(
-        pqd -> questionDeleteForm.with(renderQuestion(pqd.getQuestionDefinition())));
+        pqd -> questionDeleteForm.with(renderQuestion(pqd.getQuestionDefinition(), canDelete)));
 
     return div()
         .withClasses(Styles.FLEX_AUTO, Styles.PY_6)
         .with(blockInfoDisplay, buttons, questionDeleteForm);
   }
 
-  private ContainerTag renderQuestion(QuestionDefinition definition) {
+  private ContainerTag renderQuestion(QuestionDefinition definition, boolean canRemove) {
     ContainerTag ret =
         div()
             .withClasses(
@@ -282,6 +336,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 Styles.PY_2,
                 Styles.FLEX,
                 Styles.ITEMS_START,
+                canRemove ? "" : Styles.OPACITY_50,
                 StyleUtils.hover(Styles.TEXT_GRAY_800, Styles.BG_GRAY_100));
 
     Tag removeButton =
@@ -290,6 +345,12 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withId("block-question-" + definition.getId())
             .withName("block-question-" + definition.getId())
             .withValue(definition.getId() + "")
+            .condAttr(!canRemove, Attr.DISABLED, "")
+            .condAttr(
+                !canRemove,
+                Attr.TITLE,
+                "An enumerator question can only be removed from the block when the block has no"
+                    + " repeated blocks.")
             .withClasses(ReferenceClasses.REMOVE_QUESTION_BUTTON, AdminStyles.CLICK_TARGET_BUTTON);
 
     ContainerTag icon =
@@ -332,18 +393,18 @@ public class ProgramBlockEditView extends BaseHtmlView {
         .withId("block-edit-form")
         .with(
             div(
-                    FieldWithLabel.input()
-                        .setId("block-name-input")
-                        .setFieldName("name")
-                        .setLabelText("Block name")
-                        .setValue(blockForm.getName())
-                        .getContainer(),
-                    FieldWithLabel.textArea()
-                        .setId("block-description-textarea")
-                        .setFieldName("description")
-                        .setLabelText("Block description")
-                        .setValue(blockForm.getDescription())
-                        .getContainer())
+                FieldWithLabel.input()
+                    .setId("block-name-input")
+                    .setFieldName("name")
+                    .setLabelText("Block name")
+                    .setValue(blockForm.getName())
+                    .getContainer(),
+                FieldWithLabel.textArea()
+                    .setId("block-description-textarea")
+                    .setFieldName("description")
+                    .setLabelText("Block description")
+                    .setValue(blockForm.getDescription())
+                    .getContainer())
                 .withClasses(Styles.MX_4),
             submitButton("Save")
                 .withId("update-block-button")
@@ -358,5 +419,9 @@ public class ProgramBlockEditView extends BaseHtmlView {
         .setModalTitle("Block Name and Description")
         .setButtonText("Edit Name and Description")
         .build();
+  }
+
+  private boolean hasNoRepeatedBlocks(ProgramDefinition programDefinition, long blockId) {
+    return programDefinition.getBlockDefinitionsForEnumerator(blockId).isEmpty();
   }
 }
