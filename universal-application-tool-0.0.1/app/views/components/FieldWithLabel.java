@@ -244,7 +244,7 @@ public class FieldWithLabel {
   private Tag buildFieldErrorsTag() {
     String[] referenceClasses =
         referenceClassesBuilder.build().stream()
-            .map(ref -> (ref + "-error").toString())
+            .map(ref -> ref + "-error")
             .toArray(String[]::new);
     return div(each(fieldErrors, error -> div(error.getMessage(messages))))
         .withClasses(
