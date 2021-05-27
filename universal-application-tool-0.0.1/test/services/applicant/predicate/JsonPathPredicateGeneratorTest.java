@@ -9,28 +9,30 @@ import org.junit.Before;
 import org.junit.Test;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.RepeatedEntity;
 import services.applicant.exception.InvalidPredicateException;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateValue;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
 import support.TestQuestionBank;
 
 public class JsonPathPredicateGeneratorTest {
 
+  private final TestQuestionBank questionBank = new TestQuestionBank(false);
   private QuestionDefinition question;
   private JsonPathPredicateGenerator generator;
 
   @Before
   public void setupGenerator() {
-    TestQuestionBank questionBank = new TestQuestionBank(false);
     question = questionBank.applicantAddress().getQuestionDefinition();
     generator =
         new JsonPathPredicateGenerator(
-            ImmutableList.of(
-                new ApplicantQuestion(question, new ApplicantData(), Optional.empty())));
+            new ApplicantData(), ImmutableList.of(question), Optional.empty());
   }
 
   @Test
@@ -66,5 +68,50 @@ public class JsonPathPredicateGeneratorTest {
         .isInstanceOf(InvalidPredicateException.class)
         .hasMessageContaining(
             "Tried to apply a predicate based on question 123, which is not found in this program");
+  }
+
+  @Test
+  public void fromLeafNode_predicateBasedOnParentEnumerator_generatesCorrectPath()
+      throws Exception {
+    ApplicantData applicantData = new ApplicantData();
+    EnumeratorQuestionDefinition enumerator =
+        (EnumeratorQuestionDefinition)
+            questionBank.applicantHouseholdMembers().getQuestionDefinition();
+    QuestionDefinition repeatedQuestion =
+        new QuestionDefinitionBuilder(
+                questionBank.applicantHouseholdMemberName().getQuestionDefinition())
+            .setEnumeratorId(Optional.of(enumerator.getId()))
+            .build();
+    // I think we need to put an entity at the enumerator path, so the name is generated.
+    ApplicantQuestion applicantEnumerator =
+        new ApplicantQuestion(enumerator, applicantData, Optional.empty());
+    applicantData.putRepeatedEntities(
+        applicantEnumerator.getContextualizedPath(), ImmutableList.of("Xylia"));
+    System.out.println(applicantData.asJsonString());
+
+    ImmutableList<RepeatedEntity> repeatedEntities =
+        RepeatedEntity.createRepeatedEntities(enumerator, applicantData);
+    Optional<RepeatedEntity> repeatedEntity = repeatedEntities.stream().findFirst();
+    System.out.println(repeatedEntity);
+
+    // The block repeated entity context is the one for the repeated name question.
+    generator =
+        new JsonPathPredicateGenerator(
+            applicantData, ImmutableList.of(enumerator, repeatedQuestion), repeatedEntity);
+
+    LeafOperationExpressionNode node =
+        LeafOperationExpressionNode.create(
+            enumerator.getId(), // The predicate is based on the parent enumerator.
+            Scalar.FIRST_NAME,
+            Operator.EQUAL_TO,
+            PredicateValue.of("Xylia"));
+
+    // TODO(future Caroline): you are running into a case where we need the enumerator path without
+    // the array reference. getQuestionPathSegment returns it with the array reference.
+    // This is fixed by a special case in the generator. NEED TO TEST MORE CASES
+    assertThat(generator.fromLeafNode(node))
+        .isEqualTo(
+            JsonPathPredicate.create(
+                "$.applicant.applicant_household_members[?(@.first_name == \"Xylia\")]"));
   }
 }

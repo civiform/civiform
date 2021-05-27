@@ -31,7 +31,9 @@ public class PredicateEvaluatorTest {
   public void setupEvaluator() {
     applicantData = new ApplicantData();
     applicantQuestion = new ApplicantQuestion(addressQuestion, applicantData, Optional.empty());
-    generator = new JsonPathPredicateGenerator(ImmutableList.of(applicantQuestion));
+    generator =
+        new JsonPathPredicateGenerator(
+            applicantData, ImmutableList.of(addressQuestion), Optional.empty());
     evaluator = new PredicateEvaluator(applicantData, generator);
   }
 

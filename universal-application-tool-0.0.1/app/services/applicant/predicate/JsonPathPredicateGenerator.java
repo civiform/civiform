@@ -4,19 +4,36 @@ import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
+import services.Path;
+import services.applicant.ApplicantData;
+import services.applicant.RepeatedEntity;
 import services.applicant.exception.InvalidPredicateException;
 import services.applicant.question.ApplicantQuestion;
 import services.program.predicate.LeafOperationExpressionNode;
+import services.question.types.QuestionDefinition;
 
 /** Generates {@link JsonPathPredicate}s based on the current applicant filling out the program. */
 public class JsonPathPredicateGenerator {
 
-  private final ImmutableMap<Long, ApplicantQuestion> questionsById;
+  private final ApplicantData applicantData;
+  private final ImmutableMap<Long, QuestionDefinition> questionsById;
+  private final Optional<RepeatedEntity> currentRepeatedContext;
 
-  public JsonPathPredicateGenerator(ImmutableList<ApplicantQuestion> programQuestions) {
+  /**
+   * This cannot be built from a set of {@link ApplicantQuestion}s because the question IDs for
+   * repeated questions are used multiple times. For example, if there is a repeated name question,
+   * that name question is repeated for each entity. How can I guarantee that the question I found
+   * by ID is the one I actually need, with the same repeated entity context?
+   */
+  public JsonPathPredicateGenerator(
+      ApplicantData applicantData,
+      ImmutableList<QuestionDefinition> programQuestions,
+      Optional<RepeatedEntity> currentRepeatedContext) {
+    this.applicantData = applicantData;
     this.questionsById =
-        programQuestions.stream()
-            .collect(toImmutableMap(q -> q.getQuestionDefinition().getId(), q -> q));
+        programQuestions.stream().collect(toImmutableMap(QuestionDefinition::getId, q -> q));
+    this.currentRepeatedContext = currentRepeatedContext;
   }
 
   /**
@@ -36,10 +53,39 @@ public class JsonPathPredicateGenerator {
               node.questionId()));
     }
 
+    QuestionDefinition predicateQuestion = questionsById.get(node.questionId());
+    Optional<RepeatedEntity> predicateContext;
+
+    // Walk up the RepeatedEntity ancestors to find the right context.
+    if (predicateQuestion.getEnumeratorId().isEmpty()) {
+      System.out.println("In the not repeated case");
+      predicateContext = Optional.empty();
+    } else {
+      System.out.println("In the repeated case");
+      long enumeratorId = predicateQuestion.getEnumeratorId().get();
+      predicateContext = this.currentRepeatedContext;
+      while (predicateContext.isPresent()
+          && predicateContext.get().enumeratorQuestionDefinition().getId() != enumeratorId) {
+        System.out.println("context in loop: " + predicateContext);
+        predicateContext = predicateContext.get().parent();
+      }
+    }
+    System.out.println("Predicate context: " + predicateContext);
+
+    Path path =
+        new ApplicantQuestion(predicateQuestion, applicantData, predicateContext)
+            .getContextualizedPath();
+    System.out.println(path);
+
+    if (path.isArrayElement() && predicateQuestion.isEnumerator()) {
+      // In this case, we don't want the [] at the end of the path.
+      path = path.withoutArrayReference();
+    }
+
     return JsonPathPredicate.create(
         String.format(
             "%s[?(@.%s %s %s)]",
-            questionsById.get(node.questionId()).getContextualizedPath().predicateFormat(),
+            path.predicateFormat(),
             node.scalar().name().toLowerCase(),
             node.operator().toJsonPathOperator(),
             node.comparedValue().value()));
