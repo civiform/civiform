@@ -15,6 +15,11 @@ public class NumberQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
+  public String getReferenceClass() {
+    return "cf-question-number";
+  }
+
+  @Override
   public Tag render(ApplicantQuestionRendererParams params) {
     NumberQuestion numberQuestion = question.createNumberQuestion();
 

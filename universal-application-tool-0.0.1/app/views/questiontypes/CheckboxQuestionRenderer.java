@@ -18,6 +18,11 @@ import views.style.Styles;
 
 public class CheckboxQuestionRenderer extends ApplicantQuestionRenderer {
 
+  @Override
+  public String getReferenceClass() {
+    return ReferenceClasses.CHECKBOX_QUESTION;
+  }
+
   public CheckboxQuestionRenderer(ApplicantQuestion question) {
     super(question);
   }
