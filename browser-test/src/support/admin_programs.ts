@@ -127,7 +127,6 @@ export class AdminPrograms {
     await this.page.click('#add-block-button');
 
     await this.page.click('#block-description-modal-button');
-
     await this.page.type('textarea', blockDescription);
     await this.page.click('#update-block-button');
 
