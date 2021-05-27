@@ -8,6 +8,7 @@ import services.applicant.exception.InvalidPredicateException;
 import services.applicant.question.ApplicantQuestion;
 import services.program.predicate.LeafOperationExpressionNode;
 
+/** Generates {@link JsonPathPredicate}s based on the current applicant filling out the program. */
 public class JsonPathPredicateGenerator {
 
   private final ImmutableMap<Long, ApplicantQuestion> questionsById;
@@ -27,7 +28,7 @@ public class JsonPathPredicateGenerator {
       throws InvalidPredicateException {
     if (!questionsById.containsKey(node.questionId())) {
       // This means a predicate was incorrectly configured - we are depending upon a question that
-      // was not answered previously.
+      // does not appear anywhere in this program.
       throw new InvalidPredicateException(
           String.format(
               "Tried to apply a predicate based on question %d, which is not found in this"
