@@ -1,5 +1,13 @@
 /** The validation controller provides basic client-side validation of form fields. */
 class ValidationController {
+  /** 
+   * Validating on input will call the validators whenever a field is updated.
+   * The default behavior is to only attempt to validate on submit.
+   * 
+   * Validate on input will also disable the submit button when errors are detected.
+   */
+  static readonly VALIDATE_ON_INPUT = false;
+  
   static readonly ADDRESS_QUESTION_CLASS = '.cf-question-address';
   static readonly ENUMERATOR_QUESTION_CLASS = '.cf-question-enumerator';
   static readonly NAME_QUESTION_CLASS = '.cf-question-name';
@@ -11,13 +19,6 @@ class ValidationController {
   isEnumeratorValid = true;
   isNameValid = true;
 
-  /** 
-   * Validating on input will call the validators whenever a field is updated.
-   * The default behavior is to only attempt to validate on submit.
-   * 
-   * Validate on input will also disable the submit button when errors are detected.
-   */
-  validateOnInput = false;
 
   constructor() {
     // attach listener to block form.
@@ -35,7 +36,7 @@ class ValidationController {
     // Always at least add basic listener for enumerators.
     this.addEnumeratorListeners();
 
-    if (this.validateOnInput) {
+    if (ValidationController.VALIDATE_ON_INPUT) {
       this.addAddressListeners();
       this.addNameListeners();
     }
@@ -72,7 +73,7 @@ class ValidationController {
       // Whenever an input changes we need to revalidate.
       enumeratorInputs.forEach(enumeratorInput => {
         enumeratorInput.addEventListener("input", () => {
-          this.validateOnInput ?
+          ValidationController.VALIDATE_ON_INPUT ?
             this.onEnumeratorChanged() :
             this.maybeHideEnumeratorAddButton();
         });
@@ -85,14 +86,14 @@ class ValidationController {
             const newInputs = Array.from((<Element>newNode).querySelectorAll('input'));
             newInputs.forEach(newInput => {
               newInput.addEventListener("input", () => {
-                this.validateOnInput ?
+                ValidationController.VALIDATE_ON_INPUT ?
                   this.onEnumeratorChanged() :
                   this.maybeHideEnumeratorAddButton();
               });
             });
           }
         }
-        this.validateOnInput ?
+        ValidationController.VALIDATE_ON_INPUT ?
           this.onEnumeratorChanged() :
           this.maybeHideEnumeratorAddButton();
       });
