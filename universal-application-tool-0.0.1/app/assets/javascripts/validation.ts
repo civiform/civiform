@@ -7,7 +7,7 @@ class ValidationController {
    * Validate on input will also disable the submit button when errors are detected.
    */
   static readonly VALIDATE_ON_INPUT = false;
-  
+
   static readonly ADDRESS_QUESTION_CLASS = '.cf-question-address';
   static readonly ENUMERATOR_QUESTION_CLASS = '.cf-question-enumerator';
   static readonly NAME_QUESTION_CLASS = '.cf-question-name';
