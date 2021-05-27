@@ -14,7 +14,6 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.PresentsErrors;
 import services.program.BlockDefinition;
 import services.program.ProgramQuestionDefinition;
-import services.program.predicate.PredicateDefinition;
 import services.question.types.ScalarType;
 
 /** Represents a block in the context of a specific user's application. */
@@ -65,10 +64,6 @@ public final class Block {
 
   public String getDescription() {
     return blockDefinition.description();
-  }
-
-  public Optional<PredicateDefinition> getVisibilityPredicate() {
-    return blockDefinition.visibilityPredicate();
   }
 
   /**
