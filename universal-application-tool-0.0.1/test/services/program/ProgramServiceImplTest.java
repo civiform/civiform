@@ -50,7 +50,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void syncQuestions_constructsAllQuestionDefinitions() throws Exception {
+  public void syncQuestions_constructsAllQuestionDefinitions() {
     QuestionDefinition questionOne = nameQuestion;
     QuestionDefinition questionTwo = addressQuestion;
     QuestionDefinition questionThree = colorQuestion;
@@ -114,11 +114,24 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
-        .containsOnly(
+        .containsExactly(
             CiviFormError.of("program admin name cannot be blank"),
             CiviFormError.of("program admin description cannot be blank"),
             CiviFormError.of("program display name cannot be blank"),
             CiviFormError.of("program display description cannot be blank"));
+  }
+
+  @Test
+  public void createProgram_protectsAgainstProgramNameCollisions() {
+    ps.createProgramDefinition("name", "description", "display name", "display description");
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.createProgramDefinition("name", "description", "display name", "display description");
+
+    assertThat(result.hasResult()).isFalse();
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsExactly(CiviFormError.of("a program named name already exists"));
   }
 
   @Test
