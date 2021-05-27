@@ -1,16 +1,21 @@
 package services.applicant.predicate;
 
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
+
 import com.google.common.collect.ImmutableList;
-import java.util.Optional;
+import com.google.common.collect.ImmutableMap;
+import services.applicant.exception.InvalidPredicateException;
 import services.applicant.question.ApplicantQuestion;
 import services.program.predicate.LeafOperationExpressionNode;
 
 public class JsonPathPredicateGenerator {
 
-  private final ImmutableList<ApplicantQuestion> programQuestions;
+  private final ImmutableMap<Long, ApplicantQuestion> questionsById;
 
   public JsonPathPredicateGenerator(ImmutableList<ApplicantQuestion> programQuestions) {
-    this.programQuestions = programQuestions;
+    this.questionsById =
+        programQuestions.stream()
+            .collect(toImmutableMap(q -> q.getQuestionDefinition().getId(), q -> q));
   }
 
   /**
@@ -18,15 +23,14 @@ public class JsonPathPredicateGenerator {
    *
    * <p>Example: \$.applicant.address[?(@.zip in ["12345", "56789"])]
    */
-  public JsonPathPredicate fromLeafNode(LeafOperationExpressionNode node) {
-    Optional<ApplicantQuestion> question =
-        programQuestions.stream()
-            .filter(q -> q.getQuestionDefinition().getId() == node.questionId())
-            .findFirst();
-    if (question.isEmpty()) {
-      throw new RuntimeException(
+  public JsonPathPredicate fromLeafNode(LeafOperationExpressionNode node)
+      throws InvalidPredicateException {
+    if (!questionsById.containsKey(node.questionId())) {
+      // This means a predicate was incorrectly configured - we are depending upon a question that
+      // was not answered previously.
+      throw new InvalidPredicateException(
           String.format(
-              "Tried to apply a predicated based on question %d, which is not found in this"
+              "Tried to apply a predicate based on question %d, which is not found in this"
                   + " program.",
               node.questionId()));
     }
@@ -34,7 +38,7 @@ public class JsonPathPredicateGenerator {
     return JsonPathPredicate.create(
         String.format(
             "%s[?(@.%s %s %s)]",
-            question.get().getContextualizedPath().predicateFormat(),
+            questionsById.get(node.questionId()).getContextualizedPath().predicateFormat(),
             node.scalar().name().toLowerCase(),
             node.operator().toJsonPathOperator(),
             node.comparedValue().value()));

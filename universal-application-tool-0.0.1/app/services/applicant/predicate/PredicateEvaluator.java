@@ -1,6 +1,7 @@
 package services.applicant.predicate;
 
 import services.applicant.ApplicantData;
+import services.applicant.exception.InvalidPredicateException;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.PredicateExpressionNode;
 
@@ -26,8 +27,12 @@ public class PredicateEvaluator {
     }
   }
 
-  boolean evaluateLeafNode(LeafOperationExpressionNode node) {
-    JsonPathPredicate predicate = predicateGenerator.fromLeafNode(node);
-    return applicantData.evalPredicate(predicate);
+  private boolean evaluateLeafNode(LeafOperationExpressionNode node) {
+    try {
+      JsonPathPredicate predicate = predicateGenerator.fromLeafNode(node);
+      return applicantData.evalPredicate(predicate);
+    } catch (InvalidPredicateException e) {
+      return false;
+    }
   }
 }
