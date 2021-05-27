@@ -91,6 +91,9 @@ public class ProgramServiceImpl implements ProgramService {
       String defaultDisplayDescription) {
 
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    if (hasProgramNameCollision(adminName)) {
+      errorsBuilder.add(CiviFormError.of("a program named " + adminName + " already exists"));
+    }
     validateProgramText(errorsBuilder, "admin name", adminName);
     validateProgramText(errorsBuilder, "admin description", adminDescription);
     validateProgramText(errorsBuilder, "display name", defaultDisplayName);
@@ -170,6 +173,10 @@ public class ProgramServiceImpl implements ProgramService {
                 programRepository.updateProgramSync(program).getProgramDefinition())
             .toCompletableFuture()
             .join());
+  }
+
+  private boolean hasProgramNameCollision(String programName) {
+    return getActiveAndDraftPrograms().getProgramNames().contains(programName);
   }
 
   private void validateProgramText(
