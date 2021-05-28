@@ -33,6 +33,9 @@ public class Icons {
           + " 100-2H7zm2 1a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zm4-4a1 1 0 100 2h.01a1 1 0"
           + " 100-2H13zM9 9a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zM7 8a1 1 0 000 2h.01a1 1 0"
           + " 000-2H7z";
+  // Phone
+  public static final String PHONE_NUMBER_SVG_PATH = "M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z";
+
   public static final String SEARCH_SVG_PATH =
       "M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23"
           + "  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92"
@@ -90,6 +93,14 @@ public class Icons {
         break;
       case NUMBER:
         return svg(Icons.NUMBER_SVG_PATH, width, height).attr("fill-rule", "evenodd");
+      case PHONENUMBER:
+        return svg(Icons.PHONE_NUMBER_SVG_PATH, width, height)
+                .attr("fill", "none")
+                .attr("viewBox", "0 0 24 24")
+                .attr("stroke", "currentColor")
+                .attr("stroke-linecap", "round")
+                .attr("stroke-linejoin", "round")
+                .attr("stroke-width", "2");
       case RADIO_BUTTON:
         return svg(Icons.RADIO_BUTTON_OUTER_SVG_PATH, width, height)
             .attr("fill", "none")
