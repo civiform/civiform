@@ -28,8 +28,6 @@ public class PhoneNumberQuestion implements PresentsErrors {
       return ImmutableSet.of();
     }
 
-    PhoneNumberQuestionDefinition definition = getQuestionDefinition();
-
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
     return errors.build();
@@ -47,14 +45,14 @@ public class PhoneNumberQuestion implements PresentsErrors {
 
   @Override
   public boolean isAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getTextPath());
+    return applicantQuestion.getApplicantData().hasPath(getPhoneNumberPath());
   }
 
   public Optional<String> getPhoneNumberValue() {
     if (phoneNumberValue != null) {
       return phoneNumberValue;
     }
-    phoneNumberValue = applicantQuestion.getApplicantData().readString(getTextPath());
+    phoneNumberValue = applicantQuestion.getApplicantData().readString(getPhoneNumberPath());
     return phoneNumberValue;
   }
 
@@ -73,8 +71,8 @@ public class PhoneNumberQuestion implements PresentsErrors {
     return (PhoneNumberQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 
-  public Path getTextPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.TEXT);
+  public Path getPhoneNumberPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.PHONE_NUMBER);
   }
 
   @Override

@@ -62,6 +62,6 @@ public class PhoneNumberQuestionDefinition extends QuestionDefinition {
 
   @Override
   public QuestionType getQuestionType() {
-    return QuestionType.TEXT;
+    return QuestionType.PHONENUMBER;
   }
 }
