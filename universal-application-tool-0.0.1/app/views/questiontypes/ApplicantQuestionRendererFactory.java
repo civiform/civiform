@@ -38,6 +38,8 @@ public class ApplicantQuestionRendererFactory {
         return new NameQuestionRenderer(question);
       case NUMBER:
         return new NumberQuestionRenderer(question);
+      case PHONENUMBER:
+        return new PhoneNumberQuestionRenderer(question);
       case RADIO_BUTTON:
         return new RadioButtonQuestionRenderer(question);
       case ENUMERATOR:
