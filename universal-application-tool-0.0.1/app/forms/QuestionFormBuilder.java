@@ -12,6 +12,7 @@ import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
+import services.question.types.PhoneNumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.RadioButtonQuestionDefinition;
@@ -36,6 +37,8 @@ public class QuestionFormBuilder {
         return formFactory.form(NameQuestionForm.class).bindFromRequest(request).get();
       case NUMBER:
         return formFactory.form(NumberQuestionForm.class).bindFromRequest(request).get();
+      case PHONENUMBER:
+        return formFactory.form(PhoneNumberQuestionForm.class).bindFromRequest(request).get();
       case RADIO_BUTTON:
         return formFactory.form(RadioButtonQuestionForm.class).bindFromRequest(request).get();
       case ENUMERATOR:
@@ -64,6 +67,8 @@ public class QuestionFormBuilder {
         return new NameQuestionForm();
       case NUMBER:
         return new NumberQuestionForm();
+      case PHONENUMBER:
+        return new PhoneNumberQuestionForm();
       case RADIO_BUTTON:
         return new RadioButtonQuestionForm();
       case ENUMERATOR:
@@ -93,6 +98,8 @@ public class QuestionFormBuilder {
         return new NameQuestionForm((NameQuestionDefinition) questionDefinition);
       case NUMBER:
         return new NumberQuestionForm((NumberQuestionDefinition) questionDefinition);
+      case PHONENUMBER:
+        return new PhoneNumberQuestionForm((PhoneNumberQuestionDefinition) questionDefinition);
       case RADIO_BUTTON:
         return new RadioButtonQuestionForm((RadioButtonQuestionDefinition) questionDefinition);
       case ENUMERATOR:
