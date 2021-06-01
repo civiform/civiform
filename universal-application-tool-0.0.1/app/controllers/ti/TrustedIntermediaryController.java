@@ -10,9 +10,11 @@ import auth.ProfileUtils;
 import auth.UatProfile;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import java.util.Optional;
 import javax.inject.Inject;
+import models.Account;
 import models.TrustedIntermediaryGroup;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -21,11 +23,13 @@ import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.UserRepository;
+import services.PaginationInfo;
 import services.ti.EmailAddressExistsException;
 import views.applicant.TrustedIntermediaryDashboardView;
 
 public class TrustedIntermediaryController {
 
+  private static final int PAGE_SIZE = 10;
   private final TrustedIntermediaryDashboardView tiDashboardView;
   private final ProfileUtils profileUtils;
   private final UserRepository userRepository;
@@ -47,7 +51,10 @@ public class TrustedIntermediaryController {
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
-  public Result dashboard(Http.Request request) {
+  public Result dashboard(Http.Request request, Optional<String> search, Optional<Integer> page) {
+    if (page.isEmpty()) {
+      return redirect(routes.TrustedIntermediaryController.dashboard(search, Optional.of(1)));
+    }
     Optional<UatProfile> uatProfile = profileUtils.currentUserProfile(request);
     if (uatProfile.isEmpty()) {
       return unauthorized();
@@ -57,10 +64,18 @@ public class TrustedIntermediaryController {
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
+    ImmutableList<Account> managedAccounts =
+        trustedIntermediaryGroup.get().getManagedAccounts(search);
+    PaginationInfo<Account> pageInfo =
+        PaginationInfo.paginate(managedAccounts, PAGE_SIZE, page.get());
     return ok(
         tiDashboardView.render(
             trustedIntermediaryGroup.get(),
             uatProfile.get().getApplicant().join().getApplicantData().getApplicantName(),
+            pageInfo.getPageItems(),
+            pageInfo.getPageCount(),
+            pageInfo.getPage(),
+            search,
             request,
             messagesApi.preferred(request)));
   }
@@ -93,7 +108,8 @@ public class TrustedIntermediaryController {
     try {
       userRepository.createNewApplicantForTrustedIntermediaryGroup(
           form.get(), trustedIntermediaryGroup.get());
-      return redirect(routes.TrustedIntermediaryController.dashboard());
+      return redirect(
+          routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty()));
     } catch (EmailAddressExistsException e) {
       return redirectToDashboardWithError(
           "Email address already in use.  Cannot create applicant if an account already exists. "
@@ -105,7 +121,8 @@ public class TrustedIntermediaryController {
 
   private Result redirectToDashboardWithError(
       String errorMessage, Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
-    return redirect(routes.TrustedIntermediaryController.dashboard())
+    return redirect(
+            routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty()))
         .flashing("error", errorMessage)
         .flashing("providedFirstName", form.get().getFirstName())
         .flashing("providedMiddleName", form.get().getMiddleName())

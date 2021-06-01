@@ -1,8 +1,10 @@
 package views;
 
 import static j2html.TagCreator.a;
+import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.text;
@@ -22,11 +24,16 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
+import play.mvc.Call;
 import play.mvc.Http;
 import services.applicant.ValidationErrorMessage;
+import views.components.FieldWithLabel;
+import views.components.LinkElement;
 import views.html.helper.CSRF;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
@@ -119,5 +126,45 @@ public abstract class BaseHtmlView {
       contentBuilder.add(text(content));
     }
     return contentBuilder.build();
+  }
+
+  protected ContainerTag renderPaginationDiv(
+      int page, int pageCount, Function<Integer, Call> linkForPage) {
+    ContainerTag div = div();
+    if (page <= 1) {
+      div.with(new LinkElement().setText("∅").asButton());
+    } else {
+      div.with(
+          new LinkElement().setText("←").setHref(linkForPage.apply(page - 1).url()).asButton());
+    }
+    div.with(
+        div("Page " + page + " of " + pageCount)
+            .withClasses(
+                Styles.LEADING_3, Styles.FLOAT_LEFT, Styles.INLINE_BLOCK, Styles.P_2, Styles.M_4));
+    if (pageCount > page) {
+      div.with(
+          new LinkElement().setText("→").setHref(linkForPage.apply(page + 1).url()).asButton());
+    } else {
+      div.with(new LinkElement().setText("∅").asButton());
+    }
+    return div.with(br());
+  }
+
+  protected ContainerTag renderSearchForm(
+      Http.Request request, Optional<String> search, Call searchCall) {
+    return form()
+        .withMethod("GET")
+        .withAction(searchCall.url())
+        .with(
+            FieldWithLabel.input()
+                .setId("search-field")
+                .setFieldName("search")
+                .setLabelText("Search")
+                .setValue(search.orElse(""))
+                .setPlaceholderText("Search")
+                .getContainer()
+                .withClasses(Styles.W_1_4),
+            makeCsrfTokenInputTag(request),
+            submitButton("Search").withClasses(Styles.M_2));
   }
 }

@@ -6,11 +6,17 @@ import java.util.Optional;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.DateQuestion;
 import views.components.FieldWithLabel;
+import views.style.ReferenceClasses;
 
 public class DateQuestionRenderer extends ApplicantQuestionRenderer {
 
   public DateQuestionRenderer(ApplicantQuestion question) {
     super(question);
+  }
+
+  @Override
+  public String getReferenceClass() {
+    return ReferenceClasses.DATE_QUESTION;
   }
 
   @Override

@@ -16,6 +16,13 @@ import org.junit.Test;
 import repository.WithPostgresContainer;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.applicant.question.Scalar;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.Operator;
+import services.program.predicate.PredicateAction;
+import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
+import services.program.predicate.PredicateValue;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
@@ -43,7 +50,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void syncQuestions_constructsAllQuestionDefinitions() throws Exception {
+  public void syncQuestions_constructsAllQuestionDefinitions() {
     QuestionDefinition questionOne = nameQuestion;
     QuestionDefinition questionTwo = addressQuestion;
     QuestionDefinition questionThree = colorQuestion;
@@ -107,11 +114,24 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
-        .containsOnly(
+        .containsExactly(
             CiviFormError.of("program admin name cannot be blank"),
             CiviFormError.of("program admin description cannot be blank"),
             CiviFormError.of("program display name cannot be blank"),
             CiviFormError.of("program display description cannot be blank"));
+  }
+
+  @Test
+  public void createProgram_protectsAgainstProgramNameCollisions() {
+    ps.createProgramDefinition("name", "description", "display name", "display description");
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.createProgramDefinition("name", "description", "display name", "display description");
+
+    assertThat(result.hasResult()).isFalse();
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsExactly(CiviFormError.of("a program named name already exists"));
   }
 
   @Test
@@ -488,22 +508,35 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void setBlockHidePredicate_updatesBlock() throws Exception {
+  public void setBlockPredicate_updatesBlock() throws Exception {
     Program program = ProgramBuilder.newDraftProgram().build();
 
-    Predicate predicate = Predicate.create("hide predicate");
-    ps.setBlockHidePredicate(program.id, 1L, predicate);
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+            PredicateAction.HIDE_BLOCK);
+    ps.setBlockPredicate(program.id, 1L, predicate);
 
     ProgramDefinition found = ps.getProgramDefinition(program.id);
 
-    assertThat(found.blockDefinitions().get(0).hidePredicate()).hasValue(predicate);
+    assertThat(found.blockDefinitions().get(0).visibilityPredicate()).hasValue(predicate);
   }
 
   @Test
-  public void
-      setBlockHidePredicate_withBogusBlockId_throwsProgramBlockDefinitionNotFoundException() {
+  public void setBlockPredicate_withBogusBlockId_throwsProgramBlockDefinitionNotFoundException() {
     ProgramDefinition p = ProgramBuilder.newDraftProgram().buildDefinition();
-    assertThatThrownBy(() -> ps.setBlockHidePredicate(p.id(), 100L, Predicate.create("")))
+    assertThatThrownBy(
+            () ->
+                ps.setBlockPredicate(
+                    p.id(),
+                    100L,
+                    PredicateDefinition.create(
+                        PredicateExpressionNode.create(
+                            LeafOperationExpressionNode.create(
+                                1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+                        PredicateAction.HIDE_BLOCK)))
         .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
         .hasMessage(
             String.format(
@@ -511,7 +544,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void setBlockHidePredicate_constructsQuestionDefinitions() throws Exception {
+  public void setBlockPredicate_constructsQuestionDefinitions() throws Exception {
     QuestionDefinition question = nameQuestion;
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram()
@@ -521,48 +554,14 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     Long programId = programDefinition.id();
 
     ProgramDefinition found =
-        ps.setBlockHidePredicate(programId, 1L, Predicate.create("predicate"));
-
-    QuestionDefinition foundQuestion =
-        found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
-    assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
-  }
-
-  @Test
-  public void setBlockOptionalPredicate_updatesBlock() throws Exception {
-    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
-    Long programId = programDefinition.id();
-    Predicate predicate = Predicate.create("hide predicate");
-    ps.setBlockOptionalPredicate(programId, 1L, predicate);
-
-    ProgramDefinition found = ps.getProgramDefinition(programId);
-
-    assertThat(found.blockDefinitions().get(0).optionalPredicate()).hasValue(predicate);
-  }
-
-  @Test
-  public void
-      setBlockOptionalPredicate_withBogusBlockId_throwsProgramBlockDefinitionNotFoundException() {
-    Program program = ProgramBuilder.newDraftProgram().build();
-    assertThatThrownBy(() -> ps.setBlockOptionalPredicate(program.id, 100L, Predicate.create("")))
-        .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
-        .hasMessage(
-            String.format(
-                "Block not found in Program (ID %d) for block definition ID 100", program.id));
-  }
-
-  @Test
-  public void setBlockOptionalPredicate_constructsQuestionDefinitions() throws Exception {
-    QuestionDefinition question = nameQuestion;
-    ProgramDefinition programDefinition =
-        ProgramBuilder.newDraftProgram()
-            .withBlock()
-            .withQuestionDefinition(question)
-            .buildDefinition();
-    Long programId = programDefinition.id();
-
-    ProgramDefinition found =
-        ps.setBlockOptionalPredicate(programId, 1L, Predicate.create("predicate"));
+        ps.setBlockPredicate(
+            programId,
+            1L,
+            PredicateDefinition.create(
+                PredicateExpressionNode.create(
+                    LeafOperationExpressionNode.create(
+                        1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+                PredicateAction.HIDE_BLOCK));
 
     QuestionDefinition foundQuestion =
         found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();

@@ -22,6 +22,7 @@ import repository.UserRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
@@ -90,6 +91,9 @@ public class ProgramServiceImpl implements ProgramService {
       String defaultDisplayDescription) {
 
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    if (hasProgramNameCollision(adminName)) {
+      errorsBuilder.add(CiviFormError.of("a program named " + adminName + " already exists"));
+    }
     validateProgramText(errorsBuilder, "admin name", adminName);
     validateProgramText(errorsBuilder, "admin description", adminDescription);
     validateProgramText(errorsBuilder, "display name", defaultDisplayName);
@@ -169,6 +173,10 @@ public class ProgramServiceImpl implements ProgramService {
                 programRepository.updateProgramSync(program).getProgramDefinition())
             .toCompletableFuture()
             .join());
+  }
+
+  private boolean hasProgramNameCollision(String programName) {
+    return getActiveAndDraftPrograms().getProgramNames().contains(programName);
   }
 
   private void validateProgramText(
@@ -364,29 +372,14 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
-  public ProgramDefinition setBlockHidePredicate(
-      long programId, long blockDefinitionId, Predicate predicate)
+  public ProgramDefinition setBlockPredicate(
+      long programId, long blockDefinitionId, PredicateDefinition predicate)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
-            .setHidePredicate(Optional.of(predicate))
-            .build();
-
-    return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
-  }
-
-  @Override
-  @Transactional
-  public ProgramDefinition setBlockOptionalPredicate(
-      long programId, long blockDefinitionId, Predicate predicate)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
-
-    BlockDefinition blockDefinition =
-        programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
-            .setOptionalPredicate(Optional.of(predicate))
+            .setVisibilityPredicate(Optional.of(predicate))
             .build();
 
     return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
@@ -426,6 +419,20 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
+  public ImmutableList<Application> getProgramApplications(long programId, Optional<String> search)
+      throws ProgramNotFoundException {
+    return getProgramApplications(programId).stream()
+        .filter(
+            application ->
+                application
+                    .getApplicantData()
+                    .getApplicantName()
+                    .toLowerCase(Locale.ROOT)
+                    .contains(search.orElse("").toLowerCase(Locale.ROOT)))
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  @Override
   public ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException {
     return programRepository
         .createOrUpdateDraft(this.getProgramDefinition(id).toProgram())
@@ -448,6 +455,11 @@ public class ProgramServiceImpl implements ProgramService {
         .map(Account::getEmailAddress)
         .filter(address -> !Strings.isNullOrEmpty(address))
         .collect(ImmutableList.toImmutableList());
+  }
+
+  @Override
+  public ImmutableList<Program> getOtherProgramVersions(long programId) {
+    return programRepository.getOtherProgramVersions(programId);
   }
 
   private ProgramDefinition updateProgramDefinitionWithBlockDefinition(

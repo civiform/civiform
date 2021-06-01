@@ -1,6 +1,7 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.OK;
@@ -16,6 +17,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import play.mvc.Http;
+import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.Path;
 import services.applicant.ApplicantData;
@@ -37,18 +39,15 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
 
   @Test
   public void index_differentApplicant_returnsUnauthorizedResult() {
-    Result result =
-        controller
-            .index(fakeRequest().build(), currentApplicant.id + 1)
-            .toCompletableFuture()
-            .join();
+    Request request = addCSRFToken(fakeRequest()).build();
+    Result result = controller.index(request, currentApplicant.id + 1).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
   @Test
   public void index_withNoPrograms_returnsEmptyResult() {
-    Result result =
-        controller.index(fakeRequest().build(), currentApplicant.id).toCompletableFuture().join();
+    Request request = addCSRFToken(fakeRequest()).build();
+    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
@@ -62,8 +61,8 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
     resourceCreator().insertActiveProgram("two");
     resourceCreator().insertDraftProgram("three");
 
-    Result result =
-        controller.index(fakeRequest().build(), currentApplicant.id).toCompletableFuture().join();
+    Request request = addCSRFToken(fakeRequest()).build();
+    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("one");
@@ -75,8 +74,8 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
   public void index_withProgram_includesApplyButtonWithRedirect() {
     Program program = resourceCreator().insertActiveProgram("program");
 
-    Result result =
-        controller.index(fakeRequest().build(), currentApplicant.id).toCompletableFuture().join();
+    Request request = addCSRFToken(fakeRequest()).build();
+    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -87,7 +86,9 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
   public void index_usesMessagesForUserPreferredLocale() {
     // Set the PLAY_LANG cookie
     Http.Request request =
-        fakeRequest().langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()).build();
+        addCSRFToken(fakeRequest())
+            .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
+            .build();
 
     Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
 
@@ -102,7 +103,9 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
 
     // Set the PLAY_LANG cookie
     Http.Request request =
-        fakeRequest().langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()).build();
+        addCSRFToken(fakeRequest())
+            .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
+            .build();
 
     Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
 
@@ -113,11 +116,9 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
 
   @Test
   public void edit_differentApplicant_returnsUnauthorizedResult() {
+    Request request = addCSRFToken(fakeRequest()).build();
     Result result =
-        controller
-            .edit(fakeRequest().build(), currentApplicant.id + 1, 1L)
-            .toCompletableFuture()
-            .join();
+        controller.edit(request, currentApplicant.id + 1, 1L).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
@@ -140,11 +141,9 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
             .withQuestion(testQuestionBank().applicantName())
             .build();
 
+    Request request = addCSRFToken(fakeRequest()).build();
     Result result =
-        controller
-            .edit(fakeRequest().build(), currentApplicant.id, program.id)
-            .toCompletableFuture()
-            .join();
+        controller.edit(request, currentApplicant.id, program.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
@@ -171,11 +170,9 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
     QuestionAnswerer.addMetadata(currentApplicant.getApplicantData(), colorPath, 456L, 12345L);
     currentApplicant.save();
 
+    Request request = addCSRFToken(fakeRequest()).build();
     Result result =
-        controller
-            .edit(fakeRequest().build(), currentApplicant.id, program.id)
-            .toCompletableFuture()
-            .join();
+        controller.edit(request, currentApplicant.id, program.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
@@ -190,11 +187,9 @@ public class ApplicantProgramsControllerTest extends WithMockedApplicantProfiles
   public void edit_whenNoMoreIncompleteBlocks_redirectsToListOfPrograms() {
     Program program = resourceCreator().insertActiveProgram("My Program");
 
+    Request request = addCSRFToken(fakeRequest()).build();
     Result result =
-        controller
-            .edit(fakeRequest().build(), currentApplicant.id, program.id)
-            .toCompletableFuture()
-            .join();
+        controller.edit(request, currentApplicant.id, program.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
