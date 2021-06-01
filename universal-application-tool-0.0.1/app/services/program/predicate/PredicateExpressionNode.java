@@ -31,8 +31,30 @@ public abstract class PredicateExpressionNode {
   public LeafOperationExpressionNode getLeafNode() {
     if (!(node() instanceof LeafOperationExpressionNode)) {
       throw new RuntimeException(
-          String.format("Expected a leaf node but received %s node", getType()));
+          String.format("Expected a LEAF node but received %s node", getType()));
     }
     return (LeafOperationExpressionNode) node();
+  }
+
+  /** Get an and node if it exists, or throw if this is not an and node. */
+  @JsonIgnore
+  @Memoized
+  public AndNode getAndNode() {
+    if (!(node() instanceof AndNode)) {
+      throw new RuntimeException(
+          String.format("Expected an AND node but received %s node", getType()));
+    }
+    return (AndNode) node();
+  }
+
+  /** Get an or node if it exists, or throw if this is not an or node. */
+  @JsonIgnore
+  @Memoized
+  public OrNode getOrNode() {
+    if (!(node() instanceof OrNode)) {
+      throw new RuntimeException(
+          String.format("Expected an OR node but received %s node", getType()));
+    }
+    return (OrNode) node();
   }
 }
