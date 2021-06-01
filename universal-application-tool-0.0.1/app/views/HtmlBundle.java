@@ -125,9 +125,7 @@ public class HtmlBundle {
   /** The page body contains: - header - main - footer */
   private ContainerTag renderBody() {
     ContainerTag bodyTag = j2html.TagCreator.body().with(renderHeader()).with(renderMain());
-    if (modals.size() > 0) {
-      bodyTag = bodyTag.with(renderModals());
-    }
+    bodyTag.with(renderModals());
     bodyTag.with(renderFooter());
 
     if (bodyStyles.size() > 0) {
