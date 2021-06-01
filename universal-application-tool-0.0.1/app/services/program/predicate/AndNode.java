@@ -7,6 +7,10 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableSet;
 
+/**
+ * Represents the boolean operator AND. Each of the child predicates must evaluate to true for the
+ * entire AND node to be considered true.
+ */
 @JsonTypeName("and")
 @AutoValue
 public abstract class AndNode implements ConcretePredicateExpressionNode {
