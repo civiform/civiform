@@ -36,7 +36,7 @@ public class JsonPathPredicateGeneratorTest {
   }
 
   @Test
-  public void fromLeafNode_generatesCorrectFormat() throws Exception {
+  public void fromLeafNode_nonRepeatedQuestion_generatesCorrectFormat() throws Exception {
     LeafOperationExpressionNode node =
         LeafOperationExpressionNode.create(
             question.getId(), Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Seattle"));
@@ -82,7 +82,8 @@ public class JsonPathPredicateGeneratorTest {
                 questionBank.applicantHouseholdMemberName().getQuestionDefinition())
             .setEnumeratorId(Optional.of(enumerator.getId()))
             .build();
-    // I think we need to put an entity at the enumerator path, so the name is generated.
+
+    // Put an entity at the enumerator path, so the entity is generated.
     ApplicantQuestion applicantEnumerator =
         new ApplicantQuestion(enumerator, applicantData, Optional.empty());
     applicantData.putRepeatedEntities(
@@ -92,7 +93,6 @@ public class JsonPathPredicateGeneratorTest {
     ImmutableList<RepeatedEntity> repeatedEntities =
         RepeatedEntity.createRepeatedEntities(enumerator, applicantData);
     Optional<RepeatedEntity> repeatedEntity = repeatedEntities.stream().findFirst();
-    System.out.println(repeatedEntity);
 
     // The block repeated entity context is the one for the repeated name question.
     generator =
@@ -106,12 +106,113 @@ public class JsonPathPredicateGeneratorTest {
             Operator.EQUAL_TO,
             PredicateValue.of("Xylia"));
 
-    // TODO(future Caroline): you are running into a case where we need the enumerator path without
-    // the array reference. getQuestionPathSegment returns it with the array reference.
-    // This is fixed by a special case in the generator. NEED TO TEST MORE CASES
+    // The top-level enumerator should not appear with [], since it is not repeated.
     assertThat(generator.fromLeafNode(node))
         .isEqualTo(
             JsonPathPredicate.create(
                 "$.applicant.applicant_household_members[?(@.first_name == \"Xylia\")]"));
+  }
+
+  @Test
+  public void fromLeafNode_predicateBasedOnSiblingRepeatedQuestion_generatesCorrectPath()
+      throws Exception {
+    ApplicantData applicantData = new ApplicantData();
+    EnumeratorQuestionDefinition enumerator =
+        (EnumeratorQuestionDefinition)
+            questionBank.applicantHouseholdMembers().getQuestionDefinition();
+    QuestionDefinition siblingQuestion =
+        new QuestionDefinitionBuilder(
+                questionBank.applicantHouseholdMemberName().getQuestionDefinition())
+            .setEnumeratorId(Optional.of(enumerator.getId()))
+            .build();
+
+    // Put an entity at the enumerator path so we can generate repeated contexts.
+    ApplicantQuestion applicantEnumerator =
+        new ApplicantQuestion(enumerator, applicantData, Optional.empty());
+    applicantData.putRepeatedEntities(
+        applicantEnumerator.getContextualizedPath(), ImmutableList.of("Bernard", "Alice"));
+
+    // Just use a repeated entity for the first (index 0) entity.
+    ImmutableList<RepeatedEntity> repeatedEntities =
+        RepeatedEntity.createRepeatedEntities(enumerator, applicantData);
+    Optional<RepeatedEntity> repeatedEntity = repeatedEntities.stream().findFirst();
+
+    generator =
+        new JsonPathPredicateGenerator(
+            applicantData, ImmutableList.of(enumerator, siblingQuestion), repeatedEntity);
+
+    LeafOperationExpressionNode node =
+        LeafOperationExpressionNode.create(
+            siblingQuestion.getId(), // The predicate is based on the sibling "name" question.
+            Scalar.FIRST_NAME,
+            Operator.EQUAL_TO,
+            PredicateValue.of("Bernard"));
+
+    assertThat(generator.fromLeafNode(node))
+        .isEqualTo(
+            JsonPathPredicate.create(
+                "$.applicant.applicant_household_members[0].household_members_name"
+                    + "[?(@.first_name == \"Bernard\")]"));
+  }
+
+  @Test
+  public void fromLeafNode_twoLevelsDeepRepeater_generatesCorrectPath() throws Exception {
+    ApplicantData applicantData = new ApplicantData();
+    // household members
+    //  \_ name (target), jobs
+    //                      \_ income (current block)
+    QuestionDefinition topLevelEnumerator =
+        questionBank.applicantHouseholdMembers().getQuestionDefinition();
+    QuestionDefinition targetQuestion =
+        questionBank.applicantHouseholdMemberName().getQuestionDefinition();
+    QuestionDefinition nestedEnumerator =
+        questionBank.applicantHouseholdMemberJobs().getQuestionDefinition();
+    QuestionDefinition currentQuestion =
+        questionBank.applicantHouseholdMemberJobIncome().getQuestionDefinition();
+
+    // Put an entity at the enumerator path so we can generate repeated contexts.
+    ApplicantQuestion applicantEnumerator =
+        new ApplicantQuestion(topLevelEnumerator, applicantData, Optional.empty());
+    applicantData.putRepeatedEntities(
+        applicantEnumerator.getContextualizedPath(), ImmutableList.of("Bernard", "Alice"));
+    // Context for index 1 ('Alice')
+    Optional<RepeatedEntity> topLevelRepeatedEntity =
+        RepeatedEntity.createRepeatedEntities(
+                (EnumeratorQuestionDefinition) topLevelEnumerator, applicantData)
+            .reverse()
+            .stream()
+            .findFirst();
+
+    // Create entities for the nested enumerator
+    ApplicantQuestion nestedApplicantEnumerator =
+        new ApplicantQuestion(nestedEnumerator, applicantData, topLevelRepeatedEntity);
+    applicantData.putRepeatedEntities(
+        nestedApplicantEnumerator.getContextualizedPath(), ImmutableList.of("Software Engineer"));
+    Optional<RepeatedEntity> currentContext =
+        topLevelRepeatedEntity
+            .get()
+            .createNestedRepeatedEntities(
+                (EnumeratorQuestionDefinition) nestedEnumerator, applicantData)
+            .stream()
+            .findFirst();
+
+    generator =
+        new JsonPathPredicateGenerator(
+            applicantData,
+            ImmutableList.of(topLevelEnumerator, nestedEnumerator, targetQuestion, currentQuestion),
+            currentContext);
+
+    LeafOperationExpressionNode node =
+        LeafOperationExpressionNode.create(
+            targetQuestion.getId(), // The predicate is based on the "name" question.
+            Scalar.FIRST_NAME,
+            Operator.EQUAL_TO,
+            PredicateValue.of("Alice"));
+
+    assertThat(generator.fromLeafNode(node))
+        .isEqualTo(
+            JsonPathPredicate.create(
+                "$.applicant.applicant_household_members[1].household_members_name"
+                    + "[?(@.first_name == \"Alice\")]"));
   }
 }

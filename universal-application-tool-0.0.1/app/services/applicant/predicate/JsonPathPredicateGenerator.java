@@ -53,31 +53,30 @@ public class JsonPathPredicateGenerator {
               node.questionId()));
     }
 
-    QuestionDefinition predicateQuestion = questionsById.get(node.questionId());
+    QuestionDefinition targetQuestion = questionsById.get(node.questionId());
     Optional<RepeatedEntity> predicateContext;
 
-    // Walk up the RepeatedEntity ancestors to find the right context.
-    if (predicateQuestion.getEnumeratorId().isEmpty()) {
-      System.out.println("In the not repeated case");
+    if (targetQuestion.getEnumeratorId().isEmpty()) {
+      // This is a top-level question (i.e. is not repeated) - use an empty repeated context.
       predicateContext = Optional.empty();
     } else {
-      System.out.println("In the repeated case");
-      long enumeratorId = predicateQuestion.getEnumeratorId().get();
+      // Walk up the RepeatedEntity ancestors to find the right context. We need the context of the
+      // question in the predicate definition - that is, the one where the predicate question's
+      // enumerator ID matches the context's enumerator ID.
+      long enumeratorId = targetQuestion.getEnumeratorId().get();
       predicateContext = this.currentRepeatedContext;
       while (predicateContext.isPresent()
           && predicateContext.get().enumeratorQuestionDefinition().getId() != enumeratorId) {
-        System.out.println("context in loop: " + predicateContext);
         predicateContext = predicateContext.get().parent();
       }
     }
-    System.out.println("Predicate context: " + predicateContext);
 
     Path path =
-        new ApplicantQuestion(predicateQuestion, applicantData, predicateContext)
+        new ApplicantQuestion(targetQuestion, applicantData, predicateContext)
             .getContextualizedPath();
     System.out.println(path);
 
-    if (path.isArrayElement() && predicateQuestion.isEnumerator()) {
+    if (path.isArrayElement() && targetQuestion.isEnumerator()) {
       // In this case, we don't want the [] at the end of the path.
       path = path.withoutArrayReference();
     }
