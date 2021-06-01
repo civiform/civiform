@@ -51,10 +51,12 @@ public class PredicateEvaluator {
     }
   }
 
+  /** Returns true if and only if each of the node's children evaluates to true. */
   private boolean evaluateAndNode(AndNode node) {
     return node.children().stream().allMatch(this::evaluate);
   }
 
+  /** Returns true if and only if one or more of the node's children evaluates to true. */
   private boolean evaluateOrNode(OrNode node) {
     return node.children().stream().anyMatch(this::evaluate);
   }
