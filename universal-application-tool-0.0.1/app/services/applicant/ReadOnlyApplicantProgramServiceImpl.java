@@ -1,6 +1,7 @@
 package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -11,12 +12,15 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import services.LocalizedStrings;
 import services.Path;
+import services.applicant.predicate.JsonPathPredicateGenerator;
+import services.applicant.predicate.PredicateEvaluator;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.Scalar;
 import services.aws.SimpleStorage;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.program.predicate.PredicateDefinition;
 import services.question.LocalizedQuestionOption;
 import services.question.types.EnumeratorQuestionDefinition;
 
@@ -29,9 +33,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   private ImmutableList<Block> currentBlockList;
 
   protected ReadOnlyApplicantProgramServiceImpl(
-      SimpleStorage amazonS3Client,
-      ApplicantData applicantData,
-      ProgramDefinition programDefinition) {
+          SimpleStorage amazonS3Client,
+          ApplicantData applicantData,
+          ProgramDefinition programDefinition) {
     this.amazonS3Client = checkNotNull(amazonS3Client);
     this.applicantData = new ApplicantData(checkNotNull(applicantData).asJsonString());
     this.applicantData.setPreferredLocale(applicantData.preferredLocale());
@@ -56,10 +60,10 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   public ImmutableList<Block> getInProgressBlocks() {
     if (currentBlockList == null) {
       currentBlockList =
-          getBlocks(
-              block ->
-                  !block.isCompleteWithoutErrors()
-                      || block.wasCompletedInProgram(programDefinition.id()));
+              getBlocks(
+                      block ->
+                              !block.isCompleteWithoutErrors()
+                                      || block.wasCompletedInProgram(programDefinition.id()));
     }
     return currentBlockList;
   }
@@ -94,83 +98,13 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public Optional<Block> getFirstIncompleteBlock() {
     return getInProgressBlocks().stream()
-        .filter(block -> !block.isCompleteWithoutErrors())
-        .findFirst();
+            .filter(block -> !block.isCompleteWithoutErrors())
+            .findFirst();
   }
 
   @Override
   public boolean preferredLanguageSupported() {
     return programDefinition.getSupportedLocales().contains(applicantData.preferredLocale());
-  }
-
-  /**
-   * Gets {@link Block}s for this program and applicant. If {@code onlyIncludeInProgressBlocks} is
-   * true, then only the current blocks will be included in the list. A block is "in progress" if it
-   * has yet to be filled out by the applicant, or if it was filled out in the context of this
-   * program.
-   */
-  private ImmutableList<Block> getBlocks(Predicate<Block> includeBlockIfTrue) {
-    String emptyBlockIdSuffix = "";
-    return getBlocks(
-        programDefinition.getNonRepeatedBlockDefinitions(),
-        emptyBlockIdSuffix,
-        Optional.empty(),
-        includeBlockIfTrue);
-  }
-
-  /**
-   * Recursive helper method for {@link ReadOnlyApplicantProgramServiceImpl#getBlocks(Predicate)}.
-   */
-  private ImmutableList<Block> getBlocks(
-      ImmutableList<BlockDefinition> blockDefinitions,
-      String blockIdSuffix,
-      Optional<RepeatedEntity> maybeRepeatedEntity,
-      Predicate<Block> includeBlockIfTrue) {
-    ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
-
-    for (BlockDefinition blockDefinition : blockDefinitions) {
-      // Create and maybe include the block for this block definition.
-      Block block =
-          new Block(
-              blockDefinition.id() + blockIdSuffix,
-              blockDefinition,
-              applicantData,
-              maybeRepeatedEntity);
-      if (includeBlockIfTrue.test(block)) {
-        blockListBuilder.add(block);
-      }
-
-      // For an enumeration block definition, build blocks for its repeated questions
-      if (blockDefinition.isEnumerator()) {
-
-        // Get all the repeated entities enumerated by this enumerator question.
-        EnumeratorQuestionDefinition enumeratorQuestionDefinition =
-            blockDefinition.getEnumerationQuestionDefinition();
-        ImmutableList<RepeatedEntity> repeatedEntities =
-            maybeRepeatedEntity.isPresent()
-                ? maybeRepeatedEntity
-                    .get()
-                    .createNestedRepeatedEntities(enumeratorQuestionDefinition, applicantData)
-                : RepeatedEntity.createRepeatedEntities(
-                    enumeratorQuestionDefinition, applicantData);
-
-        // For each repeated entity, recursively build blocks for all of the repeated blocks of this
-        // enumerator block.
-        ImmutableList<BlockDefinition> repeatedBlockDefinitions =
-            programDefinition.getBlockDefinitionsForEnumerator(blockDefinition.id());
-        for (int i = 0; i < repeatedEntities.size(); i++) {
-          String nextBlockIdSuffix = String.format("%s-%d", blockIdSuffix, i);
-          blockListBuilder.addAll(
-              getBlocks(
-                  repeatedBlockDefinitions,
-                  nextBlockIdSuffix,
-                  Optional.of(repeatedEntities.get(i)),
-                  includeBlockIfTrue));
-        }
-      }
-    }
-
-    return blockListBuilder.build();
   }
 
   @Override
@@ -187,26 +121,122 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
         Optional<Long> updatedProgram = question.getUpdatedInProgramMetadata();
         boolean isPreviousResponse =
-            updatedProgram.isPresent() && updatedProgram.get() != programDefinition.id();
+                updatedProgram.isPresent() && updatedProgram.get() != programDefinition.id();
         AnswerData data =
-            AnswerData.builder()
-                .setProgramId(programDefinition.id())
-                .setBlockId(block.getId())
-                .setQuestionDefinition(question.getQuestionDefinition())
-                .setRepeatedEntity(block.getRepeatedEntity())
-                .setQuestionIndex(questionIndex)
-                .setQuestionText(questionText)
-                .setAnswerText(answerText)
-                .setAnswerLink(getAnswerLink(question))
-                .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
-                .setIsPreviousResponse(isPreviousResponse)
-                .setScalarAnswersInDefaultLocale(
-                    getScalarAnswers(question, LocalizedStrings.DEFAULT_LOCALE))
-                .build();
+                AnswerData.builder()
+                        .setProgramId(programDefinition.id())
+                        .setBlockId(block.getId())
+                        .setQuestionDefinition(question.getQuestionDefinition())
+                        .setRepeatedEntity(block.getRepeatedEntity())
+                        .setQuestionIndex(questionIndex)
+                        .setQuestionText(questionText)
+                        .setAnswerText(answerText)
+                        .setAnswerLink(getAnswerLink(question))
+                        .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
+                        .setIsPreviousResponse(isPreviousResponse)
+                        .setScalarAnswersInDefaultLocale(
+                                getScalarAnswers(question, LocalizedStrings.DEFAULT_LOCALE))
+                        .build();
         builder.add(data);
       }
     }
     return builder.build();
+  }
+
+  /**
+   * Gets {@link Block}s for this program and applicant. If {@code onlyIncludeInProgressBlocks} is
+   * true, then only the current blocks will be included in the list. A block is "in progress" if it
+   * has yet to be filled out by the applicant, or if it was filled out in the context of this
+   * program.
+   */
+  private ImmutableList<Block> getBlocks(Predicate<Block> includeBlockIfTrue) {
+    String emptyBlockIdSuffix = "";
+    return getBlocks(
+            programDefinition.getNonRepeatedBlockDefinitions(),
+            emptyBlockIdSuffix,
+            Optional.empty(),
+            includeBlockIfTrue);
+  }
+
+  /**
+   * Recursive helper method for {@link ReadOnlyApplicantProgramServiceImpl#getBlocks(Predicate)}.
+   */
+  private ImmutableList<Block> getBlocks(
+          ImmutableList<BlockDefinition> blockDefinitions,
+          String blockIdSuffix,
+          Optional<RepeatedEntity> maybeRepeatedEntity,
+          Predicate<Block> includeBlockIfTrue) {
+    ImmutableList.Builder<Block> blockListBuilder = ImmutableList.builder();
+
+    for (BlockDefinition blockDefinition : blockDefinitions) {
+      // Create and maybe include the block for this block definition.
+      Block block =
+              new Block(
+                      blockDefinition.id() + blockIdSuffix,
+                      blockDefinition,
+                      applicantData,
+                      maybeRepeatedEntity);
+      if (includeBlockIfTrue.test(block)) {
+        blockListBuilder.add(block);
+      }
+
+      // For an enumeration block definition, build blocks for its repeated questions
+      if (blockDefinition.isEnumerator()) {
+
+        // Get all the repeated entities enumerated by this enumerator question.
+        EnumeratorQuestionDefinition enumeratorQuestionDefinition =
+                blockDefinition.getEnumerationQuestionDefinition();
+        ImmutableList<RepeatedEntity> repeatedEntities =
+                maybeRepeatedEntity.isPresent()
+                        ? maybeRepeatedEntity
+                        .get()
+                        .createNestedRepeatedEntities(enumeratorQuestionDefinition, applicantData)
+                        : RepeatedEntity.createRepeatedEntities(
+                        enumeratorQuestionDefinition, applicantData);
+
+        // For each repeated entity, recursively build blocks for all of the repeated blocks of this
+        // enumerator block.
+        ImmutableList<BlockDefinition> repeatedBlockDefinitions =
+                programDefinition.getBlockDefinitionsForEnumerator(blockDefinition.id());
+        for (int i = 0; i < repeatedEntities.size(); i++) {
+          String nextBlockIdSuffix = String.format("%s-%d", blockIdSuffix, i);
+          blockListBuilder.addAll(
+                  getBlocks(
+                          repeatedBlockDefinitions,
+                          nextBlockIdSuffix,
+                          Optional.of(repeatedEntities.get(i)),
+                          includeBlockIfTrue));
+        }
+      }
+    }
+
+    return blockListBuilder.build();
+  }
+
+  // TODO(cdanzi): Change to private when this method is used.
+  protected boolean showBlock(Block block) {
+    if (block.getVisibilityPredicate().isEmpty()) {
+      // Default to show
+      return true;
+    }
+
+    JsonPathPredicateGenerator predicateGenerator =
+            new JsonPathPredicateGenerator(
+                    this.applicantData,
+                    this.programDefinition.streamQuestionDefinitions().collect(toImmutableList()),
+                    block.getRepeatedEntity());
+    PredicateEvaluator predicateEvaluator =
+            new PredicateEvaluator(this.applicantData, predicateGenerator);
+    PredicateDefinition predicate = block.getVisibilityPredicate().get();
+
+    switch (predicate.action()) {
+      case HIDE_BLOCK:
+        return !predicateEvaluator.evaluate(predicate.rootNode());
+      case SHOW_BLOCK:
+        return predicateEvaluator.evaluate(predicate.rootNode());
+      default:
+        return true;
+    }
   }
 
   /** Returns a link to answer content if applicable, e.g. an uploaded file. */
@@ -218,7 +248,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
           return Optional.empty();
         }
         return Optional.of(
-            amazonS3Client.getPresignedUrl(fileUploadQuestion.getFileKeyValue().get()));
+                amazonS3Client.getPresignedUrl(fileUploadQuestion.getFileKeyValue().get()));
       default:
         return Optional.empty();
     }
@@ -233,34 +263,34 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       case DROPDOWN:
       case RADIO_BUTTON:
         return ImmutableMap.of(
-            question.getContextualizedPath().join(Scalar.SELECTION),
-            question
-                .createSingleSelectQuestion()
-                .getSelectedOptionValue(locale)
-                .map(LocalizedQuestionOption::optionText)
-                .orElse(""));
+                question.getContextualizedPath().join(Scalar.SELECTION),
+                question
+                        .createSingleSelectQuestion()
+                        .getSelectedOptionValue(locale)
+                        .map(LocalizedQuestionOption::optionText)
+                        .orElse(""));
       case CHECKBOX:
         return ImmutableMap.of(
-            question.getContextualizedPath().join(Scalar.SELECTION),
-            question
-                .createMultiSelectQuestion()
-                .getSelectedOptionsValue(locale)
-                .map(
-                    selectedOptions ->
-                        selectedOptions.stream()
-                            .map(LocalizedQuestionOption::optionText)
-                            .collect(Collectors.joining(", ")))
-                .orElse(""));
+                question.getContextualizedPath().join(Scalar.SELECTION),
+                question
+                        .createMultiSelectQuestion()
+                        .getSelectedOptionsValue(locale)
+                        .map(
+                                selectedOptions ->
+                                        selectedOptions.stream()
+                                                .map(LocalizedQuestionOption::optionText)
+                                                .collect(Collectors.joining(", ")))
+                        .orElse(""));
       case ENUMERATOR:
         return ImmutableMap.of(
-            question.getContextualizedPath(),
-            question.createEnumeratorQuestion().getAnswerString());
+                question.getContextualizedPath(),
+                question.createEnumeratorQuestion().getAnswerString());
       default:
         return question.getContextualizedScalars().keySet().stream()
-            .filter(path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))
-            .collect(
-                ImmutableMap.toImmutableMap(
-                    path -> path, path -> applicantData.readAsString(path).orElse("")));
+                .filter(path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))
+                .collect(
+                        ImmutableMap.toImmutableMap(
+                                path -> path, path -> applicantData.readAsString(path).orElse("")));
     }
   }
 }
