@@ -1,15 +1,18 @@
 package controllers.applicant;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
+import services.program.ProgramDefinition;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
@@ -17,6 +20,7 @@ import play.mvc.Result;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.program.ProgramNotFoundException;
+import views.applicant.ApplicantProgramInfoView;
 import views.applicant.ProgramIndexView;
 
 /**
@@ -30,6 +34,7 @@ public class ApplicantProgramsController extends CiviFormController {
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
   private final ProgramIndexView programIndexView;
+  private final ApplicantProgramInfoView programInfoView;
   private final ProfileUtils profileUtils;
 
   @Inject
@@ -38,11 +43,13 @@ public class ApplicantProgramsController extends CiviFormController {
       ApplicantService applicantService,
       MessagesApi messagesApi,
       ProgramIndexView programIndexView,
+      ApplicantProgramInfoView programInfoView,
       ProfileUtils profileUtils) {
     this.httpContext = httpContext;
     this.applicantService = applicantService;
     this.messagesApi = checkNotNull(messagesApi);
     this.programIndexView = checkNotNull(programIndexView);
+    this.programInfoView = checkNotNull(programInfoView);
     this.profileUtils = checkNotNull(profileUtils);
   }
 
@@ -65,6 +72,41 @@ public class ApplicantProgramsController extends CiviFormController {
                         applicantStage.toCompletableFuture().join(),
                         programs,
                         banner)),
+            httpContext.current())
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                if (ex.getCause() instanceof SecurityException) {
+                  return unauthorized();
+                }
+              }
+              throw new RuntimeException(ex);
+            });
+  }
+
+  @Secure
+  public CompletionStage<Result> view(Request request, long applicantId, long programId) {
+    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+
+    return applicantStage
+        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
+        .thenComposeAsync(
+            v -> applicantService.relevantPrograms(applicantId), httpContext.current())
+        .thenApplyAsync(
+            programs -> {
+              ImmutableList<ProgramDefinition> filteredPrograms =
+                  programs.stream().filter(program -> program.id() == programId).collect(toImmutableList());
+              if (filteredPrograms.size() == 1) {
+                return ok(
+                    programInfoView.render(
+                        messagesApi.preferred(request),
+                        filteredPrograms.get(0),
+                        request,
+                        applicantId,
+                        applicantStage.toCompletableFuture().join()));
+              }
+              return unauthorized();
+            },
             httpContext.current())
         .exceptionally(
             ex -> {

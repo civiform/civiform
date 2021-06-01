@@ -151,7 +151,7 @@ public class ProgramIndexView extends BaseHtmlView {
             .with(title, description, externalLink);
 
     String applyUrl =
-        controllers.applicant.routes.ApplicantProgramsController.edit(applicantId, program.id())
+        controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id())
             .url();
     ContainerTag applyButton =
         a().attr(HREF, applyUrl)
