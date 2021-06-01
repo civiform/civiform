@@ -23,8 +23,9 @@ public class JsonPathPredicateGenerator {
   /**
    * This cannot be built from a set of {@link ApplicantQuestion}s because the question IDs for
    * repeated questions are used multiple times. For example, if there is a repeated name question,
-   * that name question is repeated for each entity. How can I guarantee that the question I found
-   * by ID is the one I actually need, with the same repeated entity context?
+   * that name question is repeated for each entity. Instead, we use {@link QuestionDefinition}s and
+   * pass in the current block's repeated entity context, so we can determine which repeated entity
+   * we are currently on, as well as find the target question used in the predicate.
    */
   public JsonPathPredicateGenerator(
       ApplicantData applicantData,
@@ -74,7 +75,6 @@ public class JsonPathPredicateGenerator {
     Path path =
         new ApplicantQuestion(targetQuestion, applicantData, predicateContext)
             .getContextualizedPath();
-    System.out.println(path);
 
     if (path.isArrayElement() && targetQuestion.isEnumerator()) {
       // In this case, we don't want the [] at the end of the path.

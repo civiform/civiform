@@ -35,8 +35,8 @@ public class PredicateEvaluator {
 
   /**
    * Returns true if and only if there exists a value in {@link ApplicantData} that satisfies the
-   * given leaf node operation. If the path does not exist or the value at the path does not satisfy
-   * the expression, this method returns false.
+   * given leaf node operation. Returns false if the predicate is invalid or the predicate evaluates
+   * to false.
    */
   private boolean evaluateLeafNode(LeafOperationExpressionNode node) {
     try {
