@@ -41,6 +41,28 @@ public final class ReferenceClasses {
   public static final String SUBMIT_BUTTON = "cf-submit-button";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
+  // Question reference classes
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
+  public static final String ADDRESS_QUESTION = "cf-question-address";
+  public static final String ADDRESS_CITY = "cf-address-city";
+  public static final String ADDRESS_STREET_1 = "cf-address-street-1";
+  public static final String ADDRESS_STREET_2 = "cf-address-street-2";
+  public static final String ADDRESS_STATE = "cf-address-state";
+  public static final String ADDRESS_ZIP = "cf-address-zip";
+
+  public static final String CHECKBOX_QUESTION = "cf-question-checkbox";
+  public static final String DATE_QUESTION = "cf-question-date";
+
+  public static final String ENUMERATOR_QUESTION = "cf-question-enumerator";
+  public static final String ENUMERATOR_ERROR = "cf-enumerator-error";
+
+  public static final String NAME_QUESTION = "cf-question-name";
+  public static final String NAME_FIRST = "cf-name-first";
+  public static final String NAME_MIDDLE = "cf-name-middle";
+  public static final String NAME_LAST = "cf-name-last";
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
   // Common reference classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
 

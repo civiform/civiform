@@ -12,6 +12,11 @@ public class TextQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
+  public String getReferenceClass() {
+    return "cf-question-text";
+  }
+
+  @Override
   public Tag render(ApplicantQuestionRendererParams params) {
     TextQuestion textQuestion = question.createTextQuestion();
 
