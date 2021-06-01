@@ -193,10 +193,10 @@ public abstract class ProgramDefinition {
 
   public Stream<QuestionDefinition> streamQuestionDefinitions() {
     return blockDefinitions().stream()
-            .flatMap(
-                    b ->
-                            b.programQuestionDefinitions().stream()
-                                    .map(ProgramQuestionDefinition::getQuestionDefinition));
+        .flatMap(
+            b ->
+                b.programQuestionDefinitions().stream()
+                    .map(ProgramQuestionDefinition::getQuestionDefinition));
   }
 
   public Program toProgram() {
