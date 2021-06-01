@@ -191,19 +191,19 @@ public abstract class ProgramDefinition {
         .collect(ImmutableList.toImmutableList());
   }
 
-  public Program toProgram() {
-    return new Program(this);
-  }
-
-  public abstract Builder toBuilder();
-
-  private Stream<QuestionDefinition> streamQuestionDefinitions() {
+  public Stream<QuestionDefinition> streamQuestionDefinitions() {
     return blockDefinitions().stream()
         .flatMap(
             b ->
                 b.programQuestionDefinitions().stream()
                     .map(ProgramQuestionDefinition::getQuestionDefinition));
   }
+
+  public Program toProgram() {
+    return new Program(this);
+  }
+
+  public abstract Builder toBuilder();
 
   @AutoValue.Builder
   public abstract static class Builder {

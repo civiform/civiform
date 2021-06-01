@@ -1,6 +1,7 @@
 package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -11,12 +12,15 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import services.LocalizedStrings;
 import services.Path;
+import services.applicant.predicate.JsonPathPredicateGenerator;
+import services.applicant.predicate.PredicateEvaluator;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.Scalar;
 import services.aws.SimpleStorage;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.program.predicate.PredicateDefinition;
 import services.question.LocalizedQuestionOption;
 import services.question.types.EnumeratorQuestionDefinition;
 
@@ -103,6 +107,42 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return programDefinition.getSupportedLocales().contains(applicantData.preferredLocale());
   }
 
+  @Override
+  public ImmutableList<AnswerData> getSummaryData() {
+    // TODO: We need to be able to use this on the admin side with admin-specific l10n.
+    ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
+    ImmutableList<Block> blocks = getAllBlocks();
+    for (Block block : blocks) {
+      ImmutableList<ApplicantQuestion> questions = block.getQuestions();
+      for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
+        ApplicantQuestion question = questions.get(questionIndex);
+        String questionText = question.getQuestionText();
+        String answerText = question.errorsPresenter().getAnswerString();
+        Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
+        Optional<Long> updatedProgram = question.getUpdatedInProgramMetadata();
+        boolean isPreviousResponse =
+            updatedProgram.isPresent() && updatedProgram.get() != programDefinition.id();
+        AnswerData data =
+            AnswerData.builder()
+                .setProgramId(programDefinition.id())
+                .setBlockId(block.getId())
+                .setQuestionDefinition(question.getQuestionDefinition())
+                .setRepeatedEntity(block.getRepeatedEntity())
+                .setQuestionIndex(questionIndex)
+                .setQuestionText(questionText)
+                .setAnswerText(answerText)
+                .setAnswerLink(getAnswerLink(question))
+                .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
+                .setIsPreviousResponse(isPreviousResponse)
+                .setScalarAnswersInDefaultLocale(
+                    getScalarAnswers(question, LocalizedStrings.DEFAULT_LOCALE))
+                .build();
+        builder.add(data);
+      }
+    }
+    return builder.build();
+  }
+
   /**
    * Gets {@link Block}s for this program and applicant. If {@code onlyIncludeInProgressBlocks} is
    * true, then only the current blocks will be included in the list. A block is "in progress" if it
@@ -173,40 +213,30 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return blockListBuilder.build();
   }
 
-  @Override
-  public ImmutableList<AnswerData> getSummaryData() {
-    // TODO: We need to be able to use this on the admin side with admin-specific l10n.
-    ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
-    ImmutableList<Block> blocks = getAllBlocks();
-    for (Block block : blocks) {
-      ImmutableList<ApplicantQuestion> questions = block.getQuestions();
-      for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
-        ApplicantQuestion question = questions.get(questionIndex);
-        String questionText = question.getQuestionText();
-        String answerText = question.errorsPresenter().getAnswerString();
-        Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
-        Optional<Long> updatedProgram = question.getUpdatedInProgramMetadata();
-        boolean isPreviousResponse =
-            updatedProgram.isPresent() && updatedProgram.get() != programDefinition.id();
-        AnswerData data =
-            AnswerData.builder()
-                .setProgramId(programDefinition.id())
-                .setBlockId(block.getId())
-                .setQuestionDefinition(question.getQuestionDefinition())
-                .setRepeatedEntity(block.getRepeatedEntity())
-                .setQuestionIndex(questionIndex)
-                .setQuestionText(questionText)
-                .setAnswerText(answerText)
-                .setAnswerLink(getAnswerLink(question))
-                .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
-                .setIsPreviousResponse(isPreviousResponse)
-                .setScalarAnswersInDefaultLocale(
-                    getScalarAnswers(question, LocalizedStrings.DEFAULT_LOCALE))
-                .build();
-        builder.add(data);
-      }
+  // TODO(cdanzi): Change to private when this method is used.
+  protected boolean showBlock(Block block) {
+    if (block.getVisibilityPredicate().isEmpty()) {
+      // Default to show
+      return true;
     }
-    return builder.build();
+
+    JsonPathPredicateGenerator predicateGenerator =
+        new JsonPathPredicateGenerator(
+            this.applicantData,
+            this.programDefinition.streamQuestionDefinitions().collect(toImmutableList()),
+            block.getRepeatedEntity());
+    PredicateEvaluator predicateEvaluator =
+        new PredicateEvaluator(this.applicantData, predicateGenerator);
+    PredicateDefinition predicate = block.getVisibilityPredicate().get();
+
+    switch (predicate.action()) {
+      case HIDE_BLOCK:
+        return !predicateEvaluator.evaluate(predicate.rootNode());
+      case SHOW_BLOCK:
+        return predicateEvaluator.evaluate(predicate.rootNode());
+      default:
+        return true;
+    }
   }
 
   /** Returns a link to answer content if applicable, e.g. an uploaded file. */

@@ -17,6 +17,12 @@ import services.Path;
 import services.applicant.question.Scalar;
 import services.aws.SimpleStorage;
 import services.program.ProgramDefinition;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.Operator;
+import services.program.predicate.PredicateAction;
+import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
+import services.program.predicate.PredicateValue;
 import services.question.types.QuestionDefinition;
 import services.question.types.ScalarType;
 import support.ProgramBuilder;
@@ -579,6 +585,77 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     assertThat(subject.getBlockIndex("not a real block id")).isEqualTo(-1);
   }
 
+  @Test
+  public void showBlock_returnsTrueForBlockWithoutPredicate() {
+    ProgramDefinition program = ProgramBuilder.newActiveProgram().withBlock().buildDefinition();
+    ReadOnlyApplicantProgramServiceImpl service =
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, program);
+
+    assertThat(service.showBlock(service.getAllBlocks().get(0))).isTrue();
+  }
+
+  @Test
+  public void showBlock_showBlockAction() {
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    colorQuestion.getId(),
+                    Scalar.TEXT,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("blue"))),
+            PredicateAction.SHOW_BLOCK);
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestionDefinition(colorQuestion)
+            .withBlock()
+            .withPredicate(predicate)
+            .buildDefinition();
+
+    // Answer "blue" to the question - the predicate is true, so we should show the block.
+    answerColorQuestion(program.id(), "blue");
+    ReadOnlyApplicantProgramServiceImpl service =
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, program);
+    assertThat(service.showBlock(service.getAllBlocks().get(1))).isTrue();
+
+    // Answer "green" to the question - the predicate is now false, so we should not show the block.
+    answerColorQuestion(program.id(), "green");
+    service = new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, program);
+    assertThat(service.showBlock(service.getAllBlocks().get(1))).isFalse();
+  }
+
+  @Test
+  public void showBlock_hideBlockAction() {
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    colorQuestion.getId(),
+                    Scalar.TEXT,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("blue"))),
+            PredicateAction.HIDE_BLOCK);
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestionDefinition(colorQuestion)
+            .withBlock()
+            .withPredicate(predicate)
+            .buildDefinition();
+
+    // Answer "blue" to the question - the predicate is true, so we should hide the block.
+    answerColorQuestion(program.id(), "blue");
+    ReadOnlyApplicantProgramServiceImpl service =
+        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, program);
+    assertThat(service.showBlock(service.getAllBlocks().get(1))).isFalse();
+
+    // Answer "green" to the question - the predicate is now false, so we should show the block.
+    answerColorQuestion(program.id(), "green");
+    service = new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, program);
+    assertThat(service.showBlock(service.getAllBlocks().get(1))).isTrue();
+  }
+
   private void answerNameQuestion(long programId) {
     Path path = Path.create("applicant.applicant_name");
     QuestionAnswerer.answerNameQuestion(applicantData, path, "Alice", "Middle", "Last");
@@ -586,8 +663,12 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   private void answerColorQuestion(long programId) {
+    answerColorQuestion(programId, "mauve");
+  }
+
+  private void answerColorQuestion(long programId, String color) {
     Path path = Path.create("applicant.applicant_favorite_color");
-    QuestionAnswerer.answerTextQuestion(applicantData, path, "mauve");
+    QuestionAnswerer.answerTextQuestion(applicantData, path, color);
     QuestionAnswerer.addMetadata(applicantData, path, programId, 12345L);
   }
 
