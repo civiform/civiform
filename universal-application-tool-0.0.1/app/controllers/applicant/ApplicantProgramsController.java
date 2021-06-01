@@ -1,7 +1,7 @@
 package controllers.applicant;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.ProfileUtils;
@@ -12,13 +12,13 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
-import services.program.ProgramDefinition;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramInfoView;
 import views.applicant.ProgramIndexView;
@@ -95,7 +95,9 @@ public class ApplicantProgramsController extends CiviFormController {
         .thenApplyAsync(
             programs -> {
               ImmutableList<ProgramDefinition> filteredPrograms =
-                  programs.stream().filter(program -> program.id() == programId).collect(toImmutableList());
+                  programs.stream()
+                      .filter(program -> program.id() == programId)
+                      .collect(toImmutableList());
               if (filteredPrograms.size() == 1) {
                 return ok(
                     programInfoView.render(

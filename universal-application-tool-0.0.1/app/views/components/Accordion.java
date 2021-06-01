@@ -4,9 +4,8 @@ import static j2html.TagCreator.div;
 
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
-import j2html.tags.Tag;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Accordion {
   protected String title = "";
