@@ -3,20 +3,21 @@ package views.components;
 import static j2html.TagCreator.div;
 
 import j2html.tags.ContainerTag;
+import j2html.tags.DomContent;
 import j2html.tags.Tag;
 import java.util.Arrays;
 import java.util.ArrayList;
 
 public class Accordion {
   protected String title = "";
-  protected ArrayList<Tag> content = new ArrayList<>();
+  protected ArrayList<DomContent> content = new ArrayList<>();
 
   public Accordion setTitle(String title) {
     this.title = title;
     return this;
   }
 
-  public Accordion addContent(Tag... content) {
+  public Accordion addContent(DomContent... content) {
     this.content.addAll(Arrays.asList(content));
     return this;
   }

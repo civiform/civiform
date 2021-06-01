@@ -70,14 +70,15 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
     
     // "Markdown" the program description.
     String[] lines = Iterables.toArray(Splitter.on("\n").split(programInfo), String.class);
-    ImmutableList<Tag> items = formatText(lines, false);
+    ImmutableList<DomContent> items = formatText(lines, false);
     ContainerTag descriptionDiv = div().withClasses("py-2").with(items);
 
     return div(allProgramsDiv, titleDiv, descriptionDiv);
   }
 
-  private ImmutableList<Tag> formatText(String[] lines, boolean preserveEmptyLines) {
-    ImmutableList.Builder<Tag> builder = new ImmutableList.Builder<Tag>();
+  /** Adds the ability to create accordions and lists from data in text fields. */
+  private ImmutableList<DomContent> formatText(String[] lines, boolean preserveEmptyLines) {
+    ImmutableList.Builder<DomContent> builder = new ImmutableList.Builder<DomContent>();
     for (int i = 0; i < lines.length; i++) {
         String line = lines[i].trim();
         if (line.startsWith("###")) { // We're calling this an accordion.
@@ -101,7 +102,8 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
             i = next - 1;
             builder.add(buildList(items));
         } else if (line.length() > 0) {
-            builder.add(div().withText(line));
+            ImmutableList<DomContent> lineContent = createLinksAndEscapeText(line);
+            builder.add(div().with(lineContent));
         } else if (preserveEmptyLines) {
             builder.add(div().withClasses("h-6"));
         }
@@ -111,7 +113,7 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
 
   private ContainerTag buildAccordion(String title, ArrayList<String> accordionContent) {
     Accordion accordion = new Accordion().setTitle(title);
-    ImmutableList<Tag> contentTags = formatText(accordionContent.toArray(new String[0]), true);
+    ImmutableList<DomContent> contentTags = formatText(accordionContent.toArray(new String[0]), true);
     contentTags.stream().forEach(tag -> accordion.addContent(tag));
     return accordion.getContainer();
   }
