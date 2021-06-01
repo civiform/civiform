@@ -387,6 +387,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
   }
 
   private Modal blockDescriptionModal(Tag csrfTag, BlockForm blockForm, String blockUpdateAction) {
+    String modalTitle = "Block Name and Description";
+    String modalButtonText = "Edit Name and Description";
     ContainerTag blockDescriptionForm =
         form(csrfTag).withMethod(POST).withAction(blockUpdateAction);
     blockDescriptionForm
@@ -416,8 +418,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     StyleUtils.disabled(Styles.OPACITY_50))
                 .attr("disabled", ""));
     return Modal.builder("block-description-modal", blockDescriptionForm)
-        .setModalTitle("Block Name and Description")
-        .setButtonText("Edit Name and Description")
+        .setModalTitle(modalTitle)
+        .setButtonText(modalButtonText)
         .build();
   }
 
