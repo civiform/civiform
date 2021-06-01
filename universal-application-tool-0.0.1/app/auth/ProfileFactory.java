@@ -70,8 +70,8 @@ public class ProfileFactory {
   }
 
   /**
-   * This creates a program admin who is automatically the admin of all programs currently live, with
-   * a fake email address.
+   * This creates a program admin who is automatically the admin of all programs currently live,
+   * with a fake email address.
    */
   public UatProfileData createFakeProgramAdmin() {
     UatProfileData p = create(Roles.ROLE_PROGRAM_ADMIN);
