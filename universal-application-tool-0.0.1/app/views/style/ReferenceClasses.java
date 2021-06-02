@@ -66,6 +66,10 @@ public final class ReferenceClasses {
   // Common reference classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
+  public static final String ACCORDION = "cf-accordion";
+  public static final String ACCORDION_BUTTON = "cf-accordion-button";
+  public static final String ACCORDION_CONTENT = "cf-accordion-content";
+
   public static final String TOAST_MESSAGE = "cf-toast-data";
   public static final String ENTITY_NAME_INPUT = "cf-entity-name-input";
   public static final String ENUMERATOR_FIELD = "cf-enumerator-field";

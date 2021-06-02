@@ -6,6 +6,8 @@ import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import views.style.ReferenceClasses;
+import views.style.Styles;
 
 public class Accordion {
   protected String title = "";
@@ -25,14 +27,21 @@ public class Accordion {
     ContainerTag accordion =
         div()
             .withClasses(
-                "cf-accordion bg-white my-4 p-4 rounded-lg shadow-md border border-gray-300");
+                ReferenceClasses.ACCORDION,
+                Styles.BG_WHITE,
+                Styles.MY_4,
+                Styles.P_4,
+                Styles.ROUNDED_LG,
+                Styles.SHADOW_MD,
+                Styles.BORDER,
+                Styles.BORDER_GRAY_300);
 
-    ContainerTag titleContainer = div().withClasses("relative");
-    ContainerTag titleDiv = div(this.title).withClasses("text-xl font-light");
+    ContainerTag titleContainer = div().withClasses(Styles.RELATIVE);
+    ContainerTag titleDiv = div(this.title).withClasses(Styles.TEXT_XL, Styles.FONT_LIGHT);
 
     ContainerTag accordionSvg =
         Icons.svg(Icons.ACCORDION_BUTTON_PATH, 24)
-            .withClasses("h-6 w-6")
+            .withClasses(Styles.H_6, Styles.W_6)
             .attr("fill", "none")
             .attr("stroke-width", "2")
             .attr("stroke-linecap", "round")
@@ -40,11 +49,19 @@ public class Accordion {
     ContainerTag accordionButton =
         div(accordionSvg)
             .withClasses(
-                "cf-accordion-button transition-all duration-300 absolute top-1 right-2 transform");
+                ReferenceClasses.ACCORDION_BUTTON,
+                Styles.TRANSITION_ALL,
+                Styles.DURATION_300,
+                Styles.ABSOLUTE,
+                Styles.TOP_1,
+                Styles.RIGHT_2,
+                Styles.TRANSFORM);
     titleContainer.with(titleDiv, accordionButton);
 
     ContainerTag contentContainer =
-        div().with(this.content).withClasses("cf-accordion-content h-0 overflow-hidden");
+        div()
+            .with(this.content)
+            .withClasses(ReferenceClasses.ACCORDION_CONTENT, Styles.H_0, Styles.OVERFLOW_HIDDEN);
     accordion.with(titleContainer, contentContainer);
 
     return accordion;
