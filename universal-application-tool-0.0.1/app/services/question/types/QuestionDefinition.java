@@ -15,6 +15,7 @@ import java.util.OptionalLong;
 import services.CiviFormError;
 import services.LocalizedStrings;
 import services.Path;
+import services.applicant.RepeatedEntity;
 
 /** Defines a single question. */
 public abstract class QuestionDefinition {
@@ -104,6 +105,22 @@ public abstract class QuestionDefinition {
       return formattedName + Path.ARRAY_SUFFIX;
     }
     return formattedName;
+  }
+
+  /**
+   * Returns the contextualized path for this question. The path is contextualized with respect to
+   * the enumerated elements it is about. If there is no repeated entity for context, the {@code
+   * defaultRoot} is used.
+   *
+   * <p>For example, a generic path about the name of an applicant's household member may look like
+   * "root.household_member[].name", while a contextualized path would look like
+   * "root.household_member[3].name".
+   */
+  public Path getContextualizedPath(Optional<RepeatedEntity> repeatedEntity, Path defaultRoot) {
+    return repeatedEntity
+        .map(RepeatedEntity::contextualizedPath)
+        .orElse(defaultRoot)
+        .join(getQuestionPathSegment());
   }
 
   /**
