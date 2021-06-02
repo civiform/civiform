@@ -38,11 +38,11 @@ public class AdminProgramBlockPredicatesController {
               programDefinition,
               blockDefinition,
               programDefinition.getAvailablePredicateQuestionDefinitions(blockDefinitionId)));
-    } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
-      return notFound(e.toString());
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return notFound(
+          String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
     }
   }
-
-  // TODO(natsid): Another `edit` method takes all of the above args PLUS a question definition ID
-  //  (query param).
 }
