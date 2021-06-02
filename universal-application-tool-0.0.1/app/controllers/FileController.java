@@ -63,6 +63,7 @@ public class FileController extends CiviFormController {
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     } catch (CompletionException e) {
+      // This is only possible when checkProgramAdminAuthorization fails.
       return unauthorized();
     }
   }
