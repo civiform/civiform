@@ -3,6 +3,7 @@ package controllers.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileUtils;
+import auth.UatProfile;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import java.util.Optional;
@@ -110,7 +111,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
             v -> {
-              return submit(applicantId, programId);
+              return submitInternal(request, applicantId, programId);
             },
             httpExecutionContext.current())
         .exceptionally(
@@ -170,9 +171,12 @@ public class ApplicantProgramReviewController extends CiviFormController {
             });
   }
 
-  private CompletionStage<Result> submit(long applicantId, long programId) {
+  private CompletionStage<Result> submitInternal(
+      Request request, long applicantId, long programId) {
+    UatProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
+
     CompletionStage<Application> submitApp =
-        applicantService.submitApplication(applicantId, programId);
+        applicantService.submitApplication(applicantId, programId, submittingProfile);
     return submitApp
         .thenApplyAsync(
             application -> {

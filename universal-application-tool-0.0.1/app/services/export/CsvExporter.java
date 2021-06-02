@@ -58,6 +58,9 @@ public class CsvExporter {
         case SUBMIT_TIME:
           printer.print(application.getSubmitTime().toString());
           break;
+        case SUBMITTER_EMAIL:
+          printer.print(application.getSubmitterEmail().orElse("Applicant"));
+          break;
       }
     }
 

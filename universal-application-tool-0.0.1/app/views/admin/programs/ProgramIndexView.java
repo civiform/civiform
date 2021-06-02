@@ -218,7 +218,10 @@ public final class ProgramIndexView extends BaseHtmlView {
         userIsAuthorized = false;
       }
       if (userIsAuthorized) {
-        String editLink = routes.AdminApplicationController.index(activeProgram.get().id()).url();
+        String editLink =
+            routes.AdminApplicationController.index(
+                    activeProgram.get().id(), Optional.empty(), Optional.empty())
+                .url();
 
         return new LinkElement()
             .setId("program-view-apps-link-" + activeProgram.get().id())

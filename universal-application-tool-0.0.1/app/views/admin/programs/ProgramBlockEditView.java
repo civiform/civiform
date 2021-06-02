@@ -27,6 +27,7 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.Modal;
 import views.components.QuestionBank;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
@@ -76,6 +77,11 @@ public class ProgramBlockEditView extends BaseHtmlView {
       ImmutableList<QuestionDefinition> questions) {
     Tag csrfTag = makeCsrfTokenInputTag(request);
     String title = "Block edit view";
+
+    String blockUpdateAction =
+        controllers.admin.routes.AdminProgramBlocksController.update(program.id(), blockId).url();
+    Modal blockDescriptionEditModal = blockDescriptionModal(csrfTag, blockForm, blockUpdateAction);
+
     HtmlBundle htmlBundle =
         layout
             .getBundle()
@@ -95,8 +101,10 @@ public class ProgramBlockEditView extends BaseHtmlView {
                             blockForm,
                             blockQuestions,
                             blockDefinition.isEnumerator(),
-                            csrfTag))
-                    .with(questionBankPanel(questions, program, blockDefinition, csrfTag)));
+                            csrfTag,
+                            blockDescriptionEditModal.getButton()))
+                    .with(questionBankPanel(questions, program, blockDefinition, csrfTag)))
+            .addModals(blockDescriptionEditModal);
 
     if (message.length() > 0) {
       htmlBundle.addToastMessages(ToastMessage.error(message).setDismissible(false));
@@ -214,7 +222,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
       BlockForm blockForm,
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
       boolean blockDefinitionIsEnumerator,
-      Tag csrfTag) {
+      Tag csrfTag,
+      Tag blockDescriptionModalButton) {
     String blockUpdateAction =
         controllers.admin.routes.AdminProgramBlocksController.update(program.id(), blockId).url();
 
@@ -245,21 +254,49 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     Styles.INLINE,
                     Styles.OPACITY_100,
                     StyleUtils.disabled(Styles.OPACITY_50))
-                .attr("disabled", ""));
+                .attr(Attr.DISABLED, ""));
 
+    // A block can only be deleted when it has no repeated blocks. Same is true for removing the
+    // enumerator question from the block.
+    final boolean canDelete = !blockDefinitionIsEnumerator || hasNoRepeatedBlocks(program, blockId);
+
+    ContainerTag blockInfoDisplay =
+        div()
+            .with(
+                div(blockForm.getName()).withClasses(Styles.TEXT_XL, Styles.FONT_BOLD, Styles.PY_2))
+            .with(div(blockForm.getDescription()).withClasses(Styles.TEXT_LG, Styles.MAX_W_PROSE))
+            .withClasses(Styles.M_4);
+
+    // Add buttons to change the block.
+    ContainerTag buttons =
+        div().withClasses(Styles.MX_4, Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4);
+    buttons.with(blockDescriptionModalButton);
+    if (blockDefinitionIsEnumerator) {
+      buttons.with(
+          submitButton("Create Repeated Block")
+              .withId("create-repeated-block-button")
+              .attr(Attr.FORM, CREATE_REPEATED_BLOCK_FORM_ID));
+    }
     // TODO: Maybe add alpha variants to button color on hover over so we do not have
-    // to hard code what the color will be when button is in hover state?
+    //  to hard-code what the color will be when button is in hover state?
     if (program.blockDefinitions().size() > 1) {
-      blockInfoForm.with(
+      buttons.with(div().withClass(Styles.FLEX_GROW));
+      buttons.with(
           submitButton("Delete Block")
               .withId("delete-block-button")
               .attr(Attr.FORM, DELETE_BLOCK_FORM_ID)
+              .condAttr(!canDelete, Attr.DISABLED, "")
+              .condAttr(
+                  !canDelete,
+                  Attr.TITLE,
+                  "A block can only be deleted when it has no repeated blocks.")
               .withClasses(
                   Styles.MX_4,
                   Styles.MY_1,
                   Styles.BG_RED_500,
                   StyleUtils.hover(Styles.BG_RED_700),
-                  Styles.INLINE));
+                  Styles.INLINE,
+                  StyleUtils.disabled(Styles.OPACITY_50)));
     }
 
     if (blockDefinitionIsEnumerator) {
@@ -279,12 +316,14 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withMethod(POST)
             .withAction(deleteQuestionAction);
     blockQuestions.forEach(
-        pqd -> questionDeleteForm.with(renderQuestion(pqd.getQuestionDefinition())));
+        pqd -> questionDeleteForm.with(renderQuestion(pqd.getQuestionDefinition(), canDelete)));
 
-    return div().withClasses(Styles.FLEX_AUTO, Styles.PY_6).with(blockInfoForm, questionDeleteForm);
+    return div()
+        .withClasses(Styles.FLEX_AUTO, Styles.PY_6)
+        .with(blockInfoDisplay, buttons, questionDeleteForm);
   }
 
-  public ContainerTag renderQuestion(QuestionDefinition definition) {
+  private ContainerTag renderQuestion(QuestionDefinition definition, boolean canRemove) {
     ContainerTag ret =
         div()
             .withClasses(
@@ -297,6 +336,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 Styles.PY_2,
                 Styles.FLEX,
                 Styles.ITEMS_START,
+                canRemove ? "" : Styles.OPACITY_50,
                 StyleUtils.hover(Styles.TEXT_GRAY_800, Styles.BG_GRAY_100));
 
     Tag removeButton =
@@ -305,6 +345,12 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withId("block-question-" + definition.getId())
             .withName("block-question-" + definition.getId())
             .withValue(definition.getId() + "")
+            .condAttr(!canRemove, Attr.DISABLED, "")
+            .condAttr(
+                !canRemove,
+                Attr.TITLE,
+                "An enumerator question can only be removed from the block when the block has no"
+                    + " repeated blocks.")
             .withClasses(ReferenceClasses.REMOVE_QUESTION_BUTTON, AdminStyles.CLICK_TARGET_BUTTON);
 
     ContainerTag icon =
@@ -338,5 +384,46 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .setProgram(program)
             .setBlockDefinition(blockDefinition);
     return qb.getContainer();
+  }
+
+  private Modal blockDescriptionModal(Tag csrfTag, BlockForm blockForm, String blockUpdateAction) {
+    String modalTitle = "Block Name and Description";
+    String modalButtonText = "Edit Name and Description";
+    ContainerTag blockDescriptionForm =
+        form(csrfTag).withMethod(POST).withAction(blockUpdateAction);
+    blockDescriptionForm
+        .withId("block-edit-form")
+        .with(
+            div(
+                    FieldWithLabel.input()
+                        .setId("block-name-input")
+                        .setFieldName("name")
+                        .setLabelText("Block name")
+                        .setValue(blockForm.getName())
+                        .getContainer(),
+                    FieldWithLabel.textArea()
+                        .setId("block-description-textarea")
+                        .setFieldName("description")
+                        .setLabelText("Block description")
+                        .setValue(blockForm.getDescription())
+                        .getContainer())
+                .withClasses(Styles.MX_4),
+            submitButton("Save")
+                .withId("update-block-button")
+                .withClasses(
+                    Styles.MX_4,
+                    Styles.MY_1,
+                    Styles.INLINE,
+                    Styles.OPACITY_100,
+                    StyleUtils.disabled(Styles.OPACITY_50))
+                .attr("disabled", ""));
+    return Modal.builder("block-description-modal", blockDescriptionForm)
+        .setModalTitle(modalTitle)
+        .setButtonText(modalButtonText)
+        .build();
+  }
+
+  private boolean hasNoRepeatedBlocks(ProgramDefinition programDefinition, long blockId) {
+    return programDefinition.getBlockDefinitionsForEnumerator(blockId).isEmpty();
   }
 }

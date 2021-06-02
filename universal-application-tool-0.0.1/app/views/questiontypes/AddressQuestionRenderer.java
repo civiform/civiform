@@ -8,12 +8,18 @@ import services.MessageKey;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import views.components.FieldWithLabel;
+import views.style.ReferenceClasses;
 import views.style.Styles;
 
 public class AddressQuestionRenderer extends ApplicantQuestionRenderer {
 
   public AddressQuestionRenderer(ApplicantQuestion question) {
     super(question);
+  }
+
+  @Override
+  public String getReferenceClass() {
+    return ReferenceClasses.ADDRESS_QUESTION;
   }
 
   @Override
@@ -31,7 +37,9 @@ public class AddressQuestionRenderer extends ApplicantQuestionRenderer {
                     .setPlaceholderText(
                         messages.at(MessageKey.ADDRESS_PLACEHOLDER_STREET.getKeyName()))
                     .setValue(addressQuestion.getStreetValue().orElse(""))
-                    .setFieldErrors(messages, addressQuestion.getStreetErrors())
+                    .setFieldErrors(messages, addressQuestion.getStreetErrorMessage())
+                    .showFieldErrors(!addressQuestion.getStreetErrors().isEmpty())
+                    .addReferenceClass(ReferenceClasses.ADDRESS_STREET_1)
                     .getContainer(),
                 /** Second line of address entry: Address line 2 AKA apartment, unit, etc. */
                 FieldWithLabel.input()
@@ -40,6 +48,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRenderer {
                     .setPlaceholderText(
                         messages.at(MessageKey.ADDRESS_PLACEHOLDER_LINE_2.getKeyName()))
                     .setValue(addressQuestion.getLine2Value().orElse(""))
+                    .addReferenceClass(ReferenceClasses.ADDRESS_STREET_2)
                     .getContainer(),
                 /** Third line of address entry: City, State, Zip */
                 div()
@@ -49,20 +58,26 @@ public class AddressQuestionRenderer extends ApplicantQuestionRenderer {
                             .setFieldName(addressQuestion.getCityPath().toString())
                             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_CITY.getKeyName()))
                             .setValue(addressQuestion.getCityValue().orElse(""))
-                            .setFieldErrors(messages, addressQuestion.getCityErrors())
+                            .addReferenceClass(ReferenceClasses.ADDRESS_CITY)
+                            .setFieldErrors(messages, addressQuestion.getCityErrorMessage())
+                            .showFieldErrors(!addressQuestion.getCityErrors().isEmpty())
                             .getContainer(),
                         FieldWithLabel.input()
                             .setFieldName(addressQuestion.getStatePath().toString())
                             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STATE.getKeyName()))
                             .setValue(addressQuestion.getStateValue().orElse(""))
-                            .setFieldErrors(messages, addressQuestion.getStateErrors())
+                            .setFieldErrors(messages, addressQuestion.getStateErrorMessage())
+                            .showFieldErrors(!addressQuestion.getStateErrors().isEmpty())
+                            .addReferenceClass(ReferenceClasses.ADDRESS_STATE)
                             .getContainer(),
                         FieldWithLabel.input()
                             .setFieldName(addressQuestion.getZipPath().toString())
                             .setLabelText(
                                 messages.at(MessageKey.ADDRESS_LABEL_ZIPCODE.getKeyName()))
                             .setValue(addressQuestion.getZipValue().orElse(""))
-                            .setFieldErrors(messages, addressQuestion.getZipErrors())
+                            .setFieldErrors(messages, addressQuestion.getZipErrorMessage())
+                            .showFieldErrors(!addressQuestion.getZipErrors().isEmpty())
+                            .addReferenceClass(ReferenceClasses.ADDRESS_ZIP)
                             .getContainer()));
 
     return renderInternal(messages, addressQuestionFormContent);

@@ -11,10 +11,12 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
 import models.Application;
+import models.Program;
 import org.pac4j.play.java.Secure;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ApplicationRepository;
+import services.PaginationInfo;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
@@ -37,6 +39,7 @@ public class AdminApplicationController extends CiviFormController {
   private final ExporterService exporterService;
   private final ProfileUtils profileUtils;
   private final Clock clock;
+  private static final int PAGE_SIZE = 10;
 
   @Inject
   public AdminApplicationController(
@@ -123,7 +126,11 @@ public class AdminApplicationController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
-  public Result index(Http.Request request, long programId) {
+  public Result index(
+      Http.Request request, long programId, Optional<String> search, Optional<Integer> page) {
+    if (page.isEmpty()) {
+      return redirect(routes.AdminApplicationController.index(programId, search, Optional.of(1)));
+    }
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
@@ -133,8 +140,20 @@ public class AdminApplicationController extends CiviFormController {
       return unauthorized();
     }
     try {
-      ImmutableList<Application> applications = programService.getProgramApplications(programId);
-      return ok(applicationListView.render(programId, applications));
+      ImmutableList<Application> applications =
+          programService.getProgramApplications(programId, search);
+      PaginationInfo<Application> pageInfo =
+          PaginationInfo.paginate(applications, PAGE_SIZE, page.get());
+      ImmutableList<Program> previousVersions = programService.getOtherProgramVersions(programId);
+      return ok(
+          applicationListView.render(
+              request,
+              programId,
+              pageInfo.getPageItems(),
+              pageInfo.getPage(),
+              pageInfo.getPageCount(),
+              search,
+              previousVersions));
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     }

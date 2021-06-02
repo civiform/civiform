@@ -6,8 +6,7 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(BODY_BG_COLOR, Styles.H_FULL, Styles.W_FULL);
 
   public static final String MAIN_APPLICANT_INFO =
-      StyleUtils.joinStyles(
-          Styles.W_5_6, StyleUtils.responsiveSmall(Styles.W_1_3), Styles.MX_AUTO, Styles.MY_8);
+      StyleUtils.joinStyles(Styles.W_5_6, Styles.MAX_W_SCREEN_SM, Styles.MX_AUTO, Styles.MY_8);
   public static final String MAIN_PROGRAM_APPLICATION =
       StyleUtils.joinStyles(
           Styles.W_5_6,
@@ -75,9 +74,10 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(
           BUTTON_BASE,
           BaseStyles.BG_SEATTLE_BLUE,
-          StyleUtils.hover(Styles.BG_BLUE_700),
           Styles.TEXT_WHITE,
-          Styles.ROUNDED_FULL);
+          Styles.ROUNDED_FULL,
+          StyleUtils.hover(Styles.BG_BLUE_700),
+          StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400));
 
   /** Base styles for semibold, upper case buttons with a solid background. */
   private static final String BUTTON_BASE_SOLID_UPPERCASE =

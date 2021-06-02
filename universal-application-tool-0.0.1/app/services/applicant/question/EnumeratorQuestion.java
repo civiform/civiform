@@ -53,6 +53,10 @@ public class EnumeratorQuestion implements PresentsErrors {
     return errorsBuilder.build();
   }
 
+  public ValidationErrorMessage getQuestionErrorMessage() {
+    return ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME);
+  }
+
   public void assertQuestionType() {
     if (!applicantQuestion.getType().equals(QuestionType.ENUMERATOR)) {
       throw new RuntimeException(

@@ -124,7 +124,9 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
   Tag maybeRenderViewApplicationsLink(String text, Optional<ProgramDefinition> activeProgram) {
     if (activeProgram.isPresent()) {
       String viewApplicationsLink =
-          routes.AdminApplicationController.index(activeProgram.get().id()).url();
+          routes.AdminApplicationController.index(
+                  activeProgram.get().id(), Optional.empty(), Optional.empty())
+              .url();
 
       return new LinkElement()
           .setId("program-view-apps-link-" + activeProgram.get().id())
