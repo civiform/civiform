@@ -199,34 +199,55 @@ public abstract class ProgramDefinition {
    * <p>The available question definitions for predicates satisfy BOTH of the following:
    *
    * <ul>
-   *   <li>In a block definition that comes sequentially before the block definition with the given
-   *       ID.
-   *   <li>In a block definition that has the same enumerator ID as the block definition with the
-   *       given ID.
+   *   <li>In a block definition that comes sequentially before the given block definition.
+   *   <li>In a block definition that either has the same enumerator ID as the given block
+   *       definition, or has the same enumerator ID as some "parent" of the given block definition.
    * </ul>
    */
   public ImmutableList<QuestionDefinition> getAvailablePredicateQuestionDefinitions(long blockId)
       throws ProgramBlockDefinitionNotFoundException {
 
-    Optional<Long> maybeEnumeratorId = getBlockDefinition(blockId).enumeratorId();
-    ImmutableList<BlockDefinition> blockDefinitionsWithSameEnumerator =
-        maybeEnumeratorId.isPresent()
-            ? getBlockDefinitionsForEnumerator(maybeEnumeratorId.get())
-            : getNonRepeatedBlockDefinitions();
+    ImmutableList.Builder<QuestionDefinition> builder = ImmutableList.builder();
 
-    ImmutableList.Builder<QuestionDefinition> resultBuilder = new ImmutableList.Builder<>();
-
-    for (BlockDefinition blockDefinition : blockDefinitionsWithSameEnumerator) {
-      // Stop adding questions once we reach this block.
-      if (blockDefinition.id() == blockId) break;
-
-      resultBuilder.addAll(
+    for (BlockDefinition blockDefinition :
+        getAvailablePredicateBlockDefinitions(this.getBlockDefinition(blockId))) {
+      builder.addAll(
           blockDefinition.programQuestionDefinitions().stream()
               .map(ProgramQuestionDefinition::getQuestionDefinition)
               .collect(Collectors.toList()));
     }
 
-    return resultBuilder.build();
+    return builder.build();
+  }
+
+  private ImmutableList<BlockDefinition> getAvailablePredicateBlockDefinitions(
+      BlockDefinition blockDefinition) throws ProgramBlockDefinitionNotFoundException {
+
+    Optional<Long> maybeEnumeratorId = blockDefinition.enumeratorId();
+    ImmutableList<BlockDefinition> siblingBlockDefinitions =
+        maybeEnumeratorId
+            .map(enumeratorBlockId -> this.getBlockDefinitionsForEnumerator(enumeratorBlockId))
+            .orElse(getNonRepeatedBlockDefinitions());
+
+    ImmutableList.Builder<BlockDefinition> builder = ImmutableList.builder();
+
+    // If this block is repeated, recurse "upward". In other words, add all the available predicate
+    // block definitions for its enumerator. Do this before adding its sibling block definitions to
+    // maintain sequential order of the block definitions in the result.
+    if (blockDefinition.isRepeated()) {
+      builder.addAll(
+          getAvailablePredicateBlockDefinitions(this.getBlockDefinition(maybeEnumeratorId.get())));
+    }
+
+    // Only include sequentially earlier block definitions.
+    for (BlockDefinition siblingBlockDefinition : siblingBlockDefinitions) {
+      // Stop adding block definitions once we reach this block.
+      if (siblingBlockDefinition.id() == blockDefinition.id()) break;
+
+      builder.add(siblingBlockDefinition);
+    }
+
+    return builder.build();
   }
 
   public Program toProgram() {
