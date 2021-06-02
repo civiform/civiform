@@ -79,7 +79,9 @@ public class ProgramBlockEditView extends BaseHtmlView {
     String title = "Block edit view";
 
     String blockUpdateAction =
-        controllers.admin.routes.AdminProgramBlocksController.update(programDefinition.id(), blockId).url();
+        controllers.admin.routes.AdminProgramBlocksController.update(
+                programDefinition.id(), blockId)
+            .url();
     Modal blockDescriptionEditModal = blockDescriptionModal(csrfTag, blockForm, blockUpdateAction);
 
     HtmlBundle htmlBundle =
