@@ -77,4 +77,61 @@ public final class BaseStyles {
       StyleUtils.joinStyles(Styles.H_4, Styles.W_4, Styles.MR_4, Styles.ALIGN_MIDDLE);
   /** For use on an `input` of type "radio". */
   public static final String RADIO = CHECKBOX;
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // Modal style classes
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
+  /** The modal container contains modals, and the glass pane, and covers the whole page. */
+  public static final String MODAL_CONTAINER =
+      StyleUtils.joinStyles(Styles.HIDDEN, Styles.FIXED, Styles.H_SCREEN, Styles.W_SCREEN);
+  /** The modal container for the modal glass pane. */
+  public static final String MODAL_GLASS_PANE =
+      StyleUtils.joinStyles(
+          Styles.FIXED, Styles.H_SCREEN, Styles.W_SCREEN, Styles.BG_GRAY_400, Styles.OPACITY_75);
+  /** Generic style for all modals. This should be centered. */
+  public static final String MODAL =
+      StyleUtils.joinStyles(
+          Styles.HIDDEN,
+          Styles.ABSOLUTE,
+          Styles.LEFT_1_2,
+          Styles.TOP_1_2,
+          Styles.TRANSFORM,
+          Styles._TRANSLATE_X_1_2,
+          Styles._TRANSLATE_Y_1_2,
+          Styles.ROUNDED_XL,
+          Styles.SHADOW_XL,
+          Styles.BG_WHITE,
+          Styles.W_1_3,
+          Styles.MAX_H_SCREEN,
+          Styles.OVERFLOW_Y_AUTO);
+
+  public static final String MODAL_HEADER =
+      StyleUtils.joinStyles(Styles.STICKY, Styles.TOP_0, Styles.BG_GRAY_200, Styles.P_2);
+  /** Generic style for for the button for the modal. */
+  public static final String MODAL_BUTTON =
+      StyleUtils.joinStyles(
+          Styles.BLOCK,
+          Styles.PY_2,
+          Styles.TEXT_CENTER,
+          Styles.ROUNDED_FULL,
+          BaseStyles.BG_SEATTLE_BLUE,
+          StyleUtils.hover(Styles.BG_BLUE_700),
+          Styles.TEXT_WHITE,
+          Styles.ROUNDED_FULL);
+  /** Generic styles for the button to close the modal. This is shared across all modals. */
+  public static final String MODAL_CLOSE_BUTTON =
+      StyleUtils.joinStyles(
+          Styles.ABSOLUTE,
+          Styles.TOP_2,
+          Styles.RIGHT_4,
+          Styles.FONT_BOLD,
+          Styles.CURSOR_POINTER,
+          Styles.OPACITY_60,
+          StyleUtils.hover(Styles.OPACITY_100));
+  /**
+   * Simple styling for the div that holds the custom modal content. Should just have decent margins
+   * and sizing.
+   */
+  public static final String MODAL_CONTENT = StyleUtils.joinStyles(Styles.MY_4);
 }

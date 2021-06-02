@@ -23,7 +23,10 @@ public class HtmlBundleTest {
 
     Content content = bundle.render();
     assertThat(content.body())
-        .contains("<body><header></header><main></main><footer></footer></body>");
+        .contains(
+            "<body><header></header><main></main><div id=\"modal-container\" class=\"hidden fixed"
+                + " h-screen w-screen\"><div id=\"modal-glass-pane\" class=\"fixed h-screen"
+                + " w-screen bg-gray-400 opacity-75\"></div></div><footer></footer></body>");
   }
 
   @Test

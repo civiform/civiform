@@ -2,6 +2,7 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.UatProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -37,6 +38,7 @@ import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
 
 public class ApplicantServiceImpl implements ApplicantService {
+
   private static final String STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST =
       "seattle-civiform-program-admins-notify@google.com";
 
@@ -190,9 +192,24 @@ public class ApplicantServiceImpl implements ApplicantService {
   }
 
   @Override
-  public CompletionStage<Application> submitApplication(long applicantId, long programId) {
+  public CompletionStage<Application> submitApplication(
+      long applicantId, long programId, UatProfile submitterProfile) {
+    if (submitterProfile.isTrustedIntermediary()) {
+      return submitterProfile
+          .getAccount()
+          .thenComposeAsync(
+              account ->
+                  submitApplication(applicantId, programId, Optional.of(account.getEmailAddress())),
+              httpExecutionContext.current());
+    }
+
+    return submitApplication(applicantId, programId, Optional.empty());
+  }
+
+  private CompletionStage<Application> submitApplication(
+      long applicantId, long programId, Optional<String> submitterEmail) {
     return applicationRepository
-        .submitApplication(applicantId, programId)
+        .submitApplication(applicantId, programId, submitterEmail)
         .thenComposeAsync(
             applicationMaybe -> {
               if (applicationMaybe.isEmpty()) {
@@ -410,12 +427,13 @@ public class ApplicantServiceImpl implements ApplicantService {
 
   @AutoValue
   abstract static class UpdateMetadata {
-    abstract long programId();
-
-    abstract long updatedAt();
 
     static UpdateMetadata create(long programId, long updatedAt) {
       return new AutoValue_ApplicantServiceImpl_UpdateMetadata(programId, updatedAt);
     }
+
+    abstract long programId();
+
+    abstract long updatedAt();
   }
 }
