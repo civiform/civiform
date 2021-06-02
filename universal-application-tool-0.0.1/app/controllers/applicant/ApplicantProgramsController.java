@@ -107,7 +107,7 @@ public class ApplicantProgramsController extends CiviFormController {
                         applicantId,
                         applicantStage.toCompletableFuture().join()));
               }
-              return unauthorized();
+              return badRequest();
             },
             httpContext.current())
         .exceptionally(
