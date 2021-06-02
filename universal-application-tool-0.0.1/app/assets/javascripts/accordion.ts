@@ -3,6 +3,7 @@
 class AccordionController {
   static accordionSelector = '.cf-accordion';
   static accordionButtonSelector = '.cf-accordion-button';
+  static accordionHeaderSelector = '.cf-accordion-header';
   static accordionVisibleClass = 'cf-accordion-visible';
 
   constructor() {
@@ -12,9 +13,13 @@ class AccordionController {
   private init() {
     const buttons =
       Array.from(document.querySelectorAll(AccordionController.accordionButtonSelector));
-    buttons.forEach(
-      (button) => {
-        button.addEventListener('click', this.toggleAccordion);
+    const headers =
+      Array.from(document.querySelectorAll(AccordionController.accordionHeaderSelector));
+    const items = buttons.concat(headers);
+
+    items.forEach(
+      (item) => {
+        item.addEventListener('click', this.toggleAccordion);
       }
     );
   }

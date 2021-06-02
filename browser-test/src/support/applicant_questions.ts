@@ -61,7 +61,11 @@ export class ApplicantQuestions {
   }
 
   async applyProgram(programName: string) {
+    // User clicks the apply button on an application card. It takes them to the application info page.
     await this.page.click(`.cf-application-card:has-text("${programName}") .cf-apply-button`);
+
+    // The user can see the application info page. Clicking on apply sends them to the first unanswered question.
+    await this.page.click(`.cf-apply-button`);
   }
 
   async clickNext() {
