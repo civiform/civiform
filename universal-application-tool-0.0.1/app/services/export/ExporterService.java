@@ -127,10 +127,15 @@ public class ExporterService {
    */
   private CsvExportConfig generateDefaultCsvConfig(ImmutableList<AnswerData> answerDataList) {
     ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
-    // First add the ID and submit time columns.
+    // First add the ID, submit time, and submitter email columns.
     columnsBuilder.add(Column.builder().setHeader("ID").setColumnType(ColumnType.ID).build());
     columnsBuilder.add(
         Column.builder().setHeader("Submit time").setColumnType(ColumnType.SUBMIT_TIME).build());
+    columnsBuilder.add(
+        Column.builder()
+            .setHeader("Submitted by")
+            .setColumnType(ColumnType.SUBMITTER_EMAIL)
+            .build());
 
     // Add columns for each path to an answer.
     for (AnswerData answerData : answerDataList) {
