@@ -3,7 +3,7 @@ import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession, 
 describe('normal application flow', () => {
   it('all major steps', async () => {
     const { browser, page } = await startSession()
-    page.setDefaultTimeout(2000);
+    page.setDefaultTimeout(5000);
 
     await loginAsAdmin(page);
     const adminQuestions = new AdminQuestions(page);
