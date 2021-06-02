@@ -82,7 +82,7 @@ public class QuestionAnswerer {
 
   public static void answerEmailQuestion(
       ApplicantData applicantData, Path contextualizedPath, String value) {
-    applicantData.putString(contextualizedPath.join(Scalar.TEXT), value);
+    applicantData.putString(contextualizedPath.join(Scalar.EMAIL), value);
   }
 
   public static void addMetadata(
