@@ -16,8 +16,6 @@ import services.question.types.QuestionDefinition;
 /** Generates {@link JsonPathPredicate}s based on the current applicant filling out the program. */
 public class JsonPathPredicateGenerator {
 
-  private static final ApplicantData UNUSED_APPLICANT_DATA = new ApplicantData();
-
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
   private final Optional<RepeatedEntity> currentRepeatedContext;
 
@@ -60,29 +58,11 @@ public class JsonPathPredicateGenerator {
       // This is a top-level question (i.e. is not repeated) - use an empty repeated context.
       predicateContext = Optional.empty();
     } else {
-      // Walk up the RepeatedEntity ancestors to find the right context. We need the context of the
-      // question in the predicate definition - that is, the one where the predicate question's
-      // enumerator ID matches the context's enumerator ID.
-      long enumeratorId = targetQuestion.getEnumeratorId().get();
-      predicateContext = this.currentRepeatedContext;
-      while (predicateContext.isPresent()
-          && predicateContext.get().enumeratorQuestionDefinition().getId() != enumeratorId) {
-        predicateContext = predicateContext.get().parent();
-      }
-
-      // If the context is empty here, it means we never found the context of the predicate
-      // question. We are trying to depend on an enumerator or repeated question that is not
-      // an ancestor of the current block, which is not allowed and should never happen.
-      if (predicateContext.isEmpty()) {
-        throw new InvalidPredicateException(
-            String.format(
-                "Enumerator %d is not an ancestor of the current repeated context", enumeratorId));
-      }
+      predicateContext = getTargetContext(targetQuestion);
     }
 
     Path path =
-        new ApplicantQuestion(targetQuestion, UNUSED_APPLICANT_DATA, predicateContext)
-            .getContextualizedPath();
+        targetQuestion.getContextualizedPath(predicateContext, ApplicantData.APPLICANT_PATH);
 
     if (path.isArrayElement() && targetQuestion.isEnumerator()) {
       // In this case, we don't want the [] at the end of the path.
@@ -96,5 +76,29 @@ public class JsonPathPredicateGenerator {
             node.scalar().name().toLowerCase(),
             node.operator().toJsonPathOperator(),
             node.comparedValue().value()));
+  }
+
+  private Optional<RepeatedEntity> getTargetContext(QuestionDefinition targetQuestion)
+      throws InvalidPredicateException {
+    // Walk up the RepeatedEntity ancestors to find the right context. We need the context of the
+    // question in the predicate definition - that is, the one where the predicate question's
+    // enumerator ID matches the context's enumerator ID.
+    long enumeratorId = targetQuestion.getEnumeratorId().get();
+    Optional<RepeatedEntity> predicateContext = this.currentRepeatedContext;
+    while (predicateContext.isPresent()
+        && predicateContext.get().enumeratorQuestionDefinition().getId() != enumeratorId) {
+      predicateContext = predicateContext.get().parent();
+    }
+
+    // If the context is empty here, it means we never found the context of the predicate
+    // question. We are trying to depend on an enumerator or repeated question that is not
+    // an ancestor of the current block, which is not allowed and should never happen.
+    if (predicateContext.isEmpty()) {
+      throw new InvalidPredicateException(
+          String.format(
+              "Enumerator %d is not an ancestor of the current repeated context", enumeratorId));
+    }
+
+    return predicateContext;
   }
 }
