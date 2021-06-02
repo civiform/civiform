@@ -11,6 +11,7 @@ import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import javax.inject.Inject;
 import play.twirl.api.Content;
+import services.program.ProgramDefinition;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.ViewUtils;
@@ -83,7 +84,7 @@ public class AdminLayout extends BaseHtmlLayout {
     return adminHeader;
   }
 
-  public Tag headerLink(String text, String href, String... styles) {
+  private Tag headerLink(String text, String href, String... styles) {
     return a(text)
         .withHref(href)
         .withClasses(
@@ -91,5 +92,27 @@ public class AdminLayout extends BaseHtmlLayout {
             Styles.OPACITY_75,
             StyleUtils.hover(Styles.OPACITY_100),
             StyleUtils.joinStyles(styles));
+  }
+
+  /** Renders a div with internal/admin program information. */
+  public Tag renderProgramInfo(ProgramDefinition programDefinition) {
+    ContainerTag programStatus =
+        div("Draft").withId("program-status").withClasses(Styles.TEXT_XS, Styles.UPPERCASE);
+    ContainerTag programTitle =
+        div(programDefinition.adminName())
+            .withId("program-title")
+            .withClasses(Styles.TEXT_3XL, Styles.PB_3);
+    ContainerTag programDescription =
+        div(programDefinition.adminDescription()).withClasses(Styles.TEXT_SM);
+
+    return div(programStatus, programTitle, programDescription)
+        .withId("program-info")
+        .withClasses(
+            Styles.BG_GRAY_100,
+            Styles.TEXT_GRAY_800,
+            Styles.SHADOW_MD,
+            Styles.P_8,
+            Styles.PT_4,
+            Styles._MX_2);
   }
 }

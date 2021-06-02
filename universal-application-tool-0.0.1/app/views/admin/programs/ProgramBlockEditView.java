@@ -68,7 +68,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
   public Content render(
       Request request,
-      ProgramDefinition program,
+      ProgramDefinition programDefinition,
       long blockId,
       BlockForm blockForm,
       BlockDefinition blockDefinition,
@@ -79,7 +79,9 @@ public class ProgramBlockEditView extends BaseHtmlView {
     String title = "Block edit view";
 
     String blockUpdateAction =
-        controllers.admin.routes.AdminProgramBlocksController.update(program.id(), blockId).url();
+        controllers.admin.routes.AdminProgramBlocksController.update(
+                programDefinition.id(), blockId)
+            .url();
     Modal blockDescriptionEditModal = blockDescriptionModal(csrfTag, blockForm, blockUpdateAction);
 
     HtmlBundle htmlBundle =
@@ -88,22 +90,23 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .setTitle(title)
             .addMainStyles(Styles.FLEX, Styles.FLEX_COL)
             .addMainContent(
-                addFormEndpoints(csrfTag, program.id(), blockId),
-                programInfo(program),
+                addFormEndpoints(csrfTag, programDefinition.id(), blockId),
+                layout.renderProgramInfo(programDefinition),
                 div()
                     .withId("program-block-info")
                     .withClasses(Styles.FLEX, Styles.FLEX_GROW, Styles._MX_2)
-                    .with(blockOrderPanel(program, blockId))
+                    .with(blockOrderPanel(programDefinition, blockId))
                     .with(
                         blockEditPanel(
-                            program,
+                            programDefinition,
                             blockId,
                             blockForm,
                             blockQuestions,
                             blockDefinition.isEnumerator(),
                             csrfTag,
                             blockDescriptionEditModal.getButton()))
-                    .with(questionBankPanel(questions, program, blockDefinition, csrfTag)))
+                    .with(
+                        questionBankPanel(questions, programDefinition, blockDefinition, csrfTag)))
             .addModals(blockDescriptionEditModal);
 
     if (message.length() > 0) {
@@ -137,27 +140,6 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
     return div(createBlockForm, createRepeatedBlockForm, deleteBlockForm)
         .withClasses(Styles.HIDDEN);
-  }
-
-  private Tag programInfo(ProgramDefinition program) {
-    ContainerTag programStatus =
-        div("Draft").withId("program-status").withClasses(Styles.TEXT_XS, Styles.UPPERCASE);
-    ContainerTag programTitle =
-        div(program.adminName()).withId("program-title").withClasses(Styles.TEXT_3XL, Styles.PB_3);
-    ContainerTag programDescription = div(program.adminDescription()).withClasses(Styles.TEXT_SM);
-
-    ContainerTag programInfo =
-        div(programStatus, programTitle, programDescription)
-            .withId("program-info")
-            .withClasses(
-                Styles.BG_GRAY_100,
-                Styles.TEXT_GRAY_800,
-                Styles.SHADOW_MD,
-                Styles.P_8,
-                Styles.PT_4,
-                Styles._MX_2);
-
-    return programInfo;
   }
 
   public ContainerTag blockOrderPanel(ProgramDefinition program, long focusedBlockId) {
