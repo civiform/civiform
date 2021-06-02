@@ -16,7 +16,8 @@ import services.question.types.QuestionDefinition;
 /** Generates {@link JsonPathPredicate}s based on the current applicant filling out the program. */
 public class JsonPathPredicateGenerator {
 
-  private final ApplicantData applicantData;
+  private static final ApplicantData UNUSED_APPLICANT_DATA = new ApplicantData();
+
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
   private final Optional<RepeatedEntity> currentRepeatedContext;
 
@@ -28,10 +29,8 @@ public class JsonPathPredicateGenerator {
    * we are currently on, as well as find the target question used in the predicate.
    */
   public JsonPathPredicateGenerator(
-      ApplicantData applicantData,
       ImmutableList<QuestionDefinition> programQuestions,
       Optional<RepeatedEntity> currentRepeatedContext) {
-    this.applicantData = applicantData;
     this.questionsById =
         programQuestions.stream().collect(toImmutableMap(QuestionDefinition::getId, q -> q));
     this.currentRepeatedContext = currentRepeatedContext;
@@ -70,10 +69,19 @@ public class JsonPathPredicateGenerator {
           && predicateContext.get().enumeratorQuestionDefinition().getId() != enumeratorId) {
         predicateContext = predicateContext.get().parent();
       }
+
+      // If the context is empty here, it means we never found the context of the predicate
+      // question. We are trying to depend on an enumerator or repeated question that is not
+      // an ancestor of the current block, which is not allowed and should never happen.
+      if (predicateContext.isEmpty()) {
+        throw new InvalidPredicateException(
+            String.format(
+                "Enumerator %d is not an ancestor of the current repeated context", enumeratorId));
+      }
     }
 
     Path path =
-        new ApplicantQuestion(targetQuestion, applicantData, predicateContext)
+        new ApplicantQuestion(targetQuestion, UNUSED_APPLICANT_DATA, predicateContext)
             .getContextualizedPath();
 
     if (path.isArrayElement() && targetQuestion.isEnumerator()) {
