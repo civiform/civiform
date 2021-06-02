@@ -134,8 +134,10 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     }
 
     ContainerTag answerContent;
-    if (data.answerLink().isPresent()) {
-      answerContent = a().withHref(data.answerLink().get().toString());
+    if (data.fileKey().isPresent()) {
+      String fileLink =
+          controllers.routes.FileController.show(applicantId, data.fileKey().get()).url();
+      answerContent = a().withHref(fileLink);
     } else {
       answerContent = div();
     }
