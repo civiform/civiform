@@ -246,7 +246,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                         .setValue(blockForm.getDescription())
                         .getContainer())
                 .withClasses(Styles.MX_4),
-            submitButton("Update Metadata")
+            submitButton("Save Name and Description")
                 .withId("update-block-button")
                 .withClasses(
                     Styles.MX_4,
