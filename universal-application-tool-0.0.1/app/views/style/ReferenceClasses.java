@@ -73,4 +73,5 @@ public final class ReferenceClasses {
   public static final String RADIO_DEFAULT = "cf-radio-default";
   public static final String RADIO_INPUT = "cf-radio-input";
   public static final String RADIO_OPTION = "cf-radio-option";
+  public static final String MODAL = "cf-modal";
 }
