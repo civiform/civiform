@@ -50,7 +50,7 @@ public class FakeAdminClient extends IndirectClient {
           if (adminType.get().equals(GLOBAL_ADMIN)) {
             cred.setUserProfile(profileFactory.createNewAdmin());
           } else if (adminType.get().equals(PROGRAM_ADMIN)) {
-            cred.setUserProfile(profileFactory.createNewProgramAdmin());
+            cred.setUserProfile(profileFactory.createFakeProgramAdmin());
           } else {
             throw new IllegalArgumentException(
                 String.format("admin type %s not recognized", adminType.get()));

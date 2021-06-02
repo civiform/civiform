@@ -48,20 +48,27 @@ public class NameQuestion implements PresentsErrors {
 
   public ImmutableSet<ValidationErrorMessage> getFirstNameErrors() {
     if (isFirstNameAnswered() && getFirstNameValue().isEmpty()) {
-      return ImmutableSet.of(
-          ValidationErrorMessage.create(MessageKey.NAME_VALIDATION_FIRST_REQUIRED));
+      return getFirstNameErrorMessage();
     }
 
     return ImmutableSet.of();
   }
 
+  public ImmutableSet<ValidationErrorMessage> getFirstNameErrorMessage() {
+    return ImmutableSet.of(
+        ValidationErrorMessage.create(MessageKey.NAME_VALIDATION_FIRST_REQUIRED));
+  }
+
   public ImmutableSet<ValidationErrorMessage> getLastNameErrors() {
     if (isLastNameAnswered() && getLastNameValue().isEmpty()) {
-      return ImmutableSet.of(
-          ValidationErrorMessage.create(MessageKey.NAME_VALIDATION_LAST_REQUIRED));
+      return getLastNameErrorMessage();
     }
 
     return ImmutableSet.of();
+  }
+
+  public ImmutableSet<ValidationErrorMessage> getLastNameErrorMessage() {
+    return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.NAME_VALIDATION_LAST_REQUIRED));
   }
 
   public Optional<String> getFirstNameValue() {

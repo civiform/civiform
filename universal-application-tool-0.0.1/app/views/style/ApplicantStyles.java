@@ -74,9 +74,10 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(
           BUTTON_BASE,
           BaseStyles.BG_SEATTLE_BLUE,
-          StyleUtils.hover(Styles.BG_BLUE_700),
           Styles.TEXT_WHITE,
-          Styles.ROUNDED_FULL);
+          Styles.ROUNDED_FULL,
+          StyleUtils.hover(Styles.BG_BLUE_700),
+          StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400));
 
   /** Base styles for semibold, upper case buttons with a solid background. */
   private static final String BUTTON_BASE_SOLID_UPPERCASE =

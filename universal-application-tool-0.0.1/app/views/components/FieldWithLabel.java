@@ -40,6 +40,7 @@ public class FieldWithLabel {
   protected String placeholderText = "";
   protected Messages messages;
   protected ImmutableSet<ValidationErrorMessage> fieldErrors = ImmutableSet.of();
+  protected boolean showFieldErrors = true;
   protected boolean checked = false;
   protected boolean disabled = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.<String>builder();
@@ -173,6 +174,11 @@ public class FieldWithLabel {
     return this;
   }
 
+  public FieldWithLabel showFieldErrors(boolean showFieldErrors) {
+    this.showFieldErrors = showFieldErrors;
+    return this;
+  }
+
   public ContainerTag getContainer() {
     if (fieldTag.getTagName().equals("textarea")) {
       // Have to recreate the field here in case the value is modified.
@@ -188,11 +194,11 @@ public class FieldWithLabel {
       fieldTag.withValue(this.fieldValue);
     }
 
+    boolean hasFieldErrors = !fieldErrors.isEmpty() && showFieldErrors;
     fieldTag
         .withClasses(
             StyleUtils.joinStyles(
-                BaseStyles.INPUT,
-                fieldErrors.isEmpty() ? "" : BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR))
+                BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
         .withCondId(!this.id.isEmpty(), this.id)
         .withName(this.fieldName)
         .condAttr(this.disabled, Attr.DISABLED, "true")
@@ -236,10 +242,12 @@ public class FieldWithLabel {
   }
 
   private Tag buildFieldErrorsTag() {
+    String[] referenceClasses =
+        referenceClassesBuilder.build().stream().map(ref -> ref + "-error").toArray(String[]::new);
     return div(each(fieldErrors, error -> div(error.getMessage(messages))))
         .withClasses(
-            fieldErrors.isEmpty()
-                ? ""
-                : StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_XS, Styles.P_1));
+            StyleUtils.joinStyles(referenceClasses),
+            StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_XS, Styles.P_1),
+            fieldErrors.isEmpty() || !showFieldErrors ? Styles.HIDDEN : "");
   }
 }
