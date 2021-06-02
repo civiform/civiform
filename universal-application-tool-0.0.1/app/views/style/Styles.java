@@ -2010,6 +2010,7 @@ public final class Styles {
   public static final String BOTTOM_80 = "bottom-80";
   public static final String LEFT_80 = "left-80";
   public static final String TOP_96 = "top-96";
+  public static final String TOP_1_2 = "top-1/2";
   public static final String RIGHT_96 = "right-96";
   public static final String BOTTOM_96 = "bottom-96";
   public static final String LEFT_96 = "left-96";
@@ -2954,6 +2955,7 @@ public final class Styles {
   public static final String _TRANSLATE_Y_72 = "-translate-y-72";
   public static final String _TRANSLATE_Y_80 = "-translate-y-80";
   public static final String _TRANSLATE_Y_96 = "-translate-y-96";
+  public static final String _TRANSLATE_Y_1_2 = "-translate-y-1/2";
   public static final String _TRANSLATE_Y_PX = "-translate-y-px";
   public static final String TRANSLATE_Y_FULL = "translate-y-full";
   public static final String _TRANSLATE_Y_FULL = "-translate-y-full";

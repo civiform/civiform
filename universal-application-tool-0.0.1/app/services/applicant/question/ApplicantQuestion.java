@@ -85,10 +85,7 @@ public class ApplicantQuestion {
    * "applicant.household_member[3].name".
    */
   public Path getContextualizedPath() {
-    return repeatedEntity
-        .map(RepeatedEntity::contextualizedPath)
-        .orElse(ApplicantData.APPLICANT_PATH)
-        .join(questionDefinition.getQuestionPathSegment());
+    return questionDefinition.getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
   }
 
   /**

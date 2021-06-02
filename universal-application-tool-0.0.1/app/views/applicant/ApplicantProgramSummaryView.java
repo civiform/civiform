@@ -134,8 +134,10 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     }
 
     ContainerTag answerContent;
-    if (data.answerLink().isPresent()) {
-      answerContent = a().withHref(data.answerLink().get().toString());
+    if (data.fileKey().isPresent()) {
+      String fileLink =
+          controllers.routes.FileController.show(applicantId, data.fileKey().get()).url();
+      answerContent = a().withHref(fileLink);
     } else {
       answerContent = div();
     }
@@ -200,7 +202,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
             Styles.PY_2,
             Styles.PL_4,
             Styles.FLEX_AUTO,
-            Styles.BG_ORANGE_200,
+            Styles.BG_GRAY_200,
             Styles.FONT_SEMIBOLD,
             Styles.ROUNDED_LG);
   }

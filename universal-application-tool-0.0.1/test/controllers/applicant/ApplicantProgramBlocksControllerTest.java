@@ -12,6 +12,7 @@ import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableMap;
+import controllers.WithMockedProfiles;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import models.Applicant;
@@ -25,7 +26,7 @@ import services.Path;
 import services.applicant.question.Scalar;
 import support.ProgramBuilder;
 
-public class ApplicantProgramBlocksControllerTest extends WithMockedApplicantProfiles {
+public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   private ApplicantProgramBlocksController subject;
   private Program program;

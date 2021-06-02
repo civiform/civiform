@@ -43,6 +43,11 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
+  public String getReferenceClass() {
+    return ReferenceClasses.ENUMERATOR_QUESTION;
+  }
+
+  @Override
   public Tag render(ApplicantQuestionRendererParams params) {
     Messages messages = params.messages();
     EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();
@@ -60,8 +65,16 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
               Optional.of(index)));
     }
 
+    ContainerTag errorContent =
+        div(enumeratorQuestion.getQuestionErrorMessage().getMessage(messages))
+            .withClasses(
+                ReferenceClasses.ENUMERATOR_ERROR,
+                Styles.TEXT_RED_600,
+                enumeratorQuestion.hasQuestionErrors() ? "" : Styles.HIDDEN);
+
     Tag enumeratorQuestionFormContent =
         div()
+            .with(errorContent)
             .with(hiddenDeleteInputTemplate())
             .with(enumeratorFields)
             .with(
@@ -72,9 +85,11 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
                             messages.at(
                                 MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(),
                                 localizedEntityType)))
-                    .withClasses(ApplicantStyles.BUTTON_ENUMERATOR_ADD_ENTITY));
+                    .withClasses(
+                        ApplicantStyles.BUTTON_ENUMERATOR_ADD_ENTITY,
+                        StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400)));
 
-    return renderInternal(messages, enumeratorQuestionFormContent);
+    return renderInternal(messages, enumeratorQuestionFormContent, false);
   }
 
   /**

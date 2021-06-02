@@ -2,6 +2,7 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.UatProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -28,7 +29,6 @@ import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.Scalar;
 import services.aws.SimpleEmail;
-import services.aws.SimpleStorage;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -37,6 +37,7 @@ import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
 
 public class ApplicantServiceImpl implements ApplicantService {
+
   private static final String STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST =
       "seattle-civiform-program-admins-notify@google.com";
 
@@ -44,7 +45,6 @@ public class ApplicantServiceImpl implements ApplicantService {
   private final UserRepository userRepository;
   private final ProgramService programService;
   private final SimpleEmail amazonSESClient;
-  private final SimpleStorage amazonS3Client;
   private final Clock clock;
   private final String baseUrl;
   private final boolean isStaging;
@@ -56,7 +56,6 @@ public class ApplicantServiceImpl implements ApplicantService {
       UserRepository userRepository,
       ProgramService programService,
       SimpleEmail amazonSESClient,
-      SimpleStorage amazonS3Client,
       Clock clock,
       Config configuration,
       HttpExecutionContext httpExecutionContext) {
@@ -64,7 +63,6 @@ public class ApplicantServiceImpl implements ApplicantService {
     this.userRepository = checkNotNull(userRepository);
     this.programService = checkNotNull(programService);
     this.amazonSESClient = checkNotNull(amazonSESClient);
-    this.amazonS3Client = checkNotNull(amazonS3Client);
     this.clock = checkNotNull(clock);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.isStaging = URI.create(baseUrl).getHost().equals("staging.seattle.civiform.com");
@@ -92,7 +90,7 @@ public class ApplicantServiceImpl implements ApplicantService {
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
 
               return new ReadOnlyApplicantProgramServiceImpl(
-                  amazonS3Client, applicant.getApplicantData(), programDefinition);
+                  applicant.getApplicantData(), programDefinition);
             },
             httpExecutionContext.current());
   }
@@ -103,7 +101,6 @@ public class ApplicantServiceImpl implements ApplicantService {
     try {
       return CompletableFuture.completedFuture(
           new ReadOnlyApplicantProgramServiceImpl(
-              amazonS3Client,
               application.getApplicantData(),
               programService.getProgramDefinition(application.getProgram().id)));
     } catch (ProgramNotFoundException e) {
@@ -154,7 +151,7 @@ public class ApplicantServiceImpl implements ApplicantService {
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
               ReadOnlyApplicantProgramService readOnlyApplicantProgramServiceBeforeUpdate =
                   new ReadOnlyApplicantProgramServiceImpl(
-                      amazonS3Client, applicant.getApplicantData(), programDefinition);
+                      applicant.getApplicantData(), programDefinition);
               Optional<Block> maybeBlockBeforeUpdate =
                   readOnlyApplicantProgramServiceBeforeUpdate.getBlock(blockId);
               if (maybeBlockBeforeUpdate.isEmpty()) {
@@ -173,7 +170,7 @@ public class ApplicantServiceImpl implements ApplicantService {
 
               ReadOnlyApplicantProgramService roApplicantProgramService =
                   new ReadOnlyApplicantProgramServiceImpl(
-                      amazonS3Client, applicant.getApplicantData(), programDefinition);
+                      applicant.getApplicantData(), programDefinition);
 
               Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
               if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
@@ -190,9 +187,24 @@ public class ApplicantServiceImpl implements ApplicantService {
   }
 
   @Override
-  public CompletionStage<Application> submitApplication(long applicantId, long programId) {
+  public CompletionStage<Application> submitApplication(
+      long applicantId, long programId, UatProfile submitterProfile) {
+    if (submitterProfile.isTrustedIntermediary()) {
+      return submitterProfile
+          .getAccount()
+          .thenComposeAsync(
+              account ->
+                  submitApplication(applicantId, programId, Optional.of(account.getEmailAddress())),
+              httpExecutionContext.current());
+    }
+
+    return submitApplication(applicantId, programId, Optional.empty());
+  }
+
+  private CompletionStage<Application> submitApplication(
+      long applicantId, long programId, Optional<String> submitterEmail) {
     return applicationRepository
-        .submitApplication(applicantId, programId)
+        .submitApplication(applicantId, programId, submitterEmail)
         .thenComposeAsync(
             applicationMaybe -> {
               if (applicationMaybe.isEmpty()) {
@@ -410,12 +422,13 @@ public class ApplicantServiceImpl implements ApplicantService {
 
   @AutoValue
   abstract static class UpdateMetadata {
-    abstract long programId();
-
-    abstract long updatedAt();
 
     static UpdateMetadata create(long programId, long updatedAt) {
       return new AutoValue_ApplicantServiceImpl_UpdateMetadata(programId, updatedAt);
     }
+
+    abstract long programId();
+
+    abstract long updatedAt();
   }
 }

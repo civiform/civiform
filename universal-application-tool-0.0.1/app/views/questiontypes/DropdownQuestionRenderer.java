@@ -18,6 +18,11 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
+  public String getReferenceClass() {
+    return "cf-question-dropdown";
+  }
+
+  @Override
   public Tag render(ApplicantQuestionRendererParams params) {
     SingleSelectQuestion singleSelectQuestion = question.createSingleSelectQuestion();
 

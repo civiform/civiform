@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Locale;
+import java.util.Optional;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
@@ -303,7 +304,7 @@ public class ProgramDefinitionTest {
             .setName("Block Name")
             .setDescription("Block Description")
             .addQuestion(ProgramQuestionDefinition.create(questionC))
-            .setEnumeratorId(questionC.getEnumeratorId())
+            .setEnumeratorId(Optional.of(2L))
             .build();
     BlockDefinition blockD =
         BlockDefinition.builder()
@@ -311,7 +312,7 @@ public class ProgramDefinitionTest {
             .setName("Block Name")
             .setDescription("Block Description")
             .addQuestion(ProgramQuestionDefinition.create(questionD))
-            .setEnumeratorId(questionD.getEnumeratorId())
+            .setEnumeratorId(Optional.of(2L))
             .build();
     BlockDefinition blockE =
         BlockDefinition.builder()
@@ -319,7 +320,7 @@ public class ProgramDefinitionTest {
             .setName("Block Name")
             .setDescription("Block Description")
             .addQuestion(ProgramQuestionDefinition.create(questionE))
-            .setEnumeratorId(questionE.getEnumeratorId())
+            .setEnumeratorId(Optional.of(4L))
             .build();
     ProgramDefinition programDefinition =
         ProgramDefinition.builder()
@@ -344,11 +345,13 @@ public class ProgramDefinitionTest {
     assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(2L))
         .containsExactly(questionA);
     // blockC (applicantHouseholdMembers.householdMemberName)
-    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(3L)).isEmpty();
+    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(3L))
+        .containsExactly(questionA);
     // blockD (applicantHouseholdMembers.householdMemberJobs)
     assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(4L))
-        .containsExactly(questionC);
+        .containsExactly(questionA, questionC);
     // blockE (applicantHouseholdMembers.householdMemberJobs.householdMemberJobIncome)
-    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(5L)).isEmpty();
+    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(5L))
+        .containsExactly(questionA, questionC);
   }
 }

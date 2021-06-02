@@ -69,7 +69,11 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 renderAddNewForm(tiGroup, request),
                 hr().withClasses(Styles.MT_6),
                 renderHeader("Clients"),
-                renderSearchForm(request, search),
+                renderSearchForm(
+                    request,
+                    search,
+                    routes.TrustedIntermediaryController.dashboard(
+                        Optional.empty(), Optional.empty())),
                 renderTIApplicantsTable(managedAccounts, search, page, totalPageCount),
                 hr().withClasses(Styles.MT_6),
                 renderHeader("Trusted Intermediary Members"),
@@ -89,25 +93,6 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return layout.renderWithNav(request, userName, messages, bundle);
   }
 
-  private ContainerTag renderSearchForm(Http.Request request, Optional<String> search) {
-    return form()
-        .withMethod("GET")
-        .withAction(
-            routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty())
-                .url())
-        .with(
-            FieldWithLabel.input()
-                .setId("search-field")
-                .setFieldName("search")
-                .setLabelText("Search")
-                .setValue(search.orElse(""))
-                .setPlaceholderText("Search")
-                .getContainer()
-                .withClasses(Styles.W_1_4),
-            makeCsrfTokenInputTag(request),
-            submitButton("Search").withClasses(Styles.M_2));
-  }
-
   private ContainerTag renderTIApplicantsTable(
       ImmutableList<Account> managedAccounts,
       Optional<String> search,
@@ -125,34 +110,12 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                                 .collect(Collectors.toList()),
                             account -> renderApplicantRow(account)))))
             .withClasses(Styles.MB_16);
-    ContainerTag div = div();
-    if (page <= 1) {
-      div.with(new LinkElement().setText("∅").asButton());
-    } else {
-      div.with(
-          new LinkElement()
-              .setText("←")
-              .setHref(
-                  routes.TrustedIntermediaryController.dashboard(search, Optional.of(page - 1))
-                      .url())
-              .asButton());
-    }
-    div.with(
-        div("Page " + page + " of " + totalPageCount)
-            .withClasses(
-                Styles.LEADING_3, Styles.FLOAT_LEFT, Styles.INLINE_BLOCK, Styles.P_2, Styles.M_4));
-    if (totalPageCount > page) {
-      div.with(
-          new LinkElement()
-              .setText("→")
-              .setHref(
-                  routes.TrustedIntermediaryController.dashboard(search, Optional.of(page + 1))
-                      .url())
-              .asButton());
-    } else {
-      div.with(new LinkElement().setText("∅").asButton());
-    }
-    return main.with(div);
+    return main.with(
+        renderPaginationDiv(
+            page,
+            totalPageCount,
+            pageNumber ->
+                routes.TrustedIntermediaryController.dashboard(search, Optional.of(pageNumber))));
   }
 
   private ContainerTag renderTIMembersTable(TrustedIntermediaryGroup tiGroup) {

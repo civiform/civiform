@@ -19,6 +19,11 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
     return renderInternal(params.messages(), fileUploadFields(params));
   }
 
+  @Override
+  public String getReferenceClass() {
+    return "cf-question-file";
+  }
+
   private ContainerTag fileUploadFields(ApplicantQuestionRendererParams params) {
     if (params.isSample()) {
       return fileUploadFieldsPreview();

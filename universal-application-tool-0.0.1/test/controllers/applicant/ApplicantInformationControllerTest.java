@@ -9,6 +9,7 @@ import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableMap;
+import controllers.WithMockedProfiles;
 import java.util.Locale;
 import models.Applicant;
 import org.junit.Before;
@@ -17,7 +18,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.UserRepository;
 
-public class ApplicantInformationControllerTest extends WithMockedApplicantProfiles {
+public class ApplicantInformationControllerTest extends WithMockedProfiles {
 
   private Applicant currentApplicant;
   private UserRepository userRepository;

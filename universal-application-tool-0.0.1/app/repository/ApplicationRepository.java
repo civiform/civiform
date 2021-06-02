@@ -44,24 +44,26 @@ public class ApplicationRepository {
    * applications to a program with the same name (to include past versions of the same program),
    * and create a new application in the active state.
    */
-  public CompletionStage<Application> submitApplication(Applicant applicant, Program program) {
+  public CompletionStage<Application> submitApplication(
+      Applicant applicant, Program program, Optional<String> submitterEmail) {
     return supplyAsync(
         () -> {
-          return submitApplicationInternal(applicant, program);
+          return submitApplicationInternal(applicant, program, submitterEmail);
         },
         executionContext.current());
   }
 
   public CompletionStage<Optional<Application>> submitApplication(
-      long applicantId, long programId) {
+      long applicantId, long programId, Optional<String> submitterEmail) {
     return this.perform(
         applicantId,
         programId,
         (ApplicationArguments appArgs) ->
-            submitApplicationInternal(appArgs.applicant, appArgs.program));
+            submitApplicationInternal(appArgs.applicant, appArgs.program, submitterEmail));
   }
 
-  private Application submitApplicationInternal(Applicant applicant, Program program) {
+  private Application submitApplicationInternal(
+      Applicant applicant, Program program, Optional<String> submitterEmail) {
     ebeanServer.beginTransaction();
     try {
       List<Application> oldApplications =
@@ -81,6 +83,11 @@ public class ApplicationRepository {
         application.save();
       }
       Application application = new Application(applicant, program, LifecycleStage.ACTIVE);
+
+      if (submitterEmail.isPresent()) {
+        application.setSubmitterEmail(submitterEmail.get());
+      }
+
       application.save();
       ebeanServer.commitTransaction();
       return application;

@@ -27,6 +27,7 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.Modal;
 import views.components.QuestionBank;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
@@ -76,6 +77,11 @@ public class ProgramBlockEditView extends BaseHtmlView {
       ImmutableList<QuestionDefinition> questions) {
     Tag csrfTag = makeCsrfTokenInputTag(request);
     String title = "Block edit view";
+
+    String blockUpdateAction =
+        controllers.admin.routes.AdminProgramBlocksController.update(programDefinition.id(), blockId).url();
+    Modal blockDescriptionEditModal = blockDescriptionModal(csrfTag, blockForm, blockUpdateAction);
+
     HtmlBundle htmlBundle =
         layout
             .getBundle()
@@ -95,9 +101,11 @@ public class ProgramBlockEditView extends BaseHtmlView {
                             blockForm,
                             blockQuestions,
                             blockDefinition.isEnumerator(),
-                            csrfTag))
+                            csrfTag,
+                            blockDescriptionEditModal.getButton()))
                     .with(
-                        questionBankPanel(questions, programDefinition, blockDefinition, csrfTag)));
+                        questionBankPanel(questions, programDefinition, blockDefinition, csrfTag)))
+            .addModals(blockDescriptionEditModal);
 
     if (message.length() > 0) {
       htmlBundle.addToastMessages(ToastMessage.error(message).setDismissible(false));
@@ -194,47 +202,34 @@ public class ProgramBlockEditView extends BaseHtmlView {
       BlockForm blockForm,
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
       boolean blockDefinitionIsEnumerator,
-      Tag csrfTag) {
-    String blockUpdateAction =
-        controllers.admin.routes.AdminProgramBlocksController.update(program.id(), blockId).url();
-
-    ContainerTag blockInfoForm = form(csrfTag).withMethod(POST).withAction(blockUpdateAction);
-
-    blockInfoForm
-        .withId("block-edit-form")
-        .with(
-            div(
-                    FieldWithLabel.input()
-                        .setId("block-name-input")
-                        .setFieldName("name")
-                        .setLabelText("Block name")
-                        .setValue(blockForm.getName())
-                        .getContainer(),
-                    FieldWithLabel.textArea()
-                        .setId("block-description-textarea")
-                        .setFieldName("description")
-                        .setLabelText("Block description")
-                        .setValue(blockForm.getDescription())
-                        .getContainer())
-                .withClasses(Styles.MX_4),
-            submitButton("Update Metadata")
-                .withId("update-block-button")
-                .withClasses(
-                    Styles.MX_4,
-                    Styles.MY_1,
-                    Styles.INLINE,
-                    Styles.OPACITY_100,
-                    StyleUtils.disabled(Styles.OPACITY_50))
-                .attr(Attr.DISABLED, ""));
-
+      Tag csrfTag,
+      Tag blockDescriptionModalButton) {
     // A block can only be deleted when it has no repeated blocks. Same is true for removing the
     // enumerator question from the block.
     final boolean canDelete = !blockDefinitionIsEnumerator || hasNoRepeatedBlocks(program, blockId);
 
+    ContainerTag blockInfoDisplay =
+        div()
+            .with(
+                div(blockForm.getName()).withClasses(Styles.TEXT_XL, Styles.FONT_BOLD, Styles.PY_2))
+            .with(div(blockForm.getDescription()).withClasses(Styles.TEXT_LG, Styles.MAX_W_PROSE))
+            .withClasses(Styles.M_4);
+
+    // Add buttons to change the block.
+    ContainerTag buttons =
+        div().withClasses(Styles.MX_4, Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4);
+    buttons.with(blockDescriptionModalButton);
+    if (blockDefinitionIsEnumerator) {
+      buttons.with(
+          submitButton("Create Repeated Block")
+              .withId("create-repeated-block-button")
+              .attr(Attr.FORM, CREATE_REPEATED_BLOCK_FORM_ID));
+    }
     // TODO: Maybe add alpha variants to button color on hover over so we do not have
-    // to hard code what the color will be when button is in hover state?
+    //  to hard-code what the color will be when button is in hover state?
     if (program.blockDefinitions().size() > 1) {
-      blockInfoForm.with(
+      buttons.with(div().withClass(Styles.FLEX_GROW));
+      buttons.with(
           submitButton("Delete Block")
               .withId("delete-block-button")
               .attr(Attr.FORM, DELETE_BLOCK_FORM_ID)
@@ -252,14 +247,6 @@ public class ProgramBlockEditView extends BaseHtmlView {
                   StyleUtils.disabled(Styles.OPACITY_50)));
     }
 
-    if (blockDefinitionIsEnumerator) {
-      blockInfoForm.with(
-          submitButton("Create Repeated Block")
-              .withId("create-repeated-block-button")
-              .attr(Attr.FORM, CREATE_REPEATED_BLOCK_FORM_ID)
-              .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
-    }
-
     String deleteQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.destroy(program.id(), blockId)
             .url();
@@ -271,7 +258,9 @@ public class ProgramBlockEditView extends BaseHtmlView {
     blockQuestions.forEach(
         pqd -> questionDeleteForm.with(renderQuestion(pqd.getQuestionDefinition(), canDelete)));
 
-    return div().withClasses(Styles.FLEX_AUTO, Styles.PY_6).with(blockInfoForm, questionDeleteForm);
+    return div()
+        .withClasses(Styles.FLEX_AUTO, Styles.PY_6)
+        .with(blockInfoDisplay, buttons, questionDeleteForm);
   }
 
   private ContainerTag renderQuestion(QuestionDefinition definition, boolean canRemove) {
@@ -335,6 +324,43 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .setProgram(program)
             .setBlockDefinition(blockDefinition);
     return qb.getContainer();
+  }
+
+  private Modal blockDescriptionModal(Tag csrfTag, BlockForm blockForm, String blockUpdateAction) {
+    String modalTitle = "Block Name and Description";
+    String modalButtonText = "Edit Name and Description";
+    ContainerTag blockDescriptionForm =
+        form(csrfTag).withMethod(POST).withAction(blockUpdateAction);
+    blockDescriptionForm
+        .withId("block-edit-form")
+        .with(
+            div(
+                    FieldWithLabel.input()
+                        .setId("block-name-input")
+                        .setFieldName("name")
+                        .setLabelText("Block name")
+                        .setValue(blockForm.getName())
+                        .getContainer(),
+                    FieldWithLabel.textArea()
+                        .setId("block-description-textarea")
+                        .setFieldName("description")
+                        .setLabelText("Block description")
+                        .setValue(blockForm.getDescription())
+                        .getContainer())
+                .withClasses(Styles.MX_4),
+            submitButton("Save")
+                .withId("update-block-button")
+                .withClasses(
+                    Styles.MX_4,
+                    Styles.MY_1,
+                    Styles.INLINE,
+                    Styles.OPACITY_100,
+                    StyleUtils.disabled(Styles.OPACITY_50))
+                .attr("disabled", ""));
+    return Modal.builder("block-description-modal", blockDescriptionForm)
+        .setModalTitle(modalTitle)
+        .setButtonText(modalButtonText)
+        .build();
   }
 
   private boolean hasNoRepeatedBlocks(ProgramDefinition programDefinition, long blockId) {

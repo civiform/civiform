@@ -102,6 +102,16 @@ describe('End to end enumerator test', () => {
 
     // Put two things in the nested enumerator for enum two
     await applicantQuestions.addEnumeratorAnswer("Banker");
+    await applicantQuestions.addEnumeratorAnswer("Banker");
+    await applicantQuestions.clickNext();
+
+    // Oops! Can't have duplicates.
+    // Verify that the error message is visible.
+    expect(await page.innerText('.cf-enumerator-error:visible')).toEqual('Please enter a unique value for each line.');
+
+    // Remove one of the 'Banker' entries and add 'Painter'.
+    // the value attribute of the inputs isn't set, so we're clicking the second one.
+    await page.click(':nth-match(:text("Remove Entity"), 2)');    
     await applicantQuestions.addEnumeratorAnswer("Painter");
     await applicantQuestions.clickNext();
 
