@@ -109,6 +109,7 @@ export class AdminPrograms {
     await this.page.click('text=Manage Questions');
     await this.expectProgramBlockEditPage(programName);
 
+    await this.page.click('#block-description-modal-button');
     await this.page.fill('textarea', blockDescription);
     await this.page.click('#update-block-button');
 
@@ -125,7 +126,8 @@ export class AdminPrograms {
 
     await this.page.click('#add-block-button');
 
-    await this.page.fill('textarea', blockDescription);
+    await this.page.click('#block-description-modal-button');
+    await this.page.type('textarea', blockDescription);
     await this.page.click('#update-block-button');
 
     for (const questionName of questionNames) {
@@ -145,6 +147,7 @@ export class AdminPrograms {
     await this.page.click(`text=${enumeratorBlockName}`);
     await this.page.click('#create-repeated-block-button');
 
+    await this.page.click('#block-description-modal-button');
     await this.page.fill('#block-description-textarea', blockDescription);
     await this.page.click('#update-block-button');
 

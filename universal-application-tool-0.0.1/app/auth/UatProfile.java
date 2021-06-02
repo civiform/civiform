@@ -74,6 +74,10 @@ public class UatProfile {
     return profileData.getRoles();
   }
 
+  public boolean isTrustedIntermediary() {
+    return getRoles().contains(Roles.ROLE_TI.toString());
+  }
+
   public boolean isUatAdmin() {
     return profileData.getRoles().contains(Roles.ROLE_UAT_ADMIN.toString());
   }

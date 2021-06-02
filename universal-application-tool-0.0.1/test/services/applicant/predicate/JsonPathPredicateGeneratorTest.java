@@ -30,9 +30,7 @@ public class JsonPathPredicateGeneratorTest {
   @Before
   public void setupGenerator() {
     question = questionBank.applicantAddress().getQuestionDefinition();
-    generator =
-        new JsonPathPredicateGenerator(
-            new ApplicantData(), ImmutableList.of(question), Optional.empty());
+    generator = new JsonPathPredicateGenerator(ImmutableList.of(question), Optional.empty());
   }
 
   @Test
@@ -88,7 +86,6 @@ public class JsonPathPredicateGeneratorTest {
         new ApplicantQuestion(enumerator, applicantData, Optional.empty());
     applicantData.putRepeatedEntities(
         applicantEnumerator.getContextualizedPath(), ImmutableList.of("Xylia"));
-    System.out.println(applicantData.asJsonString());
 
     ImmutableList<RepeatedEntity> repeatedEntities =
         RepeatedEntity.createRepeatedEntities(enumerator, applicantData);
@@ -97,7 +94,7 @@ public class JsonPathPredicateGeneratorTest {
     // The block repeated entity context is the one for the repeated name question.
     generator =
         new JsonPathPredicateGenerator(
-            applicantData, ImmutableList.of(enumerator, repeatedQuestion), repeatedEntity);
+            ImmutableList.of(enumerator, repeatedQuestion), repeatedEntity);
 
     LeafOperationExpressionNode node =
         LeafOperationExpressionNode.create(
@@ -139,7 +136,7 @@ public class JsonPathPredicateGeneratorTest {
 
     generator =
         new JsonPathPredicateGenerator(
-            applicantData, ImmutableList.of(enumerator, siblingQuestion), repeatedEntity);
+            ImmutableList.of(enumerator, siblingQuestion), repeatedEntity);
 
     LeafOperationExpressionNode node =
         LeafOperationExpressionNode.create(
@@ -198,7 +195,6 @@ public class JsonPathPredicateGeneratorTest {
 
     generator =
         new JsonPathPredicateGenerator(
-            applicantData,
             ImmutableList.of(topLevelEnumerator, nestedEnumerator, targetQuestion, currentQuestion),
             currentContext);
 
@@ -214,5 +210,49 @@ public class JsonPathPredicateGeneratorTest {
             JsonPathPredicate.create(
                 "$.applicant.applicant_household_members[1].household_members_name"
                     + "[?(@.first_name == \"Alice\")]"));
+  }
+
+  @Test
+  public void fromLeafNode_targetQuestionNotAncestorOfCurrentContext_throwsException()
+      throws Exception {
+    ApplicantData applicantData = new ApplicantData();
+    QuestionDefinition topLevelEnumerator =
+        questionBank.applicantHouseholdMembers().getQuestionDefinition();
+    QuestionDefinition targetQuestion =
+        new QuestionDefinitionBuilder(
+                questionBank.applicantHouseholdMemberName().getQuestionDefinition())
+            .setEnumeratorId(Optional.of(12345L))
+            .build();
+    QuestionDefinition currentQuestion =
+        questionBank.applicantHouseholdMemberJobs().getQuestionDefinition();
+
+    // Put an entity at the enumerator path so we can generate repeated contexts.
+    ApplicantQuestion applicantEnumerator =
+        new ApplicantQuestion(topLevelEnumerator, applicantData, Optional.empty());
+    applicantData.putRepeatedEntities(
+        applicantEnumerator.getContextualizedPath(), ImmutableList.of("Alice"));
+    // Context for 'Alice'
+    Optional<RepeatedEntity> currentContext =
+        RepeatedEntity.createRepeatedEntities(
+                (EnumeratorQuestionDefinition) topLevelEnumerator, applicantData)
+            .reverse()
+            .stream()
+            .findFirst();
+
+    generator =
+        new JsonPathPredicateGenerator(
+            ImmutableList.of(targetQuestion, currentQuestion), currentContext);
+
+    LeafOperationExpressionNode node =
+        LeafOperationExpressionNode.create(
+            targetQuestion.getId(), // The predicate is based on the "name" question.
+            Scalar.FIRST_NAME,
+            Operator.EQUAL_TO,
+            PredicateValue.of("Alice"));
+
+    assertThatThrownBy(() -> generator.fromLeafNode(node))
+        .isInstanceOf(InvalidPredicateException.class)
+        .hasMessageContaining(
+            "Enumerator 12345 is not an ancestor of the current repeated context");
   }
 }
