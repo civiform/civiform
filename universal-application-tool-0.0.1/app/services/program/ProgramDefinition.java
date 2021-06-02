@@ -178,6 +178,9 @@ public abstract class ProgramDefinition {
   /**
    * Get the block definitions associated with the enumerator id. Returns an empty list if there are
    * none.
+   *
+   * <p>The order of this list should reflect the sequential order of the blocks. This order is
+   * depended upon in {@link ProgramDefinition#getAvailablePredicateQuestionDefinitions}.
    */
   public ImmutableList<BlockDefinition> getBlockDefinitionsForEnumerator(long enumeratorId) {
     return blockDefinitions().stream()
@@ -206,7 +209,6 @@ public abstract class ProgramDefinition {
    */
   public ImmutableList<QuestionDefinition> getAvailablePredicateQuestionDefinitions(long blockId)
       throws ProgramBlockDefinitionNotFoundException {
-
     ImmutableList.Builder<QuestionDefinition> builder = ImmutableList.builder();
 
     for (BlockDefinition blockDefinition :
@@ -222,7 +224,6 @@ public abstract class ProgramDefinition {
 
   private ImmutableList<BlockDefinition> getAvailablePredicateBlockDefinitions(
       BlockDefinition blockDefinition) throws ProgramBlockDefinitionNotFoundException {
-
     Optional<Long> maybeEnumeratorId = blockDefinition.enumeratorId();
     ImmutableList<BlockDefinition> siblingBlockDefinitions =
         maybeEnumeratorId
