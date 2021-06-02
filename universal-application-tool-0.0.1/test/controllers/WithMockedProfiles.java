@@ -1,4 +1,4 @@
-package controllers.applicant;
+package controllers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -7,11 +7,12 @@ import static play.inject.Bindings.bind;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
 import auth.UatProfile;
-import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import models.Account;
 import models.Applicant;
 import models.LifecycleStage;
+import models.Program;
+import models.TrustedIntermediaryGroup;
 import models.Version;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -26,7 +27,7 @@ import support.ResourceCreator;
 import support.TestConstants;
 import support.TestQuestionBank;
 
-public class WithMockedApplicantProfiles {
+public class WithMockedProfiles {
 
   private static final ProfileUtils MOCK_UTILS = Mockito.mock(ProfileUtils.class);
 
@@ -78,18 +79,57 @@ public class WithMockedApplicantProfiles {
     newActiveVersion.save();
   }
 
-  protected Applicant createApplicantWithMockedProfile() {
+  protected Applicant createApplicant() {
     Applicant applicant = resourceCreator.insertApplicant();
     Account account = resourceCreator.insertAccount();
 
-    account.setApplicants(ImmutableList.of(applicant));
-    account.save();
     applicant.setAccount(account);
     applicant.save();
+    return applicant;
+  }
 
+  protected Applicant createApplicantWithMockedProfile() {
+    Applicant applicant = createApplicant();
     UatProfile profile = profileFactory.wrap(applicant);
     mockProfile(profile);
     return applicant;
+  }
+
+  protected Account createTIWithMockedProfile(Applicant managedApplicant) {
+    Account ti = resourceCreator.insertAccount();
+
+    TrustedIntermediaryGroup group = resourceCreator.insertTrustedIntermediaryGroup();
+    Account managedAccount = managedApplicant.getAccount();
+    managedAccount.setManagedByGroup(group);
+    managedAccount.save();
+    ti.setMemberOfGroup(group);
+    ti.save();
+
+    UatProfile profile = profileFactory.wrap(ti);
+    mockProfile(profile);
+    return ti;
+  }
+
+  protected Account createProgramAdminWithMockedProfile(Program program) {
+    Account programAdmin = resourceCreator.insertAccount();
+
+    programAdmin.addAdministeredProgram(program.getProgramDefinition());
+    programAdmin.save();
+
+    UatProfile profile = profileFactory.wrap(programAdmin);
+    mockProfile(profile);
+    return programAdmin;
+  }
+
+  protected Account createGlobalAdminWithMockedProfile() {
+    Account globalAdmin = resourceCreator.insertAccount();
+
+    globalAdmin.setGlobalAdmin(true);
+    globalAdmin.save();
+
+    UatProfile profile = profileFactory.wrap(globalAdmin);
+    mockProfile(profile);
+    return globalAdmin;
   }
 
   private void mockProfile(UatProfile profile) {

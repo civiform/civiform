@@ -224,38 +224,6 @@ public class ProgramBlockEditView extends BaseHtmlView {
       boolean blockDefinitionIsEnumerator,
       Tag csrfTag,
       Tag blockDescriptionModalButton) {
-    String blockUpdateAction =
-        controllers.admin.routes.AdminProgramBlocksController.update(program.id(), blockId).url();
-
-    ContainerTag blockInfoForm = form(csrfTag).withMethod(POST).withAction(blockUpdateAction);
-
-    blockInfoForm
-        .withId("block-edit-form")
-        .with(
-            div(
-                    FieldWithLabel.input()
-                        .setId("block-name-input")
-                        .setFieldName("name")
-                        .setLabelText("Block name")
-                        .setValue(blockForm.getName())
-                        .getContainer(),
-                    FieldWithLabel.textArea()
-                        .setId("block-description-textarea")
-                        .setFieldName("description")
-                        .setLabelText("Block description")
-                        .setValue(blockForm.getDescription())
-                        .getContainer())
-                .withClasses(Styles.MX_4),
-            submitButton("Update Metadata")
-                .withId("update-block-button")
-                .withClasses(
-                    Styles.MX_4,
-                    Styles.MY_1,
-                    Styles.INLINE,
-                    Styles.OPACITY_100,
-                    StyleUtils.disabled(Styles.OPACITY_50))
-                .attr(Attr.DISABLED, ""));
-
     // A block can only be deleted when it has no repeated blocks. Same is true for removing the
     // enumerator question from the block.
     final boolean canDelete = !blockDefinitionIsEnumerator || hasNoRepeatedBlocks(program, blockId);
@@ -297,14 +265,6 @@ public class ProgramBlockEditView extends BaseHtmlView {
                   StyleUtils.hover(Styles.BG_RED_700),
                   Styles.INLINE,
                   StyleUtils.disabled(Styles.OPACITY_50)));
-    }
-
-    if (blockDefinitionIsEnumerator) {
-      blockInfoForm.with(
-          submitButton("Create Repeated Block")
-              .withId("create-repeated-block-button")
-              .attr(Attr.FORM, CREATE_REPEATED_BLOCK_FORM_ID)
-              .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
     }
 
     String deleteQuestionAction =

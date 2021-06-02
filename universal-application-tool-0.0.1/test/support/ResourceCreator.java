@@ -10,6 +10,7 @@ import models.Applicant;
 import models.Models;
 import models.Program;
 import models.Question;
+import models.TrustedIntermediaryGroup;
 import play.db.ebean.EbeanConfig;
 import play.inject.Injector;
 import services.LocalizedStrings;
@@ -61,5 +62,15 @@ public class ResourceCreator {
     Account account = new Account();
     account.save();
     return account;
+  }
+
+  public TrustedIntermediaryGroup insertTrustedIntermediaryGroup() {
+    return insertTrustedIntermediaryGroup("");
+  }
+
+  public TrustedIntermediaryGroup insertTrustedIntermediaryGroup(String name) {
+    TrustedIntermediaryGroup group = new TrustedIntermediaryGroup(name, "description");
+    group.save();
+    return group;
   }
 }
