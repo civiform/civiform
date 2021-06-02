@@ -44,7 +44,7 @@ public class EmailQuestion implements PresentsErrors {
   }
 
   public Path getEmailPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.TEXT);
+    return applicantQuestion.getContextualizedPath().join(Scalar.EMAIL);
   }
 
   @Override
