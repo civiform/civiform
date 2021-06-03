@@ -38,7 +38,10 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
         draftVersion.getQuestions().stream()
             .map(Question::getQuestionDefinition)
             .collect(Collectors.toList())) {
-      upToDateBuilder.add(qd);
+      if (!draftVersion.getTombstonedQuestionNames().contains(qd.getName())) {
+        // If the question is about to be deleted, it is not "up to date."
+        upToDateBuilder.add(qd);
+      }
       questionIdMap.put(qd.getId(), qd);
       namesFoundInDraft.add(qd.getName());
     }
@@ -48,7 +51,7 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
             .collect(Collectors.toList())) {
 
       questionIdMap.put(qd.getId(), qd);
-      if (!namesFoundInDraft.contains(qd.getName())) {
+      if (!namesFoundInDraft.contains(qd.getName()) && !draftVersion.getTombstonedQuestionNames().contains(qd.getName())) {
         upToDateBuilder.add(qd);
       }
     }

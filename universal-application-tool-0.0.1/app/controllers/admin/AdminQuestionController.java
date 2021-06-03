@@ -67,7 +67,7 @@ public class AdminQuestionController extends CiviFormController {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService ->
-                ok(listView.render(readOnlyService.getActiveAndDraftQuestions(), maybeFlash)),
+                ok(listView.render(readOnlyService.getActiveAndDraftQuestions(), maybeFlash, request)),
             httpExecutionContext.current());
   }
 
@@ -154,6 +154,36 @@ public class AdminQuestionController extends CiviFormController {
 
     String successMessage = String.format("question %s created", questionForm.getQuestionName());
     return withMessage(redirect(routes.AdminQuestionController.index()), successMessage);
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public Result restore(Request request, Long id) {
+    try {
+      service.restoreQuestion(id);
+    } catch (InvalidUpdateException e) {
+        return badRequest("Failed to restore question.");
+    }
+    return redirect(routes.AdminQuestionController.index());
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public Result archive(Request request, Long id) {
+    try {
+      service.archiveQuestion(id);
+    } catch (InvalidUpdateException e) {
+      return badRequest("Failed to archive question.");
+    }
+    return redirect(routes.AdminQuestionController.index());
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public Result discardDraft(Request request, Long id) {
+    try {
+      service.discardDraft(id);
+    } catch (InvalidUpdateException e) {
+      return badRequest("Failed to discard draft question.");
+    }
+    return redirect(routes.AdminQuestionController.index());
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)

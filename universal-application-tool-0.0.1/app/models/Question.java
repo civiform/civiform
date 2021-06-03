@@ -227,4 +227,8 @@ public class Question extends BaseModel {
       enumeratorEntityType = enumerator.getEntityType();
     }
   }
+
+    public boolean removeVersion(Version draftVersion) {
+      return this.versions.remove(draftVersion);
+    }
 }

@@ -14,10 +14,13 @@ import static j2html.TagCreator.tr;
 
 import com.google.inject.Inject;
 import j2html.tags.ContainerTag;
+import j2html.tags.DomContent;
 import j2html.tags.Tag;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import play.mvc.Http;
 import play.twirl.api.Content;
+import services.DeletionStatus;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.question.ActiveAndDraftQuestions;
@@ -44,7 +47,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
   /** Renders a page with a table view of all questions. */
   public Content render(
-      ActiveAndDraftQuestions activeAndDraftQuestions, Optional<String> maybeFlash) {
+      ActiveAndDraftQuestions activeAndDraftQuestions, Optional<String> maybeFlash, Http.Request request) {
     String title = "All Questions";
 
     HtmlBundle htmlBundle =
@@ -54,7 +57,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .addMainContent(
                 renderHeader(title),
                 renderAddQuestionLink(),
-                div(renderQuestionTable(activeAndDraftQuestions)).withClasses(Styles.M_4),
+                div(renderQuestionTable(activeAndDraftQuestions, request)).withClasses(Styles.M_4),
                 renderSummary(activeAndDraftQuestions));
 
     if (maybeFlash.isPresent()) {
@@ -118,7 +121,7 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   /** Renders the full table. */
-  private Tag renderQuestionTable(ActiveAndDraftQuestions activeAndDraftQuestions) {
+  private Tag renderQuestionTable(ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
     return table()
         .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
         .with(renderQuestionTableHeaderRow())
@@ -129,7 +132,8 @@ public final class QuestionsListView extends BaseHtmlView {
                     (questionName) ->
                         renderQuestionTableRow(
                             activeAndDraftQuestions.getActiveQuestionDefinition(questionName),
-                            activeAndDraftQuestions.getDraftQuestionDefinition(questionName)))));
+                            activeAndDraftQuestions.getDraftQuestionDefinition(questionName),
+                                activeAndDraftQuestions.getDeletionStatus(questionName), request))));
   }
 
   /** Render the question table header row. */
@@ -150,7 +154,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
   /** Display this as a table row with all fields. */
   private Tag renderQuestionTableRow(
-      Optional<QuestionDefinition> activeDefinition, Optional<QuestionDefinition> draftDefinition) {
+          Optional<QuestionDefinition> activeDefinition, Optional<QuestionDefinition> draftDefinition, DeletionStatus deletionStatus, Http.Request request) {
     QuestionDefinition definition;
     // Find the main definition to display information from.  Prefer the latest draft.  If there
     // is no draft, choose an active one if exists.  There will be at least one or we
@@ -170,7 +174,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .with(renderInfoCell(definition))
         .with(renderQuestionTextCell(definition))
         .with(renderSupportedLanguages(definition))
-        .with(renderActionsCell(activeDefinition, draftDefinition, definition));
+        .with(renderActionsCell(activeDefinition, draftDefinition, definition, deletionStatus, request));
   }
 
   private Tag renderInfoCell(QuestionDefinition definition) {
@@ -245,9 +249,10 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private Tag renderActionsCell(
-      Optional<QuestionDefinition> active,
-      Optional<QuestionDefinition> draft,
-      QuestionDefinition definition) {
+          Optional<QuestionDefinition> active,
+          Optional<QuestionDefinition> draft,
+          QuestionDefinition definition, DeletionStatus deletionStatus,
+          Http.Request request) {
     ContainerTag td = td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT);
     if (active.isPresent() && draft.isEmpty()) {
       td.with(renderQuestionViewLink(active.get(), "View →"));
@@ -262,6 +267,46 @@ public final class QuestionsListView extends BaseHtmlView {
     } else if (active.isEmpty() && draft.isEmpty()) {
       td.with(renderQuestionViewLink(definition, "View →"));
     }
+    if (active.isPresent()) {
+      if (deletionStatus.equals(DeletionStatus.PENDING_DELETION)) {
+        td.with(renderRestoreQuestionLink(active.get(), "Restore Archived →", request));
+      } else if (deletionStatus.equals(DeletionStatus.DELETABLE)) {
+        td.with(renderDeleteQuestionLink(active.get(), "Archive →", request));
+      }
+    }
+    if (draft.isPresent()) {
+      td.with(renderDiscardDraftLink(draft.get(), "Discard Draft →", request));
+    }
     return td;
+  }
+
+  private Tag renderDiscardDraftLink(QuestionDefinition definition, String linkText, Http.Request request) {
+    String link = controllers.admin.routes.AdminQuestionController.discardDraft(definition.getId()).url();
+    return new LinkElement()
+            .setId("discard-question-link-" + definition.getId())
+            .setHref(link)
+            .setText(linkText)
+            .setStyles(Styles.MR_2)
+            .asHiddenFormLink(request);
+  }
+
+  private Tag renderRestoreQuestionLink(QuestionDefinition definition, String linkText, Http.Request request) {
+    String link = controllers.admin.routes.AdminQuestionController.restore(definition.getId()).url();
+    return new LinkElement()
+            .setId("restore-question-link-" + definition.getId())
+            .setHref(link)
+            .setText(linkText)
+            .setStyles(Styles.MR_2)
+            .asHiddenFormLink(request);
+  }
+
+  private Tag renderDeleteQuestionLink(QuestionDefinition definition, String linkText, Http.Request request) {
+    String link = controllers.admin.routes.AdminQuestionController.archive(definition.getId()).url();
+    return new LinkElement()
+            .setId("delete-question-link-" + definition.getId())
+            .setHref(link)
+            .setText(linkText)
+            .setStyles(Styles.MR_2)
+            .asHiddenFormLink(request);
   }
 }

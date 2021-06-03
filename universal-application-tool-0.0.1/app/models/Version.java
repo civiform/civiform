@@ -1,8 +1,10 @@
 package models;
 
 import com.google.common.collect.ImmutableList;
+import io.ebean.annotation.DbArray;
 import io.ebean.annotation.UpdatedTimestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.Entity;
@@ -24,8 +26,14 @@ public class Version extends BaseModel {
   @ManyToMany(mappedBy = "versions")
   private List<Question> questions;
 
+  @DbArray
+  private List<String> tombstonedQuestionNames = new ArrayList<>();
+
   @ManyToMany(mappedBy = "versions")
   private List<Program> programs;
+
+  @DbArray
+  private List<String> tombstonedProgramNames = new ArrayList<>();
 
   @UpdatedTimestamp private Instant submitTime;
 
@@ -75,5 +83,37 @@ public class Version extends BaseModel {
     return getQuestions().stream()
         .filter(q -> q.getQuestionDefinition().getName().equals(name))
         .findAny();
+  }
+
+  public ImmutableList<String> getTombstonedProgramNames() {
+    if (this.tombstonedProgramNames == null) {
+      return ImmutableList.of();
+    }
+    return ImmutableList.copyOf(this.tombstonedProgramNames);
+  }
+
+  public ImmutableList<String> getTombstonedQuestionNames() {
+    if (this.tombstonedQuestionNames == null) {
+      return ImmutableList.of();
+    }
+    return ImmutableList.copyOf(this.tombstonedQuestionNames);
+  }
+
+  public boolean addTombstoneForQuestion(Question question) {
+    if (this.tombstonedQuestionNames == null) {
+      this.tombstonedQuestionNames = new ArrayList<>();
+    }
+    if (this.tombstonedQuestionNames.contains(question.getQuestionDefinition().getName())) {
+      return false;
+    }
+    this.tombstonedQuestionNames.add(question.getQuestionDefinition().getName());
+    return true;
+  }
+
+  public boolean removeTombstoneForQuestion(Question question) {
+    if (this.tombstonedQuestionNames == null) {
+      this.tombstonedQuestionNames = new ArrayList<>();
+    }
+    return this.tombstonedQuestionNames.remove(question.getQuestionDefinition().getName());
   }
 }

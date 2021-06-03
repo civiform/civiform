@@ -9,6 +9,7 @@ import com.google.inject.Provider;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Question;
+import models.Version;
 import repository.QuestionRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
@@ -86,6 +87,45 @@ public final class QuestionServiceImpl implements QuestionService {
 
     question = questionRepository.updateOrCreateDraft(questionDefinition);
     return ErrorAnd.of(question.getQuestionDefinition());
+  }
+
+  @Override
+  public void restoreQuestion(Long id) throws InvalidUpdateException {
+    Optional<Question> question = questionRepository.lookupQuestion(id).toCompletableFuture().join();
+    if (question.isEmpty()) {
+      throw new InvalidUpdateException("Did not find question.");
+    }
+    Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
+    if (!draftVersion.removeTombstoneForQuestion(question.get())) {
+      throw new InvalidUpdateException("Not tombstoned.");
+    }
+    draftVersion.save();
+  }
+
+  @Override
+  public void archiveQuestion(Long id) throws InvalidUpdateException {
+    Optional<Question> question = questionRepository.lookupQuestion(id).toCompletableFuture().join();
+    if (question.isEmpty()) {
+      throw new InvalidUpdateException("Did not find question.");
+    }
+    Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
+    if (!draftVersion.addTombstoneForQuestion(question.get())) {
+      throw new InvalidUpdateException("Already tombstoned.");
+    }
+    draftVersion.save();
+  }
+
+  @Override
+  public void discardDraft(Long id) throws InvalidUpdateException {
+    Optional<Question> question = questionRepository.lookupQuestion(id).toCompletableFuture().join();
+    if (question.isEmpty()) {
+      throw new InvalidUpdateException("Did not find question.");
+    }
+    Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
+    if (!question.get().removeVersion(draftVersion)) {
+      throw new InvalidUpdateException("Did not find question in draft version.");
+    }
+    question.get().save();
   }
 
   private CompletionStage<ImmutableList<QuestionDefinition>> listQuestionDefinitionsAsync() {
