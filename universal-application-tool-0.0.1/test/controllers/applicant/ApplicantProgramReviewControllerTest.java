@@ -8,6 +8,7 @@ import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.fakeRequest;
 
+import controllers.WithMockedProfiles;
 import models.Applicant;
 import models.Program;
 import org.junit.Before;
@@ -16,7 +17,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import support.ProgramBuilder;
 
-public class ApplicantProgramReviewControllerTest extends WithMockedApplicantProfiles {
+public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   private ApplicantProgramReviewController subject;
   private Program program;

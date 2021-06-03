@@ -158,6 +158,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   }
 
   private Tag renderDownloadLink(String text, long programId, long applicationId) {
+    // This link doesn't work since we don't have PDF filling yet.  Disable.
     String downloadLink =
         controllers.admin.routes.AdminApplicationController.download(programId, applicationId)
             .url();
@@ -167,7 +168,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .setHref(downloadLink)
         .setText(text)
         .setStyles(Styles.MR_2, ReferenceClasses.DOWNLOAD_BUTTON)
-        .asAnchorText();
+        .asAnchorText()
+        // TODO: when the download link works, un-hide.
+        .isHidden();
   }
 
   private Tag renderViewLink(String text, long programId, long applicationId) {
