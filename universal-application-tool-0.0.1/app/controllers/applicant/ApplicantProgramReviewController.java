@@ -59,7 +59,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   @Secure
   public CompletionStage<Result> review(Request request, long applicantId, long programId) {
     Optional<String> banner = request.flash().get("banner");
-    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+    CompletionStage<String> applicantStage = applicantService.getName(applicantId);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
@@ -110,10 +110,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   public CompletionStage<Result> submit(Request request, long applicantId, long programId) {
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
-            v -> {
-              return submitInternal(request, applicantId, programId);
-            },
-            httpExecutionContext.current())
+            v -> submitInternal(request, applicantId, programId), httpExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -133,7 +130,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   @Secure
   public CompletionStage<Result> confirmation(
       Request request, long applicantId, long programId, long applicationId) {
-    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+    CompletionStage<String> applicantStage = applicantService.getName(applicantId);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
@@ -183,9 +180,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
               Long applicationId = application.id;
               Call endOfProgramSubmission =
                   routes.RedirectController.considerRegister(
-                      routes.ApplicantProgramReviewController.confirmation(
-                              applicantId, programId, applicationId)
-                          .url());
+                      applicantId,
+                      programId,
+                      applicationId,
+                      routes.ApplicantProgramsController.index(applicantId).url());
               return found(endOfProgramSubmission);
             },
             httpExecutionContext.current())

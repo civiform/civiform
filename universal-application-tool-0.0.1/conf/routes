@@ -102,7 +102,7 @@ GET     /programAdmin       controllers.admin.ProgramAdminController.index(reque
 
 # Deep-link methods
 GET     /programs/:programName      controllers.applicant.RedirectController.programByName(request: Request, programName: String)
-GET     /considerSignIn             controllers.applicant.RedirectController.considerRegister(request: Request, redirectTo: String)
+GET     /considerSignIn             controllers.applicant.RedirectController.considerRegister(request: Request, applicantId: Long, programId: Long, applicationId: Long, redirectTo: String)
 
 # User profile pages
 GET     /users/me                    controllers.ProfileController.myProfile(request: Request)
