@@ -63,8 +63,14 @@ public class ActiveAndDraftQuestions {
     deletionStatusByName = deletionStatusBuilder.build();
   }
 
-  private static boolean isNotDeletable(Version active, Version draft, ImmutableMap<String, QuestionDefinition> activeNames, ImmutableMap<String, QuestionDefinition> draftNames, String questionName) {
-    return Streams.concat(active.getPrograms().stream(), draft.getPrograms().stream()).anyMatch(
+  private static boolean isNotDeletable(
+      Version active,
+      Version draft,
+      ImmutableMap<String, QuestionDefinition> activeNames,
+      ImmutableMap<String, QuestionDefinition> draftNames,
+      String questionName) {
+    return Streams.concat(active.getPrograms().stream(), draft.getPrograms().stream())
+        .anyMatch(
             program -> {
               QuestionDefinition activeQuestion = activeNames.get(questionName);
               QuestionDefinition draftQuestion = draftNames.get(questionName);
@@ -72,8 +78,7 @@ public class ActiveAndDraftQuestions {
               if (activeQuestion != null && programDefinition.hasQuestion(activeQuestion)) {
                 return true;
               } else return draftQuestion != null && programDefinition.hasQuestion(draftQuestion);
-            }
-    );
+            });
   }
 
   public DeletionStatus getDeletionStatus(String questionName) {

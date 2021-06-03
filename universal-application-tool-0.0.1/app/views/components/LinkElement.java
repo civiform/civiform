@@ -39,7 +39,15 @@ public class LinkElement {
       StyleUtils.joinStyles(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT);
 
   private static final String BUTTON_LOOKS_LIKE_LINK_STYLES =
-          StyleUtils.joinStyles(Styles.BORDER_NONE, Styles.CURSOR_POINTER, Styles.BG_TRANSPARENT, StyleUtils.hover(Styles.BG_TRANSPARENT), DEFAULT_LINK_STYLES, Styles.P_0, Styles.MR_2, Styles.FONT_NORMAL);
+      StyleUtils.joinStyles(
+          Styles.BORDER_NONE,
+          Styles.CURSOR_POINTER,
+          Styles.BG_TRANSPARENT,
+          StyleUtils.hover(Styles.BG_TRANSPARENT),
+          DEFAULT_LINK_STYLES,
+          Styles.P_0,
+          Styles.MR_2,
+          Styles.FONT_NORMAL);
 
   private String id = "";
   private String text = "";
@@ -107,9 +115,7 @@ public class LinkElement {
     return form;
   }
 
-  public ContainerTag asHiddenFormLink(
-          Http.Request request
-  ) {
+  public ContainerTag asHiddenFormLink(Http.Request request) {
     Preconditions.checkNotNull(href);
     Option<CSRF.Token> csrfTokenMaybe = CSRF.getToken(request.asScala());
     String csrfToken = "";
@@ -118,14 +124,15 @@ public class LinkElement {
     }
 
     ContainerTag form =
-            form(
-                    input().isHidden().withValue(csrfToken).withName("csrfToken"),
-                    button(TagCreator.text(text))
-                            .withClasses(BUTTON_LOOKS_LIKE_LINK_STYLES)
-                            .withType("submit")).withClasses(Styles.INLINE)
-                    .withMethod("POST")
-                    .withAction(href)
-                    .withCondId(!Strings.isNullOrEmpty(id), id);
+        form(
+                input().isHidden().withValue(csrfToken).withName("csrfToken"),
+                button(TagCreator.text(text))
+                    .withClasses(BUTTON_LOOKS_LIKE_LINK_STYLES)
+                    .withType("submit"))
+            .withClasses(Styles.INLINE)
+            .withMethod("POST")
+            .withAction(href)
+            .withCondId(!Strings.isNullOrEmpty(id), id);
     return form;
   }
 }

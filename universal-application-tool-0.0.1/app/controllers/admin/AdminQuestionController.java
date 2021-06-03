@@ -67,7 +67,9 @@ public class AdminQuestionController extends CiviFormController {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService ->
-                ok(listView.render(readOnlyService.getActiveAndDraftQuestions(), maybeFlash, request)),
+                ok(
+                    listView.render(
+                        readOnlyService.getActiveAndDraftQuestions(), maybeFlash, request)),
             httpExecutionContext.current());
   }
 
@@ -161,7 +163,7 @@ public class AdminQuestionController extends CiviFormController {
     try {
       service.restoreQuestion(id);
     } catch (InvalidUpdateException e) {
-        return badRequest("Failed to restore question.");
+      return badRequest("Failed to restore question.");
     }
     return redirect(routes.AdminQuestionController.index());
   }

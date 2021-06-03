@@ -228,7 +228,7 @@ public class Question extends BaseModel {
     }
   }
 
-    public boolean removeVersion(Version draftVersion) {
-      return this.versions.remove(draftVersion);
-    }
+  public boolean removeVersion(Version draftVersion) {
+    return this.versions.remove(draftVersion);
+  }
 }

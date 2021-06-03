@@ -26,14 +26,12 @@ public class Version extends BaseModel {
   @ManyToMany(mappedBy = "versions")
   private List<Question> questions;
 
-  @DbArray
-  private List<String> tombstonedQuestionNames = new ArrayList<>();
+  @DbArray private List<String> tombstonedQuestionNames = new ArrayList<>();
 
   @ManyToMany(mappedBy = "versions")
   private List<Program> programs;
 
-  @DbArray
-  private List<String> tombstonedProgramNames = new ArrayList<>();
+  @DbArray private List<String> tombstonedProgramNames = new ArrayList<>();
 
   @UpdatedTimestamp private Instant submitTime;
 

@@ -52,8 +52,10 @@ public class VersionRepository {
           draft.getPrograms().size() > 0, "Must have at least 1 program in the draft version.");
       active.getPrograms().stream()
           .filter(
-                  activeProgram -> !draft.getTombstonedProgramNames().contains(activeProgram.getProgramDefinition().adminName())
-          )
+              activeProgram ->
+                  !draft
+                      .getTombstonedProgramNames()
+                      .contains(activeProgram.getProgramDefinition().adminName()))
           .filter(
               activeProgram ->
                   draft.getPrograms().stream()
@@ -69,9 +71,11 @@ public class VersionRepository {
                 activeProgramNotInDraft.save();
               });
       active.getQuestions().stream()
-              .filter(
-                      activeQuestion -> !draft.getTombstonedQuestionNames().contains(activeQuestion.getQuestionDefinition().getName())
-              )
+          .filter(
+              activeQuestion ->
+                  !draft
+                      .getTombstonedQuestionNames()
+                      .contains(activeQuestion.getQuestionDefinition().getName()))
           .filter(
               activeQuestion ->
                   draft.getQuestions().stream()

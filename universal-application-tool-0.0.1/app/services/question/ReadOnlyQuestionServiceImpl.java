@@ -51,7 +51,8 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
             .collect(Collectors.toList())) {
 
       questionIdMap.put(qd.getId(), qd);
-      if (!namesFoundInDraft.contains(qd.getName()) && !draftVersion.getTombstonedQuestionNames().contains(qd.getName())) {
+      if (!namesFoundInDraft.contains(qd.getName())
+          && !draftVersion.getTombstonedQuestionNames().contains(qd.getName())) {
         upToDateBuilder.add(qd);
       }
     }

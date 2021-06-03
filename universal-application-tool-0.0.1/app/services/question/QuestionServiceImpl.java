@@ -91,7 +91,8 @@ public final class QuestionServiceImpl implements QuestionService {
 
   @Override
   public void restoreQuestion(Long id) throws InvalidUpdateException {
-    Optional<Question> question = questionRepository.lookupQuestion(id).toCompletableFuture().join();
+    Optional<Question> question =
+        questionRepository.lookupQuestion(id).toCompletableFuture().join();
     if (question.isEmpty()) {
       throw new InvalidUpdateException("Did not find question.");
     }
@@ -104,7 +105,8 @@ public final class QuestionServiceImpl implements QuestionService {
 
   @Override
   public void archiveQuestion(Long id) throws InvalidUpdateException {
-    Optional<Question> question = questionRepository.lookupQuestion(id).toCompletableFuture().join();
+    Optional<Question> question =
+        questionRepository.lookupQuestion(id).toCompletableFuture().join();
     if (question.isEmpty()) {
       throw new InvalidUpdateException("Did not find question.");
     }
@@ -117,7 +119,8 @@ public final class QuestionServiceImpl implements QuestionService {
 
   @Override
   public void discardDraft(Long id) throws InvalidUpdateException {
-    Optional<Question> question = questionRepository.lookupQuestion(id).toCompletableFuture().join();
+    Optional<Question> question =
+        questionRepository.lookupQuestion(id).toCompletableFuture().join();
     if (question.isEmpty()) {
       throw new InvalidUpdateException("Did not find question.");
     }
