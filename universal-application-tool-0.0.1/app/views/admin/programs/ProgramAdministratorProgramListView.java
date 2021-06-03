@@ -4,8 +4,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
 import static j2html.TagCreator.p;
 
+import com.typesafe.config.Config;
 import controllers.admin.routes;
 import j2html.tags.Tag;
 import java.util.List;
@@ -24,10 +27,12 @@ import views.style.Styles;
 
 public class ProgramAdministratorProgramListView extends BaseHtmlView {
   private final AdminLayout layout;
+  private final String baseUrl;
 
   @Inject
-  public ProgramAdministratorProgramListView(AdminLayout layout) {
+  public ProgramAdministratorProgramListView(AdminLayout layout, Config config) {
     this.layout = checkNotNull(layout);
+    this.baseUrl = checkNotNull(config).getString("base_url");
   }
 
   public Content render(ActiveAndDraftPrograms programs, List<String> authorizedPrograms) {
@@ -99,8 +104,22 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
                 maybeRenderViewApplicationsLink(viewApplicationsLinkText, activeProgram))
             .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
 
+    Tag programDeepLink =
+        label("Deep link, use this URL to link to this program from outside of CiviForm:")
+            .withClasses(Styles.W_FULL)
+            .with(
+                input()
+                    .withValue(
+                        baseUrl
+                            + controllers.applicant.routes.RedirectController.programByName(
+                                    displayProgram.slug())
+                                .url())
+                    .attr("disabled", "readonly")
+                    .withClasses(Styles.W_FULL, Styles.MB_2)
+                    .withType("text"));
+
     Tag innerDiv =
-        div(topContent, midContent, bottomContent)
+        div(topContent, midContent, programDeepLink, bottomContent)
             .withClasses(
                 Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4);
 
