@@ -222,7 +222,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
     JsonPathPredicateGenerator predicateGenerator =
         new JsonPathPredicateGenerator(
-            this.applicantData,
             this.programDefinition.streamQuestionDefinitions().collect(toImmutableList()),
             block.getRepeatedEntity());
     PredicateEvaluator predicateEvaluator =
