@@ -94,15 +94,15 @@ public class ApplicantProgramsController extends CiviFormController {
             v -> applicantService.relevantPrograms(applicantId), httpContext.current())
         .thenApplyAsync(
             programs -> {
-              ImmutableList<ProgramDefinition> filteredPrograms =
+              Optional<ProgramDefinition> programDefinition =
                   programs.stream()
                       .filter(program -> program.id() == programId)
-                      .collect(toImmutableList());
-              if (filteredPrograms.size() == 1) {
+                      .findFirst();
+              if (filteredPrograms.isPresent()) {
                 return ok(
                     programInfoView.render(
                         messagesApi.preferred(request),
-                        filteredPrograms.get(0),
+                        filteredPrograms.get(),
                         request,
                         applicantId,
                         applicantStage.toCompletableFuture().join()));
