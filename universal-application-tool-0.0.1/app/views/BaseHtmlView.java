@@ -97,7 +97,7 @@ public abstract class BaseHtmlView {
     return datetime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd 'at' h:mm a"));
   }
 
-  protected ImmutableList<DomContent> createLinksAndEscapeText(String content) {
+  public static ImmutableList<DomContent> createLinksAndEscapeText(String content) {
     List<Url> urls = new UrlDetector(content, UrlDetectorOptions.Default).detect();
     ImmutableList.Builder<DomContent> contentBuilder = ImmutableList.builder();
     for (Url url : urls) {
