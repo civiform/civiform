@@ -38,14 +38,9 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
       Long applicationId,
       Messages messages,
       Optional<String> banner) {
-    // TODO(natsid): i18n this title
-    String title = "Application confirmation";
+    String title = messages.at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName());
 
     HtmlBundle bundle = layout.getBundle().setTitle(title);
-
-    // TODO(natsid): Either i18n this title, or move the content of this page to the application
-    //  confirmation page.
-    String createAccountText = "Create an account or sign in";
 
     ContainerTag createAccountBox =
         div()
@@ -56,7 +51,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
                 Styles.BG_WHITE,
                 Styles.P_10,
                 Styles.MY_6)
-            .with(h2(createAccountText).withClasses(Styles.MB_4))
+            .with(h2(messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName())).withClasses(Styles.MB_4))
             .with(
                 div(messages.at(MessageKey.CONTENT_PLEASE_CREATE_ACCOUNT.getKeyName()))
                     .withClasses(Styles.MB_4))
