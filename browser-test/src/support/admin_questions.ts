@@ -115,6 +115,7 @@ export class AdminQuestions {
     await this.addCheckboxQuestion(questionNamePrefix + 'checkbox', ['op1', 'op2', 'op3', 'op4']);
     await this.addDateQuestion(questionNamePrefix + 'date');
     await this.addDropdownQuestion(questionNamePrefix + 'dropdown', ['op1', 'op2', 'op3']);
+    await this.addEmailQuestion(questionNamePrefix + 'email');
     await this.addNameQuestion(questionNamePrefix + 'name');
     await this.addNumberQuestion(questionNamePrefix + 'number');
     await this.addRadioButtonQuestion(questionNamePrefix + 'radio', ['one', 'two', 'three']);
@@ -123,6 +124,7 @@ export class AdminQuestions {
     questionNamePrefix + 'checkbox',
     questionNamePrefix + 'date',
     questionNamePrefix + 'dropdown',
+    questionNamePrefix + 'email',
     questionNamePrefix + 'name',
     questionNamePrefix + 'number',
     questionNamePrefix + 'radio',
@@ -350,6 +352,25 @@ export class AdminQuestions {
 
     await this.expectDraftQuestionExist(questionName, questionText);
   }
+
+  async addEmailQuestion(questionName: string,
+      description = 'email description',
+      questionText = 'email question text',
+      helpText = 'email question help text',
+      enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
+      await this.gotoAdminQuestionsPage();
+      await this.page.click('#create-question-button');
+
+      await this.page.click('#create-email-question');
+
+      await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
+
+      await this.page.click('text=Create');
+
+      await this.expectAdminQuestionsPage();
+
+      await this.expectDraftQuestionExist(questionName, questionText);
+    }
 
   /**
    * The `enumeratorName` argument is used to make _this_ enumerator question a repeated question.
