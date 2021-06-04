@@ -585,7 +585,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   public void showBlock_returnsTrueForBlockWithoutPredicate() {
     ProgramDefinition program = ProgramBuilder.newActiveProgram().withBlock().buildDefinition();
     ReadOnlyApplicantProgramServiceImpl service =
-        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, program);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, program);
 
     assertThat(service.showBlock(service.getAllBlocks().get(0))).isTrue();
   }
@@ -612,12 +612,12 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     // Answer "blue" to the question - the predicate is true, so we should show the block.
     answerColorQuestion(program.id(), "blue");
     ReadOnlyApplicantProgramServiceImpl service =
-        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, program);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, program);
     assertThat(service.showBlock(service.getAllBlocks().get(1))).isTrue();
 
     // Answer "green" to the question - the predicate is now false, so we should not show the block.
     answerColorQuestion(program.id(), "green");
-    service = new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, program);
+    service = new ReadOnlyApplicantProgramServiceImpl(applicantData, program);
     assertThat(service.showBlock(service.getAllBlocks().get(1))).isFalse();
   }
 
@@ -643,12 +643,12 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     // Answer "blue" to the question - the predicate is true, so we should hide the block.
     answerColorQuestion(program.id(), "blue");
     ReadOnlyApplicantProgramServiceImpl service =
-        new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, program);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, program);
     assertThat(service.showBlock(service.getAllBlocks().get(1))).isFalse();
 
     // Answer "green" to the question - the predicate is now false, so we should show the block.
     answerColorQuestion(program.id(), "green");
-    service = new ReadOnlyApplicantProgramServiceImpl(amazonS3Client, applicantData, program);
+    service = new ReadOnlyApplicantProgramServiceImpl(applicantData, program);
     assertThat(service.showBlock(service.getAllBlocks().get(1))).isTrue();
   }
 

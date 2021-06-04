@@ -125,7 +125,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setQuestionIndex(questionIndex)
                 .setQuestionText(questionText)
                 .setAnswerText(answerText)
-                .setAnswerLink(getAnswerLink(question))
+                .setFileKey(getFileKey(question))
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
                 .setIsPreviousResponse(isPreviousResponse)
                 .setScalarAnswersInDefaultLocale(
@@ -229,6 +229,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         return predicateEvaluator.evaluate(predicate.rootNode());
       default:
         return true;
+    }
   }
 
   /** Returns the identifier of uploaded file if applicable. */

@@ -265,12 +265,6 @@ public abstract class ProgramDefinition {
                     .map(ProgramQuestionDefinition::getQuestionDefinition));
   }
 
-  public Program toProgram() {
-    return new Program(this);
-  }
-
-  public abstract Builder toBuilder();
-
   @AutoValue.Builder
   public abstract static class Builder {
 
