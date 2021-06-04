@@ -5,10 +5,12 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import controllers.routes;
 import j2html.tags.ContainerTag;
 import java.util.Optional;
+import models.Account;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -33,7 +35,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
   public Content render(
       Http.Request request,
       String redirectTo,
-      String userName,
+      Account account,
       String programTitle,
       Long applicationId,
       Messages messages,
@@ -51,7 +53,9 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
                 Styles.BG_WHITE,
                 Styles.P_10,
                 Styles.MY_6)
-            .with(h2(messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName())).withClasses(Styles.MB_4))
+            .with(
+                h2(messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName()))
+                    .withClasses(Styles.MB_4))
             .with(
                 div(messages.at(MessageKey.CONTENT_PLEASE_CREATE_ACCOUNT.getKeyName()))
                     .withClasses(Styles.MB_4))
@@ -81,8 +85,12 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
             .with(
                 div(messages.at(
                         MessageKey.CONTENT_CONFIRMED.getKeyName(), programTitle, applicationId))
-                    .withClasses(Styles.TEXT_LG))
-            .with(createAccountBox);
+                    .withClasses(Styles.TEXT_LG));
+
+    // Don't show "create an account" upsell box to TIs, or anyone with an email address already.
+    if (Strings.isNullOrEmpty(account.getEmailAddress()) && account.getMemberOfGroup().isEmpty()) {
+      content.with(createAccountBox);
+    }
 
     if (banner.isPresent()) {
       bundle.addToastMessages(ToastMessage.error(banner.get()));
@@ -92,6 +100,6 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
         .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION)
         .addMainContent(h1(title).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION), content);
 
-    return layout.renderWithNav(request, userName, messages, bundle);
+    return layout.renderWithNav(request, account.getApplicantName(), messages, bundle);
   }
 }

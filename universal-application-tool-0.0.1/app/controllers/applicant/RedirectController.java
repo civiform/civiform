@@ -4,7 +4,6 @@ import static autovalue.shaded.com.google$.common.base.$Preconditions.checkNotNu
 
 import auth.ProfileUtils;
 import auth.UatProfile;
-import com.google.common.base.Strings;
 import controllers.CiviFormController;
 import controllers.routes;
 import java.util.Optional;
@@ -90,23 +89,15 @@ public class RedirectController extends CiviFormController {
         .getAccount()
         .thenCombineAsync(
             roApplicantProgramServiceCompletionStage,
-            (account, roApplicantProgramService) -> {
-              // Don't show this page to TIs, or anyone with an email address already.
-              if (!Strings.isNullOrEmpty(account.getEmailAddress())) {
-                return redirect(redirectTo);
-              } else if (account.getMemberOfGroup().isPresent()) {
-                return redirect(redirectTo);
-              }
-
-              return ok(
-                  upsellView.render(
-                      request,
-                      redirectTo,
-                      account.getApplicantName(),
-                      roApplicantProgramService.getProgramTitle(),
-                      applicationId,
-                      messagesApi.preferred(request),
-                      banner));
-            });
+            (account, roApplicantProgramService) ->
+                ok(
+                    upsellView.render(
+                        request,
+                        redirectTo,
+                        account,
+                        roApplicantProgramService.getProgramTitle(),
+                        applicationId,
+                        messagesApi.preferred(request),
+                        banner)));
   }
 }
