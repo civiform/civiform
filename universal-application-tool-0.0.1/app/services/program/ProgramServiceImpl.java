@@ -79,7 +79,9 @@ public class ProgramServiceImpl implements ProgramService {
                     : programMaybe
                         .map(Program::getProgramDefinition)
                         .map(this::syncProgramDefinitionQuestions)
-                        .get(),
+                        .get()
+                        .thenApply(
+                            programDefinition -> programDefinition.reorderBlockDefinitions()),
             httpExecutionContext.current());
   }
 

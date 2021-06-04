@@ -8,6 +8,8 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
@@ -21,6 +23,7 @@ import services.question.types.QuestionDefinition;
 public abstract class ProgramDefinition {
 
   private Optional<ImmutableSet<Long>> questionIds = Optional.empty();
+  private Boolean hasOrderedBlockDefinitionsMemo;
 
   public static Builder builder() {
     return new AutoValue_ProgramDefinition.Builder();
@@ -47,11 +50,94 @@ public abstract class ProgramDefinition {
   /** A human readable description of a Program, localized for each supported locale. */
   public abstract LocalizedStrings localizedDescription();
 
-  /** The list of {@link BlockDefinition}s that make up the program. */
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
 
   /** The list of {@link ExportDefinition}s that make up the program. */
   public abstract ImmutableList<ExportDefinition> exportDefinitions();
+
+  /**
+   * True indicates that {@link #blockDefinitions()} are in the order specified by {@link
+   * #reorderBlockDefinitions()}.
+   *
+   * <p>This check walks through the list of block definitions with a stack of enumerator ids and:
+   *
+   * <ul>
+   *   <li>pops the stack until the enumerator id of the block matches the top of the stack. If it
+   *       never matches, then the list is not ordered.
+   *   <li>pushes to the stack if the block is an enumerator block.
+   * </ul>
+   *
+   * This checks that repeated blocks immediately follow their enumerator and are not separated.
+   */
+  public boolean hasOrderedBlockDefinitions() {
+    if (hasOrderedBlockDefinitionsMemo == null) {
+      Deque<Long> enumeratorIds = new ArrayDeque<>();
+      for (BlockDefinition blockDefinition : blockDefinitions()) {
+        // Pop the stack until the enumerator id matches the top of the stack.
+        while (enumeratorIds.size() > 0
+            && !blockDefinition.enumeratorId().equals(Optional.of(enumeratorIds.peek()))) {
+          enumeratorIds.pop();
+        }
+
+        // Early return if it still doesn't match, this is not ordered.
+        if (!blockDefinition.enumeratorId().equals(Optional.ofNullable(enumeratorIds.peek()))) {
+          hasOrderedBlockDefinitionsMemo = false;
+          return false;
+        }
+
+        // Push this enumerator block's id
+        if (blockDefinition.isEnumerator()) {
+          enumeratorIds.push(blockDefinition.id());
+        }
+      }
+      hasOrderedBlockDefinitionsMemo = true;
+    }
+    return hasOrderedBlockDefinitionsMemo;
+  }
+
+  /**
+   * Programs created before early June 2021 may not have block definitions stored in a good order.
+   * The desired ordering is:
+   *
+   * <ol>
+   *   <li>Blocks with the same enumerator block are in order
+   *   <li>An enumerator block is immediately followed by all of its repeated and nested repeated
+   *       blocks.
+   * </ol>
+   *
+   * <p>This method should be used in methods that read and write from storage:
+   *
+   * <ul>
+   *   <li>the {@link Program#persistChangesToProgramDefinition()} preupdate method to make sure
+   *       programs are stored with block definitions in a good order.
+   *   <li>{@link ProgramService#getProgramDefinitionAsync(long)} to make sure programs are loaded
+   *       from storage with block definitions in a good order.
+   * </ul>
+   */
+  public ProgramDefinition reorderBlockDefinitions() {
+    if (!hasOrderedBlockDefinitions()) {
+      ProgramDefinition orderedProgramDefinition =
+          toBuilder()
+              .setBlockDefinitions(reorderBlockDefinitionsInner(getNonRepeatedBlockDefinitions()))
+              .build();
+      orderedProgramDefinition.hasOrderedBlockDefinitionsMemo = true;
+      return orderedProgramDefinition;
+    }
+    return this;
+  }
+
+  private ImmutableList<BlockDefinition> reorderBlockDefinitionsInner(
+      ImmutableList<BlockDefinition> currentLevel) {
+    ImmutableList.Builder<BlockDefinition> blockDefinitionBuilder = ImmutableList.builder();
+    for (BlockDefinition blockDefinition : currentLevel) {
+      blockDefinitionBuilder.add(blockDefinition);
+      if (blockDefinition.isEnumerator()) {
+        blockDefinitionBuilder.addAll(
+            reorderBlockDefinitionsInner(getBlockDefinitionsForEnumerator(blockDefinition.id())));
+      }
+    }
+    return blockDefinitionBuilder.build();
+  }
 
   /**
    * Get all the {@link Locale}s this program fully supports. A program fully supports a locale if:

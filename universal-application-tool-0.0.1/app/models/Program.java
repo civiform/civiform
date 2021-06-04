@@ -23,6 +23,7 @@ import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.ExportDefinition;
 import services.program.ProgramDefinition;
+import services.question.types.QuestionDefinition;
 
 /** The ebeans mapped class for the program object. */
 @Entity
@@ -83,6 +84,8 @@ public class Program extends BaseModel {
     this.localizedDescription = definition.localizedDescription();
     this.blockDefinitions = definition.blockDefinitions();
     this.exportDefinitions = definition.exportDefinitions();
+
+    reorderBlockDefinitionsBeforeUpdate();
   }
 
   /**
@@ -121,6 +124,8 @@ public class Program extends BaseModel {
     blockDefinitions = programDefinition.blockDefinitions();
     exportDefinitions = programDefinition.exportDefinitions();
     slug = programDefinition.slug();
+
+    reorderBlockDefinitionsBeforeUpdate();
   }
 
   /** Populates {@link ProgramDefinition} from column values. */
@@ -175,5 +180,17 @@ public class Program extends BaseModel {
       this.slug = this.programDefinition.slug();
     }
     return this.slug;
+  }
+
+  /**
+   * See {@link ProgramDefinition#reorderBlockDefinitions} for why we need to reorder blocks.
+   *
+   * <p>This is used in {@link PreUpdate} but cannot be used when reading from storage because
+   * {@link QuestionDefinition}s may not be present in the {@link ProgramDefinition}'s {@link
+   * BlockDefinition}'s {@link services.program.ProgramQuestionDefinition}s.
+   */
+  private void reorderBlockDefinitionsBeforeUpdate() {
+    programDefinition = checkNotNull(programDefinition).reorderBlockDefinitions();
+    blockDefinitions = programDefinition.blockDefinitions();
   }
 }

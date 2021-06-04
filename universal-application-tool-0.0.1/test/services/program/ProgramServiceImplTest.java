@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import forms.BlockForm;
+import io.ebean.DB;
 import java.util.Locale;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
@@ -698,5 +699,35 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
     // Return program admins when there are.
     assertThat(ps.getNotificationEmailAddresses(programName)).containsExactly(programAdminEmail);
+  }
+
+  @Test
+  public void getProgramDefinitionAsync_reordersBlocks() throws Exception {
+    long programId = ProgramBuilder.newActiveProgram().build().id;
+    long enumeratorQuestionId = testQuestionBank.applicantHouseholdMembers().id;
+    long repeatedQuestionId = testQuestionBank.applicantHouseholdMemberName().id;
+    long nonRepeatedQuestionId = testQuestionBank.applicantFavoriteColor().id;
+
+    String blockDefinitionsString =
+        String.format(
+            "[{\"id\": 1, \"name\": \"Enumerator\", \"repeaterId\": null, \"description\":"
+                + "\"description\", \"hidePredicate\": null, \"optionalPredicate\": null,"
+                + " \"questionDefinitions\": [{\"id\": %d}]},"
+                + "{\"id\": 2, \"name\": \"Normal\", \"repeaterId\": null, \"description\": "
+                + "\"description\", \"hidePredicate\": null, \"optionalPredicate\": null,"
+                + "\"questionDefinitions\": [{\"id\": %d}]},"
+                + "{\"id\": 3, \"name\": \"Repeated\", \"repeaterId\": 1, \"description\": "
+                + "\"description\", \"hidePredicate\": null, \"optionalPredicate\": null,"
+                + "\"questionDefinitions\": [{\"id\": %d}]}]",
+            enumeratorQuestionId, nonRepeatedQuestionId, repeatedQuestionId);
+    String updateString =
+        String.format(
+            "UPDATE programs SET block_definitions='%s' WHERE id=%d;",
+            blockDefinitionsString, programId);
+    DB.sqlUpdate(updateString).execute();
+
+    ProgramDefinition found = ps.getProgramDefinitionAsync(programId).toCompletableFuture().get();
+
+    assertThat(found.hasOrderedBlockDefinitions()).isTrue();
   }
 }
