@@ -38,6 +38,9 @@ POST    /admin/programs/:programId/blocks/:blockDefinitionId           controlle
 POST    /admin/programs/:programId/blocks                              controllers.admin.AdminProgramBlocksController.create(request: Request, programId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/delete    controllers.admin.AdminProgramBlocksController.destroy(programId: Long, blockDefinitionId: Long)
 
+# A controller for pages for an admin to configure show/hide logic on blocks for a program
+GET     /admin/programs/:programId/blocks/:blockDefinitionId/edit/predicates/edit    controllers.admin.AdminProgramBlockPredicatesController.edit(request: Request, programId: Long, blockDefinitionId: Long)
+
 # A controller for adding and removing questions from program blocks
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions               controllers.admin.AdminProgramBlockQuestionsController.create(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/delete        controllers.admin.AdminProgramBlockQuestionsController.destroy(request: Request, programId: Long, blockDefinitionId: Long)
@@ -71,6 +74,10 @@ GET     /admin/programs/:programId/applications                           contro
 GET     /admin/programs/:programId/applications/all                       controllers.admin.AdminApplicationController.downloadAll(request: Request, programId: Long)
 GET     /admin/programs/:programId/applications/:applicationId            controllers.admin.AdminApplicationController.show(request: Request, programId: Long, applicationId: Long)
 GET     /admin/programs/:programId/applications/:applicationId/download   controllers.admin.AdminApplicationController.download(request: Request, programId: Long, applicationId: Long)
+
+# Controller for admins and applicants to access applicants' uploaded files
+GET     /admin/programs/:programId/files/:fileKey   controllers.FileController.adminShow(request: Request, programId: Long, fileKey: String)
+GET     /applicants/:applicantId/files/:fileKey     controllers.FileController.show(request: Request, applicantId: Long, fileKey: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(file)

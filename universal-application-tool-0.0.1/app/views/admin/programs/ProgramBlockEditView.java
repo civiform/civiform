@@ -68,7 +68,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
   public Content render(
       Request request,
-      ProgramDefinition program,
+      ProgramDefinition programDefinition,
       long blockId,
       BlockForm blockForm,
       BlockDefinition blockDefinition,
@@ -79,7 +79,9 @@ public class ProgramBlockEditView extends BaseHtmlView {
     String title = "Block edit view";
 
     String blockUpdateAction =
-        controllers.admin.routes.AdminProgramBlocksController.update(program.id(), blockId).url();
+        controllers.admin.routes.AdminProgramBlocksController.update(
+                programDefinition.id(), blockId)
+            .url();
     Modal blockDescriptionEditModal = blockDescriptionModal(csrfTag, blockForm, blockUpdateAction);
 
     HtmlBundle htmlBundle =
@@ -88,22 +90,23 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .setTitle(title)
             .addMainStyles(Styles.FLEX, Styles.FLEX_COL)
             .addMainContent(
-                addFormEndpoints(csrfTag, program.id(), blockId),
-                programInfo(program),
+                addFormEndpoints(csrfTag, programDefinition.id(), blockId),
+                layout.renderProgramInfo(programDefinition),
                 div()
                     .withId("program-block-info")
                     .withClasses(Styles.FLEX, Styles.FLEX_GROW, Styles._MX_2)
-                    .with(blockOrderPanel(program, blockId))
+                    .with(blockOrderPanel(programDefinition, blockId))
                     .with(
                         blockEditPanel(
-                            program,
+                            programDefinition,
                             blockId,
                             blockForm,
                             blockQuestions,
                             blockDefinition.isEnumerator(),
                             csrfTag,
                             blockDescriptionEditModal.getButton()))
-                    .with(questionBankPanel(questions, program, blockDefinition, csrfTag)))
+                    .with(
+                        questionBankPanel(questions, programDefinition, blockDefinition, csrfTag)))
             .addModals(blockDescriptionEditModal);
 
     if (message.length() > 0) {
@@ -137,27 +140,6 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
     return div(createBlockForm, createRepeatedBlockForm, deleteBlockForm)
         .withClasses(Styles.HIDDEN);
-  }
-
-  private Tag programInfo(ProgramDefinition program) {
-    ContainerTag programStatus =
-        div("Draft").withId("program-status").withClasses(Styles.TEXT_XS, Styles.UPPERCASE);
-    ContainerTag programTitle =
-        div(program.adminName()).withId("program-title").withClasses(Styles.TEXT_3XL, Styles.PB_3);
-    ContainerTag programDescription = div(program.adminDescription()).withClasses(Styles.TEXT_SM);
-
-    ContainerTag programInfo =
-        div(programStatus, programTitle, programDescription)
-            .withId("program-info")
-            .withClasses(
-                Styles.BG_GRAY_100,
-                Styles.TEXT_GRAY_800,
-                Styles.SHADOW_MD,
-                Styles.P_8,
-                Styles.PT_4,
-                Styles._MX_2);
-
-    return programInfo;
   }
 
   public ContainerTag blockOrderPanel(ProgramDefinition program, long focusedBlockId) {
@@ -224,38 +206,6 @@ public class ProgramBlockEditView extends BaseHtmlView {
       boolean blockDefinitionIsEnumerator,
       Tag csrfTag,
       Tag blockDescriptionModalButton) {
-    String blockUpdateAction =
-        controllers.admin.routes.AdminProgramBlocksController.update(program.id(), blockId).url();
-
-    ContainerTag blockInfoForm = form(csrfTag).withMethod(POST).withAction(blockUpdateAction);
-
-    blockInfoForm
-        .withId("block-edit-form")
-        .with(
-            div(
-                    FieldWithLabel.input()
-                        .setId("block-name-input")
-                        .setFieldName("name")
-                        .setLabelText("Block name")
-                        .setValue(blockForm.getName())
-                        .getContainer(),
-                    FieldWithLabel.textArea()
-                        .setId("block-description-textarea")
-                        .setFieldName("description")
-                        .setLabelText("Block description")
-                        .setValue(blockForm.getDescription())
-                        .getContainer())
-                .withClasses(Styles.MX_4),
-            submitButton("Update Metadata")
-                .withId("update-block-button")
-                .withClasses(
-                    Styles.MX_4,
-                    Styles.MY_1,
-                    Styles.INLINE,
-                    Styles.OPACITY_100,
-                    StyleUtils.disabled(Styles.OPACITY_50))
-                .attr(Attr.DISABLED, ""));
-
     // A block can only be deleted when it has no repeated blocks. Same is true for removing the
     // enumerator question from the block.
     final boolean canDelete = !blockDefinitionIsEnumerator || hasNoRepeatedBlocks(program, blockId);
@@ -297,14 +247,6 @@ public class ProgramBlockEditView extends BaseHtmlView {
                   StyleUtils.hover(Styles.BG_RED_700),
                   Styles.INLINE,
                   StyleUtils.disabled(Styles.OPACITY_50)));
-    }
-
-    if (blockDefinitionIsEnumerator) {
-      blockInfoForm.with(
-          submitButton("Create Repeated Block")
-              .withId("create-repeated-block-button")
-              .attr(Attr.FORM, CREATE_REPEATED_BLOCK_FORM_ID)
-              .withClasses(Styles.MX_4, Styles.MY_1, Styles.INLINE));
     }
 
     String deleteQuestionAction =

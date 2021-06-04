@@ -4,10 +4,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
 import static j2html.TagCreator.p;
 
 import auth.UatProfile;
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import controllers.admin.routes;
 import j2html.tags.Tag;
 import java.util.Optional;
@@ -27,10 +30,12 @@ import views.style.Styles;
 
 public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;
+  private final String baseUrl;
 
   @Inject
-  public ProgramIndexView(AdminLayout layout) {
+  public ProgramIndexView(AdminLayout layout, Config config) {
     this.layout = checkNotNull(layout);
+    this.baseUrl = checkNotNull(config).getString("base_url");
   }
 
   public Content render(
@@ -124,6 +129,20 @@ public final class ProgramIndexView extends BaseHtmlView {
         div(programDescriptionText)
             .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_BASE, Styles.MB_8, Styles.LINE_CLAMP_3);
 
+    Tag programDeepLink =
+        label("Deep link, use this URL to link to this program from outside of CiviForm:")
+            .withClasses(Styles.W_FULL)
+            .with(
+                input()
+                    .withValue(
+                        baseUrl
+                            + controllers.applicant.routes.RedirectController.programByName(
+                                    displayProgram.slug())
+                                .url())
+                    .attr("disabled", "readonly")
+                    .withClasses(Styles.W_FULL, Styles.MB_2)
+                    .withType("text"));
+
     Tag bottomContent =
         div(
                 p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
@@ -135,7 +154,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
 
     Tag innerDiv =
-        div(topContent, midContent, bottomContent)
+        div(topContent, midContent, programDeepLink, bottomContent)
             .withClasses(
                 Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4);
 

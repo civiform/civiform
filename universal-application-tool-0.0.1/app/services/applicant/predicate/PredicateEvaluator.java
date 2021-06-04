@@ -2,7 +2,9 @@ package services.applicant.predicate;
 
 import services.applicant.ApplicantData;
 import services.applicant.exception.InvalidPredicateException;
+import services.program.predicate.AndNode;
 import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.OrNode;
 import services.program.predicate.PredicateExpressionNode;
 
 /** Evaluates complex predicates based on the given {@link ApplicantData}. */
@@ -26,8 +28,10 @@ public class PredicateEvaluator {
     switch (node.getType()) {
       case LEAF_OPERATION:
         return evaluateLeafNode(node.getLeafNode());
-      case AND: // fallthrough intended
-      case OR: // fallthrough intended
+      case AND:
+        return evaluateAndNode(node.getAndNode());
+      case OR:
+        return evaluateOrNode(node.getOrNode());
       default:
         return false;
     }
@@ -45,5 +49,15 @@ public class PredicateEvaluator {
     } catch (InvalidPredicateException e) {
       return false;
     }
+  }
+
+  /** Returns true if and only if each of the node's children evaluates to true. */
+  private boolean evaluateAndNode(AndNode node) {
+    return node.children().stream().allMatch(this::evaluate);
+  }
+
+  /** Returns true if and only if one or more of the node's children evaluates to true. */
+  private boolean evaluateOrNode(OrNode node) {
+    return node.children().stream().anyMatch(this::evaluate);
   }
 }

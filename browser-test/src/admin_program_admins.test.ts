@@ -24,7 +24,7 @@ describe('manage program admins', () => {
 
     // Assert that the two emails we added are present.
     // Use input:visible to get the first visible input, since the template is hidden.
-    expect(await page.getAttribute('input:visible', 'value')).toContain('test@test.com');
+    expect(await page.getAttribute('#program-admin-emails input:visible', 'value')).toContain('test@test.com');
     expect(await page.getAttribute('input:above(#add-program-admin-button)', 'value')).toContain('other@test.com');
 
     // Add another program admin
@@ -44,7 +44,7 @@ describe('manage program admins', () => {
 
     // Go back and check that there are exactly two - test and new.
     await adminPrograms.gotoManageProgramAdminsPage(programName);
-    expect(await page.getAttribute('input:visible', 'value')).toContain('test@test.com');
+    expect(await page.getAttribute('#program-admin-emails input:visible', 'value')).toContain('test@test.com');
     expect(await page.getAttribute('input:above(#add-program-admin-button)', 'value')).toContain('new@test.com');
 
     await endSession(browser);

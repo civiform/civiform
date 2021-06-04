@@ -5,7 +5,6 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.net.URL;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -17,7 +16,6 @@ import services.applicant.predicate.PredicateEvaluator;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.Scalar;
-import services.aws.SimpleStorage;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.PredicateDefinition;
@@ -26,17 +24,13 @@ import services.question.types.EnumeratorQuestionDefinition;
 
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
 
-  private final SimpleStorage amazonS3Client;
   private final ApplicantData applicantData;
   private final ProgramDefinition programDefinition;
   private ImmutableList<Block> allBlockList;
   private ImmutableList<Block> currentBlockList;
 
   protected ReadOnlyApplicantProgramServiceImpl(
-      SimpleStorage amazonS3Client,
-      ApplicantData applicantData,
-      ProgramDefinition programDefinition) {
-    this.amazonS3Client = checkNotNull(amazonS3Client);
+      ApplicantData applicantData, ProgramDefinition programDefinition) {
     this.applicantData = new ApplicantData(checkNotNull(applicantData).asJsonString());
     this.applicantData.setPreferredLocale(applicantData.preferredLocale());
     this.applicantData.lock();
@@ -235,19 +229,17 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         return predicateEvaluator.evaluate(predicate.rootNode());
       default:
         return true;
-    }
   }
 
-  /** Returns a link to answer content if applicable, e.g. an uploaded file. */
-  private Optional<URL> getAnswerLink(ApplicantQuestion question) {
+  /** Returns the identifier of uploaded file if applicable. */
+  private Optional<String> getFileKey(ApplicantQuestion question) {
     switch (question.getType()) {
       case FILEUPLOAD:
         FileUploadQuestion fileUploadQuestion = question.createFileUploadQuestion();
-        if (!fileUploadQuestion.isAnswered() || fileUploadQuestion.getFileKeyValue().isEmpty()) {
+        if (!fileUploadQuestion.isAnswered()) {
           return Optional.empty();
         }
-        return Optional.of(
-            amazonS3Client.getPresignedUrl(fileUploadQuestion.getFileKeyValue().get()));
+        return fileUploadQuestion.getFileKeyValue();
       default:
         return Optional.empty();
     }
@@ -279,6 +271,17 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                         selectedOptions.stream()
                             .map(LocalizedQuestionOption::optionText)
                             .collect(Collectors.joining(", ")))
+                .orElse(""));
+      case FILEUPLOAD:
+        return ImmutableMap.of(
+            question.getContextualizedPath().join(Scalar.FILE_KEY),
+            question
+                .createFileUploadQuestion()
+                .getFileKeyValue()
+                .map(
+                    fileKey ->
+                        controllers.routes.FileController.adminShow(programDefinition.id(), fileKey)
+                            .url())
                 .orElse(""));
       case ENUMERATOR:
         return ImmutableMap.of(
