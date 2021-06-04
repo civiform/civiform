@@ -88,9 +88,9 @@ button.submit=Submit
 # Continue application button
 button.continue=Continue
 
-#------------------------------------------------------------------------------#
-# APPLICANT APPLICATION CONFIRMATION PAGE - text when reviewing an application #
-#------------------------------------------------------------------------------#
+#---------------------------------------------------------------------------------------------#
+# APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
+#---------------------------------------------------------------------------------------------#
 
 # Title on the page after the applicant has successfully submitted an application.
 title.applicationConfirmation=Application confirmation
