@@ -1,5 +1,5 @@
 #! /bin/bash
-pushd $(git rev-parse --show-toplevel)
+pushd $(git rev-parse --show-toplevel) > /dev/null
 
 set -e
 set +x
