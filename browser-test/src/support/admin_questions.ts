@@ -24,10 +24,10 @@ export class AdminQuestions {
     helpText: string,
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     // This function should only be called on question create/edit page.
-    await this.page.fill('text="Name"', questionName);
-    await this.page.fill('text=Description', description);
-    await this.page.fill('text=Question Text', questionText);
-    await this.page.fill('text=Question help text', helpText);
+    await this.page.fill('label:has-text("Name")', questionName);
+    await this.page.fill('label:has-text("Description")', description);
+    await this.page.fill('label:has-text("Question Text")', questionText);
+    await this.page.fill('label:has-text("Question help text")', helpText);
     await this.page.selectOption('#question-enumerator-select', { label: enumeratorName });
   }
 
@@ -176,7 +176,7 @@ export class AdminQuestions {
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-    await this.page.click('text=Create');
+    await this.page.click('button:has-text("Create")');
 
     await this.expectAdminQuestionsPage();
 
@@ -195,7 +195,7 @@ export class AdminQuestions {
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-    await this.page.click('text=Create');
+    await this.page.click('button:has-text("Create")');
 
     await this.expectAdminQuestionsPage();
 
@@ -220,7 +220,7 @@ export class AdminQuestions {
       await this.page.fill('input:above(#add-new-option)', options[index]);
     }
 
-    await this.page.click('text=Create');
+    await this.page.click('button:has-text("Create")');
 
     await this.expectAdminQuestionsPage();
 
@@ -245,7 +245,7 @@ export class AdminQuestions {
       await this.page.fill('input:above(#add-new-option)', options[index]);
     }
 
-    await this.page.click('text=Create');
+    await this.page.click('button:has-text("Create")');
 
     await this.expectAdminQuestionsPage();
 
@@ -264,7 +264,7 @@ export class AdminQuestions {
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-    await this.page.click('text=Create');
+    await this.page.click('button:has-text("Create")');
 
     await this.expectAdminQuestionsPage();
 
@@ -283,7 +283,7 @@ export class AdminQuestions {
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-    await this.page.click('text=Create');
+    await this.page.click('button:has-text("Create")');
 
     await this.expectAdminQuestionsPage();
 
@@ -302,7 +302,7 @@ export class AdminQuestions {
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-    await this.page.click('text=Create');
+    await this.page.click('button:has-text("Create")');
 
     await this.expectAdminQuestionsPage();
 
@@ -327,7 +327,7 @@ export class AdminQuestions {
       await this.page.fill('input:above(#add-new-option)', options[index])
     }
 
-    await this.page.click('text=Create')
+    await this.page.click('button:has-text("Create")')
 
     await this.expectAdminQuestionsPage();
 
@@ -346,7 +346,7 @@ export class AdminQuestions {
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-    await this.page.click('text=Create');
+    await this.page.click('button:has-text("Create")');
 
     await this.expectAdminQuestionsPage();
 
@@ -354,23 +354,23 @@ export class AdminQuestions {
   }
 
   async addEmailQuestion(questionName: string,
-      description = 'email description',
-      questionText = 'email question text',
-      helpText = 'email question help text',
-      enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
-      await this.gotoAdminQuestionsPage();
-      await this.page.click('#create-question-button');
+    description = 'email description',
+    questionText = 'email question text',
+    helpText = 'email question help text',
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
+    await this.gotoAdminQuestionsPage();
+    await this.page.click('#create-question-button');
 
-      await this.page.click('#create-email-question');
+    await this.page.click('#create-email-question');
 
-      await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-      await this.page.click('text=Create');
+    await this.page.click('button:has-text("Create")');
 
-      await this.expectAdminQuestionsPage();
+    await this.expectAdminQuestionsPage();
 
-      await this.expectDraftQuestionExist(questionName, questionText);
-    }
+    await this.expectDraftQuestionExist(questionName, questionText);
+  }
 
   /**
    * The `enumeratorName` argument is used to make _this_ enumerator question a repeated question.
@@ -389,7 +389,7 @@ export class AdminQuestions {
 
     await this.page.fill('text=Repeated Entity Type', 'Entity');
 
-    await this.page.click('text=Create');
+    await this.page.click('button:has-text("Create")');
 
     await this.expectAdminQuestionsPage();
 

@@ -56,12 +56,12 @@ export class ApplicantQuestions {
   }
 
   async answerEmailQuestion(email: string) {
-      await this.page.fill('input[type="email"]', email);
-    }
+    await this.page.fill('input[type="email"]', email);
+  }
 
   async addEnumeratorAnswer(entityName: string) {
     await this.page.click('button:text("add entity")');
-    await this.page.fill('input:above(#enumerator-field-add-button)', entityName)
+    await this.page.fill('#enumerator-fields .cf-enumerator-field:last-of-type input', entityName)
   }
 
   async applyProgram(programName: string) {
