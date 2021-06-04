@@ -3,13 +3,14 @@ import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession, 
 describe('normal application flow', () => {
   it('all major steps', async () => {
     const { browser, page } = await startSession()
-    page.setDefaultTimeout(2000);
+    page.setDefaultTimeout(5000);
 
     await loginAsAdmin(page);
     const adminQuestions = new AdminQuestions(page);
     const adminPrograms = new AdminPrograms(page);
 
     await adminQuestions.addDateQuestion('date-q');
+    await adminQuestions.addEmailQuestion('email-q');
     await adminQuestions.addDropdownQuestion('ice-cream-q', ['chocolate', 'banana', 'black raspberry']);
     await adminQuestions.addCheckboxQuestion('favorite-trees-q', ['oak', 'maple', 'pine', 'cherry']);
     await adminQuestions.addAddressQuestion('address-q');
@@ -21,7 +22,7 @@ describe('normal application flow', () => {
 
     const programName = 'a shiny new program';
     await adminPrograms.addProgram(programName);
-    await adminPrograms.editProgramBlock(programName, 'block description', ['date-q', 'address-q', 'name-q', 'radio-q']);
+    await adminPrograms.editProgramBlock(programName, 'block description', ['date-q', 'address-q', 'name-q', 'radio-q', 'email-q']);
     await adminPrograms.addProgramBlock(programName, 'another description', ['ice-cream-q', 'favorite-trees-q', 'number-q', 'text-q']);
     await adminPrograms.addProgramBlock(programName, 'third description', ['fileupload-q']);
 
@@ -39,6 +40,7 @@ describe('normal application flow', () => {
     await adminQuestions.expectActiveQuestionExist('number-q');
     await adminQuestions.expectActiveQuestionExist('text-q');
     await adminQuestions.expectActiveQuestionExist('radio-q');
+    await adminQuestions.expectActiveQuestionExist('email-q');
 
     await logout(page);
     await loginAsTestUser(page);
@@ -53,6 +55,7 @@ describe('normal application flow', () => {
     await applicantQuestions.answerNameQuestion('', '', '');
     await applicantQuestions.answerRadioButtonQuestion('two');
     await applicantQuestions.answerDateQuestion('2021-05-10');
+    await applicantQuestions.answerEmailQuestion('test1@gmail.com');
     await applicantQuestions.clickNext();
 
     // Application doesn't progress because of name and address question errors.
@@ -97,6 +100,7 @@ describe('normal application flow', () => {
     // https://github.com/seattle-uat/civiform/issues/778
     await adminPrograms.expectApplicationAnswers('Block 1', 'radio-q', '2');
     await adminPrograms.expectApplicationAnswers('Block 1', 'date-q', '05/10/2021');
+    await adminPrograms.expectApplicationAnswers('Block 1', 'email-q', 'test1@gmail.com');
 
     await adminPrograms.expectApplicationAnswers('Block 2', 'ice-cream-q', '2');
     await adminPrograms.expectApplicationAnswers('Block 2', 'favorite-trees-q', 'pine cherry');

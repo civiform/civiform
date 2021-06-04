@@ -96,6 +96,7 @@ public class QuestionConfig {
       case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended - no options
       case DATE: // fallthrough intended
+      case EMAIL: // fallthrough intended
       default:
         return div();
     }

@@ -32,6 +32,8 @@ public class ApplicantQuestionRendererFactory {
         return new DateQuestionRenderer(question);
       case DROPDOWN:
         return new DropdownQuestionRenderer(question);
+      case EMAIL:
+        return new EmailQuestionRenderer(question);
       case FILEUPLOAD:
         return new FileUploadQuestionRenderer(question);
       case NAME:

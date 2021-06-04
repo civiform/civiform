@@ -151,6 +151,10 @@ public class ApplicantQuestion {
     return new DateQuestion(this);
   }
 
+  public EmailQuestion createEmailQuestion() {
+    return new EmailQuestion(this);
+  }
+
   public FileUploadQuestion createFileUploadQuestion() {
     return new FileUploadQuestion(this);
   }
@@ -187,6 +191,8 @@ public class ApplicantQuestion {
         return createMultiSelectQuestion();
       case DATE:
         return createDateQuestion();
+      case EMAIL:
+        return createEmailQuestion();
       case FILEUPLOAD:
         return createFileUploadQuestion();
       case NAME:
