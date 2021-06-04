@@ -13,6 +13,9 @@ public class Icons {
       "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z";
   // Menu
   public static final String DROPDOWN_SVG_PATH = "M4 6h16M4 10h16M4 14h16M4 18h16";
+  public static final String EMAIL_SVG_PATH =
+      "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2"
+          + " 0 002 2z";
   public static final String ENUMERATOR_SVG_PATH =
       "M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2"
           + " 2 0 00-2 2v8a2 2 0 002 2z";
@@ -80,6 +83,12 @@ public class Icons {
             .attr("stroke-width", "2");
       case DROPDOWN:
         return svg(Icons.DROPDOWN_SVG_PATH, width, height)
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-width", "2");
+      case EMAIL:
+        return svg(Icons.EMAIL_SVG_PATH, width, height)
+            .attr("fill", "none")
             .attr("stroke-linecap", "round")
             .attr("stroke-linejoin", "round")
             .attr("stroke-width", "2");

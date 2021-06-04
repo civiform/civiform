@@ -45,14 +45,14 @@ public abstract class ApplicantQuestionRenderer {
                 div()
                     .withClasses(
                         ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT)
-                    .withText(question.getQuestionText()))
+                    .with(BaseHtmlView.createLinksAndEscapeText(question.getQuestionText())))
             // Question help text
             .with(
                 div()
                     .withClasses(
                         ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
                         ApplicantStyles.QUESTION_HELP_TEXT)
-                    .withText(question.getQuestionHelpText()))
+                    .with(BaseHtmlView.createLinksAndEscapeText(question.getQuestionHelpText())))
             .withClasses(Styles.MB_4);
 
     if (shouldDisplayQuestionErrors) {

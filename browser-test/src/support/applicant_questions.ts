@@ -55,6 +55,10 @@ export class ApplicantQuestions {
     await this.page.fill('input[type="text"]', text);
   }
 
+  async answerEmailQuestion(email: string) {
+      await this.page.fill('input[type="email"]', email);
+    }
+
   async addEnumeratorAnswer(entityName: string) {
     await this.page.click('button:text("add entity")');
     await this.page.fill('input:above(#enumerator-field-add-button)', entityName)

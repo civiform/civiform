@@ -257,7 +257,7 @@ public abstract class ProgramDefinition {
 
   public abstract Builder toBuilder();
 
-  private Stream<QuestionDefinition> streamQuestionDefinitions() {
+  public Stream<QuestionDefinition> streamQuestionDefinitions() {
     return blockDefinitions().stream()
         .flatMap(
             b ->

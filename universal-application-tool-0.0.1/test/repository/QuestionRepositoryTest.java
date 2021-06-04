@@ -198,8 +198,8 @@ public class QuestionRepositoryTest extends WithPostgresContainer {
   @Test
   public void loadLegacy() {
     DB.sqlUpdate(
-            "insert into questions (path, name, description, legacy_question_text,"
-                + " legacy_question_help_text, question_type) values ('a.path', 'old schema"
+            "insert into questions (name, description, legacy_question_text,"
+                + " legacy_question_help_text, question_type) values ('old schema"
                 + " entry', 'description', '{\"en_us\": \"text\"}', '{\"en_us\": \"help\"}',"
                 + " 'REPEATER');")
         .execute();

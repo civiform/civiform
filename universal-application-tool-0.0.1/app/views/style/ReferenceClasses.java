@@ -53,6 +53,7 @@ public final class ReferenceClasses {
 
   public static final String CHECKBOX_QUESTION = "cf-question-checkbox";
   public static final String DATE_QUESTION = "cf-question-date";
+  public static final String EMAIL_QUESTION = "cf-question-email";
 
   public static final String ENUMERATOR_QUESTION = "cf-question-enumerator";
   public static final String ENUMERATOR_ERROR = "cf-enumerator-error";

@@ -3,14 +3,17 @@ package services.applicant.predicate;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
+import services.program.predicate.AndNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
+import services.program.predicate.OrNode;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.types.QuestionDefinition;
@@ -67,5 +70,85 @@ public class PredicateEvaluatorTest {
         applicantQuestion.createAddressQuestion().getStreetPath(), "123 Rhode St.");
 
     assertThat(evaluator.evaluate(node)).isFalse();
+  }
+
+  @Test
+  public void evalAndNode_returnsTrue() {
+    LeafOperationExpressionNode city =
+        LeafOperationExpressionNode.create(
+            addressQuestion.getId(), Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Seattle"));
+    LeafOperationExpressionNode state =
+        LeafOperationExpressionNode.create(
+            addressQuestion.getId(), Scalar.STATE, Operator.EQUAL_TO, PredicateValue.of("WA"));
+
+    applicantData.putString(applicantQuestion.createAddressQuestion().getCityPath(), "Seattle");
+    applicantData.putString(applicantQuestion.createAddressQuestion().getStatePath(), "WA");
+
+    AndNode andNode =
+        AndNode.create(
+            ImmutableSet.of(
+                PredicateExpressionNode.create(city), PredicateExpressionNode.create(state)));
+
+    assertThat(evaluator.evaluate(PredicateExpressionNode.create(andNode))).isTrue();
+  }
+
+  @Test
+  public void evalAndNode_oneFalse_returnsFalse() {
+    LeafOperationExpressionNode city =
+        LeafOperationExpressionNode.create(
+            addressQuestion.getId(), Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Seattle"));
+    LeafOperationExpressionNode state =
+        LeafOperationExpressionNode.create(
+            addressQuestion.getId(), Scalar.STATE, Operator.EQUAL_TO, PredicateValue.of("WA"));
+
+    applicantData.putString(applicantQuestion.createAddressQuestion().getCityPath(), "Spokane");
+    applicantData.putString(applicantQuestion.createAddressQuestion().getStatePath(), "WA");
+
+    AndNode andNode =
+        AndNode.create(
+            ImmutableSet.of(
+                PredicateExpressionNode.create(city), PredicateExpressionNode.create(state)));
+
+    assertThat(evaluator.evaluate(PredicateExpressionNode.create(andNode))).isFalse();
+  }
+
+  @Test
+  public void evalOrNode_oneTrue_returnsTrue() {
+    LeafOperationExpressionNode city =
+        LeafOperationExpressionNode.create(
+            addressQuestion.getId(), Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Seattle"));
+    LeafOperationExpressionNode state =
+        LeafOperationExpressionNode.create(
+            addressQuestion.getId(), Scalar.STATE, Operator.EQUAL_TO, PredicateValue.of("WA"));
+
+    applicantData.putString(applicantQuestion.createAddressQuestion().getCityPath(), "Spokane");
+    applicantData.putString(applicantQuestion.createAddressQuestion().getStatePath(), "WA");
+
+    OrNode orNode =
+        OrNode.create(
+            ImmutableSet.of(
+                PredicateExpressionNode.create(city), PredicateExpressionNode.create(state)));
+
+    assertThat(evaluator.evaluate(PredicateExpressionNode.create(orNode))).isTrue();
+  }
+
+  @Test
+  public void evalOrNode_allFalse_returnsFalse() {
+    LeafOperationExpressionNode city =
+        LeafOperationExpressionNode.create(
+            addressQuestion.getId(), Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Seattle"));
+    LeafOperationExpressionNode state =
+        LeafOperationExpressionNode.create(
+            addressQuestion.getId(), Scalar.STATE, Operator.EQUAL_TO, PredicateValue.of("WA"));
+
+    applicantData.putString(applicantQuestion.createAddressQuestion().getCityPath(), "Minneapolis");
+    applicantData.putString(applicantQuestion.createAddressQuestion().getStatePath(), "MN");
+
+    OrNode orNode =
+        OrNode.create(
+            ImmutableSet.of(
+                PredicateExpressionNode.create(city), PredicateExpressionNode.create(state)));
+
+    assertThat(evaluator.evaluate(PredicateExpressionNode.create(orNode))).isFalse();
   }
 }
