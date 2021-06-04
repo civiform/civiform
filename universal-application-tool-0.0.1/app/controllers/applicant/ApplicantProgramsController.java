@@ -98,11 +98,11 @@ public class ApplicantProgramsController extends CiviFormController {
                   programs.stream()
                       .filter(program -> program.id() == programId)
                       .findFirst();
-              if (filteredPrograms.isPresent()) {
+              if (programDefinition.isPresent()) {
                 return ok(
                     programInfoView.render(
                         messagesApi.preferred(request),
-                        filteredPrograms.get(),
+                        programDefinition.get(),
                         request,
                         applicantId,
                         applicantStage.toCompletableFuture().join()));
