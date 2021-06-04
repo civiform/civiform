@@ -1,11 +1,9 @@
 package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.ProfileUtils;
-import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
@@ -95,9 +93,7 @@ public class ApplicantProgramsController extends CiviFormController {
         .thenApplyAsync(
             programs -> {
               Optional<ProgramDefinition> programDefinition =
-                  programs.stream()
-                      .filter(program -> program.id() == programId)
-                      .findFirst();
+                  programs.stream().filter(program -> program.id() == programId).findFirst();
               if (programDefinition.isPresent()) {
                 return ok(
                     programInfoView.render(

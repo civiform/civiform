@@ -127,7 +127,8 @@ public class ProgramIndexView extends BaseHtmlView {
             .withClasses(Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
             .withText(program.localizedName().getOrDefault(preferredLocale));
     ImmutableList<DomContent> descriptionContent =
-        TextFormatter.createLinksAndEscapeText(program.localizedDescription().getOrDefault(preferredLocale));
+        TextFormatter.createLinksAndEscapeText(
+            program.localizedDescription().getOrDefault(preferredLocale));
     ContainerTag description =
         div()
             .withId(baseId + "-description")

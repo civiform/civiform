@@ -8,9 +8,9 @@ import j2html.tags.Tag;
 import play.i18n.Messages;
 import services.applicant.question.ApplicantQuestion;
 import views.BaseHtmlView;
+import views.components.TextFormatter;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
-import views.components.TextFormatter;
 import views.style.Styles;
 
 public abstract class ApplicantQuestionRenderer {
