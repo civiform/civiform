@@ -37,14 +37,14 @@ import views.style.Styles;
 public class TextFormatter {
   private static final Logger LOG = LoggerFactory.getLogger(TextFormatter.class);
 
-  public static ContainerTag buildAccordion(String title, String accordionContent) {
+  private static ContainerTag buildAccordion(String title, String accordionContent) {
     Accordion accordion = new Accordion().setTitle(title);
     ImmutableList<DomContent> contentTags = TextFormatter.formatText(accordionContent, true);
     contentTags.stream().forEach(tag -> accordion.addContent(tag));
     return accordion.getContainer();
   }
 
-  public static ContainerTag buildList(ArrayList<String> items) {
+  private static ContainerTag buildList(ArrayList<String> items) {
     ContainerTag listTag = ul().withClasses(Styles.LIST_DISC, Styles.MX_8);
     items.forEach(item -> listTag.with(li().withText(item)));
     return listTag;
