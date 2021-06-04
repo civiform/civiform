@@ -8,6 +8,7 @@ import controllers.CiviFormController;
 import controllers.routes;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Applicant;
@@ -72,8 +73,6 @@ public class RedirectController extends CiviFormController {
       long programId,
       long applicationId,
       String redirectTo) {
-    Optional<String> banner = request.flash().get("banner");
-
     Optional<UatProfile> profile = profileUtils.currentUserProfile(request);
     if (profile.isEmpty()) {
       // should definitely never happen.
@@ -83,10 +82,8 @@ public class RedirectController extends CiviFormController {
 
     CompletionStage<ReadOnlyApplicantProgramService> roApplicantProgramServiceCompletionStage =
         applicantService.getReadOnlyApplicantProgramService(applicantId, programId);
-
-    return profile
-        .get()
-        .getAccount()
+    return checkApplicantAuthorization(profileUtils, request, applicantId)
+        .thenComposeAsync(v -> profile.get().getAccount())
         .thenCombineAsync(
             roApplicantProgramServiceCompletionStage,
             (account, roApplicantProgramService) ->
@@ -98,6 +95,16 @@ public class RedirectController extends CiviFormController {
                         roApplicantProgramService.getProgramTitle(),
                         applicationId,
                         messagesApi.preferred(request),
-                        banner)));
+                        request.flash().get("banner"))))
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                Throwable cause = ex.getCause();
+                if (cause instanceof SecurityException) {
+                  return unauthorized();
+                }
+              }
+              throw new RuntimeException(ex);
+            });
   }
 }
