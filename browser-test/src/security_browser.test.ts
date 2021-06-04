@@ -4,7 +4,6 @@ import { loginWithSimulatedIdcs, loginAsAdmin, loginAsGuest } from './support'
 import { logout, endSession } from './support'
 import { BASE_URL } from './support'
 
-const { GenericContainer } = require("testcontainers");
 var assert = require('assert');
 
 describe('security browser testing', () => {
