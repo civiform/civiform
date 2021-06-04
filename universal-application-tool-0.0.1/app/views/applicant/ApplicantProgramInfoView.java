@@ -25,6 +25,7 @@ import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.Accordion;
+import views.components.TextFormatter;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -80,60 +81,11 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
                 Styles.MT_4);
 
     // "Markdown" the program description.
-    String[] lines = Iterables.toArray(Splitter.on("\n").split(programInfo), String.class);
-    ImmutableList<DomContent> items = formatText(lines, false);
+    ImmutableList<DomContent> items = TextFormatter.formatText(programInfo, false);
+
     ContainerTag descriptionDiv = div().withClasses(Styles.PY_2).with(items);
 
     return div(allProgramsDiv, titleDiv, descriptionDiv);
-  }
-
-  /** Adds the ability to create accordions and lists from data in text fields. */
-  private ImmutableList<DomContent> formatText(String[] lines, boolean preserveEmptyLines) {
-    ImmutableList.Builder<DomContent> builder = new ImmutableList.Builder<DomContent>();
-    for (int i = 0; i < lines.length; i++) {
-      String line = lines[i].trim();
-      if (line.startsWith("###")) { // We're calling this an accordion.
-        String accordionHeader = line.substring(3);
-        int next = i + 1;
-        ArrayList<String> content = new ArrayList<>();
-        while (next < lines.length && lines[next].startsWith(">")) {
-          content.add(lines[next].substring(1));
-          next++;
-        }
-        i = next - 1;
-        builder.add(buildAccordion(accordionHeader, content));
-      } else if (line.startsWith("*")) { // unordered list item.
-        ArrayList<String> items = new ArrayList<>();
-        items.add(line.substring(1));
-        int next = i + 1;
-        while (next < lines.length && lines[next].startsWith("*")) {
-          items.add(lines[next].substring(1));
-          next++;
-        }
-        i = next - 1;
-        builder.add(buildList(items));
-      } else if (line.length() > 0) {
-        ImmutableList<DomContent> lineContent = createLinksAndEscapeText(line);
-        builder.add(div().with(lineContent));
-      } else if (preserveEmptyLines) {
-        builder.add(div().withClasses(Styles.H_6));
-      }
-    }
-    return builder.build();
-  }
-
-  private ContainerTag buildAccordion(String title, ArrayList<String> accordionContent) {
-    Accordion accordion = new Accordion().setTitle(title);
-    ImmutableList<DomContent> contentTags =
-        formatText(accordionContent.toArray(new String[0]), true);
-    contentTags.stream().forEach(tag -> accordion.addContent(tag));
-    return accordion.getContainer();
-  }
-
-  private ContainerTag buildList(ArrayList<String> items) {
-    ContainerTag listTag = ul().withClasses(Styles.LIST_DISC, Styles.MX_8);
-    items.forEach(item -> listTag.with(li().withText(item)));
-    return listTag;
   }
 
   private ContainerTag createButtons(Long applicantId, Long programId, Messages messages) {

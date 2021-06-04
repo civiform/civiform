@@ -8,6 +8,7 @@ import j2html.tags.Tag;
 import j2html.tags.Text;
 import org.junit.Before;
 import org.junit.Test;
+import views.components.TextFormatter;
 
 public class BaseHtmlViewTest {
 
@@ -28,7 +29,7 @@ public class BaseHtmlViewTest {
   @Test
   public void urlsRenderCorrectly() {
     ImmutableList<DomContent> content =
-        testImpl.createLinksAndEscapeText("hello google.com http://internet.website");
+        TextFormatter.createLinksAndEscapeText("hello google.com http://internet.website");
     assertThat(content).hasSize(4);
     assertThat(content.get(0).render()).isEqualTo(new Text("hello ").render());
     assertThat(content.get(1).render())

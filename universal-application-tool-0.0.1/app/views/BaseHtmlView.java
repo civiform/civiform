@@ -46,7 +46,6 @@ import views.style.Styles;
  * rendered.
  */
 public abstract class BaseHtmlView {
-  private static final Logger LOG = LoggerFactory.getLogger(BaseHtmlView.class);
 
   public static Tag renderHeader(String headerText, String... additionalClasses) {
     return h1(headerText).withClasses(Styles.MB_4, StyleUtils.joinStyles(additionalClasses));
@@ -95,37 +94,6 @@ public abstract class BaseHtmlView {
   protected String renderDateTime(Instant time) {
     LocalDateTime datetime = LocalDateTime.ofInstant(time, ZoneId.of("America/Los_Angeles"));
     return datetime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd 'at' h:mm a"));
-  }
-
-  protected ImmutableList<DomContent> createLinksAndEscapeText(String content) {
-    List<Url> urls = new UrlDetector(content, UrlDetectorOptions.Default).detect();
-    ImmutableList.Builder<DomContent> contentBuilder = ImmutableList.builder();
-    for (Url url : urls) {
-      int index = content.indexOf(url.getOriginalUrl());
-      // Find where this URL is in the text.
-      if (index == -1) {
-        LOG.error(
-            String.format(
-                "Detected URL %s not present in actual content, %s.",
-                url.getOriginalUrl(), content));
-        continue;
-      }
-      if (index > 0) {
-        // If it's not at the beginning, add the text from before the URL.
-        contentBuilder.add(text(content.substring(0, index)));
-      }
-      // Add the URL.
-      contentBuilder.add(
-          a().withText(url.getOriginalUrl())
-              .withHref(url.getFullUrl())
-              .withClasses(Styles.OPACITY_75));
-      content = content.substring(index + url.getOriginalUrl().length());
-    }
-    // If there's content leftover, add it.
-    if (!Strings.isNullOrEmpty(content)) {
-      contentBuilder.add(text(content));
-    }
-    return contentBuilder.build();
   }
 
   protected ContainerTag renderPaginationDiv(

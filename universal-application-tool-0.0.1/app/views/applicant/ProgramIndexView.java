@@ -23,6 +23,7 @@ import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.LinkElement;
+import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
@@ -126,7 +127,7 @@ public class ProgramIndexView extends BaseHtmlView {
             .withClasses(Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
             .withText(program.localizedName().getOrDefault(preferredLocale));
     ImmutableList<DomContent> descriptionContent =
-        createLinksAndEscapeText(program.localizedDescription().getOrDefault(preferredLocale));
+        TextFormatter.createLinksAndEscapeText(program.localizedDescription().getOrDefault(preferredLocale));
     ContainerTag description =
         div()
             .withId(baseId + "-description")
