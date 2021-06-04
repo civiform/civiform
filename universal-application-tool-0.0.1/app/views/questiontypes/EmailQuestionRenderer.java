@@ -22,7 +22,7 @@ public class EmailQuestionRenderer extends ApplicantQuestionRenderer {
     EmailQuestion emailQuestion = question.createEmailQuestion();
 
     Tag questionFormContent =
-        FieldWithLabel.input()
+        FieldWithLabel.email()
             .setFieldName(emailQuestion.getEmailPath().toString())
             .setValue(emailQuestion.getEmailValue().orElse(""))
             .setFieldErrors(params.messages(), emailQuestion.getQuestionErrors())

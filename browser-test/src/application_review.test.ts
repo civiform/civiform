@@ -55,7 +55,7 @@ describe('normal application flow', () => {
     await applicantQuestions.answerNameQuestion('', '', '');
     await applicantQuestions.answerRadioButtonQuestion('two');
     await applicantQuestions.answerDateQuestion('2021-05-10');
-    await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+    await applicantQuestions.answerEmailQuestion('test1@gmail.com');
     await applicantQuestions.clickNext();
 
     // Application doesn't progress because of name and address question errors.

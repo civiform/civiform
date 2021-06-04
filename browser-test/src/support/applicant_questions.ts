@@ -56,7 +56,7 @@ export class ApplicantQuestions {
   }
 
   async answerEmailQuestion(email: string) {
-      await this.page.fill('input[type="text"]', email);
+      await this.page.fill('input[type="email"]', email);
     }
 
   async addEnumeratorAnswer(entityName: string) {
