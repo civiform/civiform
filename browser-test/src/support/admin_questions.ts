@@ -217,7 +217,8 @@ export class AdminQuestions {
 
     for (var index in options) {
       await this.page.click('#add-new-option');
-      await this.page.fill('input:above(#add-new-option)', options[index]);
+      var matchIndex = Number(index) + 1;
+      await this.page.fill(`:nth-match(#question-settings div.flex-row, ${matchIndex}) input`, options[index]);
     }
 
     await this.page.click('button:has-text("Create")');
@@ -242,7 +243,8 @@ export class AdminQuestions {
 
     for (var index in options) {
       await this.page.click('#add-new-option');
-      await this.page.fill('input:above(#add-new-option)', options[index]);
+      var matchIndex = Number(index) + 1;
+      await this.page.fill(`:nth-match(#question-settings div.flex-row, ${matchIndex}) input`, options[index]);
     }
 
     await this.page.click('button:has-text("Create")');
@@ -324,7 +326,8 @@ export class AdminQuestions {
 
     for (var index in options) {
       await this.page.click('#add-new-option')
-      await this.page.fill('input:above(#add-new-option)', options[index])
+      var matchIndex = Number(index) + 1;
+      await this.page.fill(`:nth-match(#question-settings div.flex-row, ${matchIndex}) input`, options[index]);
     }
 
     await this.page.click('button:has-text("Create")')

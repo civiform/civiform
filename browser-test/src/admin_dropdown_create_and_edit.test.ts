@@ -26,11 +26,11 @@ describe('create dropdown question with options', () => {
 
     // Add three options
     await page.click('#add-new-option');
-    await page.fill('input:above(#add-new-option)', 'chocolate');
+    await page.fill('#question-settings div.flex-row:last-of-type input', 'chocolate');
     await page.click('#add-new-option');
-    await page.fill('input:above(#add-new-option)', 'vanilla');
+    await page.fill('#question-settings div.flex-row:last-of-type input', 'vanilla');
     await page.click('#add-new-option');
-    await page.fill('input:above(#add-new-option)', 'strawberry');
+    await page.fill('#question-settings div.flex-row:last-of-type input', 'strawberry');
 
     // Assert there are three options present
     var questionSettingsDiv = await page.innerHTML('#question-settings');
