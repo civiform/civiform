@@ -71,9 +71,9 @@ describe('normal application flow', () => {
 
     // Fix the address and name questions and submit.
     await applicantQuestions.answerNameQuestion('Queen', 'Hearts', 'of');
-    await applicantQuestions.answerAddressQuestion('1234 St', 'Unit B', 'Sim', 'Ames', '54321');    
+    await applicantQuestions.answerAddressQuestion('1234 St', 'Unit B', 'Sim', 'Ames', '54321');
     await applicantQuestions.clickNext();
-    
+
     // Applicant fills out second application block.
     await applicantQuestions.answerDropdownQuestion('banana');
     await applicantQuestions.answerCheckboxQuestion(['cherry', 'pine']);
