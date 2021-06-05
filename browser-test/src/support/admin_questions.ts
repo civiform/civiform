@@ -170,6 +170,8 @@ export class AdminQuestions {
     helpText = 'address question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-address-question');
@@ -189,6 +191,8 @@ export class AdminQuestions {
     helpText = 'date question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-date-question');
@@ -209,6 +213,8 @@ export class AdminQuestions {
     helpText = 'checkbox question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-checkbox-question');
@@ -235,6 +241,8 @@ export class AdminQuestions {
     helpText = 'dropdown question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-dropdown-question');
@@ -260,6 +268,8 @@ export class AdminQuestions {
     helpText = 'fileupload question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-fileupload-question');
@@ -279,6 +289,8 @@ export class AdminQuestions {
     helpText = 'name question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-name-question');
@@ -298,6 +310,8 @@ export class AdminQuestions {
     helpText = 'number question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-number-question');
@@ -318,6 +332,8 @@ export class AdminQuestions {
     helpText = 'radio button question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-radio_button-question');
@@ -343,6 +359,8 @@ export class AdminQuestions {
     helpText = 'text question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-text-question');
@@ -362,6 +380,8 @@ export class AdminQuestions {
     helpText = 'email question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-email-question');
@@ -384,6 +404,8 @@ export class AdminQuestions {
     helpText = 'enumerator question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-enumerator-question');
