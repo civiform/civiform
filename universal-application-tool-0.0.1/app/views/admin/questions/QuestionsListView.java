@@ -280,7 +280,7 @@ public final class QuestionsListView extends BaseHtmlView {
       if (deletionStatus.equals(DeletionStatus.PENDING_DELETION)) {
         td.with(renderRestoreQuestionLink(active.get(), "Restore Archived →", request));
       } else if (deletionStatus.equals(DeletionStatus.DELETABLE)) {
-        td.with(renderDeleteQuestionLink(active.get(), "Archive →", request));
+        td.with(renderArchiveQuestionLink(active.get(), "Archive →", request));
       }
     }
     if (draft.isPresent()) {
@@ -313,12 +313,12 @@ public final class QuestionsListView extends BaseHtmlView {
         .asHiddenFormLink(request);
   }
 
-  private Tag renderDeleteQuestionLink(
+  private Tag renderArchiveQuestionLink(
       QuestionDefinition definition, String linkText, Http.Request request) {
     String link =
         controllers.admin.routes.AdminQuestionController.archive(definition.getId()).url();
     return new LinkElement()
-        .setId("delete-question-link-" + definition.getId())
+        .setId("archive-question-link-" + definition.getId())
         .setHref(link)
         .setText(linkText)
         .setStyles(Styles.MR_2)
