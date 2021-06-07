@@ -90,6 +90,12 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
     // Don't show "create an account" upsell box to TIs, or anyone with an email address already.
     if (Strings.isNullOrEmpty(account.getEmailAddress()) && account.getMemberOfGroup().isEmpty()) {
       content.with(createAccountBox);
+    } else {
+      content.with(
+          new LinkElement()
+              .setHref(redirectTo)
+              .setText(messages.at(MessageKey.LINK_RETURN_TO_DASH.getKeyName()))
+              .asAnchorText());
     }
 
     if (banner.isPresent()) {
