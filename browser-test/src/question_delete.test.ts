@@ -9,7 +9,7 @@ describe('deleting question lifecycle', () => {
     const adminQuestions = new AdminQuestions(page);
     const adminPrograms = new AdminPrograms(page);
     const programName = 'deleting program';
-    const questions = await adminQuestions.addAllNonSingleBlockQuestionTypes('qlc-');
+    const questions = await adminQuestions.addAllNonSingleBlockQuestionTypes('delete-');
     await adminPrograms.addProgram(programName);
     const onlyUsedQuestion = questions[0];
     await adminPrograms.editProgramBlock(programName, 'qlc program description', [onlyUsedQuestion]);
