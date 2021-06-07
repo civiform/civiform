@@ -56,6 +56,8 @@ public enum MessageKey {
   NUMBER_VALIDATION_TOO_SMALL("validation.numberTooSmall"),
   TEXT_VALIDATION_TOO_LONG("validation.textTooLong"),
   TEXT_VALIDATION_TOO_SHORT("validation.textTooShort"),
+  TITLE_APPLICATION_CONFIRMATION("title.applicationConfirmation"),
+  TITLE_CREATE_AN_ACCOUNT("title.createAnAccount"),
   TITLE_PROGRAMS("title.programs"),
   TOAST_APPLICATION_SAVED("toast.applicationSaved"),
   TOAST_LOCALE_NOT_SUPPORTED("toast.localeNotSupported"),

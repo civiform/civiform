@@ -53,6 +53,9 @@ public class VersionRepository {
       active.getPrograms().stream()
           .filter(
               activeProgram ->
+                  !draft.programIsTombstoned(activeProgram.getProgramDefinition().adminName()))
+          .filter(
+              activeProgram ->
                   draft.getPrograms().stream()
                       .noneMatch(
                           draftProgram ->
@@ -66,6 +69,9 @@ public class VersionRepository {
                 activeProgramNotInDraft.save();
               });
       active.getQuestions().stream()
+          .filter(
+              activeQuestion ->
+                  !draft.questionIsTombstoned(activeQuestion.getQuestionDefinition().getName()))
           .filter(
               activeQuestion ->
                   draft.getQuestions().stream()

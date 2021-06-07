@@ -23,6 +23,7 @@ import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.LinkElement;
+import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
@@ -126,7 +127,8 @@ public class ProgramIndexView extends BaseHtmlView {
             .withClasses(Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
             .withText(program.localizedName().getOrDefault(preferredLocale));
     ImmutableList<DomContent> descriptionContent =
-        createLinksAndEscapeText(program.localizedDescription().getOrDefault(preferredLocale));
+        TextFormatter.createLinksAndEscapeText(
+            program.localizedDescription().getOrDefault(preferredLocale));
     ContainerTag description =
         div()
             .withId(baseId + "-description")
@@ -157,7 +159,7 @@ public class ProgramIndexView extends BaseHtmlView {
             .with(title, description, externalLink);
 
     String applyUrl =
-        controllers.applicant.routes.ApplicantProgramsController.edit(applicantId, program.id())
+        controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id())
             .url();
     ContainerTag applyButton =
         a().attr(HREF, applyUrl)
