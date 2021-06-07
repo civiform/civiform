@@ -69,7 +69,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
                         Styles.FLEX_COL,
                         Styles.GAP_4,
                         StyleUtils.responsiveSmall(Styles.FLEX_ROW))
-                    // Empty div to push buttons to the right.
+                    // Empty div to push buttons to the right on desktop.
                     .with(div().withClasses(Styles.FLEX_GROW))
                     .with(
                         new LinkElement()
