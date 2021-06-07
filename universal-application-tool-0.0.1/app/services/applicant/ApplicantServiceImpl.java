@@ -220,9 +220,9 @@ public class ApplicantServiceImpl implements ApplicantService {
               String programName = application.getProgram().getProgramDefinition().adminName();
               notifyProgramAdmins(applicantId, programId, application.id, programName);
               if (submitterEmail.isPresent()) {
-                notifySubmitter(submitter.get(), applicantId, application.id, programName);
+                notifySubmitter(submitterEmail.get(), applicantId, application.id, programName);
               }
-              maybeNofityApplicant(applicantId, application.id, programName);
+              maybeNotifyApplicant(applicantId, application.id, programName);
               return CompletableFuture.completedFuture(application);
             },
             httpExecutionContext.current());
