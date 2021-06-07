@@ -20,6 +20,7 @@ import play.mvc.Result;
 import repository.ProgramRepository;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantUpsellCreateAccountView;
 
 public class RedirectController extends CiviFormController {

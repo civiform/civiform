@@ -82,6 +82,9 @@ public interface ApplicantService {
    */
   CompletionStage<ImmutableList<ProgramDefinition>> relevantPrograms(long applicantId);
 
-  /** Returns the name of the given applicant id. */
+  /** Return the name of the given applicant id. */
   CompletionStage<String> getName(long applicantId);
+
+  /** Return the email of the given applicant id. */
+  CompletionStage<String> getEmail(long applicantId);
 }
