@@ -29,26 +29,18 @@ import views.style.Styles;
  * <p>The following is currently supported:
  *
  * <ul>
- *   <li>Accordions
- *   <li>Bulleted lists
- *   <li.URL links
+ *   <li>Accordions (Headers start with "### " and following lines starting with ">" indicate
+ *       content)
+ *   <li>Bulleted lists (Lines starting with "* "")
+ *   <li>URL links
  * </ul>
  */
 public class TextFormatter {
   private static final Logger LOG = LoggerFactory.getLogger(TextFormatter.class);
 
-  private static ContainerTag buildAccordion(String title, String accordionContent) {
-    Accordion accordion = new Accordion().setTitle(title);
-    ImmutableList<DomContent> contentTags = TextFormatter.formatText(accordionContent, true);
-    contentTags.stream().forEach(tag -> accordion.addContent(tag));
-    return accordion.getContainer();
-  }
-
-  private static ContainerTag buildList(ArrayList<String> items) {
-    ContainerTag listTag = ul().withClasses(Styles.LIST_DISC, Styles.MX_8);
-    items.forEach(item -> listTag.with(li().withText(item)));
-    return listTag;
-  }
+  private static final String ACCORDION_CONTENT = ">";
+  private static final String ACCORDION_HEADER = "### ";
+  private static final String BULLETED_ITEM = "* ";
 
   public static ImmutableList<DomContent> createLinksAndEscapeText(String content) {
     List<Url> urls = new UrlDetector(content, UrlDetectorOptions.Default).detect();
@@ -87,23 +79,23 @@ public class TextFormatter {
     ImmutableList.Builder<DomContent> builder = new ImmutableList.Builder<DomContent>();
     for (int i = 0; i < lines.length; i++) {
       String line = lines[i].trim();
-      if (line.startsWith("###")) { // We're calling this an accordion.
+      if (line.startsWith(TextFormatter.ACCORDION_HEADER)) { // We're calling this an accordion.
         String accordionHeader = line.substring(3);
         int next = i + 1;
         ArrayList<String> content = new ArrayList<>();
-        while (next < lines.length && lines[next].startsWith(">")) {
+        while (next < lines.length && lines[next].startsWith(TextFormatter.ACCORDION_CONTENT)) {
           content.add(lines[next].substring(1));
           next++;
         }
         i = next - 1;
         String accordionContent = content.stream().collect(Collectors.joining("\n"));
         builder.add(buildAccordion(accordionHeader, accordionContent));
-      } else if (line.startsWith("*")) { // unordered list item.
+      } else if (line.startsWith(TextFormatter.BULLETED_ITEM)) { // unordered list item.
         ArrayList<String> items = new ArrayList<>();
-        items.add(line.substring(1));
+        items.add(line.substring(1).trim());
         int next = i + 1;
-        while (next < lines.length && lines[next].startsWith("*")) {
-          items.add(lines[next].substring(1));
+        while (next < lines.length && lines[next].startsWith(TextFormatter.BULLETED_ITEM)) {
+          items.add(lines[next].substring(1).trim());
           next++;
         }
         i = next - 1;
@@ -116,5 +108,18 @@ public class TextFormatter {
       }
     }
     return builder.build();
+  }
+
+  private static ContainerTag buildAccordion(String title, String accordionContent) {
+    Accordion accordion = new Accordion().setTitle(title);
+    ImmutableList<DomContent> contentTags = TextFormatter.formatText(accordionContent, true);
+    contentTags.stream().forEach(tag -> accordion.addContent(tag));
+    return accordion.getContainer();
+  }
+
+  private static ContainerTag buildList(ArrayList<String> items) {
+    ContainerTag listTag = ul().withClasses(Styles.LIST_DISC, Styles.MX_8);
+    items.forEach(item -> listTag.with(li().withText(item)));
+    return listTag;
   }
 }
