@@ -137,13 +137,19 @@ public class ProgramIndexView extends BaseHtmlView {
                 Styles.LINE_CLAMP_5)
             .with(descriptionContent);
 
+    String linkString = program.externalLink();
+    if (linkString.isEmpty()) {
+      linkString = routes.RedirectController.programByName(program.slug()).url();
+    }
+
     ContainerTag externalLink =
         new LinkElement()
             .setId(baseId + "-external-link")
             .setStyles(Styles.TEXT_XS, Styles.UNDERLINE)
             .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
-            .setHref(routes.RedirectController.programByName(program.slug()).url())
+            .setHref(linkString)
             .asAnchorText();
+
     ContainerTag programData =
         div()
             .withId(baseId + "-data")

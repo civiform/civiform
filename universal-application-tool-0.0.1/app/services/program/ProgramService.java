@@ -52,6 +52,7 @@ public interface ProgramService {
    * @param adminDescription a description of this program for use by admins
    * @param defaultDisplayName the name of this program to display to applicants
    * @param defaultDisplayDescription a description for this program to display to applicants
+   * @param externalLink A link to an external page containing additional program details
    * @return the {@link ProgramDefinition} that was created if succeeded, or a set of errors if
    *     failed
    */
@@ -59,7 +60,8 @@ public interface ProgramService {
       String adminName,
       String adminDescription,
       String defaultDisplayName,
-      String defaultDisplayDescription);
+      String defaultDisplayDescription,
+      String externalLink);
 
   /**
    * Update a program's mutable fields: admin description, display name and description for
@@ -71,6 +73,7 @@ public interface ProgramService {
    * @param adminDescription the description of this program - visible only to admins
    * @param displayName a name for this program
    * @param displayDescription the description of what the program provides
+   * @param externalLink A link to an external page containing additional program details
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
    *     failed
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
@@ -80,7 +83,8 @@ public interface ProgramService {
       Locale locale,
       String adminDescription,
       String displayName,
-      String displayDescription)
+      String displayDescription,
+      String externalLink)
       throws ProgramNotFoundException;
 
   /**
