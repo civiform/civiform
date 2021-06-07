@@ -66,10 +66,36 @@ export class AdminQuestions {
     expect(await this.page.innerText(this.selectQuestionTableRow(questionName))).toContain('New Version');
   }
 
+  async expectActiveQuestionNotExist(questionName: string) {
+    await this.gotoAdminQuestionsPage();
+    const tableInnerText = await this.page.innerText('table');
+
+    expect(tableInnerText).not.toContain(questionName);
+  }
+
+
   async gotoQuestionEditPage(questionName: string) {
     await this.gotoAdminQuestionsPage();
     await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("Edit")'));
     await this.expectQuestionEditPage(questionName);
+  }
+
+  async undeleteQuestion(questionName: string) {
+    await this.gotoAdminQuestionsPage();
+    await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("Restore")'));
+    await this.expectAdminQuestionsPage();
+  }
+
+  async discardDraft(questionName: string) {
+    await this.gotoAdminQuestionsPage();
+    await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("Discard Draft")'));
+    await this.expectAdminQuestionsPage();
+  }
+
+  async archiveQuestion(questionName: string) {
+    await this.gotoAdminQuestionsPage();
+    await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("Archive")'));
+    await this.expectAdminQuestionsPage();
   }
 
   async goToQuestionTranslationPage(questionName: string) {
