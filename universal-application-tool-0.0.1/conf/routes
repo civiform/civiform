@@ -95,14 +95,13 @@ GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit       
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/review                    controllers.applicant.ApplicantProgramBlocksController.review(request: Request, applicantId: Long, programId: Long, blockId: String)
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/updateFile/:inReview      controllers.applicant.ApplicantProgramBlocksController.updateFile(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview                 controllers.applicant.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
-GET     /applicants/:applicantId/programs/:programId/applications/:applicationId/confirmation  controllers.applicant.ApplicantProgramReviewController.confirmation(request: Request, applicantId: Long, programId: Long, applicationId: Long)
 
 # Methods for program admins
 GET     /programAdmin       controllers.admin.ProgramAdminController.index(request: Request)
 
 # Deep-link methods
 GET     /programs/:programName      controllers.applicant.RedirectController.programByName(request: Request, programName: String)
-GET     /considerSignIn             controllers.applicant.RedirectController.considerRegister(request: Request, redirectTo: String)
+GET     /considerSignIn             controllers.applicant.RedirectController.considerRegister(request: Request, applicantId: Long, programId: Long, applicationId: Long, redirectTo: String)
 
 # User profile pages
 GET     /users/me                    controllers.ProfileController.myProfile(request: Request)

@@ -22,7 +22,6 @@ import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramNotFoundException;
-import views.applicant.ApplicantProgramConfirmationView;
 import views.applicant.ApplicantProgramSummaryView;
 
 /**
@@ -38,7 +37,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final ApplicantProgramSummaryView summaryView;
   private final ProfileUtils profileUtils;
-  private final ApplicantProgramConfirmationView confirmationView;
 
   @Inject
   public ApplicantProgramReviewController(
@@ -46,20 +44,18 @@ public class ApplicantProgramReviewController extends CiviFormController {
       HttpExecutionContext httpExecutionContext,
       MessagesApi messagesApi,
       ApplicantProgramSummaryView summaryView,
-      ApplicantProgramConfirmationView applicantProgramConfirmationView,
       ProfileUtils profileUtils) {
     this.applicantService = checkNotNull(applicantService);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.messagesApi = checkNotNull(messagesApi);
     this.summaryView = checkNotNull(summaryView);
     this.profileUtils = checkNotNull(profileUtils);
-    this.confirmationView = checkNotNull(applicantProgramConfirmationView);
   }
 
   @Secure
   public CompletionStage<Result> review(Request request, long applicantId, long programId) {
     Optional<String> banner = request.flash().get("banner");
-    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+    CompletionStage<String> applicantStage = applicantService.getName(applicantId);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
@@ -110,51 +106,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   public CompletionStage<Result> submit(Request request, long applicantId, long programId) {
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
-            v -> {
-              return submitInternal(request, applicantId, programId);
-            },
-            httpExecutionContext.current())
-        .exceptionally(
-            ex -> {
-              if (ex instanceof CompletionException) {
-                Throwable cause = ex.getCause();
-                if (cause instanceof SecurityException) {
-                  return unauthorized();
-                }
-                if (cause instanceof ProgramNotFoundException) {
-                  return notFound(cause.toString());
-                }
-                throw new RuntimeException(cause);
-              }
-              throw new RuntimeException(ex);
-            });
-  }
-
-  @Secure
-  public CompletionStage<Result> confirmation(
-      Request request, long applicantId, long programId, long applicationId) {
-    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
-
-    return applicantStage
-        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
-        .thenComposeAsync(
-            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
-            httpExecutionContext.current())
-        .thenApplyAsync(
-            (roApplicantProgramService) -> {
-              String programTitle = roApplicantProgramService.getProgramTitle();
-              Optional<String> banner = request.flash().get("banner");
-              return ok(
-                  confirmationView.render(
-                      request,
-                      applicantId,
-                      applicantStage.toCompletableFuture().join(),
-                      applicationId,
-                      programTitle,
-                      messagesApi.preferred(request),
-                      banner));
-            },
-            httpExecutionContext.current())
+            v -> submitInternal(request, applicantId, programId), httpExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -183,9 +135,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
               Long applicationId = application.id;
               Call endOfProgramSubmission =
                   routes.RedirectController.considerRegister(
-                      routes.ApplicantProgramReviewController.confirmation(
-                              applicantId, programId, applicationId)
-                          .url());
+                      applicantId,
+                      programId,
+                      applicationId,
+                      routes.ApplicantProgramsController.index(applicantId).url());
               return found(endOfProgramSubmission);
             },
             httpExecutionContext.current())
