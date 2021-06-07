@@ -103,6 +103,9 @@ public class RedirectController extends CiviFormController {
                 if (cause instanceof SecurityException) {
                   return unauthorized();
                 }
+                if (cause instanceof ProgramNotFoundException) {
+                  return notFound(cause.toString());
+                }
               }
               throw new RuntimeException(ex);
             });

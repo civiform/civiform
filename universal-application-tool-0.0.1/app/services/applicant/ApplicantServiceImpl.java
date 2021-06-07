@@ -40,6 +40,8 @@ public class ApplicantServiceImpl implements ApplicantService {
 
   private static final String STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST =
       "seattle-civiform-program-admins-notify@google.com";
+  private static final String STAGING_TI_NOTIFICATION_MAILING_LIST =
+      "seattle-civiform-trusted-intermediaries-notify@google.com";
 
   private final ApplicationRepository applicationRepository;
   private final UserRepository userRepository;
@@ -214,6 +216,9 @@ public class ApplicantServiceImpl implements ApplicantService {
               Application application = applicationMaybe.get();
               String programName = application.getProgram().getProgramDefinition().adminName();
               notifyProgramAdmins(applicantId, programId, application.id, programName);
+              if (submitterEmail.isPresent()) {
+                notifySubmitter(submitter.get(), applicantId, application.id, programName);
+              }
               return CompletableFuture.completedFuture(application);
             },
             httpExecutionContext.current());
@@ -240,6 +245,30 @@ public class ApplicantServiceImpl implements ApplicantService {
     } else {
       amazonSESClient.send(
           programService.getNotificationEmailAddresses(programName), subject, message);
+    }
+  }
+
+  private void notifySubmitter(
+      String submitter, long applicantId, long applicationId, String programName) {
+    String tiDashLink =
+        baseUrl
+            + controllers.ti.routes.TrustedIntermediaryController.dashboard(
+                    Optional.empty(), Optional.empty())
+                .url();
+    String subject =
+        String.format(
+            "You submitted an application for program %s on behave of applicant %d",
+            programName, applicantId);
+    String message =
+        String.format(
+            "The application to program %s as applicant %d has been received, and the application"
+                + " ID is %d.\n"
+                + "Manage your clients at %s.",
+            programName, applicantId, applicationId, tiDashLink);
+    if (isStaging) {
+      amazonSESClient.send(STAGING_TI_NOTIFICATION_MAILING_LIST, subject, message);
+    } else {
+      amazonSESClient.send(submitter, subject, message);
     }
   }
 
