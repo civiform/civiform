@@ -84,7 +84,7 @@ export class ApplicantQuestions {
     await this.page.click('text="Submit"');
 
     if (this.page.url().match(/considerSignIn\?.*redirectTo=/)) {
-      await this.page.click('text="Not right now"');
+      await this.page.click('text="Apply to another program"');
     } else {
       await this.page.click('text="Return to all programs"');
     }
