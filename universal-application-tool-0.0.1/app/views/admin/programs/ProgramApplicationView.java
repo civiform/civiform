@@ -78,7 +78,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .setText("Download (PDF)")
         .asButton()
         // TODO: when the download link works, un-hide.
-        .isHidden();
+        .withClasses(Styles.HIDDEN);
   }
 
   private Tag renderApplicationBlock(long programId, Block block, Collection<AnswerData> answers) {
