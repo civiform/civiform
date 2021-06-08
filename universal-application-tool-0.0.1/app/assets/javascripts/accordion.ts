@@ -11,11 +11,8 @@ class AccordionController {
   }
 
   private init() {
-    const buttons =
-      Array.from(document.querySelectorAll(AccordionController.accordionButtonSelector));
-    const headers =
+    const items =
       Array.from(document.querySelectorAll(AccordionController.accordionHeaderSelector));
-    const items = buttons.concat(headers);
 
     items.forEach(
       (item) => {

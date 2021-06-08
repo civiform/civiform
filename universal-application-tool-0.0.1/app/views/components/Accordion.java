@@ -36,10 +36,9 @@ public class Accordion {
                 Styles.BORDER,
                 Styles.BORDER_GRAY_300);
 
-    ContainerTag titleContainer = div().withClasses(Styles.RELATIVE);
-    ContainerTag titleDiv =
-        div(this.title)
-            .withClasses(ReferenceClasses.ACCORDION_HEADER, Styles.TEXT_XL, Styles.FONT_LIGHT);
+    ContainerTag titleContainer =
+        div().withClasses(ReferenceClasses.ACCORDION_HEADER, Styles.RELATIVE);
+    ContainerTag titleDiv = div(this.title).withClasses(Styles.TEXT_XL, Styles.FONT_LIGHT);
 
     ContainerTag accordionSvg =
         Icons.svg(Icons.ACCORDION_BUTTON_PATH, 24)
