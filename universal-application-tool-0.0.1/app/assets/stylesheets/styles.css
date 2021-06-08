@@ -23,4 +23,12 @@
   button:hover {
     @apply bg-blue-700;
   }
+
+  .cf-accordion-visible > .cf-accordion-header > .cf-accordion-button {
+    @apply rotate-180;
+  }
+
+  .cf-accordion-visible > .cf-accordion-content {
+    @apply h-auto mt-2 mb-1;
+  }
 }
