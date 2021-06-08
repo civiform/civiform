@@ -114,9 +114,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 if (cause instanceof SecurityException) {
                   return unauthorized();
                 }
-                if (cause instanceof ProgramNotFoundException) {
-                  return notFound(cause.toString());
-                }
                 throw new RuntimeException(cause);
               }
               throw new RuntimeException(ex);

@@ -20,6 +20,7 @@ import play.mvc.Result;
 import repository.ProgramRepository;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantUpsellCreateAccountView;
 
 public class RedirectController extends CiviFormController {
@@ -102,6 +103,9 @@ public class RedirectController extends CiviFormController {
                 Throwable cause = ex.getCause();
                 if (cause instanceof SecurityException) {
                   return unauthorized();
+                }
+                if (cause instanceof ProgramNotFoundException) {
+                  return notFound(cause.toString());
                 }
               }
               throw new RuntimeException(ex);
