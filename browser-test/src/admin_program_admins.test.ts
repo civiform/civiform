@@ -13,9 +13,10 @@ describe('manage program admins', () => {
     // Add two program admins and save
     await adminPrograms.gotoManageProgramAdminsPage(programName);
     await page.click('#add-program-admin-button');
-    await page.fill('input:above(#add-program-admin-button)', 'test@test.com');
+    var lastProgramAdminEmailInput = '#program-admin-emails div.flex-row:last-of-type input';
+    await page.fill(lastProgramAdminEmailInput, 'test@test.com');
     await page.click('#add-program-admin-button');
-    await page.fill('input:above(#add-program-admin-button)', 'other@test.com');
+    await page.fill(lastProgramAdminEmailInput, 'other@test.com');
     await page.click('text=Save');
 
     // Go to manage program admins again
@@ -23,29 +24,30 @@ describe('manage program admins', () => {
     await adminPrograms.gotoManageProgramAdminsPage(programName);
 
     // Assert that the two emails we added are present.
-    // Use input:visible to get the first visible input, since the template is hidden.
-    expect(await page.getAttribute('#program-admin-emails input:visible', 'value')).toContain('test@test.com');
-    expect(await page.getAttribute('input:above(#add-program-admin-button)', 'value')).toContain('other@test.com');
+    var firstProgramAdminEmailInput = '#program-admin-emails div.flex-row:first-of-type input';
+    expect(await page.getAttribute(firstProgramAdminEmailInput, 'value')).toContain('test@test.com');
+    expect(await page.getAttribute(lastProgramAdminEmailInput, 'value')).toContain('other@test.com');
 
     // Add another program admin
     await page.click('#add-program-admin-button');
-    await page.fill('input:above(#add-program-admin-button)', 'newperson@test.com');
+    await page.fill(lastProgramAdminEmailInput, 'newperson@test.com');
 
     // Remove the one we just added
-    await page.click('button:above(#add-program-admin-button)');
-    const visibleInputs = await page.$$('input:visible');
-    expect(visibleInputs.length).toBe(2);
+    var removeLastProgramAdminEmailButton = '#program-admin-emails div.flex-row:last-of-type button';
+    await page.click(removeLastProgramAdminEmailButton);
+    const programAdminEmailInputs = await page.$$('#program-admin-emails input');
+    expect(programAdminEmailInputs.length).toBe(2);
 
     // Remove an old one and add a new one, then submit.
-    await page.click('button:above(#add-program-admin-button)'); // Remove
+    await page.click(removeLastProgramAdminEmailButton);
     await page.click('#add-program-admin-button');
-    await page.fill('input:above(#add-program-admin-button)', 'new@test.com');
+    await page.fill(lastProgramAdminEmailInput, 'new@test.com');
     await page.click('text=Save');
 
     // Go back and check that there are exactly two - test and new.
     await adminPrograms.gotoManageProgramAdminsPage(programName);
-    expect(await page.getAttribute('#program-admin-emails input:visible', 'value')).toContain('test@test.com');
-    expect(await page.getAttribute('input:above(#add-program-admin-button)', 'value')).toContain('new@test.com');
+    expect(await page.getAttribute(firstProgramAdminEmailInput, 'value')).toContain('test@test.com');
+    expect(await page.getAttribute(lastProgramAdminEmailInput, 'value')).toContain('new@test.com');
 
     await endSession(browser);
   });

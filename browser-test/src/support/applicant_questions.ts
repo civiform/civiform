@@ -56,12 +56,12 @@ export class ApplicantQuestions {
   }
 
   async answerEmailQuestion(email: string) {
-      await this.page.fill('input[type="email"]', email);
-    }
+    await this.page.fill('input[type="email"]', email);
+  }
 
   async addEnumeratorAnswer(entityName: string) {
     await this.page.click('button:text("add entity")');
-    await this.page.fill('input:above(#enumerator-field-add-button)', entityName)
+    await this.page.fill('#enumerator-fields .cf-enumerator-field:last-of-type input', entityName)
   }
 
   async applyProgram(programName: string) {
@@ -81,19 +81,20 @@ export class ApplicantQuestions {
   }
 
   async submitFromReviewPage(programName: string) {
-    // assert that we're on the review page.
+    // Assert that we're on the review page.
     expect(await this.page.innerText('h1')).toContain('Application summary');
 
-    // click on submit button.
+    // Click on submit button.
     await this.page.click('text="Submit"');
-    const pleaseLogInPageRegex = /considerSignIn\?redirectTo=/;
-    const maybePleaseLogInPage = await this.page.url();
-    if (maybePleaseLogInPage.match(pleaseLogInPageRegex)) {
+
+    if (this.page.url().match(/considerSignIn\?.*redirectTo=/)) {
       await this.page.click('text="Not right now"');
+    } else {
+      await this.page.click('text="Return to all programs"');
     }
 
     // Ensure that we redirected to the programs list page.
-    expect(await this.page.url().split('/').pop()).toEqual('confirmation');
+    expect(await this.page.url().split('/').pop()).toEqual('programs');
 
     // And grab the toast message to verify that the app was submitted.
   }

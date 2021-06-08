@@ -1,0 +1,61 @@
+#! /bin/bash
+
+pushd $(git rev-parse --show-toplevel) > /dev/null
+
+set +x
+
+Help()
+{
+
+# Without any arguments, this will run all browser tests once and
+# if it fails the outputs are saved at /flakes/$COMMIT.
+#
+# Arguments:
+#  -
+  echo "Run browser tests and save outputs of failed runs at /flakes/<current commit hash>."
+  echo
+  echo "Syntax: find-flakey-browser-tests [-h] [-n <num runs>] [-t <test name>]"
+  echo
+  echo "Example to see if question lifecycle test is flakey:"
+  echo "    find-flakey-browser-tests -n 10 -t question_lifecycle.test.ts"
+  echo
+  echo "options:"
+  echo "  h      print help text"
+  echo "  n      the number of test runs. Defaults to 1."
+  echo "  t      specify a single test to check for flakiness. Defaults to running all tests."
+  echo
+}
+
+NUMRUNS=1
+TS_TEST=""
+while getopts n:t:h flag; do
+  case "${flag}" in
+    n) NUMRUNS=${OPTARG}
+      ;;
+    t) TS_TEST=${OPTARG}
+      ;;
+    h) Help
+      exit;;
+  esac
+done
+shift "$(( OPTIND - 1 ))"
+
+COMMIT=$(git rev-parse HEAD)
+FLAKESDIR="flakes/$COMMIT"
+mkdir -p $FLAKESDIR
+
+echo "Finding flakes for commit $COMMIT"
+for i in $( seq 1 $NUMRUNS )
+do
+  printf "Starting browser test run #$i..."
+  bin/run-browser-tests ${TS_TEST} > $FLAKESDIR/tmp 2>&1
+  if [ $? -eq 0 ]; then
+    printf "PASS\n"
+  else
+    TIMESTAMP=$(date +%s)
+    printf "FAIL at timestamp $TIMESTAMP\n"
+    mv $FLAKESDIR/tmp $FLAKESDIR/$TIMESTAMP
+  fi
+done
+
+popd > /dev/null
