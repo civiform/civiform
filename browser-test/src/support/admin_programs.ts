@@ -25,7 +25,7 @@ export class AdminPrograms {
     expect(tableInnerText).toContain(description);
   }
 
-  async addProgram(programName: string, description = 'program description') {
+  async addProgram(programName: string, description = 'program description', externalLink = '') {
     await this.gotoAdminProgramsPage();
     await this.page.click('#new-program-button');
 
@@ -33,6 +33,10 @@ export class AdminPrograms {
     await this.page.fill('#program-description-textarea', description);
     await this.page.fill('#program-display-name-input', programName);
     await this.page.fill('#program-display-description-textarea', description);
+
+    if (externalLink !== '') {
+      await this.page.fill('#program-external-link-input', externalLink);
+    }
 
     await this.page.click('#program-update-button');
 

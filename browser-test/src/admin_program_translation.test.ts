@@ -50,7 +50,7 @@ describe('Admin can manage translations', () => {
     // Add the question to a program and publish
     const adminPrograms = new AdminPrograms(page);
     const programName = 'spanish question';
-    await adminPrograms.addProgram(programName);
+    await adminPrograms.addProgram(programName, "program description", "http://seattle.gov");
     await adminPrograms.editProgramBlock(programName, 'block', [questionName]);
     await adminPrograms.publishProgram(programName);
     await logout(page);
@@ -60,6 +60,10 @@ describe('Admin can manage translations', () => {
     await selectApplicantLanguage(page, 'Español');
     const applicantQuestions = new ApplicantQuestions(page);
     await applicantQuestions.validateHeader('es-US');
+
+    
+    // Expect program details link to contain 'Program Details' with link to 'http://seattle.gov'
+    expect(await this.page('.cf-application-card a[href="http://seattle.gov]')).toContain('Program Details');
 
     await applicantQuestions.applyProgram(programName);
 
