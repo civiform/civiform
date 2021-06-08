@@ -24,6 +24,7 @@ import services.question.types.EnumeratorQuestionDefinition;
 
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
 
+  /** Note that even though {@link ApplicantData} is mutable, we can consider it immutable at this point since there is no shared state between requests. This means that we can memoize attributes based on ApplicantData without concern that the data will change. */
   private final ApplicantData applicantData;
   private final ProgramDefinition programDefinition;
   private ImmutableList<Block> allBlockList;
@@ -208,8 +209,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return blockListBuilder.build();
   }
 
-  // TODO(cdanzi): Change to private when this method is used.
-  protected boolean showBlock(Block block) {
+  private boolean showBlock(Block block) {
     if (block.getVisibilityPredicate().isEmpty()) {
       // Default to show
       return true;

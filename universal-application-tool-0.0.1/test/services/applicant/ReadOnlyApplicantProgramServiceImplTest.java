@@ -582,16 +582,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   @Test
-  public void showBlock_returnsTrueForBlockWithoutPredicate() {
-    ProgramDefinition program = ProgramBuilder.newActiveProgram().withBlock().buildDefinition();
-    ReadOnlyApplicantProgramServiceImpl service =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, program);
-
-    assertThat(service.showBlock(service.getAllBlocks().get(0))).isTrue();
-  }
-
-  @Test
-  public void showBlock_showBlockAction() {
+  public void getInProgressBlocks_handlesBlockWithShowBlockActionPredicate() {
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -603,26 +594,29 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             PredicateAction.SHOW_BLOCK);
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram()
-            .withBlock()
+            .withBlock() // Previous block with color question
             .withQuestionDefinition(colorQuestion)
-            .withBlock()
+            .withBlock() // Block with predicate
             .withPredicate(predicate)
+            .withQuestionDefinition(addressQuestion) // Include a question that has not been answered
             .buildDefinition();
+
+    System.out.println(program.blockDefinitions());
 
     // Answer "blue" to the question - the predicate is true, so we should show the block.
     answerColorQuestion(program.id(), "blue");
-    ReadOnlyApplicantProgramServiceImpl service =
+    ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, program);
-    assertThat(service.showBlock(service.getAllBlocks().get(1))).isTrue();
+    assertThat(service.getInProgressBlocks()).hasSize(2);
 
     // Answer "green" to the question - the predicate is now false, so we should not show the block.
     answerColorQuestion(program.id(), "green");
     service = new ReadOnlyApplicantProgramServiceImpl(applicantData, program);
-    assertThat(service.showBlock(service.getAllBlocks().get(1))).isFalse();
+    assertThat(service.getInProgressBlocks()).hasSize(1);
   }
 
   @Test
-  public void showBlock_hideBlockAction() {
+  public void getInProgressBlocks_handlesBlockWithHideBlockActionPredicate() {
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -638,18 +632,19 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             .withQuestionDefinition(colorQuestion)
             .withBlock()
             .withPredicate(predicate)
+            .withQuestionDefinition(addressQuestion) // Include an unanswered question so the block is incomplete
             .buildDefinition();
 
     // Answer "blue" to the question - the predicate is true, so we should hide the block.
     answerColorQuestion(program.id(), "blue");
     ReadOnlyApplicantProgramServiceImpl service =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, program);
-    assertThat(service.showBlock(service.getAllBlocks().get(1))).isFalse();
+    assertThat(service.getInProgressBlocks()).hasSize(1);
 
     // Answer "green" to the question - the predicate is now false, so we should show the block.
     answerColorQuestion(program.id(), "green");
     service = new ReadOnlyApplicantProgramServiceImpl(applicantData, program);
-    assertThat(service.showBlock(service.getAllBlocks().get(1))).isTrue();
+    assertThat(service.getInProgressBlocks()).hasSize(2);
   }
 
   private void answerNameQuestion(long programId) {
