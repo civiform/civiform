@@ -49,7 +49,7 @@ public class RedirectController extends CiviFormController {
   }
 
   @Secure
-  public CompletableFuture<Result> programByName(Http.Request request, String programName) {
+  public CompletionStage<Result> programByName(Http.Request request, String programName) {
     Optional<UatProfile> profile = profileUtils.currentUserProfile(request);
     if (profile.isEmpty()) {
       return CompletableFuture.completedFuture(
@@ -58,7 +58,7 @@ public class RedirectController extends CiviFormController {
     CompletableFuture<Applicant> applicant = profile.get().getApplicant();
     CompletableFuture<Program> program = programRepository.getForSlug(programName);
     return CompletableFuture.allOf(applicant, program)
-        .thenApply(
+        .thenApplyAsync(
             empty -> {
               if (applicant.isCompletedExceptionally()) {
                 return notFound();
@@ -68,11 +68,12 @@ public class RedirectController extends CiviFormController {
               return redirect(
                   controllers.applicant.routes.ApplicantProgramsController.edit(
                       applicant.join().id, program.join().id));
-            });
+            },
+            httpContext.current());
   }
 
   @Secure
-  public CompletableFuture<Result> considerRegister(
+  public CompletionStage<Result> considerRegister(
       Http.Request request,
       long applicantId,
       long programId,
