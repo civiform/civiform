@@ -11,7 +11,7 @@ public interface ReadOnlyApplicantProgramService {
   /**
    * Get the {@link Block}s for this program and applicant. This includes all blocks, whether the
    * block was filled out in this program or a previous program. This also includes blocks that may
-   * not be shown to the applicant (i.e. they have a show/hide predicate).
+   * be hidden from the applicant (i.e. they have a show/hide predicate).
    */
   ImmutableList<Block> getAllBlocks();
 
@@ -19,8 +19,10 @@ public interface ReadOnlyApplicantProgramService {
    * Get the {@link Block}s this applicant needs to fill out or has filled out for this program.
    *
    * <p>This list includes any block that is incomplete or has errors (which indicate the applicant
-   * needs to make a correction), any block that was completed while filling out this program form,
-   * and any block that was optionally shown to the applicant.
+   * needs to make a correction), or any block that was completed while filling out this program
+   * form. If a block has a show/hide predicate that depends on a question that has not been
+   * answered yet (i.e. we cannot determine whether the predicate is true or false), it is included
+   * in this list.
    *
    * <p>This list does not include blocks that were completely filled out in a different program.
    *
