@@ -56,8 +56,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       currentBlockList =
           getBlocks(
               block ->
-                  !block.isCompleteWithoutErrors()
-                      || block.wasCompletedInProgram(programDefinition.id()));
+                  (!block.isCompleteWithoutErrors()
+                          || block.wasCompletedInProgram(programDefinition.id()))
+                      && showBlock(block));
     }
     return currentBlockList;
   }
