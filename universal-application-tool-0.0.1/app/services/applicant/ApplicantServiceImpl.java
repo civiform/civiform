@@ -261,7 +261,7 @@ public class ApplicantServiceImpl implements ApplicantService {
                 .url();
     String subject =
         String.format(
-            "You submitted an application for program %s on behave of applicant %d",
+            "You submitted an application for program %s on behalf of applicant %d",
             programName, applicantId);
     String message =
         String.format(
