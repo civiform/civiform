@@ -64,6 +64,13 @@ public class ResourceCreator {
     return account;
   }
 
+  public Account insertAccountWithEmail(String email) {
+    Account account = new Account();
+    account.setEmailAddress(email);
+    account.save();
+    return account;
+  }
+
   public TrustedIntermediaryGroup insertTrustedIntermediaryGroup() {
     return insertTrustedIntermediaryGroup("");
   }
