@@ -598,7 +598,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             .withQuestionDefinition(colorQuestion)
             .withBlock() // Block with predicate
             .withPredicate(predicate)
-            .withQuestionDefinition(addressQuestion) // Include a question that has not been answered
+            .withQuestionDefinition(
+                addressQuestion) // Include a question that has not been answered
             .buildDefinition();
 
     System.out.println(program.blockDefinitions());
@@ -632,7 +633,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             .withQuestionDefinition(colorQuestion)
             .withBlock()
             .withPredicate(predicate)
-            .withQuestionDefinition(addressQuestion) // Include an unanswered question so the block is incomplete
+            .withQuestionDefinition(
+                addressQuestion) // Include an unanswered question so the block is incomplete
             .buildDefinition();
 
     // Answer "blue" to the question - the predicate is true, so we should hide the block.
@@ -645,6 +647,38 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     answerColorQuestion(program.id(), "green");
     service = new ReadOnlyApplicantProgramServiceImpl(applicantData, program);
     assertThat(service.getInProgressBlocks()).hasSize(2);
+  }
+
+  @Test
+  public void getInProgressBlocks_predicateAnswerUndefined_includesBlockInList() {
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    colorQuestion.getId(),
+                    Scalar.TEXT,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("blue"))),
+            PredicateAction.HIDE_BLOCK);
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock() // Block is completed
+            .withQuestionDefinition(nameQuestion)
+            .withBlock() // Block incomplete; this is what predicate is based on
+            .withQuestionDefinition(colorQuestion)
+            .withBlock()
+            .withPredicate(predicate)
+            .withQuestionDefinition(
+                addressQuestion) // Include an unanswered question so the block is incomplete
+            .buildDefinition();
+
+    // The color question is not answered yet - we should default to show the block that uses the
+    // color
+    // question in a predicate.
+    answerNameQuestion(program.id());
+    ReadOnlyApplicantProgramServiceImpl service =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, program);
+    assertThat(service.getInProgressBlocks()).hasSize(3);
   }
 
   private void answerNameQuestion(long programId) {
